@@ -1,0 +1,390 @@
+Chart system route file: Kalundborg Helsingborg.rou
+ROUTE HEADER INFORMATION:
+Route name: Kalundborg Helsingborg
+Route date: 09/28/2010
+Route time: 05:07:52(-02)
+Is selected: 0
+Is active: 16
+SOG default: 7.900000e+000
+Leg type: 1
+Draw turn radius: 0
+Lock flag: 1
+Draw range / bearing flag: 1;N/A
+Route length: 9.054084e+001;N/A;N/A
+Number of waypoints: 16
+
+WAYPOINT: 0
+Name: Kalundborg
+Type: 0
+Activate: 0
+Latitude: 5.56667028e+001
+Longitude: 1.10926929e+001
+Reserve: 1.000000e+000
+Turn radius: 3.000000e-001
+Range to: 0.000000e+000
+Bearing to: 0.000000e+000
+Range away: 3.543472e-002
+Bearing away: 3.082479e+002
+SOG: 9.265359e+000
+TTG: 0.000000e+000
+ETA: N/A
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 1
+Name: WP_002
+Type: 0
+Activate: 0
+Latitude: 5.56670677e+001
+Longitude: 1.10918739e+001
+Reserve: 1.000000e+000
+Turn radius: 3.000000e-001
+Range to: 0.000000e+000
+Bearing to: 0.000000e+000
+Range away: 7.240447e-001
+Bearing away: 2.707269e+002
+SOG: 9.265359e+000
+TTG: 0.000000e+000
+ETA: N/A
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 2.949255e+001 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 2
+Name: WP_003
+Type: 0
+Activate: 0
+Latitude: 5.56672205e+001
+Longitude: 1.10705665e+001
+Reserve: 1.000000e+000
+Turn radius: 3.000000e-001
+Range to: 0.000000e+000
+Bearing to: 0.000000e+000
+Range away: 9.598142e-001
+Bearing away: 2.861485e+002
+SOG: 9.265359e+000
+TTG: 0.000000e+000
+ETA: N/A
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 2.949255e+001 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 3
+Name: Plt Kalundborg
+Type: 0
+Activate: 0
+Latitude: 5.56716611e+001
+Longitude: 1.10434315e+001
+Reserve: 1.000000e+000
+Turn radius: 3.000000e-001
+Range to: 0.000000e+000
+Bearing to: 0.000000e+000
+Range away: 8.339031e+000
+Bearing away: 2.966848e+002
+SOG: 9.265359e+000
+TTG: 0.000000e+000
+ETA: N/A
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 2.949255e+001 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 4
+Name: Rosnaes Pt
+Type: 0
+Activate: 0
+Latitude: 5.57339552e+001
+Longitude: 1.08239484e+001
+Reserve: 1.000000e+000
+Turn radius: 3.000000e-001
+Range to: 0.000000e+000
+Bearing to: 0.000000e+000
+Range away: 1.615791e+000
+Bearing away: 4.987707e+000
+SOG: 9.265359e+000
+TTG: 0.000000e+000
+ETA: N/A
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 2.949255e+001 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 5
+Name: Ltb 20
+Type: 0
+Activate: 0
+Latitude: 5.57607309e+001
+Longitude: 1.08280913e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 2.412388e-001
+Bearing to: 5.979185e+000
+Range away: 9.503623e+000
+Bearing away: 3.693608e+001
+SOG: 9.265359e+000
+TTG: 2.805102e-002
+ETA: 09/28 05:09:32(-02)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 1.769553e+001 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 6
+Name: Sejeroe
+Type: 0
+Activate: 1
+Latitude: 5.58870882e+001
+Longitude: 1.09968438e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 9.503623e+000
+Bearing to: 3.693608e+001
+Range away: 1.482932e+001
+Bearing away: 2.690153e+001
+SOG: 9.265359e+000
+TTG: 1.025716e+000
+ETA: 09/28 06:11:04(-02)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.769553e+001 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 7
+Name: Sjaellands
+Type: 0
+Activate: 0
+Latitude: 5.61070601e+001
+Longitude: 1.11959928e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 1.482932e+001
+Bearing to: 2.690153e+001
+Range away: 3.750846e+001
+Bearing away: 8.519538e+001
+SOG: 9.265359e+000
+TTG: 1.600512e+000
+ETA: 09/28 07:47:05(-02)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.769553e+001 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 8
+Name: Gilleleje
+Type: 0
+Activate: 0
+Latitude: 5.61593157e+001
+Longitude: 1.23092803e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 3.750846e+001
+Bearing to: 8.519538e+001
+Range away: 7.381760e+000
+Bearing away: 1.108348e+002
+SOG: 9.265359e+000
+TTG: 4.048247e+000
+ETA: 09/28 11:49:58(-02)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.769553e+001 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 9
+Name: M1
+Type: 0
+Activate: 0
+Latitude: 5.61156451e+001
+Longitude: 1.25147962e+001
+Reserve: 1.000000e+000
+Turn radius: 3.000000e-001
+Range to: 7.381760e+000
+Bearing to: 1.108348e+002
+Range away: 3.844972e+000
+Bearing away: 1.307004e+002
+SOG: 9.265359e+000
+TTG: 7.967053e-001
+ETA: 09/28 12:37:46(-02)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 2.949255e+001 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 10
+Name: Plt Helsingborg
+Type: 0
+Activate: 0
+Latitude: 5.60739401e+001
+Longitude: 1.26015346e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 3.844972e+000
+Bearing to: 1.307004e+002
+Range away: 2.025902e+000
+Bearing away: 1.306711e+002
+SOG: 9.265359e+000
+TTG: 4.149836e-001
+ETA: 09/28 13:02:39(-02)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.769553e+001 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 11
+Name: M 4
+Type: 0
+Activate: 0
+Latitude: 5.60519788e+001
+Longitude: 1.26472191e+001
+Reserve: 1.000000e+000
+Turn radius: 3.000000e-001
+Range to: 2.025902e+000
+Bearing to: 1.306711e+002
+Range away: 2.097548e+000
+Bearing away: 1.651276e+002
+SOG: 9.265359e+000
+TTG: 2.186533e-001
+ETA: 09/28 13:15:46(-02)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 2.949255e+001 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 12
+Name: M5
+Type: 0
+Activate: 0
+Latitude: 5.60182581e+001
+Longitude: 1.26632142e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 2.097548e+000
+Bearing to: 1.651276e+002
+Range away: 9.505634e-001
+Bearing away: 9.928769e+001
+SOG: 9.265359e+000
+TTG: 2.263861e-001
+ETA: 09/28 13:29:20(-02)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.769553e+001 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 13
+Name: Appr.Bk/w
+Type: 0
+Activate: 0
+Latitude: 5.60157063e+001
+Longitude: 1.26910722e+001
+Reserve: 1.000000e+000
+Turn radius: 3.000000e-001
+Range to: 9.505634e-001
+Bearing to: 9.928769e+001
+Range away: 2.688379e-001
+Bearing away: 5.750993e+001
+SOG: 9.265359e+000
+TTG: 1.025933e-001
+ETA: 09/28 13:35:29(-02)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 2.949255e+001 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 14
+Name: Heads bk/w
+Type: 0
+Activate: 0
+Latitude: 5.60181083e+001
+Longitude: 1.26978061e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 2.688379e-001
+Bearing to: 5.750993e+001
+Range away: 2.014450e-001
+Bearing away: 3.552512e+000
+SOG: 9.265359e+000
+TTG: 2.901538e-002
+ETA: 09/28 13:37:13(-02)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.769553e+001 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 15
+Name: Bassin
+Type: 0
+Activate: 0
+Latitude: 5.60214526e+001
+Longitude: 1.26981768e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 2.014450e-001
+Bearing to: 3.552512e+000
+Range away: 2.542929e-001
+Bearing away: 3.561426e+002
+SOG: 9.265359e+000
+TTG: 2.174174e-002
+ETA: 09/28 13:38:31(-02)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.769553e+001 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 16
+Name: Helsingborg
+Type: 0
+Activate: 0
+Latitude: 5.60256728e+001
+Longitude: 1.26976687e+001
+Reserve: 1.000000e+000
+Turn radius: 3.000000e-001
+Range to: 2.542929e-001
+Bearing to: 3.561426e+002
+Range away: 0.000000e+000
+Bearing away: 0.000000e+000
+SOG: 9.265359e+000
+TTG: 2.744556e-002
+ETA: 09/28 13:40:09(-02)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 2.949255e+001 1.000000e-001 1.000000e-001 2.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+VESSEL INFORMATION:

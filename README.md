@@ -1,9 +1,11 @@
-# e-Navigation Enhanced INS #
+# e-Navigation Prototype Displays #
 
 ## Introduction ##
    
-ee-INS (e-Navigation Enhanced Integrated Navigation System) is an ECDIS like
+EPD (e-Navigation Prototype Display) is an ECDIS like
 application for demonstrating possible e-Navigation services.
+
+This project contains two module, EPD-Ship and EPD-Shore each focusing on various services from the point of view of the Ship and of the Shore control center.
    
 The application is in Java and uses OpenMap(tm) for presenting geospatial
 information, and as a JavaBeans(tm) component framework.
@@ -13,31 +15,7 @@ For detailed description see Wiki.
 ## Prerequisites ##
 
 * JDK 1.6+ (http://www.oracle.com/technetwork/java/javase/)
-* Apache Ant 1.7+ (http://ant.apache.org) or Eclipse IDE (http://eclipse.org)
-
-## ANT targets ##
-
-### Building ###
-
-	ant
-
-### Running ###
-
-	ant run
-	
-### Javadoc ###
-
-	ant javadoc
-	
-### Clean ###
-
-	ant clean
-	
-### Dist clean ###
-
-	ant distclean
-	
-Will remove the `dist` folder described below, erasing existing settings.
+* Maven
 
 ## Quick start ##
 

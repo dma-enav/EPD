@@ -1,0 +1,38 @@
+<TSH_Route RtVersion="3" RtName="Malmoe - Karlshavn">TSH RtServer route data file. Info: amo.
+	<WayPoints WPCount="14">
+		<WayPoint WPName="" LegType="0" RudderAngle="0" Lat="3337.749" Lon="778.673" PortXTE="0.100000001490116" StbXTE="0.100000001490116" TurnRate="0" TurnRadius="0.300000011920929" ArrivalC="0"/>
+		<WayPoint WPName="" LegType="0" RudderAngle="0" Lat="3337.14796946844" Lon="773.621608642612" PortXTE="0.100000001490116" StbXTE="0.100000001490116" TurnRate="0" TurnRadius="0.300000011920929" ArrivalC="0"/>
+		<WayPoint WPName="" LegType="0" RudderAngle="0" Lat="3334.5345371293" Lon="769.591351776045" PortXTE="0.100000001490116" StbXTE="0.100000001490116" TurnRate="0" TurnRadius="0.300000011920929" ArrivalC="0"/>
+		<WayPoint WPName="" LegType="0" RudderAngle="0" Lat="3331.15728460564" Lon="764.467995517364" PortXTE="0.100000001490116" StbXTE="0.100000001490116" TurnRate="0" TurnRadius="0.300000011920929" ArrivalC="0"/>
+		<WayPoint WPName="" LegType="0" RudderAngle="0" Lat="3324.843" Lon="759.379" PortXTE="0.100000001490116" StbXTE="0.100000001490116" TurnRate="0" TurnRadius="0.300000011920929" ArrivalC="0"/>
+		<WayPoint WPName="" LegType="0" RudderAngle="0" Lat="3318.028" Lon="757.444" PortXTE="0.100000001490116" StbXTE="0.100000001490116" TurnRate="0" TurnRadius="0.300000011920929" ArrivalC="0"/>
+		<WayPoint WPName="" LegType="0" RudderAngle="0" Lat="3314.632" Lon="772.179" PortXTE="0.100000001490116" StbXTE="0.100000001490116" TurnRate="0" TurnRadius="0.300000011920929" ArrivalC="0"/>
+		<WayPoint WPName="" LegType="0" RudderAngle="0" Lat="3309.591" Lon="840.46" PortXTE="0.100000001490116" StbXTE="0.100000001490116" TurnRate="0" TurnRadius="0.300000011920929" ArrivalC="0"/>
+		<WayPoint WPName="" LegType="0" RudderAngle="0" Lat="3310.042" Lon="859.845" PortXTE="0.100000001490116" StbXTE="0.100000001490116" TurnRate="0" TurnRadius="0.300000011920929" ArrivalC="0"/>
+		<WayPoint WPName="" LegType="0" RudderAngle="0" Lat="3323.715" Lon="878.978" PortXTE="0.100000001490116" StbXTE="0.100000001490116" TurnRate="0" TurnRadius="0.300000011920929" ArrivalC="0"/>
+		<WayPoint WPName="" LegType="0" RudderAngle="0" Lat="3361.12392172766" Lon="888.684124937078" PortXTE="0.100000001490116" StbXTE="0.100000001490116" TurnRate="0" TurnRadius="0.300000011920929" ArrivalC="0"/>
+		<WayPoint WPName="" LegType="0" RudderAngle="0" Lat="3367.844" Lon="893.015" PortXTE="0.100000001490116" StbXTE="0.100000001490116" TurnRate="0" TurnRadius="0.300000011920929" ArrivalC="0"/>
+		<WayPoint WPName="" LegType="0" RudderAngle="0" Lat="3368.75" Lon="892.778" PortXTE="0.100000001490116" StbXTE="0.100000001490116" TurnRate="0" TurnRadius="0.300000011920929" ArrivalC="0"/>
+		<WayPoint WPName="" LegType="0" RudderAngle="0" Lat="3369.34" Lon="891.843" PortXTE="0.100000001490116" StbXTE="0.100000001490116" TurnRate="0" TurnRadius="0.300000011920929" ArrivalC="0"/>
+	</WayPoints>
+	<Calculations CalcCount="1">
+		<Calculation CalcName="BaseCalc" CalcOptions="0" CalcForecast="0" CalcDone="0">
+			<WayPointExs>
+				<WayPointEx ChangedData="0" TimeZone="0" ETA="0" ETD="0" Stay="0" TTG="0" TotalTime="0" Speed="0"/>
+				<WayPointEx ChangedData="0" TimeZone="0" ETA="0" ETD="0" Stay="0" TTG="0" TotalTime="0" Speed="0"/>
+				<WayPointEx ChangedData="0" TimeZone="0" ETA="0" ETD="0" Stay="0" TTG="0" TotalTime="0" Speed="0"/>
+				<WayPointEx ChangedData="0" TimeZone="0" ETA="0" ETD="0" Stay="0" TTG="0" TotalTime="0" Speed="0"/>
+				<WayPointEx ChangedData="0" TimeZone="0" ETA="0" ETD="0" Stay="0" TTG="0" TotalTime="0" Speed="0"/>
+				<WayPointEx ChangedData="0" TimeZone="0" ETA="0" ETD="0" Stay="0" TTG="0" TotalTime="0" Speed="0"/>
+				<WayPointEx ChangedData="0" TimeZone="0" ETA="0" ETD="0" Stay="0" TTG="0" TotalTime="0" Speed="0"/>
+				<WayPointEx ChangedData="0" TimeZone="0" ETA="0" ETD="0" Stay="0" TTG="0" TotalTime="0" Speed="0"/>
+				<WayPointEx ChangedData="0" TimeZone="0" ETA="0" ETD="0" Stay="0" TTG="0" TotalTime="0" Speed="0"/>
+				<WayPointEx ChangedData="0" TimeZone="0" ETA="0" ETD="0" Stay="0" TTG="0" TotalTime="0" Speed="0"/>
+				<WayPointEx ChangedData="0" TimeZone="0" ETA="0" ETD="0" Stay="0" TTG="0" TotalTime="0" Speed="0"/>
+				<WayPointEx ChangedData="0" TimeZone="0" ETA="0" ETD="0" Stay="0" TTG="0" TotalTime="0" Speed="0"/>
+				<WayPointEx ChangedData="0" TimeZone="0" ETA="0" ETD="0" Stay="0" TTG="0" TotalTime="0" Speed="0"/>
+				<WayPointEx ChangedData="0" TimeZone="0" ETA="0" ETD="0" Stay="0" TTG="0" TotalTime="0" Speed="0"/>
+			</WayPointExs>
+		</Calculation>
+	</Calculations>
+</TSH_Route>

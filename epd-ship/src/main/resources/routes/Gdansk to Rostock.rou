@@ -1,0 +1,346 @@
+Chart system route file: Gdansk Pilot to Rostock Pilot.rou
+ROUTE HEADER INFORMATION:
+Route name: Gdansk Pilot to Rostock Pilot
+Route date: 10/30/2007
+Route time: 15:07:56(-01)
+Is selected: 0
+Is active: 14
+SOG default: 9.900001e+000
+Leg type: 1
+Draw turn radius: 0
+Lock flag: 1
+Draw range / bearing flag: 1;N/A
+Route length: 2.895314e+002;N/A;N/A
+Number of waypoints: 14
+
+WAYPOINT: 0
+Name: Gdansk Pilot
+Type: 0
+Activate: 0
+Latitude: 5.44254088e+001
+Longitude: 1.88941122e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 2.975870e+000
+Bearing to: 7.608521e+001
+Range away: 2.975870e+000
+Bearing away: 7.608521e+001
+SOG: 1.000000e+001
+TTG: -1.000000e+000
+ETA: N/A
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.909859e+001 1.000000e-001 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 1
+Name: ZS
+Type: 0
+Activate: 0
+Latitude: 5.44373154e+001
+Longitude: 1.89765458e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 1.182312e+001
+Bearing to: 2.556698e+001
+Range away: 1.182312e+001
+Bearing away: 2.556698e+001
+SOG: 1.000000e+001
+TTG: 2.975870e-001
+ETA: 10/30 16:25:47(-01)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.909859e+001 1.000000e-001 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 2
+Name: ZN
+Type: 0
+Activate: 0
+Latitude: 5.46147623e+001
+Longitude: 1.91224974e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 4.046149e+000
+Bearing to: 3.427971e+002
+Range away: 4.046149e+000
+Bearing away: 3.427971e+002
+SOG: 1.000000e+001
+TTG: 1.182312e+000
+ETA: 10/30 17:36:43(-01)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.909859e+001 1.000000e-001 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 3
+Name: TSS Out
+Type: 0
+Activate: 0
+Latitude: 5.46790676e+001
+Longitude: 1.90881660e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 2.280813e+001
+Bearing to: 3.093034e+002
+Range away: 2.280813e+001
+Bearing away: 3.093034e+002
+SOG: 1.000000e+001
+TTG: 4.046149e-001
+ETA: 10/30 18:00:59(-01)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.909859e+001 1.000000e-001 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 4
+Name: Jastrzebia Gora
+Type: 0
+Activate: 0
+Latitude: 5.49194247e+001
+Longitude: 1.85799312e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 1.249538e+002
+Bearing to: 2.681733e+002
+Range away: 1.249538e+002
+Bearing away: 2.681733e+002
+SOG: 1.000000e+001
+TTG: 2.280813e+000
+ETA: 10/30 20:17:49(-01)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.909859e+001 1.000000e-001 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 5
+Name: Duedde
+Type: 0
+Activate: 0
+Latitude: 5.48531590e+001
+Longitude: 1.49757512e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 4.019472e+001
+Bearing to: 2.653434e+002
+Range away: 4.019472e+001
+Bearing away: 2.653434e+002
+SOG: 1.000000e+001
+TTG: 1.249538e+001
+ETA: 10/31 08:47:32(-01)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.909859e+001 1.000000e-001 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 6
+Name: By Arkona
+Type: 0
+Activate: 0
+Latitude: 5.47988708e+001
+Longitude: 1.38213326e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 3.833085e+001
+Bearing to: 2.688685e+002
+Range away: 3.833085e+001
+Bearing away: 2.688685e+002
+SOG: 1.000000e+001
+TTG: 4.019472e+000
+ETA: 10/31 12:48:42(-01)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.909859e+001 1.000000e-001 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 7
+Name: DW80
+Type: 0
+Activate: 0
+Latitude: 5.47862781e+001
+Longitude: 1.27179270e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 1.919347e+001
+Bearing to: 2.366995e+002
+Range away: 1.919347e+001
+Bearing away: 2.366995e+002
+SOG: 1.000000e+001
+TTG: 3.833085e+000
+ETA: 10/31 16:38:41(-01)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.909859e+001 1.000000e-001 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 8
+Name: By74
+Type: 0
+Activate: 0
+Latitude: 5.46109595e+001
+Longitude: 1.22571147e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 5.574767e+000
+Bearing to: 1.992176e+002
+Range away: 5.574767e+000
+Bearing away: 1.992176e+002
+SOG: 1.000000e+001
+TTG: 1.919347e+000
+ETA: 10/31 18:33:50(-01)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.909859e+001 1.000000e-001 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 9
+Name: No72
+Type: 0
+Activate: 0
+Latitude: 5.45233779e+001
+Longitude: 1.22045740e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 4.433282e+000
+Bearing to: 1.965559e+002
+Range away: 4.433282e+000
+Bearing away: 1.965559e+002
+SOG: 1.000000e+001
+TTG: 5.574767e-001
+ETA: 10/31 19:07:16(-01)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.909859e+001 1.000000e-001 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 10
+Name: W70A
+Type: 0
+Activate: 0
+Latitude: 5.44526762e+001
+Longitude: 1.21684729e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 2.081461e+000
+Bearing to: 2.050749e+002
+Range away: 2.081461e+000
+Bearing away: 2.050749e+002
+SOG: 1.000000e+001
+TTG: 4.433282e-001
+ETA: 10/31 19:33:51(-01)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.909859e+001 1.000000e-001 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 11
+Name: By70
+Type: 0
+Activate: 0
+Latitude: 5.44213090e+001
+Longitude: 1.21432951e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 1.913713e+000
+Bearing to: 1.788768e+002
+Range away: 1.913713e+000
+Bearing away: 1.788768e+002
+SOG: 1.000000e+001
+TTG: 2.081461e-001
+ETA: 10/31 19:46:20(-01)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.909859e+001 1.000000e-001 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 12
+Name: E70
+Type: 0
+Activate: 0
+Latitude: 5.43894749e+001
+Longitude: 1.21443650e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 6.211331e+000
+Bearing to: 2.083206e+002
+Range away: 6.211331e+000
+Bearing away: 2.083206e+002
+SOG: 1.000000e+001
+TTG: 1.913713e-001
+ETA: 10/31 19:57:48(-01)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.909859e+001 1.000000e-001 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 13
+Name: Rostock Fairway
+Type: 0
+Activate: 0
+Latitude: 5.42984998e+001
+Longitude: 1.20604506e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 4.990778e+000
+Bearing to: 1.725369e+002
+Range away: 4.990778e+000
+Bearing away: 1.725369e+002
+SOG: 1.000000e+001
+TTG: 6.211331e-001
+ETA: 10/31 20:35:04(-01)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.909859e+001 1.000000e-001 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 14
+Name: Rostock Pilot
+Type: 0
+Activate: 0
+Latitude: 5.42161650e+001
+Longitude: 1.20788722e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 0.000000e+000
+Bearing to: 0.000000e+000
+Range away: 0.000000e+000
+Bearing away: 0.000000e+000
+SOG: 1.000000e+001
+TTG: 4.990778e-001
+ETA: 10/31 21:05:00(-01)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 0
+Pilot WP sign: 0
+Circles: 1.909859e+001 1.000000e-001 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+VESSEL INFORMATION:

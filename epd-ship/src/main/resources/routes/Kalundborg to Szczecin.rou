@@ -1,0 +1,830 @@
+Chart system route file: Kalundborg Szczecin.rou
+ROUTE HEADER INFORMATION:
+Route name: Kalundborg Szczecin
+Route date: 02/06/2007
+Route time: 02:45:25(-00)
+Is selected: 0
+Is active: 37
+SOG default: 5.000000e-001
+Leg type: 1
+Draw turn radius: 0
+Lock flag: 1
+Draw range / bearing flag: 1;N/A
+Route length: 2.664572e+002;N/A;Ronne
+Number of waypoints: 36
+
+WAYPOINT: 0
+Name: Kalundborg
+Type: 0
+Activate: 0
+Latitude: 5.56663924e+001
+Longitude: 1.10947826e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 7.829875e-002
+Bearing to: 3.010300e+002
+Range away: 7.829875e-002
+Bearing away: 3.010300e+002
+SOG: 1.000000e+001
+TTG: -1.000000e+000
+ETA: N/A
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 1
+Name: WP_002
+Type: 0
+Activate: 0
+Latitude: 5.56670638e+001
+Longitude: 1.10928080e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 6.390709e-001
+Bearing to: 2.707648e+002
+Range away: 6.390709e-001
+Bearing away: 2.707648e+002
+SOG: 1.000000e+001
+TTG: 7.829875e-003
+ETA: 02/06  02:46:21(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 2
+Name: WP_003
+Type: 0
+Activate: 0
+Latitude: 5.56672057e+001
+Longitude: 1.10740014e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 1.081644e+000
+Bearing to: 2.846784e+002
+Range away: 1.081644e+000
+Bearing away: 2.846784e+002
+SOG: 1.000000e+001
+TTG: 6.390709e-002
+ETA: 02/06  02:54:01(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 3
+Name: Plt Kalundborg
+Type: 0
+Activate: 0
+Latitude: 5.56717649e+001
+Longitude: 1.10432050e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 8.055680e+000
+Bearing to: 2.959094e+002
+Range away: 8.055680e+000
+Bearing away: 2.959094e+002
+SOG: 1.000000e+001
+TTG: 1.081644e-001
+ETA: 02/06  03:06:59(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 4
+Name: Rosnaes Pt
+Type: 0
+Activate: 0
+Latitude: 5.57303167e+001
+Longitude: 1.08297667e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 5.767397e+000
+Bearing to: 3.581035e+002
+Range away: 5.767397e+000
+Bearing away: 3.581035e+002
+SOG: 1.000000e+001
+TTG: 8.055680e-001
+ETA: 02/06  04:43:39(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 5
+Name: No 20 LtBy
+Type: 0
+Activate: 0
+Latitude: 5.58262000e+001
+Longitude: 1.08241333e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 7.153993e+000
+Bearing to: 3.946651e+001
+Range away: 7.153993e+000
+Bearing away: 3.946651e+001
+SOG: 1.000140e+001
+TTG: 5.766590e-001
+ETA: 02/06  05:52:49(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 6
+Name: WP_007
+Type: 0
+Activate: 0
+Latitude: 5.59180667e+001
+Longitude: 1.09586667e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 1.383635e+001
+Bearing to: 3.455290e+001
+Range away: 1.383635e+001
+Bearing away: 3.455290e+001
+SOG: 1.000000e+001
+TTG: 7.153993e-001
+ETA: 02/06  07:18:39(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 7
+Name: Sjeallands
+Type: 0
+Activate: 0
+Latitude: 5.61076167e+001
+Longitude: 1.11916833e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 3.765261e+001
+Bearing to: 8.525586e+001
+Range away: 3.765261e+001
+Bearing away: 8.525586e+001
+SOG: 1.000000e+001
+TTG: 1.383635e+000
+ETA: 02/06  10:04:41(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 8
+Name: Gilleleje
+Type: 0
+Activate: 0
+Latitude: 5.61594143e+001
+Longitude: 1.23093573e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 7.413742e+000
+Bearing to: 1.106135e+002
+Range away: 7.413742e+000
+Bearing away: 1.106135e+002
+SOG: 1.000000e+001
+TTG: 3.765261e+000
+ETA: 02/06  17:36:29(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 9
+Name: M1
+Type: 0
+Activate: 0
+Latitude: 5.61160000e+001
+Longitude: 1.25160667e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 5.704699e+000
+Bearing to: 1.310613e+002
+Range away: 5.704699e+000
+Bearing away: 1.310613e+002
+SOG: 1.000000e+001
+TTG: 7.413742e-001
+ETA: 02/06  19:05:25(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 10
+Name: Helsingor
+Type: 0
+Activate: 0
+Latitude: 5.60536712e+001
+Longitude: 1.26440257e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 3.884131e+000
+Bearing to: 1.889654e+002
+Range away: 3.884131e+000
+Bearing away: 1.889654e+002
+SOG: 1.000000e+001
+TTG: 5.704699e-001
+ETA: 02/06  20:13:51(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 11
+Name: Helsingor out
+Type: 0
+Activate: 0
+Latitude: 5.59898538e+001
+Longitude: 1.26260486e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 1.419969e+001
+Bearing to: 1.723596e+002
+Range away: 1.419969e+001
+Bearing away: 1.723596e+002
+SOG: 1.000000e+001
+TTG: 3.884131e-001
+ETA: 02/06  21:00:27(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 12
+Name: WP_013
+Type: 0
+Activate: 0
+Latitude: 5.57557543e+001
+Longitude: 1.26819049e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 5.347572e+000
+Bearing to: 1.803726e+002
+Range away: 5.347572e+000
+Bearing away: 1.803726e+002
+SOG: 1.000000e+001
+TTG: 1.419969e+000
+ETA: 02/06  23:50:49(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 13
+Name: WP_014
+Type: 0
+Activate: 0
+Latitude: 5.56668028e+001
+Longitude: 1.26808802e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 1.854345e+000
+Bearing to: 1.668404e+002
+Range away: 1.854345e+000
+Bearing away: 1.668404e+002
+SOG: 1.000000e+001
+TTG: 5.347572e-001
+ETA: 02/07  00:54:59(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 14
+Name: Nordre Rose
+Type: 0
+Activate: 0
+Latitude: 5.56367667e+001
+Longitude: 1.26933000e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 5.088530e+000
+Bearing to: 1.753443e+002
+Range away: 5.088530e+000
+Bearing away: 1.753443e+002
+SOG: 1.000000e+001
+TTG: 1.854345e-001
+ETA: 02/07  01:17:13(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 15
+Name: Drogden
+Type: 0
+Activate: 0
+Latitude: 5.55524000e+001
+Longitude: 1.27054333e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 1.516138e+001
+Bearing to: 1.891344e+002
+Range away: 1.516138e+001
+Bearing away: 1.891344e+002
+SOG: 1.000000e+001
+TTG: 5.088530e-001
+ETA: 02/07  02:18:15(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 16
+Name: Falsterborev
+Type: 0
+Activate: 0
+Latitude: 5.53033870e+001
+Longitude: 1.26350255e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 5.072438e+000
+Bearing to: 1.768286e+002
+Range away: 5.072438e+000
+Bearing away: 1.768286e+002
+SOG: 1.000042e+001
+TTG: 1.516074e+000
+ETA: 02/07  05:20:09(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 17
+Name: WP_018
+Type: 0
+Activate: 0
+Latitude: 5.52191333e+001
+Longitude: 1.26432000e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 4.204338e+001
+Bearing to: 1.314330e+002
+Range away: 4.204338e+001
+Bearing away: 1.314330e+002
+SOG: 1.000041e+001
+TTG: 5.072230e-001
+ETA: 02/07  06:21:01(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 18
+Name: WP_019
+Type: 0
+Activate: 0
+Latitude: 5.47562788e+001
+Longitude: 1.35551675e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 2.939482e+001
+Bearing to: 1.510417e+002
+Range away: 2.939482e+001
+Bearing away: 1.510417e+002
+SOG: 1.000000e+001
+TTG: 4.204338e+000
+ETA: 02/07  14:45:31(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 19
+Name: SWIN N
+Type: 0
+Activate: 0
+Latitude: 5.43283667e+001
+Longitude: 1.39624333e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 9.260066e+000
+Bearing to: 1.233226e+002
+Range away: 9.260066e+000
+Bearing away: 1.233226e+002
+SOG: 1.002761e+001
+TTG: 2.931389e+000
+ETA: 02/07  20:37:15(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 20
+Name: WP_021
+Type: 0
+Activate: 0
+Latitude: 5.42437272e+001
+Longitude: 1.41824729e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 1.648228e+001
+Bearing to: 1.700563e+002
+Range away: 1.648228e+001
+Bearing away: 1.700563e+002
+SOG: 1.000000e+001
+TTG: 9.260066e-001
+ETA: 02/07  22:28:21(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 21
+Name: Plt Szczecin
+Type: 0
+Activate: 0
+Latitude: 5.39736024e+001
+Longitude: 1.42630657e+001
+Reserve: 1.000000e+000
+Turn radius: 2.000000e-001
+Range to: 2.592676e+000
+Bearing to: 1.703818e+002
+Range away: 2.592676e+000
+Bearing away: 1.703818e+002
+SOG: 1.000390e+001
+TTG: 1.647586e+000
+ETA: 02/08  01:46:03(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 22
+Name: WP_023
+Type: 0
+Activate: 0
+Latitude: 5.39310688e+001
+Longitude: 1.42752860e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 4.838169e-001
+Bearing to: 1.465739e+002
+Range away: 4.838169e-001
+Bearing away: 1.465739e+002
+SOG: 1.001000e+001
+TTG: 2.590085e-001
+ETA: 02/08  02:17:07(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 23
+Name: WP_024
+Type: 0
+Activate: 0
+Latitude: 5.39243500e+001
+Longitude: 1.42828000e+001
+Reserve: 1.000000e+000
+Turn radius: 3.000000e-001
+Range to: 7.021243e-001
+Bearing to: 1.896801e+002
+Range away: 7.021243e-001
+Bearing away: 1.896801e+002
+SOG: 1.003035e+001
+TTG: 4.823530e-002
+ETA: 02/08  02:22:53(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 24
+Name: WP_025
+Type: 0
+Activate: 0
+Latitude: 5.39128335e+001
+Longitude: 1.42794722e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 1.058778e+000
+Bearing to: 2.342208e+002
+Range away: 1.058778e+000
+Bearing away: 2.342208e+002
+SOG: 1.000218e+001
+TTG: 7.019715e-002
+ETA: 02/08  02:31:17(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 25
+Name: WP_026
+Type: 0
+Activate: 0
+Latitude: 5.39025333e+001
+Longitude: 1.42552667e+001
+Reserve: 1.000000e+000
+Turn radius: 3.000000e-001
+Range to: 4.835623e-001
+Bearing to: 1.927033e+002
+Range away: 4.835623e-001
+Bearing away: 1.927033e+002
+SOG: 1.005022e+001
+TTG: 1.053487e-001
+ETA: 02/08  02:43:55(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 26
+Name: WP_027
+Type: 0
+Activate: 0
+Latitude: 5.38946841e+001
+Longitude: 1.42522708e+001
+Reserve: 1.000000e+000
+Turn radius: 3.000000e-001
+Range to: 9.788387e-001
+Bearing to: 1.429178e+002
+Range away: 9.788387e-001
+Bearing away: 1.429178e+002
+SOG: 1.000388e+001
+TTG: 4.833777e-002
+ETA: 02/08  02:49:43(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 27
+Name: WP_037
+Type: 0
+Activate: 0
+Latitude: 5.38816906e+001
+Longitude: 1.42688949e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 4.700256e-001
+Bearing to: 1.535061e+002
+Range away: 4.700256e-001
+Bearing away: 1.535061e+002
+SOG: 1.000000e+001
+TTG: 9.788360e-002
+ETA: 02/08  04:01:27(-01)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 28
+Name: WP_028
+Type: 0
+Activate: 0
+Latitude: 5.38746910e+001
+Longitude: 1.42747995e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 1.587345e+000
+Bearing to: 1.683005e+002
+Range away: 1.587345e+000
+Bearing away: 1.683005e+002
+SOG: 1.000955e+001
+TTG: 4.695793e-002
+ETA: 02/08  03:07:05(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 29
+Name: WP_029
+Type: 0
+Activate: 0
+Latitude: 5.38488272e+001
+Longitude: 1.42838601e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 1.698176e+001
+Bearing to: 1.414561e+002
+Range away: 1.698176e+001
+Bearing away: 1.414561e+002
+SOG: 1.000127e+001
+TTG: 1.587141e-001
+ETA: 02/08  03:26:07(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 30
+Name: WP_030
+Type: 0
+Activate: 0
+Latitude: 5.36278184e+001
+Longitude: 1.45808495e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 2.397718e+000
+Bearing to: 1.680673e+002
+Range away: 2.397718e+000
+Bearing away: 1.680673e+002
+SOG: 1.000024e+001
+TTG: 1.698136e+000
+ETA: 02/08  06:49:53(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 31
+Name: WP_031
+Type: 0
+Activate: 0
+Latitude: 5.35887822e+001
+Longitude: 1.45947210e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 1.843137e+000
+Bearing to: 1.760916e+002
+Range away: 1.843137e+000
+Bearing away: 1.760916e+002
+SOG: 1.017783e+001
+TTG: 2.355823e-001
+ETA: 02/08  07:18:09(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 32
+Name: WP_032
+Type: 0
+Activate: 0
+Latitude: 5.35581833e+001
+Longitude: 1.45982333e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-002
+Range to: 1.242602e-001
+Bearing to: 2.889213e+002
+Range away: 1.242602e-001
+Bearing away: 2.889213e+002
+SOG: 1.016674e+001
+TTG: 1.812906e-001
+ETA: 02/08  07:39:53(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 33
+Name: WP_033
+Type: 0
+Activate: 0
+Latitude: 5.35588538e+001
+Longitude: 1.45949482e+001
+Reserve: 1.000000e+000
+Turn radius: 1.000000e-001
+Range to: 6.564270e-001
+Bearing to: 3.387394e+002
+Range away: 6.564270e-001
+Bearing away: 3.387394e+002
+SOG: 1.001329e+001
+TTG: 1.240952e-002
+ETA: 02/08  07:41:21(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 34
+Name: WP_034
+Type: 0
+Activate: 0
+Latitude: 5.35690335e+001
+Longitude: 1.45882951e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 6.094657e-001
+Bearing to: 3.542373e+002
+Range away: 6.094657e-001
+Bearing away: 3.542373e+002
+SOG: 1.001861e+001
+TTG: 6.552074e-002
+ETA: 02/08  07:49:11(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 35
+Name: WP_035
+Type: 0
+Activate: 0
+Latitude: 5.35791239e+001
+Longitude: 1.45865842e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-002
+Range to: 3.151537e-001
+Bearing to: 2.513861e+002
+Range away: 3.151537e-001
+Bearing away: 2.513861e+002
+SOG: 1.003769e+001
+TTG: 6.071775e-002
+ETA: 02/08  07:56:27(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+WAYPOINT: 36
+Name: Berth
+Type: 0
+Activate: 0
+Latitude: 5.35774500e+001
+Longitude: 1.45782333e+001
+Reserve: 1.000000e+000
+Turn radius: 5.000000e-001
+Range to: 0.000000e+000
+Bearing to: 0.000000e+000
+Range away: 0.000000e+000
+Bearing away: 0.000000e+000
+SOG: 1.003769e+001
+TTG: 3.139693e-002
+ETA: 02/08  08:00:13(0)
+Lock flag: 1
+Name display flag: 1
+Description display flag: 1
+Pilot WP sign: 0
+Circles: 0.000000e+000 0.000000e+000 1.000000e-001 1.000000e+000 1.000000e-001
+Leg type: 1;N/A::0
+
+VESSEL INFORMATION:
