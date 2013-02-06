@@ -47,7 +47,7 @@ class Bootstrap {
         //DOMConfigurator.configure(home.resolve("log4j.xml").toUri().toURL());
 
         // Properties
-        unpackToAppHome("eeins.properties");
+        unpackToAppHome("epd-ship.properties");
         unpackToAppHome("enc_navicon.properties");
         unpackToAppHome("settings.properties");
 

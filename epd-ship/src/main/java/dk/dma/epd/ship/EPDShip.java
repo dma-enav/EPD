@@ -111,7 +111,7 @@ public class EPDShip {
         // Determine version
         Package p = EPDShip.class.getPackage();
         MINORVERSION = p.getImplementationVersion();
-        LOG.info("Starting EPD-Ship version " + MINORVERSION);
+        LOG.info("Starting eNavigation Prototype Display Ship - version " + MINORVERSION);
         LOG.info("Copyright (C) 2011 Danish Maritime Authority");
         LOG.info("This program comes with ABSOLUTELY NO WARRANTY.");
         LOG.info("This is free software, and you are welcome to redistribute it under certain conditions.");

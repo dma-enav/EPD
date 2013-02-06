@@ -341,8 +341,8 @@ public class EPDShore {
         Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
 
         VERSION = "5.0";
-        LOG.info("Starting ESD version " + VERSION);
-        LOG.info("Copyright (C) 2012 Danish Maritime Safety Administration");
+        LOG.info("Starting eNavigation Prototype Display Shore - version " + VERSION);
+        LOG.info("Copyright (C) 2012 Danish Maritime Authority");
         LOG.info("This program comes with ABSOLUTELY NO WARRANTY.");
         LOG.info("This is free software, and you are welcome to redistribute it under certain conditions.");
         LOG.info("For details see LICENSE file.");

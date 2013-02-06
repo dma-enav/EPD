@@ -46,7 +46,7 @@ class Bootstrap {
         //DOMConfigurator.configure(home.resolve("log4j.xml").toUri().toURL());
 
         // Properties
-        unpackToAppHome("esd.properties");
+        unpackToAppHome("epd-shore.properties");
         unpackToAppHome("settings.properties");
 
         unpackFolderToAppHome("workspaces");
