@@ -78,7 +78,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
     private MainFrame mainFrame;
     private MsiDialog msiDialog;
     private AisDialog aisDialog;
-    private EeINSMenuBar menuBar;
+    private MenuBar menuBar;
     private AisLayer aisLayer;
     private RouteLayer routeLayer;
 
@@ -246,8 +246,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         if (obj instanceof AisLayer) {
             aisLayer = (AisLayer) obj;
         }
-        if (obj instanceof EeINSMenuBar) {
-            menuBar = (EeINSMenuBar) obj;
+        if (obj instanceof MenuBar) {
+            menuBar = (MenuBar) obj;
         }
         if (obj instanceof RouteLayer) {
             routeLayer = (RouteLayer) obj;

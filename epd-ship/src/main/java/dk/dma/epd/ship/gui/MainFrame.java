@@ -85,7 +85,7 @@ public class MainFrame extends JFrame implements WindowListener {
     private DockableComponents dockableComponents;
 
     private MapMenu mapMenu;
-    private EeINSMenuBar menuBar;
+    private MenuBar menuBar;
 
     public MainFrame() {
         super();
@@ -165,7 +165,7 @@ public class MainFrame extends JFrame implements WindowListener {
         mapHandler.add(nogoPanel);
         
         // Create top menubar
-        menuBar = new EeINSMenuBar();
+        menuBar = new MenuBar();
         this.setJMenuBar(menuBar);
         
         // Init glass pane
@@ -297,7 +297,7 @@ public class MainFrame extends JFrame implements WindowListener {
         return msiComponentPanel;
     }
 
-    public EeINSMenuBar getEeINSMenuBar() {
+    public MenuBar getEeINSMenuBar() {
         return menuBar;
     }
 
