@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,7 +115,7 @@ public class DockableComponents {
 
         
         // Load a layout
-        Path home = Paths.get(System.getProperty("user.home"), ".eeins");
+        Path home = EPDShip.getHomePath();
         File layoutFile = home.resolve(EPDShip.class.getSimpleName() + ".xml").toFile();
         if (layoutFile.exists()) {
             try {
@@ -214,7 +213,7 @@ public class DockableComponents {
 //        System.out.println("Save layout");
         
         try {
-            Path home = Paths.get(System.getProperty("user.home"), ".eeins");
+            Path home = EPDShip.getHomePath();
             File f = home.resolve(EPDShip.class.getSimpleName() + ".xml").toFile();
             control.writeXML(f);
         } catch (IOException ex) {
@@ -402,7 +401,7 @@ public class DockableComponents {
     public void saveLayout(String name) {
         
         try {
-              Path home = Paths.get(System.getProperty("user.home"), ".eeins");
+              Path home = EPDShip.getHomePath();
               Path layoutFolder = home.resolve("layout");
               Files.createDirectories(layoutFolder);
               File f = layoutFolder.resolve(name + ".xml").toFile();

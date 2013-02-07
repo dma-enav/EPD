@@ -294,7 +294,7 @@ public class EPDShip {
     }
 
     static void loadProperties() {
-        InputStream in = EPDShip.class.getResourceAsStream("/eeins.properties");
+        InputStream in = EPDShip.class.getResourceAsStream("/epd-ship.properties");
         try {
             if (in == null) {
                 throw new IOException("Properties file not found");

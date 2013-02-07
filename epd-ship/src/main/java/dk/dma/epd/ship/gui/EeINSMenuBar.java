@@ -28,7 +28,6 @@ import java.beans.beancontext.BeanContextMembershipListener;
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -411,7 +410,7 @@ public class EeINSMenuBar extends JMenuBar implements PropertyConsumer, BeanCont
     }
 
     public void generateStaticLayouts() {
-        Path home = Paths.get(System.getProperty("user.home"), ".eeins");
+        Path home = EPDShip.getHomePath();
 
         String files;
         File folder = home.resolve("layout/static").toFile();
