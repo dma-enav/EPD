@@ -75,7 +75,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     JCheckBoxMenuItem lock;
     private JCheckBoxMenuItem autoFollow;
     private JCheckBoxMenuItem aisLayer;
-    private JCheckBoxMenuItem encLayer;
+    private JCheckBoxMenuItem encLayer; 
     private final JCheckBoxMenuItem nogoLayer = new JCheckBoxMenuItem("NoGo Layer");;
     private JCheckBoxMenuItem newRoute;
     private JMenu dockableMenu;
