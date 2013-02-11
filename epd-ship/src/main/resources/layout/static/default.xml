@@ -15,13 +15,13 @@
 									<content delegate="SplitDockStationFactory">
 										<fullscreen-action>false</fullscreen-action>
 										<node nodeId="1341852641448" orientation="VERTICAL" divider="0.034444444444444444">
-											<leaf id="3" nodeId="1341852641450">
+											<leaf id="-1" nodeId="1341852641450">
 												<placeholders>
 													<placeholder>dock.single.Top</placeholder>
 												</placeholders>
 											</leaf>
 											<node nodeId="1341852641451" orientation="HORIZONTAL" divider="0.8791666666666667">
-												<leaf id="0" nodeId="1341852641452">
+												<leaf id="4" nodeId="1341852641452">
 													<placeholders>
 														<placeholder>dock.single.Chart</placeholder>
 													</placeholders>
@@ -29,25 +29,25 @@
 												<node nodeId="1341852641454" orientation="VERTICAL" divider="0.11751152073732717">
 													<node nodeId="1341852641456" orientation="VERTICAL" divider="0.36194895591647336">
 														<node nodeId="1341852641458" orientation="VERTICAL" divider="0.3357664233576642">
-															<leaf id="1" nodeId="1341852641460">
+															<leaf id="3" nodeId="1341852641460">
 																<placeholders>
 																	<placeholder>dock.single.Scale</placeholder>
 																</placeholders>
 															</leaf>
-															<leaf id="4" nodeId="1341852641462">
+															<leaf id="2" nodeId="1341852641462">
 																<placeholders>
 																	<placeholder>dock.single.Own\ Ship</placeholder>
 																</placeholders>
 															</leaf>
 														</node>
 														<node nodeId="1341852641464" orientation="VERTICAL" divider="0.5093632958801498">
-															<leaf id="5" nodeId="1341852641466">
+															<leaf id="6" nodeId="1341852641466">
 																<placeholders>
 																	<placeholder>dock.single.GPS</placeholder>
 																</placeholders>
 															</leaf>
 															<node nodeId="1341907343815" orientation="VERTICAL" divider="0.400611620795107">
-																<leaf id="2" nodeId="1341852641468">
+																<leaf id="0" nodeId="1341852641468">
 																	<placeholders>
 																		<placeholder>dock.single.Cursor</placeholder>
 																	</placeholders>
@@ -73,19 +73,19 @@
 																</placeholders>
 															</leaf>
 														</node>
-														<node nodeId="1341918861598" orientation="VERTICAL" divider="0.46357615894039716">
-															<leaf id="6" nodeId="1341852641474">
+														<node nodeId="1341918861598" orientation="VERTICAL" divider="0.43162393162393164">
+															<leaf id="7" nodeId="1341852641474">
 																<placeholders>
 																	<placeholder>dock.single.Active\ Waypoint</placeholder>
 																</placeholders>
 															</leaf>
-															<node nodeId="1343652896718" orientation="VERTICAL" divider="0.4421487603305788">
-																<leaf id="8" nodeId="1341852641476">
+															<node nodeId="1343652896718" orientation="VERTICAL" divider="0.42264150943396234">
+																<leaf id="5" nodeId="1341852641476">
 																	<placeholders>
 																		<placeholder>dock.single.MSI</placeholder>
 																	</placeholders>
 																</leaf>
-																<leaf id="7" nodeId="1341852641478">
+																<leaf id="1" nodeId="1341852641478">
 																	<placeholders>
 																		<placeholder>dock.single.Logos</placeholder>
 																	</placeholders>
@@ -106,10 +106,30 @@
 							</adjacent>
 							<children ignore="false">
 								<child>
-									<layout factory="predefined" placeholder="dock.single.Chart">
-										<replacement id="dockablesingle Chart"/>
+									<layout factory="predefined" placeholder="dock.single.Cursor">
+										<replacement id="dockablesingle Cursor"/>
 										<delegate id="delegate_ccontrol backup factory id">
-											<id>Chart</id>
+											<id>Cursor</id>
+											<area/>
+										</delegate>
+									</layout>
+									<children ignore="false"/>
+								</child>
+								<child>
+									<layout factory="predefined" placeholder="dock.single.Logos">
+										<replacement id="dockablesingle Logos"/>
+										<delegate id="delegate_ccontrol backup factory id">
+											<id>Logos</id>
+											<area/>
+										</delegate>
+									</layout>
+									<children ignore="false"/>
+								</child>
+								<child>
+									<layout factory="predefined" placeholder="dock.single.Own\ Ship">
+										<replacement id="dockablesingle Own Ship"/>
+										<delegate id="delegate_ccontrol backup factory id">
+											<id>Own Ship</id>
 											<area/>
 										</delegate>
 									</layout>
@@ -126,30 +146,20 @@
 									<children ignore="false"/>
 								</child>
 								<child>
-									<layout factory="predefined" placeholder="dock.single.Cursor">
-										<replacement id="dockablesingle Cursor"/>
+									<layout factory="predefined" placeholder="dock.single.Chart">
+										<replacement id="dockablesingle Chart"/>
 										<delegate id="delegate_ccontrol backup factory id">
-											<id>Cursor</id>
+											<id>Chart</id>
 											<area/>
 										</delegate>
 									</layout>
 									<children ignore="false"/>
 								</child>
 								<child>
-									<layout factory="predefined" placeholder="dock.single.Top">
-										<replacement id="dockablesingle Top"/>
+									<layout factory="predefined" placeholder="dock.single.MSI">
+										<replacement id="dockablesingle MSI"/>
 										<delegate id="delegate_ccontrol backup factory id">
-											<id>Top</id>
-											<area/>
-										</delegate>
-									</layout>
-									<children ignore="false"/>
-								</child>
-								<child>
-									<layout factory="predefined" placeholder="dock.single.Own\ Ship">
-										<replacement id="dockablesingle Own Ship"/>
-										<delegate id="delegate_ccontrol backup factory id">
-											<id>Own Ship</id>
+											<id>MSI</id>
 											<area/>
 										</delegate>
 									</layout>
@@ -170,26 +180,6 @@
 										<replacement id="dockablesingle Active Waypoint"/>
 										<delegate id="delegate_ccontrol backup factory id">
 											<id>Active Waypoint</id>
-											<area/>
-										</delegate>
-									</layout>
-									<children ignore="false"/>
-								</child>
-								<child>
-									<layout factory="predefined" placeholder="dock.single.Logos">
-										<replacement id="dockablesingle Logos"/>
-										<delegate id="delegate_ccontrol backup factory id">
-											<id>Logos</id>
-											<area/>
-										</delegate>
-									</layout>
-									<children ignore="false"/>
-								</child>
-								<child>
-									<layout factory="predefined" placeholder="dock.single.MSI">
-										<replacement id="dockablesingle MSI"/>
-										<delegate id="delegate_ccontrol backup factory id">
-											<id>MSI</id>
 											<area/>
 										</delegate>
 									</layout>
@@ -360,6 +350,16 @@
 									</backup-path>
 								</property>
 							</location>
+							<layout>
+								<layout factory="predefined" placeholder="dock.single.Dynamic\ NoGo">
+									<replacement id="dockablesingle Dynamic NoGo"/>
+									<delegate id="delegate_ccontrol backup factory id">
+										<id>Dynamic NoGo</id>
+										<area/>
+									</delegate>
+								</layout>
+								<children ignore="false"/>
+							</layout>
 						</child>
 						<child key="single AIS Target" root="ccontrol center" location="true">
 							<location>
@@ -375,6 +375,36 @@
 									</backup-path>
 								</property>
 							</location>
+							<layout>
+								<layout factory="predefined" placeholder="dock.single.AIS\ Target">
+									<replacement id="dockablesingle AIS Target"/>
+									<delegate id="delegate_ccontrol backup factory id">
+										<id>AIS Target</id>
+										<area/>
+									</delegate>
+								</layout>
+								<children ignore="false"/>
+							</layout>
+						</child>
+						<child key="single Top" root="ccontrol center" location="true">
+							<location>
+								<property factory="SplitDockPlaceholderProperty">
+									<placeholder>dock.single.Top</placeholder>
+									<backup-path>
+										<leaf id="1341852641450"/>
+									</backup-path>
+								</property>
+							</location>
+							<layout>
+								<layout factory="predefined" placeholder="dock.single.Top">
+									<replacement id="dockablesingle Top"/>
+									<delegate id="delegate_ccontrol backup factory id">
+										<id>Top</id>
+										<area/>
+									</delegate>
+								</layout>
+								<children ignore="false"/>
+							</layout>
 						</child>
 					</children>
 				</base>
@@ -632,7 +662,7 @@
 								</property>
 							</properties>
 						</entry>
-						<entry id="single Top" current="dock.mode.normal">
+						<entry id="single Top">
 							<history>
 								<mode>dock.mode.normal</mode>
 							</history>
