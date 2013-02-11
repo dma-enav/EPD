@@ -307,7 +307,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
                 String[] list = findNoneStaticLayouts();
                 String layout = null;
 
-                final String path = "./layout/";
+                final String path = EPDShip.getHomePath().toString() + "/layout/";
 
                 if (list.length == 0) {
                     JOptionPane.showMessageDialog(mainFrame, "No custom layouts saved.", "No Layouts",
@@ -453,7 +453,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     }
 
     public String[] findNoneStaticLayouts() {
-        final String path = "./layout/";
+        final String path = EPDShip.getHomePath().toString() + "/layout/";
 
         List<String> list = new ArrayList<>();
 

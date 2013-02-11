@@ -156,6 +156,7 @@ public class DockableComponents {
                         ThemeManager.BORDER_MODIFIER_TYPE, bridge);
         
         
+        
     }
 
     public JMenu createDockableMenu() {
@@ -182,6 +183,8 @@ public class DockableComponents {
 
     public void toggleFrameLock() {
 
+//        System.out.println("Toggle frame lock");
+        
         List<SingleCDockable> mdlist = control.getRegister()
                 .getSingleDockables();
 
@@ -208,6 +211,24 @@ public class DockableComponents {
             locked = false;
         }
 
+    }
+
+    public void lock() {
+
+//        System.out.println("Locking!");
+        
+        List<SingleCDockable> mdlist = control.getRegister()
+                .getSingleDockables();
+
+        for (int i = 0; i < mdlist.size(); i++) {
+            PanelDockable dockable = (PanelDockable) mdlist.get(i);
+            dockable.setTitleShown(false);
+        }
+        control.getContentArea().getCenter().setResizingEnabled(false);
+        control.getContentArea().getCenter().setDividerSize(0);
+
+        locked = true;
+//        System.out.println("Locked");
     }
 
     public void saveLayout() {
@@ -357,7 +378,8 @@ public class DockableComponents {
     }
 
     public void loadLayout(String path) {
-        locked = false;
+//        System.out.println("Loading " + path);
+//        locked = false;
 
         // Load a layout
         File layoutFile = new File(path);
@@ -369,11 +391,11 @@ public class DockableComponents {
             }
         }
 
-        System.out.println(locked);
+//        System.out.println(locked);
 //        toggleFrameLock();
-//        lock();
 
-        System.out.println(locked);
+
+        
 
         control.intern().getController().getRelocator().setDragOnlyTitel(true);
 
@@ -396,7 +418,8 @@ public class DockableComponents {
                 .publish(Priority.CLIENT, DisplayerDockBorder.KIND,
                         ThemeManager.BORDER_MODIFIER_TYPE, bridge);
         
-        
+        lock();
+//        System.out.println(locked);
     }
 
     public void saveLayout(String name) {

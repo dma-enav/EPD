@@ -132,7 +132,7 @@ public class MainFrame extends JFrame implements WindowListener {
         // Create the dockable layouts
         dockableComponents = new DockableComponents(this);
 
-        dockableComponents.toggleFrameLock();
+        dockableComponents.lock();
 
         // Add panels
         topPanel.setPreferredSize(new Dimension(0, 30));
