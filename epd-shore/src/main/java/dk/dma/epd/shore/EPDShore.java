@@ -311,7 +311,7 @@ public class EPDShore {
      * Load the properties file
      */
     static void loadProperties() {
-        InputStream in = EPDShore.class.getResourceAsStream("/esd.properties");
+        InputStream in = EPDShore.class.getResourceAsStream("/epd-shore.properties");
         try {
             if (in == null) {
                 throw new IOException("Properties file not found");
@@ -346,9 +346,6 @@ public class EPDShore {
         LOG.info("This program comes with ABSOLUTELY NO WARRANTY.");
         LOG.info("This is free software, and you are welcome to redistribute it under certain conditions.");
         LOG.info("For details see LICENSE file.");
-
-        // Load properties
-        loadProperties();
 
         // Create the bean context (map handler)
         // mapHandler = new MapHandler();

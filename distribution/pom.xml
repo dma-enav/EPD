@@ -14,11 +14,12 @@
   <artifactId>epd-distribution-parent</artifactId>
   <version>0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>EPD Ship Distribution Parent</name>
-  <description>EPD Ship distribution parent module</description>
+  <name>EPD Distribution Parent</name>
+  <description>EPD distribution parent module</description>
 
   <modules>
-    <module>singlejar</module>
+    <module>EPD-Ship-Singlejar</module>
+	<module>EPD-Shore-Singlejar</module>
   </modules>
 
 </project>

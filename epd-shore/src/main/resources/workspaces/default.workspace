@@ -1,18 +1,18 @@
-# workspace settings saved: Thu Jun 07 21:38:32 CEST 2012
-workspace.alwaysInFront=
-workspace.center_lat=
-workspace.center_lon=
-workspace.locked=
-workspace.maximized=
-workspace.name=
-workspace.notification_pos_x=36.0
-workspace.notification_pos_y=204.0
-workspace.position_x=
-workspace.position_y=
-workspace.scale=
-workspace.size_h=
-workspace.size_w=
-workspace.status_pos_x=37.0
-workspace.status_pos_y=268.0
-workspace.toolbar_pos_x=37.0
-workspace.toolbar_pos_y=62.0
+# workspace settings saved: Mon Feb 11 14:21:01 CET 2013
+workspace.alwaysInFront=false//
+workspace.center_lat=55.63109588623047//
+workspace.center_lon=12.788085937499998//
+workspace.locked=false//
+workspace.maximized=true//
+workspace.name=New Window 1//
+workspace.notification_pos_x=28.0
+workspace.notification_pos_y=208.0
+workspace.position_x=0.0//
+workspace.position_y=0.0//
+workspace.scale=1.0E7//
+workspace.size_h=739.0//
+workspace.size_w=1262.0//
+workspace.status_pos_x=28.0
+workspace.status_pos_y=335.0
+workspace.toolbar_pos_x=28.0
+workspace.toolbar_pos_y=10.0

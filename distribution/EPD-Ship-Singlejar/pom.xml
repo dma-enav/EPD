@@ -10,7 +10,7 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>epd</artifactId>
+  <artifactId>epd-ship-dist</artifactId>
   <name>EPD Ship SingleJar</name>
 
   <dependencies>
