@@ -70,8 +70,11 @@ public class EncLayerFactory {
         }
 
         // // Try to load ENC props
-        if (!PropUtils.loadProperties(encProps, "..\\..\\.epd-ship",
-                "enc.properties")) {
+//        if (!PropUtils.loadProperties(encProps, "..\\..\\.epd-ship",
+//                "enc.properties")) {
+      if (!PropUtils.loadProperties(encProps, EPDShip.getHomePath().toString(),
+      "enc.properties")) {
+            
             LOG.error("No enc.properties file found");
             return;
         }
@@ -98,11 +101,11 @@ public class EncLayerFactory {
         // EeINS.getHomePath().toString()+"\\navicon\\data");
         // encProps.put("enc.certLocation", "file:\\\\" +
         // EeINS.getHomePath().toString()+"\\navicon\\data");
-        encProps.put("enc.certLocation",
-                "..\\..\\.epd-ship\\" + encProps.get("enc.certLocation"));
+        encProps.put("enc.certLocation",EPDShip.getHomePath().toString()+
+                "\\" + encProps.get("enc.certLocation"));
 
         try {
-            addToLibraryPath("..\\..\\.epd-ship" + "\\navicon\\native");
+            addToLibraryPath(EPDShip.getHomePath().toString()+ "\\navicon\\native");
         } catch (Exception e) {
             // TODO: handle exception
         }
