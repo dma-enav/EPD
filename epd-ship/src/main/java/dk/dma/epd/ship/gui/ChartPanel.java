@@ -36,6 +36,7 @@ import com.bbn.openmap.MapBean;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
+import com.bbn.openmap.proj.Orthographic;
 import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
@@ -123,6 +124,12 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
         map.setDoubleBuffered(true);
+        
+        // Orthographic test = new Orthographic((LatLonPoint)
+        // mapSettings.getCenter(), mapSettings.getScale(), 1000, 1000);
+        // map.setProjection(test);
+     
+
 
         mouseDelegator = new MouseDelegator();
         mapHandler.add(mouseDelegator);

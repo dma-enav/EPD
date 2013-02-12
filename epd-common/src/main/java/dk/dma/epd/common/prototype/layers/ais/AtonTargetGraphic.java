@@ -23,6 +23,8 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.CenterRaster;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.AtoNTarget;
+import dk.dma.epd.common.prototype.settings.AisSettings;
+import dk.dma.epd.common.prototype.settings.NavSettings;
 
 /**
  * Graphic for AtoN target
@@ -38,7 +40,7 @@ public class AtonTargetGraphic extends TargetGraphic {
     }
     
     @Override
-    public void update(AisTarget aisTarget) {
+    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings) {
         AtoNTarget atonTarget = (AtoNTarget)aisTarget;
         Position pos = atonTarget.getPos();
         float lat = (float)pos.getLatitude();
@@ -49,7 +51,7 @@ public class AtonTargetGraphic extends TargetGraphic {
     }
 
     @Override
-    public void setMarksVisible(Projection projection) {
+    public void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings) {
         
         
     }

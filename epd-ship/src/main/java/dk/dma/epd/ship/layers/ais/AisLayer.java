@@ -53,6 +53,8 @@ import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
 import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetTriangle;
+import dk.dma.epd.common.prototype.settings.AisSettings;
+import dk.dma.epd.common.prototype.settings.NavSettings;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -101,7 +103,10 @@ public class AisLayer extends OMGraphicHandlerLayer implements
     long selectedMMSI = -1;
     private boolean showLabels = true;
     // long selectedMMSI = 230994000;
-
+    private AisSettings aisSettings = EPDShip.getSettings().getAisSettings();
+    private NavSettings navSettings = EPDShip.getSettings().getNavSettings();
+    
+    
     private TopPanel topPanel;
 
     public AisLayer() {
@@ -299,16 +304,16 @@ public class AisLayer extends OMGraphicHandlerLayer implements
                 forceRedraw = true;
             }
 
-            targetGraphic.update(vesselTarget);
+            targetGraphic.update(vesselTarget, aisSettings, navSettings);
 
             if (vesselTarget.getMmsi() == selectedMMSI) {
                 updateSelection(aisTarget, false);
             }
 
         } else if (aisTarget instanceof SarTarget) {
-            targetGraphic.update(aisTarget);
+            targetGraphic.update(aisTarget, aisSettings, navSettings);
         } else if (aisTarget instanceof AtoNTarget) {
-            targetGraphic.update(aisTarget);
+            targetGraphic.update(aisTarget, aisSettings, navSettings);
         }
 
         targetGraphic.project(getProjection());
@@ -357,7 +362,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
 
         while (it.hasNext()) {
             TargetGraphic target = it.next();
-            target.setMarksVisible(getProjection());
+            target.setMarksVisible(getProjection(), aisSettings, navSettings);
         }
 
         setRedrawPending(false);

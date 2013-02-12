@@ -19,6 +19,8 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.Projection;
 
 import dk.dma.epd.common.prototype.ais.AisTarget;
+import dk.dma.epd.common.prototype.settings.AisSettings;
+import dk.dma.epd.common.prototype.settings.NavSettings;
 
 /**
  * Abstract base class graphic for AIS targets
@@ -31,8 +33,8 @@ public abstract class TargetGraphic extends OMGraphicList {
         //setVague(true);
     }
         
-    public abstract void update(AisTarget aisTarget);
+    public abstract void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings);
 
-    public abstract void setMarksVisible(Projection projection);
+    public abstract void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings);
     
 }

@@ -72,23 +72,29 @@ public class VesselTargetGraphic extends TargetGraphic {
     private Stroke stroke;
     private IntendedRouteGraphic routeGraphic = new IntendedRouteGraphic();
     private boolean showNameLabel = true;
-    AisSettings aisSettings;
-    NavSettings navSettings;
+//    AisSettings aisSettings;
+//    NavSettings navSettings;
 
-    public VesselTargetGraphic(AisSettings settings, NavSettings navSettings) {
+    public VesselTargetGraphic(AisSettings aisSettings, NavSettings navSettings) {
         super();
-        this.aisSettings = settings;
-        this.navSettings = navSettings;
-        this.showNameLabel = settings.isShowNameLabels();
+
+        System.out.println("Creating a vessel target graphic");
+
+        System.out.println(aisSettings);
+
+//        this.aisSettings = aisSettings;
+//        this.navSettings = navSettings;
+        this.showNameLabel = aisSettings.isShowNameLabels();
     }
-    
+
     public VesselTargetGraphic(boolean showName) {
         super();
         this.showNameLabel = showName;
     }
 
     private void createGraphics() {
-        speedVector = new OMLine(0, 0, 0, 0, OMGraphicConstants.LINETYPE_STRAIGHT);
+        speedVector = new OMLine(0, 0, 0, 0,
+                OMGraphicConstants.LINETYPE_STRAIGHT);
         speedVector.setStroke(new BasicStroke(STROKE_WIDTH, // Width
                 BasicStroke.CAP_SQUARE, // End cap
                 BasicStroke.JOIN_MITER, // Join style
@@ -122,135 +128,138 @@ public class VesselTargetGraphic extends TargetGraphic {
     }
 
     @Override
-    public void update(AisTarget aisTarget) {
-        
-        if (aisTarget instanceof VesselTarget){
-            
-        
-        
-        
-        vesselTarget = (VesselTarget) aisTarget;
-        VesselPositionData posData = vesselTarget.getPositionData();
-        VesselStaticData staticData = vesselTarget.getStaticData();
-        VesselTargetSettings targetSettings = vesselTarget.getSettings();
-        AisIntendedRoute aisIntendedRoute = vesselTarget.getAisRouteData();
+    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings) {
 
-        Position pos = posData.getPos();
-        double trueHeading = posData.getTrueHeading();
-        boolean noHeading = false;
-        if (trueHeading == 511) {
-            trueHeading = vesselTarget.getPositionData().getCog();
-            noHeading = true;
-        }
+        if (aisTarget instanceof VesselTarget) {
 
-        double lat = pos.getLatitude();
-        double lon = pos.getLongitude();
+            vesselTarget = (VesselTarget) aisTarget;
+            VesselPositionData posData = vesselTarget.getPositionData();
+            VesselStaticData staticData = vesselTarget.getStaticData();
+            VesselTargetSettings targetSettings = vesselTarget.getSettings();
+            AisIntendedRoute aisIntendedRoute = vesselTarget.getAisRouteData();
 
-        if (size() == 0) {
-            createGraphics();
-        }
+            Position pos = posData.getPos();
+            double trueHeading = posData.getTrueHeading();
+            boolean noHeading = false;
+            if (trueHeading == 511) {
+                trueHeading = vesselTarget.getPositionData().getCog();
+                noHeading = true;
+            }
 
-        
-        //Disable Risk for now
-        
-        // Set color based on risk index
-        
-//        Risk risk = EeINS.getRiskHandler().getRiskLevel(vesselTarget.getMmsi());
-        
-//        if(risk==null){
-//            vessel.setLinePaint(new Color(74, 97, 205, 255));
-//        }
-//        else if( risk.getRiskNorm()< 0.002){
-//            vessel.setLinePaint(Color.GREEN);
-//        }else if( risk.getRiskNorm()> 0.01){
-//            vessel.setLinePaint(Color.RED);
-//        }else{
-//            System.out.println("risk :"+ risk);
-//            int green = (int)((0.01-risk.getRiskNorm())/0.01*255);
-//            System.out.println(green);
-//            vessel.setLinePaint(new Color(255,green<0?255:green,51));
-//        }
+            double lat = pos.getLatitude();
+            double lon = pos.getLongitude();
 
-        double sog = vesselTarget.getPositionData().getSog();
-        double cogR = Math.toRadians(vesselTarget.getPositionData().getCog());
-        double hdgR = Math.toRadians(trueHeading);
+            if (size() == 0) {
+                createGraphics();
+            }
 
-        // vessel.setLocation(lat, lon, OMGraphic.DECIMAL_DEGREES, hdgR);
-        vessel.update(lat, lon, OMGraphicConstants.DECIMAL_DEGREES, hdgR, this);
-        heading.setLocation(lat, lon, OMGraphicConstants.DECIMAL_DEGREES, hdgR);
-        if (noHeading) {
-            heading.setVisible(false);
-        }
+            // Disable Risk for now
 
-        speedLL[0] = (float) pos.getLatitude();
-        speedLL[1] = (float) pos.getLongitude();
-        this.startPos = new LatLonPoint.Double(lat, lon);
+            // Set color based on risk index
 
-        float length = (float) Length.NM.toRadians(aisSettings.getCogVectorLength()
-                * (sog / 60.0));
+            // Risk risk =
+            // EeINS.getRiskHandler().getRiskLevel(vesselTarget.getMmsi());
 
-        this.endPos = startPos.getPoint(length, cogR);
-        speedLL[2] = endPos.getLatitude();
-        speedLL[3] = endPos.getLongitude();
-        speedVector.setLL(speedLL);
+            // if(risk==null){
+            // vessel.setLinePaint(new Color(74, 97, 205, 255));
+            // }
+            // else if( risk.getRiskNorm()< 0.002){
+            // vessel.setLinePaint(Color.GREEN);
+            // }else if( risk.getRiskNorm()> 0.01){
+            // vessel.setLinePaint(Color.RED);
+            // }else{
+            // System.out.println("risk :"+ risk);
+            // int green = (int)((0.01-risk.getRiskNorm())/0.01*255);
+            // System.out.println(green);
+            // vessel.setLinePaint(new Color(255,green<0?255:green,51));
+            // }
 
-        // Do not show speed vector if moored
-        // speedVector.setVisible(posData.getNavStatus() != 5);
+            double sog = vesselTarget.getPositionData().getSog();
+            double cogR = Math.toRadians(vesselTarget.getPositionData()
+                    .getCog());
+            double hdgR = Math.toRadians(trueHeading);
 
-        // Add minute marks
-        marks.clear();
-        for (int i = 1; i < 6; i++) {
-            float newMarker = (float) Length.NM.toRadians(navSettings.getCogVectorLength() / 6
-                    * i * (sog / 60.0));
-            LatLonPoint marker = startPos.getPoint(newMarker, (float) cogR);
-            RotationalPoly vtm = new RotationalPoly(markX, markY, stroke, paint);
-            vtm.setLocation(marker.getLatitude(), marker.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, cogR);
-            marks.add(vtm);
-        }
+            // vessel.setLocation(lat, lon, OMGraphic.DECIMAL_DEGREES, hdgR);
+            vessel.update(lat, lon, OMGraphicConstants.DECIMAL_DEGREES, hdgR,
+                    this);
+            heading.setLocation(lat, lon, OMGraphicConstants.DECIMAL_DEGREES,
+                    hdgR);
+            if (noHeading) {
+                heading.setVisible(false);
+            }
 
-        if (!marksVisible) {
-            marks.setVisible(false);
-        }
+            speedLL[0] = (float) pos.getLatitude();
+            speedLL[1] = (float) pos.getLongitude();
+            this.startPos = new LatLonPoint.Double(lat, lon);
 
-        // Set label
-        label.setLat(lat);
-        label.setLon(lon);
-        if (trueHeading > 90 && trueHeading < 270) {
-            label.setY(-10);
-        } else {
-            label.setY(20);
-        }
+            float length = (float) Length.NM.toRadians(aisSettings
+                    .getCogVectorLength() * (sog / 60.0));
 
-        // Determine name
-        String name;
-        if (staticData != null) {
-            name = AisMessage.trimText(staticData.getName());
-        } else {
-            Long mmsi = vesselTarget.getMmsi();
-            name = "ID:" + mmsi.toString();
-        }
-        label.setData(name);
+            this.endPos = startPos.getPoint(length, cogR);
+            speedLL[2] = endPos.getLatitude();
+            speedLL[3] = endPos.getLongitude();
+            speedVector.setLL(speedLL);
 
-        if (showNameLabel) {
-            label.setVisible(true);
-        } else {
-            label.setVisible(false);
-        }
-        // Intended route graphic
-        routeGraphic.update(vesselTarget, name, aisIntendedRoute, pos);
-        if (!targetSettings.isShowRoute()) {
-            routeGraphic.setVisible(false);
-        }
-        
+            // Do not show speed vector if moored
+            // speedVector.setVisible(posData.getNavStatus() != 5);
+
+            // Add minute marks
+            marks.clear();
+            for (int i = 1; i < 6; i++) {
+                float newMarker = (float) Length.NM.toRadians(navSettings
+                        .getCogVectorLength() / 6 * i * (sog / 60.0));
+                LatLonPoint marker = startPos.getPoint(newMarker, (float) cogR);
+                RotationalPoly vtm = new RotationalPoly(markX, markY, stroke,
+                        paint);
+                vtm.setLocation(marker.getLatitude(), marker.getLongitude(),
+                        OMGraphicConstants.DECIMAL_DEGREES, cogR);
+                marks.add(vtm);
+            }
+
+            if (!marksVisible) {
+                marks.setVisible(false);
+            }
+
+            // Set label
+            label.setLat(lat);
+            label.setLon(lon);
+            if (trueHeading > 90 && trueHeading < 270) {
+                label.setY(-10);
+            } else {
+                label.setY(20);
+            }
+
+            // Determine name
+            String name;
+            if (staticData != null) {
+                name = AisMessage.trimText(staticData.getName());
+            } else {
+                Long mmsi = vesselTarget.getMmsi();
+                name = "ID:" + mmsi.toString();
+            }
+            label.setData(name);
+
+            if (showNameLabel) {
+                label.setVisible(true);
+            } else {
+                label.setVisible(false);
+            }
+            // Intended route graphic
+            routeGraphic.update(vesselTarget, name, aisIntendedRoute, pos);
+            if (!targetSettings.isShowRoute()) {
+                routeGraphic.setVisible(false);
+            }
+
         }
     }
 
     @Override
-    public void setMarksVisible(Projection projection) {
+    public void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings) {
         if (startPos != null && endPos != null) {
             Point2D start = projection.forward(startPos);
             Point2D end = projection.forward(endPos);
-            pixelDist.setValues(start.getX(), start.getY(), end.getX(), end.getY());
+            pixelDist.setValues(start.getX(), start.getY(), end.getX(),
+                    end.getY());
             if (pixelDist.norm() < aisSettings.getShowMinuteMarksAISTarget()) {
                 marksVisible = false;
                 marks.setVisible(false);

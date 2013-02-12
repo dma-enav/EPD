@@ -26,6 +26,8 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
+import dk.dma.epd.common.prototype.settings.AisSettings;
+import dk.dma.epd.common.prototype.settings.NavSettings;
 
 /**
  * AIS SART graphic
@@ -42,7 +44,7 @@ public class SarTargetGraphic extends TargetGraphic {
 //    private boolean warningIssued;
 
     @Override
-    public void update(AisTarget aisTarget) {
+    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings) {
         sarTarget = (SarTarget) aisTarget;
         VesselPositionData posData = sarTarget.getPositionData();
         // VesselStaticData staticData = sarTarget.getStaticData();
@@ -102,7 +104,7 @@ public class SarTargetGraphic extends TargetGraphic {
     }
 
     @Override
-    public void setMarksVisible(Projection projection) {
+    public void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings) {
 
     }
     
