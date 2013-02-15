@@ -16,9 +16,11 @@
 package dk.dma.epd.shore.gui.views.menuitems;
 
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.route.RouteManager;
 
 public class RouteWaypointDelete extends JMenuItem implements IMapMenuAction {
@@ -39,11 +41,28 @@ public class RouteWaypointDelete extends JMenuItem implements IMapMenuAction {
     @Override
     public void doAction() {
         Route route = routeManager.getRoute(routeIndex);
-        boolean delete = route.deleteWaypoint(routeWaypointIndex);
-        if(delete){
-            routeManager.removeRoute(routeIndex);
+        if (route.getWaypoints().size() < 3) {
+
+            int result = JOptionPane
+                    .showConfirmDialog(
+                            EPDShore.getMainFrame(),
+                            "A route must have at least two waypoints.\nDo you want to delete the route?",
+                            "Delete Route?", JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE);
+            System.out.println(result);
+            if (result == JOptionPane.YES_OPTION) {
+                route.deleteWaypoint(routeWaypointIndex);
+
+                routeManager.removeRoute(routeIndex);
+
+                routeManager
+                        .notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
+            }
+        } else {
+            route.deleteWaypoint(routeWaypointIndex);
+            routeManager
+                    .notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
         }
-        routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
     }
 
     public void setRouteWaypointIndex(int routeWaypointIndex) {

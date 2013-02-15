@@ -41,19 +41,27 @@ public class RouteWaypointDelete extends JMenuItem implements IMapMenuAction {
     @Override
     public void doAction() {
         Route route = routeManager.getRoute(routeIndex);
-        
-        if(route.getWaypoints().size() < 3){
-            
-            int result = JOptionPane.showConfirmDialog(EPDShip.getMainFrame(), "A route must have at least two waypoints.\nDo you want to delete the route?", "Delete Route?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-            if(result == JOptionPane.YES_OPTION){
-                boolean delete = route.deleteWaypoint(routeWaypointIndex);
-                if(delete){
-                    routeManager.removeRoute(routeIndex);
-                }
-                routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
+        if (route.getWaypoints().size() < 3) {
+
+            int result = JOptionPane
+                    .showConfirmDialog(
+                            EPDShip.getMainFrame(),
+                            "A route must have at least two waypoints.\nDo you want to delete the route?",
+                            "Delete Route?", JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE);
+            System.out.println(result);
+            if (result == JOptionPane.YES_OPTION) {
+                route.deleteWaypoint(routeWaypointIndex);
+
+                routeManager.removeRoute(routeIndex);
+
+                routeManager
+                        .notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
             }
-            
-            
+        } else {
+            route.deleteWaypoint(routeWaypointIndex);
+            routeManager
+                    .notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
         }
         
         
