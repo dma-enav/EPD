@@ -32,22 +32,20 @@ import com.bbn.openmap.util.PropUtils;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 
-
-
 /**
  * Settings class
  */
 public class ESDSettings implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(ESDSettings.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(ESDSettings.class);
 
-    private String settingsFile = "/settings.properties";
-    private String defaultWorkSpace = "/workspaces/default.workspace";
+    private String settingsFile = "\\settings.properties";
+    private String defaultWorkSpace = "\\workspaces\\default.workspace";
     private String workspaceFile = "";
 
     private ESDGuiSettings guiSettings = new ESDGuiSettings();
-
 
     private ESDMapSettings mapSettings = new ESDMapSettings();
     private ESDSensorSettings sensorSettings = new ESDSensorSettings();
@@ -56,7 +54,6 @@ public class ESDSettings implements Serializable {
     private ESDAisSettings aisSettings = new ESDAisSettings();
     private ESDEnavSettings enavSettings = new ESDEnavSettings();
     private Workspace workspace = new Workspace();
-
 
     public ESDSettings() {
 
@@ -72,7 +69,10 @@ public class ESDSettings implements Serializable {
     public void loadFromFile() {
         // Open properties file
         Properties props = new Properties();
-        if (!PropUtils.loadProperties(props, EPDShore.getHomePath().toString(), settingsFile)) {
+        LOG.info("Trying to load " + EPDShore.getHomePath().toString() + "\\"
+                + settingsFile);
+        if (!PropUtils.loadProperties(props, EPDShore.getHomePath().toString()
+                + "\\", settingsFile)) {
             LOG.info("No settings file found");
             return;
         }
@@ -85,32 +85,39 @@ public class ESDSettings implements Serializable {
 
         workspaceFile = guiSettings.getWorkspace();
 
-        if (workspaceFile != null){
+        if (workspaceFile != null) {
 
-        //Load default workspace - will ALWAYS load from workspaces folder
-        Properties workspaceProp = new Properties();
-        if (!PropUtils.loadProperties(workspaceProp, EPDShore.getHomePath().toString(), workspaceFile)) {
-//            LOG.info("No workspace file found - reverting to default");
-            LOG.error("No workspace file found - reverting to default - " + workspaceFile + " was invalid");
-            PropUtils.loadProperties(workspaceProp, EPDShore.getHomePath().toString(), defaultWorkSpace);
-            guiSettings.setWorkspace(defaultWorkSpace);
-        }
-        workspace.readProperties(workspaceProp);
+            // Load default workspace - will ALWAYS load from workspaces folder
+            Properties workspaceProp = new Properties();
+            if (!PropUtils.loadProperties(workspaceProp, EPDShore.getHomePath()
+                    .toString(), workspaceFile)) {
+                // LOG.info("No workspace file found - reverting to default");
+                LOG.error("No workspace file found - reverting to default - "
+                        + workspaceFile + " was invalid");
+                PropUtils.loadProperties(workspaceProp, EPDShore.getHomePath()
+                        .toString(), defaultWorkSpace);
+                guiSettings.setWorkspace(defaultWorkSpace);
+            }
+            workspace.readProperties(workspaceProp);
         }
     }
 
     /**
      * Load a workspace
+     * 
      * @param parent
      * @param filename
      * @return
      */
-    public Workspace loadWorkspace(String parent, String filename){
+    public Workspace loadWorkspace(String parent, String filename) {
         Properties workspaceProp = new Properties();
         if (!PropUtils.loadProperties(workspaceProp, parent, filename)) {
             LOG.info("No workspace file found - reverting to default");
-            System.out.println("No workspace file found - reverting to default - " + parent + filename + " was invalid");
-            PropUtils.loadProperties(workspaceProp, EPDShore.getHomePath().toString(), defaultWorkSpace);
+            System.out
+                    .println("No workspace file found - reverting to default - "
+                            + parent + filename + " was invalid");
+            PropUtils.loadProperties(workspaceProp, EPDShore.getHomePath()
+                    .toString(), defaultWorkSpace);
         }
         guiSettings.setWorkspace("workspaces/" + filename);
         workspace = new Workspace();
@@ -131,16 +138,16 @@ public class ESDSettings implements Serializable {
         navSettings.setProperties(props);
         sensorSettings.setProperties(props);
 
-//        navSettings.setProperties(props);
-
+        // navSettings.setProperties(props);
 
         try {
-            FileWriter outFile = new FileWriter(EPDShore.getHomePath().toString() + settingsFile);
+            FileWriter outFile = new FileWriter(EPDShore.getHomePath()
+                    .toString() + settingsFile);
             PrintWriter out = new PrintWriter(outFile);
             out.println("# esd settings saved: " + new Date());
             TreeSet<String> keys = new TreeSet<String>();
             for (Object key : props.keySet()) {
-                keys.add((String)key);
+                keys.add((String) key);
             }
             for (String key : keys) {
                 out.println(key + "=" + props.getProperty(key));
@@ -151,24 +158,25 @@ public class ESDSettings implements Serializable {
         }
     }
 
-
     /**
      * Save the current workspace
+     * 
      * @param mapWindows
      * @param filename
      */
-    public void saveCurrentWorkspace(List<JMapFrame> mapWindows, String filename){
+    public void saveCurrentWorkspace(List<JMapFrame> mapWindows, String filename) {
         Properties props = new Properties();
         workspace.setProperties(props, mapWindows);
         try {
-            filename = EPDShore.getHomePath().toString() + "/workspaces/" + filename;
-//            System.out.println("Trying to save to: " + filename);
+            filename = EPDShore.getHomePath().toString() + "/workspaces/"
+                    + filename;
+            // System.out.println("Trying to save to: " + filename);
             FileWriter outFile = new FileWriter(filename);
             PrintWriter out = new PrintWriter(outFile);
             out.println("# workspace settings saved: " + new Date());
             TreeSet<String> keys = new TreeSet<String>();
             for (Object key : props.keySet()) {
-                keys.add((String)key);
+                keys.add((String) key);
             }
             for (String key : keys) {
                 out.println(key + "=" + props.getProperty(key));
@@ -197,14 +205,13 @@ public class ESDSettings implements Serializable {
         return aisSettings;
     }
 
-    public Workspace getWorkspace(){
+    public Workspace getWorkspace() {
         return workspace;
     }
 
     public ESDEnavSettings getEnavSettings() {
         return enavSettings;
     }
-
 
     public ESDNavSettings getNavSettings() {
         return navSettings;
@@ -213,6 +220,5 @@ public class ESDSettings implements Serializable {
     public ESDSensorSettings getSensorSettings() {
         return sensorSettings;
     }
-
 
 }
