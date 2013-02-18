@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.apache.log4j.xml.DOMConfigurator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.Resource;
@@ -40,10 +41,10 @@ class Bootstrap {
 
         // Used from log4j to place log files
         System.setProperty("dma.app.home", home.toString());
-
+        
         // Log4j
         unpackToAppHome("log4j.xml");
-        //DOMConfigurator.configure(home.resolve("log4j.xml").toUri().toURL());
+        DOMConfigurator.configure(home.resolve("log4j.xml").toUri().toURL());
 
         // Properties
         unpackToAppHome("epd-shore.properties");

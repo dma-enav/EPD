@@ -90,8 +90,8 @@ public class ESDSettings implements Serializable {
         //Load default workspace - will ALWAYS load from workspaces folder
         Properties workspaceProp = new Properties();
         if (!PropUtils.loadProperties(workspaceProp, EPDShore.getHomePath().toString(), workspaceFile)) {
-            LOG.info("No workspace file found - reverting to default");
-            System.out.println("No workspace file found - reverting to default - " + workspaceFile + " was invalid");
+//            LOG.info("No workspace file found - reverting to default");
+            LOG.error("No workspace file found - reverting to default - " + workspaceFile + " was invalid");
             PropUtils.loadProperties(workspaceProp, EPDShore.getHomePath().toString(), defaultWorkSpace);
             guiSettings.setWorkspace(defaultWorkSpace);
         }

@@ -48,11 +48,11 @@
 	</logger>
 
 	<logger name="dk.navicon.s52">
-		<level value="ERROR" />
+		<level value="FATAL" />
 	</logger>
 	
 	<logger name="dk.navicon.s57">
-		<level value="ERROR" />
+		<level value="FATAL" />
 	</logger>
 
 	<root>

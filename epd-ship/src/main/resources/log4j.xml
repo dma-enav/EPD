@@ -14,7 +14,7 @@
 	</appender>
 
 	<appender name="LOGFILE" class="org.apache.log4j.RollingFileAppender">
-		<param name="File" value="${dma.app.home}/log/eeins.log" />
+		<param name="File" value="${dma.app.home}/log/epd-ship.log" />
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="1024KB" />
 		<param name="MaxBackupIndex" value="3" />

@@ -334,7 +334,6 @@ public class EPDShore {
         new Bootstrap().run();
 
         // Set up log4j logging
-        // DOMConfigurator.configure("log4j.xml");
         LOG = LoggerFactory.getLogger(EPDShore.class);
 
         // Set default exception handler
