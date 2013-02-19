@@ -64,7 +64,7 @@ import dk.dma.epd.shore.settings.ESDEnavSettings;
 public class RouteManager extends MapHandlerChild implements Runnable, Serializable, IGpsDataListener, IAisRouteSuggestionListener {
 
     private static final long serialVersionUID = 1L;
-    private static final String ROUTESFILE = ".routes";
+    private static final String ROUTESFILE = EPDShore.getHomePath().resolve(".routes").toString();
     private static final Logger LOG = LoggerFactory.getLogger(RouteManager.class);
 
     private List<Route> routes = new LinkedList<Route>();
