@@ -646,6 +646,9 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
+                        System.out.println("Set longitude? " +  route.getWaypoints().get(id).getPos()
+                                .getLongitudeAsString() );
+                        
                         waypointTable
                                 .get(id)
                                 .getLongitude()
@@ -1683,7 +1686,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
         if (activeRoute == null) {
 
-            System.out.println("Check time diff called?");
+//            System.out.println("Check time diff called?");
 
             internalOperation = true;
 
@@ -1737,7 +1740,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
             updateFields();
 
             internalOperation = false;
-            System.out.println("Internal operation is false");
+//            System.out.println("Internal operation is false");
         }
     }
 
