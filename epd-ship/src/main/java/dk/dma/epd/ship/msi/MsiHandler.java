@@ -268,6 +268,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     }
 
     private synchronized boolean reCalcMsiVisibility() {
+        
         boolean updated = false;
 
         if (gpsUpdate) {

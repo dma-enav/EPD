@@ -40,9 +40,10 @@ import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.MapMenu;
 
 /**
- * Layer for drawing new route. When active it will use a panning mouse mode. 
+ * Layer for drawing new route. When active it will use a panning mouse mode.
  */
-public class RouteEditLayer extends OMGraphicHandlerLayer implements MapMouseListener {
+public class RouteEditLayer extends OMGraphicHandlerLayer implements
+        MapMouseListener {
 
     private static final long serialVersionUID = 1L;
     private ChartPanel chartPanel;
@@ -61,33 +62,33 @@ public class RouteEditLayer extends OMGraphicHandlerLayer implements MapMouseLis
         wpCircle.setLatLon(0, 0);
         wpCircle.setVisible(false);
         graphics.add(wpCircle);
-        wpLeg = new OMLine(0,0,10,10,OMGraphicConstants.LINETYPE_RHUMB);
+        wpLeg = new OMLine(0, 0, 10, 10, OMGraphicConstants.LINETYPE_RHUMB);
         wpLeg.setStroke(new BasicStroke(2));
         wpLeg.setLinePaint(Color.black);
         wpLeg.setVisible(false);
         graphics.add(wpLeg);
     }
-    
+
     @Override
     public synchronized OMGraphicList prepare() {
         graphics.project(getProjection());
-        if(waypoints.size() <= 0) {
+        if (waypoints.size() <= 0) {
             wpLeg.setVisible(false);
         }
         return graphics;
     }
-    
+
     public synchronized void addPanListener(PanListener listener) {
         panDelegate.add(listener);
     }
-    
+
     protected synchronized void firePanEvent(float az) {
-        //panDelegate.firePan(az,0.05f);
+        // panDelegate.firePan(az,0.05f);
     }
-    
+
     @Override
     public void findAndInit(Object obj) {
-        if (obj instanceof NewRouteContainerLayer){
+        if (obj instanceof NewRouteContainerLayer) {
             routeContainerLayer = (NewRouteContainerLayer) obj;
             waypoints = routeContainerLayer.getWaypoints();
         }
@@ -102,12 +103,12 @@ public class RouteEditLayer extends OMGraphicHandlerLayer implements MapMouseLis
         }
         super.findAndInit(obj);
     }
-    
+
     @Override
     public void findAndUndo(Object obj) {
         super.findAndUndo(obj);
     }
-    
+
     @Override
     public MapMouseListener getMapMouseListener() {
         return this;
@@ -122,19 +123,21 @@ public class RouteEditLayer extends OMGraphicHandlerLayer implements MapMouseLis
 
     @Override
     public boolean mouseClicked(MouseEvent e) {
-        if(e.getButton() == MouseEvent.BUTTON1) {
+        if (e.getButton() == MouseEvent.BUTTON1) {
             RouteWaypoint newWaypoint = new RouteWaypoint();
-            
-            
-            LatLonPoint newPoint = chartPanel.getMap().getProjection().inverse(e.getPoint());
-            Position gl = Position.create(newPoint.getLatitude(), newPoint.getLongitude());
+
+            LatLonPoint newPoint = chartPanel.getMap().getProjection()
+                    .inverse(e.getPoint());
+            Position gl = Position.create(newPoint.getLatitude(),
+                    newPoint.getLongitude());
             newWaypoint.setPos(gl);
             waypoints.add(newWaypoint);
-            
-            if(waypoints.size() > 1) {
+
+            if (waypoints.size() > 1) {
                 RouteLeg newLeg = new RouteLeg();
                 newLeg.setHeading(Heading.RL);
-                RouteWaypoint prevWaypoint = waypoints.get(waypoints.size()-2);
+                RouteWaypoint prevWaypoint = waypoints
+                        .get(waypoints.size() - 2);
                 prevWaypoint.setOutLeg(newLeg);
                 newWaypoint.setInLeg(newLeg);
                 newLeg.setStartWp(prevWaypoint);
@@ -145,7 +148,7 @@ public class RouteEditLayer extends OMGraphicHandlerLayer implements MapMouseLis
         } else if (e.getButton() == MouseEvent.BUTTON3) {
             mapMenu.routeEditMenu();
             mapMenu.setVisible(true);
-            mapMenu.show(this, e.getX()-2, e.getY()-2);
+            mapMenu.show(this, e.getX() - 2, e.getY() - 2);
             return true;
         }
         return false;
@@ -159,7 +162,7 @@ public class RouteEditLayer extends OMGraphicHandlerLayer implements MapMouseLis
     @Override
     public void mouseEntered(MouseEvent e) {
         wpCircle.setVisible(true);
-        doPrepare();        
+        doPrepare();
     }
 
     @Override
@@ -171,30 +174,32 @@ public class RouteEditLayer extends OMGraphicHandlerLayer implements MapMouseLis
     @Override
     public void mouseMoved() {
     }
-    
+
     @Override
     public boolean mouseMoved(MouseEvent e) {
         int panFrame = 20;
-        if(e.getPoint().x < panFrame){
+        if (e.getPoint().x < panFrame) {
             firePanEvent(270f);
         }
-        if(e.getPoint().x > chartPanel.getSize().width-panFrame){
+        if (e.getPoint().x > chartPanel.getSize().width - panFrame) {
             firePanEvent(90f);
         }
-        if(e.getPoint().y < panFrame){
+        if (e.getPoint().y < panFrame) {
             panning = true;
             firePanEvent(0f);
         }
-        if(e.getPoint().y > chartPanel.getSize().height-panFrame){
+        if (e.getPoint().y > chartPanel.getSize().height - panFrame) {
             firePanEvent(180f);
         }
-        LatLonPoint latlon = chartPanel.getMap().getProjection().inverse(e.getPoint());
+        LatLonPoint latlon = chartPanel.getMap().getProjection()
+                .inverse(e.getPoint());
         wpCircle.setLatLon(latlon.getLatitude(), latlon.getLongitude());
-        if(waypoints.size() > 0){
+        if (waypoints.size() > 0) {
             wpLeg.setVisible(true);
             double[] pos = new double[4];
-            pos[0] = waypoints.get(waypoints.size()-1).getPos().getLatitude();
-            pos[1] = waypoints.get(waypoints.size()-1).getPos().getLongitude();
+            pos[0] = waypoints.get(waypoints.size() - 1).getPos().getLatitude();
+            pos[1] = waypoints.get(waypoints.size() - 1).getPos()
+                    .getLongitude();
             pos[2] = latlon.getLatitude();
             pos[3] = latlon.getLongitude();
             wpLeg.setLL(pos);

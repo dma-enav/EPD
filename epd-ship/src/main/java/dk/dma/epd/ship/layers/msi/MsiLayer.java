@@ -31,12 +31,12 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMList;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
-
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
 import dk.dma.epd.common.prototype.layers.msi.MsiGraphic;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
+import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.util.Calculator;
@@ -51,27 +51,28 @@ import dk.frv.enav.common.xml.msi.MsiLocation;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 import dk.frv.enav.common.xml.msi.MsiPoint;
 
-public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener {    
+public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener {
     private static final long serialVersionUID = 1L;
 
     private MsiHandler msiHandler;
-    
+
     private OMGraphicList graphics = new OMGraphicList();
     private MapBean mapBean;
     private TopPanel topPanel;
-    private MainFrame mainFrame;    
-    private MsiInfoPanel msiInfoPanel;    
+    private MainFrame mainFrame;
+    private MsiInfoPanel msiInfoPanel;
     private OMGraphic closest;
     private OMGraphic selectedGraphic;
     private MapMenu msiMenu;
 
     private MouseDelegator mouseDelegator;
     private LatLonPoint mousePosition;
-    
+    private NewRouteContainerLayer newRouteLayer;
+
     public MsiLayer() {
-        
+
     }
-    
+
     public void doUpdate() {
         graphics.clear();
         Date now = GnssTime.getInstance().getDate();
@@ -101,11 +102,23 @@ public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener 
                 // Check proximity to current location (free navigation mode)
                 if(mousePosition != null && !message.visible) {
                     double distance = distanceToShip(message);
-                    if(distance > EPDShip.getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint()){
+                    
+                    boolean visibleToOther = false;
+                    for (int i = 0; i < newRouteLayer.getRoute().getWaypoints().size(); i++) {
+                        double distance2 = distanceToPoint(message, newRouteLayer.getRoute().getWaypoints().get(i).getPos());
+                        if(distance2 <= EPDShip.getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint()){
+                            visibleToOther = true;
+                        }
+                    }
+                    
+                    boolean visibleToSelf = distance <= EPDShip.getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint();
+                    
+                    if (!visibleToSelf && !visibleToOther){
                         continue;
                     }
                 }
             }
+
             
             // Create MSI graphic
             MsiGraphic msiGraphic = new MsiGraphic(message);
@@ -119,47 +132,83 @@ public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener 
         }
         doPrepare();
     }
-    
+
     /**
-     * Calculates the spherical distance from an MSI warning to the ship's position.
-     * Currently just a test-implementation where the mouse simulates the ship's position
-     * @param msiMessageExtended MSI message to calculate distance for
+     * Calculates the spherical distance from an MSI warning to the ship's
+     * position. Currently just a test-implementation where the mouse simulates
+     * the ship's position
+     * 
+     * @param msiMessageExtended
+     *            MSI message to calculate distance for
      * @return Arc distance `c'
      */
     private double distanceToShip(MsiMessageExtended msiMessageExtended) {
-        List<MsiPoint> msiPoints = msiMessageExtended.msiMessage.getLocation().getPoints();
+        List<MsiPoint> msiPoints = msiMessageExtended.msiMessage.getLocation()
+                .getPoints();
         Double distance = Double.MAX_VALUE;
         for (MsiPoint msiPoint : msiPoints) {
-//            double currentDistance = GreatCircle.sphericalDistance(ProjMath.degToRad(mousePosition.getLatitude()),
-//                    ProjMath.degToRad(mousePosition.getLongitude()),
-//                    ProjMath.degToRad(msiPoint.getLatitude()),
-//                    ProjMath.degToRad(msiPoint.getLongitude()));
-            Position mouseLocation = Position.create(mousePosition.getLatitude(), mousePosition.getLongitude());
-            Position msiLocation = Position.create(msiPoint.getLatitude(), msiPoint.getLongitude());
-            double currentDistance = Calculator.range(mouseLocation, msiLocation, Heading.GC);
+            // double currentDistance =
+            // GreatCircle.sphericalDistance(ProjMath.degToRad(mousePosition.getLatitude()),
+            // ProjMath.degToRad(mousePosition.getLongitude()),
+            // ProjMath.degToRad(msiPoint.getLatitude()),
+            // ProjMath.degToRad(msiPoint.getLongitude()));
+            Position mouseLocation = Position.create(
+                    mousePosition.getLatitude(), mousePosition.getLongitude());
+            Position msiLocation = Position.create(msiPoint.getLatitude(),
+                    msiPoint.getLongitude());
+            double currentDistance = Calculator.range(mouseLocation,
+                    msiLocation, Heading.GC);
             distance = Math.min(currentDistance, distance);
         }
         return distance;
     }
-    
+
+    /**
+     * Calculates the spherical distance from an MSI warning to a given position
+     * 
+     * @param msiMessageExtended
+     *            MSI message to calculate distance for
+     * @return Arc distance `c'
+     */
+    private double distanceToPoint(MsiMessageExtended msiMessageExtended,
+            Position position) {
+        List<MsiPoint> msiPoints = msiMessageExtended.msiMessage.getLocation()
+                .getPoints();
+        Double distance = Double.MAX_VALUE;
+        for (MsiPoint msiPoint : msiPoints) {
+            // double currentDistance =
+            // GreatCircle.sphericalDistance(ProjMath.degToRad(mousePosition.getLatitude()),
+            // ProjMath.degToRad(mousePosition.getLongitude()),
+            // ProjMath.degToRad(msiPoint.getLatitude()),
+            // ProjMath.degToRad(msiPoint.getLongitude()));
+            Position msiLocation = Position.create(msiPoint.getLatitude(),
+                    msiPoint.getLongitude());
+            double currentDistance = Calculator.range(position, msiLocation,
+                    Heading.GC);
+            distance = Math.min(currentDistance, distance);
+        }
+        return distance;
+    }
+
     @Override
     public synchronized OMGraphicList prepare() {
-//        for (OMGraphic graphic : graphics) {
-//            MsiGraphic msiGraphic = (MsiGraphic) graphic;
-//            if(mapBean.getProjection().getScale() <= EeINS.getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale()
-//                    && !msiGraphic.getMessage().acknowledged){
-//                if(!msiGraphic.getTextBoxVisible())
-//                    msiGraphic.showTextBox();
-//            } else {
-//                if(msiGraphic.getTextBoxVisible())
-//                    msiGraphic.hideTextBox();
-//            }
-//        }
+        // for (OMGraphic graphic : graphics) {
+        // MsiGraphic msiGraphic = (MsiGraphic) graphic;
+        // if(mapBean.getProjection().getScale() <=
+        // EeINS.getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale()
+        // && !msiGraphic.getMessage().acknowledged){
+        // if(!msiGraphic.getTextBoxVisible())
+        // msiGraphic.showTextBox();
+        // } else {
+        // if(msiGraphic.getTextBoxVisible())
+        // msiGraphic.hideTextBox();
+        // }
+        // }
         graphics.project(getProjection());
         return graphics;
     }
-    
-    public void zoomTo(MsiMessage msiMessage) {        
+
+    public void zoomTo(MsiMessage msiMessage) {
         if (!msiMessage.hasLocation()) {
             return;
         }
@@ -167,30 +216,34 @@ public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener 
         MsiLocation msiLocation = msiMessage.getLocation();
         Position center = msiLocation.getCenter();
         mapBean.setCenter(center.getLatitude(), center.getLongitude());
-        mapBean.setScale(EPDShip.getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale());        
+        mapBean.setScale(EPDShip.getSettings().getEnavSettings()
+                .getMsiTextboxesVisibleAtScale());
     }
-    
+
     @Override
     public void findAndInit(Object obj) {
         if (obj instanceof MsiHandler) {
-            msiHandler = (MsiHandler)obj;
+            msiHandler = (MsiHandler) obj;
         }
-        if (obj instanceof MapBean){
-            mapBean = (MapBean)obj;
+        if (obj instanceof MapBean) {
+            mapBean = (MapBean) obj;
         }
         if (obj instanceof TopPanel) {
-            topPanel = (TopPanel)obj;
+            topPanel = (TopPanel) obj;
         }
-        if (obj instanceof MainFrame){
+        if (obj instanceof MainFrame) {
             mainFrame = (MainFrame) obj;
             msiInfoPanel = new MsiInfoPanel();
             mainFrame.getGlassPanel().add(msiInfoPanel);
         }
-        if (obj instanceof MapMenu){
+        if (obj instanceof MapMenu) {
             msiMenu = (MapMenu) obj;
         }
         if (obj instanceof MouseDelegator) {
             mouseDelegator = (MouseDelegator) obj;
+        }
+        if (obj instanceof NewRouteContainerLayer) {
+            newRouteLayer = (NewRouteContainerLayer) obj;
         }
     }
 
@@ -198,7 +251,7 @@ public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener 
     public MapMouseListener getMapMouseListener() {
         return this;
     }
-    
+
     @Override
     public String[] getMouseModeServiceList() {
         String[] ret = new String[2];
@@ -209,35 +262,37 @@ public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener 
 
     @Override
     public boolean mouseClicked(MouseEvent e) {
-        if(e.getButton() != MouseEvent.BUTTON3){
+        if (e.getButton() != MouseEvent.BUTTON3) {
             return false;
         }
-        
+
         selectedGraphic = null;
-        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 5.0f);
+        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
+                5.0f);
         for (OMGraphic omGraphic : allClosest) {
-            if (omGraphic instanceof MsiSymbolGraphic || omGraphic instanceof MsiDirectionalIcon) {
+            if (omGraphic instanceof MsiSymbolGraphic
+                    || omGraphic instanceof MsiDirectionalIcon) {
                 selectedGraphic = omGraphic;
                 break;
             }
         }
-        
-        if(selectedGraphic instanceof MsiSymbolGraphic){
+
+        if (selectedGraphic instanceof MsiSymbolGraphic) {
             MsiSymbolGraphic msi = (MsiSymbolGraphic) selectedGraphic;
             mainFrame.getGlassPane().setVisible(false);
             msiMenu.msiMenu(topPanel, msi);
             msiMenu.setVisible(true);
-            msiMenu.show(this, e.getX()-2, e.getY()-2);
-            msiInfoPanel.setVisible(false);                
+            msiMenu.show(this, e.getX() - 2, e.getY() - 2);
+            msiInfoPanel.setVisible(false);
             return true;
         }
-        if(selectedGraphic instanceof MsiDirectionalIcon) {
+        if (selectedGraphic instanceof MsiDirectionalIcon) {
             MsiDirectionalIcon direction = (MsiDirectionalIcon) selectedGraphic;
             mainFrame.getGlassPane().setVisible(false);
             msiMenu.msiDirectionalMenu(topPanel, direction, this);
             msiMenu.setVisible(true);
-            msiMenu.show(this, e.getX()-10, e.getY()-10);
-            msiInfoPanel.setVisible(false);            
+            msiMenu.show(this, e.getX() - 10, e.getY() - 10);
+            msiInfoPanel.setVisible(false);
             return true;
         }
         return false;
@@ -252,12 +307,12 @@ public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener 
     @Override
     public void mouseEntered(MouseEvent arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void mouseExited(MouseEvent arg0) {
-        if(mouseDelegator.getActiveMouseModeID() == RouteEditMouseMode.MODE_ID) {
+        if (mouseDelegator.getActiveMouseModeID() == RouteEditMouseMode.MODE_ID) {
             mousePosition = null;
             doUpdate();
         }
@@ -266,35 +321,40 @@ public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener 
     @Override
     public void mouseMoved() {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public boolean mouseMoved(MouseEvent e) {
         // Testing mouse mode for the MSI relevancy
         if (mouseDelegator.getActiveMouseModeID() == RouteEditMouseMode.MODE_ID) {
-            LatLonPoint mousePosition = ((MapBean) e.getSource()).getProjection().inverse(e.getPoint());
-            this.mousePosition = mousePosition; 
+            LatLonPoint mousePosition = ((MapBean) e.getSource())
+                    .getProjection().inverse(e.getPoint());
+            this.mousePosition = mousePosition;
             doUpdate();
         }
-        
+
         // Show description on hover
         OMGraphic newClosest = null;
-        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 3.0f);
-        
+        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
+                3.0f);
+
         for (OMGraphic omGraphic : allClosest) {
-            if (omGraphic instanceof MsiSymbolGraphic || omGraphic instanceof MsiDirectionalIcon) {
+            if (omGraphic instanceof MsiSymbolGraphic
+                    || omGraphic instanceof MsiDirectionalIcon) {
                 newClosest = omGraphic;
                 break;
             }
         }
-        
+
         if (newClosest != closest) {
-            Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), mainFrame);
+            Point containerPoint = SwingUtilities.convertPoint(mapBean,
+                    e.getPoint(), mainFrame);
             if (newClosest instanceof MsiSymbolGraphic) {
                 closest = newClosest;
-                MsiSymbolGraphic msiSymbolGraphic = (MsiSymbolGraphic)newClosest;
-                msiInfoPanel.setPos((int)containerPoint.getX(), (int)containerPoint.getY() - 10);
+                MsiSymbolGraphic msiSymbolGraphic = (MsiSymbolGraphic) newClosest;
+                msiInfoPanel.setPos((int) containerPoint.getX(),
+                        (int) containerPoint.getY() - 10);
                 msiInfoPanel.showMsiInfo(msiSymbolGraphic.getMsiMessage());
                 mainFrame.getGlassPane().setVisible(true);
                 return true;
@@ -306,7 +366,7 @@ public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener 
                 msiInfoPanel.setVisible(false);
                 mainFrame.getGlassPane().setVisible(false);
                 closest = null;
-                return false;                
+                return false;
             }
         }
         return false;
@@ -320,31 +380,32 @@ public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener 
 
     @Override
     public boolean mouseReleased(MouseEvent e) {
-//        if (e.getButton() == MouseEvent.BUTTON1) {
-//            int mouseX = e.getX();
-//            int mouseY = e.getY();
-//
-//            OMGraphic newClosest = null;
-//            OMList<OMGraphic> allClosest = graphics.findAll(mouseX, mouseY, 1.0f);
-//
-//            for (OMGraphic omGraphic : allClosest) {
-//                if (omGraphic instanceof MsiSymbolGraphic) {
-//                    newClosest = omGraphic;
-//                    break;
-//                }
-//            }
-//
-//            if (newClosest instanceof MsiSymbolGraphic) {
-//                closest = newClosest;
-//                MsiSymbolGraphic msiSymbolGraphic = (MsiSymbolGraphic) newClosest;
-//                if (topPanel != null && topPanel.getMsiDialog() != null) {
-//                    topPanel.getMsiDialog().showMessage(msiSymbolGraphic.msiMessage.getMessageId());
-//                    return true;
-//                }
-//            }
-//
-//        }
+        // if (e.getButton() == MouseEvent.BUTTON1) {
+        // int mouseX = e.getX();
+        // int mouseY = e.getY();
+        //
+        // OMGraphic newClosest = null;
+        // OMList<OMGraphic> allClosest = graphics.findAll(mouseX, mouseY,
+        // 1.0f);
+        //
+        // for (OMGraphic omGraphic : allClosest) {
+        // if (omGraphic instanceof MsiSymbolGraphic) {
+        // newClosest = omGraphic;
+        // break;
+        // }
+        // }
+        //
+        // if (newClosest instanceof MsiSymbolGraphic) {
+        // closest = newClosest;
+        // MsiSymbolGraphic msiSymbolGraphic = (MsiSymbolGraphic) newClosest;
+        // if (topPanel != null && topPanel.getMsiDialog() != null) {
+        // topPanel.getMsiDialog().showMessage(msiSymbolGraphic.msiMessage.getMessageId());
+        // return true;
+        // }
+        // }
+        //
+        // }
         return false;
-    }    
+    }
 
 }
