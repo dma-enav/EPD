@@ -349,21 +349,14 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
             m.marshal(monaLisaRoute, st);
             xml = st.toString();
 
+            xml = xml.replace("<ns2:RouteRequest xmlns:ns2=\"http://www.sspa.se/optiroute\"", "<RouteRequest xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\"");
+            xml = xml.replace("xmlns=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">", "xmlns=\"http://www.sspa.se/optiroute\">");
+
             xml = xml.replace("ns2:", "");
             xml = xml.replace(":ns2", "");
             xml = xml.replace(":ns2", "");
 
-             xml =
-             xml.replace("xmlns=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\"",
-             "xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\"");
-             
-             
-            xml = xml
-                    .replace(
-                            "<RouteRequest xmlns=\"http://www.sspa.se/optiroute\" xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">",
-                            "<RouteRequest xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\" xmlns=\"http://www.sspa.se/optiroute\">");
-            
-            
+  
             xml = xml.replace("waypoints>", "fi:waypoints>");
             xml = xml.replace("waypoint>", "fi:waypoint>");
 
@@ -373,6 +366,8 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
             xml = xml.replace("position", "fi:position");
             xml = xml.replace("latitude", "fi:latitude");
             xml = xml.replace("longitude", "fi:longitude");
+            
+            
 
             System.out.println("Sending the following:");
             System.out.println(xml);
@@ -403,45 +398,12 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
 
         if (xmlReturnRoute != null) {
 
-            xmlReturnRoute = xmlReturnRoute
-                    .replace(
-                            "<RouteResponse",
-                            "<ns1:RouteResponse xmlns:ns1=\"http://www.sspa.se/optiroute\" xmlns:ns2=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\"");
-
-            xmlReturnRoute = xmlReturnRoute.replace("</RouteResponse",
-                    "</ns1:RouteResponse");
-
-            xmlReturnRoute = xmlReturnRoute.replace("FuelRequested",
-                    "ns1:FuelRequested");
-
-            xmlReturnRoute = xmlReturnRoute.replace("FuelFinal",
-                    "ns1:FuelFinal");
-
-            xmlReturnRoute = xmlReturnRoute.replace("Route>", "ns1:Route>");
-
-            xmlReturnRoute = xmlReturnRoute.replace("waypoints",
-                    "ns2:waypoints");
-
-            xmlReturnRoute = xmlReturnRoute.replace("waypoint>",
-                    "ns2:waypoint>");
-
-            xmlReturnRoute = xmlReturnRoute.replace("wpt-id", "ns2:wpt-id");
-
-            xmlReturnRoute = xmlReturnRoute.replace("ETA", "ns2:ETA");
-
-            xmlReturnRoute = xmlReturnRoute.replace("wpt-name", "ns2:wpt-name");
-
-            xmlReturnRoute = xmlReturnRoute.replace("position", "ns2:position");
-
-            xmlReturnRoute = xmlReturnRoute.replace("latitude", "ns2:latitude");
-
-            xmlReturnRoute = xmlReturnRoute.replace("longitude",
-                    "ns2:longitude");
-
-            xmlReturnRoute = xmlReturnRoute.replace("leg-info", "ns2:leg-info");
-
-            xmlReturnRoute = xmlReturnRoute.replace("planned-speed",
-                    "ns2:planned-speed");
+            
+            xmlReturnRoute.replace("<RouteResponse xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\" xmlns=\"http://www.sspa.se/optiroute\">"
+                   ,"<RouteResponse xmlns=\"http://www.sspa.se/optiroute\" xmlns:ns2=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">");
+            
+            
+            xmlReturnRoute.replace("fi", "ns2");
 
             // System.out.println(xmlReturnRoute);
 
