@@ -43,7 +43,6 @@ import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gps.GpsHandler;
-import dk.dma.epd.ship.route.monalisa.se.sspa.optiroute.RouteResponse;
 import dk.dma.epd.ship.route.sspa.RouterequestType;
 import dk.dma.epd.ship.route.sspa.RouteresponseType;
 import dk.dma.epd.ship.services.shore.RouteHttp;
