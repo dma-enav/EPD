@@ -15,35 +15,6 @@
  */
 package dk.dma.epd.ship.route;
 
-/*
- * Copyright 2011 Danish Maritime Authority. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *   1. Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
- *
- *   2. Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- * 
- * THIS SOFTWARE IS PROVIDED BY Danish Maritime Authority ``AS IS'' 
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
- * The views and conclusions contained in the software and documentation are those
- * of the authors and should not be interpreted as representing official policies,
- * either expressed or implied, of Danish Maritime Authority.
- * 
- */
 
 import java.util.Calendar;
 import java.util.Date;
@@ -52,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -65,16 +37,13 @@ import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gps.GpsHandler;
-import dk.dma.epd.ship.route.monalisa.fi.navielektro.ns.formats.vessel_waypoint_exchange.LeginfoType;
-import dk.dma.epd.ship.route.monalisa.fi.navielektro.ns.formats.vessel_waypoint_exchange.PositionType;
-import dk.dma.epd.ship.route.monalisa.fi.navielektro.ns.formats.vessel_waypoint_exchange.RouteType;
-import dk.dma.epd.ship.route.monalisa.fi.navielektro.ns.formats.vessel_waypoint_exchange.WaypointType;
-import dk.dma.epd.ship.route.monalisa.fi.navielektro.ns.formats.vessel_waypoint_exchange.WaypointsType;
-import dk.dma.epd.ship.route.monalisa.se.sspa.optiroute.CurrentShipDataType;
-import dk.dma.epd.ship.route.monalisa.se.sspa.optiroute.DepthPointsType;
-import dk.dma.epd.ship.route.monalisa.se.sspa.optiroute.RouteRequest;
-import dk.dma.epd.ship.route.monalisa.se.sspa.optiroute.RouteResponse;
-import dk.dma.epd.ship.route.monalisa.se.sspa.optiroute.WeatherPointsType;
+import dk.dma.epd.ship.route.sspa.CurrentShipDataType;
+import dk.dma.epd.ship.route.sspa.PositionType;
+import dk.dma.epd.ship.route.sspa.RouteType;
+import dk.dma.epd.ship.route.sspa.RouterequestType;
+import dk.dma.epd.ship.route.sspa.RouteresponseType;
+import dk.dma.epd.ship.route.sspa.WaypointType;
+import dk.dma.epd.ship.route.sspa.WaypointsType;
 import dk.dma.epd.ship.status.ComponentStatus;
 import dk.dma.epd.ship.status.IStatusComponent;
 import dk.dma.epd.ship.status.ShoreServiceStatus;
@@ -104,12 +73,12 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
 
     }
 
-    public RouteRequest convertRoute(Route route) {
+    public RouterequestType convertRoute(Route route) {
 
         float trim = 6.0f;
 
         // Create the route request
-        RouteRequest monaLisaRoute = new RouteRequest();
+        RouterequestType monaLisaRoute = new RouterequestType();
 
         // Create the ship data
         CurrentShipDataType currentShipData = new CurrentShipDataType();
@@ -118,20 +87,14 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
             trim = aisHandler.getOwnShip().getStaticData().getDraught();
         }
 
-        currentShipData.setAfttrim(trim);
-        currentShipData.setForwardtrim(trim);
+        //Current ship data
+        currentShipData.setAftdraft(trim);
+        currentShipData.setForwarddraft(trim);
         currentShipData.setImoid("1234567");
         currentShipData.setMmsi("123456789");
+        currentShipData.setUkcrequested(1.0f);
 
         monaLisaRoute.setCurrentShipData(currentShipData);
-
-        // Create the depthPoints
-        DepthPointsType depthPoints = new DepthPointsType();
-        monaLisaRoute.setDepthPoints(depthPoints);
-
-        // Create the weather points
-        WeatherPointsType weatherPoints = new WeatherPointsType();
-        monaLisaRoute.setWeatherPoints(weatherPoints);
 
         RouteType monaLisaRouteType = new RouteType();
 
@@ -145,47 +108,46 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
             RouteWaypoint routeWaypoint = eeinsWaypoints.get(i);
             WaypointType waypoint = new WaypointType();
 
-            // Set date
-            GregorianCalendar c = new GregorianCalendar();
-            Date today = new Date();
-            c.setTime(today);
-            XMLGregorianCalendar date2 = null;
-            try {
-                date2 = DatatypeFactory.newInstance()
-                        .newXMLGregorianCalendar(c);
-            } catch (DatatypeConfigurationException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            // Set name
+            waypoint.setWptName(routeWaypoint.getName());
+            
+            // Set ID
+            waypoint.setWptId(i + 1);
 
-            c.add(Calendar.DAY_OF_YEAR, 1);
-            XMLGregorianCalendar tomorrow2 = null;
-            try {
-                tomorrow2 = DatatypeFactory.newInstance()
-                        .newXMLGregorianCalendar(c);
-            } catch (DatatypeConfigurationException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            
+//            if (i !=0){
+                // Set ETA
+                try {
+                    waypoint.setETA(convertDate(new Date()));
+                } catch (DatatypeConfigurationException e) {
+                    e.printStackTrace();
+                }
+//            }
 
-            if (i == 0) {
-                waypoint.setETA(date2);
-            }
-            if (i == 1) {
-                waypoint.setETA(tomorrow2);
-            }
+            
+            // Set positon
+            PositionType position = new PositionType();
 
+            position.setLatitude(routeWaypoint.getPos().getLatitude());
+            position.setLongitude(routeWaypoint.getPos().getLongitude());
+
+            waypoint.setPosition(position);
+            
+            monaLisaWaypoints.add(waypoint);
+
+
+            
             // Set leg info
-            LeginfoType legInfo = new LeginfoType();
+//            LeginfoType legInfo = new LeginfoType();
             // legInfo.setLegtype(value)
             // legInfo.setLhsXte(value)
             // legInfo.setRhsXte(value)
 
-            if (routeWaypoint.getOutLeg() != null) {
-                legInfo.setPlannedSpeed((float) routeWaypoint.getOutLeg().getSpeed());
-            } else {
-                legInfo.setPlannedSpeed(0.0f);
-            }
+//            if (routeWaypoint.getOutLeg() != null) {
+//                legInfo.setPlannedSpeed((float) routeWaypoint.getOutLeg().getSpeed());
+//            } else {
+//                legInfo.setPlannedSpeed(0.0f);
+//            }
 
             // Rate of turn not needed
             // if (routeWaypoint.getRot() != null) {
@@ -200,23 +162,9 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
             //
             //
 
-            waypoint.setLegInfo(legInfo);
+//            waypoint.setLegInfo(legInfo);
 
-            // Set positon
-            PositionType position = new PositionType();
 
-            position.setLatitude(routeWaypoint.getPos().getLatitude());
-            position.setLongitude(routeWaypoint.getPos().getLongitude());
-
-            waypoint.setPosition(position);
-
-            // Set ID
-            waypoint.setWptId(i + 1);
-
-            // Set name
-            waypoint.setWptName(routeWaypoint.getName());
-
-            monaLisaWaypoints.add(waypoint);
 
         }
 
@@ -226,7 +174,7 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
         return monaLisaRoute;
     }
 
-    public Route convertRoute(RouteResponse response) {
+    public Route convertRouteBack(RouteresponseType response) {
         Route route = new Route();
 
         route.setName("Optimized Mona Lisa Route");
@@ -339,10 +287,10 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
 
         // new Thread(this).start();
 
-        RouteRequest monaLisaRoute = convertRoute(route);
+        RouterequestType monaLisaRoute = convertRoute(route);
 
         
-        RouteResponse routeResponse = null;
+        RouteresponseType routeResponse = null;
         try {
             routeResponse = EPDShip.getShoreServices()
                     .makeMonaLisaRouteRequest(monaLisaRoute);
@@ -358,19 +306,15 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
         Route newRoute = null;
 
         if (routeResponse != null) {
-
             try {
-                newRoute = convertRoute(routeResponse);
+                newRoute = convertRouteBack(routeResponse);
             } catch (Exception e) {
                 return false;
             }
-
         }
 
         if (newRoute != null) {
-
             EPDShip.getRouteManager().addRoute(newRoute);
-
         }
 
         return true;
@@ -404,15 +348,15 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
     @Override
     public void run() {
 
-        RouteRequest monaLisaRoute = convertRoute(route);
+        RouterequestType monaLisaRoute = convertRoute(route);
 
-        RouteResponse routeResponse = EPDShip.getShoreServices()
+        RouteresponseType routeResponse = EPDShip.getShoreServices()
                 .makeMonaLisaRouteRequest(monaLisaRoute);
 
         Route newRoute = null;
 
         if (routeResponse != null) {
-            newRoute = convertRoute(routeResponse);
+            newRoute = convertRouteBack(routeResponse);
         }
 
         if (newRoute != null) {
@@ -422,4 +366,20 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
         }
     }
 
+    
+    private XMLGregorianCalendar convertDate(Date date)
+            throws DatatypeConfigurationException {
+        GregorianCalendar c = new GregorianCalendar();
+        c.setTime(date);
+        XMLGregorianCalendar date2 = DatatypeFactory.newInstance()
+                .newXMLGregorianCalendar(c);
+
+        //No time zone?
+        date2.setTimezone( DatatypeConstants.FIELD_UNDEFINED );
+        date2.setMillisecond(DatatypeConstants.FIELD_UNDEFINED);
+
+
+        return date2;
+
+    }
 }
