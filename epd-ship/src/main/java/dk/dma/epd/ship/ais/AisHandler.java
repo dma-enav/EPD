@@ -505,7 +505,7 @@ public class AisHandler extends MapHandlerChild implements IAisListener,
      * 
      * @param aisTarget
      */
-    private synchronized void publishUpdate(AisTarget aisTarget) {
+    public synchronized void publishUpdate(AisTarget aisTarget) {
         for (IAisTargetListener listener : listeners) {
             listener.targetUpdated(aisTarget);
         }

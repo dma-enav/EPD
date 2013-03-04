@@ -18,11 +18,12 @@ package dk.dma.epd.ship.service.intendedroute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.enav.services.voyage.intendedroute.IntendedRouteMessage;
+import dk.dma.enav.model.voyage.Route;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.ship.service.EnavService;
 import dk.dma.epd.ship.service.EnavServiceHandler;
+import dk.dma.epd.ship.service.communication.enavcloud.type.EnavRouteBroadcast;
 
 /**
  * Intended route service implementation
@@ -44,6 +45,8 @@ public class IntendedRouteService extends EnavService implements
         this.provider = provider;
     }
 
+    
+    
     /**
      * Broadcast intended route
      */
@@ -55,22 +58,38 @@ public class IntendedRouteService extends EnavService implements
         LOG.info("Get active route");
 
         provider.getActiveRoute();
+        
         LOG.info("Got active route");
+        
+     // Make intended route message
+        EnavRouteBroadcast message = new EnavRouteBroadcast();
+        
+        if (provider.getActiveRoute() != null){
+            
+            message.setIntendedRoute(provider.getActiveRoute().getVoyageRoute());
 
-        // Make intended route message
-        IntendedRouteMessage message = new IntendedRouteMessage();
 
-        // If active route is null, make cancellation message
 
-        // Transform active route into intended route message
-
+            
+        }else{
+            System.out.println("Active route is null!");
+            message.setIntendedRoute(new Route());
+        }
+        
         // send message
         LOG.info("Sending");
-        enavServiceHandler.getEnavCloudHandler().sendMessage(message);
+        try {
+            enavServiceHandler.getEnavCloudHandler().sendMessage(message);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         LOG.info("Done sending");
-
+        
     }
 
+    
+    
     /**
      * Handle event of active route change
      */

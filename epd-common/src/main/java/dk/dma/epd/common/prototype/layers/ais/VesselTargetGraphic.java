@@ -34,12 +34,12 @@ import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.math.Vector2D;
-import dk.dma.epd.common.prototype.ais.AisIntendedRoute;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTargetSettings;
+import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
 
@@ -77,11 +77,6 @@ public class VesselTargetGraphic extends TargetGraphic {
 
     public VesselTargetGraphic(AisSettings aisSettings, NavSettings navSettings) {
         super();
-
-        System.out.println("Creating a vessel target graphic");
-
-        System.out.println(aisSettings);
-
 //        this.aisSettings = aisSettings;
 //        this.navSettings = navSettings;
         this.showNameLabel = aisSettings.isShowNameLabels();
@@ -136,7 +131,8 @@ public class VesselTargetGraphic extends TargetGraphic {
             VesselPositionData posData = vesselTarget.getPositionData();
             VesselStaticData staticData = vesselTarget.getStaticData();
             VesselTargetSettings targetSettings = vesselTarget.getSettings();
-            AisIntendedRoute aisIntendedRoute = vesselTarget.getAisRouteData();
+//            AisIntendedRoute aisIntendedRoute = vesselTarget.getAisRouteData();
+            CloudIntendedRoute cloudIntendedRoute = vesselTarget.getIntendedRoute();
 
             Position pos = posData.getPos();
             double trueHeading = posData.getTrueHeading();
@@ -245,7 +241,7 @@ public class VesselTargetGraphic extends TargetGraphic {
                 label.setVisible(false);
             }
             // Intended route graphic
-            routeGraphic.update(vesselTarget, name, aisIntendedRoute, pos);
+            routeGraphic.update(vesselTarget, name, cloudIntendedRoute, pos);
             if (!targetSettings.isShowRoute()) {
                 routeGraphic.setVisible(false);
             }

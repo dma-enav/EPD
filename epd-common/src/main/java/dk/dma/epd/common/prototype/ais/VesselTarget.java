@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.ais;
 
 import java.util.Date;
 
+import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 
 /**
@@ -41,6 +42,7 @@ public class VesselTarget extends AisTarget {
     private AisIntendedRoute aisIntendedRoute;
     private AisClass aisClass; 
     private VesselTargetSettings settings;
+    private CloudIntendedRoute intendedRoute;
     
 
     /**
@@ -99,6 +101,19 @@ public class VesselTarget extends AisTarget {
         this.aisIntendedRoute = aisIntendedRoute;
         this.aisIntendedRoute.update(positionData);
     }
+    
+    public void setCloudRouteData(CloudIntendedRoute intendedRoute) {
+        this.intendedRoute = intendedRoute;
+        this.intendedRoute.update(positionData);
+    }
+    
+    public CloudIntendedRoute getIntendedRoute() {
+        return intendedRoute;
+    }
+
+    public void setIntendedRoute(CloudIntendedRoute intendedRoute) {
+        this.intendedRoute = intendedRoute;
+    }
 
     public AisClass getAisClass() {
         return aisClass;
@@ -136,7 +151,7 @@ public class VesselTarget extends AisTarget {
     }
     
     public boolean hasIntendedRoute() {
-        return aisIntendedRoute != null;
+        return intendedRoute != null;
     }
 
     

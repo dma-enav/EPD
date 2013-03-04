@@ -39,6 +39,8 @@ public class EnavServiceHandler extends MapHandlerChild {
         if (obj instanceof RouteManager) {
             intendedRouteService = new IntendedRouteService(this, (ActiveRouteProvider) obj);
             ((RouteManager) obj).addListener(intendedRouteService);
+            
+            ((RouteManager) obj).setIntendedRouteService(intendedRouteService);
             // intendedRouteService.start();
         } else if (obj instanceof EnavCloudHandler) {
             enavCloudHandler = (EnavCloudHandler) obj;

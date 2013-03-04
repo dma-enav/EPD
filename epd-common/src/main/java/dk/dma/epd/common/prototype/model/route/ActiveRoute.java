@@ -371,7 +371,7 @@ public class ActiveRoute extends Route {
     }
 
     @Override
-    public synchronized Date getEta() {
+    public synchronized Date calculateEta() {
         if (activeWpTtg == null) {
             return null;
         }
@@ -396,7 +396,7 @@ public class ActiveRoute extends Route {
     }
 
     @Override
-    public synchronized Long getTtg() {
+    public synchronized Long calcTtg() {
         if (activeWpTtg == null) {
             return null;
         }
@@ -404,7 +404,7 @@ public class ActiveRoute extends Route {
     }
 
     @Override
-    public synchronized Double getDtg() {
+    public synchronized Double calcDtg() {
         if (activeWpRng == null) {
             return null;
         }
@@ -486,4 +486,33 @@ public class ActiveRoute extends Route {
         this.relaxedWpChange = relaxedWpChange;
     }
 
+    public dk.dma.enav.model.voyage.Route getVoyageRoute(){
+        
+        dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
+        
+        for (int i = 0; i < getWaypoints().size(); i++) {
+        
+            dk.dma.enav.model.voyage.Waypoint voyageWaypoint = new dk.dma.enav.model.voyage.Waypoint(); 
+             RouteWaypoint currentWaypoint = getWaypoints().get(i);
+
+             voyageWaypoint.setEta(etas.get(i));
+             voyageWaypoint.setLatitude(currentWaypoint.getPos().getLatitude());
+             voyageWaypoint.setLongitude(currentWaypoint.getPos().getLongitude());
+             voyageWaypoint.setRot(currentWaypoint.getRot());
+             voyageWaypoint.setTurnRad(currentWaypoint.getTurnRad());
+             
+             //Leg related stored in the waypoint
+             if (currentWaypoint.getOutLeg() != null){
+                 voyageWaypoint.setSpeed(currentWaypoint.getOutLeg().getSpeed());
+                 voyageWaypoint.setXtdPort(currentWaypoint.getOutLeg().getXtdPort());
+                 voyageWaypoint.setXtdStarboard(currentWaypoint.getOutLeg().getXtdStarboard());
+             }
+             voyageRoute.getWaypoints().add(voyageWaypoint);
+        }
+        
+        voyageRoute.setActiveWaypoint(this.getActiveWaypointIndex());
+        
+        return voyageRoute;
+    }
+    
 }

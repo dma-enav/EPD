@@ -15,20 +15,32 @@
  */
 package dk.dma.epd.ship.service.communication.enavcloud;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.enav.messaging.MaritimeMessage;
+import dk.dma.enav.model.geometry.Position;
+import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.ship.ShipId;
+import dk.dma.enav.model.voyage.Route;
+import dk.dma.enav.net.MaritimeNetworkConnection;
+import dk.dma.enav.net.broadcast.BroadcastListener;
+import dk.dma.enav.net.broadcast.BroadcastMessage;
+import dk.dma.enav.net.broadcast.BroadcastProperties;
+import dk.dma.enav.util.function.Supplier;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gps.GpsHandler;
+import dk.dma.epd.ship.service.communication.enavcloud.type.EnavRouteBroadcast;
 import dk.dma.epd.ship.settings.EPDEnavSettings;
+import dk.dma.navnet.client.MaritimeNetworkConnectionBuilder;
 
 /**
  * Component to handle eNav Cloud communication
@@ -42,38 +54,117 @@ public class EnavCloudHandler extends MapHandlerChild  implements IGpsDataListen
     private ShipId shipId;
     private GpsHandler gpsHandler;
     private AisHandler aisHandler;
+    MaritimeNetworkConnectionBuilder enavCloudConnection;
+    MaritimeNetworkConnection connection;
+    
     
     public EnavCloudHandler(EPDEnavSettings enavSettings) {
-        this.hostPort = String.format("failover://tcp://%s:%d", enavSettings.getCloudServerHost(), enavSettings.getCloudServerPort());        
+      this.hostPort = String.format("%s:%d", enavSettings.getCloudServerHost(), enavSettings.getCloudServerPort());
     }
+    
+    
+
+    
+    public MaritimeNetworkConnection getConnection() {
+        return connection;
+    }
+
+
+    public void listenToBroadcasts() throws InterruptedException{
+        connection.broadcastListen(EnavRouteBroadcast.class, new BroadcastListener<EnavRouteBroadcast>() {
+            public void onMessage(BroadcastProperties l, EnavRouteBroadcast r) {
+//                System.out.println("Route message recieved from " + r.getIntendedRoute().getWaypoints().get(0) + " fra " + l.getId());
+//                System.out.println("Route message recieved from " + l.getId());
+                
+                int id = Integer.parseInt(l.getId().toString().split("mmsi://")[1]);
+                
+                updateIntendedRoute(id, r.getIntendedRoute());
+            }
+        });
+        
+//        Thread.sleep(30000);
+//        }
+    }
+
+    
+    /**
+     * Update intended route of vessel target
+     * @param mmsi
+     * @param routeData
+     */
+    private synchronized void updateIntendedRoute(long mmsi, Route routeData) {
+        Map<Long, VesselTarget> vesselTargets = aisHandler.getVesselTargets();
+        
+//        System.out.println(mmsi);
+        
+        // Try to find exiting target
+        VesselTarget vesselTarget = vesselTargets.get(mmsi);
+        // If not exists, wait for it to be created by position report
+        if (vesselTarget == null) {
+            return;
+        }
+        
+        
+        CloudIntendedRoute intendedRoute = new CloudIntendedRoute(routeData);
+        
+        // Update intented route
+        vesselTarget.setCloudRouteData(intendedRoute);
+        aisHandler.publishUpdate(vesselTarget);
+    }
+    
     
     /**
      * Send maritime message over enav cloud
      * @param message
      * @return
+     * @throws Exception 
      */
-    public boolean sendMessage(MaritimeMessage message) {
-        // TODO shape from where?
-//        if (messageBus == null) {
-//            return false;
-//        }
+    public void sendMessage(BroadcastMessage message) throws Exception {
         
-    //    message.setSource(shipId);
+        enavCloudConnection.setPositionSupplier(new Supplier<PositionTime>() {
+            public PositionTime get() {
+                Position position = gpsHandler.getCurrentData().getPosition();
+                
+                if (position!= null){
+                    return PositionTime.create(position, System.currentTimeMillis());    
+                }else{
+                    return PositionTime.create(Position.create(0.0, 0.0), System.currentTimeMillis());
+                }
+                
+            }
+        });
         
-        // Make metadata with area
-        //MessageMetadata metadata = MessageMetadata.create();
-        //TODO metadata.setShape();
-         
+        EnavCloudSendThread sendThread = new EnavCloudSendThread(message, this);
         
-    //    messageBus.send(message, metadata);
-        return true;
+        //Send it in a seperate thread
+        sendThread.start();
     }
     
+    
+    
+    public MaritimeNetworkConnectionBuilder getEnavCloudConnection() {
+        return enavCloudConnection;
+    }
+
     /**
      * Create the message bus
      */
     public void init() {
         LOG.info("Connecting to enav cloud server: " + hostPort + " with shipId " + shipId.getId());
+       
+        enavCloudConnection = MaritimeNetworkConnectionBuilder.create("mmsi://"+shipId.getId());
+        
+        try {
+            enavCloudConnection.setHost(hostPort);
+            System.out.println(hostPort);
+            connection =  enavCloudConnection.connect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        
+        
+        
         //ENavContainerConfiguration conf = new ENavContainerConfiguration();
     //    conf.addDatasource(new JmsC2SMessageSource(hostPort, shipId));
     //    ENavContainer client = conf.createAndStart();
@@ -104,8 +195,11 @@ public class EnavCloudHandler extends MapHandlerChild  implements IGpsDataListen
     
     @Override
     public void run() {
+        
         // For now ship id will be MMSI so we need to know
         // own ship information. Busy wait for it.
+        
+        
         while (true) {
             Util.sleep(1000);
             if (this.aisHandler != null) {
@@ -114,7 +208,15 @@ public class EnavCloudHandler extends MapHandlerChild  implements IGpsDataListen
                     if (ownShip.getMmsi() > 0) {
                         shipId = ShipId.create(Long.toString(ownShip.getMmsi()));
                         init();
-                        return;
+                        
+                        try {
+                            listenToBroadcasts();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        
+                        
+                        break;
                     }
                 }
             }

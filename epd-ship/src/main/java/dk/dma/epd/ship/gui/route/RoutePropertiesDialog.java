@@ -585,8 +585,8 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
             arrivalSpinner.setEnabled(false);
         }
 
-        inrouteTxT.setText(Formatter.formatTime(route.getTtg()));
-        distanceTxT.setText(Formatter.formatDistNM(route.getDtg()));
+        inrouteTxT.setText(Formatter.formatTime(route.calcTtg()));
+        distanceTxT.setText(Formatter.formatDistNM(route.calcDtg()));
     }
 
     private void updateButtons() {
@@ -1360,7 +1360,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            arrivalPicker.setDate(route.getEta());
+                            arrivalPicker.setDate(route.calculateEta());
                             // ((SpinnerDateModel)
                             // arrivalSpinner.getModel()).setValue(route
                             // .getEta(route.getStarttime()));
@@ -1398,7 +1398,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
         System.out.println("Recalculating speeds?");
 
         // Total distance
-        double distanceToTravel = route.getDtg();
+        double distanceToTravel = route.calcDtg();
 
         for (int i = 0; i < waypointTable.size(); i++) {
 
@@ -1762,7 +1762,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
         route.calcValues(true);
         route.calcAllWpEta();
 
-        inrouteTxT.setText(Formatter.formatTime(route.getTtg()));
+        inrouteTxT.setText(Formatter.formatTime(route.calcTtg()));
 
         for (int i = 0; i < route.getWaypoints().size(); i++) {
             String eta = Formatter.formatShortDateTimeNoTz(route.getWpEta(i));

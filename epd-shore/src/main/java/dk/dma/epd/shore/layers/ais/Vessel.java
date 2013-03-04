@@ -201,7 +201,7 @@ public class Vessel extends OMGraphicList {
 
 
             // Intended route graphic
-            routeGraphic.update(vesselTarget, vesselName, aisIntendedRoute, vesselTarget.getPositionData().getPos());
+//            routeGraphic.update(vesselTarget, vesselName, aisIntendedRoute, vesselTarget.getPositionData().getPos());
             if (!targetSettings.isShowRoute()) {
                 routeGraphic.setVisible(false);
             }

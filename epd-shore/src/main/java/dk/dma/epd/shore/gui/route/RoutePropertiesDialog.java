@@ -139,9 +139,9 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener, Ru
         if (!startTimeField.hasFocus()) {
             startTimeField.setText(Formatter.formatLongDateTime(starttime));
         }
-        ttgField.setText(Formatter.formatTime(route.getTtg()));
+        ttgField.setText(Formatter.formatTime(route.calcTtg()));
         etaField.setText(Formatter.formatShortDateTime(route.getEta(starttime)));
-        totalDistField.setText(Formatter.formatDistNM(route.getDtg()));
+        totalDistField.setText(Formatter.formatDistNM(route.calcDtg()));
 
         if (activeRoute != null) {
             activeRoute.reCalcRemainingWpEta();

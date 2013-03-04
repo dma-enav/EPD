@@ -61,6 +61,7 @@ import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.service.communication.ais.AisServices;
 import dk.dma.epd.ship.service.communication.webservice.ShoreServices;
 import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
+import dk.dma.epd.ship.service.intendedroute.IntendedRouteService;
 import dk.dma.epd.ship.settings.EPDEnavSettings;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
 
@@ -84,6 +85,7 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     private ShoreServices shoreServices;
     private AisHandler aisHandler;
     private RouteSuggestionDialog routeSuggestionDialog;
+    private IntendedRouteService intendedRouteService;
 
     private Set<IRoutesUpdateListener> listeners = new HashSet<>();
 
@@ -696,9 +698,20 @@ public class RouteManager extends MapHandlerChild implements Runnable,
 
             // Check validity of METOC for all routes
             checkValidMetoc();
+            
+            if (isRouteActive()) {
+                intendedRouteService.broadcastIntendedRoute();
+//                aisServices.periodicIntendedRouteBroadcast(activeRoute);
+            }
 
         }
 
+    }
+
+    public void setIntendedRouteService(
+            IntendedRouteService intendedRouteService) {
+        this.intendedRouteService = intendedRouteService;
+        
     }
 
 }
