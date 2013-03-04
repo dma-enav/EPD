@@ -399,7 +399,8 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                     .getRouteSuggestion();
             routeMenu.suggestedRouteMenu(aisSuggestedRoute);
             routeMenu.setVisible(true);
-            routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+//            routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+            routeMenu(e);
             return true;
         }
         if (selectedGraphic instanceof WaypointCircle) {
@@ -408,7 +409,8 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
             waypointInfoPanel.setVisible(false);
             routeMenu.routeWaypointMenu(wpc.getRouteIndex(), wpc.getWpIndex());
             routeMenu.setVisible(true);
-            routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+//            routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+            routeMenu(e);
             return true;
         }
         if (selectedGraphic instanceof RouteLegGraphic) {
@@ -418,13 +420,28 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
             routeMenu.routeLegMenu(rlg.getRouteIndex(), rlg.getRouteLeg(),
                     e.getPoint());
             routeMenu.setVisible(true);
-            routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+//            routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+            routeMenu(e);
             return true;
         }
 
+        
+        
         return false;
     }
 
+    
+    private void routeMenu(MouseEvent arg0){
+        if (EPDShip.getMainFrame().getHeight() < arg0.getYOnScreen()
+                + routeMenu.getHeight()) {
+            routeMenu.show(this, arg0.getX() - 2,
+                    arg0.getY() - routeMenu.getHeight());
+        } else {
+            routeMenu.show(this, arg0.getX() - 2, arg0.getY() - 2);
+        }
+
+    }
+    
     @Override
     public boolean mouseDragged(MouseEvent e) {
         if (!javax.swing.SwingUtilities.isLeftMouseButton(e)) {
