@@ -41,10 +41,12 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
 import dk.dma.epd.shore.ais.AisHandler;
+import dk.dma.epd.shore.gps.GpsHandler;
 import dk.dma.epd.shore.gui.utils.StaticImages;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.route.RouteManager;
+import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.service.ais.AisServices;
 import dk.dma.epd.shore.services.shore.ShoreServices;
 import dk.dma.epd.shore.settings.ESDSensorSettings;
@@ -53,9 +55,9 @@ import dk.dma.epd.shore.util.OneInstanceGuard;
 
 /**
  * Main class with main method.
- *
+ * 
  * Starts up components, bean context and GUI.
- *
+ * 
  */
 public class EPDShore {
 
@@ -63,30 +65,135 @@ public class EPDShore {
     private static String MINORVERSION;
     private static Logger LOG;
     private static MainFrame mainFrame;
-
     private static BeanContextServicesSupport beanHandler;
     private static ESDSettings settings;
     static Properties properties = new Properties();
-
+    private static NmeaSensor aisSensor;
+    private static NmeaSensor gpsSensor;
     private static AisHandler aisHandler;
-
+    private static GpsHandler gpsHandler;
     private static MsiHandler msiHandler;
     private static AisServices aisServices;
-
-    private static NmeaSensor aisSensor;
-    // private static NmeaSensor gpsSensor;
-
     private static AisReader aisReader;
-    // private static GpsHandler gpsHandler;
-
     private static ShoreServices shoreServices;
     private static StaticImages staticImages;
 
     private static RouteManager routeManager;
+    private static EnavServiceHandler enavServiceHandler;
 
     private static ExceptionHandler exceptionHandler = new ExceptionHandler();
-    private static Path home = Paths.get(System.getProperty("user.home"), ".epd-shore");
+    private static Path home = Paths.get(System.getProperty("user.home"),
+            ".epd-shore");
 
+    
+    
+
+    /**
+     * Starts the program by initializing the various threads and spawning the
+     * main GUI
+     * 
+     * @param args
+     */
+    public static void main(String[] args) throws IOException {
+
+        new Bootstrap().run();
+
+        // Set up log4j logging
+        LOG = LoggerFactory.getLogger(EPDShore.class);
+
+        // Set default exception handler
+        Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
+
+        VERSION = "5.0";
+        LOG.info("Starting eNavigation Prototype Display Shore - version "
+                + VERSION);
+        LOG.info("Copyright (C) 2012 Danish Maritime Authority");
+        LOG.info("This program comes with ABSOLUTELY NO WARRANTY.");
+        LOG.info("This is free software, and you are welcome to redistribute it under certain conditions.");
+        LOG.info("For details see LICENSE file.");
+
+        // Create the bean context (map handler)
+        // mapHandler = new MapHandler();
+        beanHandler = new BeanContextServicesSupport();
+
+        // Load settings or get defaults and add to bean context
+        if (args.length > 0) {
+            settings = new ESDSettings(args[0]);
+        } else {
+            settings = new ESDSettings();
+        }
+        LOG.info("Using settings file: " + settings.getSettingsFile());
+        settings.loadFromFile();
+        beanHandler.add(settings);
+        
+
+        // Determine if instance already running and if that is allowed
+        OneInstanceGuard guard = new OneInstanceGuard("esd.lock");
+        if (guard.isAlreadyRunning()) {
+            JOptionPane
+                    .showMessageDialog(
+                            null,
+                            "One application instance already running. Stop instance or restart computer.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
+        
+
+        // Start sensors
+        startSensors();
+        
+        // Enable GPS timer by adding it to bean context
+        GnssTime.init();
+        beanHandler.add(GnssTime.getInstance());
+
+
+        // Start position handler and add to bean context
+        gpsHandler = new GpsHandler();
+        beanHandler.add(gpsHandler);
+
+        // aisHandler = new AisHandler();
+        aisHandler = new AisHandler();
+         aisHandler.loadView();
+        beanHandler.add(aisHandler);
+
+        // Add StaticImages handler
+        staticImages = new StaticImages();
+        beanHandler.add(staticImages);
+
+        // Load routeManager and register as GPS data listener
+        routeManager = RouteManager.loadRouteManager();
+        beanHandler.add(routeManager);
+
+        // Create AIS services
+        aisServices = new AisServices();
+        beanHandler.add(aisServices);
+           // Create shore services
+        shoreServices = new ShoreServices(getSettings().getEnavSettings());
+        beanHandler.add(shoreServices);
+
+        // Create EnavServiceHandler
+        enavServiceHandler = new EnavServiceHandler(getSettings()
+                .getEnavSettings());
+        beanHandler.add(enavServiceHandler);
+        enavServiceHandler.start();
+        
+        // Create MSI handler
+        msiHandler = new MsiHandler(getSettings().getEnavSettings());
+        beanHandler.add(msiHandler);
+        
+        
+        createPluginComponents();
+
+        // Create and show GUI
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                createAndShowGUI();
+            }
+        });
+   
+    }
+    
     /**
      * Function called on shutdown
      */
@@ -100,7 +207,7 @@ public class EPDShore {
 
     /**
      * Close app routine with possibility for restart - not implemented
-     *
+     * 
      * @param restart
      *            - boolean value for program restart
      */
@@ -123,8 +230,8 @@ public class EPDShore {
         // GuiSettings
         // Handler settings
         routeManager.saveToFile();
-        // msiHandler.saveToFile();
-        // aisHandler.saveView();
+         msiHandler.saveToFile();
+         aisHandler.saveView();
 
         LOG.info("Closing ESD");
         System.exit(restart ? 2 : 0);
@@ -182,7 +289,7 @@ public class EPDShore {
 
     /**
      * Function used to measure time
-     *
+     * 
      * @param start
      *            - Startime
      * @return - Elapsed time
@@ -194,7 +301,7 @@ public class EPDShore {
 
     /**
      * Return the AisHandler
-     *
+     * 
      * @return - aisHandler
      */
     public static AisHandler getAisHandler() {
@@ -203,7 +310,7 @@ public class EPDShore {
 
     /**
      * BeanHandler for program structure
-     *
+     * 
      * @return - beanHandler
      */
     public static BeanContextServicesSupport getBeanHandler() {
@@ -220,7 +327,7 @@ public class EPDShore {
 
     /**
      * Return the mainFrame gui element
-     *
+     * 
      * @return - mainframe gui
      */
     public static MainFrame getMainFrame() {
@@ -233,7 +340,7 @@ public class EPDShore {
 
     /**
      * Return minor version
-     *
+     * 
      * @return - minor version
      */
     public static String getMinorVersion() {
@@ -242,7 +349,7 @@ public class EPDShore {
 
     /**
      * Return the msiHandker
-     *
+     * 
      * @return - MsiHandler
      */
     public static MsiHandler getMsiHandler() {
@@ -251,7 +358,7 @@ public class EPDShore {
 
     /**
      * Returns the properties
-     *
+     * 
      * @return - properties
      */
     public static Properties getProperties() {
@@ -260,7 +367,7 @@ public class EPDShore {
 
     /**
      * Return the settings
-     *
+     * 
      * @return - settings
      */
     public static ESDSettings getSettings() {
@@ -269,7 +376,7 @@ public class EPDShore {
 
     /**
      * Return the shoreService used in shore connections like MSI
-     *
+     * 
      * @return - shoreServices
      */
     public static ShoreServices getShoreServices() {
@@ -278,7 +385,7 @@ public class EPDShore {
 
     /**
      * Returns the version
-     *
+     * 
      * @return - version
      */
     public static String getVersion() {
@@ -311,7 +418,8 @@ public class EPDShore {
      * Load the properties file
      */
     static void loadProperties() {
-        InputStream in = EPDShore.class.getResourceAsStream("/epd-shore.properties");
+        InputStream in = EPDShore.class
+                .getResourceAsStream("/epd-shore.properties");
         try {
             if (in == null) {
                 throw new IOException("Properties file not found");
@@ -323,129 +431,6 @@ public class EPDShore {
         }
     }
 
-    /**
-     * Starts the program by initializing the various threads and spawning the
-     * main GUI
-     *
-     * @param args
-     */
-    public static void main(String[] args) throws IOException {
-
-        new Bootstrap().run();
-
-        // Set up log4j logging
-        LOG = LoggerFactory.getLogger(EPDShore.class);
-
-        // Set default exception handler
-        Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
-
-        VERSION = "5.0";
-        LOG.info("Starting eNavigation Prototype Display Shore - version " + VERSION);
-        LOG.info("Copyright (C) 2012 Danish Maritime Authority");
-        LOG.info("This program comes with ABSOLUTELY NO WARRANTY.");
-        LOG.info("This is free software, and you are welcome to redistribute it under certain conditions.");
-        LOG.info("For details see LICENSE file.");
-
-        // Create the bean context (map handler)
-        // mapHandler = new MapHandler();
-        beanHandler = new BeanContextServicesSupport();
-
-        // Enable GPS timer by adding it to bean context
-        GnssTime.init();
-        beanHandler.add(GnssTime.getInstance());
-
-        // Start position handler and add to bean context
-        // gpsHandler = new GpsHandler();
-        // beanHandler.add(gpsHandler);
-
-        // Load settings or get defaults and add to bean context
-        if (args.length > 0) {
-            settings = new ESDSettings(args[0]);
-        } else {
-            settings = new ESDSettings();
-        }
-
-        // Create shore services
-        shoreServices = new ShoreServices(getSettings().getEnavSettings());
-        beanHandler.add(shoreServices);
-
-        // // Create AIS services
-        // aisServices = new AisServices();
-        // beanHandler.add(aisServices);
-
-        LOG.info("Using settings file: " + settings.getSettingsFile());
-        settings.loadFromFile();
-        beanHandler.add(settings);
-
-        // Determine if instance already running and if that is allowed
-        OneInstanceGuard guard = new OneInstanceGuard("esd.lock");
-        if (guard.isAlreadyRunning()) {
-            JOptionPane
-                    .showMessageDialog(
-                            null,
-                            "One application instance already running. Stop instance or restart computer.",
-                            "Error", JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
-        }
-
-        // Start sensors
-        startSensors();
-
-        // ESDAisSettings sensorSettings = settings.getAisSettings();
-        //
-        // RoundRobinAisTcpReader reader = new RoundRobinAisTcpReader();
-        // reader.setCommaseparatedHostPort(sensorSettings.getAisHostOrSerialPort()
-        // + ":" + sensorSettings.getAisTcpPort());
-
-        // reader.registerHandler(aisHandler);
-
-        // aisReader = reader;
-        // beanHandler.add(aisReader);
-        //
-        // aisReader.start();
-
-        // aisHandler = new AisHandler();
-        aisHandler = new AisHandler();
-        // aisHandler.loadView();
-        beanHandler.add(aisHandler);
-
-        // Add StaticImages handler
-        staticImages = new StaticImages();
-        beanHandler.add(staticImages);
-
-        // Load routeManager and register as GPS data listener
-        routeManager = RouteManager.loadRouteManager();
-        beanHandler.add(routeManager);
-
-        // Create AIS services
-        aisServices = new AisServices();
-        beanHandler.add(aisServices);
-
-        // reader.setTimeout(getInt("ais_source_timeout." + name, "10"));
-        // reader.setReconnectInterval(getInt("ais_source_reconnect_interval." +
-        // name, "5") * 1000);
-
-        // // Register proprietary handlers
-        // reader.addProprietaryFactory(new GatehouseFactory());
-        //
-        //
-        //
-        // Create plugin components
-        createPluginComponents();
-
-        // Create and show GUI
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                createAndShowGUI();
-            }
-        });
-
-        // Create MSI handler
-        msiHandler = new MsiHandler(getSettings().getEnavSettings());
-        beanHandler.add(msiHandler);
-
-    }
 
     private static void startSensors() {
         ESDSensorSettings sensorSettings = settings.getSensorSettings();
@@ -475,6 +460,35 @@ public class EPDShore {
             aisSensor.addSensorType(SensorType.AIS);
         }
 
+        switch (sensorSettings.getGpsConnectionType()) {
+        case NONE:
+            gpsSensor = new NmeaStdinSensor();
+            break;
+        case TCP:
+            gpsSensor = new NmeaTcpSensor(
+                    sensorSettings.getGpsHostOrSerialPort(),
+                    sensorSettings.getGpsTcpPort());
+            break;
+        case SERIAL:
+            gpsSensor = new NmeaSerialSensor(
+                    sensorSettings.getGpsHostOrSerialPort());
+            break;
+        case FILE:
+            gpsSensor = new NmeaFileSensor(sensorSettings.getGpsFilename(),
+                    sensorSettings);
+            break;
+        case AIS_SHARED:
+            gpsSensor = aisSensor;
+            break;
+        default:
+            LOG.error("Unknown sensor connection type: "
+                    + sensorSettings.getAisConnectionType());
+        }
+
+        if (gpsSensor != null) {
+            gpsSensor.addSensorType(SensorType.GPS);
+        }
+
         if (aisSensor != null) {
             aisSensor.setSimulateGps(sensorSettings.isSimulateGps());
             aisSensor.setSimulatedOwnShip(sensorSettings.getSimulatedOwnShip());
@@ -482,7 +496,18 @@ public class EPDShore {
             // Add ais sensor to bean context
             beanHandler.add(aisSensor);
         }
+        if (gpsSensor != null && gpsSensor != aisSensor) {
+            gpsSensor.setSimulateGps(sensorSettings.isSimulateGps());
+            gpsSensor.setSimulatedOwnShip(sensorSettings.getSimulatedOwnShip());
+            gpsSensor.start();
+            // Add gps sensor to bean context
+            beanHandler.add(gpsSensor);
+        }
 
+    }
+
+    public static GpsHandler getGpsHandler() {
+        return gpsHandler;
     }
 
     public static StaticImages getStaticImages() {
@@ -491,7 +516,7 @@ public class EPDShore {
 
     /**
      * Function used to call sleep on a thread
-     *
+     * 
      * @param ms
      *            - time in ms of how long to sleep
      */
@@ -505,7 +530,7 @@ public class EPDShore {
 
     /**
      * Function used to create a thread
-     *
+     * 
      * @param t
      *            - class to create thread on
      * @param name

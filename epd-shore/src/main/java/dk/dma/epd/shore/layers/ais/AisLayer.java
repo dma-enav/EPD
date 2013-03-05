@@ -218,22 +218,6 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
             }
 
             doPrepare();
-
-            // move ship highlight icon
-            // if (highlighted != null) {
-            // Point2D newXY = chartPanel.getMap().getProjection()
-            // .forward(highlightedVessel.getLat(), highlightedVessel.getLon());
-            // if (xy != newXY) {
-            // xy = newXY;
-            // if(jMapFrame.isLocked())
-            // highlightInfoPanel.displayHighlight((int) xy.getX() -
-            // offsetLockedX, (int) xy.getY() - offsetLockedY);
-            // else
-            // highlightInfoPanel.displayHighlight((int) xy.getX() -
-            // offsetUnlockedX, (int) xy.getY() - offsetUnlockedY);
-            // }
-            // }
-
         }
     }
 
@@ -477,7 +461,6 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
 
     @Override
     public void targetUpdated(AisTarget arg0) {
-        // TODO Auto-generated method stub
-
+        drawVessels();
     }
 }

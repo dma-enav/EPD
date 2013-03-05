@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.service;
+package dk.dma.epd.shore.service;
 
 import java.util.Map;
 
@@ -38,12 +38,10 @@ import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.common.util.Util;
-import dk.dma.epd.ship.ais.AisHandler;
-import dk.dma.epd.ship.gps.GpsHandler;
-import dk.dma.epd.ship.route.RouteManager;
-import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
-import dk.dma.epd.ship.service.intendedroute.IntendedRouteService;
-import dk.dma.epd.ship.settings.EPDEnavSettings;
+import dk.dma.epd.shore.ais.AisHandler;
+import dk.dma.epd.shore.gps.GpsHandler;
+import dk.dma.epd.shore.route.RouteManager;
+import dk.dma.epd.shore.settings.ESDEnavSettings;
 import dk.dma.navnet.client.MaritimeNetworkConnectionBuilder;
 
 /**
@@ -60,9 +58,9 @@ public class EnavServiceHandler extends MapHandlerChild   implements IGpsDataLis
     
     MaritimeNetworkConnection connection;
 
-    private IntendedRouteService intendedRouteService;
+//    private IntendedRouteService intendedRouteService;
 
-    public EnavServiceHandler(EPDEnavSettings enavSettings) {
+    public EnavServiceHandler(ESDEnavSettings enavSettings) {
         this.hostPort = String.format("%s:%d", enavSettings.getCloudServerHost(), enavSettings.getCloudServerPort());
     }
 
@@ -176,9 +174,12 @@ public class EnavServiceHandler extends MapHandlerChild   implements IGpsDataLis
     @Override
     public void findAndInit(Object obj) {
         if (obj instanceof RouteManager) {
-            intendedRouteService = new IntendedRouteService(this, (ActiveRouteProvider) obj);
-            ((RouteManager) obj).addListener(intendedRouteService);
-            ((RouteManager) obj).setIntendedRouteService(intendedRouteService);
+            
+//            intendedRouteService = new IntendedRouteService(this, (ActiveRouteProvider) obj);
+//            ((RouteManager) obj).addListener(intendedRouteService);
+//            ((RouteManager) obj).setIntendedRouteService(intendedRouteService);
+            
+            
 //             intendedRouteService.start();
 //        } else if (obj instanceof EnavCloudHandler) {
 //            enavCloudHandler = (EnavCloudHandler) obj;
@@ -202,6 +203,7 @@ public class EnavServiceHandler extends MapHandlerChild   implements IGpsDataLis
             Util.sleep(1000);
             if (this.aisHandler != null) {
                 VesselTarget ownShip = this.aisHandler.getOwnShip();
+//                System.out.println(ownShip);
                 if (ownShip != null) {
                     if (ownShip.getMmsi() > 0) {
                         shipId = ShipId.create(Long.toString(ownShip.getMmsi()));

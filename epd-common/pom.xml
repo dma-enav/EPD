@@ -64,5 +64,23 @@
       <version>1.6.6</version>
       <scope>test</scope>
     </dependency>
+	
+		<dependency>
+      <groupId>dk.dma.enav</groupId>
+      <artifactId>enav-service-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+	
+	    <dependency>
+      <groupId>dk.dma.network</groupId>
+      <artifactId>dma-network-client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+	
+    <dependency>
+      <groupId>dk.dma.network</groupId>
+      <artifactId>dma-network-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 </project>

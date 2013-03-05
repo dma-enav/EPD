@@ -28,10 +28,10 @@ import com.bbn.openmap.proj.Length;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.ais.message.AisMessage;
-import dk.dma.epd.common.prototype.ais.AisIntendedRoute;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTargetSettings;
+import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteGraphic;
 import dk.dma.epd.common.text.Formatter;
 
@@ -197,11 +197,11 @@ public class Vessel extends OMGraphicList {
             }
 
 
-            AisIntendedRoute aisIntendedRoute = vesselTarget.getAisRouteData();
+            CloudIntendedRoute aisIntendedRoute = vesselTarget.getIntendedRoute();
 
 
             // Intended route graphic
-//            routeGraphic.update(vesselTarget, vesselName, aisIntendedRoute, vesselTarget.getPositionData().getPos());
+            routeGraphic.update(vesselTarget, vesselName, aisIntendedRoute, vesselTarget.getPositionData().getPos());
             if (!targetSettings.isShowRoute()) {
                 routeGraphic.setVisible(false);
             }

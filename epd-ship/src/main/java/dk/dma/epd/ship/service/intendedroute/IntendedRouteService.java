@@ -19,11 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.enav.model.voyage.Route;
+import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.ship.service.EnavService;
 import dk.dma.epd.ship.service.EnavServiceHandler;
-import dk.dma.epd.ship.service.communication.enavcloud.type.EnavRouteBroadcast;
 
 /**
  * Intended route service implementation
@@ -67,9 +67,6 @@ public class IntendedRouteService extends EnavService implements
         if (provider.getActiveRoute() != null){
             
             message.setIntendedRoute(provider.getActiveRoute().getVoyageRoute());
-
-
-
             
         }else{
             System.out.println("Active route is null!");
@@ -79,7 +76,7 @@ public class IntendedRouteService extends EnavService implements
         // send message
         LOG.info("Sending");
         try {
-            enavServiceHandler.getEnavCloudHandler().sendMessage(message);
+            enavServiceHandler.sendMessage(message);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

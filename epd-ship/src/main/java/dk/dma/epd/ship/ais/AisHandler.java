@@ -93,6 +93,7 @@ public class AisHandler extends MapHandlerChild implements IAisListener,
     private Map<Long, VesselTarget> vesselTargets = new HashMap<>();
     private Map<Long, SarTarget> sarTargets = new HashMap<>();
     private List<IAisTargetListener> listeners = new ArrayList<>();
+    
     private List<IAisRouteSuggestionListener> suggestionListeners = new ArrayList<>();
     private VesselTarget ownShip = new VesselTarget();
     private double aisRange;

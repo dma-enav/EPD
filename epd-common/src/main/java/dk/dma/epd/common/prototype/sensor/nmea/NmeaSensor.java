@@ -269,7 +269,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         // Distribute message
         synchronized (aisListeners) {
             for (IAisListener aisListener : aisListeners) {
-                if (ownMessage) {                            
+                if (ownMessage) {
                     aisListener.receiveOwnMessage(message);
                 } else {
                     aisListener.receive(message);
