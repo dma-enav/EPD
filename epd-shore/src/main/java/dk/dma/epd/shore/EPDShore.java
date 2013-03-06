@@ -85,9 +85,6 @@ public class EPDShore {
     private static Path home = Paths.get(System.getProperty("user.home"),
             ".epd-shore");
 
-    
-    
-
     /**
      * Starts the program by initializing the various threads and spawning the
      * main GUI
@@ -125,10 +122,11 @@ public class EPDShore {
         LOG.info("Using settings file: " + settings.getSettingsFile());
         settings.loadFromFile();
         beanHandler.add(settings);
-        
 
         // Determine if instance already running and if that is allowed
-        OneInstanceGuard guard = new OneInstanceGuard("esd.lock");
+
+        OneInstanceGuard guard = new OneInstanceGuard(home.resolve("esd.lock")
+                .toString());
         if (guard.isAlreadyRunning()) {
             JOptionPane
                     .showMessageDialog(
@@ -137,15 +135,13 @@ public class EPDShore {
                             "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
         }
-        
 
         // Start sensors
         startSensors();
-        
+
         // Enable GPS timer by adding it to bean context
         GnssTime.init();
         beanHandler.add(GnssTime.getInstance());
-
 
         // Start position handler and add to bean context
         gpsHandler = new GpsHandler();
@@ -153,7 +149,7 @@ public class EPDShore {
 
         // aisHandler = new AisHandler();
         aisHandler = new AisHandler();
-         aisHandler.loadView();
+        aisHandler.loadView();
         beanHandler.add(aisHandler);
 
         // Add StaticImages handler
@@ -167,7 +163,7 @@ public class EPDShore {
         // Create AIS services
         aisServices = new AisServices();
         beanHandler.add(aisServices);
-           // Create shore services
+        // Create shore services
         shoreServices = new ShoreServices(getSettings().getEnavSettings());
         beanHandler.add(shoreServices);
 
@@ -176,12 +172,11 @@ public class EPDShore {
                 .getEnavSettings());
         beanHandler.add(enavServiceHandler);
         enavServiceHandler.start();
-        
+
         // Create MSI handler
         msiHandler = new MsiHandler(getSettings().getEnavSettings());
         beanHandler.add(msiHandler);
-        
-        
+
         createPluginComponents();
 
         // Create and show GUI
@@ -191,9 +186,9 @@ public class EPDShore {
                 createAndShowGUI();
             }
         });
-   
+
     }
-    
+
     /**
      * Function called on shutdown
      */
@@ -230,8 +225,8 @@ public class EPDShore {
         // GuiSettings
         // Handler settings
         routeManager.saveToFile();
-         msiHandler.saveToFile();
-         aisHandler.saveView();
+        msiHandler.saveToFile();
+        aisHandler.saveView();
 
         LOG.info("Closing ESD");
         System.exit(restart ? 2 : 0);
@@ -430,7 +425,6 @@ public class EPDShore {
             LOG.error("Failed to load resources: " + e.getMessage());
         }
     }
-
 
     private static void startSensors() {
         ESDSensorSettings sensorSettings = settings.getSensorSettings();
