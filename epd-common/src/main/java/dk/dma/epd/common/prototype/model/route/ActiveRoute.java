@@ -489,9 +489,15 @@ public class ActiveRoute extends Route {
     public dk.dma.enav.model.voyage.Route getVoyageRoute(){
         
         dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
+
+        int startingWP = this.getActiveWaypointIndex();
+        int wayPointsToSend = getWaypoints().size() - startingWP;
+
+        System.out.println("Amount of waypoints to send: " + wayPointsToSend);
+        System.out.println("Starting at " + startingWP);
+        for (int i = startingWP; i < getWaypoints().size(); i++) {
         
-        for (int i = 0; i < getWaypoints().size(); i++) {
-        
+            System.out.println("Packing waypoint: " + i);
             dk.dma.enav.model.voyage.Waypoint voyageWaypoint = new dk.dma.enav.model.voyage.Waypoint(); 
              RouteWaypoint currentWaypoint = getWaypoints().get(i);
 

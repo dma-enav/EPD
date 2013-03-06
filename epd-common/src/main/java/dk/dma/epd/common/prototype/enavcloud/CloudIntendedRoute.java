@@ -63,7 +63,7 @@ public class CloudIntendedRoute extends Route {
 
 
     private void parseRoute(dk.dma.enav.model.voyage.Route cloudRouteData) {
-        System.out.println("Parsing route");
+//        System.out.println("Parsing route");
         this.setName("Intended Route");
 
         this.activeWaypoint = cloudRouteData.getActiveWaypoint();

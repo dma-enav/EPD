@@ -173,7 +173,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
         }
         
         // Update leg to first waypoint
-        Position activeWpPos = cloudIntendedRoute.getWaypoints().get(cloudIntendedRoute.getActiveWaypoint()).getPos();
+        Position activeWpPos = cloudIntendedRoute.getWaypoints().get(0).getPos();
         activeWpLineLL[0] = pos.getLatitude();
         activeWpLineLL[1] = pos.getLongitude();
         activeWpLineLL[2] = activeWpPos.getLatitude();

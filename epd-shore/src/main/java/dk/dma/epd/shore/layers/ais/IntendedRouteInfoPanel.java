@@ -41,20 +41,28 @@ public class IntendedRouteInfoPanel extends InfoPanel {
             showText("");
             return;
         }
-        Position wp = wpCircle.getIntendedRouteGraphic().getVesselTarget().getIntendedRoute().getWaypoints().get(wpCircle.getIndex()).getPos();
-        StringBuilder str = new StringBuilder();
-        str.append("<html>");
-        str.append("<b>Intended route waypoint</b><br/>");
-        str.append(wpCircle.getIntendedRouteGraphic().getName() + "<br/>");
-        str.append(Formatter.latToPrintable(wp.getLatitude()) + " - " + Formatter.lonToPrintable(wp.getLongitude()) + "<br/>");
-        str.append("<table border='0' cellpadding='2'>");
-        str.append("<tr><td>RNG:</td><td>" + Formatter.formatDistNM(routeData.getRange(wpCircle.getIndex())) + "</td></tr>");
-        str.append("<tr><td>ETA:</td><td>" + Formatter.formatShortDateTime(routeData.getEtas().get(wpCircle.getIndex())) + "</td></tr>");
-//        str.append("<tr><td>AVG SPD:</td><td>" + Formatter.formatSpeed(routeData.getSpeed()) + "</td></tr>");
-        str.append("</table>");
-        str.append("</html>");
+        
+        try{
+            Position wp = wpCircle.getIntendedRouteGraphic().getVesselTarget().getIntendedRoute().getWaypoints().get(wpCircle.getIndex()).getPos();
+            StringBuilder str = new StringBuilder();
+            str.append("<html>");
+            str.append("<b>Intended route waypoint</b><br/>");
+            str.append(wpCircle.getIntendedRouteGraphic().getName() + "<br/>");
+            str.append(Formatter.latToPrintable(wp.getLatitude()) + " - " + Formatter.lonToPrintable(wp.getLongitude()) + "<br/>");
+            str.append("<table border='0' cellpadding='2'>");
+            str.append("<tr><td>RNG:</td><td>" + Formatter.formatDistNM(routeData.getRange(wpCircle.getIndex())) + "</td></tr>");
+            str.append("<tr><td>ETA:</td><td>" + Formatter.formatShortDateTime(routeData.getEtas().get(wpCircle.getIndex())) + "</td></tr>");
+//            str.append("<tr><td>AVG SPD:</td><td>" + Formatter.formatSpeed(routeData.getSpeed()) + "</td></tr>");
+            str.append("</table>");
+            str.append("</html>");
 
-        showText(str.toString());
+            showText(str.toString());
+        }catch(Exception e){
+            StringBuilder str = new StringBuilder();
+            showText(str.toString());
+        }
+        
+
 
     }
 

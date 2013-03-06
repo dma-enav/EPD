@@ -66,9 +66,9 @@ public class EnavServiceHandler extends MapHandlerChild   implements IGpsDataLis
         this.hostPort = String.format("%s:%d", enavSettings.getCloudServerHost(), enavSettings.getCloudServerPort());
     }
 
-    public MaritimeNetworkConnection getConnection() {
-        return connection;
-    }
+//    public MaritimeNetworkConnection getConnection() {
+//        return connection;
+//    }
     
     public void listenToBroadcasts() throws InterruptedException{
         connection.broadcastListen(EnavRouteBroadcast.class, new BroadcastListener<EnavRouteBroadcast>() {
@@ -99,8 +99,6 @@ public class EnavServiceHandler extends MapHandlerChild   implements IGpsDataLis
             return;
         }
         
-        System.out.println(routeData);
-        
         CloudIntendedRoute intendedRoute = new CloudIntendedRoute(routeData);
         
         // Update intented route
@@ -118,6 +116,7 @@ public class EnavServiceHandler extends MapHandlerChild   implements IGpsDataLis
      */
     public void sendMessage(BroadcastMessage message) throws Exception {
         
+//        if connection.
         EnavCloudSendThread sendThread = new EnavCloudSendThread(message, connection);
         
         //Send it in a seperate thread

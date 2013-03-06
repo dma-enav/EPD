@@ -73,6 +73,9 @@ public class IntendedRouteService extends EnavService implements
             message.setIntendedRoute(new Route());
         }
         
+        
+        
+        
         // send message
         LOG.info("Sending");
         try {
