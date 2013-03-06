@@ -120,8 +120,9 @@ public class DockableComponents {
         if (layoutFile.exists()) {
             try {
                 control.readXML(layoutFile);
-            } catch (IOException ex) {
-                ex.printStackTrace(System.err);
+            } catch (Exception ex) {
+                System.out.println("Error occured while loading layout, reverting to default");
+                loadLayout(home.resolve("layout/static/default.xml").toString());
             }
         } else {
             loadLayout(home.resolve("layout/static/default.xml").toString());

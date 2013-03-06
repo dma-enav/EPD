@@ -99,6 +99,7 @@ public class EnavServiceHandler extends MapHandlerChild   implements IGpsDataLis
             return;
         }
         
+        System.out.println(routeData);
         
         CloudIntendedRoute intendedRoute = new CloudIntendedRoute(routeData);
         
