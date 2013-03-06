@@ -41,6 +41,7 @@ import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.event.RouteEditMouseMode;
 import dk.dma.epd.ship.gui.MainFrame;
@@ -254,9 +255,10 @@ public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener 
 
     @Override
     public String[] getMouseModeServiceList() {
-        String[] ret = new String[2];
+        String[] ret = new String[3];
         ret[0] = NavigationMouseMode.MODE_ID; // "Gestures"
         ret[1] = RouteEditMouseMode.MODE_ID;
+        ret[2] = DragMouseMode.MODE_ID;
         return ret;
     }
 

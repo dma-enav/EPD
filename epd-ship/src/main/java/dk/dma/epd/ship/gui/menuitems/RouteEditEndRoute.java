@@ -73,7 +73,7 @@ public class RouteEditEndRoute extends JMenuItem implements IMapMenuAction {
         newRouteLayer.getWaypoints().clear();
         newRouteLayer.getRouteGraphics().clear();
         newRouteLayer.doPrepare();
-        EPDShip.getMainFrame().getChartPanel().editMode(false);
+        EPDShip.getMainFrame().getChartPanel().setMouseMode(1);
     }
 
     public void setNewRouteLayer(NewRouteContainerLayer newRouteLayer) {

@@ -21,6 +21,7 @@ import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gui.MapMenu;
 
@@ -41,8 +42,9 @@ public class GeneralLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public String[] getMouseModeServiceList() {
-        String[] ret = new String[1];
+        String[] ret = new String[2];
         ret[0] = NavigationMouseMode.MODE_ID; // "Gestures"
+        ret[1] = DragMouseMode.MODE_ID;
         return ret;
     }
 

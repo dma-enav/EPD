@@ -46,6 +46,7 @@ import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.MSIFilterMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.event.RouteEditMouseMode;
@@ -64,13 +65,14 @@ import dk.dma.epd.ship.layers.routeEdit.RouteEditLayer;
 import dk.dma.epd.ship.settings.EPDMapSettings;
 
 /**
- * The panel with chart. Initializes all layers to be shown on the map. 
+ * The panel with chart. Initializes all layers to be shown on the map.
  */
-public class ChartPanel extends OMComponentPanel implements IGpsDataListener, MouseWheelListener {
+public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
+        MouseWheelListener {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
-    
+
     private MapHandler mapHandler;
     private LayerHandler layerHandler;
     private BufferedLayerMapBean map;
@@ -80,10 +82,11 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
     private GeneralLayer generalLayer;
     private CoastalOutlineLayer coastalOutlineLayer;
     private NavigationMouseMode mapNavMouseMode;
+    private DragMouseMode dragMouseMode;
     private MouseDelegator mouseDelegator;
     private RouteLayer routeLayer;
     private MsiLayer msiLayer;
-    private NogoLayer nogoLayer;    
+    private NogoLayer nogoLayer;
     private DynamicNogoLayer dynamicNogoLayer;
     private TopPanel topPanel;
     private RouteEditMouseMode routeEditMouseMode;
@@ -93,9 +96,9 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
     private MSIFilterMouseMode msiFilterMouseMode;
     private GpsData gpsData;
     private boolean nogoMode;
-    
+
     private ActiveWaypointComponentPanel activeWaypointPanel;
-    
+
     private NogoDialog nogoDialog;
 
     public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel) {
@@ -108,27 +111,26 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
         setBorder(BorderFactory.createLineBorder(Color.GRAY));
         this.activeWaypointPanel = activeWaypointPanel;
         // Max scale
-        this.maxScale = EPDShip.getSettings().getMapSettings().getMaxScale(); 
+        this.maxScale = EPDShip.getSettings().getMapSettings().getMaxScale();
     }
-    
+
     public void initChart() {
-            
+
         EPDMapSettings mapSettings = EPDShip.getSettings().getMapSettings();
         Properties props = EPDShip.getProperties();
-        
+
         // Try to create ENC layer
-        EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShip.getSettings().getMapSettings());
+        EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShip
+                .getSettings().getMapSettings());
         encLayer = encLayerFactory.getEncLayer();
 
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
         map.setDoubleBuffered(true);
-        
+
         // Orthographic test = new Orthographic((LatLonPoint)
         // mapSettings.getCenter(), mapSettings.getScale(), 1000, 1000);
         // map.setProjection(test);
-     
-
 
         mouseDelegator = new MouseDelegator();
         mapHandler.add(mouseDelegator);
@@ -140,10 +142,12 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
         mapNavMouseMode = new NavigationMouseMode(this);
         routeEditMouseMode = new RouteEditMouseMode();
         msiFilterMouseMode = new MSIFilterMouseMode();
+        dragMouseMode = new DragMouseMode();
 
         mouseDelegator.addMouseMode(mapNavMouseMode);
         mouseDelegator.addMouseMode(routeEditMouseMode);
         mouseDelegator.addMouseMode(msiFilterMouseMode);
+        mouseDelegator.addMouseMode(dragMouseMode);
         mouseDelegator.setActive(mapNavMouseMode);
 
         mapHandler.add(mapNavMouseMode);
@@ -184,19 +188,20 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
         msiLayer = new MsiLayer();
         msiLayer.setVisible(true);
         mapHandler.add(msiLayer);
-        
+
         // Create Nogo layer
         nogoLayer = new NogoLayer();
         nogoLayer.setVisible(true);
         mapHandler.add(nogoLayer);
-        
+
         dynamicNogoLayer = new DynamicNogoLayer();
         dynamicNogoLayer.setVisible(true);
         mapHandler.add(dynamicNogoLayer);
 
         // Create AIS layer
         aisLayer = new AisLayer();
-        aisLayer.setMinRedrawInterval(EPDShip.getSettings().getAisSettings().getMinRedrawInterval() * 1000);
+        aisLayer.setMinRedrawInterval(EPDShip.getSettings().getAisSettings()
+                .getMinRedrawInterval() * 1000);
         aisLayer.setVisible(true);
         mapHandler.add(aisLayer);
 
@@ -204,18 +209,18 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
         gpsLayer = new GpsLayer();
         gpsLayer.setVisible(true);
         mapHandler.add(gpsLayer);
-        
+
         // Create a esri shape layer
-//        URL dbf = EeINS.class.getResource("/shape/urbanap020.dbf");
-//        URL shp = EeINS.class.getResource("/shape/urbanap020.shp");
-//        URL shx = EeINS.class.getResource("/shape/urbanap020.shx");
-//        
-//        DrawingAttributes da = new DrawingAttributes();
-//        da.setFillPaint(Color.blue);
-//        da.setLinePaint(Color.black);
-//        
-//        EsriLayer esriLayer = new EsriLayer("Drogden", dbf, shp, shx, da);
-//        mapHandler.add(esriLayer);
+        // URL dbf = EeINS.class.getResource("/shape/urbanap020.dbf");
+        // URL shp = EeINS.class.getResource("/shape/urbanap020.shp");
+        // URL shx = EeINS.class.getResource("/shape/urbanap020.shx");
+        //
+        // DrawingAttributes da = new DrawingAttributes();
+        // da.setFillPaint(Color.blue);
+        // da.setLinePaint(Color.black);
+        //
+        // EsriLayer esriLayer = new EsriLayer("Drogden", dbf, shp, shx, da);
+        // mapHandler.add(esriLayer);
 
         // Create background layer
         String layerName = "background";
@@ -239,19 +244,17 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
         map.setScale(mapSettings.getScale());
 
         add(map);
-    
-        
 
         // Force a route layer and sensor panel update
         routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
         activeWaypointPanel.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
-        
+
         // Force a MSI layer update
         msiLayer.doUpdate();
 
         // Add this class as GPS data listener
         EPDShip.getGpsHandler().addListener(this);
-        
+
         // Set ENC map settings
         encLayerFactory.setMapSettings();
 
@@ -299,7 +302,8 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
         if (gpsData.getPosition() == null) {
             return;
         }
-        map.setCenter((float) gpsData.getPosition().getLatitude(), (float) gpsData.getPosition().getLongitude());
+        map.setCenter((float) gpsData.getPosition().getLatitude(),
+                (float) gpsData.getPosition().getLongitude());
 
     }
 
@@ -312,9 +316,6 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
         autoFollow();
     }
 
-    
-    
-    
     public void aisVisible(boolean visible) {
         aisLayer.setVisible(visible);
     }
@@ -332,25 +333,79 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
         }
     }
 
-    public void editMode(boolean enable) {
-        if (enable) {
+    /**
+     * Change the mouse mode
+     * 
+     * @param mode
+     *            0 for NavMode, 1 for DragMode, 2 for SelectMode
+     */
+    public void setMouseMode(int mode) {
+        // Mode0 is routeEditMouseMode
+        if (mode == 0) {
             mouseDelegator.setActive(routeEditMouseMode);
             routeEditLayer.setVisible(true);
             routeEditLayer.setEnabled(true);
             newRouteContainerLayer.setVisible(true);
-        } else {
-            mouseDelegator.setActive(mapNavMouseMode);
+            
+            EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
+            .setSelected(false);
+    EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
+            .setSelected(false);
+        }
+
+        // Mode1 is NavMouseMode
+        // Mode2 is DragMouseMode
+        if (mode == 1 || mode == 2) {
             routeEditLayer.setVisible(false);
             routeEditLayer.doPrepare();
             newRouteContainerLayer.setVisible(false);
             newRouteContainerLayer.getWaypoints().clear();
             newRouteContainerLayer.getRouteGraphics().clear();
             newRouteContainerLayer.doPrepare();
-            EPDShip.getMainFrame().getTopPanel().getNewRouteBtn().setSelected(false);
-            EPDShip.getMainFrame().getEeINSMenuBar().getNewRoute().setSelected(false);
+            EPDShip.getMainFrame().getTopPanel().getNewRouteBtn()
+                    .setSelected(false);
+            EPDShip.getMainFrame().getEeINSMenuBar().getNewRoute()
+                    .setSelected(false);
+
+            if (mode == 1) {
+                System.out.println("Setting nav mouse mode");
+                mouseDelegator.setActive(mapNavMouseMode);
+                EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
+                        .setSelected(true);
+                EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
+                        .setSelected(false);
+            }
+            if (mode == 2) {
+                mouseDelegator.setActive(dragMouseMode);
+                EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
+                .setSelected(false);
+        EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
+                .setSelected(true);
+                System.out.println("Setting drag mouse mode");
+            }
         }
+
     }
-    
+
+    // public void editMode(boolean enable) {
+    // if (enable) {
+    // mouseDelegator.setActive(routeEditMouseMode);
+    // routeEditLayer.setVisible(true);
+    // routeEditLayer.setEnabled(true);
+    // newRouteContainerLayer.setVisible(true);
+    // } else {
+    // mouseDelegator.setActive(mapNavMouseMode);
+    // routeEditLayer.setVisible(false);
+    // routeEditLayer.doPrepare();
+    // newRouteContainerLayer.setVisible(false);
+    // newRouteContainerLayer.getWaypoints().clear();
+    // newRouteContainerLayer.getRouteGraphics().clear();
+    // newRouteContainerLayer.doPrepare();
+    // EPDShip.getMainFrame().getTopPanel().getNewRouteBtn().setSelected(false);
+    // EPDShip.getMainFrame().getEeINSMenuBar().getNewRoute().setSelected(false);
+    // }
+    // }
+
     public void autoFollow() {
         // Do auto follow
         if (!EPDShip.getSettings().getNavSettings().isAutoFollow()) {
@@ -362,60 +417,72 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
             return;
         }
 
-        boolean lookahead = EPDShip.getSettings().getNavSettings().isLookAhead();
+        boolean lookahead = EPDShip.getSettings().getNavSettings()
+                .isLookAhead();
 
         // Find desired location (depends on look-ahead or not)
-                
+
         double centerX = map.getWidth() / 2.0;
         double centerY = map.getHeight() / 2.0;
         double desiredX = centerX;
         double desiredY = centerY;
-        
+
         if (lookahead) {
             double lookAheadBorder = 100.0;
             double lookAheadMinSpd = 1.0;
             double lookAheadMaxSpd = 15.0;
-            
+
             // Calculate a factor [0;1] from speed
             double factor = 0;
-            if(gpsData.getSog() < lookAheadMinSpd) {
+            if (gpsData.getSog() < lookAheadMinSpd) {
                 factor = 0;
             } else if (gpsData.getSog() < lookAheadMaxSpd) {
                 factor = gpsData.getSog() / lookAheadMaxSpd;
             } else {
                 factor = 1.0;
             }
-            
-            double phiX = Math.cos(Math.toRadians(gpsData.getCog()) - 3 * Math.PI / 2);
-            double phiY = Math.sin(Math.toRadians(gpsData.getCog()) - 3 * Math.PI / 2);
-            
+
+            double phiX = Math.cos(Math.toRadians(gpsData.getCog()) - 3
+                    * Math.PI / 2);
+            double phiY = Math.sin(Math.toRadians(gpsData.getCog()) - 3
+                    * Math.PI / 2);
+
             double fx = factor * phiX;
             double fy = factor * phiY;
-            
-            desiredX = centerX + (centerX - lookAheadBorder) * fx; 
+
+            desiredX = centerX + (centerX - lookAheadBorder) * fx;
             desiredY = centerY + (centerY - lookAheadBorder) * fy;
-                        
+
         }
 
         // Get projected x,y of current position
-        Point2D shipXY = map.getProjection().forward(gpsData.getPosition().getLatitude(), gpsData.getPosition().getLongitude());
+        Point2D shipXY = map.getProjection().forward(
+                gpsData.getPosition().getLatitude(),
+                gpsData.getPosition().getLongitude());
 
         // Calculate how many percent the position is off for x and y
-        double pctOffX = Math.abs(desiredX - shipXY.getX()) / map.getWidth() * 100.0;
-        double pctOffY = Math.abs(desiredY - shipXY.getY()) / map.getHeight() * 100.0;
+        double pctOffX = Math.abs(desiredX - shipXY.getX()) / map.getWidth()
+                * 100.0;
+        double pctOffY = Math.abs(desiredY - shipXY.getY()) / map.getHeight()
+                * 100.0;
 
-        //LOG.info("pctOffX: " + pctOffX + " pctOffY: " + pctOffY);
+        // LOG.info("pctOffX: " + pctOffX + " pctOffY: " + pctOffY);
 
-        int tollerated = EPDShip.getSettings().getNavSettings().getAutoFollowPctOffTollerance();
+        int tollerated = EPDShip.getSettings().getNavSettings()
+                .getAutoFollowPctOffTollerance();
         if (pctOffX < tollerated && pctOffY < tollerated) {
             return;
         }
 
         if (lookahead) {
-            Point2D forwardCenter = map.getProjection().inverse(centerX - desiredX + shipXY.getX(), centerY - desiredY + shipXY.getY());
-            map.setCenter((float) forwardCenter.getY(), (float) forwardCenter.getX());
+            Point2D forwardCenter = map.getProjection().inverse(
+                    centerX - desiredX + shipXY.getX(),
+                    centerY - desiredY + shipXY.getY());
+            map.setCenter((float) forwardCenter.getY(),
+                    (float) forwardCenter.getX());
         } else {
-            map.setCenter((float) gpsData.getPosition().getLatitude(), (float) gpsData.getPosition().getLongitude());
+            map.setCenter((float) gpsData.getPosition().getLatitude(),
+                    (float) gpsData.getPosition().getLongitude());
         }
 
     }
@@ -445,7 +512,8 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
         topPanel.updateButtons();
 
         if (waypoints.size() == 1) {
-            map.setCenter(waypoints.get(0).getLatitude(), waypoints.get(0).getLongitude());
+            map.setCenter(waypoints.get(0).getLatitude(), waypoints.get(0)
+                    .getLongitude());
             return;
         }
 
@@ -477,10 +545,10 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
         // upper left corner
         // LatLonPoint maxlatlon = new LatLonPoint.Double(minLat, maxLon); //
         // lower right corner
-        //        
+        //
         // Point2D pixelminlatlon = map.getProjection().forward(minlatlon);
         // Point2D pixelmaxlatlon = map.getProjection().forward(maxlatlon);
-        //        
+        //
         // float newScale = ProjMath.getScaleFromProjected(pixelminlatlon,
         // pixelmaxlatlon, map.getProjection());
 
@@ -494,7 +562,7 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
 
         // map.setScale(newScale*5);
     }
-    
+
     /**
      * Called when projection has been changed by user
      */
@@ -536,32 +604,32 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
             } catch (java.lang.ClassNotFoundException e) {
                 LOG.error("Layer class not found: \"" + className + "\"");
             } catch (java.io.IOException e) {
-                LOG.error("IO Exception instantiating class \"" + className + "\"");
+                LOG.error("IO Exception instantiating class \"" + className
+                        + "\"");
             }
         }
     }
-    
+
     public int getMaxScale() {
         return maxScale;
     }
-    
-    public void setNogoMode(boolean value){
+
+    public void setNogoMode(boolean value) {
         nogoMode = value;
     }
-    
-    public boolean getNogoMode(){
+
+    public boolean getNogoMode() {
         return nogoMode;
     }
-        
-    public void setNogoDialog(NogoDialog dialog){
+
+    public void setNogoDialog(NogoDialog dialog) {
         this.nogoDialog = dialog;
     }
-    
-    public NogoDialog getNogoDialog(){
+
+    public NogoDialog getNogoDialog() {
         return nogoDialog;
     }
-    
-    
+
     @Override
     public void findAndInit(Object obj) {
         if (obj instanceof TopPanel) {
@@ -580,42 +648,41 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener, Mo
     public void mouseWheelMoved(MouseWheelEvent e) {
         autoFollow();
     }
-    
+
     /**
      * 
      * @param direction
-     * 1 == Up
-     * 2 == Down
-     * 3 == Left
-     * 4 == Right
+     *            1 == Up 2 == Down 3 == Left 4 == Right
      * 
-     * Moving by 100 units in each direction
-     * Map center is [745, 445]
+     *            Moving by 100 units in each direction Map center is [745, 445]
      */
-      public void pan(int direction) {
+    public void pan(int direction) {
         Point point = null;
         Projection projection = map.getProjection();
 
         int width = projection.getWidth();
         int height = projection.getHeight();
-        
+
         switch (direction) {
-            case 1:  point = new Point(width/2,height/2-100);    break;
-            case 2:  point = new Point(width/2,height/2+100);    break;
-            case 3:  point = new Point(width/2-100,height/2);    break;
-            case 4:  point = new Point(width/2+100,height/2);    break;
-            }
-        
-        
-        
-        
+        case 1:
+            point = new Point(width / 2, height / 2 - 100);
+            break;
+        case 2:
+            point = new Point(width / 2, height / 2 + 100);
+            break;
+        case 3:
+            point = new Point(width / 2 - 100, height / 2);
+            break;
+        case 4:
+            point = new Point(width / 2 + 100, height / 2);
+            break;
+        }
+
         Proj p = (Proj) projection;
         LatLonPoint llp = projection.inverse(point);
         p.setCenter(llp);
         map.setProjection(p);
         manualProjChange();
-       }
-      
-      
-        
+    }
+
 }

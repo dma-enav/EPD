@@ -51,6 +51,7 @@ import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.route.SafeHavenArea;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.MapMenu;
@@ -368,8 +369,9 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public String[] getMouseModeServiceList() {
-        String[] ret = new String[1];
+        String[] ret = new String[2];
         ret[0] = NavigationMouseMode.MODE_ID; // "Gestures"
+        ret[1] = DragMouseMode.MODE_ID;
         return ret;
     }
 

@@ -58,6 +58,7 @@ import dk.dma.epd.common.prototype.settings.NavSettings;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
+import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.gui.ChartPanel;
@@ -435,8 +436,9 @@ public class AisLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public String[] getMouseModeServiceList() {
-        String[] ret = new String[1];
+        String[] ret = new String[2];
         ret[0] = NavigationMouseMode.MODE_ID; // "Gestures"
+        ret[1] = DragMouseMode.MODE_ID;
         return ret;
     }
 

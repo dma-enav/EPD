@@ -28,7 +28,7 @@ import com.bbn.openmap.util.PropUtils;
 public class GuiSettings implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final String PREFIX = "gui.";
+    protected static final String PREFIX = "gui.";
 
     private boolean maximized;
     private Point appLocation = new Point(10, 10);
