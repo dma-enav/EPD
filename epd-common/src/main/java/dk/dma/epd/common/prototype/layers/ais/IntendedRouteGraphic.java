@@ -31,8 +31,8 @@ import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
  */
 public class IntendedRouteGraphic extends OMGraphicList {
     private static final long serialVersionUID = 1L;
-    
-//    private AisIntendedRoute previousData;
+
+    // private AisIntendedRoute previousData;
     private CloudIntendedRoute previousData;
     private IntendedRouteLegGraphic activeWpLine;
     private double[] activeWpLineLL = new double[4];
@@ -41,88 +41,94 @@ public class IntendedRouteGraphic extends OMGraphicList {
     private boolean arrowsVisible;
 
     private VesselTarget vesselTarget;
-    
+
     private List<IntendedRouteLegGraphic> routeLegs = new ArrayList<>();
-    
+    private List<IntendedRouteWpCircle> routeWps = new ArrayList<>();
+
     public IntendedRouteGraphic() {
         super();
         Position nullGeoLocation = Position.create(0, 0);
-        activeWpLine = new IntendedRouteLegGraphic(0, this, true, nullGeoLocation, nullGeoLocation, legColor);
+        activeWpLine = new IntendedRouteLegGraphic(0, this, true,
+                nullGeoLocation, nullGeoLocation, legColor);
         setVisible(false);
     }
-    
+
     private void makeLegLine(int index, Position start, Position end) {
-        IntendedRouteLegGraphic leg = new IntendedRouteLegGraphic(index, this, false, start, end, legColor);
+        IntendedRouteLegGraphic leg = new IntendedRouteLegGraphic(index, this,
+                false, start, end, legColor);
         routeLegs.add(leg);
         add(leg);
     }
-    
+
     private void makeWpCircle(int index, Position wp) {
-        IntendedRouteWpCircle wpCircle = new IntendedRouteWpCircle(this, index, wp.getLatitude(), wp.getLongitude(), 0, 0,18, 18);
+        IntendedRouteWpCircle wpCircle = new IntendedRouteWpCircle(this, index,
+                wp.getLatitude(), wp.getLongitude(), 0, 0, 18, 18);
         wpCircle.setStroke(new BasicStroke(3));
         wpCircle.setLinePaint(legColor);
+        routeWps.add(wpCircle);
         add(wpCircle);
     }
-    
-//    
-//    public void update(VesselTarget vesselTarget, String label, AisIntendedRoute routeData, Position pos) {
-//        this.vesselTarget = vesselTarget;
-//        this.name = label;
-//        // Handle no or empty route
-//        if (routeData == null || routeData.getWaypoints().size() == 0) {
-//            clear();
-//            if (isVisible()) {
-//                setVisible(false);
-//            }
-//            previousData = null;
-//            return;
-//        }
-//        
-//        if (previousData != routeData) {
-//            // Route has changed, draw new route
-//            clear();
-//            add(activeWpLine);
-//            List<Position> waypoints = routeData.getWaypoints();
-//            // Make first WP circle
-//            makeWpCircle(0, waypoints.get(0));
-//            for (int i=0; i < waypoints.size() - 1; i++) {
-//                Position start = waypoints.get(i);
-//                Position end = waypoints.get(i + 1);
-//                
-//                // Make wp circle
-//                makeWpCircle(i + 1, end);
-//                
-//                // Make leg line
-//                makeLegLine(i + 1, start, end);
-//            }
-//            previousData = routeData;
-//        }
-//        
-//        // Update leg to first waypoint
-//        Position activeWpPos = routeData.getWaypoints().get(0);
-//        activeWpLineLL[0] = pos.getLatitude();
-//        activeWpLineLL[1] = pos.getLongitude();
-//        activeWpLineLL[2] = activeWpPos.getLatitude();
-//        activeWpLineLL[3] = activeWpPos.getLongitude();
-//        activeWpLine.setLL(activeWpLineLL);
-//        
-//        // Set visible if not visible
-//        if (!isVisible()) {
-//            setVisible(true);
-//        }
-//        
-//    }
+
+    //
+    // public void update(VesselTarget vesselTarget, String label,
+    // AisIntendedRoute routeData, Position pos) {
+    // this.vesselTarget = vesselTarget;
+    // this.name = label;
+    // // Handle no or empty route
+    // if (routeData == null || routeData.getWaypoints().size() == 0) {
+    // clear();
+    // if (isVisible()) {
+    // setVisible(false);
+    // }
+    // previousData = null;
+    // return;
+    // }
+    //
+    // if (previousData != routeData) {
+    // // Route has changed, draw new route
+    // clear();
+    // add(activeWpLine);
+    // List<Position> waypoints = routeData.getWaypoints();
+    // // Make first WP circle
+    // makeWpCircle(0, waypoints.get(0));
+    // for (int i=0; i < waypoints.size() - 1; i++) {
+    // Position start = waypoints.get(i);
+    // Position end = waypoints.get(i + 1);
+    //
+    // // Make wp circle
+    // makeWpCircle(i + 1, end);
+    //
+    // // Make leg line
+    // makeLegLine(i + 1, start, end);
+    // }
+    // previousData = routeData;
+    // }
+    //
+    // // Update leg to first waypoint
+    // Position activeWpPos = routeData.getWaypoints().get(0);
+    // activeWpLineLL[0] = pos.getLatitude();
+    // activeWpLineLL[1] = pos.getLongitude();
+    // activeWpLineLL[2] = activeWpPos.getLatitude();
+    // activeWpLineLL[3] = activeWpPos.getLongitude();
+    // activeWpLine.setLL(activeWpLineLL);
+    //
+    // // Set visible if not visible
+    // if (!isVisible()) {
+    // setVisible(true);
+    // }
+    //
+    // }
 
     public VesselTarget getVesselTarget() {
         return vesselTarget;
     }
-    
+
     public String getName() {
         return name;
     }
-    
-    public void showArrowHeads(boolean show){
-        if(this.arrowsVisible != show){
+
+    public void showArrowHeads(boolean show) {
+        if (this.arrowsVisible != show) {
             for (IntendedRouteLegGraphic routeLeg : routeLegs) {
                 routeLeg.setArrows(show);
             }
@@ -133,6 +139,65 @@ public class IntendedRouteGraphic extends OMGraphicList {
     public void update(VesselTarget vesselTarget, String name,
             CloudIntendedRoute cloudIntendedRoute, Position pos) {
 
+        
+        if (cloudIntendedRoute != null){
+
+            long timeSinceRecieved = System.currentTimeMillis() - cloudIntendedRoute.getReceived().getTime();
+            
+//            System.out.println(timeSinceRecieved);
+
+            //Fresh route
+            if (timeSinceRecieved < 60000){
+                legColor =  new Color(42, 172, 12, 255);
+                
+                for (int i = 0; i < routeLegs.size(); i++) {
+                    routeLegs.get(i).setLinePaint(legColor);
+                }
+
+                for (int i = 0; i < routeWps.size(); i++) {
+                    routeWps.get(i).setLinePaint(legColor);
+                }
+                activeWpLine.setLinePaint(legColor);
+                
+            }
+            
+            //1 min since recieved
+            if (timeSinceRecieved > 60000){
+                legColor = Color.YELLOW;                
+                for (int i = 0; i < routeLegs.size(); i++) {
+                    routeLegs.get(i).setLinePaint(legColor);
+                }
+
+                for (int i = 0; i < routeWps.size(); i++) {
+                    routeWps.get(i).setLinePaint(legColor);
+                }
+                activeWpLine.setLinePaint(legColor);
+                
+                
+            }
+            
+            
+            
+            //5 min since recieved
+            if (timeSinceRecieved > 300000){
+                legColor = Color.GRAY;
+                for (int i = 0; i < routeLegs.size(); i++) {
+                    routeLegs.get(i).setLinePaint(legColor);
+                }
+                
+                for (int i = 0; i < routeWps.size(); i++) {
+                    routeWps.get(i).setLinePaint(legColor);
+                }
+                activeWpLine.setLinePaint(legColor);
+            }
+            
+//            System.out.println(cloudIntendedRoute.getReceived());   
+        }
+        
+
+
+
+        
         this.vesselTarget = vesselTarget;
         this.name = name;
         // Handle no or empty route
@@ -179,6 +244,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
         activeWpLineLL[2] = activeWpPos.getLatitude();
         activeWpLineLL[3] = activeWpPos.getLongitude();
         activeWpLine.setLL(activeWpLineLL);
+
         
         // Set visible if not visible
         if (!isVisible()) {
@@ -187,5 +253,4 @@ public class IntendedRouteGraphic extends OMGraphicList {
         
         
     }
-    
 }

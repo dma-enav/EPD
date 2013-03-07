@@ -48,6 +48,7 @@ public class IntendedRouteInfoPanel extends InfoPanel {
         str.append(wpCircle.getIntendedRouteGraphic().getName() + "<br/>");
         str.append(Formatter.latToPrintable(wp.getLatitude()) + " - " + Formatter.lonToPrintable(wp.getLongitude()) + "<br/>");
         str.append("<table border='0' cellpadding='2'>");
+        str.append("<tr><td>Recieved:</td><td>" + Formatter.formatShortDateTime(routeData.getReceived()) + "</td></tr>");
         str.append("<tr><td>RNG:</td><td>" + Formatter.formatDistNM(routeData.getRange(wpCircle.getIndex())) + "</td></tr>");
         str.append("<tr><td>ETA:</td><td>" + Formatter.formatShortDateTime(routeData.getEtas().get(wpCircle.getIndex())) + "</td></tr>");
 //        str.append("<tr><td>AVG SPD:</td><td>" + Formatter.formatSpeed(routeData.getSpeed()) + "</td></tr>");
@@ -81,6 +82,7 @@ public class IntendedRouteInfoPanel extends InfoPanel {
         str.append("<b>Intended route leg</b><br/>");
         str.append(legGraphic.getIntendedRouteGraphic().getName() + "<br/>");
         str.append("<table border='0' cellpadding='2'>");
+        str.append("<tr><td>Recieved:</td><td>" + Formatter.formatShortDateTime(routeData.getReceived()) + "</td></tr>");
         str.append("<tr><td>DST:</td><td>" + Formatter.formatDistNM(range) + "  HDG " + Formatter.formatDegrees(hdg, 0) + "</td></tr>");
         str.append("<tr><td>START:</td><td>" + Formatter.formatShortDateTime(startEta) + "</td></tr>");
         str.append("<tr><td>ETA here:</td><td>" + Formatter.formatShortDateTime(midEta) + "</td></tr>");

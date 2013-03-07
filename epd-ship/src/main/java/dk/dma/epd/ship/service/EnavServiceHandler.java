@@ -148,10 +148,11 @@ public class EnavServiceHandler extends MapHandlerChild   implements IGpsDataLis
         
         try {
             enavCloudConnection.setHost(hostPort);
-            System.out.println(hostPort);
+//            System.out.println(hostPort);
             connection =  enavCloudConnection.connect();
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            System.out.println("Failed to connect to server");
         }
         
         
@@ -209,8 +210,9 @@ public class EnavServiceHandler extends MapHandlerChild   implements IGpsDataLis
                         init();
                         try {
                             listenToBroadcasts();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                        } catch (Exception e) {
+//                            e.printStackTrace();
+                            System.out.println("Failed to setup listener");
                         }
                         
                         
