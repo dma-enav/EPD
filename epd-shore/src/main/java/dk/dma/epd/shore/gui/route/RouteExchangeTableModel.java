@@ -22,8 +22,8 @@ import javax.swing.table.AbstractTableModel;
 
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.service.ais.AisServices;
-import dk.dma.epd.shore.service.ais.RouteSuggestionData;
 import dk.dma.epd.shore.service.ais.AisServices.AIS_STATUS;
+import dk.dma.epd.shore.service.ais.RouteSuggestionData;
 
 /**
  * Table model for Route Exchange Notifications

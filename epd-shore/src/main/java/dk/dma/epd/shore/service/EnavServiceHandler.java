@@ -22,14 +22,14 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
+import dk.dma.enav.communication.MaritimeNetworkConnection;
+import dk.dma.enav.communication.broadcast.BroadcastListener;
+import dk.dma.enav.communication.broadcast.BroadcastMessage;
+import dk.dma.enav.communication.broadcast.BroadcastMessageHeader;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.ship.ShipId;
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.enav.net.MaritimeNetworkConnection;
-import dk.dma.enav.net.broadcast.BroadcastListener;
-import dk.dma.enav.net.broadcast.BroadcastMessage;
-import dk.dma.enav.net.broadcast.BroadcastProperties;
 import dk.dma.enav.util.function.Supplier;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
@@ -70,7 +70,7 @@ public class EnavServiceHandler extends MapHandlerChild   implements IGpsDataLis
     
     public void listenToBroadcasts() throws InterruptedException{
         connection.broadcastListen(EnavRouteBroadcast.class, new BroadcastListener<EnavRouteBroadcast>() {
-            public void onMessage(BroadcastProperties l, EnavRouteBroadcast r) {
+            public void onMessage(BroadcastMessageHeader l, EnavRouteBroadcast r) {
 //                System.out.println("Route message recieved from " + r.getIntendedRoute().getWaypoints().get(0) + " fra " + l.getId());
 //                System.out.println("Route message recieved from " + l.getId());
                 

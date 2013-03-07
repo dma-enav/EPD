@@ -15,8 +15,8 @@
  */
 package dk.dma.epd.common.prototype.enavcloud;
 
+import dk.dma.enav.communication.broadcast.BroadcastMessage;
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.enav.net.broadcast.BroadcastMessage;
 
 //import dk.dma.epd.common.prototype.model.route.Route;
 

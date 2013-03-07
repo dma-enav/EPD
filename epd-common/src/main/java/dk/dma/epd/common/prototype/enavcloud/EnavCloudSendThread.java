@@ -15,8 +15,8 @@
  */
 package dk.dma.epd.common.prototype.enavcloud;
 
-import dk.dma.enav.net.MaritimeNetworkConnection;
-import dk.dma.enav.net.broadcast.BroadcastMessage;
+import dk.dma.enav.communication.MaritimeNetworkConnection;
+import dk.dma.enav.communication.broadcast.BroadcastMessage;
 
 /**
  * Thread for sending AIS messages
