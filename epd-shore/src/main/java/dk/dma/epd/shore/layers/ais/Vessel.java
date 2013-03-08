@@ -212,7 +212,7 @@ public class Vessel extends OMGraphicList {
         boolean b1 = mapScale < 750000;
         showHeading(b1);
         showSpeedVector(b1);
-        showCallSign(b1);
+        showCallSign(false);
         showName(b1);
         // Scale for ship icons
         boolean b2 = mapScale < 1500000;

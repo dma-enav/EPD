@@ -301,13 +301,25 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
 
                 aisTargetGraphic.setVisible(true);
 
-                Position.create(0, 0);
+//                Position.create(0, 0);
 
                 aisTargetGraphic.moveSymbol(Position.create(
                         ((VesselLayer) newClosest).getLat(),
                         ((VesselLayer) newClosest).getLon()));
                 doPrepare();
 
+                
+                long mmsi = ((VesselLayer) newClosest).getMMSI();
+                
+                if (aisHandler.getPastTrack().get(mmsi)!= null){
+                    for (int i = 0; i < aisHandler.getPastTrack().get(mmsi).size(); i++) {
+                        System.out.println(aisHandler.getPastTrack().get(mmsi).get(i));
+                    }
+                }
+                
+      
+                
+                
                 setStatusAreaTxt();
 
             }
