@@ -210,8 +210,9 @@ public class EnavServiceHandler extends MapHandlerChild   implements IGpsDataLis
                         init();
                         try {
                             listenToBroadcasts();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                        } catch (Exception e) {
+                            //Exception for virtual net
+                            System.out.println("An exception occured trying to listen to broadcasts, possibly connection issue");
                         }
                         
                         

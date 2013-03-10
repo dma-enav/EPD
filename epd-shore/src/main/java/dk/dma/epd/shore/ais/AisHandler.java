@@ -89,7 +89,7 @@ public class AisHandler extends MapHandlerChild implements IAisListener,
 
     private Map<Integer, AtoNTarget> atonTargets = new HashMap<>();
     protected Map<Long, VesselTarget> vesselTargets = new HashMap<Long, VesselTarget>();
-    protected Map<Long, List<Position>> pastTrack = new HashMap<Long, List<Position>>();
+    protected Map<Long, List<PastTrackPoint>> pastTrack = new HashMap<Long, List<PastTrackPoint>>();
     protected Map<Long, SarTarget> sarTargets = new HashMap<Long, SarTarget>();
     protected List<IAisTargetListener> listeners = new ArrayList<IAisTargetListener>();
 
@@ -651,13 +651,13 @@ public class AisHandler extends MapHandlerChild implements IAisListener,
         if (pastTrack.containsKey(mmsi)){
             
             //Should it add the key?
-            Position prevPos = pastTrack.get(mmsi).get(pastTrack.get(mmsi).size() - 1);
+            Position prevPos = pastTrack.get(mmsi).get(pastTrack.get(mmsi).size() - 1).getPosition();
             
             //In km, how often should points be saved? 1km?
                         if (prevPos.distanceTo(positionData.getPos(), CoordinateSystem.CARTESIAN) > 1000){
                          
 //                            System.out.println("Target " + mmsi + " has moved more than 50 since last");
-                            pastTrack.get(mmsi).add(positionData.getPos());
+                            pastTrack.get(mmsi).add(new PastTrackPoint(new Date(), positionData.getPos()));
                         }else{
 //                            System.out.println("Target " + mmsi + " has NOT");
                         }
@@ -666,8 +666,8 @@ public class AisHandler extends MapHandlerChild implements IAisListener,
             
             
         }else{
-            pastTrack.put(mmsi, new ArrayList<Position>());
-            pastTrack.get(mmsi).add(positionData.getPos());
+            pastTrack.put(mmsi, new ArrayList<PastTrackPoint>());
+            pastTrack.get(mmsi).add(new PastTrackPoint(new Date(), positionData.getPos()));
         }
         
         // Publish update
@@ -675,7 +675,7 @@ public class AisHandler extends MapHandlerChild implements IAisListener,
     }
     
     
-    public Map<Long, List<Position>> getPastTrack() {
+    public Map<Long, List<PastTrackPoint>> getPastTrack() {
         return pastTrack;
     }
 
