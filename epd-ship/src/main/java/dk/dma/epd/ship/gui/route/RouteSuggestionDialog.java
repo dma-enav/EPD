@@ -32,6 +32,7 @@ import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
 import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion.Status;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
@@ -55,6 +56,7 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
     private GpsHandler gpsHandler;
     
     private AisAdressedRouteSuggestion routeSuggestion;
+    private RouteSuggestionMessage cloudRouteSuggestion;
 
     private JButton acceptBtn;
     private JButton rejectBtn;
@@ -107,6 +109,37 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
         
         updateBtnStatus();
         updateWpInfo();
+        
+        showAndPosition();
+    }
+    
+    
+    public void showSuggestion(RouteSuggestionMessage cloudRouteSuggestion) {
+        System.out.println("Show suggestion!");
+        
+        
+        this.cloudRouteSuggestion = cloudRouteSuggestion;
+        
+//        titleLbl.setText("AIS Addressed route suggestion from MMSI: " + cloudRouteSuggestion.getSender());
+        titleLbl.setText("AIS Addressed route suggestion from MMSI: " + " Someone in the cloud");
+        
+        StringBuilder str = new StringBuilder();
+        str.append("<html>");
+        str.append("<table cellpadding='0' cellspacing='3'>");
+        str.append("<tr><td>Received:</td><td>" + "UNKNOWN"+ "</td></tr>");
+        str.append("<tr><td>Status:</td><td>" + "UNKNOWN" + "</td></tr>");
+        str.append("<tr><td>Type:</td><td>" + "UNKNOWN" + "</td></tr>");
+        str.append("<tr><td>ID:</td><td>" + cloudRouteSuggestion.messageName() + "</td></tr>");
+        str.append("<tr><td>ETA first wp:</td><td>" + Formatter.formatShortDateTime(cloudRouteSuggestion.getRoute().getWaypoints().get(0).getEta()) + "</td></tr>");
+        str.append("<tr><td>ETA last wp:</td><td>" + Formatter.formatShortDateTime(cloudRouteSuggestion.getRoute().getWaypoints().get(cloudRouteSuggestion.getRoute().getWaypoints().size()-1).getEta()) + "</td></tr>");
+        str.append("<tr><td>Duration:</td><td>" + "UNKNOWN" + "</td></tr>");
+        str.append("<tr><td>Avg speed:</td><td>" + "UNKNOWN" + "</td></tr>");
+        str.append("</table>");
+        str.append("</html>");
+        routeInfoLbl.setText(str.toString());
+        
+//        updateBtnStatus();
+//        updateWpInfo();
         
         showAndPosition();
     }

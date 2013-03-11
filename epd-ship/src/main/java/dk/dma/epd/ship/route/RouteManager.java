@@ -77,6 +77,9 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     private static final Logger LOG = LoggerFactory.getLogger(RouteManager.class);
 
     private List<Route> routes = new LinkedList<>();
+    private List<Route> suggestedRoutes = new LinkedList<>();
+    
+    
     private Set<AisAdressedRouteSuggestion> addressedSuggestedRoutes = new HashSet<>();
     private ActiveRoute activeRoute;
     private int activeRouteIndex = -1;
@@ -329,6 +332,24 @@ public class RouteManager extends MapHandlerChild implements Runnable,
             handleBroadcastRouteSuggestion((AisBroadcastRouteSuggestion) routeSuggestion);
         }
 
+    }
+    
+
+    
+    public void recieveRouteSuggestion(RecievedRoute message){
+        handleCloudRoute(message);
+    }
+    
+    private void handleCloudRoute(RecievedRoute message){
+        
+        routes.add(message.getRoute());
+        
+        // Update route layer
+        notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
+        
+        // Show dialog
+//        routeSuggestionDialog.showSuggestion(message);
+        
     }
 
     private void handleAddressedRouteSuggestion(

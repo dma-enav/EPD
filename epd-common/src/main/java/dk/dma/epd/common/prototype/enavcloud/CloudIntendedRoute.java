@@ -32,14 +32,13 @@ import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 public class CloudIntendedRoute extends Route {
 
     private static final long serialVersionUID = 1L;
-    int activeWaypoint;
     protected Double routeRange;
     protected Date received;
     protected long duration;
     protected Date etaFirst;
     protected Date etaLast;
     protected Double activeWpRange;
-    
+
     protected List<Double> ranges = new ArrayList<>();
 
     public CloudIntendedRoute(dk.dma.enav.model.voyage.Route cloudRouteData) {
@@ -48,28 +47,11 @@ public class CloudIntendedRoute extends Route {
         parseRoute(cloudRouteData);
     }
 
-    
-    
-    public int getActiveWaypoint() {
-        return activeWaypoint;
-    }
-
-
-
-    public void setActiveWaypoint(int activeWaypoint) {
-        this.activeWaypoint = activeWaypoint;
-    }
-
 
 
     private void parseRoute(dk.dma.enav.model.voyage.Route cloudRouteData) {
-//        System.out.println("Parsing route");
-        this.setName("Intended Route");
-
-        this.activeWaypoint = cloudRouteData.getActiveWaypoint();
-        
+        this.setName(cloudRouteData.getName());
         List<Waypoint> cloudRouteWaypoints = cloudRouteData.getWaypoints();
-
         LinkedList<RouteWaypoint> routeWaypoints = this.getWaypoints();
 
         for (int i = 0; i < cloudRouteWaypoints.size(); i++) {
@@ -77,17 +59,12 @@ public class CloudIntendedRoute extends Route {
             RouteWaypoint waypoint = new RouteWaypoint();
             Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
 
-            waypoint.setName("WP_" + i);
+            waypoint.setName(cloudWaypoint.getName());
 
             if (i != 0) {
                 RouteLeg inLeg = new RouteLeg();
                 inLeg.setHeading(Heading.RL);
                 waypoint.setInLeg(inLeg);
-
-                // RouteWaypoint prevWaypoint =
-                // routeWaypoints.get(routeWaypoints
-                // .size() - 2);
-                // System.out.println("For waypoint" + i + " creating in leg");
             }
 
             // Outleg always has next
@@ -147,13 +124,46 @@ public class CloudIntendedRoute extends Route {
                     waypoint.setTurnRad(cloudWaypoint.getTurnRad());
                 }
 
-                if (cloudWaypoint.getSpeed() != null) {
-                    waypoint.setSpeed(cloudWaypoint.getSpeed());
-                }
-
                 if (cloudWaypoint.getRot() != null) {
                     waypoint.setRot(cloudWaypoint.getRot());
                 }
+
+                // Leg
+
+                if (cloudWaypoint.getRouteLeg() != null) {
+
+                    // SOG
+                    if (cloudWaypoint.getRouteLeg().getSpeed() != null) {
+                        waypoint.setSpeed(cloudWaypoint.getRouteLeg()
+                                .getSpeed());
+                    }
+
+                    // XTDS
+                    if (cloudWaypoint.getRouteLeg().getXtdStarboard() != null) {
+                        waypoint.getOutLeg().setXtdStarboard(
+                                cloudWaypoint.getRouteLeg().getXtdStarboard());
+                    }
+
+                    // XTDP
+                    if (cloudWaypoint.getRouteLeg().getXtdPort() != null) {
+                        waypoint.getOutLeg().setXtdPort(
+                                cloudWaypoint.getRouteLeg().getXtdPort());
+                    }
+
+                    // SF Width
+                    if (cloudWaypoint.getRouteLeg().getSFWidth() != null) {
+                        waypoint.getOutLeg().setSFWidth(
+                                cloudWaypoint.getRouteLeg().getSFWidth());
+                    }
+
+                    // SF Len
+                    if (cloudWaypoint.getRouteLeg().getSFLen() != null) {
+                        waypoint.getOutLeg().setSFLen(
+                                cloudWaypoint.getRouteLeg().getSFLen());
+                    }
+
+                }
+
             }
         }
 
@@ -163,33 +173,21 @@ public class CloudIntendedRoute extends Route {
             etas.add(cloudRouteWaypoints.get(i).getEta());
         }
 
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         // Find ranges on each leg
         routeRange = 0.0;
         ranges.add(routeRange);
-        for (int i=0; i < waypoints.size() - 1; i++) {
-            double dist = waypoints.get(i).getPos().rhumbLineDistanceTo(waypoints.get(i + 1).getPos()) / 1852.0;
+        for (int i = 0; i < waypoints.size() - 1; i++) {
+            double dist = waypoints.get(i).getPos()
+                    .rhumbLineDistanceTo(waypoints.get(i + 1).getPos()) / 1852.0;
             routeRange += dist;
             ranges.add(routeRange);
         }
-        
+
     }
 
-    
-    
     public Double getRouteRange() {
         return routeRange;
     }
-    
 
     public Double getRange(int index) {
         if (activeWpRange == null) {
@@ -198,72 +196,49 @@ public class CloudIntendedRoute extends Route {
         return activeWpRange + ranges.get(index);
     }
 
-
-
     public void setRouteRange(Double routeRange) {
         this.routeRange = routeRange;
     }
-
-
 
     public Date getReceived() {
         return received;
     }
 
-
-
     public void setReceived(Date received) {
         this.received = received;
     }
-
-
 
     public long getDuration() {
         return duration;
     }
 
-
-
     public void setDuration(long duration) {
         this.duration = duration;
     }
-
-
 
     public Date getEtaFirst() {
         return etaFirst;
     }
 
-
-
     public void setEtaFirst(Date etaFirst) {
         this.etaFirst = etaFirst;
     }
-
-
 
     public Date getEtaLast() {
         return etaLast;
     }
 
-
-
     public void setEtaLast(Date etaLast) {
         this.etaLast = etaLast;
     }
-
-
 
     public List<Double> getRanges() {
         return ranges;
     }
 
-
-
     public void setRanges(List<Double> ranges) {
         this.ranges = ranges;
     }
-
 
     /**
      * Update range to active WP given the targets new position
@@ -283,13 +258,11 @@ public class CloudIntendedRoute extends Route {
     }
 
     public double getSpeed(int id) {
-        if (waypoints.get(id).getOutLeg() != null){
-            return waypoints.get(id).getOutLeg().getSpeed(); 
+        if (waypoints.get(id).getOutLeg() != null) {
+            return waypoints.get(id).getOutLeg().getSpeed();
         }
-        
+
         return 0;
     }
 
-    
-    
 }

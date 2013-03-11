@@ -123,6 +123,8 @@ public class RouteWaypoint implements Serializable {
             rot = null;
             return;
         }
+        
+        System.out.println("Works! " + rot);
         this.rot = rot;
         // Calculate radius from fixed speed and rot
         // Speed in nm / minute

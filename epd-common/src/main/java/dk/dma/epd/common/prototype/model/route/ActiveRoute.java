@@ -486,7 +486,7 @@ public class ActiveRoute extends Route {
         this.relaxedWpChange = relaxedWpChange;
     }
 
-    public dk.dma.enav.model.voyage.Route getVoyageRoute(){
+    public dk.dma.enav.model.voyage.Route getFullRouteData(){
         
         dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
 
@@ -508,14 +508,19 @@ public class ActiveRoute extends Route {
              
              //Leg related stored in the waypoint
              if (currentWaypoint.getOutLeg() != null){
-                 voyageWaypoint.setSpeed(currentWaypoint.getOutLeg().getSpeed());
-                 voyageWaypoint.setXtdPort(currentWaypoint.getOutLeg().getXtdPort());
-                 voyageWaypoint.setXtdStarboard(currentWaypoint.getOutLeg().getXtdStarboard());
+                 dk.dma.enav.model.voyage.RouteLeg routeLeg = new dk.dma.enav.model.voyage.RouteLeg();
+                 routeLeg.setSpeed(currentWaypoint.getOutLeg().getSpeed());
+                 routeLeg.setXtdPort(currentWaypoint.getOutLeg().getXtdPort());
+                 routeLeg.setXtdStarboard(currentWaypoint.getOutLeg().getXtdStarboard());
+                 routeLeg.setSFWidth(currentWaypoint.getOutLeg().getSFWidth());
+                 routeLeg.setSFLen(currentWaypoint.getOutLeg().getSFWidth());
+                 
+                 voyageWaypoint.setRouteLeg(routeLeg);
              }
              voyageRoute.getWaypoints().add(voyageWaypoint);
         }
         
-        voyageRoute.setActiveWaypoint(this.getActiveWaypointIndex());
+
         
         return voyageRoute;
     }

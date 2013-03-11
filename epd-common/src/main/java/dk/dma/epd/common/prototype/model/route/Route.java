@@ -23,6 +23,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.enav.model.voyage.Waypoint;
+import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
 
@@ -123,6 +125,10 @@ public class Route implements Serializable {
         this.metocStarttime = orig.metocStarttime;
         this.metocEta = orig.metocEta;
         this.routeMetocSettings = orig.routeMetocSettings;
+    }
+    
+    public Route(dk.dma.enav.model.voyage.Route cloudRouteData){
+        parseRoute(cloudRouteData);
     }
 
     // Methods
@@ -757,5 +763,161 @@ public class Route implements Serializable {
         this.etas = etas;
     }
 
+    public dk.dma.enav.model.voyage.Route getFullRouteData(){
+        
+        dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
 
+        voyageRoute.setName(this.name);
+        
+        
+        for (int i = 0; i < getWaypoints().size(); i++) {
+        
+
+            dk.dma.enav.model.voyage.Waypoint voyageWaypoint = new dk.dma.enav.model.voyage.Waypoint(); 
+             RouteWaypoint currentWaypoint = getWaypoints().get(i);
+
+             voyageWaypoint.setName(currentWaypoint.getName());
+             voyageWaypoint.setEta(etas.get(i));
+             voyageWaypoint.setLatitude(currentWaypoint.getPos().getLatitude());
+             voyageWaypoint.setLongitude(currentWaypoint.getPos().getLongitude());
+             
+
+             voyageWaypoint.setRot(currentWaypoint.getRot());
+             voyageWaypoint.setTurnRad(currentWaypoint.getTurnRad());
+             
+             if (currentWaypoint.getOutLeg() != null){
+                 dk.dma.enav.model.voyage.RouteLeg routeLeg = new dk.dma.enav.model.voyage.RouteLeg();
+                 routeLeg.setSpeed(currentWaypoint.getOutLeg().getSpeed());
+                 routeLeg.setXtdPort(currentWaypoint.getOutLeg().getXtdPort());
+                 routeLeg.setXtdStarboard(currentWaypoint.getOutLeg().getXtdStarboard());
+                 routeLeg.setSFWidth(currentWaypoint.getOutLeg().getSFWidth());
+                 routeLeg.setSFLen(currentWaypoint.getOutLeg().getSFWidth());
+                 
+                 voyageWaypoint.setRouteLeg(routeLeg);
+             }
+             voyageRoute.getWaypoints().add(voyageWaypoint);
+        }
+        
+        return voyageRoute;
+    }
+    
+    
+    private void parseRoute(dk.dma.enav.model.voyage.Route cloudRouteData) {
+        this.setName(cloudRouteData.getName());
+        List<Waypoint> cloudRouteWaypoints = cloudRouteData.getWaypoints();
+        LinkedList<RouteWaypoint> routeWaypoints = this.getWaypoints();
+
+        for (int i = 0; i < cloudRouteWaypoints.size(); i++) {
+
+            RouteWaypoint waypoint = new RouteWaypoint();
+            Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
+
+            waypoint.setName(cloudWaypoint.getName());
+
+            if (i >= 0) {
+                RouteLeg inLeg = new RouteLeg();
+                inLeg.setHeading(Heading.RL);
+                waypoint.setInLeg(inLeg);
+            }
+
+            // Outleg always has next
+            if (i != cloudRouteWaypoints.size() - 1) {
+                RouteLeg outLeg = new RouteLeg();
+                outLeg.setHeading(Heading.RL);
+                waypoint.setOutLeg(outLeg);
+                // System.out.println("For waypoint" + i + " creating out leg");
+            }
+
+            Position position = Position.create(cloudWaypoint.getLatitude(),
+                    cloudWaypoint.getLongitude());
+            waypoint.setPos(position);
+
+            routeWaypoints.add(waypoint);
+
+        }
+
+        if (routeWaypoints.size() > 1) {
+            for (int i = 0; i < routeWaypoints.size(); i++) {
+
+                // System.out.println("Looking at waypoint:" + i);
+                RouteWaypoint waypoint = routeWaypoints.get(i);
+                Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
+
+                // Waypoint 0 has no in leg, one out leg... no previous
+                if (i != 0) {
+                    RouteWaypoint prevWaypoint = routeWaypoints.get(i - 1);
+
+                    if (waypoint.getInLeg() != null) {
+                        // System.out.println("Setting inleg prev for waypoint:"
+                        // + i);
+                        waypoint.getInLeg().setStartWp(prevWaypoint);
+                        waypoint.getInLeg().setEndWp(waypoint);
+                    }
+
+                    if (prevWaypoint.getOutLeg() != null) {
+                        // System.out.println("Setting outleg prev for waypoint:"
+                        // + i);
+                        prevWaypoint.getOutLeg().setStartWp(prevWaypoint);
+                        prevWaypoint.getOutLeg().setEndWp(waypoint);
+
+                    }
+                }
+
+                if (cloudWaypoint.getTurnRad() != null) {
+                    waypoint.setTurnRad(cloudWaypoint.getTurnRad());
+                }
+
+                if (cloudWaypoint.getRot() != null) {
+                    waypoint.setRot(cloudWaypoint.getRot());
+                }
+                
+//                System.out.println(waypoint.getTurnRad());
+//                System.out.println(cloudWaypoint.getRot());
+
+                // Leg
+
+                if (cloudWaypoint.getRouteLeg() != null) {
+
+                    // SOG
+                    if (cloudWaypoint.getRouteLeg().getSpeed() != null) {
+                        waypoint.setSpeed(cloudWaypoint.getRouteLeg()
+                                .getSpeed());
+                    }
+
+                    // XTDS
+                    if (cloudWaypoint.getRouteLeg().getXtdStarboard() != null) {
+                        waypoint.getOutLeg().setXtdStarboard(
+                                cloudWaypoint.getRouteLeg().getXtdStarboard());
+                    }
+
+                    // XTDP
+                    if (cloudWaypoint.getRouteLeg().getXtdPort() != null) {
+                        waypoint.getOutLeg().setXtdPort(
+                                cloudWaypoint.getRouteLeg().getXtdPort());
+                    }
+
+                    // SF Width
+                    if (cloudWaypoint.getRouteLeg().getSFWidth() != null) {
+                        waypoint.getOutLeg().setSFWidth(
+                                cloudWaypoint.getRouteLeg().getSFWidth());
+                    }
+
+                    // SF Len
+                    if (cloudWaypoint.getRouteLeg().getSFLen() != null) {
+                        waypoint.getOutLeg().setSFLen(
+                                cloudWaypoint.getRouteLeg().getSFLen());
+                    }
+
+                }
+
+            }
+        }
+
+        etas = new ArrayList<>();
+        // this.calcAllWpEta();
+        for (int i = 0; i < cloudRouteWaypoints.size(); i++) {
+            etas.add(cloudRouteWaypoints.get(i).getEta());
+        }
+
+    }
 }

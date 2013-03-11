@@ -66,7 +66,7 @@ public class IntendedRouteService extends EnavService implements
         
         if (provider.getActiveRoute() != null){
             
-            message.setIntendedRoute(provider.getActiveRoute().getVoyageRoute());
+            message.setIntendedRoute(provider.getActiveRoute().getFullRouteData());
             
         }else{
             System.out.println("Active route is null!");
