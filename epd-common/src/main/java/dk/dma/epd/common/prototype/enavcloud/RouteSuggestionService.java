@@ -67,15 +67,18 @@ public class RouteSuggestionService {
         private Date sent;
         private String sender;
         private String message;
+        private long id;
         
 
         public RouteSuggestionMessage() {
         }
 
-        public RouteSuggestionMessage(Route route, String sender) {
+        public RouteSuggestionMessage(Route route, String sender, String message) {
             this.route = requireNonNull(route);
             this.sender = requireNonNull(sender);
-            sent = new Date();
+            this.id = requireNonNull(System.currentTimeMillis());
+            this.sent = requireNonNull(new Date());
+            this.message = requireNonNull("Route Send Example");
         }
 
         public String getMessage() {
@@ -118,6 +121,16 @@ public class RouteSuggestionService {
         public void setSent(Date sent) {
             this.sent = sent;
         }
+
+        public long getId() {
+            return id;
+        }
+
+        public void setId(long id) {
+            this.id = id;
+        }
+        
+        
     }
 
 

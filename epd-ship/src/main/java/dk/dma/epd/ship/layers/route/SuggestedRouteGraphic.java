@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.layers.route;
+package dk.dma.epd.ship.layers.route;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -27,8 +27,9 @@ import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
 
-import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
+import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
+import dk.dma.epd.ship.route.RecievedRoute;
 
 /**
  * Graphic for a suggested route
@@ -37,14 +38,25 @@ public class SuggestedRouteGraphic extends OMGraphicList {
 
     private static final long serialVersionUID = 1L;
 
-    private List<Position> routeWaypoints;
-    private AisAdressedRouteSuggestion routeSuggestion;
+    private List<RouteWaypoint> routeWaypoints;
+    private RecievedRoute routeSuggestion;
+//    private AisAdressedRouteSuggestion routeSuggestion;
+    
     private Stroke stroke;
 
     public SuggestedRouteGraphic(AisAdressedRouteSuggestion routeSuggestion, Stroke stroke) {
+//        this.routeSuggestion = routeSuggestion;
+        this.stroke = stroke;
+//        routeWaypoints = routeSuggestion.getWaypoints();
+        initGraphics();
+        setVague(true);
+    }
+    
+    public SuggestedRouteGraphic(RecievedRoute routeSuggestion, Stroke stroke) {
         this.routeSuggestion = routeSuggestion;
         this.stroke = stroke;
-        routeWaypoints = routeSuggestion.getWaypoints();
+        
+        routeWaypoints = routeSuggestion.getRoute().getWaypoints();
         initGraphics();
         setVague(true);
     }
@@ -59,20 +71,20 @@ public class SuggestedRouteGraphic extends OMGraphicList {
                 null, // Dash pattern
                 0.0f);
 
-        Position prevPoint = null;
-        Position nextPoint = null;
-        for (Position geoLocation : routeWaypoints) {
+        RouteWaypoint prevPoint = null;
+        RouteWaypoint nextPoint = null;
+        for (RouteWaypoint geoLocation : routeWaypoints) {
             nextPoint = geoLocation;
             if (prevPoint != null) {
-                OMLine leg = new OMLine(prevPoint.getLatitude(), prevPoint.getLongitude(), nextPoint.getLatitude(), nextPoint
+                OMLine leg = new OMLine(prevPoint.getPos().getLatitude(), prevPoint.getPos().getLongitude(), nextPoint.getPos().getLatitude(), nextPoint.getPos()
                         .getLongitude(), OMGraphicConstants.LINETYPE_RHUMB);
                 leg.setStroke(stroke);
                 leg.setLinePaint(new Color(183, 68, 237, 255));
                 add(leg);
                 
                 if (!routeSuggestion.isReplied()) {
-                    OMLine legBackground = new OMLine(prevPoint.getLatitude(), prevPoint.getLongitude(), nextPoint.getLatitude(),
-                            nextPoint.getLongitude(), OMGraphicConstants.LINETYPE_RHUMB);
+                    OMLine legBackground = new OMLine(prevPoint.getPos().getLatitude(), prevPoint.getPos().getLongitude(), nextPoint.getPos().getLatitude(),
+                            nextPoint.getPos().getLongitude(), OMGraphicConstants.LINETYPE_RHUMB);
                     legBackground.setStroke(backgroundStroke);
                     legBackground.setLinePaint(new Color(42, 172, 12, 120));                
                     add(legBackground);
@@ -82,7 +94,7 @@ public class SuggestedRouteGraphic extends OMGraphicList {
         }
     }
 
-    public AisAdressedRouteSuggestion getRouteSuggestion() {
+    public RecievedRoute getRouteSuggestion() {
         return routeSuggestion;
     }
 

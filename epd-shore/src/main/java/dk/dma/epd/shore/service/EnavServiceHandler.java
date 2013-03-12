@@ -44,7 +44,6 @@ import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.common.util.Util;
-import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gps.GpsHandler;
 import dk.dma.epd.shore.route.RouteManager;
@@ -130,19 +129,16 @@ public class EnavServiceHandler extends MapHandlerChild implements
         sendThread.start();
     }
 
-    private void sendRouteSuggestion() throws InterruptedException,
+    public void sendRouteSuggestion(Route route) throws InterruptedException,
             ExecutionException, TimeoutException {
 
         ServiceEndpoint<RouteSuggestionService.RouteSuggestionMessage, RouteSuggestionService.RouteSuggestionAck> end = connection
                 .serviceFindOne(RouteSuggestionService.INIT).get(6,
                         TimeUnit.SECONDS);
 
-        Route r = EPDShore.getRouteManager().getRoute(0).getFullRouteData();
-
-        NetworkFuture<RouteSuggestionService.RouteSuggestionAck> f = end.invoke(new RouteSuggestionService.RouteSuggestionMessage(r, "DMA Shore"));
+        NetworkFuture<RouteSuggestionService.RouteSuggestionAck> f = end.invoke(new RouteSuggestionService.RouteSuggestionMessage(route, "DMA Shore", "Route Send Example"));
         
         System.out.println("Client said: " + f.get().getMessage());
-
     }
 
     /**
@@ -247,16 +243,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                 }
             }
         }
-        Util.sleep(10000);
-        while (true) {
-            try {
-                sendRouteSuggestion();
-                Util.sleep(100000);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-           
-        }
+
     }
 
     public void start() {

@@ -19,6 +19,8 @@ import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -30,9 +32,7 @@ import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
-import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
-import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion.Status;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
@@ -42,6 +42,8 @@ import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.ComponentFrame;
 import dk.dma.epd.ship.gui.MainFrame;
+import dk.dma.epd.ship.route.RecievedRoute;
+import dk.dma.epd.ship.route.RecievedRoute.Status;
 import dk.dma.epd.ship.route.RouteManager;
 
 /**
@@ -54,9 +56,9 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
     private RouteManager routeManager;
     private ChartPanel chartPanel;
     private GpsHandler gpsHandler;
-    
-    private AisAdressedRouteSuggestion routeSuggestion;
-    private RouteSuggestionMessage cloudRouteSuggestion;
+
+    private RecievedRoute cloudRouteSuggestion;
+
 
     private JButton acceptBtn;
     private JButton rejectBtn;
@@ -87,59 +89,29 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
         new Thread(this).start();
     }
     
-    public void showSuggestion(AisAdressedRouteSuggestion routeSuggestion) {
-        this.routeSuggestion = routeSuggestion;
+    
+    public void showSuggestion(RecievedRoute cloudRouteSuggestion) {
         
-        titleLbl.setText("AIS Addressed route suggestion from MMSI: " + routeSuggestion.getSender());
+        this.cloudRouteSuggestion = cloudRouteSuggestion;
+        
+        titleLbl.setText("Route suggestion from " + cloudRouteSuggestion.getSender());
         
         StringBuilder str = new StringBuilder();
         str.append("<html>");
         str.append("<table cellpadding='0' cellspacing='3'>");
-        str.append("<tr><td>Received:</td><td>" + Formatter.formatShortDateTime(routeSuggestion.getReceived()) + "</td></tr>");
-        str.append("<tr><td>Status:</td><td>" + formatRouteSuggestioStatus(routeSuggestion.getStatus()) + "</td></tr>");
-        str.append("<tr><td>Type:</td><td>" + Formatter.formatAisRouteType(routeSuggestion.getRouteType()) + "</td></tr>");
-        str.append("<tr><td>ID:</td><td>" + routeSuggestion.getMsgLinkId() + "</td></tr>");
-        str.append("<tr><td>ETA first wp:</td><td>" + Formatter.formatShortDateTime(routeSuggestion.getEtaFirst()) + "</td></tr>");
-        str.append("<tr><td>ETA last wp:</td><td>" + Formatter.formatShortDateTime(routeSuggestion.getEtaLast()) + "</td></tr>");
-        str.append("<tr><td>Duration:</td><td>" + Formatter.formatTime(routeSuggestion.getDuration()) + "</td></tr>");
-        str.append("<tr><td>Avg speed:</td><td>" + Formatter.formatSpeed(routeSuggestion.getSpeed()) + "</td></tr>");
+        str.append("<tr><td>Sent:</td><td>" + cloudRouteSuggestion.getSent()+ "</td></tr>");
+        str.append("<tr><td>Received:</td><td>" + cloudRouteSuggestion.getRecieved()+ "</td></tr>");
+        str.append("<tr><td>Message:</td><td>" + cloudRouteSuggestion.getMessage() + "</td></tr>");
+        str.append("<tr><td>Status:</td><td>" + cloudRouteSuggestion.getStatus() + "</td></tr>");
+        str.append("<tr><td>ID:</td><td>" + cloudRouteSuggestion.getId() + "</td></tr>");
+        str.append("<tr><td>ETA first wp:</td><td>" + Formatter.formatShortDateTime(cloudRouteSuggestion.getRoute().getEtas().get(0)) + "</td></tr>");
+        str.append("<tr><td>ETA last wp:</td><td>" + Formatter.formatShortDateTime(cloudRouteSuggestion.getRoute().getEtas().get(cloudRouteSuggestion.getRoute().getWaypoints().size()-1)) + "</td></tr>");
         str.append("</table>");
         str.append("</html>");
         routeInfoLbl.setText(str.toString());
         
         updateBtnStatus();
         updateWpInfo();
-        
-        showAndPosition();
-    }
-    
-    
-    public void showSuggestion(RouteSuggestionMessage cloudRouteSuggestion) {
-        System.out.println("Show suggestion!");
-        
-        
-        this.cloudRouteSuggestion = cloudRouteSuggestion;
-        
-//        titleLbl.setText("AIS Addressed route suggestion from MMSI: " + cloudRouteSuggestion.getSender());
-        titleLbl.setText("AIS Addressed route suggestion from MMSI: " + " Someone in the cloud");
-        
-        StringBuilder str = new StringBuilder();
-        str.append("<html>");
-        str.append("<table cellpadding='0' cellspacing='3'>");
-        str.append("<tr><td>Received:</td><td>" + "UNKNOWN"+ "</td></tr>");
-        str.append("<tr><td>Status:</td><td>" + "UNKNOWN" + "</td></tr>");
-        str.append("<tr><td>Type:</td><td>" + "UNKNOWN" + "</td></tr>");
-        str.append("<tr><td>ID:</td><td>" + cloudRouteSuggestion.messageName() + "</td></tr>");
-        str.append("<tr><td>ETA first wp:</td><td>" + Formatter.formatShortDateTime(cloudRouteSuggestion.getRoute().getWaypoints().get(0).getEta()) + "</td></tr>");
-        str.append("<tr><td>ETA last wp:</td><td>" + Formatter.formatShortDateTime(cloudRouteSuggestion.getRoute().getWaypoints().get(cloudRouteSuggestion.getRoute().getWaypoints().size()-1).getEta()) + "</td></tr>");
-        str.append("<tr><td>Duration:</td><td>" + "UNKNOWN" + "</td></tr>");
-        str.append("<tr><td>Avg speed:</td><td>" + "UNKNOWN" + "</td></tr>");
-        str.append("</table>");
-        str.append("</html>");
-        routeInfoLbl.setText(str.toString());
-        
-//        updateBtnStatus();
-//        updateWpInfo();
         
         showAndPosition();
     }
@@ -167,14 +139,14 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
         StringBuilder str = new StringBuilder();
         str.append("<html><b>DST/BRG/TTG/SPD</b><br/>");
         GpsData gpsData = gpsHandler.getCurrentData();
-        if (gpsData != null && !gpsData.isBadPosition() && routeSuggestion.getWaypoints().size() > 0) {
-            double dst = routeSuggestion.getWaypoints().get(0).rhumbLineDistanceTo(gpsData.getPosition()) / 1852;
+        if (gpsData != null && !gpsData.isBadPosition() && cloudRouteSuggestion.getRoute().getWaypoints().size() > 0) {
+            double dst = cloudRouteSuggestion.getRoute().getWaypoints().get(0).getPos().rhumbLineDistanceTo(gpsData.getPosition()) / 1852;
             str.append(Formatter.formatDistNM(dst));
-            double brg = routeSuggestion.getWaypoints().get(0).rhumbLineBearingTo(gpsData.getPosition());
+            double brg = cloudRouteSuggestion.getRoute().getWaypoints().get(0).getPos().rhumbLineBearingTo(gpsData.getPosition());
             str.append(" / " + Formatter.formatDegrees(brg, 2));
             Long ttg = null;
-            if (routeSuggestion.getEtaFirst() != null) {
-                ttg = routeSuggestion.getEtaFirst().getTime() - GnssTime.getInstance().getDate().getTime();
+            if (cloudRouteSuggestion.getRoute().getEtas().get(0) != null) {
+                ttg = cloudRouteSuggestion.getRoute().getEtas().get(0).getTime() - GnssTime.getInstance().getDate().getTime();
             }
             if (ttg != null && ttg < 0) {
                 ttg = null;
@@ -195,21 +167,21 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
     }
     
     private void updateBtnStatus() {
-        zoomBtn.setEnabled(!routeSuggestion.isHidden());
+        zoomBtn.setEnabled(!cloudRouteSuggestion.isHidden());
         
-        if (routeSuggestion.isHidden()) {        
+        if (cloudRouteSuggestion.isHidden()) {        
             hideBtn.setText("Show");
         } else {
             hideBtn.setText("Hide");
         }
         
-        hideBtn.setVisible(!routeSuggestion.isAcceptable());
+        hideBtn.setVisible(!cloudRouteSuggestion.isAcceptable());
         
-        acceptBtn.setEnabled(routeSuggestion.isAcceptable());
-        rejectBtn.setEnabled(routeSuggestion.isRejectable());
-        notedBtn.setEnabled(routeSuggestion.isNoteable());
-        ignoreBtn.setEnabled(routeSuggestion.isIgnorable());
-        postponeBtn.setEnabled(routeSuggestion.isPostponable());        
+        acceptBtn.setEnabled(cloudRouteSuggestion.isAcceptable());
+        rejectBtn.setEnabled(cloudRouteSuggestion.isRejectable());
+        notedBtn.setEnabled(cloudRouteSuggestion.isNoteable());
+        ignoreBtn.setEnabled(cloudRouteSuggestion.isIgnorable());
+        postponeBtn.setEnabled(cloudRouteSuggestion.isPostponable());        
 
     }
     
@@ -230,22 +202,27 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == zoomBtn) {
-            chartPanel.zoomTo(routeSuggestion.getWaypoints());
+            List<Position> posList = new ArrayList<>();
+            for (int i = 0; i < cloudRouteSuggestion.getRoute().getWaypoints().size(); i++) {
+                posList.add(cloudRouteSuggestion.getRoute().getWaypoints().get(i).getPos());
+            }
+            
+            chartPanel.zoomTo(posList);
         } else if (e.getSource() == hideBtn) {
-            routeSuggestion.setHidden(!routeSuggestion.isHidden());
+            cloudRouteSuggestion.setHidden(!cloudRouteSuggestion.isHidden());
             updateBtnStatus();
             routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
         } else if (e.getSource() == acceptBtn) {
-            routeManager.aisRouteSuggestionReply(routeSuggestion, AisAdressedRouteSuggestion.Status.ACCEPTED);
+            routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.ACCEPTED);
             close();
         } else if (e.getSource() == rejectBtn) {
-            routeManager.aisRouteSuggestionReply(routeSuggestion, AisAdressedRouteSuggestion.Status.REJECTED);
+            routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.REJECTED);
             close();
         } else if (e.getSource() == notedBtn) {
-            routeManager.aisRouteSuggestionReply(routeSuggestion, AisAdressedRouteSuggestion.Status.NOTED);
+            routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.NOTED);
             close();
         } else if (e.getSource() == ignoreBtn) {
-            routeSuggestion.setStatus(AisAdressedRouteSuggestion.Status.IGNORED);
+            routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.IGNORED);
             routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
             close();
         } else if (e.getSource() == postponeBtn) {

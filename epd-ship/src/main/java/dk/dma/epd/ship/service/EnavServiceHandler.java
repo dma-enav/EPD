@@ -65,6 +65,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private ShipId shipId;
     private GpsHandler gpsHandler;
     private AisHandler aisHandler;
+    private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionAck> context;
 
     MaritimeNetworkConnection connection;
 
@@ -108,33 +109,30 @@ public class EnavServiceHandler extends MapHandlerChild implements
                             public void process(
                                     RouteSuggestionMessage message,
                                     InvocationCallback.Context<RouteSuggestionService.RouteSuggestionAck> context) {
-                                
-                                RecievedRoute recievedRoute = new RecievedRoute(message);
-                                
-                                EPDShip.getRouteManager().recieveRouteSuggestion(recievedRoute);
-                                
-                                System.out.println(message.getRoute());
-                                context.complete(new RouteSuggestionService.RouteSuggestionAck(
-                                        "Det lyder helt fint"));
+
+                                setContext(context);
+
+                                RecievedRoute recievedRoute = new RecievedRoute(
+                                        message);
+
+                                EPDShip.getRouteManager()
+                                        .recieveRouteSuggestion(recievedRoute);
+
                             }
                         }).awaitRegistered(4, TimeUnit.SECONDS);
+    }
 
-        //
-        // MaritimeNetworkConnection c2 = newClient(SHORE);
-        //
-        // ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionAck> end = c2
-        // .serviceFindOne(RouteSuggestionService.INIT).get(6,
-        // TimeUnit.SECONDS);
-        //
-        //
-        // Route r = new Route();
-        // r.getWaypoints().add(new
-        // Waypoint().setLatitude(12).setLongitude(16).setEta(new Date()));
-        // NetworkFuture<RouteSuggestionAck> f = end.invoke(new
-        // RouteSuggestionService.RouteSuggestionMessage(r));
-        // assertEquals("Det lyder helt fint", f.get(4,
-        // TimeUnit.SECONDS).getMessage());
+    public InvocationCallback.Context<RouteSuggestionService.RouteSuggestionAck> getContext() {
+        return context;
+    }
 
+    public void setContext(
+            InvocationCallback.Context<RouteSuggestionService.RouteSuggestionAck> context) {
+        this.context = context;
+    }
+
+    public void sendReply(String msg) {
+        context.complete(new RouteSuggestionService.RouteSuggestionAck(msg));
     }
 
     /**

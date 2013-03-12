@@ -42,7 +42,6 @@ import com.bbn.openmap.LightMapHandlerChild;
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.MouseDelegator;
 
-import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
@@ -88,6 +87,7 @@ import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.msi.MsiLayer;
 import dk.dma.epd.ship.msi.MsiHandler;
 import dk.dma.epd.ship.nogo.NogoHandler;
+import dk.dma.epd.ship.route.RecievedRoute;
 import dk.dma.epd.ship.route.RouteManager;
 
 /**
@@ -555,10 +555,10 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         generalRouteMenu(routeIndex);
     }
     
-    public void suggestedRouteMenu(AisAdressedRouteSuggestion suggestedRoute){
+    public void suggestedRouteMenu(RecievedRoute aisSuggestedRoute){
         removeAll();
             
-        suggestedRouteDetails.setSuggestedRoute(suggestedRoute);
+        suggestedRouteDetails.setSuggestedRoute(aisSuggestedRoute);
         suggestedRouteDetails.setRouteSuggestionDialog(routeSuggestionDialog);
         add(suggestedRouteDetails);
         

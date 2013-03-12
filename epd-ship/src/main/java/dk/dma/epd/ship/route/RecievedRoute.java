@@ -15,19 +15,39 @@
  */
 package dk.dma.epd.ship.route;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.model.route.Route;
 
-public class RecievedRoute {
+public class RecievedRoute implements Serializable {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
     Date recieved;
     Date sent;
     String sender;
     Route route;
     String message;
     String replySent;
+    long id;
+    private boolean hidden;
+    private Status status = Status.PENDING;
+    
+    /**
+     * Possible status of a suggestion
+     */
+    public enum Status {
+        PENDING,
+        ACCEPTED,
+        REJECTED,
+        NOTED,
+        IGNORED,
+        CANCELLED,
+    }
 
     public RecievedRoute(RouteSuggestionMessage suggestionMessage) {
         this.sender = suggestionMessage.getSender();
@@ -35,6 +55,7 @@ public class RecievedRoute {
         this.recieved = new Date();
         this.route = new Route(suggestionMessage.getRoute());
         this.message = suggestionMessage.getMessage();
+        id = suggestionMessage.getId();
     }
 
     public Date getRecieved() {
@@ -85,7 +106,76 @@ public class RecievedRoute {
         this.replySent = replySent;
     }
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+ 
+    
+    public Status getStatus() {
+        return status;
+    }
+    
+    public void setStatus(Status status) {
+        switch (status) {
+        case ACCEPTED:
+        case NOTED:
+            setHidden(false);
+            break;
+        case REJECTED:        
+        case IGNORED:
+        case CANCELLED:
+            setHidden(true);
+            break;
+        case PENDING:
+            break;
+        default:
+            break;
+        }
+        this.status = status;
+    }
+    
+    public boolean isReplied() {
+        return status == Status.ACCEPTED || status == Status.NOTED || status == Status.REJECTED;
+    }
+    
+    public boolean isHidden() {
+        return hidden;
+    }
+    
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
+    }
+    
+    public boolean isAcceptable() {
+        return status == Status.PENDING || status == Status.IGNORED; 
+    }
+    
+    public boolean isRejectable() {
+        return status == Status.PENDING || status == Status.IGNORED;
+    }
+    
+    public boolean isNoteable() {
+        return status == Status.PENDING || status == Status.IGNORED;
+    }
+    
+    public boolean isIgnorable() {
+        return status == Status.PENDING; 
+    }
+    
+    public boolean isPostponable() {
+        return status == Status.PENDING; 
+    }
+    
+    public void cancel() {
+        setStatus(Status.CANCELLED);
+    }
     
     
     
+
 }
