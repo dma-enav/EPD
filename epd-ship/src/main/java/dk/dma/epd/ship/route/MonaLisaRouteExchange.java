@@ -117,7 +117,7 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
 //            if (i !=0){
                 // Set ETA
                 try {
-                    waypoint.setETA(convertDate(new Date()));
+                    waypoint.setETA(convertDate(route.getEtas().get(i)));
                 } catch (DatatypeConfigurationException e) {
                     e.printStackTrace();
                 }
