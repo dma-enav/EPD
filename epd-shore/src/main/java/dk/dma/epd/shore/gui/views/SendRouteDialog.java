@@ -377,8 +377,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
                 // System.out.println("no mmsi");
             }
 
-            // Disabled in newer
-            try {
+               try {
                 enavServiceHandler.sendRouteSuggestion(route.getFullRouteData());
             } catch (Exception e){
                 System.out.println("Failed to send route");

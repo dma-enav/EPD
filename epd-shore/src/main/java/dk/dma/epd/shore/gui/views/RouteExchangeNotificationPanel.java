@@ -44,10 +44,11 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteExchangeTableModel;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
-import dk.dma.epd.shore.service.ais.AisServices;
+//import dk.dma.epd.shore.service.ais.AisServices;
 
 public class RouteExchangeNotificationPanel extends JPanel {
 
@@ -374,8 +375,14 @@ public class RouteExchangeNotificationPanel extends JPanel {
         but_resend.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 if (but_resend.isEnabled()) {
-//                    RouteSuggestionData message = routeTableModel.getMessages().get(currentSelection);
+                    RouteSuggestionMessage message = routeTableModel.getMessages().get(currentSelection);
 
+                    try {
+                        EPDShore.getEnavServiceHandler().sendRouteSuggestion(message.getRoute());
+                    } catch (Exception ex){
+                        System.out.println("Couldnt resend");
+                    }
+                    
 //                    aisService.sendRouteSuggestion((int) message.getMmsi(), message.getRoute());
 
                     // RouteSuggestionData message =
@@ -446,11 +453,6 @@ public class RouteExchangeNotificationPanel extends JPanel {
         return routeTable;
     }
 
-    public void setAisService(AisServices aisService) {
-//        this.aisService = aisService;
-    }
-
-    
     private class RouteExchangeRowListener implements ListSelectionListener {
 
         public void valueChanged(ListSelectionEvent event) {

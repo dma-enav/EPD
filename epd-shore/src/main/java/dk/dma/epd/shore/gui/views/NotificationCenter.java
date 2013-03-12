@@ -55,7 +55,7 @@ import dk.dma.epd.shore.gui.msi.MsiTableModel;
 import dk.dma.epd.shore.gui.route.RouteExchangeTableModel;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.msi.MsiHandler;
-import dk.dma.epd.shore.service.ais.AisServices;
+import dk.dma.epd.shore.service.EnavServiceHandler;
 
 public class NotificationCenter extends ComponentFrame implements ListSelectionListener, ActionListener,
         IMsiUpdateListener, AISRouteExchangeListener {
@@ -82,8 +82,7 @@ public class NotificationCenter extends ComponentFrame implements ListSelectionL
     private MsiHandler msiHandler;
     private MsiTableModel msiTableModel;
 
-    private AisServices aisService;
-    private RouteExchangeTableModel routeTableModel;
+       private RouteExchangeTableModel routeTableModel;
 
     private JPanel msiPanelLeft;
 
@@ -418,12 +417,11 @@ public class NotificationCenter extends ComponentFrame implements ListSelectionL
             topBar.addMouseListener(mml);
             topBar.addMouseMotionListener(mml);
         }
-        if (obj instanceof AisServices) {
-            aisService = (AisServices) obj;
+        
+        if (obj instanceof EnavServiceHandler) {
 //            aisService.addRouteExchangeListener(this);
-            routeTableModel = new RouteExchangeTableModel(aisService);
+            routeTableModel = new RouteExchangeTableModel((EnavServiceHandler) obj);
             routeTable.setModel(routeTableModel);
-            routePanel.setAisService(aisService);
             routePanel.initTable();
 
         }
@@ -524,13 +522,23 @@ public class NotificationCenter extends ComponentFrame implements ListSelectionL
         }
     }
 
-    @Override
-    public void aisUpdate() {
+    public void cloudUpdate(){
         routePanel.updateTable();
 
         if (routeTable.getSelectedRow() != -1){
             routePanel.readMessage(routeTable.getSelectedRow());
         }
+    }
+    
+    
+    
+    @Override
+    public void aisUpdate() {
+//        routePanel.updateTable();
+//
+//        if (routeTable.getSelectedRow() != -1){
+//            routePanel.readMessage(routeTable.getSelectedRow());
+//        }
 //        try {
 //            setMessages("Route", aisService.getUnkAck());
 //

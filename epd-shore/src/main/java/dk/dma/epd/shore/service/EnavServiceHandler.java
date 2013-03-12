@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.shore.service;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -41,9 +42,11 @@ import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.enavcloud.EnavCloudSendThread;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.common.util.Util;
+import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gps.GpsHandler;
 import dk.dma.epd.shore.route.RouteManager;
@@ -65,7 +68,9 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private AisHandler aisHandler;
 
     MaritimeNetworkConnection connection;
-
+    HashMap<Long, RouteSuggestionMessage> routeSuggestions = new HashMap<Long, RouteSuggestionMessage>();
+    
+    
     // private IntendedRouteService intendedRouteService;
 
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
@@ -135,10 +140,21 @@ public class EnavServiceHandler extends MapHandlerChild implements
         ServiceEndpoint<RouteSuggestionService.RouteSuggestionMessage, RouteSuggestionService.RouteSuggestionAck> end = connection
                 .serviceFindOne(RouteSuggestionService.INIT).get(6,
                         TimeUnit.SECONDS);
-
-        NetworkFuture<RouteSuggestionService.RouteSuggestionAck> f = end.invoke(new RouteSuggestionService.RouteSuggestionMessage(route, "DMA Shore", "Route Send Example"));
         
+        RouteSuggestionMessage routeMessage = new RouteSuggestionService.RouteSuggestionMessage(route, "DMA Shore", "Route Send Example");
+
+        routeSuggestions.put(routeMessage.getId(), routeMessage);
+        
+        NetworkFuture<RouteSuggestionService.RouteSuggestionAck> f = end.invoke(routeMessage);
+        
+        
+        EPDShore.getMainFrame().getNotificationCenter().cloudUpdate();
         System.out.println("Client said: " + f.get().getMessage());
+    }
+
+    
+    public HashMap<Long, RouteSuggestionMessage> getRouteSuggestions() {
+        return routeSuggestions;
     }
 
     /**

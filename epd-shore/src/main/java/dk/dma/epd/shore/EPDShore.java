@@ -188,6 +188,14 @@ public class EPDShore {
         });
 
     }
+    
+    
+
+    public static EnavServiceHandler getEnavServiceHandler() {
+        return enavServiceHandler;
+    }
+
+
 
     /**
      * Function called on shutdown
