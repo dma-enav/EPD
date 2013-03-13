@@ -13,13 +13,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.ais;
+package dk.dma.epd.shore.service;
 
-public interface AISRouteExchangeListener {
+public class RouteSuggestionKey {
 
-    /**
-     * AIS messages has changed
-     */
-    void aisUpdate();
+    private long mmsi;
+    private long id;
 
+    public RouteSuggestionKey(long mmsi, long l) {
+        this.mmsi = mmsi;
+        this.id = l;
+    }
+
+    public long getMmsi() {
+        return mmsi;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    @Override
+    public boolean equals(Object key) {
+
+        RouteSuggestionKey routeKey = (RouteSuggestionKey) key;
+        
+        return routeKey.getId() == this.id && routeKey.getMmsi() == this.mmsi;
+    }
+    
+    public int hashCode(){
+        return super.hashCode();
+    }
+
+    public String toString(){
+        return "mmsi: " + this.mmsi + " id: " + this.id;
+    }
 }

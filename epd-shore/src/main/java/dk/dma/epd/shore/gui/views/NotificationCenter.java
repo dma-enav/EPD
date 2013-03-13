@@ -49,16 +49,16 @@ import javax.swing.table.DefaultTableModel;
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.ais.AISRouteExchangeListener;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.msi.MsiTableModel;
 import dk.dma.epd.shore.gui.route.RouteExchangeTableModel;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.service.RouteExchangeListener;
 
 public class NotificationCenter extends ComponentFrame implements ListSelectionListener, ActionListener,
-        IMsiUpdateListener, AISRouteExchangeListener {
+        IMsiUpdateListener, RouteExchangeListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -100,6 +100,8 @@ public class NotificationCenter extends ComponentFrame implements ListSelectionL
 
     private MSINotificationPanel msiPanel;
     private RouteExchangeNotificationPanel routePanel;
+    
+    private EnavServiceHandler enavServiceHandler;
 
     public NotificationCenter() {
 
@@ -419,8 +421,10 @@ public class NotificationCenter extends ComponentFrame implements ListSelectionL
         }
         
         if (obj instanceof EnavServiceHandler) {
-//            aisService.addRouteExchangeListener(this);
-            routeTableModel = new RouteExchangeTableModel((EnavServiceHandler) obj);
+            enavServiceHandler = (EnavServiceHandler) obj;
+            enavServiceHandler.addRouteExchangeListener(this);
+            routePanel.setEnavServiceHandler(enavServiceHandler);
+            routeTableModel = new RouteExchangeTableModel(enavServiceHandler);
             routeTable.setModel(routeTableModel);
             routePanel.initTable();
 
@@ -522,29 +526,26 @@ public class NotificationCenter extends ComponentFrame implements ListSelectionL
         }
     }
 
-    public void cloudUpdate(){
-        routePanel.updateTable();
-
-        if (routeTable.getSelectedRow() != -1){
-            routePanel.readMessage(routeTable.getSelectedRow());
-        }
-    }
-    
-    
-    
-    @Override
-    public void aisUpdate() {
+//    public void cloudUpdate(){
 //        routePanel.updateTable();
 //
 //        if (routeTable.getSelectedRow() != -1){
 //            routePanel.readMessage(routeTable.getSelectedRow());
 //        }
-//        try {
-//            setMessages("Route", aisService.getUnkAck());
-//
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+//    }
+//    
+    @Override
+    public void routeUpdate() {
+        routePanel.updateTable();
+        
+      if (routeTable.getSelectedRow() != -1){
+          routePanel.readMessage(routeTable.getSelectedRow());
+      }
+      try {
+          setMessages("Route", enavServiceHandler.getUnkAck());
 
+      } catch (InterruptedException e) {
+          e.printStackTrace();
+      }        
     }
 }

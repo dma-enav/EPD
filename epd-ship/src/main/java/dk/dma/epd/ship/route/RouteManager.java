@@ -39,6 +39,7 @@ import dk.dma.epd.common.prototype.ais.AisBroadcastRouteSuggestion;
 import dk.dma.epd.common.prototype.ais.AisRouteData;
 import dk.dma.epd.common.prototype.ais.IAisRouteSuggestionListener;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute.ActiveWpSelectionResult;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
@@ -406,23 +407,25 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     public void routeSuggestionReply(
             RecievedRoute routeSuggestion,
             RecievedRoute.Status status) {
+        
+
         switch (status) {
         case ACCEPTED:
             routeSuggestion.setStatus(Status.ACCEPTED);
             acceptSuggested(routeSuggestion);
             
-            enavServiceHandler.sendReply("ACCEPTED");
+            enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_ACCEPTED, routeSuggestion.getId());
             break;
         case REJECTED:
             //Remove it
             routeSuggestion.setStatus(Status.REJECTED);
             removeSuggested(routeSuggestion);
-            enavServiceHandler.sendReply("REJECTED");
+            enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_REJECTED, routeSuggestion.getId());
             break;
         case NOTED:
             //Do nothing
             routeSuggestion.setStatus(Status.NOTED);
-            enavServiceHandler.sendReply("NOTED");
+            enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_NOTED, routeSuggestion.getId());
             break;
         default:
             break;

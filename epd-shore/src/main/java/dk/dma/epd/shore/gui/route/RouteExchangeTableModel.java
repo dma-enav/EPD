@@ -21,10 +21,11 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.service.EnavServiceHandler;
-import dk.dma.epd.shore.service.ais.AisServices.AIS_STATUS;
+import dk.dma.epd.shore.service.RouteSuggestionData;
+
 
 /**
  * Table model for Route Exchange Notifications
@@ -36,9 +37,9 @@ public class RouteExchangeTableModel extends AbstractTableModel {
     private static final String[] COLUMN_NAMES = { "ID", "MMSI", "Route Name", "Status" };
 
     private EnavServiceHandler enavServiceHandler;
-//    private AisServices aisService;
 
-    private List<RouteSuggestionMessage> messages = new ArrayList<RouteSuggestionMessage>();
+
+    private List<RouteSuggestionData> messages = new ArrayList<RouteSuggestionData>();
 
     /**
      * Constructor for creating the msi table model
@@ -92,7 +93,7 @@ public class RouteExchangeTableModel extends AbstractTableModel {
      *
      * @return
      */
-    public List<RouteSuggestionMessage> getMessages() {
+    public List<RouteSuggestionData> getMessages() {
         return messages;
 
     }
@@ -114,18 +115,17 @@ public class RouteExchangeTableModel extends AbstractTableModel {
         if (rowIndex == -1) {
             return "";
         }
-        RouteSuggestionMessage message = messages.get(rowIndex);
+        RouteSuggestionData message = messages.get(rowIndex);
 
         switch (columnIndex) {
         case 0:
             return message.getId();
         case 1:
-            return "" + " THE MMSI";
+            return "" + message.getMmsi();
         case 2:
-            return message.getRoute().getName();
+            return message.getOutgoingMsg().getRoute().getName();
         case 3:
-//            return interpetStatusShort(message.getStatus());
-            return " THE STATUS";
+            return interpetStatusShort(message.getStatus());
         default:
             return "";
 
@@ -202,21 +202,19 @@ public class RouteExchangeTableModel extends AbstractTableModel {
         if (rowIndex == -1 || this.getRowCount() < 1) {
             return "";
         }
-        RouteSuggestionMessage message = messages.get(rowIndex);
+        RouteSuggestionData message = messages.get(rowIndex);
 
         switch (columnIndex) {
         case 0:
             return message.getId();
         case 1:
-//            return message.getMmsi();
-            return " the mmsi";
+            return message.getMmsi();
         case 2:
-            return message.getRoute().getName();
+            return message.getOutgoingMsg().getRoute().getName();
         case 3:
-            return Formatter.formatShortDateTime(message.getSent());
+            return Formatter.formatShortDateTime(message.getOutgoingMsg().getSent());
         case 4:
-//            return interpetStatusLong(message.getStatus());
-            return "the status";
+            return interpetStatusLong(message.getStatus());
         case 5:
 //            if (message.getAppAck() != null){
 //                return Formatter.formatShortDateTime(message.getAppAck());
@@ -238,7 +236,7 @@ public class RouteExchangeTableModel extends AbstractTableModel {
 
         
         
-        for (Iterator<RouteSuggestionMessage> it = enavServiceHandler.getRouteSuggestions().values().iterator(); it.hasNext();) {
+        for (Iterator<RouteSuggestionData> it = enavServiceHandler.getRouteSuggestions().values().iterator(); it.hasNext();) {
             messages.add(it.next());
         }
     }
@@ -247,8 +245,8 @@ public class RouteExchangeTableModel extends AbstractTableModel {
         if (rowIndex == -1 || this.getRowCount() < 1) {
             return false;
         }
-//        return messages.get(rowIndex).isAcknowleged();
-        return false;
+        return messages.get(rowIndex).isAcknowleged();
+//        return false;
     }
 
 }

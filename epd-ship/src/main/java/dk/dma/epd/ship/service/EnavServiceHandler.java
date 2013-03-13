@@ -38,6 +38,7 @@ import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.enavcloud.EnavCloudSendThread;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
@@ -65,7 +66,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private ShipId shipId;
     private GpsHandler gpsHandler;
     private AisHandler aisHandler;
-    private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionAck> context;
+    private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context;
 
     MaritimeNetworkConnection connection;
 
@@ -105,10 +106,10 @@ public class EnavServiceHandler extends MapHandlerChild implements
         connection
                 .serviceRegister(
                         RouteSuggestionService.INIT,
-                        new InvocationCallback<RouteSuggestionService.RouteSuggestionMessage, RouteSuggestionService.RouteSuggestionAck>() {
+                        new InvocationCallback<RouteSuggestionService.RouteSuggestionMessage, RouteSuggestionService.RouteSuggestionReply>() {
                             public void process(
                                     RouteSuggestionMessage message,
-                                    InvocationCallback.Context<RouteSuggestionService.RouteSuggestionAck> context) {
+                                    InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context) {
 
                                 setContext(context);
 
@@ -122,17 +123,17 @@ public class EnavServiceHandler extends MapHandlerChild implements
                         }).awaitRegistered(4, TimeUnit.SECONDS);
     }
 
-    public InvocationCallback.Context<RouteSuggestionService.RouteSuggestionAck> getContext() {
+    public InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> getContext() {
         return context;
     }
 
     public void setContext(
-            InvocationCallback.Context<RouteSuggestionService.RouteSuggestionAck> context) {
+            InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context) {
         this.context = context;
     }
 
-    public void sendReply(String msg) {
-        context.complete(new RouteSuggestionService.RouteSuggestionAck(msg));
+    public void sendReply(AIS_STATUS recievedAccepted, long id) {
+        context.complete(new RouteSuggestionService.RouteSuggestionReply("Test message back", id, aisHandler.getOwnShip().getMmsi(), System.currentTimeMillis(), recievedAccepted));
     }
 
     /**

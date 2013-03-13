@@ -15,8 +15,11 @@
  */
 package dk.dma.epd.shore.service;
 
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -42,11 +45,12 @@ import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.enavcloud.EnavCloudSendThread;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.common.util.Util;
-import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gps.GpsHandler;
 import dk.dma.epd.shore.route.RouteManager;
@@ -68,9 +72,9 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private AisHandler aisHandler;
 
     MaritimeNetworkConnection connection;
-    HashMap<Long, RouteSuggestionMessage> routeSuggestions = new HashMap<Long, RouteSuggestionMessage>();
-    
-    
+    RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData> routeSuggestions = new RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData>();
+    protected Set<RouteExchangeListener> routeExchangeListener = new HashSet<RouteExchangeListener>();
+
     // private IntendedRouteService intendedRouteService;
 
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
@@ -134,26 +138,35 @@ public class EnavServiceHandler extends MapHandlerChild implements
         sendThread.start();
     }
 
-    public void sendRouteSuggestion(Route route) throws InterruptedException,
+    public void sendRouteSuggestion(long mmsi, Route route) throws InterruptedException,
             ExecutionException, TimeoutException {
 
-        ServiceEndpoint<RouteSuggestionService.RouteSuggestionMessage, RouteSuggestionService.RouteSuggestionAck> end = connection
+        ServiceEndpoint<RouteSuggestionService.RouteSuggestionMessage, RouteSuggestionService.RouteSuggestionReply> end = connection
                 .serviceFindOne(RouteSuggestionService.INIT).get(6,
                         TimeUnit.SECONDS);
-        
-        RouteSuggestionMessage routeMessage = new RouteSuggestionService.RouteSuggestionMessage(route, "DMA Shore", "Route Send Example");
 
-        routeSuggestions.put(routeMessage.getId(), routeMessage);
+        mmsi = 219230000;
         
-        NetworkFuture<RouteSuggestionService.RouteSuggestionAck> f = end.invoke(routeMessage);
+        RouteSuggestionMessage routeMessage = new RouteSuggestionService.RouteSuggestionMessage(
+                route, "DMA Shore", "Route Send Example");
+
+        System.out.println("Sending to mmsi: " + mmsi + " with ID: " + routeMessage.getId());
         
-        
-        EPDShore.getMainFrame().getNotificationCenter().cloudUpdate();
-        System.out.println("Client said: " + f.get().getMessage());
+        RouteSuggestionData suggestionData = new RouteSuggestionData(routeMessage, null, routeMessage.getId(), mmsi, false, AIS_STATUS.NOT_SENT);
+        RouteSuggestionKey routeSuggestionKey = new RouteSuggestionKey(mmsi, routeMessage.getId());
+        routeSuggestions.put(routeSuggestionKey, suggestionData);
+
+        NetworkFuture<RouteSuggestionService.RouteSuggestionReply> f = end
+                .invoke(routeMessage);
+
+//        EPDShore.getMainFrame().getNotificationCenter().cloudUpdate();
+        notifyRouteExchangeListeners();
+
+        replyRecieved(f.get());
     }
 
-    
-    public HashMap<Long, RouteSuggestionMessage> getRouteSuggestions() {
+
+    public RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData> getRouteSuggestions() {
         return routeSuggestions;
     }
 
@@ -266,4 +279,102 @@ public class EnavServiceHandler extends MapHandlerChild implements
         new Thread(this).start();
     }
 
+    /**
+     * Add a listener to the asService
+     * 
+     * @param listener
+     */
+    public synchronized void addRouteExchangeListener(
+            RouteExchangeListener listener) {
+        routeExchangeListener.add(listener);
+    }
+
+    protected synchronized void notifyRouteExchangeListeners() {
+
+        for (RouteExchangeListener listener : routeExchangeListener) {
+            listener.routeUpdate();
+        }
+    }
+    
+    public void setAcknowledged(long l, long m){
+        routeSuggestions.get(new RouteSuggestionKey(l, m)).setAcknowleged(true);
+        notifyRouteExchangeListeners();
+    }
+    
+    public void removeSuggestion(long l, long id){
+        routeSuggestions.remove(new RouteSuggestionKey(l, id));
+        notifyRouteExchangeListeners();
+    }
+    
+    public int getUnkAck(){
+        
+        int counter = 0;
+        
+        Collection<RouteSuggestionData> c = routeSuggestions.values();
+        
+        //obtain an Iterator for Collection
+        Iterator<RouteSuggestionData> itr = c.iterator();
+       
+        //iterate through HashMap values iterator
+        while(itr.hasNext()){
+            RouteSuggestionData value = itr.next();
+            if (!value.isAcknowleged()){
+                counter++;
+            }
+        }
+        
+        return counter;
+    }
+    
+    
+    public void replyRecieved(RouteSuggestionReply message) {
+
+        System.out.println("MSG Recieved from MMSI: " + message.getMmsi() + " and ID " +  message.getId());
+        
+        if (routeSuggestions.containsKey(new RouteSuggestionKey(message.getMmsi(), message.getId()))) {
+
+//          System.out.println("Reply recieved for " + mmsi + " " + message.getRefMsgLinkId());
+            AIS_STATUS response = message.getStatus();
+ 
+            long mmsi = message.getMmsi();
+            long id = message.getId();
+
+            switch (response) {
+            case RECIEVED_ACCEPTED:
+                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).getStatus() != AIS_STATUS.RECIEVED_ACCEPTED){
+                    System.out.println("Hello accepted");
+                    // Accepted
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setStatus(
+                            AIS_STATUS.RECIEVED_ACCEPTED);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setAcknowleged(false);
+                    notifyRouteExchangeListeners();
+                }
+
+                break;
+            case RECIEVED_REJECTED:
+                // Rejected
+                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).getStatus() != AIS_STATUS.RECIEVED_REJECTED){
+                    // Accepted
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setStatus(
+                            AIS_STATUS.RECIEVED_REJECTED);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setAcknowleged(false);
+                    notifyRouteExchangeListeners();
+                }
+                break;
+            case RECIEVED_NOTED:
+                // Noted
+                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).getStatus() != AIS_STATUS.RECIEVED_NOTED){
+                    // Accepted
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setStatus(
+                            AIS_STATUS.RECIEVED_NOTED);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setAcknowleged(false);
+                    notifyRouteExchangeListeners();
+                }
+                break;
+            default:
+                break;
+            }
+        }
+
+    }
 }

@@ -13,39 +13,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.service.ais;
+package dk.dma.epd.shore.service;
 
-public class RouteSuggestionKey {
+public interface RouteExchangeListener {
 
-    private long mmsi;
-    private int id;
+    /**
+     * Cloud messages has changed
+     */
+    void routeUpdate();
 
-    public RouteSuggestionKey(long mmsi, int id) {
-        this.mmsi = mmsi;
-        this.id = id;
-    }
-
-    public long getMmsi() {
-        return mmsi;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    @Override
-    public boolean equals(Object key) {
-
-        RouteSuggestionKey routeKey = (RouteSuggestionKey) key;
-        
-        return routeKey.getId() == this.id && routeKey.getMmsi() == this.mmsi;
-    }
-    
-    public int hashCode(){
-        return super.hashCode();
-    }
-
-    public String toString(){
-        return "mmsi: " + this.mmsi + " id: " + this.id;
-    }
 }

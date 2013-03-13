@@ -28,19 +28,32 @@ public class RouteSuggestionService {
     /** An initiation point */
     public static final ServiceInitiationPoint<RouteSuggestionMessage> INIT = new ServiceInitiationPoint<>(
             RouteSuggestionMessage.class);
-
-    public static class RouteSuggestionAck extends MaritimeServiceMessage<Void> {
+    
+    public enum AIS_STATUS {
+        NOT_SENT, FAILED, SENT_NOT_ACK, RECIEVED_APP_ACK, RECIEVED_ACCEPTED, RECIEVED_REJECTED, RECIEVED_NOTED
+    }
+    
+    public static class RouteSuggestionReply extends MaritimeServiceMessage<Void> {
 
         private String message;
+        private long id;
+        private long mmsi;
+        private long sendDate;
+        private AIS_STATUS status;
+  
 
-        public RouteSuggestionAck() {
+        public RouteSuggestionReply() {
         }
 
         /**
          * @param message
          */
-        public RouteSuggestionAck(String message) {
+        public RouteSuggestionReply(String message, long id, long mmsi, long sendDate, AIS_STATUS status) {
             this.message = message;
+            this.id = id;
+            this.mmsi = mmsi;
+            this.sendDate = sendDate;
+            this.status = status;
         }
 
         /**
@@ -57,12 +70,48 @@ public class RouteSuggestionService {
         public void setMessage(String message) {
             this.message = message;
         }
+
+        public long getId() {
+            return id;
+        }
+
+        public void setId(long id) {
+            this.id = id;
+        }
+
+        public long getMmsi() {
+            return mmsi;
+        }
+
+        public void setMmsi(long mmsi) {
+            this.mmsi = mmsi;
+        }
+
+        public long getSendDate() {
+            return sendDate;
+        }
+
+        public void setSendDate(long sendDate) {
+            this.sendDate = sendDate;
+        }
+
+        public AIS_STATUS getStatus() {
+            return status;
+        }
+
+        public void setStatus(AIS_STATUS status) {
+            this.status = status;
+        }
+        
+        
+        
+        
     }
     
     
 
     public static class RouteSuggestionMessage extends
-            MaritimeServiceMessage<RouteSuggestionAck> {
+            MaritimeServiceMessage<RouteSuggestionReply> {
         private Route route;
         private Date sent;
         private String sender;
