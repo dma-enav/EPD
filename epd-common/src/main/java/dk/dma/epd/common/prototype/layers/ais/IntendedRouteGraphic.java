@@ -140,6 +140,12 @@ public class IntendedRouteGraphic extends OMGraphicList {
             CloudIntendedRoute cloudIntendedRoute, Position pos) {
 
         
+        // Set visible if not visible
+        if (!isVisible()) {
+            setVisible(true);
+        }
+        
+        
         if (cloudIntendedRoute != null){
 
             long timeSinceRecieved = System.currentTimeMillis() - cloudIntendedRoute.getReceived().getTime();
@@ -148,6 +154,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
 
             //Fresh route
             if (timeSinceRecieved < 60000){
+                this.setVisible(true);
                 legColor =  new Color(42, 172, 12, 255);
                 
                 for (int i = 0; i < routeLegs.size(); i++) {
@@ -163,6 +170,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
             
             //1 min since recieved
             if (timeSinceRecieved > 60000){
+                this.setVisible(true);
                 legColor = Color.YELLOW;                
                 for (int i = 0; i < routeLegs.size(); i++) {
                     routeLegs.get(i).setLinePaint(legColor);
@@ -180,6 +188,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
             
             //5 min since recieved
             if (timeSinceRecieved > 300000){
+                this.setVisible(true);
                 legColor = Color.GRAY;
                 for (int i = 0; i < routeLegs.size(); i++) {
                     routeLegs.get(i).setLinePaint(legColor);
@@ -189,6 +198,11 @@ public class IntendedRouteGraphic extends OMGraphicList {
                     routeWps.get(i).setLinePaint(legColor);
                 }
                 activeWpLine.setLinePaint(legColor);
+            }
+            
+            //10 min since recieved
+            if (timeSinceRecieved > 600000){
+                this.setVisible(false);
             }
             
 //            System.out.println(cloudIntendedRoute.getReceived());   
@@ -246,11 +260,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
         activeWpLine.setLL(activeWpLineLL);
 
         
-        // Set visible if not visible
-        if (!isVisible()) {
-            setVisible(true);
-        }
-        
+
         
     }
 }
