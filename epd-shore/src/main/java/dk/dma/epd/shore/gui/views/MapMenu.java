@@ -287,6 +287,7 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
 
         setRouteExchangeAIS.setMSSI(vesselTarget.getMmsi());
         setRouteExchangeAIS.setSendRouteDialog(EPDShore.getMainFrame().getSendRouteDialog());
+        setRouteExchangeAIS.setEnabled(EPDShore.getEnavServiceHandler().shipAvailableForRouteSuggestion(vesselTarget.getMmsi()));
 
         add(setRouteExchangeAIS);
 

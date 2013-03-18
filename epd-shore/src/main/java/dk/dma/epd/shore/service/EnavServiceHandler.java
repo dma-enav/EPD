@@ -15,9 +15,11 @@
  */
 package dk.dma.epd.shore.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -73,8 +75,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     PersistentNetworkConnection connection;
     RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData> routeSuggestions = new RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData>();
     protected Set<RouteExchangeListener> routeExchangeListener = new HashSet<RouteExchangeListener>();
-
-    // private IntendedRouteService intendedRouteService;
+    private List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> routeSuggestionList = new ArrayList<>();
 
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
         this.hostPort = String.format("%s:%d",
@@ -137,13 +138,57 @@ public class EnavServiceHandler extends MapHandlerChild implements
         sendThread.start();
     }
 
+    public void getRouteSuggestionServiceList(){
+        try {
+            routeSuggestionList = connection.serviceFind(RouteSuggestionService.INIT).nearest(Integer.MAX_VALUE).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+    }
+    
+    
+    
+    
+    
+    public List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> getRouteSuggestionList() {
+        return routeSuggestionList;
+    }
+
+    public boolean shipAvailableForRouteSuggestion(long mmsi){
+        for (int i = 0; i < routeSuggestionList.size(); i++) {
+            System.out.println("uh does this work " + routeSuggestionList.get(i).getId().toString().split("//")[1]);
+            if (mmsi == Long.parseLong(routeSuggestionList.get(i).getId().toString().split("//")[1])){
+                return true;
+            }
+            
+        }
+        
+        return false;
+    }
+    
     public void sendRouteSuggestion(long mmsi, Route route) throws InterruptedException,
             ExecutionException, TimeoutException {
 
-        ServiceEndpoint<RouteSuggestionService.RouteSuggestionMessage, RouteSuggestionService.RouteSuggestionReply> end = connection
-                .serviceFind(RouteSuggestionService.INIT).nearest(Integer.MAX_VALUE).get().get(0);
+        System.out.println("Send to : " + mmsi);
+        String mmsiStr = "mmsi://"+mmsi;
+        ServiceEndpoint<RouteSuggestionService.RouteSuggestionMessage, RouteSuggestionService.RouteSuggestionReply> end = null;
+        
+        for (int i = 0; i < routeSuggestionList.size(); i++) {
+            System.out.println(routeSuggestionList.get(i).getId().toString() + " vs " + mmsiStr);
+            if (routeSuggestionList.get(i).getId().toString().equals(mmsiStr)){
+                System.out.println("Found a match");
+                end = routeSuggestionList.get(i);
+//                break;
+            }
+        }
+        
+//        ServiceEndpoint<RouteSuggestionService.RouteSuggestionMessage, RouteSuggestionService.RouteSuggestionReply> end = connection
+//                .serviceFind(RouteSuggestionService.INIT).nearest(Integer.MAX_VALUE).get().get(0);
 
-        mmsi = 219230000;
+//        mmsi = 219230000;
         
         RouteSuggestionMessage routeMessage = new RouteSuggestionService.RouteSuggestionMessage(
                 route, "DMA Shore", "Route Send Example");
@@ -154,13 +199,22 @@ public class EnavServiceHandler extends MapHandlerChild implements
         RouteSuggestionKey routeSuggestionKey = new RouteSuggestionKey(mmsi, routeMessage.getId());
         routeSuggestions.put(routeSuggestionKey, suggestionData);
 
-        NetworkFuture<RouteSuggestionService.RouteSuggestionReply> f = end
-                .invoke(routeMessage);
+        if (end != null){
+            NetworkFuture<RouteSuggestionService.RouteSuggestionReply> f = end
+                    .invoke(routeMessage);
 
-//        EPDShore.getMainFrame().getNotificationCenter().cloudUpdate();
-        notifyRouteExchangeListeners();
+//            EPDShore.getMainFrame().getNotificationCenter().cloudUpdate();
+            notifyRouteExchangeListeners();
 
-        replyRecieved(f.get());
+            replyRecieved(f.get());
+        }else{
+//            notifyRouteExchangeListeners();
+System.out.println("Failed to send");
+//            replyRecieved(f.get());
+        }
+        
+        
+
     }
 
 
@@ -269,6 +323,11 @@ public class EnavServiceHandler extends MapHandlerChild implements
                     }
                 }
             }
+        }
+        
+        while (true){
+            getRouteSuggestionServiceList();
+            Util.sleep(10000);
         }
 
     }

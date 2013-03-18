@@ -211,7 +211,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
 
         mmsiListComboBox = new JComboBox();
         mmsiListComboBox.setModel(new DefaultComboBoxModel(new String[] {
-                "992199003", "232004630", "244557000" }));
+                "" }));
         mmsiListComboBox.setBounds(91, 21, 88, 17);
         GuiStyler.styleDropDown(mmsiListComboBox);
         targetPanel.add(mmsiListComboBox);
@@ -415,10 +415,9 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
     public void loadData() {
         // System.out.println("load data");
         loading = true;
-        // mmsiListComboBox.removeAllItems();
-        for (int i = 0; i < aisHandler.getShipList().size(); i++) {
-            mmsiListComboBox.addItem(Long.toString(aisHandler.getShipList()
-                    .get(i).MMSI));
+         mmsiListComboBox.removeAllItems();
+        for (int i = 0; i < enavServiceHandler.getRouteSuggestionList().size(); i++) {
+            mmsiListComboBox.addItem(enavServiceHandler.getRouteSuggestionList().get(i).getId().toString());
         }
 
         routeListComboBox.removeAllItems();
@@ -454,8 +453,15 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         if (arg0.getSource() == mmsiListComboBox && !loading) {
 
             if (mmsiListComboBox.getSelectedItem() != null) {
-                mmsi = Long
-                        .valueOf((String) mmsiListComboBox.getSelectedItem());
+                
+//                String test = ;
+                
+                try {                mmsi = Long
+                        .valueOf(((String) mmsiListComboBox.getSelectedItem()).split("//")[1]);
+                } catch (Exception e) {
+System.out.println("Failed to set mmsi " + mmsi);
+                }
+
                 // System.out.println("mmsi selected to set to " + mmsi);
                 VesselTarget selectedShip = aisHandler.getVesselTargets().get(
                         mmsi);
@@ -512,7 +518,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
 
     public void setSelectedRoute(Route route) {
         if (!this.isVisible()) {
-            mmsiListComboBox.setSelectedIndex(0);
+//            mmsiListComboBox.setSelectedIndex(0);
         }
 
         this.route = route;
