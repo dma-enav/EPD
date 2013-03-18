@@ -654,12 +654,10 @@ public class AisHandler extends MapHandlerChild implements IAisListener,
             Position prevPos = pastTrack.get(mmsi).get(pastTrack.get(mmsi).size() - 1).getPosition();
             
             //In km, how often should points be saved? 1km?
-                        if (prevPos.distanceTo(positionData.getPos(), CoordinateSystem.CARTESIAN) > 1000){
+                        if (prevPos.distanceTo(positionData.getPos(), CoordinateSystem.CARTESIAN) > 100){
                          
 //                            System.out.println("Target " + mmsi + " has moved more than 50 since last");
                             pastTrack.get(mmsi).add(new PastTrackPoint(new Date(), positionData.getPos()));
-                        }else{
-//                            System.out.println("Target " + mmsi + " has NOT");
                         }
                         
 //            System.out.println(prevPos.distanceTo(positionData.getPos(), CoordinateSystem.CARTESIAN));

@@ -18,6 +18,7 @@ package dk.dma.epd.shore.layers.ais;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.util.List;
 
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
@@ -34,6 +35,7 @@ import dk.dma.epd.common.prototype.ais.VesselTargetSettings;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteGraphic;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.shore.ais.PastTrackPoint;
 
 /**
  * Vessel class that maintains all the components in a vessel
@@ -68,6 +70,7 @@ public class Vessel extends OMGraphicList {
     private String vesselShiptype = "N/A";
     private IntendedRouteGraphic routeGraphic = new IntendedRouteGraphic();
     private VesselTarget vesselTarget;
+    private PastTrackGraphic pastTrackGraphic = new PastTrackGraphic();
 
     /**
      * Vessel initialization with icon, circle, heading, speedvector, callsign
@@ -112,6 +115,7 @@ public class Vessel extends OMGraphicList {
         this.add(nameMMSI);
 
         this.add(routeGraphic);
+        this.add(pastTrackGraphic);
     }
 
     /**
@@ -218,6 +222,19 @@ public class Vessel extends OMGraphicList {
         boolean b2 = mapScale < 1500000;
         showVesselIcon(b2);
         showVesselCirc(!b2);
+    }
+    
+    public void updatePastTrack(List<PastTrackPoint> pastTrack){
+        if (pastTrack != null){
+            pastTrackGraphic.update(pastTrack, this.getVesselTarget().getPositionData().getPos());            
+        }
+
+    }
+    
+    
+
+    public PastTrackGraphic getPastTrackGraphic() {
+        return pastTrackGraphic;
     }
 
     /**

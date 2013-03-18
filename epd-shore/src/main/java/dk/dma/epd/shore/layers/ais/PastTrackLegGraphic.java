@@ -30,26 +30,33 @@ public class PastTrackLegGraphic extends OMLine {
     
     private static final long serialVersionUID = 1L;
     
-//    private IntendedRouteGraphic intendedRouteGraphic;
+    private PastTrackGraphic intendedRouteGraphic;
     private OMArrowHead arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, 5, 15);
     private int index;
 
-    public PastTrackLegGraphic(int index, Position start,
+    public PastTrackLegGraphic(int index, PastTrackGraphic intendedRouteGraphic, boolean activeWaypoint, Position start,
             Position end, Color legColor) {
         
         super(start.getLatitude(), start.getLongitude(), end.getLatitude(), end.getLongitude(), LINETYPE_RHUMB);
         this.index = index;
-
-            setStroke(new BasicStroke(2.0f, // Width
+        this.intendedRouteGraphic = intendedRouteGraphic;
+        if(false){
+            setStroke(new BasicStroke(1.0f, // Width
                     BasicStroke.CAP_SQUARE, // End cap
                     BasicStroke.JOIN_MITER, // Join style
                     10.0f, // Miter limit
-                    new float[] { 10.0f, 8.0f }, // Dash pattern
-                    0.0f)); // Dash phase)
-      
+                    new float[] { 1.0f, 1.0f }, // Dash pattern
+                    1.0f)); // Dash phase)
+        } else {
+            setStroke(new BasicStroke()); // Dash phase)
+        }
         setLinePaint(legColor);        
     }
 
+    public PastTrackGraphic getIntendedRouteGraphic() {
+        return intendedRouteGraphic;
+    }
+    
     public int getIndex() {
         return index;
     }
