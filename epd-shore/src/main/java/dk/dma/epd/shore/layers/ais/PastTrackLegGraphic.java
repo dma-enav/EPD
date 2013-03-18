@@ -40,16 +40,9 @@ public class PastTrackLegGraphic extends OMLine {
         super(start.getLatitude(), start.getLongitude(), end.getLatitude(), end.getLongitude(), LINETYPE_RHUMB);
         this.index = index;
         this.intendedRouteGraphic = intendedRouteGraphic;
-        if(false){
-            setStroke(new BasicStroke(1.0f, // Width
-                    BasicStroke.CAP_SQUARE, // End cap
-                    BasicStroke.JOIN_MITER, // Join style
-                    10.0f, // Miter limit
-                    new float[] { 1.0f, 1.0f }, // Dash pattern
-                    1.0f)); // Dash phase)
-        } else {
+ 
             setStroke(new BasicStroke()); // Dash phase)
-        }
+        
         setLinePaint(legColor);        
     }
 

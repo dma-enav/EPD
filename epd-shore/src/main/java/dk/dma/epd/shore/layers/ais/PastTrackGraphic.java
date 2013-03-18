@@ -98,6 +98,8 @@ public class PastTrackGraphic extends OMGraphicList {
             
             List<Position> waypoints = new ArrayList<>();
             
+
+            
             for (int i = 0; i < pastTrackPoints.size(); i++) {
                 waypoints.add(pastTrackPoints.get(i).getPosition());
             }

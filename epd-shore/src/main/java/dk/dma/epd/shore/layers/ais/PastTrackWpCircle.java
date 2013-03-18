@@ -17,8 +17,6 @@ package dk.dma.epd.shore.layers.ais;
 
 import com.bbn.openmap.omGraphics.OMCircle;
 
-import dk.dma.epd.common.prototype.layers.common.WpCircle;
-
 /**
  * Graphic for intended route WP circle
  */
