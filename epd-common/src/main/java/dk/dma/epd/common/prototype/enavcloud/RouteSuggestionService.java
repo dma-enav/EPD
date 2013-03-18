@@ -19,8 +19,8 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Date;
 
-import dk.dma.enav.communication.service.ServiceInitiationPoint;
-import dk.dma.enav.communication.service.spi.MaritimeServiceMessage;
+import dk.dma.enav.communication.service.spi.ServiceInitiationPoint;
+import dk.dma.enav.communication.service.spi.ServiceMessage;
 import dk.dma.enav.model.voyage.Route;
 
 public class RouteSuggestionService {
@@ -33,7 +33,7 @@ public class RouteSuggestionService {
         NOT_SENT, FAILED, SENT_NOT_ACK, RECIEVED_APP_ACK, RECIEVED_ACCEPTED, RECIEVED_REJECTED, RECIEVED_NOTED
     }
     
-    public static class RouteSuggestionReply extends MaritimeServiceMessage<Void> {
+    public static class RouteSuggestionReply extends ServiceMessage<Void> {
 
         private String message;
         private long id;
@@ -111,7 +111,7 @@ public class RouteSuggestionService {
     
 
     public static class RouteSuggestionMessage extends
-            MaritimeServiceMessage<RouteSuggestionReply> {
+            ServiceMessage<RouteSuggestionReply> {
         private Route route;
         private Date sent;
         private String sender;

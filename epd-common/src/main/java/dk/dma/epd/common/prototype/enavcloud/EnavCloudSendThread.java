@@ -15,7 +15,8 @@
  */
 package dk.dma.epd.common.prototype.enavcloud;
 
-import dk.dma.enav.communication.MaritimeNetworkConnection;
+
+import dk.dma.enav.communication.PersistentNetworkConnection;
 import dk.dma.enav.communication.broadcast.BroadcastMessage;
 
 /**
@@ -25,13 +26,13 @@ public class EnavCloudSendThread extends Thread {
 
     private BroadcastMessage message;
 //    private EnavCloudHandler enavCloudHandler;
-    MaritimeNetworkConnection connection;
+    PersistentNetworkConnection connection;
 
 //    private static final Logger LOG = Logger
 //            .getLogger(EnavCloudSendThread.class);
 
     public EnavCloudSendThread(BroadcastMessage message,
-            MaritimeNetworkConnection connection) {
+            PersistentNetworkConnection connection) {
         this.message = message;
         this.connection = connection;
         // this.sendRequest = sendRequest;

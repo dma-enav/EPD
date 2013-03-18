@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.enav.communication.MaritimeNetworkConnection;
+import dk.dma.enav.communication.PersistentNetworkConnection;
 import dk.dma.enav.communication.NetworkFuture;
 import dk.dma.enav.communication.broadcast.BroadcastListener;
 import dk.dma.enav.communication.broadcast.BroadcastMessage;
@@ -71,7 +71,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private GpsHandler gpsHandler;
     private AisHandler aisHandler;
 
-    MaritimeNetworkConnection connection;
+    PersistentNetworkConnection connection;
     RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData> routeSuggestions = new RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData>();
     protected Set<RouteExchangeListener> routeExchangeListener = new HashSet<RouteExchangeListener>();
 
@@ -83,7 +83,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                 enavSettings.getCloudServerPort());
     }
 
-    public MaritimeNetworkConnection getConnection() {
+    public PersistentNetworkConnection getConnection() {
         return connection;
     }
 
@@ -142,8 +142,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
             ExecutionException, TimeoutException {
 
         ServiceEndpoint<RouteSuggestionService.RouteSuggestionMessage, RouteSuggestionService.RouteSuggestionReply> end = connection
-                .serviceFindOne(RouteSuggestionService.INIT).get(6,
-                        TimeUnit.SECONDS);
+                .serviceFind(RouteSuggestionService.INIT).nearest(Integer.MAX_VALUE).get().get(0);
 
         mmsi = 219230000;
         
