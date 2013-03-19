@@ -141,12 +141,15 @@ public class EnavServiceHandler extends MapHandlerChild implements
     public void getRouteSuggestionServiceList(){
         try {
             routeSuggestionList = connection.serviceFind(RouteSuggestionService.INIT).nearest(Integer.MAX_VALUE).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+            
         }
 
+        
+        for (int i = 0; i < routeSuggestionList.size(); i++) {
+            System.out.println(routeSuggestionList.get(i).getId());
+        }
     }
     
     

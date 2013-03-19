@@ -77,9 +77,6 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
     // private VesselLayer highlightedVessel;
 
     private OMGraphic closest;
-
-//     long highlightedMMSI = -1;
-
     private MainFrame mainFrame;
 
     AisTargetGraphic aisTargetGraphic = new AisTargetGraphic();
@@ -127,10 +124,8 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
         aisTargetGraphic.setVisible(false);
         
         if (mainFrame.getSelectedMMSI() != -1 &&  drawnVessels.containsKey(mainFrame.getSelectedMMSI()) ){
-            System.out.println("Hiding specific");
             drawnVessels.get(mainFrame.getSelectedMMSI()).getPastTrackGraphic().setVisible(false);            
         }else{
-            System.out.println("Hiding all");
             for (Vessel vessel : drawnVessels.values()) {
                 vessel.getPastTrackGraphic().setVisible(false);
             }
@@ -223,6 +218,12 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
                                 .getPositionData().getPos());
                         selectionOnScreen = true;
 
+                        
+//                      if (mainFrame.getSelectedMMSI() != -1 && drawnVessels.containsKey(mainFrame.getSelectedMMSI())){
+                      drawnVessels.get(mainFrame.getSelectedMMSI()).updatePastTrack(aisHandler.getPastTrack().get(mainFrame.getSelectedMMSI()));
+//                      System.out.println("hide it");
+//                  }
+                        
                         setStatusAreaTxt();
                     }
                     
@@ -231,13 +232,21 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
                 }
             }
 
+//          if (mainFrame.getSelectedMMSI() != -1 && drawnVessels.containsKey(mainFrame.getSelectedMMSI())){
+//          drawnVessels.get(mainFrame.getSelectedMMSI()).updatePastTrack(aisHandler.getPastTrack().get(mainFrame.getSelectedMMSI()));
+//          System.out.println("hide it");
+//      }
+            
             if (!selectionOnScreen) {
                 aisTargetGraphic.setVisible(false);
+                
+                
+                for (Vessel vessel : drawnVessels.values()) {
+                    vessel.getPastTrackGraphic().setVisible(false);
+                }
             }
             
-            if (mainFrame.getSelectedMMSI() != -1 && drawnVessels.containsKey(mainFrame.getSelectedMMSI())){
-                drawnVessels.get(mainFrame.getSelectedMMSI()).updatePastTrack(aisHandler.getPastTrack().get(mainFrame.getSelectedMMSI()));
-            }
+
 
             doPrepare();
         }
@@ -320,7 +329,6 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
             if (newClosest != null && newClosest instanceof VesselLayer) {
 
                 if (mainFrame.getSelectedMMSI() != -1){
-                    System.out.println("stuff" +  mainFrame.getSelectedMMSI() + drawnVessels.get(mainFrame.getSelectedMMSI()));
                     drawnVessels.get(mainFrame.getSelectedMMSI()).getPastTrackGraphic().setVisible(false);                    
                 }
                 
