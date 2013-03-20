@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.enav.communication.PersistentNetworkConnection;
+import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.broadcast.BroadcastListener;
 import dk.dma.enav.communication.broadcast.BroadcastMessage;
 import dk.dma.enav.communication.broadcast.BroadcastMessageHeader;
@@ -68,7 +68,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private AisHandler aisHandler;
     private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context;
 
-    PersistentNetworkConnection connection;
+    PersistentConnection connection;
 
     private IntendedRouteService intendedRouteService;
 
@@ -207,7 +207,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         try {
             enavCloudConnection.setHost(hostPort);
             // System.out.println(hostPort);
-            connection = enavCloudConnection.connect();
+            connection = enavCloudConnection.build();
         } catch (Exception e) {
             // e.printStackTrace();
             System.out.println("Failed to connect to server");

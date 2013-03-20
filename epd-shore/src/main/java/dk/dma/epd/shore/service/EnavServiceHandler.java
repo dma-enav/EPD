@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.enav.communication.NetworkFuture;
-import dk.dma.enav.communication.PersistentNetworkConnection;
+import dk.dma.enav.communication.ConnectionFuture;
+import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.broadcast.BroadcastListener;
 import dk.dma.enav.communication.broadcast.BroadcastMessage;
 import dk.dma.enav.communication.broadcast.BroadcastMessageHeader;
@@ -73,7 +73,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private GpsHandler gpsHandler;
     private AisHandler aisHandler;
 
-    PersistentNetworkConnection connection;
+    PersistentConnection connection;
     RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData> routeSuggestions = new RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData>();
     protected Set<RouteExchangeListener> routeExchangeListener = new HashSet<RouteExchangeListener>();
     private List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> routeSuggestionList = new ArrayList<>();
@@ -84,7 +84,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                 enavSettings.getCloudServerPort());
     }
 
-    public PersistentNetworkConnection getConnection() {
+    public PersistentConnection getConnection() {
         return connection;
     }
 
@@ -204,7 +204,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         routeSuggestions.put(routeSuggestionKey, suggestionData);
 
         if (end != null) {
-            NetworkFuture<RouteSuggestionService.RouteSuggestionReply> f = end
+            ConnectionFuture<RouteSuggestionService.RouteSuggestionReply> f = end
                     .invoke(routeMessage);
 
             // EPDShore.getMainFrame().getNotificationCenter().cloudUpdate();
@@ -268,7 +268,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         try {
             enavCloudConnection.setHost(hostPort);
             System.out.println(hostPort);
-            connection = enavCloudConnection.connect();
+            connection = enavCloudConnection.build();
         } catch (Exception e) {
             e.printStackTrace();
         }
