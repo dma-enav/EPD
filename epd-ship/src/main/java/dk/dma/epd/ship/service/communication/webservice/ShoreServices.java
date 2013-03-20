@@ -395,8 +395,14 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         System.out.println("Recieved the following:");
         System.out.println(xmlReturnRoute);
 
+        
         if (xmlReturnRoute != null) {
 
+
+            if (xmlReturnRoute.length() > 300000){
+                System.out.println("Failed to recieve a route in the area, buffer timedout");
+                return null;
+            }
             
             xmlReturnRoute.replace("<RouteResponse xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\" xmlns=\"http://www.sspa.se/optiroute\">"
                    ,"<RouteResponse xmlns=\"http://www.sspa.se/optiroute\" xmlns:ns2=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">");

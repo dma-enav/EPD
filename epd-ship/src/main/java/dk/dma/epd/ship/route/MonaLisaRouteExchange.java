@@ -37,6 +37,7 @@ import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.route.sspa.CurrentShipDataType;
+import dk.dma.epd.ship.route.sspa.DraftType;
 import dk.dma.epd.ship.route.sspa.PositionType;
 import dk.dma.epd.ship.route.sspa.RouteType;
 import dk.dma.epd.ship.route.sspa.RouterequestType;
@@ -87,11 +88,14 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
         }
 
         //Current ship data
-        currentShipData.setAftdraft(trim);
-        currentShipData.setForwarddraft(trim);
         currentShipData.setImoid("1234567");
         currentShipData.setMmsi("123456789");
         currentShipData.setUkcrequested(1.0f);
+        
+        DraftType draft = new DraftType();
+        draft.setAft(trim);
+        draft.setForward(trim);
+        currentShipData.setDraft(draft);
 
         monaLisaRoute.setCurrentShipData(currentShipData);
 
@@ -113,14 +117,20 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
             // Set ID
             waypoint.setWptId(i + 1);
 
-            
-//            if (i !=0){
-                // Set ETA
+
+            if (i == 0 || i == eeinsWaypoints.size() -1){
                 try {
                     waypoint.setETA(convertDate(route.getEtas().get(i)));
                 } catch (DatatypeConfigurationException e) {
                     e.printStackTrace();
                 }
+            }
+            
+//            if (i !=0){
+                // Set ETA
+
+                
+                
 //            }
 
             
@@ -314,6 +324,7 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
 
         if (newRoute != null) {
             EPDShip.getRouteManager().addRoute(newRoute);
+            route.setVisible(false);
         }
 
         return true;

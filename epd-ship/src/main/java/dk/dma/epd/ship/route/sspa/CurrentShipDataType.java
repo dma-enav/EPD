@@ -51,8 +51,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "CurrentShipDataType", propOrder = {
     "mmsi",
     "imoid",
-    "forwarddraft",
-    "aftdraft",
+    "draft",
     "ukcrequested",
     "optimization"
 })
@@ -60,8 +59,7 @@ public class CurrentShipDataType {
 
     protected String mmsi;
     protected String imoid;
-    protected float forwarddraft;
-    protected float aftdraft;
+    protected DraftType draft;
     protected float ukcrequested;
     protected String optimization;
 
@@ -114,35 +112,19 @@ public class CurrentShipDataType {
     }
 
     /**
-     * Gets the value of the forwarddraft property.
+     * Gets the value of the draft property.
      * 
      */
-    public float getForwarddraft() {
-        return forwarddraft;
+    public DraftType getDraft() {
+        return draft;
     }
 
     /**
-     * Sets the value of the forwarddraft property.
+     * Sets the value of the draft property.
      * 
      */
-    public void setForwarddraft(float value) {
-        this.forwarddraft = value;
-    }
-
-    /**
-     * Gets the value of the aftdraft property.
-     * 
-     */
-    public float getAftdraft() {
-        return aftdraft;
-    }
-
-    /**
-     * Sets the value of the aftdraft property.
-     * 
-     */
-    public void setAftdraft(float value) {
-        this.aftdraft = value;
+    public void setDraft(DraftType value) {
+        this.draft = value;
     }
 
     /**
