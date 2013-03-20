@@ -27,6 +27,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -83,7 +86,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
     private RouteManager routeManager;
 
     private Route route;
-    private long mmsi;
+    private long mmsi = -1;
     private boolean loading;
 
     private EnavServiceHandler enavServiceHandler;
@@ -210,9 +213,9 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         GuiStyler.styleText(nameTitlelbl);
 
         mmsiListComboBox = new JComboBox();
-        mmsiListComboBox.setModel(new DefaultComboBoxModel(new String[] {
-                "" }));
+        mmsiListComboBox.setModel(new DefaultComboBoxModel());
         mmsiListComboBox.setBounds(91, 21, 88, 17);
+        mmsiListComboBox.setEnabled(true);
         GuiStyler.styleDropDown(mmsiListComboBox);
         targetPanel.add(mmsiListComboBox);
 
@@ -262,8 +265,8 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         routePanel.add(zoomLbl);
 
         routeListComboBox = new JComboBox();
-        routeListComboBox
-                .setModel(new DefaultComboBoxModel(new String[] { "" }));
+        routeListComboBox.setModel(new DefaultComboBoxModel());
+        routeListComboBox.setEnabled(false);
         routeListComboBox.setBounds(91, 20, 143, 20);
         routePanel.add(routeListComboBox);
         GuiStyler.styleDropDown(routeListComboBox);
@@ -373,16 +376,17 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
             }
 
             if (mmsi == -1) {
-                mmsi = (Long) mmsiListComboBox.getSelectedItem();
-                // System.out.println("no mmsi");
+                mmsi = Long.parseLong(mmsiListComboBox.getSelectedItem()
+                        .toString());
             }
 
-               try {
-                enavServiceHandler.sendRouteSuggestion(mmsi, route.getFullRouteData());
-            } catch (Exception e){
+            try {
+                enavServiceHandler.sendRouteSuggestion(mmsi,
+                        route.getFullRouteData());
+            } catch (Exception e) {
                 System.out.println("Failed to send route");
             }
-            
+
             // service.sendRouteSuggestion(mmsiTarget, route);
 
             // Send it
@@ -407,6 +411,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         if (arg0.getSource() == zoomLbl) {
 
             // go to the route on the map
+            
 
         }
     }
@@ -415,9 +420,33 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
     public void loadData() {
         // System.out.println("load data");
         loading = true;
-         mmsiListComboBox.removeAllItems();
-        for (int i = 0; i < enavServiceHandler.getRouteSuggestionList().size(); i++) {
-            mmsiListComboBox.addItem(enavServiceHandler.getRouteSuggestionList().get(i).getId().toString());
+        mmsiListComboBox.removeAllItems();
+
+        // mmsi://
+
+        
+        //Remove duplicates
+        List<String> mmsi = new ArrayList<String>();
+        
+        for (int i = 0; i < enavServiceHandler.getRouteSuggestionList()
+                .size(); i++) {
+            mmsi.add(enavServiceHandler
+                    .getRouteSuggestionList().get(i).getId().toString()
+                    .split("//")[1]);
+        }
+        
+        HashSet<String> hs = new HashSet<String>();
+        hs.addAll(mmsi);
+        mmsi.clear();
+        mmsi.addAll(hs);
+        
+
+        if (enavServiceHandler.getRouteSuggestionList().size() > 0) {
+            mmsiListComboBox.setEnabled(true);
+            for (int i = 0; i < mmsi
+                    .size(); i++) {
+                mmsiListComboBox.addItem(mmsi.get(i));
+            }
         }
 
         routeListComboBox.removeAllItems();
@@ -453,13 +482,12 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         if (arg0.getSource() == mmsiListComboBox && !loading) {
 
             if (mmsiListComboBox.getSelectedItem() != null) {
-                
-//                String test = ;
-                
-                try {                mmsi = Long
-                        .valueOf(((String) mmsiListComboBox.getSelectedItem()).split("//")[1]);
+
+                try {
+                    mmsi = Long.valueOf((String) mmsiListComboBox
+                            .getSelectedItem());
                 } catch (Exception e) {
-System.out.println("Failed to set mmsi " + mmsi);
+                    System.out.println("Failed to set mmsi " + mmsi);
                 }
 
                 // System.out.println("mmsi selected to set to " + mmsi);
@@ -503,33 +531,24 @@ System.out.println("Failed to set mmsi " + mmsi);
 
         }
 
-        if (mmsi != -1 && route != null) {
-            sendLbl.setEnabled(true);
-        }
-
     }
 
     public void setSelectedMMSI(long mmsi) {
         this.mmsi = mmsi;
-        // System.out.println("MMSI is set to: " + mmsi);
-
         selectAndLoad();
     }
 
     public void setSelectedRoute(Route route) {
-        if (!this.isVisible()) {
-//            mmsiListComboBox.setSelectedIndex(0);
-        }
 
         this.route = route;
-        loadData();
         selectAndLoad();
     }
 
     private void selectAndLoad() {
         loadData();
 
-        if (mmsi != -1) {
+        if (mmsi != -1 && mmsiListComboBox.getItemCount() > 0) {
+            mmsiListComboBox.setEnabled(true);
             for (int i = 0; i < mmsiListComboBox.getItemCount(); i++) {
                 if (mmsiListComboBox.getItemAt(i).equals(Long.toString(mmsi))) {
                     mmsiListComboBox.setSelectedIndex(i);
@@ -537,7 +556,10 @@ System.out.println("Failed to set mmsi " + mmsi);
             }
         }
 
-        if (route != null) {
+        if (route != null
+                && EPDShore.getMainFrame().getRouteManagerDialog()
+                        .getRouteManager().getRoutes().size() > 0) {
+            routeListComboBox.setEnabled(true);
             for (int i = 0; i < EPDShore.getMainFrame().getRouteManagerDialog()
                     .getRouteManager().getRoutes().size(); i++) {
                 if (EPDShore.getMainFrame().getRouteManagerDialog()
@@ -545,6 +567,15 @@ System.out.println("Failed to set mmsi " + mmsi);
                     routeListComboBox.setSelectedIndex(i);
                 }
             }
+        }
+
+        if (mmsi == -1) {
+            mmsi = Long
+                    .parseLong(mmsiListComboBox.getSelectedItem().toString());
+        }
+
+        if (mmsi != -1 && route != null) {
+            sendLbl.setEnabled(true);
         }
 
     }

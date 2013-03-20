@@ -16,6 +16,7 @@
 package dk.dma.epd.shore.gui.route;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,24 +27,25 @@ import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.service.RouteSuggestionData;
 
-
 /**
  * Table model for Route Exchange Notifications
  */
 public class RouteExchangeTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
 
-    private static final String[] AREA_COLUMN_NAMES = { "ID", "MMSI", "Route Name", "Date", "Status", "Application Recieve Date" };
-    private static final String[] COLUMN_NAMES = { "ID", "MMSI", "Route Name", "Status" };
+    private static final String[] AREA_COLUMN_NAMES = { "ID", "MMSI",
+            "Route Name", "Sent Date", "Sender", "Message", "Status",
+            "Reply Sent", "Message" };
+    private static final String[] COLUMN_NAMES = { "ID", "MMSI", "Route Name",
+            "Status" };
 
     private EnavServiceHandler enavServiceHandler;
-
 
     private List<RouteSuggestionData> messages = new ArrayList<RouteSuggestionData>();
 
     /**
      * Constructor for creating the msi table model
-     *
+     * 
      * @param msiHandler
      */
     public RouteExchangeTableModel(EnavServiceHandler enavServiceHandler) {
@@ -90,7 +92,7 @@ public class RouteExchangeTableModel extends AbstractTableModel {
 
     /**
      * Return messages
-     *
+     * 
      * @return
      */
     public List<RouteSuggestionData> getMessages() {
@@ -174,7 +176,7 @@ public class RouteExchangeTableModel extends AbstractTableModel {
                 return "Failed to send to target";
             } else {
                 if (status == AIS_STATUS.NOT_SENT) {
-                    return "Not sent - check AIS status";
+                    return "Not sent - check network status";
                 } else {
                     if (status == AIS_STATUS.RECIEVED_ACCEPTED) {
                         return "Route Suggestion Accepted by ship";
@@ -212,17 +214,27 @@ public class RouteExchangeTableModel extends AbstractTableModel {
         case 2:
             return message.getOutgoingMsg().getRoute().getName();
         case 3:
-            return Formatter.formatShortDateTime(message.getOutgoingMsg().getSent());
+            return Formatter.formatShortDateTime(message.getOutgoingMsg()
+                    .getSent());
         case 4:
-            return interpetStatusLong(message.getStatus());
+            return message.getOutgoingMsg().getSender();
         case 5:
-//            if (message.getAppAck() != null){
-//                return Formatter.formatShortDateTime(message.getAppAck());
-//            }else{
-//                return "Not recieved by application";
-            return "unknown - to be implemented";
-//            }
-
+            return message.getOutgoingMsg().getMessage();
+        case 6:
+            return interpetStatusLong(message.getStatus());
+        case 7:
+            if (message.getReply() != null) {
+                return Formatter.formatShortDateTime(new Date(message
+                        .getReply().getSendDate()));
+            } else {
+                return "No reply recieved yet";
+            }
+        case 8:
+            if (message.getReply() != null){
+                return message.getReply().getMessage();
+            }else{
+                return "No reply recieved yet";
+            }
         default:
             return "";
         }
@@ -234,9 +246,8 @@ public class RouteExchangeTableModel extends AbstractTableModel {
     public void updateMessages() {
         messages.clear();
 
-        
-        
-        for (Iterator<RouteSuggestionData> it = enavServiceHandler.getRouteSuggestions().values().iterator(); it.hasNext();) {
+        for (Iterator<RouteSuggestionData> it = enavServiceHandler
+                .getRouteSuggestions().values().iterator(); it.hasNext();) {
             messages.add(it.next());
         }
     }
@@ -246,7 +257,7 @@ public class RouteExchangeTableModel extends AbstractTableModel {
             return false;
         }
         return messages.get(rowIndex).isAcknowleged();
-//        return false;
+        // return false;
     }
 
 }
