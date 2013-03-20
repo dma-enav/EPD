@@ -328,7 +328,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
 
             if (newClosest != null && newClosest instanceof VesselLayer) {
 
-                if (mainFrame.getSelectedMMSI() != -1){
+                if (mainFrame.getSelectedMMSI() != -1 && drawnVessels.containsKey(mainFrame.getSelectedMMSI())){
                     drawnVessels.get(mainFrame.getSelectedMMSI()).getPastTrackGraphic().setVisible(false);                    
                 }
                 

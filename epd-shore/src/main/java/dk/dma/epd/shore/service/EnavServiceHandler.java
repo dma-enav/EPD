@@ -40,6 +40,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.ship.ShipId;
 import dk.dma.enav.model.voyage.Route;
+import dk.dma.enav.util.function.BiConsumer;
 import dk.dma.enav.util.function.Supplier;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
@@ -205,11 +206,21 @@ public class EnavServiceHandler extends MapHandlerChild implements
         if (end != null){
             NetworkFuture<RouteSuggestionService.RouteSuggestionReply> f = end
                     .invoke(routeMessage);
-
+            
 //            EPDShore.getMainFrame().getNotificationCenter().cloudUpdate();
             notifyRouteExchangeListeners();
 
-            replyRecieved(f.get());
+//            f.timeout(100, TimeUnit.MINUTES).handle(consumer)
+            
+            f.handle(new BiConsumer<RouteSuggestionService.RouteSuggestionReply, Throwable>() {
+                
+                @Override
+                public void accept(RouteSuggestionReply l, Throwable r) {
+                    replyRecieved(l);
+                }
+            });
+            
+      
         }else{
 //            notifyRouteExchangeListeners();
 System.out.println("Failed to send");
