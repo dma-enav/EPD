@@ -127,7 +127,7 @@ public class RouteSuggestionService {
             this.sender = requireNonNull(sender);
             this.id = requireNonNull(System.currentTimeMillis());
             this.sent = requireNonNull(new Date());
-            this.message = requireNonNull("Route Send Example");
+            this.message = requireNonNull(message);
         }
 
         public String getMessage() {

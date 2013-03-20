@@ -26,6 +26,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
@@ -148,6 +149,13 @@ public class GuiStyler {
     public static void styleText(JLabel label){
         label.setFont(defaultFont);
         label.setForeground(textColor);
+    }
+    
+    public static void styleArea(JTextArea area){
+        area.setFont(defaultFont);
+        area.setForeground(textColor);
+        area.setBackground(GuiStyler.backgroundColor);
+        area.setBorder(GuiStyler.border);
     }
 
     public static void styleSpinner(JSpinner spinner){

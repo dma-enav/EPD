@@ -769,7 +769,6 @@ public class Route implements Serializable {
 
         voyageRoute.setName(this.name);
         
-        System.out.println("Converting route for " + getWaypoints().size());
         for (int i = 0; i < getWaypoints().size(); i++) {
         
 

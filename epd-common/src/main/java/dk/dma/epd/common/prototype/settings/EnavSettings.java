@@ -71,8 +71,8 @@ public class EnavSettings implements Serializable {
     /**
      * Cloud server configuration
      */
-    private String cloudServerHost = "localhost";
-    private int cloudServerPort = 43234;
+    private String cloudServerHost = "54.228.193.75";
+    private int cloudServerPort = 80;
     
     public EnavSettings() {
         

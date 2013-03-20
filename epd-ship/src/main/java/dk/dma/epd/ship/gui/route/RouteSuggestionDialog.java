@@ -27,6 +27,8 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -72,6 +74,7 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
     private JPanel replyPanel;
     private JButton hideBtn;
     private JLabel wpInfoLabel;
+    private JTextArea textArea;
     
     public RouteSuggestionDialog(MainFrame mainFrame) {
         super();
@@ -79,7 +82,7 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
         setResizable(false);
         setTitle("AIS Route Suggestion");
         
-        setSize(380, 406);
+        setSize(380, 500);
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         setAlwaysOnTop(true);
         setLocationRelativeTo(mainFrame);        
@@ -95,6 +98,8 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
         this.cloudRouteSuggestion = cloudRouteSuggestion;
         
         titleLbl.setText("Route suggestion from " + cloudRouteSuggestion.getSender());
+        
+        textArea.setText("No message");
         
         StringBuilder str = new StringBuilder();
         str.append("<html>");
@@ -213,16 +218,16 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
             updateBtnStatus();
             routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
         } else if (e.getSource() == acceptBtn) {
-            routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.ACCEPTED);
+            routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.ACCEPTED, textArea.getText());
             close();
         } else if (e.getSource() == rejectBtn) {
-            routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.REJECTED);
+            routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.REJECTED, textArea.getText());
             close();
         } else if (e.getSource() == notedBtn) {
-            routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.NOTED);
+            routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.NOTED, textArea.getText());
             close();
         } else if (e.getSource() == ignoreBtn) {
-            routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.IGNORED);
+            routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.IGNORED, textArea.getText());
             routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
             close();
         } else if (e.getSource() == postponeBtn) {
@@ -306,17 +311,17 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
                 .addGroup(groupLayout.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+                        .addGroup(groupLayout.createSequentialGroup()
+                            .addComponent(replyPanel, GroupLayout.DEFAULT_SIZE, 354, Short.MAX_VALUE)
+                            .addContainerGap())
                         .addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
                             .addComponent(routePanel, GroupLayout.PREFERRED_SIZE, 355, Short.MAX_VALUE)
                             .addGap(9))
-                        .addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
-                            .addComponent(replyPanel, GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE)
-                            .addContainerGap())
                         .addGroup(groupLayout.createSequentialGroup()
                             .addComponent(ignoreBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(ComponentPlacement.RELATED)
                             .addComponent(postponeBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
-                            .addContainerGap(183, Short.MAX_VALUE))))
+                            .addContainerGap(184, Short.MAX_VALUE))))
         );
         groupLayout.setVerticalGroup(
             groupLayout.createParallelGroup(Alignment.LEADING)
@@ -324,34 +329,44 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
                     .addContainerGap()
                     .addComponent(routePanel, GroupLayout.PREFERRED_SIZE, 263, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(replyPanel, GroupLayout.PREFERRED_SIZE, 58, GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addComponent(replyPanel, GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE)
+                    .addGap(18)
                     .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
                         .addComponent(ignoreBtn)
                         .addComponent(postponeBtn))
-                    .addContainerGap(92, Short.MAX_VALUE))
+                    .addContainerGap())
         );
+        
+        textArea = new JTextArea("No message");
+
+        JScrollPane textPane = new JScrollPane(textArea);
         
         GroupLayout gl_replyPanel = new GroupLayout(replyPanel);
         gl_replyPanel.setHorizontalGroup(
             gl_replyPanel.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_replyPanel.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(acceptBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(rejectBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(notedBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(60, Short.MAX_VALUE))
+                    .addGroup(gl_replyPanel.createParallelGroup(Alignment.LEADING)
+                        .addComponent(textPane, GroupLayout.PREFERRED_SIZE, 307, GroupLayout.PREFERRED_SIZE)
+                        .addGroup(gl_replyPanel.createSequentialGroup()
+                            .addComponent(acceptBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addComponent(rejectBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addComponent(notedBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)))
+                    .addContainerGap(25, Short.MAX_VALUE))
         );
         gl_replyPanel.setVerticalGroup(
             gl_replyPanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_replyPanel.createSequentialGroup()
+                .addGroup(Alignment.TRAILING, gl_replyPanel.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(textPane, GroupLayout.DEFAULT_SIZE, 66, Short.MAX_VALUE)
+                    .addPreferredGap(ComponentPlacement.RELATED)
                     .addGroup(gl_replyPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(acceptBtn)
                         .addComponent(rejectBtn)
                         .addComponent(notedBtn))
-                    .addContainerGap(35, Short.MAX_VALUE))
+                    .addContainerGap())
         );
         replyPanel.setLayout(gl_replyPanel);
                 
@@ -388,4 +403,5 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
         
         
     }
+
 }

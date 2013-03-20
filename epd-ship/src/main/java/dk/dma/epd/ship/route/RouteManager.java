@@ -406,7 +406,7 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     
     public void routeSuggestionReply(
             RecievedRoute routeSuggestion,
-            RecievedRoute.Status status) {
+            RecievedRoute.Status status, String message) {
         
 
         switch (status) {
@@ -414,18 +414,18 @@ public class RouteManager extends MapHandlerChild implements Runnable,
             routeSuggestion.setStatus(Status.ACCEPTED);
             acceptSuggested(routeSuggestion);
             
-            enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_ACCEPTED, routeSuggestion.getId());
+            enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_ACCEPTED, routeSuggestion.getId(), message);
             break;
         case REJECTED:
             //Remove it
             routeSuggestion.setStatus(Status.REJECTED);
             removeSuggested(routeSuggestion);
-            enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_REJECTED, routeSuggestion.getId());
+            enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_REJECTED, routeSuggestion.getId(), message);
             break;
         case NOTED:
             //Do nothing
             routeSuggestion.setStatus(Status.NOTED);
-            enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_NOTED, routeSuggestion.getId());
+            enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_NOTED, routeSuggestion.getId(), message);
             break;
         default:
             break;

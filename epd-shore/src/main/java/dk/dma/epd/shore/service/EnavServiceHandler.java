@@ -170,7 +170,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         return false;
     }
 
-    public void sendRouteSuggestion(long mmsi, Route route)
+    public void sendRouteSuggestion(long mmsi, Route route, String sender, String message)
             throws InterruptedException, ExecutionException, TimeoutException {
 
         // System.out.println("Send to : " + mmsi);
@@ -191,7 +191,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         // mmsi = 219230000;
 
         RouteSuggestionMessage routeMessage = new RouteSuggestionService.RouteSuggestionMessage(
-                route, "DMA Shore", "Route Send Example");
+                route, sender, message);
 
         System.out.println("Sending to mmsi: " + mmsi + " with ID: "
                 + routeMessage.getId());
@@ -210,7 +210,14 @@ public class EnavServiceHandler extends MapHandlerChild implements
             // EPDShore.getMainFrame().getNotificationCenter().cloudUpdate();
             notifyRouteExchangeListeners();
 
-            // f.timeout(100, TimeUnit.MINUTES).handle(consumer)
+//             f.timeout(10, TimeUnit.SECONDS).handle(new BiConsumer<RouteSuggestionService.RouteSuggestionReply, Throwable>() {
+//
+//                 @Override
+//                 public void accept(RouteSuggestionReply l, Throwable r) {
+//                     System.out.println("TIME OUT TIME OUT TIME OUT");
+//                     System.out.println("TIME OUT TIME OUT TIME OUT");
+//                 }
+//             });
 
             f.handle(new BiConsumer<RouteSuggestionService.RouteSuggestionReply, Throwable>() {
 

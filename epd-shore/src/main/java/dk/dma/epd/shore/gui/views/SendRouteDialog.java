@@ -37,6 +37,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.MatteBorder;
@@ -82,6 +85,8 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
     private JComboBox routeListComboBox;
     private JLabel routeLengthLbl;
     private JLabel statusLbl;
+    JTextArea messageTxtField;
+    JTextField senderTxtField;
     private AisHandler aisHandler;
     private RouteManager routeManager;
 
@@ -99,7 +104,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
 
         setResizable(false);
         setTitle("Route Exchange");
-        setBounds(100, 100, 275, 400);
+        setBounds(100, 100, 275, 520 + moveHandlerHeight);
 
         initGUI();
     }
@@ -114,7 +119,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
 
         // Map tools
         mapPanel = new JPanel(new GridLayout(1, 3));
-        mapPanel.setPreferredSize(new Dimension(500, moveHandlerHeight));
+        mapPanel.setPreferredSize(new Dimension(520, moveHandlerHeight));
         mapPanel.setOpaque(true);
         mapPanel.setBackground(Color.DARK_GRAY);
         mapPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0,
@@ -184,8 +189,8 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         this.setBackground(GuiStyler.backgroundColor);
         mainPanel = new JPanel();
 
-        mainPanel.setSize(264, 384);
-        mainPanel.setPreferredSize(new Dimension(264, 384));
+        mainPanel.setSize(264, 520);
+        mainPanel.setPreferredSize(new Dimension(264, 520));
 
         mainPanel.setLayout(null);
 
@@ -276,13 +281,57 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         routePanel.add(routeLengthLbl);
         GuiStyler.styleText(routeLengthLbl);
 
+        
+        
+        
+        JPanel informationPanel = new JPanel();
+        informationPanel.setBackground(GuiStyler.backgroundColor);
+        informationPanel.setBorder(new TitledBorder(new MatteBorder(1, 1, 1, 1,
+                new Color(70, 70, 70)), "Route", TitledBorder.LEADING,
+                TitledBorder.TOP, GuiStyler.defaultFont, GuiStyler.textColor));
+        informationPanel.setBounds(10, 278, 244, 114);
+        mainPanel.add(informationPanel);
+        informationPanel.setLayout(null);
+
+        JLabel senderTitleLbl = new JLabel("Sender:");
+        senderTitleLbl.setBounds(10, 23, 77, 14);
+        informationPanel.add(senderTitleLbl);
+        GuiStyler.styleText(senderTitleLbl);
+
+        senderTxtField = new JTextField("DMA Store");
+        senderTxtField.setBounds(95, 23, 77, 14);
+        informationPanel.add(senderTxtField);
+        GuiStyler.styleTextFields(senderTxtField);
+        
+        JLabel messageTitleLbl = new JLabel("Message:");
+        messageTitleLbl.setBounds(10, 48, 77, 14);
+        informationPanel.add(messageTitleLbl);
+        GuiStyler.styleText(messageTitleLbl);
+
+        messageTxtField = new JTextArea("Route Suggestion");
+        messageTxtField.setBounds(95, 48, 135, 45);
+        JScrollPane sp = new JScrollPane(messageTxtField);
+        sp.setBounds(95, 48, 135, 45);
+        informationPanel.add(sp);
+//        sp.setBorder(GuiStyler.border);
+        sp.setBorder(new MatteBorder(1, 1, 1, 1,
+                new Color(70, 70, 70)));
+//        sp.setBorder(null);
+//        .setBackground(GuiStyler.backgroundColor);
+        GuiStyler.styleArea(messageTxtField);
+        messageTxtField.setBorder(null);
+   
+        
+        
+        
+        
         JPanel sendPanel = new JPanel();
         sendPanel.setBackground(GuiStyler.backgroundColor);
         sendPanel.setBorder(new TitledBorder(new MatteBorder(1, 1, 1, 1,
                 new Color(70, 70, 70)), "Send", TitledBorder.LEADING,
                 TitledBorder.TOP, GuiStyler.defaultFont, GuiStyler.textColor));
 
-        sendPanel.setBounds(10, 278, 244, 95);
+        sendPanel.setBounds(10, 406, 244, 95);
         mainPanel.add(sendPanel);
         sendPanel.setLayout(null);
 
@@ -382,7 +431,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
 
             try {
                 enavServiceHandler.sendRouteSuggestion(mmsi,
-                        route.getFullRouteData());
+                        route.getFullRouteData(), senderTxtField.getText(), messageTxtField.getText());
             } catch (Exception e) {
                 System.out.println("Failed to send route");
             }
@@ -522,12 +571,12 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
                 routeLengthLbl.setText(Integer.toString(route.getWaypoints()
                         .size()));
             }
-            if (route.getWaypoints().size() > 8) {
-                statusLbl
-                        .setText("<html>The Route has more than 8 waypoints.<br>Only the first 8 will be sent to the ship</html>");
-            } else {
-                statusLbl.setText("");
-            }
+//            if (route.getWaypoints().size() > 8) {
+//                statusLbl
+//                        .setText("<html>The Route has more than 8 waypoints.<br>Only the first 8 will be sent to the ship</html>");
+//            } else {
+//                statusLbl.setText("");
+//            }
 
         }
 
@@ -554,6 +603,8 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
                     mmsiListComboBox.setSelectedIndex(i);
                 }
             }
+            
+
         }
 
         if (route != null
@@ -573,6 +624,23 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
             mmsi = Long
                     .parseLong(mmsiListComboBox.getSelectedItem().toString());
         }
+        
+        VesselTarget selectedShip = aisHandler.getVesselTargets().get(
+                mmsi);
+
+        if (selectedShip != null) {
+
+            if (selectedShip.getStaticData() != null) {
+                nameLbl.setText(AisMessage.trimText(selectedShip
+                        .getStaticData().getName()));
+                callsignLbl.setText(AisMessage.trimText(selectedShip
+                        .getStaticData().getCallsign()));
+            } else {
+                nameLbl.setText("N/A");
+                callsignLbl.setText("N/A");
+            }
+        }
+        
 
         if (mmsi != -1 && route != null) {
             sendLbl.setEnabled(true);

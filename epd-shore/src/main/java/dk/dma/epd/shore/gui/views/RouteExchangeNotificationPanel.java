@@ -405,7 +405,7 @@ public class RouteExchangeNotificationPanel extends JPanel {
                             .get(currentSelection);
                     try {
                         enavServiceHandler.sendRouteSuggestion(message
-                                .getMmsi(), message.getOutgoingMsg().getRoute());
+                                .getMmsi(), message.getOutgoingMsg().getRoute(), message.getOutgoingMsg().getSender(), message.getOutgoingMsg().getMessage());
                     } catch (InterruptedException e1) {
                         // TODO Auto-generated catch block
                         e1.printStackTrace();
