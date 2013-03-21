@@ -77,12 +77,10 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
 
     private JPanel mainPanel;
     private SendRouteDialog sendRoute;
-    @SuppressWarnings("rawtypes")
-    private JComboBox mmsiListComboBox;
+    private JComboBox<String> mmsiListComboBox;
     private JLabel callsignLbl;
-    private JLabel nameLbl;
-    @SuppressWarnings("rawtypes")
-    private JComboBox routeListComboBox;
+    private JComboBox<String> nameComboBox;
+    private JComboBox<String> routeListComboBox;
     private JLabel routeLengthLbl;
     private JLabel statusLbl;
     JTextArea messageTxtField;
@@ -234,10 +232,11 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         targetPanel.add(callsignLbl);
         GuiStyler.styleText(callsignLbl);
 
-        nameLbl = new JLabel("N/A");
-        nameLbl.setBounds(91, 47, 143, 14);
-        targetPanel.add(nameLbl);
-        GuiStyler.styleText(nameLbl);
+        nameComboBox = new JComboBox();
+        nameComboBox.setModel(new DefaultComboBoxModel());
+        nameComboBox.setBounds(91, 47, 143, 17);
+        targetPanel.add(nameComboBox);
+        GuiStyler.styleDropDown(nameComboBox);
 
         JPanel routePanel = new JPanel();
         routePanel.setBackground(GuiStyler.backgroundColor);
@@ -281,9 +280,6 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         routePanel.add(routeLengthLbl);
         GuiStyler.styleText(routeLengthLbl);
 
-        
-        
-        
         JPanel informationPanel = new JPanel();
         informationPanel.setBackground(GuiStyler.backgroundColor);
         informationPanel.setBorder(new TitledBorder(new MatteBorder(1, 1, 1, 1,
@@ -302,7 +298,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         senderTxtField.setBounds(95, 23, 77, 14);
         informationPanel.add(senderTxtField);
         GuiStyler.styleTextFields(senderTxtField);
-        
+
         JLabel messageTitleLbl = new JLabel("Message:");
         messageTitleLbl.setBounds(10, 48, 77, 14);
         informationPanel.add(messageTitleLbl);
@@ -313,18 +309,13 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         JScrollPane sp = new JScrollPane(messageTxtField);
         sp.setBounds(95, 48, 135, 45);
         informationPanel.add(sp);
-//        sp.setBorder(GuiStyler.border);
-        sp.setBorder(new MatteBorder(1, 1, 1, 1,
-                new Color(70, 70, 70)));
-//        sp.setBorder(null);
-//        .setBackground(GuiStyler.backgroundColor);
+        // sp.setBorder(GuiStyler.border);
+        sp.setBorder(new MatteBorder(1, 1, 1, 1, new Color(70, 70, 70)));
+        // sp.setBorder(null);
+        // .setBackground(GuiStyler.backgroundColor);
         GuiStyler.styleArea(messageTxtField);
         messageTxtField.setBorder(null);
-   
-        
-        
-        
-        
+
         JPanel sendPanel = new JPanel();
         sendPanel.setBackground(GuiStyler.backgroundColor);
         sendPanel.setBorder(new TitledBorder(new MatteBorder(1, 1, 1, 1,
@@ -368,6 +359,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         zoomLbl.addMouseListener(this);
 
         mmsiListComboBox.addActionListener(this);
+        nameComboBox.addActionListener(this);
         routeListComboBox.addActionListener(this);
 
     }
@@ -431,7 +423,8 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
 
             try {
                 enavServiceHandler.sendRouteSuggestion(mmsi,
-                        route.getFullRouteData(), senderTxtField.getText(), messageTxtField.getText());
+                        route.getFullRouteData(), senderTxtField.getText(),
+                        messageTxtField.getText());
             } catch (Exception e) {
                 System.out.println("Failed to send route");
             }
@@ -460,12 +453,10 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         if (arg0.getSource() == zoomLbl) {
 
             // go to the route on the map
-            
 
         }
     }
 
-    @SuppressWarnings("unchecked")
     public void loadData() {
         // System.out.println("load data");
         loading = true;
@@ -473,27 +464,22 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
 
         // mmsi://
 
-        
-        //Remove duplicates
+        // Remove duplicates
         List<String> mmsi = new ArrayList<String>();
-        
-        for (int i = 0; i < enavServiceHandler.getRouteSuggestionList()
-                .size(); i++) {
-            mmsi.add(enavServiceHandler
-                    .getRouteSuggestionList().get(i).getId().toString()
-                    .split("//")[1]);
+
+        for (int i = 0; i < enavServiceHandler.getRouteSuggestionList().size(); i++) {
+            mmsi.add(enavServiceHandler.getRouteSuggestionList().get(i).getId()
+                    .toString().split("//")[1]);
         }
-        
+
         HashSet<String> hs = new HashSet<String>();
         hs.addAll(mmsi);
         mmsi.clear();
         mmsi.addAll(hs);
-        
 
         if (enavServiceHandler.getRouteSuggestionList().size() > 0) {
             mmsiListComboBox.setEnabled(true);
-            for (int i = 0; i < mmsi
-                    .size(); i++) {
+            for (int i = 0; i < mmsi.size(); i++) {
                 mmsiListComboBox.addItem(mmsi.get(i));
             }
         }
@@ -503,6 +489,20 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         for (int i = 0; i < routeManager.getRoutes().size(); i++) {
             routeListComboBox.addItem(routeManager.getRoutes().get(i).getName()
                     + "                                                 " + i);
+        }
+
+        nameComboBox.removeAllItems();
+        for (int i = 0; i < mmsi.size(); i++) {
+
+            VesselTarget selectedShip = aisHandler.getVesselTargets().get(
+                    Long.parseLong(mmsi.get(i)));
+
+            if (selectedShip.getStaticData() != null) {
+                nameComboBox.addItem(selectedShip.getStaticData().getName());
+            } else {
+                nameComboBox.addItem("N/A");
+
+            }
         }
 
         loading = false;
@@ -528,10 +528,49 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
 
     @Override
     public void actionPerformed(ActionEvent arg0) {
+        if (arg0.getSource() == nameComboBox && !loading) {
+            if (nameComboBox.getSelectedItem() != null) {
+
+                mmsiListComboBox.setSelectedIndex(nameComboBox.getSelectedIndex());
+                
+                
+//                try {
+//                    mmsi = Long.valueOf((String) mmsiListComboBox
+//                            .getSelectedItem());
+//                } catch (Exception e) {
+//                    System.out.println("Failed to set mmsi " + mmsi);
+//                }
+//
+//                // System.out.println("mmsi selected to set to " + mmsi);
+//                VesselTarget selectedShip = aisHandler.getVesselTargets().get(
+//                        mmsi);
+//
+//                if (selectedShip != null) {
+//
+//                    if (selectedShip.getStaticData() != null) {
+//                        // TO DO
+//                        // nameLbl.setText(AisMessage.trimText(selectedShip
+//                        // .getStaticData().getName()));
+//
+//                        callsignLbl.setText(AisMessage.trimText(selectedShip
+//                                .getStaticData().getCallsign()));
+//                    } else {
+//                        // nameLbl.setText("N/A");
+//                        callsignLbl.setText("N/A");
+//                    }
+//
+//                } else {
+//                    statusLbl.setText("The ship is not visible on AIS");
+//
+//                }
+            }
+        }
+        
         if (arg0.getSource() == mmsiListComboBox && !loading) {
 
             if (mmsiListComboBox.getSelectedItem() != null) {
 
+                nameComboBox.setSelectedIndex(mmsiListComboBox.getSelectedIndex());
                 try {
                     mmsi = Long.valueOf((String) mmsiListComboBox
                             .getSelectedItem());
@@ -546,12 +585,14 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
                 if (selectedShip != null) {
 
                     if (selectedShip.getStaticData() != null) {
-                        nameLbl.setText(AisMessage.trimText(selectedShip
-                                .getStaticData().getName()));
+                        // TO DO
+                        // nameLbl.setText(AisMessage.trimText(selectedShip
+                        // .getStaticData().getName()));
+
                         callsignLbl.setText(AisMessage.trimText(selectedShip
                                 .getStaticData().getCallsign()));
                     } else {
-                        nameLbl.setText("N/A");
+                        // nameLbl.setText("N/A");
                         callsignLbl.setText("N/A");
                     }
 
@@ -571,12 +612,12 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
                 routeLengthLbl.setText(Integer.toString(route.getWaypoints()
                         .size()));
             }
-//            if (route.getWaypoints().size() > 8) {
-//                statusLbl
-//                        .setText("<html>The Route has more than 8 waypoints.<br>Only the first 8 will be sent to the ship</html>");
-//            } else {
-//                statusLbl.setText("");
-//            }
+            // if (route.getWaypoints().size() > 8) {
+            // statusLbl
+            // .setText("<html>The Route has more than 8 waypoints.<br>Only the first 8 will be sent to the ship</html>");
+            // } else {
+            // statusLbl.setText("");
+            // }
 
         }
 
@@ -603,9 +644,10 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
                     mmsiListComboBox.setSelectedIndex(i);
                 }
             }
-            
 
         }
+        
+        nameComboBox.setSelectedIndex(mmsiListComboBox.getSelectedIndex());
 
         if (route != null
                 && EPDShore.getMainFrame().getRouteManagerDialog()
@@ -624,23 +666,22 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
             mmsi = Long
                     .parseLong(mmsiListComboBox.getSelectedItem().toString());
         }
-        
-        VesselTarget selectedShip = aisHandler.getVesselTargets().get(
-                mmsi);
+
+        VesselTarget selectedShip = aisHandler.getVesselTargets().get(mmsi);
 
         if (selectedShip != null) {
 
             if (selectedShip.getStaticData() != null) {
-                nameLbl.setText(AisMessage.trimText(selectedShip
-                        .getStaticData().getName()));
+                // nameLbl.setText(AisMessage.trimText(selectedShip
+                // .getStaticData().getName()));
+
                 callsignLbl.setText(AisMessage.trimText(selectedShip
                         .getStaticData().getCallsign()));
             } else {
-                nameLbl.setText("N/A");
+                // nameLbl.setText("N/A");
                 callsignLbl.setText("N/A");
             }
         }
-        
 
         if (mmsi != -1 && route != null) {
             sendLbl.setEnabled(true);

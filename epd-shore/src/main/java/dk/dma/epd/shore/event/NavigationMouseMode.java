@@ -400,6 +400,7 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
 
 
             map.setProjection(p);
+            
 //            chartPanel.manualProjChange();
         }
 

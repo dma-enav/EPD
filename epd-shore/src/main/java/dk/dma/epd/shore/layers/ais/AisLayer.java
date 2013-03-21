@@ -37,7 +37,6 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.layers.ais.AisTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteWpCircle;
-import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.ais.AisHandler.AisMessageExtended;
 import dk.dma.epd.shore.event.DragMouseMode;
@@ -73,6 +72,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
     private IntendedRouteInfoPanel intendedRouteInfoPanel = new IntendedRouteInfoPanel();
     private MapMenu aisTargetMenu;
 
+    Thread aisThread;
     // private OMGraphic highlighted;
     // private VesselLayer highlightedVessel;
 
@@ -88,8 +88,14 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
     public void run() {
 
         while (shouldRun) {
-            EPDShore.sleep(1000);
-            drawVessels();
+            try {
+                drawVessels();
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                System.out.println("Interrupted");
+                drawVessels();
+            }
+
         }
         drawnVessels.clear();
         list.clear();
@@ -101,7 +107,18 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
      */
     public AisLayer() {
         list.add(aisTargetGraphic);
-        new Thread(this).start();
+        aisThread =    new Thread(this);
+        aisThread.start();
+    }
+
+    
+    
+    public Thread getAisThread() {
+        return aisThread;
+    }
+
+    public void setAisThread(Thread aisThread) {
+        this.aisThread = aisThread;
     }
 
     /**

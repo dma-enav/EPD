@@ -182,6 +182,8 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
             newScale = maxScale;
         }
         map.setScale(newScale);
+        forceAisLayerUpdate();
+
     }
 
     /**
@@ -209,6 +211,11 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
         return aisLayer;
     }
 
+    public void forceAisLayerUpdate(){
+        aisLayer.getAisThread().interrupt();
+    }
+    
+    
     /**
      * Return the bg shape layer
      * @return bgLayer
@@ -490,6 +497,8 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
         LatLonPoint llp = projection.inverse(point);
         p.setCenter(llp);
         map.setProjection(p);
+        
+        forceAisLayerUpdate();
     }
 
     /**
@@ -528,6 +537,8 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
 
     public void zoomToPoint(Position waypoint) {
         map.setCenter(waypoint.getLatitude(), waypoint.getLongitude());
+       
+        forceAisLayerUpdate();
     }
 
     /**
@@ -543,6 +554,7 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
 
         if (waypoints.size() == 1) {
             map.setCenter(waypoints.get(0).getLatitude(), waypoints.get(0).getLongitude());
+forceAisLayerUpdate();
             return;
         }
 
@@ -569,6 +581,7 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
         double centerLat = (maxLat + minLat) / 2.0;
         double centerLon = (maxLon + minLon) / 2.0;
         map.setCenter(centerLat, centerLon);
+forceAisLayerUpdate();
 
     }
 
