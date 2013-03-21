@@ -18,6 +18,7 @@ package dk.dma.epd.ship.route;
 import java.io.Serializable;
 import java.util.Date;
 
+import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion.Status;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.model.route.Route;
 
@@ -37,17 +38,6 @@ public class RecievedRoute implements Serializable {
     private boolean hidden;
     private Status status = Status.PENDING;
     
-    /**
-     * Possible status of a suggestion
-     */
-    public enum Status {
-        PENDING,
-        ACCEPTED,
-        REJECTED,
-        NOTED,
-        IGNORED,
-        CANCELLED,
-    }
 
     public RecievedRoute(RouteSuggestionMessage suggestionMessage) {
         this.sender = suggestionMessage.getSender();

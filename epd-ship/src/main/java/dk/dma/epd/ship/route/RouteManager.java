@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
+import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion.Status;
 import dk.dma.epd.common.prototype.ais.AisBroadcastRouteSuggestion;
 import dk.dma.epd.common.prototype.ais.AisRouteData;
 import dk.dma.epd.common.prototype.ais.IAisRouteSuggestionListener;
@@ -58,7 +59,6 @@ import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.gui.ComponentPanels.ShowDockableDialog;
 import dk.dma.epd.ship.gui.ComponentPanels.ShowDockableDialog.dock_type;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
-import dk.dma.epd.ship.route.RecievedRoute.Status;
 import dk.dma.epd.ship.service.EnavServiceHandler;
 import dk.dma.epd.ship.service.communication.webservice.ShoreServices;
 import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
@@ -357,6 +357,12 @@ public class RouteManager extends MapHandlerChild implements Runnable,
         routeSuggestionDialog.showSuggestion(message);
     }
     
+    
+    public void showSuggestionDialog(int id){
+        // Show dialog
+        routeSuggestionDialog.showSuggestion(suggestedRoutes.get(id));        
+    }
+    
     public boolean acceptSuggested(RecievedRoute route){
         boolean removed = false;
         
@@ -382,6 +388,8 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     }
     
     public boolean removeSuggested(RecievedRoute route){
+        System.out.println("Removing");
+        
         boolean removed = false;
         
         for (int i = 0; i < suggestedRoutes.size(); i++) {
@@ -406,20 +414,20 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     
     public void routeSuggestionReply(
             RecievedRoute routeSuggestion,
-            RecievedRoute.Status status, String message) {
+            Status status, String message) {
         
 
         switch (status) {
         case ACCEPTED:
             routeSuggestion.setStatus(Status.ACCEPTED);
             acceptSuggested(routeSuggestion);
-            
             enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_ACCEPTED, routeSuggestion.getId(), message);
             break;
         case REJECTED:
             //Remove it
             routeSuggestion.setStatus(Status.REJECTED);
-            removeSuggested(routeSuggestion);
+            routeSuggestion.setStatus(Status.REJECTED);
+//            removeSuggested(routeSuggestion);
             enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_REJECTED, routeSuggestion.getId(), message);
             break;
         case NOTED:

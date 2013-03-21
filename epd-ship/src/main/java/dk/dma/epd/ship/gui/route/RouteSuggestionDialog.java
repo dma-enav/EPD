@@ -35,6 +35,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion.Status;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
@@ -45,7 +46,6 @@ import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.ComponentFrame;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.route.RecievedRoute;
-import dk.dma.epd.ship.route.RecievedRoute.Status;
 import dk.dma.epd.ship.route.RouteManager;
 
 /**
@@ -219,12 +219,15 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
             routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
         } else if (e.getSource() == acceptBtn) {
             routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.ACCEPTED, textArea.getText());
+            routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
             close();
         } else if (e.getSource() == rejectBtn) {
             routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.REJECTED, textArea.getText());
+            routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
             close();
         } else if (e.getSource() == notedBtn) {
             routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.NOTED, textArea.getText());
+            routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
             close();
         } else if (e.getSource() == ignoreBtn) {
             routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.IGNORED, textArea.getText());
