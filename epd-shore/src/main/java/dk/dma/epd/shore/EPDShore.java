@@ -227,9 +227,13 @@ public class EPDShore {
 
         // Main application
 
+        
+        
         mainFrame.saveSettings();
         settings.saveToFile();
 
+        enavServiceHandler.getConnection().close();
+        
         // GuiSettings
         // Handler settings
         routeManager.saveToFile();

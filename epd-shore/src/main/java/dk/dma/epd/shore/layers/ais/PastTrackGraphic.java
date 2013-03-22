@@ -23,7 +23,6 @@ import java.util.List;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.shore.ais.PastTrackPoint;
 
 /**
@@ -37,9 +36,7 @@ public class PastTrackGraphic extends OMGraphicList {
     private Color legColor = Color.black;
     private String name;
     private boolean arrowsVisible;
-    
-
-    private VesselTarget vesselTarget;
+    private long mmsi = -1;
 
     private List<PastTrackLegGraphic> routeLegs = new ArrayList<>();
     private List<PastTrackWpCircle> routeWps = new ArrayList<>();
@@ -51,6 +48,20 @@ public class PastTrackGraphic extends OMGraphicList {
                 nullGeoLocation, nullGeoLocation, legColor);
         setVisible(false);
     }
+    
+    
+
+    public long getMmsi() {
+        return mmsi;
+    }
+
+
+
+    public void setMmsi(long mmsi) {
+        this.mmsi = mmsi;
+    }
+
+
 
     private void makeLegLine(int index, Position start, Position end) {
         PastTrackLegGraphic leg = new PastTrackLegGraphic(index, this,
@@ -68,9 +79,7 @@ public class PastTrackGraphic extends OMGraphicList {
         add(wpCircle);
     }
 
-       public VesselTarget getVesselTarget() {
-        return vesselTarget;
-    }
+
 
     public String getName() {
         return name;

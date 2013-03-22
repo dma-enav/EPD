@@ -70,6 +70,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
     private float mapScale;
     private boolean selectionOnScreen;
     private IntendedRouteInfoPanel intendedRouteInfoPanel = new IntendedRouteInfoPanel();
+    private PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
     private MapMenu aisTargetMenu;
 
     Thread aisThread;
@@ -92,7 +93,6 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
                 drawVessels();
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                System.out.println("Interrupted");
                 drawVessels();
             }
 
@@ -297,6 +297,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
             aisInfoPanel = new AisInfoPanel();
             jMapFrame.getGlassPanel().add(aisInfoPanel);
             jMapFrame.getGlassPanel().add(intendedRouteInfoPanel);
+            jMapFrame.getGlassPanel().add(pastTrackInfoPanel);
             jMapFrame.getGlassPanel().setVisible(true);
         }
         if (obj instanceof MainFrame) {
@@ -480,6 +481,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
         if (allClosest.size() == 0) {
             aisInfoPanel.setVisible(false);
             intendedRouteInfoPanel.setVisible(false);
+            pastTrackInfoPanel.setVisible(false);
             closest = null;
             return false;
         }
@@ -487,6 +489,16 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
         if (newClosest != closest) {
             Point containerPoint = SwingUtilities.convertPoint(chartPanel,
                     e.getPoint(), jMapFrame);
+            
+            if (newClosest instanceof PastTrackWpCircle) {
+                System.out.println("PAST TRACK CIRCLEEE");
+                closest = newClosest;
+                PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
+                pastTrackInfoPanel.setPos((int) containerPoint.getX(),
+                        (int) containerPoint.getY() - 10);
+                pastTrackInfoPanel.showWpInfo(wpCircle);
+                pastTrackInfoPanel.setVisible(true);
+            }
 
             if (newClosest instanceof IntendedRouteWpCircle) {
                 closest = newClosest;

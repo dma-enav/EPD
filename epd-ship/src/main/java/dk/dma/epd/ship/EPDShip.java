@@ -499,6 +499,7 @@ public class EPDShip {
 
     public static void closeApp(boolean restart) {
         // Shutdown routine
+        enavServiceHandler.getConnection().close();
         mainFrame.saveSettings();
         settings.saveToFile();
         routeManager.saveToFile();

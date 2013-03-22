@@ -23,7 +23,7 @@ import com.bbn.openmap.omGraphics.OMCircle;
 public class PastTrackWpCircle extends OMCircle {
     private static final long serialVersionUID = 1L;
 
-    private PastTrackGraphic intendedRouteGraphic;
+    private PastTrackGraphic pastTrackGraphic;
     private int index;
     
     public PastTrackWpCircle(){
@@ -31,18 +31,18 @@ public class PastTrackWpCircle extends OMCircle {
 
     }
 
-    public PastTrackWpCircle(PastTrackGraphic intendedRouteGraphic, int index, double latitude, double longitude, int offX1, int offY1, int w, int h) {
+    public PastTrackWpCircle(PastTrackGraphic pastTrackGraphic, int index, double latitude, double longitude, int offX1, int offY1, int w, int h) {
         super(latitude, longitude, offX1, offY1, w, h);
         this.index = index;
-        this.intendedRouteGraphic = intendedRouteGraphic;
+        this.pastTrackGraphic = pastTrackGraphic;
     }
 
     public int getIndex() {
         return index;
     }
 
-    public PastTrackGraphic getIntendedRouteGraphic() {
-        return intendedRouteGraphic;
+    public PastTrackGraphic getPastTrackGraphic() {
+        return pastTrackGraphic;
     }
     
 }

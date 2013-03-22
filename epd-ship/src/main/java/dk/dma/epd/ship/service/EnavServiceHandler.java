@@ -82,6 +82,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
     // return connection;
     // }
 
+    
+    
     private void intendedRouteListener() throws InterruptedException {
         connection.broadcastListen(EnavRouteBroadcast.class,
                 new BroadcastListener<EnavRouteBroadcast>() {
@@ -99,6 +101,10 @@ public class EnavServiceHandler extends MapHandlerChild implements
                         updateIntendedRoute(id, r.getIntendedRoute());
                     }
                 });
+    }
+
+    public PersistentConnection getConnection() {
+        return connection;
     }
 
     private void routeExchangeListener() throws InterruptedException {
