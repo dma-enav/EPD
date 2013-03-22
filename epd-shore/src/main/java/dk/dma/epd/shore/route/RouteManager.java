@@ -56,7 +56,6 @@ import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.shore.services.shore.ShoreServices;
 import dk.dma.epd.shore.settings.ESDEnavSettings;
-import dk.frv.enav.common.xml.metoc.MetocForecast;
 
 
 /**

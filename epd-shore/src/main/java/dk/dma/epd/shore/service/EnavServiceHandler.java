@@ -95,7 +95,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
                             EnavRouteBroadcast r) {
                         int id = Integer.parseInt(l.getId().toString()
                                 .split("mmsi://")[1]);
-                        System.out.println("New intended route came in");
                         updateIntendedRoute(id, r.getIntendedRoute());
                     }
                 });
@@ -110,6 +109,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private synchronized void updateIntendedRoute(long mmsi, Route routeData) {
         Map<Long, VesselTarget> vesselTargets = aisHandler.getVesselTargets();
 
+        System.out.println("Intended route recieved");
+        
         // Try to find exiting target
         VesselTarget vesselTarget = vesselTargets.get(mmsi);
         // If not exists, wait for it to be created by position report
