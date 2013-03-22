@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -33,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.PropertyConsumer;
 
 import dk.dma.ais.reader.AisReader;
+import dk.dma.enav.communication.PersistentConnection.State;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
@@ -239,6 +241,12 @@ public class EPDShore {
         routeManager.saveToFile();
         msiHandler.saveToFile();
         aisHandler.saveView();
+        
+        try {
+            enavServiceHandler.getConnection().awaitState(State.TERMINATED, 2, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            LOG.info("Failed to close connection - Terminatnig");
+        }
 
         LOG.info("Closing ESD");
         System.exit(restart ? 2 : 0);
