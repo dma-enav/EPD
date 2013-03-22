@@ -294,7 +294,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         informationPanel.add(senderTitleLbl);
         GuiStyler.styleText(senderTitleLbl);
 
-        senderTxtField = new JTextField("DMA Store");
+        senderTxtField = new JTextField("DMA Shore");
         senderTxtField.setBounds(95, 23, 77, 14);
         informationPanel.add(senderTxtField);
         GuiStyler.styleTextFields(senderTxtField);

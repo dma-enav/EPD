@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.PropertyConsumer;
 
+import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.PersistentConnection.State;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
@@ -501,21 +502,31 @@ public class EPDShip {
 
     public static void closeApp(boolean restart) {
         // Shutdown routine
-        enavServiceHandler.getConnection().close();
+
+        PersistentConnection connection = enavServiceHandler.getConnection();
+
+        if (connection != null) {
+            connection.close();
+        }
+
         mainFrame.saveSettings();
         settings.saveToFile();
         routeManager.saveToFile();
         msiHandler.saveToFile();
         aisHandler.saveView();
-        LOG.info("Closing ee-INS");
-        try {
-            enavServiceHandler.getConnection().awaitState(State.TERMINATED, 2, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            LOG.info("Failed to close connection - Terminatnig");
+
+        if (connection != null) {
+            try {
+                enavServiceHandler.getConnection().awaitState(State.TERMINATED,
+                        2, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                LOG.info("Failed to close connection - Terminatnig");
+            }
         }
-        
+
+        LOG.info("Closing ee-INS");
         System.exit(restart ? 2 : 0);
-        
+
     }
 
     private static void createPluginComponents() {
