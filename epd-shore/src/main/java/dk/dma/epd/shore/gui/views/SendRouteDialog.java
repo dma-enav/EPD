@@ -306,6 +306,10 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
 
         messageTxtField = new JTextArea("Route Suggestion");
         messageTxtField.setBounds(95, 48, 135, 45);
+        messageTxtField.setLineWrap(true);
+//        messageTxtField.setWrapStyleWord(true);
+//        messageTxtField.setColumns(20);
+//        messageTxtField.setRows(5);
         JScrollPane sp = new JScrollPane(messageTxtField);
         sp.setBounds(95, 48, 135, 45);
         informationPanel.add(sp);
@@ -425,6 +429,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
                 enavServiceHandler.sendRouteSuggestion(mmsi,
                         route.getFullRouteData(), senderTxtField.getText(),
                         messageTxtField.getText());
+                messageTxtField.setText("");
             } catch (Exception e) {
                 System.out.println("Failed to send route");
             }
@@ -662,7 +667,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
             }
         }
 
-        if (mmsi == -1) {
+        if (mmsi == -1 && mmsiListComboBox.getItemCount() > 0) {
             mmsi = Long
                     .parseLong(mmsiListComboBox.getSelectedItem().toString());
         }
