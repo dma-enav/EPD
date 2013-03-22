@@ -443,6 +443,12 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     }
     
     
+    
+    
+    public RouteSuggestionDialog getRouteSuggestionDialog() {
+        return routeSuggestionDialog;
+    }
+
     private void handleAddressedRouteSuggestion(
             AisAdressedRouteSuggestion routeSuggestion) {
 //        // Handle cancellation
@@ -802,6 +808,8 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     public List<RecievedRoute> getSuggestedRoutes() {
         return suggestedRoutes;
     }
+    
+    
 
     @Override
     public void run() {

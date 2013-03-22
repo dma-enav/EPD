@@ -214,6 +214,9 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         setRouteExchangeAIS = new SetRouteExchangeAIS("Send Route to vessel");
         setRouteExchangeAIS.addActionListener(this);
 
+        routeRequestMetoc.setEnabled(false);
+        
+        
     }
 
     /**

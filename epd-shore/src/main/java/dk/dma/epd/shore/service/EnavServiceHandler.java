@@ -95,6 +95,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                             EnavRouteBroadcast r) {
                         int id = Integer.parseInt(l.getId().toString()
                                 .split("mmsi://")[1]);
+                        System.out.println("New intended route came in");
                         updateIntendedRoute(id, r.getIntendedRoute());
                     }
                 });

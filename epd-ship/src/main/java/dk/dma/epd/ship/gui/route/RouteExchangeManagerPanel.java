@@ -257,7 +257,6 @@ public class RouteExchangeManagerPanel extends JPanel implements
 
             switch (status) {
             case PENDING:
-                System.out.println("PENDING!!");
                 detailsBtn.setEnabled(true);
                 zoomToBtn.setEnabled(true);
                 acceptBtn.setEnabled(true);
@@ -342,7 +341,9 @@ public class RouteExchangeManagerPanel extends JPanel implements
         if (routeTable.getSelectedRow() >= 0) {
             routeManager.routeSuggestionReply(routeManager.getSuggestedRoutes()
                     .get(routeTable.getSelectedRow()), status, "No message");
-            updateTable();
+//            updateTable();
+//            routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
+            routeManager.getRouteSuggestionDialog().setVisible(false);
         }
     }
 
@@ -356,7 +357,6 @@ public class RouteExchangeManagerPanel extends JPanel implements
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println(routeTable.getSelectedRow());
         if (e.getSource() == closeBtn) {
             close();
         } else if (e.getSource() == detailsBtn) {
@@ -366,9 +366,9 @@ public class RouteExchangeManagerPanel extends JPanel implements
         } else if (e.getSource() == acceptBtn) {
             handleReply(Status.ACCEPTED);
         } else if (e.getSource() == rejectBtn) {
-            handleReply(Status.ACCEPTED);
+            handleReply(Status.REJECTED);
         } else if (e.getSource() == notedBtn) {
-            delete();
+            handleReply(Status.NOTED);
         } else if (e.getSource() == deleteBtn) {
             delete();
         }

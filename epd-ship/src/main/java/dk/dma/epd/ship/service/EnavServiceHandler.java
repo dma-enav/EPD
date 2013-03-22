@@ -139,9 +139,14 @@ public class EnavServiceHandler extends MapHandlerChild implements
     }
 
     public void sendReply(AIS_STATUS recievedAccepted, long id, String message) {
-        context.complete(new RouteSuggestionService.RouteSuggestionReply(
-                message, id, aisHandler.getOwnShip().getMmsi(),
-                System.currentTimeMillis(), recievedAccepted));
+        try {
+            context.complete(new RouteSuggestionService.RouteSuggestionReply(
+                    message, id, aisHandler.getOwnShip().getMmsi(),
+                    System.currentTimeMillis(), recievedAccepted));            
+        } catch (Exception e) {
+            System.out.println("Failed to reply");
+        }
+
     }
 
     /**
