@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.common.prototype.enavcloud;
 
-
 import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.broadcast.BroadcastMessage;
 
@@ -25,11 +24,11 @@ import dk.dma.enav.communication.broadcast.BroadcastMessage;
 public class EnavCloudSendThread extends Thread {
 
     private BroadcastMessage message;
-//    private EnavCloudHandler enavCloudHandler;
+    // private EnavCloudHandler enavCloudHandler;
     PersistentConnection connection;
 
-//    private static final Logger LOG = Logger
-//            .getLogger(EnavCloudSendThread.class);
+    // private static final Logger LOG = Logger
+    // .getLogger(EnavCloudSendThread.class);
 
     public EnavCloudSendThread(BroadcastMessage message,
             PersistentConnection connection) {
@@ -41,22 +40,28 @@ public class EnavCloudSendThread extends Thread {
 
     @Override
     public void run() {
+
+        if (connection != null) {
+            connection.broadcast(message);
+        }
+        // dk.dma.enav.communication.PersistentConnection.State test =
+        // connection.getState();
+
         // Send message
 
         // try (MaritimeNetworkConnection c =
         // aisServices.getEnavCloudConnection().connect()) {
         // for (;;) {
 
-//        try {
-//            while (true) {
-        connection.broadcast(message);
+        // try {
+        // while (true) {
 
-//                Thread.sleep(5000);
-//            }
-//        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
+        // Thread.sleep(5000);
+        // }
+        // } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
         // } catch (Exception e) {
         // // TODO Auto-generated catch block
         // e.printStackTrace();
