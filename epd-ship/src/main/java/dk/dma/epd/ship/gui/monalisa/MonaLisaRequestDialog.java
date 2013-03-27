@@ -104,8 +104,8 @@ public class MonaLisaRequestDialog extends JDialog implements Runnable,
             // String text = error.getMessage();
             
 
-            JOptionPane.showMessageDialog(parent, response.getMessage(),
-                    "Mona Lisa response", JOptionPane.INFORMATION_MESSAGE);
+//            JOptionPane.showMessageDialog(parent, response.getMessage(),
+//                    "Mona Lisa response", JOptionPane.INFORMATION_MESSAGE);
         
 
         // ShoreServiceException error = null;
