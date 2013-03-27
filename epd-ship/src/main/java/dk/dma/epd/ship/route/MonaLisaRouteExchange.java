@@ -99,13 +99,6 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
 
         WaypointsType waypoints = new WaypointsType();
 
-        // Convert normal
-        if (selectedWp.size() == route.getWaypoints().size()) {
-
-        } else {
-            // Convert specific
-        }
-
         // Convert the existing waypoints into the Mona Lisa Format
         List<WaypointType> monaLisaWaypoints = waypoints.getWaypoint();
         LinkedList<RouteWaypoint> eeinsWaypoints = route.getWaypoints();

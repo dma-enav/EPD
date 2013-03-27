@@ -78,7 +78,7 @@ public class MonaLisaRequestDialog extends JDialog implements Runnable,
         MonaLisaRequestDialog monaLisaRequestDialog = new MonaLisaRequestDialog(
                 parent, routeManager, route, monaLisaRouteExchange,  removeIntermediateETA, draft, ukc, timeout, selectedWp, showInput, showOutput);
         monaLisaRequestDialog.doRequestRoute();
-        monaLisaRequestDialog = null;
+//        monaLisaRequestDialog = null;
 
     }
 
