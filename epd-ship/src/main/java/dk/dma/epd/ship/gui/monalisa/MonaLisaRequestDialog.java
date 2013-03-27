@@ -77,6 +77,7 @@ public class MonaLisaRequestDialog extends JDialog implements Runnable,
             Route route, MonaLisaRouteExchange monaLisaRouteExchange, boolean removeIntermediateETA, float draft, int ukc, int timeout, List<Boolean> selectedWp, boolean showInput, boolean showOutput) {
         MonaLisaRequestDialog monaLisaRequestDialog = new MonaLisaRequestDialog(
                 parent, routeManager, route, monaLisaRouteExchange,  removeIntermediateETA, draft, ukc, timeout, selectedWp, showInput, showOutput);
+
         monaLisaRequestDialog.doRequestRoute();
 //        monaLisaRequestDialog = null;
 
@@ -93,7 +94,7 @@ public class MonaLisaRequestDialog extends JDialog implements Runnable,
     @Override
     public void run() {
 
-        MonaLisaResponse response = monaLisaRouteExchange.makeRouteRequest(route, removeIntermediateETA, draft, ukc, timeout, selectedWp, showInput, showOutput);
+//        MonaLisaResponse response = monaLisaRouteExchange.makeRouteRequest(route, removeIntermediateETA, draft, ukc, timeout, selectedWp, showInput, showOutput);
 
         // Close dialog
         setVisible(false);
