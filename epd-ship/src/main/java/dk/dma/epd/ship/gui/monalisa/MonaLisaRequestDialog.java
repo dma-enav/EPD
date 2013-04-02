@@ -40,7 +40,7 @@ public class MonaLisaRequestDialog extends JDialog implements Runnable,
 
     private static final long serialVersionUID = 1L;
 
-//    private RouteManager routeManager;
+    // private RouteManager routeManager;
     private Route route;
     private Window parent;
     private JLabel statusLbl;
@@ -56,9 +56,11 @@ public class MonaLisaRequestDialog extends JDialog implements Runnable,
     boolean showOutput;
 
     public MonaLisaRequestDialog(Window parent, RouteManager routeManager,
-            Route route, MonaLisaRouteExchange monaLisaRouteExchange, boolean removeIntermediateETA, float draft, int ukc, int timeout, List<Boolean> selectedWp, boolean showInput, boolean showOutput) {
+            Route route, MonaLisaRouteExchange monaLisaRouteExchange,
+            boolean removeIntermediateETA, float draft, int ukc, int timeout,
+            List<Boolean> selectedWp, boolean showInput, boolean showOutput) {
         super(parent, "Request Mona Lisa Route Exchange");
-//        this.routeManager = routeManager;
+        // this.routeManager = routeManager;
         this.route = route;
         this.parent = parent;
         this.monaLisaRouteExchange = monaLisaRouteExchange;
@@ -69,17 +71,22 @@ public class MonaLisaRequestDialog extends JDialog implements Runnable,
         this.selectedWp = selectedWp;
         this.showInput = showInput;
         this.showOutput = showOutput;
-        
+
         initGui();
     }
 
     public static void requestRoute(Window parent, RouteManager routeManager,
-            Route route, MonaLisaRouteExchange monaLisaRouteExchange, boolean removeIntermediateETA, float draft, int ukc, int timeout, List<Boolean> selectedWp, boolean showInput, boolean showOutput) {
+            Route route, MonaLisaRouteExchange monaLisaRouteExchange,
+            boolean removeIntermediateETA, float draft, int ukc, int timeout,
+            List<Boolean> selectedWp, boolean showInput, boolean showOutput) {
+
         MonaLisaRequestDialog monaLisaRequestDialog = new MonaLisaRequestDialog(
-                parent, routeManager, route, monaLisaRouteExchange,  removeIntermediateETA, draft, ukc, timeout, selectedWp, showInput, showOutput);
+                parent, routeManager, route, monaLisaRouteExchange,
+                removeIntermediateETA, draft, ukc, timeout, selectedWp,
+                showInput, showOutput);
 
         monaLisaRequestDialog.doRequestRoute();
-//        monaLisaRequestDialog = null;
+        // monaLisaRequestDialog = null;
 
     }
 
@@ -94,38 +101,38 @@ public class MonaLisaRequestDialog extends JDialog implements Runnable,
     @Override
     public void run() {
 
-//        MonaLisaResponse response = monaLisaRouteExchange.makeRouteRequest(route, removeIntermediateETA, draft, ukc, timeout, selectedWp, showInput, showOutput);
+        if (monaLisaRouteExchange != null || route != null
+                || selectedWp != null) {
 
-        // Close dialog
-        setVisible(false);
+            MonaLisaResponse response = monaLisaRouteExchange.makeRouteRequest(
+                    route, removeIntermediateETA, draft, ukc, timeout,
+                    selectedWp, showInput, showOutput);
 
-        // Give response
+            // Close dialog
+            setVisible(false);
 
-            // String text = error.getMessage();
-            
+            // Give response
+            JOptionPane.showMessageDialog(parent, response.getMessage(),
+                    "Mona Lisa response", JOptionPane.INFORMATION_MESSAGE);
 
-//            JOptionPane.showMessageDialog(parent, response.getMessage(),
-//                    "Mona Lisa response", JOptionPane.INFORMATION_MESSAGE);
-        
-
-        // ShoreServiceException error = null;
-        // try {
-        // routeManager.requestRouteMetoc(route);
-        // } catch (ShoreServiceException e) {
-        // error = e;
-        // }
-        //
-        // if (isCancelReq()) {
-        // route.removeMetoc();
-        // routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_METOC_CHANGED);
-        // return;
-        // }
-        //
-        // if (error == null) {
-        // routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_METOC_CHANGED);
-        // }
-        //
-
+            // ShoreServiceException error = null;
+            // try {
+            // routeManager.requestRouteMetoc(route);
+            // } catch (ShoreServiceException e) {
+            // error = e;
+            // }
+            //
+            // if (isCancelReq()) {
+            // route.removeMetoc();
+            // routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_METOC_CHANGED);
+            // return;
+            // }
+            //
+            // if (error == null) {
+            // routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_METOC_CHANGED);
+            // }
+            //
+        }
     }
 
     private void initGui() {
@@ -145,11 +152,11 @@ public class MonaLisaRequestDialog extends JDialog implements Runnable,
         getContentPane().add(statusLbl);
     }
 
-//    private boolean isCancelReq() {
-//        synchronized (cancelReq) {
-//            return cancelReq.booleanValue();
-//        }
-//    }
+    // private boolean isCancelReq() {
+    // synchronized (cancelReq) {
+    // return cancelReq.booleanValue();
+    // }
+    // }
 
     private void setCancelReq(boolean cancel) {
         synchronized (cancelReq) {
