@@ -19,6 +19,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -41,8 +43,8 @@ public class ESDSettings implements Serializable {
     private static final Logger LOG = LoggerFactory
             .getLogger(ESDSettings.class);
 
-    private String settingsFile = "\\settings.properties";
-    private String defaultWorkSpace = "\\workspaces\\default.workspace";
+    private String settingsFile = "settings.properties";
+    private String defaultWorkSpace = "workspaces/default.workspace";
     private String workspaceFile = "";
 
     private ESDGuiSettings guiSettings = new ESDGuiSettings();
@@ -69,10 +71,12 @@ public class ESDSettings implements Serializable {
     public void loadFromFile() {
         // Open properties file
         Properties props = new Properties();
-        LOG.info("Trying to load " + EPDShore.getHomePath().toString() + "\\"
-                + settingsFile);
+
+        Path loadPathSettingsFile = Paths.get(EPDShore.getHomePath().toString() + "/"
+                + settingsFile); 
+        LOG.info("Trying to load " + loadPathSettingsFile.toString());
         if (!PropUtils.loadProperties(props, EPDShore.getHomePath().toString()
-                + "\\", settingsFile)) {
+                + "/", settingsFile)) {
             LOG.info("No settings file found");
             return;
         }
@@ -170,6 +174,9 @@ public class ESDSettings implements Serializable {
         try {
             filename = EPDShore.getHomePath().toString() + "/workspaces/"
                     + filename;
+            
+            
+            
             // System.out.println("Trying to save to: " + filename);
             FileWriter outFile = new FileWriter(filename);
             PrintWriter out = new PrintWriter(outFile);
