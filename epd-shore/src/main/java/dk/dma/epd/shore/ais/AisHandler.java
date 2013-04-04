@@ -649,23 +649,38 @@ public class AisHandler extends MapHandlerChild implements IAisListener,
         
         //Add past track
         if (pastTrack.containsKey(mmsi)){
+            ArrayList<PastTrackPoint> ptps = (ArrayList<PastTrackPoint>) pastTrack.get(mmsi);
+            
             
             //Should it add the key?
-            Position prevPos = pastTrack.get(mmsi).get(pastTrack.get(mmsi).size() - 1).getPosition();
+            Position prevPos = ptps.get(ptps.size() - 1).getPosition();
             
             //In km, how often should points be saved? 1km?
-                        if (prevPos.distanceTo(positionData.getPos(), CoordinateSystem.CARTESIAN) > 100){
-                         
-//                            System.out.println("Target " + mmsi + " has moved more than 50 since last");
-                            pastTrack.get(mmsi).add(new PastTrackPoint(new Date(), positionData.getPos()));
-                        }
-                        
+            if (prevPos.distanceTo(positionData.getPos(), CoordinateSystem.CARTESIAN) > 100){
+                //System.out.println("Target " + mmsi + " has moved more than 50 since last");
+                
+                try {
+                    ptps.add(new PastTrackPoint(new Date(), positionData.getPos()));
+                } catch (Exception exception) {
+                    LOG.debug("Target "+mmsi+" has List<PastTrackPoint> size of "+ptps.size());
+                    throw exception;
+                }
+                
+            }
+            
 //            System.out.println(prevPos.distanceTo(positionData.getPos(), CoordinateSystem.CARTESIAN));
             
             
-        }else{
-            pastTrack.put(mmsi, new ArrayList<PastTrackPoint>());
-            pastTrack.get(mmsi).add(new PastTrackPoint(new Date(), positionData.getPos()));
+        } else {
+            try {
+                pastTrack.put(mmsi, new ArrayList<PastTrackPoint>());
+                pastTrack.get(mmsi).add(new PastTrackPoint(new Date(), positionData.getPos()));
+            } catch (Exception exception) {
+                LOG.debug("Failed to create or add new ArrayList<PastTrackPoint>");
+                LOG.debug("current size of pastTrack hashmap: "+pastTrack.size());
+                throw exception;
+            }
+            
         }
         
         // Publish update
