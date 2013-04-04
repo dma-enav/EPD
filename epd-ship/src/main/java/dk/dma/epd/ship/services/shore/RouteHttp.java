@@ -41,8 +41,8 @@ public class RouteHttp {
     private String url;
     private String host;
     private int port = 80;
-    private int readTimeout = 60000; // 60 sec
-    private int connectionTimeout = 30000; // 30 sec
+//    private int readTimeout = 60000; // 60 sec
+//    private int connectionTimeout = 30000; // 30 sec
 
     private HttpClient httpClient;
     private PostMethod method;
@@ -59,7 +59,7 @@ public class RouteHttp {
         // Make the request
         int resCode = -1;
         try {
-//            System.out.println("Trying to connect to server");
+            // System.out.println("Trying to connect to server");
             resCode = httpClient.executeMethod(method);
             // System.out.println("Connected!");
         } catch (HttpException e) {
@@ -95,13 +95,15 @@ public class RouteHttp {
         method.releaseConnection();
     }
 
-    public void init() {
+    public void init(int timeout) {
         httpClient = new HttpClient();
         method = new PostMethod(url);
         HttpConnectionManagerParams params = httpClient
                 .getHttpConnectionManager().getParams();
-        params.setSoTimeout(readTimeout);
-        params.setConnectionTimeout(connectionTimeout);
+        // params.setSoTimeout(readTimeout);
+        // params.setConnectionTimeout(connectionTimeout);
+        params.setSoTimeout(timeout);
+        params.setConnectionTimeout(timeout);
         method.setRequestHeader("User-Agent", USER_AGENT);
         method.setRequestHeader("Connection", "close");
         method.addRequestHeader("Accept", "text/*");

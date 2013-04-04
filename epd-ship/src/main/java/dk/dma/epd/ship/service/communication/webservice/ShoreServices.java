@@ -43,6 +43,7 @@ import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gps.GpsHandler;
+import dk.dma.epd.ship.gui.monalisa.XMLDialog;
 import dk.dma.epd.ship.route.sspa.RouterequestType;
 import dk.dma.epd.ship.route.sspa.RouteresponseType;
 import dk.dma.epd.ship.services.shore.RouteHttp;
@@ -330,7 +331,7 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
 
     @SuppressWarnings("rawtypes")
     public RouteresponseType makeMonaLisaRouteRequest(
-            RouterequestType monaLisaRoute) {
+            RouterequestType monaLisaRoute, int timeout, boolean showInput, boolean showOutput) {
 
         JAXBContext context = null;
         String xmlReturnRoute = "";
@@ -368,15 +369,20 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
             
             
 
-            System.out.println("Sending the following:");
-            System.out.println(xml);
+            if (showInput){
+                new XMLDialog(xml, "Sent XML");
+            }
+//            System.out.println("Sending the following:");
+//            System.out.println(xml);
 
             // Create HTTP request
             RouteHttp routeHttp = new RouteHttp(enavSettings);
             // Init HTTP
-            routeHttp.init();
+            routeHttp.init(timeout);
             // Set content
             routeHttp.setRequestBody(xml);
+            
+//            routeHttp.set
             // Make request
             try {
                 routeHttp.makeRequest();
@@ -394,6 +400,10 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
 
         System.out.println("Recieved the following:");
         System.out.println(xmlReturnRoute);
+        
+        if (showOutput){
+            new XMLDialog(xmlReturnRoute, "Returned XML");
+        }
 
         
         if (xmlReturnRoute != null) {

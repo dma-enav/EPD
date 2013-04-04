@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.ship.route;
 
-
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
@@ -54,7 +53,8 @@ import dk.dma.epd.ship.status.ShoreServiceStatus;
  * Shore service component providing the functional link to shore.
  */
 public class MonaLisaRouteExchange extends MapHandlerChild implements
-        IStatusComponent, Runnable {
+        IStatusComponent {
+    // Runnable
 
     // private static final Logger LOG = Logger
     // .getLogger(MonaLisaRouteExchange.class);
@@ -62,20 +62,16 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
     private AisHandler aisHandler;
     private GpsHandler gpsHandler;
     private ShoreServiceStatus status = new ShoreServiceStatus();
-
-    private Route route;
-
-    public void setRoute(Route route) {
-        this.route = route;
-    }
-
+    
     public MonaLisaRouteExchange() {
 
     }
 
-    public RouterequestType convertRoute(Route route) {
+    public RouterequestType convertRoute(Route route,
+            boolean removeIntermediateETA, float trim, int ukc,
+            List<Boolean> selectedWp) {
 
-        float trim = 6.0f;
+        // float trim = 6.0f;
 
         // Create the route request
         RouterequestType monaLisaRoute = new RouterequestType();
@@ -83,15 +79,15 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
         // Create the ship data
         CurrentShipDataType currentShipData = new CurrentShipDataType();
 
-        if (aisHandler.getOwnShip().getStaticData() != null) {
-            trim = aisHandler.getOwnShip().getStaticData().getDraught();
-        }
+        // if (aisHandler.getOwnShip().getStaticData() != null) {
+        // trim = aisHandler.getOwnShip().getStaticData().getDraught();
+        // }
 
-        //Current ship data
+        // Current ship data
         currentShipData.setImoid("1234567");
         currentShipData.setMmsi("123456789");
-        currentShipData.setUkcrequested(1.0f);
-        
+        currentShipData.setUkcrequested(ukc);
+
         DraftType draft = new DraftType();
         draft.setAft(trim);
         draft.setForward(trim);
@@ -108,72 +104,45 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
         LinkedList<RouteWaypoint> eeinsWaypoints = route.getWaypoints();
 
         for (int i = 0; i < eeinsWaypoints.size(); i++) {
-            RouteWaypoint routeWaypoint = eeinsWaypoints.get(i);
-            WaypointType waypoint = new WaypointType();
 
-            // Set name
-            waypoint.setWptName(routeWaypoint.getName());
-            
-            // Set ID
-            waypoint.setWptId(i + 1);
+            if (selectedWp.get(i)) {
+//                System.out.println("Creating WP for " + i);
+                RouteWaypoint routeWaypoint = eeinsWaypoints.get(i);
+                WaypointType waypoint = new WaypointType();
 
+                // Set name
+                waypoint.setWptName(routeWaypoint.getName());
 
-            if (i == 0 || i == eeinsWaypoints.size() -1){
-                try {
-                    waypoint.setETA(convertDate(route.getEtas().get(i)));
-                } catch (DatatypeConfigurationException e) {
-                    e.printStackTrace();
+                // Set ID
+                waypoint.setWptId(i + 1);
+
+                if (removeIntermediateETA) {
+//                    System.out.println("Removing ETAs");
+                    if (i == 0 || i == eeinsWaypoints.size() - 1) {
+                        try {
+                            waypoint.setETA(convertDate(route.getEtas().get(i)));
+                        } catch (DatatypeConfigurationException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }else{
+                    try {
+                        waypoint.setETA(convertDate(route.getEtas().get(i)));
+                    } catch (DatatypeConfigurationException e) {
+                        e.printStackTrace();
+                    }
                 }
+
+                // Set positon
+                PositionType position = new PositionType();
+
+                position.setLatitude(routeWaypoint.getPos().getLatitude());
+                position.setLongitude(routeWaypoint.getPos().getLongitude());
+
+                waypoint.setPosition(position);
+
+                monaLisaWaypoints.add(waypoint);
             }
-            
-//            if (i !=0){
-                // Set ETA
-
-                
-                
-//            }
-
-            
-            // Set positon
-            PositionType position = new PositionType();
-
-            position.setLatitude(routeWaypoint.getPos().getLatitude());
-            position.setLongitude(routeWaypoint.getPos().getLongitude());
-
-            waypoint.setPosition(position);
-            
-            monaLisaWaypoints.add(waypoint);
-
-
-            
-            // Set leg info
-//            LeginfoType legInfo = new LeginfoType();
-            // legInfo.setLegtype(value)
-            // legInfo.setLhsXte(value)
-            // legInfo.setRhsXte(value)
-
-//            if (routeWaypoint.getOutLeg() != null) {
-//                legInfo.setPlannedSpeed((float) routeWaypoint.getOutLeg().getSpeed());
-//            } else {
-//                legInfo.setPlannedSpeed(0.0f);
-//            }
-
-            // Rate of turn not needed
-            // if (routeWaypoint.getRot() != null) {
-            // legInfo.setTurnRadius(Double.valueOf(routeWaypoint.getRot())
-            // .intValue());
-            // } else {
-            // legInfo.setTurnRadius(99);
-            // }
-            //
-            // //Hardcoded to 99
-            // legInfo.setTurnRadius(99);
-            //
-            //
-
-//            waypoint.setLegInfo(legInfo);
-
-
 
         }
 
@@ -290,35 +259,35 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
         return route;
     }
 
-    public boolean makeRouteRequest(Route route) {
-
-        this.route = route;
+    public MonaLisaResponse makeRouteRequest(Route route, boolean removeIntermediateETA,
+            float draft, int ukc, int timeout, List<Boolean> selectedWp, boolean showInput, boolean showOutput) {
 
         // new Thread(this).start();
 
-        RouterequestType monaLisaRoute = convertRoute(route);
+        RouterequestType monaLisaRoute = convertRoute(route,
+                removeIntermediateETA, draft, ukc, selectedWp);
 
+//        monaLisaRoute.
         
         RouteresponseType routeResponse = null;
         try {
             routeResponse = EPDShip.getShoreServices()
-                    .makeMonaLisaRouteRequest(monaLisaRoute);
+                    .makeMonaLisaRouteRequest(monaLisaRoute, timeout, showInput, showOutput);
         } catch (Exception e) {
-            return false;
+            return new MonaLisaResponse("An exception occured", e.getMessage());
         }
-        
-        
-        if (routeResponse == null){
-            return false;
+
+        if (routeResponse == null) {
+            return new MonaLisaResponse("Server returned null", "null");
         }
-        
+
         Route newRoute = null;
 
         if (routeResponse != null) {
             try {
                 newRoute = convertRouteBack(routeResponse);
             } catch (Exception e) {
-                return false;
+                return new MonaLisaResponse("An exception occured", e.getMessage());
             }
         }
 
@@ -327,7 +296,7 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
             route.setVisible(false);
         }
 
-        return true;
+        return new MonaLisaResponse("Succesfully recieved optimized route", "Success");
 
     }
 
@@ -355,28 +324,27 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
         return status;
     }
 
-    @Override
-    public void run() {
+    // @Override
+    // public void run() {
+    //
+    // RouterequestType monaLisaRoute = convertRoute(route);
+    //
+    // RouteresponseType routeResponse = EPDShip.getShoreServices()
+    // .makeMonaLisaRouteRequest(monaLisaRoute);
+    //
+    // Route newRoute = null;
+    //
+    // if (routeResponse != null) {
+    // newRoute = convertRouteBack(routeResponse);
+    // }
+    //
+    // if (newRoute != null) {
+    //
+    // EPDShip.getRouteManager().addRoute(newRoute);
+    //
+    // }
+    // }
 
-        RouterequestType monaLisaRoute = convertRoute(route);
-
-        RouteresponseType routeResponse = EPDShip.getShoreServices()
-                .makeMonaLisaRouteRequest(monaLisaRoute);
-
-        Route newRoute = null;
-
-        if (routeResponse != null) {
-            newRoute = convertRouteBack(routeResponse);
-        }
-
-        if (newRoute != null) {
-
-            EPDShip.getRouteManager().addRoute(newRoute);
-
-        }
-    }
-
-    
     private XMLGregorianCalendar convertDate(Date date)
             throws DatatypeConfigurationException {
         GregorianCalendar c = new GregorianCalendar();
@@ -384,10 +352,9 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
         XMLGregorianCalendar date2 = DatatypeFactory.newInstance()
                 .newXMLGregorianCalendar(c);
 
-        //No time zone?
-        date2.setTimezone( DatatypeConstants.FIELD_UNDEFINED );
+        // No time zone?
+        date2.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
         date2.setMillisecond(DatatypeConstants.FIELD_UNDEFINED);
-
 
         return date2;
 

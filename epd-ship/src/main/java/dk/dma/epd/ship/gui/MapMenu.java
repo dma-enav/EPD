@@ -475,7 +475,9 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
 
         monaLisaRouteRequest.setRouteManager(routeManager);
         monaLisaRouteRequest.setRouteIndex(routeIndex);
-        monaLisaRouteRequest.setMonaLisaRouteExchange(EPDShip.getMonaLisaRouteExchange());
+//        monaLisaRouteRequest.setMonaLisaRouteExchange(EPDShip.getMonaLisaRouteExchange());
+        monaLisaRouteRequest.setMainFrame(mainFrame);
+        monaLisaRouteRequest.setAisHandler(aisHandler);
         add(monaLisaRouteRequest);        
         
         
