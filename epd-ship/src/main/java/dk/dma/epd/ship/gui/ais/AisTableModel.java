@@ -20,6 +20,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.ais.AisHandler.AisMessageExtended;
 
@@ -43,6 +44,23 @@ public class AisTableModel extends AbstractTableModel {
     public void updateShips() {
         //Get new list from store/handler
         ships = aisHandler.getShipList();
+        
+    }
+    
+    public int updateShip(AisTarget aisTarget) {
+        
+        //still takes O(n), but only updates a single target
+        int count = 0;
+        for (AisMessageExtended ship: ships) {
+            if (ship.MMSI == aisTarget.getMmsi()) {
+                AisMessageExtended newShip = aisHandler.getShip(aisHandler.getVesselTargets().get(aisTarget.getMmsi()));
+                ships.set(count, newShip);
+                return count;
+            }
+        }
+        return -1;
+        
+
     }
     
     public List<AisMessageExtended> getShips() {
@@ -50,7 +68,7 @@ public class AisTableModel extends AbstractTableModel {
         return ships;
         }
         else{
-            //updateShips();
+            updateShips();
             return ships;
         }
     }

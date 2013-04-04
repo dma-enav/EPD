@@ -259,6 +259,19 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         }
     }
     
+    private void updateTable(AisTarget aisTarget) {
+        if (aisTable != null) {
+            if (aisTableModel != null) {
+                int rowChanged = aisTableModel.updateShip(aisTarget);
+                
+                RowSorter<?> rs = aisTable.getRowSorter();
+                rs.rowsUpdated(rowChanged, rowChanged);
+                //aisTableModel.updateShips();
+            }
+        }
+    }
+    
+    
     private void updateDetails() {
         int selected = aisTable.getSelectedRow();
         if (selected >= 0 && selected < aisTable.getRowCount() && aisHandler.getVesselTargets() != null){
@@ -399,13 +412,13 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         }
     }
     
-private boolean compare(Object value1, Object value2){
-    if (value1 != null && value2 != null)
-    {
-        if (value1.toString().equals(value2.toString())){
-            return true;
+    private boolean compare(Object value1, Object value2){
+        if (value1 != null && value2 != null)
+        {
+            if (value1.toString().equals(value2.toString())){
+                return true;
+            }
         }
-    }
     return false;
 }
 
@@ -456,7 +469,8 @@ private boolean compare(Object value1, Object value2){
     public void targetUpdated(AisTarget aisTarget) {
         // Only update table if dialog is visible
         if (isVisible()) {
-            updateTable();
+            updateTable(aisTarget);
+            //updateTable();
         }
     }
     
