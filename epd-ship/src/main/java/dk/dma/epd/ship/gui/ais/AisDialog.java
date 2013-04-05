@@ -22,6 +22,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -168,6 +169,28 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         //        aisTable.setAutoCreateRowSorter(true);
         TableRowSorter<TableModel> sorter 
         = new TableRowSorter<>(aisTable.getModel());
+        
+        //
+        sorter.setComparator(3, new Comparator<String>() {
+
+            @Override
+            public int compare(String o1, String o2) {
+                Float l1 = Float.parseFloat(o1.split(" ")[0].replace(',', '.'));
+                Float l2 = Float.parseFloat(o2.split(" ")[0].replace(',','.'));
+                
+                if (l1 < l2) {
+                    return -1;
+                } else if (l1 == l2) {
+                    return 0;
+                } else if (l1 > l2) {
+                    return 1;
+                }
+                return -1;
+            }
+            
+        });
+        
+                
         aisTable.setRowSorter(sorter);        
         
         
@@ -262,11 +285,8 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
     private void updateTable(AisTarget aisTarget) {
         if (aisTable != null) {
             if (aisTableModel != null) {
-                int rowChanged = aisTableModel.updateShip(aisTarget);
+                aisTableModel.updateShip(aisTarget);
                 
-                RowSorter<?> rs = aisTable.getRowSorter();
-                rs.rowsUpdated(rowChanged, rowChanged);
-                //aisTableModel.updateShips();
             }
         }
     }

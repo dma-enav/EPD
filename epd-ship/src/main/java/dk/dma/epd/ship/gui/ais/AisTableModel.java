@@ -21,6 +21,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import dk.dma.epd.common.prototype.ais.AisTarget;
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.ais.AisHandler.AisMessageExtended;
 
@@ -45,21 +46,29 @@ public class AisTableModel extends AbstractTableModel {
         //Get new list from store/handler
         ships = aisHandler.getShipList();
         
+        //all rows updated
+        fireTableRowsUpdated(0,ships.size()-1);
+        
     }
     
-    public int updateShip(AisTarget aisTarget) {
+    public void updateShip(AisTarget aisTarget) {
+
+        if (aisTarget instanceof VesselTarget) {
+            System.out.println("Updating "+aisTarget.getMmsi()+" in panel");
         
-        //still takes O(n), but only updates a single target
-        int count = 0;
-        for (AisMessageExtended ship: ships) {
-            if (ship.MMSI == aisTarget.getMmsi()) {
-                AisMessageExtended newShip = aisHandler.getShip(aisHandler.getVesselTargets().get(aisTarget.getMmsi()));
-                ships.set(count, newShip);
-                return count;
+          //still takes O(n), but only updates a single target
+            int count = 0;
+            for (AisMessageExtended ship: ships) {
+                if (ship.MMSI == aisTarget.getMmsi()) {
+                    AisMessageExtended newShip = aisHandler.getShip((VesselTarget)aisTarget);
+                    
+                    ships.set(count, newShip);
+                    fireTableRowsUpdated(count, count);
+                }
+                
+                
             }
         }
-        return -1;
-        
 
     }
     
