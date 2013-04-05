@@ -46,8 +46,6 @@ public class AisTableModel extends AbstractTableModel {
         //Get new list from store/handler
         ships = aisHandler.getShipList();
         
-        //all rows updated
-        fireTableRowsUpdated(0,ships.size()-1);
         
     }
     
