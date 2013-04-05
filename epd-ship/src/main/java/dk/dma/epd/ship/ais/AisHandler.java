@@ -720,7 +720,7 @@ public class AisHandler extends MapHandlerChild implements IAisListener,
      * @param currentTarget
      * @return
      */
-    public synchronized AisMessageExtended getShip(VesselTarget currentTarget) {
+    public AisMessageExtended getShip(VesselTarget currentTarget) {
         String name = " N/A";
         String dst = "N/A";
         Position ownPosition;
