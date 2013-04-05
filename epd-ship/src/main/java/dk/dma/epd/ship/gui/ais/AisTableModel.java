@@ -54,7 +54,6 @@ public class AisTableModel extends AbstractTableModel {
     public void updateShip(AisTarget aisTarget) {
 
         if (aisTarget instanceof VesselTarget) {
-            System.out.println("Updating "+aisTarget.getMmsi()+" in panel");
         
           //still takes O(n), but only updates a single target
             int count = 0;
