@@ -46,6 +46,8 @@ public class AisTableModel extends AbstractTableModel {
         //Get new list from store/handler
         ships = aisHandler.getShipList();
         
+        fireTableDataChanged();
+        
         
     }
     
@@ -60,7 +62,12 @@ public class AisTableModel extends AbstractTableModel {
                     AisMessageExtended newShip = aisHandler.getShip((VesselTarget)aisTarget);
                     
                     ships.set(count, newShip);
+                    
+
                     fireTableRowsUpdated(count, count);
+
+                    
+                    
                 }
                 
                 
