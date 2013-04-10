@@ -44,6 +44,7 @@ import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.gui.monalisa.XMLDialog;
+import dk.dma.epd.ship.route.SSPAResponse;
 import dk.dma.epd.ship.route.sspa.RouterequestType;
 import dk.dma.epd.ship.route.sspa.RouteresponseType;
 import dk.dma.epd.ship.services.shore.RouteHttp;
@@ -329,9 +330,10 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         return status;
     }
 
-    @SuppressWarnings("rawtypes")
-    public RouteresponseType makeMonaLisaRouteRequest(
-            RouterequestType monaLisaRoute, int timeout, boolean showInput, boolean showOutput) {
+    @SuppressWarnings({ "rawtypes", "unused" })
+    public SSPAResponse makeMonaLisaRouteRequest(
+            RouterequestType monaLisaRoute, int timeout, boolean showInput,
+            boolean showOutput) {
 
         JAXBContext context = null;
         String xmlReturnRoute = "";
@@ -349,14 +351,19 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
             m.marshal(monaLisaRoute, st);
             xml = st.toString();
 
-            xml = xml.replace("<ns2:RouteRequest xmlns:ns2=\"http://www.sspa.se/optiroute\"", "<RouteRequest xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\"");
-            xml = xml.replace("xmlns=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">", "xmlns=\"http://www.sspa.se/optiroute\">");
+            xml = xml
+                    .replace(
+                            "<ns2:RouteRequest xmlns:ns2=\"http://www.sspa.se/optiroute\"",
+                            "<RouteRequest xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\"");
+            xml = xml
+                    .replace(
+                            "xmlns=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">",
+                            "xmlns=\"http://www.sspa.se/optiroute\">");
 
             xml = xml.replace("ns2:", "");
             xml = xml.replace(":ns2", "");
             xml = xml.replace(":ns2", "");
 
-  
             xml = xml.replace("waypoints>", "fi:waypoints>");
             xml = xml.replace("waypoint>", "fi:waypoint>");
 
@@ -366,14 +373,12 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
             xml = xml.replace("position", "fi:position");
             xml = xml.replace("latitude", "fi:latitude");
             xml = xml.replace("longitude", "fi:longitude");
-            
-            
 
-            if (showInput){
+            if (showInput) {
                 new XMLDialog(xml, "Sent XML");
             }
-//            System.out.println("Sending the following:");
-//            System.out.println(xml);
+            // System.out.println("Sending the following:");
+            // System.out.println(xml);
 
             // Create HTTP request
             RouteHttp routeHttp = new RouteHttp(enavSettings);
@@ -381,8 +386,8 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
             routeHttp.init(timeout);
             // Set content
             routeHttp.setRequestBody(xml);
-            
-//            routeHttp.set
+
+            // routeHttp.set
             // Make request
             try {
                 routeHttp.makeRequest();
@@ -390,65 +395,74 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
             } catch (Exception e) {
                 // status.markContactError(e);
                 // throw e;
-                System.out.println(e.getMessage());
+                return new SSPAResponse(null, e.getMessage());
             }
 
         } catch (JAXBException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            return new SSPAResponse(null, e.getMessage());
         }
 
         System.out.println("Recieved the following:");
         System.out.println(xmlReturnRoute);
-        
-        if (showOutput){
+
+        if (showOutput) {
             new XMLDialog(xmlReturnRoute, "Returned XML");
         }
 
-        
-        if (xmlReturnRoute != null) {
-
-
-            if (xmlReturnRoute.length() > 300000){
-                System.out.println("Failed to recieve a route in the area, buffer timedout");
-                return null;
-            }
+        if (xmlReturnRoute
+                .contains("<ErrorResponse xmlns=\"http://www.sspa.se/optiroute\">")) {
+            String errorMessage = xmlReturnRoute
+                    .split("<ErrorResponse xmlns=\"http://www.sspa.se/optiroute\">")[1]
+                    .split("</ErrorResponse>")[0];
             
-            xmlReturnRoute.replace("<RouteResponse xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\" xmlns=\"http://www.sspa.se/optiroute\">"
-                   ,"<RouteResponse xmlns=\"http://www.sspa.se/optiroute\" xmlns:ns2=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">");
+            errorMessage.trim();
+            return new SSPAResponse(null, errorMessage);
             
-            
-            xmlReturnRoute.replace("fi", "ns2");
-
-            // System.out.println(xmlReturnRoute);
-
-            Unmarshaller u;
-            JAXBContext jc;
-            RouteresponseType routeResponse = null;
-
-            // xmlReturnRoute = xmlReturnRoute.replace("RouteResponse",
-            // "routeresponseType");
-
-            StringReader sr = new StringReader(xmlReturnRoute);
-
-            try {
-                jc = JAXBContext.newInstance("dk.dma.epd.ship.route.sspa");
-                u = jc.createUnmarshaller();
-
-                routeResponse = (RouteresponseType) ((javax.xml.bind.JAXBElement) u
-                        .unmarshal(sr)).getValue();
-
-            } catch (JAXBException e1) {
-                e1.printStackTrace();
-            }
-
-            return routeResponse;
-
         } else {
+            if (xmlReturnRoute != null) {
+                if (xmlReturnRoute.length() > 300000) {
+                    System.out
+                            .println("Failed to recieve a route in the area, buffer timedout");
+                    return new SSPAResponse(null,
+                            "Failed to recieve a route in the area, buffer timedout");
+                }
 
-            return null;
+                xmlReturnRoute
+                        .replace(
+                                "<RouteResponse xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\" xmlns=\"http://www.sspa.se/optiroute\">",
+                                "<RouteResponse xmlns=\"http://www.sspa.se/optiroute\" xmlns:ns2=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">");
+
+                xmlReturnRoute.replace("fi", "ns2");
+
+                // System.out.println(xmlReturnRoute);
+
+                Unmarshaller u;
+                JAXBContext jc;
+                RouteresponseType routeResponse = null;
+
+                // xmlReturnRoute = xmlReturnRoute.replace("RouteResponse",
+                // "routeresponseType");
+
+                StringReader sr = new StringReader(xmlReturnRoute);
+
+                try {
+                    jc = JAXBContext.newInstance("dk.dma.epd.ship.route.sspa");
+                    u = jc.createUnmarshaller();
+
+                    routeResponse = (RouteresponseType) ((javax.xml.bind.JAXBElement) u
+                            .unmarshal(sr)).getValue();
+
+                } catch (JAXBException e1) {
+                    e1.printStackTrace();
+                }
+
+                return new SSPAResponse(routeResponse, "Success");
+
+            }
         }
-
+        // return new SSPAResponse(null, "null error");
+         return null;
     }
 
 }

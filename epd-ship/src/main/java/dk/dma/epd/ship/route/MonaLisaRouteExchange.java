@@ -62,7 +62,7 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
     private AisHandler aisHandler;
     private GpsHandler gpsHandler;
     private ShoreServiceStatus status = new ShoreServiceStatus();
-    
+
     public MonaLisaRouteExchange() {
 
     }
@@ -106,7 +106,7 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
         for (int i = 0; i < eeinsWaypoints.size(); i++) {
 
             if (selectedWp.get(i)) {
-//                System.out.println("Creating WP for " + i);
+                // System.out.println("Creating WP for " + i);
                 RouteWaypoint routeWaypoint = eeinsWaypoints.get(i);
                 WaypointType waypoint = new WaypointType();
 
@@ -117,7 +117,7 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
                 waypoint.setWptId(i + 1);
 
                 if (removeIntermediateETA) {
-//                    System.out.println("Removing ETAs");
+                    // System.out.println("Removing ETAs");
                     if (i == 0 || i == eeinsWaypoints.size() - 1) {
                         try {
                             waypoint.setETA(convertDate(route.getEtas().get(i)));
@@ -125,7 +125,7 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
                             e.printStackTrace();
                         }
                     }
-                }else{
+                } else {
                     try {
                         waypoint.setETA(convertDate(route.getEtas().get(i)));
                     } catch (DatatypeConfigurationException e) {
@@ -259,35 +259,39 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
         return route;
     }
 
-    public MonaLisaResponse makeRouteRequest(Route route, boolean removeIntermediateETA,
-            float draft, int ukc, int timeout, List<Boolean> selectedWp, boolean showInput, boolean showOutput) {
+    public MonaLisaResponse makeRouteRequest(Route route,
+            boolean removeIntermediateETA, float draft, int ukc, int timeout,
+            List<Boolean> selectedWp, boolean showInput, boolean showOutput) {
 
         // new Thread(this).start();
 
         RouterequestType monaLisaRoute = convertRoute(route,
                 removeIntermediateETA, draft, ukc, selectedWp);
 
-//        monaLisaRoute.
-        
-        RouteresponseType routeResponse = null;
+        // monaLisaRoute.
+
+        SSPAResponse routeResponse = null;
         try {
             routeResponse = EPDShip.getShoreServices()
-                    .makeMonaLisaRouteRequest(monaLisaRoute, timeout, showInput, showOutput);
+                    .makeMonaLisaRouteRequest(monaLisaRoute, timeout,
+                            showInput, showOutput);
         } catch (Exception e) {
             return new MonaLisaResponse("An exception occured", e.getMessage());
         }
 
-        if (routeResponse == null) {
-            return new MonaLisaResponse("Server returned null", "null");
+        if (!routeResponse.isValid()) {
+            return new MonaLisaResponse("Server error",
+                    routeResponse.getErrorMessage());
         }
 
         Route newRoute = null;
 
-        if (routeResponse != null) {
+        if (routeResponse.isValid()) {
             try {
-                newRoute = convertRouteBack(routeResponse);
+                newRoute = convertRouteBack(routeResponse.getMonaLisaResponse());
             } catch (Exception e) {
-                return new MonaLisaResponse("An exception occured", e.getMessage());
+                return new MonaLisaResponse("An exception occured",
+                        e.getMessage());
             }
         }
 
@@ -296,7 +300,19 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
             route.setVisible(false);
         }
 
-        return new MonaLisaResponse("Succesfully recieved optimized route", "Success");
+        float fuelSaving = (routeResponse.getMonaLisaResponse().getFuelRequested() - routeResponse.getMonaLisaResponse().getFuelFinal()) / routeResponse.getMonaLisaResponse().getFuelRequested() * 100;
+
+        return new MonaLisaResponse("Succesfully recieved optimized route",
+
+        "\nInitial route consumption is "
+                + routeResponse.getMonaLisaResponse().getFuelRequested()
+                + " Metric Tons.\n"
+                + "MonaLisa optimized route consumption is "
+                + routeResponse.getMonaLisaResponse().getFuelFinal()
+                + " Metric Tons.\n" + "The relative fuel saving is "
+                + fuelSaving + " percent\n\n" + "Minimum route UKC is "
+                + routeResponse.getMonaLisaResponse().getUkcActual()
+                + " meters.\n");
 
     }
 
