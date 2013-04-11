@@ -190,8 +190,9 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
             
         });
         
-                
-        aisTable.setRowSorter(sorter);        
+        sorter.toggleSortOrder(1);        
+        aisTable.setRowSorter(sorter);
+        
         
         
         
