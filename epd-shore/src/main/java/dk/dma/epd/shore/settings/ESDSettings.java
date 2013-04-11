@@ -43,8 +43,8 @@ public class ESDSettings implements Serializable {
     private static final Logger LOG = LoggerFactory
             .getLogger(ESDSettings.class);
 
-    private String settingsFile = "settings.properties";
-    private String defaultWorkSpace = "workspaces/default.workspace";
+    private String settingsFile = Paths.get("settings.properties").toString();
+    private String defaultWorkSpace = Paths.get("workspaces/default.workspace").toString();
     private String workspaceFile = "";
 
     private ESDGuiSettings guiSettings = new ESDGuiSettings();
@@ -75,8 +75,8 @@ public class ESDSettings implements Serializable {
         Path loadPathSettingsFile = Paths.get(EPDShore.getHomePath().toString() + "/"
                 + settingsFile); 
         LOG.info("Trying to load " + loadPathSettingsFile.toString());
-        if (!PropUtils.loadProperties(props, EPDShore.getHomePath().toString()
-                + "/", settingsFile)) {
+        if (!PropUtils.loadProperties(props, Paths.get(EPDShore.getHomePath().toString()
+                + "/").toString(), settingsFile)) {
             LOG.info("No settings file found");
             return;
         }
@@ -145,8 +145,8 @@ public class ESDSettings implements Serializable {
         // navSettings.setProperties(props);
 
         try {
-            FileWriter outFile = new FileWriter(EPDShore.getHomePath()
-                    .toString() + settingsFile);
+            FileWriter outFile = new FileWriter(Paths.get(EPDShore.getHomePath()
+                    .toString() + "/" + settingsFile).toString());
             PrintWriter out = new PrintWriter(outFile);
             out.println("# esd settings saved: " + new Date());
             TreeSet<String> keys = new TreeSet<String>();
@@ -172,8 +172,8 @@ public class ESDSettings implements Serializable {
         Properties props = new Properties();
         workspace.setProperties(props, mapWindows);
         try {
-            filename = EPDShore.getHomePath().toString() + "/workspaces/"
-                    + filename;
+            filename = Paths.get(EPDShore.getHomePath().toString() + "/workspaces/"
+                    + filename).toString();
             
             
             
