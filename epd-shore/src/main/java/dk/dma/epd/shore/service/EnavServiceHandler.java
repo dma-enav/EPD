@@ -17,12 +17,14 @@ package dk.dma.epd.shore.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
@@ -35,6 +37,7 @@ import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.broadcast.BroadcastListener;
 import dk.dma.enav.communication.broadcast.BroadcastMessage;
 import dk.dma.enav.communication.broadcast.BroadcastMessageHeader;
+import dk.dma.enav.communication.service.InvocationCallback;
 import dk.dma.enav.communication.service.ServiceEndpoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.PositionTime;
@@ -46,6 +49,9 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.enavcloud.EnavCloudSendThread;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
+import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService;
+import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestMessage;
+import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
@@ -78,6 +84,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
     protected Set<RouteExchangeListener> routeExchangeListener = new HashSet<RouteExchangeListener>();
     private List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> routeSuggestionList = new ArrayList<>();
 
+    HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>> contextSenders = new HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>>();
+    
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
         this.hostPort = String.format("%s:%d",
                 enavSettings.getCloudServerHost(),
@@ -141,7 +149,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         sendThread.start();
     }
 
-    public void getRouteSuggestionServiceList() {
+    private void getRouteSuggestionServiceList() {
         try {
             routeSuggestionList = connection
                     .serviceFind(RouteSuggestionService.INIT)
@@ -332,6 +340,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                         init();
                         try {
                             listenToBroadcasts();
+                            monaLisaRouteRequestListener();
                         } catch (Exception e) {
                             // Exception for virtual net
                             System.out
@@ -463,4 +472,49 @@ public class EnavServiceHandler extends MapHandlerChild implements
         }
 
     }
+    
+    
+    private void monaLisaRouteRequestListener() throws InterruptedException {
+
+        connection
+                .serviceRegister(
+                        MonaLisaRouteService.INIT,
+                        new InvocationCallback<MonaLisaRouteService.MonaLisaRouteRequestMessage, MonaLisaRouteService.MonaLisaRouteRequestReply>() {
+                            public void process(
+                                    MonaLisaRouteRequestMessage message,
+                                    InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply> context) {
+
+                                
+                                System.out.println("Mona Lisa Request detected, sending reply automatically");
+                                
+                                contextSenders.put(message.getId(), context);
+
+                                
+                                //We have recieved a message, what now?
+
+                                Route route = message.getRoute();
+
+                                sendReply(MonaLisaRouteStatus.AGREED, message.getId(), "Automatic reply", route);
+                                
+                            }
+                        }).awaitRegistered(4, TimeUnit.SECONDS);
+        
+        
+        
+        
+        
+    }
+
+    
+    public void sendReply(MonaLisaRouteStatus status, long id, String message, Route route) {
+        try {
+            contextSenders.get(id).complete(new MonaLisaRouteService.MonaLisaRouteRequestReply(
+                    message, id, aisHandler.getOwnShip().getMmsi(),
+                    System.currentTimeMillis(), status, route));            
+        } catch (Exception e) {
+            System.out.println("Failed to reply");
+        }
+
+    }
+    
 }

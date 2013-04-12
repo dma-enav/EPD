@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.common.prototype.layers.route;
 
+import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -41,6 +43,8 @@ public class RouteLegGraphic extends OMGraphicList {
     private OMArrowHead arrow = new OMArrowHead(
             OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, 5, 15);
     private Color color;
+    
+    private OMLine broadline;
 
     private int routeIndex;
 
@@ -89,8 +93,29 @@ public class RouteLegGraphic extends OMGraphicList {
             line.setStroke(stroke);
             
             add(line);
+            
+            
+            float[]  dash1 = {35.0f};
+            broadline = new OMLine(startLat, startLon, endLat, endLon, lineType);
+            broadline.setLinePaint(Color.YELLOW);
+            broadline.setStroke(new BasicStroke(10.0f,
+                    BasicStroke.CAP_BUTT,
+                    BasicStroke.JOIN_MITER,
+                    10.0f, dash1, 10.0f));
+            
+//            broadline.sett
+            
+            
+            add(broadline);
+            
+            
 
         }
+    }
+    
+    private AlphaComposite makeComposite(float alpha) {
+        int type = AlphaComposite.SRC_OVER;
+        return AlphaComposite.getInstance(type, alpha);
     }
 
     public void setArrows(boolean arrowsVisible) {

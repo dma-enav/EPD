@@ -22,7 +22,7 @@ import dk.dma.epd.shore.gui.views.SendRouteDialog;
 
 
 
-public class SetRouteExchangeRoute extends JMenuItem implements IMapMenuAction {
+public class SendRouteFromRoute extends JMenuItem implements IMapMenuAction {
 
     /**
      *
@@ -31,7 +31,7 @@ public class SetRouteExchangeRoute extends JMenuItem implements IMapMenuAction {
     private Route route;
     private SendRouteDialog sendRouteDialog;
 
-    public SetRouteExchangeRoute(String text) {
+    public SendRouteFromRoute(String text) {
         super();
         this.setText(text);
     }

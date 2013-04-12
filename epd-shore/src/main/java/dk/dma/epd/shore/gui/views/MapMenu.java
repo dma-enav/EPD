@@ -71,8 +71,8 @@ import dk.dma.epd.shore.gui.views.menuitems.RouteReverse;
 import dk.dma.epd.shore.gui.views.menuitems.RouteShowMetocToggle;
 import dk.dma.epd.shore.gui.views.menuitems.RouteWaypointActivateToggle;
 import dk.dma.epd.shore.gui.views.menuitems.RouteWaypointDelete;
-import dk.dma.epd.shore.gui.views.menuitems.SetRouteExchangeAIS;
-import dk.dma.epd.shore.gui.views.menuitems.SetRouteExchangeRoute;
+import dk.dma.epd.shore.gui.views.menuitems.SendRouteToShip;
+import dk.dma.epd.shore.gui.views.menuitems.SendRouteFromRoute;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
 import dk.dma.epd.shore.msi.MsiHandler;
@@ -115,8 +115,8 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
     private RouteWaypointActivateToggle routeWaypointActivateToggle;
     private RouteWaypointDelete routeWaypointDelete;
     private RouteEditEndRoute routeEditEndRoute;
-    private SetRouteExchangeAIS setRouteExchangeAIS;
-    private SetRouteExchangeRoute setRouteExchangeRoute;
+    private SendRouteToShip sendRouteToShip;
+    private SendRouteFromRoute setRouteExchangeRoute;
 
     // bean context
     protected String propertyPrefix;
@@ -168,7 +168,7 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         msiZoomTo.addActionListener(this);
 
         // route general items
-        setRouteExchangeRoute = new SetRouteExchangeRoute("Send Route");
+        setRouteExchangeRoute = new SendRouteFromRoute("Send Route");
         setRouteExchangeRoute.addActionListener(this);
 
         routeHide = new RouteHide("Hide route");
@@ -211,8 +211,8 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         routeEditEndRoute.addActionListener(this);
 
         // ais menu items
-        setRouteExchangeAIS = new SetRouteExchangeAIS("Send Route to vessel");
-        setRouteExchangeAIS.addActionListener(this);
+        sendRouteToShip = new SendRouteToShip("Send Route to vessel");
+        sendRouteToShip.addActionListener(this);
 
         routeRequestMetoc.setEnabled(false);
         
@@ -288,11 +288,11 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
     public void aisMenu(VesselTarget vesselTarget){
         removeAll();
 
-        setRouteExchangeAIS.setMSSI(vesselTarget.getMmsi());
-        setRouteExchangeAIS.setSendRouteDialog(EPDShore.getMainFrame().getSendRouteDialog());
-        setRouteExchangeAIS.setEnabled(EPDShore.getEnavServiceHandler().shipAvailableForRouteSuggestion(vesselTarget.getMmsi()));
+        sendRouteToShip.setMSSI(vesselTarget.getMmsi());
+        sendRouteToShip.setSendRouteDialog(EPDShore.getMainFrame().getSendRouteDialog());
+        sendRouteToShip.setEnabled(EPDShore.getEnavServiceHandler().shipAvailableForRouteSuggestion(vesselTarget.getMmsi()));
 
-        add(setRouteExchangeAIS);
+        add(sendRouteToShip);
 
         aisIntendedRouteToggle.setVesselTargetSettings(vesselTarget.getSettings());
         aisIntendedRouteToggle.setAisLayer(aisLayer);

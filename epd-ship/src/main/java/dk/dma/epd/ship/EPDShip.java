@@ -611,6 +611,11 @@ public class EPDShip {
     public static MonaLisaRouteExchange getMonaLisaRouteExchange() {
         return monaLisaRouteExchange;
     }
+    
+    
+    public static EnavServiceHandler getEnavServiceHandler() {
+        return enavServiceHandler;
+    }
 
     public static Thread startThread(Runnable t, String name) {
         Thread thread = new Thread(t);

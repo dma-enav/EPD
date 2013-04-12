@@ -399,7 +399,9 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                 break;
             }
         }
-
+        routeMenu.setRouteLocation(new Point(e.getX(), e.getY()));
+        
+        
         if (selectedGraphic instanceof SuggestedRouteGraphic) {
             mainFrame.getGlassPane().setVisible(false);
             waypointInfoPanel.setVisible(false);
