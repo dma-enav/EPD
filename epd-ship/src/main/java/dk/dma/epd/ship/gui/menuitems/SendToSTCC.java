@@ -22,6 +22,7 @@ import javax.swing.JMenuItem;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.monalisa.MonaLisaSTCCDialog;
+import dk.dma.epd.ship.layers.route.RouteLayer;
 
 public class SendToSTCC extends JMenuItem implements IMapMenuAction {
 
@@ -29,6 +30,7 @@ public class SendToSTCC extends JMenuItem implements IMapMenuAction {
     private Route route;
     private MonaLisaSTCCDialog monaLisaSTCCDialog;
     private Point windowLocation;
+    private RouteLayer routeLayer;
 
     public SendToSTCC(String text) {
         super();
@@ -42,17 +44,29 @@ public class SendToSTCC extends JMenuItem implements IMapMenuAction {
         if (monaLisaSTCCDialog.isActive()){
             monaLisaSTCCDialog.setVisible(true);
         }else{
+            
+            //Sending route
             EPDShip.getEnavServiceHandler().sendMonaLisaRouteRequest(
-                    route.getFullRouteData(), "mmsi://219230000", "Test");
+                    route.getFullRouteData(), "mmsi://219230000", "Route Approval Requested");
+            
+            routeLayer.setRouteAnimated(route);
+            
+//            EPDShip.getMainFrame().getChartPanel().getr
 
             monaLisaSTCCDialog.setLocation(windowLocation);
             monaLisaSTCCDialog.setVisible(true);
             monaLisaSTCCDialog.setRouteName(route.getName());
+            monaLisaSTCCDialog.setRouteLayer(routeLayer);
         }
         
         // String mmsiStr = "mmsi://" + mmsi;
 
 
+    }
+
+    
+    public void setRouteLayer(RouteLayer routeLayer) {
+        this.routeLayer = routeLayer;
     }
 
     public void setRoute(Route route) {

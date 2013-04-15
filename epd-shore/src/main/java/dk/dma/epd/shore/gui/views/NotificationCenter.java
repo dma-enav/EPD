@@ -51,6 +51,7 @@ import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.msi.MsiTableModel;
+import dk.dma.epd.shore.gui.route.MonaLisaRouteExchangeTableModel;
 import dk.dma.epd.shore.gui.route.RouteExchangeTableModel;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.msi.MsiHandler;
@@ -82,11 +83,13 @@ public class NotificationCenter extends ComponentFrame implements ListSelectionL
     private MsiHandler msiHandler;
     private MsiTableModel msiTableModel;
 
-       private RouteExchangeTableModel routeTableModel;
+    private RouteExchangeTableModel routeTableModel;
+    private MonaLisaRouteExchangeTableModel MonaLisarouteTableModel;
 
     private JPanel msiPanelLeft;
 
     private JPanel routePanelLeft;
+    private JPanel monaLisaRoutePanelLeft;
 
     private Color leftButtonColor = Color.DARK_GRAY;
     private Color leftButtonColorClicked = new Color(45, 45, 45);
@@ -100,6 +103,7 @@ public class NotificationCenter extends ComponentFrame implements ListSelectionL
 
     private MSINotificationPanel msiPanel;
     private RouteExchangeNotificationPanel routePanel;
+    private MonaLisaRouteExchangeNotificationPanel MonaLisaroutePanel;
     
     private EnavServiceHandler enavServiceHandler;
 
@@ -169,6 +173,11 @@ public class NotificationCenter extends ComponentFrame implements ListSelectionL
         Integer messageCountRoute = unreadMessages.get("Route");
         if (messageCountRoute == null) {
             messageCountRoute = 0;
+        }
+        
+        Integer messageCountMonaLisaRoute = unreadMessages.get("MonaLisaRoute");
+        if (messageCountMonaLisaRoute == null) {
+            messageCountMonaLisaRoute = 0;
         }
 
         String[] colHeadings = { "ID", "Title" };
@@ -517,10 +526,20 @@ public class NotificationCenter extends ComponentFrame implements ListSelectionL
 
         case 1:
 
+            //Activate route exchange
             routePanel.setVisible(true);
             msiPanel.setVisible(false);
 
             break;
+            
+
+        case 2:
+            //Activate Mona Lisa Route Exchange
+            routePanel.setVisible(true);
+            msiPanel.setVisible(false);
+
+            break;
+            
         default:
             break;
         }

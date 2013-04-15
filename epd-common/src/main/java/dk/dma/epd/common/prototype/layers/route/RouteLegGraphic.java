@@ -137,13 +137,13 @@ public class RouteLegGraphic extends OMGraphicList {
 //        broadline.setLinePaint(new Color(0f, 1f, 0, 0.6f));
         float[] dash = { 35.0f, 35.0f };
 //        float dashPhase = 18.0f;
-        System.out.println("Adding to dashPhase " + dashPhase);
+//        System.out.println("Adding to dashPhase " + dashPhase);
         dashPhase += 9.0f;
-        System.out.println("Dashphase is now " + dashPhase);
+//        System.out.println("Dashphase is now " + dashPhase);
         
         broadline.setStroke(new BasicStroke(10.0f, BasicStroke.CAP_BUTT,
                 BasicStroke.JOIN_MITER, 10.0f, dash, dashPhase));
-        System.out.println("Changing stroke! " + dashPhase);
+//        System.out.println("Changing stroke! " + dashPhase);
     }
     
     public void setArrows(boolean arrowsVisible) {

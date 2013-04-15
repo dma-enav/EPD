@@ -165,6 +165,28 @@ public class NotificationArea extends ComponentFrame implements
 
         });
 
+        // Notification: Mona Lisa Route
+        final JPanel monaLisarouteExchange = new JPanel();
+        notifications.put("MonaLisarouteExchange", monaLisarouteExchange);
+        services.put("MonaLisarouteExchange", "MonaLisa Route");
+
+        monaLisarouteExchange.addMouseListener(new MouseAdapter() {
+
+            public void mousePressed(MouseEvent e) {
+                monaLisarouteExchange.setBorder(notificationPaddingPressed);
+                monaLisarouteExchange.setBackground(new Color(45, 45, 45));
+            }
+
+            public void mouseReleased(MouseEvent e) {
+                monaLisarouteExchange.setBorder(notificationPadding);
+                monaLisarouteExchange.setBackground(new Color(65, 65, 65));
+                mainFrame.toggleNotificationCenter(2);
+            }
+
+        });
+        
+        
+        
         // Create the masterpanel for aligning
         masterPanel = new JPanel(new BorderLayout());
         masterPanel.add(moveHandler, BorderLayout.NORTH);
@@ -445,7 +467,6 @@ public class NotificationArea extends ComponentFrame implements
          } catch (InterruptedException e) {
          e.printStackTrace();
          }
-
     }
 
     // @Override

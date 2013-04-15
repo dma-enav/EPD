@@ -86,6 +86,7 @@ import dk.dma.epd.ship.gui.menuitems.SuggestedRouteDetails;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.msi.MsiLayer;
+import dk.dma.epd.ship.layers.route.RouteLayer;
 import dk.dma.epd.ship.msi.MsiHandler;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.route.RecievedRoute;
@@ -155,6 +156,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private MouseDelegator mouseDelegator;
     private EnavServiceHandler enavServiceHandler;
     private Point windowLocation;
+    private RouteLayer routeLayer;
 
     public MapMenu() {
         super();
@@ -480,6 +482,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 //
 //        add(dummy);
 
+        sendToSTCC.setRouteLayer(routeLayer);
         sendToSTCC.setRoute(route);
         sendToSTCC.setSTCCDialog(mainFrame.getMonaLisaSTCCDialog());
         sendToSTCC.setRouteLocation(windowLocation);
@@ -671,6 +674,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         if (obj instanceof EnavServiceHandler) {
             enavServiceHandler = (EnavServiceHandler) obj;
+        }
+        if (obj instanceof RouteLayer) {
+            routeLayer = (RouteLayer) obj;
         }
 
     }

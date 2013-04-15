@@ -16,7 +16,10 @@
 package dk.dma.epd.ship.gui.monalisa;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -26,9 +29,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
+import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
+import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.layers.route.RouteLayer;
+import dk.dma.epd.ship.service.EnavServiceHandler;
 
-public class MonaLisaSTCCDialog extends JDialog {
+public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
     private static final long serialVersionUID = 1L;
     JLabel routeName;
@@ -39,6 +46,10 @@ public class MonaLisaSTCCDialog extends JDialog {
     JLabel dateField;
     JLabel timeField;
     JLabel statusField;
+    JLabel lblPostRoute;
+    JButton btnCancelRequest;
+    private EnavServiceHandler enavServiceHandler;
+    RouteLayer routeLayer;
 
     private boolean isActive;
 
@@ -57,6 +68,9 @@ public class MonaLisaSTCCDialog extends JDialog {
         setBounds(100, 100, 165, 181);
 
         setResizable(false);
+
+        enavServiceHandler = EPDShip.getEnavServiceHandler();
+        enavServiceHandler.setMonaLisaSTCCDialog(this);
 
         initGui();
 
@@ -82,7 +96,7 @@ public class MonaLisaSTCCDialog extends JDialog {
         routeName.setFont(new Font("Tahoma", Font.BOLD, 11));
         routeAcceptedPanel.add(routeName);
 
-        JLabel lblPostRoute = new JLabel("sent to STCC");
+        lblPostRoute = new JLabel("sent to STCC");
         lblPostRoute.setBounds(10, 20, 71, 14);
         lblPostRoute.setFont(new Font("Tahoma", Font.BOLD, 11));
         routeAcceptedPanel.add(lblPostRoute);
@@ -99,9 +113,10 @@ public class MonaLisaSTCCDialog extends JDialog {
         lblStatus.setBounds(9, 77, 35, 14);
         routeAcceptedPanel.add(lblStatus);
 
-        JButton btnCancelRequest = new JButton("Cancel request");
+        btnCancelRequest = new JButton("Cancel request");
         btnCancelRequest.setBounds(10, 119, 139, 23);
         routeAcceptedPanel.add(btnCancelRequest);
+        btnCancelRequest.addActionListener(this);
 
         dateField = new JLabel("N/A");
         dateField.setBounds(54, 43, 128, 14);
@@ -112,13 +127,21 @@ public class MonaLisaSTCCDialog extends JDialog {
         routeAcceptedPanel.add(timeField);
 
         statusField = new JLabel("N/A");
-        statusField.setBounds(54, 77, 128, 14);
+        statusField.setBounds(54, 77, 140, 14);
         routeAcceptedPanel.add(statusField);
 
         // getContentPane().add(routeNotAcceptedPanel, BorderLayout.CENTER);
 
         // routeNotAcceptedPanel.setVisible(false);
 
+    }
+
+    public EnavServiceHandler getEnavServiceHandler() {
+        return enavServiceHandler;
+    }
+
+    public void setEnavServiceHandler(EnavServiceHandler enavServiceHandler) {
+        this.enavServiceHandler = enavServiceHandler;
     }
 
     public void setRouteName(String name) {
@@ -141,6 +164,45 @@ public class MonaLisaSTCCDialog extends JDialog {
 
     public boolean isActive() {
         return isActive;
+    }
+
+    public void setInActive() {
+        isActive = false;
+    }
+
+    public void handleReply(MonaLisaRouteRequestReply l) {
+
+        if (l.getStatus() == MonaLisaRouteStatus.AGREED) {
+            statusField.setText("Route Agreed");
+            lblPostRoute.setText("STCC Agreed");
+            lblDate.setText("Valid");
+            statusField.setText("Route agreed");
+            btnCancelRequest.setText("Acknowledge");
+            btnCancelRequest.setBackground(Color.GREEN);
+            btnCancelRequest.setForeground(Color.GREEN);
+            
+            routeLayer.stopRouteAnimated();
+            
+        }
+
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+        if (e.getSource() == btnCancelRequest) {
+
+            // Cancel request
+            if (isActive) {
+                setInActive();
+                routeLayer.stopRouteAnimated();
+                this.setVisible(false);
+            }
+        }
+    }
+
+    public void setRouteLayer(RouteLayer routeLayer) {
+        this.routeLayer = routeLayer;
     }
 
 }

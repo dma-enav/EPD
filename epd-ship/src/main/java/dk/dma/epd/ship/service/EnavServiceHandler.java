@@ -54,6 +54,7 @@ import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gps.GpsHandler;
+import dk.dma.epd.ship.gui.monalisa.MonaLisaSTCCDialog;
 import dk.dma.epd.ship.route.RecievedRoute;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
@@ -76,6 +77,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private AisHandler aisHandler;
     private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context;
     private List<ServiceEndpoint<MonaLisaRouteRequestMessage, MonaLisaRouteRequestReply>> monaLisaSTCCList = new ArrayList<>();
+    private MonaLisaSTCCDialog monaLisaSTCCDialog;
 
     PersistentConnection connection;
 
@@ -380,11 +382,18 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private void replyRecieved(MonaLisaRouteRequestReply l) {
         System.out.println("Mona Lisa Reply recieved: " + l.getStatus());
         
+        monaLisaSTCCDialog.handleReply(l);
+        
       //Two kinds of reply?
         
         //If success, nothing more
         //If fail and new route returned, start new communication message, like previous, with updated route, same ID maybe?
         //Do we need a message / give reason?
+        
+    }
+
+    public void setMonaLisaSTCCDialog(MonaLisaSTCCDialog monaLisaSTCCDialog) {
+        this.monaLisaSTCCDialog = monaLisaSTCCDialog;
         
     }
     

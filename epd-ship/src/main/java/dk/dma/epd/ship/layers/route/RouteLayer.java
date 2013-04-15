@@ -22,6 +22,8 @@ import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.SwingUtilities;
 
@@ -85,6 +87,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
     private boolean dragging;
     SafeHavenArea safeHavenArea = new SafeHavenArea();
     private boolean activeSafeHaven;
+    private Timer uploadCheckerTimer;
 
     public RouteLayer() {
         new Thread(this).start();
@@ -98,11 +101,11 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
             return;
         }
 
-//        if (e == null){
-//            doPrepare();
-//            return;
-//        }
-        
+        if (e == null) {
+            doPrepare();
+            return;
+        }
+
         graphics.clear();
 
         Stroke stroke = new BasicStroke(routeWidth, // Width
@@ -405,8 +408,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
             }
         }
         routeMenu.setRouteLocation(new Point(e.getX(), e.getY()));
-        
-        
+
         if (selectedGraphic instanceof SuggestedRouteGraphic) {
             mainFrame.getGlassPane().setVisible(false);
             waypointInfoPanel.setVisible(false);
@@ -595,6 +597,35 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         activeSafeHaven = !activeSafeHaven;
         safeHavenArea.setVisible(activeSafeHaven);
         routesChanged(null);
+    }
+
+    public void setRouteAnimated(Route route) {
+
+        RouteGraphic animatedRoute = null;
+
+        for (int i = 0; i < graphics.size(); i++) {
+            if (route == ((RouteGraphic) graphics.get(i)).getRoute()) {
+                System.out.println("Found the desired route");
+                animatedRoute = (RouteGraphic) graphics.get(i);
+                animatedRoute.activateAnimation();
+
+            }
+        }
+        final RouteGraphic animatedRoute2 = animatedRoute;
+
+        uploadCheckerTimer = new Timer(true);
+
+        uploadCheckerTimer.scheduleAtFixedRate(new TimerTask() {
+            public void run() {
+                animatedRoute2.changeBroadLine();
+            }
+        }, 5, 1000);
+
+    }
+
+    public void stopRouteAnimated() {
+        uploadCheckerTimer.cancel();
+        routesChanged(RoutesUpdateEvent.ROUTE_CHANGED);
     }
 
     @Override

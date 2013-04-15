@@ -20,9 +20,6 @@ import java.awt.Stroke;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
@@ -37,20 +34,21 @@ import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 public class RouteGraphic extends OMGraphicList {
 
     private static final long serialVersionUID = 1L;
-    
+
     private Route route;
     private boolean arrowsVisible;
     private LinkedList<RouteWaypoint> routeWaypoints;
     private List<RouteLegGraphic> routeLegs = new ArrayList<>();
-    
+
     protected Stroke stroke;
     protected Color color;
 
     private int routeIndex;
-    
+
     boolean animation;
-    
-    public RouteGraphic(Route route, int routeIndex, boolean arrowsVisible, Stroke stroke, Color color) {
+
+    public RouteGraphic(Route route, int routeIndex, boolean arrowsVisible,
+            Stroke stroke, Color color) {
         super();
         this.route = route;
         this.routeIndex = routeIndex;
@@ -59,72 +57,60 @@ public class RouteGraphic extends OMGraphicList {
         this.color = color;
         initGraphics();
     }
-    
+
+    public Route getRoute() {
+        return route;
+    }
+
     public RouteGraphic(boolean arrowsVisible, Stroke stroke, Color color) {
         super();
         this.arrowsVisible = arrowsVisible;
         this.stroke = stroke;
         this.color = color;
     }
-    
+
     public void setRoute(Route route) {
         this.route = route;
         initGraphics();
     }
-    
-    public void initGraphics(){
+
+    public void initGraphics() {
         routeWaypoints = route.getWaypoints();
         int i = 0;
         for (RouteWaypoint routeWaypoint : routeWaypoints) {
-            if(route instanceof ActiveRoute && ((ActiveRoute) route).getActiveWaypointIndex() == i){
-                RouteWaypointGraphic routeWaypointGraphicActive = new RouteWaypointGraphic(route, routeIndex, i,routeWaypoint, Color.RED, 30, 30);
-                add(0,routeWaypointGraphicActive);
-            }            
-            if(routeWaypoint.getOutLeg() != null){
-                RouteLeg routeLeg = routeWaypoint.getOutLeg();
-                RouteLegGraphic routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, this.color, this.stroke);
-                add(routeLegGraphic);
-                routeLegs.add(0,routeLegGraphic);
+            if (route instanceof ActiveRoute
+                    && ((ActiveRoute) route).getActiveWaypointIndex() == i) {
+                RouteWaypointGraphic routeWaypointGraphicActive = new RouteWaypointGraphic(
+                        route, routeIndex, i, routeWaypoint, Color.RED, 30, 30);
+                add(0, routeWaypointGraphicActive);
             }
-            RouteWaypointGraphic routeWaypointGraphic = new RouteWaypointGraphic(route, routeIndex, i, routeWaypoint, this.color, 18, 18);
-            add(0,routeWaypointGraphic);
+            if (routeWaypoint.getOutLeg() != null) {
+                RouteLeg routeLeg = routeWaypoint.getOutLeg();
+                RouteLegGraphic routeLegGraphic = new RouteLegGraphic(routeLeg,
+                        routeIndex, this.color, this.stroke);
+                add(routeLegGraphic);
+                routeLegs.add(0, routeLegGraphic);
+            }
+            RouteWaypointGraphic routeWaypointGraphic = new RouteWaypointGraphic(
+                    route, routeIndex, i, routeWaypoint, this.color, 18, 18);
+            add(0, routeWaypointGraphic);
             i++;
         }
-        
-//        activateAnimation();
-        System.out.println("Graphic inititated");
+
+        // activateAnimation();
     }
-    
-    
-    public void activateAnimation(){
+
+    public void activateAnimation() {
         for (int i = 0; i < routeLegs.size(); i++) {
             routeLegs.get(i).addBroadLine();
-//            routeLegs.get(i).changeBroadLine();
         }
-        
-        
-//        TimerTask uploadCheckerTimer = new Timer(true).scheduleAtFixedRate(
-//                new TimerTask(){
-//                  public void run() { System.out.println("Hi");}
-//                }, 0, 60 * 1000);
-        
-        Timer uploadCheckerTimer = new Timer(true);
-        
-        uploadCheckerTimer.scheduleAtFixedRate(new TimerTask(){
-          public void run() { 
-              for (int i = 0; i < routeLegs.size(); i++) {
-                  routeLegs.get(i).changeBroadLine();
-              }
-              
-          
-          }
-        }, 5,  1000);
-        
-        
-        
     }
-    
-    
+
+    public void changeBroadLine(){
+        for (int i = 0; i < routeLegs.size(); i++) {
+             routeLegs.get(i).changeBroadLine();
+        }
+    }
     
     public boolean isAnimation() {
         return animation;
@@ -134,8 +120,8 @@ public class RouteGraphic extends OMGraphicList {
         this.animation = animation;
     }
 
-    public void showArrowHeads(boolean show){
-        if(this.arrowsVisible != show){
+    public void showArrowHeads(boolean show) {
+        if (this.arrowsVisible != show) {
             for (RouteLegGraphic routeLeg : routeLegs) {
                 routeLeg.setArrows(show);
             }
