@@ -40,13 +40,15 @@ import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.service.MonaLisaRouteExchangeListener;
 import dk.dma.epd.shore.service.RouteExchangeListener;
 
 /**
  * Class for setting up the notification area of the application
  */
 public class NotificationArea extends ComponentFrame implements
-        IMsiUpdateListener, RouteExchangeListener {
+        IMsiUpdateListener, RouteExchangeListener,
+        MonaLisaRouteExchangeListener {
 
     private static final long serialVersionUID = 1L;
     private Boolean locked = false;
@@ -167,8 +169,8 @@ public class NotificationArea extends ComponentFrame implements
 
         // Notification: Mona Lisa Route
         final JPanel monaLisarouteExchange = new JPanel();
-        notifications.put("MonaLisarouteExchange", monaLisarouteExchange);
-        services.put("MonaLisarouteExchange", "MonaLisa Route");
+        notifications.put("monaLisaRouteExchange", monaLisarouteExchange);
+        services.put("monaLisaRouteExchange", "MonaLisa Route");
 
         monaLisarouteExchange.addMouseListener(new MouseAdapter() {
 
@@ -184,9 +186,7 @@ public class NotificationArea extends ComponentFrame implements
             }
 
         });
-        
-        
-        
+
         // Create the masterpanel for aligning
         masterPanel = new JPanel(new BorderLayout());
         masterPanel.add(moveHandler, BorderLayout.NORTH);
@@ -216,6 +216,7 @@ public class NotificationArea extends ComponentFrame implements
         if (obj instanceof EnavServiceHandler) {
             enavServiceHandler = (EnavServiceHandler) obj;
             enavServiceHandler.addRouteExchangeListener(this);
+            enavServiceHandler.addMonaLisaRouteExchangeListener(this);
         }
 
     }
@@ -462,11 +463,23 @@ public class NotificationArea extends ComponentFrame implements
 
     @Override
     public void routeUpdate() {
-         try {
-         setMessages("routeExchange", enavServiceHandler.getUnkAck());
-         } catch (InterruptedException e) {
-         e.printStackTrace();
-         }
+        try {
+            setMessages("routeExchange", enavServiceHandler.getUnkAck());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void monaLisaRouteUpdate() {
+        try {
+            System.out.println("MonaLisa updated " + enavServiceHandler
+                    .getMonaLisaNegotiationData().size());
+            setMessages("monaLisaRouteExchange", enavServiceHandler
+                    .getMonaLisaNegotiationData().size());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     // @Override

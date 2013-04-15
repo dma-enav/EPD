@@ -330,7 +330,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
         }
 
-        MonaLisaRouteRequestMessage routeMessage = new MonaLisaRouteService.MonaLisaRouteRequestMessage(
+        MonaLisaRouteRequestMessage routeMessage = new MonaLisaRouteService.MonaLisaRouteRequestMessage(System.currentTimeMillis(),
                 route, sender, message);
         
         //Store the request somewhere?

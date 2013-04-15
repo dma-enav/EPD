@@ -136,10 +136,10 @@ public class MonaLisaRouteService {
         public MonaLisaRouteRequestMessage() {
         }
 
-        public MonaLisaRouteRequestMessage(Route route, String sender, String message) {
+        public MonaLisaRouteRequestMessage(long id, Route route, String sender, String message) {
             this.route = requireNonNull(route);
             this.sender = requireNonNull(sender);
-            this.id = requireNonNull(System.currentTimeMillis());
+            this.id = requireNonNull(id);
             this.sent = requireNonNull(new Date());
             this.message = requireNonNull(message);
         }

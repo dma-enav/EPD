@@ -25,6 +25,7 @@ import javax.swing.table.AbstractTableModel;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.service.MonaLisaRouteNegotationData;
 import dk.dma.epd.shore.service.RouteSuggestionData;
 
 /**
@@ -36,12 +37,12 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
     private static final String[] AREA_COLUMN_NAMES = { "ID", "MMSI",
             "Route Name", "Sent Date", "Sender", "Message", "Status",
             "Reply Sent", "Message" };
-    private static final String[] COLUMN_NAMES = { "ID", "MMSI", "Route Name",
-            "Status" };
+    private static final String[] COLUMN_NAMES = { "Name", "Call Sign", "Time to STCC",
+            "Route" };
 
     private EnavServiceHandler enavServiceHandler;
 
-    private List<RouteSuggestionData> messages = new ArrayList<RouteSuggestionData>();
+    private List<MonaLisaRouteNegotationData> messages = new ArrayList<MonaLisaRouteNegotationData>();
 
     /**
      * Constructor for creating the msi table model
@@ -95,7 +96,7 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
      * 
      * @return
      */
-    public List<RouteSuggestionData> getMessages() {
+    public List<MonaLisaRouteNegotationData> getMessages() {
         return messages;
 
     }
@@ -117,7 +118,7 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
         if (rowIndex == -1) {
             return "";
         }
-        RouteSuggestionData message = messages.get(rowIndex);
+        MonaLisaRouteNegotationData message = messages.get(rowIndex);
 
         switch (columnIndex) {
         case 0:
@@ -125,9 +126,11 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
         case 1:
             return "" + message.getMmsi();
         case 2:
-            return message.getOutgoingMsg().getRoute().getName();
+//            return message.getRouteMessage().get(0).getRoute().getName();
+            return "N/A";
         case 3:
-            return interpetStatusShort(message.getStatus());
+//            return interpetStatusShort(message.getStatus());
+            return message.getRouteMessage().get(0).getRoute().getName();
         default:
             return "";
 
@@ -204,7 +207,7 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
         if (rowIndex == -1 || this.getRowCount() < 1) {
             return "";
         }
-        RouteSuggestionData message = messages.get(rowIndex);
+        MonaLisaRouteNegotationData message = messages.get(rowIndex);
 
         switch (columnIndex) {
         case 0:
@@ -212,29 +215,34 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
         case 1:
             return message.getMmsi();
         case 2:
-            return message.getOutgoingMsg().getRoute().getName();
+//            return message.getOutgoingMsg().getRoute().getName();
+            return "Route name?";
         case 3:
-            return Formatter.formatShortDateTime(message.getOutgoingMsg()
-                    .getSent());
+//            return Formatter.formatShortDateTime(message.getOutgoingMsg()
+//                    .getSent());
+            return "Date sent?";
         case 4:
-            return message.getOutgoingMsg().getSender();
+//            return message.getOutgoingMsg().getSender();
+            return "Sender?";
         case 5:
-            return message.getOutgoingMsg().getMessage();
+//            return message.getOutgoingMsg().getMessage();
+            return "Message?";
         case 6:
-            return interpetStatusLong(message.getStatus());
+//            return interpetStatusLong(message.getStatus());
+            return "Status?";
         case 7:
-            if (message.getReply() != null) {
-                return Formatter.formatShortDateTime(new Date(message
-                        .getReply().getSendDate()));
-            } else {
+//            if (message.getReply() != null) {
+//                return Formatter.formatShortDateTime(new Date(message
+//                        .getReply().getSendDate()));
+//            } else {
                 return "No reply recieved yet";
-            }
+//            }
         case 8:
-            if (message.getReply() != null){
-                return message.getReply().getMessage();
-            }else{
+//            if (message.getReply() != null){
+//                return message.getReply().getMessage();
+//            }else{
                 return "No reply recieved yet";
-            }
+//            }
         default:
             return "";
         }
@@ -246,8 +254,8 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
     public void updateMessages() {
         messages.clear();
 
-        for (Iterator<RouteSuggestionData> it = enavServiceHandler
-                .getRouteSuggestions().values().iterator(); it.hasNext();) {
+        for (Iterator<MonaLisaRouteNegotationData> it = enavServiceHandler
+                .getMonaLisaNegotiationData().values().iterator(); it.hasNext();) {
             messages.add(it.next());
         }
     }
@@ -256,8 +264,8 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
         if (rowIndex == -1 || this.getRowCount() < 1) {
             return false;
         }
-        return messages.get(rowIndex).isAcknowleged();
-        // return false;
+//        return messages.get(rowIndex).isAcknowleged();
+         return false;
     }
 
 }

@@ -82,9 +82,14 @@ public class EnavServiceHandler extends MapHandlerChild implements
     PersistentConnection connection;
     RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData> routeSuggestions = new RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData>();
     protected Set<RouteExchangeListener> routeExchangeListener = new HashSet<RouteExchangeListener>();
+    
+    protected Set<MonaLisaRouteExchangeListener> monaLisaRouteExchangeListener = new HashSet<MonaLisaRouteExchangeListener>();
+    
     private List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> routeSuggestionList = new ArrayList<>();
 
     HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>> contextSenders = new HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>>();
+    HashMap<Long, MonaLisaRouteNegotationData> monaLisaNegotiationData = new HashMap<Long, MonaLisaRouteNegotationData>();
+    
     
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
         this.hostPort = String.format("%s:%d",
@@ -248,6 +253,10 @@ public class EnavServiceHandler extends MapHandlerChild implements
     public RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData> getRouteSuggestions() {
         return routeSuggestions;
     }
+    
+    public HashMap<Long, MonaLisaRouteNegotationData> getMonaLisaNegotiationData() {
+        return monaLisaNegotiationData;
+    }
 
     /**
      * Create the message bus
@@ -373,6 +382,19 @@ public class EnavServiceHandler extends MapHandlerChild implements
             RouteExchangeListener listener) {
         routeExchangeListener.add(listener);
     }
+    
+    public synchronized void addMonaLisaRouteExchangeListener(
+            MonaLisaRouteExchangeListener listener) {
+        monaLisaRouteExchangeListener.add(listener);
+    }
+
+    protected synchronized void notifyMonaLisaRouteExchangeListeners() {
+
+        for (MonaLisaRouteExchangeListener listener : monaLisaRouteExchangeListener) {
+            listener.monaLisaRouteUpdate();
+        }
+    }
+    
 
     protected synchronized void notifyRouteExchangeListeners() {
 
@@ -485,11 +507,18 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                     InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply> context) {
 
                                 
-                                System.out.println("Mona Lisa Request detected, sending reply automatically");
                                 
                                 contextSenders.put(message.getId(), context);
 
+                                long mmsi = Integer.parseInt(message.getSender().toString()
+                                        .split("mmsi://")[1]);
                                 
+                                monaLisaNegotiationData.put(message.getId(), new MonaLisaRouteNegotationData(message.getId(), mmsi));
+                                monaLisaNegotiationData.get(message.getId()).addMessage(message);
+                                
+                                System.out.println("Mona Lisa Request detected from " + mmsi +", sending reply automatically");
+                                
+                                notifyMonaLisaRouteExchangeListeners();
                                 //We have recieved a message, what now?
 
                                 Route route = message.getRoute();
@@ -498,11 +527,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                 
                             }
                         }).awaitRegistered(4, TimeUnit.SECONDS);
-        
-        
-        
-        
-        
     }
 
     
