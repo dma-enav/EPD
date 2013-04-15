@@ -98,6 +98,11 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
             return;
         }
 
+//        if (e == null){
+//            doPrepare();
+//            return;
+//        }
+        
         graphics.clear();
 
         Stroke stroke = new BasicStroke(routeWidth, // Width

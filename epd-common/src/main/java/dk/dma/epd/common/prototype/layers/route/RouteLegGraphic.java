@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.common.prototype.layers.route;
 
-import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -43,10 +42,13 @@ public class RouteLegGraphic extends OMGraphicList {
     private OMArrowHead arrow = new OMArrowHead(
             OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, 5, 15);
     private Color color;
-    
+
     private OMLine broadline;
 
     private int routeIndex;
+    
+    float[] dash = { 35.0f, 35.0f };
+    float dashPhase;
 
     /**
      * Creates a route leg
@@ -91,33 +93,59 @@ public class RouteLegGraphic extends OMGraphicList {
             line = new OMLine(startLat, startLon, endLat, endLon, lineType);
             line.setLinePaint(color);
             line.setStroke(stroke);
-            
-            add(line);
-            
-            
-            float[]  dash1 = {35.0f};
-            broadline = new OMLine(startLat, startLon, endLat, endLon, lineType);
-            broadline.setLinePaint(Color.YELLOW);
-            broadline.setStroke(new BasicStroke(10.0f,
-                    BasicStroke.CAP_BUTT,
-                    BasicStroke.JOIN_MITER,
-                    10.0f, dash1, 10.0f));
-            
-//            broadline.sett
-            
-            
-            add(broadline);
-            
-            
 
+            add(line);
+
+            // float[] dash1 = {35.0f};
+
+            // broadline.setLinePaint(new Color(255, 255, 0));
+
+            // float alpha = 0.5f;
+
+            // Color color = new Color(0, 0.1f, 0.1f, alpha); //Red
+            // Color color = tColor(Color.YELLOW.getRGB());
+            // Color color = new Color(Color.YELLOW.get, alpha);
+
+            // broadline.setLinePaint(color);
         }
     }
-    
-    private AlphaComposite makeComposite(float alpha) {
-        int type = AlphaComposite.SRC_OVER;
-        return AlphaComposite.getInstance(type, alpha);
+
+    public void addBroadLine() {
+        if (routeLeg.getEndWp() != null) {
+
+
+
+            RouteWaypoint legStart = routeLeg.getStartWp();
+            RouteWaypoint legEnd = routeLeg.getEndWp();
+
+            double startLat = legStart.getPos().getLatitude();
+            double startLon = legStart.getPos().getLongitude();
+
+            double endLat = legEnd.getPos().getLatitude();
+            double endLon = legEnd.getPos().getLongitude();
+
+            broadline = new OMLine(startLat, startLon, endLat, endLon, lineType);
+            broadline.setLinePaint(new Color(1f, 1f, 0, 0.6f));
+            broadline.setStroke(new BasicStroke(10.0f, BasicStroke.CAP_BUTT,
+                    BasicStroke.JOIN_MITER, 10.0f, dash, dashPhase));
+
+            add(broadline);
+        }
     }
 
+    public void changeBroadLine(){
+//        broadline.setLinePaint(new Color(0f, 1f, 0, 0.6f));
+        float[] dash = { 35.0f, 35.0f };
+//        float dashPhase = 18.0f;
+        System.out.println("Adding to dashPhase " + dashPhase);
+        dashPhase += 9.0f;
+        System.out.println("Dashphase is now " + dashPhase);
+        
+        broadline.setStroke(new BasicStroke(10.0f, BasicStroke.CAP_BUTT,
+                BasicStroke.JOIN_MITER, 10.0f, dash, dashPhase));
+        System.out.println("Changing stroke! " + dashPhase);
+    }
+    
     public void setArrows(boolean arrowsVisible) {
         if (!arrowsVisible) {
             line.setArrowHead(null);

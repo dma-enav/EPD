@@ -20,6 +20,9 @@ import java.awt.Stroke;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
@@ -44,6 +47,8 @@ public class RouteGraphic extends OMGraphicList {
     protected Color color;
 
     private int routeIndex;
+    
+    boolean animation;
     
     public RouteGraphic(Route route, int routeIndex, boolean arrowsVisible, Stroke stroke, Color color) {
         super();
@@ -85,8 +90,50 @@ public class RouteGraphic extends OMGraphicList {
             add(0,routeWaypointGraphic);
             i++;
         }
+        
+//        activateAnimation();
+        System.out.println("Graphic inititated");
     }
     
+    
+    public void activateAnimation(){
+        for (int i = 0; i < routeLegs.size(); i++) {
+            routeLegs.get(i).addBroadLine();
+//            routeLegs.get(i).changeBroadLine();
+        }
+        
+        
+//        TimerTask uploadCheckerTimer = new Timer(true).scheduleAtFixedRate(
+//                new TimerTask(){
+//                  public void run() { System.out.println("Hi");}
+//                }, 0, 60 * 1000);
+        
+        Timer uploadCheckerTimer = new Timer(true);
+        
+        uploadCheckerTimer.scheduleAtFixedRate(new TimerTask(){
+          public void run() { 
+              for (int i = 0; i < routeLegs.size(); i++) {
+                  routeLegs.get(i).changeBroadLine();
+              }
+              
+          
+          }
+        }, 5,  1000);
+        
+        
+        
+    }
+    
+    
+    
+    public boolean isAnimation() {
+        return animation;
+    }
+
+    public void setAnimation(boolean animation) {
+        this.animation = animation;
+    }
+
     public void showArrowHeads(boolean show){
         if(this.arrowsVisible != show){
             for (RouteLegGraphic routeLeg : routeLegs) {
