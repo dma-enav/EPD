@@ -48,6 +48,7 @@ import javax.swing.table.DefaultTableModel;
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.msi.MsiTableModel;
 import dk.dma.epd.shore.gui.route.MonaLisaRouteExchangeTableModel;
@@ -92,7 +93,7 @@ public class NotificationCenter extends ComponentFrame implements
     private MsiTableModel msiTableModel;
 
     private RouteExchangeTableModel routeTableModel;
-    private MonaLisaRouteExchangeTableModel monaLisaRouteTableModel;
+    private MonaLisaRouteExchangeTableModel monaLisaRouteTableModel = new MonaLisaRouteExchangeTableModel();
 
     private JPanel msiPanelLeft;
     private JPanel routePanelLeft;
@@ -113,7 +114,8 @@ public class NotificationCenter extends ComponentFrame implements
     private MonaLisaRouteExchangeNotificationPanel monaLisaRoutePanel;
 
     private EnavServiceHandler enavServiceHandler;
-
+    private AisHandler aisHandler;
+    
     public NotificationCenter() {
 
         super("NotificationCenter", false, true, false, false);
@@ -483,6 +485,11 @@ public class NotificationCenter extends ComponentFrame implements
             msiPanel.setMsiHandler(msiHandler);
             msiPanel.initTable();
         }
+        if (obj instanceof AisHandler) {
+            aisHandler = (AisHandler) obj;
+            monaLisaRouteTableModel.setAisHandler(aisHandler);
+            monaLisaRoutePanel.setAisHandler(aisHandler);
+        }
         if (obj instanceof MainFrame) {
             mainFrame = (MainFrame) obj;
             ToolbarMoveMouseListener mml = new ToolbarMoveMouseListener(this,
@@ -499,9 +506,10 @@ public class NotificationCenter extends ComponentFrame implements
             routeTableModel = new RouteExchangeTableModel(enavServiceHandler);
             routeTable.setModel(routeTableModel);
             routePanel.initTable();
-
             
-            monaLisaRouteTableModel = new MonaLisaRouteExchangeTableModel(enavServiceHandler);
+            monaLisaRoutePanel.setEnavServiceHandler(enavServiceHandler);
+
+            monaLisaRouteTableModel.setEnavServiceHandler(enavServiceHandler);
             monaLisaRouteTable.setModel(monaLisaRouteTableModel);
             monaLisaRoutePanel.initTable();
         }

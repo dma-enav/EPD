@@ -30,7 +30,7 @@ public class MonaLisaRouteService {
             MonaLisaRouteRequestMessage.class);
     
     public enum MonaLisaRouteStatus {
-        PENDING, AGREED, NOT_AGREED
+        PENDING, AGREED, NOT_AGREED, NEGOTIATING
     }
     
     public static class MonaLisaRouteRequestReply extends ServiceMessage<Void> {

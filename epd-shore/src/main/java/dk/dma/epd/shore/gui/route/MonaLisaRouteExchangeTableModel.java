@@ -22,11 +22,10 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteNegotationData;
-import dk.dma.epd.shore.service.RouteSuggestionData;
 
 /**
  * Table model for Route Exchange Notifications
@@ -35,12 +34,14 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
 
     private static final String[] AREA_COLUMN_NAMES = { "ID", "MMSI",
-            "Route Name", "Sent Date", "Sender", "Message", "Status",
-            "Reply Sent", "Message" };
-    private static final String[] COLUMN_NAMES = { "Name", "Call Sign", "Time to STCC",
-            "Route" };
+            "Ship Name", "Call Sign", "Type", "Destination", "Length", "Width",
+            "Draught", "COG", "SOG",
+            "Sent Date", "Message", "Status", "Reply Sent", "Message" };
+    private static final String[] COLUMN_NAMES = { "Name", "Callsign",
+            "Called", "Route", "Status" };
 
     private EnavServiceHandler enavServiceHandler;
+    private AisHandler aisHandler;
 
     private List<MonaLisaRouteNegotationData> messages = new ArrayList<MonaLisaRouteNegotationData>();
 
@@ -49,10 +50,19 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
      * 
      * @param msiHandler
      */
-    public MonaLisaRouteExchangeTableModel(EnavServiceHandler enavServiceHandler) {
+    public MonaLisaRouteExchangeTableModel() {
         super();
-        this.enavServiceHandler = enavServiceHandler;
         updateMessages();
+    }
+
+    public void setAisHandler(AisHandler aisHandler) {
+        this.aisHandler = aisHandler;
+    }
+    
+    
+
+    public void setEnavServiceHandler(EnavServiceHandler enavServiceHandler) {
+        this.enavServiceHandler = enavServiceHandler;
     }
 
     /**
@@ -122,87 +132,41 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
 
         switch (columnIndex) {
         case 0:
-            return message.getId();
+            if (aisHandler != null) {
+                if (aisHandler.getVesselTargets().get(message.getMmsi())
+                        .getStaticData() != null) {
+                    return aisHandler.getVesselTargets().get(message.getMmsi())
+                            .getStaticData().getName();
+                } else {
+                    return message.getMmsi();
+                }
+            } else {
+                return message.getMmsi();
+            }
         case 1:
-            return "" + message.getMmsi();
+            if (aisHandler != null) {
+                if (aisHandler.getVesselTargets().get(message.getMmsi())
+                        .getStaticData() != null) {
+                    return aisHandler.getVesselTargets().get(message.getMmsi())
+                            .getStaticData().getCallsign();
+                } else {
+                    return "N/A";
+                }
+            } else {
+                return "N/A";
+            }
         case 2:
-//            return message.getRouteMessage().get(0).getRoute().getName();
-            return "N/A";
+            return Formatter.formatShortDateTime(message.getRouteMessage()
+                    .get(0).getSent());
         case 3:
-//            return interpetStatusShort(message.getStatus());
             return message.getRouteMessage().get(0).getRoute().getName();
+        case 4:
+            return message.getStatus();
         default:
             return "";
 
         }
     }
-
-    public String interpetStatusShort(AIS_STATUS status) {
-
-        if (status == AIS_STATUS.RECIEVED_APP_ACK) {
-            return "Sent";
-        } else {
-            if (status == AIS_STATUS.FAILED) {
-                return "Failed";
-            } else {
-                if (status == AIS_STATUS.NOT_SENT) {
-                    return "Not sent";
-                } else {
-                    if (status == AIS_STATUS.RECIEVED_ACCEPTED) {
-                        return "Accepted";
-                    } else {
-                        if (status == AIS_STATUS.RECIEVED_NOTED) {
-                            return "Noted";
-                        } else {
-                            if (status == AIS_STATUS.RECIEVED_REJECTED) {
-                                return "Rejected";
-                            } else {
-                                if (status == AIS_STATUS.SENT_NOT_ACK) {
-                                    return "Sent but not recieved";
-                                } else {
-                                    return "Unknown: " + status;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public String interpetStatusLong(AIS_STATUS status) {
-
-        if (status == AIS_STATUS.RECIEVED_APP_ACK) {
-            return "Sent and acknowleged by application but not user";
-        } else {
-            if (status == AIS_STATUS.FAILED) {
-                return "Failed to send to target";
-            } else {
-                if (status == AIS_STATUS.NOT_SENT) {
-                    return "Not sent - check network status";
-                } else {
-                    if (status == AIS_STATUS.RECIEVED_ACCEPTED) {
-                        return "Route Suggestion Accepted by ship";
-                    } else {
-                        if (status == AIS_STATUS.RECIEVED_NOTED) {
-                            return "Route Suggestion Noted by user";
-                        } else {
-                            if (status == AIS_STATUS.RECIEVED_REJECTED) {
-                                return "Route Suggestion Rejected by user";
-                            } else {
-                                if (status == AIS_STATUS.SENT_NOT_ACK) {
-                                    return "Sent but no answer from route aplication";
-                                } else {
-                                    return "Unknown: " + status;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     public Object areaGetValueAt(int rowIndex, int columnIndex) {
         if (rowIndex == -1 || this.getRowCount() < 1) {
             return "";
@@ -215,34 +179,82 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
         case 1:
             return message.getMmsi();
         case 2:
-//            return message.getOutgoingMsg().getRoute().getName();
-            return "Route name?";
+            if (aisHandler.getVesselTargets().get(message.getMmsi())
+                    .getStaticData() != null) {
+                return aisHandler.getVesselTargets().get(message.getMmsi())
+                        .getStaticData().getName();
+            } else {
+                return message.getMmsi();
+            }
         case 3:
-//            return Formatter.formatShortDateTime(message.getOutgoingMsg()
-//                    .getSent());
-            return "Date sent?";
+            if (aisHandler.getVesselTargets().get(message.getMmsi())
+                    .getStaticData() != null) {
+                return aisHandler.getVesselTargets().get(message.getMmsi())
+                        .getStaticData().getCallsign();
+            } else {
+                return "N/A";
+            }
         case 4:
-//            return message.getOutgoingMsg().getSender();
-            return "Sender?";
+            if (aisHandler.getVesselTargets().get(message.getMmsi())
+                    .getStaticData() != null) {
+                return aisHandler.getVesselTargets().get(message.getMmsi())
+                        .getStaticData().getShipType();
+            } else {
+                return "N/A";
+            }
         case 5:
-//            return message.getOutgoingMsg().getMessage();
-            return "Message?";
+            if (aisHandler.getVesselTargets().get(message.getMmsi())
+                    .getStaticData() != null) {
+                return aisHandler.getVesselTargets().get(message.getMmsi())
+                        .getStaticData().getDestination();
+            } else {
+                return "N/A";
+            }
         case 6:
-//            return interpetStatusLong(message.getStatus());
-            return "Status?";
+            if (aisHandler.getVesselTargets().get(message.getMmsi())
+                    .getStaticData() != null) {
+                return aisHandler.getVesselTargets().get(message.getMmsi())
+                        .getStaticData().getDimBow() + aisHandler.getVesselTargets().get(message.getMmsi())
+                        .getStaticData().getDimStern();
+            } else {
+                return "N/A";
+            }
         case 7:
-//            if (message.getReply() != null) {
-//                return Formatter.formatShortDateTime(new Date(message
-//                        .getReply().getSendDate()));
-//            } else {
-                return "No reply recieved yet";
-//            }
+            if (aisHandler.getVesselTargets().get(message.getMmsi())
+                    .getStaticData() != null) {
+                return aisHandler.getVesselTargets().get(message.getMmsi())
+                        .getStaticData().getDimPort() + aisHandler.getVesselTargets().get(message.getMmsi())
+                        .getStaticData().getDimStarboard();
+            } else {
+                return "N/A";
+            }
         case 8:
-//            if (message.getReply() != null){
-//                return message.getReply().getMessage();
-//            }else{
-                return "No reply recieved yet";
-//            }
+            if (aisHandler.getVesselTargets().get(message.getMmsi())
+                    .getStaticData() != null) {
+                return aisHandler.getVesselTargets().get(message.getMmsi())
+                        .getStaticData().getDraught()/10;
+            } else {
+                return "N/A";
+            }
+        case 9:
+           return aisHandler.getVesselTargets().get(message.getMmsi()).getPositionData().getCog();
+        case 10:
+            return aisHandler.getVesselTargets().get(message.getMmsi()).getPositionData().getSog();
+        case 11:
+            return Formatter.formatShortDateTime(message.getRouteMessage()
+                    .get(0).getSent());
+        case 12:
+            return message.getRouteMessage().get(0).getMessage();
+        case 13:
+            return message.getStatus();
+        case 14:
+            if (message.getRouteReply().size() > 0){
+                return Formatter.formatShortDateTime(new Date(message.getRouteReply().get(0).getSendDate()));
+            }
+        case 15:
+            if (message.getRouteReply().size() > 0){
+                return message.getRouteReply().get(0).getMessage();
+            }
         default:
             return "";
         }
@@ -252,11 +264,15 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
      * Update messages
      */
     public void updateMessages() {
+        if (enavServiceHandler != null){
+            
+        
         messages.clear();
 
         for (Iterator<MonaLisaRouteNegotationData> it = enavServiceHandler
                 .getMonaLisaNegotiationData().values().iterator(); it.hasNext();) {
             messages.add(it.next());
+        }
         }
     }
 
@@ -264,8 +280,8 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
         if (rowIndex == -1 || this.getRowCount() < 1) {
             return false;
         }
-//        return messages.get(rowIndex).isAcknowleged();
-         return false;
+        // return messages.get(rowIndex).isAcknowleged();
+        return false;
     }
 
 }

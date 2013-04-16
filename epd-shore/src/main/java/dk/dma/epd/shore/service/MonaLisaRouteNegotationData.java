@@ -20,6 +20,7 @@ import java.util.List;
 
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
+import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
 
 public class MonaLisaRouteNegotationData {
 
@@ -27,16 +28,30 @@ public class MonaLisaRouteNegotationData {
     private long mmsi;
     private List<MonaLisaRouteRequestMessage> routeMessages = new ArrayList<MonaLisaRouteRequestMessage>();
     private List<MonaLisaRouteRequestReply> routeReplys = new ArrayList<MonaLisaRouteRequestReply>();
-    
+    private MonaLisaRouteStatus status;
     
     
     public MonaLisaRouteNegotationData(long id, long mmsi) {
         super();
         this.id = id;
         this.mmsi = mmsi;
+        this.status = MonaLisaRouteStatus.PENDING;
     }
     
     
+    
+    public MonaLisaRouteStatus getStatus() {
+        return status;
+    }
+
+
+
+    public void setStatus(MonaLisaRouteStatus status) {
+        this.status = status;
+    }
+
+
+
     public void addMessage(MonaLisaRouteRequestMessage message){
         routeMessages.add(message);
     }
