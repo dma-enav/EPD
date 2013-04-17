@@ -314,12 +314,23 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
             Route route = metocGraphic.getRoute();
             if (routeManager.showMetocForRoute(route)) {
                 double minDist = calculateMetocDistance(route);
-                int step = (int) (5 / minDist);
-                if (step < 1) {
+                Double tmp = ((5.0 / minDist));
+                int step = 1;
+                if (tmp < 1) {
                     step = 1;
+                } else {
+                    step = tmp.intValue();
                 }
+                //System.out.println("minDist = "+minDist+" step = "+step);
                 metocGraphic.setStep(step);
+                
+                //temporary fix for drawing metoc information
+                //All scales will draw all metoc.
+                metocGraphic.setStep(1);
+                
                 metocGraphic.paintMetoc();
+                
+                
             }
         }
 
