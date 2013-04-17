@@ -53,6 +53,8 @@ import dk.dma.epd.shore.gui.route.RoutePropertiesDialog;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteNegotationData;
+import dk.dma.epd.shore.voyage.Voyage;
+import dk.dma.epd.shore.voyage.VoyageManager;
 
 public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
 
@@ -98,6 +100,8 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
     private JPanel leftPanel;
     private EnavServiceHandler enavServiceHandler;
     private AisHandler aisHandler;
+    private VoyageManager voyageManager;
+    
     
     public MonaLisaRouteExchangeNotificationPanel() {
         GridBagConstraints gbc_scrollPane_2 = new GridBagConstraints();
@@ -421,6 +425,11 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
                   enavServiceHandler.getMonaLisaNegotiationData().get(message.getId()).setHandled(true);
                   enavServiceHandler.sendReply(reply);
                   handle_request.setEnabled(false);
+                  
+                  //Reply sent, add it to voyagemanager
+                  voyageManager.addVoyage(new Voyage(message.getMmsi(), new Route(message.getRouteMessage().get(0).getRoute())));
+                  
+                  
 
                 }
             }
@@ -474,6 +483,18 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
     public void setAisHandler(AisHandler aisHandler){
         this.aisHandler = aisHandler;
     }
+    
+    
+
+    public VoyageManager getVoyageManager() {
+        return voyageManager;
+    }
+
+    public void setVoyageManager(VoyageManager voyageManager) {
+        this.voyageManager = voyageManager;
+    }
+
+
 
     private class RouteExchangeRowListener implements ListSelectionListener {
 

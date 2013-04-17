@@ -58,6 +58,7 @@ import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteExchangeListener;
 import dk.dma.epd.shore.service.RouteExchangeListener;
+import dk.dma.epd.shore.voyage.VoyageManager;
 
 public class NotificationCenter extends ComponentFrame implements
         ListSelectionListener, ActionListener, IMsiUpdateListener,
@@ -512,6 +513,10 @@ public class NotificationCenter extends ComponentFrame implements
             monaLisaRouteTableModel.setEnavServiceHandler(enavServiceHandler);
             monaLisaRouteTable.setModel(monaLisaRouteTableModel);
             monaLisaRoutePanel.initTable();
+        }
+        
+        if (obj instanceof VoyageManager){
+            monaLisaRoutePanel.setVoyageManager((VoyageManager) obj);
         }
     }
 

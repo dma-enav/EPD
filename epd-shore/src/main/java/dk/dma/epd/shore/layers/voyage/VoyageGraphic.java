@@ -13,8 +13,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.layers.route;
+package dk.dma.epd.shore.layers.voyage;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Stroke;
 import java.util.ArrayList;
@@ -23,7 +24,6 @@ import java.util.List;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
-import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
@@ -31,14 +31,13 @@ import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 /**
  * Graphic for showing routes
  */
-public class RouteGraphic extends OMGraphicList {
+public class VoyageGraphic extends OMGraphicList {
 
     private static final long serialVersionUID = 1L;
 
     private Route route;
-    private boolean arrowsVisible;
     private LinkedList<RouteWaypoint> routeWaypoints;
-    private List<RouteLegGraphic> routeLegs = new ArrayList<>();
+    private List<VoyageLegGraphic> routeLegs = new ArrayList<>();
 
     protected Stroke stroke;
     protected Color color;
@@ -47,13 +46,18 @@ public class RouteGraphic extends OMGraphicList {
 
     boolean animation;
 
-    public RouteGraphic(Route route, int routeIndex, boolean arrowsVisible,
-            Stroke stroke, Color color) {
+    public VoyageGraphic(Route route, int routeIndex, Color color) {
         super();
         this.route = route;
         this.routeIndex = routeIndex;
-        this.arrowsVisible = arrowsVisible;
-        this.stroke = stroke;
+
+        stroke = new BasicStroke(12.0f, // Width
+                BasicStroke.CAP_SQUARE, // End cap
+                BasicStroke.JOIN_MITER, // Join style
+                1.0f, // Miter limit
+                new float[] { 1.0f}, // Dash pattern
+                0.0f);
+        
         this.color = color;
         initGraphics();
     }
@@ -62,9 +66,8 @@ public class RouteGraphic extends OMGraphicList {
         return route;
     }
 
-    public RouteGraphic(boolean arrowsVisible, Stroke stroke, Color color) {
+    public VoyageGraphic(Stroke stroke, Color color) {
         super();
-        this.arrowsVisible = arrowsVisible;
         this.stroke = stroke;
         this.color = color;
     }
@@ -76,54 +79,22 @@ public class RouteGraphic extends OMGraphicList {
 
     public void initGraphics() {
         routeWaypoints = route.getWaypoints();
-        int i = 0;
+//        int i = 0;
         for (RouteWaypoint routeWaypoint : routeWaypoints) {
-            if (route instanceof ActiveRoute
-                    && ((ActiveRoute) route).getActiveWaypointIndex() == i) {
-                RouteWaypointGraphic routeWaypointGraphicActive = new RouteWaypointGraphic(
-                        route, routeIndex, i, routeWaypoint, Color.RED, 30, 30);
-                add(0, routeWaypointGraphicActive);
-            }
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg routeLeg = routeWaypoint.getOutLeg();
-                RouteLegGraphic routeLegGraphic = new RouteLegGraphic(routeLeg,
+                VoyageLegGraphic voyageLegGraphic = new VoyageLegGraphic(routeLeg,
                         routeIndex, this.color, this.stroke);
-                add(routeLegGraphic);
-                routeLegs.add(0, routeLegGraphic);
+                add(voyageLegGraphic);
+                routeLegs.add(0, voyageLegGraphic);
             }
-            RouteWaypointGraphic routeWaypointGraphic = new RouteWaypointGraphic(
-                    route, routeIndex, i, routeWaypoint, this.color, 18, 18);
-            add(0, routeWaypointGraphic);
-            i++;
+            
+            //No waypoint circles?
+//            VoyageWaypointGraphic voyageWaypointGraphic = new VoyageWaypointGraphic(
+//                    route, routeIndex, i, routeWaypoint, this.color, 5, 5);
+//            add(0, voyageWaypointGraphic);
+//            i++;
         }
     }
 
-    public void activateAnimation() {
-        for (int i = 0; i < routeLegs.size(); i++) {
-            routeLegs.get(i).addBroadLine();
-        }
-    }
-
-    public void changeBroadLine(){
-        for (int i = 0; i < routeLegs.size(); i++) {
-             routeLegs.get(i).changeBroadLine();
-        }
-    }
-    
-    public boolean isAnimation() {
-        return animation;
-    }
-
-    public void setAnimation(boolean animation) {
-        this.animation = animation;
-    }
-
-    public void showArrowHeads(boolean show) {
-        if (this.arrowsVisible != show) {
-            for (RouteLegGraphic routeLeg : routeLegs) {
-                routeLeg.setArrows(show);
-            }
-            this.arrowsVisible = show;
-        }
-    }
 }

@@ -92,7 +92,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener, Ru
     private WptTableModel wptTableModel;
     private RouteManager routeManager;
     private ActiveRoute activeRoute;
-    private boolean editable;
+//    private boolean editable;
 
     public RoutePropertiesDialog(Window parent, RouteManager routeManager, int routeId) {
         super(parent, "Route Properties", Dialog.ModalityType.APPLICATION_MODAL);
@@ -104,7 +104,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener, Ru
             activeRoute = (ActiveRoute)this.route;
         } else {
             this.route = routeManager.getRoute(routeId);
-            editable = true;
+//            editable = true;
         }
 
         setSize(900, 500);

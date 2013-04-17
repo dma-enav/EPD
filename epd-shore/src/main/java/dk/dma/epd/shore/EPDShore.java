@@ -55,6 +55,7 @@ import dk.dma.epd.shore.services.shore.ShoreServices;
 import dk.dma.epd.shore.settings.ESDSensorSettings;
 import dk.dma.epd.shore.settings.ESDSettings;
 import dk.dma.epd.shore.util.OneInstanceGuard;
+import dk.dma.epd.shore.voyage.VoyageManager;
 
 /**
  * Main class with main method.
@@ -82,6 +83,7 @@ public class EPDShore {
     private static StaticImages staticImages;
 
     private static RouteManager routeManager;
+    private static VoyageManager voyageManager;
     private static EnavServiceHandler enavServiceHandler;
 
     private static ExceptionHandler exceptionHandler = new ExceptionHandler();
@@ -159,9 +161,16 @@ public class EPDShore {
         staticImages = new StaticImages();
         beanHandler.add(staticImages);
 
-        // Load routeManager and register as GPS data listener
+        // Load routeManager
         routeManager = RouteManager.loadRouteManager();
         beanHandler.add(routeManager);
+        
+        
+        // To be changed to load similar to routeManager
+//        voyageManager = new VoyageManager();
+        voyageManager = VoyageManager.loadVoyageManager();
+        beanHandler.add(voyageManager);
+        
 
         // Create AIS services
         aisServices = new AisServices();
@@ -237,6 +246,7 @@ public class EPDShore {
 
         // GuiSettings
         // Handler settings
+        voyageManager.saveToFile();
         routeManager.saveToFile();
         msiHandler.saveToFile();
         aisHandler.saveView();
@@ -566,4 +576,10 @@ public class EPDShore {
         return aisServices;
     }
 
+    public static VoyageManager getVoyageManager() {
+        return voyageManager;
+    }
+
+    
+    
 }

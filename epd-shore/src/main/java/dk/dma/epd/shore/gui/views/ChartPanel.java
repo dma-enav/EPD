@@ -52,9 +52,11 @@ import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
 import dk.dma.epd.shore.layers.route.RouteLayer;
 import dk.dma.epd.shore.layers.routeEdit.RouteEditLayer;
+import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.layers.wms.WMSLayer;
 import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.settings.ESDMapSettings;
+import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
@@ -86,6 +88,7 @@ public class ChartPanel extends OMComponentPanel {
     private MsiLayer msiLayer;
     private WMSLayer wmsLayer;
     private RouteLayer routeLayer;
+    private VoyageLayer voyageLayer;
     private RouteEditLayer routeEditLayer;
     private NewRouteContainerLayer newRouteContainerLayer;
 
@@ -407,10 +410,6 @@ public class ChartPanel extends OMComponentPanel {
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
 
-        // Add AIS Layer
-        aisLayer = new AisLayer();
-        aisLayer.setVisible(true);
-        mapHandler.add(aisLayer);
 
         // Add MSI Layer
         msiLayer = new MsiLayer();
@@ -421,6 +420,16 @@ public class ChartPanel extends OMComponentPanel {
         routeLayer = new RouteLayer();
         routeLayer.setVisible(true);
         mapHandler.add(routeLayer);
+        
+        // Add Voyage Layer
+        voyageLayer = new VoyageLayer();
+        voyageLayer.setVisible(true);
+        mapHandler.add(voyageLayer);
+        
+        // Add AIS Layer
+        aisLayer = new AisLayer();
+        aisLayer.setVisible(true);
+        mapHandler.add(aisLayer);
 
         // Create route editing layer
         newRouteContainerLayer = new NewRouteContainerLayer();
@@ -450,11 +459,18 @@ public class ChartPanel extends OMComponentPanel {
 
         // Force a route layer update
         routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
+        
+        
+        //Force a voyage layer update
+        voyageLayer.voyagesChanged(VoyageUpdateEvent.VOYAGE_ADDED);
 
         if (wmsLayer.isVisible()) {
             // System.out.println("wms is visible");
             bgLayer.setVisible(false);
         }
+        
+        
+
 
     }
 
@@ -603,4 +619,10 @@ public class ChartPanel extends OMComponentPanel {
         return newRouteContainerLayer;
     }
 
+    public VoyageLayer getVoyageLayer() {
+        return voyageLayer;
+    }
+
+    
+    
 }
