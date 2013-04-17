@@ -314,7 +314,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
             Route route = metocGraphic.getRoute();
             if (routeManager.showMetocForRoute(route)) {
                 double minDist = calculateMetocDistance(route);
-                Double tmp = ((5.0 / minDist));
+                Double tmp = 5.0 / minDist;
                 int step = 1;
                 if (tmp < 1) {
                     step = 1;
