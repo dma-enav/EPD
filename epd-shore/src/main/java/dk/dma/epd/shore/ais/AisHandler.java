@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -649,20 +650,25 @@ public class AisHandler extends MapHandlerChild implements IAisListener,
         
         //Add past track
         if (pastTrack.containsKey(mmsi)){
-            ArrayList<PastTrackPoint> ptps = (ArrayList<PastTrackPoint>) pastTrack.get(mmsi);
+            LinkedList<PastTrackPoint> ptps = (LinkedList<PastTrackPoint>) pastTrack.get(mmsi);
             
             
             //Should it add the key?
             Position prevPos = ptps.get(ptps.size() - 1).getPosition();
             
+            //LOG.info("current size of pastTrack hashmap: "+pastTrack.size());
+            
             //In km, how often should points be saved? 1km?
             if (prevPos.distanceTo(positionData.getPos(), CoordinateSystem.CARTESIAN) > 100){
                 //System.out.println("Target " + mmsi + " has moved more than 50 since last");
                 
+                
+                
                 try {
                     ptps.add(new PastTrackPoint(new Date(), positionData.getPos()));
                 } catch (Exception exception) {
-                    LOG.debug("Target "+mmsi+" has List<PastTrackPoint> size of "+ptps.size());
+                    LOG.error("Target "+mmsi+" has List<PastTrackPoint> size of "+ptps.size());
+                    LOG.error("current size of pastTrack hashmap: "+pastTrack.size());
                     throw exception;
                 }
                 
@@ -673,11 +679,11 @@ public class AisHandler extends MapHandlerChild implements IAisListener,
             
         } else {
             try {
-                pastTrack.put(mmsi, new ArrayList<PastTrackPoint>());
+                pastTrack.put(mmsi, new LinkedList<PastTrackPoint>());
                 pastTrack.get(mmsi).add(new PastTrackPoint(new Date(), positionData.getPos()));
             } catch (Exception exception) {
-                LOG.debug("Failed to create or add new ArrayList<PastTrackPoint>");
-                LOG.debug("current size of pastTrack hashmap: "+pastTrack.size());
+                LOG.error("Failed to create or add new ArrayList<PastTrackPoint>");
+                LOG.error("current size of pastTrack hashmap: "+pastTrack.size());
                 throw exception;
             }
             
