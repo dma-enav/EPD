@@ -44,6 +44,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -216,8 +217,6 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
         routeTable.setRowHeight(20);
         routeTable.setFocusable(false);
         routeTable.setAutoResizeMode(0);
-        // msiTable.getColumnModel().getColumn(0).setPreferredWidth(45);
-        // msiTable.getColumnModel().getColumn(1).setPreferredWidth(300);
 
         leftScrollPane.getViewport().setBackground(backgroundColor);
 
@@ -361,13 +360,12 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
     public void readMessage(int selectedRow) {
 
         if (routeTableModel.isAwk(selectedRow)) {
-            route_details.setEnabled(false);
+            handle_request.setEnabled(false);
         } else {
-            route_details.setEnabled(true);
+            handle_request.setEnabled(true);
         }
         chat_btn.setEnabled(true);
-        handle_request.setEnabled(true);
-
+        route_details.setEnabled(true);
         // Update area
 
         doc.delete(0, doc.length());
@@ -411,21 +409,18 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
                 if (handle_request.isEnabled()) {
                     MonaLisaRouteNegotationData message = routeTableModel
                             .getMessages().get(currentSelection);
-                    // try {
-                    // enavServiceHandler.sendRouteSuggestion(message
-                    // .getMmsi(), message.getOutgoingMsg().getRoute(),
-                    // message.getOutgoingMsg().getSender(),
-                    // message.getOutgoingMsg().getMessage());
-                    // } catch (InterruptedException e1) {
-                    // // TODO Auto-generated catch block
-                    // e1.printStackTrace();
-                    // } catch (ExecutionException e1) {
-                    // // TODO Auto-generated catch block
-                    // e1.printStackTrace();
-                    // } catch (TimeoutException e1) {
-                    // // TODO Auto-generated catch block
-                    // e1.printStackTrace();
-                    // }
+                    
+                    System.out.println(message.getId());
+                    
+                  MonaLisaRouteService.MonaLisaRouteRequestReply reply = new MonaLisaRouteService.MonaLisaRouteRequestReply("Automatic reply",
+                  message.getId(), aisHandler.getOwnShip().getMmsi(), System
+                          .currentTimeMillis(), MonaLisaRouteService.MonaLisaRouteStatus.AGREED, message.getRouteMessage().get(0).getRoute());
+
+                  enavServiceHandler.getMonaLisaNegotiationData().get(message.getId()).addReply(reply);
+                  enavServiceHandler.getMonaLisaNegotiationData().get(message.getId()).setStatus(reply.getStatus());
+                  enavServiceHandler.getMonaLisaNegotiationData().get(message.getId()).setHandled(true);
+                  enavServiceHandler.sendReply(reply);
+                  handle_request.setEnabled(false);
 
                 }
             }
@@ -437,7 +432,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
                     MonaLisaRouteNegotationData message = routeTableModel
                             .getMessages().get(currentSelection);
 
-                    //
+                    
                     // enavServiceHandler.getRouteSuggestions().get(new
                     // RouteSuggestionKey(message.getMmsi(), message.getId()));
 

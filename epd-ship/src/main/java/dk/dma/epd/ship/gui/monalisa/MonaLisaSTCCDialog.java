@@ -16,7 +16,6 @@
 package dk.dma.epd.ship.gui.monalisa;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -178,9 +177,10 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
             lblDate.setText("Valid");
             statusField.setText("Route agreed");
             btnCancelRequest.setText("Acknowledge");
-            btnCancelRequest.setBackground(Color.GREEN);
-            btnCancelRequest.setForeground(Color.GREEN);
+//            btnCancelRequest.setBackground(Color.GREEN);
+//            btnCancelRequest.setForeground(Color.GREEN);
             
+            setInActive();
             routeLayer.stopRouteAnimated();
             
         }
@@ -198,6 +198,8 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
                 routeLayer.stopRouteAnimated();
                 this.setVisible(false);
             }
+            
+            btnCancelRequest.setText("Cancel request");
         }
     }
 

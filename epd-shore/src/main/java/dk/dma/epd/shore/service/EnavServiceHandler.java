@@ -547,7 +547,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 //                                    monaLisaNegotiationData
 //                                    .get(message.getId()).setStatus(reply.getStatus());
 //                                    
-////                                    sendReply(reply);
+//                                    sendReply(reply);
                                     
                                     
                                     
@@ -561,7 +561,12 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     public void sendReply(MonaLisaRouteService.MonaLisaRouteRequestReply reply) {
         try {
-            contextSenders.get(reply.getId()).complete(reply);
+            
+            if (contextSenders.containsKey(reply.getId())){
+                System.out.println("Sending");
+                contextSenders.get(reply.getId()).complete(reply);    
+            }
+            
         } catch (Exception e) {
             System.out.println("Failed to reply");
         }

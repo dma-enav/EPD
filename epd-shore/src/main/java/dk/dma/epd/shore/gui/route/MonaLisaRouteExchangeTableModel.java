@@ -280,8 +280,7 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
         if (rowIndex == -1 || this.getRowCount() < 1) {
             return false;
         }
-        // return messages.get(rowIndex).isAcknowleged();
-        return false;
+         return messages.get(rowIndex).isHandled();
     }
 
 }

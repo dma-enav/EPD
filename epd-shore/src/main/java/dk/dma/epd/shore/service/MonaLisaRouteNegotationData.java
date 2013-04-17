@@ -29,6 +29,7 @@ public class MonaLisaRouteNegotationData {
     private List<MonaLisaRouteRequestMessage> routeMessages = new ArrayList<MonaLisaRouteRequestMessage>();
     private List<MonaLisaRouteRequestReply> routeReplys = new ArrayList<MonaLisaRouteRequestReply>();
     private MonaLisaRouteStatus status;
+    private boolean handled;
     
     
     public MonaLisaRouteNegotationData(long id, long mmsi) {
@@ -36,6 +37,7 @@ public class MonaLisaRouteNegotationData {
         this.id = id;
         this.mmsi = mmsi;
         this.status = MonaLisaRouteStatus.PENDING;
+        handled = false;
     }
     
     
@@ -75,6 +77,17 @@ public class MonaLisaRouteNegotationData {
     public List<MonaLisaRouteRequestReply> getRouteReply() {
         return routeReplys;
     }
+
+    public boolean isHandled() {
+        return handled;
+    }
+
+
+
+    public void setHandled(boolean handled) {
+        this.handled = handled;
+    }
+    
     
     
     
