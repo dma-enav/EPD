@@ -393,7 +393,8 @@ public class RouteLayer extends OMGraphicHandlerLayer implements IRoutesUpdateLi
                 Position newLocation = Position.create(newLatLon.getLatitude(),
                         newLatLon.getLongitude());
                 routeWaypoint.setPos(newLocation);
-                routesChanged(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
+
+                routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
                 dragging = true;
                 return true;
             }
