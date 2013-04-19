@@ -118,6 +118,10 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
     private SendRouteToShip sendRouteToShip;
     private SendRouteFromRoute setRouteExchangeRoute;
 
+    
+    private JMenuItem openVoyagePlan;
+    private JMenuItem sendVoyage;
+    
     // bean context
     protected String propertyPrefix;
     protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(this);
@@ -215,6 +219,15 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         sendRouteToShip.addActionListener(this);
 
         routeRequestMetoc.setEnabled(false);
+        
+        
+        // Voyage menu
+        openVoyagePlan = new JMenuItem("Open Voyage Plans Details");
+        openVoyagePlan.setText("Open Voyage Plans Details");
+        sendVoyage = new JMenuItem("Select and send Voyage");
+        sendVoyage.setText("Select and send Voyage");
+        
+        
         
         
     }
@@ -475,6 +488,19 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         add(routeWaypointDelete);
 
         generalRouteMenu(routeIndex);
+    }
+    
+    public void voyageWaypontMenu(){
+        removeAll();
+
+        add(openVoyagePlan);
+        add(sendVoyage);
+        
+        
+//        generalMenu(false);
+        
+        //Right click, hide voyages and intended routes maybe?
+        
     }
 
     public void routeEditMenu(){

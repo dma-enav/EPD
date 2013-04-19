@@ -382,7 +382,7 @@ public class NotificationCenter extends ComponentFrame implements
         routePanel.setVisible(false);
 
         // Add notification panel
-        monaLisaRoutePanel = new MonaLisaRouteExchangeNotificationPanel();
+        monaLisaRoutePanel = new MonaLisaRouteExchangeNotificationPanel(this);
         monaLisaRouteTable = monaLisaRoutePanel.getRouteTable();
 
         notificationContentPanel.add(monaLisaRoutePanel, gbc_panel);

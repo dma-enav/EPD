@@ -52,11 +52,12 @@ public class VoyageGraphic extends OMGraphicList {
         this.routeIndex = routeIndex;
 
         stroke = new BasicStroke(12.0f, // Width
+//        stroke = new BasicStroke(5.0f, // Width
                 BasicStroke.CAP_SQUARE, // End cap
                 BasicStroke.JOIN_MITER, // Join style
-                1.0f, // Miter limit
+                12.0f, // Miter limit
                 new float[] { 1.0f}, // Dash pattern
-                0.0f);
+                12.0f);
         
         this.color = color;
         initGraphics();

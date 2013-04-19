@@ -42,6 +42,8 @@ public class RouteGraphic extends OMGraphicList {
 
     protected Stroke stroke;
     protected Color color;
+    protected Color broadLineColor;
+    protected boolean circleDash;
 
     private int routeIndex;
 
@@ -58,6 +60,19 @@ public class RouteGraphic extends OMGraphicList {
         initGraphics();
     }
 
+    public RouteGraphic(Route route, int routeIndex, boolean arrowsVisible,
+            Stroke stroke, Color color, Color broadLineColor, boolean circleDash) {
+        super();
+        this.route = route;
+        this.routeIndex = routeIndex;
+        this.arrowsVisible = arrowsVisible;
+        this.stroke = stroke;
+        this.color = color;
+        this.broadLineColor = broadLineColor;
+        this.circleDash = circleDash;
+        initVoyageGraphics();
+    }
+
     public Route getRoute() {
         return route;
     }
@@ -72,6 +87,32 @@ public class RouteGraphic extends OMGraphicList {
     public void setRoute(Route route) {
         this.route = route;
         initGraphics();
+    }
+
+    public void initVoyageGraphics() {
+        routeWaypoints = route.getWaypoints();
+        int i = 0;
+        for (RouteWaypoint routeWaypoint : routeWaypoints) {
+            if (routeWaypoint.getOutLeg() != null) {
+                RouteLeg routeLeg = routeWaypoint.getOutLeg();
+
+                // Fat legs
+                RouteLegGraphic routeLegGraphic = new RouteLegGraphic(routeLeg,
+                        routeIndex, this.color, this.stroke, broadLineColor);
+
+                add(routeLegGraphic);
+                routeLegs.add(0, routeLegGraphic);
+            }
+
+            // Dashed circles
+            RouteWaypointGraphic routeWaypointGraphic = new RouteWaypointGraphic(
+                    route, routeIndex, i, routeWaypoint, this.color, 18, 18,
+                    circleDash);
+            
+            add(0, routeWaypointGraphic);
+            i++;
+
+        }
     }
 
     public void initGraphics() {
@@ -100,16 +141,16 @@ public class RouteGraphic extends OMGraphicList {
 
     public void activateAnimation() {
         for (int i = 0; i < routeLegs.size(); i++) {
-            routeLegs.get(i).addBroadLine();
+            routeLegs.get(i).addAnimatorLine();
         }
     }
 
-    public void changeBroadLine(){
+    public void updateAnimationLine() {
         for (int i = 0; i < routeLegs.size(); i++) {
-             routeLegs.get(i).changeBroadLine();
+            routeLegs.get(i).updateAnimationLine();
         }
     }
-    
+
     public boolean isAnimation() {
         return animation;
     }

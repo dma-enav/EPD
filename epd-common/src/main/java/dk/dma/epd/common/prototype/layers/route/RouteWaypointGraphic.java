@@ -21,6 +21,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMText;
@@ -43,6 +44,7 @@ public class RouteWaypointGraphic extends OMGraphicList {
     private int width;
     private int height;
     
+    private boolean dotted;
     
     /**
      * Creates a route waypoint circle
@@ -60,6 +62,17 @@ public class RouteWaypointGraphic extends OMGraphicList {
         this.height = height;
         this.circle = new WaypointCircle(route, routeIndex, wpIndex);
         initGraphics();
+    }
+    
+    public RouteWaypointGraphic(Route route, int routeIndex, int wpIndex, RouteWaypoint routeWaypoint, Color color, int width, int height, boolean dotted) {
+        super();
+        this.routeWaypoint = routeWaypoint;
+        this.color = color;
+        this.width = width;
+        this.height = height;
+        this.dotted = dotted;
+        this.circle = new WaypointCircle(route, routeIndex, wpIndex);
+        initVoyageGraphics();
     }
     
     public void initGraphics(){
@@ -82,6 +95,39 @@ public class RouteWaypointGraphic extends OMGraphicList {
         label.setTextMatteColor(Color.WHITE);
         label.setData(routeWaypoint.getName());
         add(label);
+    }
+    
+    
+    public void initVoyageGraphics(){
+        clear();
+        
+        double lat = routeWaypoint.getPos().getLatitude();
+        double lon = routeWaypoint.getPos().getLongitude();
+        
+        circle.setLatLon(lat, lon);
+        circle.setLinePaint(color);
+        circle.setWidth(width);
+        circle.setHeight(height);
+        
+        if (dotted){
+            Stroke stroke = new BasicStroke(
+                    3.0f,                      // Width
+                    BasicStroke.CAP_SQUARE,    // End cap
+                    BasicStroke.JOIN_MITER,    // Join style
+                    10.0f,                     // Miter limit
+                    new float[] { 1.0f, 5.0f }, // Dash pattern
+                    0.0f);
+            circle.setStroke(stroke);
+        }else{
+            circle.setStroke(new BasicStroke(3));
+        }
+        
+        
+        
+        
+
+        add(circle);
+
     }
     
     @Override

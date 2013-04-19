@@ -54,6 +54,7 @@ public class SendToSTCC extends JMenuItem implements IMapMenuAction {
 //            EPDShip.getMainFrame().getChartPanel().getr
 
             monaLisaSTCCDialog.setLocation(windowLocation);
+            monaLisaSTCCDialog.setLocationRelativeTo(EPDShip.getMainFrame());
             monaLisaSTCCDialog.setVisible(true);
             monaLisaSTCCDialog.setRouteName(route.getName());
             monaLisaSTCCDialog.setRouteLayer(routeLayer);

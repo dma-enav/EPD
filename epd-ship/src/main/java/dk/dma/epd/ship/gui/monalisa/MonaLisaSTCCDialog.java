@@ -31,6 +31,7 @@ import javax.swing.WindowConstants;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.layers.route.RouteLayer;
 import dk.dma.epd.ship.service.EnavServiceHandler;
 
@@ -51,18 +52,21 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
     RouteLayer routeLayer;
 
     private boolean isActive;
-
+//    private MainFrame mainFrame;
+    
     /**
      * Create the dialog.
      */
-    public MonaLisaSTCCDialog() {
+    public MonaLisaSTCCDialog(MainFrame mainFrame) {
 
-        super(EPDShip.getMainFrame(), "STCC Info", false);
+        super(mainFrame, "STCC Info", false);
+//        this.mainFrame = mainFrame;
+        
         setAlwaysOnTop(true);
         setResizable(false);
 
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-        setLocationRelativeTo(EPDShip.getMainFrame());
+        setLocationRelativeTo(mainFrame);
 
         setBounds(100, 100, 165, 181);
 

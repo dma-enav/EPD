@@ -628,7 +628,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
 
         uploadCheckerTimer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
-                animatedRoute2.changeBroadLine();
+                animatedRoute2.updateAnimationLine();
             }
         }, 5, 1000);
 

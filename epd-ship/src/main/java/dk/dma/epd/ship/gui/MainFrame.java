@@ -130,7 +130,7 @@ public class MainFrame extends JFrame implements WindowListener {
         nogoPanel = new NoGoComponentPanel();
         
         //Mona Lisa Dialog
-        monaLisaSTCCDialog = new MonaLisaSTCCDialog();
+        monaLisaSTCCDialog = new MonaLisaSTCCDialog(this);
         
         // Unmovable panels
         bottomPanel = new BottomPanel();

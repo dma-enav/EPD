@@ -101,9 +101,11 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
     private EnavServiceHandler enavServiceHandler;
     private AisHandler aisHandler;
     private VoyageManager voyageManager;
+    private NotificationCenter notCenter;
     
     
-    public MonaLisaRouteExchangeNotificationPanel() {
+    public MonaLisaRouteExchangeNotificationPanel(NotificationCenter notCenter) {
+        this.notCenter = notCenter;
         GridBagConstraints gbc_scrollPane_2 = new GridBagConstraints();
         gbc_scrollPane_2.fill = GridBagConstraints.BOTH;
         gbc_scrollPane_2.gridx = 1;
@@ -414,20 +416,32 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
                     MonaLisaRouteNegotationData message = routeTableModel
                             .getMessages().get(currentSelection);
                     
-                    System.out.println(message.getId());
+                    String shipName = "" + message.getMmsi();
                     
-                  MonaLisaRouteService.MonaLisaRouteRequestReply reply = new MonaLisaRouteService.MonaLisaRouteRequestReply("Automatic reply",
-                  message.getId(), aisHandler.getOwnShip().getMmsi(), System
-                          .currentTimeMillis(), MonaLisaRouteService.MonaLisaRouteStatus.AGREED, message.getRouteMessage().get(0).getRoute());
-
-                  enavServiceHandler.getMonaLisaNegotiationData().get(message.getId()).addReply(reply);
-                  enavServiceHandler.getMonaLisaNegotiationData().get(message.getId()).setStatus(reply.getStatus());
-                  enavServiceHandler.getMonaLisaNegotiationData().get(message.getId()).setHandled(true);
-                  enavServiceHandler.sendReply(reply);
-                  handle_request.setEnabled(false);
+                    if (aisHandler.getVesselTargets().get(message.getMmsi()).getStaticData() != null){
+                        shipName = aisHandler.getVesselTargets().get(message.getMmsi()).getStaticData().getName();
+                    }
+                    
+                    Voyage voyage = new Voyage(message.getMmsi(), new Route(message.getRouteMessage().get(0).getRoute()));
+                    
+                    EPDShore.getMainFrame().addMonaLisaHandlingWindow(shipName, voyage);
+                    
+                    
+//                  MonaLisaRouteService.MonaLisaRouteRequestReply reply = new MonaLisaRouteService.MonaLisaRouteRequestReply("Automatic reply",
+//                  message.getId(), aisHandler.getOwnShip().getMmsi(), System
+//                          .currentTimeMillis(), MonaLisaRouteService.MonaLisaRouteStatus.AGREED, message.getRouteMessage().get(0).getRoute());
+//
+//                  enavServiceHandler.getMonaLisaNegotiationData().get(message.getId()).addReply(reply);
+//                  enavServiceHandler.getMonaLisaNegotiationData().get(message.getId()).setStatus(reply.getStatus());
+//                  enavServiceHandler.getMonaLisaNegotiationData().get(message.getId()).setHandled(true);
+//                  enavServiceHandler.sendReply(reply);
+//                  
+//                  handle_request.setEnabled(false);
+                  
+                  notCenter.setVisible(false);
                   
                   //Reply sent, add it to voyagemanager
-                  voyageManager.addVoyage(new Voyage(message.getMmsi(), new Route(message.getRouteMessage().get(0).getRoute())));
+//                  voyageManager.addVoyage(new Voyage(message.getMmsi(), new Route(message.getRouteMessage().get(0).getRoute())));
                   
                   
 
