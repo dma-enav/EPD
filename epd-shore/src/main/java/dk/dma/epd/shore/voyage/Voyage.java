@@ -24,8 +24,10 @@ public class Voyage implements Serializable{
 
     private static final long serialVersionUID = 1L;
     private Route route;
+    private long id;
     
-    public Voyage(long mmsi, Route route) {
+    public Voyage(long mmsi, Route route, long id) {
+        this.id = id;
         this.route = route;
         this.mmsi = mmsi;
     }
@@ -44,6 +46,13 @@ public class Voyage implements Serializable{
     public void setMmsi(long mmsi) {
         this.mmsi = mmsi;
     }
+    public long getId() {
+        return id;
+    }
+    public void setId(long id) {
+        this.id = id;
+    }
+    
     
     
 }

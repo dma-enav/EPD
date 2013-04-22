@@ -329,16 +329,15 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                 } else {
                     step = tmp.intValue();
                 }
-                //System.out.println("minDist = "+minDist+" step = "+step);
+                // System.out.println("minDist = "+minDist+" step = "+step);
                 metocGraphic.setStep(step);
-                
-                //temporary fix for drawing metoc information
-                //All scales will draw all metoc.
+
+                // temporary fix for drawing metoc information
+                // All scales will draw all metoc.
                 metocGraphic.setStep(1);
-                
+
                 metocGraphic.paintMetoc();
-                
-                
+
             }
         }
 
@@ -615,10 +614,15 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         RouteGraphic animatedRoute = null;
 
         for (int i = 0; i < graphics.size(); i++) {
-            if (route == ((RouteGraphic) graphics.get(i)).getRoute()) {
-                System.out.println("Found the desired route");
-                animatedRoute = (RouteGraphic) graphics.get(i);
-                animatedRoute.activateAnimation();
+
+            if (graphics.get(i) instanceof RouteGraphic) {
+
+                if (route == ((RouteGraphic) graphics.get(i)).getRoute()) {
+                    System.out.println("Found the desired route");
+                    animatedRoute = (RouteGraphic) graphics.get(i);
+                    animatedRoute.activateAnimation();
+
+                }
 
             }
         }

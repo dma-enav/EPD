@@ -88,6 +88,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> routeSuggestionList = new ArrayList<>();
 
     HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>> contextSenders = new HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>>();
+    
     HashMap<Long, MonaLisaRouteNegotationData> monaLisaNegotiationData = new HashMap<Long, MonaLisaRouteNegotationData>();
 
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
@@ -532,6 +533,10 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                     notifyMonaLisaRouteExchangeListeners();
                                     // We have recieved a message, what now?
 
+                                    
+                                    
+                                    
+                                    
 //                                    Route route = message.getRoute();
 //
 //                                    
@@ -565,6 +570,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
             if (contextSenders.containsKey(reply.getId())){
                 System.out.println("Sending");
                 contextSenders.get(reply.getId()).complete(reply);    
+                notifyMonaLisaRouteExchangeListeners();
             }
             
         } catch (Exception e) {

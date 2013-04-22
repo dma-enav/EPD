@@ -422,7 +422,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
                         shipName = aisHandler.getVesselTargets().get(message.getMmsi()).getStaticData().getName();
                     }
                     
-                    Voyage voyage = new Voyage(message.getMmsi(), new Route(message.getRouteMessage().get(0).getRoute()));
+                    Voyage voyage = new Voyage(message.getMmsi(), new Route(message.getRouteMessage().get(0).getRoute()), message.getId());
                     
                     EPDShore.getMainFrame().addMonaLisaHandlingWindow(shipName, voyage);
                     

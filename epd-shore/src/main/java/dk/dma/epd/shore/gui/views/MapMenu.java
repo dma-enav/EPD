@@ -73,10 +73,12 @@ import dk.dma.epd.shore.gui.views.menuitems.RouteWaypointActivateToggle;
 import dk.dma.epd.shore.gui.views.menuitems.RouteWaypointDelete;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteToShip;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteFromRoute;
+import dk.dma.epd.shore.gui.views.menuitems.SendVoyage;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
 import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.route.RouteManager;
+import dk.dma.epd.shore.voyage.Voyage;
 
 
 /**
@@ -120,7 +122,7 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
 
     
     private JMenuItem openVoyagePlan;
-    private JMenuItem sendVoyage;
+    private SendVoyage sendVoyage;
     
     // bean context
     protected String propertyPrefix;
@@ -224,8 +226,10 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         // Voyage menu
         openVoyagePlan = new JMenuItem("Open Voyage Plans Details");
         openVoyagePlan.setText("Open Voyage Plans Details");
-        sendVoyage = new JMenuItem("Select and send Voyage");
-        sendVoyage.setText("Select and send Voyage");
+        
+        sendVoyage = new SendVoyage("Select and send Voyage");
+        sendVoyage.addActionListener(this);
+//        sendVoyage.setText("Select and send Voyage");
         
         
         
@@ -490,9 +494,13 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         generalRouteMenu(routeIndex);
     }
     
-    public void voyageWaypontMenu(){
+    public void voyageWaypontMenu(Voyage voyage, boolean modified){
         removeAll();
 
+        sendVoyage.setVoyage(voyage);
+        sendVoyage.setModifiedRoute(modified);
+        sendVoyage.setSendVoyageDialog(EPDShore.getMainFrame().getSendVoyageDialog());
+        
         add(openVoyagePlan);
         add(sendVoyage);
         

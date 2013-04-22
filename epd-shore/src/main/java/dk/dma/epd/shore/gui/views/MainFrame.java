@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
-import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
+import dk.dma.epd.shore.gui.route.SendVoyageDialog;
 import dk.dma.epd.shore.settings.ESDGuiSettings;
 import dk.dma.epd.shore.settings.Workspace;
 import dk.dma.epd.shore.util.ThreadedMapCreator;
@@ -89,6 +89,7 @@ public class MainFrame extends JFrame implements WindowListener {
     private JSettingsWindow settingsWindow = new JSettingsWindow();
     private RouteManagerDialog routeManagerDialog = new RouteManagerDialog(this);
     private SendRouteDialog sendRouteDialog = new SendRouteDialog();
+    private SendVoyageDialog sendVoyageDialog = new SendVoyageDialog();
 
     private StatusArea statusArea = new StatusArea(this);
     private JMapFrame activeMapWindow;
@@ -409,6 +410,7 @@ public class MainFrame extends JFrame implements WindowListener {
         desktop.getManager().setSettings(settingsWindow);
         desktop.getManager().setRouteManager(routeManagerDialog);
         desktop.getManager().setRouteExchangeDialog(sendRouteDialog);
+        desktop.getManager().setSendVoyageDialog(sendVoyageDialog);
 
         desktop.add(statusArea, true);
         desktop.add(notificationCenter, true);
@@ -416,10 +418,12 @@ public class MainFrame extends JFrame implements WindowListener {
         desktop.add(notificationArea, true);
         desktop.add(settingsWindow, true);
         desktop.add(sendRouteDialog, true);
+        desktop.add(sendVoyageDialog, true);
 
         beanHandler.add(notificationArea);
         beanHandler.add(settingsWindow);
         beanHandler.add(sendRouteDialog);
+        beanHandler.add(sendVoyageDialog);
         // dtp.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
 
         // Add self to bean handler
@@ -432,7 +436,6 @@ public class MainFrame extends JFrame implements WindowListener {
         // routeManagerDialog.setVisible(true);
 
         setWorkSpace(workspace);
-
     }
 
     /**
@@ -743,6 +746,10 @@ public class MainFrame extends JFrame implements WindowListener {
 
     public SendRouteDialog getSendRouteDialog() {
         return sendRouteDialog;
+    }
+    
+    public SendVoyageDialog getSendVoyageDialog() {
+        return sendVoyageDialog;
     }
 
     public JMenuWorkspaceBar getTopMenu() {

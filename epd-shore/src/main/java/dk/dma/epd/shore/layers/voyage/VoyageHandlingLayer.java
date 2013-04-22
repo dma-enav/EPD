@@ -20,8 +20,6 @@ import java.awt.Color;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JPanel;
-
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
@@ -37,6 +35,7 @@ import dk.dma.epd.common.prototype.layers.route.WaypointCircle;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
@@ -60,24 +59,24 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
     private MapMenu routeMenu;
     private OMGraphic closest;
     private OMGraphic selectedGraphic;
-    
+
     private JMapFrame jMapFrame;
 
     private VoyageManager voyageManager;
+    private VoyagePlanInfoPanel voyagePlanInfoPanel = new VoyagePlanInfoPanel();
     // private MetocInfoPanel metocInfoPanel;
     // private WaypointInfoPanel waypointInfoPanel;
-     private MapBean mapBean;
-    
-    
+    private MapBean mapBean;
+
     private Voyage voyage;
     private Route originalRoute;
     private Route newRoute;
-    
-    Stroke stroke = new BasicStroke(
-            1.0f,                      // Width
-            BasicStroke.CAP_SQUARE,    // End cap
-            BasicStroke.JOIN_MITER,    // Join style
-            10.0f,                     // Miter limit
+    private boolean modified;
+
+    Stroke stroke = new BasicStroke(1.0f, // Width
+            BasicStroke.CAP_SQUARE, // End cap
+            BasicStroke.JOIN_MITER, // Join style
+            10.0f, // Miter limit
             new float[] { 1.0f, 5.0f }, // Dash pattern
             0.0f);
 
@@ -87,13 +86,13 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
     // private OMGraphic selectedGraphic;
     // private JMapFrame jMapFrame;
     // private MapMenu routeMenu;
-    
 
     public VoyageHandlingLayer() {
         voyageManager = EPDShore.getVoyageManager();
-         voyageManager.addListener(this);
-         
-         
+        voyageManager.addListener(this);
+
+        voyagePlanInfoPanel.setVisible(true);
+
     }
 
     @Override
@@ -103,24 +102,32 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         // voyageManager.addListener(this);
         // }
 
-         if (obj instanceof JMapFrame){
-             
-//         if (waypointInfoPanel == null && voyageManager != null) {
-//         waypointInfoPanel = new WaypointInfoPanel();
-//         }
-        
-         jMapFrame = (JMapFrame) obj;
-         
-         jMapFrame.getGlassPanel().add(new JPanel());
-//         metocInfoPanel = new MetocInfoPanel();
-//         jMapFrame.getGlassPanel().add(metocInfoPanel);
-//         jMapFrame.getGlassPanel().add(waypointInfoPanel);
-         }
+        if (obj instanceof JMapFrame) {
+
+            // if (waypointInfoPanel == null && voyageManager != null) {
+            // waypointInfoPanel = new WaypointInfoPanel();
+            // }
+
+            jMapFrame = (JMapFrame) obj;
+
+            voyagePlanInfoPanel.setParent(jMapFrame);
+
+            jMapFrame.getGlassPanel().add(voyagePlanInfoPanel);
+            // voyagePlanInfoPanel.setLocation(0, 0);
+            voyagePlanInfoPanel.setBounds(20, 20, 208, 300);
+            // metocInfoPanel = new MetocInfoPanel();
+            // jMapFrame.getGlassPanel().add(metocInfoPanel);
+            // jMapFrame.getGlassPanel().add(waypointInfoPanel);
+        }
         if (obj instanceof MapBean) {
-             mapBean = (MapBean) obj;
+            mapBean = (MapBean) obj;
         }
         if (obj instanceof MapMenu) {
             routeMenu = (MapMenu) obj;
+        }
+
+        if (obj instanceof AisHandler) {
+            voyagePlanInfoPanel.setAisHandler((AisHandler) obj);
         }
 
     }
@@ -165,27 +172,43 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         if (selectedGraphic instanceof WaypointCircle) {
             WaypointCircle wpc = (WaypointCircle) selectedGraphic;
 
+            if (wpc.getRouteIndex() == 1) {
+                
+                voyage.setRoute(newRoute);
+                
+                
+                
+                
+                routeMenu.voyageWaypontMenu(voyage, modified);
+                // routeMenu.routeWaypointMenu(wpc.getRouteIndex(),
+                // wpc.getWpIndex());
+                routeMenu.setVisible(true);
+                routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+                return true;
+            }
+
             // We need a info panel?
             // waypointInfoPanel.setVisible(false);
 
-            routeMenu.voyageWaypontMenu();
-//            routeMenu.routeWaypointMenu(wpc.getRouteIndex(), wpc.getWpIndex());
-            routeMenu.setVisible(true);
-            routeMenu.show(this, e.getX() - 2, e.getY() - 2);
-            return true;
         }
 
         if (selectedGraphic instanceof RouteLegGraphic) {
             RouteLegGraphic rlg = (RouteLegGraphic) selectedGraphic;
 
-            // waypointInfoPanel.setVisible(false);
+            if (rlg.getRouteIndex() == 1) {
 
-            routeMenu.voyageWaypontMenu();
-//            routeMenu.routeLegMenu(rlg.getRouteIndex(), rlg.getRouteLeg(), e.getPoint());
-            routeMenu.setVisible(true);
-            routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+                voyage.setRoute(newRoute);
+                
+                
+                routeMenu.voyageWaypontMenu(voyage, modified);
+                
+                // routeMenu.routeLegMenu(rlg.getRouteIndex(),
+                // rlg.getRouteLeg(), e.getPoint());
+                routeMenu.setVisible(true);
+                routeMenu.show(this, e.getX() - 2, e.getY() - 2);
 
-            return true;
+                return true;
+            }
         }
 
         return false;
@@ -194,13 +217,14 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
     // Cannot edit voyages
     @Override
     public boolean mouseDragged(MouseEvent e) {
-        if(!javax.swing.SwingUtilities.isLeftMouseButton(e)){
+        if (!javax.swing.SwingUtilities.isLeftMouseButton(e)) {
             return false;
         }
 
-        if(!dragging){
+        if (!dragging) {
             selectedGraphic = null;
-            OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 5.0f);
+            OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
+                    5.0f);
             for (OMGraphic omGraphic : allClosest) {
                 if (omGraphic instanceof WaypointCircle) {
                     selectedGraphic = omGraphic;
@@ -213,60 +237,58 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
             WaypointCircle wpc = (WaypointCircle) selectedGraphic;
 
             if (wpc.getRouteIndex() == 1 && newRoute != null) {
-                RouteWaypoint routeWaypoint = newRoute.getWaypoints()
-                        .get(wpc.getWpIndex());
+                RouteWaypoint routeWaypoint = newRoute.getWaypoints().get(
+                        wpc.getWpIndex());
                 LatLonPoint newLatLon = mapBean.getProjection().inverse(
                         e.getPoint());
                 Position newLocation = Position.create(newLatLon.getLatitude(),
-                        newLatLon.getLongitude());                
+                        newLatLon.getLongitude());
                 routeWaypoint.setPos(newLocation);
+
+                modified = true;
                 
                 updateVoyages();
-                
+
                 dragging = true;
                 return true;
             }
-            
-            
+
         }
 
         return false;
     }
 
-    
-    private void updateVoyages(){
-        //Update voyages, clear all graphics, redraw original but in red, draw the new voyage.
-        
+    private void updateVoyages() {
+        // Update voyages, clear all graphics, redraw original but in red, draw
+        // the new voyage.
+
         graphics.clear();
 
         Color ECDISOrange = new Color(213, 103, 45, 255);
-        
-        
-        //Modified route, ecdis line, green broadline
-        RouteGraphic modifiedVoyageGraphic = new RouteGraphic(newRoute, 1, false, stroke,
-                ECDISOrange, new Color(0.39f, 0.69f, 0.49f, 0.6f), true);
+
+        // Modified route, ecdis line, green broadline
+        RouteGraphic modifiedVoyageGraphic = new RouteGraphic(newRoute, 1,
+                false, stroke, ECDISOrange,
+                new Color(0.39f, 0.69f, 0.49f, 0.6f), true);
         graphics.add(modifiedVoyageGraphic);
-        
-//        graphics.project(getProjection(), true);
-        
-        
-        //Original route
-//        VoyageGraphic voyageGraphic = new VoyageGraphic(originalRoute, 0,
-//                new Color(1f, 0, 0, 0.6f));
-        
-        RouteGraphic voyageGraphic = new RouteGraphic(originalRoute, 0, false, stroke, ECDISOrange,
-                new Color(1f, 0, 0, 0.4f), false);
-        
-        
+
+        // graphics.project(getProjection(), true);
+
+        // Original route
+        // VoyageGraphic voyageGraphic = new VoyageGraphic(originalRoute, 0,
+        // new Color(1f, 0, 0, 0.6f));
+
+        RouteGraphic voyageGraphic = new RouteGraphic(originalRoute, 0, false,
+                stroke, ECDISOrange, new Color(1f, 0, 0, 0.4f), false);
+
         graphics.add(voyageGraphic);
-        
+
         graphics.project(getProjection(), true);
-        
+
         doPrepare();
-        
-        
+
     }
-    
+
     @Override
     public void mouseEntered(MouseEvent arg0) {
         // TODO Auto-generated method stub
@@ -353,7 +375,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseReleased(MouseEvent e) {
-        if(dragging){
+        if (dragging) {
             dragging = false;
             updateVoyages();
             return true;
@@ -376,14 +398,15 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         }
 
         graphics.project(getProjection(), true);
-        
-//        updateVoyages();
+
+        // updateVoyages();
 
         doPrepare();
     }
 
     /**
      * Functions called when creating the layer, it paints the initial voyage
+     * 
      * @param voyage
      */
     public void handleVoyage(Voyage voyage) {
@@ -392,21 +415,22 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         this.voyage = voyage;
         originalRoute = voyage.getRoute().copy();
         newRoute = voyage.getRoute();
-        
+
         Color ECDISOrange = new Color(213, 103, 45, 255);
-        
-        //Added the route as green, original recieved one
-        RouteGraphic voyageGraphic = new RouteGraphic(newRoute, 1, false, stroke, ECDISOrange,
-                new Color(1f, 1f, 0, 0.7f), false);
-        
-        
-//        VoyageGraphic voyageGraphic = new VoyageGraphic(newRoute, 1,
-//                new Color(1f, 1f, 0, 0.6f));
-        
-        
+
+        // Added the route as green, original recieved one
+        RouteGraphic voyageGraphic = new RouteGraphic(newRoute, 1, false,
+                stroke, ECDISOrange, new Color(1f, 1f, 0, 0.7f), false);
+
+        // VoyageGraphic voyageGraphic = new VoyageGraphic(newRoute, 1,
+        // new Color(1f, 1f, 0, 0.6f));
+
+        voyagePlanInfoPanel.setVoyage(voyage);
+
         graphics.add(voyageGraphic);
         graphics.project(getProjection(), true);
         doPrepare();
+
     }
 
     @Override
