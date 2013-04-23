@@ -87,7 +87,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
     private boolean dragging;
     SafeHavenArea safeHavenArea = new SafeHavenArea();
     private boolean activeSafeHaven;
-    private Timer uploadCheckerTimer;
+
 
     public RouteLayer() {
         new Thread(this).start();
@@ -609,39 +609,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         routesChanged(null);
     }
 
-    public void setRouteAnimated(Route route) {
 
-        RouteGraphic animatedRoute = null;
-
-        for (int i = 0; i < graphics.size(); i++) {
-
-            if (graphics.get(i) instanceof RouteGraphic) {
-
-                if (route == ((RouteGraphic) graphics.get(i)).getRoute()) {
-                    System.out.println("Found the desired route");
-                    animatedRoute = (RouteGraphic) graphics.get(i);
-                    animatedRoute.activateAnimation();
-
-                }
-
-            }
-        }
-        final RouteGraphic animatedRoute2 = animatedRoute;
-
-        uploadCheckerTimer = new Timer(true);
-
-        uploadCheckerTimer.scheduleAtFixedRate(new TimerTask() {
-            public void run() {
-                animatedRoute2.updateAnimationLine();
-            }
-        }, 5, 1000);
-
-    }
-
-    public void stopRouteAnimated() {
-        uploadCheckerTimer.cancel();
-        routesChanged(RoutesUpdateEvent.ROUTE_CHANGED);
-    }
 
     @Override
     public void run() {

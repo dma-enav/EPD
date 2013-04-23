@@ -185,7 +185,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 //            btnCancelRequest.setForeground(Color.GREEN);
             
             setInActive();
-            routeLayer.stopRouteAnimated();
+//            routeLayer.stopRouteAnimated();
             
         }
 
@@ -199,7 +199,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
             // Cancel request
             if (isActive) {
                 setInActive();
-                routeLayer.stopRouteAnimated();
+//                routeLayer.stopRouteAnimated();
                 this.setVisible(false);
             }
             

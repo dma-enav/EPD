@@ -35,7 +35,6 @@ import com.bbn.openmap.MapHandlerChild;
 import dk.dma.enav.communication.ConnectionFuture;
 import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.broadcast.BroadcastListener;
-import dk.dma.enav.communication.broadcast.BroadcastMessage;
 import dk.dma.enav.communication.broadcast.BroadcastMessageHeader;
 import dk.dma.enav.communication.service.InvocationCallback;
 import dk.dma.enav.communication.service.ServiceEndpoint;
@@ -47,8 +46,9 @@ import dk.dma.enav.util.function.BiConsumer;
 import dk.dma.enav.util.function.Supplier;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
-import dk.dma.epd.common.prototype.enavcloud.EnavCloudSendThread;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
+import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteAck;
+import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteAck.MonaLisaRouteAckMsg;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
@@ -89,7 +89,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>> contextSenders = new HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>>();
     
-    HashMap<Long, MonaLisaRouteNegotationData> monaLisaNegotiationData = new HashMap<Long, MonaLisaRouteNegotationData>();
+    HashMap<Long, MonaLisaRouteNegotiationData> monaLisaNegotiationData = new HashMap<Long, MonaLisaRouteNegotiationData>();
 
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
         this.hostPort = String.format("%s:%d",
@@ -101,7 +101,23 @@ public class EnavServiceHandler extends MapHandlerChild implements
         return connection;
     }
 
-    public void listenToBroadcasts() throws InterruptedException {
+    private void listenToAck() throws InterruptedException {
+        connection
+        .serviceRegister(
+                MonaLisaRouteAck.INIT,
+                new InvocationCallback<MonaLisaRouteAck.MonaLisaRouteAckMsg, Void>() {
+                         @Override
+                    public void process(
+                            MonaLisaRouteAckMsg message,
+                            dk.dma.enav.communication.service.InvocationCallback.Context<Void> context) {
+
+                             System.out.println("Recieved an ack from: " + message.getId());
+                        
+                    }
+                }).awaitRegistered(4, TimeUnit.SECONDS);
+    }
+    
+    private void listenToBroadcasts() throws InterruptedException {
         connection.broadcastListen(EnavRouteBroadcast.class,
                 new BroadcastListener<EnavRouteBroadcast>() {
                     public void onMessage(BroadcastMessageHeader l,
@@ -136,22 +152,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
         // Update intented route
         vesselTarget.setCloudRouteData(intendedRoute);
         aisHandler.publishUpdate(vesselTarget);
-    }
-
-    /**
-     * Send maritime message over enav cloud
-     * 
-     * @param message
-     * @return
-     * @throws Exception
-     */
-    public void sendMessage(BroadcastMessage message) throws Exception {
-
-        EnavCloudSendThread sendThread = new EnavCloudSendThread(message,
-                connection);
-
-        // Send it in a seperate thread
-        sendThread.start();
     }
 
     private void getRouteSuggestionServiceList() {
@@ -257,7 +257,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         return routeSuggestions;
     }
 
-    public HashMap<Long, MonaLisaRouteNegotationData> getMonaLisaNegotiationData() {
+    public HashMap<Long, MonaLisaRouteNegotiationData> getMonaLisaNegotiationData() {
         return monaLisaNegotiationData;
     }
 
@@ -353,6 +353,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                         try {
                             listenToBroadcasts();
                             monaLisaRouteRequestListener();
+                            listenToAck();
                         } catch (Exception e) {
                             // Exception for virtual net
                             System.out
@@ -519,7 +520,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
                                     monaLisaNegotiationData.put(
                                             message.getId(),
-                                            new MonaLisaRouteNegotationData(
+                                            new MonaLisaRouteNegotiationData(
                                                     message.getId(), mmsi));
                                     monaLisaNegotiationData
                                             .get(message.getId()).addMessage(

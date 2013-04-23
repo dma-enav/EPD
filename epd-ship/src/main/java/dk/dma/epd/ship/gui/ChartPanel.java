@@ -62,6 +62,7 @@ import dk.dma.epd.ship.layers.nogo.DynamicNogoLayer;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
 import dk.dma.epd.ship.layers.routeEdit.RouteEditLayer;
+import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.settings.EPDMapSettings;
 
 /**
@@ -85,6 +86,7 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
     private DragMouseMode dragMouseMode;
     private MouseDelegator mouseDelegator;
     private RouteLayer routeLayer;
+    private VoyageLayer voyageLayer;
     private MsiLayer msiLayer;
     private NogoLayer nogoLayer;
     private DynamicNogoLayer dynamicNogoLayer;
@@ -175,6 +177,11 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         routeLayer = new RouteLayer();
         routeLayer.setVisible(true);
         mapHandler.add(routeLayer);
+        
+        // Create voyage layer
+        voyageLayer = new VoyageLayer();
+        voyageLayer.setVisible(true);
+        mapHandler.add(voyageLayer);
 
         // Create route editing layer
         newRouteContainerLayer = new NewRouteContainerLayer();

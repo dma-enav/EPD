@@ -52,7 +52,7 @@ import dk.dma.epd.shore.gui.route.MonaLisaRouteExchangeTableModel;
 import dk.dma.epd.shore.gui.route.RoutePropertiesDialog;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.service.EnavServiceHandler;
-import dk.dma.epd.shore.service.MonaLisaRouteNegotationData;
+import dk.dma.epd.shore.service.MonaLisaRouteNegotiationData;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
@@ -398,7 +398,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
             public void mouseReleased(MouseEvent e) {
 
                 if (route_details.isEnabled()) {
-                    MonaLisaRouteNegotationData message = routeTableModel
+                    MonaLisaRouteNegotiationData message = routeTableModel
                             .getMessages().get(currentSelection);
 
                     RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(EPDShore.getMainFrame(), new Route(message.getRouteMessage().get(0).getRoute()));
@@ -413,7 +413,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
         handle_request.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 if (handle_request.isEnabled()) {
-                    MonaLisaRouteNegotationData message = routeTableModel
+                    MonaLisaRouteNegotiationData message = routeTableModel
                             .getMessages().get(currentSelection);
                     
                     String shipName = "" + message.getMmsi();
@@ -452,7 +452,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
         chat_btn.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 if (chat_btn.isEnabled()) {
-                    MonaLisaRouteNegotationData message = routeTableModel
+                    MonaLisaRouteNegotiationData message = routeTableModel
                             .getMessages().get(currentSelection);
 
                     

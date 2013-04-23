@@ -16,6 +16,7 @@
 package dk.dma.epd.ship.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +43,8 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.enavcloud.EnavCloudSendThread;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
+import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteAck;
+import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteAck.MonaLisaRouteAckMsg;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
@@ -77,6 +80,11 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private AisHandler aisHandler;
     private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context;
     private List<ServiceEndpoint<MonaLisaRouteRequestMessage, MonaLisaRouteRequestReply>> monaLisaSTCCList = new ArrayList<>();
+
+    private List<ServiceEndpoint<MonaLisaRouteAckMsg, Void>> monaLisaRouteAckList = new ArrayList<>();
+
+    private HashMap<Long, MonaLisaRouteNegotiationData> monaLisaNegotiationData = new HashMap<Long, MonaLisaRouteNegotiationData>();
+
     private MonaLisaSTCCDialog monaLisaSTCCDialog;
 
     PersistentConnection connection;
@@ -88,7 +96,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                 enavSettings.getCloudServerHost(),
                 enavSettings.getCloudServerPort());
     }
-    
+
     private void intendedRouteListener() throws InterruptedException {
         connection.broadcastListen(EnavRouteBroadcast.class,
                 new BroadcastListener<EnavRouteBroadcast>() {
@@ -100,6 +108,16 @@ public class EnavServiceHandler extends MapHandlerChild implements
                         updateIntendedRoute(id, r.getIntendedRoute());
                     }
                 });
+    }
+
+    private void getMonaLisaRouteAckList() {
+        try {
+            monaLisaRouteAckList = connection
+                    .serviceFind(MonaLisaRouteAck.INIT)
+                    .nearest(Integer.MAX_VALUE).get();
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
     }
 
     public PersistentConnection getConnection() {
@@ -140,8 +158,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
     public void sendReply(AIS_STATUS recievedAccepted, long id, String message) {
         try {
             context.complete(new RouteSuggestionService.RouteSuggestionReply(
-                    message, id, aisHandler.getOwnShip().getMmsi(),
-                    System.currentTimeMillis(), recievedAccepted));            
+                    message, id, aisHandler.getOwnShip().getMmsi(), System
+                            .currentTimeMillis(), recievedAccepted));
         } catch (Exception e) {
             System.out.println("Failed to reply");
         }
@@ -247,10 +265,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
                     (ActiveRouteProvider) obj);
             ((RouteManager) obj).addListener(intendedRouteService);
             ((RouteManager) obj).setIntendedRouteService(intendedRouteService);
-            // intendedRouteService.start();
-            // } else if (obj instanceof EnavCloudHandler) {
-            // enavCloudHandler = (EnavCloudHandler) obj;
-            // enavCloudHandler.start();
         } else if (obj instanceof GpsHandler) {
             this.gpsHandler = (GpsHandler) obj;
             this.gpsHandler.addListener(this);
@@ -287,11 +301,10 @@ public class EnavServiceHandler extends MapHandlerChild implements
                 }
             }
         }
-        
-        
-        
-        while(true){
+
+        while (true) {
             getSTCCList();
+            getMonaLisaRouteAckList();
             Util.sleep(10000);
         }
     }
@@ -300,9 +313,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
         new Thread(this).start();
     }
 
-    
-    
-    
     private void getSTCCList() {
         try {
             monaLisaSTCCList = connection
@@ -313,53 +323,67 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
         }
     }
-    
+
     public List<ServiceEndpoint<MonaLisaRouteRequestMessage, MonaLisaRouteRequestReply>> getMonaLisaSTCCList() {
         return monaLisaSTCCList;
     }
-    
-    
-    
-    
-    public void sendMonaLisaRouteRequest(Route route, String sender, String message){
-  
+
+    public void sendMonaLisaAck(long addressMMSI, long id, long ownMMSI) {
+        String mmsiStr = "mmsi://" + addressMMSI;
+
+        ServiceEndpoint<MonaLisaRouteAckMsg, Void> end = null;
+
+        for (int i = 0; i < monaLisaRouteAckList.size(); i++) {
+            if (monaLisaRouteAckList.get(i).getId().toString().equals(mmsiStr)) {
+                end = monaLisaRouteAckList.get(i);
+                // break;
+            }
+        }
+
+        MonaLisaRouteAckMsg msg = new MonaLisaRouteAckMsg(true, id, ownMMSI);
+
+        if (end != null) {
+
+            // ConnectionFuture<Void> f =
+            end.invoke(msg);
+        } else {
+            System.out.println("Failed to send ack");
+        }
+    }
+
+    public void sendMonaLisaRouteRequest(Route route, String sender,
+            String message) {
+
         ServiceEndpoint<MonaLisaRouteService.MonaLisaRouteRequestMessage, MonaLisaRouteService.MonaLisaRouteRequestReply> end = null;
 
         for (int i = 0; i < monaLisaSTCCList.size(); i++) {
-                end = monaLisaSTCCList.get(i);
+            end = monaLisaSTCCList.get(i);
 
         }
 
-        MonaLisaRouteRequestMessage routeMessage = new MonaLisaRouteService.MonaLisaRouteRequestMessage(System.currentTimeMillis(),
-                route, sender, message);
-        
-        //Store the request somewhere?
-        //Keep library of it, maybe export to disk aswell.
-        //Each request has a unique ID, talk to Kasper?
-        
-        
-//        RouteSuggestionData suggestionData = new RouteSuggestionData(
-//                routeMessage, null, routeMessage.getId(), mmsi, false,
-//                AIS_STATUS.RECIEVED_APP_ACK);
-//        RouteSuggestionKey routeSuggestionKey = new RouteSuggestionKey(mmsi,
-//                routeMessage.getId());
-//        
-//        routeSuggestions.put(routeSuggestionKey, suggestionData);
+        long transactionID = System.currentTimeMillis();
+
+        MonaLisaRouteRequestMessage routeMessage = new MonaLisaRouteService.MonaLisaRouteRequestMessage(
+                transactionID, route, sender, message);
+
+        MonaLisaRouteNegotiationData entry;
+
+        // Existing transaction already established
+        if (monaLisaNegotiationData.containsKey(transactionID)) {
+
+            entry = monaLisaNegotiationData.get(transactionID);
+        } else {
+            // Create new entry for the transaction
+            entry = new MonaLisaRouteNegotiationData(transactionID);
+        }
+
+        entry.addMessage(routeMessage);
+
+        // Each request has a unique ID, talk to Kasper?
 
         if (end != null) {
             ConnectionFuture<MonaLisaRouteService.MonaLisaRouteRequestReply> f = end
                     .invoke(routeMessage);
-
-//            notifyRouteExchangeListeners();
-
-//             f.timeout(10, TimeUnit.SECONDS).handle(new BiConsumer<RouteSuggestionService.RouteSuggestionReply, Throwable>() {
-//
-//                 @Override
-//                 public void accept(RouteSuggestionReply l, Throwable r) {
-//                     System.out.println("TIME OUT TIME OUT TIME OUT");
-//                     System.out.println("TIME OUT TIME OUT TIME OUT");
-//                 }
-//             });
 
             f.handle(new BiConsumer<MonaLisaRouteService.MonaLisaRouteRequestReply, Throwable>() {
 
@@ -367,7 +391,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
                 public void accept(MonaLisaRouteRequestReply l, Throwable r) {
                     replyRecieved(l);
                 }
-
 
             });
 
@@ -378,23 +401,46 @@ public class EnavServiceHandler extends MapHandlerChild implements
         }
 
     }
-    
-    private void replyRecieved(MonaLisaRouteRequestReply l) {
-        System.out.println("Mona Lisa Reply recieved: " + l.getStatus());
-        
-        monaLisaSTCCDialog.handleReply(l);
-        
-      //Two kinds of reply?
-        
-        //If success, nothing more
-        //If fail and new route returned, start new communication message, like previous, with updated route, same ID maybe?
-        //Do we need a message / give reason?
-        
+
+    private void replyRecieved(MonaLisaRouteRequestReply reply) {
+        System.out.println("Mona Lisa Reply recieved: " + reply.getStatus());
+
+        long transactionID = reply.getId();
+
+        MonaLisaRouteNegotiationData entry;
+        // Existing transaction already established
+        if (monaLisaNegotiationData.containsKey(transactionID)) {
+
+            entry = monaLisaNegotiationData.get(transactionID);
+        } else {
+            // Create new entry for the transaction - if ship disconnected, it
+            // can still recover - maybe?
+            entry = new MonaLisaRouteNegotiationData(transactionID);
+        }
+
+        // Store the reply
+        entry.addReply(reply);
+
+        // How to handle the reply
+
+        // 1 shore sends back accepted - ship needs to send ack
+        // 2 shore sends back new route - ship renegotationes
+        // 3 shore sends back rejected - ship sends ack
+
+        monaLisaSTCCDialog.handleReply(reply);
+
+        // Two kinds of reply?
+
+        // If success, nothing more
+        // If fail and new route returned, start new communication message, like
+        // previous, with updated route, same ID maybe?
+        // Do we need a message / give reason?
+
     }
 
     public void setMonaLisaSTCCDialog(MonaLisaSTCCDialog monaLisaSTCCDialog) {
         this.monaLisaSTCCDialog = monaLisaSTCCDialog;
-        
+
     }
-    
+
 }

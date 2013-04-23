@@ -49,7 +49,7 @@ public class RouteLegGraphic extends OMGraphicList {
     private int routeIndex;
     
     float[] dash = { 35.0f, 35.0f };
-    float dashPhase;
+    float dashPhase = 5000;
 
     /**
      * Creates a route leg
@@ -174,7 +174,12 @@ public class RouteLegGraphic extends OMGraphicList {
         float[] dash = { 35.0f, 35.0f };
 //        float dashPhase = 18.0f;
 //        System.out.println("Adding to dashPhase " + dashPhase);
-        dashPhase += 9.0f;
+        
+        dashPhase -= 9.0f;
+        if (dashPhase < 0){
+            System.out.println("Resetting!");
+            dashPhase = 5000;
+        }
 //        System.out.println("Dashphase is now " + dashPhase);
         
         animationLine.setStroke(new BasicStroke(10.0f, BasicStroke.CAP_BUTT,

@@ -25,7 +25,7 @@ import javax.swing.table.AbstractTableModel;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.service.EnavServiceHandler;
-import dk.dma.epd.shore.service.MonaLisaRouteNegotationData;
+import dk.dma.epd.shore.service.MonaLisaRouteNegotiationData;
 
 /**
  * Table model for Route Exchange Notifications
@@ -43,7 +43,7 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
     private EnavServiceHandler enavServiceHandler;
     private AisHandler aisHandler;
 
-    private List<MonaLisaRouteNegotationData> messages = new ArrayList<MonaLisaRouteNegotationData>();
+    private List<MonaLisaRouteNegotiationData> messages = new ArrayList<MonaLisaRouteNegotiationData>();
 
     /**
      * Constructor for creating the msi table model
@@ -106,7 +106,7 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
      * 
      * @return
      */
-    public List<MonaLisaRouteNegotationData> getMessages() {
+    public List<MonaLisaRouteNegotiationData> getMessages() {
         return messages;
 
     }
@@ -128,7 +128,7 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
         if (rowIndex == -1) {
             return "";
         }
-        MonaLisaRouteNegotationData message = messages.get(rowIndex);
+        MonaLisaRouteNegotiationData message = messages.get(rowIndex);
 
         switch (columnIndex) {
         case 0:
@@ -171,7 +171,7 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
         if (rowIndex == -1 || this.getRowCount() < 1) {
             return "";
         }
-        MonaLisaRouteNegotationData message = messages.get(rowIndex);
+        MonaLisaRouteNegotiationData message = messages.get(rowIndex);
 
         switch (columnIndex) {
         case 0:
@@ -269,7 +269,7 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
         
         messages.clear();
 
-        for (Iterator<MonaLisaRouteNegotationData> it = enavServiceHandler
+        for (Iterator<MonaLisaRouteNegotiationData> it = enavServiceHandler
                 .getMonaLisaNegotiationData().values().iterator(); it.hasNext();) {
             messages.add(it.next());
         }

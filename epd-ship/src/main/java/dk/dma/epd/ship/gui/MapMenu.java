@@ -87,6 +87,7 @@ import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.msi.MsiLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
+import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.msi.MsiHandler;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.route.RecievedRoute;
@@ -157,6 +158,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private EnavServiceHandler enavServiceHandler;
     private Point windowLocation;
     private RouteLayer routeLayer;
+    private VoyageLayer voyageLayer;
 
     public MapMenu() {
         super();
@@ -477,11 +479,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         addSeparator();
 
-//        JMenuItem dummy = new JMenuItem("Show STCC info");
-//        dummy.setEnabled(mainFrame.getMonaLisaSTCCDialog().isActive());
-//
-//        add(dummy);
-
+        sendToSTCC.setOwnMMSI(aisHandler.getOwnShip().getMmsi());
+        sendToSTCC.setRouteManager(routeManager);
+        sendToSTCC.setVoyageLayer(voyageLayer);
         sendToSTCC.setRouteLayer(routeLayer);
         sendToSTCC.setRoute(route);
         sendToSTCC.setSTCCDialog(mainFrame.getMonaLisaSTCCDialog());
@@ -495,8 +495,6 @@ public class MapMenu extends JPopupMenu implements ActionListener,
             sendToSTCC.setText("Send to STCC");
         }
         
-//        0 && !mainFrame.getMonaLisaSTCCDialog().isActive()
-
         add(sendToSTCC);
 
 //        addSeparator();
@@ -678,6 +676,11 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         if (obj instanceof RouteLayer) {
             routeLayer = (RouteLayer) obj;
         }
+        if (obj instanceof VoyageLayer) {
+            voyageLayer = (VoyageLayer) obj;
+        }
+        
+        
 
     }
 
