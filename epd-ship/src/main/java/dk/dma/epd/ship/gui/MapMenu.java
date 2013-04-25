@@ -88,9 +88,9 @@ import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.msi.MsiLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
+import dk.dma.epd.ship.monalisa.RecievedRoute;
 import dk.dma.epd.ship.msi.MsiHandler;
 import dk.dma.epd.ship.nogo.NogoHandler;
-import dk.dma.epd.ship.route.RecievedRoute;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.EnavServiceHandler;
 
@@ -459,6 +459,24 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         generalMenu(false);
     }
 
+    public void sendToSTCC(int routeIndex){
+        removeAll();
+        
+        sendToSTCC.setRoute(route);
+        sendToSTCC.setRouteLocation(windowLocation);
+        sendToSTCC
+                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() >0);
+        
+        if (mainFrame.getMonaLisaSTCCDialog().isActive()){
+            sendToSTCC.setText("Show STCC info");
+        }else{
+            sendToSTCC.setText("Send to STCC");
+        }
+        
+        add(sendToSTCC);
+        
+    }
+    
     public void generalRouteMenu(int routeIndex) {
         if (routeManager.getActiveRouteIndex() == routeIndex) {
             routeActivateToggle.setText("Deactivate route");
@@ -479,12 +497,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         addSeparator();
 
-        sendToSTCC.setOwnMMSI(aisHandler.getOwnShip().getMmsi());
-        sendToSTCC.setRouteManager(routeManager);
-        sendToSTCC.setVoyageLayer(voyageLayer);
-        sendToSTCC.setRouteLayer(routeLayer);
         sendToSTCC.setRoute(route);
-        sendToSTCC.setSTCCDialog(mainFrame.getMonaLisaSTCCDialog());
         sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
                 .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() >0);

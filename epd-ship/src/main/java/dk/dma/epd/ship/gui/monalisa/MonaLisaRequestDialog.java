@@ -28,8 +28,8 @@ import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
 import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.ship.route.MonaLisaResponse;
-import dk.dma.epd.ship.route.MonaLisaRouteExchange;
+import dk.dma.epd.ship.monalisa.MonaLisaOptimizationResponse;
+import dk.dma.epd.ship.monalisa.MonaLisaRouteOptimizaton;
 import dk.dma.epd.ship.route.RouteManager;
 
 /**
@@ -46,7 +46,7 @@ public class MonaLisaRequestDialog extends JDialog implements Runnable,
     private JLabel statusLbl;
     private JButton cancelBtn;
     private Boolean cancelReq = false;
-    MonaLisaRouteExchange monaLisaRouteExchange;
+    MonaLisaRouteOptimizaton monaLisaRouteExchange;
     boolean removeIntermediateETA;
     float draft;
     int ukc;
@@ -56,7 +56,7 @@ public class MonaLisaRequestDialog extends JDialog implements Runnable,
     boolean showOutput;
 
     public MonaLisaRequestDialog(Window parent, RouteManager routeManager,
-            Route route, MonaLisaRouteExchange monaLisaRouteExchange,
+            Route route, MonaLisaRouteOptimizaton monaLisaRouteExchange,
             boolean removeIntermediateETA, float draft, int ukc, int timeout,
             List<Boolean> selectedWp, boolean showInput, boolean showOutput) {
         super(parent, "Request Mona Lisa Route Exchange");
@@ -76,7 +76,7 @@ public class MonaLisaRequestDialog extends JDialog implements Runnable,
     }
 
     public static void requestRoute(Window parent, RouteManager routeManager,
-            Route route, MonaLisaRouteExchange monaLisaRouteExchange,
+            Route route, MonaLisaRouteOptimizaton monaLisaRouteExchange,
             boolean removeIntermediateETA, float draft, int ukc, int timeout,
             List<Boolean> selectedWp, boolean showInput, boolean showOutput) {
 
@@ -104,7 +104,7 @@ public class MonaLisaRequestDialog extends JDialog implements Runnable,
         if (monaLisaRouteExchange != null || route != null
                 || selectedWp != null) {
 
-            MonaLisaResponse response = monaLisaRouteExchange.makeRouteRequest(
+            MonaLisaOptimizationResponse response = monaLisaRouteExchange.makeRouteRequest(
                     route, removeIntermediateETA, draft, ukc, timeout,
                     selectedWp, showInput, showOutput);
 

@@ -45,7 +45,7 @@ import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.ComponentFrame;
 import dk.dma.epd.ship.gui.MainFrame;
-import dk.dma.epd.ship.route.RecievedRoute;
+import dk.dma.epd.ship.monalisa.RecievedRoute;
 import dk.dma.epd.ship.route.RouteManager;
 
 /**

@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.service;
+package dk.dma.epd.ship.monalisa;
 
 import java.util.ArrayList;
 import java.util.List;

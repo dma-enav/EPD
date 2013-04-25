@@ -179,7 +179,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
                 
                 
                 
-                routeMenu.voyageWaypontMenu(voyage, modified);
+                routeMenu.voyageWaypontMenu(voyage, modified, jMapFrame, voyagePlanInfoPanel);
                 // routeMenu.routeWaypointMenu(wpc.getRouteIndex(),
                 // wpc.getWpIndex());
                 routeMenu.setVisible(true);
@@ -200,7 +200,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
                 voyage.setRoute(newRoute);
                 
                 
-                routeMenu.voyageWaypontMenu(voyage, modified);
+                routeMenu.voyageWaypontMenu(voyage, modified, jMapFrame, voyagePlanInfoPanel);
                 
                 // routeMenu.routeLegMenu(rlg.getRouteIndex(),
                 // rlg.getRouteLeg(), e.getPoint());
@@ -214,7 +214,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         return false;
     }
 
-    // Cannot edit voyages
+
     @Override
     public boolean mouseDragged(MouseEvent e) {
         if (!javax.swing.SwingUtilities.isLeftMouseButton(e)) {

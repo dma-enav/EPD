@@ -25,14 +25,24 @@ import java.util.TimerTask;
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
+import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
+import com.bbn.openmap.omGraphics.OMList;
+import com.bbn.openmap.proj.coords.LatLonPoint;
 
+import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
+import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
+import dk.dma.epd.common.prototype.layers.route.MetocGraphic;
 import dk.dma.epd.common.prototype.layers.route.RouteGraphic;
+import dk.dma.epd.common.prototype.layers.route.RouteLegGraphic;
+import dk.dma.epd.common.prototype.layers.route.WaypointCircle;
 import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
+import dk.dma.epd.ship.gui.MapMenu;
 
 /**
  * Layer for showing routes
@@ -45,52 +55,88 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
     private OMGraphicList graphics = new OMGraphicList();
     private float routeWidth = 2.0f;
     private Timer routeAnimatorTimer;
+    Color ECDISOrange = new Color(213, 103, 45, 255);
 
-    
+    private MapBean mapBean;
+    private MapMenu routeMenu;
+
     private Route primaryRoute;
+    private Route stccRoute;
+    private Route modifiedSTCCRoute;
     
+    private boolean dragging;
+    
+    
+
     private int animationTimer = 100;
+
+    private OMGraphic closest;
+    private OMGraphic selectedGraphic;
 
     public VoyageLayer() {
 
     }
 
-    
-    public void startRouteNegotiation(Route route){
-        
+    public void startRouteNegotiation(Route route) {
+
         this.primaryRoute = route;
-        
+
+        // Added the route as green, original recieved one
+        drawRoute(route, ECDISOrange);
+
+        startRouteAnimation();
+    }
+
+    private void drawRoute(Route route, Color color) {
+
         Stroke stroke = new BasicStroke(routeWidth, // Width
                 BasicStroke.CAP_SQUARE, // End cap
                 BasicStroke.JOIN_MITER, // Join style
                 10.0f, // Miter limit
                 new float[] { 3.0f, 10.0f }, // Dash pattern
                 0.0f);
-        
-        Color ECDISOrange = new Color(213, 103, 45, 255);
 
         // Added the route as green, original recieved one
-        RouteGraphic routeGraphic = new RouteGraphic(primaryRoute, 0,
-                true, stroke, ECDISOrange);
+        RouteGraphic routeGraphic = new RouteGraphic(route, 0, true, stroke,
+                color);
         graphics.add(routeGraphic);
         graphics.project(getProjection(), true);
         doPrepare();
-        
-        startRouteAnimation();
+
+        // RouteGraphic(Route route, int routeIndex, boolean arrowsVisible,
+        // Stroke stroke, Color color, Color broadLineColor, boolean circleDash)
     }
-    
-    
-    
-    
+
+    private void drawRoute(int id, Route route, Color color, Color broadLineColor,
+            boolean circleDash) {
+
+        Stroke stroke = new BasicStroke(routeWidth, // Width
+                BasicStroke.CAP_SQUARE, // End cap
+                BasicStroke.JOIN_MITER, // Join style
+                10.0f, // Miter limit
+                new float[] { 3.0f, 10.0f }, // Dash pattern
+                0.0f);
+
+        // Added the route as green, original recieved one
+        RouteGraphic routeGraphic = new RouteGraphic(route, id, true, stroke,
+                color, broadLineColor, circleDash);
+        graphics.add(routeGraphic);
+        graphics.project(getProjection(), true);
+        doPrepare();
+
+    }
+
     private void startRouteAnimation() {
+
+        System.out.println("Starting route animation");
 
         RouteGraphic animatedRoute = null;
 
         for (int i = 0; i < graphics.size(); i++) {
 
             if (graphics.get(i) instanceof RouteGraphic) {
-
                 if (primaryRoute == ((RouteGraphic) graphics.get(i)).getRoute()) {
+                    System.out.println("Animate the specific one");
                     animatedRoute = (RouteGraphic) graphics.get(i);
                     animatedRoute.activateAnimation();
 
@@ -98,6 +144,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
             }
         }
+
         final RouteGraphic animatedRoute2 = animatedRoute;
 
         routeAnimatorTimer = new Timer(true);
@@ -108,12 +155,13 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
             }
         }, 0, animationTimer);
 
+        doPrepare();
     }
-    
-    public void stopRouteAnimated() {
+
+    private void stopRouteAnimated() {
         routeAnimatorTimer.cancel();
     }
-    
+
     @Override
     public void findAndInit(Object obj) {
         // if (obj instanceof VoyageManager) {
@@ -132,11 +180,11 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         // jMapFrame.getGlassPanel().add(waypointInfoPanel);
         // }
         if (obj instanceof MapBean) {
-//            mapBean = (MapBean) obj;
+             mapBean = (MapBean) obj;
         }
-        // if(obj instanceof MapMenu){
-        // routeMenu = (MapMenu) obj;
-        // }
+        if (obj instanceof MapMenu) {
+            routeMenu = (MapMenu) obj;
+        }
 
     }
 
@@ -159,46 +207,81 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseClicked(MouseEvent e) {
-        // if(e.getButton() != MouseEvent.BUTTON3){
-        // return false;
-        // }
-        //
-        // selectedGraphic = null;
-        // OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-        // 5.0f);
-        // for (OMGraphic omGraphic : allClosest) {
-        // if (omGraphic instanceof WaypointCircle || omGraphic instanceof
-        // RouteLegGraphic) {
-        // selectedGraphic = omGraphic;
-        // break;
-        // }
-        // }
-        //
-        //
-        // if(selectedGraphic instanceof WaypointCircle){
-        // WaypointCircle wpc = (WaypointCircle) selectedGraphic;
-        // waypointInfoPanel.setVisible(false);
-        // routeMenu.routeWaypointMenu(wpc.getRouteIndex(), wpc.getWpIndex());
-        // routeMenu.setVisible(true);
-        // routeMenu.show(this, e.getX()-2, e.getY()-2);
-        // return true;
-        // }
-        // if(selectedGraphic instanceof RouteLegGraphic){
-        // RouteLegGraphic rlg = (RouteLegGraphic) selectedGraphic;
-        // waypointInfoPanel.setVisible(false);
-        // routeMenu.routeLegMenu(rlg.getRouteIndex(), rlg.getRouteLeg(),
-        // e.getPoint());
-        // routeMenu.setVisible(true);
-        // routeMenu.show(this, e.getX()-2, e.getY()-2);
-        // return true;
-        // }
-        //
+        if (e.getButton() != MouseEvent.BUTTON3) {
+            return false;
+        }
+
+        System.out.println("Right click!");
+
+        selectedGraphic = null;
+        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
+                5.0f);
+        for (OMGraphic omGraphic : allClosest) {
+            if (omGraphic instanceof WaypointCircle
+                    || omGraphic instanceof RouteLegGraphic) {
+                selectedGraphic = omGraphic;
+                break;
+            }
+        }
+
+        if (selectedGraphic instanceof WaypointCircle) {
+            WaypointCircle wpc = (WaypointCircle) selectedGraphic;
+            // waypointInfoPanel.setVisible(false);
+            routeMenu.sendToSTCC(wpc.getRouteIndex());
+            routeMenu.setVisible(true);
+            routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+            return true;
+        }
+        if (selectedGraphic instanceof RouteLegGraphic) {
+            RouteLegGraphic rlg = (RouteLegGraphic) selectedGraphic;
+            // waypointInfoPanel.setVisible(false);
+            routeMenu.sendToSTCC(rlg.getRouteIndex());
+            routeMenu.setVisible(true);
+            routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+            return true;
+        }
+
         return false;
     }
 
-    // Cannot edit voyages
     @Override
     public boolean mouseDragged(MouseEvent e) {
+        if (!javax.swing.SwingUtilities.isLeftMouseButton(e)) {
+            return false;
+        }
+
+        if (!dragging) {
+            selectedGraphic = null;
+            OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
+                    5.0f);
+            for (OMGraphic omGraphic : allClosest) {
+                if (omGraphic instanceof WaypointCircle) {
+                    selectedGraphic = omGraphic;
+                    break;
+                }
+            }
+        }
+
+        if (selectedGraphic instanceof WaypointCircle) {
+            WaypointCircle wpc = (WaypointCircle) selectedGraphic;
+
+            if (wpc.getRouteIndex() == 2 && modifiedSTCCRoute != null) {
+                RouteWaypoint routeWaypoint = modifiedSTCCRoute.getWaypoints().get(
+                        wpc.getWpIndex());
+                LatLonPoint newLatLon = mapBean.getProjection().inverse(
+                        e.getPoint());
+                Position newLocation = Position.create(newLatLon.getLatitude(),
+                        newLatLon.getLongitude());
+                routeWaypoint.setPos(newLocation);
+
+    
+                drawAllRoutes();
+
+                dragging = true;
+                return true;
+            }
+
+        }
 
         return false;
     }
@@ -289,9 +372,43 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseReleased(MouseEvent e) {
+        if (dragging) {
+            dragging = false;
+            drawAllRoutes();
+            return true;
+        }
         return false;
     }
 
+    
+    private void drawAllRoutes(){
+        
+        graphics.clear();
+        
+        // New route in green
+        drawRoute(2, modifiedSTCCRoute, ECDISOrange, new Color(
+                0.39f, 0.69f, 0.49f, 0.6f), true);
+
+        
+        // old STCC in yellow
+        drawRoute(1, stccRoute, ECDISOrange, new Color(1f, 1f, 0, 0.4f), false);
+
+        
+        
+        
+        // Old route in red
+        drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
+                false);
+        
+        //draw original - id 0
+        
+        //draw stcc - id 1
+        
+        //draw modified stcc - id 2
+        
+        
+    }
+    
     @Override
     public synchronized OMGraphicList prepare() {
         graphics.project(getProjection());
@@ -304,6 +421,51 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
             Util.sleep(animationTimer);
         }
     }
-    
-    
+
+    public void routeAccepted() {
+        graphics.clear();
+        doPrepare();
+
+    }
+
+    public void handleReply(MonaLisaRouteRequestReply reply) {
+        stccRoute = new Route(reply.getRoute());
+        modifiedSTCCRoute = stccRoute.copy();
+        
+        // Stop the animation
+        stopRouteAnimated();
+
+        // Shore agrees
+        if (reply.getStatus() == MonaLisaRouteStatus.AGREED) {
+            // Display routeLayer with green
+            graphics.clear();
+            drawRoute(0, primaryRoute, ECDISOrange, new Color(0.39f, 0.69f, 0.49f,
+                    0.6f), false);
+        } else if (reply.getStatus() == MonaLisaRouteStatus.NEGOTIATING) {
+            // Draw old one in red and new one in green with lines
+            // seperated on new Color(1f, 1f, 0, 0.7f)
+            graphics.clear();
+
+            // New route in green
+            drawRoute(2, modifiedSTCCRoute, ECDISOrange, new Color(
+                    0.39f, 0.69f, 0.49f, 0.6f), true);
+
+            // Old route in red
+            drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
+                    false);
+
+        } else if (reply.getStatus() == MonaLisaRouteStatus.NOT_AGREED) {
+            // Display route with red - might not be relevant?
+            graphics.clear();
+            drawRoute(2, stccRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
+                    false);
+        }
+
+    }
+
+    public void cancelRequest() {
+        stopRouteAnimated();
+        graphics.clear();
+        doPrepare();
+    }
 }

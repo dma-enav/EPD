@@ -53,11 +53,12 @@ import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.route.RouteManagerDialog;
+import dk.dma.epd.ship.monalisa.MonaLisaHandler;
+import dk.dma.epd.ship.monalisa.MonaLisaRouteOptimizaton;
 import dk.dma.epd.ship.msi.MsiHandler;
 import dk.dma.epd.ship.nogo.DynamicNogoHandler;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.risk.RiskHandler;
-import dk.dma.epd.ship.route.MonaLisaRouteExchange;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.EnavServiceHandler;
 import dk.dma.epd.ship.service.communication.ais.AisServices;
@@ -89,7 +90,8 @@ public class EPDShip {
     private static RiskHandler riskHandler;
     private static RouteManager routeManager;
     private static ShoreServices shoreServices;
-    private static MonaLisaRouteExchange monaLisaRouteExchange;
+    private static MonaLisaHandler monaLisaHandler;
+    private static MonaLisaRouteOptimizaton monaLisaRouteExchange;
     private static AisServices aisServices;
     private static MsiHandler msiHandler;
     private static NogoHandler nogoHandler;
@@ -182,7 +184,7 @@ public class EPDShip {
         mapHandler.add(shoreServices);
 
         // Create mona lisa route exchange
-        monaLisaRouteExchange = new MonaLisaRouteExchange();
+        monaLisaRouteExchange = new MonaLisaRouteOptimizaton();
         mapHandler.add(monaLisaRouteExchange);
 
         // Create AIS services
@@ -209,6 +211,9 @@ public class EPDShip {
         mapHandler.add(enavServiceHandler);
         enavServiceHandler.start();
 
+        
+        monaLisaHandler = new MonaLisaHandler();
+        mapHandler.add(monaLisaHandler);
         // // Create enav cloud handler
         // enavCloudHandler = new EnavCloudHandler(settings.getEnavSettings());
         // mapHandler.add(enavCloudHandler);
@@ -608,7 +613,7 @@ public class EPDShip {
         return shoreServices;
     }
 
-    public static MonaLisaRouteExchange getMonaLisaRouteExchange() {
+    public static MonaLisaRouteOptimizaton getMonaLisaRouteExchange() {
         return monaLisaRouteExchange;
     }
     
@@ -633,4 +638,13 @@ public class EPDShip {
         return riskHandler;
     }
 
+    /**
+     * @return the monaLisaHandler
+     */
+    public static MonaLisaHandler getMonaLisaHandler() {
+        return monaLisaHandler;
+    }
+
+    
+    
 }

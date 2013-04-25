@@ -21,6 +21,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -39,8 +41,10 @@ import dk.dma.epd.shore.voyage.Voyage;
 
 import javax.swing.JButton;
 
-public class VoyagePlanInfoPanel extends JPanel {
+public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
 
+    
+    private static final long serialVersionUID = 1L;
     private JLabel moveHandler;
     private JPanel masterPanel;
     private JPanel notificationPanel;
@@ -56,6 +60,8 @@ public class VoyagePlanInfoPanel extends JPanel {
     JLabel lblTd;
     JLabel lblETA;
 
+    
+    JLabel closeBtn;
     /**
      * Create the panel.
      * 
@@ -164,16 +170,19 @@ public class VoyagePlanInfoPanel extends JPanel {
 
         notificationPanel.add(HideOtherVoyagesBtn);
 
-        JLabel CloseBtn = new JLabel("Close");
-        CloseBtn.setHorizontalAlignment(SwingConstants.CENTER);
-        CloseBtn.setBounds(127, 246, 71, 25);
-        GuiStyler.styleButton(CloseBtn);
-        notificationPanel.add(CloseBtn);
+        closeBtn = new JLabel("Close");
+        closeBtn.setHorizontalAlignment(SwingConstants.CENTER);
+        closeBtn.setBounds(127, 246, 71, 25);
+        GuiStyler.styleButton(closeBtn);
+        notificationPanel.add(closeBtn);
 
         masterPanel.setBorder(BorderFactory.createEtchedBorder(
                 EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45,
                         45)));
         add(masterPanel);
+        
+        
+        closeBtn.addMouseListener(this);
 
 
 
@@ -237,5 +246,38 @@ public class VoyagePlanInfoPanel extends JPanel {
             }
 
         }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void mouseExited(MouseEvent arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void mousePressed(MouseEvent arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent arg0) {
+        if (arg0.getSource() == closeBtn && closeBtn.isEnabled()) {
+            this.setVisible(false);
+        }
+
+        
     }
 }

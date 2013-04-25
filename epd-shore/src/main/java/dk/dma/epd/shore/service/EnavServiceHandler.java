@@ -63,6 +63,8 @@ import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gps.GpsHandler;
 import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.settings.ESDEnavSettings;
+import dk.dma.epd.shore.voyage.Voyage;
+import dk.dma.epd.shore.voyage.VoyageManager;
 import dk.dma.navnet.client.MaritimeNetworkConnectionBuilder;
 
 /**
@@ -78,6 +80,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private ShipId shipId;
     private GpsHandler gpsHandler;
     private AisHandler aisHandler;
+    private VoyageManager voyageManager;
 
     PersistentConnection connection;
     RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData> routeSuggestions = new RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData>();
@@ -88,7 +91,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> routeSuggestionList = new ArrayList<>();
 
     HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>> contextSenders = new HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>>();
-    
+
     HashMap<Long, MonaLisaRouteNegotiationData> monaLisaNegotiationData = new HashMap<Long, MonaLisaRouteNegotiationData>();
 
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
@@ -103,20 +106,50 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     private void listenToAck() throws InterruptedException {
         connection
-        .serviceRegister(
-                MonaLisaRouteAck.INIT,
-                new InvocationCallback<MonaLisaRouteAck.MonaLisaRouteAckMsg, Void>() {
-                         @Override
-                    public void process(
-                            MonaLisaRouteAckMsg message,
-                            dk.dma.enav.communication.service.InvocationCallback.Context<Void> context) {
+                .serviceRegister(
+                        MonaLisaRouteAck.INIT,
+                        new InvocationCallback<MonaLisaRouteAck.MonaLisaRouteAckMsg, Void>() {
+                            @Override
+                            public void process(
+                                    MonaLisaRouteAckMsg message,
+                                    dk.dma.enav.communication.service.InvocationCallback.Context<Void> context) {
 
-                             System.out.println("Recieved an ack from: " + message.getId());
-                        
-                    }
-                }).awaitRegistered(4, TimeUnit.SECONDS);
+                                System.out.println("Recieved an ack from: "
+                                        + message.getId());
+
+                                if (message.isAck()) {
+                                    monaLisaNegotiationData
+                                            .get(message.getId()).setCompleted(
+                                                    true);
+
+                                    Voyage voyage = new Voyage(
+                                            message.getMmsi(),
+                                            new dk.dma.epd.common.prototype.model.route.Route(
+                                                    monaLisaNegotiationData
+                                                            .get(message
+                                                                    .getId())
+                                                            .getRouteReply()
+                                                            .get(monaLisaNegotiationData
+                                                                    .get(message
+                                                                            .getId())
+                                                                    .getRouteReply()
+                                                                    .size() - 1)
+                                                            .getRoute()),
+                                            message.getId());
+
+                                    voyageManager.addVoyage(voyage);
+                                } else {
+
+                                    //If rejected?
+                                    
+                                }
+
+                                notifyMonaLisaRouteExchangeListeners();
+
+                            }
+                        }).awaitRegistered(4, TimeUnit.SECONDS);
     }
-    
+
     private void listenToBroadcasts() throws InterruptedException {
         connection.broadcastListen(EnavRouteBroadcast.class,
                 new BroadcastListener<EnavRouteBroadcast>() {
@@ -314,8 +347,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     @Override
     public void findAndInit(Object obj) {
-        if (obj instanceof RouteManager) {
-
+        if (obj instanceof VoyageManager) {
+            this.voyageManager = (VoyageManager) obj;
             // intendedRouteService = new IntendedRouteService(this,
             // (ActiveRouteProvider) obj);
             // ((RouteManager) obj).addListener(intendedRouteService);
@@ -509,9 +542,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                     MonaLisaRouteRequestMessage message,
                                     InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply> context) {
 
-                                long mmsi = Integer.parseInt(message
-                                        .getSender().toString()
-                                        .split("mmsi://")[1]);
+                                long mmsi = message.getMmsi();
 
                                 if (EPDShore.getAisHandler().getVesselTargets()
                                         .containsKey(mmsi)) {
@@ -526,40 +557,34 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                             .get(message.getId()).addMessage(
                                                     message);
 
-                                    System.out
-                                            .println("Mona Lisa Request detected from "
-                                                    + mmsi
-                                                    + ", sending reply automatically");
-
                                     notifyMonaLisaRouteExchangeListeners();
                                     // We have recieved a message, what now?
 
-                                    
-                                    
-                                    
-                                    
-//                                    Route route = message.getRoute();
-//
-//                                    
-//
-//                                    MonaLisaRouteService.MonaLisaRouteRequestReply reply = new MonaLisaRouteService.MonaLisaRouteRequestReply("Automatic reply",
-//                                            message.getId(), aisHandler.getOwnShip().getMmsi(), System
-//                                                    .currentTimeMillis(), MonaLisaRouteService.MonaLisaRouteStatus.NEGOTIATING, route);
-//                                    
-//                                    monaLisaNegotiationData
-//                                    .get(message.getId()).addReply(
-//                                            reply);
-//                                    
-//                                    monaLisaNegotiationData
-//                                    .get(message.getId()).setStatus(reply.getStatus());
-//                                    
-//                                    sendReply(reply);
-                                    
-                                    
-                                    
-//                                    sendReply(MonaLisaRouteStatus.AGREED,
-//                                            message.getId(), "Automatic reply",
-//                                            route);
+                                    // Route route = message.getRoute();
+                                    //
+                                    //
+                                    //
+                                    // MonaLisaRouteService.MonaLisaRouteRequestReply
+                                    // reply = new
+                                    // MonaLisaRouteService.MonaLisaRouteRequestReply("Automatic reply",
+                                    // message.getId(),
+                                    // aisHandler.getOwnShip().getMmsi(), System
+                                    // .currentTimeMillis(),
+                                    // MonaLisaRouteService.MonaLisaRouteStatus.NEGOTIATING,
+                                    // route);
+                                    //
+                                    // monaLisaNegotiationData
+                                    // .get(message.getId()).addReply(
+                                    // reply);
+                                    //
+                                    // monaLisaNegotiationData
+                                    // .get(message.getId()).setStatus(reply.getStatus());
+                                    //
+                                    // sendReply(reply);
+
+                                    // sendReply(MonaLisaRouteStatus.AGREED,
+                                    // message.getId(), "Automatic reply",
+                                    // route);
                                 }
                             }
                         }).awaitRegistered(4, TimeUnit.SECONDS);
@@ -567,13 +592,13 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     public void sendReply(MonaLisaRouteService.MonaLisaRouteRequestReply reply) {
         try {
-            
-            if (contextSenders.containsKey(reply.getId())){
+
+            if (contextSenders.containsKey(reply.getId())) {
                 System.out.println("Sending");
-                contextSenders.get(reply.getId()).complete(reply);    
+                contextSenders.get(reply.getId()).complete(reply);
                 notifyMonaLisaRouteExchangeListeners();
             }
-            
+
         } catch (Exception e) {
             System.out.println("Failed to reply");
         }

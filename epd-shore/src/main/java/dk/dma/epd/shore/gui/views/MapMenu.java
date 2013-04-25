@@ -74,8 +74,10 @@ import dk.dma.epd.shore.gui.views.menuitems.RouteWaypointDelete;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteToShip;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteFromRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendVoyage;
+import dk.dma.epd.shore.gui.views.menuitems.ShowVoyagePlanInfo;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
+import dk.dma.epd.shore.layers.voyage.VoyagePlanInfoPanel;
 import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.voyage.Voyage;
@@ -121,7 +123,7 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
     private SendRouteFromRoute setRouteExchangeRoute;
 
     
-    private JMenuItem openVoyagePlan;
+    private ShowVoyagePlanInfo openVoyagePlan;
     private SendVoyage sendVoyage;
     
     // bean context
@@ -224,8 +226,8 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         
         
         // Voyage menu
-        openVoyagePlan = new JMenuItem("Open Voyage Plans Details");
-        openVoyagePlan.setText("Open Voyage Plans Details");
+        openVoyagePlan = new ShowVoyagePlanInfo("Open Voyage Plans Details");
+        openVoyagePlan.addActionListener(this);
         
         sendVoyage = new SendVoyage("Select and send Voyage");
         sendVoyage.addActionListener(this);
@@ -494,12 +496,15 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         generalRouteMenu(routeIndex);
     }
     
-    public void voyageWaypontMenu(Voyage voyage, boolean modified){
+    public void voyageWaypontMenu(Voyage voyage, boolean modified, JMapFrame parent, VoyagePlanInfoPanel voyagePlanInfoPanel){
         removeAll();
 
+        openVoyagePlan.setVoyagePlanInfoPanel(voyagePlanInfoPanel);
+        
         sendVoyage.setVoyage(voyage);
         sendVoyage.setModifiedRoute(modified);
         sendVoyage.setSendVoyageDialog(EPDShore.getMainFrame().getSendVoyageDialog());
+        sendVoyage.setParent(parent);
         
         add(openVoyagePlan);
         add(sendVoyage);

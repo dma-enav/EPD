@@ -29,7 +29,7 @@ import com.bbn.openmap.omGraphics.OMLine;
 
 import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
-import dk.dma.epd.ship.route.RecievedRoute;
+import dk.dma.epd.ship.monalisa.RecievedRoute;
 
 /**
  * Graphic for a suggested route

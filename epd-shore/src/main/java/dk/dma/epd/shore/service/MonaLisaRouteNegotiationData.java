@@ -30,6 +30,7 @@ public class MonaLisaRouteNegotiationData {
     private List<MonaLisaRouteRequestReply> routeReplys = new ArrayList<MonaLisaRouteRequestReply>();
     private MonaLisaRouteStatus status;
     private boolean handled;
+    private boolean completed;
     
     
     public MonaLisaRouteNegotiationData(long id, long mmsi) {
@@ -42,6 +43,24 @@ public class MonaLisaRouteNegotiationData {
     
     
     
+    /**
+     * @return the completed
+     */
+    public boolean isCompleted() {
+        return completed;
+    }
+
+
+
+    /**
+     * @param completed the completed to set
+     */
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+
+
     public MonaLisaRouteStatus getStatus() {
         return status;
     }

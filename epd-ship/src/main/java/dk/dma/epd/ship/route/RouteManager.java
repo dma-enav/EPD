@@ -59,6 +59,7 @@ import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.gui.ComponentPanels.ShowDockableDialog;
 import dk.dma.epd.ship.gui.ComponentPanels.ShowDockableDialog.dock_type;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
+import dk.dma.epd.ship.monalisa.RecievedRoute;
 import dk.dma.epd.ship.service.EnavServiceHandler;
 import dk.dma.epd.ship.service.communication.webservice.ShoreServices;
 import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;

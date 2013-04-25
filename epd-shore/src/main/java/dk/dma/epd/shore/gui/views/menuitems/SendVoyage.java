@@ -18,6 +18,7 @@ package dk.dma.epd.shore.gui.views.menuitems;
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.shore.gui.route.SendVoyageDialog;
+import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.voyage.Voyage;
 
 
@@ -31,7 +32,9 @@ public class SendVoyage extends JMenuItem implements IMapMenuAction {
     private Voyage voyage;
     private SendVoyageDialog sendVoyageDialog;
     private boolean modifiedRoute;
-
+    private JMapFrame parent;
+    
+    
     public SendVoyage(String text) {
         super();
         this.setText(text);
@@ -39,9 +42,19 @@ public class SendVoyage extends JMenuItem implements IMapMenuAction {
 
     @Override
     public void doAction() {
+        sendVoyageDialog.setParent(parent);
         sendVoyageDialog.setVoyage(voyage);
         sendVoyageDialog.setModifiedRoute(modifiedRoute);
         sendVoyageDialog.setVisible(true);
+    }
+
+    
+    
+    /**
+     * @param parent the parent to set
+     */
+    public void setParent(JMapFrame parent) {
+        this.parent = parent;
     }
 
     public void setSendVoyageDialog(SendVoyageDialog sendVoyageDialog){

@@ -13,39 +13,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.menuitems;
+package dk.dma.epd.shore.gui.views.menuitems;
 
 import javax.swing.JMenuItem;
 
-import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
-import dk.dma.epd.ship.monalisa.RecievedRoute;
+import dk.dma.epd.shore.gui.route.SendVoyageDialog;
+import dk.dma.epd.shore.gui.views.JMapFrame;
+import dk.dma.epd.shore.layers.voyage.VoyagePlanInfoPanel;
+import dk.dma.epd.shore.voyage.Voyage;
 
-public class SuggestedRouteDetails extends JMenuItem implements IMapMenuAction {
-    
-    /**
-     * 
-     */
+
+
+public class ShowVoyagePlanInfo extends JMenuItem implements IMapMenuAction {
+
     private static final long serialVersionUID = 1L;
-    RecievedRoute suggestedRoute;
-    RouteSuggestionDialog routeSuggestionDialog;
+    private VoyagePlanInfoPanel voyagePlanInfoPanel;
     
-    public SuggestedRouteDetails(String text) {
+    public ShowVoyagePlanInfo(String text) {
         super();
-        setText(text);
+        this.setText(text);
     }
-    
+
     @Override
     public void doAction() {
-        routeSuggestionDialog.showSuggestion(suggestedRoute);
+//        voyagePlanInfoPanel.setLocation(0, 0);
+        voyagePlanInfoPanel.setVisible(true);
     }
+
+    public void setVoyagePlanInfoPanel(VoyagePlanInfoPanel voyagePlanInfoPanel) {
+        this.voyagePlanInfoPanel = voyagePlanInfoPanel;
+        
+    }
+
     
-    public void setSuggestedRoute(RecievedRoute suggestedRoute) {
-        this.suggestedRoute = suggestedRoute;
-    }
     
-    public void setRouteSuggestionDialog(
-            RouteSuggestionDialog routeSuggestionDialog) {
-        this.routeSuggestionDialog = routeSuggestionDialog;
-    }
 
 }

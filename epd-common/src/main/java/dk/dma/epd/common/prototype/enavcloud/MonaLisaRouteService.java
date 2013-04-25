@@ -128,7 +128,7 @@ public class MonaLisaRouteService {
             ServiceMessage<MonaLisaRouteRequestReply> {
         private Route route;
         private Date sent;
-        private String sender;
+        private long mmsi;
         private String message;
         private long id;
         
@@ -136,9 +136,9 @@ public class MonaLisaRouteService {
         public MonaLisaRouteRequestMessage() {
         }
 
-        public MonaLisaRouteRequestMessage(long id, Route route, String sender, String message) {
+        public MonaLisaRouteRequestMessage(long id, Route route, long mmsi, String message) {
             this.route = requireNonNull(route);
-            this.sender = requireNonNull(sender);
+            this.mmsi = requireNonNull(mmsi);
             this.id = requireNonNull(id);
             this.sent = requireNonNull(new Date());
             this.message = requireNonNull(message);
@@ -155,10 +155,19 @@ public class MonaLisaRouteService {
             return route;
         }
 
-        
-        
-        public String getSender() {
-            return sender;
+
+        /**
+         * @return the mmsi
+         */
+        public long getMmsi() {
+            return mmsi;
+        }
+
+        /**
+         * @param mmsi the mmsi to set
+         */
+        public void setMmsi(long mmsi) {
+            this.mmsi = mmsi;
         }
 
         public Date getSent() {
@@ -177,9 +186,7 @@ public class MonaLisaRouteService {
             this.route = route;
         }
 
-        public void setSender(String sender) {
-            this.sender = sender;
-        }
+
 
         public void setSent(Date sent) {
             this.sent = sent;

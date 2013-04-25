@@ -43,13 +43,12 @@ import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
-import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
-import dk.dma.epd.shore.route.RouteManager;
+import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
@@ -86,6 +85,8 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
     private boolean modifiedRoute;
     private JTextArea textArea;
 
+    private JMapFrame parent;
+    
     /**
      * Create the frame.
      */
@@ -198,7 +199,6 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
     /**
      * Function for setting up custom GUI for the map frame
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void createGUIContent() {
 
         this.setBackground(GuiStyler.backgroundColor);
@@ -335,11 +335,13 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
            enavServiceHandler.getMonaLisaNegotiationData().get(voyage.getId()).setHandled(true);
            
            
-           if (replyStatus == MonaLisaRouteStatus.AGREED){
-               voyageManager.addVoyage(voyage);
-           }
-           
            enavServiceHandler.sendReply(reply);
+           
+           this.textArea.setText("");
+           this.setVisible(false);
+           
+           parent.dispose();
+           
          }
          
          
@@ -511,11 +513,29 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
 
     public void setVoyage(Voyage voyage) {
         this.voyage = voyage;
+        
+        lblRoutenamelbl.setText(voyage.getRoute().getName());
+
+        
+        if (aisHandler.getVesselTargets().get(voyage.getMmsi()).getStaticData() != null){
+            lblShipnamecallsignlbl.setText(aisHandler.getVesselTargets().get(voyage.getMmsi()).getStaticData().getCallsign());
+        }else{
+            lblShipnamecallsignlbl.setText("N/A");
+        }
+    
+//        
     }
 
     public void setModifiedRoute(boolean modifiedRoute) {
         this.modifiedRoute = modifiedRoute;
         sendLbl.setEnabled(true);
+    }
+
+    /**
+     * @param parent the parent to set
+     */
+    public void setParent(JMapFrame parent) {
+        this.parent = parent;
     }
 
     

@@ -58,7 +58,9 @@ import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.gui.monalisa.MonaLisaSTCCDialog;
-import dk.dma.epd.ship.route.RecievedRoute;
+import dk.dma.epd.ship.monalisa.MonaLisaHandler;
+import dk.dma.epd.ship.monalisa.MonaLisaRouteNegotiationData;
+import dk.dma.epd.ship.monalisa.RecievedRoute;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
 import dk.dma.epd.ship.service.intendedroute.IntendedRouteService;
@@ -78,14 +80,14 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private ShipId shipId;
     private GpsHandler gpsHandler;
     private AisHandler aisHandler;
+    private MonaLisaHandler monaLisaHandler;
     private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context;
-    private List<ServiceEndpoint<MonaLisaRouteRequestMessage, MonaLisaRouteRequestReply>> monaLisaSTCCList = new ArrayList<>();
+    
 
+    // End point holders for Mona Lisa Route Exchange
+    private List<ServiceEndpoint<MonaLisaRouteRequestMessage, MonaLisaRouteRequestReply>> monaLisaSTCCList = new ArrayList<>();
     private List<ServiceEndpoint<MonaLisaRouteAckMsg, Void>> monaLisaRouteAckList = new ArrayList<>();
 
-    private HashMap<Long, MonaLisaRouteNegotiationData> monaLisaNegotiationData = new HashMap<Long, MonaLisaRouteNegotiationData>();
-
-    private MonaLisaSTCCDialog monaLisaSTCCDialog;
 
     PersistentConnection connection;
 
@@ -271,6 +273,9 @@ public class EnavServiceHandler extends MapHandlerChild implements
         } else if (obj instanceof AisHandler) {
             this.aisHandler = (AisHandler) obj;
         }
+        else if (obj instanceof MonaLisaHandler) {
+            this.monaLisaHandler = (MonaLisaHandler) obj;
+        }
     }
 
     @Override
@@ -328,7 +333,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         return monaLisaSTCCList;
     }
 
-    public void sendMonaLisaAck(long addressMMSI, long id, long ownMMSI) {
+    public void sendMonaLisaAck(long addressMMSI, long id, long ownMMSI, boolean ack) {
         String mmsiStr = "mmsi://" + addressMMSI;
 
         ServiceEndpoint<MonaLisaRouteAckMsg, Void> end = null;
@@ -340,7 +345,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
             }
         }
 
-        MonaLisaRouteAckMsg msg = new MonaLisaRouteAckMsg(true, id, ownMMSI);
+        MonaLisaRouteAckMsg msg = new MonaLisaRouteAckMsg(ack, id, ownMMSI);
 
         if (end != null) {
 
@@ -351,8 +356,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         }
     }
 
-    public void sendMonaLisaRouteRequest(Route route, String sender,
-            String message) {
+    public void sendMonaLisaRouteRequest(MonaLisaRouteRequestMessage routeMessage) {
 
         ServiceEndpoint<MonaLisaRouteService.MonaLisaRouteRequestMessage, MonaLisaRouteService.MonaLisaRouteRequestReply> end = null;
 
@@ -360,24 +364,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
             end = monaLisaSTCCList.get(i);
 
         }
-
-        long transactionID = System.currentTimeMillis();
-
-        MonaLisaRouteRequestMessage routeMessage = new MonaLisaRouteService.MonaLisaRouteRequestMessage(
-                transactionID, route, sender, message);
-
-        MonaLisaRouteNegotiationData entry;
-
-        // Existing transaction already established
-        if (monaLisaNegotiationData.containsKey(transactionID)) {
-
-            entry = monaLisaNegotiationData.get(transactionID);
-        } else {
-            // Create new entry for the transaction
-            entry = new MonaLisaRouteNegotiationData(transactionID);
-        }
-
-        entry.addMessage(routeMessage);
 
         // Each request has a unique ID, talk to Kasper?
 
@@ -391,7 +377,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
                 public void accept(MonaLisaRouteRequestReply l, Throwable r) {
                     replyRecieved(l);
                 }
-
             });
 
         } else {
@@ -404,43 +389,11 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     private void replyRecieved(MonaLisaRouteRequestReply reply) {
         System.out.println("Mona Lisa Reply recieved: " + reply.getStatus());
-
-        long transactionID = reply.getId();
-
-        MonaLisaRouteNegotiationData entry;
-        // Existing transaction already established
-        if (monaLisaNegotiationData.containsKey(transactionID)) {
-
-            entry = monaLisaNegotiationData.get(transactionID);
-        } else {
-            // Create new entry for the transaction - if ship disconnected, it
-            // can still recover - maybe?
-            entry = new MonaLisaRouteNegotiationData(transactionID);
-        }
-
-        // Store the reply
-        entry.addReply(reply);
-
-        // How to handle the reply
-
-        // 1 shore sends back accepted - ship needs to send ack
-        // 2 shore sends back new route - ship renegotationes
-        // 3 shore sends back rejected - ship sends ack
-
-        monaLisaSTCCDialog.handleReply(reply);
-
-        // Two kinds of reply?
-
-        // If success, nothing more
-        // If fail and new route returned, start new communication message, like
-        // previous, with updated route, same ID maybe?
-        // Do we need a message / give reason?
-
-    }
-
-    public void setMonaLisaSTCCDialog(MonaLisaSTCCDialog monaLisaSTCCDialog) {
-        this.monaLisaSTCCDialog = monaLisaSTCCDialog;
-
+        
+        
+        monaLisaHandler.handleReply(reply);
+        
+        
     }
 
 }
