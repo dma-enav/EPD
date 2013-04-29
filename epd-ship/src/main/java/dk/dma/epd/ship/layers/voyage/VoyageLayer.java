@@ -43,6 +43,7 @@ import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gui.MapMenu;
+import dk.dma.epd.ship.monalisa.MonaLisaHandler;
 
 /**
  * Layer for showing routes
@@ -63,15 +64,16 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
     private Route primaryRoute;
     private Route stccRoute;
     private Route modifiedSTCCRoute;
-    
+    private MonaLisaHandler monaLisaHandler;
+
     private boolean dragging;
-    
-    
 
     private int animationTimer = 100;
 
     private OMGraphic closest;
     private OMGraphic selectedGraphic;
+    
+    private boolean modified;
 
     public VoyageLayer() {
 
@@ -107,8 +109,8 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         // Stroke stroke, Color color, Color broadLineColor, boolean circleDash)
     }
 
-    private void drawRoute(int id, Route route, Color color, Color broadLineColor,
-            boolean circleDash) {
+    private void drawRoute(int id, Route route, Color color,
+            Color broadLineColor, boolean circleDash) {
 
         Stroke stroke = new BasicStroke(routeWidth, // Width
                 BasicStroke.CAP_SQUARE, // End cap
@@ -180,10 +182,11 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         // jMapFrame.getGlassPanel().add(waypointInfoPanel);
         // }
         if (obj instanceof MapBean) {
-             mapBean = (MapBean) obj;
-        }
-        if (obj instanceof MapMenu) {
+            mapBean = (MapBean) obj;
+        } else if (obj instanceof MapMenu) {
             routeMenu = (MapMenu) obj;
+        } else if (obj instanceof MonaLisaHandler) {
+            monaLisaHandler = (MonaLisaHandler) obj;
         }
 
     }
@@ -266,15 +269,14 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
             WaypointCircle wpc = (WaypointCircle) selectedGraphic;
 
             if (wpc.getRouteIndex() == 2 && modifiedSTCCRoute != null) {
-                RouteWaypoint routeWaypoint = modifiedSTCCRoute.getWaypoints().get(
-                        wpc.getWpIndex());
+                RouteWaypoint routeWaypoint = modifiedSTCCRoute.getWaypoints()
+                        .get(wpc.getWpIndex());
                 LatLonPoint newLatLon = mapBean.getProjection().inverse(
                         e.getPoint());
                 Position newLocation = Position.create(newLatLon.getLatitude(),
                         newLatLon.getLongitude());
                 routeWaypoint.setPos(newLocation);
 
-    
                 drawAllRoutes();
 
                 dragging = true;
@@ -380,35 +382,38 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         return false;
     }
 
-    
-    private void drawAllRoutes(){
-        
-        graphics.clear();
-        
-        // New route in green
-        drawRoute(2, modifiedSTCCRoute, ECDISOrange, new Color(
-                0.39f, 0.69f, 0.49f, 0.6f), true);
+    private void drawAllRoutes() {
 
+        // First time modifying
+        if (!modified) {
+            monaLisaHandler.modifiedRequest();
+            modified = true;
+            modifiedSTCCRoute.setName("Modified Reply Route");
+        }
         
+//        modifiedSTCCRoute.calcAllWpEta();
+
+        graphics.clear();
+
+        // New route in green
+        drawRoute(2, modifiedSTCCRoute, ECDISOrange, new Color(0.39f, 0.69f,
+                0.49f, 0.6f), true);
+
         // old STCC in yellow
         drawRoute(1, stccRoute, ECDISOrange, new Color(1f, 1f, 0, 0.4f), false);
 
-        
-        
-        
         // Old route in red
         drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
                 false);
-        
-        //draw original - id 0
-        
-        //draw stcc - id 1
-        
-        //draw modified stcc - id 2
-        
-        
+
+        // draw original - id 0
+
+        // draw stcc - id 1
+
+        // draw modified stcc - id 2
+
     }
-    
+
     @Override
     public synchronized OMGraphicList prepare() {
         graphics.project(getProjection());
@@ -429,9 +434,10 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
     }
 
     public void handleReply(MonaLisaRouteRequestReply reply) {
-        stccRoute = new Route(reply.getRoute());
-        modifiedSTCCRoute = stccRoute.copy();
-        
+        modifiedSTCCRoute = new Route(reply.getRoute());
+        stccRoute = modifiedSTCCRoute.copy();
+//        modifiedSTCCRoute = stccRoute;
+
         // Stop the animation
         stopRouteAnimated();
 
@@ -439,22 +445,22 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         if (reply.getStatus() == MonaLisaRouteStatus.AGREED) {
             // Display routeLayer with green
             graphics.clear();
-            drawRoute(0, primaryRoute, ECDISOrange, new Color(0.39f, 0.69f, 0.49f,
-                    0.6f), false);
+            drawRoute(0, primaryRoute, ECDISOrange, new Color(0.39f, 0.69f,
+                    0.49f, 0.6f), false);
         } else if (reply.getStatus() == MonaLisaRouteStatus.NEGOTIATING) {
             // Draw old one in red and new one in green with lines
             // seperated on new Color(1f, 1f, 0, 0.7f)
             graphics.clear();
 
             // New route in green
-            drawRoute(2, modifiedSTCCRoute, ECDISOrange, new Color(
-                    0.39f, 0.69f, 0.49f, 0.6f), true);
+            drawRoute(2, modifiedSTCCRoute, ECDISOrange, new Color(0.39f,
+                    0.69f, 0.49f, 0.6f), true);
 
             // Old route in red
             drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
                     false);
 
-        } else if (reply.getStatus() == MonaLisaRouteStatus.NOT_AGREED) {
+        } else if (reply.getStatus() == MonaLisaRouteStatus.REJECTED) {
             // Display route with red - might not be relevant?
             graphics.clear();
             drawRoute(2, stccRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
@@ -468,4 +474,10 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         graphics.clear();
         doPrepare();
     }
+
+    public Route getModifiedSTCCRoute() {
+        return modifiedSTCCRoute;
+    }
+    
+    
 }

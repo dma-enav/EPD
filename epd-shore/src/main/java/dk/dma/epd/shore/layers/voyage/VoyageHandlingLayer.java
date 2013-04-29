@@ -57,7 +57,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
     private static final long serialVersionUID = 1L;
     private boolean dragging;
     private MapMenu routeMenu;
-    private OMGraphic closest;
+//    private OMGraphic closest;
     private OMGraphic selectedGraphic;
 
     private JMapFrame jMapFrame;
@@ -245,6 +245,9 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
                         newLatLon.getLongitude());
                 routeWaypoint.setPos(newLocation);
 
+                if (!modified){
+                    changeName();
+                }
                 modified = true;
                 
                 updateVoyages();
@@ -258,6 +261,12 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         return false;
     }
 
+    
+    private void changeName(){
+        newRoute.setName(newRoute.getName() + " modified");
+        
+    }
+    
     private void updateVoyages() {
         // Update voyages, clear all graphics, redraw original but in red, draw
         // the new voyage.

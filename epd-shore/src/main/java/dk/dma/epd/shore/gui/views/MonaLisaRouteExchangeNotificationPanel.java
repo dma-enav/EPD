@@ -98,7 +98,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
 
     private JPanel rightPanel;
     private JPanel leftPanel;
-    private EnavServiceHandler enavServiceHandler;
+//    private EnavServiceHandler enavServiceHandler;
     private AisHandler aisHandler;
     private VoyageManager voyageManager;
     private NotificationCenter notCenter;
@@ -488,10 +488,6 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
 
     public JTable getRouteTable() {
         return routeTable;
-    }
-
-    public void setEnavServiceHandler(EnavServiceHandler enavServiceHandler) {
-        this.enavServiceHandler = enavServiceHandler;
     }
     
     public void setAisHandler(AisHandler aisHandler){

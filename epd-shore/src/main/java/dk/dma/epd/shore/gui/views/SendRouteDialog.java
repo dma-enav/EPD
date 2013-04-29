@@ -307,9 +307,9 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         messageTxtField = new JTextArea("Route Suggestion");
         messageTxtField.setBounds(95, 48, 135, 45);
         messageTxtField.setLineWrap(true);
-//        messageTxtField.setWrapStyleWord(true);
-//        messageTxtField.setColumns(20);
-//        messageTxtField.setRows(5);
+        // messageTxtField.setWrapStyleWord(true);
+        // messageTxtField.setColumns(20);
+        // messageTxtField.setRows(5);
         JScrollPane sp = new JScrollPane(messageTxtField);
         sp.setBounds(95, 48, 135, 45);
         informationPanel.add(sp);
@@ -501,9 +501,15 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
 
             VesselTarget selectedShip = aisHandler.getVesselTargets().get(
                     Long.parseLong(mmsi.get(i)));
+            if (selectedShip != null) {
 
-            if (selectedShip.getStaticData() != null) {
-                nameComboBox.addItem(selectedShip.getStaticData().getName());
+                if (selectedShip.getStaticData() != null) {
+                    nameComboBox
+                            .addItem(selectedShip.getStaticData().getName());
+                } else {
+                    nameComboBox.addItem("N/A");
+
+                }
             } else {
                 nameComboBox.addItem("N/A");
 
@@ -536,46 +542,48 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         if (arg0.getSource() == nameComboBox && !loading) {
             if (nameComboBox.getSelectedItem() != null) {
 
-                mmsiListComboBox.setSelectedIndex(nameComboBox.getSelectedIndex());
-                
-                
-//                try {
-//                    mmsi = Long.valueOf((String) mmsiListComboBox
-//                            .getSelectedItem());
-//                } catch (Exception e) {
-//                    System.out.println("Failed to set mmsi " + mmsi);
-//                }
-//
-//                // System.out.println("mmsi selected to set to " + mmsi);
-//                VesselTarget selectedShip = aisHandler.getVesselTargets().get(
-//                        mmsi);
-//
-//                if (selectedShip != null) {
-//
-//                    if (selectedShip.getStaticData() != null) {
-//                        // TO DO
-//                        // nameLbl.setText(AisMessage.trimText(selectedShip
-//                        // .getStaticData().getName()));
-//
-//                        callsignLbl.setText(AisMessage.trimText(selectedShip
-//                                .getStaticData().getCallsign()));
-//                    } else {
-//                        // nameLbl.setText("N/A");
-//                        callsignLbl.setText("N/A");
-//                    }
-//
-//                } else {
-//                    statusLbl.setText("The ship is not visible on AIS");
-//
-//                }
+                mmsiListComboBox.setSelectedIndex(nameComboBox
+                        .getSelectedIndex());
+
+                // try {
+                // mmsi = Long.valueOf((String) mmsiListComboBox
+                // .getSelectedItem());
+                // } catch (Exception e) {
+                // System.out.println("Failed to set mmsi " + mmsi);
+                // }
+                //
+                // // System.out.println("mmsi selected to set to " + mmsi);
+                // VesselTarget selectedShip =
+                // aisHandler.getVesselTargets().get(
+                // mmsi);
+                //
+                // if (selectedShip != null) {
+                //
+                // if (selectedShip.getStaticData() != null) {
+                // // TO DO
+                // // nameLbl.setText(AisMessage.trimText(selectedShip
+                // // .getStaticData().getName()));
+                //
+                // callsignLbl.setText(AisMessage.trimText(selectedShip
+                // .getStaticData().getCallsign()));
+                // } else {
+                // // nameLbl.setText("N/A");
+                // callsignLbl.setText("N/A");
+                // }
+                //
+                // } else {
+                // statusLbl.setText("The ship is not visible on AIS");
+                //
+                // }
             }
         }
-        
+
         if (arg0.getSource() == mmsiListComboBox && !loading) {
 
             if (mmsiListComboBox.getSelectedItem() != null) {
 
-                nameComboBox.setSelectedIndex(mmsiListComboBox.getSelectedIndex());
+                nameComboBox.setSelectedIndex(mmsiListComboBox
+                        .getSelectedIndex());
                 try {
                     mmsi = Long.valueOf((String) mmsiListComboBox
                             .getSelectedItem());
@@ -651,7 +659,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
             }
 
         }
-        
+
         nameComboBox.setSelectedIndex(mmsiListComboBox.getSelectedIndex());
 
         if (route != null

@@ -16,7 +16,6 @@
 package dk.dma.epd.ship.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -57,9 +56,7 @@ import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gps.GpsHandler;
-import dk.dma.epd.ship.gui.monalisa.MonaLisaSTCCDialog;
 import dk.dma.epd.ship.monalisa.MonaLisaHandler;
-import dk.dma.epd.ship.monalisa.MonaLisaRouteNegotiationData;
 import dk.dma.epd.ship.monalisa.RecievedRoute;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
@@ -335,14 +332,22 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     public void sendMonaLisaAck(long addressMMSI, long id, long ownMMSI, boolean ack) {
         String mmsiStr = "mmsi://" + addressMMSI;
+        
+        System.out.println(mmsiStr);
+        System.out.println(ownMMSI);
 
         ServiceEndpoint<MonaLisaRouteAckMsg, Void> end = null;
 
+        getMonaLisaRouteAckList();
+        
         for (int i = 0; i < monaLisaRouteAckList.size(); i++) {
-            if (monaLisaRouteAckList.get(i).getId().toString().equals(mmsiStr)) {
+            System.out.println(monaLisaRouteAckList.get(i).getId().toString());
+            
+//            if (monaLisaRouteAckList.get(i).getId().toString().equals(mmsiStr)) {
                 end = monaLisaRouteAckList.get(i);
                 // break;
-            }
+                
+//            }
         }
 
         MonaLisaRouteAckMsg msg = new MonaLisaRouteAckMsg(ack, id, ownMMSI);
@@ -352,7 +357,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
             // ConnectionFuture<Void> f =
             end.invoke(msg);
         } else {
-            System.out.println("Failed to send ack");
+            System.out.println("Failed to send ack " + monaLisaRouteAckList.size());
         }
     }
 
@@ -360,6 +365,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
         ServiceEndpoint<MonaLisaRouteService.MonaLisaRouteRequestMessage, MonaLisaRouteService.MonaLisaRouteRequestReply> end = null;
 
+        
+        //How to determine which to send to?
         for (int i = 0; i < monaLisaSTCCList.size(); i++) {
             end = monaLisaSTCCList.get(i);
 

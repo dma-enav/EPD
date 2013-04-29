@@ -50,6 +50,7 @@ import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
@@ -75,8 +76,9 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
     private SendVoyageDialog sendRoute;
     private AisHandler aisHandler;
 
-    private EnavServiceHandler enavServiceHandler;
-    private VoyageManager voyageManager;
+//    private EnavServiceHandler enavServiceHandler;
+//    private VoyageManager voyageManager;
+    private MonaLisaHandler monaLisaHandler;
     
     private JLabel lblRoutenamelbl;
     private JLabel lblShipnamecallsignlbl;
@@ -324,18 +326,12 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
                  replyStatus = MonaLisaRouteService.MonaLisaRouteStatus.AGREED;
              }
              
-             
-             
-           MonaLisaRouteService.MonaLisaRouteRequestReply reply = new MonaLisaRouteService.MonaLisaRouteRequestReply(textArea.getText(),
-           voyage.getId(), aisHandler.getOwnShip().getMmsi(), System
+  
+           
+           monaLisaHandler.sendReply(voyage.getId(), textArea.getText(), aisHandler.getOwnShip().getMmsi(), System
                    .currentTimeMillis(), replyStatus, voyage.getRoute().getFullRouteData());
-
-           enavServiceHandler.getMonaLisaNegotiationData().get(voyage.getId()).addReply(reply);
-           enavServiceHandler.getMonaLisaNegotiationData().get(voyage.getId()).setStatus(reply.getStatus());
-           enavServiceHandler.getMonaLisaNegotiationData().get(voyage.getId()).setHandled(true);
            
-           
-           enavServiceHandler.sendReply(reply);
+//           monaLisaHandler.sendReply(reply);
            
            this.textArea.setText("");
            this.setVisible(false);
@@ -403,11 +399,11 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
             aisHandler = (AisHandler) obj;
 
         }
-        if (obj instanceof EnavServiceHandler) {
-            enavServiceHandler = (EnavServiceHandler) obj;
+        if (obj instanceof MonaLisaHandler) {
+            monaLisaHandler = (MonaLisaHandler) obj;
         }
         if (obj instanceof VoyageManager){
-            voyageManager = (VoyageManager) obj;
+//            voyageManager = (VoyageManager) obj;
         }
 
     }

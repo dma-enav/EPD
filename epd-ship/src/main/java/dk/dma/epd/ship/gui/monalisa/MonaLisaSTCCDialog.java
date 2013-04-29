@@ -40,6 +40,7 @@ import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.layers.route.RouteLayer;
 import dk.dma.epd.ship.monalisa.MonaLisaHandler;
 import javax.swing.JTextField;
+import javax.swing.border.MatteBorder;
 
 public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
@@ -58,11 +59,14 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
     JLabel lblRouteTitle;
     JTextArea lblChanges;
     JTextArea lblMessages;
-    
+
     JTextArea chatMessages;
 
     private JButton btnAccept;
-    
+    private JButton btnReject;
+    private JButton btnWait;
+    private JButton btnSend;
+
     private JTextArea routeMessage;
     // private EnavServiceHandler enavServiceHandler;
     private MonaLisaHandler monaLisaHandler;
@@ -79,6 +83,8 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
     private Route originalRoute;
     private MonaLisaRouteRequestReply reply;
     private JTextField textField;
+
+    long transactionID;
 
     // private MainFrame mainFrame;
 
@@ -97,10 +103,10 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
         setLocationRelativeTo(mainFrame);
 
         // Default
-//        setBounds(100, 100, 187, 208);
+        // setBounds(100, 100, 187, 208);
 
         // Modification
-         setBounds(100, 100, 299, 268);
+        setBounds(100, 100, 299, 268);
 
         setResizable(false);
 
@@ -175,8 +181,6 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
         scrollPane.setBounds(10, 93, 161, 42);
         routeAcceptedPanel.add(scrollPane);
 
-
-
         routeNotAcceptedPanel = new JPanel();
 
         routeNotAcceptedPanel.setLayout(null);
@@ -195,13 +199,11 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
         lblChanges.setBorder(null);
         lblChanges.setLineWrap(true);
         lblChanges.setEditable(false);
-        
+
         JScrollPane spChanges = new JScrollPane(lblChanges);
-//        spChanges.setBorder(null);
+        // spChanges.setBorder(null);
         spChanges.setBounds(67, 36, 216, 50);
         routeNotAcceptedPanel.add(spChanges);
-        
-
 
         JLabel lblMessageTitle = new JLabel("Message:");
         lblMessageTitle.setBounds(10, 89, 46, 14);
@@ -213,55 +215,56 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
         lblMessages.setBorder(null);
         lblMessages.setLineWrap(true);
         lblMessages.setEditable(false);
-        
+
         JScrollPane spMessage = new JScrollPane(lblMessages);
-//        spMessage.setBorder(null);
+        // spMessage.setBorder(null);
         spMessage.setBounds(67, 89, 216, 50);
         routeNotAcceptedPanel.add(spMessage);
 
-
-        JButton btnReject = new JButton("Reject");
+        btnReject = new JButton("Reject");
         btnReject.setBounds(10, 206, 70, 23);
         routeNotAcceptedPanel.add(btnReject);
+        btnReject.addActionListener(this);
 
-        JButton btnWait = new JButton("Wait");
+        btnWait = new JButton("Wait");
         btnWait.setBounds(90, 206, 70, 23);
+        btnWait.addActionListener(this);
         routeNotAcceptedPanel.add(btnWait);
 
         btnAccept = new JButton("Accept");
         btnAccept.setBounds(170, 206, 117, 23);
+        btnAccept.addActionListener(this);
         routeNotAcceptedPanel.add(btnAccept);
-
-         
 
         chatMessages = new JTextArea("");
         chatMessages.setFont(new Font("Monospaced", Font.PLAIN, 12));
         chatMessages.setBackground(new Color(240, 240, 240));
-//        lblMessages.setBorder(null);
         chatMessages.setLineWrap(true);
         chatMessages.setEditable(false);
-         
-         JScrollPane chatSp = new JScrollPane(chatMessages);
-         chatSp.setBounds(10, 145, 273, 38);
-         routeNotAcceptedPanel.add(chatSp);
-         
-         JButton btnSend = new JButton("Send");
-         btnSend.setBounds(213, 182, 70, 15);
-         routeNotAcceptedPanel.add(btnSend);
-         
-         textField = new JTextField();
-         textField.setBounds(10, 182, 204, 15);
-         routeNotAcceptedPanel.add(textField);
-         textField.setColumns(10);
-         
-         
+        chatMessages.setBorder(null);
 
-//       getContentPane().add(routeAcceptedPanel, BorderLayout.CENTER);
+        JScrollPane chatSp = new JScrollPane(chatMessages);
+        chatSp.setBorder(new MatteBorder(1, 1, 0, 1, (Color) new Color(0, 0, 0)));
+        chatSp.setBounds(10, 145, 273, 38);
+        routeNotAcceptedPanel.add(chatSp);
+
+        btnSend = new JButton("Send");
+        btnSend.setBounds(213, 182, 70, 15);
+        btnSend.addActionListener(this);
+        routeNotAcceptedPanel.add(btnSend);
+
+        textField = new JTextField();
+        textField.setBounds(10, 182, 204, 15);
+        routeNotAcceptedPanel.add(textField);
+        textField.setColumns(10);
+
+        // getContentPane().add(routeAcceptedPanel, BorderLayout.CENTER);
         getContentPane().add(routeNotAcceptedPanel, BorderLayout.CENTER);
     }
 
-    public void setRouteName(Route route) {
+    public void setRouteName(Route route, long transactionID) {
         this.originalRoute = route;
+        this.transactionID = transactionID;
 
         isActive = true;
 
@@ -282,11 +285,10 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
     }
 
-    
-    public void changeModifiedAcceptBtn(){
-        btnAccept.setText("Send Modified Route");
+    public void changeModifiedAcceptBtn() {
+        btnAccept.setText("Send Modified");
     }
-    
+
     private void activateDefaultLayout() {
         setSize(defaultSize);
 
@@ -314,7 +316,6 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
     public void handleReply(MonaLisaRouteRequestReply reply) {
         this.reply = reply;
-        
 
         // Reply is in
         if (reply.getStatus() == MonaLisaRouteStatus.AGREED) {
@@ -354,20 +355,46 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
             // Cancel request
             if (isActive) {
                 setInActive();
-                monaLisaHandler.cancelRouteRequest();
+                monaLisaHandler.cancelRouteRequest(transactionID);
                 this.setVisible(false);
             } else {
-
                 // Is not active and button pressed - when can this happen?
                 // its being acked?
                 setInActive();
-                monaLisaHandler.sendAgreeMsg(reply.getId());
+                monaLisaHandler.sendAgreeMsg(transactionID);
                 this.setVisible(false);
 
             }
 
             btnMain.setText("Cancel request");
         }
+
+        if (e.getSource() == btnAccept) {
+
+            System.out.println("btn accept");
+            // Accept or send modified clicked, let monalisahandler figure it
+            // out
+            monaLisaHandler.sendReply();
+            this.setVisible(false);
+            btnAccept.setText("Accept");
+        }
+        if (e.getSource() == btnReject) {
+
+            // Send reject message
+            monaLisaHandler.sendReject();
+            this.setVisible(false);
+
+        }
+        if (e.getSource() == btnWait) {
+            this.setVisible(false);
+
+        }
+        if (e.getSource() == btnSend) {
+
+            // Chat msg, wait
+
+        }
+
     }
 
     public void setRouteLayer(RouteLayer routeLayer) {
@@ -401,14 +428,14 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
                 if (originalLat != newLat || originalLon != newLon) {
                     changes = changes + "Waypoint " + (i + 1)
-                            + " new position ";
+                            + " new position\n";
                 }
 
             }
 
         }
 
-//        changes = changes + "</html>";
+        // changes = changes + "</html>";
 
         return changes;
     }

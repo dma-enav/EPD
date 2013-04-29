@@ -58,13 +58,9 @@ import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggest
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.common.util.Util;
-import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gps.GpsHandler;
-import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.settings.ESDEnavSettings;
-import dk.dma.epd.shore.voyage.Voyage;
-import dk.dma.epd.shore.voyage.VoyageManager;
 import dk.dma.navnet.client.MaritimeNetworkConnectionBuilder;
 
 /**
@@ -80,19 +76,16 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private ShipId shipId;
     private GpsHandler gpsHandler;
     private AisHandler aisHandler;
-    private VoyageManager voyageManager;
+
+    private MonaLisaHandler monaLisaHandler;
 
     PersistentConnection connection;
     RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData> routeSuggestions = new RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData>();
     protected Set<RouteExchangeListener> routeExchangeListener = new HashSet<RouteExchangeListener>();
 
-    protected Set<MonaLisaRouteExchangeListener> monaLisaRouteExchangeListener = new HashSet<MonaLisaRouteExchangeListener>();
-
     private List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> routeSuggestionList = new ArrayList<>();
 
     HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>> contextSenders = new HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>>();
-
-    HashMap<Long, MonaLisaRouteNegotiationData> monaLisaNegotiationData = new HashMap<Long, MonaLisaRouteNegotiationData>();
 
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
         this.hostPort = String.format("%s:%d",
@@ -117,34 +110,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                 System.out.println("Recieved an ack from: "
                                         + message.getId());
 
-                                if (message.isAck()) {
-                                    monaLisaNegotiationData
-                                            .get(message.getId()).setCompleted(
-                                                    true);
-
-                                    Voyage voyage = new Voyage(
-                                            message.getMmsi(),
-                                            new dk.dma.epd.common.prototype.model.route.Route(
-                                                    monaLisaNegotiationData
-                                                            .get(message
-                                                                    .getId())
-                                                            .getRouteReply()
-                                                            .get(monaLisaNegotiationData
-                                                                    .get(message
-                                                                            .getId())
-                                                                    .getRouteReply()
-                                                                    .size() - 1)
-                                                            .getRoute()),
-                                            message.getId());
-
-                                    voyageManager.addVoyage(voyage);
-                                } else {
-
-                                    //If rejected?
-                                    
-                                }
-
-                                notifyMonaLisaRouteExchangeListeners();
+                                monaLisaHandler.handleSingleAckMsg(message);
 
                             }
                         }).awaitRegistered(4, TimeUnit.SECONDS);
@@ -290,10 +256,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
         return routeSuggestions;
     }
 
-    public HashMap<Long, MonaLisaRouteNegotiationData> getMonaLisaNegotiationData() {
-        return monaLisaNegotiationData;
-    }
-
     /**
      * Create the message bus
      */
@@ -347,23 +309,26 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     @Override
     public void findAndInit(Object obj) {
-        if (obj instanceof VoyageManager) {
-            this.voyageManager = (VoyageManager) obj;
-            // intendedRouteService = new IntendedRouteService(this,
-            // (ActiveRouteProvider) obj);
-            // ((RouteManager) obj).addListener(intendedRouteService);
-            // ((RouteManager)
-            // obj).setIntendedRouteService(intendedRouteService);
-
-            // intendedRouteService.start();
-            // } else if (obj instanceof EnavCloudHandler) {
-            // enavCloudHandler = (EnavCloudHandler) obj;
-            // enavCloudHandler.start();
-        } else if (obj instanceof GpsHandler) {
+        // if (obj instanceof VoyageManager) {
+        // this.voyageManager = (VoyageManager) obj;
+        // // intendedRouteService = new IntendedRouteService(this,
+        // // (ActiveRouteProvider) obj);
+        // // ((RouteManager) obj).addListener(intendedRouteService);
+        // // ((RouteManager)
+        // // obj).setIntendedRouteService(intendedRouteService);
+        //
+        // // intendedRouteService.start();
+        // // } else if (obj instanceof EnavCloudHandler) {
+        // // enavCloudHandler = (EnavCloudHandler) obj;
+        // // enavCloudHandler.start();
+        // } else
+        if (obj instanceof GpsHandler) {
             this.gpsHandler = (GpsHandler) obj;
             this.gpsHandler.addListener(this);
         } else if (obj instanceof AisHandler) {
             this.aisHandler = (AisHandler) obj;
+        } else if (obj instanceof MonaLisaHandler) {
+            this.monaLisaHandler = (MonaLisaHandler) obj;
         }
     }
 
@@ -418,18 +383,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
     public synchronized void addRouteExchangeListener(
             RouteExchangeListener listener) {
         routeExchangeListener.add(listener);
-    }
-
-    public synchronized void addMonaLisaRouteExchangeListener(
-            MonaLisaRouteExchangeListener listener) {
-        monaLisaRouteExchangeListener.add(listener);
-    }
-
-    protected synchronized void notifyMonaLisaRouteExchangeListeners() {
-
-        for (MonaLisaRouteExchangeListener listener : monaLisaRouteExchangeListener) {
-            listener.monaLisaRouteUpdate();
-        }
     }
 
     protected synchronized void notifyRouteExchangeListeners() {
@@ -542,50 +495,47 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                     MonaLisaRouteRequestMessage message,
                                     InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply> context) {
 
-                                long mmsi = message.getMmsi();
+                                // long mmsi = message.getMmsi();
+                                contextSenders.put(message.getId(), context);
 
-                                if (EPDShore.getAisHandler().getVesselTargets()
-                                        .containsKey(mmsi)) {
+                                // if
+                                // (EPDShore.getAisHandler().getVesselTargets()
+                                // .containsKey(mmsi)) {
 
-                                    contextSenders.put(message.getId(), context);
+                                System.out
+                                        .println("Recieved a message with id "
+                                                + message.getId());
 
-                                    monaLisaNegotiationData.put(
-                                            message.getId(),
-                                            new MonaLisaRouteNegotiationData(
-                                                    message.getId(), mmsi));
-                                    monaLisaNegotiationData
-                                            .get(message.getId()).addMessage(
-                                                    message);
+                                monaLisaHandler.handleMessage(message);
 
-                                    notifyMonaLisaRouteExchangeListeners();
-                                    // We have recieved a message, what now?
+                                // We have recieved a message, what now?
 
-                                    // Route route = message.getRoute();
-                                    //
-                                    //
-                                    //
-                                    // MonaLisaRouteService.MonaLisaRouteRequestReply
-                                    // reply = new
-                                    // MonaLisaRouteService.MonaLisaRouteRequestReply("Automatic reply",
-                                    // message.getId(),
-                                    // aisHandler.getOwnShip().getMmsi(), System
-                                    // .currentTimeMillis(),
-                                    // MonaLisaRouteService.MonaLisaRouteStatus.NEGOTIATING,
-                                    // route);
-                                    //
-                                    // monaLisaNegotiationData
-                                    // .get(message.getId()).addReply(
-                                    // reply);
-                                    //
-                                    // monaLisaNegotiationData
-                                    // .get(message.getId()).setStatus(reply.getStatus());
-                                    //
-                                    // sendReply(reply);
+                                // Route route = message.getRoute();
+                                //
+                                //
+                                //
+                                // MonaLisaRouteService.MonaLisaRouteRequestReply
+                                // reply = new
+                                // MonaLisaRouteService.MonaLisaRouteRequestReply("Automatic reply",
+                                // message.getId(),
+                                // aisHandler.getOwnShip().getMmsi(), System
+                                // .currentTimeMillis(),
+                                // MonaLisaRouteService.MonaLisaRouteStatus.NEGOTIATING,
+                                // route);
+                                //
+                                // monaLisaNegotiationData
+                                // .get(message.getId()).addReply(
+                                // reply);
+                                //
+                                // monaLisaNegotiationData
+                                // .get(message.getId()).setStatus(reply.getStatus());
+                                //
+                                // sendReply(reply);
 
-                                    // sendReply(MonaLisaRouteStatus.AGREED,
-                                    // message.getId(), "Automatic reply",
-                                    // route);
-                                }
+                                // sendReply(MonaLisaRouteStatus.AGREED,
+                                // message.getId(), "Automatic reply",
+                                // route);
+                                // }
                             }
                         }).awaitRegistered(4, TimeUnit.SECONDS);
     }
@@ -596,7 +546,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
             if (contextSenders.containsKey(reply.getId())) {
                 System.out.println("Sending");
                 contextSenders.get(reply.getId()).complete(reply);
-                notifyMonaLisaRouteExchangeListeners();
+
             }
 
         } catch (Exception e) {

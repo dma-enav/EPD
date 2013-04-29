@@ -25,6 +25,7 @@ import javax.swing.table.AbstractTableModel;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteNegotiationData;
 
 /**
@@ -36,11 +37,13 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
     private static final String[] AREA_COLUMN_NAMES = { "ID", "MMSI",
             "Ship Name", "Call Sign", "Type", "Destination", "Length", "Width",
             "Draught", "COG", "SOG",
+            
             "Sent Date", "Message", "Status", "Reply Sent", "Message" };
     private static final String[] COLUMN_NAMES = { "Name", "Callsign",
             "Called", "Route", "Status" };
 
-    private EnavServiceHandler enavServiceHandler;
+//    private EnavServiceHandler enavServiceHandler;
+    private MonaLisaHandler monaLisaHandler;
     private AisHandler aisHandler;
 
     private List<MonaLisaRouteNegotiationData> messages = new ArrayList<MonaLisaRouteNegotiationData>();
@@ -61,8 +64,15 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
     
     
 
-    public void setEnavServiceHandler(EnavServiceHandler enavServiceHandler) {
-        this.enavServiceHandler = enavServiceHandler;
+//    public void setEnavServiceHandler(EnavServiceHandler enavServiceHandler) {
+//        this.enavServiceHandler = enavServiceHandler;
+//    }
+
+    
+    
+    
+    public void setMonaLisaHandler(MonaLisaHandler monaLisaHandler) {
+        this.monaLisaHandler = monaLisaHandler;
     }
 
     /**
@@ -264,12 +274,12 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
      * Update messages
      */
     public void updateMessages() {
-        if (enavServiceHandler != null){
+        if (monaLisaHandler != null){
             
         
         messages.clear();
 
-        for (Iterator<MonaLisaRouteNegotiationData> it = enavServiceHandler
+        for (Iterator<MonaLisaRouteNegotiationData> it = monaLisaHandler
                 .getMonaLisaNegotiationData().values().iterator(); it.hasNext();) {
             messages.add(it.next());
         }

@@ -56,6 +56,7 @@ import dk.dma.epd.shore.gui.route.RouteExchangeTableModel;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteExchangeListener;
 import dk.dma.epd.shore.service.RouteExchangeListener;
 import dk.dma.epd.shore.voyage.VoyageManager;
@@ -115,6 +116,9 @@ public class NotificationCenter extends ComponentFrame implements
     private MonaLisaRouteExchangeNotificationPanel monaLisaRoutePanel;
 
     private EnavServiceHandler enavServiceHandler;
+    
+    private MonaLisaHandler monaLisaHandler;
+    
     private AisHandler aisHandler;
     
     public NotificationCenter() {
@@ -485,38 +489,48 @@ public class NotificationCenter extends ComponentFrame implements
             msiTable.setModel(msiTableModel);
             msiPanel.setMsiHandler(msiHandler);
             msiPanel.initTable();
-        }
+        } else
         if (obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
             monaLisaRouteTableModel.setAisHandler(aisHandler);
             monaLisaRoutePanel.setAisHandler(aisHandler);
-        }
+        } else
         if (obj instanceof MainFrame) {
             mainFrame = (MainFrame) obj;
             ToolbarMoveMouseListener mml = new ToolbarMoveMouseListener(this,
                     mainFrame);
             topBar.addMouseListener(mml);
             topBar.addMouseMotionListener(mml);
-        }
+        } else
 
         if (obj instanceof EnavServiceHandler) {
             enavServiceHandler = (EnavServiceHandler) obj;
             enavServiceHandler.addRouteExchangeListener(this);
-            enavServiceHandler.addMonaLisaRouteExchangeListener(this);
+            
             routePanel.setEnavServiceHandler(enavServiceHandler);
             routeTableModel = new RouteExchangeTableModel(enavServiceHandler);
             routeTable.setModel(routeTableModel);
             routePanel.initTable();
             
-            monaLisaRoutePanel.setEnavServiceHandler(enavServiceHandler);
 
-            monaLisaRouteTableModel.setEnavServiceHandler(enavServiceHandler);
-            monaLisaRouteTable.setModel(monaLisaRouteTableModel);
-            monaLisaRoutePanel.initTable();
         }
-        
+        else
         if (obj instanceof VoyageManager){
             monaLisaRoutePanel.setVoyageManager((VoyageManager) obj);
+        }
+        
+        if (obj instanceof MonaLisaHandler){
+            monaLisaHandler = (MonaLisaHandler) obj;
+            monaLisaHandler.addMonaLisaRouteExchangeListener(this);
+            
+//            monaLisaRoutePanel.setEnavServiceHandler(enavServiceHandler);
+//            monaLisaRouteTableModel.setEnavServiceHandler(enavServiceHandler);
+            
+            
+            monaLisaRouteTableModel.setMonaLisaHandler(monaLisaHandler);
+            monaLisaRouteTable.setModel(monaLisaRouteTableModel);
+            monaLisaRoutePanel.initTable();
+            
         }
     }
 
@@ -676,7 +690,7 @@ public class NotificationCenter extends ComponentFrame implements
             monaLisaRoutePanel.readMessage(monaLisaRouteTable.getSelectedRow());
         }
         try {
-            setMessages("MonaLisaRoute", enavServiceHandler.getMonaLisaNegotiationData().size());
+            setMessages("MonaLisaRoute", monaLisaHandler.getMonaLisaNegotiationData().size());
 
         } catch (InterruptedException e) {
             e.printStackTrace();

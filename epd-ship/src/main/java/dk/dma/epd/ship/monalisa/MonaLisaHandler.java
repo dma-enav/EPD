@@ -49,6 +49,9 @@ public class MonaLisaHandler extends MapHandlerChild {
 
     private Route route;
 
+    private boolean modified;
+    private long currentTransaction;
+
     public MonaLisaHandler() {
 
     }
@@ -61,8 +64,6 @@ public class MonaLisaHandler extends MapHandlerChild {
             monaLisaSTCCDialog = EPDShip.getMainFrame().getMonaLisaSTCCDialog();
         }
 
-        
-        
         // Is there already a transaction in progress
         if (transaction) {
             // Transaction is in progress, so just show the dialog
@@ -86,20 +87,21 @@ public class MonaLisaHandler extends MapHandlerChild {
             long ownMMSI = aisHandler.getOwnShip().getMmsi();
 
             // Sending route
-            sendMonaLisaRouteRequest(route, ownMMSI, "Route Approval Requested");
+            long transactionID = sendMonaLisaRouteRequest(route, ownMMSI,
+                    "Route Approval Requested");
 
             // Display and initialize the GUI
             monaLisaSTCCDialog.initializeNew();
             monaLisaSTCCDialog.setLocation(windowLocation);
             monaLisaSTCCDialog.setLocationRelativeTo(EPDShip.getMainFrame());
             monaLisaSTCCDialog.setVisible(true);
-            monaLisaSTCCDialog.setRouteName(route);
+            monaLisaSTCCDialog.setRouteName(route, transactionID);
 
         }
 
     }
 
-    private void sendMonaLisaRouteRequest(Route route, long sender,
+    private long sendMonaLisaRouteRequest(Route route, long sender,
             String message) {
 
         long transactionID = System.currentTimeMillis();
@@ -121,61 +123,69 @@ public class MonaLisaHandler extends MapHandlerChild {
         entry.addMessage(routeMessage);
 
         monaLisaNegotiationData.put(transactionID, entry);
-        
-        
+
         // Send it off
         enavServiceHandler.sendMonaLisaRouteRequest(routeMessage);
+
+        monaLisaNegotiationData.get(transactionID).setStatus(
+                MonaLisaRouteStatus.PENDING);
+
+        return transactionID;
     }
 
     public void handleReply(MonaLisaRouteRequestReply reply) {
 
-        long transactionID = reply.getId();
+        currentTransaction = reply.getId();
 
         MonaLisaRouteNegotiationData entry;
         // Existing transaction already established
-        if (monaLisaNegotiationData.containsKey(transactionID)) {
-
-            entry = monaLisaNegotiationData.get(transactionID);
+        if (monaLisaNegotiationData.containsKey(currentTransaction)) {
+            entry = monaLisaNegotiationData.get(currentTransaction);
         } else {
             // Create new entry for the transaction - if ship disconnected, it
             // can still recover - maybe?
-            entry = new MonaLisaRouteNegotiationData(transactionID);
-            monaLisaNegotiationData.put(transactionID, entry);
+            entry = new MonaLisaRouteNegotiationData(currentTransaction);
+            monaLisaNegotiationData.put(currentTransaction, entry);
         }
 
-        // Store the reply
-        entry.addReply(reply);
-        
-        
-        
-        System.out.println("Adding entry for " + transactionID);
+        if (entry.getStatus() != MonaLisaRouteStatus.REJECTED) {
 
-        // How to handle the reply
+            // Store the reply
+            entry.addReply(reply);
+            monaLisaNegotiationData.get(currentTransaction).setStatus(
+                    MonaLisaRouteStatus.NEGOTIATING);
 
-        // 1 shore sends back accepted - ship needs to send ack
-        // 2 shore sends back new route - ship renegotationes
-        // 3 shore sends back rejected - ship sends ack
+            System.out.println("Adding entry for " + currentTransaction);
 
-        // Let GUI handle front-end
-        monaLisaSTCCDialog.handleReply(reply);
+            // How to handle the reply
 
-        // Let layer handle itself
-        voyageLayer.handleReply(reply);
+            // 1 shore sends back accepted - ship needs to send ack
+            // 2 shore sends back new route - ship renegotationes
+            // 3 shore sends back rejected - ship sends ack
 
-        // Three kinds of reply?
+            // Let GUI handle front-end
+            monaLisaSTCCDialog.handleReply(reply);
 
-        // If success, nothing more
-        // If fail and new route returned, start new communication message, like
-        // previous, with updated route, same ID maybe?
-        // Do we need a message / give reason?
+            // Let layer handle itself
+            voyageLayer.handleReply(reply);
 
-        // Do we need to display on voyageLayer?
-        // If agree make fat line green
-        // If changes draw old one in red and new one in green with lines
-        // seperated on
-        // if reject make red and end transaction? or send ack and then end
-        // transaction - wait with reject
+            // Three kinds of reply?
 
+            // If success, nothing more
+            // If fail and new route returned, start new communication message,
+            // like
+            // previous, with updated route, same ID maybe?
+            // Do we need a message / give reason?
+
+            // Do we need to display on voyageLayer?
+            // If agree make fat line green
+            // If changes draw old one in red and new one in green with lines
+            // seperated on
+            // if reject make red and end transaction? or send ack and then end
+            // transaction - wait with reject
+        }else{
+            System.out.println("Nope cant handle this old thing");
+        }
     }
 
     public void sendAgreeMsg(long transactionID) {
@@ -186,9 +196,12 @@ public class MonaLisaHandler extends MapHandlerChild {
         // remove from voyage layer show original route
         voyageLayer.routeAccepted();
 
-        route.setVisible(true);
-        routeManager
-                .notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+        // voyageLayer.getModifiedSTCCRoute();
+
+        // route.setVisible(true);
+        routeManager.addRoute(voyageLayer.getModifiedSTCCRoute());
+
+        routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
 
         if (monaLisaNegotiationData.containsKey(transactionID)) {
 
@@ -198,18 +211,52 @@ public class MonaLisaHandler extends MapHandlerChild {
             enavServiceHandler.sendMonaLisaAck(transactionData.getRouteReply()
                     .get(0).getMmsi(), transactionID, transactionData
                     .getRouteMessage().get(0).getMmsi(), true);
+
+            monaLisaNegotiationData.get(transactionID).setStatus(
+                    MonaLisaRouteStatus.AGREED);
         }
-        
+
         transaction = false;
     }
 
-    public void cancelRouteRequest() {
+    private void sendRejectMsg(long transactionID) {
+        System.out.println("Send reject msg? " + transactionID);
+
+        // Send ack message
+        // remove from voyage layer show original route
+        voyageLayer.cancelRequest();
+
+        // Show original?
+        route.setVisible(true);
+
+        routeManager
+                .notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+
+        if (monaLisaNegotiationData.containsKey(transactionID)) {
+
+            MonaLisaRouteNegotiationData transactionData = monaLisaNegotiationData
+                    .get(transactionID);
+
+            enavServiceHandler.sendMonaLisaAck(transactionData
+                    .getRouteMessage().get(0).getMmsi(), transactionID,
+                    transactionData.getRouteMessage().get(0).getMmsi(), false);
+
+            monaLisaNegotiationData.get(transactionID).setStatus(
+                    MonaLisaRouteStatus.REJECTED);
+        }
+
+        transaction = false;
+    }
+
+    public void cancelRouteRequest(long transactionID) {
         transaction = false;
         voyageLayer.cancelRequest();
 
         route.setVisible(true);
         routeManager
                 .notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+
+        sendRejectMsg(transactionID);
     }
 
     @Override
@@ -225,4 +272,71 @@ public class MonaLisaHandler extends MapHandlerChild {
         }
     }
 
+    public void modifiedRequest() {
+        modified = true;
+        monaLisaSTCCDialog.changeModifiedAcceptBtn();
+    }
+
+    public void sendReply() {
+        if (modified) {
+            // Get new route
+            sendModifiedReply();
+        } else {
+            // We agree and are done
+            sendAgreeMsg(currentTransaction);
+            modified = false;
+        }
+    }
+
+    public void sendReject() {
+
+        System.out.println("Not transaction ID!");
+
+        sendRejectMsg(currentTransaction);
+    }
+
+    private void sendModifiedReply() {
+
+        Route route = voyageLayer.getModifiedSTCCRoute();
+
+        // System.out.println(route);
+        // System.out.println(route.getEtas().get(0));
+        // System.out.println(route.getFullRouteData());
+
+        System.out.println("Sending modified reply");
+
+        MonaLisaRouteRequestMessage routeMessage = new MonaLisaRouteService.MonaLisaRouteRequestMessage(
+                currentTransaction, route.getFullRouteData(),
+                monaLisaNegotiationData.get(currentTransaction)
+                        .getRouteMessage().get(0).getMmsi(), "Modified Route");
+
+        MonaLisaRouteNegotiationData entry;
+
+        // Existing transaction already established
+        if (monaLisaNegotiationData.containsKey(currentTransaction)) {
+
+            System.out.println("Existing transaction found");
+            entry = monaLisaNegotiationData.get(currentTransaction);
+        } else {
+            // Create new entry for the transaction
+            entry = new MonaLisaRouteNegotiationData(currentTransaction);
+        }
+
+        entry.addMessage(routeMessage);
+
+        monaLisaNegotiationData.put(currentTransaction, entry);
+        monaLisaNegotiationData.get(currentTransaction).setStatus(
+                MonaLisaRouteStatus.NEGOTIATING);
+
+        // Send it off
+        enavServiceHandler.sendMonaLisaRouteRequest(routeMessage);
+
+        // Display and initialize the GUI
+        monaLisaSTCCDialog.initializeNew();
+        // monaLisaSTCCDialog.setLocation(windowLocation);
+        monaLisaSTCCDialog.setLocationRelativeTo(EPDShip.getMainFrame());
+        monaLisaSTCCDialog.setVisible(true);
+        monaLisaSTCCDialog.setRouteName(route, routeMessage.getId());
+
+    }
 }

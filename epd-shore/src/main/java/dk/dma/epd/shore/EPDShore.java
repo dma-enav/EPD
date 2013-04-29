@@ -50,6 +50,7 @@ import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.service.ais.AisServices;
 import dk.dma.epd.shore.services.shore.ShoreServices;
 import dk.dma.epd.shore.settings.ESDSensorSettings;
@@ -77,6 +78,7 @@ public class EPDShore {
     private static AisHandler aisHandler;
     private static GpsHandler gpsHandler;
     private static MsiHandler msiHandler;
+    private static MonaLisaHandler monaLisaHandler;
     private static AisServices aisServices;
     private static AisReader aisReader;
     private static ShoreServices shoreServices;
@@ -184,6 +186,10 @@ public class EPDShore {
                 .getEnavSettings());
         beanHandler.add(enavServiceHandler);
         enavServiceHandler.start();
+        
+        // Create Mona Lisa Handler;
+        monaLisaHandler = new MonaLisaHandler();
+        beanHandler.add(monaLisaHandler);
 
         // Create MSI handler
         msiHandler = new MsiHandler(getSettings().getEnavSettings());

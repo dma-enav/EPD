@@ -40,6 +40,7 @@ import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteExchangeListener;
 import dk.dma.epd.shore.service.RouteExchangeListener;
 
@@ -69,7 +70,8 @@ public class NotificationArea extends ComponentFrame implements
     private MsiHandler msiHandler;
     // private AisServices aisService;
     private EnavServiceHandler enavServiceHandler;
-
+    private MonaLisaHandler monaLisaHandler;
+    
     Border paddingLeft = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(
             65, 65, 65));
     Border paddingBottom = BorderFactory.createMatteBorder(0, 0, 5, 0,
@@ -216,7 +218,11 @@ public class NotificationArea extends ComponentFrame implements
         if (obj instanceof EnavServiceHandler) {
             enavServiceHandler = (EnavServiceHandler) obj;
             enavServiceHandler.addRouteExchangeListener(this);
-            enavServiceHandler.addMonaLisaRouteExchangeListener(this);
+        }
+        
+        if (obj instanceof MonaLisaHandler) {
+            monaLisaHandler = (MonaLisaHandler) obj;
+            monaLisaHandler.addMonaLisaRouteExchangeListener(this);
         }
 
     }
@@ -473,9 +479,9 @@ public class NotificationArea extends ComponentFrame implements
     @Override
     public void monaLisaRouteUpdate() {
         try {
-            System.out.println("MonaLisa updated " + enavServiceHandler
+            System.out.println("MonaLisa updated " + monaLisaHandler
                     .getMonaLisaNegotiationData().size());
-            setMessages("monaLisaRouteExchange", enavServiceHandler
+            setMessages("monaLisaRouteExchange", monaLisaHandler
                     .getMonaLisaNegotiationData().size());
         } catch (InterruptedException e) {
             e.printStackTrace();
