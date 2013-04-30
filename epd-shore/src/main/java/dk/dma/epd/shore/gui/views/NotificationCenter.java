@@ -522,7 +522,7 @@ public class NotificationCenter extends ComponentFrame implements
         if (obj instanceof MonaLisaHandler){
             monaLisaHandler = (MonaLisaHandler) obj;
             monaLisaHandler.addMonaLisaRouteExchangeListener(this);
-            
+            monaLisaRoutePanel.setMonaLisaHandler(monaLisaHandler);
 //            monaLisaRoutePanel.setEnavServiceHandler(enavServiceHandler);
 //            monaLisaRouteTableModel.setEnavServiceHandler(enavServiceHandler);
             

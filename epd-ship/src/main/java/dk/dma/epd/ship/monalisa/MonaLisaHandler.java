@@ -49,7 +49,7 @@ public class MonaLisaHandler extends MapHandlerChild {
 
     private Route route;
 
-    private boolean modified;
+    private boolean routeModified;
     private long currentTransaction;
 
     public MonaLisaHandler() {
@@ -216,6 +216,7 @@ public class MonaLisaHandler extends MapHandlerChild {
                     MonaLisaRouteStatus.AGREED);
         }
 
+        monaLisaSTCCDialog.setVisible(false);
         transaction = false;
     }
 
@@ -273,25 +274,32 @@ public class MonaLisaHandler extends MapHandlerChild {
     }
 
     public void modifiedRequest() {
-        modified = true;
+        System.out.println("Modified request!");
+        routeModified = true;
         monaLisaSTCCDialog.changeModifiedAcceptBtn();
+    }
+    
+
+
+
+    public boolean isRouteModified() {
+        return routeModified;
     }
 
     public void sendReply() {
-        if (modified) {
+        System.out.println("Sending reply " + routeModified);
+        
+        if (routeModified) {
             // Get new route
             sendModifiedReply();
         } else {
             // We agree and are done
             sendAgreeMsg(currentTransaction);
-            modified = false;
         }
+        routeModified = false;
     }
 
     public void sendReject() {
-
-        System.out.println("Not transaction ID!");
-
         sendRejectMsg(currentTransaction);
     }
 
@@ -337,6 +345,9 @@ public class MonaLisaHandler extends MapHandlerChild {
         monaLisaSTCCDialog.setLocationRelativeTo(EPDShip.getMainFrame());
         monaLisaSTCCDialog.setVisible(true);
         monaLisaSTCCDialog.setRouteName(route, routeMessage.getId());
+        
+//        Clear layer and prevent editing 
+        voyageLayer.lockEditing();
 
     }
 }

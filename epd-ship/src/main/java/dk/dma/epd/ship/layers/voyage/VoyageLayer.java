@@ -70,10 +70,10 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     private int animationTimer = 100;
 
-    private OMGraphic closest;
+//    private OMGraphic closest;
     private OMGraphic selectedGraphic;
     
-    private boolean modified;
+//    private boolean modified;
 
     public VoyageLayer() {
 
@@ -385,10 +385,10 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
     private void drawAllRoutes() {
 
         // First time modifying
-        if (!modified) {
+        if (!monaLisaHandler.isRouteModified()) {
+            System.out.println("We are modifying");
             monaLisaHandler.modifiedRequest();
-            modified = true;
-            modifiedSTCCRoute.setName("Modified Reply Route");
+//            modifiedSTCCRoute.setName("Modified Reply Route");
         }
         
 //        modifiedSTCCRoute.calcAllWpEta();
@@ -430,10 +430,24 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
     public void routeAccepted() {
         graphics.clear();
         doPrepare();
+    }
+    
+    public void lockEditing(){
+        
+        //Draw only original and the recently sent one?
+        graphics.clear();
 
+        // New route in green
+        drawRoute(1, modifiedSTCCRoute, ECDISOrange, new Color(0.39f, 0.69f,
+                0.49f, 0.6f), true);
+        // Old route in red
+        drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
+                false);
+        
     }
 
     public void handleReply(MonaLisaRouteRequestReply reply) {
+        
         modifiedSTCCRoute = new Route(reply.getRoute());
         stccRoute = modifiedSTCCRoute.copy();
 //        modifiedSTCCRoute = stccRoute;

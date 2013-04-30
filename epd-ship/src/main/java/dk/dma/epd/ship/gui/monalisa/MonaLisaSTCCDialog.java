@@ -375,7 +375,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
             // Accept or send modified clicked, let monalisahandler figure it
             // out
             monaLisaHandler.sendReply();
-            this.setVisible(false);
+//            this.setVisible(false);
             btnAccept.setText("Accept");
         }
         if (e.getSource() == btnReject) {

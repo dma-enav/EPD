@@ -40,7 +40,7 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
             
             "Sent Date", "Message", "Status", "Reply Sent", "Message" };
     private static final String[] COLUMN_NAMES = { "Name", "Callsign",
-            "Called", "Route", "Status" };
+            "Called", "Status" };
 
 //    private EnavServiceHandler enavServiceHandler;
     private MonaLisaHandler monaLisaHandler;
@@ -146,7 +146,7 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
                 if (aisHandler.getVesselTargets().get(message.getMmsi())
                         .getStaticData() != null) {
                     return aisHandler.getVesselTargets().get(message.getMmsi())
-                            .getStaticData().getName();
+                            .getStaticData().getName().trim();
                 } else {
                     return message.getMmsi();
                 }
@@ -168,9 +168,9 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
         case 2:
             return Formatter.formatShortDateTime(message.getRouteMessage()
                     .get(0).getSent());
+//        case 3:
+//            return message.getRouteMessage().get(0).getRoute().getName();
         case 3:
-            return message.getRouteMessage().get(0).getRoute().getName();
-        case 4:
             return message.getStatus();
         default:
             return "";

@@ -37,12 +37,12 @@ public class MonaLisaHandler extends MapHandlerChild {
     private EnavServiceHandler enavServiceHandler;
     private VoyageManager voyageManager;
 
-    public void sendReply(MonaLisaRouteService.MonaLisaRouteRequestReply reply) {
-        // Store the reply we are sending?
-
-        enavServiceHandler.sendReply(reply);
-        notifyMonaLisaRouteExchangeListeners();
-    }
+//    public void sendReply(MonaLisaRouteService.MonaLisaRouteRequestReply reply) {
+//        // Store the reply we are sending?
+//
+//        enavServiceHandler.sendReply(reply);
+//        notifyMonaLisaRouteExchangeListeners();
+//    }
 
     public void sendReply(long id, String text, long mmsi,
             long currentTimeMillis, MonaLisaRouteStatus replyStatus, Route route) {
@@ -51,7 +51,7 @@ public class MonaLisaHandler extends MapHandlerChild {
                 text, id, mmsi, System.currentTimeMillis(), replyStatus, route);
 
         monaLisaNegotiationData.get(id).addReply(reply);
-        monaLisaNegotiationData.get(id).setStatus(reply.getStatus());
+        monaLisaNegotiationData.get(id).setStatus(MonaLisaRouteStatus.NEGOTIATING);
         monaLisaNegotiationData.get(id).setHandled(true);
 
         enavServiceHandler.sendReply(reply);
@@ -69,13 +69,19 @@ public class MonaLisaHandler extends MapHandlerChild {
         MonaLisaRouteNegotiationData entry;
 
         if (monaLisaNegotiationData.containsKey(transactionID)) {
-            entry = monaLisaNegotiationData.get(transactionID);
-        } else {
             System.out.println("Adding to existing");
+            entry = monaLisaNegotiationData.get(transactionID);
+            
+            //Not handled anymore, new pending message
+            entry.setHandled(false);
+        } else {
             entry = new MonaLisaRouteNegotiationData(message.getId(), mmsi);
-            entry.setStatus(MonaLisaRouteStatus.NEGOTIATING);
+           
+
         }
 
+        entry.setStatus(MonaLisaRouteStatus.PENDING);
+        
         entry.addMessage(message);
 
         monaLisaNegotiationData.put(message.getId(), entry);

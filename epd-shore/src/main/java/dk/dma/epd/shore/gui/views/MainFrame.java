@@ -39,6 +39,7 @@ import javax.swing.WindowConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
 import dk.dma.epd.shore.gui.route.SendVoyageDialog;
@@ -166,8 +167,8 @@ public class MainFrame extends JFrame implements WindowListener {
         // return window;
     }
 
-    public void addMonaLisaHandlingWindow(String shipName, Voyage voyage) {
-        new ThreadedMapCreator(this, shipName, voyage).run();
+    public void addMonaLisaHandlingWindow(Route originalRoute, String shipName, Voyage voyage) {
+        new ThreadedMapCreator(this, shipName, voyage, originalRoute).run();
 //        windowCount++;
 //        JMapFrame window = new JMapFrame(windowCount, this);
 //

@@ -21,6 +21,7 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
 
+import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MainFrame;
@@ -45,7 +46,9 @@ public class ThreadedMapCreator implements Runnable {
     private Voyage voyage;
     
     private MainFrame mainFrame;
-
+    private Route originalRoute;
+    
+    
     public ThreadedMapCreator(MainFrame mainFrame, boolean workspace, boolean locked,
             boolean alwaysInFront, Point2D center, float scale, String title,
             Dimension size, Point location, Boolean maximized) {
@@ -72,16 +75,17 @@ public class ThreadedMapCreator implements Runnable {
         monaLisaHandling = false;
     }
     
-    public ThreadedMapCreator(MainFrame mainFrame, String shipName, Voyage voyage) {
+    public ThreadedMapCreator(MainFrame mainFrame, String shipName, Voyage voyage, Route originalRoute) {
         this.mainFrame = mainFrame;
         this.shipName = shipName;
         this.voyage = voyage;
+        this.originalRoute = originalRoute;
         loadFromWorkspace = false;
         monaLisaHandling = true;
     }
     
     
-    public JMapFrame addMonaLisaHandlingWindow(String shipName, Voyage voyage) {
+    public JMapFrame addMonaLisaHandlingWindow(String shipName, Voyage voyage, Route originalRoute) {
         mainFrame.increaseWindowCount();
 
         JMapFrame window = new JMapFrame(mainFrame
@@ -122,7 +126,7 @@ public class ThreadedMapCreator implements Runnable {
         
         window.alwaysFront();
         
-        window.getChartPanel().getVoyageHandlingLayer().handleVoyage(voyage);
+        window.getChartPanel().getVoyageHandlingLayer().handleVoyage(originalRoute, voyage);
 
 
         window.getChartPanel().getMap().setScale(300000);
@@ -241,7 +245,7 @@ public class ThreadedMapCreator implements Runnable {
         } 
         
         if (monaLisaHandling){
-            addMonaLisaHandlingWindow(shipName, voyage);
+            addMonaLisaHandlingWindow(shipName, voyage, originalRoute);
             return;
         }
         
