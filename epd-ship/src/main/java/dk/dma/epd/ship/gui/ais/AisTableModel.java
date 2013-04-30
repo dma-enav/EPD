@@ -77,7 +77,7 @@ public class AisTableModel extends AbstractTableModel {
                 AisMessageExtended s = aisHandler.getShip(aisTarget);
                 ships.set(count, s);
                 fireTableRowsUpdated(count, count);
-
+                return;
             }
             count++;
         }
