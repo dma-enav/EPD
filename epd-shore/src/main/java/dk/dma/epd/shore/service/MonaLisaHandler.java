@@ -37,12 +37,15 @@ public class MonaLisaHandler extends MapHandlerChild {
     private EnavServiceHandler enavServiceHandler;
     private VoyageManager voyageManager;
 
-//    public void sendReply(MonaLisaRouteService.MonaLisaRouteRequestReply reply) {
-//        // Store the reply we are sending?
-//
-//        enavServiceHandler.sendReply(reply);
-//        notifyMonaLisaRouteExchangeListeners();
-//    }
+    private int unhandled;
+
+    // public void sendReply(MonaLisaRouteService.MonaLisaRouteRequestReply
+    // reply) {
+    // // Store the reply we are sending?
+    //
+    // enavServiceHandler.sendReply(reply);
+    // notifyMonaLisaRouteExchangeListeners();
+    // }
 
     public void sendReply(long id, String text, long mmsi,
             long currentTimeMillis, MonaLisaRouteStatus replyStatus, Route route) {
@@ -51,7 +54,8 @@ public class MonaLisaHandler extends MapHandlerChild {
                 text, id, mmsi, System.currentTimeMillis(), replyStatus, route);
 
         monaLisaNegotiationData.get(id).addReply(reply);
-        monaLisaNegotiationData.get(id).setStatus(MonaLisaRouteStatus.NEGOTIATING);
+        monaLisaNegotiationData.get(id).setStatus(
+                MonaLisaRouteStatus.NEGOTIATING);
         monaLisaNegotiationData.get(id).setHandled(true);
 
         enavServiceHandler.sendReply(reply);
@@ -71,17 +75,16 @@ public class MonaLisaHandler extends MapHandlerChild {
         if (monaLisaNegotiationData.containsKey(transactionID)) {
             System.out.println("Adding to existing");
             entry = monaLisaNegotiationData.get(transactionID);
-            
-            //Not handled anymore, new pending message
+
+            // Not handled anymore, new pending message
             entry.setHandled(false);
         } else {
             entry = new MonaLisaRouteNegotiationData(message.getId(), mmsi);
-           
 
         }
 
         entry.setStatus(MonaLisaRouteStatus.PENDING);
-        
+
         entry.addMessage(message);
 
         monaLisaNegotiationData.put(message.getId(), entry);
@@ -99,9 +102,9 @@ public class MonaLisaHandler extends MapHandlerChild {
                         + " has been completed!");
 
                 monaLisaNegotiationData.get(message.getId()).setCompleted(true);
-                monaLisaNegotiationData.get(message.getId()).setStatus(MonaLisaRouteStatus.AGREED);
-                
-                
+                monaLisaNegotiationData.get(message.getId()).setStatus(
+                        MonaLisaRouteStatus.AGREED);
+
                 // Ship has ack it, set status to completed and add the finished
                 // voyage to the voyageManager
 
@@ -117,20 +120,22 @@ public class MonaLisaHandler extends MapHandlerChild {
 
                 voyageManager.addVoyage(voyage);
             } else {
-                
-                //Is there a reply? if not then its a cancel, else its a rejected
-                if (monaLisaNegotiationData.get(message.getId()).getRouteReply().size() == 0){
-                    //cancelled
-                    monaLisaNegotiationData.get(message.getId()).setStatus(MonaLisaRouteStatus.CANCELED);
-                }else{
-                    monaLisaNegotiationData.get(message.getId()).setStatus(MonaLisaRouteStatus.REJECTED);    
+
+                // Is there a reply? if not then its a cancel, else its a
+                // rejected
+                if (monaLisaNegotiationData.get(message.getId())
+                        .getRouteReply().size() == 0) {
+                    // cancelled
+                    monaLisaNegotiationData.get(message.getId()).setStatus(
+                            MonaLisaRouteStatus.CANCELED);
+                } else {
+                    monaLisaNegotiationData.get(message.getId()).setStatus(
+                            MonaLisaRouteStatus.REJECTED);
                 }
-                
+
                 monaLisaNegotiationData.get(message.getId()).setCompleted(true);
                 monaLisaNegotiationData.get(message.getId()).setHandled(true);
-                
-                
-                
+
                 System.out
                         .println("Ship rejected it, end transaction and remove stuff");
 
@@ -146,13 +151,31 @@ public class MonaLisaHandler extends MapHandlerChild {
         return monaLisaNegotiationData;
     }
 
+    private void calculateUnhandled() {
+        unhandled = 0;
+
+        System.out.println(monaLisaNegotiationData.size());
+
+        for (MonaLisaRouteNegotiationData value : monaLisaNegotiationData
+                .values()) {
+            if (!value.isHandled()) {
+                unhandled++;
+            }
+        }
+
+    }
+
+    public int getUnHandled() {
+        return unhandled;
+    }
+
     public synchronized void addMonaLisaRouteExchangeListener(
             MonaLisaRouteExchangeListener listener) {
         monaLisaRouteExchangeListener.add(listener);
     }
 
     protected synchronized void notifyMonaLisaRouteExchangeListeners() {
-
+        calculateUnhandled();
         for (MonaLisaRouteExchangeListener listener : monaLisaRouteExchangeListener) {
             listener.monaLisaRouteUpdate();
         }

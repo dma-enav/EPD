@@ -479,10 +479,7 @@ public class NotificationArea extends ComponentFrame implements
     @Override
     public void monaLisaRouteUpdate() {
         try {
-            System.out.println("MonaLisa updated " + monaLisaHandler
-                    .getMonaLisaNegotiationData().size());
-            setMessages("monaLisaRouteExchange", monaLisaHandler
-                    .getMonaLisaNegotiationData().size());
+            setMessages("monaLisaRouteExchange", monaLisaHandler.getUnHandled());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -13,14 +13,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views;
+package dk.dma.epd.shore.gui.views.monalisa;
 
 import java.awt.Color;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
@@ -44,6 +46,8 @@ public class MonaLisaRouteExchangeNotificationInternalPanel extends JPanel {
 
     JLabel sogTxt;
     JLabel cogTxt;
+
+    JTabbedPane tabbedPane;
 
     public MonaLisaRouteExchangeNotificationInternalPanel() {
         setLayout(null);
@@ -69,140 +73,150 @@ public class MonaLisaRouteExchangeNotificationInternalPanel extends JPanel {
         add(pendngTxt);
 
         JPanel panel = new JPanel();
-        panel.setBorder(new TitledBorder(null, "Ship Info",
-                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        panel.setBackground(GuiStyler.backgroundColor);
+        panel.setBorder(new TitledBorder(new MatteBorder(1, 1, 1, 1, new Color(
+                70, 70, 70)), "Ship Info", TitledBorder.LEADING,
+                TitledBorder.TOP, GuiStyler.defaultFont, GuiStyler.textColor));
+
         panel.setBounds(20, 44, 368, 103);
         add(panel);
         panel.setLayout(null);
 
         JLabel lblMmsi = new JLabel("MMSI:");
         lblMmsi.setBounds(10, 20, 58, 14);
-        GuiStyler.styleText(lblMmsi);
+        GuiStyler.styleTitle(lblMmsi);
         panel.add(lblMmsi);
 
         JLabel lblName = new JLabel("Name:");
         lblName.setBounds(10, 40, 46, 14);
-        GuiStyler.styleText(lblName);
+        GuiStyler.styleTitle(lblName);
         panel.add(lblName);
 
         JLabel lblCallSign = new JLabel("Call Sign:");
-        lblCallSign.setBounds(10, 60, 46, 14);
-        GuiStyler.styleText(lblCallSign);
+        lblCallSign.setBounds(10, 60, 58, 14);
+        GuiStyler.styleTitle(lblCallSign);
         panel.add(lblCallSign);
 
-        JLabel lblType = new JLabel("Type");
-        lblType.setBounds(150, 20, 46, 14);
-        GuiStyler.styleText(lblType);
+        JLabel lblType = new JLabel("Type:");
+        lblType.setBounds(165, 20, 46, 14);
+        GuiStyler.styleTitle(lblType);
         panel.add(lblType);
 
         JLabel lblDestination = new JLabel("Destination:");
         lblDestination.setBounds(10, 80, 77, 14);
-        GuiStyler.styleText(lblDestination);
+        GuiStyler.styleTitle(lblDestination);
         panel.add(lblDestination);
 
-        JLabel lblLength = new JLabel("Length");
-        lblLength.setBounds(150, 40, 46, 14);
-        GuiStyler.styleText(lblLength);
+        JLabel lblLength = new JLabel("Length:");
+        lblLength.setBounds(165, 40, 46, 14);
+        GuiStyler.styleTitle(lblLength);
         panel.add(lblLength);
 
-        JLabel lblWidth = new JLabel("Width");
-        lblWidth.setBounds(150, 60, 46, 14);
-        GuiStyler.styleText(lblWidth);
+        JLabel lblWidth = new JLabel("Width:");
+        lblWidth.setBounds(165, 60, 46, 14);
+        GuiStyler.styleTitle(lblWidth);
         panel.add(lblWidth);
 
         JLabel lblSog = new JLabel("SOG");
-        lblSog.setBounds(270, 20, 46, 14);
-        GuiStyler.styleText(lblSog);
+        lblSog.setBounds(300, 20, 30, 14);
+        GuiStyler.styleTitle(lblSog);
         panel.add(lblSog);
 
         JLabel lblCog = new JLabel("COG");
-        lblCog.setBounds(270, 40, 46, 14);
-        GuiStyler.styleText(lblCog);
+        lblCog.setBounds(300, 40, 30, 14);
+        GuiStyler.styleTitle(lblCog);
         panel.add(lblCog);
 
-        JLabel lblDraught = new JLabel("Draught");
-        lblDraught.setBounds(150, 80, 46, 14);
-        GuiStyler.styleText(lblDraught);
+        JLabel lblDraught = new JLabel("Draught:");
+        lblDraught.setBounds(165, 80, 46, 14);
+        GuiStyler.styleTitle(lblDraught);
         panel.add(lblDraught);
 
         mmsiTxt = new JLabel("");
-        mmsiTxt.setBounds(80, 20, 60, 14);
+        mmsiTxt.setBounds(80, 20, 75, 14);
         GuiStyler.styleText(mmsiTxt);
         panel.add(mmsiTxt);
 
         nameTxt = new JLabel("");
-        nameTxt.setBounds(80, 40, 60, 14);
+        nameTxt.setBounds(80, 40, 75, 14);
         GuiStyler.styleText(nameTxt);
         panel.add(nameTxt);
 
         callSignTxt = new JLabel("");
-        callSignTxt.setBounds(80, 60, 60, 14);
+        callSignTxt.setBounds(80, 60, 75, 14);
         GuiStyler.styleText(callSignTxt);
         panel.add(callSignTxt);
 
         destinationTxt = new JLabel("");
-        destinationTxt.setBounds(80, 80, 60, 14);
+        destinationTxt.setBounds(80, 80, 75, 14);
         GuiStyler.styleText(destinationTxt);
         panel.add(destinationTxt);
 
         typeTxt = new JLabel("");
-        typeTxt.setBounds(200, 20, 60, 14);
+        typeTxt.setBounds(215, 20, 77, 14);
         GuiStyler.styleText(typeTxt);
         panel.add(typeTxt);
 
         lengthTxt = new JLabel("");
-        lengthTxt.setBounds(200, 40, 60, 14);
+        lengthTxt.setBounds(215, 40, 75, 14);
         GuiStyler.styleText(lengthTxt);
         panel.add(lengthTxt);
 
         widthTxt = new JLabel("");
-        widthTxt.setBounds(200, 60, 60, 14);
+        widthTxt.setBounds(215, 60, 80, 14);
         GuiStyler.styleText(widthTxt);
         panel.add(widthTxt);
 
         draughtTxt = new JLabel("");
-        draughtTxt.setBounds(200, 80, 60, 14);
+        draughtTxt.setBounds(215, 80, 80, 14);
         GuiStyler.styleText(draughtTxt);
         panel.add(draughtTxt);
 
         sogTxt = new JLabel("");
-        sogTxt.setBounds(299, 20, 59, 14);
+        sogTxt.setBounds(328, 20, 30, 14);
         GuiStyler.styleText(sogTxt);
         panel.add(sogTxt);
 
         cogTxt = new JLabel("");
-        cogTxt.setBounds(299, 40, 59, 14);
+        cogTxt.setBounds(326, 40, 32, 14);
         GuiStyler.styleText(cogTxt);
         panel.add(cogTxt);
 
-        JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.LEFT);
+        tabbedPane = new JTabbedPane(JTabbedPane.LEFT);
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         tabbedPane.setBounds(20, 170, 368, 319);
+
+        // tabbedPane.setBorder(new TitledBorder(new MatteBorder(1, 1, 1, 1,
+        // new Color(70, 70, 70)), "Messages", TitledBorder.LEADING,
+        // TitledBorder.TOP, GuiStyler.defaultFont, GuiStyler.textColor));
+        tabbedPane.setBorder(null);
+        tabbedPane.setBackground(GuiStyler.backgroundColor);
+        tabbedPane.setForeground(GuiStyler.textColor);
+        tabbedPane.setFont(GuiStyler.defaultFont);
+
+        tabbedPane.setUI(new BasicTabbedPaneUI() {
+            @Override
+            protected void installDefaults() {
+                super.installDefaults();
+                highlight = new Color(70, 70, 70);
+                lightHighlight = new Color(70, 70, 70);
+                shadow = new Color(70, 70, 70);
+                darkShadow = new Color(70, 70, 70);
+                focus = new Color(70, 70, 70);
+            }
+        });
+
         add(tabbedPane);
 
-        JPanel panel_1 = new JPanel();
-        tabbedPane.addTab("Negotiation 1", null, panel_1, null);
+        // tabbedPane.setVisible(false);
 
-        JPanel panel_2 = new JPanel();
-        tabbedPane.addTab("Negotiation 2", null, panel_2, null);
+        // JPanel panel_1 = new JPanel();
+        // panel_1.setBackground(GuiStyler.backgroundColor);
+        // panel_1.setBorder(new TitledBorder(new MatteBorder(1, 1, 1, 1,
+        // new Color(70, 70, 70)), "Ship Info", TitledBorder.LEADING,
+        // TitledBorder.TOP, GuiStyler.defaultFont, GuiStyler.textColor));
 
-        JPanel panel_3 = new JPanel();
-        tabbedPane.addTab("Negotiation 3", null, panel_3, null);
-
-        JPanel panel_4 = new JPanel();
-        tabbedPane.addTab("Negotiation 4", null, panel_4, null);
-
-        JPanel panel_5 = new JPanel();
-        tabbedPane.addTab("Negotiation 5", null, panel_5, null);
-
-        JPanel panel_6 = new JPanel();
-        tabbedPane.addTab("Negotiation 6", null, panel_6, null);
-
-        JPanel panel_7 = new JPanel();
-        tabbedPane.addTab("Negotiation 7", null, panel_7, null);
-
-        JPanel panel_8 = new JPanel();
-        tabbedPane.addTab("Negotiation 8", null, panel_8, null);
+        // tabbedPane.add(panel_1);
 
     }
 
@@ -214,40 +228,43 @@ public class MonaLisaRouteExchangeNotificationInternalPanel extends JPanel {
         // Color coding?
         pendngTxt.setText(message.getStatus().toString());
         setStatusColor(message.getStatus());
-        
+
         mmsiTxt.setText(message.getRouteMessage().get(0).getMmsi() + "");
 
-        nameTxt.setText("N/A");
-        callSignTxt.setText("N/A");
-        destinationTxt.setText("N/A");
+        nameTxt.setText(aisData.getStaticData().getName().trim());
+        callSignTxt.setText(aisData.getStaticData().getCallsign().trim());
+        destinationTxt.setText(aisData.getStaticData().getDestination().trim());
 
-        typeTxt.setText("N/A");
-        lengthTxt.setText("N/A");
-        widthTxt.setText("N/A");
-        draughtTxt.setText("N/A");
-        sogTxt.setText("N/A");
-        cogTxt.setText("N/A");
+        typeTxt.setText(aisData.getStaticData().getShipType().toString());
+
+        lengthTxt.setText(aisData.getStaticData().getDimBow()
+                + aisData.getStaticData().getDimStern() + "");
+        widthTxt.setText(aisData.getStaticData().getDimPort()
+                + aisData.getStaticData().getDimStarboard() + "");
+        draughtTxt.setText(aisData.getStaticData().getDraught() / 10 + "");
+        sogTxt.setText(aisData.getPositionData().getSog() + "");
+        cogTxt.setText(aisData.getPositionData().getCog() + "");
 
         setNegotiationTabs(message);
     }
-    
-    private void setStatusColor(MonaLisaRouteStatus status){
+
+    private void setStatusColor(MonaLisaRouteStatus status) {
         // PENDING, AGREED, REJECTED, NEGOTIATING, CANCELED
         switch (status) {
         case PENDING:
             pendngTxt.setForeground(Color.YELLOW);
             break;
         case AGREED:
-            pendngTxt.setForeground(Color.GREEN);
+            pendngTxt.setForeground(new Color(130, 165, 80));
             break;
         case REJECTED:
-            pendngTxt.setForeground(Color.RED);
+            pendngTxt.setForeground(new Color(165, 80, 80));
             break;
         case NEGOTIATING:
             pendngTxt.setForeground(Color.YELLOW);
             break;
         case CANCELED:
-            pendngTxt.setForeground(Color.RED);
+            pendngTxt.setForeground(new Color(165, 80, 80));
             break;
         }
     }
@@ -259,7 +276,6 @@ public class MonaLisaRouteExchangeNotificationInternalPanel extends JPanel {
         // Color coding?
         pendngTxt.setText(message.getStatus().toString());
         setStatusColor(message.getStatus());
-
 
         mmsiTxt.setText(message.getRouteMessage().get(0).getMmsi() + "");
 
@@ -278,6 +294,38 @@ public class MonaLisaRouteExchangeNotificationInternalPanel extends JPanel {
     }
 
     private void setNegotiationTabs(MonaLisaRouteNegotiationData message) {
+        // tabbedPane.setVisible(true);
 
+         tabbedPane.removeAll();
+
+        // for each route message
+        for (int i = message.getRouteMessage().size()-1; i > -1; i--) {
+            
+            System.out.println("looking at message " + i);
+            
+            MonaLisaNegotiationView negotiation = new MonaLisaNegotiationView(
+                    message.getRouteMessage().get(i));
+
+            System.out.println("Any replies to be found? "
+                    + message.getRouteReply().size());
+            if (message.getRouteReply().size() > i) {
+                negotiation.handleReply(message.getRouteReply().get(i));
+            }
+
+            if (message.isCompleted()) {
+                
+                
+                
+                System.out.println("Its completed with status "
+                        + message.getStatus());
+            }
+
+            tabbedPane.addTab("Message " + (i + 1), null, negotiation, null);
+
+            // message.getRouteMessage().get(i).
+            // message.get
+        }
+
+        System.out.println("hmm done?");
     }
 }

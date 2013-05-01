@@ -29,7 +29,6 @@ import javax.swing.JViewport;
 
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
-import dk.dma.epd.shore.gui.route.SendVoyageDialog;
 import dk.dma.epd.shore.gui.views.JMainDesktopPane;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.JSettingsWindow;
@@ -38,6 +37,7 @@ import dk.dma.epd.shore.gui.views.NotificationCenter;
 import dk.dma.epd.shore.gui.views.SendRouteDialog;
 import dk.dma.epd.shore.gui.views.StatusArea;
 import dk.dma.epd.shore.gui.views.ToolBar;
+import dk.dma.epd.shore.gui.views.monalisa.SendVoyageDialog;
 
 public class JMainDesktopManager extends DefaultDesktopManager {
     /**

@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
-import dk.dma.epd.shore.gui.route.SendVoyageDialog;
+import dk.dma.epd.shore.gui.views.monalisa.SendVoyageDialog;
 import dk.dma.epd.shore.settings.ESDGuiSettings;
 import dk.dma.epd.shore.settings.Workspace;
 import dk.dma.epd.shore.util.ThreadedMapCreator;

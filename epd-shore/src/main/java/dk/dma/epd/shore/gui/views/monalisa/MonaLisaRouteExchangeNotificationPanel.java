@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views;
+package dk.dma.epd.shore.gui.views.monalisa;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -47,9 +47,9 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
-import dk.dma.epd.shore.gui.route.MonaLisaRouteExchangeTableModel;
 import dk.dma.epd.shore.gui.route.RoutePropertiesDialog;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
+import dk.dma.epd.shore.gui.views.NotificationCenter;
 import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteNegotiationData;
 import dk.dma.epd.shore.voyage.Voyage;
@@ -189,11 +189,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
                     comp.setBackground(new Color(65, 65, 65));
                 }
 
-                if (isCellSelected(Index_row, Index_col)) {
-                    comp.setForeground(Color.white);
-                    comp.setBackground(new Color(85, 85, 85));
-                }
-
+    
                 // Paint based on awk
                 if (routeTableModel != null) {
                     if (routeTableModel.isAwk(Index_row) && Index_col == 0) {
@@ -204,6 +200,12 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
                     }
 
                 }
+                
+                if (isCellSelected(Index_row, Index_col)) {
+                    comp.setForeground(Color.white);
+                    comp.setBackground(new Color(85, 85, 85));
+                }
+
 
                 return comp;
             }
@@ -381,22 +383,22 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
         MonaLisaRouteNegotiationData message = ((MonaLisaRouteExchangeTableModel) routeTable.getModel()).getMessages().get(selectedRow);
 //                .getMonaLisaNegotiationData().get(selectedRow);
         
-        System.out.println(message);
+//        System.out.println(message);
 
-        doc.delete(0, doc.length());
-        doc.append("<font size=\"2\" face=\"times, serif\" color=\"white\">");
-        for (int i = 0; i < ((MonaLisaRouteExchangeTableModel) routeTable
-                .getModel()).areaGetColumnCount(); i++) {
-
-            doc.append("<u><b>"
-                    + ((MonaLisaRouteExchangeTableModel) routeTable.getModel())
-                            .areaGetColumnName(i)
-                    + ":</b></u><br />"
-                    + ((MonaLisaRouteExchangeTableModel) routeTable.getModel())
-                            .areaGetValueAt(selectedRow, i) + "<br /><br />");
-        }
-
-        doc.append("</font>");
+//        doc.delete(0, doc.length());
+//        doc.append("<font size=\"2\" face=\"times, serif\" color=\"white\">");
+//        for (int i = 0; i < ((MonaLisaRouteExchangeTableModel) routeTable
+//                .getModel()).areaGetColumnCount(); i++) {
+//
+//            doc.append("<u><b>"
+//                    + ((MonaLisaRouteExchangeTableModel) routeTable.getModel())
+//                            .areaGetColumnName(i)
+//                    + ":</b></u><br />"
+//                    + ((MonaLisaRouteExchangeTableModel) routeTable.getModel())
+//                            .areaGetValueAt(selectedRow, i) + "<br /><br />");
+//        }
+//
+//        doc.append("</font>");
         // area.setText(doc.toString());
 
         VesselTarget aisData = null;
