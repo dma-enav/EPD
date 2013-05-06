@@ -39,8 +39,10 @@ import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
+import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MapMenu;
+import dk.dma.epd.shore.gui.views.NotificationCenter;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
@@ -114,7 +116,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
 
             jMapFrame.getGlassPanel().add(voyagePlanInfoPanel);
             // voyagePlanInfoPanel.setLocation(0, 0);
-            voyagePlanInfoPanel.setBounds(20, 20, 208, 300);
+            voyagePlanInfoPanel.setBounds(0, 20, 208, 300);
             // metocInfoPanel = new MetocInfoPanel();
             // jMapFrame.getGlassPanel().add(metocInfoPanel);
             // jMapFrame.getGlassPanel().add(waypointInfoPanel);
@@ -128,6 +130,11 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
 
         if (obj instanceof AisHandler) {
             voyagePlanInfoPanel.setAisHandler((AisHandler) obj);
+        }
+        
+        
+        if (obj instanceof ChartPanel) {
+            voyagePlanInfoPanel.setChartPanel((ChartPanel) obj);
         }
 
     }
@@ -271,6 +278,8 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
 
         Color ECDISOrange = new Color(213, 103, 45, 255);
 
+        
+        
         // Modified route, ecdis line, green broadline
         RouteGraphic modifiedVoyageGraphic = new RouteGraphic(newRoute, 1,
                 false, stroke, ECDISOrange,
@@ -283,8 +292,19 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         // VoyageGraphic voyageGraphic = new VoyageGraphic(originalRoute, 0,
         // new Color(1f, 0, 0, 0.6f));
 
-        RouteGraphic voyageGraphic = new RouteGraphic(initialRecievedRoute, 0,
+        
+        //Red
+        RouteGraphic originalRouteGraphic = new RouteGraphic(originalRoute, 0,
                 false, stroke, ECDISOrange, new Color(1f, 0, 0, 0.4f), false);
+        graphics.add(originalRouteGraphic);
+        
+        
+        RouteGraphic voyageGraphic = new RouteGraphic(initialRecievedRoute, 0,
+                false, stroke, ECDISOrange, new Color(1f, 1f, 0, 0.7f), false);
+        
+//        new Color(1f, 1f, 0, 0.7f)
+        
+        
 
         graphics.add(voyageGraphic);
 
@@ -417,7 +437,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
     public void handleVoyage(Route originalRoute, Voyage voyage) {
         graphics.clear();
 
-        this.originalRoute = originalRoute;
+        this.originalRoute = originalRoute.copy();
         this.voyage = voyage;
         this.initialRecievedRoute = voyage.getRoute().copy();
         this.newRoute = voyage.getRoute();
@@ -426,12 +446,28 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
 
         // Added the route as green, original recieved one
         RouteGraphic voyageGraphic = new RouteGraphic(newRoute, 1, false,
-                stroke, ECDISOrange, new Color(1f, 1f, 0, 0.7f), false);
+                stroke, ECDISOrange, new Color(0.39f, 0.69f, 0.49f, 0.6f), false);
 
+        
+        
+        
+        //Are the routes the same?
+        //originalroute vs. newroute
+        RouteGraphic originalRouteGraphic = new RouteGraphic(originalRoute, 1, false,
+                stroke, ECDISOrange,  new Color(1f, 0, 0, 0.4f), false);
+        graphics.add(originalRouteGraphic);
+        
+        
+        
+//        RouteGraphic voyageGraphic = new RouteGraphic(newRoute, 1, false,
+//                stroke, ECDISOrange, new Color(1f, 1f, 0, 0.7f), false);
+        
+        
         // VoyageGraphic voyageGraphic = new VoyageGraphic(newRoute, 1,
         // new Color(1f, 1f, 0, 0.6f));
 
         voyagePlanInfoPanel.setVoyage(voyage);
+
 
         graphics.add(voyageGraphic);
         graphics.project(getProjection(), true);

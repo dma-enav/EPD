@@ -657,6 +657,7 @@ public class MainFrame extends JFrame implements WindowListener {
     }
 
     public void toggleNotificationCenter(int service) {
+        System.out.println("Toggle service: " + service);
         notificationCenter.toggleVisibility(service);
     }
 

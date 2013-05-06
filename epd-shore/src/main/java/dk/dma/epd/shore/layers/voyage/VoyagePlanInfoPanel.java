@@ -31,12 +31,16 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
 
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
+import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
+import dk.dma.epd.shore.gui.route.RoutePropertiesDialog;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
+import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
+import dk.dma.epd.shore.gui.views.NotificationCenter;
 import dk.dma.epd.shore.voyage.Voyage;
 
 import javax.swing.JButton;
@@ -59,9 +63,20 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
     JLabel lblCogSog;
     JLabel lblTd;
     JLabel lblETA;
-
     
+    
+
+    JLabel ZoomToShipBtn;
     JLabel closeBtn;
+    JLabel OpenShipDetailstextBtn;
+    JLabel OpenVpDetalsBtn;
+    JLabel HideOtherVoyagesBtn;
+    
+    ChartPanel chartPanel;
+    
+    NotificationCenter notificationCenter;
+    
+    
     /**
      * Create the panel.
      * 
@@ -69,8 +84,10 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
      */
     public VoyagePlanInfoPanel() {
         super();
-        this.voyage = voyage;
 
+        
+        this.notificationCenter = EPDShore.getMainFrame().getNotificationCenter();
+        
         // setBorder(BorderFactory.createLineBorder(Color.BLACK));
         setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED,
                 new Color(30, 30, 30), new Color(45, 45, 45)));
@@ -144,29 +161,33 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
         GuiStyler.styleText(lblETA);
         notificationPanel.add(lblETA);
 
-        JLabel ZoomToShipBtn = new JLabel("Zoom to ship in center");
+        ZoomToShipBtn = new JLabel("Zoom to ship in center");
         ZoomToShipBtn.setHorizontalAlignment(SwingConstants.CENTER);
         ZoomToShipBtn.setBounds(34, 102, 140, 25);
+        ZoomToShipBtn.addMouseListener(this);
         GuiStyler.styleButton(ZoomToShipBtn);
         notificationPanel.add(ZoomToShipBtn);
 
-        JLabel OpenShipDetailstextBtn = new JLabel("Open ship details/Text");
+        OpenShipDetailstextBtn = new JLabel("Open ship details");
         OpenShipDetailstextBtn.setHorizontalAlignment(SwingConstants.CENTER);
         OpenShipDetailstextBtn.setBounds(34, 134, 140, 25);
         GuiStyler.styleButton(OpenShipDetailstextBtn);
+        OpenShipDetailstextBtn.addMouseListener(this);
 
         notificationPanel.add(OpenShipDetailstextBtn);
 
-        JLabel OpenVpDetalsBtn = new JLabel("Open VP details");
+        OpenVpDetalsBtn = new JLabel("Open VP details");
         OpenVpDetalsBtn.setHorizontalAlignment(SwingConstants.CENTER);
         OpenVpDetalsBtn.setBounds(34, 166, 140, 25);
         GuiStyler.styleButton(OpenVpDetalsBtn);
         notificationPanel.add(OpenVpDetalsBtn);
+        OpenVpDetalsBtn.addMouseListener(this);
 
-        JLabel HideOtherVoyagesBtn = new JLabel("Hide other voyages");
+        HideOtherVoyagesBtn = new JLabel("Hide other voyages");
         HideOtherVoyagesBtn.setHorizontalAlignment(SwingConstants.CENTER);
         HideOtherVoyagesBtn.setBounds(34, 198, 140, 25);
         GuiStyler.styleButton(HideOtherVoyagesBtn);
+        HideOtherVoyagesBtn.addMouseListener(this);
 
         notificationPanel.add(HideOtherVoyagesBtn);
 
@@ -188,6 +209,7 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
 
     }
 
+
     public void setParent(JMapFrame parent) {
         this.parent = parent;
 
@@ -202,6 +224,10 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
         this.aisHandler = aisHandler;
 
         checkAisData();
+    }
+    
+    public void setChartPanel(ChartPanel chartPanel){
+        this.chartPanel = chartPanel;
     }
 
     
@@ -278,6 +304,50 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
             this.setVisible(false);
         }
 
+        if (arg0.getSource() == ZoomToShipBtn && ZoomToShipBtn.isEnabled()) {
+            if (aisHandler.getVesselTargets().containsKey(voyage.getMmsi())){
+                chartPanel.zoomToPoint(aisHandler.getVesselTargets().get(voyage.getMmsi()).getPositionData().getPos());
+            }
+        }
         
+        if (arg0.getSource() == OpenShipDetailstextBtn && OpenShipDetailstextBtn.isEnabled()) {
+            
+            notificationCenter.showMonaLisaMsg(2, voyage.getId());
+            
+            //Notification Center
+            
+            
+            
+            
+        }
+ 
+        if (arg0.getSource() == OpenVpDetalsBtn && OpenVpDetalsBtn.isEnabled()) {
+            //Display the route
+            
+            System.out.println(voyage.getId());
+            
+            RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
+                    EPDShore.getMainFrame(), voyage.getRoute());
+            routePropertiesDialog.setVisible(true);
+            
+        }
+        
+        if (arg0.getSource() == HideOtherVoyagesBtn && HideOtherVoyagesBtn.isEnabled()) {
+            
+//            HideOtherVoyagesBtn.
+            
+            
+            //If it\s visibile then toggle switched to 
+            if (chartPanel.getVoyageLayer().isVisible()){
+                HideOtherVoyagesBtn.setText("Show other voyages");
+            }else{
+                HideOtherVoyagesBtn.setText("Hide other voyages");
+            }
+            
+            chartPanel.getVoyageLayer().setVisible(!chartPanel.getVoyageLayer().isVisible());
+            //Toggle voyage layer
+            
+        }
+
     }
 }

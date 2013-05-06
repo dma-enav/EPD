@@ -59,6 +59,7 @@ import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteExchangeListener;
+import dk.dma.epd.shore.service.MonaLisaRouteNegotiationData;
 import dk.dma.epd.shore.service.RouteExchangeListener;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
@@ -465,6 +466,8 @@ public class NotificationCenter extends ComponentFrame implements
     }
 
     public void showMSIMessage(int service, int msgId) {
+        
+        setNotificationView(service);
 
         int index = -1;
 
@@ -480,6 +483,32 @@ public class NotificationCenter extends ComponentFrame implements
 
         msiPanel.readMessage(index, index);
     }
+    
+    
+    public void showMonaLisaMsg(int service, long msgId) {
+        
+        setNotificationView(service);
+
+        int index = -1;
+
+        
+        
+        List<MonaLisaRouteNegotiationData> messages = monaLisaRouteTableModel.getMessages();
+        for (int i = 0; i < messages.size(); i++) {
+            MonaLisaRouteNegotiationData message = messages.get(i);
+            if (message.getId() == msgId) {
+                index = i;
+                break;
+            }
+        }
+
+        monaLisaRoutePanel.readMessage(index, index);
+        
+        this.setVisible(true);
+        
+
+    }
+    
 
     @Override
     public void findAndInit(Object obj) {
@@ -630,20 +659,19 @@ public class NotificationCenter extends ComponentFrame implements
     private void setNotificationView(int service) {
         switch (service) {
         case 0:
-
             // Activate MSI
             routePanel.setVisible(false);
-            msiPanel.setVisible(true);
             monaLisaRoutePanel.setVisible(false);
-
+            msiPanel.setVisible(true);
+            
             break;
 
         case 1:
 
             // Activate route exchange
-            routePanel.setVisible(true);
             msiPanel.setVisible(false);
             monaLisaRoutePanel.setVisible(false);
+            routePanel.setVisible(true);
 
             break;
 

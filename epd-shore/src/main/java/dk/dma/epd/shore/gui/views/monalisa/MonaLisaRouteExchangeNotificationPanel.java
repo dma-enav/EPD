@@ -79,7 +79,6 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
     private Color backgroundColor = new Color(83, 83, 83);
     // private JTextPane area = new JTextPane();
     private MonaLisaRouteExchangeNotificationInternalPanel area = new MonaLisaRouteExchangeNotificationInternalPanel();
-    private StringBuilder doc = new StringBuilder();
 
     private JLabel route_details;
     private JLabel chat_btn;
@@ -415,7 +414,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
                 System.out.println("bad select row");
             } else {
                 
-                if (aisData != null){
+                if (aisData.getStaticData() != null){
                     area.updateLabels(message, aisData);    
                 }else{
                     area.updateLabels(message);
@@ -438,7 +437,8 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
 
                     RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
                             EPDShore.getMainFrame(), new Route(message
-                                    .getRouteMessage().get(0).getRoute()));
+                                    .getRouteMessage().get(message
+                                            .getRouteMessage().size()-1).getRoute()));
                     routePropertiesDialog.setVisible(true);
 
                     // route_details.setEnabled(false);
@@ -469,7 +469,9 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
                     Voyage voyage = new Voyage(message.getMmsi(), route,
                             message.getId());
 
-                    EPDShore.getMainFrame().addMonaLisaHandlingWindow(route,
+                    Route originalRoute = new Route(message.getRouteMessage().get(0).getRoute());
+                    
+                    EPDShore.getMainFrame().addMonaLisaHandlingWindow(originalRoute,
                             shipName, voyage);
 
                     // MonaLisaRouteService.MonaLisaRouteRequestReply reply =
