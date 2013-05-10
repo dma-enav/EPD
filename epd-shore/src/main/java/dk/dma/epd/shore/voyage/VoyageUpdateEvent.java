@@ -22,7 +22,7 @@ import java.util.EnumSet;
  * Different events for routes
  */
 public enum VoyageUpdateEvent {
-    VOYAGE_CHANGED, VOYAGE_ADDED, VOYAGE_REMOVED, VOYAGE_VISIBILITY_CHANGED, VOYAGE_WAYPOINT_DELETED, VOYAGE_WAYPOINT_APPENDED, VOYAGE_WAYPOINT_MOVED;
+    VOYAGE_CHANGED, VOYAGE_ADDED, VOYAGE_REMOVED, VOYAGE_VISIBILITY_CHANGED, VOYAGE_WAYPOINT_DELETED, VOYAGE_WAYPOINT_APPENDED, VOYAGE_WAYPOINT_MOVED, VOYAGE_PENDING;
 
     public boolean is(VoyageUpdateEvent... events) {
         return EnumSet.copyOf(Arrays.asList(events)).contains(this);

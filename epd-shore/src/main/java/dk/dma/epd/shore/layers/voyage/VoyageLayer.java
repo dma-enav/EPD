@@ -16,18 +16,34 @@
 package dk.dma.epd.shore.layers.voyage;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
+import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.ais.AisTarget;
+import dk.dma.epd.common.prototype.ais.IAisTargetListener;
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
+import dk.dma.epd.shore.gui.views.JMapFrame;
+import dk.dma.epd.shore.layers.ais.AisLayer;
+import dk.dma.epd.shore.layers.ais.Vessel;
+import dk.dma.epd.shore.service.MonaLisaHandler;
+import dk.dma.epd.shore.service.MonaLisaRouteExchangeListener;
+import dk.dma.epd.shore.service.MonaLisaRouteNegotiationData;
 import dk.dma.epd.shore.voyage.VoyageManager;
 import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
 import dk.dma.epd.shore.voyage.VoyageUpdateListener;
@@ -38,20 +54,31 @@ import dk.dma.epd.shore.voyage.VoyageUpdateListener;
  * Layer for showing routes
  */
 public class VoyageLayer extends OMGraphicHandlerLayer implements
-        VoyageUpdateListener, MapMouseListener {
+        VoyageUpdateListener, MapMouseListener, MonaLisaRouteExchangeListener,
+        IAisTargetListener {
 
     private static final long serialVersionUID = 1L;
 
     private VoyageManager voyageManager;
-//    private MetocInfoPanel metocInfoPanel;
-//    private WaypointInfoPanel waypointInfoPanel;
-//    private MapBean mapBean;
+    private MonaLisaHandler monaLisaHandler;
+
+    // private ShipIndicatorPanel shipIndicatorPanel;
+
+    private Map<Long, ShipIndicatorPanel> shipIndicatorPanels = new HashMap<>();
+
+    // private MetocInfoPanel metocInfoPanel;
+    // private WaypointInfoPanel waypointInfoPanel;
+    // private MapBean mapBean;
 
     private OMGraphicList graphics = new OMGraphicList();
-//    private OMGraphic closest;
-//    private OMGraphic selectedGraphic;
-//    private JMapFrame jMapFrame;
-//    private MapMenu routeMenu;
+    // private OMGraphic closest;
+    // private OMGraphic selectedGraphic;
+    private JMapFrame jMapFrame;
+
+    private AisLayer aisLayer;
+    private AisHandler aisHandler;
+
+    // private MapMenu routeMenu;
 
     public VoyageLayer() {
         voyageManager = EPDShore.getVoyageManager();
@@ -60,27 +87,33 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public void findAndInit(Object obj) {
-        // if (obj instanceof VoyageManager) {
-        // voyageManager = (VoyageManager)obj;
-        // voyageManager.addListener(this);
-        // }
-
-        // if (obj instanceof JMapFrame){
-        // if (waypointInfoPanel == null && voyageManager != null) {
-        // waypointInfoPanel = new WaypointInfoPanel();
-        // }
-        //
-        // jMapFrame = (JMapFrame) obj;
-        // metocInfoPanel = new MetocInfoPanel();
-        // jMapFrame.getGlassPanel().add(metocInfoPanel);
-        // jMapFrame.getGlassPanel().add(waypointInfoPanel);
-        // }
-        if (obj instanceof MapBean) {
-//            mapBean = (MapBean) obj;
+        if (obj instanceof MonaLisaHandler) {
+            monaLisaHandler = (MonaLisaHandler) obj;
+            monaLisaHandler.addMonaLisaRouteExchangeListener(this);
+            System.out.println("listener added");
         }
-        // if(obj instanceof MapMenu){
-        // routeMenu = (MapMenu) obj;
-        // }
+
+        if (obj instanceof JMapFrame) {
+            // if (waypointInfoPanel == null && voyageManager != null) {
+            // waypointInfoPanel = new WaypointInfoPanel();
+            // }
+            //
+            jMapFrame = (JMapFrame) obj;
+            // shipIndicatorPanel = new ShipIndicatorPanel();
+            // jMapFrame.getGlassPanel().add(shipIndicatorPanel);
+
+        }
+        if (obj instanceof MapBean) {
+            // mapBean = (MapBean) obj;
+        }
+        if (obj instanceof AisLayer) {
+            aisLayer = (AisLayer) obj;
+        }
+
+        if (obj instanceof AisHandler) {
+            aisHandler = (AisHandler) obj;
+            aisHandler.addListener(this);
+        }
 
     }
 
@@ -241,6 +274,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public void voyagesChanged(VoyageUpdateEvent e) {
+
         graphics.clear();
 
         for (int i = 0; i < voyageManager.getVoyages().size(); i++) {
@@ -248,9 +282,11 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
             System.out.println(route);
             if (route.isVisible()) {
                 System.out.println("Adding Voyage");
-                VoyageGraphic voyageGraphic = new VoyageGraphic(route, i, new Color(0.4f, 0.8f, 0.5f, 0.5f));
+                VoyageGraphic voyageGraphic = new VoyageGraphic(route, i,
+                        new Color(0.4f, 0.8f, 0.5f, 0.5f));
                 graphics.add(voyageGraphic);
             }
+
         }
 
         graphics.project(getProjection(), true);
@@ -258,14 +294,72 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         doPrepare();
     }
 
-   
-    
-    
     @Override
     public synchronized OMGraphicList prepare() {
         graphics.project(getProjection());
         return graphics;
     }
 
+    private void updateDialogLocations() {
+
+        if (monaLisaHandler != null) {
+
+            List<Long> unhandledTransactions = monaLisaHandler
+                    .getUnhandledTransactions();
+
+            if (unhandledTransactions.size() > 0) {
+
+                for (int j = 0; j < unhandledTransactions.size(); j++) {
+
+                    long mmsi = monaLisaHandler
+                            .getMonaLisaNegotiationData()
+                            .get(monaLisaHandler.getUnhandledTransactions()
+                                    .get(j)).getRouteMessage().get(0).getMmsi();
+
+                    ShipIndicatorPanel shipIndicatorPanel;
+
+                    if (shipIndicatorPanels.containsKey(mmsi)) {
+                        shipIndicatorPanel = shipIndicatorPanels.get(mmsi);
+                    } else {
+                        shipIndicatorPanel = new ShipIndicatorPanel(
+                                unhandledTransactions.get(j));
+                    }
+
+                    VesselTarget ship = aisHandler.getVesselTargets().get(mmsi);
+                    Position position = ship.getPositionData().getPos();
+
+                    Point2D resultPoint = aisLayer.getProjection().forward(
+                            position.getLatitude(), position.getLongitude());
+
+                    Point newPoint = new Point((int) resultPoint.getX(),
+                            (int) resultPoint.getY());
+
+                    shipIndicatorPanel.setLocation(newPoint);
+
+                    shipIndicatorPanels.put(mmsi, shipIndicatorPanel);
+                    jMapFrame.getGlassPanel().add(shipIndicatorPanel);
+                    // ShipIndicatorPanels
+
+                }
+            } else {
+                // Iterate through and remove old
+
+                for (ShipIndicatorPanel value : shipIndicatorPanels.values()) {
+                    jMapFrame.getGlassPanel().remove(value);
+                }
+                shipIndicatorPanels.clear();
+            }
+        }
+    }
+
+    @Override
+    public void monaLisaRouteUpdate() {
+        updateDialogLocations();
+    }
+
+    @Override
+    public void targetUpdated(AisTarget aisTarget) {
+        updateDialogLocations();
+    }
 
 }

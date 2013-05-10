@@ -74,6 +74,8 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
     private Route initialRecievedRoute;
     private Route newRoute;
     private boolean modified;
+    
+    boolean routeChange;
 
     Stroke stroke = new BasicStroke(1.0f, // Width
             BasicStroke.CAP_SQUARE, // End cap
@@ -266,8 +268,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
     }
 
     private void changeName() {
-        newRoute.setName(newRoute.getName() + " modified");
-
+//        newRoute.setName(newRoute.getName() + " modified");
     }
 
     private void updateVoyages() {
@@ -299,14 +300,19 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         graphics.add(originalRouteGraphic);
         
         
-        RouteGraphic voyageGraphic = new RouteGraphic(initialRecievedRoute, 0,
-                false, stroke, ECDISOrange, new Color(1f, 1f, 0, 0.7f), false);
+        if (routeChange){
+            RouteGraphic voyageGraphic = new RouteGraphic(initialRecievedRoute, 0,
+                    false, stroke, ECDISOrange, new Color(1f, 1f, 0, 0.7f), false);      
+            graphics.add(voyageGraphic);
+        }
+        
+
         
 //        new Color(1f, 1f, 0, 0.7f)
         
         
 
-        graphics.add(voyageGraphic);
+        
 
         graphics.project(getProjection(), true);
 
@@ -451,12 +457,45 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         
         
         
+       
+        
+        
+        if (originalRoute.getWaypoints().size() != voyage.getRoute().getWaypoints().size()){
+            routeChange = true;
+        }else{
+            for (int i = 0; i < originalRoute.getWaypoints().size(); i++) {
+                
+                double originalLat = originalRoute.getWaypoints().get(i).getPos().getLatitude();
+                double originalLon = originalRoute.getWaypoints().get(i).getPos().getLongitude();
+                
+                
+                double newLat = voyage.getRoute().getWaypoints().get(i).getPos().getLatitude();
+                double newLon= voyage.getRoute().getWaypoints().get(i).getPos().getLongitude();
+                
+                
+                if (originalLat != newLat){
+                    routeChange = true;
+                    break;
+                }
+                
+                if (originalLon != newLon){
+                    routeChange = true;
+                    break;
+                }
+                
+                
+            }
+        }
+        
+
+        if (routeChange){
+        
         //Are the routes the same?
         //originalroute vs. newroute
         RouteGraphic originalRouteGraphic = new RouteGraphic(originalRoute, 1, false,
                 stroke, ECDISOrange,  new Color(1f, 0, 0, 0.4f), false);
         graphics.add(originalRouteGraphic);
-        
+        }
         
         
 //        RouteGraphic voyageGraphic = new RouteGraphic(newRoute, 1, false,

@@ -135,6 +135,11 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
         drawnVessels.clear();
     }
 
+
+    public synchronized OMGraphicList getList() {
+        return list;
+    }
+
     public void removeSelection() {
         aisTargetGraphic.setVisible(false);
 

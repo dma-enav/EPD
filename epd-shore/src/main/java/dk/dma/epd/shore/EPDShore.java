@@ -222,6 +222,12 @@ public class EPDShore {
         return home;
     }
 
+    
+    
+    public static MonaLisaHandler getMonaLisaHandler() {
+        return monaLisaHandler;
+    }
+
     /**
      * Close app routine with possibility for restart - not implemented
      * 

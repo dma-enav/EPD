@@ -56,6 +56,7 @@ import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.layers.wms.WMSLayer;
 import dk.dma.epd.shore.msi.MsiHandler;
+import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.settings.ESDMapSettings;
 import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
 
@@ -76,7 +77,9 @@ public class ChartPanel extends OMComponentPanel {
     private Layer encLayer;
     private Layer bgLayer;
     private GeneralLayer generalLayer;
-
+    private MonaLisaHandler monaLisaHandler;
+    
+    
     private NavigationMouseMode mapNavMouseMode;
     private DragMouseMode dragMouseMode;
     private SelectMouseMode selectMouseMode;
@@ -454,6 +457,10 @@ public class ChartPanel extends OMComponentPanel {
         msiHandler = EPDShore.getMsiHandler();
         mapHandler.add(msiHandler);
 
+        
+        monaLisaHandler = EPDShore.getMonaLisaHandler();
+        mapHandler.add(monaLisaHandler);
+        
         // Create background layer
         String layerName = "background";
         bgLayer = new ShapeLayer();

@@ -15,8 +15,10 @@
  */
 package dk.dma.epd.shore.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.bbn.openmap.MapHandlerChild;
@@ -37,6 +39,8 @@ public class MonaLisaHandler extends MapHandlerChild {
     private EnavServiceHandler enavServiceHandler;
     private VoyageManager voyageManager;
 
+    private List<Long> unhandledTransactions  = new ArrayList<Long>();
+    
     private int unhandled;
 
     // public void sendReply(MonaLisaRouteService.MonaLisaRouteRequestReply
@@ -50,17 +54,37 @@ public class MonaLisaHandler extends MapHandlerChild {
     public void sendReply(long id, String text, long mmsi,
             long currentTimeMillis, MonaLisaRouteStatus replyStatus, Route route) {
 
+        
+
+        
+        // Should a reply be sent?
+
+        MonaLisaRouteStatus status = monaLisaNegotiationData.get(id)
+                .getStatus();
+        
+        System.out.println("Reply recieved internal - Current status is " + status);
+
+        System.out.println(status == MonaLisaRouteStatus.NEGOTIATING
+                || status == MonaLisaRouteStatus.PENDING);
+        
         MonaLisaRouteService.MonaLisaRouteRequestReply reply = new MonaLisaRouteService.MonaLisaRouteRequestReply(
-                text, id, mmsi, System.currentTimeMillis(), replyStatus, route);
+                text, id, mmsi, System.currentTimeMillis(), replyStatus,
+                route);
+        
+        if (status == MonaLisaRouteStatus.NEGOTIATING
+                || status == MonaLisaRouteStatus.PENDING) {
 
-        monaLisaNegotiationData.get(id).addReply(reply);
-        monaLisaNegotiationData.get(id).setStatus(
-                MonaLisaRouteStatus.NEGOTIATING);
-        monaLisaNegotiationData.get(id).setHandled(true);
+            monaLisaNegotiationData.get(id).addReply(reply);
+            monaLisaNegotiationData.get(id).setStatus(
+                    MonaLisaRouteStatus.NEGOTIATING);
+            monaLisaNegotiationData.get(id).setHandled(true);
 
-        enavServiceHandler.sendReply(reply);
-        notifyMonaLisaRouteExchangeListeners();
-
+            enavServiceHandler.sendReply(reply);
+            notifyMonaLisaRouteExchangeListeners();
+        }else{
+            monaLisaNegotiationData.get(id).addReply(reply);
+            System.out.println("Cannot send message, transaction concluded");
+        }
     }
 
     public void handleMessage(MonaLisaRouteRequestMessage message) {
@@ -152,6 +176,7 @@ public class MonaLisaHandler extends MapHandlerChild {
     }
 
     private void calculateUnhandled() {
+        unhandledTransactions = new ArrayList<Long>();
         unhandled = 0;
 
         System.out.println(monaLisaNegotiationData.size());
@@ -160,6 +185,7 @@ public class MonaLisaHandler extends MapHandlerChild {
                 .values()) {
             if (!value.isHandled()) {
                 unhandled++;
+                unhandledTransactions.add(value.getId());
             }
         }
 
@@ -177,6 +203,7 @@ public class MonaLisaHandler extends MapHandlerChild {
     protected synchronized void notifyMonaLisaRouteExchangeListeners() {
         calculateUnhandled();
         for (MonaLisaRouteExchangeListener listener : monaLisaRouteExchangeListener) {
+            System.out.println("notify listeners");
             listener.monaLisaRouteUpdate();
         }
     }
@@ -206,5 +233,12 @@ public class MonaLisaHandler extends MapHandlerChild {
             // enavCloudHandler.start();
         }
     }
+
+    public List<Long> getUnhandledTransactions() {
+        return unhandledTransactions;
+    }
+    
+    
+    
 
 }
