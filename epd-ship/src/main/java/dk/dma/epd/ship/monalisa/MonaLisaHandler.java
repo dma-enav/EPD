@@ -101,6 +101,14 @@ public class MonaLisaHandler extends MapHandlerChild {
 
     }
 
+    
+    
+    
+    public boolean isTransaction() {
+        System.out.println("Is transaction? " + transaction);
+        return transaction;
+    }
+
     private long sendMonaLisaRouteRequest(Route route, long sender,
             String message) {
 
@@ -198,6 +206,8 @@ public class MonaLisaHandler extends MapHandlerChild {
 
         // voyageLayer.getModifiedSTCCRoute();
 
+        voyageLayer.getModifiedSTCCRoute().setName("STCC Approved: " + voyageLayer.getModifiedSTCCRoute().getName());
+        
         // route.setVisible(true);
         routeManager.addRoute(voyageLayer.getModifiedSTCCRoute());
 
@@ -217,6 +227,7 @@ public class MonaLisaHandler extends MapHandlerChild {
         }
 
         monaLisaSTCCDialog.setVisible(false);
+        
         transaction = false;
     }
 

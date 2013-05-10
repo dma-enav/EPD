@@ -88,6 +88,7 @@ import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.msi.MsiLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
+import dk.dma.epd.ship.monalisa.MonaLisaHandler;
 import dk.dma.epd.ship.monalisa.RecievedRoute;
 import dk.dma.epd.ship.msi.MsiHandler;
 import dk.dma.epd.ship.nogo.NogoHandler;
@@ -157,8 +158,10 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private MouseDelegator mouseDelegator;
     private EnavServiceHandler enavServiceHandler;
     private Point windowLocation;
-    private RouteLayer routeLayer;
-    private VoyageLayer voyageLayer;
+    private MonaLisaHandler monaLisaHandler;
+    
+//    private RouteLayer routeLayer;
+//    private VoyageLayer voyageLayer;
 
     public MapMenu() {
         super();
@@ -467,7 +470,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         sendToSTCC
                 .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() >0);
         
-        if (mainFrame.getMonaLisaSTCCDialog().isActive()){
+        if (monaLisaHandler.isTransaction()){
             sendToSTCC.setText("Show STCC info");
         }else{
             sendToSTCC.setText("Send to STCC");
@@ -686,12 +689,12 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         if (obj instanceof EnavServiceHandler) {
             enavServiceHandler = (EnavServiceHandler) obj;
         }
-        if (obj instanceof RouteLayer) {
-            routeLayer = (RouteLayer) obj;
+        if (obj instanceof MonaLisaHandler) {
+            monaLisaHandler = (MonaLisaHandler) obj;
         }
-        if (obj instanceof VoyageLayer) {
-            voyageLayer = (VoyageLayer) obj;
-        }
+//        if (obj instanceof VoyageLayer) {
+//            voyageLayer = (VoyageLayer) obj;
+//        }
         
         
 

@@ -305,6 +305,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         }
 
         while (true) {
+            System.out.println("Get new listener list");
             getSTCCList();
             getMonaLisaRouteAckList();
             Util.sleep(10000);

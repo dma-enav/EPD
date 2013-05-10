@@ -77,6 +77,8 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     private AisLayer aisLayer;
     private AisHandler aisHandler;
+    private boolean windowHandling;
+    
 
     // private MapMenu routeMenu;
 
@@ -85,6 +87,12 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         voyageManager.addListener(this);
     }
 
+    public VoyageLayer(boolean windowHandling) {
+        voyageManager = EPDShore.getVoyageManager();
+        voyageManager.addListener(this);
+        this.windowHandling = windowHandling;
+    }
+    
     @Override
     public void findAndInit(Object obj) {
         if (obj instanceof MonaLisaHandler) {
@@ -115,6 +123,12 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
             aisHandler.addListener(this);
         }
 
+    }
+
+    
+    
+    public boolean isWindowHandling() {
+        return windowHandling;
     }
 
     @Override
@@ -302,7 +316,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     private void updateDialogLocations() {
 
-        if (monaLisaHandler != null) {
+        if (monaLisaHandler != null && !windowHandling) {
 
             List<Long> unhandledTransactions = monaLisaHandler
                     .getUnhandledTransactions();
