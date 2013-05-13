@@ -104,7 +104,7 @@ public class AisComponentPanel extends OMComponentPanel implements ItemListener 
         nameLabel.setText(AisMessage.trimText(name));
         callsignLabel.setText(AisMessage.trimText(callsign));
         cogLabel.setText(Float.toString(cog));
-        dstLabel.setText(Formatter.formatDistNM(rhumbLineDistance));
+        dstLabel.setText(Formatter.formatDistNM(rhumbLineDistance/1852.0));
         brgLabel.setText(Formatter.formatDegrees(rhumbLineBearing, 1));
         sogLabel.setText(Formatter.formatSpeed((double) sog));
     }
