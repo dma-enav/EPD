@@ -17,38 +17,35 @@ package dk.dma.epd.shore.gui.views.menuitems;
 
 import javax.swing.JMenuItem;
 
-import dk.dma.epd.shore.gui.views.SendRouteDialog;
+import dk.dma.epd.shore.gui.views.JMapFrame;
+import dk.dma.epd.shore.gui.views.monalisa.SendVoyageDialog;
+import dk.dma.epd.shore.layers.voyage.VoyagePlanInfoPanel;
+import dk.dma.epd.shore.voyage.Voyage;
 
 
 
-public class SetRouteExchangeAIS extends JMenuItem implements IMapMenuAction {
+public class ShowVoyagePlanInfo extends JMenuItem implements IMapMenuAction {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
-    private long MMSI;
-    private SendRouteDialog sendRouteDialog;
-
-    public SetRouteExchangeAIS(String text) {
+    private VoyagePlanInfoPanel voyagePlanInfoPanel;
+    
+    public ShowVoyagePlanInfo(String text) {
         super();
         this.setText(text);
     }
 
     @Override
     public void doAction() {
-
-        sendRouteDialog.setSelectedMMSI(MMSI);
-        sendRouteDialog.setVisible(true);
+//        voyagePlanInfoPanel.setLocation(0, 0);
+        voyagePlanInfoPanel.setVisible(true);
     }
 
-
-    public void setMSSI(long MSSI) {
-        this.MMSI = MSSI;
+    public void setVoyagePlanInfoPanel(VoyagePlanInfoPanel voyagePlanInfoPanel) {
+        this.voyagePlanInfoPanel = voyagePlanInfoPanel;
+        
     }
 
-    public void setSendRouteDialog(SendRouteDialog sendRouteDialog){
-        this.sendRouteDialog = sendRouteDialog;
-    }
+    
+    
 
 }

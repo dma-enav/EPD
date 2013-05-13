@@ -13,36 +13,40 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.route;
+package dk.dma.epd.ship.monalisa;
 
-import dk.dma.epd.ship.route.sspa.RouteresponseType;
+public class MonaLisaOptimizationResponse {
 
-public class SSPAResponse {
-
-    private RouteresponseType monaLisaResponse;
-    private String errorMessage;
-    private boolean isValid = true;
+    String type;
+    String response;
+    boolean valid;
     
-    public SSPAResponse(RouteresponseType monaLisaResponse, String errorMessage) {
-        if (monaLisaResponse == null){
-            isValid = false;
-        }
-        this.monaLisaResponse = monaLisaResponse;
-        this.errorMessage = errorMessage;
+    public MonaLisaOptimizationResponse(String message, String response) {
+        this.type = message;
+        this.response = response;
     }
 
-    public RouteresponseType getMonaLisaResponse() {
-        return monaLisaResponse;
+
+    public String getType() {
+        return type;
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
+
+    public void setType(String message) {
+        this.type = message;
+    }
+
+
+    public String getResponse() {
+        return response;
+    }
+
+
+    public void setResponse(String response) {
+        this.response = response;
     }
     
-    public boolean isValid(){
-        return isValid;
-    }
-
+    
     
     
 }

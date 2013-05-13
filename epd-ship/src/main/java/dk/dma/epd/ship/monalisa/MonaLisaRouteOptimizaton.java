@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.route;
+package dk.dma.epd.ship.monalisa;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -52,7 +52,7 @@ import dk.dma.epd.ship.status.ShoreServiceStatus;
 /**
  * Shore service component providing the functional link to shore.
  */
-public class MonaLisaRouteExchange extends MapHandlerChild implements
+public class MonaLisaRouteOptimizaton extends MapHandlerChild implements
         IStatusComponent {
     // Runnable
 
@@ -63,7 +63,7 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
     private GpsHandler gpsHandler;
     private ShoreServiceStatus status = new ShoreServiceStatus();
 
-    public MonaLisaRouteExchange() {
+    public MonaLisaRouteOptimizaton() {
 
     }
 
@@ -259,7 +259,7 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
         return route;
     }
 
-    public MonaLisaResponse makeRouteRequest(Route route,
+    public MonaLisaOptimizationResponse makeRouteRequest(Route route,
             boolean removeIntermediateETA, float draft, int ukc, int timeout,
             List<Boolean> selectedWp, boolean showInput, boolean showOutput) {
 
@@ -276,11 +276,11 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
                     .makeMonaLisaRouteRequest(monaLisaRoute, timeout,
                             showInput, showOutput);
         } catch (Exception e) {
-            return new MonaLisaResponse("An exception occured", e.getMessage());
+            return new MonaLisaOptimizationResponse("An exception occured", e.getMessage());
         }
 
         if (!routeResponse.isValid()) {
-            return new MonaLisaResponse("Server error",
+            return new MonaLisaOptimizationResponse("Server error",
                     routeResponse.getErrorMessage());
         }
 
@@ -290,7 +290,7 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
             try {
                 newRoute = convertRouteBack(routeResponse.getMonaLisaResponse());
             } catch (Exception e) {
-                return new MonaLisaResponse("An exception occured",
+                return new MonaLisaOptimizationResponse("An exception occured",
                         e.getMessage());
             }
         }
@@ -302,7 +302,7 @@ public class MonaLisaRouteExchange extends MapHandlerChild implements
 
         float fuelSaving = (routeResponse.getMonaLisaResponse().getFuelRequested() - routeResponse.getMonaLisaResponse().getFuelFinal()) / routeResponse.getMonaLisaResponse().getFuelRequested() * 100;
 
-        return new MonaLisaResponse("Succesfully recieved optimized route",
+        return new MonaLisaOptimizationResponse("Succesfully recieved optimized route",
 
         "\nInitial route consumption is "
                 + routeResponse.getMonaLisaResponse().getFuelRequested()

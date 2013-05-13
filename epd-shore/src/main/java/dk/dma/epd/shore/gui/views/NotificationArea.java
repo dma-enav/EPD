@@ -40,13 +40,16 @@ import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.service.MonaLisaHandler;
+import dk.dma.epd.shore.service.MonaLisaRouteExchangeListener;
 import dk.dma.epd.shore.service.RouteExchangeListener;
 
 /**
  * Class for setting up the notification area of the application
  */
 public class NotificationArea extends ComponentFrame implements
-        IMsiUpdateListener, RouteExchangeListener {
+        IMsiUpdateListener, RouteExchangeListener,
+        MonaLisaRouteExchangeListener {
 
     private static final long serialVersionUID = 1L;
     private Boolean locked = false;
@@ -67,7 +70,8 @@ public class NotificationArea extends ComponentFrame implements
     private MsiHandler msiHandler;
     // private AisServices aisService;
     private EnavServiceHandler enavServiceHandler;
-
+    private MonaLisaHandler monaLisaHandler;
+    
     Border paddingLeft = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(
             65, 65, 65));
     Border paddingBottom = BorderFactory.createMatteBorder(0, 0, 5, 0,
@@ -165,6 +169,26 @@ public class NotificationArea extends ComponentFrame implements
 
         });
 
+        // Notification: Mona Lisa Route
+        final JPanel monaLisarouteExchange = new JPanel();
+        notifications.put("monaLisaRouteExchange", monaLisarouteExchange);
+        services.put("monaLisaRouteExchange", "MonaLisa Route");
+
+        monaLisarouteExchange.addMouseListener(new MouseAdapter() {
+
+            public void mousePressed(MouseEvent e) {
+                monaLisarouteExchange.setBorder(notificationPaddingPressed);
+                monaLisarouteExchange.setBackground(new Color(45, 45, 45));
+            }
+
+            public void mouseReleased(MouseEvent e) {
+                monaLisarouteExchange.setBorder(notificationPadding);
+                monaLisarouteExchange.setBackground(new Color(65, 65, 65));
+                mainFrame.toggleNotificationCenter(2);
+            }
+
+        });
+
         // Create the masterpanel for aligning
         masterPanel = new JPanel(new BorderLayout());
         masterPanel.add(moveHandler, BorderLayout.NORTH);
@@ -194,6 +218,11 @@ public class NotificationArea extends ComponentFrame implements
         if (obj instanceof EnavServiceHandler) {
             enavServiceHandler = (EnavServiceHandler) obj;
             enavServiceHandler.addRouteExchangeListener(this);
+        }
+        
+        if (obj instanceof MonaLisaHandler) {
+            monaLisaHandler = (MonaLisaHandler) obj;
+            monaLisaHandler.addMonaLisaRouteExchangeListener(this);
         }
 
     }
@@ -440,12 +469,20 @@ public class NotificationArea extends ComponentFrame implements
 
     @Override
     public void routeUpdate() {
-         try {
-         setMessages("routeExchange", enavServiceHandler.getUnkAck());
-         } catch (InterruptedException e) {
-         e.printStackTrace();
-         }
+        try {
+            setMessages("routeExchange", enavServiceHandler.getUnkAck());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
+    @Override
+    public void monaLisaRouteUpdate() {
+        try {
+            setMessages("monaLisaRouteExchange", monaLisaHandler.getUnHandled());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     // @Override

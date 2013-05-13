@@ -35,6 +35,7 @@ import javax.swing.border.MatteBorder;
 public class GuiStyler {
 
     public static Font defaultFont = new Font("Arial", Font.PLAIN, 11);
+    public static Font boldFont = new Font("Arial", Font.BOLD, 11);
     public static Font subTabFont = new Font("Arial", Font.PLAIN, 10);
     public static Color textColor = new Color(237, 237, 237);
     public static Color backgroundColor = new Color(83, 83, 83);
@@ -148,6 +149,11 @@ public class GuiStyler {
 
     public static void styleText(JLabel label){
         label.setFont(defaultFont);
+        label.setForeground(textColor);
+    }
+    
+    public static void styleTitle(JLabel label){
+        label.setFont(boldFont);
         label.setForeground(textColor);
     }
     

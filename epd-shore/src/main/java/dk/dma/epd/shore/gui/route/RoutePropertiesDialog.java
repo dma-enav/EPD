@@ -92,6 +92,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener, Ru
     private WptTableModel wptTableModel;
     private RouteManager routeManager;
     private ActiveRoute activeRoute;
+//    private boolean editable;
 
     public RoutePropertiesDialog(Window parent, RouteManager routeManager, int routeId) {
         super(parent, "Route Properties", Dialog.ModalityType.APPLICATION_MODAL);
@@ -103,8 +104,28 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener, Ru
             activeRoute = (ActiveRoute)this.route;
         } else {
             this.route = routeManager.getRoute(routeId);
+//            editable = true;
         }
 
+        setSize(900, 500);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(parent);
+
+        initGui();
+
+        initValues();
+
+        new Thread(this).start();
+
+        addWindowListener(this);
+    }
+    
+    
+    public RoutePropertiesDialog(Window parent, Route route) {
+        super(parent, "Route Properties", Dialog.ModalityType.APPLICATION_MODAL);
+        
+        this.route = route;
+        
         setSize(900, 500);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(parent);
@@ -154,7 +175,6 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener, Ru
         btnZoomTo.setEnabled(wpSelected);
         btnDelete.setEnabled(wpSelected);
         btnActivate.setEnabled(wpSelected);
-        btnActivate.setVisible(activeRoute != null);
         startTimeField.setEnabled(activeRoute == null);
 
     }
@@ -416,7 +436,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener, Ru
 
     @Override
     public void windowClosed(WindowEvent e) {
-        routeManager.validateMetoc(route);
+//        routeManager.validateMetoc(route);
     }
 
     @Override

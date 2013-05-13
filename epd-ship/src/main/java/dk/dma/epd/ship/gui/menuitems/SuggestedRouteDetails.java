@@ -18,7 +18,7 @@ package dk.dma.epd.ship.gui.menuitems;
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
-import dk.dma.epd.ship.route.RecievedRoute;
+import dk.dma.epd.ship.monalisa.RecievedRoute;
 
 public class SuggestedRouteDetails extends JMenuItem implements IMapMenuAction {
     

@@ -22,6 +22,8 @@ import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.SwingUtilities;
 
@@ -53,7 +55,7 @@ import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.MapMenu;
-import dk.dma.epd.ship.route.RecievedRoute;
+import dk.dma.epd.ship.monalisa.RecievedRoute;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
 import dk.frv.enav.common.xml.metoc.MetocForecastPoint;
@@ -86,6 +88,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
     SafeHavenArea safeHavenArea = new SafeHavenArea();
     private boolean activeSafeHaven;
 
+
     public RouteLayer() {
         new Thread(this).start();
         routeWidth = EPDShip.getSettings().getNavSettings().getRouteWidth();
@@ -95,6 +98,11 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
     @Override
     public synchronized void routesChanged(RoutesUpdateEvent e) {
         if (e == RoutesUpdateEvent.ROUTE_MSI_UPDATE) {
+            return;
+        }
+
+        if (e == null) {
+            doPrepare();
             return;
         }
 
@@ -321,16 +329,15 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                 } else {
                     step = tmp.intValue();
                 }
-                //System.out.println("minDist = "+minDist+" step = "+step);
+                // System.out.println("minDist = "+minDist+" step = "+step);
                 metocGraphic.setStep(step);
-                
-                //temporary fix for drawing metoc information
-                //All scales will draw all metoc.
+
+                // temporary fix for drawing metoc information
+                // All scales will draw all metoc.
                 metocGraphic.setStep(1);
-                
+
                 metocGraphic.paintMetoc();
-                
-                
+
             }
         }
 
@@ -410,6 +417,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                 break;
             }
         }
+        routeMenu.setRouteLocation(new Point(e.getX(), e.getY()));
 
         if (selectedGraphic instanceof SuggestedRouteGraphic) {
             mainFrame.getGlassPane().setVisible(false);
@@ -600,6 +608,8 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         safeHavenArea.setVisible(activeSafeHaven);
         routesChanged(null);
     }
+
+
 
     @Override
     public void run() {

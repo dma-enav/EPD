@@ -13,43 +13,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.menuitems;
+package dk.dma.epd.ship.gui.menuitems;
+
+import java.awt.Point;
 
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.shore.gui.views.SendRouteDialog;
+import dk.dma.epd.ship.EPDShip;
 
+public class SendToSTCC extends JMenuItem implements IMapMenuAction {
 
-
-public class SetRouteExchangeRoute extends JMenuItem implements IMapMenuAction {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
     private Route route;
-    private SendRouteDialog sendRouteDialog;
+    private Point windowLocation;
 
-    public SetRouteExchangeRoute(String text) {
+
+    public SendToSTCC(String text) {
         super();
         this.setText(text);
     }
 
     @Override
     public void doAction() {
-
-        sendRouteDialog.setSelectedRoute(route);
-        sendRouteDialog.setVisible(true);
+        EPDShip.getMonaLisaHandler().handleInput(route, windowLocation);
     }
-
+    
 
     public void setRoute(Route route) {
         this.route = route;
     }
 
-    public void setSendRouteDialog(SendRouteDialog sendRouteDialog){
-        this.sendRouteDialog = sendRouteDialog;
+    public void setRouteLocation(Point windowLocation) {
+        this.windowLocation = windowLocation;
     }
 
 }

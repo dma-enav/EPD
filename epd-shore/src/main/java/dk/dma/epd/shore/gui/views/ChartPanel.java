@@ -52,9 +52,13 @@ import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
 import dk.dma.epd.shore.layers.route.RouteLayer;
 import dk.dma.epd.shore.layers.routeEdit.RouteEditLayer;
+import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
+import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.layers.wms.WMSLayer;
 import dk.dma.epd.shore.msi.MsiHandler;
+import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.settings.ESDMapSettings;
+import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
@@ -73,7 +77,9 @@ public class ChartPanel extends OMComponentPanel {
     private Layer encLayer;
     private Layer bgLayer;
     private GeneralLayer generalLayer;
-
+    private MonaLisaHandler monaLisaHandler;
+    
+    
     private NavigationMouseMode mapNavMouseMode;
     private DragMouseMode dragMouseMode;
     private SelectMouseMode selectMouseMode;
@@ -86,8 +92,10 @@ public class ChartPanel extends OMComponentPanel {
     private MsiLayer msiLayer;
     private WMSLayer wmsLayer;
     private RouteLayer routeLayer;
+    private VoyageLayer voyageLayer;
     private RouteEditLayer routeEditLayer;
     private NewRouteContainerLayer newRouteContainerLayer;
+    private VoyageHandlingLayer voyageHandlingLayer;
 
     private MainFrame mainFrame;
     private Color background = new Color(168, 228, 255);
@@ -291,14 +299,14 @@ public class ChartPanel extends OMComponentPanel {
     /**
      * Initiate the chart
      */
-    public void initChart() {
+    public void initChart(boolean voyageHandleLayer) {
 
         ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
 
         // this.center = mapSettings.getCenter();
         // this.scale = mapSettings.getScale();
 
-        initChartDefault();
+        initChartDefault(voyageHandleLayer);
 
         // Set last postion
         map.setCenter(mapSettings.getCenter());
@@ -324,7 +332,7 @@ public class ChartPanel extends OMComponentPanel {
         // this.center = center;
         // this.scale = scale;
         //
-        initChartDefault();
+        initChartDefault(false);
 
         // Get from settings
         map.setCenter(center);
@@ -336,8 +344,9 @@ public class ChartPanel extends OMComponentPanel {
 
     /**
      * Initiate the default map values - must be called by a chart
+     * @param voyageLayer2 
      */
-    public void initChartDefault() {
+    public void initChartDefault(boolean voyageHandleLayer) {
         Properties props = EPDShore.getProperties();
 
         map = new BufferedLayerMapBean();
@@ -407,10 +416,6 @@ public class ChartPanel extends OMComponentPanel {
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
 
-        // Add AIS Layer
-        aisLayer = new AisLayer();
-        aisLayer.setVisible(true);
-        mapHandler.add(aisLayer);
 
         // Add MSI Layer
         msiLayer = new MsiLayer();
@@ -421,6 +426,33 @@ public class ChartPanel extends OMComponentPanel {
         routeLayer = new RouteLayer();
         routeLayer.setVisible(true);
         mapHandler.add(routeLayer);
+        
+
+        
+        
+        if (voyageHandleLayer){
+            voyageHandlingLayer = new VoyageHandlingLayer();   
+            voyageHandlingLayer.setVisible(true);
+            mapHandler.add(voyageHandlingLayer);
+            
+            // Add Voyage Layer
+            voyageLayer = new VoyageLayer(true);
+            voyageLayer.setVisible(true);
+            mapHandler.add(voyageLayer);
+            
+            
+        }else{
+            // Add Voyage Layer
+            voyageLayer = new VoyageLayer();
+            voyageLayer.setVisible(true);
+            mapHandler.add(voyageLayer);
+        }
+
+        
+        // Add AIS Layer
+        aisLayer = new AisLayer();
+        aisLayer.setVisible(true);
+        mapHandler.add(aisLayer);
 
         // Create route editing layer
         newRouteContainerLayer = new NewRouteContainerLayer();
@@ -434,6 +466,10 @@ public class ChartPanel extends OMComponentPanel {
         msiHandler = EPDShore.getMsiHandler();
         mapHandler.add(msiHandler);
 
+        
+        monaLisaHandler = EPDShore.getMonaLisaHandler();
+        mapHandler.add(monaLisaHandler);
+        
         // Create background layer
         String layerName = "background";
         bgLayer = new ShapeLayer();
@@ -450,11 +486,18 @@ public class ChartPanel extends OMComponentPanel {
 
         // Force a route layer update
         routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
+        
+        
+        //Force a voyage layer update
+        voyageLayer.voyagesChanged(VoyageUpdateEvent.VOYAGE_ADDED);
 
         if (wmsLayer.isVisible()) {
             // System.out.println("wms is visible");
             bgLayer.setVisible(false);
         }
+        
+        
+
 
     }
 
@@ -603,4 +646,15 @@ public class ChartPanel extends OMComponentPanel {
         return newRouteContainerLayer;
     }
 
+    public VoyageLayer getVoyageLayer() {
+        return voyageLayer;
+    }
+
+    public VoyageHandlingLayer getVoyageHandlingLayer() {
+        return voyageHandlingLayer;
+    }
+
+    
+    
+    
 }
