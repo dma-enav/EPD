@@ -56,6 +56,7 @@ public class ShipIndicatorPanel extends JPanel implements MouseListener {
 
         lblRouteRequestPending.addMouseListener(this);
         this.addMouseListener(this);
+        this.setVisible(true);
 
     }
 
