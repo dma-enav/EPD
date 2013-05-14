@@ -49,6 +49,7 @@ import com.bbn.openmap.LightMapHandlerChild;
 import com.bbn.openmap.PropertyConsumer;
 import com.bbn.openmap.gui.WindowSupport;
 
+import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.msi.MsiHandler;
@@ -72,6 +73,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
     TopPanel topPanel;
     NogoHandler nogoHandler;
     MsiHandler msiHandler;
+    TransponderFrame transponderFrame;
 
     JCheckBoxMenuItem lock;
     private JCheckBoxMenuItem autoFollow;
@@ -130,6 +132,18 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
         });
 
         setup.setIcon(toolbarIcon("images/toolbar/wrench.png"));
+        
+        JMenuItem transponder = new JMenuItem("Transponder");
+        file.add(transponder);
+        transponder.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (transponderFrame != null) {
+                    transponderFrame.setVisible(true);
+                }
+            }
+        });
+        
 
         JMenuItem exit = new JMenuItem("Exit");
         file.add(exit);
@@ -612,6 +626,9 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
         }
         if (obj instanceof MsiHandler) {
             msiHandler = (MsiHandler) obj;
+        }
+        if (obj instanceof TransponderFrame) {
+            transponderFrame = (TransponderFrame) obj;
         }
     }
 
