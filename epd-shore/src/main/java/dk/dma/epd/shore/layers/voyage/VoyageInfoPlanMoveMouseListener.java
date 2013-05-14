@@ -24,7 +24,6 @@ import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.gui.views.MainFrame;
 
 /**
  * Class for setting up a component to use for dragging the frame
