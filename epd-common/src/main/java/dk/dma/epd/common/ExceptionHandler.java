@@ -13,11 +13,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore;
+package dk.dma.epd.common;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.lang.Thread.UncaughtExceptionHandler;
 
 import javax.swing.JOptionPane;
@@ -26,31 +23,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Exception handler for uncaught exceptions.
+ * Exception handler for uncaught exceptions. 
  */
 public class ExceptionHandler implements UncaughtExceptionHandler {
-
-    private static final Logger LOG = LoggerFactory
-            .getLogger(ExceptionHandler.class);
-
-    /**
-     * Function used in standard handling of Exceptions
-     */
+    
+    private static final Logger LOG = LoggerFactory.getLogger(ExceptionHandler.class);
+    
     @Override
     public void uncaughtException(Thread t, Throwable e) {
-        
-        System.out.println(e.getLocalizedMessage());
-        
-        LOG.error("Uncaught exception from thread " + t.getName());
-        LOG.error(e.getMessage());
-        Writer result = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(result);
-        e.printStackTrace(printWriter);
-        LOG.error(result.toString());
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(null,
-                "An error has occured! Please contact administrator.",
-                "Application error", JOptionPane.ERROR_MESSAGE);
+        LOG.error("Uncaught exception from thread " + t.getName(), e);
+        JOptionPane.showMessageDialog(null, "An error has occured! Please contact administrator.", "Application error", JOptionPane.ERROR_MESSAGE);
         System.exit(1);
     }
 

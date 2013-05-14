@@ -36,6 +36,7 @@ import com.bbn.openmap.PropertyConsumer;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.PersistentConnection.State;
+import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
