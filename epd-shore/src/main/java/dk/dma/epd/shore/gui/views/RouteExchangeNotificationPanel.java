@@ -24,6 +24,8 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListSelectionModel;
@@ -44,20 +46,28 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteExchangeTableModel;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
-import dk.dma.epd.shore.service.ais.AisServices;
+import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.service.RouteSuggestionData;
 
 public class RouteExchangeNotificationPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
-    Border paddingLeft = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(65, 65, 65));
-    Border paddingBottom = BorderFactory.createMatteBorder(0, 0, 5, 0, new Color(83, 83, 83));
-    Border notificationPadding = BorderFactory.createCompoundBorder(paddingBottom, paddingLeft);
-    Border notificationsIndicatorImportant = BorderFactory.createMatteBorder(0, 0, 0, 10, new Color(206, 120, 120));
-    Border paddingLeftPressed = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(45, 45, 45));
-    Border notificationPaddingPressed = BorderFactory.createCompoundBorder(paddingBottom, paddingLeftPressed);
+    Border paddingLeft = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(
+            65, 65, 65));
+    Border paddingBottom = BorderFactory.createMatteBorder(0, 0, 5, 0,
+            new Color(83, 83, 83));
+    Border notificationPadding = BorderFactory.createCompoundBorder(
+            paddingBottom, paddingLeft);
+    Border notificationsIndicatorImportant = BorderFactory.createMatteBorder(0,
+            0, 0, 10, new Color(206, 120, 120));
+    Border paddingLeftPressed = BorderFactory.createMatteBorder(0, 8, 0, 0,
+            new Color(45, 45, 45));
+    Border notificationPaddingPressed = BorderFactory.createCompoundBorder(
+            paddingBottom, paddingLeftPressed);
 
     private JTable routeTable;
 
@@ -86,7 +96,7 @@ public class RouteExchangeNotificationPanel extends JPanel {
 
     private JPanel rightPanel;
     private JPanel leftPanel;
-//    private AisServices aisService;
+    private EnavServiceHandler enavServiceHandler;
 
     public RouteExchangeNotificationPanel() {
         GridBagConstraints gbc_scrollPane_2 = new GridBagConstraints();
@@ -118,8 +128,9 @@ public class RouteExchangeNotificationPanel extends JPanel {
 
         // masterPanel.add(mapPanel, BorderLayout.NORTH);
 
-        masterPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(
-                45, 45, 45)));
+        masterPanel.setBorder(BorderFactory.createEtchedBorder(
+                EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45,
+                        45)));
 
         masterPanel.setLayout(null);
         this.add(masterPanel);
@@ -134,8 +145,10 @@ public class RouteExchangeNotificationPanel extends JPanel {
         leftScrollPane.setBounds(0, 20, 345, 560);
         leftPanel.add(leftScrollPane);
         leftScrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
-        leftScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        leftScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        leftScrollPane
+                .setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        leftScrollPane
+                .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         // Center
         // MARKER GOES HERE
         // headerPanel = new JPanel();
@@ -159,8 +172,10 @@ public class RouteExchangeNotificationPanel extends JPanel {
         routeTable = new JTable(model) {
             private static final long serialVersionUID = 1L;
 
-            public Component prepareRenderer(TableCellRenderer renderer, int Index_row, int Index_col) {
-                Component comp = super.prepareRenderer(renderer, Index_row, Index_col);
+            public Component prepareRenderer(TableCellRenderer renderer,
+                    int Index_row, int Index_col) {
+                Component comp = super.prepareRenderer(renderer, Index_row,
+                        Index_col);
                 if (Index_row % 2 == 0) {
                     comp.setBackground(new Color(49, 49, 49));
                 } else {
@@ -176,7 +191,8 @@ public class RouteExchangeNotificationPanel extends JPanel {
                 if (routeTableModel != null) {
                     if (routeTableModel.isAwk(Index_row) && Index_col == 0) {
                         comp.setForeground(new Color(130, 165, 80));
-                    } else if (!routeTableModel.isAwk(Index_row) && Index_col == 0) {
+                    } else if (!routeTableModel.isAwk(Index_row)
+                            && Index_col == 0) {
                         comp.setForeground(new Color(165, 80, 80));
                     }
 
@@ -208,8 +224,10 @@ public class RouteExchangeNotificationPanel extends JPanel {
         leftScrollPane.setViewportView(routeTable);
         // scrollPane_2.setViewportView(routeTable);
 
-        leftScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        leftScrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(30, 30, 30)));
+        leftScrollPane
+                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        leftScrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
+                new Color(30, 30, 30)));
         // ((FlowLayout) headerPanel.getLayout()).setHgap(0);
         GridBagConstraints gbc_test = new GridBagConstraints();
         gbc_test.fill = GridBagConstraints.HORIZONTAL;
@@ -271,7 +289,8 @@ public class RouteExchangeNotificationPanel extends JPanel {
 
         addMouseListeners();
 
-        scrollPane_1.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(30, 30, 30)));
+        scrollPane_1.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
+                new Color(30, 30, 30)));
 
     }
 
@@ -281,12 +300,17 @@ public class RouteExchangeNotificationPanel extends JPanel {
         routeTable.getColumnModel().getColumn(1).setPreferredWidth(73);
         routeTable.getColumnModel().getColumn(2).setPreferredWidth(90);
         routeTable.getColumnModel().getColumn(3).setPreferredWidth(155);
-        routeTable.getSelectionModel().addListSelectionListener(new RouteExchangeRowListener());
+        routeTable.getSelectionModel().addListSelectionListener(
+                new RouteExchangeRowListener());
 
-        headerPanel.add(createHeaderColumn(routeTableModel.getColumnName(0), 40));
-        headerPanel.add(createHeaderColumn(routeTableModel.getColumnName(1), 60));
-        headerPanel.add(createHeaderColumn(routeTableModel.getColumnName(2), 90));
-        headerPanel.add(createHeaderColumn(routeTableModel.getColumnName(3), 155));
+        headerPanel
+                .add(createHeaderColumn(routeTableModel.getColumnName(0), 40));
+        headerPanel
+                .add(createHeaderColumn(routeTableModel.getColumnName(1), 60));
+        headerPanel
+                .add(createHeaderColumn(routeTableModel.getColumnName(2), 90));
+        headerPanel.add(createHeaderColumn(routeTableModel.getColumnName(3),
+                155));
         routeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         routeTable.setRowSelectionAllowed(true);
@@ -325,8 +349,6 @@ public class RouteExchangeNotificationPanel extends JPanel {
         return container;
     }
 
-
-
     public void readMessage(int selectedRow) {
 
         if (routeTableModel.isAwk(selectedRow)) {
@@ -342,11 +364,15 @@ public class RouteExchangeNotificationPanel extends JPanel {
 
         doc.delete(0, doc.length());
         doc.append("<font size=\"2\" face=\"times, serif\" color=\"white\">");
-        for (int i = 0; i < ((RouteExchangeTableModel) routeTable.getModel()).areaGetColumnCount(); i++) {
+        for (int i = 0; i < ((RouteExchangeTableModel) routeTable.getModel())
+                .areaGetColumnCount(); i++) {
 
-            doc.append("<u><b>" + ((RouteExchangeTableModel) routeTable.getModel()).areaGetColumnName(i)
+            doc.append("<u><b>"
+                    + ((RouteExchangeTableModel) routeTable.getModel())
+                            .areaGetColumnName(i)
                     + ":</b></u><br />"
-                    + ((RouteExchangeTableModel) routeTable.getModel()).areaGetValueAt(selectedRow, i) + "<br /><br />");
+                    + ((RouteExchangeTableModel) routeTable.getModel())
+                            .areaGetValueAt(selectedRow, i) + "<br /><br />");
         }
 
         doc.append("</font>");
@@ -361,10 +387,11 @@ public class RouteExchangeNotificationPanel extends JPanel {
 
                 if (but_read.isEnabled()) {
 
-//                    RouteSuggestionData message = routeTableModel.getMessages().get(currentSelection);
+                    RouteSuggestionData message = routeTableModel.getMessages()
+                            .get(currentSelection);
 
-//                    aisService.setAcknowledged(message.getMmsi(), message.getId());
-
+                    enavServiceHandler.setAcknowledged(message.getMmsi(),
+                            message.getId());
                     routeTableModel.updateMessages();
                     but_read.setEnabled(false);
                 }
@@ -374,17 +401,22 @@ public class RouteExchangeNotificationPanel extends JPanel {
         but_resend.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 if (but_resend.isEnabled()) {
-//                    RouteSuggestionData message = routeTableModel.getMessages().get(currentSelection);
+                    RouteSuggestionData message = routeTableModel.getMessages()
+                            .get(currentSelection);
+                    try {
+                        enavServiceHandler.sendRouteSuggestion(message
+                                .getMmsi(), message.getOutgoingMsg().getRoute(), message.getOutgoingMsg().getSender(), message.getOutgoingMsg().getMessage());
+                    } catch (InterruptedException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    } catch (ExecutionException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    } catch (TimeoutException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
 
-//                    aisService.sendRouteSuggestion((int) message.getMmsi(), message.getRoute());
-
-                    // RouteSuggestionData message =
-                    // routeTableModel.getMessages().get(currentSelection);
-                    //
-                    // aisService.setAcknowledged(message.getMmsi(),
-                    // message.getId());
-                    // routeTableModel.updateMessages();
-                    // but_read.setEnabled(false);
                 }
             }
         });
@@ -392,17 +424,25 @@ public class RouteExchangeNotificationPanel extends JPanel {
         but_goto.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 if (but_goto.isEnabled()) {
-//                    RouteSuggestionData message = routeTableModel.getMessages().get(currentSelection);
+                    RouteSuggestionData message = routeTableModel.getMessages()
+                            .get(currentSelection);
 
-//                    Position routeLocation = aisService.getRouteSuggestions()
-//                            .get(new RouteSuggestionKey(message.getMmsi(), message.getId())).getRoute().getWaypoints()
-//                            .getFirst().getPos();
+                    //
+                    // enavServiceHandler.getRouteSuggestions().get(new
+                    // RouteSuggestionKey(message.getMmsi(), message.getId()));
 
-//                    if (ESD.getMainFrame().getActiveMapWindow() != null) {
-//                        ESD.getMainFrame().getActiveMapWindow().getChartPanel().zoomToPoint(routeLocation);
-//                    } else if (ESD.getMainFrame().getMapWindows().size() > 0) {
-//                        ESD.getMainFrame().getMapWindows().get(0).getChartPanel().zoomToPoint(routeLocation);
-//                    }
+                    Position routeLocation = Position.create(message
+                            .getOutgoingMsg().getRoute().getWaypoints().get(0)
+                            .getLatitude(), message.getOutgoingMsg().getRoute()
+                            .getWaypoints().get(0).getLongitude());
+
+                    if (EPDShore.getMainFrame().getActiveMapWindow() != null) {
+                        EPDShore.getMainFrame().getActiveMapWindow()
+                                .getChartPanel().zoomToPoint(routeLocation);
+                    } else if (EPDShore.getMainFrame().getMapWindows().size() > 0) {
+                        EPDShore.getMainFrame().getMapWindows().get(0)
+                                .getChartPanel().zoomToPoint(routeLocation);
+                    }
 
                 }
             }
@@ -411,13 +451,14 @@ public class RouteExchangeNotificationPanel extends JPanel {
         but_delete.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 if (but_delete.isEnabled()) {
-//                    RouteSuggestionData message = routeTableModel.getMessages().get(currentSelection);
-//                    currentSelection = currentSelection-1;
-//                    routeTable.getSelectedRow();
+                    RouteSuggestionData message = routeTableModel.getMessages()
+                            .get(currentSelection);
+                    // currentSelection = currentSelection-1;
+                    // routeTable.getSelectedRow();
                     routeTable.setRowSelectionInterval(0, 0);
 
-
-//                    aisService.removeSuggestion(message.getMmsi(), message.getId());
+                    enavServiceHandler.removeSuggestion(message.getMmsi(),
+                            message.getId());
                     routeTableModel.updateMessages();
 
                     routeTable.updateUI();
@@ -446,10 +487,9 @@ public class RouteExchangeNotificationPanel extends JPanel {
         return routeTable;
     }
 
-    public void setAisService(AisServices aisService) {
-//        this.aisService = aisService;
+    public void setEnavServiceHandler(EnavServiceHandler enavServiceHandler) {
+        this.enavServiceHandler = enavServiceHandler;
     }
-
     
     private class RouteExchangeRowListener implements ListSelectionListener {
 
@@ -474,4 +514,9 @@ public class RouteExchangeNotificationPanel extends JPanel {
 
         }
     }
+
+
+    
+    
+
 }

@@ -23,6 +23,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.enav.model.voyage.Waypoint;
+import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
 
@@ -89,21 +91,23 @@ public class Route implements Serializable {
      * The eta used for the current metoc
      */
     protected Date metocEta;
-    
+
     /**
      * Settings for the route metoc
      */
     protected RouteMetocSettings routeMetocSettings;
 
     protected boolean safeHaven = true;
-    
+
     public Route() {
 
     }
-    
+
     /**
      * Copy constructor, performs a shallow copy.
-     * @param orig Original route to copy
+     * 
+     * @param orig
+     *            Original route to copy
      */
     public Route(Route orig) {
         this.waypoints = new LinkedList<>(orig.waypoints);
@@ -122,9 +126,13 @@ public class Route implements Serializable {
         this.metocEta = orig.metocEta;
         this.routeMetocSettings = orig.routeMetocSettings;
     }
+    
+    public Route(dk.dma.enav.model.voyage.Route cloudRouteData){
+        parseRoute(cloudRouteData);
+    }
 
     // Methods
-    
+
     /**
      * Performs a deep copy of a route.
      */
@@ -135,24 +143,28 @@ public class Route implements Serializable {
             RouteWaypoint newRouteWaypoint = routeWaypoint.copy();
             waypoints.add(newRouteWaypoint);
         }
-        // Iterates through the list of waypoints beginning at the second waypoint in the route, while
-        // creating route legs in a backward fashion. The values of the original leg is copied also.
-        // Perhaps this can be done more efficiently with a copy constructor (or method) for route legs, but 
-        // forward referencing a waypoint which has not been created has to be solved in some way...
+        // Iterates through the list of waypoints beginning at the second
+        // waypoint in the route, while
+        // creating route legs in a backward fashion. The values of the original
+        // leg is copied also.
+        // Perhaps this can be done more efficiently with a copy constructor (or
+        // method) for route legs, but
+        // forward referencing a waypoint which has not been created has to be
+        // solved in some way...
         for (int i = 1; i < waypoints.size(); i++) {
             RouteWaypoint currWaypoint = waypoints.get(i);
-            RouteWaypoint prevWaypoint = waypoints.get(i-1);
+            RouteWaypoint prevWaypoint = waypoints.get(i - 1);
             RouteLeg routeLeg = this.waypoints.get(i).getInLeg();
-            
+
             RouteLeg newRouteLeg = new RouteLeg();
             newRouteLeg.setSpeed(routeLeg.getSpeed());
             newRouteLeg.setHeading(routeLeg.getHeading());
             newRouteLeg.setXtdStarboard(routeLeg.getXtdStarboard());
             newRouteLeg.setXtdPort(routeLeg.getXtdPort());
-            
+
             newRouteLeg.setStartWp(prevWaypoint);
             newRouteLeg.setEndWp(currWaypoint);
-            
+
             prevWaypoint.setOutLeg(newRouteLeg);
             currWaypoint.setInLeg(newRouteLeg);
         }
@@ -163,48 +175,58 @@ public class Route implements Serializable {
         newRoute.destination = this.destination;
         newRoute.visible = this.visible;
         newRoute.starttime = this.starttime;
-        
+
         adjustStartTime();
-        calcValues(true);        
-        
+        calcValues(true);
+
         return newRoute;
     }
-    
+
     /**
      * Performs a deep reverse of a route.
      */
     public Route reverse() {
         Route newRoute = new Route();
         LinkedList<RouteWaypoint> waypoints = new LinkedList<>();
-        
-        int routeSize = this.waypoints.size() -1;
+
+        int routeSize = this.waypoints.size() - 1;
         int j = 0;
 
-        for (int i = routeSize ; i > -1 ; i--){
+        for (int i = routeSize; i > -1; i--) {
             RouteWaypoint newRouteWaypoint = this.waypoints.get(i).copy();
-            newRouteWaypoint.setName(this.waypoints.get(j).getName()); //Do we want to reverse the name too?
+            newRouteWaypoint.setName(this.waypoints.get(j).getName()); // Do we
+                                                                       // want
+                                                                       // to
+                                                                       // reverse
+                                                                       // the
+                                                                       // name
+                                                                       // too?
             waypoints.add(newRouteWaypoint);
             j++;
         }
-        
-        // Iterates through the list of waypoints beginning at the second waypoint in the route, while
-        // creating route legs in a backward fashion. The values of the original leg is copied also.
-        // Perhaps this can be done more efficiently with a copy constructor (or method) for route legs, but 
-        // forward referencing a waypoint which has not been created has to be solved in some way...
+
+        // Iterates through the list of waypoints beginning at the second
+        // waypoint in the route, while
+        // creating route legs in a backward fashion. The values of the original
+        // leg is copied also.
+        // Perhaps this can be done more efficiently with a copy constructor (or
+        // method) for route legs, but
+        // forward referencing a waypoint which has not been created has to be
+        // solved in some way...
         for (int i = 1; i < waypoints.size(); i++) {
             RouteWaypoint currWaypoint = waypoints.get(i);
-            RouteWaypoint prevWaypoint = waypoints.get(i-1);
+            RouteWaypoint prevWaypoint = waypoints.get(i - 1);
             RouteLeg routeLeg = this.waypoints.get(i).getInLeg();
-            
+
             RouteLeg newRouteLeg = new RouteLeg();
             newRouteLeg.setSpeed(routeLeg.getSpeed());
             newRouteLeg.setHeading(routeLeg.getHeading());
             newRouteLeg.setXtdStarboard(routeLeg.getXtdStarboard());
             newRouteLeg.setXtdPort(routeLeg.getXtdPort());
-            
+
             newRouteLeg.setStartWp(prevWaypoint);
             newRouteLeg.setEndWp(currWaypoint);
-            
+
             prevWaypoint.setOutLeg(newRouteLeg);
             currWaypoint.setInLeg(newRouteLeg);
         }
@@ -216,13 +238,13 @@ public class Route implements Serializable {
         newRoute.destination = this.departure;
         newRoute.visible = this.visible;
         newRoute.starttime = this.starttime;
-        
+
         adjustStartTime();
-        calcValues(true);        
-        
+        calcValues(true);
+
         return newRoute;
     }
-        
+
     // Calculated measures
 
     public Double getWpRng(int index) {
@@ -233,12 +255,12 @@ public class Route implements Serializable {
 
         return dtgs[index];
     }
-    
+
     public double getWpRngSum(int index) {
         double sum = 0;
-        for (int i=0; i < index && i < dtgs.length; i++) {
+        for (int i = 0; i < index && i < dtgs.length; i++) {
             sum += dtgs[i];
-        }        
+        }
         return sum;
     }
 
@@ -258,15 +280,15 @@ public class Route implements Serializable {
         calcValues();
         return etas.get(index);
     }
-    
-    public List<Date> getEtas(){
-        if (etas == null){
+
+    public List<Date> getEtas() {
+        if (etas == null) {
             calcValues();
         }
-        
+
         return etas;
     }
-    
+
     // Getters and setters from here
 
     public LinkedList<RouteWaypoint> getWaypoints() {
@@ -317,58 +339,64 @@ public class Route implements Serializable {
         this.starttime = starttime;
         calcValues(true);
     }
-    
+
     public void adjustStartTime() {
         Date now = GnssTime.getInstance().getDate();
         if (starttime == null || starttime.before(now)) {
             setStarttime(now);
         }
     }
-    
+
     public MetocForecast getMetocForecast() {
         return metocForecast;
     }
-    
+
     public void setMetocForecast(MetocForecast metocForecast) {
         this.metocForecast = metocForecast;
         this.metocStarttime = getStarttime();
-        this.metocEta = getEta();
+        this.metocEta = calculateEta();
     }
-    
+
     /**
      * Returns true if not drifted to far from plan
-     * @param tolerance in minutes
+     * 
+     * @param tolerance
+     *            in minutes
      * @return
      */
     public boolean isMetocValid(long tolerance) {
-        Date eta = getEta();        
+        Date eta = calculateEta();
         return isMetocValid(eta, tolerance);
     }
-    
+
     protected boolean isMetocValid(Date eta, long tolerance) {
-        //System.out.println("isMetocValid eta: " + eta + " metocEta: " + metocEta + " metocStarttime: " + metocStarttime + " starttime: " + starttime);
-        
-        if (metocStarttime == null || metocEta == null || starttime == null || eta == null) {
+        // System.out.println("isMetocValid eta: " + eta + " metocEta: " +
+        // metocEta + " metocStarttime: " + metocStarttime + " starttime: " +
+        // starttime);
+
+        if (metocStarttime == null || metocEta == null || starttime == null
+                || eta == null) {
             System.out.println("Missing fields for isMetocValid");
             return false;
         }
-        
+
         // Difference in starttime
-        long startimeDiff = Math.abs(starttime.getTime() - metocStarttime.getTime()) / 1000 / 60;
-        //System.out.println("startimeDiff: " + startimeDiff);
+        long startimeDiff = Math.abs(starttime.getTime()
+                - metocStarttime.getTime()) / 1000 / 60;
+        // System.out.println("startimeDiff: " + startimeDiff);
         if (startimeDiff > tolerance) {
             return false;
         }
         // Difference in eta
         long etaDiff = Math.abs(eta.getTime() - metocEta.getTime()) / 1000 / 60;
-        //System.out.println("etaDiff: " + etaDiff);
+        // System.out.println("etaDiff: " + etaDiff);
         if (etaDiff > tolerance) {
             return false;
         }
-    
+
         return true;
     }
-    
+
     public void removeMetoc() {
         this.metocForecast = null;
         if (routeMetocSettings != null) {
@@ -377,23 +405,23 @@ public class Route implements Serializable {
         this.metocStarttime = null;
         this.metocEta = null;
     }
-    
+
     public RouteMetocSettings getRouteMetocSettings() {
         return routeMetocSettings;
     }
-    
+
     public void setRouteMetocSettings(RouteMetocSettings routeMetocSettings) {
         this.routeMetocSettings = routeMetocSettings;
     }
 
-    public Long getTtg() {
+    public Long calcTtg() {
         calcValues();
         return totalTtg;
     }
 
     public Date getEta(Date starttime) {
         // Calculate ETA based on given starttime
-        Long ttg = getTtg();
+        Long ttg = calcTtg();
         if (ttg == null) {
             return null;
         }
@@ -405,12 +433,12 @@ public class Route implements Serializable {
      * 
      * @return
      */
-    public Double getDtg() {
+    public Double calcDtg() {
         calcValues();
         return totalDtg;
     }
 
-    public Date getEta() {
+    public Date calculateEta() {
         if (starttime == null) {
             return null;
         }
@@ -418,138 +446,154 @@ public class Route implements Serializable {
     }
 
     protected boolean isLastWaypoint(int index) {
-        return index == waypoints.size() -1;
+        return index == waypoints.size() - 1;
     }
 
     public void calcValues(boolean force) {
-        
+
         if (!force && ttgs != null && etas != null) {
             return;
         }
-        
+
         totalTtg = 0L;
         totalDtg = 0.0;
-        // Create array TTG's and DTG's array
-        ttgs = new long[waypoints.size() - 1];
-        dtgs = new double[waypoints.size() - 1];
-        // Iterate through legs
-        for (int i = 0; i < waypoints.size() - 1; i++) {
-            ttgs[i] = waypoints.get(i).getOutLeg().calcTtg();
-            totalTtg += ttgs[i];
-            dtgs[i] = waypoints.get(i).getOutLeg().calcRng();
-            totalDtg += dtgs[i];
+
+        if (waypoints.size() > 0) {
+
+            // Create array TTG's and DTG's array
+            ttgs = new long[waypoints.size() - 1];
+            dtgs = new double[waypoints.size() - 1];
+            // Iterate through legs
+            for (int i = 0; i < waypoints.size() - 1; i++) {
+                ttgs[i] = waypoints.get(i).getOutLeg().calcTtg();
+                totalTtg += ttgs[i];
+                dtgs[i] = waypoints.get(i).getOutLeg().calcRng();
+                totalDtg += dtgs[i];
+            }
+            calcAllWpEta();
+
         }
-        calcAllWpEta();
     }
-    
+
     protected void calcValues() {
         calcValues(false);
     }
-    
+
     public void calcAllWpEta() {
         etas = new ArrayList<>();
         Date etaStart = starttime;
-        if (etaStart == null ) {
+        if (etaStart == null) {
             etaStart = GnssTime.getInstance().getDate();
         }
         long eta = etaStart.getTime();
         etas.add(new Date(eta));
-        for (int i=0; i < waypoints.size() - 1; i++) {
+        for (int i = 0; i < waypoints.size() - 1; i++) {
             eta += ttgs[i];
             etas.add(new Date(eta));
         }
     }
-    
+
     public boolean saveToFile(File file) {
         // TODO
         return false;
     }
-    
-    public boolean deleteWaypoint(int index){
-        if(waypoints.size() > 2){
-            for (int i = 0; i < waypoints.size(); i++){
-                if(i == index){
-                    if(isLastWaypoint(i)){
-                        RouteWaypoint before = waypoints.get(i-1);
+
+    public boolean deleteWaypoint(int index) {
+        if (waypoints.size() > 2) {
+            for (int i = 0; i < waypoints.size(); i++) {
+                if (i == index) {
+                    if (isLastWaypoint(i)) {
+                        RouteWaypoint before = waypoints.get(i - 1);
                         before.setOutLeg(null);
-                        
+
                         waypoints.remove(i);
-                    } else if(i == 0) {
-                        RouteWaypoint after = waypoints.get(i+1);
+                    } else if (i == 0) {
+                        RouteWaypoint after = waypoints.get(i + 1);
                         after.setInLeg(null);
-                        
+
                         waypoints.remove(i);
                     } else {
-                        RouteWaypoint before = waypoints.get(i-1);
-                        RouteWaypoint after = waypoints.get(i+1);
+                        RouteWaypoint before = waypoints.get(i - 1);
+                        RouteWaypoint after = waypoints.get(i + 1);
                         RouteLeg keeper = before.getOutLeg();
-                        
+
                         keeper.setEndWp(after);
                         after.setInLeg(keeper);
-                        
+
                         waypoints.remove(i);
                     }
                 }
             }
             calcValues(true);
         } else {
-            //Do nothing
-//            int result = JOptionPane.showConfirmDialog(EeINS.getMainFrame(), "A route must have at least two waypoints.\nDo you want to delete the route?", "Delete Route?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-//            if(result == JOptionPane.YES_OPTION){
-//                return true;
-//            }
+            // Do nothing
+            // int result = JOptionPane.showConfirmDialog(EeINS.getMainFrame(),
+            // "A route must have at least two waypoints.\nDo you want to delete the route?",
+            // "Delete Route?", JOptionPane.YES_NO_OPTION,
+            // JOptionPane.QUESTION_MESSAGE);
+            // if(result == JOptionPane.YES_OPTION){
+            // return true;
+            // }
         }
         return false;
     }
-    
+
     /**
      * Create a waypoint by splitting a RouteLeg
-     * @param routeLeg Route leg to be split
-     * @param position Geographical position of the new waypoint
-     * @param waypointIndex Index of the legs start waypoint
+     * 
+     * @param routeLeg
+     *            Route leg to be split
+     * @param position
+     *            Geographical position of the new waypoint
+     * @param waypointIndex
+     *            Index of the legs start waypoint
      */
-    public void createWaypoint(RouteLeg routeLeg, Position position){
+    public void createWaypoint(RouteLeg routeLeg, Position position) {
         RouteWaypoint previousWaypoint = routeLeg.getStartWp();
         RouteWaypoint nextWaypoint = routeLeg.getEndWp();
         RouteWaypoint newWaypoint = new RouteWaypoint(previousWaypoint);
         RouteLeg newRouteLeg = new RouteLeg(routeLeg);
-        
+
         // set up legs
         routeLeg.setEndWp(newWaypoint);
         newRouteLeg.setStartWp(newWaypoint);
-        
+
         // set up waypoints
         newWaypoint.setInLeg(routeLeg);
         newWaypoint.setOutLeg(newRouteLeg);
         newWaypoint.setPos(position);
         newWaypoint.calcRot();
-        
+
         nextWaypoint.setInLeg(newRouteLeg);
-        
+
         // find current waypoint index
         RouteWaypoint count = routeLeg.getStartWp();
         int i = 1;
-        while(count.getInLeg() != null){
+        while (count.getInLeg() != null) {
             i++;
-            count = count.getInLeg().getStartWp(); 
+            count = count.getInLeg().getStartWp();
         }
-        
+
         // add the waypoint to the linked list in the right position
         waypoints.add(i, newWaypoint);
         calcValues(true);
     }
-    
+
     /**
      * Create a waypoint by appending the waypoint to current waypoint
-     * @param waypoint Waypoint being appended
-     * @param position Geographical position of the new waypoint
+     * 
+     * @param waypoint
+     *            Waypoint being appended
+     * @param position
+     *            Geographical position of the new waypoint
      * @return New appended waypoint
      */
-    public RouteWaypoint createWaypoint(RouteWaypoint waypoint, Position position){
+    public RouteWaypoint createWaypoint(RouteWaypoint waypoint,
+            Position position) {
         // Is the last waypoint
         RouteWaypoint wp = null;
         RouteLeg leg = null;
-        if(waypoint.getOutLeg() == null){
+        if (waypoint.getOutLeg() == null) {
             wp = new RouteWaypoint(waypoint);
             leg = new RouteLeg(waypoint.getInLeg());
             leg.setStartWp(waypoint);
@@ -557,54 +601,53 @@ public class Route implements Serializable {
             waypoint.setOutLeg(leg);
             wp.setInLeg(leg);
             wp.setOutLeg(null);
-        } else if(waypoint.getInLeg() == null) {
+        } else if (waypoint.getInLeg() == null) {
             // TODO: Maybe a prepend functionality?
         } else {
             // TODO: Add new waypoint between two waypoints
         }
-        
+
         wp.setPos(position);
-        
+
         // Calculate rot
         wp.calcRot();
-        
+
         return wp;
     }
-    
-    
-    
-    
+
     public void appendWaypoint() {
-        RouteWaypoint lastWaypoint = waypoints.get(waypoints.size()-1);
-        RouteWaypoint nextLastWaypoint = waypoints.get(waypoints.size()-2);
+        RouteWaypoint lastWaypoint = waypoints.get(waypoints.size() - 1);
+        RouteWaypoint nextLastWaypoint = waypoints.get(waypoints.size() - 2);
         Position startPoint = nextLastWaypoint.getPos();
         Position endPoint = lastWaypoint.getPos();
-        
-        //System.out.println("stalon :" + startPoint.getLongitude());
-        //System.out.println("stalon :" + startPoint.getLatitude());
-        
-        //System.out.println("endlon :" + endPoint.getLongitude());
-        //System.out.println("endlon :" + endPoint.getLatitude());
-        
-        double slope = (endPoint.getLatitude() - startPoint.getLatitude())/(endPoint.getLongitude() - startPoint.getLongitude());
-        double dx = endPoint.getLongitude() -  startPoint.getLongitude();
-        
-        //System.out.println("slope: " + slope);
-        //System.out.println("dx:    " + dx);
-        
+
+        // System.out.println("stalon :" + startPoint.getLongitude());
+        // System.out.println("stalon :" + startPoint.getLatitude());
+
+        // System.out.println("endlon :" + endPoint.getLongitude());
+        // System.out.println("endlon :" + endPoint.getLatitude());
+
+        double slope = (endPoint.getLatitude() - startPoint.getLatitude())
+                / (endPoint.getLongitude() - startPoint.getLongitude());
+        double dx = endPoint.getLongitude() - startPoint.getLongitude();
+
+        // System.out.println("slope: " + slope);
+        // System.out.println("dx:    " + dx);
+
         double newX = endPoint.getLongitude() + dx;
         double newY = endPoint.getLatitude() + dx * slope;
-        
-        //System.out.println("newx:  " + newX);
-        //System.out.println("newy:  " + newY);
-        
-        RouteWaypoint newWaypoint = createWaypoint(lastWaypoint, Position.create(newY, newX));
+
+        // System.out.println("newx:  " + newX);
+        // System.out.println("newy:  " + newY);
+
+        RouteWaypoint newWaypoint = createWaypoint(lastWaypoint,
+                Position.create(newY, newX));
         waypoints.add(newWaypoint);
         calcValues(true);
     }
-    
+
     public boolean isPointWithingBBox(Position point) {
-        if(waypoints == null || waypoints.size() == 0) {
+        if (waypoints == null || waypoints.size() == 0) {
             return false;
         }
         double minLat = 90;
@@ -613,32 +656,32 @@ public class Route implements Serializable {
         double maxLon = -180;
         for (RouteWaypoint waypoint : waypoints) {
             Position location = waypoint.getPos();
-            if(location.getLatitude() < minLat) {
+            if (location.getLatitude() < minLat) {
                 minLat = location.getLatitude();
             }
-            if(location.getLatitude() > maxLat) {
+            if (location.getLatitude() > maxLat) {
                 maxLat = location.getLatitude();
             }
-            if(location.getLongitude() < minLon) {
+            if (location.getLongitude() < minLon) {
                 minLon = location.getLongitude();
             }
-            if(location.getLongitude() > maxLon) {
+            if (location.getLongitude() > maxLon) {
                 maxLon = location.getLongitude();
             }
         }
-        
-//        System.out.println("minLat: "+Formatter.latToPrintable(minLat)+"  maxLat: "+Formatter.latToPrintable(maxLat)+
-//                " minLon: "+Formatter.lonToPrintable(minLon)+" maxLon: "+Formatter.lonToPrintable(maxLon));
-        
+
+        // System.out.println("minLat: "+Formatter.latToPrintable(minLat)+"  maxLat: "+Formatter.latToPrintable(maxLat)+
+        // " minLon: "+Formatter.lonToPrintable(minLon)+" maxLon: "+Formatter.lonToPrintable(maxLon));
+
         double pointLongitude = point.getLongitude();
         double pointLatitude = point.getLatitude();
-        if(pointLongitude >= minLon && pointLongitude <= maxLon
-                && pointLatitude >= minLat && pointLatitude <= maxLat){
+        if (pointLongitude >= minLon && pointLongitude <= maxLon
+                && pointLatitude >= minLat && pointLatitude <= maxLat) {
             return true;
         }
         return false;
     }
-    
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -656,4 +699,227 @@ public class Route implements Serializable {
         return builder.toString();
     }
 
+    public long[] getTtgs() {
+        return ttgs;
+    }
+
+    public void setTtgs(long[] ttgs) {
+        this.ttgs = ttgs;
+    }
+
+    public double[] getDtgs() {
+        return dtgs;
+    }
+
+    public void setDtgs(double[] dtgs) {
+        this.dtgs = dtgs;
+    }
+
+    public Long getTotalTtg() {
+        return totalTtg;
+    }
+
+    public void setTotalTtg(Long totalTtg) {
+        this.totalTtg = totalTtg;
+    }
+
+    public Double getTotalDtg() {
+        return totalDtg;
+    }
+
+    public void setTotalDtg(Double totalDtg) {
+        this.totalDtg = totalDtg;
+    }
+
+    public Date getMetocStarttime() {
+        return metocStarttime;
+    }
+
+    public void setMetocStarttime(Date metocStarttime) {
+        this.metocStarttime = metocStarttime;
+    }
+
+    public Date getMetocEta() {
+        return metocEta;
+    }
+
+    public void setMetocEta(Date metocEta) {
+        this.metocEta = metocEta;
+    }
+
+    public boolean isSafeHaven() {
+        return safeHaven;
+    }
+
+    public void setSafeHaven(boolean safeHaven) {
+        this.safeHaven = safeHaven;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
+    }
+
+    public void setEtas(List<Date> etas) {
+        this.etas = etas;
+    }
+
+    public dk.dma.enav.model.voyage.Route getFullRouteData(){
+        
+        dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
+
+        voyageRoute.setName(this.name);
+        
+        for (int i = 0; i < getWaypoints().size(); i++) {
+        
+
+            dk.dma.enav.model.voyage.Waypoint voyageWaypoint = new dk.dma.enav.model.voyage.Waypoint(); 
+             RouteWaypoint currentWaypoint = getWaypoints().get(i);
+
+             voyageWaypoint.setName(currentWaypoint.getName());
+             voyageWaypoint.setEta(etas.get(i));
+             voyageWaypoint.setLatitude(currentWaypoint.getPos().getLatitude());
+             voyageWaypoint.setLongitude(currentWaypoint.getPos().getLongitude());
+             
+
+             voyageWaypoint.setRot(currentWaypoint.getRot());
+             voyageWaypoint.setTurnRad(currentWaypoint.getTurnRad());
+             
+             if (currentWaypoint.getOutLeg() != null){
+                 dk.dma.enav.model.voyage.RouteLeg routeLeg = new dk.dma.enav.model.voyage.RouteLeg();
+                 routeLeg.setSpeed(currentWaypoint.getOutLeg().getSpeed());
+                 routeLeg.setXtdPort(currentWaypoint.getOutLeg().getXtdPort());
+                 routeLeg.setXtdStarboard(currentWaypoint.getOutLeg().getXtdStarboard());
+                 routeLeg.setSFWidth(currentWaypoint.getOutLeg().getSFWidth());
+                 routeLeg.setSFLen(currentWaypoint.getOutLeg().getSFWidth());
+                 
+                 voyageWaypoint.setRouteLeg(routeLeg);
+             }
+             voyageRoute.getWaypoints().add(voyageWaypoint);
+        }
+        
+        return voyageRoute;
+    }
+    
+    
+    private void parseRoute(dk.dma.enav.model.voyage.Route cloudRouteData) {
+        this.setName(cloudRouteData.getName());
+        List<Waypoint> cloudRouteWaypoints = cloudRouteData.getWaypoints();
+        LinkedList<RouteWaypoint> routeWaypoints = this.getWaypoints();
+
+        for (int i = 0; i < cloudRouteWaypoints.size(); i++) {
+
+            RouteWaypoint waypoint = new RouteWaypoint();
+            Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
+
+            waypoint.setName(cloudWaypoint.getName());
+
+            if (i >= 0) {
+                RouteLeg inLeg = new RouteLeg();
+                inLeg.setHeading(Heading.RL);
+                waypoint.setInLeg(inLeg);
+            }
+
+            // Outleg always has next
+            if (i != cloudRouteWaypoints.size() - 1) {
+                RouteLeg outLeg = new RouteLeg();
+                outLeg.setHeading(Heading.RL);
+                waypoint.setOutLeg(outLeg);
+                // System.out.println("For waypoint" + i + " creating out leg");
+            }
+
+            Position position = Position.create(cloudWaypoint.getLatitude(),
+                    cloudWaypoint.getLongitude());
+            waypoint.setPos(position);
+
+            routeWaypoints.add(waypoint);
+
+        }
+
+        if (routeWaypoints.size() > 1) {
+            for (int i = 0; i < routeWaypoints.size(); i++) {
+
+                // System.out.println("Looking at waypoint:" + i);
+                RouteWaypoint waypoint = routeWaypoints.get(i);
+                Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
+
+                // Waypoint 0 has no in leg, one out leg... no previous
+                if (i != 0) {
+                    RouteWaypoint prevWaypoint = routeWaypoints.get(i - 1);
+
+                    if (waypoint.getInLeg() != null) {
+                        // System.out.println("Setting inleg prev for waypoint:"
+                        // + i);
+                        waypoint.getInLeg().setStartWp(prevWaypoint);
+                        waypoint.getInLeg().setEndWp(waypoint);
+                    }
+
+                    if (prevWaypoint.getOutLeg() != null) {
+                        // System.out.println("Setting outleg prev for waypoint:"
+                        // + i);
+                        prevWaypoint.getOutLeg().setStartWp(prevWaypoint);
+                        prevWaypoint.getOutLeg().setEndWp(waypoint);
+
+                    }
+                }
+                
+                
+                // Leg
+                if (cloudWaypoint.getRouteLeg() != null) {
+
+                    // SOG
+                    if (cloudWaypoint.getRouteLeg().getSpeed() != null) {
+                        waypoint.setSpeed(cloudWaypoint.getRouteLeg()
+                                .getSpeed());
+                    }
+
+                    // XTDS
+                    if (cloudWaypoint.getRouteLeg().getXtdStarboard() != null) {
+                        waypoint.getOutLeg().setXtdStarboard(
+                                cloudWaypoint.getRouteLeg().getXtdStarboard());
+                    }
+
+                    // XTDP
+                    if (cloudWaypoint.getRouteLeg().getXtdPort() != null) {
+                        waypoint.getOutLeg().setXtdPort(
+                                cloudWaypoint.getRouteLeg().getXtdPort());
+                    }
+
+                    // SF Width
+                    if (cloudWaypoint.getRouteLeg().getSFWidth() != null) {
+                        waypoint.getOutLeg().setSFWidth(
+                                cloudWaypoint.getRouteLeg().getSFWidth());
+                    }
+
+                    // SF Len
+                    if (cloudWaypoint.getRouteLeg().getSFLen() != null) {
+                        waypoint.getOutLeg().setSFLen(
+                                cloudWaypoint.getRouteLeg().getSFLen());
+                    }
+
+                }
+                
+
+                if (cloudWaypoint.getTurnRad() != null) {
+                    waypoint.setTurnRad(cloudWaypoint.getTurnRad());
+                }
+
+                if (cloudWaypoint.getRot() != null) {
+                    waypoint.setRot(cloudWaypoint.getRot());
+                }
+                
+//                System.out.println(waypoint.getTurnRad());
+//                System.out.println(cloudWaypoint.getRot());
+
+ 
+
+            }
+        }
+
+        etas = new ArrayList<>();
+        // this.calcAllWpEta();
+        for (int i = 0; i < cloudRouteWaypoints.size(); i++) {
+            etas.add(cloudRouteWaypoints.get(i).getEta());
+        }
+
+    }
 }

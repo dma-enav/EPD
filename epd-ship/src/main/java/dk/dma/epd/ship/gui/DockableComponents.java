@@ -124,8 +124,10 @@ public class DockableComponents {
         if (layoutFile.exists()) {
             try {
                 control.readXML(layoutFile);
-            } catch (IOException ex) {
-                ex.printStackTrace(System.err);
+            } catch (Exception ex) {
+                System.out
+                        .println("Error occured while loading layout, reverting to default");
+                loadLayout(home.resolve("layout/static/default.xml").toString());
             }
         } else {
             loadLayout(home.resolve("layout/static/default.xml").toString());
@@ -161,9 +163,7 @@ public class DockableComponents {
                 .getThemeManager()
                 .publish(Priority.CLIENT, DisplayerDockBorder.KIND,
                         ThemeManager.BORDER_MODIFIER_TYPE, bridge);
-        
-        
-        
+
     }
 
     public JMenu createDockableMenu() {
@@ -190,8 +190,8 @@ public class DockableComponents {
 
     public void toggleFrameLock() {
 
-//        System.out.println("Toggle frame lock");
-        
+        // System.out.println("Toggle frame lock");
+
         List<SingleCDockable> mdlist = control.getRegister()
                 .getSingleDockables();
 
@@ -222,8 +222,8 @@ public class DockableComponents {
 
     public void lock() {
 
-//        System.out.println("Locking!");
-        
+        // System.out.println("Locking!");
+
         List<SingleCDockable> mdlist = control.getRegister()
                 .getSingleDockables();
 
@@ -235,22 +235,23 @@ public class DockableComponents {
         control.getContentArea().getCenter().setDividerSize(0);
 
         locked = true;
-//        System.out.println("Locked");
+        // System.out.println("Locked");
     }
 
     public void saveLayout() {
-
-        // System.out.println("Save layout");
-
         try {
-            Path home = EPDShip.getHomePath();
-            File f = home.resolve(EPDShip.class.getSimpleName() + ".xml")
-                    .toFile();
-            control.writeXML(f);
-        } catch (IOException ex) {
-            ex.printStackTrace();
+            try {
+                Path home = EPDShip.getHomePath();
+                File f = home.resolve(EPDShip.class.getSimpleName() + ".xml")
+                        .toFile();
+                control.writeXML(f);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            control.destroy();
+        } catch (Exception e) {
+            System.out.println("Error occured due to corrupt layout");
         }
-        control.destroy();
     }
 
     private JMenuItem createDockableMenuItem(final String name,
@@ -390,8 +391,8 @@ public class DockableComponents {
     }
 
     public void loadLayout(String path) {
-//        System.out.println("Loading " + path);
-//        locked = false;
+        // System.out.println("Loading " + path);
+        // locked = false;
 
         // Load a layout
         File layoutFile = new File(path);
@@ -403,11 +404,8 @@ public class DockableComponents {
             }
         }
 
-//        System.out.println(locked);
-//        toggleFrameLock();
-
-
-        
+        // System.out.println(locked);
+        // toggleFrameLock();
 
         control.intern().getController().getRelocator().setDragOnlyTitel(true);
 
@@ -429,9 +427,9 @@ public class DockableComponents {
                 .getThemeManager()
                 .publish(Priority.CLIENT, DisplayerDockBorder.KIND,
                         ThemeManager.BORDER_MODIFIER_TYPE, bridge);
-        
+
         lock();
-//        System.out.println(locked);
+        // System.out.println(locked);
     }
 
     public void saveLayout(String name) {

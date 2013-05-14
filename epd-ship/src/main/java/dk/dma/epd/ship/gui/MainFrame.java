@@ -45,6 +45,7 @@ import dk.dma.epd.ship.gui.ComponentPanels.OwnShipComponentPanel;
 import dk.dma.epd.ship.gui.ComponentPanels.ScaleComponentPanel;
 import dk.dma.epd.ship.gui.Panels.LogoPanel;
 import dk.dma.epd.ship.gui.ais.AisDialog;
+import dk.dma.epd.ship.gui.monalisa.MonaLisaSTCCDialog;
 import dk.dma.epd.ship.gui.msi.MsiDialog;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.settings.EPDGuiSettings;
@@ -89,6 +90,8 @@ public class MainFrame extends JFrame implements WindowListener {
     private MapMenu mapMenu;
     private MenuBar menuBar;
 
+    private MonaLisaSTCCDialog monaLisaSTCCDialog;
+    
     public MainFrame() {
         super();
         initGUI();
@@ -128,6 +131,9 @@ public class MainFrame extends JFrame implements WindowListener {
         dynamicNoGoPanel = new DynamicNoGoComponentPanel();
         nogoPanel = new NoGoComponentPanel();
         monaLisaPanel = new MonaLisaCommunicationComponentPanel();
+        
+        //Mona Lisa Dialog
+        monaLisaSTCCDialog = new MonaLisaSTCCDialog(this);
         
         // Unmovable panels
         bottomPanel = new BottomPanel();
@@ -196,6 +202,16 @@ public class MainFrame extends JFrame implements WindowListener {
         // Init the map right click menu
         mapMenu = new MapMenu();
         mapHandler.add(mapMenu);
+        
+        if (EPDShip.getSettings().getGuiSettings().isFullscreen()){
+            doFullScreen();
+        }else{
+            doNormal();
+        }
+    }
+
+    public MonaLisaSTCCDialog getMonaLisaSTCCDialog() {
+        return monaLisaSTCCDialog;
     }
 
     private void initGlassPane() {
@@ -323,7 +339,49 @@ public class MainFrame extends JFrame implements WindowListener {
 
     
     
+    public void doFullScreen() {
+        setVisible(false);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        dispose();
+        setUndecorated(true);
+        // setVisible(true);
+        setVisible(true);
+//        
+//        if (EPDShip.getSettings().getGuiSettings().isFullscreen()) {
+//            setVisible(false);
+//            setExtendedState(JFrame.MAXIMIZED_BOTH);
+//            dispose();
+//            setUndecorated(true);
+//            // setVisible(true);
+//            setVisible(true);
+//            EPDShip.getSettings().getGuiSettings().setFullscreen(false);
+//        } else {
+//
+//            setVisible(false);
+//            setExtendedState(JFrame.NORMAL);
+//
+            EPDShip.getSettings().getGuiSettings().setFullscreen(true);
+//            setSize(new Dimension(1000, 700));
+//
+//            dispose();
+//            setUndecorated(false);
+//            setVisible(true);
+//        }
+    }
     
+    public void doNormal(){
+      setVisible(false);
+      setExtendedState(JFrame.NORMAL);
+
+      EPDShip.getSettings().getGuiSettings().setFullscreen(true);
+      setSize(new Dimension(1000, 700));
+
+      dispose();
+      setUndecorated(false);
+      setVisible(true);
+      
+      EPDShip.getSettings().getGuiSettings().setFullscreen(false);
+    }
     
     
 }

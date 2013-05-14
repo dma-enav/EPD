@@ -34,18 +34,23 @@ import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 public class RouteGraphic extends OMGraphicList {
 
     private static final long serialVersionUID = 1L;
-    
+
     private Route route;
     private boolean arrowsVisible;
     private LinkedList<RouteWaypoint> routeWaypoints;
     private List<RouteLegGraphic> routeLegs = new ArrayList<>();
-    
+
     protected Stroke stroke;
     protected Color color;
+    protected Color broadLineColor;
+    protected boolean circleDash;
 
     private int routeIndex;
-    
-    public RouteGraphic(Route route, int routeIndex, boolean arrowsVisible, Stroke stroke, Color color) {
+
+    boolean animation;
+
+    public RouteGraphic(Route route, int routeIndex, boolean arrowsVisible,
+            Stroke stroke, Color color) {
         super();
         this.route = route;
         this.routeIndex = routeIndex;
@@ -54,41 +59,108 @@ public class RouteGraphic extends OMGraphicList {
         this.color = color;
         initGraphics();
     }
-    
+
+    public RouteGraphic(Route route, int routeIndex, boolean arrowsVisible,
+            Stroke stroke, Color color, Color broadLineColor, boolean circleDash) {
+        super();
+        this.route = route;
+        this.routeIndex = routeIndex;
+        this.arrowsVisible = arrowsVisible;
+        this.stroke = stroke;
+        this.color = color;
+        this.broadLineColor = broadLineColor;
+        this.circleDash = circleDash;
+        initVoyageGraphics();
+    }
+
+    public Route getRoute() {
+        return route;
+    }
+
     public RouteGraphic(boolean arrowsVisible, Stroke stroke, Color color) {
         super();
         this.arrowsVisible = arrowsVisible;
         this.stroke = stroke;
         this.color = color;
     }
-    
+
     public void setRoute(Route route) {
         this.route = route;
         initGraphics();
     }
-    
-    public void initGraphics(){
+
+    public void initVoyageGraphics() {
         routeWaypoints = route.getWaypoints();
         int i = 0;
         for (RouteWaypoint routeWaypoint : routeWaypoints) {
-            if(route instanceof ActiveRoute && ((ActiveRoute) route).getActiveWaypointIndex() == i){
-                RouteWaypointGraphic routeWaypointGraphicActive = new RouteWaypointGraphic(route, routeIndex, i,routeWaypoint, Color.RED, 30, 30);
-                add(0,routeWaypointGraphicActive);
-            }            
-            if(routeWaypoint.getOutLeg() != null){
+            if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg routeLeg = routeWaypoint.getOutLeg();
-                RouteLegGraphic routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, this.color, this.stroke);
+
+                // Fat legs
+                RouteLegGraphic routeLegGraphic = new RouteLegGraphic(routeLeg,
+                        routeIndex, this.color, this.stroke, broadLineColor);
+
                 add(routeLegGraphic);
-                routeLegs.add(0,routeLegGraphic);
+                routeLegs.add(0, routeLegGraphic);
             }
-            RouteWaypointGraphic routeWaypointGraphic = new RouteWaypointGraphic(route, routeIndex, i, routeWaypoint, this.color, 18, 18);
-            add(0,routeWaypointGraphic);
+
+            // Dashed circles
+            RouteWaypointGraphic routeWaypointGraphic = new RouteWaypointGraphic(
+                    route, routeIndex, i, routeWaypoint, this.color, 18, 18,
+                    circleDash);
+            
+            add(0, routeWaypointGraphic);
+            i++;
+
+        }
+    }
+
+    public void initGraphics() {
+        routeWaypoints = route.getWaypoints();
+        int i = 0;
+        for (RouteWaypoint routeWaypoint : routeWaypoints) {
+            if (route instanceof ActiveRoute
+                    && ((ActiveRoute) route).getActiveWaypointIndex() == i) {
+                RouteWaypointGraphic routeWaypointGraphicActive = new RouteWaypointGraphic(
+                        route, routeIndex, i, routeWaypoint, Color.RED, 30, 30);
+                add(0, routeWaypointGraphicActive);
+            }
+            if (routeWaypoint.getOutLeg() != null) {
+                RouteLeg routeLeg = routeWaypoint.getOutLeg();
+                RouteLegGraphic routeLegGraphic = new RouteLegGraphic(routeLeg,
+                        routeIndex, this.color, this.stroke);
+                add(routeLegGraphic);
+                routeLegs.add(0, routeLegGraphic);
+            }
+            RouteWaypointGraphic routeWaypointGraphic = new RouteWaypointGraphic(
+                    route, routeIndex, i, routeWaypoint, this.color, 18, 18);
+            add(0, routeWaypointGraphic);
             i++;
         }
     }
-    
-    public void showArrowHeads(boolean show){
-        if(this.arrowsVisible != show){
+
+    public void activateAnimation() {
+        for (int i = 0; i < routeLegs.size(); i++) {
+            routeLegs.get(i).addAnimatorLine();
+        }
+    }
+
+    public void updateAnimationLine() {
+        for (int i = 0; i < routeLegs.size(); i++) {
+            routeLegs.get(i).updateAnimationLine();
+        }
+    }
+
+    public boolean isAnimation() {
+        return animation;
+    }
+
+    public void setAnimation(boolean animation) {
+        this.animation = animation;
+    }
+
+    public void showArrowHeads(boolean show) {
+        if (this.arrowsVisible != show) {
             for (RouteLegGraphic routeLeg : routeLegs) {
                 routeLeg.setArrows(show);
             }

@@ -16,14 +16,12 @@
 package dk.dma.epd.ship.route;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
-import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.ship.monalisa.RecievedRoute;
 
 /**
  * A serializable class for storing route information
@@ -32,7 +30,8 @@ public class RouteStore implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
-    private Set<AisAdressedRouteSuggestion> addressedSuggestedRoutes = new HashSet<>();
+//    private Set<AisAdressedRouteSuggestion> addressedSuggestedRoutes = new HashSet<>();
+    private List<RecievedRoute> suggestedRoutes = new LinkedList<>();
     private List<Route> routes = new LinkedList<>();
     private ActiveRoute activeRoute;
     private int activeRouteIndex = -1;
@@ -41,7 +40,8 @@ public class RouteStore implements Serializable {
         this.routes = routeManager.getRoutes();
         this.activeRoute = routeManager.getActiveRoute();
         this.activeRouteIndex = routeManager.getActiveRouteIndex();
-        this.addressedSuggestedRoutes = routeManager.getAddressedSuggestedRoutes();
+//        this.addressedSuggestedRoutes = routeManager.getAddressedSuggestedRoutes();
+        this.suggestedRoutes = routeManager.getSuggestedRoutes();
     }
     
     public List<Route> getRoutes() {
@@ -55,9 +55,12 @@ public class RouteStore implements Serializable {
     public int getActiveRouteIndex() {
         return activeRouteIndex;
     }
-    
-    public Set<AisAdressedRouteSuggestion> getAddressedSuggestedRoutes() {
-        return addressedSuggestedRoutes;
+
+    public List<RecievedRoute> getSuggestedRoutes() {
+        return suggestedRoutes;
     }
+
+
+
     
 }

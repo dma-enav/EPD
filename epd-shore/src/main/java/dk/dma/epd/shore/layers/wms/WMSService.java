@@ -125,10 +125,10 @@ public class WMSService extends WMSPlugIn implements ImageServerConstants, IStat
                 styleReplacer = "STYLES=style-id-246";
             }
 
-            //Do style 245
-            if (zoomLevel <= 181968){
-                styleReplacer = "STYLES=style-id-245";
-            }
+//            //Do style 245
+//            if (zoomLevel <= 181968){
+//                styleReplacer = "STYLES=style-id-245";
+//            }
 
 
 

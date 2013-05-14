@@ -36,16 +36,20 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
-import dk.dma.epd.shore.ais.AISRouteExchangeListener;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.msi.MsiHandler;
-import dk.dma.epd.shore.service.ais.AisServices;
+import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.service.MonaLisaHandler;
+import dk.dma.epd.shore.service.MonaLisaRouteExchangeListener;
+import dk.dma.epd.shore.service.RouteExchangeListener;
 
 /**
  * Class for setting up the notification area of the application
  */
-public class NotificationArea extends ComponentFrame implements IMsiUpdateListener, AISRouteExchangeListener {
+public class NotificationArea extends ComponentFrame implements
+        IMsiUpdateListener, RouteExchangeListener,
+        MonaLisaRouteExchangeListener {
 
     private static final long serialVersionUID = 1L;
     private Boolean locked = false;
@@ -64,31 +68,41 @@ public class NotificationArea extends ComponentFrame implements IMsiUpdateListen
     public int width;
     public int height;
     private MsiHandler msiHandler;
-//    private AisServices aisService;
-
-    Border paddingLeft = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(65, 65, 65));
-    Border paddingBottom = BorderFactory.createMatteBorder(0, 0, 5, 0, new Color(83, 83, 83));
-    Border notificationPadding = BorderFactory.createCompoundBorder(paddingBottom, paddingLeft);
-    Border notificationsIndicatorImportant = BorderFactory.createMatteBorder(0, 0, 0, 10, new Color(206, 120, 120));
-    Border paddingLeftPressed = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(45, 45, 45));
-    Border notificationPaddingPressed = BorderFactory.createCompoundBorder(paddingBottom, paddingLeftPressed);
+    // private AisServices aisService;
+    private EnavServiceHandler enavServiceHandler;
+    private MonaLisaHandler monaLisaHandler;
+    
+    Border paddingLeft = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(
+            65, 65, 65));
+    Border paddingBottom = BorderFactory.createMatteBorder(0, 0, 5, 0,
+            new Color(83, 83, 83));
+    Border notificationPadding = BorderFactory.createCompoundBorder(
+            paddingBottom, paddingLeft);
+    Border notificationsIndicatorImportant = BorderFactory.createMatteBorder(0,
+            0, 0, 10, new Color(206, 120, 120));
+    Border paddingLeftPressed = BorderFactory.createMatteBorder(0, 8, 0, 0,
+            new Color(45, 45, 45));
+    Border notificationPaddingPressed = BorderFactory.createCompoundBorder(
+            paddingBottom, paddingLeftPressed);
 
     /**
      * Constructor for setting up the notification area
-     *
+     * 
      * @param mainFrame
      */
     public NotificationArea(final MainFrame mainFrame) {
 
         // Setup location
-        this.setLocation(10 + moveHandlerHeight, 40 + mainFrame.getToolbar().getHeight());
-//        this.setSize(100, 400);
+        this.setLocation(10 + moveHandlerHeight, 40 + mainFrame.getToolbar()
+                .getHeight());
+        // this.setSize(100, 400);
         this.setVisible(true);
         this.setResizable(false);
 
         // Strip off window looks
         setRootPaneCheckingEnabled(false);
-        ((javax.swing.plaf.basic.BasicInternalFrameUI) this.getUI()).setNorthPane(null);
+        ((javax.swing.plaf.basic.BasicInternalFrameUI) this.getUI())
+                .setNorthPane(null);
         this.setBorder(null);
 
         // Create the top movehandler (for dragging)
@@ -96,17 +110,21 @@ public class NotificationArea extends ComponentFrame implements IMsiUpdateListen
         moveHandler.setForeground(new Color(200, 200, 200));
         moveHandler.setOpaque(true);
         moveHandler.setBackground(Color.DARK_GRAY);
-        moveHandler.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(30, 30, 30)));
+        moveHandler.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0,
+                new Color(30, 30, 30)));
         moveHandler.setFont(new Font("Arial", Font.BOLD, 9));
-        moveHandler.setPreferredSize(new Dimension(notificationWidth, moveHandlerHeight));
-        ToolbarMoveMouseListener mml = new ToolbarMoveMouseListener(this, mainFrame);
+        moveHandler.setPreferredSize(new Dimension(notificationWidth,
+                moveHandlerHeight));
+        ToolbarMoveMouseListener mml = new ToolbarMoveMouseListener(this,
+                mainFrame);
         moveHandler.addMouseListener(mml);
         moveHandler.addMouseMotionListener(mml);
 
         // Create the grid for the notifications
         notificationPanel = new JPanel();
         notificationPanel.setLayout(new GridLayout(0, 1));
-        notificationPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
+        notificationPanel
+                .setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
         notificationPanel.setBackground(new Color(83, 83, 83));
 
         // Setup notifications (add here for more notifications)
@@ -151,14 +169,33 @@ public class NotificationArea extends ComponentFrame implements IMsiUpdateListen
 
         });
 
+        // Notification: Mona Lisa Route
+        final JPanel monaLisarouteExchange = new JPanel();
+        notifications.put("monaLisaRouteExchange", monaLisarouteExchange);
+        services.put("monaLisaRouteExchange", "MonaLisa Route");
 
+        monaLisarouteExchange.addMouseListener(new MouseAdapter() {
+
+            public void mousePressed(MouseEvent e) {
+                monaLisarouteExchange.setBorder(notificationPaddingPressed);
+                monaLisarouteExchange.setBackground(new Color(45, 45, 45));
+            }
+
+            public void mouseReleased(MouseEvent e) {
+                monaLisarouteExchange.setBorder(notificationPadding);
+                monaLisarouteExchange.setBackground(new Color(65, 65, 65));
+                mainFrame.toggleNotificationCenter(2);
+            }
+
+        });
 
         // Create the masterpanel for aligning
         masterPanel = new JPanel(new BorderLayout());
         masterPanel.add(moveHandler, BorderLayout.NORTH);
         masterPanel.add(notificationPanel, BorderLayout.SOUTH);
-        masterPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(
-                45, 45, 45)));
+        masterPanel.setBorder(BorderFactory.createEtchedBorder(
+                EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45,
+                        45)));
         this.getContentPane().add(masterPanel);
 
         // And finally refresh the notification area
@@ -178,16 +215,21 @@ public class NotificationArea extends ComponentFrame implements IMsiUpdateListen
             msiHandler.addListener(this);
         }
 
-        if (obj instanceof AisServices) {
-//            aisService = (AisServices) obj;
-//            aisService.addRouteExchangeListener(this);
+        if (obj instanceof EnavServiceHandler) {
+            enavServiceHandler = (EnavServiceHandler) obj;
+            enavServiceHandler.addRouteExchangeListener(this);
+        }
+        
+        if (obj instanceof MonaLisaHandler) {
+            monaLisaHandler = (MonaLisaHandler) obj;
+            monaLisaHandler.addMonaLisaRouteExchangeListener(this);
         }
 
     }
 
     /**
      * Function for getting the height of the notification area
-     *
+     * 
      * @return height height of the notification area
      */
     public int getHeight() {
@@ -196,7 +238,7 @@ public class NotificationArea extends ComponentFrame implements IMsiUpdateListen
 
     /**
      * Function for getting the width of the notification area
-     *
+     * 
      * @return width width of the notification area
      */
     public int getWidth() {
@@ -220,7 +262,7 @@ public class NotificationArea extends ComponentFrame implements IMsiUpdateListen
 
     /**
      * Function for blinking the unread indicator for a service
-     *
+     * 
      * @param service
      *            The service which should blink, indicating new unread messages
      * @throws InterruptedException
@@ -279,7 +321,6 @@ public class NotificationArea extends ComponentFrame implements IMsiUpdateListen
             // Get values for service
             String service = services.get(entry.getKey());
 
-
             Integer messageCount = unreadMessages.get(entry.getKey());
 
             if (messageCount == null) {
@@ -295,18 +336,21 @@ public class NotificationArea extends ComponentFrame implements IMsiUpdateListen
             servicePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
             servicePanel.setBackground(new Color(65, 65, 65));
             servicePanel.setBorder(notificationPadding);
-            servicePanel.setPreferredSize(new Dimension(notificationWidth, notificationHeight));
+            servicePanel.setPreferredSize(new Dimension(notificationWidth,
+                    notificationHeight));
 
             // Create labels for each service
             // The label
             JLabel notification = new JLabel(service);
-            notification.setPreferredSize(new Dimension(80, notificationHeight));
+            notification
+                    .setPreferredSize(new Dimension(80, notificationHeight));
             notification.setFont(new Font("Arial", Font.PLAIN, 11));
             notification.setForeground(new Color(237, 237, 237));
             servicePanel.add(notification);
 
             // Unread messages
-            JLabel messages = new JLabel(messageCount.toString(), SwingConstants.RIGHT);
+            JLabel messages = new JLabel(messageCount.toString(),
+                    SwingConstants.RIGHT);
             messages.setPreferredSize(new Dimension(20, notificationHeight));
             messages.setFont(new Font("Arial", Font.PLAIN, 9));
             messages.setForeground(new Color(100, 100, 100));
@@ -315,7 +359,8 @@ public class NotificationArea extends ComponentFrame implements IMsiUpdateListen
 
             // The unread indicator
             JLabel unreadIndicator = new JLabel();
-            unreadIndicator.setPreferredSize(new Dimension(7, notificationHeight));
+            unreadIndicator.setPreferredSize(new Dimension(7,
+                    notificationHeight));
             servicePanel.add(unreadIndicator);
 
             notificationPanel.add(servicePanel);
@@ -330,10 +375,10 @@ public class NotificationArea extends ComponentFrame implements IMsiUpdateListen
         // number of notifications
         width = notificationWidth;
         int innerHeight = notifications.size() * (notificationHeight + 5) + 5; // 5
-                                                                                    // and
-                                                                                    // 5
-                                                                                    // for
-                                                                                    // padding
+                                                                               // and
+                                                                               // 5
+                                                                               // for
+                                                                               // padding
         height = innerHeight + notificationPanelOffset;
 
         if (!locked) {
@@ -351,14 +396,15 @@ public class NotificationArea extends ComponentFrame implements IMsiUpdateListen
 
     /**
      * Function for setting the number of unread messages for a specific service
-     *
+     * 
      * @param service
      *            service for which the unread messages should be set
      * @param messageCount
      *            the number of unread messages to be set
      * @throws InterruptedException
      */
-    public void setMessages(String service, int messageCount) throws InterruptedException {
+    public void setMessages(String service, int messageCount)
+            throws InterruptedException {
 
         JLabel unread = unreadMessagesLabels.get(service);
         JLabel unreadIndicator = indicatorLabels.get(service);
@@ -422,13 +468,31 @@ public class NotificationArea extends ComponentFrame implements IMsiUpdateListen
     }
 
     @Override
-    public void aisUpdate() {
-
-//        try {
-//            setMessages("routeExchange", aisService.getUnkAck());
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
+    public void routeUpdate() {
+        try {
+            setMessages("routeExchange", enavServiceHandler.getUnkAck());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
+
+    @Override
+    public void monaLisaRouteUpdate() {
+        try {
+            setMessages("monaLisaRouteExchange", monaLisaHandler.getUnHandled());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // @Override
+    // public void aisUpdate() {
+    //
+    // try {
+    // setMessages("routeExchange", aisService.getUnkAck());
+    // } catch (InterruptedException e) {
+    // e.printStackTrace();
+    // }
+    //
+    // }
 }

@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.layers.route;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -42,7 +43,13 @@ public class RouteLegGraphic extends OMGraphicList {
             OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, 5, 15);
     private Color color;
 
+    private OMLine animationLine;
+    private OMLine broadLine;
+
     private int routeIndex;
+    
+    float[] dash = { 35.0f, 35.0f };
+    float dashPhase = 5000;
 
     /**
      * Creates a route leg
@@ -66,6 +73,53 @@ public class RouteLegGraphic extends OMGraphicList {
         this.setVague(true);
         initGraphics();
     }
+    
+    
+    
+    /**
+     * Creates a voyage leg
+     * 
+     * @param routeLeg
+     *            RouteLeg object containing information about the route leg
+     * @param routeIndex
+     *            TODO
+     * @param color
+     *            Color of the route leg
+     * @param stroke
+     *            Stroke type of the route leg
+     */
+    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color,
+            Stroke stroke, Color broadLineColor) {
+        super();
+        this.routeIndex = routeIndex;
+        this.routeLeg = routeLeg;
+        this.color = color;
+        this.stroke = stroke;
+        this.setVague(true);
+        initGraphics();
+        addBroadLine(broadLineColor);
+    }
+    
+    private void addBroadLine(Color color){
+        if (routeLeg.getEndWp() != null) {
+
+            RouteWaypoint legStart = routeLeg.getStartWp();
+            RouteWaypoint legEnd = routeLeg.getEndWp();
+
+            double startLat = legStart.getPos().getLatitude();
+            double startLon = legStart.getPos().getLongitude();
+
+            double endLat = legEnd.getPos().getLatitude();
+            double endLon = legEnd.getPos().getLongitude();
+
+            broadLine = new OMLine(startLat, startLon, endLat, endLon, lineType);
+            broadLine.setLinePaint(color);
+            broadLine.setStroke(new BasicStroke(12.0f, BasicStroke.CAP_BUTT,
+                    BasicStroke.JOIN_MITER, 10.0f, new float[] { 40.0f, 15.0f }, 0.0f));
+
+            add(broadLine);
+        }
+    }
 
     public void initGraphics() {
         if (routeLeg.getEndWp() != null) {
@@ -87,12 +141,52 @@ public class RouteLegGraphic extends OMGraphicList {
             line = new OMLine(startLat, startLon, endLat, endLon, lineType);
             line.setLinePaint(color);
             line.setStroke(stroke);
-            
-            add(line);
 
+            add(line);
         }
     }
 
+    public void addAnimatorLine() {
+        if (routeLeg.getEndWp() != null) {
+
+
+
+            RouteWaypoint legStart = routeLeg.getStartWp();
+            RouteWaypoint legEnd = routeLeg.getEndWp();
+
+            double startLat = legStart.getPos().getLatitude();
+            double startLon = legStart.getPos().getLongitude();
+
+            double endLat = legEnd.getPos().getLatitude();
+            double endLon = legEnd.getPos().getLongitude();
+
+            animationLine = new OMLine(startLat, startLon, endLat, endLon, lineType);
+            animationLine.setLinePaint(new Color(1f, 1f, 0, 0.6f));
+            animationLine.setStroke(new BasicStroke(10.0f, BasicStroke.CAP_BUTT,
+                    BasicStroke.JOIN_MITER, 10.0f, dash, dashPhase));
+
+            add(animationLine);
+        }
+    }
+
+    public void updateAnimationLine(){
+//        broadline.setLinePaint(new Color(0f, 1f, 0, 0.6f));
+        float[] dash = { 35.0f, 35.0f };
+//        float dashPhase = 18.0f;
+//        System.out.println("Adding to dashPhase " + dashPhase);
+        
+        dashPhase -= 9.0f;
+        if (dashPhase < 0){
+            System.out.println("Resetting!");
+            dashPhase = 5000;
+        }
+//        System.out.println("Dashphase is now " + dashPhase);
+        
+        animationLine.setStroke(new BasicStroke(10.0f, BasicStroke.CAP_BUTT,
+                BasicStroke.JOIN_MITER, 10.0f, dash, dashPhase));
+//        System.out.println("Changing stroke! " + dashPhase);
+    }
+    
     public void setArrows(boolean arrowsVisible) {
         if (!arrowsVisible) {
             line.setArrowHead(null);

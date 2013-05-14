@@ -82,8 +82,7 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
      * @param id        id number for this map frame
      * @param mainFrame    reference to the mainframe
      */
-    public JMapFrame(int id, MainFrame mainFrame) {
-
+    public JMapFrame(int id, MainFrame mainFrame, boolean voyageHandleLayer) {
         super("New Window " + id, true, true, true, true);
 
         this.mainFrame = mainFrame;
@@ -94,9 +93,8 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
         this.setVisible(true);
 
         initGlassPane();
-        chartPanel.initChart();
+        chartPanel.initChart(voyageHandleLayer);
         initGUI();
-
     }
 
     /**

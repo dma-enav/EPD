@@ -37,6 +37,7 @@ import dk.dma.epd.shore.gui.views.NotificationCenter;
 import dk.dma.epd.shore.gui.views.SendRouteDialog;
 import dk.dma.epd.shore.gui.views.StatusArea;
 import dk.dma.epd.shore.gui.views.ToolBar;
+import dk.dma.epd.shore.gui.views.monalisa.SendVoyageDialog;
 
 public class JMainDesktopManager extends DefaultDesktopManager {
     /**
@@ -52,6 +53,7 @@ public class JMainDesktopManager extends DefaultDesktopManager {
     private JSettingsWindow settings;
     private RouteManagerDialog routeManager;
     private SendRouteDialog routeDialog;
+    private SendVoyageDialog sendVoyageDialog;
     
     /**
      * Constructor for desktopmanager
@@ -96,6 +98,7 @@ public class JMainDesktopManager extends DefaultDesktopManager {
         super.activateFrame(settings);
         super.activateFrame(routeManager);
         super.activateFrame(routeDialog);
+        super.activateFrame(sendVoyageDialog);
     }
     
     public void clearToFront(){
@@ -250,6 +253,14 @@ public class JMainDesktopManager extends DefaultDesktopManager {
         this.routeDialog = routeDialog;
     }
 
+    /**
+     * Set Voyage Send Dialog
+     * @param notCenter
+     */
+    public void setSendVoyageDialog(SendVoyageDialog sendVoyageDialog) {
+        this.sendVoyageDialog = sendVoyageDialog;
+    }
+    
     /**
      * Set notification area
      * @param notificationArea

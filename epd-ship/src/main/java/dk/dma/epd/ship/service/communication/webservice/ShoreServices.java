@@ -43,8 +43,10 @@ import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gps.GpsHandler;
-import dk.dma.epd.ship.route.monalisa.se.sspa.optiroute.RouteRequest;
-import dk.dma.epd.ship.route.monalisa.se.sspa.optiroute.RouteResponse;
+import dk.dma.epd.ship.gui.monalisa.XMLDialog;
+import dk.dma.epd.ship.monalisa.SSPAResponse;
+import dk.dma.epd.ship.route.sspa.RouterequestType;
+import dk.dma.epd.ship.route.sspa.RouteresponseType;
 import dk.dma.epd.ship.services.shore.RouteHttp;
 import dk.dma.epd.ship.settings.EPDEnavSettings;
 import dk.dma.epd.ship.status.ComponentStatus;
@@ -69,86 +71,87 @@ import dk.frv.enav.common.xml.risk.response.RiskResponse;
  * Shore service component providing the functional link to shore.
  */
 public class ShoreServices extends MapHandlerChild implements IStatusComponent {
-    
-    private static final Logger LOG = LoggerFactory.getLogger(ShoreServices.class);
+
+    private static final Logger LOG = LoggerFactory
+            .getLogger(ShoreServices.class);
 
     private AisHandler aisHandler;
     private GpsHandler gpsHandler;
     private EPDEnavSettings enavSettings;
     private ShoreServiceStatus status = new ShoreServiceStatus();
     private static final String ENCODING = "UTF-8";
-    
+
     public ShoreServices(EPDEnavSettings enavSettings) {
-        this.enavSettings = enavSettings; 
+        this.enavSettings = enavSettings;
     }
 
-    public static double floatToDouble (float converThisNumberToFloat) {
+    public static double floatToDouble(float converThisNumberToFloat) {
 
         String floatNumberInString = String.valueOf(converThisNumberToFloat);
         double floatNumberInDouble = Double.parseDouble(floatNumberInString);
         return floatNumberInDouble;
 
-        }    
-    
-    public static dk.frv.enav.common.xml.Route convertRoute(Route route){
-        //TO DO
-        
+    }
+
+    public static dk.frv.enav.common.xml.Route convertRoute(Route route) {
+        // TO DO
+
         dk.frv.enav.common.xml.Route xmlRoute = new dk.frv.enav.common.xml.Route();
         LinkedList<RouteWaypoint> waypoint = route.getWaypoints();
         List<Waypoint> waypoints = new ArrayList<>();
         int i = 0;
-        
-        for (RouteWaypoint waypointEeins : waypoint)
-        {
+
+        for (RouteWaypoint waypointEeins : waypoint) {
             Waypoint waypointEnavshore = new Waypoint();
-            
-            //ETA
+
+            // ETA
             waypointEnavshore.setEta(route.getWpEta(i));
-            
-            //Heading
-            //    Heading headingEeins = waypointEeins.getHeading();
+
+            // Heading
+            // Heading headingEeins = waypointEeins.getHeading();
             dk.frv.enav.common.xml.Waypoint.Heading headingEnavshore = null;
             waypointEnavshore.setHeading(headingEnavshore);
-                
-            //Latitude
+
+            // Latitude
             waypointEnavshore.setLat(waypointEeins.getPos().getLatitude());
 
-            //Longitude
+            // Longitude
             waypointEnavshore.setLon(waypointEeins.getPos().getLongitude());
-            
-            //Rate of turn
+
+            // Rate of turn
             waypointEnavshore.setRot(waypointEeins.getRot());
 
-            //Speed
-            //waypointEnavshore.setSpeed(waypointEeins.getOutLeg().getSpeed());
-            
-            //Turn radius
-            waypointEnavshore.setTurnRad(waypointEeins.getTurnRad());        
-            
-            //Port XTD
-            //waypointEnavshore.setXtdPort(waypointEeins.getOutLeg().getXtdPort());
-            
-            //Starboard XTD
-            //waypointEnavshore.setXtdStarboard(waypointEeins.getOutLeg().getXtdStarboard());
-            
+            // Speed
+            // waypointEnavshore.setSpeed(waypointEeins.getOutLeg().getSpeed());
+
+            // Turn radius
+            waypointEnavshore.setTurnRad(waypointEeins.getTurnRad());
+
+            // Port XTD
+            // waypointEnavshore.setXtdPort(waypointEeins.getOutLeg().getXtdPort());
+
+            // Starboard XTD
+            // waypointEnavshore.setXtdStarboard(waypointEeins.getOutLeg().getXtdStarboard());
+
             waypoints.add(waypointEnavshore);
-    
+
             i++;
-        
-        }        
+
+        }
         xmlRoute.setWaypoints(waypoints);
         xmlRoute.setActiveWaypoint(0);
-        
+
         return xmlRoute;
     }
-    
-    public static PositionReport convertPositionReport(VesselPositionData position){
+
+    public static PositionReport convertPositionReport(
+            VesselPositionData position) {
         PositionReport enavshorePos = new PositionReport();
-        
+
         if (position == null || position.getPos() == null) {
             return null;
         }
-        
+
         enavshorePos.setCog(floatToDouble(position.getCog()));
         enavshorePos.setHeading(floatToDouble(position.getTrueHeading()));
         enavshorePos.setLatitude(position.getPos().getLatitude());
@@ -157,8 +160,10 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         enavshorePos.setSog(floatToDouble(position.getSog()));
         return enavshorePos;
     }
-    
-    public NogoResponse nogoPoll(double draught, Position northWestPoint, Position southEastPoint, Date startDate, Date endDate) throws ShoreServiceException {
+
+    public NogoResponse nogoPoll(double draught, Position northWestPoint,
+            Position southEastPoint, Date startDate, Date endDate)
+            throws ShoreServiceException {
         // Create request
         NogoRequest nogoRequest = new NogoRequest();
 
@@ -170,93 +175,106 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         nogoRequest.setSouthEastPointLon(southEastPoint.getLongitude());
         nogoRequest.setStartDate(startDate);
         nogoRequest.setEndDate(endDate);
-        
+
         // Add request parameters
         addRequestParameters(nogoRequest);
-        
-        NogoResponse nogoResponse = (NogoResponse)makeRequest("/api/xml/nogo", "dk.frv.enav.common.xml.nogo.request", "dk.frv.enav.common.xml.nogo.response", nogoRequest);
+
+        NogoResponse nogoResponse = (NogoResponse) makeRequest("/api/xml/nogo",
+                "dk.frv.enav.common.xml.nogo.request",
+                "dk.frv.enav.common.xml.nogo.response", nogoRequest);
         return nogoResponse;
     }
-    
-    
+
     public MsiResponse msiPoll(int lastMessage) throws ShoreServiceException {
         // Create request
         MsiPollRequest msiPollRequest = new MsiPollRequest();
         msiPollRequest.setLastMessage(lastMessage);
-        
+
         // Add request parameters
         addRequestParameters(msiPollRequest);
-        
-        MsiResponse msiResponse = (MsiResponse)makeRequest("/api/xml/msi", "dk.frv.enav.common.xml.msi.request", "dk.frv.enav.common.xml.msi.response", msiPollRequest); 
-        
+
+        MsiResponse msiResponse = (MsiResponse) makeRequest("/api/xml/msi",
+                "dk.frv.enav.common.xml.msi.request",
+                "dk.frv.enav.common.xml.msi.response", msiPollRequest);
+
         return msiResponse;
     }
-    
-    public List<RiskList> getRiskIndexes(double southWestLat, double northEastLat, double southWestLon, double northEastLon) throws ShoreServiceException {
+
+    public List<RiskList> getRiskIndexes(double southWestLat,
+            double northEastLat, double southWestLon, double northEastLon)
+            throws ShoreServiceException {
         // Create request
-        RiskRequest req= new RiskRequest();
+        RiskRequest req = new RiskRequest();
         req.setLatMin(southWestLat);
         req.setLonMin(southWestLon);
         req.setLatMax(northEastLat);
         req.setLonMax(northEastLon);
-        //req.setMmsiList(list);
+        // req.setMmsiList(list);
         // Add request parameters
         addRequestParameters(req);
-        
-        RiskResponse resp = (RiskResponse) makeRequest("/api/xml/risk", "dk.frv.enav.common.xml.risk.request", "dk.frv.enav.common.xml.risk.response", req); 
-        
+
+        RiskResponse resp = (RiskResponse) makeRequest("/api/xml/risk",
+                "dk.frv.enav.common.xml.risk.request",
+                "dk.frv.enav.common.xml.risk.response", req);
+
         return resp.getList();
     }
-        
+
     public MetocForecast routeMetoc(Route route) throws ShoreServiceException {
         // Get current position if active route
         Position pos = null;
         if (route instanceof ActiveRoute) {
             GpsData gpsData = gpsHandler.getCurrentData();
             if (gpsData.isBadPosition()) {
-                throw new ShoreServiceException(ShoreServiceErrorCode.NO_VALID_GPS_DATA);
+                throw new ShoreServiceException(
+                        ShoreServiceErrorCode.NO_VALID_GPS_DATA);
             }
             pos = gpsData.getPosition();
         }
         // Create request
         MetocForecastRequest request = Metoc.generateMetocRequest(route, pos);
-        
+
         // Add request parameters
         addRequestParameters(request);
-        
+
         // Make request
-        MetocForecastResponse res = (MetocForecastResponse)makeRequest("/api/xml/routeMetoc", "dk.frv.enav.common.xml.metoc.request", "dk.frv.enav.common.xml.metoc.response", request);
-        
+        MetocForecastResponse res = (MetocForecastResponse) makeRequest(
+                "/api/xml/routeMetoc", "dk.frv.enav.common.xml.metoc.request",
+                "dk.frv.enav.common.xml.metoc.response", request);
+
         return res.getMetocForecast();
     }
-    
-    private void addRequestParameters(ShoreServiceRequest request) {        
+
+    private void addRequestParameters(ShoreServiceRequest request) {
         if (aisHandler != null && aisHandler.getOwnShip() != null) {
             request.setMmsi(aisHandler.getOwnShip().getMmsi());
             if (aisHandler.getOwnShip().getPositionData() != null) {
-                PositionReport posReport = convertPositionReport(aisHandler.getOwnShip().getPositionData());
+                PositionReport posReport = convertPositionReport(aisHandler
+                        .getOwnShip().getPositionData());
                 if (posReport != null) {
                     request.setPositionReport(posReport);
                 }
-            }            
+            }
         }
-    
+
     }
-    
-    private ShoreServiceResponse makeRequest(String uri, String reqContextPath, String resContextPath, Object request) throws ShoreServiceException {
+
+    private ShoreServiceResponse makeRequest(String uri, String reqContextPath,
+            String resContextPath, Object request) throws ShoreServiceException {
         // Create HTTP request
         ShoreHttp shoreHttp = new ShoreHttp(uri, enavSettings);
         // Init HTTP
-        shoreHttp.init();        
+        shoreHttp.init();
         // Set content
         try {
             shoreHttp.setXmlMarshalContent(reqContextPath, request);
         } catch (Exception e) {
             e.printStackTrace();
             LOG.error("Failed to make XML request: " + e.getMessage());
-            throw new ShoreServiceException(ShoreServiceErrorCode.INTERNAL_ERROR);
+            throw new ShoreServiceException(
+                    ShoreServiceErrorCode.INTERNAL_ERROR);
         }
-        
+
         // Make request
         try {
             shoreHttp.makeRequest();
@@ -264,63 +282,66 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
             status.markContactError(e);
             throw e;
         }
-        
+
         ShoreServiceResponse res;
         try {
             Object resObj = shoreHttp.getXmlUnmarshalledContent(resContextPath);
-            res = (ShoreServiceResponse)resObj;
+            res = (ShoreServiceResponse) resObj;
         } catch (Exception e) {
             e.printStackTrace();
             LOG.error("Failed to unmarshal XML response: " + e.getMessage());
-            throw new ShoreServiceException(ShoreServiceErrorCode.INVALID_RESPONSE);
+            throw new ShoreServiceException(
+                    ShoreServiceErrorCode.INVALID_RESPONSE);
         }
-                
+
         // Set last fail/contact
         status.markContactSuccess();
-        
-        // Report if an error response  
+
+        // Report if an error response
         if (res.getErrorCode() != 0) {
-            throw new ShoreServiceException(ShoreServiceErrorCode.SERVICE_ERROR, res.getErrorMessage());
+            throw new ShoreServiceException(
+                    ShoreServiceErrorCode.SERVICE_ERROR, res.getErrorMessage());
         }
-        
+
         return res;
     }
-        
+
     @Override
     public void findAndInit(Object obj) {
         if (aisHandler == null && obj instanceof AisHandler) {
-            aisHandler = (AisHandler)obj;
+            aisHandler = (AisHandler) obj;
         }
         if (gpsHandler == null && obj instanceof GpsHandler) {
-            gpsHandler = (GpsHandler)obj;
+            gpsHandler = (GpsHandler) obj;
         }
     }
-    
+
     @Override
     public void findAndUndo(Object obj) {
         if (obj == aisHandler) {
             aisHandler = null;
         } else if (obj == gpsHandler) {
             gpsHandler = null;
-        }        
+        }
     }
-    
+
     @Override
     public ComponentStatus getStatus() {
         return status;
     }
-    
-    
-    @SuppressWarnings("rawtypes")
-    public RouteResponse makeMonaLisaRouteRequest(RouteRequest monaLisaRoute){
-        
+
+    @SuppressWarnings({ "rawtypes", "unused" })
+    public SSPAResponse makeMonaLisaRouteRequest(
+            RouterequestType monaLisaRoute, int timeout, boolean showInput,
+            boolean showOutput) {
+
         JAXBContext context = null;
         String xmlReturnRoute = "";
 
         String xml = "";
 
         try {
-            context = JAXBContext.newInstance(RouteRequest.class);
+            context = JAXBContext.newInstance(RouterequestType.class);
             Marshaller m = context.createMarshaller();
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
             m.setProperty(Marshaller.JAXB_ENCODING, ENCODING);
@@ -330,16 +351,43 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
             m.marshal(monaLisaRoute, st);
             xml = st.toString();
 
-            xml = xml.replace("ns1:", "");
+            xml = xml
+                    .replace(
+                            "<ns2:RouteRequest xmlns:ns2=\"http://www.sspa.se/optiroute\"",
+                            "<RouteRequest xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\"");
+            xml = xml
+                    .replace(
+                            "xmlns=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">",
+                            "xmlns=\"http://www.sspa.se/optiroute\">");
 
             xml = xml.replace("ns2:", "");
+            xml = xml.replace(":ns2", "");
+            xml = xml.replace(":ns2", "");
+
+            xml = xml.replace("waypoints>", "fi:waypoints>");
+            xml = xml.replace("waypoint>", "fi:waypoint>");
+
+            xml = xml.replace("wpt-id", "fi:wpt-id");
+            xml = xml.replace("ETA", "fi:ETA");
+            xml = xml.replace("wpt-name", "fi:wpt-name");
+            xml = xml.replace("position", "fi:position");
+            xml = xml.replace("latitude", "fi:latitude");
+            xml = xml.replace("longitude", "fi:longitude");
+
+            if (showInput) {
+                new XMLDialog(xml, "Sent XML");
+            }
+            // System.out.println("Sending the following:");
+            // System.out.println(xml);
 
             // Create HTTP request
             RouteHttp routeHttp = new RouteHttp(enavSettings);
             // Init HTTP
-            routeHttp.init();
+            routeHttp.init(timeout);
             // Set content
             routeHttp.setRequestBody(xml);
+
+            // routeHttp.set
             // Make request
             try {
                 routeHttp.makeRequest();
@@ -347,101 +395,74 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
             } catch (Exception e) {
                 // status.markContactError(e);
                 // throw e;
-                System.out.println(e.getMessage());
+                return new SSPAResponse(null, e.getMessage());
             }
-
 
         } catch (JAXBException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            return new SSPAResponse(null, e.getMessage());
         }
-    
-        
-//        System.out.println(xmlReturnRoute);
-        
-        
-        if (xmlReturnRoute != null){
+
+        System.out.println("Recieved the following:");
+        System.out.println(xmlReturnRoute);
+
+        if (showOutput) {
+            new XMLDialog(xmlReturnRoute, "Returned XML");
+        }
+
+        if (xmlReturnRoute
+                .contains("<ErrorResponse xmlns=\"http://www.sspa.se/optiroute\">")) {
+            String errorMessage = xmlReturnRoute
+                    .split("<ErrorResponse xmlns=\"http://www.sspa.se/optiroute\">")[1]
+                    .split("</ErrorResponse>")[0];
             
-        
-        
-        
-        xmlReturnRoute = xmlReturnRoute
-                .replace(
-                        "<RouteResponse",
-                        "<ns1:RouteResponse xmlns:ns1=\"http://www.sspa.se/optiroute\" xmlns:ns2=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\"");
-
-        xmlReturnRoute = xmlReturnRoute.replace("</RouteResponse",
-                "</ns1:RouteResponse");
-
-        xmlReturnRoute = xmlReturnRoute.replace("FuelRequested",
-                "ns1:FuelRequested");
-
-        xmlReturnRoute = xmlReturnRoute.replace("FuelFinal", "ns1:FuelFinal");
-
-        xmlReturnRoute = xmlReturnRoute.replace("Route>", "ns1:Route>");
-
-//        xmlReturnRoute = xmlReturnRoute
-//                .replace(
-//                        " <waypoints xmlns=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\"/>",
-//                        "<ns2:waypoints xmlns=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">");
-
-        xmlReturnRoute = xmlReturnRoute.replace("waypoints",
-                "ns2:waypoints");
-
-        xmlReturnRoute = xmlReturnRoute.replace("waypoint>", "ns2:waypoint>");
-
-        xmlReturnRoute = xmlReturnRoute.replace("wpt-id", "ns2:wpt-id");
-
-        xmlReturnRoute = xmlReturnRoute.replace("ETA", "ns2:ETA");
-
-        xmlReturnRoute = xmlReturnRoute.replace("wpt-name", "ns2:wpt-name");
-
-        xmlReturnRoute = xmlReturnRoute.replace("position", "ns2:position");
-
-        xmlReturnRoute = xmlReturnRoute.replace("latitude", "ns2:latitude");
-
-        xmlReturnRoute = xmlReturnRoute.replace("longitude", "ns2:longitude");
-
-        xmlReturnRoute = xmlReturnRoute.replace("leg-info", "ns2:leg-info");
-
-        xmlReturnRoute = xmlReturnRoute.replace("planned-speed",
-                "ns2:planned-speed");
-
-//        System.out.println(xmlReturnRoute);
-
-        Unmarshaller u;
-        JAXBContext jc;
-        RouteResponse routeResponse = null;
-
-        // xmlReturnRoute = xmlReturnRoute.replace("RouteResponse",
-        // "routeresponseType");
-
-        StringReader sr = new StringReader(xmlReturnRoute);
-
-        try {
-            jc = JAXBContext
-                    .newInstance("dk.frv.enav.ins.route.monalisa.se.sspa.optiroute");
-            u = jc.createUnmarshaller();
-
-            routeResponse = (RouteResponse) ((javax.xml.bind.JAXBElement) u
-                    .unmarshal(sr)).getValue();
-
-        } catch (JAXBException e1) {
-            e1.printStackTrace();
-        }
-
-        
-        return routeResponse;
-        
-        }else{
+            errorMessage.trim();
+            return new SSPAResponse(null, errorMessage);
             
-            return null;
+        } else {
+            if (xmlReturnRoute != null) {
+                if (xmlReturnRoute.length() > 300000) {
+                    System.out
+                            .println("Failed to recieve a route in the area, buffer timedout");
+                    return new SSPAResponse(null,
+                            "Failed to recieve a route in the area, buffer timedout");
+                }
+
+                xmlReturnRoute
+                        .replace(
+                                "<RouteResponse xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\" xmlns=\"http://www.sspa.se/optiroute\">",
+                                "<RouteResponse xmlns=\"http://www.sspa.se/optiroute\" xmlns:ns2=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">");
+
+                xmlReturnRoute.replace("fi", "ns2");
+
+                // System.out.println(xmlReturnRoute);
+
+                Unmarshaller u;
+                JAXBContext jc;
+                RouteresponseType routeResponse = null;
+
+                // xmlReturnRoute = xmlReturnRoute.replace("RouteResponse",
+                // "routeresponseType");
+
+                StringReader sr = new StringReader(xmlReturnRoute);
+
+                try {
+                    jc = JAXBContext.newInstance("dk.dma.epd.ship.route.sspa");
+                    u = jc.createUnmarshaller();
+
+                    routeResponse = (RouteresponseType) ((javax.xml.bind.JAXBElement) u
+                            .unmarshal(sr)).getValue();
+
+                } catch (JAXBException e1) {
+                    e1.printStackTrace();
+                }
+
+                return new SSPAResponse(routeResponse, "Success");
+
+            }
         }
-
-
-        
-
-        
+        // return new SSPAResponse(null, "null error");
+         return null;
     }
-    
+
 }

@@ -33,6 +33,7 @@ import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gui.ais.AisDialog;
 import dk.dma.epd.ship.gui.msi.MsiDialog;
@@ -69,6 +70,10 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
     private final ToggleButtonLabel toggleSafeHaven = new ToggleButtonLabel(
             toolbarIcon("images/toolbar/document-resize-actual.png"));
 
+    
+    private final ToggleButtonLabel navigationMouseMode = new ToggleButtonLabel(toolbarIcon("images/toolbar/zoom.png"));
+    private final ToggleButtonLabel dragMouseMode = new ToggleButtonLabel(
+            toolbarIcon("images/toolbar/drag.png"));
     // private final ToggleButtonLabel tglbtnMsiFilter = new ToggleButtonLabel(
     // "MSI filter");
 
@@ -103,6 +108,9 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         zoomInBtn.setToolTipText("Zoom in : Shortcut Numpad +");
         zoomOutBtn.setToolTipText("Zoom out : Shortcut Numpad -");
         centreBtn.setToolTipText("Centre on ship : Shortcut C");
+        
+        navigationMouseMode.setToolTipText("Navigation Mouse Mode");
+        dragMouseMode.setToolTipText("Drag mouse mode");
 
         autoFollowBtn.setToolTipText("Auto follow own ship");
         setupBtn.setToolTipText("Setup");
@@ -128,6 +136,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
 
         add(zoomInBtn);
         add(zoomOutBtn);
+        add(navigationMouseMode);
+        add(dragMouseMode);
         add(centreBtn);
         add(autoFollowBtn);
         add(setupBtn);
@@ -189,6 +199,12 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         // nogoButton.setSelected(true);
 
         toggleSafeHaven.addMouseListener(this);
+        
+        navigationMouseMode.addMouseListener(this);
+        dragMouseMode.addMouseListener(this);
+        
+        
+        
         updateButtons();
     }
 
@@ -200,6 +216,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         // .isMsiFilter());
         aisToggleName.setSelected(EPDShip.getSettings().getAisSettings().isShowNameLabels());
 
+        navigationMouseMode.setSelected(true);
     }
 
     public void disableAutoFollow() {
@@ -215,10 +232,10 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
     }
 
     public void newRoute() {
-        if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID) {
-            mainFrame.getChartPanel().editMode(true);
+        if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID)  {
+            mainFrame.getChartPanel().setMouseMode(0);
         } else {
-            mainFrame.getChartPanel().editMode(false);
+            mainFrame.getChartPanel().setMouseMode(1);
         }
     }
 
@@ -341,11 +358,11 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
             aisDialog.setVisible(true);
             aisDialog.setSelection(-1, true);
         } else if (e.getSource() == newRouteBtn) {
-            if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID) {
+            if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID) {
                 menuBar.getNewRoute().setSelected(true);
-                mainFrame.getChartPanel().editMode(true);
+                mainFrame.getChartPanel().setMouseMode(0);
             } else {
-                mainFrame.getChartPanel().editMode(false);
+                mainFrame.getChartPanel().setMouseMode(1);
                 menuBar.getNewRoute().setSelected(false);
             }
             // } else if (e.getSource() == nogoButton) {
@@ -356,6 +373,12 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
             aisLayer.toggleAllLabels();
         } else if (e.getSource() == toggleSafeHaven) {
             routeLayer.toggleSafeHaven();
+        } else if (e.getSource() == dragMouseMode) {
+            System.out.println("Drag mouse mode!");
+            mainFrame.getChartPanel().setMouseMode(2);
+        } else if (e.getSource() == navigationMouseMode) {
+            mainFrame.getChartPanel().setMouseMode(1);
+            System.out.println("Nav mouse mode!");
         }
         // else if (e.getSource() == tglbtnMsiFilter) {
         // EeINS.getSettings().getEnavSettings()
@@ -366,6 +389,16 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         // mainFrame.getDockableComponents().toggleFrameLock();
         // }
 
+    }
+
+    
+    
+    public ToggleButtonLabel getNavigationMouseMode() {
+        return navigationMouseMode;
+    }
+
+    public ToggleButtonLabel getDragMouseMode() {
+        return dragMouseMode;
     }
 
     public ButtonLabel getMsiButton() {

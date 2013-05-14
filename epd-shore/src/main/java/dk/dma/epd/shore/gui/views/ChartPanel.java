@@ -17,8 +17,6 @@ package dk.dma.epd.shore.gui.views;
 
 import java.awt.Color;
 import java.awt.Point;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Properties;
@@ -54,15 +52,20 @@ import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
 import dk.dma.epd.shore.layers.route.RouteLayer;
 import dk.dma.epd.shore.layers.routeEdit.RouteEditLayer;
+import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
+import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.layers.wms.WMSLayer;
 import dk.dma.epd.shore.msi.MsiHandler;
+import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.settings.ESDMapSettings;
+import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
+ * 
  * @author David A. Camre (davidcamre@gmail.com)
  */
-public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
+public class ChartPanel extends OMComponentPanel {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
@@ -74,7 +77,9 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
     private Layer encLayer;
     private Layer bgLayer;
     private GeneralLayer generalLayer;
-
+    private MonaLisaHandler monaLisaHandler;
+    
+    
     private NavigationMouseMode mapNavMouseMode;
     private DragMouseMode dragMouseMode;
     private SelectMouseMode selectMouseMode;
@@ -87,19 +92,22 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
     private MsiLayer msiLayer;
     private WMSLayer wmsLayer;
     private RouteLayer routeLayer;
+    private VoyageLayer voyageLayer;
     private RouteEditLayer routeEditLayer;
     private NewRouteContainerLayer newRouteContainerLayer;
+    private VoyageHandlingLayer voyageHandlingLayer;
 
     private MainFrame mainFrame;
     private Color background = new Color(168, 228, 255);
     // private Point2D center;
     // private float scale;
 
-    protected transient ProjectionSupport projectionSupport = new ProjectionSupport(this, false);
+    protected transient ProjectionSupport projectionSupport = new ProjectionSupport(
+            this, false);
 
     /**
      * Constructor
-     *
+     * 
      * @param mainFrame
      *            mainFrame used
      * @param jmapFrame
@@ -124,7 +132,7 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
         // setLayout(new BorderLayout());
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         // Set border
-//        setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        // setBorder(BorderFactory.createLineBorder(Color.GRAY));
         // Max scale
         this.maxScale = EPDShore.getSettings().getMapSettings().getMaxScale();
 
@@ -132,7 +140,7 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
 
     /**
      * Create plugin layers
-     *
+     * 
      * @param props
      *            properties
      */
@@ -166,14 +174,15 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
             } catch (java.lang.ClassNotFoundException e) {
                 LOG.error("Layer class not found: \"" + className + "\"");
             } catch (java.io.IOException e) {
-                LOG.error("IO Exception instantiating class \"" + className + "\"");
+                LOG.error("IO Exception instantiating class \"" + className
+                        + "\"");
             }
         }
     }
 
     /**
      * Change zoom level on map
-     *
+     * 
      * @param factor
      */
     public void doZoom(float factor) {
@@ -182,11 +191,13 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
             newScale = maxScale;
         }
         map.setScale(newScale);
+        forceAisLayerUpdate();
+
     }
 
     /**
      * Set enc visibility
-     *
+     * 
      * @param visible
      */
     public void encVisible(boolean visible) {
@@ -202,15 +213,20 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
 
     /**
      * Return the aisLayer
-     *
+     * 
      * @return aisLayer
      */
     public AisLayer getAisLayer() {
         return aisLayer;
     }
 
+    public void forceAisLayerUpdate() {
+        aisLayer.getAisThread().interrupt();
+    }
+
     /**
      * Return the bg shape layer
+     * 
      * @return bgLayer
      */
     public Layer getBgLayer() {
@@ -219,6 +235,7 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
 
     /**
      * Return the encLayer
+     * 
      * @return
      */
     public Layer getEncLayer() {
@@ -227,6 +244,7 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
 
     /**
      * Return the mapBean
+     * 
      * @return map
      */
     public MapBean getMap() {
@@ -235,6 +253,7 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
 
     /**
      * Return the mapHandler
+     * 
      * @return mapHandler
      */
     public MapHandler getMapHandler() {
@@ -243,6 +262,7 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
 
     /**
      * Return the maxScale set for the map
+     * 
      * @return maxScale
      */
     public int getMaxScale() {
@@ -251,6 +271,7 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
 
     /**
      * Return current mouse delegator
+     * 
      * @return
      */
     public MouseDelegator getMouseDelegator() {
@@ -259,6 +280,7 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
 
     /**
      * Get the msiHandler
+     * 
      * @return msiHandler
      */
     public MsiHandler getMsiHandler() {
@@ -267,6 +289,7 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
 
     /**
      * Return the WMS layer
+     * 
      * @return wmsLayer
      */
     public WMSLayer getWmsLayer() {
@@ -276,39 +299,40 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
     /**
      * Initiate the chart
      */
-    public void initChart() {
+    public void initChart(boolean voyageHandleLayer) {
 
         ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
 
         // this.center = mapSettings.getCenter();
         // this.scale = mapSettings.getScale();
 
-        initChartDefault();
+        initChartDefault(voyageHandleLayer);
 
         // Set last postion
-         map.setCenter(mapSettings.getCenter());
+        map.setCenter(mapSettings.getCenter());
         // System.out.println("Map center set");
 
         // Get from settings
-         map.setScale(mapSettings.getScale());
+        map.setScale(mapSettings.getScale());
 
         add(map);
-
-        getMap().addMouseWheelListener(this);
 
     }
 
     /**
      * Initiate the chart with a specific center and zoom scale
-     * @param center map center
-     * @param scale zoom scale
+     * 
+     * @param center
+     *            map center
+     * @param scale
+     *            zoom scale
      */
     public void initChart(Point2D center, float scale) {
 
         // this.center = center;
         // this.scale = scale;
         //
-        initChartDefault();
+        initChartDefault(false);
 
         // Get from settings
         map.setCenter(center);
@@ -316,13 +340,13 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
 
         add(map);
 
-        getMap().addMouseWheelListener(this);
     }
 
     /**
      * Initiate the default map values - must be called by a chart
+     * @param voyageLayer2 
      */
-    public void initChartDefault() {
+    public void initChartDefault(boolean voyageHandleLayer) {
         Properties props = EPDShore.getProperties();
 
         map = new BufferedLayerMapBean();
@@ -392,10 +416,6 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
 
-        // Add AIS Layer
-        aisLayer = new AisLayer();
-        aisLayer.setVisible(true);
-        mapHandler.add(aisLayer);
 
         // Add MSI Layer
         msiLayer = new MsiLayer();
@@ -406,6 +426,33 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
         routeLayer = new RouteLayer();
         routeLayer.setVisible(true);
         mapHandler.add(routeLayer);
+        
+
+        
+        
+        if (voyageHandleLayer){
+            voyageHandlingLayer = new VoyageHandlingLayer();   
+            voyageHandlingLayer.setVisible(true);
+            mapHandler.add(voyageHandlingLayer);
+            
+            // Add Voyage Layer
+            voyageLayer = new VoyageLayer(true);
+            voyageLayer.setVisible(true);
+            mapHandler.add(voyageLayer);
+            
+            
+        }else{
+            // Add Voyage Layer
+            voyageLayer = new VoyageLayer();
+            voyageLayer.setVisible(true);
+            mapHandler.add(voyageLayer);
+        }
+
+        
+        // Add AIS Layer
+        aisLayer = new AisLayer();
+        aisLayer.setVisible(true);
+        mapHandler.add(aisLayer);
 
         // Create route editing layer
         newRouteContainerLayer = new NewRouteContainerLayer();
@@ -415,11 +462,14 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
         routeEditLayer.setVisible(true);
         mapHandler.add(routeEditLayer);
 
-
         // Create MSI handler
         msiHandler = EPDShore.getMsiHandler();
         mapHandler.add(msiHandler);
 
+        
+        monaLisaHandler = EPDShore.getMonaLisaHandler();
+        mapHandler.add(monaLisaHandler);
+        
         // Create background layer
         String layerName = "background";
         bgLayer = new ShapeLayer();
@@ -434,34 +484,28 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
         // Force a MSI layer update
         msiLayer.doUpdate();
 
-
         // Force a route layer update
         routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
-
+        
+        
+        //Force a voyage layer update
+        voyageLayer.voyagesChanged(VoyageUpdateEvent.VOYAGE_ADDED);
 
         if (wmsLayer.isVisible()) {
-//            System.out.println("wms is visible");
+            // System.out.println("wms is visible");
             bgLayer.setVisible(false);
         }
-
-
+        
+        
 
 
     }
 
     /**
-     * Call auto follow when zooming
-     */
-    @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-
-    }
-
-    /**
-     *
+     * 
      * @param direction
      *            1 == Up 2 == Down 3 == Left 4 == Right
-     *
+     * 
      *            Moving by 100 units in each direction Map center is [745, 445]
      */
     public void pan(int direction) {
@@ -490,6 +534,8 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
         LatLonPoint llp = projection.inverse(point);
         p.setCenter(llp);
         map.setProjection(p);
+
+        forceAisLayerUpdate();
     }
 
     /**
@@ -503,7 +549,9 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
 
     /**
      * Change the mouse mode
-     * @param mode 0 for NavMode, 1 for DragMode, 2 for SelectMode
+     * 
+     * @param mode
+     *            0 for NavMode, 1 for DragMode, 2 for SelectMode
      */
     public void setMouseMode(int mode) {
         // Mode0 is mapNavMouseMode
@@ -528,12 +576,14 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
 
     public void zoomToPoint(Position waypoint) {
         map.setCenter(waypoint.getLatitude(), waypoint.getLongitude());
+
+        forceAisLayerUpdate();
     }
 
     /**
      * Given a set of points scale and center so that all points are contained
      * in the view
-     *
+     * 
      * @param waypoints
      */
     public void zoomTo(List<Position> waypoints) {
@@ -542,7 +592,9 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
         }
 
         if (waypoints.size() == 1) {
-            map.setCenter(waypoints.get(0).getLatitude(), waypoints.get(0).getLongitude());
+            map.setCenter(waypoints.get(0).getLatitude(), waypoints.get(0)
+                    .getLongitude());
+            forceAisLayerUpdate();
             return;
         }
 
@@ -569,11 +621,13 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
         double centerLat = (maxLat + minLat) / 2.0;
         double centerLon = (maxLon + minLon) / 2.0;
         map.setCenter(centerLat, centerLon);
+        forceAisLayerUpdate();
 
     }
 
     /**
      * Get the msi layer
+     * 
      * @return get the chartpanels msi layer
      */
     public MsiLayer getMsiLayer() {
@@ -592,6 +646,15 @@ public class ChartPanel extends OMComponentPanel implements MouseWheelListener {
         return newRouteContainerLayer;
     }
 
+    public VoyageLayer getVoyageLayer() {
+        return voyageLayer;
+    }
 
+    public VoyageHandlingLayer getVoyageHandlingLayer() {
+        return voyageHandlingLayer;
+    }
 
+    
+    
+    
 }

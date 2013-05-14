@@ -93,6 +93,7 @@ public class AisHandler extends MapHandlerChild implements IAisListener,
     private Map<Long, VesselTarget> vesselTargets = new HashMap<>();
     private Map<Long, SarTarget> sarTargets = new HashMap<>();
     private List<IAisTargetListener> listeners = new ArrayList<>();
+    
     private List<IAisRouteSuggestionListener> suggestionListeners = new ArrayList<>();
     private VesselTarget ownShip = new VesselTarget();
     private double aisRange;
@@ -505,7 +506,7 @@ public class AisHandler extends MapHandlerChild implements IAisListener,
      * 
      * @param aisTarget
      */
-    private synchronized void publishUpdate(AisTarget aisTarget) {
+    public synchronized void publishUpdate(AisTarget aisTarget) {
         for (IAisTargetListener listener : listeners) {
             listener.targetUpdated(aisTarget);
         }
@@ -701,40 +702,10 @@ public class AisHandler extends MapHandlerChild implements IAisListener,
         List<AisMessageExtended> list = new ArrayList<>();
 
         if (this.getVesselTargets() != null) {
-            Position ownPosition;
-            double hdg = -1;
-            Position targetPosition = null;
-
+            
             for (Long key : this.getVesselTargets().keySet()) {
-                String name = " N/A";
-                String dst = "N/A";
                 VesselTarget currentTarget = this.getVesselTargets().get(key);
-
-                if (currentTarget.getStaticData() != null) {
-                    name = " "
-                            + AisMessage.trimText(this.getVesselTargets()
-                                    .get(key).getStaticData().getName());
-                }
-                if (!EPDShip.getGpsHandler().getCurrentData().isBadPosition()) {
-                    ownPosition = EPDShip.getGpsHandler().getCurrentData()
-                            .getPosition();
-
-                    if (currentTarget.getPositionData().getPos() != null) {
-                        targetPosition = this.getVesselTargets().get(key)
-                                .getPositionData().getPos();
-                        NumberFormat nf = NumberFormat.getInstance();
-                        nf.setMaximumFractionDigits(2);
-                        dst = nf.format(Converter.metersToNm(ownPosition
-                                .rhumbLineDistanceTo(targetPosition))) + " NM";
-
-                    }
-                }
-                hdg = currentTarget.getPositionData().getCog();
-
-                // System.out.println("Key: " + key + ", Value: " +
-                // this.getVesselTargets().get(key));
-                AisMessageExtended newEntry = new AisMessageExtended(name, key,
-                        hdg, dst);
+                AisMessageExtended newEntry = this.getShip(currentTarget);
 
                 if (!this.getVesselTargets().get(key).isGone()) {
                     list.add(newEntry);
@@ -742,6 +713,46 @@ public class AisHandler extends MapHandlerChild implements IAisListener,
             }
         }
         return list;
+    }
+    
+    /**
+     * Get AisMessageExtended for a single VesselTarget
+     * @param currentTarget
+     * @return
+     */
+    public AisMessageExtended getShip(VesselTarget currentTarget) {
+        String name = " N/A";
+        String dst = "N/A";
+        Position ownPosition;
+        double hdg = -1;
+        Position targetPosition = null;
+        
+        if (currentTarget.getStaticData() != null) {
+            name = " "
+                    + AisMessage.trimText(currentTarget.getStaticData().getName());
+        }
+        if (!EPDShip.getGpsHandler().getCurrentData().isBadPosition()) {
+            ownPosition = EPDShip.getGpsHandler().getCurrentData()
+                    .getPosition();
+
+            if (currentTarget.getPositionData().getPos() != null) {
+                targetPosition = currentTarget.getPositionData().getPos();
+                NumberFormat nf = NumberFormat.getInstance();
+                nf.setMaximumFractionDigits(2);
+                dst = nf.format(Converter.metersToNm(ownPosition
+                        .rhumbLineDistanceTo(targetPosition))) + " NM";
+
+            }
+        }
+        hdg = currentTarget.getPositionData().getCog();
+
+        // System.out.println("Key: " + key + ", Value: " +
+        // this.getVesselTargets().get(key));
+        AisMessageExtended newEntry = new AisMessageExtended(name, currentTarget.getMmsi(),
+                hdg, dst);
+        
+        return newEntry;
+
     }
 
     /**

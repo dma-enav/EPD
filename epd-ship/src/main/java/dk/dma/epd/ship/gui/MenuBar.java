@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.ship.gui;
 
-import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,7 +36,6 @@ import java.util.Properties;
 
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -85,7 +83,8 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
     private JMenu dockableMenu;
 
     private JMenu layouts;
-    private boolean fullscreenState;
+
+    // private boolean fullscreenState;
 
     public MenuBar() {
         super();
@@ -101,31 +100,17 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
         // Create a menu item
         JMenuItem fullscreen = new JMenuItem("Fullscreen");
         file.add(fullscreen);
-        fullscreen.setIcon(toolbarIcon("images/toolbar/application-resize.png"));
+        fullscreen
+                .setIcon(toolbarIcon("images/toolbar/application-resize.png"));
 
         fullscreen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                if (!fullscreenState) {
-                    mainFrame.setVisible(false);
-                    mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-                    mainFrame.dispose();
-                    mainFrame.setUndecorated(true);
-                    // setVisible(true);
-                    mainFrame.setVisible(true);
-                    fullscreenState = true;
+                if (EPDShip.getSettings().getGuiSettings().isFullscreen()) {
+                    mainFrame.doNormal();
                 } else {
-
-                    mainFrame.setVisible(false);
-                    mainFrame.setExtendedState(JFrame.NORMAL);
-
-                    fullscreenState = false;
-                    mainFrame.setSize(new Dimension(1000, 700));
-
-                    mainFrame.dispose();
-                    mainFrame.setUndecorated(false);
-                    mainFrame.setVisible(true);
+                    mainFrame.doFullScreen();
                 }
             }
 

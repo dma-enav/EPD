@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -39,6 +40,8 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.PropertyConsumer;
 
+import dk.dma.enav.communication.PersistentConnection;
+import dk.dma.enav.communication.PersistentConnection.State;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
@@ -50,15 +53,15 @@ import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.route.RouteManagerDialog;
+import dk.dma.epd.ship.monalisa.MonaLisaHandler;
+import dk.dma.epd.ship.monalisa.MonaLisaRouteOptimizaton;
 import dk.dma.epd.ship.msi.MsiHandler;
 import dk.dma.epd.ship.nogo.DynamicNogoHandler;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.risk.RiskHandler;
-import dk.dma.epd.ship.route.MonaLisaRouteExchange;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.EnavServiceHandler;
 import dk.dma.epd.ship.service.communication.ais.AisServices;
-import dk.dma.epd.ship.service.communication.enavcloud.EnavCloudHandler;
 import dk.dma.epd.ship.service.communication.webservice.ShoreServices;
 import dk.dma.epd.ship.settings.EPDSensorSettings;
 import dk.dma.epd.ship.settings.EPDSettings;
@@ -76,7 +79,7 @@ public class EPDShip {
     private static String VERSION;
     private static String MINORVERSION;
     private static Logger LOG;
-     static MainFrame mainFrame;
+    static MainFrame mainFrame;
     private static MapHandler mapHandler;
     private static EPDSettings settings;
     static Properties properties = new Properties();
@@ -87,19 +90,20 @@ public class EPDShip {
     private static RiskHandler riskHandler;
     private static RouteManager routeManager;
     private static ShoreServices shoreServices;
-    private static MonaLisaRouteExchange monaLisaRouteExchange;
+    private static MonaLisaHandler monaLisaHandler;
+    private static MonaLisaRouteOptimizaton monaLisaRouteExchange;
     private static AisServices aisServices;
     private static MsiHandler msiHandler;
     private static NogoHandler nogoHandler;
     private static EnavServiceHandler enavServiceHandler;
-    private static EnavCloudHandler enavCloudHandler;
     private static DynamicNogoHandler dynamicNoGoHandler;
     private static UpdateCheckerThread updateThread;
     private static ExceptionHandler exceptionHandler;
-    private static  Path home = Paths.get(System.getProperty("user.home"), ".epd-ship");
+    private static Path home = Paths.get(System.getProperty("user.home"),
+            ".epd-ship");
 
     public static void main(String[] args) throws IOException {
-       
+
         new Bootstrap().run();
 
         // Set up log4j logging
@@ -111,7 +115,8 @@ public class EPDShip {
         // Determine version
         Package p = EPDShip.class.getPackage();
         MINORVERSION = p.getImplementationVersion();
-        LOG.info("Starting eNavigation Prototype Display Ship - version " + MINORVERSION);
+        LOG.info("Starting eNavigation Prototype Display Ship - version "
+                + MINORVERSION);
         LOG.info("Copyright (C) 2011 Danish Maritime Authority");
         LOG.info("This program comes with ABSOLUTELY NO WARRANTY.");
         LOG.info("This is free software, and you are welcome to redistribute it under certain conditions.");
@@ -131,18 +136,23 @@ public class EPDShip {
             settings = new EPDSettings(args[0]);
         } else {
 
-            settings = new EPDSettings(home.resolve("settings.properties").toString());
+            settings = new EPDSettings(home.resolve("settings.properties")
+                    .toString());
         }
         LOG.info("Using settings file: " + settings.getSettingsFile());
         settings.loadFromFile();
         mapHandler.add(settings);
 
         // Determine if instance already running and if that is allowed
-        OneInstanceGuard guard = new OneInstanceGuard(home.resolve("eeins.lock").toString());
-        if (!settings.getGuiSettings().isMultipleInstancesAllowed() && guard.isAlreadyRunning()) {
-            JOptionPane.showMessageDialog(null,
-                    "One application instance already running. Stop instance or restart computer.", "Error",
-                    JOptionPane.ERROR_MESSAGE);
+        OneInstanceGuard guard = new OneInstanceGuard(home
+                .resolve("eeins.lock").toString());
+        if (!settings.getGuiSettings().isMultipleInstancesAllowed()
+                && guard.isAlreadyRunning()) {
+            JOptionPane
+                    .showMessageDialog(
+                            null,
+                            "One application instance already running. Stop instance or restart computer.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
         }
 
@@ -174,7 +184,7 @@ public class EPDShip {
         mapHandler.add(shoreServices);
 
         // Create mona lisa route exchange
-        monaLisaRouteExchange = new MonaLisaRouteExchange();
+        monaLisaRouteExchange = new MonaLisaRouteOptimizaton();
         mapHandler.add(monaLisaRouteExchange);
 
         // Create AIS services
@@ -191,16 +201,22 @@ public class EPDShip {
 
         // Create dynamic NoGo handler
         // Create NoGo handler
-        dynamicNoGoHandler = new DynamicNogoHandler(getSettings().getEnavSettings());
+        dynamicNoGoHandler = new DynamicNogoHandler(getSettings()
+                .getEnavSettings());
         mapHandler.add(dynamicNoGoHandler);
 
         // Create EnavServiceHandler
-        enavServiceHandler = new EnavServiceHandler();
+        enavServiceHandler = new EnavServiceHandler(getSettings()
+                .getEnavSettings());
         mapHandler.add(enavServiceHandler);
+        enavServiceHandler.start();
 
-        // Create enav cloud handler
-        enavCloudHandler = new EnavCloudHandler(settings.getEnavSettings());
-        mapHandler.add(enavCloudHandler);
+        
+        monaLisaHandler = new MonaLisaHandler();
+        mapHandler.add(monaLisaHandler);
+        // // Create enav cloud handler
+        // enavCloudHandler = new EnavCloudHandler(settings.getEnavSettings());
+        // mapHandler.add(enavCloudHandler);
 
         // Create plugin components
         createPluginComponents();
@@ -220,7 +236,7 @@ public class EPDShip {
         // must be set after logging is enabled
         exceptionHandler = new ExceptionHandler();
     }
-    
+
     public static Path getHomePath() {
         return home;
     }
@@ -232,16 +248,21 @@ public class EPDShip {
             aisSensor = new NmeaStdinSensor();
             break;
         case TCP:
-            aisSensor = new NmeaTcpSensor(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisTcpPort());
+            aisSensor = new NmeaTcpSensor(
+                    sensorSettings.getAisHostOrSerialPort(),
+                    sensorSettings.getAisTcpPort());
             break;
         case SERIAL:
-            aisSensor = new NmeaSerialSensor(sensorSettings.getAisHostOrSerialPort());
+            aisSensor = new NmeaSerialSensor(
+                    sensorSettings.getAisHostOrSerialPort());
             break;
         case FILE:
-            aisSensor = new NmeaFileSensor(sensorSettings.getAisFilename(), sensorSettings);
+            aisSensor = new NmeaFileSensor(sensorSettings.getAisFilename(),
+                    sensorSettings);
             break;
         default:
-            LOG.error("Unknown sensor connection type: " + sensorSettings.getAisConnectionType());
+            LOG.error("Unknown sensor connection type: "
+                    + sensorSettings.getAisConnectionType());
         }
 
         if (aisSensor != null) {
@@ -253,19 +274,24 @@ public class EPDShip {
             gpsSensor = new NmeaStdinSensor();
             break;
         case TCP:
-            gpsSensor = new NmeaTcpSensor(sensorSettings.getGpsHostOrSerialPort(), sensorSettings.getGpsTcpPort());
+            gpsSensor = new NmeaTcpSensor(
+                    sensorSettings.getGpsHostOrSerialPort(),
+                    sensorSettings.getGpsTcpPort());
             break;
         case SERIAL:
-            gpsSensor = new NmeaSerialSensor(sensorSettings.getGpsHostOrSerialPort());
+            gpsSensor = new NmeaSerialSensor(
+                    sensorSettings.getGpsHostOrSerialPort());
             break;
         case FILE:
-            gpsSensor = new NmeaFileSensor(sensorSettings.getGpsFilename(), sensorSettings);
+            gpsSensor = new NmeaFileSensor(sensorSettings.getGpsFilename(),
+                    sensorSettings);
             break;
         case AIS_SHARED:
             gpsSensor = aisSensor;
             break;
         default:
-            LOG.error("Unknown sensor connection type: " + sensorSettings.getAisConnectionType());
+            LOG.error("Unknown sensor connection type: "
+                    + sensorSettings.getAisConnectionType());
         }
 
         if (gpsSensor != null) {
@@ -294,7 +320,8 @@ public class EPDShip {
     }
 
     static void loadProperties() {
-        InputStream in = EPDShip.class.getResourceAsStream("/epd-ship.properties");
+        InputStream in = EPDShip.class
+                .getResourceAsStream("/epd-ship.properties");
         try {
             if (in == null) {
                 throw new IOException("Properties file not found");
@@ -324,7 +351,8 @@ public class EPDShip {
 
     private static void makeKeyBindings() {
         JPanel content = (JPanel) mainFrame.getContentPane();
-        InputMap inputMap = content.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        InputMap inputMap = content
+                .getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         @SuppressWarnings("serial")
         Action zoomIn = new AbstractAction() {
@@ -363,7 +391,8 @@ public class EPDShip {
         Action routes = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                RouteManagerDialog routeManagerDialog = new RouteManagerDialog(mainFrame);
+                RouteManagerDialog routeManagerDialog = new RouteManagerDialog(
+                        mainFrame);
                 routeManagerDialog.setVisible(true);
             }
         };
@@ -414,17 +443,36 @@ public class EPDShip {
             }
         };
 
-        inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ADD, 0), "ZoomIn");
-        inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_SUBTRACT, 0), "ZoomOut");
-        inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, 0), "centre");
-        inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_UP, 0), "panUp");
-        inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DOWN, 0), "panDown");
-        inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_LEFT, 0), "panLeft");
-        inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_RIGHT, 0), "panRight");
-        inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_KP_UP, 0), "panUp");
-        inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_KP_DOWN, 0), "panDown");
-        inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_KP_LEFT, 0), "panLeft");
-        inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_KP_RIGHT, 0), "panRight");
+        inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ADD, 0),
+                "ZoomIn");
+        inputMap.put(
+                KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_SUBTRACT, 0),
+                "ZoomOut");
+        inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, 0),
+                "centre");
+        inputMap.put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_UP, 0),
+                "panUp");
+        inputMap.put(
+                KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_DOWN, 0),
+                "panDown");
+        inputMap.put(
+                KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_LEFT, 0),
+                "panLeft");
+        inputMap.put(
+                KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_RIGHT, 0),
+                "panRight");
+        inputMap.put(
+                KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_KP_UP, 0),
+                "panUp");
+        inputMap.put(
+                KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_KP_DOWN, 0),
+                "panDown");
+        inputMap.put(
+                KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_KP_LEFT, 0),
+                "panLeft");
+        inputMap.put(
+                KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_KP_RIGHT, 0),
+                "panRight");
         inputMap.put(KeyStroke.getKeyStroke("control N"), "newRoute");
         inputMap.put(KeyStroke.getKeyStroke("control R"), "routes");
         inputMap.put(KeyStroke.getKeyStroke("control M"), "msi");
@@ -459,13 +507,31 @@ public class EPDShip {
 
     public static void closeApp(boolean restart) {
         // Shutdown routine
+
+        PersistentConnection connection = enavServiceHandler.getConnection();
+
+        if (connection != null) {
+            connection.close();
+        }
+
         mainFrame.saveSettings();
         settings.saveToFile();
         routeManager.saveToFile();
         msiHandler.saveToFile();
         aisHandler.saveView();
+
+        if (connection != null) {
+            try {
+                enavServiceHandler.getConnection().awaitState(State.TERMINATED,
+                        2, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                LOG.info("Failed to close connection - Terminatnig");
+            }
+        }
+
         LOG.info("Closing ee-INS");
         System.exit(restart ? 2 : 0);
+
     }
 
     private static void createPluginComponents() {
@@ -491,7 +557,8 @@ public class EPDShip {
                 }
                 mapHandler.add(obj);
             } catch (IOException e) {
-                LOG.error("IO Exception instantiating class \"" + className + "\"");
+                LOG.error("IO Exception instantiating class \"" + className
+                        + "\"");
             } catch (ClassNotFoundException e) {
                 LOG.error("Component class not found: \"" + className + "\"");
             }
@@ -546,10 +613,14 @@ public class EPDShip {
         return shoreServices;
     }
 
-    public static MonaLisaRouteExchange getMonaLisaRouteExchange() {
+    public static MonaLisaRouteOptimizaton getMonaLisaRouteExchange() {
         return monaLisaRouteExchange;
     }
-
+    
+    
+    public static EnavServiceHandler getEnavServiceHandler() {
+        return enavServiceHandler;
+    }
 
     public static Thread startThread(Runnable t, String name) {
         Thread thread = new Thread(t);
@@ -567,4 +638,13 @@ public class EPDShip {
         return riskHandler;
     }
 
+    /**
+     * @return the monaLisaHandler
+     */
+    public static MonaLisaHandler getMonaLisaHandler() {
+        return monaLisaHandler;
+    }
+
+    
+    
 }

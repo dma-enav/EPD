@@ -18,7 +18,7 @@ package dk.dma.epd.shore.ais;
 public interface AISRouteExchangeListener {
 
     /**
-     * MSI messages has changed
+     * AIS messages has changed
      */
     void aisUpdate();
 

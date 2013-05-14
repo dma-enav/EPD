@@ -19,6 +19,7 @@ import javax.swing.JMenuItem;
 
 import com.bbn.openmap.MouseDelegator;
 
+import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gui.MainFrame;
 
@@ -38,10 +39,10 @@ public class GeneralNewRoute extends JMenuItem implements IMapMenuAction {
     
     @Override
     public void doAction() {
-        if(mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID){
-            mainFrame.getChartPanel().editMode(true);
+        if(mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID){
+            mainFrame.getChartPanel().setMouseMode(0);
         } else {
-            mainFrame.getChartPanel().editMode(false);
+            mainFrame.getChartPanel().setMouseMode(1);
         }
     }
 

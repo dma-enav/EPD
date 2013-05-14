@@ -16,10 +16,14 @@
 package dk.dma.epd.ship.gui.ais;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
+import javax.swing.SwingWorker;
 import javax.swing.table.AbstractTableModel;
 
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.ais.AisHandler.AisMessageExtended;
 
@@ -28,33 +32,72 @@ import dk.dma.epd.ship.ais.AisHandler.AisMessageExtended;
  */
 public class AisTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
-    
-    private static final String[] COLUMN_NAMES = {"Name", "MMSI", "HDG", "DST"};
-    
+
+    private static final String[] COLUMN_NAMES = { "Name", "MMSI", "HDG", "DST" };
+
     private AisHandler aisHandler;
-    private List<AisHandler.AisMessageExtended> ships;
-    
-    
+    private List<AisMessageExtended> ships;
+    private ConcurrentLinkedQueue<VesselTarget> queue;
+
+    private UpdateShipQueueWorker worker;
+
     public AisTableModel(AisHandler aisHandler) {
         super();
         this.aisHandler = aisHandler;
+
+        ships = new ArrayList<AisHandler.AisMessageExtended>();
+        queue = new ConcurrentLinkedQueue<VesselTarget>();
+
+        worker = new UpdateShipQueueWorker(this, this.queue);
+        worker.execute();
+
     }
-    
-    public void updateShips() {
-        //Get new list from store/handler
-        ships = aisHandler.getShipList();
+
+    public void queueShip(VesselTarget vesselTarget) {
+        queue.add(vesselTarget);
     }
-    
+
+    public synchronized void updateShips() {
+        List<AisMessageExtended> shipsList = aisHandler.getShipList();
+
+        ships.clear();
+        ships.addAll(shipsList);
+        fireTableDataChanged();
+
+    }
+
+    public synchronized void updateShip(VesselTarget aisTarget) {
+        // still takes O(n), but only updates a single target
+
+        final Long mmsi = aisTarget.getMmsi();
+        int count = 0;
+        List<AisMessageExtended> ships = getShips();
+        for (AisMessageExtended ship : ships) {
+            if (mmsi == ship.MMSI) {
+                AisMessageExtended s = aisHandler.getShip(aisTarget);
+                ships.set(count, s);
+                fireTableRowsUpdated(count, count);
+                return;
+            }
+            count++;
+        }
+
+        // if ship was not found in the list, add it
+        this.addRow(aisTarget);
+
+    }
+
+    private void addRow(VesselTarget aisTarget) {
+        AisMessageExtended s = aisHandler.getShip(aisTarget);
+        this.ships.add(s);
+        fireTableRowsInserted(ships.size() - 1, ships.size() - 1);
+
+    }
+
     public List<AisMessageExtended> getShips() {
-        if (ships != null) {
         return ships;
-        }
-        else{
-            //updateShips();
-            return ships;
-        }
     }
-    
+
     @Override
     public String getColumnName(int column) {
         return COLUMN_NAMES[column];
@@ -67,11 +110,8 @@ public class AisTableModel extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-        if (ships == null) {
-            updateShips();
-        }
         return ships.size();
-        //return 0;
+        // return 0;
     }
 
     @Override
@@ -82,35 +122,66 @@ public class AisTableModel extends AbstractTableModel {
         }
         return value.getClass();
     }
-    
+
     @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
+    public synchronized Object getValueAt(int rowIndex, int columnIndex) {
+
         if (rowIndex >= ships.size()) {
             return null;
-        }            
-        
+        }
+
         AisMessageExtended ship = ships.get(rowIndex);
 
         switch (columnIndex) {
         case 0:
-            //return "Name"; 
+            // return "Name";
             return ship.name;
         case 1:
-            //return "MMSI";
+            // return "MMSI";
             return ship.MMSI;
         case 2:
-            //return "???";
+            // return "???";
             return ship.hdg;
         case 3:
-              NumberFormat nf = NumberFormat.getInstance();  
-              nf.setMaximumFractionDigits(2);// set as you need  
-              //String dst = nf.format(ship.dst);  
+            NumberFormat nf = NumberFormat.getInstance();
+            nf.setMaximumFractionDigits(2);// set as you need
+            // String dst = nf.format(ship.dst);
             return ship.dst;
-            //return "DST";
+            // return "DST";
         default:
             return "";
-                
+
         }
+
     }
-    
+
+    class UpdateShipQueueWorker extends SwingWorker<Void, Void> {
+        private AisTableModel model;
+        private ConcurrentLinkedQueue<VesselTarget> queue;
+
+        UpdateShipQueueWorker(AisTableModel model,
+                ConcurrentLinkedQueue<VesselTarget> queue) {
+            this.model = model;
+            this.queue = queue;
+        }
+
+        @Override
+        protected Void doInBackground() throws Exception {
+            while (true) {
+                VesselTarget vt = this.queue.poll();
+
+                if (vt == null) {
+                    // System.out.println("DONE WITH QUEUE");
+                    Thread.sleep(2000);
+
+                } else {
+                    // System.out.println(this.queue.size());
+                    assert this.queue.size() < 2000;
+                    this.model.updateShip(vt);
+                }
+            }
+        }
+
+    }
+
 }

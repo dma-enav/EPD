@@ -17,8 +17,8 @@ package dk.dma.epd.ship.gui.menuitems;
 
 import javax.swing.JMenuItem;
 
-import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
+import dk.dma.epd.ship.monalisa.RecievedRoute;
 
 public class SuggestedRouteDetails extends JMenuItem implements IMapMenuAction {
     
@@ -26,7 +26,7 @@ public class SuggestedRouteDetails extends JMenuItem implements IMapMenuAction {
      * 
      */
     private static final long serialVersionUID = 1L;
-    AisAdressedRouteSuggestion suggestedRoute;
+    RecievedRoute suggestedRoute;
     RouteSuggestionDialog routeSuggestionDialog;
     
     public SuggestedRouteDetails(String text) {
@@ -39,7 +39,7 @@ public class SuggestedRouteDetails extends JMenuItem implements IMapMenuAction {
         routeSuggestionDialog.showSuggestion(suggestedRoute);
     }
     
-    public void setSuggestedRoute(AisAdressedRouteSuggestion suggestedRoute) {
+    public void setSuggestedRoute(RecievedRoute suggestedRoute) {
         this.suggestedRoute = suggestedRoute;
     }
     

@@ -22,6 +22,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -34,8 +35,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
-import javax.swing.RowSorter;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -77,6 +78,8 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
     private ListSelectionModel aisSelectionModel;
     
     private JPanel detailsPanel;
+    
+    
     
     public AisDialog(Window parent) {
         super();
@@ -162,13 +165,49 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         aisTableModel = new AisTableModel(aisHandler);        
 
         aisTable.setModel(aisTableModel);
+        
         aisSelectionModel = aisTable.getSelectionModel();
         aisTable.setSelectionModel(aisSelectionModel);
 
         //        aisTable.setAutoCreateRowSorter(true);
         TableRowSorter<TableModel> sorter 
         = new TableRowSorter<>(aisTable.getModel());
-        aisTable.setRowSorter(sorter);        
+        
+        //
+        sorter.setComparator(3, new Comparator<String>() {
+
+            @Override
+            public int compare(String o1, String o2) {
+                try {
+                    Float l1 = Float.parseFloat(o1.split(" ")[0].replace(".","").replace(",","."));
+                    Float l2 = Float.parseFloat(o2.split(" ")[0].replace(".","").replace(",","."));
+                    
+                    if (l1 < l2) {
+                        return -1;
+                    } else if (l1 == l2) {
+                        return 0;
+                    } else if (l1 > l2) {
+                        return 1;
+                    }
+                    
+                } catch(java.lang.NumberFormatException e) {
+                    //Logger LOG = LoggerFactory.getLogger(Util.class);
+                    //LOG.error("Invalid format: "+o1+" vs "+o2);
+
+                    //fallback to string comparison
+                    return o1.compareTo(o2);
+                }
+                
+
+                return -1;
+            }
+            
+        });
+        
+        sorter.toggleSortOrder(1);
+        sorter.setSortsOnUpdates(true);
+        aisTable.setRowSorter(sorter);
+        
         
         
         
@@ -232,7 +271,6 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
     
     private void updateTable() {
         if (aisTable != null) {
-            RowSorter<?> rs = aisTable.getRowSorter();
             int selectedRow = aisTable.getSelectedRow();
     
             long selectedMMSI = 0L;
@@ -241,9 +279,8 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
             }            
                 
             if (aisTableModel != null) {
-                aisTableModel.updateShips();
-                // Update table
-                aisTableModel.fireTableDataChanged();
+                aisTableModel.updateShips(); //nonblocking background task
+
                 if (selectedRow >= 0 && selectedRow < aisTable.getRowCount()) {
                     setSelected(selectedRow, false);
                 } else {
@@ -253,11 +290,22 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
                     }
                 }
                 updateDetails();
-                rs.allRowsChanged();
                 setSelection(selectedMMSI, false);
             }
         }
     }
+    
+    private void updateTable(final AisTarget aisTarget) {
+        if (aisTable != null) {
+            if (aisTableModel != null) {
+                if (aisTarget instanceof VesselTarget) {
+                    aisTableModel.queueShip((VesselTarget)aisTarget);
+                    
+                }
+            }
+        }
+    }    
+    
     
     private void updateDetails() {
         int selected = aisTable.getSelectedRow();
@@ -269,7 +317,7 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
             }
         }
     }
-    
+        
 //    private void setRiskDetails(RiskList risk) {
 //        if(risk==null){
 //            aisTableDetails.setValueAt("", 19, 1);
@@ -399,13 +447,13 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         }
     }
     
-private boolean compare(Object value1, Object value2){
-    if (value1 != null && value2 != null)
-    {
-        if (value1.toString().equals(value2.toString())){
-            return true;
+    private boolean compare(Object value1, Object value2){
+        if (value1 != null && value2 != null)
+        {
+            if (value1.toString().equals(value2.toString())){
+                return true;
+            }
         }
-    }
     return false;
 }
 
@@ -453,10 +501,20 @@ private boolean compare(Object value1, Object value2){
     }
 
     @Override
-    public void targetUpdated(AisTarget aisTarget) {
+    public void targetUpdated(final AisTarget aisTarget) {
         // Only update table if dialog is visible
         if (isVisible()) {
-            updateTable();
+            if (aisTarget instanceof VesselTarget) {
+
+                SwingUtilities.invokeLater(new Runnable() {
+                        
+                    @Override
+                    public void run() {
+                        updateTable(aisTarget);
+                        
+                    }
+                });
+            }
         }
     }
     

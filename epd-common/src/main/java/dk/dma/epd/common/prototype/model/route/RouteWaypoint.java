@@ -123,6 +123,7 @@ public class RouteWaypoint implements Serializable {
             rot = null;
             return;
         }
+
         this.rot = rot;
         // Calculate radius from fixed speed and rot
         // Speed in nm / minute

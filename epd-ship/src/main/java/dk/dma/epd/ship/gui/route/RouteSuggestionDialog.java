@@ -19,18 +19,22 @@ import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
-import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion.Status;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
@@ -41,6 +45,7 @@ import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.ComponentFrame;
 import dk.dma.epd.ship.gui.MainFrame;
+import dk.dma.epd.ship.monalisa.RecievedRoute;
 import dk.dma.epd.ship.route.RouteManager;
 
 /**
@@ -53,8 +58,9 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
     private RouteManager routeManager;
     private ChartPanel chartPanel;
     private GpsHandler gpsHandler;
-    
-    private AisAdressedRouteSuggestion routeSuggestion;
+
+    private RecievedRoute cloudRouteSuggestion;
+
 
     private JButton acceptBtn;
     private JButton rejectBtn;
@@ -68,6 +74,7 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
     private JPanel replyPanel;
     private JButton hideBtn;
     private JLabel wpInfoLabel;
+    private JTextArea textArea;
     
     public RouteSuggestionDialog(MainFrame mainFrame) {
         super();
@@ -75,7 +82,7 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
         setResizable(false);
         setTitle("AIS Route Suggestion");
         
-        setSize(380, 406);
+        setSize(380, 500);
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         setAlwaysOnTop(true);
         setLocationRelativeTo(mainFrame);        
@@ -85,22 +92,25 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
         new Thread(this).start();
     }
     
-    public void showSuggestion(AisAdressedRouteSuggestion routeSuggestion) {
-        this.routeSuggestion = routeSuggestion;
+    
+    public void showSuggestion(RecievedRoute cloudRouteSuggestion) {
         
-        titleLbl.setText("AIS Addressed route suggestion from MMSI: " + routeSuggestion.getSender());
+        this.cloudRouteSuggestion = cloudRouteSuggestion;
+        
+        titleLbl.setText("Route suggestion from " + cloudRouteSuggestion.getSender());
+        
+        textArea.setText("No message");
         
         StringBuilder str = new StringBuilder();
         str.append("<html>");
         str.append("<table cellpadding='0' cellspacing='3'>");
-        str.append("<tr><td>Received:</td><td>" + Formatter.formatShortDateTime(routeSuggestion.getReceived()) + "</td></tr>");
-        str.append("<tr><td>Status:</td><td>" + formatRouteSuggestioStatus(routeSuggestion.getStatus()) + "</td></tr>");
-        str.append("<tr><td>Type:</td><td>" + Formatter.formatAisRouteType(routeSuggestion.getRouteType()) + "</td></tr>");
-        str.append("<tr><td>ID:</td><td>" + routeSuggestion.getMsgLinkId() + "</td></tr>");
-        str.append("<tr><td>ETA first wp:</td><td>" + Formatter.formatShortDateTime(routeSuggestion.getEtaFirst()) + "</td></tr>");
-        str.append("<tr><td>ETA last wp:</td><td>" + Formatter.formatShortDateTime(routeSuggestion.getEtaLast()) + "</td></tr>");
-        str.append("<tr><td>Duration:</td><td>" + Formatter.formatTime(routeSuggestion.getDuration()) + "</td></tr>");
-        str.append("<tr><td>Avg speed:</td><td>" + Formatter.formatSpeed(routeSuggestion.getSpeed()) + "</td></tr>");
+        str.append("<tr><td>Sent:</td><td>" + cloudRouteSuggestion.getSent()+ "</td></tr>");
+        str.append("<tr><td>Received:</td><td>" + cloudRouteSuggestion.getRecieved()+ "</td></tr>");
+        str.append("<tr><td>Message:</td><td>" + cloudRouteSuggestion.getMessage() + "</td></tr>");
+        str.append("<tr><td>Status:</td><td>" + cloudRouteSuggestion.getStatus() + "</td></tr>");
+        str.append("<tr><td>ID:</td><td>" + cloudRouteSuggestion.getId() + "</td></tr>");
+        str.append("<tr><td>ETA first wp:</td><td>" + Formatter.formatShortDateTime(cloudRouteSuggestion.getRoute().getEtas().get(0)) + "</td></tr>");
+        str.append("<tr><td>ETA last wp:</td><td>" + Formatter.formatShortDateTime(cloudRouteSuggestion.getRoute().getEtas().get(cloudRouteSuggestion.getRoute().getWaypoints().size()-1)) + "</td></tr>");
         str.append("</table>");
         str.append("</html>");
         routeInfoLbl.setText(str.toString());
@@ -134,14 +144,14 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
         StringBuilder str = new StringBuilder();
         str.append("<html><b>DST/BRG/TTG/SPD</b><br/>");
         GpsData gpsData = gpsHandler.getCurrentData();
-        if (gpsData != null && !gpsData.isBadPosition() && routeSuggestion.getWaypoints().size() > 0) {
-            double dst = routeSuggestion.getWaypoints().get(0).rhumbLineDistanceTo(gpsData.getPosition()) / 1852;
+        if (gpsData != null && !gpsData.isBadPosition() && cloudRouteSuggestion.getRoute().getWaypoints().size() > 0) {
+            double dst = cloudRouteSuggestion.getRoute().getWaypoints().get(0).getPos().rhumbLineDistanceTo(gpsData.getPosition()) / 1852;
             str.append(Formatter.formatDistNM(dst));
-            double brg = routeSuggestion.getWaypoints().get(0).rhumbLineBearingTo(gpsData.getPosition());
+            double brg = cloudRouteSuggestion.getRoute().getWaypoints().get(0).getPos().rhumbLineBearingTo(gpsData.getPosition());
             str.append(" / " + Formatter.formatDegrees(brg, 2));
             Long ttg = null;
-            if (routeSuggestion.getEtaFirst() != null) {
-                ttg = routeSuggestion.getEtaFirst().getTime() - GnssTime.getInstance().getDate().getTime();
+            if (cloudRouteSuggestion.getRoute().getEtas().get(0) != null) {
+                ttg = cloudRouteSuggestion.getRoute().getEtas().get(0).getTime() - GnssTime.getInstance().getDate().getTime();
             }
             if (ttg != null && ttg < 0) {
                 ttg = null;
@@ -162,21 +172,21 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
     }
     
     private void updateBtnStatus() {
-        zoomBtn.setEnabled(!routeSuggestion.isHidden());
+        zoomBtn.setEnabled(!cloudRouteSuggestion.isHidden());
         
-        if (routeSuggestion.isHidden()) {        
+        if (cloudRouteSuggestion.isHidden()) {        
             hideBtn.setText("Show");
         } else {
             hideBtn.setText("Hide");
         }
         
-        hideBtn.setVisible(!routeSuggestion.isAcceptable());
+        hideBtn.setVisible(!cloudRouteSuggestion.isAcceptable());
         
-        acceptBtn.setEnabled(routeSuggestion.isAcceptable());
-        rejectBtn.setEnabled(routeSuggestion.isRejectable());
-        notedBtn.setEnabled(routeSuggestion.isNoteable());
-        ignoreBtn.setEnabled(routeSuggestion.isIgnorable());
-        postponeBtn.setEnabled(routeSuggestion.isPostponable());        
+        acceptBtn.setEnabled(cloudRouteSuggestion.isAcceptable());
+        rejectBtn.setEnabled(cloudRouteSuggestion.isRejectable());
+        notedBtn.setEnabled(cloudRouteSuggestion.isNoteable());
+        ignoreBtn.setEnabled(cloudRouteSuggestion.isIgnorable());
+        postponeBtn.setEnabled(cloudRouteSuggestion.isPostponable());        
 
     }
     
@@ -197,23 +207,31 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == zoomBtn) {
-            chartPanel.zoomTo(routeSuggestion.getWaypoints());
+            List<Position> posList = new ArrayList<>();
+            for (int i = 0; i < cloudRouteSuggestion.getRoute().getWaypoints().size(); i++) {
+                posList.add(cloudRouteSuggestion.getRoute().getWaypoints().get(i).getPos());
+            }
+            
+            chartPanel.zoomTo(posList);
         } else if (e.getSource() == hideBtn) {
-            routeSuggestion.setHidden(!routeSuggestion.isHidden());
+            cloudRouteSuggestion.setHidden(!cloudRouteSuggestion.isHidden());
             updateBtnStatus();
             routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
         } else if (e.getSource() == acceptBtn) {
-            routeManager.aisRouteSuggestionReply(routeSuggestion, AisAdressedRouteSuggestion.Status.ACCEPTED);
+            routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.ACCEPTED, textArea.getText());
+//            routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
             close();
         } else if (e.getSource() == rejectBtn) {
-            routeManager.aisRouteSuggestionReply(routeSuggestion, AisAdressedRouteSuggestion.Status.REJECTED);
+            routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.REJECTED, textArea.getText());
+//            routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
             close();
         } else if (e.getSource() == notedBtn) {
-            routeManager.aisRouteSuggestionReply(routeSuggestion, AisAdressedRouteSuggestion.Status.NOTED);
+            routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.NOTED, textArea.getText());
+//            routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
             close();
         } else if (e.getSource() == ignoreBtn) {
-            routeSuggestion.setStatus(AisAdressedRouteSuggestion.Status.IGNORED);
-            routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
+            routeManager.routeSuggestionReply(cloudRouteSuggestion, Status.IGNORED, textArea.getText());
+//            routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
             close();
         } else if (e.getSource() == postponeBtn) {
             close();
@@ -296,17 +314,17 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
                 .addGroup(groupLayout.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+                        .addGroup(groupLayout.createSequentialGroup()
+                            .addComponent(replyPanel, GroupLayout.DEFAULT_SIZE, 354, Short.MAX_VALUE)
+                            .addContainerGap())
                         .addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
                             .addComponent(routePanel, GroupLayout.PREFERRED_SIZE, 355, Short.MAX_VALUE)
                             .addGap(9))
-                        .addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
-                            .addComponent(replyPanel, GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE)
-                            .addContainerGap())
                         .addGroup(groupLayout.createSequentialGroup()
                             .addComponent(ignoreBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(ComponentPlacement.RELATED)
                             .addComponent(postponeBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
-                            .addContainerGap(183, Short.MAX_VALUE))))
+                            .addContainerGap(184, Short.MAX_VALUE))))
         );
         groupLayout.setVerticalGroup(
             groupLayout.createParallelGroup(Alignment.LEADING)
@@ -314,34 +332,44 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
                     .addContainerGap()
                     .addComponent(routePanel, GroupLayout.PREFERRED_SIZE, 263, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(replyPanel, GroupLayout.PREFERRED_SIZE, 58, GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addComponent(replyPanel, GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE)
+                    .addGap(18)
                     .addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
                         .addComponent(ignoreBtn)
                         .addComponent(postponeBtn))
-                    .addContainerGap(92, Short.MAX_VALUE))
+                    .addContainerGap())
         );
+        
+        textArea = new JTextArea("No message");
+
+        JScrollPane textPane = new JScrollPane(textArea);
         
         GroupLayout gl_replyPanel = new GroupLayout(replyPanel);
         gl_replyPanel.setHorizontalGroup(
             gl_replyPanel.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_replyPanel.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(acceptBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(rejectBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(notedBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(60, Short.MAX_VALUE))
+                    .addGroup(gl_replyPanel.createParallelGroup(Alignment.LEADING)
+                        .addComponent(textPane, GroupLayout.PREFERRED_SIZE, 307, GroupLayout.PREFERRED_SIZE)
+                        .addGroup(gl_replyPanel.createSequentialGroup()
+                            .addComponent(acceptBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addComponent(rejectBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(ComponentPlacement.RELATED)
+                            .addComponent(notedBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)))
+                    .addContainerGap(25, Short.MAX_VALUE))
         );
         gl_replyPanel.setVerticalGroup(
             gl_replyPanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_replyPanel.createSequentialGroup()
+                .addGroup(Alignment.TRAILING, gl_replyPanel.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(textPane, GroupLayout.DEFAULT_SIZE, 66, Short.MAX_VALUE)
+                    .addPreferredGap(ComponentPlacement.RELATED)
                     .addGroup(gl_replyPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(acceptBtn)
                         .addComponent(rejectBtn)
                         .addComponent(notedBtn))
-                    .addContainerGap(35, Short.MAX_VALUE))
+                    .addContainerGap())
         );
         replyPanel.setLayout(gl_replyPanel);
                 
@@ -378,4 +406,5 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
         
         
     }
+
 }

@@ -35,19 +35,20 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
+import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion.Status;
 import dk.dma.epd.common.prototype.ais.AisBroadcastRouteSuggestion;
 import dk.dma.epd.common.prototype.ais.AisRouteData;
 import dk.dma.epd.common.prototype.ais.IAisRouteSuggestionListener;
-import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion.Status;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
+import dk.dma.epd.common.prototype.model.route.ActiveRoute.ActiveWpSelectionResult;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLoadException;
 import dk.dma.epd.common.prototype.model.route.RouteLoader;
 import dk.dma.epd.common.prototype.model.route.RouteMetocSettings;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.model.route.ActiveRoute.ActiveWpSelectionResult;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
@@ -58,9 +59,11 @@ import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.gui.ComponentPanels.ShowDockableDialog;
 import dk.dma.epd.ship.gui.ComponentPanels.ShowDockableDialog.dock_type;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
-import dk.dma.epd.ship.service.communication.ais.AisServices;
+import dk.dma.epd.ship.monalisa.RecievedRoute;
+import dk.dma.epd.ship.service.EnavServiceHandler;
 import dk.dma.epd.ship.service.communication.webservice.ShoreServices;
 import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
+import dk.dma.epd.ship.service.intendedroute.IntendedRouteService;
 import dk.dma.epd.ship.settings.EPDEnavSettings;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
 
@@ -76,14 +79,20 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     private static final Logger LOG = LoggerFactory.getLogger(RouteManager.class);
 
     private List<Route> routes = new LinkedList<>();
-    private Set<AisAdressedRouteSuggestion> addressedSuggestedRoutes = new HashSet<>();
+    private List<RecievedRoute> suggestedRoutes = new LinkedList<>();
+    
+    private EnavServiceHandler enavServiceHandler;
+    
+    
+//    private Set<AisAdressedRouteSuggestion> addressedSuggestedRoutes = new HashSet<>();
     private ActiveRoute activeRoute;
     private int activeRouteIndex = -1;
     private GpsHandler gpsHandler;
-    private AisServices aisServices;
+//    private AisServices aisServices;
     private ShoreServices shoreServices;
     private AisHandler aisHandler;
     private RouteSuggestionDialog routeSuggestionDialog;
+    private IntendedRouteService intendedRouteService;
 
     private Set<IRoutesUpdateListener> listeners = new HashSet<>();
 
@@ -328,39 +337,151 @@ public class RouteManager extends MapHandlerChild implements Runnable,
         }
 
     }
+    
+
+    
+    public void recieveRouteSuggestion(RecievedRoute message){
+        handleCloudRoute(message);
+    }
+    
+    private void handleCloudRoute(RecievedRoute message){
+        
+        synchronized(suggestedRoutes){
+            suggestedRoutes.add(message);            
+        }
+
+        
+        // Update route layer
+        notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
+        
+        // Show dialog
+        routeSuggestionDialog.showSuggestion(message);
+    }
+    
+    
+    public void showSuggestionDialog(int id){
+        // Show dialog
+        routeSuggestionDialog.showSuggestion(suggestedRoutes.get(id));        
+    }
+    
+    public boolean acceptSuggested(RecievedRoute route){
+        boolean removed = false;
+        
+        for (int i = 0; i < suggestedRoutes.size(); i++) {
+            if (suggestedRoutes.get(i).getId() == route.getId()){
+                synchronized(suggestedRoutes){
+                    suggestedRoutes.remove(i);
+                    removed = true;
+                    break;
+                }
+            }
+        }
+        
+        if (removed){
+            // Update route layer
+            notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
+            
+            routes.add(route.getRoute());
+            notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean removeSuggested(RecievedRoute route){
+        System.out.println("Removing");
+        
+        boolean removed = false;
+        
+        for (int i = 0; i < suggestedRoutes.size(); i++) {
+            if (suggestedRoutes.get(i).getId() == route.getId()){
+                synchronized(suggestedRoutes){
+                    suggestedRoutes.remove(i);
+                    removed = true;
+                    break;
+                }
+            }
+        }
+        
+        if (removed){
+            // Update route layer
+            notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
+
+            return true;
+        }
+        return false;
+    }
+    
+    
+    public void routeSuggestionReply(
+            RecievedRoute routeSuggestion,
+            Status status, String message) {
+        
+
+        switch (status) {
+        case ACCEPTED:
+            routeSuggestion.setStatus(Status.ACCEPTED);
+            acceptSuggested(routeSuggestion);
+            enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_ACCEPTED, routeSuggestion.getId(), message);
+            break;
+        case REJECTED:
+            //Remove it
+            routeSuggestion.setStatus(Status.REJECTED);
+            routeSuggestion.setStatus(Status.REJECTED);
+//            removeSuggested(routeSuggestion);
+            enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_REJECTED, routeSuggestion.getId(), message);
+            break;
+        case NOTED:
+            //Do nothing
+            routeSuggestion.setStatus(Status.NOTED);
+            enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_NOTED, routeSuggestion.getId(), message);
+            break;
+        default:
+            break;
+        }
+
+        notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
+    }
+    
+    
+    
+    
+    public RouteSuggestionDialog getRouteSuggestionDialog() {
+        return routeSuggestionDialog;
+    }
 
     private void handleAddressedRouteSuggestion(
             AisAdressedRouteSuggestion routeSuggestion) {
-        // Handle cancellation
-        if (routeSuggestion.isCancel()) {
-            System.out.println("handling route suggestion canecellation");
-            synchronized (addressedSuggestedRoutes) {
-                for (AisAdressedRouteSuggestion oldRouteSuggestion : addressedSuggestedRoutes) {
-               if (oldRouteSuggestion.getMsgLinkId() == routeSuggestion
-                    .getMsgLinkId()) {
-                oldRouteSuggestion.cancel();
-                break;
-               }
-            }
-            }
-            notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
-            return;
-        }
-
-        // Handle new routes
-        System.out.println("handling addressed route sugesstion: "
-                + routeSuggestion);
-
-        // Insert into list of
-        synchronized (addressedSuggestedRoutes) {
-            addressedSuggestedRoutes.add(routeSuggestion);
-        }
-
-        // Update route layer
-        notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
-
-        // Show dialog
-        routeSuggestionDialog.showSuggestion(routeSuggestion);
+//        // Handle cancellation
+//        if (routeSuggestion.isCancel()) {
+//            System.out.println("handling route suggestion canecellation");
+//            synchronized (addressedSuggestedRoutes) {
+//                for (AisAdressedRouteSuggestion oldRouteSuggestion : addressedSuggestedRoutes) {
+//               if (oldRouteSuggestion.getMsgLinkId() == routeSuggestion
+//                    .getMsgLinkId()) {
+//                oldRouteSuggestion.cancel();
+//                break;
+//               }
+//            }
+//            }
+//            notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
+//            return;
+//        }
+//
+//        // Handle new routes
+//        System.out.println("handling addressed route sugesstion: "
+//                + routeSuggestion);
+//
+//        // Insert into list of
+//        synchronized (addressedSuggestedRoutes) {
+//            addressedSuggestedRoutes.add(routeSuggestion);
+//        }
+//
+//        // Update route layer
+//        notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
+//
+//        // Show dialog
+//        routeSuggestionDialog.showSuggestion(routeSuggestion);
 
     }
 
@@ -528,8 +649,8 @@ public class RouteManager extends MapHandlerChild implements Runnable,
             manager.setRoutes(routeStore.getRoutes());
             manager.activeRoute = routeStore.getActiveRoute();
             manager.activeRouteIndex = routeStore.getActiveRouteIndex();
-            manager.setAddressedSuggestedRoutes(routeStore
-                    .getAddressedSuggestedRoutes());
+            manager.setSuggestedRoutes(routeStore
+                    .getSuggestedRoutes());
 
         } catch (FileNotFoundException e) {
             // Not an error
@@ -542,10 +663,9 @@ public class RouteManager extends MapHandlerChild implements Runnable,
         return manager;
     }
 
-    private void setAddressedSuggestedRoutes(
-            Set<AisAdressedRouteSuggestion> addressedSuggestedRoutes) {
-        if (addressedSuggestedRoutes != null) {
-            this.addressedSuggestedRoutes = addressedSuggestedRoutes;
+    private void setSuggestedRoutes(List<RecievedRoute> suggestedRoutes) {
+        if (suggestedRoutes != null) {
+            this.suggestedRoutes = suggestedRoutes;
         }
     }
 
@@ -596,8 +716,8 @@ public class RouteManager extends MapHandlerChild implements Runnable,
         if (obj instanceof RouteSuggestionDialog) {
             routeSuggestionDialog = (RouteSuggestionDialog) obj;
         }
-        if (obj instanceof AisServices) {
-            aisServices = (AisServices) obj;
+        if (obj instanceof EnavServiceHandler) {
+            enavServiceHandler = (EnavServiceHandler) obj;
         }
     }
 
@@ -657,32 +777,40 @@ public class RouteManager extends MapHandlerChild implements Runnable,
 
     }
 
-    public void aisRouteSuggestionReply(
-            AisAdressedRouteSuggestion routeSuggestion,
-            AisAdressedRouteSuggestion.Status status) {
-        switch (status) {
-        case ACCEPTED:
-            routeSuggestion.setStatus(Status.ACCEPTED);
-            aisServices.routeSuggestionReply(routeSuggestion);
-            break;
-        case REJECTED:
-            routeSuggestion.setStatus(Status.REJECTED);
-            aisServices.routeSuggestionReply(routeSuggestion);
-            break;
-        case NOTED:
-            routeSuggestion.setStatus(Status.NOTED);
-            aisServices.routeSuggestionReply(routeSuggestion);
-            break;
-        default:
-            break;
-        }
+//    public void aisRouteSuggestionReply(
+//            AisAdressedRouteSuggestion routeSuggestion,
+//            AisAdressedRouteSuggestion.Status status) {
+//        switch (status) {
+//        case ACCEPTED:
+//            routeSuggestion.setStatus(Status.ACCEPTED);
+//            aisServices.routeSuggestionReply(routeSuggestion);
+//            break;
+//        case REJECTED:
+//            routeSuggestion.setStatus(Status.REJECTED);
+//            aisServices.routeSuggestionReply(routeSuggestion);
+//            break;
+//        case NOTED:
+//            routeSuggestion.setStatus(Status.NOTED);
+//            aisServices.routeSuggestionReply(routeSuggestion);
+//            break;
+//        default:
+//            break;
+//        }
+//
+//        notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
+//    }
 
-        notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
-    }
+//    public Set<AisAdressedRouteSuggestion> getAddressedSuggestedRoutes() {
+//        return addressedSuggestedRoutes;
+//    }
+    
+    
 
-    public Set<AisAdressedRouteSuggestion> getAddressedSuggestedRoutes() {
-        return addressedSuggestedRoutes;
+    public List<RecievedRoute> getSuggestedRoutes() {
+        return suggestedRoutes;
     }
+    
+    
 
     @Override
     public void run() {
@@ -696,9 +824,20 @@ public class RouteManager extends MapHandlerChild implements Runnable,
 
             // Check validity of METOC for all routes
             checkValidMetoc();
+            
+            if (isRouteActive()) {
+                intendedRouteService.broadcastIntendedRoute();
+//                aisServices.periodicIntendedRouteBroadcast(activeRoute);
+            }
 
         }
 
+    }
+
+    public void setIntendedRouteService(
+            IntendedRouteService intendedRouteService) {
+        this.intendedRouteService = intendedRouteService;
+        
     }
 
 }

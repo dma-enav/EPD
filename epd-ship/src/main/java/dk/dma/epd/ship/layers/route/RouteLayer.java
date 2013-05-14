@@ -22,6 +22,8 @@ import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.SwingUtilities;
 
@@ -35,13 +37,11 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.math.Vector2D;
-import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
 import dk.dma.epd.common.prototype.layers.route.ActiveRouteGraphic;
 import dk.dma.epd.common.prototype.layers.route.MetocGraphic;
 import dk.dma.epd.common.prototype.layers.route.MetocPointGraphic;
 import dk.dma.epd.common.prototype.layers.route.RouteGraphic;
 import dk.dma.epd.common.prototype.layers.route.RouteLegGraphic;
-import dk.dma.epd.common.prototype.layers.route.SuggestedRouteGraphic;
 import dk.dma.epd.common.prototype.layers.route.WaypointCircle;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
@@ -51,9 +51,11 @@ import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.route.SafeHavenArea;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.MapMenu;
+import dk.dma.epd.ship.monalisa.RecievedRoute;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
 import dk.frv.enav.common.xml.metoc.MetocForecastPoint;
@@ -86,6 +88,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
     SafeHavenArea safeHavenArea = new SafeHavenArea();
     private boolean activeSafeHaven;
 
+
     public RouteLayer() {
         new Thread(this).start();
         routeWidth = EPDShip.getSettings().getNavSettings().getRouteWidth();
@@ -95,6 +98,11 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
     @Override
     public synchronized void routesChanged(RoutesUpdateEvent e) {
         if (e == RoutesUpdateEvent.ROUTE_MSI_UPDATE) {
+            return;
+        }
+
+        if (e == null) {
+            doPrepare();
             return;
         }
 
@@ -179,7 +187,8 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
             }
 
             if (routeManager.showMetocForRoute(route)) {
-                routeMetoc = new MetocGraphic(route, activeRoute, EPDShip.getSettings().getEnavSettings());
+                routeMetoc = new MetocGraphic(route, activeRoute, EPDShip
+                        .getSettings().getEnavSettings());
                 metocGraphics.add(routeMetoc);
             }
         }
@@ -187,8 +196,15 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
             graphics.add(0, metocGraphics);
         }
 
-        for (AisAdressedRouteSuggestion routeSuggestion : routeManager
-                .getAddressedSuggestedRoutes()) {
+        // for (AisAdressedRouteSuggestion routeSuggestion : routeManager
+        // .getAddressedSuggestedRoutes()) {
+        // if (!routeSuggestion.isHidden()) {
+        // suggestedRoute = new SuggestedRouteGraphic(routeSuggestion,
+        // stroke);
+        // graphics.add(suggestedRoute);
+        // }
+        // }
+        for (RecievedRoute routeSuggestion : routeManager.getSuggestedRoutes()) {
             if (!routeSuggestion.isHidden()) {
                 suggestedRoute = new SuggestedRouteGraphic(routeSuggestion,
                         stroke);
@@ -306,12 +322,22 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
             Route route = metocGraphic.getRoute();
             if (routeManager.showMetocForRoute(route)) {
                 double minDist = calculateMetocDistance(route);
-                int step = (int) (5 / minDist);
-                if (step < 1) {
+                Double tmp = 5.0 / minDist;
+                int step = 1;
+                if (tmp < 1) {
                     step = 1;
+                } else {
+                    step = tmp.intValue();
                 }
+                // System.out.println("minDist = "+minDist+" step = "+step);
                 metocGraphic.setStep(step);
+
+                // temporary fix for drawing metoc information
+                // All scales will draw all metoc.
+                metocGraphic.setStep(1);
+
                 metocGraphic.paintMetoc();
+
             }
         }
 
@@ -347,8 +373,8 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         if (obj instanceof MapMenu) {
             routeMenu = (MapMenu) obj;
         }
-        if (waypointInfoPanel == null
-                && routeManager != null && mainFrame != null) {
+        if (waypointInfoPanel == null && routeManager != null
+                && mainFrame != null) {
             waypointInfoPanel = new WaypointInfoPanel();
             mainFrame.getGlassPanel().add(waypointInfoPanel);
         }
@@ -368,8 +394,9 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public String[] getMouseModeServiceList() {
-        String[] ret = new String[1];
+        String[] ret = new String[2];
         ret[0] = NavigationMouseMode.MODE_ID; // "Gestures"
+        ret[1] = DragMouseMode.MODE_ID;
         return ret;
     }
 
@@ -390,16 +417,18 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                 break;
             }
         }
+        routeMenu.setRouteLocation(new Point(e.getX(), e.getY()));
 
         if (selectedGraphic instanceof SuggestedRouteGraphic) {
             mainFrame.getGlassPane().setVisible(false);
             waypointInfoPanel.setVisible(false);
             SuggestedRouteGraphic suggestedRoute = (SuggestedRouteGraphic) selectedGraphic;
-            AisAdressedRouteSuggestion aisSuggestedRoute = suggestedRoute
+            RecievedRoute aisSuggestedRoute = suggestedRoute
                     .getRouteSuggestion();
             routeMenu.suggestedRouteMenu(aisSuggestedRoute);
             routeMenu.setVisible(true);
             routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+            routeMenu(e);
             return true;
         }
         if (selectedGraphic instanceof WaypointCircle) {
@@ -408,7 +437,8 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
             waypointInfoPanel.setVisible(false);
             routeMenu.routeWaypointMenu(wpc.getRouteIndex(), wpc.getWpIndex());
             routeMenu.setVisible(true);
-            routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+            // routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+            routeMenu(e);
             return true;
         }
         if (selectedGraphic instanceof RouteLegGraphic) {
@@ -418,11 +448,23 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
             routeMenu.routeLegMenu(rlg.getRouteIndex(), rlg.getRouteLeg(),
                     e.getPoint());
             routeMenu.setVisible(true);
-            routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+            // routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+            routeMenu(e);
             return true;
         }
 
         return false;
+    }
+
+    private void routeMenu(MouseEvent arg0) {
+        if (EPDShip.getMainFrame().getHeight() < arg0.getYOnScreen()
+                + routeMenu.getHeight()) {
+            routeMenu.show(this, arg0.getX() - 2,
+                    arg0.getY() - routeMenu.getHeight());
+        } else {
+            routeMenu.show(this, arg0.getX() - 2, arg0.getY() - 2);
+        }
+
     }
 
     @Override
@@ -566,6 +608,8 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         safeHavenArea.setVisible(activeSafeHaven);
         routesChanged(null);
     }
+
+
 
     @Override
     public void run() {

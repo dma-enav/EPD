@@ -35,13 +35,11 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.math.Vector2D;
-import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
 import dk.dma.epd.common.prototype.layers.route.ActiveRouteGraphic;
 import dk.dma.epd.common.prototype.layers.route.MetocGraphic;
 import dk.dma.epd.common.prototype.layers.route.MetocPointGraphic;
 import dk.dma.epd.common.prototype.layers.route.RouteGraphic;
 import dk.dma.epd.common.prototype.layers.route.RouteLegGraphic;
-import dk.dma.epd.common.prototype.layers.route.SuggestedRouteGraphic;
 import dk.dma.epd.common.prototype.layers.route.WaypointCircle;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
@@ -79,7 +77,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements IRoutesUpdateLi
     private OMGraphic closest;
     private OMGraphic selectedGraphic;
     private MetocGraphic routeMetoc;
-    private SuggestedRouteGraphic suggestedRoute;
+//    private SuggestedRouteGraphic suggestedRoute;
     private JMapFrame jMapFrame;
     private MapMenu routeMenu;
     private boolean dragging;
@@ -151,14 +149,14 @@ public class RouteLayer extends OMGraphicHandlerLayer implements IRoutesUpdateLi
             graphics.add(0, metocGraphics);
         }
 
-        for (AisAdressedRouteSuggestion routeSuggestion : routeManager
-                .getAddressedSuggestedRoutes()) {
-            if (!routeSuggestion.isHidden()) {
-                suggestedRoute = new SuggestedRouteGraphic(routeSuggestion,
-                        stroke);
-                graphics.add(suggestedRoute);
-            }
-        }
+//        for (AisAdressedRouteSuggestion routeSuggestion : routeManager
+//                .getAddressedSuggestedRoutes()) {
+//            if (!routeSuggestion.isHidden()) {
+//                suggestedRoute = new SuggestedRouteGraphic(routeSuggestion,
+//                        stroke);
+//                graphics.add(suggestedRoute);
+//            }
+//        }
 
 
         graphics.project(getProjection(), true);
@@ -341,12 +339,11 @@ public class RouteLayer extends OMGraphicHandlerLayer implements IRoutesUpdateLi
         selectedGraphic = null;
         OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 5.0f);
         for (OMGraphic omGraphic : allClosest) {
-            if (omGraphic instanceof SuggestedRouteGraphic || omGraphic instanceof WaypointCircle || omGraphic instanceof RouteLegGraphic) {
+            if (omGraphic instanceof WaypointCircle || omGraphic instanceof RouteLegGraphic) {
                 selectedGraphic = omGraphic;
                 break;
             }
         }
-
 
         if(selectedGraphic instanceof WaypointCircle){
             WaypointCircle wpc = (WaypointCircle) selectedGraphic;
@@ -386,6 +383,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements IRoutesUpdateLi
         }
 
         if (selectedGraphic instanceof WaypointCircle) {
+            System.out.println("Dragging waypoint circle");
             WaypointCircle wpc = (WaypointCircle) selectedGraphic;
             if (routeManager.getActiveRouteIndex() != wpc.getRouteIndex()) {
                 RouteWaypoint routeWaypoint = wpc.getRoute().getWaypoints()
@@ -395,7 +393,8 @@ public class RouteLayer extends OMGraphicHandlerLayer implements IRoutesUpdateLi
                 Position newLocation = Position.create(newLatLon.getLatitude(),
                         newLatLon.getLongitude());
                 routeWaypoint.setPos(newLocation);
-                routesChanged(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
+
+                routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
                 dragging = true;
                 return true;
             }

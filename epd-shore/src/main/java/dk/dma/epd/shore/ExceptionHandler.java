@@ -38,6 +38,9 @@ public class ExceptionHandler implements UncaughtExceptionHandler {
      */
     @Override
     public void uncaughtException(Thread t, Throwable e) {
+        
+        System.out.println(e.getLocalizedMessage());
+        
         LOG.error("Uncaught exception from thread " + t.getName());
         LOG.error(e.getMessage());
         Writer result = new StringWriter();

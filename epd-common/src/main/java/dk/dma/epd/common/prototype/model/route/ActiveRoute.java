@@ -371,7 +371,7 @@ public class ActiveRoute extends Route {
     }
 
     @Override
-    public synchronized Date getEta() {
+    public synchronized Date calculateEta() {
         if (activeWpTtg == null) {
             return null;
         }
@@ -396,7 +396,7 @@ public class ActiveRoute extends Route {
     }
 
     @Override
-    public synchronized Long getTtg() {
+    public synchronized Long calcTtg() {
         if (activeWpTtg == null) {
             return null;
         }
@@ -404,7 +404,7 @@ public class ActiveRoute extends Route {
     }
 
     @Override
-    public synchronized Double getDtg() {
+    public synchronized Double calcDtg() {
         if (activeWpRng == null) {
             return null;
         }
@@ -486,4 +486,43 @@ public class ActiveRoute extends Route {
         this.relaxedWpChange = relaxedWpChange;
     }
 
+    public dk.dma.enav.model.voyage.Route getFullRouteData(){
+        
+        dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
+
+        int startingWP = this.getActiveWaypointIndex();
+
+//        System.out.println("Amount of waypoints to send: " + wayPointsToSend);
+//        System.out.println("Starting at " + startingWP);
+        for (int i = startingWP; i < getWaypoints().size(); i++) {
+        
+//            System.out.println("Packing waypoint: " + i);
+            dk.dma.enav.model.voyage.Waypoint voyageWaypoint = new dk.dma.enav.model.voyage.Waypoint(); 
+             RouteWaypoint currentWaypoint = getWaypoints().get(i);
+
+             voyageWaypoint.setEta(etas.get(i));
+             voyageWaypoint.setLatitude(currentWaypoint.getPos().getLatitude());
+             voyageWaypoint.setLongitude(currentWaypoint.getPos().getLongitude());
+             voyageWaypoint.setRot(currentWaypoint.getRot());
+             voyageWaypoint.setTurnRad(currentWaypoint.getTurnRad());
+             
+             //Leg related stored in the waypoint
+             if (currentWaypoint.getOutLeg() != null){
+                 dk.dma.enav.model.voyage.RouteLeg routeLeg = new dk.dma.enav.model.voyage.RouteLeg();
+                 routeLeg.setSpeed(currentWaypoint.getOutLeg().getSpeed());
+                 routeLeg.setXtdPort(currentWaypoint.getOutLeg().getXtdPort());
+                 routeLeg.setXtdStarboard(currentWaypoint.getOutLeg().getXtdStarboard());
+                 routeLeg.setSFWidth(currentWaypoint.getOutLeg().getSFWidth());
+                 routeLeg.setSFLen(currentWaypoint.getOutLeg().getSFWidth());
+                 
+                 voyageWaypoint.setRouteLeg(routeLeg);
+             }
+             voyageRoute.getWaypoints().add(voyageWaypoint);
+        }
+        
+
+        
+        return voyageRoute;
+    }
+    
 }

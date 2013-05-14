@@ -55,6 +55,7 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
 
     Cursor navCursorMouseClicked;
     Cursor navCursor;
+    private ChartPanel chartPanel;
 
 
     /**
@@ -95,7 +96,7 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
      */
     public NavigationMouseMode(ChartPanel chartPanel) {
         this(true);
-//        this.chartPanel = chartPanel;
+        this.chartPanel = chartPanel;
         clickTimer = ClickTimer.getClickTimer();
         maxScale = EPDShore.getSettings().getMapSettings().getMaxScale();
     }
@@ -397,9 +398,9 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
             point1 = null;
             point2 = null;
 
-
-
             map.setProjection(p);
+            
+            chartPanel.forceAisLayerUpdate();
 //            chartPanel.manualProjChange();
         }
 
