@@ -49,7 +49,7 @@ public class MonaLisaCommunicationComponentPanel extends OMComponentPanel implem
         setBorder(null);
         setLayout(new BorderLayout(0, 0));
         add(commsPanel, BorderLayout.NORTH);
-        setVisible(false);
+        setVisible(true);
         new Thread(this).start();
         
         
@@ -62,17 +62,16 @@ public class MonaLisaCommunicationComponentPanel extends OMComponentPanel implem
     }
     
     public void setScale(float scale){
-        commsPanel.getScaleLabel().setText("Scale: " + String.format(Locale.US, "%3.0f", scale));
+//        commsPanel.getScaleLabel().setText("Scale: " + String.format(Locale.US, "%3.0f", scale));
     }
 
 
     @Override
     public void run() {
         while (true) {
-            System.out.println("Updating " + this.isVisible());
             if (gnssTime != null) {
                 Date now = gnssTime.getDate();
-                commsPanel.getTimeLabel().setText(Formatter.formatLongDateTime(now));
+//                commsPanel.getTimeLabel().setText(Formatter.formatLongDateTime(now));
             }
             
             try {
