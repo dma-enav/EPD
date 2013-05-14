@@ -46,7 +46,7 @@ public class CursorComponentPanel extends OMComponentPanel implements IGpsDataLi
         setBorder(null);
         setLayout(new BorderLayout(0, 0));     
         add(cursorPanel, BorderLayout.NORTH);
-
+        setVisible(false);
     }
 
     /**

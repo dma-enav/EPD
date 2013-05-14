@@ -84,7 +84,7 @@ public class DynamicNoGoComponentPanel extends OMComponentPanel {
         statLabel5.setText("");
         statLabel6.setText("");
         statLabel7.setText("");
-
+        setVisible(false);
     }
     
     public void newRequest(){

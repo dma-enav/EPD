@@ -39,6 +39,7 @@ import dk.dma.epd.ship.gui.ComponentPanels.CursorComponentPanel;
 import dk.dma.epd.ship.gui.ComponentPanels.DynamicNoGoComponentPanel;
 import dk.dma.epd.ship.gui.ComponentPanels.GpsComponentPanel;
 import dk.dma.epd.ship.gui.ComponentPanels.MSIComponentPanel;
+import dk.dma.epd.ship.gui.ComponentPanels.MonaLisaCommunicationComponentPanel;
 import dk.dma.epd.ship.gui.ComponentPanels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.ComponentPanels.OwnShipComponentPanel;
 import dk.dma.epd.ship.gui.ComponentPanels.ScaleComponentPanel;
@@ -76,6 +77,7 @@ public class MainFrame extends JFrame implements WindowListener {
     private AisComponentPanel aisComponentPanel;
     private DynamicNoGoComponentPanel dynamicNoGoPanel;
     private NoGoComponentPanel nogoPanel;
+    private MonaLisaCommunicationComponentPanel monaLisaPanel;
     
     private JPanel glassPanel;
     private MsiDialog msiDialog;
@@ -125,6 +127,7 @@ public class MainFrame extends JFrame implements WindowListener {
         aisComponentPanel = new AisComponentPanel();
         dynamicNoGoPanel = new DynamicNoGoComponentPanel();
         nogoPanel = new NoGoComponentPanel();
+        monaLisaPanel = new MonaLisaCommunicationComponentPanel();
         
         // Unmovable panels
         bottomPanel = new BottomPanel();
@@ -163,6 +166,7 @@ public class MainFrame extends JFrame implements WindowListener {
         mapHandler.add(aisComponentPanel);
         mapHandler.add(dynamicNoGoPanel);
         mapHandler.add(nogoPanel);
+        mapHandler.add(monaLisaPanel);
         
         // Create top menubar
         menuBar = new MenuBar();
@@ -311,6 +315,10 @@ public class MainFrame extends JFrame implements WindowListener {
 
     public NoGoComponentPanel getNogoPanel() {
         return nogoPanel;
+    }
+
+    public MonaLisaCommunicationComponentPanel getMonaLisaPanel() {
+        return monaLisaPanel;
     }
 
     
