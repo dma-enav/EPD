@@ -229,7 +229,7 @@ public class EPDShip {
         exceptionHandler = new ExceptionHandler();
         
         // Create embedded transponder frame
-        transponderFrame = new TransponderFrame(true);
+        transponderFrame = new TransponderFrame(home.resolve("transponder.xml").toString(), true);
         mapHandler.add(transponderFrame);
         
         // TODO use settings to determine if transponder should be started

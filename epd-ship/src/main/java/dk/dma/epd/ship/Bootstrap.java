@@ -50,6 +50,7 @@ class Bootstrap {
         unpackToAppHome("epd-ship.properties");
         unpackToAppHome("enc_navicon.properties");
         unpackToAppHome("settings.properties");
+        unpackToAppHome("transponder.xml");
 
         unpackFolderToAppHome("routes");
         unpackFolderToAppHome("layout/static");
