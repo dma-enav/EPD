@@ -16,8 +16,10 @@
 package dk.dma.epd.ship.gps;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
 
 import com.bbn.openmap.MapHandlerChild;
 
@@ -35,11 +37,12 @@ import dk.dma.epd.ship.status.IStatusComponent;
 /**
  * Component class for handling received GPS messages. 
  */
+@ThreadSafe
 public class GpsHandler extends MapHandlerChild implements IGpsListener, IStatusComponent, Runnable {
 
     private static final long GPS_TIMEOUT = 60 * 1000; // 1 min
-
-    private Set<IGpsDataListener> listeners = new HashSet<>();
+    private CopyOnWriteArrayList<IGpsDataListener> listeners = new CopyOnWriteArrayList<>();
+    @GuardedBy("this")
     private GpsData currentData = new GpsData();
     private NmeaSensor nmeaSensor;
 
@@ -90,11 +93,9 @@ public class GpsHandler extends MapHandlerChild implements IGpsListener, IStatus
      * Distribute update to all listeners
      */
     private void distributeUpdate() {
-        synchronized (listeners) {
-            for (IGpsDataListener listener : listeners) {
-                GpsData currentCopy = getCurrentData();
-                listener.gpsDataUpdate(currentCopy);
-            }
+        for (IGpsDataListener listener : listeners) {
+            GpsData currentCopy = getCurrentData();
+            listener.gpsDataUpdate(currentCopy);
         }
     }
     
@@ -120,20 +121,18 @@ public class GpsHandler extends MapHandlerChild implements IGpsListener, IStatus
         }
     }
 
-    public synchronized GpsData getCurrentData() {
+    public GpsData getCurrentData() {
         return new GpsData(currentData);
     }
 
+    @GuardedBy("listeners")
     public void addListener(IGpsDataListener listener) {
-        synchronized (listeners) {
-            listeners.add(listener);
-        }
+        listeners.addIfAbsent(listener);
     }
 
+    @GuardedBy("listeners")
     public void removeListener(IGpsDataListener listener) {
-        synchronized (listeners) {
-            listeners.remove(listener);
-        }
+        listeners.remove(listener);
     }
 
     @Override
