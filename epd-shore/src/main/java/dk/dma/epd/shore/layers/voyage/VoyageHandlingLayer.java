@@ -42,7 +42,6 @@ import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MapMenu;
-import dk.dma.epd.shore.gui.views.NotificationCenter;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
