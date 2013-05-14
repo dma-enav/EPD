@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.PropertyConsumer;
 
 import dk.dma.ais.reader.AisReader;
+import dk.dma.commons.app.OneInstanceGuard;
 import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.PersistentConnection.State;
 import dk.dma.epd.common.ExceptionHandler;
@@ -56,7 +57,6 @@ import dk.dma.epd.shore.service.ais.AisServices;
 import dk.dma.epd.shore.services.shore.ShoreServices;
 import dk.dma.epd.shore.settings.ESDSensorSettings;
 import dk.dma.epd.shore.settings.ESDSettings;
-import dk.dma.epd.shore.util.OneInstanceGuard;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
 /**
