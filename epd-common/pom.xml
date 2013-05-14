@@ -79,7 +79,7 @@
 			<groupId>net.gescobar</groupId>
 			<artifactId>jmx-annotations</artifactId>
 			<version>1.0.0</version>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>commons-httpclient</groupId>
 			<artifactId>commons-httpclient</artifactId>
@@ -106,4 +106,13 @@
 			<version>2.10.2</version>
 		</dependency>
 	</dependencies>
+
+	<repositories>
+		<!-- net.gescobar is not in Maven Central -->
+		<repository>
+			<id>elibom</id>
+			<url>http://repository.elibom.net/nexus/content/repositories/releases</url>
+		</repository>
+	</repositories>
+
 </project>
