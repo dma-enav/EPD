@@ -22,8 +22,6 @@ import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.SwingUtilities;
 
@@ -95,6 +93,52 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
 
     }
 
+    
+    private void updateSafeHaven(){
+        if (routeManager.isRouteActive()) {
+            ActiveRoute activeRoute = routeManager.getActiveRoute();
+            if (activeRoute.isVisible()) {
+
+
+                if (activeSafeHaven) {
+                    System.out.println("Activating safehaven");
+                    if (activeRoute.getActiveWp().getOutLeg() != null) {
+                        System.out.println("outleg isnt zero");
+                        safeHavenArea.moveSymbol(
+                                activeRoute.getSafeHavenLocation(),
+                                activeRoute.getSafeHavenBearing(),
+                                activeRoute.getActiveWp().getOutLeg()
+                                        .getSFWidth(), activeRoute
+                                        .getActiveWp().getOutLeg().getSFLen());
+                        graphics.add(safeHavenArea);
+                    } else {
+                    System.out.println("outleg is null");
+                        safeHavenArea
+                                .moveSymbol(
+                                        activeRoute.getSafeHavenLocation(),
+                                        activeRoute.getSafeHavenBearing(),
+                                        activeRoute
+                                                .getWaypoints()
+                                                .get(activeRoute.getWaypoints()
+                                                        .size() - 2)
+                                                .getOutLeg().getSFWidth(),
+                                        activeRoute
+                                                .getWaypoints()
+                                                .get(activeRoute.getWaypoints()
+                                                        .size() - 2)
+                                                .getOutLeg().getSFLen());
+                        graphics.add(safeHavenArea);
+                    }
+                }
+
+                // safeHavenArea.setVisible(true);
+
+            }
+        }
+
+    }
+    
+    
     @Override
     public synchronized void routesChanged(RoutesUpdateEvent e) {
         if (e == RoutesUpdateEvent.ROUTE_MSI_UPDATE) {
@@ -102,6 +146,8 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         }
 
         if (e == null) {
+            updateSafeHaven();
+            
             doPrepare();
             return;
         }
@@ -142,7 +188,9 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                 graphics.add(activeRouteExtend);
 
                 if (activeSafeHaven) {
+//                    System.out.println("Activating safehaven");
                     if (activeRoute.getActiveWp().getOutLeg() != null) {
+//                        System.out.println("outleg isnt zero");
                         safeHavenArea.moveSymbol(
                                 activeRoute.getSafeHavenLocation(),
                                 activeRoute.getSafeHavenBearing(),
@@ -151,7 +199,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                                         .getActiveWp().getOutLeg().getSFLen());
                         graphics.add(safeHavenArea);
                     } else {
-
+//                    System.out.println("outleg is null");
                         safeHavenArea
                                 .moveSymbol(
                                         activeRoute.getSafeHavenLocation(),
