@@ -83,6 +83,7 @@ public class AisComponentPanel extends OMComponentPanel implements ItemListener 
 
         dynamicNoGoCheckbox.addItemListener(this);
 
+        setVisible(false);
     }
 
     @Override

@@ -31,7 +31,7 @@ public class GpsData implements Serializable {
     private Position position;
     private Double cog;
     private Double sog;
-    private boolean badPosition;
+    private boolean badPosition = true;
     
     public GpsData() {
         

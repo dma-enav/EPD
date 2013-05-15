@@ -53,6 +53,7 @@ public class GpsComponentPanel extends OMComponentPanel implements
         
         setLayout(new BorderLayout(0, 0));
         add(gpsPanel, BorderLayout.NORTH);
+        setVisible(false);
     }
 
 

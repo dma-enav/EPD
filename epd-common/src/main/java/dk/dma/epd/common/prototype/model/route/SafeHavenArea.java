@@ -105,6 +105,8 @@ public class SafeHavenArea extends OMGraphicList {
 
     public void moveSymbol(Position pos, double bearing, double width, double height) {
         
+        System.out.println("Moving symbol " + pos);
+        
         remove(poly);
 
 //        int width = 1000;
