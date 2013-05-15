@@ -75,6 +75,8 @@ public class NoGoComponentPanel extends OMComponentPanel {
         
         statLabel4.setText("");
         statLabel5.setText("");
+        
+        setVisible(false);
 
     }
     

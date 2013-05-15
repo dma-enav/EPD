@@ -51,6 +51,7 @@ public class ActiveWaypointComponentPanel extends OMComponentPanel implements IG
         
         setLayout(new BorderLayout(0, 0));
         add(activeWaypointPanel, BorderLayout.NORTH);
+        setVisible(false);
     }
     
     /**

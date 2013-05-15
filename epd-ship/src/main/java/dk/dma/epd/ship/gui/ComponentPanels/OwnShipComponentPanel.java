@@ -53,6 +53,7 @@ public class OwnShipComponentPanel extends OMComponentPanel implements IGpsDataL
         
         setLayout(new BorderLayout(0, 0));
         add(ownShipPanel, BorderLayout.NORTH);
+        setVisible(false);
     }
     
 
