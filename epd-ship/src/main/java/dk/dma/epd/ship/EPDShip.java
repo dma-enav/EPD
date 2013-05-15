@@ -487,6 +487,7 @@ public class EPDShip {
         routeManager.saveToFile();
         msiHandler.saveToFile();
         aisHandler.saveView();
+        transponderFrame.shutdown();        
 
         if (connection != null) {
             try {
