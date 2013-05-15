@@ -37,7 +37,7 @@ public class EPDSettings implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(EPDSettings.class);
 
-    private String settingsFile = "settings.properties";
+    private final String settingsFile;
 
     private final EPDGuiSettings guiSettings = new EPDGuiSettings();
     private final EPDMapSettings mapSettings = new EPDMapSettings();
@@ -47,7 +47,7 @@ public class EPDSettings implements Serializable {
     private final EPDEnavSettings enavSettings = new EPDEnavSettings();
 
     public EPDSettings() {
-
+        this("settings.properties");
     }
 
     public EPDSettings(String settingsFile) {

@@ -13,15 +13,6 @@
 	<artifactId>epd-ship</artifactId>
 	<name>EPD Ship Core</name>
 
-
-	<repositories>
-		<!-- net.gescobar is not in Maven Central -->
-		<repository>
-			<id>elibom</id>
-			<url>http://repository.elibom.net/nexus/content/repositories/releases</url>
-		</repository>
-	</repositories>
-
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>

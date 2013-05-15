@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.PropertyConsumer;
 
+import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
 import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.PersistentConnection.State;
@@ -100,6 +101,7 @@ public class EPDShip {
     private static DynamicNogoHandler dynamicNoGoHandler;
     private static UpdateCheckerThread updateThread;
     private static ExceptionHandler exceptionHandler;
+    private static TransponderFrame transponderFrame;
     private static Path home = Paths.get(System.getProperty("user.home"), ".epd-ship");
 
     public static void main(String[] args) throws IOException {
@@ -225,6 +227,14 @@ public class EPDShip {
 
         // must be set after logging is enabled
         exceptionHandler = new ExceptionHandler();
+        
+        // Create embedded transponder frame
+        transponderFrame = new TransponderFrame(home.resolve("transponder.xml").toString(), true);
+        mapHandler.add(transponderFrame);
+        
+        // TODO use settings to determine if transponder should be started
+        
+        
     }
 
     public static Path getHomePath() {
@@ -477,6 +487,7 @@ public class EPDShip {
         routeManager.saveToFile();
         msiHandler.saveToFile();
         aisHandler.saveView();
+        transponderFrame.shutdown();        
 
         if (connection != null) {
             try {
