@@ -28,29 +28,30 @@ import com.bbn.openmap.gui.OMComponentPanel;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.gui.ChartPanel;
-import dk.dma.epd.ship.gui.Panels.ScalePanel;
+import dk.dma.epd.ship.gui.Panels.MonaLisaCommunicationPanel;
 
-public class ScaleComponentPanel extends OMComponentPanel implements Runnable, ProjectionListener  {
+public class MonaLisaCommunicationComponentPanel extends OMComponentPanel implements Runnable, ProjectionListener  {
 
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
-    private final ScalePanel scalePanel = new ScalePanel();
+    private final MonaLisaCommunicationPanel commsPanel = new MonaLisaCommunicationPanel();
     private GnssTime gnssTime;
     private ChartPanel chartPanel;
     
-    public ScaleComponentPanel(){
+    public MonaLisaCommunicationComponentPanel(){
         super();
         
 //        this.setMinimumSize(new Dimension(10, 25));
         
-        scalePanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+        commsPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
         setBorder(null);
         setLayout(new BorderLayout(0, 0));
-        add(scalePanel, BorderLayout.NORTH);
+        add(commsPanel, BorderLayout.NORTH);
+        setVisible(true);
         new Thread(this).start();
-        setVisible(false);
+        
         
     }
     
@@ -61,7 +62,7 @@ public class ScaleComponentPanel extends OMComponentPanel implements Runnable, P
     }
     
     public void setScale(float scale){
-        scalePanel.getScaleLabel().setText("Scale: " + String.format(Locale.US, "%3.0f", scale));
+//        commsPanel.getScaleLabel().setText("Scale: " + String.format(Locale.US, "%3.0f", scale));
     }
 
 
@@ -70,7 +71,7 @@ public class ScaleComponentPanel extends OMComponentPanel implements Runnable, P
         while (true) {
             if (gnssTime != null) {
                 Date now = gnssTime.getDate();
-                scalePanel.getTimeLabel().setText(Formatter.formatLongDateTime(now));
+//                commsPanel.getTimeLabel().setText(Formatter.formatLongDateTime(now));
             }
             
             try {

@@ -133,8 +133,10 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
 
         setup.setIcon(toolbarIcon("images/toolbar/wrench.png"));
         
+        
         JMenuItem transponder = new JMenuItem("Transponder");
         file.add(transponder);
+        //transponder.setIcon(toolbarIcon("images/toolbar/transponder.png"));
         transponder.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

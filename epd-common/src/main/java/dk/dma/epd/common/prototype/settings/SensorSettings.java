@@ -72,8 +72,7 @@ public class SensorSettings implements Serializable {
     private String gpsFilename = "";
     private int gpsTcpPort = 8888;
     
-    private boolean simulateGps;
-    private long simulatedOwnShip = 219622000; // Scanlines Helsinore
+    private boolean startTransponder = true;
     /**
      * If farther away than this range, the messages are discarded
      * In nautical miles (theoretical distance is about 40 miles)
@@ -94,8 +93,7 @@ public class SensorSettings implements Serializable {
         gpsConnectionType = SensorConnectionType.parseString(props.getProperty(PREFIX + "gpsConnectionType", gpsConnectionType.name()));
         gpsHostOrSerialPort = props.getProperty(PREFIX + "gpsHostOrSerialPort", gpsHostOrSerialPort);
         gpsTcpPort = PropUtils.intFromProperties(props, PREFIX + "gpsTcpPort", gpsTcpPort);
-        simulateGps = PropUtils.booleanFromProperties(props, PREFIX + "simulateGps", simulateGps);
-        simulatedOwnShip = PropUtils.longFromProperties(props, PREFIX + "simulatedOwnShip", simulatedOwnShip);
+        startTransponder = PropUtils.booleanFromProperties(props, PREFIX + "startTransponder", startTransponder);
         aisSensorRange = PropUtils.doubleFromProperties(props, PREFIX + "aisSensorRange", aisSensorRange);
         aisFilename = props.getProperty(PREFIX + "aisFilename", aisFilename);
         gpsFilename = props.getProperty(PREFIX + "gpsFilename", gpsFilename);
@@ -118,8 +116,7 @@ public class SensorSettings implements Serializable {
         props.put(PREFIX + "gpsConnectionType", gpsConnectionType.name());
         props.put(PREFIX + "gpsHostOrSerialPort", gpsHostOrSerialPort);
         props.put(PREFIX + "gpsTcpPort", Integer.toString(gpsTcpPort));
-        props.put(PREFIX + "simulateGps", Boolean.toString(simulateGps));
-        props.put(PREFIX + "simulatedOwnShip", Long.toString(simulatedOwnShip));
+        props.put(PREFIX + "startTransponder", Boolean.toString(startTransponder));
         props.put(PREFIX + "aisSensorRange", Double.toString(aisSensorRange));
         props.put(PREFIX + "aisFilename", aisFilename);
         props.put(PREFIX + "gpsFilename", gpsFilename);
@@ -178,21 +175,13 @@ public class SensorSettings implements Serializable {
     public void setGpsTcpPort(int gpsTcpPort) {
         this.gpsTcpPort = gpsTcpPort;
     }
-    
-    public boolean isSimulateGps() {
-        return simulateGps;
+
+    public boolean isStartTransponder() {
+        return startTransponder;
     }
     
-    public void setSimulateGps(boolean simulateGps) {
-        this.simulateGps = simulateGps;
-    }
-    
-    public long getSimulatedOwnShip() {
-        return simulatedOwnShip;
-    }
-    
-    public void setSimulatedOwnShip(long simulatedOwnShip) {
-        this.simulatedOwnShip = simulatedOwnShip;
+    public void setStartTransponder(boolean startTransponder) {
+        this.startTransponder = startTransponder;
     }
     
     public double getAisSensorRange() {

@@ -54,6 +54,7 @@ IMsiUpdateListener {
         
         setLayout(new BorderLayout(0, 0));
         add(msiPanel, BorderLayout.NORTH);
+        setVisible(false);
     }
 
     

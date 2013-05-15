@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.AbstractAction;
@@ -212,14 +213,24 @@ public class EPDShip {
 
         // Create plugin components
         createPluginComponents();
+        
+        final CountDownLatch guiCreated = new CountDownLatch(1);
 
         // Create and show GUI
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 createAndShowGUI();
+                guiCreated.countDown();
             }
         });
+        
+        // Wait for gui to be created
+        try {
+            guiCreated.await();
+        } catch (InterruptedException e) {
+            LOG.error("Interrupted while waiting for GUI to be created", e);
+        }
 
         // Start thread to handle software updates
         updateThread = new UpdateCheckerThread();
@@ -229,11 +240,12 @@ public class EPDShip {
         exceptionHandler = new ExceptionHandler();
         
         // Create embedded transponder frame
-        transponderFrame = new TransponderFrame(home.resolve("transponder.xml").toString(), true);
+        transponderFrame = new TransponderFrame(home.resolve("transponder.xml").toString(), true, mainFrame);
         mapHandler.add(transponderFrame);
         
-        // TODO use settings to determine if transponder should be started
-        
+        if (settings.getSensorSettings().isStartTransponder()) {
+            transponderFrame.startTransponder();
+        }
         
     }
 
@@ -289,15 +301,11 @@ public class EPDShip {
         }
 
         if (aisSensor != null) {
-            aisSensor.setSimulateGps(sensorSettings.isSimulateGps());
-            aisSensor.setSimulatedOwnShip(sensorSettings.getSimulatedOwnShip());
             aisSensor.start();
             // Add ais sensor to bean context
             mapHandler.add(aisSensor);
         }
         if (gpsSensor != null && gpsSensor != aisSensor) {
-            gpsSensor.setSimulateGps(sensorSettings.isSimulateGps());
-            gpsSensor.setSimulatedOwnShip(sensorSettings.getSimulatedOwnShip());
             gpsSensor.start();
             // Add gps sensor to bean context
             mapHandler.add(gpsSensor);

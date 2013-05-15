@@ -529,15 +529,11 @@ public class EPDShore {
         }
 
         if (aisSensor != null) {
-            aisSensor.setSimulateGps(sensorSettings.isSimulateGps());
-            aisSensor.setSimulatedOwnShip(sensorSettings.getSimulatedOwnShip());
             aisSensor.start();
             // Add ais sensor to bean context
             beanHandler.add(aisSensor);
         }
         if (gpsSensor != null && gpsSensor != aisSensor) {
-            gpsSensor.setSimulateGps(sensorSettings.isSimulateGps());
-            gpsSensor.setSimulatedOwnShip(sensorSettings.getSimulatedOwnShip());
             gpsSensor.start();
             // Add gps sensor to bean context
             beanHandler.add(gpsSensor);

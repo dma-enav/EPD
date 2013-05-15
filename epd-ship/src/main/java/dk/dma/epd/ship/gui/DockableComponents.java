@@ -55,6 +55,7 @@ import dk.dma.epd.ship.gui.ComponentPanels.CursorComponentPanel;
 import dk.dma.epd.ship.gui.ComponentPanels.DynamicNoGoComponentPanel;
 import dk.dma.epd.ship.gui.ComponentPanels.GpsComponentPanel;
 import dk.dma.epd.ship.gui.ComponentPanels.MSIComponentPanel;
+import dk.dma.epd.ship.gui.ComponentPanels.MonaLisaCommunicationComponentPanel;
 import dk.dma.epd.ship.gui.ComponentPanels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.ComponentPanels.OwnShipComponentPanel;
 import dk.dma.epd.ship.gui.ComponentPanels.ScaleComponentPanel;
@@ -64,7 +65,7 @@ public class DockableComponents {
 
     private static final String[] PANEL_NAMES = { "Chart", "Scale", "Own Ship",
             "GPS", "Cursor", "Active Waypoint", "Logos", "MSI", "AIS Target",
-            "Dynamic NoGo", "NoGo" };
+            "Dynamic NoGo", "NoGo", "Mona Lisa Communication" };
     Map<String, PanelDockable> dmap;
     private CControl control;
     DockableFactory factory;
@@ -81,7 +82,9 @@ public class DockableComponents {
     private AisComponentPanel aisPanel;
     private DynamicNoGoComponentPanel dynamicNoGoPanel;
     private NoGoComponentPanel nogoPanel;
+    private MonaLisaCommunicationComponentPanel monaLisaPanel;
 
+    
     private boolean locked;
 
     public DockableComponents(MainFrame mainFrame) {
@@ -100,10 +103,11 @@ public class DockableComponents {
         aisPanel = mainFrame.getAisComponentPanel();
         dynamicNoGoPanel = mainFrame.getDynamicNoGoPanel();
         nogoPanel = mainFrame.getNogoPanel();
+        monaLisaPanel = mainFrame.getMonaLisaPanel();
 
         factory = new DockableFactory(chartPanel, scalePanel, ownShipPanel,
                 gpsPanel, cursorPanel, activeWaypointPanel, logoPanel,
-                msiPanel, aisPanel, dynamicNoGoPanel, nogoPanel);
+                msiPanel, aisPanel, dynamicNoGoPanel, nogoPanel, monaLisaPanel);
 
         CContentArea contentArea = control.getContentArea();
         mainFrame.getContentPane().add(contentArea);
@@ -146,6 +150,9 @@ public class DockableComponents {
             // dockable.putAction(CDockable.ACTION_KEY_MINIMIZE, CBlank.BLANK);
             dockable.putAction(CDockable.ACTION_KEY_EXTERNALIZE, CBlank.BLANK);
             // dockable.putAction(CDockable.ACTION_KEY_CLOSE, CBlank.BLANK);
+            
+            
+            dockable.getContentPane().getComponent(0).setVisible(true);
         }
 
         control.getContentArea().setMinimumAreaSize(new Dimension(0, 0));
@@ -329,9 +336,14 @@ public class DockableComponents {
                 .normalEast(0.5));
 
         dockable.setVisible(true);
+        
+        dockable.getContentPane().getComponent(0).setVisible(true);
     }
 
     void doClose(PanelDockable dockable) {
+//        System.out.println(
+                dockable.getContentPane().getComponent(0).setVisible(false);
+        
         dockable.setVisible(false);
         control.removeDockable(dockable);
     }
@@ -452,6 +464,7 @@ public class DockableComponents {
         AisComponentPanel aisPanel;
         DynamicNoGoComponentPanel dynamicNoGoPanel;
         NoGoComponentPanel nogoPanel;
+        MonaLisaCommunicationComponentPanel monaLisaPanel;
 
         public DockableFactory(ChartPanel chartPanel,
                 ScaleComponentPanel scalePanel,
@@ -461,7 +474,7 @@ public class DockableComponents {
                 LogoPanel logoPanel, MSIComponentPanel msiPanel,
                 AisComponentPanel aisPanel,
                 DynamicNoGoComponentPanel dynamicNoGoPanel,
-                NoGoComponentPanel nogoPanel) {
+                NoGoComponentPanel nogoPanel, MonaLisaCommunicationComponentPanel monaLisaPanel) {
 
             super();
 
@@ -477,6 +490,7 @@ public class DockableComponents {
             this.aisPanel = aisPanel;
             this.dynamicNoGoPanel = dynamicNoGoPanel;
             this.nogoPanel = nogoPanel;
+            this.monaLisaPanel = monaLisaPanel;
 
         }
 
@@ -522,6 +536,9 @@ public class DockableComponents {
             }
             if (id.equals("NoGo")) {
                 return new PanelDockable(id, nogoPanel);
+            }
+            if (id.equals("Mona Lisa Communication")) {
+                return new PanelDockable(id, monaLisaPanel);
             }
 
             return new PanelDockable(id, new JPanel());

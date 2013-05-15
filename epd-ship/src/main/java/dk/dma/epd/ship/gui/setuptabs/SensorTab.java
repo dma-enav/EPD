@@ -41,7 +41,6 @@ import dk.dma.epd.ship.settings.EPDSensorSettings;
  */
 public class SensorTab extends JPanel implements ActionListener {
     private static final long serialVersionUID = 1L;
-    private JTextField textFieldSimulatedOwnShip;
     private JTextField textFieldAisHostOrSerialPort;
     private JSpinner spinnerAisTcpPort;
     private JTextField textFieldGpsHostOrSerialPort;
@@ -50,7 +49,7 @@ public class SensorTab extends JPanel implements ActionListener {
     private JTextField textFieldAisFilename;
     private JComboBox<SensorConnectionType> comboBoxAisConnectionType;
     private JComboBox<SensorConnectionType> comboBoxGpsConnectionType;
-    private JCheckBox checkBoxSimulateGps;
+    private JCheckBox startTransponder;
     private JSpinner spinnerAisSensorRange;
     private EPDSensorSettings sensorSettings;
     
@@ -187,58 +186,45 @@ public class SensorTab extends JPanel implements ActionListener {
         );
         GpsConnectionPanel.setLayout(gl_GpsConnectionPanel);
         
-        JPanel SimulationPanel = new JPanel();
-        SimulationPanel.setBorder(new TitledBorder(null, "Simulation Setup", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        JPanel transponderPanel = new JPanel();
+        transponderPanel.setBorder(new TitledBorder(null, "Transponder", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
-        checkBoxSimulateGps = new JCheckBox("Simulated GPS");
+        startTransponder = new JCheckBox("Start virtual transponder on startup");
         
         spinnerAisSensorRange = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Double(1)));
         
-        textFieldSimulatedOwnShip = new JTextField();
-        textFieldSimulatedOwnShip.setColumns(10);
-        
         JLabel label = new JLabel("AIS sensor range");
-        
-        JLabel label_1 = new JLabel("Simulated ship MMSI");
-        GroupLayout gl_SimulationPanel = new GroupLayout(SimulationPanel);
+        GroupLayout gl_SimulationPanel = new GroupLayout(transponderPanel);
         gl_SimulationPanel.setHorizontalGroup(
             gl_SimulationPanel.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_SimulationPanel.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(gl_SimulationPanel.createParallelGroup(Alignment.LEADING)
-                        .addComponent(checkBoxSimulateGps)
+                        .addComponent(startTransponder)
                         .addGroup(gl_SimulationPanel.createSequentialGroup()
-                            .addGroup(gl_SimulationPanel.createParallelGroup(Alignment.LEADING, false)
-                                .addComponent(spinnerAisSensorRange, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(textFieldSimulatedOwnShip, GroupLayout.DEFAULT_SIZE, 70, GroupLayout.DEFAULT_SIZE))
+                            .addComponent(spinnerAisSensorRange, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addGroup(gl_SimulationPanel.createParallelGroup(Alignment.LEADING)
-                                .addComponent(label)
-                                .addComponent(label_1))))
-                    .addContainerGap(104, Short.MAX_VALUE))
+                            .addComponent(label)))
+                    .addContainerGap(239, Short.MAX_VALUE))
         );
         gl_SimulationPanel.setVerticalGroup(
             gl_SimulationPanel.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_SimulationPanel.createSequentialGroup()
-                    .addComponent(checkBoxSimulateGps)
-                    .addPreferredGap(ComponentPlacement.RELATED)
-                    .addGroup(gl_SimulationPanel.createParallelGroup(Alignment.BASELINE)
-                        .addComponent(textFieldSimulatedOwnShip, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(label_1))
-                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addComponent(startTransponder)
+                    .addGap(40)
                     .addGroup(gl_SimulationPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(spinnerAisSensorRange, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addComponent(label))
-                    .addContainerGap(18, Short.MAX_VALUE))
+                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        SimulationPanel.setLayout(gl_SimulationPanel);
+        transponderPanel.setLayout(gl_SimulationPanel);
         GroupLayout groupLayout = new GroupLayout(this);
         groupLayout.setHorizontalGroup(
             groupLayout.createParallelGroup(Alignment.TRAILING)
                 .addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-                        .addComponent(SimulationPanel, GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE)
+                        .addComponent(transponderPanel, GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE)
                         .addComponent(GpsConnectionPanel, GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE)
                         .addComponent(AisConnectionPanel, GroupLayout.PREFERRED_SIZE, 313, Short.MAX_VALUE))
                     .addContainerGap())
@@ -251,7 +237,7 @@ public class SensorTab extends JPanel implements ActionListener {
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(GpsConnectionPanel, GroupLayout.PREFERRED_SIZE, 141, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(SimulationPanel, GroupLayout.PREFERRED_SIZE, 113, GroupLayout.PREFERRED_SIZE)
+                    .addComponent(transponderPanel, GroupLayout.PREFERRED_SIZE, 113, GroupLayout.PREFERRED_SIZE)
                     .addGap(21))
         );
         setLayout(groupLayout);
@@ -269,9 +255,7 @@ public class SensorTab extends JPanel implements ActionListener {
         textFieldGpsFilename.setText(sensorSettings.getGpsFilename());
         spinnerGpsTcpPort.setValue(sensorSettings.getGpsTcpPort());
         
-        checkBoxSimulateGps.setSelected(sensorSettings.isSimulateGps());
-        Long simulatedOwnShip = sensorSettings.getSimulatedOwnShip();
-        textFieldSimulatedOwnShip.setText(simulatedOwnShip.toString());
+        startTransponder.setSelected(sensorSettings.isStartTransponder());
         spinnerAisSensorRange.setValue(sensorSettings.getAisSensorRange());
     }
     
@@ -286,8 +270,8 @@ public class SensorTab extends JPanel implements ActionListener {
         sensorSettings.setGpsFilename(textFieldGpsFilename.getText());
         sensorSettings.setGpsTcpPort((Integer) spinnerGpsTcpPort.getValue());
         
-        sensorSettings.setSimulateGps(checkBoxSimulateGps.isSelected());
-        sensorSettings.setSimulatedOwnShip(Long.parseLong(textFieldSimulatedOwnShip.getText()));
+        sensorSettings.setStartTransponder(startTransponder.isSelected());
+        
         sensorSettings.setAisSensorRange((Double) spinnerAisSensorRange.getValue());
     }
 
