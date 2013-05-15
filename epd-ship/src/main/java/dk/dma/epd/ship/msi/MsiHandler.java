@@ -18,9 +18,11 @@ package dk.dma.epd.ship.msi;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +53,7 @@ import dk.frv.enav.common.xml.msi.response.MsiResponse;
 /**
  * Component for handling MSI messages
  */
+@ThreadSafe
 public class MsiHandler extends MapHandlerChild implements Runnable,
         IRoutesUpdateListener, IGpsDataListener {
 
@@ -68,7 +71,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     private transient Position calculationPosition;
     private transient Position currentPosition;
 
-    private Set<IMsiUpdateListener> listeners = new HashSet<>();
+    private CopyOnWriteArrayList<IMsiUpdateListener> listeners = new CopyOnWriteArrayList<>();
     private GpsHandler gpsHandler;
     private boolean gpsUpdate;
 
@@ -136,6 +139,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
                 list.add(msiMessageExtended);
             }
         }
+        
         return list;
     }
 
@@ -177,17 +181,21 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         return list.size() - 1;
     }
 
-    public synchronized void setAcknowledged(MsiMessage msiMessage) {
-        msiStore.getAcknowledged().add(msiMessage.getMessageId());
-        saveToFile();
-        reCalcMsiStatus();
+    public void setAcknowledged(MsiMessage msiMessage) {
+        synchronized(this) {
+            msiStore.getAcknowledged().add(msiMessage.getMessageId());
+            saveToFile();
+            reCalcMsiStatus();            
+        }
         notifyUpdate();
     }
 
-    public synchronized void deleteMessage(MsiMessage msiMessage) {
-        msiStore.deleteMessage(msiMessage);
-        saveToFile();
-        reCalcMsiStatus();
+    public void deleteMessage(MsiMessage msiMessage) {
+        synchronized(this) {
+            msiStore.deleteMessage(msiMessage);
+            saveToFile();
+            reCalcMsiStatus();            
+        }
         notifyUpdate();
     }
 
@@ -238,6 +246,9 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         }
     }
 
+    /** 
+     * Pushes msi updates to all listeners. Must not be used in a synchronized block
+     */
     public void notifyUpdate() {
         // Update layer
         if (msiLayer != null) {
@@ -300,7 +311,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         return true;
     }
 
-    public synchronized Date getLastUpdate() {
+    public Date getLastUpdate() {
         return lastUpdate;
     }
 
@@ -312,8 +323,9 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         return pendingImportantMessages;
     }
 
-    public synchronized void addListener(IMsiUpdateListener listener) {
-        listeners.add(listener);
+    @GuardedBy("listeners")
+    public void addListener(IMsiUpdateListener listener) {
+        listeners.addIfAbsent(listener);
     }
 
     public synchronized void saveToFile() {
