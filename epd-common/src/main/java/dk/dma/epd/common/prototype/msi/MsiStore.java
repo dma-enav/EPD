@@ -25,6 +25,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -56,7 +57,10 @@ public class MsiStore implements Serializable {
     // private static final String msiFile = ".msi";
     private static String msiFile;
 
-    private Map<Integer, MsiMessage> messages = new TreeMap<>();
+    //nonblocking
+    //private Map<Integer, MsiMessage> messages = new ConcurrentHashMap<Integer, MsiMessage>();
+    private Map<Integer,MsiMessage> messages = Collections.synchronizedMap(new TreeMap<Integer,MsiMessage>());
+    
     private int lastMessage;
     private Set<Integer> acknowledged = new HashSet<>();
     private Set<Integer> visibleGPS = new HashSet<>();
