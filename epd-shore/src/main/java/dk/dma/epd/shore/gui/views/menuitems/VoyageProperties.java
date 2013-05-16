@@ -17,32 +17,38 @@ package dk.dma.epd.shore.gui.views.menuitems;
 
 import javax.swing.JMenuItem;
 
-import dk.dma.epd.shore.layers.voyage.VoyagePlanInfoPanel;
+import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.gui.route.RoutePropertiesDialog;
+import dk.dma.epd.shore.route.RouteManager;
 
 
 
-public class ShowVoyagePlanInfo extends JMenuItem implements IMapMenuAction {
+public class VoyageProperties extends JMenuItem implements IMapMenuAction {
 
+    /**
+     *
+     */
     private static final long serialVersionUID = 1L;
-    private VoyagePlanInfoPanel voyagePlanInfoPanel;
-    
-    public ShowVoyagePlanInfo(String text) {
+    private int routeIndex;
+    private RouteManager routeManager;
+
+    public VoyageProperties(String text) {
         super();
-        this.setText(text);
+        setText(text);
     }
 
     @Override
     public void doAction() {
-//        voyagePlanInfoPanel.setLocation(0, 0);
-        voyagePlanInfoPanel.setVisible(true);
+        RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(EPDShore.getMainFrame(), routeManager, routeIndex);
+        routePropertiesDialog.setVisible(true);
     }
 
-    public void setVoyagePlanInfoPanel(VoyagePlanInfoPanel voyagePlanInfoPanel) {
-        this.voyagePlanInfoPanel = voyagePlanInfoPanel;
-        
+    public void setRouteIndex(int routeIndex) {
+        this.routeIndex = routeIndex;
     }
 
-    
-    
+    public void setRouteManager(RouteManager routeManager) {
+        this.routeManager = routeManager;
+    }
 
 }

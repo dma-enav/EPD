@@ -24,8 +24,8 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;

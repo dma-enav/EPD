@@ -18,16 +18,16 @@ package dk.dma.epd.shore.gui.views.monalisa;
 import java.awt.Color;
 import java.util.Date;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.MatteBorder;
+import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
-import javax.swing.JLabel;
-import javax.swing.border.MatteBorder;
-import javax.swing.border.TitledBorder;
 
 public class MonaLisaNegotiationView extends JPanel {
 

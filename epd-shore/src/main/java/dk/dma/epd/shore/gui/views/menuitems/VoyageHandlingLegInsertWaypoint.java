@@ -27,9 +27,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.math.Vector2D;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
-import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
-import dk.dma.epd.shore.route.RouteManager;
 
 public class VoyageHandlingLegInsertWaypoint extends JMenuItem implements IMapMenuAction {
 

@@ -51,6 +51,7 @@ import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteAck;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteAck.MonaLisaRouteAckMsg;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestMessage;
+import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
@@ -87,6 +88,11 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>> contextSenders = new HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>>();
 
+    
+    List<ServiceEndpoint<MonaLisaRouteRequestMessage, MonaLisaRouteRequestReply>> monaLisaShipList = new ArrayList<>();
+    
+    
+    
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
         this.hostPort = String.format("%s:%d",
                 enavSettings.getCloudServerHost(),
@@ -162,10 +168,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
             LOG.error(e.getMessage());
 
         }
-
-        // for (int i = 0; i < routeSuggestionList.size(); i++) {
-        // System.out.println(routeSuggestionList.get(i).getId());
-        // }
     }
 
     public List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> getRouteSuggestionList() {
@@ -546,7 +548,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
             if (contextSenders.containsKey(reply.getId())) {
                 System.out.println("Sending");
                 contextSenders.get(reply.getId()).complete(reply);
-
             }
 
         } catch (Exception e) {
@@ -555,4 +556,65 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     }
 
+    
+    
+    
+    
+    public void sendMonaLisaRouteRequest(MonaLisaRouteRequestMessage routeMessage) {
+
+        ServiceEndpoint<MonaLisaRouteService.MonaLisaRouteRequestMessage, MonaLisaRouteService.MonaLisaRouteRequestReply> end = null;
+
+        
+        //How to determine which to send to?
+//        for (int i = 0; i < monaLisaSTCCList.size(); i++) {
+//            end = monaLisaSTCCList.get(i);
+//
+//        }
+
+        // Each request has a unique ID, talk to Kasper?
+
+        if (end != null) {
+            ConnectionFuture<MonaLisaRouteService.MonaLisaRouteRequestReply> f = end
+                    .invoke(routeMessage);
+
+            f.handle(new BiConsumer<MonaLisaRouteService.MonaLisaRouteRequestReply, Throwable>() {
+
+                @Override
+                public void accept(MonaLisaRouteRequestReply l, Throwable r) {
+//                    replyRecieved(l);
+                }
+            });
+
+        } else {
+            // notifyRouteExchangeListeners();
+            System.out.println("Failed to send?");
+            // replyRecieved(f.get());
+        }
+
+    }
+    
+    
+    private void getMonaLisaShipList() {
+        try {
+            monaLisaShipList = connection
+                    .serviceFind(MonaLisaRouteService.INIT)
+                    .nearest(Integer.MAX_VALUE).get();
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+
+        }
+    }
+    
+    public boolean shipAvailableForMonaLisaTransaction(long mmsi) {
+        getMonaLisaShipList();
+        for (int i = 0; i < monaLisaShipList.size(); i++) {
+            if (mmsi == Long.parseLong(monaLisaShipList.get(i).getId()
+                    .toString().split("//")[1])) {
+                return true;
+            }
+
+        }
+
+        return false;
+    }
 }

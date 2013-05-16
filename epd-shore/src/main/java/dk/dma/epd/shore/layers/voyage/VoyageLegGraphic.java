@@ -41,7 +41,7 @@ public class VoyageLegGraphic extends OMGraphicList {
     private Color color;
 
 
-    private int routeIndex;
+    private int voyageIndex;
     
     float[] dash = { 35.0f, 35.0f };
     float dashPhase;
@@ -51,17 +51,17 @@ public class VoyageLegGraphic extends OMGraphicList {
      * 
      * @param routeLeg
      *            RouteLeg object containing information about the route leg
-     * @param routeIndex
+     * @param voyageIndex
      *            TODO
      * @param color
      *            Color of the route leg
      * @param stroke
      *            Stroke type of the route leg
      */
-    public VoyageLegGraphic(RouteLeg routeLeg, int routeIndex, Color color,
+    public VoyageLegGraphic(RouteLeg routeLeg, int voyageIndex, Color color,
             Stroke stroke) {
         super();
-        this.routeIndex = routeIndex;
+        this.voyageIndex = voyageIndex;
         this.routeLeg = routeLeg;
         this.color = color;
         this.stroke = stroke;
@@ -102,8 +102,13 @@ public class VoyageLegGraphic extends OMGraphicList {
         super.render(image);
     }
 
-    public int getRouteIndex() {
-        return routeIndex;
+
+
+    /**
+     * @return the voyageIndex
+     */
+    public int getVoyageIndex() {
+        return voyageIndex;
     }
 
     public RouteLeg getRouteLeg() {

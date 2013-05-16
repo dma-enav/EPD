@@ -79,6 +79,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private AisHandler aisHandler;
     private MonaLisaHandler monaLisaHandler;
     private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context;
+    InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply> monaLisaContext;
     
 
     // End point holders for Mona Lisa Route Exchange
@@ -293,6 +294,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                         try {
                             intendedRouteListener();
                             routeExchangeListener();
+                            monaLisaRouteRequestListener();
                         } catch (Exception e) {
                             // e.printStackTrace();
                             System.out.println("Failed to setup listener");
@@ -402,6 +404,52 @@ public class EnavServiceHandler extends MapHandlerChild implements
         monaLisaHandler.handleReply(reply);
         
         
+    }
+    
+    
+    
+    
+    
+    private void monaLisaRouteRequestListener() throws InterruptedException {
+
+        connection
+                .serviceRegister(
+                        MonaLisaRouteService.INIT,
+                        new InvocationCallback<MonaLisaRouteService.MonaLisaRouteRequestMessage, MonaLisaRouteService.MonaLisaRouteRequestReply>() {
+                            public void process(
+                                    MonaLisaRouteRequestMessage message,
+                                    InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply> context) {
+
+                                monaLisaContext = context;
+                                
+                                System.out.println("Ship received a request for reopening a transaction!");
+                                
+                                //Does transaction exist?
+                                
+                                //If not, recreate as much as possible and open
+                                
+                                //Start new transaction with the end result
+                                
+                                
+                                
+                                
+                                
+                                
+//                                // long mmsi = message.getMmsi();
+//                                contextSenders.put(message.getId(), context);
+//
+//                                // if
+//                                // (EPDShore.getAisHandler().getVesselTargets()
+//                                // .containsKey(mmsi)) {
+//
+//                                System.out
+//                                        .println("Recieved a message with id "
+//                                                + message.getId());
+//
+//                                monaLisaHandler.handleMessage(message);
+
+                            }
+                        }).awaitRegistered(4, TimeUnit.SECONDS);
     }
 
 }

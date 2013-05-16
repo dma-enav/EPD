@@ -17,32 +17,47 @@ package dk.dma.epd.shore.gui.views.menuitems;
 
 import javax.swing.JMenuItem;
 
-import dk.dma.epd.shore.layers.voyage.VoyagePlanInfoPanel;
+import com.bbn.openmap.MapBean;
+
+import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.shore.EPDShore;
 
 
+public class VoyageZoomToShip extends JMenuItem implements IMapMenuAction {
 
-public class ShowVoyagePlanInfo extends JMenuItem implements IMapMenuAction {
-
+    /**
+     *
+     */
     private static final long serialVersionUID = 1L;
-    private VoyagePlanInfoPanel voyagePlanInfoPanel;
-    
-    public ShowVoyagePlanInfo(String text) {
+    private MapBean mapBean;
+    private Position position;
+
+    public VoyageZoomToShip(String text) {
         super();
-        this.setText(text);
+        setText(text);
     }
 
     @Override
     public void doAction() {
-//        voyagePlanInfoPanel.setLocation(0, 0);
-        voyagePlanInfoPanel.setVisible(true);
+        mapBean.setCenter(position.getLatitude(), position.getLongitude());
+        mapBean.setScale(EPDShore.getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale());
     }
 
-    public void setVoyagePlanInfoPanel(VoyagePlanInfoPanel voyagePlanInfoPanel) {
-        this.voyagePlanInfoPanel = voyagePlanInfoPanel;
-        
+    /**
+     * @param mapBean the mapBean to set
+     */
+    public void setMapBean(MapBean mapBean) {
+        this.mapBean = mapBean;
     }
 
-    
+    /**
+     * @param position the position to set
+     */
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
+
     
 
 }

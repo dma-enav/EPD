@@ -24,9 +24,9 @@ import java.util.List;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
-import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
+import dk.dma.epd.shore.voyage.Voyage;
 
 /**
  * Graphic for showing routes
@@ -35,21 +35,21 @@ public class VoyageGraphic extends OMGraphicList {
 
     private static final long serialVersionUID = 1L;
 
-    private Route route;
+    private Voyage voyage;
     private LinkedList<RouteWaypoint> routeWaypoints;
     private List<VoyageLegGraphic> routeLegs = new ArrayList<>();
 
     protected Stroke stroke;
     protected Color color;
 
-    private int routeIndex;
+    private int voyageIndex;
 
     boolean animation;
 
-    public VoyageGraphic(Route route, int routeIndex, Color color) {
+    public VoyageGraphic(Voyage voyage, int voyageIndex, Color color) {
         super();
-        this.route = route;
-        this.routeIndex = routeIndex;
+        this.voyage = voyage;
+        this.voyageIndex = voyageIndex;
 
         stroke = new BasicStroke(12.0f, // Width
 //        stroke = new BasicStroke(5.0f, // Width
@@ -63,9 +63,7 @@ public class VoyageGraphic extends OMGraphicList {
         initGraphics();
     }
 
-    public Route getRoute() {
-        return route;
-    }
+
 
     public VoyageGraphic(Stroke stroke, Color color) {
         super();
@@ -73,22 +71,23 @@ public class VoyageGraphic extends OMGraphicList {
         this.color = color;
     }
 
-    public void setRoute(Route route) {
-        this.route = route;
+    public void setVoyage(Voyage voyage) {
+        this.voyage = voyage;
         initGraphics();
     }
 
     public void initGraphics() {
-        routeWaypoints = route.getWaypoints();
+        routeWaypoints = voyage.getRoute().getWaypoints();
 //        int i = 0;
         for (RouteWaypoint routeWaypoint : routeWaypoints) {
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg routeLeg = routeWaypoint.getOutLeg();
                 VoyageLegGraphic voyageLegGraphic = new VoyageLegGraphic(routeLeg,
-                        routeIndex, this.color, this.stroke);
+                        voyageIndex, this.color, this.stroke);
                 add(voyageLegGraphic);
                 routeLegs.add(0, voyageLegGraphic);
             }
+
             
             //No waypoint circles?
 //            VoyageWaypointGraphic voyageWaypointGraphic = new VoyageWaypointGraphic(

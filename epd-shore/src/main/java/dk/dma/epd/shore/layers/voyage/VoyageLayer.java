@@ -26,22 +26,25 @@ import java.util.Map;
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
+import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
+import com.bbn.openmap.omGraphics.OMList;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.gui.views.JMapFrame;
+import dk.dma.epd.shore.gui.views.MapMenu;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteExchangeListener;
+import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
 import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
 import dk.dma.epd.shore.voyage.VoyageUpdateListener;
@@ -66,19 +69,18 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     // private MetocInfoPanel metocInfoPanel;
     // private WaypointInfoPanel waypointInfoPanel;
-    // private MapBean mapBean;
+     private MapBean mapBean;
 
     private OMGraphicList graphics = new OMGraphicList();
     // private OMGraphic closest;
-    // private OMGraphic selectedGraphic;
+    private OMGraphic selectedGraphic;
     private JMapFrame jMapFrame;
 
     private AisLayer aisLayer;
     private AisHandler aisHandler;
     private boolean windowHandling;
-    
 
-    // private MapMenu routeMenu;
+     private MapMenu routeMenu;
 
     public VoyageLayer() {
         voyageManager = EPDShore.getVoyageManager();
@@ -90,7 +92,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         voyageManager.addListener(this);
         this.windowHandling = windowHandling;
     }
-    
+
     @Override
     public void findAndInit(Object obj) {
         if (obj instanceof MonaLisaHandler) {
@@ -110,7 +112,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
         }
         if (obj instanceof MapBean) {
-            // mapBean = (MapBean) obj;
+             mapBean = (MapBean) obj;
         }
         if (obj instanceof AisLayer) {
             aisLayer = (AisLayer) obj;
@@ -120,11 +122,13 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
             aisHandler = (AisHandler) obj;
             aisHandler.addListener(this);
         }
+        
+        if (obj instanceof MapMenu) {
+            routeMenu = (MapMenu) obj;
+        }
 
     }
 
-    
-    
     public boolean isWindowHandling() {
         return windowHandling;
     }
@@ -151,40 +155,49 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseClicked(MouseEvent e) {
-        // if(e.getButton() != MouseEvent.BUTTON3){
-        // return false;
-        // }
-        //
-        // selectedGraphic = null;
-        // OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-        // 5.0f);
-        // for (OMGraphic omGraphic : allClosest) {
-        // if (omGraphic instanceof WaypointCircle || omGraphic instanceof
-        // RouteLegGraphic) {
-        // selectedGraphic = omGraphic;
-        // break;
-        // }
-        // }
-        //
-        //
-        // if(selectedGraphic instanceof WaypointCircle){
-        // WaypointCircle wpc = (WaypointCircle) selectedGraphic;
-        // waypointInfoPanel.setVisible(false);
-        // routeMenu.routeWaypointMenu(wpc.getRouteIndex(), wpc.getWpIndex());
-        // routeMenu.setVisible(true);
-        // routeMenu.show(this, e.getX()-2, e.getY()-2);
-        // return true;
-        // }
-        // if(selectedGraphic instanceof RouteLegGraphic){
-        // RouteLegGraphic rlg = (RouteLegGraphic) selectedGraphic;
-        // waypointInfoPanel.setVisible(false);
-        // routeMenu.routeLegMenu(rlg.getRouteIndex(), rlg.getRouteLeg(),
-        // e.getPoint());
-        // routeMenu.setVisible(true);
-        // routeMenu.show(this, e.getX()-2, e.getY()-2);
-        // return true;
-        // }
-        //
+        if (e.getButton() != MouseEvent.BUTTON3) {
+            return false;
+        }
+
+         selectedGraphic = null;
+         OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
+         5.0f);
+         for (OMGraphic omGraphic : allClosest) {
+             
+             System.out.println(omGraphic.getClass());
+             
+         if (omGraphic instanceof VoyageWaypointCircle || omGraphic instanceof
+                 VoyageLegGraphic) {
+         selectedGraphic = omGraphic;
+         break;
+         }
+         }
+        
+        
+         if(selectedGraphic instanceof VoyageWaypointCircle){
+//             VoyageWaypointCircle wpc = (VoyageWaypointCircle) selectedGraphic;
+             
+//             System.out.println("Voyage circle");
+
+//         routeMenu.routeWaypointMenu(wpc.getRouteIndex(), wpc.getWpIndex());
+//         routeMenu.setVisible(true);
+//         routeMenu.show(this, e.getX()-2, e.getY()-2);
+         return true;
+         }
+         if(selectedGraphic instanceof VoyageLegGraphic){
+         VoyageLegGraphic rlg = (VoyageLegGraphic) selectedGraphic;
+         int voyageIndex = rlg.getVoyageIndex();
+         Voyage currentVoyage = voyageManager.getVoyage(voyageIndex);
+         
+         
+         System.out.println("Voyage leg");
+
+         routeMenu.voyageGeneralMenu(currentVoyage.getId(), currentVoyage.getMmsi(), currentVoyage.getRoute(), mapBean);
+         routeMenu.setVisible(true);
+         routeMenu.show(this, e.getX()-2, e.getY()-2);
+         return true;
+         }
+        
         return false;
     }
 
@@ -290,11 +303,12 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         graphics.clear();
 
         for (int i = 0; i < voyageManager.getVoyages().size(); i++) {
-            Route route = voyageManager.getVoyages().get(i).getRoute();
-            System.out.println(route);
-            if (route.isVisible()) {
+//            Route route = voyageManager.getVoyages().get(i).getRoute();
+            Voyage voyage = voyageManager.getVoyages().get(i);
+//            System.out.println(route);
+            if (voyage.getRoute().isVisible()) {
                 System.out.println("Adding Voyage");
-                VoyageGraphic voyageGraphic = new VoyageGraphic(route, i,
+                VoyageGraphic voyageGraphic = new VoyageGraphic(voyage, i,
                         new Color(0.4f, 0.8f, 0.5f, 0.5f));
                 graphics.add(voyageGraphic);
             }

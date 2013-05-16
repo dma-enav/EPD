@@ -15,9 +15,9 @@
  */
 package dk.dma.epd.shore.service;
 
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 
 
 public class RouteSuggestionData {

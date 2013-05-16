@@ -24,8 +24,8 @@ import java.util.Set;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteAck.MonaLisaRouteAckMsg;
+import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
 import dk.dma.epd.shore.voyage.Voyage;
@@ -53,9 +53,6 @@ public class MonaLisaHandler extends MapHandlerChild {
 
     public void sendReply(long id, String text, long mmsi,
             long currentTimeMillis, MonaLisaRouteStatus replyStatus, Route route) {
-
-        
-
         
         // Should a reply be sent?
 

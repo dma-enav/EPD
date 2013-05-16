@@ -13,46 +13,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
+package dk.dma.epd.shore.gui.views.menuitems;
 
-package dk.dma.epd.shore.voyage;
+import javax.swing.JMenuItem;
 
-import java.io.Serializable;
+import dk.dma.epd.shore.EPDShore;
 
-import dk.dma.epd.common.prototype.model.route.Route;
 
-public class Voyage implements Serializable{
+public class VoyageShowTransaction extends JMenuItem implements IMapMenuAction {
 
+    /**
+     *
+     */
     private static final long serialVersionUID = 1L;
-    private Route route;
-    private long id;
-    long mmsi;
+    private long transactionID;
 
-    
-    public Voyage(long mmsi, Route route, long id) {
-        this.id = id;
-        this.route = route;
-        this.mmsi = mmsi;
+    public VoyageShowTransaction(String text) {
+        super();
+        setText(text);
     }
-    
-    public Route getRoute() {
-        return route;
+
+    @Override
+    public void doAction() {
+        EPDShore.getMainFrame().getNotificationCenter().showMonaLisaMsg(2, transactionID);
     }
-    public void setRoute(Route route) {
-        this.route = route;
+
+    /**
+     * @param transactionID the transactionID to set
+     */
+    public void setTransactionID(long transactionID) {
+        this.transactionID = transactionID;
     }
-    public long getMmsi() {
-        return mmsi;
-    }
-    public void setMmsi(long mmsi) {
-        this.mmsi = mmsi;
-    }
-    public long getId() {
-        return id;
-    }
-    public void setId(long id) {
-        this.id = id;
-    }
-    
+
     
     
 }

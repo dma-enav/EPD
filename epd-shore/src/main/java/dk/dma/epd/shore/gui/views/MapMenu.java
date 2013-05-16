@@ -42,6 +42,7 @@ import com.bbn.openmap.BufferedLayerMapBean;
 import com.bbn.openmap.LightMapHandlerChild;
 import com.bbn.openmap.MapBean;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
@@ -71,19 +72,24 @@ import dk.dma.epd.shore.gui.views.menuitems.RouteReverse;
 import dk.dma.epd.shore.gui.views.menuitems.RouteShowMetocToggle;
 import dk.dma.epd.shore.gui.views.menuitems.RouteWaypointActivateToggle;
 import dk.dma.epd.shore.gui.views.menuitems.RouteWaypointDelete;
-import dk.dma.epd.shore.gui.views.menuitems.SendRouteToShip;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteFromRoute;
+import dk.dma.epd.shore.gui.views.menuitems.SendRouteToShip;
 import dk.dma.epd.shore.gui.views.menuitems.SendVoyage;
 import dk.dma.epd.shore.gui.views.menuitems.ShowVoyagePlanInfo;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingAppendWaypoint;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingLegInsertWaypoint;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingWaypointDelete;
+import dk.dma.epd.shore.gui.views.menuitems.VoyageProperties;
+import dk.dma.epd.shore.gui.views.menuitems.VoyageRenegotiate;
+import dk.dma.epd.shore.gui.views.menuitems.VoyageShowTransaction;
+import dk.dma.epd.shore.gui.views.menuitems.VoyageZoomToShip;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyagePlanInfoPanel;
 import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.route.RouteManager;
+import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.voyage.Voyage;
 
 /**
@@ -129,6 +135,11 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private VoyageHandlingWaypointDelete voyageHandlingWaypointDelete;
     private VoyageHandlingAppendWaypoint voyageHandlingAppendWaypoint;
 
+    private VoyageProperties voyageProperties;
+    private VoyageRenegotiate voyageRenegotiate;
+    private VoyageShowTransaction voyageShowTransaction;
+    private VoyageZoomToShip voyageZoomToShip;
+    
     private ShowVoyagePlanInfo openVoyagePlan;
     private SendVoyage sendVoyage;
 
@@ -149,6 +160,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     // private NewRouteContainerLayer newRouteLayer;
     private AisLayer aisLayer;
     private AisHandler aisHandler;
+    private MonaLisaHandler monaLisaHandler;
 
     // private NogoHandler nogoHandler;
 
@@ -252,6 +264,17 @@ public class MapMenu extends JPopupMenu implements ActionListener,
                 "Append waypoint");
         voyageHandlingAppendWaypoint.addActionListener(this);
 
+        voyageProperties = new VoyageProperties("Show Voyage Plan");
+        voyageProperties.addActionListener(this);
+        
+        voyageRenegotiate = new VoyageRenegotiate("Renegotigate Voyage");
+        voyageRenegotiate.addActionListener(this);
+        
+        voyageShowTransaction = new VoyageShowTransaction("Show Transaction");
+        voyageShowTransaction.addActionListener(this);
+        
+        voyageZoomToShip = new VoyageZoomToShip("Zoom to Ship");
+        voyageZoomToShip.addActionListener(this);
     }
 
     /**
@@ -527,6 +550,52 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         generalRouteMenu(routeIndex);
     }
+    
+    
+    public void voyageGeneralMenu(long transactionID, long mmsi, Route route, MapBean mapBean){
+        removeAll();
+        
+        if (aisHandler.getVesselTargets().containsKey(mmsi)){
+            voyageZoomToShip.setEnabled(true); 
+            Position pos = aisHandler.getVesselTargets().get(mmsi).getPositionData().getPos();
+            voyageZoomToShip.setMapBean(mapBean);
+            voyageZoomToShip.setPosition(pos);
+        }else{
+            voyageZoomToShip.setEnabled(false); 
+        }
+        
+        
+        if (monaLisaHandler.getMonaLisaNegotiationData().containsKey(transactionID)){
+            voyageShowTransaction.setEnabled(true);
+            voyageShowTransaction.setTransactionID(transactionID);
+        }else{
+            voyageShowTransaction.setEnabled(false);
+        }
+        
+        voyageProperties.setEnabled(false);
+        
+        voyageRenegotiate.setTransactionid(transactionID);
+        voyageRenegotiate.setAisHandler(aisHandler);
+        voyageRenegotiate.setMonaLisaHandler(monaLisaHandler);
+        
+        
+        
+        voyageRenegotiate.setEnabled(EPDShore.getEnavServiceHandler()
+                .shipAvailableForMonaLisaTransaction(mmsi) && monaLisaHandler.getMonaLisaNegotiationData().containsKey(transactionID));
+        
+        
+        add(voyageZoomToShip);
+        add(voyageShowTransaction);
+        
+        add(voyageProperties);
+        add(voyageRenegotiate);
+        
+        //Zoom to Ship
+        //Show transaction
+        //Show voyage plan
+        //Renegotiate Voyage
+    }
+    
 
     public void voyageWaypontMenu(VoyageHandlingLayer voyageHandlingLayer,
             MapBean mapBean, Voyage voyage, boolean modified, JMapFrame parent,
@@ -615,6 +684,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         }
         if (obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
+        }
+        if (obj instanceof MonaLisaHandler) {
+            monaLisaHandler = (MonaLisaHandler) obj;
         }
 
     }
