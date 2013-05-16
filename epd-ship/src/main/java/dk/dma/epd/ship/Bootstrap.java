@@ -28,7 +28,6 @@ import org.springframework.core.io.Resource;
 import com.google.common.io.Resources;
 
 /**
- * 
  * @author Kasper Nielsen
  */
 class Bootstrap {

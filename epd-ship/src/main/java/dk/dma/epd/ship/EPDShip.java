@@ -101,7 +101,6 @@ public class EPDShip {
     private static EnavServiceHandler enavServiceHandler;
     private static DynamicNogoHandler dynamicNoGoHandler;
     private static UpdateCheckerThread updateThread;
-    private static ExceptionHandler exceptionHandler;
     private static TransponderFrame transponderFrame;
     private static Path home = Paths.get(System.getProperty("user.home"), ".epd-ship");
 
@@ -113,7 +112,7 @@ public class EPDShip {
         LOG = LoggerFactory.getLogger(EPDShip.class);
 
         // Set default exception handler
-        Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
+        Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
 
         // Determine version
         Package p = EPDShip.class.getPackage();
@@ -235,9 +234,6 @@ public class EPDShip {
         // Start thread to handle software updates
         updateThread = new UpdateCheckerThread();
         mapHandler.add(updateThread);
-
-        // must be set after logging is enabled
-        exceptionHandler = new ExceptionHandler();
         
         // Create embedded transponder frame
         transponderFrame = new TransponderFrame(home.resolve("transponder.xml").toString(), true, mainFrame);

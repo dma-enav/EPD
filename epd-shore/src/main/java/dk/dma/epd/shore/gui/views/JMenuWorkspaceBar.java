@@ -30,6 +30,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.fileselection.WorkspaceFileFilter;
 
@@ -46,7 +47,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
     private HashMap<Integer, JMenu> mapMenus;
     private MainFrame mainFrame;
     private JMainDesktopPane desktop;
-    // private MainFrame mainFrame;
+    private TransponderFrame transponderFrame;
 
     /**
      * Constructor
@@ -73,6 +74,9 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
         JMenuItem preferences = new JMenuItem("Preferences");
         fm.add(preferences);
+        
+        JMenuItem transponder = new JMenuItem("Transponder");
+        fm.add(transponder);
 
         JMenuItem mi = new JMenuItem("Exit");
         fm.add(mi);
@@ -127,6 +131,15 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
 
         //Action listeners
+        
+        transponder.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (transponderFrame != null) {
+                    transponderFrame.setVisible(true);
+                }                
+            }
+        });
 
         loadWorkspace.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -417,4 +430,9 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
 
     }
+    
+    public void setTransponderFrame(TransponderFrame transponderFrame) {
+        this.transponderFrame = transponderFrame;
+    }
+    
 }

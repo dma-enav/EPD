@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.PropertyConsumer;
 
 import dk.dma.ais.reader.AisReader;
+import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
 import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.PersistentConnection.State;
@@ -84,18 +86,16 @@ public class EPDShore {
     private static AisReader aisReader;
     private static ShoreServices shoreServices;
     private static StaticImages staticImages;
+    private static TransponderFrame transponderFrame;
 
     private static RouteManager routeManager;
     private static VoyageManager voyageManager;
     private static EnavServiceHandler enavServiceHandler;
 
-    private static ExceptionHandler exceptionHandler = new ExceptionHandler();
-    private static Path home = Paths.get(System.getProperty("user.home"),
-            ".epd-shore");
+    private static Path home = Paths.get(System.getProperty("user.home"), ".epd-shore");
 
     /**
-     * Starts the program by initializing the various threads and spawning the
-     * main GUI
+     * Starts the program by initializing the various threads and spawning the main GUI
      * 
      * @param args
      */
@@ -107,11 +107,10 @@ public class EPDShore {
         LOG = LoggerFactory.getLogger(EPDShore.class);
 
         // Set default exception handler
-        Thread.setDefaultUncaughtExceptionHandler(exceptionHandler);
+        Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
 
         VERSION = "5.0";
-        LOG.info("Starting eNavigation Prototype Display Shore - version "
-                + VERSION);
+        LOG.info("Starting eNavigation Prototype Display Shore - version " + VERSION);
         LOG.info("Copyright (C) 2012 Danish Maritime Authority");
         LOG.info("This program comes with ABSOLUTELY NO WARRANTY.");
         LOG.info("This is free software, and you are welcome to redistribute it under certain conditions.");
@@ -133,14 +132,10 @@ public class EPDShore {
 
         // Determine if instance already running and if that is allowed
 
-        OneInstanceGuard guard = new OneInstanceGuard(home.resolve("esd.lock")
-                .toString());
+        OneInstanceGuard guard = new OneInstanceGuard(home.resolve("esd.lock").toString());
         if (guard.isAlreadyRunning()) {
-            JOptionPane
-                    .showMessageDialog(
-                            null,
-                            "One application instance already running. Stop instance or restart computer.",
-                            "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "One application instance already running. Stop instance or restart computer.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
         }
 
@@ -167,13 +162,11 @@ public class EPDShore {
         // Load routeManager
         routeManager = RouteManager.loadRouteManager();
         beanHandler.add(routeManager);
-        
-        
+
         // To be changed to load similar to routeManager
-//        voyageManager = new VoyageManager();
+        // voyageManager = new VoyageManager();
         voyageManager = VoyageManager.loadVoyageManager();
         beanHandler.add(voyageManager);
-        
 
         // Create AIS services
         aisServices = new AisServices();
@@ -183,11 +176,10 @@ public class EPDShore {
         beanHandler.add(shoreServices);
 
         // Create EnavServiceHandler
-        enavServiceHandler = new EnavServiceHandler(getSettings()
-                .getEnavSettings());
+        enavServiceHandler = new EnavServiceHandler(getSettings().getEnavSettings());
         beanHandler.add(enavServiceHandler);
         enavServiceHandler.start();
-        
+
         // Create Mona Lisa Handler;
         monaLisaHandler = new MonaLisaHandler();
         beanHandler.add(monaLisaHandler);
@@ -198,13 +190,32 @@ public class EPDShore {
 
         createPluginComponents();
 
+        final CountDownLatch guiCreated = new CountDownLatch(1);
+
         // Create and show GUI
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 createAndShowGUI();
+                guiCreated.countDown();
             }
         });
+
+        // Wait for gui to be created
+        try {
+            guiCreated.await();
+        } catch (InterruptedException e) {
+            LOG.error("Interrupted while waiting for GUI to be created", e);
+        }
+
+        // Create embedded transponder frame
+        transponderFrame = new TransponderFrame(home.resolve("transponder.xml").toString(), true, mainFrame);
+        mainFrame.getTopMenu().setTransponderFrame(transponderFrame);
+        beanHandler.add(transponderFrame);
+
+        if (settings.getSensorSettings().isStartTransponder()) {
+            transponderFrame.startTransponder();
+        }
 
     }
 
@@ -223,8 +234,6 @@ public class EPDShore {
         return home;
     }
 
-    
-    
     public static MonaLisaHandler getMonaLisaHandler() {
         return monaLisaHandler;
     }
@@ -266,12 +275,13 @@ public class EPDShore {
 
         if (connection != null) {
             try {
-                enavServiceHandler.getConnection().awaitState(State.TERMINATED,
-                        2, TimeUnit.SECONDS);
+                enavServiceHandler.getConnection().awaitState(State.TERMINATED, 2, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 LOG.info("Failed to close connection - Terminatnig");
             }
         }
+
+        transponderFrame.shutdown();
 
         LOG.info("Closing ESD");
         System.exit(restart ? 2 : 0);
@@ -319,8 +329,7 @@ public class EPDShore {
                 }
                 beanHandler.add(obj);
             } catch (IOException e) {
-                LOG.error("IO Exception instantiating class \"" + className
-                        + "\"");
+                LOG.error("IO Exception instantiating class \"" + className + "\"");
             } catch (ClassNotFoundException e) {
                 LOG.error("Component class not found: \"" + className + "\"");
             }
@@ -444,12 +453,9 @@ public class EPDShore {
 
         // Uncomment for fancy look and feel
         /**
-         * try { for (LookAndFeelInfo info :
-         * UIManager.getInstalledLookAndFeels()) { if
-         * ("Nimbus".equals(info.getName())) {
-         * UIManager.setLookAndFeel(info.getClassName()); break; } } } catch
-         * (Exception e) { // If Nimbus is not available, you can set the GUI to
-         * another look and feel. }
+         * try { for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) { if ("Nimbus".equals(info.getName())) {
+         * UIManager.setLookAndFeel(info.getClassName()); break; } } } catch (Exception e) { // If Nimbus is not available, you can
+         * set the GUI to another look and feel. }
          **/
 
     }
@@ -458,8 +464,7 @@ public class EPDShore {
      * Load the properties file
      */
     static void loadProperties() {
-        InputStream in = EPDShore.class
-                .getResourceAsStream("/epd-shore.properties");
+        InputStream in = EPDShore.class.getResourceAsStream("/epd-shore.properties");
         try {
             if (in == null) {
                 throw new IOException("Properties file not found");
@@ -478,21 +483,16 @@ public class EPDShore {
             aisSensor = new NmeaStdinSensor();
             break;
         case TCP:
-            aisSensor = new NmeaTcpSensor(
-                    sensorSettings.getAisHostOrSerialPort(),
-                    sensorSettings.getAisTcpPort());
+            aisSensor = new NmeaTcpSensor(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisTcpPort());
             break;
         case SERIAL:
-            aisSensor = new NmeaSerialSensor(
-                    sensorSettings.getAisHostOrSerialPort());
+            aisSensor = new NmeaSerialSensor(sensorSettings.getAisHostOrSerialPort());
             break;
         case FILE:
-            aisSensor = new NmeaFileSensor(sensorSettings.getAisFilename(),
-                    sensorSettings);
+            aisSensor = new NmeaFileSensor(sensorSettings.getAisFilename(), sensorSettings);
             break;
         default:
-            LOG.error("Unknown sensor connection type: "
-                    + sensorSettings.getAisConnectionType());
+            LOG.error("Unknown sensor connection type: " + sensorSettings.getAisConnectionType());
         }
 
         if (aisSensor != null) {
@@ -504,24 +504,19 @@ public class EPDShore {
             gpsSensor = new NmeaStdinSensor();
             break;
         case TCP:
-            gpsSensor = new NmeaTcpSensor(
-                    sensorSettings.getGpsHostOrSerialPort(),
-                    sensorSettings.getGpsTcpPort());
+            gpsSensor = new NmeaTcpSensor(sensorSettings.getGpsHostOrSerialPort(), sensorSettings.getGpsTcpPort());
             break;
         case SERIAL:
-            gpsSensor = new NmeaSerialSensor(
-                    sensorSettings.getGpsHostOrSerialPort());
+            gpsSensor = new NmeaSerialSensor(sensorSettings.getGpsHostOrSerialPort());
             break;
         case FILE:
-            gpsSensor = new NmeaFileSensor(sensorSettings.getGpsFilename(),
-                    sensorSettings);
+            gpsSensor = new NmeaFileSensor(sensorSettings.getGpsFilename(), sensorSettings);
             break;
         case AIS_SHARED:
             gpsSensor = aisSensor;
             break;
         default:
-            LOG.error("Unknown sensor connection type: "
-                    + sensorSettings.getAisConnectionType());
+            LOG.error("Unknown sensor connection type: " + sensorSettings.getAisConnectionType());
         }
 
         if (gpsSensor != null) {
@@ -589,6 +584,4 @@ public class EPDShore {
         return voyageManager;
     }
 
-    
-    
 }
