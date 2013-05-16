@@ -4,7 +4,7 @@
     <ownPosInterval>0</ownPosInterval>
     <username>anon</username>
     <password>anon</password>
-    <port>4001</port>
+    <port>4002</port>
     <receiveRadius>0</receiveRadius>
     <serverHost>service.e-navigation.net</serverHost>
     <serverPort>10001</serverPort>
