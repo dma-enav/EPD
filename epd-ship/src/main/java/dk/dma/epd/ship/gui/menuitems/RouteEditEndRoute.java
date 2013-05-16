@@ -65,6 +65,8 @@ public class RouteEditEndRoute extends JMenuItem implements IMapMenuAction {
                 routeWaypoint.setName(String.format("WP_%03d", i));
                 i++;
             }
+            
+            route.adjustStartTime();
             route.calcValues(true);
             
             routeManager.addRoute(route);

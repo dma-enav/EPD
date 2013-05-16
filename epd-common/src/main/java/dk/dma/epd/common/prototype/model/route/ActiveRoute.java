@@ -16,6 +16,7 @@
 package dk.dma.epd.common.prototype.model.route;
 
 import java.util.Date;
+import java.util.List;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
@@ -96,7 +97,7 @@ public class ActiveRoute extends Route {
 
     private Position safeHavenLocation;
     private Route originalRoute;
-    
+
     protected double safeHavenBearing;
 
     public ActiveRoute(Route route, GpsData gpsData) {
@@ -113,8 +114,24 @@ public class ActiveRoute extends Route {
         this.originalRoute = route.copy();
 
         this.safeHavenLocation = waypoints.get(0).getPos();
+
         calcValues(true);
+
         changeActiveWaypoint(getBestWaypoint(route, gpsData));
+
+        
+        
+//        for (int i = 0; i < route.getWaypoints().size(); i++) {
+//
+//            if (route.getWaypoints().get(i).getOutLeg() != null) {
+//                System.out.println(i + "Original speed is "
+//                        + route.getWaypoints().get(i).getOutLeg().getSpeed());
+//                System.out.println(i + "New speed is "
+//                        + originalRoute.getWaypoints().get(i).getOutLeg()
+//                                .getSpeed());
+//            }
+//
+//        }
     }
 
     /*
@@ -133,16 +150,17 @@ public class ActiveRoute extends Route {
                 Position wpPos = route.getWaypoints().get(i).getPos();
                 double distance = gpsData.getPosition().rhumbLineDistanceTo(
                         wpPos);
-                double angleToWpDeg = gpsData.getPosition().rhumbLineBearingTo(wpPos);
+                double angleToWpDeg = gpsData.getPosition().rhumbLineBearingTo(
+                        wpPos);
                 double weight = 1 - (Math.toRadians(gpsData.getCog()) - Math
                         .toRadians(angleToWpDeg));
-                double result = Math.abs(weight) * (0.5 * Converter
-                        .metersToNm(distance));
+                double result = Math.abs(weight)
+                        * (0.5 * Converter.metersToNm(distance));
                 double upper = gpsData.getCog() + 90;
                 double lower = gpsData.getCog() - 90;
 
-                if (result < smallestDist
-                        && angleToWpDeg < upper && angleToWpDeg > lower) {
+                if (result < smallestDist && angleToWpDeg < upper
+                        && angleToWpDeg > lower) {
                     smallestDist = result;
                     index = i;
                 }
@@ -155,8 +173,8 @@ public class ActiveRoute extends Route {
         }
 
     }
-    
-    public double getSafeHavenBearing(){
+
+    public double getSafeHavenBearing() {
         return safeHavenBearing;
     }
 
@@ -164,46 +182,100 @@ public class ActiveRoute extends Route {
 
         long currentTime = GnssTime.getInstance().getDate().getTime();
 
+        List<Date> directetas = originalRoute.getEtas();
+
+//        for (int i = 0; i < directetas.size(); i++) {
+//            System.out.println(directetas.get(i));
+//        }
+
         // We haven't begun sailing on the route yet, putting box at first
         // waypoint
+
         if (currentTime < originalRoute.getStarttime().getTime()) {
-            safeHavenBearing = Calculator.bearing(originalRoute.getWaypoints().get(0).getPos(), originalRoute.getWaypoints().get(1).getPos(), Heading.RL);
+//            System.out.println("Not started sailing?");
+            safeHavenBearing = Calculator.bearing(originalRoute.getWaypoints()
+                    .get(0).getPos(), originalRoute.getWaypoints().get(1)
+                    .getPos(), Heading.RL);
             return originalRoute.getWaypoints().get(0).getPos();
         } else {
 
+//            System.out.println("On route");
             for (int i = 0; i < originalRoute.getWaypoints().size(); i++) {
 
-                //We haven't found the match so we must be at the end of the route
-                if (i == originalRoute.getWaypoints().size()-1) {
-                    safeHavenBearing = Calculator.bearing(originalRoute.getWaypoints().get(originalRoute.getWaypoints().size()-2).getPos(), originalRoute.getWaypoints().get(originalRoute.getWaypoints().size()-1).getPos(), Heading.RL);
-                    
+//                System.out.println("i is:" + i);
+                // We haven't found the match so we must be at the end of the
+                // route
+                if (i == originalRoute.getWaypoints().size() - 1) {
+//                    System.out.println("cant find a match, setting to final");
+                    safeHavenBearing = Calculator
+                            .bearing(
+                                    originalRoute
+                                            .getWaypoints()
+                                            .get(originalRoute.getWaypoints()
+                                                    .size() - 2).getPos(),
+                                    originalRoute
+                                            .getWaypoints()
+                                            .get(originalRoute.getWaypoints()
+                                                    .size() - 1).getPos(),
+                                    Heading.RL);
+
                     return originalRoute.getWaypoints().get(i).getPos();
                 } else {
+
+                    // System.out.println("Current time is: " + new
+                    // Date(currentTime));
+                    // System.out.println("Current is bigger than next " + new
+                    // Date(originalRoute.getEtas().get(i).getTime()) + " : " +
+                    // (currentTime >
+                    // originalRoute.getEtas().get(i).getTime()));
+                    // System.out.println("Current is less than next +1" + new
+                    // Date(originalRoute.getEtas().get(i+1).getTime()) + " : "
+                    // + (currentTime < originalRoute.getEtas().get(i + 1)
+                    // .getTime()));
 
                     // We should be beyond this
                     if (currentTime > originalRoute.getEtas().get(i).getTime()
                             && currentTime < originalRoute.getEtas().get(i + 1)
                                     .getTime()) {
-                        //How long have we been sailing between these waypoints?
-                        long secondsSailTime = (currentTime - originalRoute.getEtas().get(i).getTime()) / 1000;
-                        double distanceTravelledNauticalMiles = Converter.milesToNM(Calculator
-                                .distanceAfterTimeMph(originalRoute.getWaypoints().get(i).getOutLeg().getSpeed(),
+                        // How long have we been sailing between these
+                        // waypoints?
+                        long secondsSailTime = (currentTime - originalRoute
+                                .getEtas().get(i).getTime()) / 1000;
+
+//                        System.out.println("We have sailed for "
+//                                + secondsSailTime
+//                                + " at speed "
+//                                + originalRoute.getWaypoints().get(i)
+//                                        .getOutLeg().getSpeed() + " for i:" + i ) ;
+
+                        double distanceTravelledNauticalMiles = Converter
+                                .milesToNM(Calculator.distanceAfterTimeMph(
+                                        originalRoute.getWaypoints().get(i)
+                                                .getOutLeg().getSpeed(),
                                         secondsSailTime));
-                        
-//                        System.out.println("Travelled: " + distanceTravelledNauticalMiles
-//                                + " nautical miles total to travel: "
-//                                + this.currentLeg.calcRng() + " nautical miles");
-//                        
-                        
-                        safeHavenLocation = Calculator.findPosition(this.getWaypoints()
-                                .get(i).getPos(), this.getWaypoints().get(i).getOutLeg()
-                                .calcBrg(),
-                                Converter.nmToMeters(distanceTravelledNauticalMiles));
-                        
-                        safeHavenBearing = Calculator.bearing(originalRoute.getWaypoints().get(i).getPos(), originalRoute.getWaypoints().get(i+1).getPos(), Heading.RL);
-                        
-                        
-//                        System.out.println("At waypoint: " + i);
+
+//                        System.out
+//                                .println("Travelled: "
+//                                        + distanceTravelledNauticalMiles
+//                                        + " nautical miles total to travel: "
+//                                        + this.currentLeg.calcRng()
+//                                        + " nautical miles");
+                        //
+
+                        safeHavenLocation = Calculator
+                                .findPosition(
+                                        this.getWaypoints().get(i).getPos(),
+                                        this.getWaypoints().get(i).getOutLeg()
+                                                .calcBrg(),
+                                        Converter
+                                                .nmToMeters(distanceTravelledNauticalMiles));
+
+                        safeHavenBearing = Calculator
+                                .bearing(originalRoute.getWaypoints().get(i)
+                                        .getPos(), originalRoute.getWaypoints()
+                                        .get(i + 1).getPos(), Heading.RL);
+
+                        // System.out.println("At waypoint: " + i);
                         return safeHavenLocation;
                     }
                 }
@@ -213,36 +285,39 @@ public class ActiveRoute extends Route {
             }
 
         }
-        //An error must have occured
+        // An error must have occured
         return null;
-//
-//        System.out.println("Hi?");
-//        
-//        // How long have the route been active
-//        long secondsSailTime = ((GnssTime.getInstance().getDate().getTime() - origStarttime
-//                .getTime()) / (1000));
-//
-//        // How long have should we have sailed in that time period?
-//        double distanceTravelledNauticalMiles = Converter.milesToNM(Calculator
-//                .distanceAfterTimeMph(this.currentLeg.getSpeed(),
-//                        secondsSailTime));
-//
-//        System.out.println("Travelled: " + distanceTravelledNauticalMiles
-//                + " nautical miles total to travel: "
-//                + this.currentLeg.calcRng() + " nautical miles");
-//        // We have leg total before we recalculate which leg we are on and total
-//        // total if we are beyond the total size of the route?
-//
-//        if (distanceTravelledNauticalMiles >= this.currentLeg.calcRng()) {
-//            this.safeHavenLocation = waypoints.get(1).getPos();
-//        } else {
-//            safeHavenLocation = Calculator.findPosition(this.getWaypoints()
-//                    .get(0).getPos(), this.getWaypoints().get(0).getOutLeg()
-//                    .calcBrg(),
-//                    Converter.nmToMeters(distanceTravelledNauticalMiles));
-//        }
-//
-//        return safeHavenLocation;
+        //
+        // System.out.println("Hi?");
+        //
+        // // How long have the route been active
+        // long secondsSailTime = ((GnssTime.getInstance().getDate().getTime() -
+        // origStarttime
+        // .getTime()) / (1000));
+        //
+        // // How long have should we have sailed in that time period?
+        // double distanceTravelledNauticalMiles =
+        // Converter.milesToNM(Calculator
+        // .distanceAfterTimeMph(this.currentLeg.getSpeed(),
+        // secondsSailTime));
+        //
+        // System.out.println("Travelled: " + distanceTravelledNauticalMiles
+        // + " nautical miles total to travel: "
+        // + this.currentLeg.calcRng() + " nautical miles");
+        // // We have leg total before we recalculate which leg we are on and
+        // total
+        // // total if we are beyond the total size of the route?
+        //
+        // if (distanceTravelledNauticalMiles >= this.currentLeg.calcRng()) {
+        // this.safeHavenLocation = waypoints.get(1).getPos();
+        // } else {
+        // safeHavenLocation = Calculator.findPosition(this.getWaypoints()
+        // .get(0).getPos(), this.getWaypoints().get(0).getOutLeg()
+        // .calcBrg(),
+        // Converter.nmToMeters(distanceTravelledNauticalMiles));
+        // }
+        //
+        // return safeHavenLocation;
     }
 
     public synchronized void update(GpsData gpsData) {
@@ -265,8 +340,8 @@ public class ActiveRoute extends Route {
                 activeWaypoint.getPos(), currentLeg.getHeading());
 
         // Calculate nice TTG
-        niceActiveWpTtg = Math
-                .round(activeWpRng / currentLeg.getSpeed() * 60 * 60 * 1000);
+        niceActiveWpTtg = Math.round(activeWpRng / currentLeg.getSpeed() * 60
+                * 60 * 1000);
 
         // Calculate TTG to active waypoint
         if (avgSpeed > 0.1) {
@@ -274,7 +349,8 @@ public class ActiveRoute extends Route {
             if (activeWpTtg < niceActiveWpTtg) {
                 niceActiveWpTtg = activeWpTtg;
             } else {
-                double pctOff = (niceActiveWpTtg - activeWpTtg) / niceActiveWpTtg * 100.0;
+                double pctOff = (niceActiveWpTtg - activeWpTtg)
+                        / niceActiveWpTtg * 100.0;
                 if (pctOff < 50.0) {
                     niceActiveWpTtg = activeWpTtg;
                 }
@@ -486,43 +562,44 @@ public class ActiveRoute extends Route {
         this.relaxedWpChange = relaxedWpChange;
     }
 
-    public dk.dma.enav.model.voyage.Route getFullRouteData(){
-        
+    public dk.dma.enav.model.voyage.Route getFullRouteData() {
+
         dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
 
         int startingWP = this.getActiveWaypointIndex();
 
-//        System.out.println("Amount of waypoints to send: " + wayPointsToSend);
-//        System.out.println("Starting at " + startingWP);
+        // System.out.println("Amount of waypoints to send: " +
+        // wayPointsToSend);
+        // System.out.println("Starting at " + startingWP);
         for (int i = startingWP; i < getWaypoints().size(); i++) {
-        
-//            System.out.println("Packing waypoint: " + i);
-            dk.dma.enav.model.voyage.Waypoint voyageWaypoint = new dk.dma.enav.model.voyage.Waypoint(); 
-             RouteWaypoint currentWaypoint = getWaypoints().get(i);
 
-             voyageWaypoint.setEta(etas.get(i));
-             voyageWaypoint.setLatitude(currentWaypoint.getPos().getLatitude());
-             voyageWaypoint.setLongitude(currentWaypoint.getPos().getLongitude());
-             voyageWaypoint.setRot(currentWaypoint.getRot());
-             voyageWaypoint.setTurnRad(currentWaypoint.getTurnRad());
-             
-             //Leg related stored in the waypoint
-             if (currentWaypoint.getOutLeg() != null){
-                 dk.dma.enav.model.voyage.RouteLeg routeLeg = new dk.dma.enav.model.voyage.RouteLeg();
-                 routeLeg.setSpeed(currentWaypoint.getOutLeg().getSpeed());
-                 routeLeg.setXtdPort(currentWaypoint.getOutLeg().getXtdPort());
-                 routeLeg.setXtdStarboard(currentWaypoint.getOutLeg().getXtdStarboard());
-                 routeLeg.setSFWidth(currentWaypoint.getOutLeg().getSFWidth());
-                 routeLeg.setSFLen(currentWaypoint.getOutLeg().getSFWidth());
-                 
-                 voyageWaypoint.setRouteLeg(routeLeg);
-             }
-             voyageRoute.getWaypoints().add(voyageWaypoint);
+            // System.out.println("Packing waypoint: " + i);
+            dk.dma.enav.model.voyage.Waypoint voyageWaypoint = new dk.dma.enav.model.voyage.Waypoint();
+            RouteWaypoint currentWaypoint = getWaypoints().get(i);
+
+            voyageWaypoint.setEta(etas.get(i));
+            voyageWaypoint.setLatitude(currentWaypoint.getPos().getLatitude());
+            voyageWaypoint
+                    .setLongitude(currentWaypoint.getPos().getLongitude());
+            voyageWaypoint.setRot(currentWaypoint.getRot());
+            voyageWaypoint.setTurnRad(currentWaypoint.getTurnRad());
+
+            // Leg related stored in the waypoint
+            if (currentWaypoint.getOutLeg() != null) {
+                dk.dma.enav.model.voyage.RouteLeg routeLeg = new dk.dma.enav.model.voyage.RouteLeg();
+                routeLeg.setSpeed(currentWaypoint.getOutLeg().getSpeed());
+                routeLeg.setXtdPort(currentWaypoint.getOutLeg().getXtdPort());
+                routeLeg.setXtdStarboard(currentWaypoint.getOutLeg()
+                        .getXtdStarboard());
+                routeLeg.setSFWidth(currentWaypoint.getOutLeg().getSFWidth());
+                routeLeg.setSFLen(currentWaypoint.getOutLeg().getSFWidth());
+
+                voyageWaypoint.setRouteLeg(routeLeg);
+            }
+            voyageRoute.getWaypoints().add(voyageWaypoint);
         }
-        
 
-        
         return voyageRoute;
     }
-    
+
 }

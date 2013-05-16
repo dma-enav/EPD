@@ -168,13 +168,27 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                 0.0f); // Dash phase
 
         Color ECDISOrange = new Color(213, 103, 45, 255);
+        
+        
 
         int activeRouteIndex = routeManager.getActiveRouteIndex();
         for (int i = 0; i < routeManager.getRoutes().size(); i++) {
             Route route = routeManager.getRoutes().get(i);
             if (route.isVisible() && i != activeRouteIndex) {
-                RouteGraphic routeGraphic = new RouteGraphic(route, i,
-                        arrowsVisible, stroke, ECDISOrange);
+                RouteGraphic routeGraphic;
+                
+                if (route.isStccApproved()){
+                    Color greenApproved = new Color(0.39f, 0.69f,
+                            0.49f, 0.6f);
+                    
+                    routeGraphic = new RouteGraphic(route, i, arrowsVisible, stroke,
+                            ECDISOrange, greenApproved, false);
+                }else{
+                    routeGraphic = new RouteGraphic(route, i,
+                            arrowsVisible, stroke, ECDISOrange);
+                }
+                
+
                 graphics.add(routeGraphic);
             }
         }
@@ -544,6 +558,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                 Position newLocation = Position.create(newLatLon.getLatitude(),
                         newLatLon.getLongitude());
                 routeWaypoint.setPos(newLocation);
+                wpc.getRoute().setStccApproved(false);
                 routesChanged(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
                 dragging = true;
                 return true;

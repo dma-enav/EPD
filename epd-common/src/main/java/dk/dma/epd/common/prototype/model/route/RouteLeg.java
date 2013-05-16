@@ -242,4 +242,19 @@ public class RouteLeg implements Serializable {
         double dXt = Math.asin(Math.sin(d13/R)*Math.sin(brng13-brng12)) * R;
         return dXt;
     }
+
+    public RouteLeg copy() {
+        
+        RouteLeg newRouteLeg = new RouteLeg();
+        
+      newRouteLeg.setSpeed(getSpeed());
+      newRouteLeg.setHeading(getHeading());
+      newRouteLeg.setXtdStarboard(getXtdStarboard());
+      newRouteLeg.setXtdPort(getXtdPort());
+      newRouteLeg.setSFLen(getSFLen());
+      newRouteLeg.setSFWidth(getSFWidth());
+        
+
+        return newRouteLeg;
+    }
 }
