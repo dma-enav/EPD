@@ -26,15 +26,15 @@ import dk.dma.epd.common.Heading;
 public class RouteWaypoint implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * Optional name for waypoint
      */
-    protected String name;    
+    protected String name;
     /**
      * Position
      */
-    protected Position pos;    
+    protected Position pos;
     /**
      * Optional turn radius
      */
@@ -51,8 +51,8 @@ public class RouteWaypoint implements Serializable {
      * Leg going to this waypoint
      */
     protected RouteLeg inLeg;
-    
-    public RouteWaypoint(RouteWaypoint rw){
+
+    public RouteWaypoint(RouteWaypoint rw) {
         this.name = rw.getName();
         this.pos = rw.getPos();
         this.turnRad = rw.getTurnRad();
@@ -60,14 +60,16 @@ public class RouteWaypoint implements Serializable {
         this.outLeg = rw.getOutLeg();
         this.inLeg = rw.getInLeg();
     }
-    
+
     public RouteWaypoint() {
-        
+
     }
-    
+
     /**
-     * Performs a deep copy of this RouteWaypoint. The copy constructor above is used to perform shallow copy
-     * on route creation and editing, when a back reference to route leg is needed.
+     * Performs a deep copy of this RouteWaypoint. The copy constructor above is
+     * used to perform shallow copy on route creation and editing, when a back
+     * reference to route leg is needed.
+     * 
      * @return Copy of routeWaypoint.
      */
     public RouteWaypoint copy() {
@@ -77,7 +79,7 @@ public class RouteWaypoint implements Serializable {
         copy.setTurnRad(this.getTurnRad());
         return copy;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -105,19 +107,19 @@ public class RouteWaypoint implements Serializable {
     public void setOutLeg(RouteLeg leg) {
         this.outLeg = leg;
     }
-    
+
     public RouteLeg getInLeg() {
         return inLeg;
     }
-    
+
     public void setInLeg(RouteLeg inLeg) {
         this.inLeg = inLeg;
     }
-    
+
     public Double getRot() {
         return rot;
     }
-    
+
     public void setRot(Double rot) {
         if (inLeg == null || outLeg == null) {
             rot = null;
@@ -129,16 +131,17 @@ public class RouteWaypoint implements Serializable {
         // Speed in nm / minute
         double speed = outLeg.getSpeed() / 60;
         // TODO This is probably not entirely correct
-        this.turnRad = speed / rot;         
+        this.turnRad = speed / rot;
     }
-    
+
     public void setTurnRad(Double turnRad) {
-        if (inLeg == null /*|| outLeg == null*/) {
+        if (inLeg == null /* || outLeg == null */) {
             turnRad = null;
             return;
         }
-        // TODO: Parser complains if last waypoint doesn't have turnrad, is this correct behavior?
-        if (outLeg == null){
+        // TODO: Parser complains if last waypoint doesn't have turnrad, is this
+        // correct behavior?
+        if (outLeg == null) {
             this.turnRad = inLeg.getStartWp().getTurnRad();
             this.rot = inLeg.getStartWp().getRot();
             return;
@@ -148,16 +151,16 @@ public class RouteWaypoint implements Serializable {
         // Speed in nm / minute
         double speed = outLeg.getSpeed() / 60;
         // TODO This is probably not entirely correct
-        this.rot = speed / turnRad;        
+        this.rot = speed / turnRad;
     }
-    
+
     public void setSpeed(double speed) {
         if (outLeg == null) {
             return;
         }
         outLeg.setSpeed(speed);
         if (turnRad == null) {
-            return;    
+            return;
         }
         // Calculate rot from fixed speed and rot
         // Speed in nm / minute
@@ -165,23 +168,24 @@ public class RouteWaypoint implements Serializable {
         // TODO This is probably not entirely correct
         this.rot = speed / turnRad;
     }
-        
+
     /**
      * Calc range to next waypoint
+     * 
      * @return
      */
     public Double calcRng() {
         return outLeg == null ? null : outLeg.calcRng();
     }
-    
+
     public Double calcBrg() {
-        return outLeg == null ? null : outLeg.calcBrg(); 
+        return outLeg == null ? null : outLeg.calcBrg();
     }
-    
+
     public Heading getHeading() {
         return outLeg == null ? null : outLeg.getHeading();
     }
-    
+
     public Double calcRot() {
         if (turnRad == null || outLeg == null || inLeg == null) {
             return null;
@@ -190,20 +194,32 @@ public class RouteWaypoint implements Serializable {
         setSpeed(outLeg.getSpeed());
         return rot;
     }
-    
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("RouteWaypoint [leg=");
-        builder.append(outLeg);
-        builder.append(", name=");
-        builder.append(name);
-        builder.append(", pos=");
-        builder.append(pos);
-        builder.append(", turnRad=");
-        builder.append(turnRad);
-        builder.append("]");
-        return builder.toString();
+        return "RouteWaypoint [name=" + name + ", pos=" + pos + ", turnRad="
+                + turnRad + ", rot=" + rot + ", outLeg=" + outLeg + ", inLeg="
+                + inLeg + "]";
     }
-    
+
+    // @Override
+    // public String toString() {
+    // StringBuilder builder = new StringBuilder();
+    // builder.append("RouteWaypoint [leg=");
+    // builder.append(outLeg);
+    // builder.append(", name=");
+    // builder.append(name);
+    // builder.append(", pos=");
+    // builder.append(pos);
+    // builder.append(", turnRad=");
+    // builder.append(turnRad);
+    // builder.append("]");
+    // return builder.toString();
+    // }
+
 }

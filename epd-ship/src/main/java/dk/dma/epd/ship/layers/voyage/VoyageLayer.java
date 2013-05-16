@@ -130,7 +130,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     private void startRouteAnimation() {
 
-        System.out.println("Starting route animation");
+//        System.out.println("Starting route animation");
 
         RouteGraphic animatedRoute = null;
 
@@ -138,7 +138,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
             if (graphics.get(i) instanceof RouteGraphic) {
                 if (primaryRoute == ((RouteGraphic) graphics.get(i)).getRoute()) {
-                    System.out.println("Animate the specific one");
+//                    System.out.println("Animate the specific one");
                     animatedRoute = (RouteGraphic) graphics.get(i);
                     animatedRoute.activateAnimation();
 
@@ -214,7 +214,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
             return false;
         }
 
-        System.out.println("Right click!");
+//        System.out.println("Right click!");
 
         selectedGraphic = null;
         OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
@@ -386,7 +386,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
         // First time modifying
         if (!monaLisaHandler.isRouteModified()) {
-            System.out.println("We are modifying");
+//            System.out.println("We are modifying");
             monaLisaHandler.modifiedRequest();
 //            modifiedSTCCRoute.setName("Modified Reply Route");
         }

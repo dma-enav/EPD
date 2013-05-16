@@ -177,13 +177,19 @@ public class RouteLegGraphic extends OMGraphicList {
         
         dashPhase -= 9.0f;
         if (dashPhase < 0){
-            System.out.println("Resetting!");
+//            System.out.println("Resetting!");
             dashPhase = 5000;
         }
 //        System.out.println("Dashphase is now " + dashPhase);
         
+        if (animationLine != null){
+            
+        
+        
         animationLine.setStroke(new BasicStroke(10.0f, BasicStroke.CAP_BUTT,
                 BasicStroke.JOIN_MITER, 10.0f, dash, dashPhase));
+        
+        }
 //        System.out.println("Changing stroke! " + dashPhase);
     }
     

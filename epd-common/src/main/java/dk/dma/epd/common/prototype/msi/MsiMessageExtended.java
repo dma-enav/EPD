@@ -20,10 +20,10 @@ import java.util.Date;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 
 public class MsiMessageExtended {
-    public MsiMessage msiMessage;
-    public boolean acknowledged;
-    public boolean visible;
-    public boolean relevant;
+    public volatile MsiMessage msiMessage;
+    public volatile boolean acknowledged;
+    public volatile boolean visible;
+    public volatile boolean relevant;
 
     public MsiMessageExtended(MsiMessage msiMessage, boolean acknowledged,
             boolean visible, boolean relevant) {

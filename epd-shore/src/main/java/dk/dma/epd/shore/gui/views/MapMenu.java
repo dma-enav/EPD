@@ -75,19 +75,22 @@ import dk.dma.epd.shore.gui.views.menuitems.SendRouteToShip;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteFromRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendVoyage;
 import dk.dma.epd.shore.gui.views.menuitems.ShowVoyagePlanInfo;
+import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingAppendWaypoint;
+import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingLegInsertWaypoint;
+import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingWaypointDelete;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
+import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyagePlanInfoPanel;
 import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.voyage.Voyage;
 
-
 /**
  * Right click map menu
  */
-public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandlerChild, BeanContextChild,
-        BeanContextMembershipListener {
+public class MapMenu extends JPopupMenu implements ActionListener,
+        LightMapHandlerChild, BeanContextChild, BeanContextMembershipListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -101,7 +104,7 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
     private JMenu scaleMenu;
     private AisIntendedRouteToggle aisIntendedRouteToggle;
 
-//    private NogoRequest nogoRequest;
+    // private NogoRequest nogoRequest;
     private MsiAcknowledge msiAcknowledge;
     private MsiDetails msiDetails;
     private MsiZoomTo msiZoomTo;
@@ -122,38 +125,42 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
     private SendRouteToShip sendRouteToShip;
     private SendRouteFromRoute setRouteExchangeRoute;
 
-    
+    private VoyageHandlingLegInsertWaypoint voyageHandlingLegInsertWaypoint;
+    private VoyageHandlingWaypointDelete voyageHandlingWaypointDelete;
+    private VoyageHandlingAppendWaypoint voyageHandlingAppendWaypoint;
+
     private ShowVoyagePlanInfo openVoyagePlan;
     private SendVoyage sendVoyage;
-    
+
     // bean context
     protected String propertyPrefix;
-    protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(this);
+    protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(
+            this);
     protected boolean isolated;
     private RouteManager routeManager;
     private Route route;
-//    private SendRouteDialog sendRouteDialog;
+    // private SendRouteDialog sendRouteDialog;
 
-    //Route suggest?
-//    private RouteSuggestionDialog routeSuggestionDialog;
-
+    // Route suggest?
+    // private RouteSuggestionDialog routeSuggestionDialog;
 
     private MapBean mapBean;
     private Map<Integer, String> map;
-//    private NewRouteContainerLayer newRouteLayer;
+    // private NewRouteContainerLayer newRouteLayer;
     private AisLayer aisLayer;
     private AisHandler aisHandler;
 
-//    private NogoHandler nogoHandler;
-
+    // private NogoHandler nogoHandler;
 
     public MapMenu() {
         super();
 
         // general menu items
-        hideIntendedRoutes = new GeneralHideIntendedRoutes("Hide all intended routes");
+        hideIntendedRoutes = new GeneralHideIntendedRoutes(
+                "Hide all intended routes");
         hideIntendedRoutes.addActionListener(this);
-        showIntendedRoutes = new GeneralShowIntendedRoutes("Show all intended routes");
+        showIntendedRoutes = new GeneralShowIntendedRoutes(
+                "Show all intended routes");
         showIntendedRoutes.addActionListener(this);
         newRoute = new GeneralNewRoute("Add new route");
         newRoute.addActionListener(this);
@@ -191,8 +198,6 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         routeDelete = new RouteDelete("Delete route");
         routeDelete.addActionListener(this);
 
-
-
         routeRequestMetoc = new RouteRequestMetoc("Request METOC");
         routeRequestMetoc.addActionListener(this);
         routeShowMetocToggle = new RouteShowMetocToggle();
@@ -205,11 +210,13 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         routeAppendWaypoint.addActionListener(this);
 
         // route leg menu
-        routeLegInsertWaypoint = new RouteLegInsertWaypoint("Insert waypoint here");
+        routeLegInsertWaypoint = new RouteLegInsertWaypoint(
+                "Insert waypoint here");
         routeLegInsertWaypoint.addActionListener(this);
 
         // route waypoint menu
-        routeWaypointActivateToggle = new RouteWaypointActivateToggle("Activate waypoint");
+        routeWaypointActivateToggle = new RouteWaypointActivateToggle(
+                "Activate waypoint");
         routeWaypointActivateToggle.addActionListener(this);
         routeWaypointDelete = new RouteWaypointDelete("Delete waypoint");
         routeWaypointDelete.addActionListener(this);
@@ -223,37 +230,50 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         sendRouteToShip.addActionListener(this);
 
         routeRequestMetoc.setEnabled(false);
-        
-        
+
         // Voyage menu
         openVoyagePlan = new ShowVoyagePlanInfo("Open Voyage Plans Details");
         openVoyagePlan.addActionListener(this);
-        
+
         sendVoyage = new SendVoyage("Select and send Voyage");
         sendVoyage.addActionListener(this);
-//        sendVoyage.setText("Select and send Voyage");
-        
-        
-        
-        
+        // sendVoyage.setText("Select and send Voyage");
+
+        // voyage leg menu
+        voyageHandlingLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint(
+                "Insert waypoint here");
+        voyageHandlingLegInsertWaypoint.addActionListener(this);
+
+        voyageHandlingWaypointDelete = new VoyageHandlingWaypointDelete(
+                "Delete waypoint");
+        voyageHandlingWaypointDelete.addActionListener(this);
+
+        voyageHandlingAppendWaypoint = new VoyageHandlingAppendWaypoint(
+                "Append waypoint");
+        voyageHandlingAppendWaypoint.addActionListener(this);
+
     }
 
     /**
-     * Adds the general menu to the right-click menu. Remember to always add this first, when creating specific menus.
-     * @param alone TODO
+     * Adds the general menu to the right-click menu. Remember to always add
+     * this first, when creating specific menus.
+     * 
+     * @param alone
+     *            TODO
      */
-    public void generalMenu(boolean alone){
+    public void generalMenu(boolean alone) {
 
         scaleMenu.removeAll();
 
         // clear previous map scales
         map.clear();
-        // Initialize the scale levels, and give them name (this should be done from settings later...)
-        map.put(5000,     "Berthing      (1 : 5.000)");
-        map.put(10000,    "Harbour       (1 : 10.000)");
-        map.put(70000,    "Approach      (1 : 70.000)");
-        map.put(300000,   "Coastal       (1 : 300.000)");
-        map.put(2000000,  "Overview      (1 : 2.000.000)");
+        // Initialize the scale levels, and give them name (this should be done
+        // from settings later...)
+        map.put(5000, "Berthing      (1 : 5.000)");
+        map.put(10000, "Harbour       (1 : 10.000)");
+        map.put(70000, "Approach      (1 : 70.000)");
+        map.put(300000, "Coastal       (1 : 300.000)");
+        map.put(2000000, "Overview      (1 : 2.000.000)");
         map.put(20000000, "Ocean         (1 : 20.000.000)");
         // put current scale level
         Integer currentScale = (int) mapBean.getScale();
@@ -262,9 +282,11 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         DecimalFormatSymbols symbols = formatter.getDecimalFormatSymbols();
         symbols.setGroupingSeparator(' ');
 
-        map.put(currentScale, "Current scale (1 : " + formatter.format(currentScale) + ")");
+        map.put(currentScale,
+                "Current scale (1 : " + formatter.format(currentScale) + ")");
 
-        // Iterate through the treemap, adding the menuitems and assigning actions
+        // Iterate through the treemap, adding the menuitems and assigning
+        // actions
         Set<Integer> keys = map.keySet();
         for (final Integer key : keys) {
             String value = map.get(key);
@@ -283,10 +305,10 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
 
         newRoute.setToolBar(EPDShore.getMainFrame().getToolbar());
 
-//        newRoute.setMouseDelegator(mouseDelegator);
-//        newRoute.setMainFrame(mainFrame);
+        // newRoute.setMouseDelegator(mouseDelegator);
+        // newRoute.setMainFrame(mainFrame);
 
-        if(alone){
+        if (alone) {
             removeAll();
             add(hideIntendedRoutes);
             add(showIntendedRoutes);
@@ -300,29 +322,32 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         add(scaleMenu);
     }
 
-
     /**
      * Builds ais target menu
      */
-    public void aisMenu(VesselTarget vesselTarget){
+    public void aisMenu(VesselTarget vesselTarget) {
         removeAll();
 
         sendRouteToShip.setMSSI(vesselTarget.getMmsi());
-        sendRouteToShip.setSendRouteDialog(EPDShore.getMainFrame().getSendRouteDialog());
-        sendRouteToShip.setEnabled(EPDShore.getEnavServiceHandler().shipAvailableForRouteSuggestion(vesselTarget.getMmsi()));
+        sendRouteToShip.setSendRouteDialog(EPDShore.getMainFrame()
+                .getSendRouteDialog());
+        sendRouteToShip.setEnabled(EPDShore.getEnavServiceHandler()
+                .shipAvailableForRouteSuggestion(vesselTarget.getMmsi()));
 
         add(sendRouteToShip);
 
-        aisIntendedRouteToggle.setVesselTargetSettings(vesselTarget.getSettings());
+        aisIntendedRouteToggle.setVesselTargetSettings(vesselTarget
+                .getSettings());
         aisIntendedRouteToggle.setAisLayer(aisLayer);
         aisIntendedRouteToggle.setVesselTarget(vesselTarget);
 
-        if(vesselTarget.getAisRouteData() != null && vesselTarget.getAisRouteData().hasRoute()){
+        if (vesselTarget.getAisRouteData() != null
+                && vesselTarget.getAisRouteData().hasRoute()) {
             aisIntendedRouteToggle.setEnabled(true);
         } else {
             aisIntendedRouteToggle.setEnabled(false);
         }
-        if(vesselTarget.getSettings().isShowRoute()){
+        if (vesselTarget.getSettings().isShowRoute()) {
             aisIntendedRouteToggle.setText("Hide intended route");
         } else {
             aisIntendedRouteToggle.setText("Show intended route");
@@ -338,16 +363,18 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
     public void aisSuggestedRouteMenu(VesselTarget vesselTarget) {
         removeAll();
 
-        aisIntendedRouteToggle.setVesselTargetSettings(vesselTarget.getSettings());
+        aisIntendedRouteToggle.setVesselTargetSettings(vesselTarget
+                .getSettings());
         aisIntendedRouteToggle.setAisLayer(aisLayer);
         aisIntendedRouteToggle.setVesselTarget(vesselTarget);
 
-        if(vesselTarget.getAisRouteData() != null && vesselTarget.getAisRouteData().hasRoute()){
+        if (vesselTarget.getAisRouteData() != null
+                && vesselTarget.getAisRouteData().hasRoute()) {
             aisIntendedRouteToggle.setEnabled(true);
         } else {
             aisIntendedRouteToggle.setEnabled(false);
         }
-        if(vesselTarget.getSettings().isShowRoute()){
+        if (vesselTarget.getSettings().isShowRoute()) {
             aisIntendedRouteToggle.setText("Hide intended route");
         } else {
             aisIntendedRouteToggle.setText("Show intended route");
@@ -359,17 +386,21 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
 
     /**
      * Builds the maritime safety information menu
-     * @param selectedGraphic The selected graphic (containing the msi message)
+     * 
+     * @param selectedGraphic
+     *            The selected graphic (containing the msi message)
      */
-    public void msiMenu(MsiSymbolGraphic selectedGraphic){
+    public void msiMenu(MsiSymbolGraphic selectedGraphic) {
         removeAll();
 
         msiDetails.setMsiMessage(selectedGraphic.getMsiMessage());
-        msiDetails.setNotCenter(EPDShore.getMainFrame().getNotificationCenter());
+        msiDetails
+                .setNotCenter(EPDShore.getMainFrame().getNotificationCenter());
 
         add(msiDetails);
 
-        Boolean isAcknowledged = msiHandler.isAcknowledged(selectedGraphic.getMsiMessage().getMessageId());
+        Boolean isAcknowledged = msiHandler.isAcknowledged(selectedGraphic
+                .getMsiMessage().getMessageId());
         msiAcknowledge.setMsiHandler(msiHandler);
         msiAcknowledge.setEnabled(!isAcknowledged);
         msiAcknowledge.setMsiMessage(selectedGraphic.getMsiMessage());
@@ -378,7 +409,8 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         generalMenu(false);
     }
 
-    public void msiDirectionalMenu(MsiDirectionalIcon selectedGraphic, MsiLayer msiLayer) {
+    public void msiDirectionalMenu(MsiDirectionalIcon selectedGraphic,
+            MsiLayer msiLayer) {
         removeAll();
 
         msiDetails.setMsiMessage(selectedGraphic.getMessage().msiMessage);
@@ -391,9 +423,10 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         generalMenu(false);
     }
 
-    public void generalRouteMenu(int routeIndex){
+    public void generalRouteMenu(int routeIndex) {
 
-        routeManager = EPDShore.getMainFrame().getRouteManagerDialog().getRouteManager();
+        routeManager = EPDShore.getMainFrame().getRouteManagerDialog()
+                .getRouteManager();
         route = routeManager.getRoute(routeIndex);
 
         routeAppendWaypoint.setRouteManager(routeManager);
@@ -403,9 +436,9 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         addSeparator();
 
         setRouteExchangeRoute.setRoute(route);
-        setRouteExchangeRoute.setSendRouteDialog(EPDShore.getMainFrame().getSendRouteDialog());
+        setRouteExchangeRoute.setSendRouteDialog(EPDShore.getMainFrame()
+                .getSendRouteDialog());
         add(setRouteExchangeRoute);
-
 
         routeHide.setRouteManager(routeManager);
         routeHide.setRouteIndex(routeIndex);
@@ -423,19 +456,18 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         routeReverse.setRouteIndex(routeIndex);
         add(routeReverse);
 
-
-
         routeRequestMetoc.setRouteManager(routeManager);
         routeRequestMetoc.setRouteIndex(routeIndex);
         add(routeRequestMetoc);
 
-        if(routeManager.hasMetoc(route)){
+        if (routeManager.hasMetoc(route)) {
             routeShowMetocToggle.setEnabled(true);
         } else {
             routeShowMetocToggle.setEnabled(false);
         }
 
-        if(route.getRouteMetocSettings().isShowRouteMetoc() && routeManager.hasMetoc(route)){
+        if (route.getRouteMetocSettings().isShowRouteMetoc()
+                && routeManager.hasMetoc(route)) {
             routeShowMetocToggle.setText("Hide METOC");
         } else {
             routeShowMetocToggle.setText("Show METOC");
@@ -456,12 +488,13 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         generalMenu(false);
     }
 
-    public void routeLegMenu(int routeIndex, RouteLeg routeLeg, Point point){
-        routeManager = EPDShore.getMainFrame().getRouteManagerDialog().getRouteManager();
+    public void routeLegMenu(int routeIndex, RouteLeg routeLeg, Point point) {
+        routeManager = EPDShore.getMainFrame().getRouteManagerDialog()
+                .getRouteManager();
 
         removeAll();
 
-        if(routeManager.getActiveRouteIndex() == routeIndex){
+        if (routeManager.getActiveRouteIndex() == routeIndex) {
             routeLegInsertWaypoint.setEnabled(false);
         } else {
             routeLegInsertWaypoint.setEnabled(true);
@@ -476,17 +509,16 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
         add(routeLegInsertWaypoint);
 
         generalRouteMenu(routeIndex);
-        //TODO: add leg specific items
+        // TODO: add leg specific items
     }
 
-    public void routeWaypointMenu(int routeIndex, int routeWaypointIndex){
-        routeManager = EPDShore.getMainFrame().getRouteManagerDialog().getRouteManager();
+    public void routeWaypointMenu(int routeIndex, int routeWaypointIndex) {
+        routeManager = EPDShore.getMainFrame().getRouteManagerDialog()
+                .getRouteManager();
 
         removeAll();
 
         routeWaypointDelete.setEnabled(true);
-
-
 
         routeWaypointDelete.setRouteWaypointIndex(routeWaypointIndex);
         routeWaypointDelete.setRouteIndex(routeIndex);
@@ -495,35 +527,67 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
 
         generalRouteMenu(routeIndex);
     }
-    
-    public void voyageWaypontMenu(Voyage voyage, boolean modified, JMapFrame parent, VoyagePlanInfoPanel voyagePlanInfoPanel){
+
+    public void voyageWaypontMenu(VoyageHandlingLayer voyageHandlingLayer,
+            MapBean mapBean, Voyage voyage, boolean modified, JMapFrame parent,
+            VoyagePlanInfoPanel voyagePlanInfoPanel, boolean waypoint,
+            Route route, RouteLeg routeLeg, Point point, int routeWayPointIndex) {
         removeAll();
 
         openVoyagePlan.setVoyagePlanInfoPanel(voyagePlanInfoPanel);
-        
+
         sendVoyage.setVoyage(voyage);
         sendVoyage.setModifiedRoute(modified);
-        sendVoyage.setSendVoyageDialog(EPDShore.getMainFrame().getSendVoyageDialog());
+        sendVoyage.setSendVoyageDialog(EPDShore.getMainFrame()
+                .getSendVoyageDialog());
         sendVoyage.setParent(parent);
-        
+
         add(openVoyagePlan);
         add(sendVoyage);
-        
-        
-//        generalMenu(false);
-        
-        //Right click, hide voyages and intended routes maybe?
-        
+
+        addSeparator();
+
+        if (waypoint) {
+
+            // Delete waypoint
+            voyageHandlingWaypointDelete.setEnabled(true);
+            voyageHandlingWaypointDelete
+                    .setRouteWaypointIndex(routeWayPointIndex);
+            voyageHandlingWaypointDelete.setRoute(route);
+            voyageHandlingWaypointDelete
+                    .setVoyageHandlingLayer(voyageHandlingLayer);
+
+            add(voyageHandlingWaypointDelete);
+
+        } else {
+
+            voyageHandlingLegInsertWaypoint.setMapBean(mapBean);
+            voyageHandlingLegInsertWaypoint
+                    .setVoyageHandlingLayer(voyageHandlingLayer);
+            voyageHandlingLegInsertWaypoint.setRoute(route);
+            voyageHandlingLegInsertWaypoint.setRouteLeg(routeLeg);
+            voyageHandlingLegInsertWaypoint.setPoint(point);
+
+            add(voyageHandlingLegInsertWaypoint);
+
+        }
+
+        voyageHandlingAppendWaypoint
+                .setVoyageHandlingLayer(voyageHandlingLayer);
+        voyageHandlingAppendWaypoint.setRoute(route);
+        add(voyageHandlingAppendWaypoint);
+        // Right click, hide voyages and intended routes maybe?
+
     }
 
-    public void routeEditMenu(){
+    public void routeEditMenu() {
         removeAll();
-        routeManager = EPDShore.getMainFrame().getRouteManagerDialog().getRouteManager();
+        routeManager = EPDShore.getMainFrame().getRouteManagerDialog()
+                .getRouteManager();
 
         routeEditEndRoute.setToolBar(EPDShore.getMainFrame().getToolbar());
 
         add(routeEditEndRoute);
-
 
         generalMenu(false);
     }
@@ -537,19 +601,19 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
     // Allows MapMenu to be added to the MapHandler (eg. use the find and init)
     @Override
     public void findAndInit(Object obj) {
-        if(obj instanceof MsiHandler){
+        if (obj instanceof MsiHandler) {
             msiHandler = (MsiHandler) obj;
         }
-        if(obj instanceof BufferedLayerMapBean){
+        if (obj instanceof BufferedLayerMapBean) {
             mapBean = (BufferedLayerMapBean) obj;
         }
-        if(obj instanceof NewRouteContainerLayer){
-//            newRouteLayer = (NewRouteContainerLayer) obj;
+        if (obj instanceof NewRouteContainerLayer) {
+            // newRouteLayer = (NewRouteContainerLayer) obj;
         }
-        if(obj instanceof AisLayer){
+        if (obj instanceof AisLayer) {
             aisLayer = (AisLayer) obj;
         }
-        if(obj instanceof AisHandler){
+        if (obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
         }
 
@@ -598,13 +662,16 @@ public class MapMenu extends JPopupMenu implements ActionListener, LightMapHandl
     }
 
     @Override
-    public void addVetoableChangeListener(String propertyName, VetoableChangeListener in_vcl) {
+    public void addVetoableChangeListener(String propertyName,
+            VetoableChangeListener in_vcl) {
         beanContextChildSupport.addVetoableChangeListener(propertyName, in_vcl);
     }
 
     @Override
-    public void removeVetoableChangeListener(String propertyName, VetoableChangeListener in_vcl) {
-        beanContextChildSupport.removeVetoableChangeListener(propertyName, in_vcl);
+    public void removeVetoableChangeListener(String propertyName,
+            VetoableChangeListener in_vcl) {
+        beanContextChildSupport.removeVetoableChangeListener(propertyName,
+                in_vcl);
     }
 
 }
