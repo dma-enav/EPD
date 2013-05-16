@@ -184,10 +184,8 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
 
                 voyage.setRoute(newRoute);
 
-                routeMenu.voyageWaypontMenu(voyage, modified, jMapFrame,
-                        voyagePlanInfoPanel);
-                // routeMenu.routeWaypointMenu(wpc.getRouteIndex(),
-                // wpc.getWpIndex());
+                routeMenu.voyageWaypontMenu(this, mapBean, voyage, modified, jMapFrame,
+                        voyagePlanInfoPanel, true, newRoute, null, e.getPoint(), wpc.getWpIndex());
                 routeMenu.setVisible(true);
                 routeMenu.show(this, e.getX() - 2, e.getY() - 2);
                 return true;
@@ -202,11 +200,11 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
             RouteLegGraphic rlg = (RouteLegGraphic) selectedGraphic;
 
             if (rlg.getRouteIndex() == 1) {
-
+                
                 voyage.setRoute(newRoute);
 
-                routeMenu.voyageWaypontMenu(voyage, modified, jMapFrame,
-                        voyagePlanInfoPanel);
+                routeMenu.voyageWaypontMenu(this, mapBean,  voyage, modified, jMapFrame,
+                        voyagePlanInfoPanel, false, newRoute, rlg.getRouteLeg(), e.getPoint(), 0);
 
                 // routeMenu.routeLegMenu(rlg.getRouteIndex(),
                 // rlg.getRouteLeg(), e.getPoint());
@@ -270,7 +268,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
 //        newRoute.setName(newRoute.getName() + " modified");
     }
 
-    private void updateVoyages() {
+    public void updateVoyages() {
         // Update voyages, clear all graphics, redraw original but in red, draw
         // the new voyage.
 

@@ -633,8 +633,13 @@ public class Route implements Serializable {
 
         // find current waypoint index
         RouteWaypoint count = routeLeg.getStartWp();
+        
+        
+        System.out.println("Current count is: " + count);
+        
         int i = 1;
         while (count.getInLeg() != null) {
+            System.out.println(i);
             i++;
             count = count.getInLeg().getStartWp();
         }
@@ -877,7 +882,7 @@ public class Route implements Serializable {
 
             waypoint.setName(cloudWaypoint.getName());
 
-            if (i >= 0) {
+            if (i > 0) {
                 RouteLeg inLeg = new RouteLeg();
                 inLeg.setHeading(Heading.RL);
                 waypoint.setInLeg(inLeg);
@@ -902,7 +907,7 @@ public class Route implements Serializable {
         if (routeWaypoints.size() > 1) {
             for (int i = 0; i < routeWaypoints.size(); i++) {
 
-                // System.out.println("Looking at waypoint:" + i);
+                 System.out.println("Looking at waypoint:" + i);
                 RouteWaypoint waypoint = routeWaypoints.get(i);
                 Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
 
@@ -911,15 +916,15 @@ public class Route implements Serializable {
                     RouteWaypoint prevWaypoint = routeWaypoints.get(i - 1);
 
                     if (waypoint.getInLeg() != null) {
-                        // System.out.println("Setting inleg prev for waypoint:"
-                        // + i);
+                         System.out.println("Setting inleg prev for waypoint:"
+                         + i);
                         waypoint.getInLeg().setStartWp(prevWaypoint);
                         waypoint.getInLeg().setEndWp(waypoint);
                     }
 
                     if (prevWaypoint.getOutLeg() != null) {
-                        // System.out.println("Setting outleg prev for waypoint:"
-                        // + i);
+                         System.out.println("Setting outleg prev for waypoint:"
+                         + i);
                         prevWaypoint.getOutLeg().setStartWp(prevWaypoint);
                         prevWaypoint.getOutLeg().setEndWp(waypoint);
 
