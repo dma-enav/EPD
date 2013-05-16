@@ -27,11 +27,11 @@ import org.slf4j.LoggerFactory;
  */
 public class ExceptionHandler implements UncaughtExceptionHandler {
     
-    //private static final Logger LOG = LoggerFactory.getLogger(ExceptionHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExceptionHandler.class);
     
     @Override
     public void uncaughtException(Thread t, Throwable e) {
-        //LOG.error("Uncaught exception from thread " + t.getName(), e);
+        LOG.error("Uncaught exception from thread " + t.getName(), e);
         JOptionPane.showMessageDialog(null, "An error has occured! Please contact administrator.", "Application error", JOptionPane.ERROR_MESSAGE);
         System.exit(1);
     }
