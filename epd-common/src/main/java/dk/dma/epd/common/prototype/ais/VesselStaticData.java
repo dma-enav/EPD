@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.ais;
 
 import java.io.Serializable;
 
+import net.jcip.annotations.ThreadSafe;
 import dk.dma.ais.message.AisMessage24;
 import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.ShipTypeCargo;
@@ -24,6 +25,7 @@ import dk.dma.ais.message.ShipTypeCargo;
 /**
  * Class representing the static data of an AIS vessel target
  */
+@ThreadSafe
 public class VesselStaticData implements Serializable {
     
     private static final long serialVersionUID = 1L;
@@ -91,7 +93,7 @@ public class VesselStaticData implements Serializable {
      * Update static data given an AIS message #24
      * @param msg24
      */
-    public void update(AisMessage24 msg24) {
+    public synchronized void update(AisMessage24 msg24) {
         if (msg24.getPartNumber() == 0) {
             // part A
             this.name = msg24.getName();
@@ -106,104 +108,104 @@ public class VesselStaticData implements Serializable {
         dimStarboard = msg24.getDimStarboard();        
     }
 
-    public long getImo() {
+    public synchronized long getImo() {
         return imo;
     }
 
-    public void setImo(long imo) {
+    public synchronized void setImo(long imo) {
         this.imo = imo;
     }
 
-    public String getCallsign() {
+    public synchronized String getCallsign() {
         return callsign;
     }
 
-    public void setCallsign(String callsign) {
+    public synchronized void setCallsign(String callsign) {
         this.callsign = callsign;
     }
 
-    public String getName() {
+    public synchronized String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public synchronized void setName(String name) {
         this.name = name;
     }
 
-    public ShipTypeCargo getShipType() {
+    public synchronized ShipTypeCargo getShipType() {
         return shipType;
     }
 
-    public void setShipType(ShipTypeCargo shipType) {
+    public synchronized void setShipType(ShipTypeCargo shipType) {
         this.shipType = shipType;
     }
 
-    public int getDimBow() {
+    public synchronized int getDimBow() {
         return dimBow;
     }
 
-    public void setDimBow(int dimBow) {
+    public synchronized void setDimBow(int dimBow) {
         this.dimBow = dimBow;
     }
 
-    public int getDimStern() {
+    public synchronized int getDimStern() {
         return dimStern;
     }
 
-    public void setDimStern(int dimStern) {
+    public synchronized void setDimStern(int dimStern) {
         this.dimStern = dimStern;
     }
 
-    public int getDimPort() {
+    public synchronized int getDimPort() {
         return dimPort;
     }
 
-    public void setDimPort(int dimPort) {
+    public synchronized void setDimPort(int dimPort) {
         this.dimPort = dimPort;
     }
 
-    public int getDimStarboard() {
+    public synchronized int getDimStarboard() {
         return dimStarboard;
     }
 
-    public void setDimStarboard(int dimStarboard) {
+    public synchronized void setDimStarboard(int dimStarboard) {
         this.dimStarboard = dimStarboard;
     }
 
-    public int getPosType() {
+    public synchronized int getPosType() {
         return posType;
     }
 
-    public void setPosType(int posType) {
+    public synchronized void setPosType(int posType) {
         this.posType = posType;
     }
 
-    public long getEta() {
+    public synchronized long getEta() {
         return eta;
     }
 
-    public void setEta(long eta) {
+    public synchronized void setEta(long eta) {
         this.eta = eta;
     }
 
-    public float getDraught() {
+    public synchronized float getDraught() {
         return draught;
     }
 
-    public void setDraught(float draught) {
+    public synchronized void setDraught(float draught) {
         this.draught = draught;
     }
 
-    public String getDestination() {
+    public synchronized String getDestination() {
         return destination;
     }
 
-    public void setDestination(String destination) {
+    public synchronized void setDestination(String destination) {
         this.destination = destination;
     }
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("VesselStaticData [callsign=");
         builder.append(callsign);

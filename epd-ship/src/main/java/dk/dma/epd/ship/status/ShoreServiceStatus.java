@@ -17,12 +17,14 @@ package dk.dma.epd.ship.status;
 
 import java.util.Date;
 
+import net.jcip.annotations.ThreadSafe;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
 import dk.dma.epd.common.text.Formatter;
 
 /**
  * Status for shore services
  */
+@ThreadSafe
 public class ShoreServiceStatus extends ComponentStatus {
 
     private Date lastContact;
@@ -47,16 +49,16 @@ public class ShoreServiceStatus extends ComponentStatus {
         shortStatusText = "Last failed shore contact: " + Formatter.formatLongDateTime(lastFailed);
     }
 
-    public Date getLastContact() {
+    public synchronized Date getLastContact() {
         return lastContact;
     }
 
-    public Date getLastFailed() {
+    public synchronized Date getLastFailed() {
         return lastFailed;
     }
     
     @Override
-    public String getStatusHtml() {
+    public synchronized String getStatusHtml() {
         StringBuilder buf = new StringBuilder();
         buf.append("Contact: " + status.name() + "<br/>");
         if (status == Status.ERROR) {

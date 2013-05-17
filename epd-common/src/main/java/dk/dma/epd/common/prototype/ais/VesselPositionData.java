@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.ais;
 
 import java.io.Serializable;
 
+import net.jcip.annotations.ThreadSafe;
 import dk.dma.ais.message.AisMessage18;
 import dk.dma.ais.message.AisPositionMessage;
 import dk.dma.enav.model.geometry.Position;
@@ -25,6 +26,7 @@ import dk.dma.enav.model.voyage.NavigationalStatus;
 /**
  * Class representing position data for an AIS vessel target
  */
+@ThreadSafe
 public class VesselPositionData implements Serializable {
     
     private static final long serialVersionUID = 1L;
@@ -88,8 +90,8 @@ public class VesselPositionData implements Serializable {
     
     /**
      * Validate the current position data
-     */
-    private void validate() {
+     */    
+    private synchronized void validate() {
         // Handle unavailable speed and cog
         if (sog > 100) {
             sog = 0;
@@ -100,64 +102,64 @@ public class VesselPositionData implements Serializable {
         
     }
         
-    public Position getPos() {
+    public synchronized Position getPos() {
         return pos;
     }
 
-    public void setPos(Position pos) {
+    public synchronized void setPos(Position pos) {
         this.pos = pos;
     }
     
-    public boolean hasPos() {
+    public synchronized boolean hasPos() {
         return pos != null;
     }
 
-    public int getNavStatus() {
+    public synchronized int getNavStatus() {
         return navStatus;
     }
 
-    public void setNavStatus(int navStatus) {
+    public synchronized void setNavStatus(int navStatus) {
         this.navStatus = navStatus;
     }
     
-    public NavigationalStatus getEnumNavStatus() {
+    public synchronized NavigationalStatus getEnumNavStatus() {
         return navEnumStatus;
     }
 
-    public void setEnumNavStatus(NavigationalStatus navEnumStatus) {
+    public synchronized void setEnumNavStatus(NavigationalStatus navEnumStatus) {
         this.navEnumStatus = navEnumStatus;
     }    
 
 
-    public float getRot() {
+    public synchronized float getRot() {
         return rot;
     }
 
-    public void setRot(float rot) {
+    public synchronized void setRot(float rot) {
         this.rot = rot;
     }
 
-    public float getSog() {
+    public synchronized float getSog() {
         return sog;
     }
 
-    public void setSog(float sog) {
+    public synchronized void setSog(float sog) {
         this.sog = sog;
     }
 
-    public int getPosAcc() {
+    public synchronized int getPosAcc() {
         return posAcc;
     }
 
-    public void setPosAcc(int posAcc) {
+    public synchronized void setPosAcc(int posAcc) {
         this.posAcc = posAcc;
     }
 
-    public float getCog() {
+    public synchronized float getCog() {
         return cog;
     }
 
-    public void setCog(float cog) {
+    public synchronized void setCog(float cog) {
         this.cog = cog;
     }
 
@@ -165,16 +167,16 @@ public class VesselPositionData implements Serializable {
      * Returns the heading in degrees. Heading 511 means the target is not available.
      * @return Heading in degrees
      */
-    public float getTrueHeading() {
+    public synchronized float getTrueHeading() {
         return trueHeading;
     }
 
-    public void setTrueHeading(float trueHeading) {
+    public synchronized void setTrueHeading(float trueHeading) {
         this.trueHeading = trueHeading;
     }
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("VesselPositionData [cog=");
         builder.append(cog);

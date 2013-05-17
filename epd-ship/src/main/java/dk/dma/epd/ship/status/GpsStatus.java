@@ -15,12 +15,14 @@
  */
 package dk.dma.epd.ship.status;
 
+import net.jcip.annotations.ThreadSafe;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.text.Formatter;
 
 /**
  * GPS status
  */
+@ThreadSafe
 public class GpsStatus extends ComponentStatus {
     
     private GpsData currentData;
@@ -44,7 +46,7 @@ public class GpsStatus extends ComponentStatus {
     }
     
     @Override
-    public String getStatusHtml() {
+    public synchronized String getStatusHtml() {
         StringBuilder buf = new StringBuilder();
         buf.append("Position: " + status.name() + "<br/>");
         buf.append("Last GPS data: " + Formatter.formatLongDateTime(currentData.getLastUpdated()));

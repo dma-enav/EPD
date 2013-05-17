@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import net.jcip.annotations.ThreadSafe;
 import dk.dma.ais.message.binary.RouteInformation;
 import dk.dma.ais.message.binary.RouteMessage;
 import dk.dma.enav.model.geometry.Position;
@@ -30,6 +31,7 @@ import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 /**
  * Abstract base class for AIS route data
  */
+@ThreadSafe
 public abstract class AisRouteData implements Serializable {
     private static final long serialVersionUID = 1L;
     
@@ -110,51 +112,51 @@ public abstract class AisRouteData implements Serializable {
         senderClassification = routeInformation.getSenderClassification();
     }
     
-    public boolean isCancel() {
+    public synchronized boolean isCancel() {
         return routeType == 31;
     }
 
-    public Date getReceived() {
+    public synchronized Date getReceived() {
         return received;
     }
     
-    public long getDuration() {
+    public synchronized long getDuration() {
         return duration;
     }
     
-    public boolean hasRoute() {
+    public synchronized boolean hasRoute() {
         return waypoints != null && waypoints.size() > 0;
     }
 
-    public Date getEtaFirst() {
+    public synchronized Date getEtaFirst() {
         return etaFirst;
     }
     
-    public Date getEtaLast() {
+    public synchronized Date getEtaLast() {
         return etaLast;
     }
     
-    public List<Position> getWaypoints() {
+    public synchronized List<Position> getWaypoints() {
         return waypoints;
     }
     
-    public long getSender() {
+    public synchronized long getSender() {
         return sender;
     }
     
-    public void setSender(long sender) {
+    public synchronized void setSender(long sender) {
         this.sender = sender;
     }
     
-    public int getMsgLinkId() {
+    public synchronized int getMsgLinkId() {
         return msgLinkId;
     }
     
-    public int getRouteType() {
+    public synchronized int getRouteType() {
         return routeType;
     }
     
-    public int getSenderClassification() {
+    public synchronized int getSenderClassification() {
         return senderClassification;
     }
 

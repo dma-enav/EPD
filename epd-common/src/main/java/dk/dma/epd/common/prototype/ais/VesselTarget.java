@@ -17,12 +17,14 @@ package dk.dma.epd.common.prototype.ais;
 
 import java.util.Date;
 
+import net.jcip.annotations.ThreadSafe;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 
 /**
  * Class representing an AIS vessel target
  */
+@ThreadSafe
 public class VesselTarget extends AisTarget {
     
     private static final long serialVersionUID = 1L;
@@ -74,70 +76,68 @@ public class VesselTarget extends AisTarget {
         settings = new VesselTargetSettings();
     }
     
-    public VesselPositionData getPositionData() {
+    public synchronized VesselPositionData getPositionData() {
         return positionData;
     }
 
-    public void setPositionData(VesselPositionData positionData) {
+    public synchronized void setPositionData(VesselPositionData positionData) {
         this.positionData = positionData;
         if (aisIntendedRoute != null) {
             aisIntendedRoute.update(positionData);
         }
     }
 
-    public VesselStaticData getStaticData() {
+    public synchronized VesselStaticData getStaticData() {
         return staticData;
     }
 
-    public void setStaticData(VesselStaticData staticData) {
+    public synchronized void setStaticData(VesselStaticData staticData) {
         this.staticData = staticData;
     }
     
-    public AisIntendedRoute getAisRouteData() {
+    public synchronized AisIntendedRoute getAisRouteData() {
         return aisIntendedRoute;
     }
     
-    public void setAisRouteData(AisIntendedRoute aisIntendedRoute) {
+    public synchronized void setAisRouteData(AisIntendedRoute aisIntendedRoute) {
         this.aisIntendedRoute = aisIntendedRoute;
         this.aisIntendedRoute.update(positionData);
     }
     
-    public void setCloudRouteData(CloudIntendedRoute intendedRoute) {
+    public synchronized void setCloudRouteData(CloudIntendedRoute intendedRoute) {
         this.intendedRoute = intendedRoute;
         this.intendedRoute.update(positionData);
     }
     
-    public CloudIntendedRoute getIntendedRoute() {
+    public synchronized CloudIntendedRoute getIntendedRoute() {
         return intendedRoute;
     }
 
-    public void setIntendedRoute(CloudIntendedRoute intendedRoute) {
+    public synchronized void setIntendedRoute(CloudIntendedRoute intendedRoute) {
         this.intendedRoute = intendedRoute;
     }
 
-    public AisClass getAisClass() {
+    public synchronized AisClass getAisClass() {
         return aisClass;
     }
 
-    public void setAisClass(AisClass aisClass) {
+    public synchronized void setAisClass(AisClass aisClass) {
         this.aisClass = aisClass;
     }
     
-    public VesselTargetSettings getSettings() {
+    public synchronized VesselTargetSettings getSettings() {
         return settings;
     }
     
-    public void setSettings(VesselTargetSettings settings) {
+    public synchronized void setSettings(VesselTargetSettings settings) {
         this.settings = settings;
     }
-
-    
     
     /**
      * Returns true if route information changes from valid to invalid
      * @return
      */
-    public boolean checkAisRouteData() {
+    public synchronized boolean checkAisRouteData() {
         if (aisIntendedRoute == null || aisIntendedRoute.getWaypoints().size() == 0 || aisIntendedRoute.getDuration() == 0) {
             return false;
         }
@@ -150,7 +150,7 @@ public class VesselTarget extends AisTarget {
         return false;        
     }
     
-    public boolean hasIntendedRoute() {
+    public synchronized boolean hasIntendedRoute() {
         return intendedRoute != null;
     }
 
@@ -162,7 +162,7 @@ public class VesselTarget extends AisTarget {
      * @return if the target has gone  
      */
     @Override
-    public boolean hasGone(Date now, boolean strict) {
+    public synchronized boolean hasGone(Date now, boolean strict) {
         long elapsed = (now.getTime() - lastReceived.getTime()) / 1000;
         
         // Base gone "loosely" on ITU-R Rec M1371-4 4.2.1
@@ -207,7 +207,7 @@ public class VesselTarget extends AisTarget {
 
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("VesselTarget [aisClass=");
         builder.append(aisClass);
@@ -218,10 +218,5 @@ public class VesselTarget extends AisTarget {
         builder.append("]");
         return builder.toString();
     }
-
-    
-
-    
-    
     
 }

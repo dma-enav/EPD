@@ -15,9 +15,12 @@
  */
 package dk.dma.epd.ship.status;
 
+import net.jcip.annotations.ThreadSafe;
+
 /**
  * Abstract base class for status components
  */
+@ThreadSafe
 public abstract class ComponentStatus {
     
     public enum Status {
@@ -37,27 +40,27 @@ public abstract class ComponentStatus {
         this.status = status;
     }
     
-    public Status getStatus() {
+    public synchronized Status getStatus() {
         return status;
     }
     
-    public void setStatus(Status status) {
+    public synchronized void setStatus(Status status) {
         this.status = status;
     }
     
-    public String getShortStatusText() {
+    public synchronized String getShortStatusText() {
         return shortStatusText;
     }
     
-    public void setShortStatusText(String shortStatusText) {
+    public synchronized void setShortStatusText(String shortStatusText) {
         this.shortStatusText = shortStatusText;
     }
     
-    public String getName() {
+    public synchronized String getName() {
         return name;
     }
     
-    public void setName(String name) {
+    public synchronized void setName(String name) {
         this.name = name;
     }
     

@@ -17,39 +17,46 @@ package dk.dma.epd.common.prototype.ais;
 
 import java.util.Date;
 
+import net.jcip.annotations.Immutable;
+
 import dk.dma.ais.message.binary.RouteInformation;
 
 /**
  * Class representing a broadcast route suggestion
  */
+@Immutable
 public class AisBroadcastRouteSuggestion extends AisRouteData {
     private static final long serialVersionUID = 1L;
-    
-    private Date validFrom;
-    private Date validTo;
-    
+
+    private final Date validFrom;
+    private final Date validTo;
+
     /**
      * Copy constructor
+     * 
      * @param broadcastRouteSuggestion
      */
     public AisBroadcastRouteSuggestion(AisBroadcastRouteSuggestion broadcastRouteSuggestion) {
         super(broadcastRouteSuggestion);
+        validFrom = null;
+        validTo = null;
     }
-    
+
     /**
      * Constructor given AIS route information
+     * 
      * @param routeInformation
      */
     public AisBroadcastRouteSuggestion(RouteInformation routeInformation) {
         super(routeInformation);
-        validFrom = etaFirst;
-        validTo = etaLast;        
+        validFrom = getEtaFirst();
+        validTo = getEtaLast();
     }
-    
+
     public Date getValidFrom() {
         return validFrom;
     }
-    
+
     public Date getValidTo() {
         return validTo;
     }

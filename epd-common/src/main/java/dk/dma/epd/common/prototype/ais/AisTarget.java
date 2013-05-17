@@ -18,9 +18,12 @@ package dk.dma.epd.common.prototype.ais;
 import java.io.Serializable;
 import java.util.Date;
 
+import net.jcip.annotations.ThreadSafe;
+
 /**
  * Abstract base class for AIS targets
  */
+@ThreadSafe
 public abstract class AisTarget implements Serializable {
     
     private static final long serialVersionUID = 1L;
@@ -62,45 +65,45 @@ public abstract class AisTarget implements Serializable {
      * @param now
      * @return
      */
-    public boolean isDeadTarget(long ttl, Date now) {
+    public synchronized boolean isDeadTarget(long ttl, Date now) {
         return now.getTime() - lastReceived.getTime() > ttl;        
     }
     
-    public void setLastReceived(Date lastReceived) {
+    public synchronized void setLastReceived(Date lastReceived) {
         this.lastReceived = lastReceived;
     }
     
-    public Date getLastReceived() {
+    public synchronized Date getLastReceived() {
         return lastReceived;
     }
     
-    public long getMmsi() {
+    public synchronized long getMmsi() {
         return mmsi;
     }
     
-    public void setMmsi(long mmsi) {
+    public synchronized void setMmsi(long mmsi) {
         this.mmsi = mmsi;
     }
     
-    public Status getStatus() {
+    public synchronized Status getStatus() {
         return status;
     }
     
-    public void setStatus(Status status) {
+    public synchronized void setStatus(Status status) {
         this.status = status;
     }
     
-    public boolean isGone() {
+    public synchronized boolean isGone() {
         return status == Status.GONE;
     }
     
     @Override
-    public int hashCode() {
+    public synchronized int hashCode() {
         return (int)mmsi;
     }
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("AisTarget [lastReceived=");
         builder.append(lastReceived);

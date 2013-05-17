@@ -17,11 +17,13 @@ package dk.dma.epd.ship.status;
 
 import java.util.Date;
 
+import net.jcip.annotations.ThreadSafe;
 import dk.dma.epd.common.text.Formatter;
 
 /**
  * AIS status
  */
+@ThreadSafe
 public class AisStatus extends ComponentStatus {
     
     private static final long RECEPTION_INTERVAL = 30000; // 30 secs
@@ -52,7 +54,7 @@ public class AisStatus extends ComponentStatus {
     }
     
     @Override
-    public Status getStatus() {
+    public synchronized Status getStatus() {
         shortStatusText = "Reception ";
         // Set status based on times
         
@@ -81,7 +83,7 @@ public class AisStatus extends ComponentStatus {
     }
 
     @Override
-    public String getStatusHtml() {
+    public synchronized String getStatusHtml() {
         getStatus();
         StringBuilder buf = new StringBuilder();
         buf.append("Reception: " + receiveStatus.name() + "<br/>");
@@ -95,15 +97,15 @@ public class AisStatus extends ComponentStatus {
         return buf.toString();
     }
     
-    public Date getLastReceived() {
+    public synchronized Date getLastReceived() {
         return lastReceived;
     }
     
-    public Date getLastSendError() {
+    public synchronized Date getLastSendError() {
         return lastSendError;
     }
     
-    public Date getLastSent() {
+    public synchronized Date getLastSent() {
         return lastSent;
     }
 

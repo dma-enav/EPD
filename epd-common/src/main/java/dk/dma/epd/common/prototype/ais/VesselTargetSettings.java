@@ -17,9 +17,12 @@ package dk.dma.epd.common.prototype.ais;
 
 import java.io.Serializable;
 
+import net.jcip.annotations.ThreadSafe;
+
 /**
  * Class holding settings for vessel targets
  */
+@ThreadSafe
 public class VesselTargetSettings implements Serializable {
     private static final long serialVersionUID = 1L;
     
@@ -46,7 +49,7 @@ public class VesselTargetSettings implements Serializable {
      * Is the target hidden on the display or not
      * @return
      */
-    public boolean isHide() {
+    public synchronized boolean isHide() {
         return hide;
     }
 
@@ -54,7 +57,7 @@ public class VesselTargetSettings implements Serializable {
      * Set visibility
      * @param hide
      */
-    public void setHide(boolean hide) {
+    public synchronized void setHide(boolean hide) {
         this.hide = hide;
     }
 
@@ -62,7 +65,7 @@ public class VesselTargetSettings implements Serializable {
      * Will the intended route be shown for the target if it is available
      * @return
      */
-    public boolean isShowRoute() {
+    public synchronized boolean isShowRoute() {
         return showRoute;
     }
 
@@ -70,7 +73,7 @@ public class VesselTargetSettings implements Serializable {
      * Set visibility of intended route
      * @param showRoute
      */
-    public void setShowRoute(boolean showRoute) {
+    public synchronized void setShowRoute(boolean showRoute) {
         this.showRoute = showRoute;
     }
     

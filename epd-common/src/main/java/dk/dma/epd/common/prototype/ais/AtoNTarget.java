@@ -17,12 +17,14 @@ package dk.dma.epd.common.prototype.ais;
 
 import java.util.Date;
 
+import net.jcip.annotations.ThreadSafe;
 import dk.dma.ais.message.AisMessage21;
 import dk.dma.enav.model.geometry.Position;
 
 /**
  * Class representing a AtoN target
  */
+@ThreadSafe
 public class AtoNTarget extends AisTarget {
     
     private static final long serialVersionUID = 1L;
@@ -77,7 +79,7 @@ public class AtoNTarget extends AisTarget {
      * Update AtoN target given AIS message #21
      * @param msg21
      */
-    public void update(AisMessage21 msg21) {
+    public synchronized void update(AisMessage21 msg21) {
         pos = msg21.getPos().getGeoLocation();
         atonType = msg21.getAtonType();
         name = msg21.getName();
@@ -99,130 +101,130 @@ public class AtoNTarget extends AisTarget {
      * Determine if AtoN target has gone
      */
     @Override
-    public boolean hasGone(Date now, boolean strict) {
+    public synchronized boolean hasGone(Date now, boolean strict) {
         long elapsed = (now.getTime() - lastReceived.getTime()) / 1000;        
         // Base gone "loosely" on ITU-R Rec M1371-4 4.2.1  (3 minutes)
         long tol = 600; // 10 minutes
         return elapsed > tol;
     }
     
-    public Position getPos() {
+    public synchronized Position getPos() {
         return pos;
     }
 
-    public int getAtonType() {
+    public synchronized int getAtonType() {
         return atonType;
     }
 
-    public void setAtonType(int atonType) {
+    public synchronized void setAtonType(int atonType) {
         this.atonType = atonType;
     }
 
-    public String getName() {
+    public synchronized String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public synchronized void setName(String name) {
         this.name = name;
     }
 
-    public int getPosAcc() {
+    public synchronized int getPosAcc() {
         return posAcc;
     }
 
-    public void setPosAcc(int posAcc) {
+    public synchronized void setPosAcc(int posAcc) {
         this.posAcc = posAcc;
     }
 
-    public int getDimBow() {
+    public synchronized int getDimBow() {
         return dimBow;
     }
 
-    public void setDimBow(int dimBow) {
+    public synchronized void setDimBow(int dimBow) {
         this.dimBow = dimBow;
     }
 
-    public int getDimStern() {
+    public synchronized int getDimStern() {
         return dimStern;
     }
 
-    public void setDimStern(int dimStern) {
+    public synchronized void setDimStern(int dimStern) {
         this.dimStern = dimStern;
     }
 
-    public int getDimPort() {
+    public synchronized int getDimPort() {
         return dimPort;
     }
 
-    public void setDimPort(int dimPort) {
+    public synchronized void setDimPort(int dimPort) {
         this.dimPort = dimPort;
     }
 
-    public int getDimStarboard() {
+    public synchronized int getDimStarboard() {
         return dimStarboard;
     }
 
-    public void setDimStarboard(int dimStarboard) {
+    public synchronized void setDimStarboard(int dimStarboard) {
         this.dimStarboard = dimStarboard;
     }
 
-    public int getPosType() {
+    public synchronized int getPosType() {
         return posType;
     }
 
-    public void setPosType(int posType) {
+    public synchronized void setPosType(int posType) {
         this.posType = posType;
     }
 
-    public int getOffPosition() {
+    public synchronized int getOffPosition() {
         return offPosition;
     }
 
-    public void setOffPosition(int offPosition) {
+    public synchronized void setOffPosition(int offPosition) {
         this.offPosition = offPosition;
     }
 
-    public int getRegional() {
+    public synchronized int getRegional() {
         return regional;
     }
 
-    public void setRegional(int regional) {
+    public synchronized void setRegional(int regional) {
         this.regional = regional;
     }
 
-    public int getRaim() {
+    public synchronized int getRaim() {
         return raim;
     }
 
-    public void setRaim(int raim) {
+    public synchronized void setRaim(int raim) {
         this.raim = raim;
     }
 
-    public int getVirtual() {
+    public synchronized int getVirtual() {
         return virtual;
     }
 
-    public void setVirtual(int virtual) {
+    public synchronized void setVirtual(int virtual) {
         this.virtual = virtual;
     }
 
-    public int getAssigned() {
+    public synchronized int getAssigned() {
         return assigned;
     }
 
-    public void setAssigned(int assigned) {
+    public synchronized void setAssigned(int assigned) {
         this.assigned = assigned;
     }
 
-    public String getNameExt() {
+    public synchronized String getNameExt() {
         return nameExt;
     }
 
-    public void setNameExt(String nameExt) {
+    public synchronized void setNameExt(String nameExt) {
         this.nameExt = nameExt;
     }
 
-    public void setPos(Position pos) {
+    public synchronized void setPos(Position pos) {
         this.pos = pos;
     }
     

@@ -17,10 +17,12 @@ package dk.dma.epd.common.prototype.ais;
 
 import java.util.Date;
 
+import net.jcip.annotations.ThreadSafe;
 
 /**
  * Class representing an AIS SART
  */
+@ThreadSafe
 public class SarTarget extends AisTarget {
     
     private static final long serialVersionUID = 1L;
@@ -59,7 +61,7 @@ public class SarTarget extends AisTarget {
      * @return if the target has gone
      */
     @Override
-    public boolean hasGone(Date now, boolean strict) {        
+    public synchronized boolean hasGone(Date now, boolean strict) {        
         long elapsed = (now.getTime() - lastReceived.getTime()) / 1000;        
         // Determine if gone
         return elapsed > GONE_TTL;
@@ -70,7 +72,7 @@ public class SarTarget extends AisTarget {
      * @param now
      * @return changed to old
      */
-    public boolean hasGoneOld(Date now) {
+    public synchronized boolean hasGoneOld(Date now) {
         long elapsed = (now.getTime() - lastReceived.getTime()) / 1000;
         boolean newOld = elapsed > OLD_TTL;
         if (newOld != old) {
@@ -80,35 +82,35 @@ public class SarTarget extends AisTarget {
         return false;
     }
     
-    public VesselPositionData getPositionData() {
+    public synchronized VesselPositionData getPositionData() {
         return positionData;
     }
 
-    public void setPositionData(VesselPositionData positionData) {
+    public synchronized void setPositionData(VesselPositionData positionData) {
         this.positionData = positionData;
     }
 
-    public VesselStaticData getStaticData() {
+    public synchronized VesselStaticData getStaticData() {
         return staticData;
     }
 
-    public void setStaticData(VesselStaticData staticData) {
+    public synchronized void setStaticData(VesselStaticData staticData) {
         this.staticData = staticData;
     }
 
-    public boolean isOld() {
+    public synchronized boolean isOld() {
         return old;
     }
     
-    public void setOld(boolean old) {
+    public synchronized void setOld(boolean old) {
         this.old = old;
     }
     
-    public Date getFirstReceived() {
+    public synchronized Date getFirstReceived() {
         return firstReceived;
     }
     
-    public void setFirstReceived(Date firstReceived) {
+    public synchronized void setFirstReceived(Date firstReceived) {
         this.firstReceived = firstReceived;
     }
 

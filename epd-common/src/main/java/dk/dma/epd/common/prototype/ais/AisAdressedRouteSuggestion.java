@@ -17,6 +17,8 @@ package dk.dma.epd.common.prototype.ais;
 
 import java.util.Date;
 
+import net.jcip.annotations.ThreadSafe;
+
 import dk.dma.ais.message.binary.RouteInformation;
 import dk.dma.ais.message.binary.RouteSuggestion;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
@@ -24,6 +26,7 @@ import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 /**
  * Class representing an addressed route suggestion
  */
+@ThreadSafe
 public class AisAdressedRouteSuggestion extends AisIntendedRoute {
     private static final long serialVersionUID = 1L;
     
@@ -66,11 +69,11 @@ public class AisAdressedRouteSuggestion extends AisIntendedRoute {
         }
     }
     
-    public Status getStatus() {
+    public synchronized Status getStatus() {
         return status;
     }
     
-    public void setStatus(Status status) {
+    public synchronized void setStatus(Status status) {
         switch (status) {
         case ACCEPTED:
         case NOTED:
@@ -89,39 +92,39 @@ public class AisAdressedRouteSuggestion extends AisIntendedRoute {
         this.status = status;
     }
     
-    public boolean isReplied() {
+    public synchronized boolean isReplied() {
         return status == Status.ACCEPTED || status == Status.NOTED || status == Status.REJECTED;
     }
     
-    public boolean isHidden() {
+    public synchronized boolean isHidden() {
         return hidden;
     }
     
-    public void setHidden(boolean hidden) {
+    public synchronized void setHidden(boolean hidden) {
         this.hidden = hidden;
     }
     
-    public boolean isAcceptable() {
+    public synchronized boolean isAcceptable() {
         return status == Status.PENDING || status == Status.IGNORED; 
     }
     
-    public boolean isRejectable() {
+    public synchronized boolean isRejectable() {
         return status == Status.PENDING || status == Status.IGNORED;
     }
     
-    public boolean isNoteable() {
+    public synchronized boolean isNoteable() {
         return status == Status.PENDING || status == Status.IGNORED;
     }
     
-    public boolean isIgnorable() {
+    public synchronized boolean isIgnorable() {
         return status == Status.PENDING; 
     }
     
-    public boolean isPostponable() {
+    public synchronized boolean isPostponable() {
         return status == Status.PENDING; 
     }
     
-    public void cancel() {
+    public synchronized void cancel() {
         setStatus(Status.CANCELLED);
     }
 

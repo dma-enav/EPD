@@ -20,11 +20,13 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.SwingUtilities;
+
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,49 +74,52 @@ import dk.dma.epd.ship.gui.ComponentPanels.ShowDockableDialog.dock_type;
 /**
  * AIS layer. Showing AIS targets and intended routes.
  */
-public class AisLayer extends OMGraphicHandlerLayer implements
-        IAisTargetListener, Runnable, MapMouseListener {
+@ThreadSafe
+public class AisLayer extends OMGraphicHandlerLayer implements IAisTargetListener, Runnable, MapMouseListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(AisLayer.class);
     private static final long serialVersionUID = 1L;
 
-    private long minRedrawInterval = 5 * 1000; // 5 sec
+    private volatile long minRedrawInterval = 5 * 1000; // 5 sec
 
     private AisHandler aisHandler;
     private MapBean mapBean;
     private MainFrame mainFrame;
+    
     private IntendedRouteInfoPanel intendedRouteInfoPanel = new IntendedRouteInfoPanel();
     private AisTargetInfoPanel aisTargetInfoPanel = new AisTargetInfoPanel();
     private SarTargetInfoPanel sarTargetInfoPanel = new SarTargetInfoPanel();
     private MapMenu aisTargetMenu;
 
-    private Map<Long, TargetGraphic> targets = new HashMap<>();
+    private ConcurrentHashMap<Long, TargetGraphic> targets = new ConcurrentHashMap<>();
     private OMGraphicList graphics = new OMGraphicList();
 
+    @GuardedBy("redrawPending")
     private Date lastRedraw = new Date();
+    @GuardedBy("redrawPending")
     private Boolean redrawPending = false;
 
+    // Only accessed in event dispatch thread 
     private OMGraphic closest;
     private OMGraphic selectedGraphic;
     private ChartPanel chartPanel;
     private OMCircle dummyCircle = new OMCircle();
-
-    AisTargetGraphic aisTargetGraphic = new AisTargetGraphic();
     private AisComponentPanel aisPanel;
-    long selectedMMSI = -1;
-    private boolean showLabels = true;
+    private AisTargetGraphic aisTargetGraphic = new AisTargetGraphic();
+        
+    private volatile long selectedMMSI = -1;
+    private volatile boolean showLabels;
     // long selectedMMSI = 230994000;
-    private AisSettings aisSettings = EPDShip.getSettings().getAisSettings();
-    private NavSettings navSettings = EPDShip.getSettings().getNavSettings();
-    
-    
+    private final AisSettings aisSettings = EPDShip.getSettings().getAisSettings();
+    private final NavSettings navSettings = EPDShip.getSettings().getNavSettings();
+
     private TopPanel topPanel;
 
     public AisLayer() {
         graphics.add(aisTargetGraphic);
         // graphics.setVague(false);
         new Thread(this).start();
-        
+
         showLabels = EPDShip.getSettings().getAisSettings().isShowNameLabels();
     }
 
@@ -147,12 +152,21 @@ public class AisLayer extends OMGraphicHandlerLayer implements
      * 
      * @param aisTarget
      */
-    public void updateSelection(AisTarget aisTarget, boolean clicked) {
+    public void updateSelection(final AisTarget aisTarget, final boolean clicked) {
+        // Run only in event dispath thread 
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    updateSelection(aisTarget, clicked);
+                    
+                }
+            });
+            return;
+        }
 
         // If the dock isn't visible should it show it?
-        if (!EPDShip.getMainFrame().getDockableComponents()
-                .isDockVisible("AIS Target")
-                && clicked) {
+        if (!EPDShip.getMainFrame().getDockableComponents().isDockVisible("AIS Target") && clicked) {
 
             // Show it display the message?
             if (EPDShip.getSettings().getGuiSettings().isShowDockMessage()) {
@@ -160,10 +174,8 @@ public class AisLayer extends OMGraphicHandlerLayer implements
             } else {
 
                 if (EPDShip.getSettings().getGuiSettings().isAlwaysOpenDock()) {
-                    EPDShip.getMainFrame().getDockableComponents()
-                            .openDock("AIS Target");
-                    EPDShip.getMainFrame().getEeINSMenuBar()
-                            .refreshDockableMenu();
+                    EPDShip.getMainFrame().getDockableComponents().openDock("AIS Target");
+                    EPDShip.getMainFrame().getEeINSMenuBar().refreshDockableMenu();
                 }
 
                 // It shouldn't display message but take a default action
@@ -173,8 +185,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
         }
 
         aisTargetGraphic.setVisible(true);
-        aisTargetGraphic.moveSymbol(((VesselTarget) aisTarget)
-                .getPositionData().getPos());
+        aisTargetGraphic.moveSymbol(((VesselTarget) aisTarget).getPositionData().getPos());
 
         // doPrepare();
 
@@ -185,51 +196,37 @@ public class AisLayer extends OMGraphicHandlerLayer implements
 
         if (vessel.getStaticData() != null) {
 
-            if (aisHandler.getOwnShip() != null
-                    && aisHandler.getOwnShip().getPositionData() != null) {
-                rhumbLineDistance = aisHandler
-                        .getOwnShip()
-                        .getPositionData()
-                        .getPos()
+            if (aisHandler.getOwnShip() != null && aisHandler.getOwnShip().getPositionData() != null) {
+                rhumbLineDistance = aisHandler.getOwnShip().getPositionData().getPos()
                         .rhumbLineDistanceTo(vessel.getPositionData().getPos());
-                rhumbLineBearing = aisHandler.getOwnShip().getPositionData()
-                        .getPos()
+                rhumbLineBearing = aisHandler.getOwnShip().getPositionData().getPos()
                         .rhumbLineBearingTo(vessel.getPositionData().getPos()
 
                         );
             }
 
-            aisPanel.receiveHighlight(vessel.getMmsi(), vessel.getStaticData()
-                    .getName(), vessel.getStaticData().getCallsign(), vessel
-                    .getPositionData().getCog(), rhumbLineDistance,
-                    rhumbLineBearing, vessel.getPositionData().getSog()
+            aisPanel.receiveHighlight(vessel.getMmsi(), vessel.getStaticData().getName(), vessel.getStaticData().getCallsign(),
+                    vessel.getPositionData().getCog(), rhumbLineDistance, rhumbLineBearing, vessel.getPositionData().getSog()
 
             );
         } else {
 
             // if (vessel.getStaticData() != null) {
 
-            if (aisHandler.getOwnShip() != null
-                    && aisHandler.getOwnShip().getPositionData() != null) {
-                rhumbLineDistance = aisHandler
-                        .getOwnShip()
-                        .getPositionData()
-                        .getPos()
+            if (aisHandler.getOwnShip() != null && aisHandler.getOwnShip().getPositionData() != null) {
+                rhumbLineDistance = aisHandler.getOwnShip().getPositionData().getPos()
                         .rhumbLineDistanceTo(vessel.getPositionData().getPos());
-                rhumbLineBearing = aisHandler.getOwnShip().getPositionData()
-                        .getPos()
+                rhumbLineBearing = aisHandler.getOwnShip().getPositionData().getPos()
                         .rhumbLineBearingTo(vessel.getPositionData().getPos()
 
                         );
             }
 
-            aisPanel.receiveHighlight(vessel.getMmsi(), vessel
-                    .getPositionData().getCog(), rhumbLineDistance,
-                    rhumbLineBearing, vessel.getPositionData().getSog());
+            aisPanel.receiveHighlight(vessel.getMmsi(), vessel.getPositionData().getCog(), rhumbLineDistance, rhumbLineBearing,
+                    vessel.getPositionData().getSog());
             // }
         }
-        if (vessel.getStaticData() != null && aisHandler.getOwnShip() != null
-                && aisHandler.getOwnShip().getPositionData() != null) {
+        if (vessel.getStaticData() != null && aisHandler.getOwnShip() != null && aisHandler.getOwnShip().getPositionData() != null) {
             aisPanel.dynamicNogoAvailable(true);
         } else {
             aisPanel.dynamicNogoAvailable(false);
@@ -242,7 +239,17 @@ public class AisLayer extends OMGraphicHandlerLayer implements
     /**
      * Remove the selection ring
      */
-    public void removeSelection() {
+    public synchronized void removeSelection() {
+        // Run only in event dispath thread 
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    removeSelection();                    
+                }
+            });
+            return;
+        }        
         aisTargetGraphic.setVisible(false);
         selectedMMSI = -1;
         aisPanel.resetHighLight();
@@ -250,7 +257,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
     }
 
     @Override
-    public synchronized void targetUpdated(AisTarget aisTarget) {
+    public void targetUpdated(AisTarget aisTarget) {
         long mmsi = aisTarget.getMmsi();
 
         TargetGraphic targetGraphic = targets.get(mmsi);
@@ -296,12 +303,10 @@ public class AisLayer extends OMGraphicHandlerLayer implements
             VesselTarget vesselTarget = (VesselTarget) aisTarget;
 
             VesselTargetGraphic vesselTargetGraphic = (VesselTargetGraphic) targetGraphic;
-            if (vesselTarget.getSettings().isShowRoute()
-                    && vesselTarget.hasIntendedRoute()
+            if (vesselTarget.getSettings().isShowRoute() && vesselTarget.hasIntendedRoute()
                     && !vesselTargetGraphic.getRouteGraphic().isVisible()) {
                 forceRedraw = true;
-            } else if (!vesselTarget.getSettings().isShowRoute()
-                    && vesselTargetGraphic.getRouteGraphic().isVisible()) {
+            } else if (!vesselTarget.getSettings().isShowRoute() && vesselTargetGraphic.getRouteGraphic().isVisible()) {
                 forceRedraw = true;
             }
 
@@ -348,16 +353,14 @@ public class AisLayer extends OMGraphicHandlerLayer implements
     }
 
     @Override
-    public synchronized OMGraphicList prepare() {
+    public OMGraphicList prepare() {
         // long start = System.nanoTime();
         Iterator<TargetGraphic> it = targets.values().iterator();
 
         for (OMGraphic omgraphic : graphics) {
             if (omgraphic instanceof IntendedRouteGraphic) {
-                ((IntendedRouteGraphic) omgraphic)
-                        .showArrowHeads(getProjection().getScale() < EPDShip
-                                .getSettings().getNavSettings()
-                                .getShowArrowScale());
+                ((IntendedRouteGraphic) omgraphic).showArrowHeads(getProjection().getScale() < EPDShip.getSettings()
+                        .getNavSettings().getShowArrowScale());
             }
         }
 
@@ -445,17 +448,13 @@ public class AisLayer extends OMGraphicHandlerLayer implements
     @Override
     public boolean mouseClicked(MouseEvent e) {
         if (this.isVisible()) {
-            if (e.getButton() == MouseEvent.BUTTON3
-                    || e.getButton() == MouseEvent.BUTTON1) {
+            if (e.getButton() == MouseEvent.BUTTON3 || e.getButton() == MouseEvent.BUTTON1) {
                 selectedGraphic = null;
-                OMList<OMGraphic> allClosest = graphics.findAll(e.getX(),
-                        e.getY(), 5.0f);
+                OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 5.0f);
 
                 for (OMGraphic omGraphic : allClosest) {
-                    if (omGraphic instanceof IntendedRouteWpCircle
-                            || omGraphic instanceof VesselTargetTriangle
-                            || omGraphic instanceof IntendedRouteLegGraphic
-                            || omGraphic instanceof SartGraphic) {
+                    if (omGraphic instanceof IntendedRouteWpCircle || omGraphic instanceof VesselTargetTriangle
+                            || omGraphic instanceof IntendedRouteLegGraphic || omGraphic instanceof SartGraphic) {
                         selectedGraphic = omGraphic;
                         break;
                     }
@@ -468,13 +467,10 @@ public class AisLayer extends OMGraphicHandlerLayer implements
 
                     if (selectedGraphic instanceof VesselTargetTriangle) {
                         VesselTargetTriangle vtt = (VesselTargetTriangle) selectedGraphic;
-                        VesselTargetGraphic vesselTargetGraphic = vtt
-                                .getVesselTargetGraphic();
+                        VesselTargetGraphic vesselTargetGraphic = vtt.getVesselTargetGraphic();
 
-                        selectedMMSI = vesselTargetGraphic.getVesselTarget()
-                                .getMmsi();
-                        updateSelection(vesselTargetGraphic.getVesselTarget(),
-                                true);
+                        selectedMMSI = vesselTargetGraphic.getVesselTarget().getMmsi();
+                        updateSelection(vesselTargetGraphic.getVesselTarget(), true);
                     }
                 }
 
@@ -483,8 +479,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
                     if (selectedGraphic instanceof VesselTargetTriangle) {
 
                         VesselTargetTriangle vtt = (VesselTargetTriangle) selectedGraphic;
-                        VesselTargetGraphic vesselTargetGraphic = vtt
-                                .getVesselTargetGraphic();
+                        VesselTargetGraphic vesselTargetGraphic = vtt.getVesselTargetGraphic();
 
                         mainFrame.getGlassPane().setVisible(false);
                         aisTargetMenu.aisMenu(vesselTargetGraphic, topPanel);
@@ -494,8 +489,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
                         return true;
                     } else if (selectedGraphic instanceof IntendedRouteWpCircle) {
                         IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) selectedGraphic;
-                        VesselTarget vesselTarget = wpCircle
-                                .getIntendedRouteGraphic().getVesselTarget();
+                        VesselTarget vesselTarget = wpCircle.getIntendedRouteGraphic().getVesselTarget();
                         mainFrame.getGlassPane().setVisible(false);
                         aisTargetMenu.aisSuggestedRouteMenu(vesselTarget);
                         aisTargetMenu.setVisible(true);
@@ -504,8 +498,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
                         return true;
                     } else if (selectedGraphic instanceof IntendedRouteLegGraphic) {
                         IntendedRouteLegGraphic wpCircle = (IntendedRouteLegGraphic) selectedGraphic;
-                        VesselTarget vesselTarget = wpCircle
-                                .getIntendedRouteGraphic().getVesselTarget();
+                        VesselTarget vesselTarget = wpCircle.getIntendedRouteGraphic().getVesselTarget();
                         mainFrame.getGlassPane().setVisible(false);
                         aisTargetMenu.aisSuggestedRouteMenu(vesselTarget);
                         aisTargetMenu.setVisible(true);
@@ -514,8 +507,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
                         return true;
                     } else if (selectedGraphic instanceof SartGraphic) {
                         SartGraphic sartGraphic = (SartGraphic) selectedGraphic;
-                        SarTarget sarTarget = sartGraphic.getSarTargetGraphic()
-                                .getSarTarget();
+                        SarTarget sarTarget = sartGraphic.getSarTargetGraphic().getSarTarget();
                         mainFrame.getGlassPane().setVisible(false);
                         aisTargetMenu.sartMenu(this, sarTarget);
                         aisTargetMenu.setVisible(true);
@@ -566,15 +558,12 @@ public class AisLayer extends OMGraphicHandlerLayer implements
         }
 
         OMGraphic newClosest = null;
-        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-                3.0f);
+        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 3.0f);
 
         for (OMGraphic omGraphic : allClosest) {
 
-            if (omGraphic instanceof IntendedRouteWpCircle
-                    || omGraphic instanceof IntendedRouteLegGraphic
-                    || omGraphic instanceof VesselTargetTriangle
-                    || omGraphic instanceof SartGraphic) {
+            if (omGraphic instanceof IntendedRouteWpCircle || omGraphic instanceof IntendedRouteLegGraphic
+                    || omGraphic instanceof VesselTargetTriangle || omGraphic instanceof SartGraphic) {
                 // System.out.println("omGraphic: " + omGraphic.getClass());
                 newClosest = omGraphic;
                 break;
@@ -582,14 +571,12 @@ public class AisLayer extends OMGraphicHandlerLayer implements
         }
 
         if (newClosest != closest) {
-            Point containerPoint = SwingUtilities.convertPoint(mapBean,
-                    e.getPoint(), mainFrame);
+            Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), mainFrame);
 
             if (newClosest instanceof IntendedRouteWpCircle) {
                 closest = newClosest;
                 IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) newClosest;
-                intendedRouteInfoPanel.setPos((int) containerPoint.getX(),
-                        (int) containerPoint.getY() - 10);
+                intendedRouteInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
                 intendedRouteInfoPanel.showWpInfo(wpCircle);
                 mainFrame.getGlassPane().setVisible(true);
                 aisTargetInfoPanel.setVisible(false);
@@ -598,11 +585,9 @@ public class AisLayer extends OMGraphicHandlerLayer implements
             } else if (newClosest instanceof IntendedRouteLegGraphic) {
                 // lets user see ETA continually along route leg
                 closest = dummyCircle;
-                Point2D worldLocation = chartPanel.getMap().getProjection()
-                        .inverse(e.getPoint());
+                Point2D worldLocation = chartPanel.getMap().getProjection().inverse(e.getPoint());
                 IntendedRouteLegGraphic legGraphic = (IntendedRouteLegGraphic) newClosest;
-                intendedRouteInfoPanel.setPos((int) containerPoint.getX(),
-                        (int) containerPoint.getY() - 10);
+                intendedRouteInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
                 intendedRouteInfoPanel.showLegInfo(legGraphic, worldLocation);
                 mainFrame.getGlassPane().setVisible(true);
                 aisTargetInfoPanel.setVisible(false);
@@ -611,10 +596,8 @@ public class AisLayer extends OMGraphicHandlerLayer implements
             } else if (newClosest instanceof VesselTargetTriangle) {
                 closest = newClosest;
                 VesselTargetTriangle vesselTargetTriangle = (VesselTargetTriangle) newClosest;
-                VesselTarget vesselTarget = vesselTargetTriangle
-                        .getVesselTargetGraphic().getVesselTarget();
-                aisTargetInfoPanel.setPos((int) containerPoint.getX(),
-                        (int) containerPoint.getY() - 10);
+                VesselTarget vesselTarget = vesselTargetTriangle.getVesselTargetGraphic().getVesselTarget();
+                aisTargetInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
                 aisTargetInfoPanel.showAisInfo(vesselTarget);
                 mainFrame.getGlassPane().setVisible(true);
                 intendedRouteInfoPanel.setVisible(false);
@@ -623,10 +606,8 @@ public class AisLayer extends OMGraphicHandlerLayer implements
             } else if (newClosest instanceof SartGraphic) {
                 closest = newClosest;
                 SartGraphic sartGraphic = (SartGraphic) newClosest;
-                sarTargetInfoPanel.setPos((int) containerPoint.getX(),
-                        (int) containerPoint.getY() - 10);
-                sarTargetInfoPanel.showSarInfo(sartGraphic
-                        .getSarTargetGraphic().getSarTarget());
+                sarTargetInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
+                sarTargetInfoPanel.showSarInfo(sartGraphic.getSarTargetGraphic().getSarTarget());
                 mainFrame.getGlassPane().setVisible(true);
                 intendedRouteInfoPanel.setVisible(false);
                 aisTargetInfoPanel.setVisible(false);
@@ -659,7 +640,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
         // mapBean.setScale(EeINS.getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale());
     }
 
-    public synchronized void toggleAllLabels() {
+    public void toggleAllLabels() {
 
         showLabels = !showLabels;
 
