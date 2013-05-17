@@ -17,16 +17,15 @@ package dk.dma.epd.common.prototype.sensor.gps;
 
 import java.util.Date;
 
+import net.jcip.annotations.Immutable;
+
 /**
  * Class to represent a GNSS time message. For now just a date.  
  */
+@Immutable
 public class GnssTimeMessage {
     
-    private Date time;
-    
-    public GnssTimeMessage() {
-        
-    }
+    private final Date time;
     
     public GnssTimeMessage(Date time) {
         this.time = time;
@@ -34,10 +33,6 @@ public class GnssTimeMessage {
     
     public Date getTime() {
         return time;
-    }
-    
-    public void setTime(Date time) {
-        this.time = time;
     }
     
 }

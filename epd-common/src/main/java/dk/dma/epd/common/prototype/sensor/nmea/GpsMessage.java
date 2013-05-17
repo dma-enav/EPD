@@ -15,57 +15,49 @@
  */
 package dk.dma.epd.common.prototype.sensor.nmea;
 
+import net.jcip.annotations.Immutable;
 import dk.dma.enav.model.geometry.Position;
 
 /**
  * Class representing a GPS message
  */
+@Immutable
 public class GpsMessage {
-    
-    private Position pos;
-    private Double sog;
-    private Double cog;
-    
-    public GpsMessage() {        
+
+    private final Position pos;
+    private final Double sog;
+    private final Double cog;
+
+    public GpsMessage(Position pos, Double sog, Double cog) {
+        this.pos = pos;
+        this.sog = sog;
+        this.cog = cog;
     }
-    
+
     public Position getPos() {
         return pos;
     }
-    
-    public void validateFields() {
-        if (cog != null && cog >= 360) {
-            cog = null;
-        }
-        if (sog != null && sog >= 102.2) {
-            sog = null;
-        }
+
+    private boolean isValidSog() {
+        return cog != null && cog < 360;
     }
-    
-    public void setPos(Position pos) {
-        this.pos = pos;
+
+    private boolean isValidCog() {
+        return sog != null && sog < 102.2;
     }
-    
+
     public boolean isValidPosition() {
         return pos != null && pos.getLatitude() <= 90 && pos.getLongitude() <= 180;
     }
-    
-    public Double getSog() {
-        return sog;
-    }
 
-    public void setSog(Double sog) {
-        this.sog = sog;
+    public Double getSog() {
+        return isValidSog() ? sog : null;
     }
 
     public Double getCog() {
-        return cog;
+        return isValidCog() ? cog : null;
     }
 
-    public void setCog(Double cog) {
-        this.cog = cog;
-    }
-    
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -79,7 +71,5 @@ public class GpsMessage {
         builder.append("]");
         return builder.toString();
     }
-    
-    
 
 }

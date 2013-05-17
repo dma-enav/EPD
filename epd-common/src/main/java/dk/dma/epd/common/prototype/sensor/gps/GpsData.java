@@ -18,11 +18,14 @@ package dk.dma.epd.common.prototype.sensor.gps;
 import java.io.Serializable;
 import java.util.Date;
 
+import net.jcip.annotations.NotThreadSafe;
+
 import dk.dma.enav.model.geometry.Position;
 
 /**
  * Class representing GPS data position, speed over ground and course over ground. 
  */
+@NotThreadSafe
 public class GpsData implements Serializable {
         
     private static final long serialVersionUID = 1L;

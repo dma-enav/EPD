@@ -17,6 +17,8 @@ package dk.dma.epd.common.prototype.sensor.gps;
 
 import java.util.Date;
 
+import net.jcip.annotations.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,12 +30,13 @@ import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
 /**
  * Singleton component class that maintains GNSS time as an offset from computer time
  */
+@ThreadSafe
 public final class GnssTime extends MapHandlerChild implements IGnssTimeListener {
     
     private static final Logger LOG = LoggerFactory.getLogger(GnssTime.class);
     
-    private long offset;
-    private NmeaSensor nmeaSensor;
+    private volatile long offset;
+    private volatile NmeaSensor nmeaSensor;
     
     private static GnssTime instance;
     
@@ -45,11 +48,11 @@ public final class GnssTime extends MapHandlerChild implements IGnssTimeListener
      * Receive GNSS time update
      */
     @Override
-    public synchronized void receive(GnssTimeMessage gnssTimeMessage) {        
+    public void receive(GnssTimeMessage gnssTimeMessage) {        
         if (gnssTimeMessage == null) {
             return;
         }
-        offset = new Date().getTime() - gnssTimeMessage.getTime().getTime();
+        offset = System.currentTimeMillis() - gnssTimeMessage.getTime().getTime();
         LOG.debug("New GPS time offset: " + offset);        
     }
     

@@ -22,6 +22,8 @@ import java.io.InputStream;
 
 import javax.swing.JOptionPane;
 
+import net.jcip.annotations.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +38,13 @@ import dk.dma.epd.common.util.Util;
 /**
  * NMEA sensor reading from file
  */
+@ThreadSafe
 public class NmeaFileSensor extends NmeaSensor {
     
     private static final Logger LOG = LoggerFactory.getLogger(NmeaFileSensor.class);
     
-    private String filename;
-    private Frame frame;
+    private final String filename;
+    private volatile Frame frame;
     
     public NmeaFileSensor(String filename, SensorSettings sensorSettings) {
         LOG.info("Using AIS replay file: " + filename);

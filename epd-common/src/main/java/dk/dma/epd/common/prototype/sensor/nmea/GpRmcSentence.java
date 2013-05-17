@@ -41,9 +41,6 @@ public class GpRmcSentence extends Sentence {
 
     @Override
     public int parse(String line) throws SentenceException {
-        gpsMessage = new GpsMessage();
-        gnssTimeMessage = new GnssTimeMessage();
-        
         // Do common parsing
         super.baseParse(line);
         
@@ -57,29 +54,34 @@ public class GpRmcSentence extends Sentence {
             throw new SentenceException("RMC sentence " + line + "     does not have at least 10 fields ");
         }
         
-        // Get lat and lon        
+        // Get lat and lon
+        Position pos = null;
+        Double sog = null;
+        Double cog = null;
         try {
             if (fields[3].length() > 2 && fields[5].length() > 3) {
                 double lat = ParseUtils.parseLatitude(fields[3].substring(0, 2), fields[3].substring(2, fields[3].length() - 1), fields[4]);
                 double lon = ParseUtils.parseLongitude(fields[5].substring(0, 3), fields[5].substring(3, fields[5].length() - 1), fields[6]);
-                gpsMessage.setPos(Position.create(lat, lon));
+                pos = Position.create(lat, lon);
             }
             if (fields[7].length() > 0) {
-                gpsMessage.setSog(ParseUtils.parseDouble(fields[7]));
+                sog = ParseUtils.parseDouble(fields[7]);
             }
             if (fields[8].length() > 0) {
-                gpsMessage.setCog(ParseUtils.parseDouble(fields[8]));
+                cog = ParseUtils.parseDouble(fields[8]);
             }
         } catch (FormatException e1) {
             throw new SentenceException("GPS sentence not valid: " + line);
-        }        
+        }
+        
+        gpsMessage = new GpsMessage(pos, sog, cog);
         
         // Parse time
         String dateTimeStr = fields[1] + " " + fields[9];
         SimpleDateFormat dateFormat = new SimpleDateFormat("HHmmss.SS ddMMyy");
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0000"));
         try {
-            gnssTimeMessage.setTime(dateFormat.parse(dateTimeStr));
+            gnssTimeMessage = new GnssTimeMessage(dateFormat.parse(dateTimeStr));
         } catch (ParseException e) {
             throw new SentenceException("GPS time " + dateTimeStr + " not valid ");
         }

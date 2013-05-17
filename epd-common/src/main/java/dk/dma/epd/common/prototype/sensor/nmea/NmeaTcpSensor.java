@@ -21,6 +21,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import net.jcip.annotations.ThreadSafe;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,35 +35,36 @@ import dk.dma.enav.util.function.Consumer;
 /**
  * TCP NMEA sensor
  */
+@ThreadSafe
 public class NmeaTcpSensor extends NmeaSensor {
 
     private static final Logger LOG = LoggerFactory.getLogger(NmeaTcpSensor.class);
-    
+
     private static final int TCP_READ_TIMEOUT = 60000; // 1 min
-    
-    private long reconnectInterval = 5000; // Default 5 sec
-    private String hostname;
-    private int port;
-    private OutputStream outputStream;
-    
-    private Socket clientSocket = new Socket();
-    
-    public NmeaTcpSensor() {        
+
+    private volatile long reconnectInterval = 5000; // Default 5 sec
+    private volatile String hostname;
+    private volatile int port;
+    private volatile OutputStream outputStream;
+
+    private volatile Socket clientSocket = new Socket();
+
+    public NmeaTcpSensor() {
     }
-    
+
     public NmeaTcpSensor(String hostname, int port) {
         this();
         this.hostname = hostname;
         this.port = port;
     }
-    
+
     public NmeaTcpSensor(String hostPort) {
         this();
         String[] parts = StringUtils.split(hostPort, ':');
         this.hostname = parts[0];
         this.port = Integer.parseInt(parts[1]);
     }
-    
+
     @Override
     public void run() {
 
@@ -71,8 +74,7 @@ public class NmeaTcpSensor extends NmeaSensor {
                 connect();
                 readLoop(clientSocket.getInputStream());
             } catch (IOException e) {
-                LOG.error("TCP NMEA sensor failed: " + e.getMessage() + " retry in " + reconnectInterval / 1000
-                        + " seconds");
+                LOG.error("TCP NMEA sensor failed: " + e.getMessage() + " retry in " + reconnectInterval / 1000 + " seconds");
                 try {
                     Thread.sleep(reconnectInterval);
                 } catch (InterruptedException intE) {
@@ -80,9 +82,9 @@ public class NmeaTcpSensor extends NmeaSensor {
             }
         }
     }
-    
+
     private void connect() throws IOException {
-        try {            
+        try {
             clientSocket = new Socket();
             InetSocketAddress address = new InetSocketAddress(hostname, port);
             clientSocket.connect(address);
@@ -108,29 +110,22 @@ public class NmeaTcpSensor extends NmeaSensor {
             }
         }
     }
-    
+
     @Override
     public void send(SendRequest sendRequest, Consumer<Abk> resultListener) throws SendException {
         doSend(sendRequest, resultListener, outputStream);
     }
 
     public Status getStatus() {
-        synchronized (clientSocket) {
-            if (clientSocket != null && clientSocket.isConnected()) {
-                return Status.CONNECTED;
-            }
-            return Status.DISCONNECTED;
-        }
+        return clientSocket.isConnected() ? Status.CONNECTED : Status.DISCONNECTED;
     }
-    
+
     public long getReconnectInterval() {
         return reconnectInterval;
     }
-    
+
     public void setReconnectInterval(long reconnectInterval) {
         this.reconnectInterval = reconnectInterval;
     }
-    
-    
-    
+
 }

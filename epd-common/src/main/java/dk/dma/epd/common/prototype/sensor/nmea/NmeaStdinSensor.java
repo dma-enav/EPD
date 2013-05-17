@@ -17,6 +17,8 @@ package dk.dma.epd.common.prototype.sensor.nmea;
 
 import java.io.IOException;
 
+import net.jcip.annotations.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,14 +30,15 @@ import dk.dma.enav.util.function.Consumer;
 /**
  * NMEA sensor taking input from STDIN
  */
+@ThreadSafe
 public class NmeaStdinSensor extends NmeaSensor {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(NmeaStdinSensor.class);
-    
+
     public NmeaStdinSensor() {
-        
+
     }
-    
+
     @Override
     public void run() {
         try {
@@ -44,7 +47,7 @@ public class NmeaStdinSensor extends NmeaSensor {
             LOG.error("Failed to open stdin");
         }
     }
-    
+
     @Override
     public void send(SendRequest sendRequest, Consumer<Abk> resultListener) throws SendException {
         throw new SendException("Cannot send to stdin sensor");

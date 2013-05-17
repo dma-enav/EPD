@@ -41,10 +41,10 @@ import dk.dma.epd.ship.status.IStatusComponent;
 public class GpsHandler extends MapHandlerChild implements IGpsListener, IStatusComponent, Runnable {
 
     private static final long GPS_TIMEOUT = 60 * 1000; // 1 min
+    private volatile NmeaSensor nmeaSensor;
     private CopyOnWriteArrayList<IGpsDataListener> listeners = new CopyOnWriteArrayList<>();
     @GuardedBy("this")
     private GpsData currentData = new GpsData();
-    private NmeaSensor nmeaSensor;
 
     public GpsHandler() {
         EPDShip.startThread(this, "GpsHandler");
@@ -121,16 +121,14 @@ public class GpsHandler extends MapHandlerChild implements IGpsListener, IStatus
         }
     }
 
-    public GpsData getCurrentData() {
+    public synchronized GpsData getCurrentData() {
         return new GpsData(currentData);
     }
 
-    @GuardedBy("listeners")
     public void addListener(IGpsDataListener listener) {
         listeners.addIfAbsent(listener);
     }
 
-    @GuardedBy("listeners")
     public void removeListener(IGpsDataListener listener) {
         listeners.remove(listener);
     }

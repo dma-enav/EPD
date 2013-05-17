@@ -20,12 +20,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import net.jcip.annotations.NotThreadSafe;
+
 import dk.dma.ais.sentence.SentenceException;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTimeMessage;
 
 /**
  * Proprietary PSTT sentence parser.
  */
+@NotThreadSafe
 public class PsttSentence {
     
     private GnssTimeMessage gnssTimeMessage;

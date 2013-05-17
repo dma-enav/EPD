@@ -38,6 +38,9 @@ import dk.dma.enav.util.function.Consumer;
 
 /**
  * Serial port NMEA sensor 
+ * 
+ * @todo Re-implement using rxvt and make thread-safe 
+ * 
  */
 public class NmeaSerialSensor extends NmeaSensor implements SerialPortEventListener{
     
