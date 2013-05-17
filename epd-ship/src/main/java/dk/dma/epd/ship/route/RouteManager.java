@@ -23,11 +23,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +73,7 @@ import dk.frv.enav.common.xml.metoc.MetocForecast;
 /**
  * Manager for handling a collection of routes and active route
  */
+@ThreadSafe
 public class RouteManager extends MapHandlerChild implements Runnable,
         Serializable, IGpsDataListener, IAisRouteSuggestionListener, ActiveRouteProvider {
 
@@ -78,23 +82,24 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     private static final String ROUTES_FILE = EPDShip.getHomePath().resolve(".routes").toString();
     private static final Logger LOG = LoggerFactory.getLogger(RouteManager.class);
 
-    private List<Route> routes = new LinkedList<>();
+    private volatile EnavServiceHandler enavServiceHandler;
+    private volatile GpsHandler gpsHandler;
+    private volatile ShoreServices shoreServices;
+    private volatile AisHandler aisHandler;
+    private volatile IntendedRouteService intendedRouteService;
+    
+    @GuardedBy("suggestedRoutes")
     private List<RecievedRoute> suggestedRoutes = new LinkedList<>();
-    
-    private EnavServiceHandler enavServiceHandler;
-    
-    
-//    private Set<AisAdressedRouteSuggestion> addressedSuggestedRoutes = new HashSet<>();
+    @GuardedBy("this")
+    private List<Route> routes = new LinkedList<>();
+    @GuardedBy("this")
     private ActiveRoute activeRoute;
+    @GuardedBy("this")
     private int activeRouteIndex = -1;
-    private GpsHandler gpsHandler;
-//    private AisServices aisServices;
-    private ShoreServices shoreServices;
-    private AisHandler aisHandler;
+    
     private RouteSuggestionDialog routeSuggestionDialog;
-    private IntendedRouteService intendedRouteService;
-
-    private Set<IRoutesUpdateListener> listeners = new HashSet<>();
+    
+    private CopyOnWriteArrayList<IRoutesUpdateListener> listeners = new CopyOnWriteArrayList<>();
 
     public RouteManager() {
         EPDShip.startThread(this, "RouteManager");
@@ -111,7 +116,7 @@ public class RouteManager extends MapHandlerChild implements Runnable,
 
         ActiveWpSelectionResult endRes;
         ActiveWpSelectionResult res;
-        synchronized (routes) {
+        synchronized (this) {
             activeRoute.update(gpsData);
             endRes = activeRoute.chooseActiveWp();
             res = endRes;
@@ -129,7 +134,7 @@ public class RouteManager extends MapHandlerChild implements Runnable,
         if (endRes == ActiveWpSelectionResult.CHANGED) {
             notifyListeners(RoutesUpdateEvent.ACTIVE_ROUTE_UPDATE);
         } else if (endRes == ActiveWpSelectionResult.ROUTE_FINISHED) {
-            synchronized (routes) {
+            synchronized (this) {
                 activeRoute = null;
                 activeRouteIndex = -1;
             }
@@ -138,7 +143,7 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     }
 
     public void activateRoute(int index) {
-        synchronized (routes) {
+        synchronized (this) {
             if (index < 0 || index >= routes.size()) {
                 LOG.error("Could not activate route with index: " + index);
                 return;
@@ -220,7 +225,7 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     }
 
     public void deactivateRoute() {
-        synchronized (routes) {
+        synchronized (this) {
             activeRoute = null;
             activeRouteIndex = -1;
         }
@@ -229,7 +234,7 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     }
 
     public void changeActiveWp(int index) {
-        synchronized (routes) {
+        synchronized (this) {
             if (!isRouteActive()) {
                 return;
             }
@@ -248,7 +253,7 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     }
 
     public void removeRoute(int index) {
-        synchronized (routes) {
+        synchronized (this) {
             if (index < 0 || index >= routes.size()) {
                 LOG.error("Could not deactivate route with index: " + index);
                 return;
@@ -266,49 +271,51 @@ public class RouteManager extends MapHandlerChild implements Runnable,
         notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
     }
     
-    public int getRouteIndex(Route route){
-        for (int i = 0; i < routes.size(); i++) {
-            if (route == routes.get(i)){
-                return i;
+    public int getRouteIndex(Route route) {
+        synchronized (this) {
+            for (int i = 0; i < routes.size(); i++) {
+                if (route == routes.get(i)) {
+                    return i;
+                }
             }
         }
         return -1;
     }
 
     public void addRoute(Route route) {
-        synchronized (routes) {
+        synchronized (this) {
             routes.add(route);
         }
         notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
     }
 
     public boolean isRouteActive() {
-        synchronized (routes) {
+        synchronized (this) {
             return activeRouteIndex >= 0;
         }
     }
 
     @Override
     public ActiveRoute getActiveRoute() {
-        synchronized (routes) {
+        synchronized (this) {
             return activeRoute;
         }
     }
 
     public boolean isActiveRoute(int index) {
-        synchronized (routes) {
+        synchronized (this) {
             return isRouteActive() && index == activeRouteIndex;
         }
     }
 
     public int getActiveRouteIndex() {
-        synchronized (routes) {
+        synchronized (this) {
             return activeRouteIndex;
         }
     }
 
     public Route getRoute(int index) {
-        synchronized (routes) {
+        synchronized (this) {
             if (index == activeRouteIndex) {
                 return activeRoute;
             }
@@ -317,8 +324,8 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     }
 
     public List<Route> getRoutes() {
-        synchronized (routes) {
-            return routes;
+        synchronized (this) {
+            return new ArrayList<>(routes);
         }
     }
 
@@ -361,18 +368,20 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     
     public void showSuggestionDialog(int id){
         // Show dialog
-        routeSuggestionDialog.showSuggestion(suggestedRoutes.get(id));        
+        synchronized (suggestedRoutes) {
+            routeSuggestionDialog.showSuggestion(suggestedRoutes.get(id));
+        }                
     }
     
     public boolean acceptSuggested(RecievedRoute route){
         boolean removed = false;
         
-        for (int i = 0; i < suggestedRoutes.size(); i++) {
-            if (suggestedRoutes.get(i).getId() == route.getId()){
-                synchronized(suggestedRoutes){
-                    suggestedRoutes.remove(i);
-                    removed = true;
-                    break;
+        synchronized (suggestedRoutes) {
+            for (int i = 0; i < suggestedRoutes.size(); i++) {
+                if (suggestedRoutes.get(i).getId() == route.getId()){
+                        suggestedRoutes.remove(i);
+                        removed = true;
+                        break;
                 }
             }
         }
@@ -381,7 +390,9 @@ public class RouteManager extends MapHandlerChild implements Runnable,
             // Update route layer
             notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
             
-            routes.add(route.getRoute());
+            synchronized (this) {
+                routes.add(route.getRoute());
+            }            
             notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
             return true;
         }
@@ -393,9 +404,9 @@ public class RouteManager extends MapHandlerChild implements Runnable,
         
         boolean removed = false;
         
-        for (int i = 0; i < suggestedRoutes.size(); i++) {
-            if (suggestedRoutes.get(i).getId() == route.getId()){
-                synchronized(suggestedRoutes){
+        synchronized (suggestedRoutes) {
+            for (int i = 0; i < suggestedRoutes.size(); i++) {
+                if (suggestedRoutes.get(i).getId() == route.getId()) {
                     suggestedRoutes.remove(i);
                     removed = true;
                     break;
@@ -514,7 +525,7 @@ public class RouteManager extends MapHandlerChild implements Runnable,
         }
 
         // Add route to list
-        synchronized (routes) {
+        synchronized (this) {
             routes.add(route);
         }
         // Notify of new route
@@ -583,7 +594,7 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     private void checkValidMetoc() {
         boolean visualUpdate = false;
 
-        synchronized (routes) {
+        synchronized (this) {
             for (Route route : routes) {
                 if (route.getMetocForecast() == null) {
                     continue;
@@ -664,19 +675,23 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     }
 
     private void setSuggestedRoutes(List<RecievedRoute> suggestedRoutes) {
-        if (suggestedRoutes != null) {
-            this.suggestedRoutes = suggestedRoutes;
+        synchronized (suggestedRoutes) {
+            if (suggestedRoutes != null) {
+                this.suggestedRoutes = suggestedRoutes;
+            }
         }
     }
 
     private void setRoutes(List<Route> routes) {
-        if (routes != null) {
-            this.routes = routes;
+        synchronized (this) {
+            if (routes != null) {
+                this.routes = routes;
+            }
         }
     }
 
     public void saveToFile() {
-        synchronized (routes) {
+        synchronized (this) {
             RouteStore routeStore = new RouteStore(this);
             try (
                 FileOutputStream fileOut = new FileOutputStream(ROUTES_FILE);
@@ -735,9 +750,11 @@ public class RouteManager extends MapHandlerChild implements Runnable,
         if (!isRouteActive()) {
             return;
         }
-        if (activeRoute.getRouteMetocSettings() == null
-                || !activeRoute.getRouteMetocSettings().isShowRouteMetoc()) {
-            return;
+        synchronized (this) {
+            if (activeRoute.getRouteMetocSettings() == null
+                    || !activeRoute.getRouteMetocSettings().isShowRouteMetoc()) {
+                return;
+            }
         }
         long activeRouteMetocPollInterval = EPDShip.getSettings()
                 .getEnavSettings().getActiveRouteMetocPollInterval() * 60 * 1000;
@@ -756,12 +773,13 @@ public class RouteManager extends MapHandlerChild implements Runnable,
         // Check if minimum time since last update has passed
         if (metocAge <= activeRouteMetocPollInterval) {
             return;
-        }
+        }        
         // Check if not old and still valid
-        if (!isMetocOld(activeRoute)
-                && activeRoute.isMetocValid(EPDShip.getSettings()
-                        .getEnavSettings().getMetocTimeDiffTolerance())) {
-            return;
+        synchronized (this) {
+            if (!isMetocOld(activeRoute)
+                    && activeRoute.isMetocValid(EPDShip.getSettings().getEnavSettings().getMetocTimeDiffTolerance())) {
+                return;
+            }
         }
 
         try {
@@ -771,7 +789,9 @@ public class RouteManager extends MapHandlerChild implements Runnable,
         } catch (ShoreServiceException e) {
             LOG.error("Failed to auto update METOC for active route: "
                     + e.getMessage());
-            activeRoute.removeMetoc();
+            synchronized (this) {
+                activeRoute.removeMetoc();
+            }            
             notifyListeners(RoutesUpdateEvent.METOC_SETTINGS_CHANGED);
         }
 
@@ -807,7 +827,9 @@ public class RouteManager extends MapHandlerChild implements Runnable,
     
 
     public List<RecievedRoute> getSuggestedRoutes() {
-        return suggestedRoutes;
+        synchronized (suggestedRoutes) {
+            return new ArrayList<>(suggestedRoutes);
+        }
     }
     
     

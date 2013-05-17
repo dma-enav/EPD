@@ -29,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -93,7 +94,16 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
     }
     
     
-    public void showSuggestion(RecievedRoute cloudRouteSuggestion) {
+    public void showSuggestion(final RecievedRoute cloudRouteSuggestion) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    showSuggestion(cloudRouteSuggestion);
+                }
+            });
+            return;
+        }
         
         this.cloudRouteSuggestion = cloudRouteSuggestion;
         
