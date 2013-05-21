@@ -35,10 +35,10 @@ import dk.dma.epd.common.math.Vector2D;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
+import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
-import dk.dma.epd.ship.gps.GpsHandler;
 
 public class GpsLayer extends OMGraphicHandlerLayer implements IGpsDataListener {
     

@@ -13,7 +13,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.status;
+package dk.dma.epd.common.prototype.status;
+
+import dk.dma.epd.common.prototype.status.ComponentStatus;
 
 /**
  * Interface for components able to deliver status

@@ -40,7 +40,9 @@ import dk.dma.commons.app.OneInstanceGuard;
 import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.PersistentConnection.State;
 import dk.dma.epd.common.ExceptionHandler;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
+import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensor;
@@ -48,7 +50,6 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
 import dk.dma.epd.shore.ais.AisHandler;
-import dk.dma.epd.shore.gps.GpsHandler;
 import dk.dma.epd.shore.gui.utils.StaticImages;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.msi.MsiHandler;
@@ -67,7 +68,7 @@ import dk.dma.epd.shore.voyage.VoyageManager;
  * Starts up components, bean context and GUI.
  * 
  */
-public class EPDShore {
+public class EPDShore extends EPD {
 
     private static String VERSION;
     private static String MINORVERSION;
@@ -556,20 +557,6 @@ public class EPDShore {
         } catch (InterruptedException e) {
             LOG.error(e.getMessage());
         }
-    }
-
-    /**
-     * Function used to create a thread
-     * 
-     * @param t
-     *            - class to create thread on
-     * @param name
-     *            - Thread name
-     */
-    public static void startThread(Runnable t, String name) {
-        Thread thread = new Thread(t);
-        thread.setName(name);
-        thread.start();
     }
 
     public static AisReader getAisReader() {

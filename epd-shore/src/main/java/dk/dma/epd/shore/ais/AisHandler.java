@@ -65,12 +65,12 @@ import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.nmea.IAisListener;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
+import dk.dma.epd.common.prototype.status.ComponentStatus;
+import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.service.ais.AisServices;
 import dk.dma.epd.shore.settings.ESDSettings;
 import dk.dma.epd.shore.status.AisStatus;
-import dk.dma.epd.shore.status.ComponentStatus;
-import dk.dma.epd.shore.status.IStatusComponent;
 
 /**
  * Class for handling incoming AIS messages on a vessel and maintainer of AIS

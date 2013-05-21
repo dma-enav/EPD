@@ -24,10 +24,10 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
+import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.event.IMapCoordListener;
-import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.gui.SensorPanel;
 import dk.dma.epd.ship.gui.Panels.CursorPanel;
 

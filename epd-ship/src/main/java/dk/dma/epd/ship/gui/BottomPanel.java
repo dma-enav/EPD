@@ -32,11 +32,11 @@ import javax.swing.border.MatteBorder;
 
 import com.bbn.openmap.gui.OMComponentPanel;
 
+import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
+import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.ais.AisHandler;
-import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.service.communication.webservice.ShoreServices;
-import dk.dma.epd.ship.status.IStatusComponent;
 
 /**
  * Panel shown below the chart

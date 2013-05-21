@@ -27,9 +27,9 @@ import com.bbn.openmap.plugin.wms.WMSPlugIn;
 import com.bbn.openmap.proj.Projection;
 
 import dk.dma.epd.common.graphics.CenterRaster;
+import dk.dma.epd.common.prototype.status.ComponentStatus;
+import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.status.ComponentStatus;
-import dk.dma.epd.shore.status.IStatusComponent;
 import dk.dma.epd.shore.status.WMSStatus;
 
 
