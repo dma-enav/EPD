@@ -74,10 +74,18 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
     private JPanel statusPanel;
     private JPanel typesPanel;
     private JPanel warnLimitsPanel;
+    private JComboBox<String> providerBox;    
+    
     JButton closeBtn;
     
     private RouteManager routeManager;
     private Route route;
+
+    private JLabel dmiProvider;
+
+    private JLabel fcoProvider;
+
+
 
     public RouteMetocDialog(Window parent, RouteManager routeManager, int routeId) {
         super(parent, "Route METOC properties", Dialog.ModalityType.APPLICATION_MODAL);
@@ -159,6 +167,9 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
         metocSettings.setWindWarnLimit(parseFieldVal(windLimit, metocSettings.getWindWarnLimit()));
         metocSettings.setCurrentWarnLimit(parseFieldVal(currentLimit, metocSettings.getCurrentWarnLimit()));
         metocSettings.setWaveWarnLimit(parseFieldVal(waveLimit, metocSettings.getWaveWarnLimit()));
+        
+        metocSettings.setProvider((String)providerBox.getSelectedItem());
+        System.out.println("HERRO "+(String)providerBox.getSelectedItem());
     }
     
     private void requestMetoc() {
@@ -247,9 +258,23 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
         currentLimit.setColumns(10);
         waveLimit = new JTextField();
         waveLimit.setColumns(10);
+        
+        
 
         statusPanel = new JPanel();
-        statusPanel.setBorder(new TitledBorder(null, "METOC status", TitledBorder.LEADING, TitledBorder.TOP, null, null));        
+        
+
+        
+        statusPanel.setBorder(new TitledBorder(null, "METOC status", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        
+        providerBox = new JComboBox<>();
+        providerBox.addItem("dmi");
+        providerBox.addItem("fco");
+        providerBox.setBorder(new TitledBorder(null, "METOC provider", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        
+        providerBox.addActionListener(this);
+        providerBox.addFocusListener(this);
+        
         typesPanel = new JPanel();
         typesPanel.setBorder(new TitledBorder(null, "METOC data", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));        
         warnLimitsPanel = new JPanel();
@@ -262,6 +287,7 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
                 .addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
                     .addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
                         .addComponent(warnLimitsPanel, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 251, Short.MAX_VALUE)
+                        .addComponent(providerBox, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
                         .addComponent(typesPanel, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
                         .addComponent(statusPanel, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 251, Short.MAX_VALUE))
                     .addGap(3))
@@ -275,6 +301,8 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
                 .addGroup(groupLayout.createSequentialGroup()
                     .addGap(7)
                     .addComponent(statusPanel, GroupLayout.PREFERRED_SIZE, 142, GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addComponent(providerBox, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(typesPanel, GroupLayout.PREFERRED_SIZE, 103, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)

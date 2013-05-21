@@ -34,6 +34,16 @@ public class RouteMetocSettings implements Serializable {
     private Double currentWarnLimit;
     private Double waveWarnLimit;
     
+    private String provider = "dmi";
+    
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
     public RouteMetocSettings() {
         for (MetocDataTypes dataType : MetocDataTypes.allTypes()) {
             dataTypes.add(dataType);
