@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.common.prototype.status;
 
-import dk.dma.epd.common.prototype.status.ComponentStatus;
 
 /**
  * Interface for components able to deliver status
