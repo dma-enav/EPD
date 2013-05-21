@@ -17,6 +17,7 @@ package dk.dma.epd.shore.status;
 
 import java.util.Date;
 
+import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.text.Formatter;
 
 /**

@@ -13,54 +13,57 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.status;
+package dk.dma.epd.common.prototype.status;
+
+import net.jcip.annotations.ThreadSafe;
 
 /**
  * Abstract base class for status components
  */
+@ThreadSafe
 public abstract class ComponentStatus {
-
+    
     public enum Status {
         OK, ERROR, UNKNOWN, PARTIAL
     }
-
+    
     protected Status status = Status.UNKNOWN;
     protected String name = "Component";
     protected String shortStatusText;
-
+    
     public ComponentStatus(String name) {
-        this.name = name;
+        this.name = name;        
     }
-
+    
     public ComponentStatus(String name, Status status) {
         this(name);
         this.status = status;
     }
-
-    public Status getStatus() {
+    
+    public synchronized Status getStatus() {
         return status;
     }
-
-    public void setStatus(Status status) {
+    
+    public synchronized void setStatus(Status status) {
         this.status = status;
     }
-
-    public String getShortStatusText() {
+    
+    public synchronized String getShortStatusText() {
         return shortStatusText;
     }
-
-    public void setShortStatusText(String shortStatusText) {
+    
+    public synchronized void setShortStatusText(String shortStatusText) {
         this.shortStatusText = shortStatusText;
     }
-
-    public String getName() {
+    
+    public synchronized String getName() {
         return name;
     }
-
-    public void setName(String name) {
+    
+    public synchronized void setName(String name) {
         this.name = name;
     }
-
+    
     public abstract String getStatusHtml();
-
+    
 }

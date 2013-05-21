@@ -46,7 +46,9 @@ import dk.dma.commons.app.OneInstanceGuard;
 import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.PersistentConnection.State;
 import dk.dma.epd.common.ExceptionHandler;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
+import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensor;
@@ -54,7 +56,6 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
 import dk.dma.epd.ship.ais.AisHandler;
-import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.route.RouteManagerDialog;
 import dk.dma.epd.ship.monalisa.MonaLisaHandler;
@@ -77,7 +78,7 @@ import dk.dma.epd.ship.util.UpdateCheckerThread;
  * Starts up components, bean context and GUI.
  * 
  */
-public class EPDShip {
+public class EPDShip  extends EPD {
 
     private static String VERSION;
     private static String MINORVERSION;
@@ -590,13 +591,6 @@ public class EPDShip {
 
     public static EnavServiceHandler getEnavServiceHandler() {
         return enavServiceHandler;
-    }
-
-    public static Thread startThread(Runnable t, String name) {
-        Thread thread = new Thread(t);
-        thread.setName(name);
-        thread.start();
-        return thread;
     }
 
     public static double elapsed(long start) {

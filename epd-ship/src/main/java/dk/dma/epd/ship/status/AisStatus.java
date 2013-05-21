@@ -18,6 +18,7 @@ package dk.dma.epd.ship.status;
 import java.util.Date;
 
 import net.jcip.annotations.ThreadSafe;
+import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.text.Formatter;
 
 /**
