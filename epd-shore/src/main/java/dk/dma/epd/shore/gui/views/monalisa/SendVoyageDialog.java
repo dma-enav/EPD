@@ -75,19 +75,20 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
     private SendVoyageDialog sendRoute;
     private AisHandler aisHandler;
 
-//    private EnavServiceHandler enavServiceHandler;
-//    private VoyageManager voyageManager;
+    // private EnavServiceHandler enavServiceHandler;
+    // private VoyageManager voyageManager;
+    private boolean renegotiate;
     private MonaLisaHandler monaLisaHandler;
-    
+
     private JLabel lblRoutenamelbl;
     private JLabel lblShipnamecallsignlbl;
-    
+
     private Voyage voyage;
     private boolean modifiedRoute;
     private JTextArea textArea;
 
     private JMapFrame parent;
-    
+
     /**
      * Create the frame.
      */
@@ -315,33 +316,30 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
         // }
         // }
         //
-         if (arg0.getSource() == sendLbl && sendLbl.isEnabled()) {
-             
-             MonaLisaRouteStatus replyStatus = null;
-             
-             if (modifiedRoute){
-                 replyStatus = MonaLisaRouteService.MonaLisaRouteStatus.NEGOTIATING;
-             }else{
-                 replyStatus = MonaLisaRouteService.MonaLisaRouteStatus.AGREED;
-             }
-             
-  
-           
-           monaLisaHandler.sendReply(voyage.getId(), textArea.getText(), aisHandler.getOwnShip().getMmsi(), System
-                   .currentTimeMillis(), replyStatus, voyage.getRoute().getFullRouteData());
-           
-//           monaLisaHandler.sendReply(reply);
-           
-           this.textArea.setText("");
-           this.setVisible(false);
-           
-           parent.dispose();
-           
-         }
-         
-         
+        if (arg0.getSource() == sendLbl && sendLbl.isEnabled()) {
 
-         
+            MonaLisaRouteStatus replyStatus = null;
+
+            if (modifiedRoute) {
+                replyStatus = MonaLisaRouteService.MonaLisaRouteStatus.NEGOTIATING;
+            } else {
+                replyStatus = MonaLisaRouteService.MonaLisaRouteStatus.AGREED;
+            }
+
+            monaLisaHandler.sendReply(voyage.getId(), textArea.getText(),
+                    aisHandler.getOwnShip().getMmsi(), System
+                            .currentTimeMillis(), replyStatus, voyage
+                            .getRoute().getFullRouteData(), this.renegotiate);
+
+            // monaLisaHandler.sendReply(reply);
+
+            this.textArea.setText("");
+            this.setVisible(false);
+
+            parent.dispose();
+
+        }
+
         //
         // // int mmsiTarget = Integer.parseInt((String)
         // // mmsiListComboBox.getSelectedItem());
@@ -401,12 +399,12 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
         if (obj instanceof MonaLisaHandler) {
             monaLisaHandler = (MonaLisaHandler) obj;
         }
-        if (obj instanceof VoyageManager){
-//            voyageManager = (VoyageManager) obj;
+        if (obj instanceof VoyageManager) {
+            // voyageManager = (VoyageManager) obj;
         }
 
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent arg0) {
         //
@@ -508,17 +506,16 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
 
     public void setVoyage(Voyage voyage) {
         this.voyage = voyage;
-        
+
         lblRoutenamelbl.setText(voyage.getRoute().getName());
 
-        
-        if (aisHandler.getVesselTargets().get(voyage.getMmsi()).getStaticData() != null){
-            lblShipnamecallsignlbl.setText(aisHandler.getVesselTargets().get(voyage.getMmsi()).getStaticData().getCallsign());
-        }else{
+        if (aisHandler.getVesselTargets().get(voyage.getMmsi()).getStaticData() != null) {
+            lblShipnamecallsignlbl.setText(aisHandler.getVesselTargets()
+                    .get(voyage.getMmsi()).getStaticData().getCallsign());
+        } else {
             lblShipnamecallsignlbl.setText("N/A");
         }
-    
-//        
+
     }
 
     public void setModifiedRoute(boolean modifiedRoute) {
@@ -527,14 +524,19 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
     }
 
     /**
-     * @param parent the parent to set
+     * @param parent
+     *            the parent to set
      */
     public void setParent(JMapFrame parent) {
         this.parent = parent;
     }
 
-    
-    
-    
-    
+    /**
+     * @param renegotiate
+     *            the renegotiate to set
+     */
+    public void setRenegotiate(boolean renegotiate) {
+        this.renegotiate = renegotiate;
+    }
+
 }

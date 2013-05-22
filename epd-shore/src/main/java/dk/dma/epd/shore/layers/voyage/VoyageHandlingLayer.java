@@ -73,6 +73,8 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
     private Route initialRecievedRoute;
     private Route newRoute;
     private boolean modified;
+    private boolean renegotiate;
+    
     
     boolean routeChange;
 
@@ -185,7 +187,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
                 voyage.setRoute(newRoute);
 
                 routeMenu.voyageWaypontMenu(this, mapBean, voyage, modified, jMapFrame,
-                        voyagePlanInfoPanel, true, newRoute, null, e.getPoint(), wpc.getWpIndex());
+                        voyagePlanInfoPanel, true, newRoute, null, e.getPoint(), wpc.getWpIndex(),  this.renegotiate);
                 routeMenu.setVisible(true);
                 routeMenu.show(this, e.getX() - 2, e.getY() - 2);
                 return true;
@@ -204,7 +206,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
                 voyage.setRoute(newRoute);
 
                 routeMenu.voyageWaypontMenu(this, mapBean,  voyage, modified, jMapFrame,
-                        voyagePlanInfoPanel, false, newRoute, rlg.getRouteLeg(), e.getPoint(), 0);
+                        voyagePlanInfoPanel, false, newRoute, rlg.getRouteLeg(), e.getPoint(), 0, this.renegotiate);
 
                 // routeMenu.routeLegMenu(rlg.getRouteIndex(),
                 // rlg.getRouteLeg(), e.getPoint());
@@ -437,9 +439,10 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
      * 
      * @param voyage
      */
-    public void handleVoyage(Route originalRoute, Voyage voyage) {
+    public void handleVoyage(Route originalRoute, Voyage voyage, boolean renegotiate) {
         graphics.clear();
-
+        
+        this.renegotiate = renegotiate;
         this.originalRoute = originalRoute.copy();
         this.voyage = voyage;
         this.initialRecievedRoute = voyage.getRoute().copy();

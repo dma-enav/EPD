@@ -472,7 +472,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
                     Route originalRoute = new Route(message.getRouteMessage().get(0).getRoute());
                     
                     EPDShore.getMainFrame().addMonaLisaHandlingWindow(originalRoute,
-                            shipName, voyage);
+                            shipName, voyage, false);
 
                     // MonaLisaRouteService.MonaLisaRouteRequestReply reply =
                     // new

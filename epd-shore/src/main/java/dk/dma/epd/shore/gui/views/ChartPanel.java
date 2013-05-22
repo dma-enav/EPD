@@ -431,15 +431,16 @@ public class ChartPanel extends OMComponentPanel {
         
         
         if (voyageHandleLayer){
-            voyageHandlingLayer = new VoyageHandlingLayer();   
-            voyageHandlingLayer.setVisible(true);
-            mapHandler.add(voyageHandlingLayer);
+
             
             // Add Voyage Layer
             voyageLayer = new VoyageLayer(true);
             voyageLayer.setVisible(true);
             mapHandler.add(voyageLayer);
             
+            voyageHandlingLayer = new VoyageHandlingLayer();   
+            voyageHandlingLayer.setVisible(true);
+            mapHandler.add(voyageHandlingLayer);
             
         }else{
             // Add Voyage Layer

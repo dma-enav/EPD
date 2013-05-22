@@ -505,7 +505,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         sendToSTCC
                 .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() >0);
         
-        if (mainFrame.getMonaLisaSTCCDialog().isActive()){
+        if (monaLisaHandler.isTransaction()){
             sendToSTCC.setText("Show STCC info");
         }else{
             sendToSTCC.setText("Send to STCC");

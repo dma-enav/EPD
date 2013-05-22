@@ -88,11 +88,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>> contextSenders = new HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>>();
 
-    
     List<ServiceEndpoint<MonaLisaRouteRequestMessage, MonaLisaRouteRequestReply>> monaLisaShipList = new ArrayList<>();
-    
-    
-    
+
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
         this.hostPort = String.format("%s:%d",
                 enavSettings.getCloudServerHost(),
@@ -556,34 +553,41 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     }
 
-    
-    
-    
-    
-    public void sendMonaLisaRouteRequest(MonaLisaRouteRequestMessage routeMessage) {
+    public void sendMonaLisaRouteRequest(long mmsiDestination,
+            MonaLisaRouteRequestMessage routeMessage) {
 
         ServiceEndpoint<MonaLisaRouteService.MonaLisaRouteRequestMessage, MonaLisaRouteService.MonaLisaRouteRequestReply> end = null;
 
-        
-        //How to determine which to send to?
-//        for (int i = 0; i < monaLisaSTCCList.size(); i++) {
-//            end = monaLisaSTCCList.get(i);
-//
-//        }
+        // How to determine which to send to?
+        for (int i = 0; i < monaLisaShipList.size(); i++) {
+
+            if (mmsiDestination == Long.parseLong(monaLisaShipList.get(i)
+                    .getId().toString().split("//")[1])) {
+
+                System.out.println("We have a match on" + mmsiDestination);
+                end = monaLisaShipList.get(i);
+            }
+        }
 
         // Each request has a unique ID, talk to Kasper?
 
         if (end != null) {
-            ConnectionFuture<MonaLisaRouteService.MonaLisaRouteRequestReply> f = end
-                    .invoke(routeMessage);
+            // ConnectionFuture<MonaLisaRouteService.MonaLisaRouteRequestReply>
+            // f =
+            end.invoke(routeMessage);
 
-            f.handle(new BiConsumer<MonaLisaRouteService.MonaLisaRouteRequestReply, Throwable>() {
+            // we don't need to handle a reply, a new one will be sent as a
+            // normal transaction
 
-                @Override
-                public void accept(MonaLisaRouteRequestReply l, Throwable r) {
-//                    replyRecieved(l);
-                }
-            });
+            // f.handle(new
+            // BiConsumer<MonaLisaRouteService.MonaLisaRouteRequestReply,
+            // Throwable>() {
+            //
+            // @Override
+            // public void accept(MonaLisaRouteRequestReply l, Throwable r) {
+            // // replyRecieved(l);
+            // }
+            // });
 
         } else {
             // notifyRouteExchangeListeners();
@@ -592,19 +596,25 @@ public class EnavServiceHandler extends MapHandlerChild implements
         }
 
     }
-    
-    
+
     private void getMonaLisaShipList() {
         try {
             monaLisaShipList = connection
                     .serviceFind(MonaLisaRouteService.INIT)
                     .nearest(Integer.MAX_VALUE).get();
+
+            // for (int i = 0; i < monaLisaShipList.size(); i++) {
+            // System.out.println("We have the following IDs available " +
+            // monaLisaShipList.get(i).getId());
+            //
+            // }
+
         } catch (Exception e) {
             LOG.error(e.getMessage());
 
         }
     }
-    
+
     public boolean shipAvailableForMonaLisaTransaction(long mmsi) {
         getMonaLisaShipList();
         for (int i = 0; i < monaLisaShipList.size(); i++) {

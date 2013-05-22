@@ -86,19 +86,16 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
     SafeHavenArea safeHavenArea = new SafeHavenArea();
     private boolean activeSafeHaven;
 
-
     public RouteLayer() {
         new Thread(this).start();
         routeWidth = EPDShip.getSettings().getNavSettings().getRouteWidth();
 
     }
 
-    
-    private void updateSafeHaven(){
+    private void updateSafeHaven() {
         if (routeManager.isRouteActive()) {
             ActiveRoute activeRoute = routeManager.getActiveRoute();
             if (activeRoute.isVisible()) {
-
 
                 if (activeSafeHaven) {
                     System.out.println("Activating safehaven");
@@ -112,7 +109,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                                         .getActiveWp().getOutLeg().getSFLen());
                         graphics.add(safeHavenArea);
                     } else {
-                    System.out.println("outleg is null");
+                        System.out.println("outleg is null");
                         safeHavenArea
                                 .moveSymbol(
                                         activeRoute.getSafeHavenLocation(),
@@ -137,8 +134,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         }
 
     }
-    
-    
+
     @Override
     public synchronized void routesChanged(RoutesUpdateEvent e) {
         if (e == RoutesUpdateEvent.ROUTE_MSI_UPDATE) {
@@ -147,7 +143,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
 
         if (e == null) {
             updateSafeHaven();
-            
+
             doPrepare();
             return;
         }
@@ -168,26 +164,22 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                 0.0f); // Dash phase
 
         Color ECDISOrange = new Color(213, 103, 45, 255);
-        
-        
 
         int activeRouteIndex = routeManager.getActiveRouteIndex();
         for (int i = 0; i < routeManager.getRoutes().size(); i++) {
             Route route = routeManager.getRoutes().get(i);
             if (route.isVisible() && i != activeRouteIndex) {
                 RouteGraphic routeGraphic;
-                
-                if (route.isStccApproved()){
-                    Color greenApproved = new Color(0.39f, 0.69f,
-                            0.49f, 0.6f);
-                    
-                    routeGraphic = new RouteGraphic(route, i, arrowsVisible, stroke,
-                            ECDISOrange, greenApproved, false);
-                }else{
-                    routeGraphic = new RouteGraphic(route, i,
-                            arrowsVisible, stroke, ECDISOrange);
+
+                if (route.isStccApproved()) {
+                    Color greenApproved = new Color(0.39f, 0.69f, 0.49f, 0.6f);
+
+                    routeGraphic = new RouteGraphic(route, i, arrowsVisible,
+                            stroke, ECDISOrange, greenApproved, false);
+                } else {
+                    routeGraphic = new RouteGraphic(route, i, arrowsVisible,
+                            stroke, ECDISOrange);
                 }
-                
 
                 graphics.add(routeGraphic);
             }
@@ -202,9 +194,9 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                 graphics.add(activeRouteExtend);
 
                 if (activeSafeHaven) {
-//                    System.out.println("Activating safehaven");
+                    // System.out.println("Activating safehaven");
                     if (activeRoute.getActiveWp().getOutLeg() != null) {
-//                        System.out.println("outleg isnt zero");
+                        // System.out.println("outleg isnt zero");
                         safeHavenArea.moveSymbol(
                                 activeRoute.getSafeHavenLocation(),
                                 activeRoute.getSafeHavenBearing(),
@@ -213,7 +205,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                                         .getActiveWp().getOutLeg().getSFLen());
                         graphics.add(safeHavenArea);
                     } else {
-//                    System.out.println("outleg is null");
+                        // System.out.println("outleg is null");
                         safeHavenArea
                                 .moveSymbol(
                                         activeRoute.getSafeHavenLocation(),
@@ -558,7 +550,18 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                 Position newLocation = Position.create(newLatLon.getLatitude(),
                         newLatLon.getLongitude());
                 routeWaypoint.setPos(newLocation);
-                wpc.getRoute().setStccApproved(false);
+
+                if (wpc.getRoute().isStccApproved()) {
+
+                    wpc.getRoute().setStccApproved(false);
+                    try {
+                        wpc.getRoute().setName(
+                                wpc.getRoute().getName().split(":")[1].trim());
+                    } catch (Exception e2) {
+                        System.out
+                                .println("Failed to remove STCC Approved part of name");
+                    }
+                }
                 routesChanged(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
                 dragging = true;
                 return true;
@@ -671,8 +674,6 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         safeHavenArea.setVisible(activeSafeHaven);
         routesChanged(null);
     }
-
-
 
     @Override
     public void run() {

@@ -33,6 +33,7 @@ public class SendVoyage extends JMenuItem implements IMapMenuAction {
     private SendVoyageDialog sendVoyageDialog;
     private boolean modifiedRoute;
     private JMapFrame parent;
+    private boolean renegotiate;
     
     
     public SendVoyage(String text) {
@@ -45,11 +46,17 @@ public class SendVoyage extends JMenuItem implements IMapMenuAction {
         sendVoyageDialog.setParent(parent);
         sendVoyageDialog.setVoyage(voyage);
         sendVoyageDialog.setModifiedRoute(modifiedRoute);
+        sendVoyageDialog.setRenegotiate(renegotiate);
         sendVoyageDialog.setVisible(true);
     }
 
-    
-    
+    /**
+     * @param renegotiate the renegotiate to set
+     */
+    public void setRenegotiate(boolean renegotiate) {
+        this.renegotiate = renegotiate;
+    }
+
     /**
      * @param parent the parent to set
      */
