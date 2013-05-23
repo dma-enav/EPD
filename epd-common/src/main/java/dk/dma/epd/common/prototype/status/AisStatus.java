@@ -13,69 +13,71 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.status;
+package dk.dma.epd.common.prototype.status;
 
 import java.util.Date;
 
-import dk.dma.epd.common.prototype.status.ComponentStatus;
+import net.jcip.annotations.ThreadSafe;
 import dk.dma.epd.common.text.Formatter;
 
 /**
  * AIS status
  */
+@ThreadSafe
 public class AisStatus extends ComponentStatus {
-
+    
     private static final long RECEPTION_INTERVAL = 30000; // 30 secs
-
+    
     private Date lastReceived = new Date(0);
     private Date lastSent;
     private Date lastSendError;
     private Boolean sendOk;
     private Status sendStatus = Status.UNKNOWN;
     private Status receiveStatus = Status.UNKNOWN;
-
-    public Status getSendStatus() {
-        return sendStatus;
-    }
-
-    public Status getReceiveStatus() {
-        return receiveStatus;
-    }
-
+    
     public AisStatus() {
         super("AIS");
     }
+    
+    public synchronized Status getSendStatus() {
+        return sendStatus;
+    }
 
+    public synchronized Status getReceiveStatus() {
+        return receiveStatus;
+    }
+
+    
     public synchronized void markAisReception() {
         lastReceived = new Date();
     }
-
+    
     public synchronized void markSuccesfullSend() {
         lastSent = new Date();
         sendOk = true;
     }
-
+    
     public synchronized void markFailedSend() {
         lastSendError = new Date();
         sendOk = false;
     }
-
+    
     @Override
-    public Status getStatus() {
+    public synchronized Status getStatus() {
         shortStatusText = "Reception ";
         // Set status based on times
-
+        
         // Base firstly on reception
         long elapsed = System.currentTimeMillis() - lastReceived.getTime();
         status = elapsed > RECEPTION_INTERVAL ? Status.ERROR : Status.OK;
         shortStatusText += status.name() + " - Sending ";
         receiveStatus = status;
-
+        
         if (sendOk != null) {
             sendStatus = sendOk.booleanValue() ? Status.OK : Status.ERROR;
         }
         shortStatusText += sendStatus.name();
-
+        
         // Adjust overall status with sending status
         if (sendStatus == Status.ERROR) {
             if (status == Status.UNKNOWN) {
@@ -85,12 +87,12 @@ public class AisStatus extends ComponentStatus {
                 status = Status.PARTIAL;
             }
         }
-
+        
         return status;
     }
 
     @Override
-    public String getStatusHtml() {
+    public synchronized String getStatusHtml() {
         getStatus();
         StringBuilder buf = new StringBuilder();
         buf.append("Reception: " + receiveStatus.name() + "<br/>");
@@ -103,16 +105,16 @@ public class AisStatus extends ComponentStatus {
         }
         return buf.toString();
     }
-
-    public Date getLastReceived() {
+    
+    public synchronized Date getLastReceived() {
         return lastReceived;
     }
-
-    public Date getLastSendError() {
+    
+    public synchronized Date getLastSendError() {
         return lastSendError;
     }
-
-    public Date getLastSent() {
+    
+    public synchronized Date getLastSent() {
         return lastSent;
     }
 

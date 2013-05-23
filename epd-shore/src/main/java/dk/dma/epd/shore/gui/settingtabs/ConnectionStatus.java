@@ -23,12 +23,12 @@ import javax.swing.JPanel;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
+import dk.dma.epd.common.prototype.status.AisStatus;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
+import dk.dma.epd.common.prototype.status.ShoreServiceStatus;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.gui.views.MainFrame;
-import dk.dma.epd.shore.status.AisStatus;
-import dk.dma.epd.shore.status.ShoreServiceStatus;
 import dk.dma.epd.shore.status.WMSStatus;
 
 public class ConnectionStatus extends JPanel{

@@ -25,9 +25,9 @@ import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceErrorCod
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
+import dk.dma.epd.common.prototype.status.ShoreServiceStatus;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.settings.ESDEnavSettings;
-import dk.dma.epd.shore.status.ShoreServiceStatus;
 import dk.frv.enav.common.xml.ShoreServiceResponse;
 import dk.frv.enav.common.xml.msi.request.MsiPollRequest;
 import dk.frv.enav.common.xml.msi.response.MsiResponse;
