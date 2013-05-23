@@ -47,7 +47,7 @@ public class Metoc {
             req.getDataTypes().add(dataType);
         }
         
-        req.setProvider(settings.getProvider());
+        //req.setProvider(settings.getProvider());
 
         // Special handling for active waypoint. Add one special wp and offset
         // all etas
