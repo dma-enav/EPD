@@ -44,30 +44,26 @@ import dk.dma.epd.common.prototype.monalisa.sspa.WaypointsType;
 import dk.dma.epd.common.prototype.route.RouteManager;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
-import dk.dma.epd.common.prototype.status.ShoreServiceStatus;
 
 //import dk.frv.enav.ins.route.monalisa.se.sspa.optiroute.Routerequest;
 
 /**
  * Shore service component providing the functional link to shore.
  */
-public class MonaLisaRouteOptimizaton extends MapHandlerChild 
-//implements
-         {
+public class MonaLisaRouteOptimizaton extends MapHandlerChild
+// implements
+{
     // Runnable
 
     // private static final Logger LOG = Logger
     // .getLogger(MonaLisaRouteExchange.class);
 
-    
-    
     private AisHandler aisHandler;
     private GpsHandler gpsHandler;
-    private ShoreServiceStatus status = new ShoreServiceStatus();
+//    private ShoreServiceStatus status = new ShoreServiceStatus();
     private ShoreServices shoreService;
     private RouteManager routeManager;
-    
-    
+
     public MonaLisaRouteOptimizaton() {
 
     }
@@ -277,11 +273,11 @@ public class MonaLisaRouteOptimizaton extends MapHandlerChild
 
         SSPAResponse routeResponse = null;
         try {
-            routeResponse = shoreService
-                    .makeMonaLisaRouteRequest(monaLisaRoute, timeout,
-                            showInput, showOutput);
+            routeResponse = shoreService.makeMonaLisaRouteRequest(
+                    monaLisaRoute, timeout, showInput, showOutput);
         } catch (Exception e) {
-            return new MonaLisaOptimizationResponse("An exception occured", e.getMessage());
+            return new MonaLisaOptimizationResponse("An exception occured",
+                    e.getMessage());
         }
 
         if (!routeResponse.isValid()) {
@@ -301,23 +297,27 @@ public class MonaLisaRouteOptimizaton extends MapHandlerChild
         }
 
         if (newRoute != null) {
-            routeManager.addRoute(newRoute);
             route.setVisible(false);
+            routeManager.addRoute(newRoute);
         }
 
-        float fuelSaving = (routeResponse.getMonaLisaResponse().getFuelRequested() - routeResponse.getMonaLisaResponse().getFuelFinal()) / routeResponse.getMonaLisaResponse().getFuelRequested() * 100;
+        float fuelSaving = (routeResponse.getMonaLisaResponse()
+                .getFuelRequested() - routeResponse.getMonaLisaResponse()
+                .getFuelFinal())
+                / routeResponse.getMonaLisaResponse().getFuelRequested() * 100;
 
-        return new MonaLisaOptimizationResponse("Succesfully recieved optimized route",
+        return new MonaLisaOptimizationResponse(
+                "Succesfully recieved optimized route",
 
-        "\nInitial route consumption is "
-                + routeResponse.getMonaLisaResponse().getFuelRequested()
-                + " Metric Tons.\n"
-                + "MonaLisa optimized route consumption is "
-                + routeResponse.getMonaLisaResponse().getFuelFinal()
-                + " Metric Tons.\n" + "The relative fuel saving is "
-                + fuelSaving + " percent\n\n" + "Minimum route UKC is "
-                + routeResponse.getMonaLisaResponse().getUkcActual()
-                + " meters.\n");
+                "\nInitial route consumption is "
+                        + routeResponse.getMonaLisaResponse()
+                                .getFuelRequested() + " Metric Tons.\n"
+                        + "MonaLisa optimized route consumption is "
+                        + routeResponse.getMonaLisaResponse().getFuelFinal()
+                        + " Metric Tons.\n" + "The relative fuel saving is "
+                        + fuelSaving + " percent\n\n" + "Minimum route UKC is "
+                        + routeResponse.getMonaLisaResponse().getUkcActual()
+                        + " meters.\n");
 
     }
 
@@ -329,7 +329,7 @@ public class MonaLisaRouteOptimizaton extends MapHandlerChild
         if (gpsHandler == null && obj instanceof GpsHandler) {
             gpsHandler = (GpsHandler) obj;
         }
-        
+
         if (shoreService == null && obj instanceof ShoreServices) {
             shoreService = (ShoreServices) obj;
         }
@@ -347,10 +347,10 @@ public class MonaLisaRouteOptimizaton extends MapHandlerChild
         }
     }
 
-//    @Override
-//    public ComponentStatus getStatus() {
-//        return status;
-//    }
+    // @Override
+    // public ComponentStatus getStatus() {
+    // return status;
+    // }
 
     // @Override
     // public void run() {

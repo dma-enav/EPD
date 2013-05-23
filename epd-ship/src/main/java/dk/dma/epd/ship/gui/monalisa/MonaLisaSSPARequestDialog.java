@@ -29,7 +29,7 @@ import javax.swing.WindowConstants;
 
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.monalisa.MonaLisaOptimizationResponse;
-import dk.dma.epd.common.prototype.monalisa.MonaLisaRouteOptimizaton;
+import dk.dma.epd.ship.monalisa.MonaLisaRouteOptimizaton;
 import dk.dma.epd.ship.route.RouteManager;
 
 /**

@@ -223,7 +223,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         routeDelete.addActionListener(this);
 
         monaLisaRouteRequest = new MonaLisaRouteRequest(
-                "Request MonaLisa Route");
+                "Request Optimized SSPA Route");
         monaLisaRouteRequest.addActionListener(this);
         routeRequestMetoc = new RouteRequestMetoc("Request METOC");
         routeRequestMetoc.addActionListener(this);
