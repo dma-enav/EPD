@@ -195,11 +195,113 @@ public class MonaLisaHandler extends MapHandlerChild {
             System.out.println("Nope cant handle this old thing");
         }
     }
+    
+    
+    
+    
+    public void handleReNegotiation(MonaLisaRouteRequestMessage message) {
+
+        //Shore wants to renegotiate it
+        transaction = true;
+        
+        currentTransaction = message.getId();
+
+        MonaLisaRouteNegotiationData entry;
+        // Existing transaction already established
+        if (monaLisaNegotiationData.containsKey(currentTransaction)) {
+            entry = monaLisaNegotiationData.get(currentTransaction);
+        } else {
+            // Create new entry for the transaction - if ship disconnected, it
+            // can still recover - maybe?
+            entry = new MonaLisaRouteNegotiationData(currentTransaction);
+            monaLisaNegotiationData.put(currentTransaction, entry);
+        }
+
+        
+        entry.setStatus(MonaLisaRouteStatus.NEGOTIATING);
+        
+        MonaLisaRouteRequestReply newReply = new MonaLisaRouteService.MonaLisaRouteRequestReply(
+                message.getMessage(), message.getId(), message.getMmsi(), message.getSent().getTime(), MonaLisaRouteStatus.NEGOTIATING,
+                message.getRoute());
+        
+            // Store the reply
+            entry.addReply(newReply);
+            monaLisaNegotiationData.get(currentTransaction).setStatus(
+                    MonaLisaRouteStatus.NEGOTIATING);
+
+            //Find the old one and set not accepted, possibly hide it?
+            for (int i = 0; i < routeManager.getRoutes().size(); i++) {
+                if (routeManager.getRoutes().get(i).getMonalisarouteid() == currentTransaction){
+                    System.out.println("Found the old route id");
+                    
+                    routeManager.getRoutes().get(i).setStccApproved(false);
+                    routeManager.getRoutes().get(i).setVisible(false);
+                    
+                    try {
+                        routeManager.getRoutes().get(i).setName(routeManager.getRoutes().get(i).getName().split(":")[1].trim());
+                    } catch (Exception e) {
+                        // TODO: handle exception
+                    }
+                    
+                }
+            }
+            
+            
+            
+//            System.out.println("Adding entry for " + currentTransaction);
+
+            // How to handle the reply
+
+            // 1 shore sends back accepted - ship needs to send ack
+            // 2 shore sends back new route - ship renegotationes
+            // 3 shore sends back rejected - ship sends ack
+
+            // Let GUI handle front-end
+            monaLisaSTCCDialog.handleReply(newReply);
+            monaLisaSTCCDialog.setVisible(true);
+
+            // Let layer handle itself
+            voyageLayer.handleReply(newReply);
+
+            // Three kinds of reply?
+
+            // If success, nothing more
+            // If fail and new route returned, start new communication message,
+            // like
+            // previous, with updated route, same ID maybe?
+            // Do we need a message / give reason?
+
+            // Do we need to display on voyageLayer?
+            // If agree make fat line green
+            // If changes draw old one in red and new one in green with lines
+            // seperated on
+            // if reject make red and end transaction? or send ack and then end
+            // transaction - wait with reject
+        
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     public void sendAgreeMsg(long transactionID) {
 
-//        System.out.println("Send agree msg? " + transactionID);
+        System.out.println("Send agree msg? " + transactionID);
 
+        transaction = false;
+        
+        System.out.println("TRANSACTION IS NOW"  + transaction);
+        
         // Send ack message
         // remove from voyage layer show original route
         voyageLayer.routeAccepted();
@@ -210,6 +312,8 @@ public class MonaLisaHandler extends MapHandlerChild {
         
         Route route = voyageLayer.getModifiedSTCCRoute();
         route.setStccApproved(true);
+        
+        route.setMonalisarouteid(transactionID);
         
         // route.setVisible(true);
         routeManager.addRoute(route);
@@ -231,7 +335,7 @@ public class MonaLisaHandler extends MapHandlerChild {
 
         monaLisaSTCCDialog.setVisible(false);
         
-        transaction = false;
+
     }
 
     private void sendRejectMsg(long transactionID) {
@@ -301,12 +405,14 @@ public class MonaLisaHandler extends MapHandlerChild {
     }
 
     public void sendReply() {
-//        System.out.println("Sending reply " + routeModified);
+        System.out.println("Sending reply " + routeModified);
         
         if (routeModified) {
             // Get new route
             sendModifiedReply();
         } else {
+
+            
             // We agree and are done
             sendAgreeMsg(currentTransaction);
         }

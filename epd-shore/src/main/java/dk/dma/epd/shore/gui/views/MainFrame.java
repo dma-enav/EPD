@@ -95,8 +95,6 @@ public class MainFrame extends JFrame implements WindowListener {
     private StatusArea statusArea = new StatusArea(this);
     private JMapFrame activeMapWindow;
     private long selectedMMSI = -1;
-    
-    private boolean negotiation;
 
     /**
      * Constructor
@@ -169,8 +167,8 @@ public class MainFrame extends JFrame implements WindowListener {
         // return window;
     }
 
-    public void addMonaLisaHandlingWindow(Route originalRoute, String shipName, Voyage voyage) {
-        new ThreadedMapCreator(this, shipName, voyage, originalRoute).run();
+    public void addMonaLisaHandlingWindow(Route originalRoute, String shipName, Voyage voyage, boolean renegotiate) {
+        new ThreadedMapCreator(this, shipName, voyage, originalRoute, renegotiate).run();
 //        windowCount++;
 //        JMapFrame window = new JMapFrame(windowCount, this);
 //

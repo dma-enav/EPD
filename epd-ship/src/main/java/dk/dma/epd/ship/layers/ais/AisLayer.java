@@ -92,6 +92,8 @@ public class AisLayer extends OMGraphicHandlerLayer implements IAisTargetListene
     private MapMenu aisTargetMenu;
 
     private ConcurrentHashMap<Long, TargetGraphic> targets = new ConcurrentHashMap<>();
+    
+    @GuardedBy("graphics")
     private OMGraphicList graphics = new OMGraphicList();
 
     @GuardedBy("redrawPending")
@@ -268,7 +270,9 @@ public class AisLayer extends OMGraphicHandlerLayer implements IAisTargetListene
                 // Remove target
                 // LOG.info("Target has gone: " + mmsi);
                 targets.remove(mmsi);
-                graphics.remove(targetGraphic);
+                synchronized (graphics) {
+                    graphics.remove(targetGraphic);
+                }                
                 setRedrawPending(true);
                 updateLayer();
 
@@ -292,8 +296,9 @@ public class AisLayer extends OMGraphicHandlerLayer implements IAisTargetListene
                 return;
             }
             targets.put(mmsi, targetGraphic);
-            graphics.add(targetGraphic);
-
+            synchronized (graphics) {
+                graphics.add(targetGraphic);
+            }
         }
 
         boolean forceRedraw = false;
@@ -357,10 +362,12 @@ public class AisLayer extends OMGraphicHandlerLayer implements IAisTargetListene
         // long start = System.nanoTime();
         Iterator<TargetGraphic> it = targets.values().iterator();
 
-        for (OMGraphic omgraphic : graphics) {
-            if (omgraphic instanceof IntendedRouteGraphic) {
-                ((IntendedRouteGraphic) omgraphic).showArrowHeads(getProjection().getScale() < EPDShip.getSettings()
-                        .getNavSettings().getShowArrowScale());
+        synchronized (graphics) {
+            for (OMGraphic omgraphic : graphics) {
+                if (omgraphic instanceof IntendedRouteGraphic) {
+                    ((IntendedRouteGraphic) omgraphic).showArrowHeads(getProjection().getScale() < EPDShip.getSettings()
+                            .getNavSettings().getShowArrowScale());
+                }
             }
         }
 
@@ -370,7 +377,9 @@ public class AisLayer extends OMGraphicHandlerLayer implements IAisTargetListene
         }
 
         setRedrawPending(false);
-        graphics.project(getProjection());
+        synchronized (graphics) {
+            graphics.project(getProjection());
+        }        
         // System.out.println("Finished AisLayer.prepare() in " +
         // EeINS.elapsed(start) + " ms\n---");
         return graphics;
@@ -450,8 +459,10 @@ public class AisLayer extends OMGraphicHandlerLayer implements IAisTargetListene
         if (this.isVisible()) {
             if (e.getButton() == MouseEvent.BUTTON3 || e.getButton() == MouseEvent.BUTTON1) {
                 selectedGraphic = null;
-                OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 5.0f);
-
+                OMList<OMGraphic> allClosest;
+                synchronized (graphics) {
+                    allClosest = graphics.findAll(e.getX(), e.getY(), 5.0f);
+                }
                 for (OMGraphic omGraphic : allClosest) {
                     if (omGraphic instanceof IntendedRouteWpCircle || omGraphic instanceof VesselTargetTriangle
                             || omGraphic instanceof IntendedRouteLegGraphic || omGraphic instanceof SartGraphic) {
@@ -558,7 +569,10 @@ public class AisLayer extends OMGraphicHandlerLayer implements IAisTargetListene
         }
 
         OMGraphic newClosest = null;
-        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 3.0f);
+        OMList<OMGraphic> allClosest;
+        synchronized (graphics) {
+            allClosest = graphics.findAll(e.getX(), e.getY(), 3.0f);
+        }
 
         for (OMGraphic omGraphic : allClosest) {
 

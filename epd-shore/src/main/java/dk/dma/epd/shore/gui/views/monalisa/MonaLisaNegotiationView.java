@@ -119,7 +119,7 @@ public class MonaLisaNegotiationView extends JPanel {
         replyPanel.add(lblReplied);
 
         JLabel lblMessage = new JLabel("Message:");
-        lblMessage.setBounds(10, 40, 46, 14);
+        lblMessage.setBounds(10, 40, 50, 14);
         GuiStyler.styleText(lblMessage);
         replyPanel.add(lblMessage);
 

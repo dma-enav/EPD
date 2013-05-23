@@ -52,7 +52,7 @@ public class MonaLisaHandler extends MapHandlerChild {
     // }
 
     public void sendReply(long id, String text, long mmsi,
-            long currentTimeMillis, MonaLisaRouteStatus replyStatus, Route route) {
+            long currentTimeMillis, MonaLisaRouteStatus replyStatus, Route route, boolean renegotiate) {
         
         // Should a reply be sent?
 
@@ -79,8 +79,49 @@ public class MonaLisaHandler extends MapHandlerChild {
             enavServiceHandler.sendReply(reply);
             notifyMonaLisaRouteExchangeListeners();
         }else{
-            monaLisaNegotiationData.get(id).addReply(reply);
-            System.out.println("Cannot send message, transaction concluded");
+            
+            //We need to renegotiate
+            if (renegotiate){
+                
+                System.out.println("Restart negotiation");
+                
+                MonaLisaRouteRequestMessage routeMessage = new MonaLisaRouteService.MonaLisaRouteRequestMessage(
+                        id, route, mmsi, text);
+                
+                dk.dma.epd.common.prototype.model.route.Route naRoute = new dk.dma.epd.common.prototype.model.route.Route(route);
+                naRoute.setName("N/A");
+                
+                
+                MonaLisaRouteRequestMessage internalMessage = new MonaLisaRouteService.MonaLisaRouteRequestMessage(
+                        id, naRoute.getFullRouteData(), mmsi, "N/A");
+                
+                MonaLisaRouteService.MonaLisaRouteRequestReply shoreInternalReply = new MonaLisaRouteService.MonaLisaRouteRequestReply(
+                        text, id, mmsi, System.currentTimeMillis(), MonaLisaRouteStatus.NEGOTIATING,
+                        route);
+                
+                for (int i = 0; i < voyageManager.getVoyages().size(); i++) {
+                    if (voyageManager.getVoyages().get(i).getId() == id){
+                        voyageManager.getVoyages().remove(i);
+                    }
+                }
+                
+                monaLisaNegotiationData.get(id).addMessage(internalMessage);
+                monaLisaNegotiationData.get(id).addReply(shoreInternalReply);
+                monaLisaNegotiationData.get(id).setStatus(
+                        MonaLisaRouteStatus.NEGOTIATING);
+                monaLisaNegotiationData.get(id).setHandled(true);
+                
+                enavServiceHandler.sendMonaLisaRouteRequest(monaLisaNegotiationData.get(id).getRouteMessage().get(0).getMmsi(), routeMessage);
+                notifyMonaLisaRouteExchangeListeners();
+                
+                
+ 
+                
+//                voyageManager.addVoyage(voyage);
+            }else{
+                monaLisaNegotiationData.get(id).addReply(reply);
+                System.out.println("Cannot send message, transaction concluded");                
+            }
         }
     }
 

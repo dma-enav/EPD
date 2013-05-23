@@ -139,7 +139,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private VoyageRenegotiate voyageRenegotiate;
     private VoyageShowTransaction voyageShowTransaction;
     private VoyageZoomToShip voyageZoomToShip;
-    
+
     private ShowVoyagePlanInfo openVoyagePlan;
     private SendVoyage sendVoyage;
 
@@ -266,13 +266,13 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         voyageProperties = new VoyageProperties("Show Voyage Plan");
         voyageProperties.addActionListener(this);
-        
+
         voyageRenegotiate = new VoyageRenegotiate("Renegotigate Voyage");
         voyageRenegotiate.addActionListener(this);
-        
+
         voyageShowTransaction = new VoyageShowTransaction("Show Transaction");
         voyageShowTransaction.addActionListener(this);
-        
+
         voyageZoomToShip = new VoyageZoomToShip("Zoom to Ship");
         voyageZoomToShip.addActionListener(this);
     }
@@ -550,61 +550,62 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         generalRouteMenu(routeIndex);
     }
-    
-    
-    public void voyageGeneralMenu(long transactionID, long mmsi, Route route, MapBean mapBean){
+
+    public void voyageGeneralMenu(long transactionID, long mmsi, Route route,
+            MapBean mapBean) {
         removeAll();
-        
-        if (aisHandler.getVesselTargets().containsKey(mmsi)){
-            voyageZoomToShip.setEnabled(true); 
-            Position pos = aisHandler.getVesselTargets().get(mmsi).getPositionData().getPos();
+
+        if (aisHandler.getVesselTargets().containsKey(mmsi)) {
+            voyageZoomToShip.setEnabled(true);
+            Position pos = aisHandler.getVesselTargets().get(mmsi)
+                    .getPositionData().getPos();
             voyageZoomToShip.setMapBean(mapBean);
             voyageZoomToShip.setPosition(pos);
-        }else{
-            voyageZoomToShip.setEnabled(false); 
+        } else {
+            voyageZoomToShip.setEnabled(false);
         }
-        
-        
-        if (monaLisaHandler.getMonaLisaNegotiationData().containsKey(transactionID)){
+
+        if (monaLisaHandler.getMonaLisaNegotiationData().containsKey(
+                transactionID)) {
             voyageShowTransaction.setEnabled(true);
             voyageShowTransaction.setTransactionID(transactionID);
-        }else{
+        } else {
             voyageShowTransaction.setEnabled(false);
         }
-        
+
         voyageProperties.setEnabled(false);
-        
+
         voyageRenegotiate.setTransactionid(transactionID);
         voyageRenegotiate.setAisHandler(aisHandler);
         voyageRenegotiate.setMonaLisaHandler(monaLisaHandler);
-        
-        
-        
+
         voyageRenegotiate.setEnabled(EPDShore.getEnavServiceHandler()
-                .shipAvailableForMonaLisaTransaction(mmsi) && monaLisaHandler.getMonaLisaNegotiationData().containsKey(transactionID));
-        
-        
+                .shipAvailableForMonaLisaTransaction(mmsi)
+                && monaLisaHandler.getMonaLisaNegotiationData().containsKey(
+                        transactionID));
+
         add(voyageZoomToShip);
         add(voyageShowTransaction);
-        
+
         add(voyageProperties);
         add(voyageRenegotiate);
-        
-        //Zoom to Ship
-        //Show transaction
-        //Show voyage plan
-        //Renegotiate Voyage
+
+        // Zoom to Ship
+        // Show transaction
+        // Show voyage plan
+        // Renegotiate Voyage
     }
-    
 
     public void voyageWaypontMenu(VoyageHandlingLayer voyageHandlingLayer,
             MapBean mapBean, Voyage voyage, boolean modified, JMapFrame parent,
             VoyagePlanInfoPanel voyagePlanInfoPanel, boolean waypoint,
-            Route route, RouteLeg routeLeg, Point point, int routeWayPointIndex) {
+            Route route, RouteLeg routeLeg, Point point, int routeWayPointIndex, boolean renegotiate) {
+        
         removeAll();
 
         openVoyagePlan.setVoyagePlanInfoPanel(voyagePlanInfoPanel);
 
+        sendVoyage.setRenegotiate(renegotiate);
         sendVoyage.setVoyage(voyage);
         sendVoyage.setModifiedRoute(modified);
         sendVoyage.setSendVoyageDialog(EPDShore.getMainFrame()

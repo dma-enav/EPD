@@ -424,6 +424,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                 
                                 System.out.println("Ship received a request for reopening a transaction!");
                                 
+                                
+                                monaLisaHandler.handleReNegotiation(message);
                                 //Does transaction exist?
                                 
                                 //If not, recreate as much as possible and open

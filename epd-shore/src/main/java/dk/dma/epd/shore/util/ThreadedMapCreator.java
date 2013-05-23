@@ -41,6 +41,7 @@ public class ThreadedMapCreator implements Runnable {
 
     private boolean loadFromWorkspace;
     private boolean monaLisaHandling;
+    private boolean renegotiate;
     
     private String shipName;
     private Voyage voyage;
@@ -75,17 +76,18 @@ public class ThreadedMapCreator implements Runnable {
         monaLisaHandling = false;
     }
     
-    public ThreadedMapCreator(MainFrame mainFrame, String shipName, Voyage voyage, Route originalRoute) {
+    public ThreadedMapCreator(MainFrame mainFrame, String shipName, Voyage voyage, Route originalRoute, boolean renegotiate) {
         this.mainFrame = mainFrame;
         this.shipName = shipName;
         this.voyage = voyage;
         this.originalRoute = originalRoute;
         loadFromWorkspace = false;
         monaLisaHandling = true;
+        this.renegotiate = renegotiate;
     }
     
     
-    public JMapFrame addMonaLisaHandlingWindow(String shipName, Voyage voyage, Route originalRoute) {
+    public JMapFrame addMonaLisaHandlingWindow(String shipName, Voyage voyage, Route originalRoute, boolean renegotiate) {
         mainFrame.increaseWindowCount();
 
         JMapFrame window = new JMapFrame(mainFrame
@@ -126,7 +128,7 @@ public class ThreadedMapCreator implements Runnable {
         
         window.alwaysFront();
         
-        window.getChartPanel().getVoyageHandlingLayer().handleVoyage(originalRoute, voyage);
+        window.getChartPanel().getVoyageHandlingLayer().handleVoyage(originalRoute, voyage, renegotiate);
         window.setSize(1280, 768);
 
         window.getChartPanel().getMap().setScale(70000);
@@ -245,7 +247,7 @@ public class ThreadedMapCreator implements Runnable {
         } 
         
         if (monaLisaHandling){
-            addMonaLisaHandlingWindow(shipName, voyage, originalRoute);
+            addMonaLisaHandlingWindow(shipName, voyage, originalRoute, renegotiate);
             return;
         }
         
