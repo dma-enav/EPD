@@ -42,6 +42,7 @@ import dk.dma.epd.common.prototype.monalisa.sspa.RouteresponseType;
 import dk.dma.epd.common.prototype.monalisa.sspa.WaypointType;
 import dk.dma.epd.common.prototype.monalisa.sspa.WaypointsType;
 import dk.dma.epd.common.prototype.route.RouteManager;
+import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
 import dk.dma.epd.common.prototype.status.ShoreServiceStatus;
 

@@ -13,13 +13,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.status;
+package dk.dma.epd.common.prototype;
 
-/**
- * Interface for components able to deliver status
- */
-public interface IStatusComponent {
-    
-    ComponentStatus getStatus();
+public class EPD {
+    /**
+     * Function used to create a thread
+     * 
+     * @param t
+     *            - class to create thread on
+     * @param name
+     *            - Thread name
+     */
+    public static Thread startThread(Runnable t, String name) {
+        Thread thread = new Thread(t);
+        thread.setName(name);
+        thread.start();
+        return thread;
+    }
 
 }

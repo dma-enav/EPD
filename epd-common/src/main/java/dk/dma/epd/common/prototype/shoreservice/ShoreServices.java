@@ -45,6 +45,7 @@ import dk.dma.epd.common.prototype.monalisa.SSPAResponse;
 import dk.dma.epd.common.prototype.monalisa.sspa.RouterequestType;
 import dk.dma.epd.common.prototype.monalisa.sspa.RouteresponseType;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
+import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
@@ -63,6 +64,7 @@ import dk.frv.enav.common.xml.nogo.response.NogoResponse;
 import dk.frv.enav.common.xml.risk.request.RiskRequest;
 import dk.frv.enav.common.xml.risk.response.RiskList;
 import dk.frv.enav.common.xml.risk.response.RiskResponse;
+
 
 /**
  * Shore service component providing the functional link to shore.
@@ -446,7 +448,7 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
                 StringReader sr = new StringReader(xmlReturnRoute);
 
                 try {
-                    jc = JAXBContext.newInstance("dk.dma.epd.ship.route.sspa");
+                    jc = JAXBContext.newInstance("dk.dma.epd.common.prototype.monalisa.sspa");
                     u = jc.createUnmarshaller();
 
                     routeResponse = (RouteresponseType) ((javax.xml.bind.JAXBElement) u

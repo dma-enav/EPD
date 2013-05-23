@@ -25,10 +25,10 @@ import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
+import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
-import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.gui.ComponentPanels.DynamicNoGoComponentPanel;
 import dk.dma.epd.ship.gui.ComponentPanels.ShowDockableDialog;
 import dk.dma.epd.ship.gui.ComponentPanels.ShowDockableDialog.dock_type;
