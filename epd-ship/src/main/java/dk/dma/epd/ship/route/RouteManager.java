@@ -35,8 +35,6 @@ import net.jcip.annotations.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bbn.openmap.MapHandlerChild;
-
 import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
 import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion.Status;
 import dk.dma.epd.common.prototype.ais.AisBroadcastRouteSuggestion;
@@ -55,6 +53,7 @@ import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -64,7 +63,6 @@ import dk.dma.epd.ship.gui.ComponentPanels.ShowDockableDialog.dock_type;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.monalisa.RecievedRoute;
 import dk.dma.epd.ship.service.EnavServiceHandler;
-import dk.dma.epd.ship.service.communication.webservice.ShoreServices;
 import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
 import dk.dma.epd.ship.service.intendedroute.IntendedRouteService;
 import dk.dma.epd.ship.settings.EPDEnavSettings;
@@ -74,7 +72,7 @@ import dk.frv.enav.common.xml.metoc.MetocForecast;
  * Manager for handling a collection of routes and active route
  */
 @ThreadSafe
-public class RouteManager extends MapHandlerChild implements Runnable,
+public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager implements Runnable,
         Serializable, IGpsDataListener, IAisRouteSuggestionListener, ActiveRouteProvider {
 
     private static final long serialVersionUID = 1L;
@@ -282,6 +280,7 @@ public class RouteManager extends MapHandlerChild implements Runnable,
         return -1;
     }
 
+    @Override
     public void addRoute(Route route) {
         synchronized (this) {
             routes.add(route);

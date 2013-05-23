@@ -36,8 +36,6 @@ import net.jcip.annotations.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bbn.openmap.MapHandlerChild;
-
 import dk.dma.ais.binary.SixbitException;
 import dk.dma.ais.message.AisBinaryMessage;
 import dk.dma.ais.message.AisMessage;
@@ -68,19 +66,19 @@ import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.nmea.IAisListener;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
+import dk.dma.epd.common.prototype.status.ComponentStatus;
+import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.service.communication.ais.AisServices;
 import dk.dma.epd.ship.status.AisStatus;
-import dk.dma.epd.ship.status.ComponentStatus;
-import dk.dma.epd.ship.status.IStatusComponent;
 
 /**
  * Class for handling incoming AIS messages and maintainer of AIS target tables
  */
 @ThreadSafe
-public class AisHandler extends MapHandlerChild implements IAisListener, IStatusComponent, Runnable {
+public class AisHandler extends dk.dma.epd.common.prototype.ais.AisHandler implements IAisListener, IStatusComponent, Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(AisHandler.class);
 
@@ -507,6 +505,7 @@ public class AisHandler extends MapHandlerChild implements IAisListener, IStatus
         suggestionListeners.remove(routeSuggestionListener);
     }
 
+    @Override
     public VesselTarget getOwnShip() {
         synchronized (ownShip) {
             return ownShip;

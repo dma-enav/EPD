@@ -19,7 +19,7 @@ import javax.swing.JMenuItem;
 
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.MainFrame;
-import dk.dma.epd.ship.gui.monalisa.MonaLisaOptionsDialog;
+import dk.dma.epd.ship.gui.monalisa.MonaLisaSSPAOptionsDialog;
 import dk.dma.epd.ship.route.RouteManager;
 
 public class MonaLisaRouteRequest extends JMenuItem implements IMapMenuAction {
@@ -69,7 +69,7 @@ public class MonaLisaRouteRequest extends JMenuItem implements IMapMenuAction {
 //        }
         
         
-        MonaLisaOptionsDialog monaLisaDialog = new MonaLisaOptionsDialog(mainFrame, routeManager, aisHandler);
+        MonaLisaSSPAOptionsDialog monaLisaDialog = new MonaLisaSSPAOptionsDialog(mainFrame, routeManager, aisHandler);
         monaLisaDialog.showDialog(routeIndex);
         
 

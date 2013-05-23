@@ -28,8 +28,8 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
-import dk.dma.epd.ship.status.ComponentStatus;
-import dk.dma.epd.ship.status.IStatusComponent;
+import dk.dma.epd.common.prototype.status.ComponentStatus;
+import dk.dma.epd.common.prototype.status.IStatusComponent;
 
 /**
  * Status dialog with detailed status for given list of status components

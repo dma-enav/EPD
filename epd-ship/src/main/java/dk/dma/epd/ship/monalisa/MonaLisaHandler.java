@@ -404,15 +404,13 @@ public class MonaLisaHandler extends MapHandlerChild {
         return routeModified;
     }
 
-    public void sendReply() {
+    public void sendReply(String message) {
         System.out.println("Sending reply " + routeModified);
         
         if (routeModified) {
             // Get new route
-            sendModifiedReply();
+            sendModifiedReply(message);
         } else {
-
-            
             // We agree and are done
             sendAgreeMsg(currentTransaction);
         }
@@ -423,7 +421,7 @@ public class MonaLisaHandler extends MapHandlerChild {
         sendRejectMsg(currentTransaction);
     }
 
-    private void sendModifiedReply() {
+    private void sendModifiedReply(String message) {
 
         Route route = voyageLayer.getModifiedSTCCRoute();
 
@@ -436,7 +434,7 @@ public class MonaLisaHandler extends MapHandlerChild {
         MonaLisaRouteRequestMessage routeMessage = new MonaLisaRouteService.MonaLisaRouteRequestMessage(
                 currentTransaction, route.getFullRouteData(),
                 monaLisaNegotiationData.get(currentTransaction)
-                        .getRouteMessage().get(0).getMmsi(), "Modified Route");
+                        .getRouteMessage().get(0).getMmsi(), message.trim());
 
         MonaLisaRouteNegotiationData entry;
 

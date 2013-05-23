@@ -86,8 +86,6 @@ import dk.dma.epd.ship.gui.menuitems.SuggestedRouteDetails;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.msi.MsiLayer;
-import dk.dma.epd.ship.layers.route.RouteLayer;
-import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.monalisa.MonaLisaHandler;
 import dk.dma.epd.ship.monalisa.RecievedRoute;
 import dk.dma.epd.ship.msi.MsiHandler;

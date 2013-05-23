@@ -81,7 +81,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
     private MonaLisaRouteExchangeNotificationInternalPanel area = new MonaLisaRouteExchangeNotificationInternalPanel();
 
     private JLabel route_details;
-    private JLabel chat_btn;
+    private JLabel optimize_btn;
     private JLabel handle_request;
 
     private JPanel masterPanel;
@@ -272,14 +272,14 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
         pane_3.add(handle_request);
         handle_request.setEnabled(false);
 
-        chat_btn = new JLabel("Communicate", new ImageIcon(EPDShore.class
+        optimize_btn = new JLabel("Optimize", new ImageIcon(EPDShore.class
                 .getClassLoader().getResource(
-                        "images/notificationcenter/balloon.png")),
+                        "images/notificationcenter/gear--arrow.png")),
                 SwingConstants.CENTER);
-        GuiStyler.styleButton(chat_btn);
-        chat_btn.setPreferredSize(new Dimension(110, 20));
-        pane_3.add(chat_btn);
-        chat_btn.setEnabled(false);
+        GuiStyler.styleButton(optimize_btn);
+        optimize_btn.setPreferredSize(new Dimension(110, 20));
+        pane_3.add(optimize_btn);
+        optimize_btn.setEnabled(false);
 
         scrollPane_1 = new JScrollPane();
         scrollPane_1.setBounds(0, 41, 408, 541);
@@ -371,7 +371,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
         } else {
             handle_request.setEnabled(true);
         }
-        chat_btn.setEnabled(true);
+        optimize_btn.setEnabled(true);
         route_details.setEnabled(true);
 
         // Update area
@@ -500,9 +500,9 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
             }
         });
 
-        chat_btn.addMouseListener(new MouseAdapter() {
+        optimize_btn.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-                if (chat_btn.isEnabled()) {
+                if (optimize_btn.isEnabled()) {
                     MonaLisaRouteNegotiationData message = routeTableModel
                             .getMessages().get(currentSelection);
 

@@ -29,10 +29,10 @@ import dk.dma.epd.common.prototype.sensor.nmea.GpsMessage;
 import dk.dma.epd.common.prototype.sensor.nmea.IGpsListener;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
+import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.status.GpsStatus;
-import dk.dma.epd.ship.status.IStatusComponent;
 
 /**
  * Component class for handling received GPS messages. 

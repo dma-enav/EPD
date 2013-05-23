@@ -56,9 +56,9 @@ public class MonaLisaWPSelection extends JDialog implements ActionListener,
     RouteManager routeManager;
     JButton okButton;
     JButton cancelButton;
-    MonaLisaOptionsDialog parent;
+    MonaLisaSSPAOptionsDialog parent;
 
-    public MonaLisaWPSelection(MonaLisaOptionsDialog parent, RouteManager routeManager, List<Boolean> selectedWp, int routeid) {
+    public MonaLisaWPSelection(MonaLisaSSPAOptionsDialog parent, RouteManager routeManager, List<Boolean> selectedWp, int routeid) {
         super(parent, "Waypoint Selection", true);
         
         this.parent = parent;

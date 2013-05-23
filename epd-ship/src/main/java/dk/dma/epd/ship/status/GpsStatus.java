@@ -17,6 +17,7 @@ package dk.dma.epd.ship.status;
 
 import net.jcip.annotations.ThreadSafe;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
+import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.text.Formatter;
 
 /**
