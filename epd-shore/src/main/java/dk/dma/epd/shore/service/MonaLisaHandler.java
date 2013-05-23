@@ -248,8 +248,8 @@ public class MonaLisaHandler extends MapHandlerChild {
 
     @Override
     public void findAndInit(Object obj) {
-        // if (obj instanceof AisHandler) {
-        // aisHandler = (AisHandler) obj;
+        // if (obj instanceof AisHandlerCommon) {
+        // aisHandler = (AisHandlerCommon) obj;
         // } else
         if (obj instanceof EnavServiceHandler) {
             enavServiceHandler = (EnavServiceHandler) obj;

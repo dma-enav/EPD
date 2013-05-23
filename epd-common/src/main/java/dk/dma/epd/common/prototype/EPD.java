@@ -15,7 +15,17 @@
  */
 package dk.dma.epd.common.prototype;
 
-public class EPD {
+import java.nio.file.Path;
+
+
+public abstract class EPD {
+    
+    protected static Path home;
+    
+    public static Path getHomePath() {
+        return home;
+    }
+    
     /**
      * Function used to create a thread
      * 

@@ -18,7 +18,6 @@ package dk.dma.epd.shore;
 import java.beans.beancontext.BeanContextServicesSupport;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -59,7 +58,6 @@ import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteOptimization;
 import dk.dma.epd.shore.service.ais.AisServices;
-
 import dk.dma.epd.shore.settings.ESDSensorSettings;
 import dk.dma.epd.shore.settings.ESDSettings;
 import dk.dma.epd.shore.voyage.VoyageManager;
@@ -97,14 +95,14 @@ public class EPDShore extends EPD {
     private static VoyageManager voyageManager;
     private static EnavServiceHandler enavServiceHandler;
 
-    private static Path home = Paths.get(System.getProperty("user.home"), ".epd-shore");
-
     /**
      * Starts the program by initializing the various threads and spawning the main GUI
      * 
      * @param args
      */
     public static void main(String[] args) throws IOException {
+        
+        home = Paths.get(System.getProperty("user.home"), ".epd-shore");
 
         new Bootstrap().run();
 
@@ -155,9 +153,10 @@ public class EPDShore extends EPD {
         gpsHandler = new GpsHandler();
         beanHandler.add(gpsHandler);
 
-        // aisHandler = new AisHandler();
-        aisHandler = new AisHandler();
+        // aisHandler = new AisHandlerCommon();
+        aisHandler = new AisHandler(settings.getAisSettings());
         aisHandler.loadView();
+        EPD.startThread(aisHandler, "AisHandler");
         beanHandler.add(aisHandler);
 
         // Add StaticImages handler
@@ -240,10 +239,6 @@ public class EPDShore extends EPD {
      */
     public static void closeApp() {
         closeApp(false);
-    }
-
-    public static Path getHomePath() {
-        return home;
     }
 
     public static MonaLisaHandler getMonaLisaHandler() {
@@ -361,7 +356,7 @@ public class EPDShore extends EPD {
     }
 
     /**
-     * Return the AisHandler
+     * Return the AisHandlerCommon
      * 
      * @return - aisHandler
      */

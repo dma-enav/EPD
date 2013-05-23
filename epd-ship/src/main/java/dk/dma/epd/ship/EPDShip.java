@@ -18,7 +18,6 @@ package dk.dma.epd.ship;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -103,9 +102,10 @@ public class EPDShip  extends EPD {
     private static DynamicNogoHandler dynamicNoGoHandler;
     private static UpdateCheckerThread updateThread;
     private static TransponderFrame transponderFrame;
-    private static Path home = Paths.get(System.getProperty("user.home"), ".epd-ship");
 
     public static void main(String[] args) throws IOException {
+        
+        home = Paths.get(System.getProperty("user.home"), ".epd-ship");
 
         new Bootstrap().run();
 
@@ -167,8 +167,9 @@ public class EPDShip  extends EPD {
         mapHandler.add(gpsHandler);
 
         // Start AIS target monitoring
-        aisHandler = new AisHandler();
+        aisHandler = new AisHandler(settings.getSensorSettings(), settings.getAisSettings());
         aisHandler.loadView();
+        EPD.startThread(aisHandler, "AisHandler");
         mapHandler.add(aisHandler);
 
         // Load routeManager and register as GPS data listener
@@ -244,10 +245,6 @@ public class EPDShip  extends EPD {
             transponderFrame.startTransponder();
         }
         
-    }
-
-    public static Path getHomePath() {
-        return home;
     }
 
     private static void startSensors() {

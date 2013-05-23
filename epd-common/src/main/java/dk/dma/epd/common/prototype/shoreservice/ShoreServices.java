@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.ais.AisHandler;
+import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreHttp;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceErrorCode;
@@ -73,7 +73,7 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
     private static final Logger LOG = LoggerFactory
             .getLogger(ShoreServices.class);
 
-    private AisHandler aisHandler;
+    private AisHandlerCommon aisHandler;
     private GpsHandler gpsHandler;
     private EnavSettings enavSettings;
     private ShoreServiceStatus status = new ShoreServiceStatus();
@@ -306,8 +306,8 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
 
     @Override
     public void findAndInit(Object obj) {
-        if (aisHandler == null && obj instanceof AisHandler) {
-            aisHandler = (AisHandler) obj;
+        if (aisHandler == null && obj instanceof AisHandlerCommon) {
+            aisHandler = (AisHandlerCommon) obj;
         }
         if (gpsHandler == null && obj instanceof GpsHandler) {
             gpsHandler = (GpsHandler) obj;

@@ -23,9 +23,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.swing.SwingWorker;
 import javax.swing.table.AbstractTableModel;
 
+import dk.dma.epd.common.prototype.ais.AisHandlerCommon.AisMessageExtended;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.ship.ais.AisHandler;
-import dk.dma.epd.ship.ais.AisHandler.AisMessageExtended;
 
 /**
  * Table model for MSI dialog

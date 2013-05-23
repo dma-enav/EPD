@@ -30,6 +30,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMList;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.ais.AisHandlerCommon.AisMessageExtended;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
@@ -38,7 +39,6 @@ import dk.dma.epd.common.prototype.layers.ais.AisTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteWpCircle;
 import dk.dma.epd.shore.ais.AisHandler;
-import dk.dma.epd.shore.ais.AisHandler.AisMessageExtended;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
