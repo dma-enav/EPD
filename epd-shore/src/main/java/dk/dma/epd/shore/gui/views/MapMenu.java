@@ -56,6 +56,7 @@ import dk.dma.epd.shore.gui.views.menuitems.GeneralHideIntendedRoutes;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralNewRoute;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralShowIntendedRoutes;
 import dk.dma.epd.shore.gui.views.menuitems.IMapMenuAction;
+import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingOptimizeRoute;
 import dk.dma.epd.shore.gui.views.menuitems.MsiAcknowledge;
 import dk.dma.epd.shore.gui.views.menuitems.MsiDetails;
 import dk.dma.epd.shore.gui.views.menuitems.MsiZoomTo;
@@ -134,11 +135,13 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private VoyageHandlingLegInsertWaypoint voyageHandlingLegInsertWaypoint;
     private VoyageHandlingWaypointDelete voyageHandlingWaypointDelete;
     private VoyageHandlingAppendWaypoint voyageHandlingAppendWaypoint;
+    private VoyageHandlingOptimizeRoute voyageHandlingOptimizeRoute;
 
     private VoyageProperties voyageProperties;
     private VoyageRenegotiate voyageRenegotiate;
     private VoyageShowTransaction voyageShowTransaction;
     private VoyageZoomToShip voyageZoomToShip;
+
 
     private ShowVoyagePlanInfo openVoyagePlan;
     private SendVoyage sendVoyage;
@@ -275,6 +278,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         voyageZoomToShip = new VoyageZoomToShip("Zoom to Ship");
         voyageZoomToShip.addActionListener(this);
+        
+        voyageHandlingOptimizeRoute = new VoyageHandlingOptimizeRoute("Optimize Voyage via. SSPA");
+        voyageHandlingOptimizeRoute.addActionListener(this);
     }
 
     /**
@@ -647,6 +653,16 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         voyageHandlingAppendWaypoint.setRoute(route);
         add(voyageHandlingAppendWaypoint);
         // Right click, hide voyages and intended routes maybe?
+        
+        addSeparator();
+        
+        voyageHandlingOptimizeRoute.setVoyageHandlingLayer(voyageHandlingLayer);
+        voyageHandlingOptimizeRoute.setAisHandler(aisHandler);
+        voyageHandlingOptimizeRoute.setRoute(route);
+        voyageHandlingOptimizeRoute.setMmsi(voyage.getMmsi());
+        
+        
+        add(voyageHandlingOptimizeRoute);
 
     }
 

@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.monalisa;
+package dk.dma.epd.shore.gui.views.monalisa;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -25,10 +25,7 @@ import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -41,17 +38,19 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.NumberFormatter;
 
+import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.monalisa.MonaLisaWPSelection;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.ais.AisHandler;
-import dk.dma.epd.ship.gui.ChartPanel;
-import dk.dma.epd.ship.gui.MainFrame;
-import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.ais.AisHandler;
+import dk.dma.epd.shore.gui.views.ChartPanel;
+import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 
 /**
  * The nogo dialog
  */
-public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monalisa.MonaLisaSSPAOptionsDialog implements ActionListener {
+public class MonaLisaSSPAOptionsDialog extends
+        dk.dma.epd.common.prototype.monalisa.MonaLisaSSPAOptionsDialog
+        implements ActionListener {
     private static final long serialVersionUID = 1L;
     private JButton requestOptiBtn;
     private JButton cancelButton;
@@ -66,35 +65,33 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
     private JTextField timeoutTxTField;
     private JTextField ukctextField;
 
-    JComboBox<String> routeDropDown;
-
     private List<Boolean> selectedWp;
 
     ChartPanel chartPanel;
-    RouteManager routeManager;
-    MainFrame mainFrame;
     AisHandler aisHandler;
-
-    JCheckBox showOutPutCheckBox;
-    JCheckBox showInputCheckBox;
     JCheckBox intermediateETACheckBox;
-    private boolean loading;
 
-    int routeid;
+    VoyageHandlingLayer voyageHandlingLayer;
+    // private long mmsi;
 
-    public MonaLisaSSPAOptionsDialog(JFrame parent, RouteManager routeManager,
-            AisHandler aisHandler) {
-        super(parent, "Request Mona Lisa Route Exchange", true);
+    private Route route;
+    private JLabel routeNameLbl;
+    private JLabel routeNameTxt;
 
-        mainFrame = (MainFrame) parent;
+    public MonaLisaSSPAOptionsDialog(Route route,
+            VoyageHandlingLayer voyageHandlingLayer, AisHandler aisHandler,
+            long mmsi) {
 
-        this.chartPanel = mainFrame.getChartPanel();
-        this.routeManager = routeManager;
+        super(EPDShore.getMainFrame(), "Request Mona Lisa Route Exchange", true);
+
+        this.route = route;
         this.aisHandler = aisHandler;
+        // this.mmsi = mmsi;
+        this.voyageHandlingLayer = voyageHandlingLayer;
 
-        setSize(366, 505);
+        setSize(366, 449);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(parent);
+        setLocationRelativeTo(EPDShore.getMainFrame());
         setResizable(false);
 
         JPanel contentPanel = new JPanel();
@@ -111,17 +108,12 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
         panel.setBounds(15, 30, 327, 115);
 
-        JLabel lblNogoRequest = new JLabel("Mona Lisa Route Exchange");
+        JLabel lblNogoRequest = new JLabel("SSPA Route Optimization");
         lblNogoRequest.setBounds(15, 5, 238, 14);
         lblNogoRequest.setFont(new Font("Tahoma", Font.BOLD, 11));
         contentPanel.setLayout(null);
         panel.setLayout(null);
         contentPanel.add(panel);
-
-        routeDropDown = new JComboBox<String>();
-        routeDropDown.setBounds(10, 20, 134, 20);
-        panel.add(routeDropDown);
-        routeDropDown.addActionListener(this);
 
         JLabel lblName = new JLabel("Total Waypoints:");
         lblName.setBounds(10, 51, 90, 14);
@@ -144,6 +136,14 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
         selectWpBtn.addActionListener(this);
 
         panel.add(selectWpBtn);
+
+        routeNameLbl = new JLabel("Route Name:");
+        routeNameLbl.setBounds(10, 20, 78, 14);
+        panel.add(routeNameLbl);
+
+        routeNameTxt = new JLabel("N/A");
+        routeNameTxt.setBounds(10, 34, 156, 14);
+        panel.add(routeNameTxt);
         contentPanel.add(lblNogoRequest);
 
         JPanel panel_1 = new JPanel();
@@ -184,7 +184,7 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
         JPanel panel_2 = new JPanel();
         panel_2.setBorder(new TitledBorder(null, "Debug", TitledBorder.LEADING,
                 TitledBorder.TOP, null, null));
-        panel_2.setBounds(15, 295, 327, 138);
+        panel_2.setBounds(15, 295, 327, 91);
         contentPanel.add(panel_2);
         panel_2.setLayout(null);
 
@@ -196,18 +196,20 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
         serverTxtField.setBounds(95, 8, 217, 20);
         panel_2.add(serverTxtField);
         serverTxtField.setColumns(10);
-        serverTxtField.setText(EPDShip.getSettings().getEnavSettings().getMonaLisaServer());
+        serverTxtField.setText(EPDShore.getSettings().getEnavSettings()
+                .getMonaLisaServer());
         serverTxtField.setEditable(false);
 
         JLabel lblPort = new JLabel("Port:");
         lblPort.setBounds(10, 36, 46, 14);
         panel_2.add(lblPort);
-        
+
         portTxtField = new JTextField();
         portTxtField.setBounds(95, 33, 39, 20);
         panel_2.add(portTxtField);
         portTxtField.setColumns(10);
-        portTxtField.setText(String.valueOf(EPDShip.getSettings().getEnavSettings().getMonaLisaPort()));
+        portTxtField.setText(String.valueOf(EPDShore.getSettings()
+                .getEnavSettings().getMonaLisaPort()));
         portTxtField.setEditable(false);
 
         JLabel lblTimeout = new JLabel("Timeout in ms:");
@@ -219,14 +221,6 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
         panel_2.add(timeoutTxTField);
         timeoutTxTField.setColumns(10);
         timeoutTxTField.setText("60000");
-        
-        showOutPutCheckBox = new JCheckBox("Show XML output");
-        showOutPutCheckBox.setBounds(6, 80, 128, 23);
-        panel_2.add(showOutPutCheckBox);
-
-        showInputCheckBox = new JCheckBox("Show XML input");
-        showInputCheckBox.setBounds(6, 106, 110, 23);
-        panel_2.add(showInputCheckBox);
         ((NumberFormatter) txt.getFormatter()).setAllowsInvalid(false);
         {
             JPanel buttonPane = new JPanel();
@@ -247,94 +241,78 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
         }
 
         if (aisHandler != null
-                && aisHandler.getOwnShip().getStaticData() != null) {
-            Integer draught = (int) (aisHandler.getOwnShip().getStaticData()
-                    .getDraught() / 10);
+                && aisHandler.getVesselTargets().get(mmsi).getStaticData() != null) {
+            Integer draught = (int) (aisHandler.getVesselTargets().get(mmsi)
+                    .getStaticData().getDraught() / 10);
             spinnerDraught.setValue(draught);
         }
 
-        
-
-        
     }
 
-    public void showDialog(int routeid) {
-        // this.route = route;
-        this.routeid = routeid;
+    public void showDialog() {
+
         loadData();
         setVisible(true);
     }
 
     private void loadData() {
 
-        loading = true;
-
         selectedWp = new ArrayList<Boolean>();
-        routeDropDown.removeAllItems();
-        for (int i = 0; i < routeManager.getRoutes().size(); i++) {
-            routeDropDown.addItem(routeManager.getRoutes().get(i).getName()
-                    + "                                                 " + i);
-        }
-        routeDropDown.setSelectedIndex(routeid);
-        totalWpLbl.setText(String.valueOf(routeManager.getRoute(routeid)
-                .getWaypoints().size()));
-        for (int i = 0; i < routeManager.getRoute(routeid).getWaypoints()
-                .size(); i++) {
+
+        // Route name
+        routeNameTxt.setText(route.getName());
+        totalWpLbl.setText(String.valueOf(route.getWaypoints().size()));
+        for (int i = 0; i < route.getWaypoints().size(); i++) {
             selectedWp.add(true);
         }
 
         selectWpLbl.setText(String.valueOf(selectedWp.size()));
 
-        loading = false;
-
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == routeDropDown && !loading) {
-            routeid = routeDropDown.getSelectedIndex();
-            loadData();
-        }
 
         if (e.getSource() == requestOptiBtn) {
-            if (selectWpLbl.getText().equals("0") || selectWpLbl.getText().equals("1")){
-                JOptionPane.showMessageDialog(this,"You must select some waypoints");
+            if (selectWpLbl.getText().equals("0")
+                    || selectWpLbl.getText().equals("1")) {
+                JOptionPane.showMessageDialog(this,
+                        "You must select some waypoints");
             }
-            
-            //Which WP to send
-//            selectedWp;
-            //The route
-//            routeid
-       
-            
-            boolean removeIntermediateETA = intermediateETACheckBox.isSelected();
+
+            // Which WP to send
+            // selectedWp;
+            // The route
+            // routeid
+
+            boolean removeIntermediateETA = intermediateETACheckBox
+                    .isSelected();
             try {
-                float draft = Float.parseFloat(spinnerDraught.getValue().toString());
+                float draft = Float.parseFloat(spinnerDraught.getValue()
+                        .toString());
                 int ukc = Integer.parseInt(ukctextField.getText());
                 int timeout = Integer.parseInt(timeoutTxTField.getText());
-                
-                
-                
-                System.out.println("Creating mona lisa request with the following data: ");
+
+                System.out
+                        .println("Creating mona lisa request with the following data: ");
                 System.out.println("Remove ETA? " + removeIntermediateETA);
                 System.out.println("Draft: " + draft);
-                System.out.println("UKC "  + ukc);
+                System.out.println("UKC " + ukc);
                 System.out.println("Timeout " + timeout);
-                
-                
+
                 this.dispose();
+
+                
                 
                 // Send off the request
-              MonaLisaSSPARequestDialog.requestRoute(EPDShip.getMainFrame(), routeManager,
-                      routeManager.getRoute(routeid), EPDShip.getMonaLisaRouteExchange(),removeIntermediateETA , draft, ukc, timeout, selectedWp
-                      ,showInputCheckBox.isSelected(), showOutPutCheckBox.isSelected());
+                MonaLisaSSPARequestDialog.requestRoute(EPDShore.getMainFrame(),
+                        route, EPDShore.getMonaLisaRouteExchange(),
+                        removeIntermediateETA, draft, ukc, timeout, selectedWp,
+                        false, false, voyageHandlingLayer);
+
             } catch (Exception e2) {
-                JOptionPane.showMessageDialog(this,"Invalid integer input");
+                JOptionPane.showMessageDialog(this, "Invalid integer input");
             }
-
-            
-            
-
 
         }
         if (e.getSource() == cancelButton) {
@@ -343,30 +321,27 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
         }
         if (e.getSource() == selectWpBtn) {
             MonaLisaWPSelection selectionDialog = new MonaLisaWPSelection(this,
-                    routeManager.getRoute(routeid), selectedWp);
-            
-            
-            
+                    route, selectedWp);
+
             selectionDialog.setVisible(true);
         }
     }
-    
-    public void resetSelected(){
-        for (int i = 0; i < routeManager.getRoute(routeid).getWaypoints()
-                .size(); i++) {
+
+    public void resetSelected() {
+        for (int i = 0; i < route.getWaypoints().size(); i++) {
             selectedWp.add(true);
         }
     }
 
     public void updateSelected() {
         int selected = 0;
-        
+
         for (int i = 0; i < selectedWp.size(); i++) {
-            if (selectedWp.get(i)){
+            if (selectedWp.get(i)) {
                 selected++;
             }
         }
-        
+
         selectWpLbl.setText(String.valueOf(selected));
     }
 }

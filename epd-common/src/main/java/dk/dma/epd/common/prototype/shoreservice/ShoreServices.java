@@ -65,7 +65,6 @@ import dk.frv.enav.common.xml.risk.request.RiskRequest;
 import dk.frv.enav.common.xml.risk.response.RiskList;
 import dk.frv.enav.common.xml.risk.response.RiskResponse;
 
-
 /**
  * Shore service component providing the functional link to shore.
  */
@@ -333,7 +332,7 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
     public SSPAResponse makeMonaLisaRouteRequest(
             RouterequestType monaLisaRoute, int timeout, boolean showInput,
             boolean showOutput) {
-
+        
         JAXBContext context = null;
         String xmlReturnRoute = "";
 
@@ -373,11 +372,14 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
             xml = xml.replace("latitude", "fi:latitude");
             xml = xml.replace("longitude", "fi:longitude");
 
-//            if (showInput) {
-//                new XMLDialog(xml, "Sent XML");
-//            }
             
             
+            //fix later maybe?
+            
+            // if (showInput) {
+            // new XMLDialog(xml, "Sent XML");
+            // }
+
             // System.out.println("Sending the following:");
             // System.out.println(xml);
 
@@ -407,19 +409,19 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         System.out.println("Recieved the following:");
         System.out.println(xmlReturnRoute);
 
-//        if (showOutput) {
-//            new XMLDialog(xmlReturnRoute, "Returned XML");
-//        }
+        // if (showOutput) {
+        // new XMLDialog(xmlReturnRoute, "Returned XML");
+        // }
 
         if (xmlReturnRoute
                 .contains("<ErrorResponse xmlns=\"http://www.sspa.se/optiroute\">")) {
             String errorMessage = xmlReturnRoute
                     .split("<ErrorResponse xmlns=\"http://www.sspa.se/optiroute\">")[1]
                     .split("</ErrorResponse>")[0];
-            
-            errorMessage.trim();
+
+            errorMessage = errorMessage.trim();
             return new SSPAResponse(null, errorMessage);
-            
+
         } else {
             if (xmlReturnRoute != null) {
                 if (xmlReturnRoute.length() > 300000) {
@@ -448,7 +450,8 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
                 StringReader sr = new StringReader(xmlReturnRoute);
 
                 try {
-                    jc = JAXBContext.newInstance("dk.dma.epd.common.prototype.monalisa.sspa");
+                    jc = JAXBContext
+                            .newInstance("dk.dma.epd.common.prototype.monalisa.sspa");
                     u = jc.createUnmarshaller();
 
                     routeResponse = (RouteresponseType) ((javax.xml.bind.JAXBElement) u
@@ -463,7 +466,7 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
             }
         }
         // return new SSPAResponse(null, "null error");
-         return null;
+        return null;
     }
 
 }

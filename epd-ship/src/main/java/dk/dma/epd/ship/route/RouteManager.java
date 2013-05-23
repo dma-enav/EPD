@@ -313,6 +313,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         }
     }
 
+    @Override
     public Route getRoute(int index) {
         synchronized (this) {
             if (index == activeRouteIndex) {
@@ -322,6 +323,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         }
     }
 
+    @Override
     public List<Route> getRoutes() {
         synchronized (this) {
             return new ArrayList<>(routes);

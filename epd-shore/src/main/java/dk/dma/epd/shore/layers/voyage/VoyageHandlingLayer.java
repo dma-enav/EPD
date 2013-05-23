@@ -270,6 +270,16 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
 //        newRoute.setName(newRoute.getName() + " modified");
     }
 
+    
+    
+    
+    /**
+     * @param newRoute the newRoute to set
+     */
+    public void setNewRoute(Route newRoute) {
+        this.newRoute = newRoute;
+    }
+
     public void updateVoyages() {
         // Update voyages, clear all graphics, redraw original but in red, draw
         // the new voyage.

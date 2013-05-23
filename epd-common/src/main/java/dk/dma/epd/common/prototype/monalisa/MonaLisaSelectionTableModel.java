@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.monalisa;
+package dk.dma.epd.common.prototype.monalisa;
 
 import java.util.List;
 
@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.ship.route.RouteManager;
 
 /**
  * Table model for RouteManagerDialog
@@ -36,15 +35,13 @@ public class MonaLisaSelectionTableModel extends AbstractTableModel {
     
     private static final String[] COLUMN_NAMES = {"Name", "Included"};
     
-    private RouteManager routeManager;
+    private Route route;
     private List<Boolean> selectedWp;
-    int routeid;
     
-    public MonaLisaSelectionTableModel(RouteManager routeManager, List<Boolean> selectedWp, int routeid) {
+    public MonaLisaSelectionTableModel(Route route, List<Boolean> selectedWp) {
         super();
-        this.routeManager = routeManager;
+        this.route = route;
         this.selectedWp = selectedWp;
-        this.routeid = routeid;
     }
     
     @Override
@@ -59,13 +56,11 @@ public class MonaLisaSelectionTableModel extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-        return routeManager.getRoute(routeid).getWaypoints().size();
+        return route.getWaypoints().size();
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Route route = routeManager.getRoute(routeid);
-        
         switch (columnIndex) {
         case 0: return Formatter.formatString(route.getWaypoints().get(rowIndex).getName());
         case 1: return selectedWp.get(rowIndex);

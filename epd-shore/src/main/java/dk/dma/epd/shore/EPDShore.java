@@ -49,6 +49,7 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
+import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.utils.StaticImages;
 import dk.dma.epd.shore.gui.views.MainFrame;
@@ -56,8 +57,9 @@ import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.service.MonaLisaHandler;
+import dk.dma.epd.shore.service.MonaLisaRouteOptimization;
 import dk.dma.epd.shore.service.ais.AisServices;
-import dk.dma.epd.shore.services.shore.ShoreServices;
+
 import dk.dma.epd.shore.settings.ESDSensorSettings;
 import dk.dma.epd.shore.settings.ESDSettings;
 import dk.dma.epd.shore.voyage.VoyageManager;
@@ -88,7 +90,9 @@ public class EPDShore extends EPD {
     private static ShoreServices shoreServices;
     private static StaticImages staticImages;
     private static TransponderFrame transponderFrame;
-
+    private static MonaLisaRouteOptimization monaLisaRouteExchange;
+    
+    
     private static RouteManager routeManager;
     private static VoyageManager voyageManager;
     private static EnavServiceHandler enavServiceHandler;
@@ -169,13 +173,20 @@ public class EPDShore extends EPD {
         voyageManager = VoyageManager.loadVoyageManager();
         beanHandler.add(voyageManager);
 
+
+        
         // Create AIS services
         aisServices = new AisServices();
         beanHandler.add(aisServices);
+        
         // Create shore services
         shoreServices = new ShoreServices(getSettings().getEnavSettings());
         beanHandler.add(shoreServices);
 
+        // Create mona lisa route exchange
+        monaLisaRouteExchange = new MonaLisaRouteOptimization();
+        beanHandler.add(monaLisaRouteExchange);
+        
         // Create EnavServiceHandler
         enavServiceHandler = new EnavServiceHandler(getSettings().getEnavSettings());
         beanHandler.add(enavServiceHandler);
@@ -570,5 +581,14 @@ public class EPDShore extends EPD {
     public static VoyageManager getVoyageManager() {
         return voyageManager;
     }
+
+    /**
+     * @return the monaLisaRouteExchange
+     */
+    public static MonaLisaRouteOptimization getMonaLisaRouteExchange() {
+        return monaLisaRouteExchange;
+    }
+    
+    
 
 }

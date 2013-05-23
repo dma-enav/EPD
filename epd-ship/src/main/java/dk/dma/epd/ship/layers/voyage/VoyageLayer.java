@@ -396,13 +396,15 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         // modifiedSTCCRoute.calcAllWpEta();
 
         graphics.clear();
+        
+        
 
-        // New route in green
-        drawRoute(2, modifiedSTCCRoute, ECDISOrange, new Color(0.39f, 0.69f,
-                0.49f, 0.6f), true);
+        // New route in yellow
+        drawRoute(2, modifiedSTCCRoute, ECDISOrange, new Color(1f, 1f, 0, 0.4f), true);
 
-        // old STCC in yellow
-        drawRoute(1, stccRoute, ECDISOrange, new Color(1f, 1f, 0, 0.4f), false);
+        // old STCC in green
+        drawRoute(1, stccRoute, ECDISOrange, new Color(0.39f, 0.69f,
+                0.49f, 0.6f), false);
 
         // Old route in red
         drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
@@ -440,8 +442,8 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         graphics.clear();
 
         // New route in green
-        drawRoute(1, modifiedSTCCRoute, ECDISOrange, new Color(0.39f, 0.69f,
-                0.49f, 0.6f), true);
+        drawRoute(1, modifiedSTCCRoute, ECDISOrange, 
+                new Color(1f, 1f, 0, 0.4f), true);
         // Old route in red
         drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
                 false);

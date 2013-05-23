@@ -80,12 +80,10 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private MonaLisaHandler monaLisaHandler;
     private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context;
     InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply> monaLisaContext;
-    
 
     // End point holders for Mona Lisa Route Exchange
     private List<ServiceEndpoint<MonaLisaRouteRequestMessage, MonaLisaRouteRequestReply>> monaLisaSTCCList = new ArrayList<>();
     private List<ServiceEndpoint<MonaLisaRouteAckMsg, Void>> monaLisaRouteAckList = new ArrayList<>();
-
 
     PersistentConnection connection;
 
@@ -270,8 +268,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
             this.gpsHandler.addListener(this);
         } else if (obj instanceof AisHandler) {
             this.aisHandler = (AisHandler) obj;
-        }
-        else if (obj instanceof MonaLisaHandler) {
+        } else if (obj instanceof MonaLisaHandler) {
             this.monaLisaHandler = (MonaLisaHandler) obj;
         }
     }
@@ -333,24 +330,27 @@ public class EnavServiceHandler extends MapHandlerChild implements
         return monaLisaSTCCList;
     }
 
-    public void sendMonaLisaAck(long addressMMSI, long id, long ownMMSI, boolean ack) {
+    public void sendMonaLisaAck(long addressMMSI, long id, long ownMMSI,
+            boolean ack) {
         String mmsiStr = "mmsi://" + addressMMSI;
-        
+
         System.out.println(mmsiStr);
         System.out.println(ownMMSI);
 
         ServiceEndpoint<MonaLisaRouteAckMsg, Void> end = null;
 
         getMonaLisaRouteAckList();
-        
+
         for (int i = 0; i < monaLisaRouteAckList.size(); i++) {
             System.out.println(monaLisaRouteAckList.get(i).getId().toString());
-            
-//            if (monaLisaRouteAckList.get(i).getId().toString().equals(mmsiStr)) {
-                end = monaLisaRouteAckList.get(i);
-                // break;
-                
-//            }
+
+            // if
+            // (monaLisaRouteAckList.get(i).getId().toString().equals(mmsiStr))
+            // {
+            end = monaLisaRouteAckList.get(i);
+            // break;
+
+            // }
         }
 
         MonaLisaRouteAckMsg msg = new MonaLisaRouteAckMsg(ack, id, ownMMSI);
@@ -360,19 +360,23 @@ public class EnavServiceHandler extends MapHandlerChild implements
             // ConnectionFuture<Void> f =
             end.invoke(msg);
         } else {
-            System.out.println("Failed to send ack " + monaLisaRouteAckList.size());
+            System.out.println("Failed to send ack "
+                    + monaLisaRouteAckList.size());
         }
     }
 
-    public void sendMonaLisaRouteRequest(MonaLisaRouteRequestMessage routeMessage) {
+    public void sendMonaLisaRouteRequest(
+            MonaLisaRouteRequestMessage routeMessage) {
 
         ServiceEndpoint<MonaLisaRouteService.MonaLisaRouteRequestMessage, MonaLisaRouteService.MonaLisaRouteRequestReply> end = null;
 
-        
-        //How to determine which to send to?
+        // How to determine which to send to?
         for (int i = 0; i < monaLisaSTCCList.size(); i++) {
-            end = monaLisaSTCCList.get(i);
 
+            if (!monaLisaSTCCList.get(i).getId().toString()
+                    .contains(routeMessage.getMmsi() + "")) {
+                end = monaLisaSTCCList.get(i);
+            }
         }
 
         // Each request has a unique ID, talk to Kasper?
@@ -392,24 +396,17 @@ public class EnavServiceHandler extends MapHandlerChild implements
         } else {
             // notifyRouteExchangeListeners();
             System.out.println("Failed to send?");
-            // replyRecieved(f.get());
         }
 
     }
 
     private void replyRecieved(MonaLisaRouteRequestReply reply) {
         System.out.println("Mona Lisa Reply recieved: " + reply.getStatus());
-        
-        
+
         monaLisaHandler.handleReply(reply);
-        
-        
+
     }
-    
-    
-    
-    
-    
+
     private void monaLisaRouteRequestListener() throws InterruptedException {
 
         connection
@@ -421,34 +418,30 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                     InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply> context) {
 
                                 monaLisaContext = context;
-                                
-                                System.out.println("Ship received a request for reopening a transaction!");
-                                
-                                
+
+                                System.out
+                                        .println("Ship received a request for reopening a transaction!");
+
                                 monaLisaHandler.handleReNegotiation(message);
-                                //Does transaction exist?
-                                
-                                //If not, recreate as much as possible and open
-                                
-                                //Start new transaction with the end result
-                                
-                                
-                                
-                                
-                                
-                                
-//                                // long mmsi = message.getMmsi();
-//                                contextSenders.put(message.getId(), context);
-//
-//                                // if
-//                                // (EPDShore.getAisHandler().getVesselTargets()
-//                                // .containsKey(mmsi)) {
-//
-//                                System.out
-//                                        .println("Recieved a message with id "
-//                                                + message.getId());
-//
-//                                monaLisaHandler.handleMessage(message);
+                                // Does transaction exist?
+
+                                // If not, recreate as much as possible and open
+
+                                // Start new transaction with the end result
+
+                                // // long mmsi = message.getMmsi();
+                                // contextSenders.put(message.getId(), context);
+                                //
+                                // // if
+                                // //
+                                // (EPDShore.getAisHandler().getVesselTargets()
+                                // // .containsKey(mmsi)) {
+                                //
+                                // System.out
+                                // .println("Recieved a message with id "
+                                // + message.getId());
+                                //
+                                // monaLisaHandler.handleMessage(message);
 
                             }
                         }).awaitRegistered(4, TimeUnit.SECONDS);

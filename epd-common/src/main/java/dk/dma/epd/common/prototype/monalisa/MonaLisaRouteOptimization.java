@@ -29,7 +29,6 @@ import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.ais.AisHandler;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
@@ -42,7 +41,6 @@ import dk.dma.epd.common.prototype.monalisa.sspa.RouteresponseType;
 import dk.dma.epd.common.prototype.monalisa.sspa.WaypointType;
 import dk.dma.epd.common.prototype.monalisa.sspa.WaypointsType;
 import dk.dma.epd.common.prototype.route.RouteManager;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
 
 //import dk.frv.enav.ins.route.monalisa.se.sspa.optiroute.Routerequest;
@@ -50,7 +48,7 @@ import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
 /**
  * Shore service component providing the functional link to shore.
  */
-public class MonaLisaRouteOptimizaton extends MapHandlerChild
+public class MonaLisaRouteOptimization extends MapHandlerChild
 // implements
 {
     // Runnable
@@ -58,13 +56,12 @@ public class MonaLisaRouteOptimizaton extends MapHandlerChild
     // private static final Logger LOG = Logger
     // .getLogger(MonaLisaRouteExchange.class);
 
-    private AisHandler aisHandler;
-    private GpsHandler gpsHandler;
-//    private ShoreServiceStatus status = new ShoreServiceStatus();
-    private ShoreServices shoreService;
-    private RouteManager routeManager;
 
-    public MonaLisaRouteOptimizaton() {
+    // private ShoreServiceStatus status = new ShoreServiceStatus();
+    protected ShoreServices shoreService;
+    protected RouteManager routeManager;
+
+    public MonaLisaRouteOptimization() {
 
     }
 
@@ -80,9 +77,7 @@ public class MonaLisaRouteOptimizaton extends MapHandlerChild
         // Create the ship data
         CurrentShipDataType currentShipData = new CurrentShipDataType();
 
-        // if (aisHandler.getOwnShip().getStaticData() != null) {
-        // trim = aisHandler.getOwnShip().getStaticData().getDraught();
-        // }
+  
 
         // Current ship data
         currentShipData.setImoid("1234567");
@@ -323,12 +318,7 @@ public class MonaLisaRouteOptimizaton extends MapHandlerChild
 
     @Override
     public void findAndInit(Object obj) {
-        if (aisHandler == null && obj instanceof AisHandler) {
-            aisHandler = (AisHandler) obj;
-        }
-        if (gpsHandler == null && obj instanceof GpsHandler) {
-            gpsHandler = (GpsHandler) obj;
-        }
+
 
         if (shoreService == null && obj instanceof ShoreServices) {
             shoreService = (ShoreServices) obj;
@@ -340,11 +330,7 @@ public class MonaLisaRouteOptimizaton extends MapHandlerChild
 
     @Override
     public void findAndUndo(Object obj) {
-        if (obj == aisHandler) {
-            aisHandler = null;
-        } else if (obj == gpsHandler) {
-            gpsHandler = null;
-        }
+
     }
 
     // @Override

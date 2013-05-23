@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.monalisa;
+package dk.dma.epd.shore.service;
 
 import java.util.List;
 
@@ -21,25 +21,22 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.monalisa.MonaLisaOptimizationResponse;
 import dk.dma.epd.common.prototype.monalisa.SSPAResponse;
 import dk.dma.epd.common.prototype.monalisa.sspa.RouterequestType;
-import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
+
 
 //import dk.frv.enav.ins.route.monalisa.se.sspa.optiroute.Routerequest;
 
 /**
  * Shore service component providing the functional link to shore.
  */
-public class MonaLisaRouteOptimizaton extends dk.dma.epd.common.prototype.monalisa.MonaLisaRouteOptimizaton{
-    // Runnable
+public class MonaLisaRouteOptimization extends dk.dma.epd.common.prototype.monalisa.MonaLisaRouteOptimization{
+  
 
-    // private static final Logger LOG = Logger
-    // .getLogger(MonaLisaRouteExchange.class);
-
-
-    @Override
     public MonaLisaOptimizationResponse makeRouteRequest(Route route,
             boolean removeIntermediateETA, float draft, int ukc, int timeout,
-            List<Boolean> selectedWp, boolean showInput, boolean showOutput) {
+            List<Boolean> selectedWp, boolean showInput, boolean showOutput, VoyageHandlingLayer voyageHandlingLayer) {
 
+        
         // new Thread(this).start();
 
         RouterequestType monaLisaRoute = convertRoute(route,
@@ -49,10 +46,12 @@ public class MonaLisaRouteOptimizaton extends dk.dma.epd.common.prototype.monali
 
         SSPAResponse routeResponse = null;
         try {
-            routeResponse = EPDShip.getShoreServices()
+            routeResponse = shoreService
                     .makeMonaLisaRouteRequest(monaLisaRoute, timeout,
                             showInput, showOutput);
         } catch (Exception e) {
+            System.out.println("Exception when trying to talk to shore service");
+            System.out.println(e.getMessage());
             return new MonaLisaOptimizationResponse("An exception occured", e.getMessage());
         }
 
@@ -73,8 +72,13 @@ public class MonaLisaRouteOptimizaton extends dk.dma.epd.common.prototype.monali
         }
 
         if (newRoute != null) {
-            EPDShip.getRouteManager().addRoute(newRoute);
-            route.setVisible(false);
+//            String originalRouteName = route.getName();
+            //How to handle the reply
+//            route = newRoute;
+//            newRoute.setName("Optimized: " + originalRouteName);
+            voyageHandlingLayer.setNewRoute(newRoute);
+            voyageHandlingLayer.updateVoyages();
+            
         }
 
         float fuelSaving = (routeResponse.getMonaLisaResponse().getFuelRequested() - routeResponse.getMonaLisaResponse().getFuelFinal()) / routeResponse.getMonaLisaResponse().getFuelRequested() * 100;

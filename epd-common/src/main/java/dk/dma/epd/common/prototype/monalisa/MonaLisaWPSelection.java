@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.monalisa;
+package dk.dma.epd.common.prototype.monalisa;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -38,7 +38,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
-import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.common.prototype.model.route.Route;
+
 
 public class MonaLisaWPSelection extends JDialog implements ActionListener,
         ListSelectionListener, TableModelListener, MouseListener {
@@ -52,20 +53,18 @@ public class MonaLisaWPSelection extends JDialog implements ActionListener,
     private MonaLisaSelectionTableModel routesTableModel;
     private ListSelectionModel routeSelectionModel;
     List<Boolean> selectedWp;
-    int routeid;
-    RouteManager routeManager;
+    Route route;
     JButton okButton;
     JButton cancelButton;
     MonaLisaSSPAOptionsDialog parent;
 
-    public MonaLisaWPSelection(MonaLisaSSPAOptionsDialog parent, RouteManager routeManager, List<Boolean> selectedWp, int routeid) {
+    public MonaLisaWPSelection(MonaLisaSSPAOptionsDialog parent, Route route, List<Boolean> selectedWp) {
         super(parent, "Waypoint Selection", true);
         
         this.parent = parent;
-        this.routeManager = routeManager;
+        this.route = route;
         this.selectedWp = selectedWp;
-        this.routeid = routeid;
-        
+
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(parent);
 //        setResizable(false);
@@ -77,7 +76,7 @@ public class MonaLisaWPSelection extends JDialog implements ActionListener,
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 
         routeTable = new JTable();
-        routesTableModel = new MonaLisaSelectionTableModel(routeManager, selectedWp, routeid);
+        routesTableModel = new MonaLisaSelectionTableModel(route, selectedWp);
         routesTableModel.addTableModelListener(this);
         routeTable.setShowHorizontalLines(false);
         routeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -109,7 +108,7 @@ public class MonaLisaWPSelection extends JDialog implements ActionListener,
                 getRootPane().setDefaultButton(okButton);
             }
             {
-                cancelButton = new JButton("Cancel");
+                cancelButton = new JButton("Reset");
                 cancelButton.addActionListener(this);
                 cancelButton.setActionCommand("Cancel");
                 buttonPane.add(cancelButton);

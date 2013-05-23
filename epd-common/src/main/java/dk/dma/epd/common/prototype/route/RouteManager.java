@@ -15,14 +15,23 @@
  */
 package dk.dma.epd.common.prototype.route;
 
+import java.util.List;
+
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.model.route.Route;
 
-public class RouteManager extends MapHandlerChild{
+public class RouteManager extends MapHandlerChild {
 
     public void addRoute(Route route) {
-        
+
     }
-    
+
+    public List<Route> getRoutes() {
+        return null;
+    }
+
+    public Route getRoute(int index) {
+        return null;
+    }
 }

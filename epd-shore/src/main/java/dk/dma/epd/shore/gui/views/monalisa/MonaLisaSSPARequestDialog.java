@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.monalisa;
+package dk.dma.epd.shore.gui.views.monalisa;
 
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -29,8 +29,8 @@ import javax.swing.WindowConstants;
 
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.monalisa.MonaLisaOptimizationResponse;
-import dk.dma.epd.ship.monalisa.MonaLisaRouteOptimization;
-import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
+import dk.dma.epd.shore.service.MonaLisaRouteOptimization;
 
 /**
  * Dialog shown when requesting Mona Lisa Route Exchange
@@ -54,13 +54,15 @@ public class MonaLisaSSPARequestDialog extends JDialog implements Runnable,
     List<Boolean> selectedWp;
     boolean showInput;
     boolean showOutput;
+    VoyageHandlingLayer voyageHandlingLayer;
 
-    public MonaLisaSSPARequestDialog(Window parent, RouteManager routeManager,
+    public MonaLisaSSPARequestDialog(Window parent,
             Route route, MonaLisaRouteOptimization monaLisaRouteExchange,
             boolean removeIntermediateETA, float draft, int ukc, int timeout,
-            List<Boolean> selectedWp, boolean showInput, boolean showOutput) {
+            List<Boolean> selectedWp, boolean showInput, boolean showOutput, VoyageHandlingLayer voyageHandlingLayer) {
         super(parent, "Request Mona Lisa Route Exchange");
-        // this.routeManager = routeManager;
+        
+        this.voyageHandlingLayer = voyageHandlingLayer;
         this.route = route;
         this.parent = parent;
         this.monaLisaRouteExchange = monaLisaRouteExchange;
@@ -75,15 +77,16 @@ public class MonaLisaSSPARequestDialog extends JDialog implements Runnable,
         initGui();
     }
 
-    public static void requestRoute(Window parent, RouteManager routeManager,
+    public static void requestRoute(Window parent,
             Route route, MonaLisaRouteOptimization monaLisaRouteExchange,
             boolean removeIntermediateETA, float draft, int ukc, int timeout,
-            List<Boolean> selectedWp, boolean showInput, boolean showOutput) {
+            List<Boolean> selectedWp, boolean showInput, boolean showOutput, VoyageHandlingLayer voyageHandlingLayer) {
 
+        
         MonaLisaSSPARequestDialog monaLisaRequestDialog = new MonaLisaSSPARequestDialog(
-                parent, routeManager, route, monaLisaRouteExchange,
+                parent, route, monaLisaRouteExchange,
                 removeIntermediateETA, draft, ukc, timeout, selectedWp,
-                showInput, showOutput);
+                showInput, showOutput, voyageHandlingLayer);
 
         monaLisaRequestDialog.doRequestRoute();
         // monaLisaRequestDialog = null;
@@ -106,7 +109,7 @@ public class MonaLisaSSPARequestDialog extends JDialog implements Runnable,
 
             MonaLisaOptimizationResponse response = monaLisaRouteExchange.makeRouteRequest(
                     route, removeIntermediateETA, draft, ukc, timeout,
-                    selectedWp, showInput, showOutput);
+                    selectedWp, showInput, showOutput, voyageHandlingLayer);
 
             // Close dialog
             setVisible(false);

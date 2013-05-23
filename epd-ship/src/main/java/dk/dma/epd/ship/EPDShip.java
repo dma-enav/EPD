@@ -60,7 +60,7 @@ import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.route.RouteManagerDialog;
 import dk.dma.epd.ship.monalisa.MonaLisaHandler;
-import dk.dma.epd.ship.monalisa.MonaLisaRouteOptimizaton;
+import dk.dma.epd.ship.monalisa.MonaLisaRouteOptimization;
 import dk.dma.epd.ship.msi.MsiHandler;
 import dk.dma.epd.ship.nogo.DynamicNogoHandler;
 import dk.dma.epd.ship.nogo.NogoHandler;
@@ -95,7 +95,7 @@ public class EPDShip  extends EPD {
     private static RouteManager routeManager;
     private static ShoreServices shoreServices;
     private static MonaLisaHandler monaLisaHandler;
-    private static MonaLisaRouteOptimizaton monaLisaRouteExchange;
+    private static MonaLisaRouteOptimization monaLisaRouteExchange;
     private static AisServices aisServices;
     private static MsiHandler msiHandler;
     private static NogoHandler nogoHandler;
@@ -180,7 +180,7 @@ public class EPDShip  extends EPD {
         mapHandler.add(shoreServices);
 
         // Create mona lisa route exchange
-        monaLisaRouteExchange = new MonaLisaRouteOptimizaton();
+        monaLisaRouteExchange = new MonaLisaRouteOptimization();
         mapHandler.add(monaLisaRouteExchange);
 
         // Create AIS services
@@ -585,7 +585,7 @@ public class EPDShip  extends EPD {
         return shoreServices;
     }
 
-    public static MonaLisaRouteOptimizaton getMonaLisaRouteExchange() {
+    public static MonaLisaRouteOptimization getMonaLisaRouteExchange() {
         return monaLisaRouteExchange;
     }
 
