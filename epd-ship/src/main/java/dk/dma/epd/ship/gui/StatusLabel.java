@@ -23,9 +23,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
+import dk.dma.epd.common.prototype.status.ComponentStatus;
+import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.status.ComponentStatus;
-import dk.dma.epd.ship.status.IStatusComponent;
 
 /**
  * A status label with status indication icon 

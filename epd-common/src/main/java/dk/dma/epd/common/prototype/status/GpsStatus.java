@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.status;
+package dk.dma.epd.common.prototype.status;
 
 import net.jcip.annotations.ThreadSafe;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;

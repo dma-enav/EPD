@@ -57,10 +57,10 @@ import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
+import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.ais.AisHandler;
-import dk.dma.epd.shore.gps.GpsHandler;
 import dk.dma.epd.shore.settings.ESDEnavSettings;
 import dk.dma.navnet.client.MaritimeNetworkConnectionBuilder;
 

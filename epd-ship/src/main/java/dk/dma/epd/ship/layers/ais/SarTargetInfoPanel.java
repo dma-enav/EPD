@@ -22,10 +22,10 @@ import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
+import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Util;
-import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.gui.InfoPanel;
 
 /**

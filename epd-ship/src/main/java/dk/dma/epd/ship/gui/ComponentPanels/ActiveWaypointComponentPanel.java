@@ -27,9 +27,9 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
+import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.ship.event.IMapCoordListener;
-import dk.dma.epd.ship.gps.GpsHandler;
 import dk.dma.epd.ship.gui.Panels.ActiveWaypointPanel;
 import dk.dma.epd.ship.route.RouteManager;
 

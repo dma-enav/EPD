@@ -19,6 +19,7 @@ import java.util.Date;
 
 import net.jcip.annotations.ThreadSafe;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
+import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.text.Formatter;
 
 /**
