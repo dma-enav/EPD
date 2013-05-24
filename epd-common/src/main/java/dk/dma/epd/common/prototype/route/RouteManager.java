@@ -20,6 +20,7 @@ import java.util.List;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 
 public class RouteManager extends MapHandlerChild {
 
@@ -33,5 +34,40 @@ public class RouteManager extends MapHandlerChild {
 
     public Route getRoute(int index) {
         return null;
+    }
+
+    public boolean isActiveRoute(int routeId) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public Route getActiveRoute() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void notifyListeners(RoutesUpdateEvent routeWaypointDeleted) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public boolean validateMetoc(Route route) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    public int getRouteIndex(Route route) {
+        // TODO Auto-generated method stub
+        return -1;
+    }
+
+    public void removeRoute(int routeIndex) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void changeActiveWp(int index) {
+        // TODO Auto-generated method stub
+        
     }
 }

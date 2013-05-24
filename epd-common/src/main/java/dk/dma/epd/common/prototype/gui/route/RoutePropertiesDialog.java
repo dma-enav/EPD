@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.route;
+package dk.dma.epd.common.prototype.gui.route;
 
 import java.awt.Color;
 import java.awt.Dialog;
@@ -65,10 +65,9 @@ import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.route.RouteManager;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.ParseUtils;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.route.RouteManager;
 
 /**
  * Dialog with route properties
@@ -89,13 +88,15 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
     private JTextField distanceTxT;
     int offset = 9;
 
-    JXDatePicker departurePicker;
-    JXDatePicker arrivalPicker;
-    JSpinner departureSpinner;
-    JSpinner arrivalSpinner;
+    protected JXDatePicker departurePicker;
+    protected JXDatePicker arrivalPicker;
+    protected JSpinner departureSpinner;
+    protected JSpinner arrivalSpinner;
 
-    private Border fieldBorder = new MatteBorder(1, 1, 1, 1, new Color(65, 65, 65));
-    private Border columnBorder = new MatteBorder(1, 1, 0, 0, new Color(65, 65, 65));
+    private Border fieldBorder = new MatteBorder(1, 1, 1, 1, new Color(65, 65,
+            65));
+    private Border columnBorder = new MatteBorder(1, 1, 0, 0, new Color(65, 65,
+            65));
 
     int selectedWp = -1;
     int lastSelectedWp = -1;
@@ -107,8 +108,10 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
     List<RoutePropertiesRow> waypointTable = new ArrayList<>();
     volatile boolean internalOperation;
 
-     Route route;
+    Route route;
     private JButton closeBtn;
+
+    private Window parent;
 
     // private JTextField totalDistField;
     // private JTextField startTimeField;
@@ -118,7 +121,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
     // private WptTableModel wptTableModel;
 
     private RouteManager routeManager;
-    private ActiveRoute activeRoute;
+    protected ActiveRoute activeRoute;
 
     public RoutePropertiesDialog(Window parent, RouteManager routeManager,
             int routeId) {
@@ -126,6 +129,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
         this.setResizable(false);
 
+        this.parent = parent;
         this.routeManager = routeManager;
 
         if (routeManager.isActiveRoute(routeId)) {
@@ -153,7 +157,42 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
         updateButtons();
 
         // Parse the route
-            parseRoute();
+        parseRoute();
+    }
+
+    public RoutePropertiesDialog(Window parent, Route route, boolean editable) {
+        super(parent, "Route Properties", Dialog.ModalityType.APPLICATION_MODAL);
+        
+        if (!editable){
+            activeRoute = new ActiveRoute(route, null);    
+        }
+        
+        
+        this.setResizable(false);
+
+        this.parent = parent;
+
+        this.route = route;
+
+        setBounds(100, 100, 904, 435);
+        getContentPane().setLayout(null);
+        contentPanel.setBounds(10, 11, 884, 343);
+        contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+        getContentPane().add(contentPanel);
+        contentPanel.setLayout(null);
+
+        initGui();
+        initValues();
+
+        // (new Thread(this)).start();
+
+        addWindowListener(this);
+
+        updateButtons();
+
+        // Parse the route
+        parseRoute();
     }
 
     private void initGui() {
@@ -296,8 +335,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
         lblETA.setBackground(Color.GRAY);
         lblETA.setBounds(353, 0, 86, 14);
         lblETA.setOpaque(true);
-        lblETA.setBorder(new MatteBorder(1, 1, 0, 1, new Color(65, 65,
-                65)));
+        lblETA.setBorder(new MatteBorder(1, 1, 0, 1, new Color(65, 65, 65)));
         waypointList.add(lblETA);
 
         // Waypoint attributes
@@ -355,8 +393,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
         JLabel lblSafeH = new JLabel("  SF Len");
         lblSafeH.setBackground(Color.GRAY);
         lblSafeH.setBounds(784, 0, 54, 23);
-        lblSafeH.setBorder(new MatteBorder(1, 1, 0, 1, new Color(65,
-                65, 65)));
+        lblSafeH.setBorder(new MatteBorder(1, 1, 0, 1, new Color(65, 65, 65)));
         lblSafeH.setOpaque(true);
 
         waypointList.add(lblSafeH);
@@ -507,10 +544,10 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
             }
 
-            RoutePropertiesRow currentRow = generateWaypoint(-5
-                    + (i + 1) * 19, name, latitude, longitude, rad, rot, ttg,
-                    eta, rng, brg, heading, speed, xtds, xtdp, sfwidth, sflen,
-                    i, route.getWaypoints().size());
+            RoutePropertiesRow currentRow = generateWaypoint(-5 + (i + 1) * 19,
+                    name, latitude, longitude, rad, rot, ttg, eta, rng, brg,
+                    heading, speed, xtds, xtdp, sfwidth, sflen, i, route
+                            .getWaypoints().size());
 
             waypointTable.add(currentRow);
 
@@ -646,9 +683,10 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        System.out.println("Set longitude? " +  route.getWaypoints().get(id).getPos()
-                                .getLongitudeAsString() );
-                        
+                        // System.out.println("Set longitude? "
+                        // + route.getWaypoints().get(id).getPos()
+                        // .getLongitudeAsString());
+
                         waypointTable
                                 .get(id)
                                 .getLongitude()
@@ -832,7 +870,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
             List<Position> waypoint = new ArrayList<>();
             waypoint.add(route.getWaypoints().get(selectedWp).getPos());
 
-            EPDShip.getMainFrame().getChartPanel().zoomTo(waypoint);
+            // EPD.getMainFrame().getChartPanel().zoomTo(waypoint);
         }
 
         if (e.getSource() == closeBtn) {
@@ -854,7 +892,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
         else if (e.getSource() == btnActivate) {
             activateWp();
         } else if (e.getSource() == btnDelete) {
-            System.out.println(lastSelectedWp);
+            // System.out.println(lastSelectedWp);
             if (lastSelectedWp < 0) {
                 return;
             }
@@ -862,7 +900,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
             if (route.getWaypoints().size() < 3) {
                 int result = JOptionPane
                         .showConfirmDialog(
-                                EPDShip.getMainFrame(),
+                                parent,
                                 "A route must have at least two waypoints.\nDo you want to delete the route?",
                                 "Delete Route?", JOptionPane.YES_NO_OPTION,
                                 JOptionPane.QUESTION_MESSAGE);
@@ -890,16 +928,14 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
     private void removeAndMoveWaypoints(int waypointId) {
         RoutePropertiesRow toBeDeleted = waypointTable.get(waypointId);
 
-        System.out.println("Remove waypoint at y"
-                + toBeDeleted.getName().getLocation().y);
-        System.out.println("Move up all waypoints at " + waypointId + 1);
+        // System.out.println("Remove waypoint at y"
+        // + toBeDeleted.getName().getLocation().y);
+        // System.out.println("Move up all waypoints at " + waypointId + 1);
 
         int moveLocation = 0;
         for (int i = waypointId + 1; i < waypointTable.size(); i++) {
-            waypointTable.get(i)
-                    .moveRow(
-                            toBeDeleted.getName().getLocation().y
-                                    + moveLocation * 19);
+            waypointTable.get(i).moveRow(
+                    toBeDeleted.getName().getLocation().y + moveLocation * 19);
             waypointTable.get(i).updateId();
             moveLocation++;
         }
@@ -979,7 +1015,9 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
     @Override
     public void windowClosed(WindowEvent e) {
-        routeManager.validateMetoc(route);
+        if (routeManager != null) {
+            routeManager.validateMetoc(route);
+        }
     }
 
     @Override
@@ -1018,8 +1056,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
         nameTxT.setBounds(16, y, 60, 20);
         waypointList.add(nameTxT);
         nameTxT.setColumns(10);
-        nameTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65,
-                65)));
+        nameTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65, 65)));
         nameTxT.setText(name);
         nameTxT.addFocusListener(this);
 
@@ -1028,8 +1065,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
         WaypointJTextField latTxT = new WaypointJTextField(id, "lat");
         latTxT.setColumns(10);
-        latTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65,
-                65)));
+        latTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65, 65)));
         latTxT.setBounds(76, y, 69, 20);
         waypointList.add(latTxT);
         latTxT.addFocusListener(this);
@@ -1040,8 +1076,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
         WaypointJTextField lonTxT = new WaypointJTextField(id, "lon");
         lonTxT.setColumns(10);
-        lonTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65,
-                65)));
+        lonTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65, 65)));
         lonTxT.setBounds(145, y, 69, 20);
         waypointList.add(lonTxT);
         lonTxT.setText(longitude);
@@ -1052,8 +1087,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
         WaypointJTextField radTxT = new WaypointJTextField(id, "rad");
         radTxT.setColumns(10);
-        radTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65,
-                65)));
+        radTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65, 65)));
         radTxT.setBounds(214, y, 45, 20);
         waypointList.add(radTxT);
         radTxT.setText(rad);
@@ -1067,8 +1101,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
         }
         WaypointJTextField rotTxT = new WaypointJTextField(id, "rot");
         rotTxT.setColumns(10);
-        rotTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65,
-                65)));
+        rotTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65, 65)));
         rotTxT.setBounds(259, y, 30, 20);
         waypointList.add(rotTxT);
         rotTxT.setText(rot);
@@ -1077,8 +1110,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
         WaypointJTextField ttgTxT = new WaypointJTextField(id, "ttg");
         ttgTxT.setColumns(10);
-        ttgTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65,
-                65)));
+        ttgTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65, 65)));
         ttgTxT.setBounds(289, y, 64, 20);
         waypointList.add(ttgTxT);
         ttgTxT.setText(ttg);
@@ -1087,8 +1119,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
         WaypointJTextField etaTxT = new WaypointJTextField(id, "eta");
         etaTxT.setColumns(10);
-        etaTxT.setBorder(new MatteBorder(1, 1, 1, 1, new Color(65, 65,
-                65)));
+        etaTxT.setBorder(new MatteBorder(1, 1, 1, 1, new Color(65, 65, 65)));
         etaTxT.setBounds(353, y, 86, 20);
         waypointList.add(etaTxT);
         etaTxT.setText(eta);
@@ -1097,8 +1128,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
         WaypointJTextField rngTxT = new WaypointJTextField(id, "rng");
         rngTxT.setColumns(10);
-        rngTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65,
-                65)));
+        rngTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65, 65)));
         rngTxT.setBounds(438, y + offset, 54, 20);
         waypointList.add(rngTxT);
         rngTxT.setText(rng);
@@ -1107,8 +1137,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
         WaypointJTextField brgTxT = new WaypointJTextField(id, "brg");
         brgTxT.setColumns(10);
-        brgTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65,
-                65)));
+        brgTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65, 65)));
         brgTxT.setBounds(492, y + offset, 54, 20);
         waypointList.add(brgTxT);
         brgTxT.setText(brg);
@@ -1117,8 +1146,8 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
         WaypointJTextField headingTxT = new WaypointJTextField(id, "heading");
         headingTxT.setColumns(10);
-        headingTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65,
-                65, 65)));
+        headingTxT
+                .setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65, 65)));
         headingTxT.setBounds(546, y + offset, 48, 20);
         waypointList.add(headingTxT);
         headingTxT.setText(heading);
@@ -1129,8 +1158,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
         WaypointJTextField sogTxT = new WaypointJTextField(id, "sog");
         sogTxT.setColumns(10);
-        sogTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65,
-                65)));
+        sogTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65, 65)));
         sogTxT.setBounds(594, y + offset, 48, 20);
         waypointList.add(sogTxT);
         sogTxT.setText(speed);
@@ -1141,8 +1169,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
         WaypointJTextField xtdsTxT = new WaypointJTextField(id, "xtds");
         xtdsTxT.setColumns(10);
-        xtdsTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65,
-                65)));
+        xtdsTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65, 65)));
         xtdsTxT.setBounds(642, y + offset, 44, 20);
         waypointList.add(xtdsTxT);
         xtdsTxT.setText(xtds);
@@ -1153,8 +1180,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
         WaypointJTextField xtdPTxT = new WaypointJTextField(id, "xtdp");
         xtdPTxT.setColumns(10);
-        xtdPTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65,
-                65)));
+        xtdPTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65, 65)));
         xtdPTxT.setBounds(686, y + offset, 44, 20);
         waypointList.add(xtdPTxT);
         xtdPTxT.setText(xtdp);
@@ -1165,8 +1191,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
         WaypointJTextField sfwTxT = new WaypointJTextField(id, "sfw");
         sfwTxT.setColumns(10);
-        sfwTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65,
-                65)));
+        sfwTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65, 65)));
         sfwTxT.setBounds(730, y + offset, 54, 20);
         waypointList.add(sfwTxT);
         sfwTxT.setText(sfwidth);
@@ -1177,8 +1202,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
         WaypointJTextField sflTxT = new WaypointJTextField(id, "sfl");
         sflTxT.setColumns(10);
-        sflTxT.setBorder(new MatteBorder(1, 1, 1, 1, new Color(65, 65,
-                65)));
+        sflTxT.setBorder(new MatteBorder(1, 1, 1, 1, new Color(65, 65, 65)));
         sflTxT.setBounds(784, y + offset, 54, 20);
         sflTxT.setText(sflen);
         waypointList.add(sflTxT);
@@ -1395,7 +1419,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
     private void recalculateSpeeds(Date currentArrivalDate) {
 
-        System.out.println("Recalculating speeds?");
+        // System.out.println("Recalculating speeds?");
 
         // Total distance
         double distanceToTravel = route.calcDtg();
@@ -1445,7 +1469,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
         //
         // } else {
 
-        System.out.println("New total distance: " + distanceToTravel);
+        // System.out.println("New total distance: " + distanceToTravel);
 
         // And we want to get there in miliseconds:
         long timeToTravel = currentArrivalDate.getTime()
@@ -1473,7 +1497,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
                     refreshSoGList();
                     updateFields();
                     internalOperation = false;
-                    System.out.println("Internal operation is false");
+                    // System.out.println("Internal operation is false");
                 }
             });
 
@@ -1686,7 +1710,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
         if (activeRoute == null) {
 
-//            System.out.println("Check time diff called?");
+            // System.out.println("Check time diff called?");
 
             internalOperation = true;
 
@@ -1740,7 +1764,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
             updateFields();
 
             internalOperation = false;
-//            System.out.println("Internal operation is false");
+            // System.out.println("Internal operation is false");
         }
     }
 

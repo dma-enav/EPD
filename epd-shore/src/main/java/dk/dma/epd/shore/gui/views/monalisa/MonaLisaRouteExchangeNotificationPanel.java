@@ -276,6 +276,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
                 .getClassLoader().getResource(
                         "images/notificationcenter/gear--arrow.png")),
                 SwingConstants.CENTER);
+        optimize_btn.setEnabled(false);
         GuiStyler.styleButton(optimize_btn);
         optimize_btn.setPreferredSize(new Dimension(110, 20));
         pane_3.add(optimize_btn);
@@ -439,6 +440,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
                             EPDShore.getMainFrame(), new Route(message
                                     .getRouteMessage().get(message
                                             .getRouteMessage().size()-1).getRoute()));
+                    
                     routePropertiesDialog.setVisible(true);
 
                     // route_details.setEnabled(false);

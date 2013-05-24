@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.route;
+package dk.dma.epd.common.prototype.gui.route;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -26,8 +26,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.border.MatteBorder;
 
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.gui.ButtonLabel;
+import dk.dma.epd.common.prototype.EPD;
 
 public class LockLabel extends ButtonLabel {
 
@@ -58,7 +57,7 @@ public class LockLabel extends ButtonLabel {
 
     // Needs fixing
     public ImageIcon toolbarIcon(String imgpath) {
-        URL url = EPDShip.class.getClassLoader().getResource(imgpath);
+        URL url = EPD.class.getClassLoader().getResource(imgpath);
         ImageIcon icon = new ImageIcon(url);
 
         // Image img = icon.getImage();
