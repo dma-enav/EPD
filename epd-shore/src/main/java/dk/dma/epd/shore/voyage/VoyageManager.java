@@ -187,6 +187,19 @@ public class VoyageManager extends MapHandlerChild implements Runnable, Serializ
         }
     }
 
+    private void checkForExpires(){
+        for (int i = 0; i < voyages.size(); i++) {
+//          System.out.println(voyages.get(i).getRoute().getEtas().get(voyages.get(i).getRoute().getEtas().size()-1));
+          long date = voyages.get(i).getRoute().getEtas().get(voyages.get(i).getRoute().getEtas().size()-1).getTime();
+
+//          System.out.println("Found date in long is " + date);
+//          System.out.println(System.currentTimeMillis());
+          
+          if (date < System.currentTimeMillis()){
+              removeVoyage(i);
+          }
+      }
+    }
 
     @Override
     public void run() {
@@ -194,6 +207,7 @@ public class VoyageManager extends MapHandlerChild implements Runnable, Serializ
         // Maintanaince routines
         while (true) {
             EPDShore.sleep(10000);
+            checkForExpires();
         }
 
     }

@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.SwingUtilities;
+
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
@@ -39,6 +41,7 @@ import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
+import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MapMenu;
 import dk.dma.epd.shore.layers.ais.AisLayer;
@@ -64,15 +67,17 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
     private MonaLisaHandler monaLisaHandler;
 
     // private ShipIndicatorPanel shipIndicatorPanel;
+    private VoyageInfoPanel voyageInfoPanel = new VoyageInfoPanel();
 
     private Map<Long, ShipIndicatorPanel> shipIndicatorPanels = new HashMap<>();
 
     // private MetocInfoPanel metocInfoPanel;
     // private WaypointInfoPanel waypointInfoPanel;
+    private ChartPanel chartPanel;
     private MapBean mapBean;
 
     private OMGraphicList graphics = new OMGraphicList();
-    // private OMGraphic closest;
+    private OMGraphic closest;
     private OMGraphic selectedGraphic;
     private JMapFrame jMapFrame;
 
@@ -107,6 +112,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
             // }
             //
             jMapFrame = (JMapFrame) obj;
+            jMapFrame.getGlassPanel().add(voyageInfoPanel);
             // shipIndicatorPanel = new ShipIndicatorPanel();
             // jMapFrame.getGlassPanel().add(shipIndicatorPanel);
 
@@ -125,6 +131,9 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
         if (obj instanceof MapMenu) {
             routeMenu = (MapMenu) obj;
+        }
+        if (obj instanceof ChartPanel) {
+            chartPanel = (ChartPanel) obj;
         }
 
     }
@@ -161,8 +170,6 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
         if (this.isVisible()) {
 
-            System.out.println("VOYAGE LAYER SAYING HI");
-
             selectedGraphic = null;
             OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
                     5.0f);
@@ -192,21 +199,23 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
             if (selectedGraphic instanceof VoyageLegGraphic) {
                 VoyageLegGraphic rlg = (VoyageLegGraphic) selectedGraphic;
                 int voyageIndex = rlg.getVoyageIndex();
-                Voyage currentVoyage = voyageManager.getVoyage(voyageIndex);
 
-                System.out.println("Voyage leg");
+                if (voyageManager.getVoyageCount() > voyageIndex) {
 
-                routeMenu.voyageGeneralMenu(currentVoyage.getId(),
-                        currentVoyage.getMmsi(), currentVoyage.getRoute(),
-                        mapBean);
-                routeMenu.setVisible(true);
+                    Voyage currentVoyage = voyageManager.getVoyage(voyageIndex);
 
-                try {
-                    routeMenu.show(this, e.getX() - 2, e.getY() - 2);
-                } catch (Exception e2) {
-                    System.out.println("Exception error: " + e2.getMessage());
+                    routeMenu.voyageGeneralMenu(currentVoyage.getId(),
+                            currentVoyage.getMmsi(), currentVoyage.getRoute(),
+                            mapBean);
+                    routeMenu.setVisible(true);
+
+                    try {
+                        routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+                    } catch (Exception e2) {
+                        System.out.println("Exception error: "
+                                + e2.getMessage());
+                    }
                 }
-
                 return true;
             }
 
@@ -241,16 +250,46 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseMoved(MouseEvent e) {
-        // OMGraphic newClosest = null;
-        // OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-        // 2.0f);
-        //
-        // for (OMGraphic omGraphic : allClosest) {
-        // if (omGraphic instanceof MetocPointGraphic || omGraphic instanceof
-        // WaypointCircle) {
-        // newClosest = omGraphic;
-        // break;
-        // }
+        OMGraphic newClosest = null;
+        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
+                3.0f);
+        for (OMGraphic omGraphic : allClosest) {
+            newClosest = omGraphic;
+            break;
+        }
+
+        if (allClosest.size() == 0) {
+            voyageInfoPanel.setVisible(false);
+            closest = null;
+            return false;
+        }
+
+        if (newClosest != closest) {
+            Point containerPoint = SwingUtilities.convertPoint(chartPanel,
+                    e.getPoint(), jMapFrame);
+
+            if (newClosest instanceof VoyageLegGraphic) {
+                closest = newClosest;
+                VoyageLegGraphic wpLeg = (VoyageLegGraphic) newClosest;
+                voyageInfoPanel.setPos((int) containerPoint.getX(),
+                        (int) containerPoint.getY() - 10);
+                
+                int voyageIndex = wpLeg.getVoyageIndex();
+                
+                Voyage currentVoyage = voyageManager.getVoyage(voyageIndex);
+                
+                VesselTarget ship = aisHandler.getVesselTargets().get(currentVoyage.getMmsi());
+                String name = "" + currentVoyage.getMmsi();
+                
+                if (ship != null){
+                    if (ship.getStaticData() != null){
+                        name = ship.getStaticData().getName();
+                    }
+                }
+                
+                voyageInfoPanel.showVoyageInfo(currentVoyage, name);
+            }
+        }
         // }
         //
         // if (routeMetoc != null && metocInfoPanel != null) {

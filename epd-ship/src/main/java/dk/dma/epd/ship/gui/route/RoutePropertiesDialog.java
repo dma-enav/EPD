@@ -860,7 +860,6 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
             }
 
             if (route.getWaypoints().size() < 3) {
-
                 int result = JOptionPane
                         .showConfirmDialog(
                                 EPDShip.getMainFrame(),
@@ -877,6 +876,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
             }
 
             else {
+                route.deleteWaypoint(lastSelectedWp);
                 routeManager
                         .notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
                 removeAndMoveWaypoints(lastSelectedWp);

@@ -56,7 +56,6 @@ import dk.dma.epd.shore.gui.views.menuitems.GeneralHideIntendedRoutes;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralNewRoute;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralShowIntendedRoutes;
 import dk.dma.epd.shore.gui.views.menuitems.IMapMenuAction;
-import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingOptimizeRoute;
 import dk.dma.epd.shore.gui.views.menuitems.MsiAcknowledge;
 import dk.dma.epd.shore.gui.views.menuitems.MsiDetails;
 import dk.dma.epd.shore.gui.views.menuitems.MsiZoomTo;
@@ -79,7 +78,9 @@ import dk.dma.epd.shore.gui.views.menuitems.SendVoyage;
 import dk.dma.epd.shore.gui.views.menuitems.ShowVoyagePlanInfo;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingAppendWaypoint;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingLegInsertWaypoint;
+import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingOptimizeRoute;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingWaypointDelete;
+import dk.dma.epd.shore.gui.views.menuitems.VoyageHideAll;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageProperties;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageRenegotiate;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageShowTransaction;
@@ -87,6 +88,7 @@ import dk.dma.epd.shore.gui.views.menuitems.VoyageZoomToShip;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
+import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.layers.voyage.VoyagePlanInfoPanel;
 import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.route.RouteManager;
@@ -141,6 +143,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private VoyageRenegotiate voyageRenegotiate;
     private VoyageShowTransaction voyageShowTransaction;
     private VoyageZoomToShip voyageZoomToShip;
+    private VoyageHideAll voyageHideAll;
 
 
     private ShowVoyagePlanInfo openVoyagePlan;
@@ -153,6 +156,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     protected boolean isolated;
     private RouteManager routeManager;
     private Route route;
+    
+    private VoyageLayer voyageLayer;
     // private SendRouteDialog sendRouteDialog;
 
     // Route suggest?
@@ -281,6 +286,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         
         voyageHandlingOptimizeRoute = new VoyageHandlingOptimizeRoute("Optimize Voyage via. SSPA");
         voyageHandlingOptimizeRoute.addActionListener(this);
+        
+        voyageHideAll = new VoyageHideAll("Toggle Voyage Layer");
+        voyageHideAll.addActionListener(this);
     }
 
     /**
@@ -343,6 +351,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
             add(showIntendedRoutes);
             add(newRoute);
             add(scaleMenu);
+            
+            voyageHideAll.setVoyageLayer(voyageLayer);
+            add(voyageHideAll);
             return;
         }
 
@@ -590,11 +601,14 @@ public class MapMenu extends JPopupMenu implements ActionListener,
                 && monaLisaHandler.getMonaLisaNegotiationData().containsKey(
                         transactionID));
 
+        
+        
         add(voyageZoomToShip);
         add(voyageShowTransaction);
 
         add(voyageProperties);
         add(voyageRenegotiate);
+        
 
         // Zoom to Ship
         // Show transaction
@@ -705,6 +719,10 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         if (obj instanceof MonaLisaHandler) {
             monaLisaHandler = (MonaLisaHandler) obj;
         }
+        if (obj instanceof VoyageLayer) {
+            voyageLayer = (VoyageLayer) obj;
+        }
+
 
     }
 

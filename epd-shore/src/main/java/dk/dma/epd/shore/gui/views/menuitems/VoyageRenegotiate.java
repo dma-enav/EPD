@@ -86,9 +86,18 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
         }
 
         // Get latest route
-        Route route = new Route(message.getRouteMessage()
-                .get(message.getRouteMessage().size() - 1)
-                .getRoute());
+        Route route = null;
+        
+        //The one we sent out was accepted
+        if (message.getRouteMessage().size() > message.getRouteReply().size()){
+          route = new Route(message.getRouteMessage()
+          .get(message.getRouteMessage().size() - 1)
+          .getRoute());
+        }else{
+            route = new Route(message.getRouteReply()
+                    .get(message.getRouteReply().size() - 1)
+                    .getRoute());  
+        }
 
         Voyage voyage = new Voyage(message.getMmsi(), route,
                 message.getId());

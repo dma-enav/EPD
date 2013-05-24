@@ -101,7 +101,7 @@ public class MonaLisaHandler extends MapHandlerChild {
                 
                 for (int i = 0; i < voyageManager.getVoyages().size(); i++) {
                     if (voyageManager.getVoyages().get(i).getId() == id){
-                        voyageManager.getVoyages().remove(i);
+                        voyageManager.removeVoyage(i);
                     }
                 }
                 
