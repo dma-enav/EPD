@@ -74,16 +74,13 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
     private JPanel statusPanel;
     private JPanel typesPanel;
     private JPanel warnLimitsPanel;
-    private JComboBox<String> providerBox;    
     
     JButton closeBtn;
     
     private RouteManager routeManager;
     private Route route;
-
-    private JLabel dmiProvider;
-
-    private JLabel fcoProvider;
+    private JPanel providerPanel;
+    private JComboBox<String> providerBox;
 
 
 
@@ -97,7 +94,7 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
             route = routeManager.getRoute(routeId);
         }
         
-        setSize(270, 460);
+        setSize(270, 496);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(parent);
                 
@@ -169,7 +166,6 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
         metocSettings.setWaveWarnLimit(parseFieldVal(waveLimit, metocSettings.getWaveWarnLimit()));
         
         metocSettings.setProvider((String)providerBox.getSelectedItem());
-        System.out.println("HERRO "+(String)providerBox.getSelectedItem());
     }
     
     private void requestMetoc() {
@@ -266,34 +262,55 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
 
         
         statusPanel.setBorder(new TitledBorder(null, "METOC status", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        
-        providerBox = new JComboBox<>();
-        providerBox.addItem("dmi");
-        providerBox.addItem("fco");
-        providerBox.setBorder(new TitledBorder(null, "METOC provider", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        
-        providerBox.addActionListener(this);
-        providerBox.addFocusListener(this);
-        
+      
         typesPanel = new JPanel();
         typesPanel.setBorder(new TitledBorder(null, "METOC data", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));        
         warnLimitsPanel = new JPanel();
         warnLimitsPanel.setBorder(new TitledBorder(null, "Warn limits", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
+        providerPanel = new JPanel();
+        providerPanel.setBorder(new TitledBorder(null, "METOC provider", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+        
+        providerBox = new JComboBox<String>();
+        providerBox.addItem("dmi");
+        providerBox.addItem("fco");
+        providerBox.addActionListener(this);
+        providerBox.addFocusListener(this);
+      
+        
+        providerBox.setMaximumRowCount(2);
+        GroupLayout gl_providerPanel = new GroupLayout(providerPanel);
+        gl_providerPanel.setHorizontalGroup(
+            gl_providerPanel.createParallelGroup(Alignment.LEADING)
+                .addComponent(providerBox, 0, 247, Short.MAX_VALUE)
+        );
+        gl_providerPanel.setVerticalGroup(
+            gl_providerPanel.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_providerPanel.createSequentialGroup()
+                    .addComponent(providerBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        providerPanel.setLayout(gl_providerPanel);
+        
         
         GroupLayout groupLayout = new GroupLayout(getContentPane());
         groupLayout.setHorizontalGroup(
-            groupLayout.createParallelGroup(Alignment.LEADING)
-                .addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
-                    .addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-                        .addComponent(warnLimitsPanel, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 251, Short.MAX_VALUE)
-                        .addComponent(providerBox, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
-                        .addComponent(typesPanel, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
-                        .addComponent(statusPanel, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 251, Short.MAX_VALUE))
-                    .addGap(3))
-                .addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
-                    .addContainerGap(173, Short.MAX_VALUE)
+            groupLayout.createParallelGroup(Alignment.TRAILING)
+                .addGroup(groupLayout.createSequentialGroup()
+                    .addContainerGap(183, Short.MAX_VALUE)
                     .addComponent(closeBtn, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap())
+                .addGroup(groupLayout.createSequentialGroup()
+                    .addComponent(statusPanel, GroupLayout.PREFERRED_SIZE, 259, Short.MAX_VALUE)
+                    .addGap(3))
+                .addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
+                    .addComponent(providerPanel, GroupLayout.PREFERRED_SIZE, 259, GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap())
+                .addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
+                    .addComponent(typesPanel, GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
+                    .addContainerGap())
+                .addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
+                    .addComponent(warnLimitsPanel, GroupLayout.PREFERRED_SIZE, 259, Short.MAX_VALUE)
                     .addContainerGap())
         );
         groupLayout.setVerticalGroup(
@@ -302,12 +319,12 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
                     .addGap(7)
                     .addComponent(statusPanel, GroupLayout.PREFERRED_SIZE, 142, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(providerBox, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
+                    .addComponent(providerPanel, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(typesPanel, GroupLayout.PREFERRED_SIZE, 103, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(warnLimitsPanel, GroupLayout.PREFERRED_SIZE, 111, GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addPreferredGap(ComponentPlacement.RELATED, 226, Short.MAX_VALUE)
                     .addComponent(closeBtn)
                     .addGap(17))
         );
