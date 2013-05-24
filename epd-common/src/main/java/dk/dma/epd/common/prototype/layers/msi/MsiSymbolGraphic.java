@@ -42,11 +42,11 @@ public class MsiSymbolGraphic extends MsiSymbolPosition {
         int imageHeight;
 
         if(acknowledged) {
-            msiSymbolImage = new ImageIcon(MsiSymbolGraphic.class.getResource("/images/msi/msi_symbol_32.png"));
+            msiSymbolImage = new ImageIcon(getClass().getResource("/images/msi/msi_symbol_32.png"));
             imageWidth = msiSymbolImage.getIconWidth();
             imageHeight = msiSymbolImage.getIconHeight();
         } else {
-            msiSymbolImage = new ImageIcon(MsiSymbolGraphic.class.getResource("/images/msi/msi_unack_symbol_32.png"));
+            msiSymbolImage = new ImageIcon(getClass().getResource("/images/msi/msi_unack_symbol_32.png"));
             imageWidth = msiSymbolImage.getIconWidth();
             imageHeight = msiSymbolImage.getIconHeight();
         }
