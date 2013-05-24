@@ -61,6 +61,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
 
     private ShoreServices shoreServices;
     private RouteManager routeManager;
+    
     private MsiLayer msiLayer;
 
     private MsiStore msiStore;
@@ -247,14 +248,16 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     }
 
     /** 
-     * Pushes msi updates to all listeners. Must not be used in a synchronized block
+     * Pushes msi updates to all listeners.
      */
     public void notifyUpdate() {
         // Update layer
         if (msiLayer != null) {
-            msiLayer.doUpdate();
+            //doUpdate() will ask msiHandler 
+            //getMessageList() which is currently guarded by a lock
+            msiLayer.doUpdate(); 
         }
-        // Notify of MSI change
+        // Notify of MSI change, MUST NOT lock.
         for (IMsiUpdateListener listener : listeners) {
             listener.msiUpdate();
         }
