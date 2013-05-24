@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.msi;
+package dk.dma.epd.common.prototype.msi;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,22 +31,19 @@ import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
-import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
-import dk.dma.epd.common.prototype.msi.MsiStore;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Util;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.layers.msi.MsiLayer;
-import dk.dma.epd.ship.route.RouteManager;
-import dk.dma.epd.ship.settings.EPDEnavSettings;
+import dk.dma.epd.common.prototype.layers.msi.MsiLayer;
+import dk.dma.epd.common.prototype.route.RouteManager;
+import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 import dk.frv.enav.common.xml.msi.response.MsiResponse;
 
@@ -67,6 +64,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     private MsiStore msiStore;
     private Date lastUpdate;
     private long pollInterval;
+    private final EnavSettings enavSettings;
     private boolean pendingImportantMessages;
     // do not serialize these members
     private transient Position calculationPosition;
@@ -76,15 +74,11 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     private GpsHandler gpsHandler;
     private boolean gpsUpdate;
 
-    public MsiHandler(EPDEnavSettings enavSettings) {
+    public MsiHandler(EnavSettings enavSettings) {
+        this.enavSettings = enavSettings;
         pollInterval = enavSettings.getMsiPollInterval();
-        msiStore = MsiStore.loadFromFile(EPDShip.getHomePath(), EPDShip
-                .getSettings().getEnavSettings());
-        EPDShip.startThread(this, "MsiHandler");
-    }
-
-    public synchronized boolean isAcknowledged(int msgId) {
-        return msiStore.getAcknowledged().contains(msgId);
+        msiStore = MsiStore.loadFromFile(EPD.getHomePath(), enavSettings);
+        EPD.startThread(this, "MsiHandler");
     }
 
     public synchronized Collection<MsiMessage> getMessages() {
@@ -127,6 +121,11 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         return counter;
     }
 
+    /**
+     * Get the list of filtered messages
+     *
+     * @return
+     */
     public synchronized List<MsiMessageExtended> getFilteredMessageList() {
         List<MsiMessageExtended> list = new ArrayList<>();
         for (Integer msgId : msiStore.getMessages().keySet()) {
@@ -143,7 +142,12 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         
         return list;
     }
-
+    
+    /**
+     * Get the list of MSI messages
+     *
+     * @return
+     */
     public synchronized List<MsiMessageExtended> getMessageList() {
         List<MsiMessageExtended> list = new ArrayList<>();
         for (Integer msgId : msiStore.getMessages().keySet()) {
@@ -170,6 +174,11 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         return list.size() - 1;
     }
 
+    /**
+     * Get the first none acknowledged from the filtered list
+     *
+     * @return
+     */
     public synchronized int getFirstNonAcknowledgedFiltered() {
         int index = 0;
         List<MsiMessageExtended> list = getFilteredMessageList();
@@ -182,6 +191,10 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         return list.size() - 1;
     }
 
+    /**
+     * Set a msi message as acknowleged
+     * @param msiMessage
+     */
     public void setAcknowledged(MsiMessage msiMessage) {
         synchronized(this) {
             msiStore.getAcknowledged().add(msiMessage.getMessageId());
@@ -191,6 +204,20 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         notifyUpdate();
     }
 
+    /**
+     * Check if a msi with a given ID is acknowleged
+     *
+     * @param msgId
+     * @return
+     */
+    public synchronized boolean isAcknowledged(int msgId) {
+        return msiStore.getAcknowledged().contains(msgId);
+    }    
+    /**
+     * Delete a message from the msi
+     *
+     * @param msiMessage
+     */
     public void deleteMessage(MsiMessage msiMessage) {
         synchronized(this) {
             msiStore.deleteMessage(msiMessage);
@@ -208,6 +235,9 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         }
     }
 
+    /**
+     * Update the msi
+     */
     public void updateMsi() {
         boolean msiUpdated = false;
 
@@ -281,6 +311,10 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         // Only check with unacknowledged messages
     }
 
+    /**
+     * Recalculate if a msi is visible
+     * @return
+     */
     private synchronized boolean reCalcMsiVisibility() {
         
         boolean updated = false;
@@ -318,19 +352,36 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         return lastUpdate;
     }
 
+    /**
+     * Set last msi update
+     * @param lastUpdate
+     */
     private synchronized void setLastUpdate(Date lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
 
+    /**
+     * Get the pending important messages
+     *
+     * @return
+     */
     public synchronized boolean isPendingImportantMessages() {
         return pendingImportantMessages;
     }
 
+    /**
+     * Add a listener to the msihandler
+     *
+     * @param listener
+     */
     @GuardedBy("listeners")
     public void addListener(IMsiUpdateListener listener) {
         listeners.addIfAbsent(listener);
     }
 
+    /**
+     * Save the msi to a file
+     */
     public synchronized void saveToFile() {
         msiStore.saveToFile();
     }
@@ -338,6 +389,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     @Override
     public void routesChanged(RoutesUpdateEvent e) {
         if (e == RoutesUpdateEvent.ROUTE_ACTIVATED) {
+            //these two are commented out in the original non-common implementation
             msiStore.setRelevance(routeManager.getActiveRoute());
             notifyUpdate();
         }
@@ -355,6 +407,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
             notifyUpdate();
         }
     }
+    
 
     /**
      * Only set a new calculation position if it is a certain range away from
@@ -371,8 +424,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         }
         Double range = Calculator.range(currentPosition, calculationPosition,
                 Heading.GC);
-        if (range > EPDShip.getSettings().getEnavSettings()
-                .getMsiRelevanceGpsUpdateRange()) {
+        if (range > enavSettings.getMsiRelevanceGpsUpdateRange()) {
             gpsUpdate = true;
             calculationPosition = currentPosition;
         }

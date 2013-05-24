@@ -50,9 +50,9 @@ import com.bbn.openmap.PropertyConsumer;
 import com.bbn.openmap.gui.WindowSupport;
 
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
+import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
-import dk.dma.epd.ship.msi.MsiHandler;
 import dk.dma.epd.ship.nogo.NogoHandler;
 
 public class MenuBar extends JMenuBar implements PropertyConsumer,

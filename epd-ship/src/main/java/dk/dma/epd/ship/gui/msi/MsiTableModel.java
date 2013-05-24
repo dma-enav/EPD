@@ -20,10 +20,10 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.msi.MsiHandler;
 import dk.frv.enav.common.xml.msi.MsiLocation;
 
 /**

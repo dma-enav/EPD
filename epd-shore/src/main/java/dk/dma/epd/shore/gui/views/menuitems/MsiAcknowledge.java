@@ -17,7 +17,7 @@ package dk.dma.epd.shore.gui.views.menuitems;
 
 import javax.swing.JMenuItem;
 
-import dk.dma.epd.shore.msi.MsiHandler;
+import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 
 

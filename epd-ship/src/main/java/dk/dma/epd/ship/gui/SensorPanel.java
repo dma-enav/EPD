@@ -37,6 +37,7 @@ import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
@@ -50,7 +51,6 @@ import dk.dma.epd.ship.gui.Panels.CursorPanel;
 import dk.dma.epd.ship.gui.Panels.GPSPanel;
 import dk.dma.epd.ship.gui.Panels.OwnShipPanel;
 import dk.dma.epd.ship.gui.Panels.ScalePanel;
-import dk.dma.epd.ship.msi.MsiHandler;
 import dk.dma.epd.ship.route.RouteManager;
 
 /**

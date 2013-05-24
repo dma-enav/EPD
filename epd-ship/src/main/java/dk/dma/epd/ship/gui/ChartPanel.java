@@ -57,7 +57,7 @@ import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.background.CoastalOutlineLayer;
 import dk.dma.epd.ship.layers.gps.GpsLayer;
-import dk.dma.epd.ship.layers.msi.MsiLayer;
+import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
 import dk.dma.epd.ship.layers.nogo.DynamicNogoLayer;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
@@ -87,7 +87,7 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
     private MouseDelegator mouseDelegator;
     private RouteLayer routeLayer;
     private VoyageLayer voyageLayer;
-    private MsiLayer msiLayer;
+    private EpdMsiLayer msiLayer;
     private NogoLayer nogoLayer;
     private DynamicNogoLayer dynamicNogoLayer;
     private TopPanel topPanel;
@@ -192,7 +192,7 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         mapHandler.add(routeEditLayer);
 
         // Create MSI layer
-        msiLayer = new MsiLayer();
+        msiLayer = new EpdMsiLayer();
         msiLayer.setVisible(true);
         mapHandler.add(msiLayer);
 

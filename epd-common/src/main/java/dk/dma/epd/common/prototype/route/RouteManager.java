@@ -19,7 +19,9 @@ import java.util.List;
 
 import com.bbn.openmap.MapHandlerChild;
 
+import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.msi.MsiHandler;
 
 public class RouteManager extends MapHandlerChild {
 
@@ -33,5 +35,15 @@ public class RouteManager extends MapHandlerChild {
 
     public Route getRoute(int index) {
         return null;
+    }
+    
+    public ActiveRoute getActiveRoute() {
+        return null;
+        
+    }
+
+    public void addListener(MsiHandler msiHandler) {
+        // TODO Auto-generated method stub
+        
     }
 }

@@ -18,6 +18,8 @@ package dk.dma.epd.ship.nogo;
 import java.util.Date;
 import java.util.List;
 
+import net.jcip.annotations.ThreadSafe;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +39,9 @@ import dk.frv.enav.common.xml.nogo.response.NogoResponse;
 import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
 
 /**
- * Component for handling MSI messages
+ * Component for handling NOGO areas
  */
+@ThreadSafe
 public class NogoHandler extends MapHandlerChild implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(NogoHandler.class);

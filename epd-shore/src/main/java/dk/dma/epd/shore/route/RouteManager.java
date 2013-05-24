@@ -32,8 +32,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bbn.openmap.MapHandlerChild;
-
 import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
 import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion.Status;
 import dk.dma.epd.common.prototype.ais.AisBroadcastRouteSuggestion;
@@ -61,7 +59,7 @@ import dk.dma.epd.shore.settings.ESDEnavSettings;
 /**
  * Manager for handling a collection of routes and active route
  */
-public class RouteManager extends MapHandlerChild implements Runnable, Serializable, IGpsDataListener, IAisRouteSuggestionListener {
+public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager implements Runnable, Serializable, IGpsDataListener, IAisRouteSuggestionListener {
 
     private static final long serialVersionUID = 1L;
     private static final String ROUTESFILE = EPDShore.getHomePath().resolve(".routes").toString();

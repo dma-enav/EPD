@@ -41,4 +41,11 @@ public abstract class EPD {
         return thread;
     }
 
+    public static Object getSettings() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    
+
 }

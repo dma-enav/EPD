@@ -50,6 +50,7 @@ import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
+import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -85,10 +86,9 @@ import dk.dma.epd.ship.gui.menuitems.SendToSTCC;
 import dk.dma.epd.ship.gui.menuitems.SuggestedRouteDetails;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.layers.ais.AisLayer;
-import dk.dma.epd.ship.layers.msi.MsiLayer;
+import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
 import dk.dma.epd.ship.monalisa.MonaLisaHandler;
 import dk.dma.epd.ship.monalisa.RecievedRoute;
-import dk.dma.epd.ship.msi.MsiHandler;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.EnavServiceHandler;
@@ -446,7 +446,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     }
 
     public void msiDirectionalMenu(TopPanel topPanel,
-            MsiDirectionalIcon selectedGraphic, MsiLayer msiLayer) {
+            MsiDirectionalIcon selectedGraphic, EpdMsiLayer msiLayer) {
         removeAll();
 
         msiDetails.setTopPanel(topPanel);

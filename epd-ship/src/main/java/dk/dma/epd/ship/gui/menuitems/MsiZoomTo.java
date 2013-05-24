@@ -18,7 +18,7 @@ package dk.dma.epd.ship.gui.menuitems;
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
-import dk.dma.epd.ship.layers.msi.MsiLayer;
+import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
 
 public class MsiZoomTo extends JMenuItem implements IMapMenuAction {
     
@@ -26,7 +26,7 @@ public class MsiZoomTo extends JMenuItem implements IMapMenuAction {
      * 
      */
     private static final long serialVersionUID = 1L;
-    private MsiLayer msiLayer;
+    private EpdMsiLayer msiLayer;
     private MsiMessageExtended msiMessageExtended;
 
     public MsiZoomTo(String text) {
@@ -39,7 +39,7 @@ public class MsiZoomTo extends JMenuItem implements IMapMenuAction {
         msiLayer.zoomTo(msiMessageExtended.msiMessage);
     }
     
-    public void setMsiLayer(MsiLayer msiLayer) {
+    public void setMsiLayer(EpdMsiLayer msiLayer) {
         this.msiLayer = msiLayer;
     }
     

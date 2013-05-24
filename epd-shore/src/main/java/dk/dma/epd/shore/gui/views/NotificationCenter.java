@@ -46,6 +46,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
+import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -55,7 +56,6 @@ import dk.dma.epd.shore.gui.route.RouteExchangeTableModel;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.gui.views.monalisa.MonaLisaRouteExchangeNotificationPanel;
 import dk.dma.epd.shore.gui.views.monalisa.MonaLisaRouteExchangeTableModel;
-import dk.dma.epd.shore.msi.MsiHandler;
 import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteExchangeListener;

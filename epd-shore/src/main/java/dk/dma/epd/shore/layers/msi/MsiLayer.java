@@ -33,6 +33,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
 import dk.dma.epd.common.prototype.layers.msi.MsiGraphic;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
+import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.shore.EPDShore;
@@ -41,7 +42,6 @@ import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MapMenu;
-import dk.dma.epd.shore.msi.MsiHandler;
 import dk.frv.enav.common.xml.msi.MsiLocation;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 

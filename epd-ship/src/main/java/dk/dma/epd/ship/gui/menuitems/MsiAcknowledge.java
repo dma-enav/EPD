@@ -17,7 +17,7 @@ package dk.dma.epd.ship.gui.menuitems;
 
 import javax.swing.JMenuItem;
 
-import dk.dma.epd.ship.msi.MsiHandler;
+import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 
 public class MsiAcknowledge extends JMenuItem implements IMapMenuAction {

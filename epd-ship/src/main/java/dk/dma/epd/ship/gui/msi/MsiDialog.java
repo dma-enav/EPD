@@ -42,12 +42,12 @@ import javax.swing.event.ListSelectionListener;
 import org.apache.commons.lang.StringUtils;
 
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
+import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.ComponentFrame;
-import dk.dma.epd.ship.layers.msi.MsiLayer;
-import dk.dma.epd.ship.msi.MsiHandler;
+import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
 import dk.frv.enav.common.xml.msi.MsiLocation;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 import dk.frv.enav.common.xml.msi.MsiPoint;
@@ -58,7 +58,7 @@ import dk.frv.enav.common.xml.msi.MsiPoint;
 public class MsiDialog extends ComponentFrame implements ListSelectionListener, ActionListener, IMsiUpdateListener {
     private static final long serialVersionUID = 1L;
 
-    private MsiLayer msiLayer;
+    private EpdMsiLayer msiLayer;
     private MsiHandler msiHandler;
     private JButton ackButton;
     private JButton deleteBtn;
@@ -341,8 +341,8 @@ public class MsiDialog extends ComponentFrame implements ListSelectionListener, 
             msiHandler.addListener(this);
             initGui();
         }
-        if (obj instanceof MsiLayer) {
-            msiLayer = (MsiLayer)obj;
+        if (obj instanceof EpdMsiLayer) {
+            msiLayer = (EpdMsiLayer)obj;
         }
     }
 }

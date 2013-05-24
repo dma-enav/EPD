@@ -25,7 +25,6 @@ import javax.swing.SwingUtilities;
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.event.MapMouseListener;
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMList;
@@ -35,8 +34,10 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
 import dk.dma.epd.common.prototype.layers.msi.MsiGraphic;
+import dk.dma.epd.common.prototype.layers.msi.MsiLayer;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
+import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.util.Calculator;
@@ -47,12 +48,11 @@ import dk.dma.epd.ship.event.RouteEditMouseMode;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.MapMenu;
 import dk.dma.epd.ship.gui.TopPanel;
-import dk.dma.epd.ship.msi.MsiHandler;
 import dk.frv.enav.common.xml.msi.MsiLocation;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 import dk.frv.enav.common.xml.msi.MsiPoint;
 
-public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener {
+public class EpdMsiLayer extends MsiLayer implements MapMouseListener {
     private static final long serialVersionUID = 1L;
 
     private MsiHandler msiHandler;
@@ -70,7 +70,7 @@ public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener 
     private LatLonPoint mousePosition;
     private NewRouteContainerLayer newRouteLayer;
 
-    public MsiLayer() {
+    public EpdMsiLayer() {
 
     }
 

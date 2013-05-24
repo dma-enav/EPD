@@ -44,10 +44,10 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.msi.MsiTableModel;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
-import dk.dma.epd.shore.msi.MsiHandler;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 
 public class MSINotificationPanel extends JPanel {

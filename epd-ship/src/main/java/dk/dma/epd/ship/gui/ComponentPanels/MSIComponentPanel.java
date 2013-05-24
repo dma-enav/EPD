@@ -23,10 +23,10 @@ import javax.swing.border.EtchedBorder;
 import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
+import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.BlinkingLabel;
 import dk.dma.epd.ship.gui.Panels.MSIPanel;
-import dk.dma.epd.ship.msi.MsiHandler;
 
 public class MSIComponentPanel extends OMComponentPanel implements
 IMsiUpdateListener {

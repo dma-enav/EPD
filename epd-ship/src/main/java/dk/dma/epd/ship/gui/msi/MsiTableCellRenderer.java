@@ -21,9 +21,9 @@ import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.msi.MsiHandler;
 
 /**
  * Cell coloring for MSI messages
