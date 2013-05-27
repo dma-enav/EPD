@@ -441,19 +441,19 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
         JMenu help = new JMenu("Help");
         this.add(help);
 
-        JMenuItem aboutEeINS = new JMenuItem("About EPD-ship");
-        help.add(aboutEeINS);
-        aboutEeINS.setIcon(toolbarIcon("images/appicon.png"));
+        JMenuItem aboutEpdShip = new JMenuItem("About EPD-ship");
+        help.add(aboutEpdShip);
+        aboutEpdShip.setIcon(toolbarIcon("images/appicon.png"));
 
         final ImageIcon icon = createImageIcon();
 
-        aboutEeINS.addActionListener(new ActionListener() {
+        aboutEpdShip.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane
                         .showMessageDialog(
                                 mainFrame,
-                                "The E-navigation Prototype Display Ship (EPD-ship) is developed by the Danish Maritime Authority (www.dma.dk). \n The user manual is available from service.e-navigation.net",
+                                "The E-navigation Prototype Display Ship (EPD-ship) is developed by the Danish Maritime Authority (www.dma.dk).\nThe user manual is available from service.e-navigation.net",
                                 "About the EPD-ship", JOptionPane.OK_OPTION, icon);
             }
         });
@@ -466,8 +466,8 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
 
             ImageIcon icon = new ImageIcon(imgURL);
             Image img = icon.getImage();
-            Image newimg = img.getScaledInstance(30, 30,
-                    java.awt.Image.SCALE_DEFAULT);
+            Image newimg = img.getScaledInstance(45, 45,
+                    java.awt.Image.SCALE_SMOOTH);
             ImageIcon newImage = new ImageIcon(newimg);
             return newImage;
 

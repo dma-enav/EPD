@@ -85,11 +85,6 @@
 																		<placeholder>dock.single.MSI</placeholder>
 																	</placeholders>
 																</leaf>
-																<leaf id="1" nodeId="1341852641478">
-																	<placeholders>
-																		<placeholder>dock.single.Logos</placeholder>
-																	</placeholders>
-																</leaf>
 															</node>
 														</node>
 													</node>
@@ -110,16 +105,6 @@
 										<replacement id="dockablesingle Cursor"/>
 										<delegate id="delegate_ccontrol backup factory id">
 											<id>Cursor</id>
-											<area/>
-										</delegate>
-									</layout>
-									<children ignore="false"/>
-								</child>
-								<child>
-									<layout factory="predefined" placeholder="dock.single.Logos">
-										<replacement id="dockablesingle Logos"/>
-										<delegate id="delegate_ccontrol backup factory id">
-											<id>Logos</id>
 											<area/>
 										</delegate>
 									</layout>
@@ -676,29 +661,6 @@
 											<backup-path>
 												<node location="TOP" size="0.03" id="1341852641448"/>
 												<leaf id="1341852641450"/>
-											</backup-path>
-										</property>
-									</location>
-								</property>
-							</properties>
-						</entry>
-						<entry id="single Logos" current="dock.mode.normal">
-							<history>
-								<mode>dock.mode.normal</mode>
-							</history>
-							<properties>
-								<property id="dock.mode.normal">
-									<mode>dock.mode.normal</mode>
-									<root>ccontrol center</root>
-									<location>
-										<property factory="SplitDockPlaceholderProperty">
-											<placeholder>dock.single.Logos</placeholder>
-											<backup-path>
-												<node location="BOTTOM" size="0.97" id="1341852641448"/>
-												<node location="RIGHT" size="0.09999999999999998" id="1341852641451"/>
-												<node location="BOTTOM" size="0.5876288659793815" id="1341852641454"/>
-												<node location="BOTTOM" size="0.6491228070175439" id="1341852641470"/>
-												<leaf id="1341852641478"/>
 											</backup-path>
 										</property>
 									</location>

@@ -46,11 +46,11 @@ import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.event.IMapCoordListener;
-import dk.dma.epd.ship.gui.Panels.ActiveWaypointPanel;
-import dk.dma.epd.ship.gui.Panels.CursorPanel;
-import dk.dma.epd.ship.gui.Panels.GPSPanel;
-import dk.dma.epd.ship.gui.Panels.OwnShipPanel;
-import dk.dma.epd.ship.gui.Panels.ScalePanel;
+import dk.dma.epd.ship.gui.panels.ActiveWaypointPanel;
+import dk.dma.epd.ship.gui.panels.CursorPanel;
+import dk.dma.epd.ship.gui.panels.GPSPanel;
+import dk.dma.epd.ship.gui.panels.OwnShipPanel;
+import dk.dma.epd.ship.gui.panels.ScalePanel;
 import dk.dma.epd.ship.route.RouteManager;
 
 /**

@@ -50,7 +50,7 @@ import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.MSIFilterMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.event.RouteEditMouseMode;
-import dk.dma.epd.ship.gui.ComponentPanels.ActiveWaypointComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.nogo.NogoDialog;
 import dk.dma.epd.ship.layers.EncLayerFactory;
 import dk.dma.epd.ship.layers.GeneralLayer;

@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.ComponentPanels;
+package dk.dma.epd.ship.gui.component_panels;
 
 import java.awt.BorderLayout;
 
@@ -30,7 +30,7 @@ import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.ship.event.IMapCoordListener;
-import dk.dma.epd.ship.gui.Panels.ActiveWaypointPanel;
+import dk.dma.epd.ship.gui.panels.ActiveWaypointPanel;
 import dk.dma.epd.ship.route.RouteManager;
 
 public class ActiveWaypointComponentPanel extends OMComponentPanel implements IGpsDataListener, Runnable, ProjectionListener, IMapCoordListener, IRoutesUpdateListener {

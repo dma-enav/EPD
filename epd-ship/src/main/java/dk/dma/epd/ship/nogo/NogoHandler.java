@@ -30,9 +30,9 @@ import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceExceptio
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.gui.ComponentPanels.NoGoComponentPanel;
-import dk.dma.epd.ship.gui.ComponentPanels.ShowDockableDialog;
-import dk.dma.epd.ship.gui.ComponentPanels.ShowDockableDialog.dock_type;
+import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog;
+import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.settings.EPDEnavSettings;
 import dk.frv.enav.common.xml.nogo.response.NogoResponse;

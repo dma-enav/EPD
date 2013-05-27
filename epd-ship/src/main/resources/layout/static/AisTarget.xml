@@ -85,11 +85,6 @@
 																		<placeholder>dock.single.MSI</placeholder>
 																	</placeholders>
 																</leaf>
-																<leaf id="-1" nodeId="1341852641478">
-																	<placeholders>
-																		<placeholder>dock.single.Logos</placeholder>
-																	</placeholders>
-																</leaf>
 															</node>
 														</node>
 													</node>
@@ -362,22 +357,6 @@
 								</property>
 							</location>
 						</child>
-						<child key="single Logos" root="ccontrol center" location="true">
-							<location>
-								<property factory="SplitDockPlaceholderProperty">
-									<placeholder>dock.single.Logos</placeholder>
-									<backup-path>
-										<node location="BOTTOM" size="0.9577777777777777" id="1341852641448"/>
-										<node location="RIGHT" size="0.12083333333333335" id="1341852641451"/>
-										<node location="BOTTOM" size="0.5272938443670151" id="1341852641454"/>
-										<node location="BOTTOM" size="0.30892448512585813" id="1341852641470"/>
-										<node location="BOTTOM" size="0.5364238410596028" id="1341918861598"/>
-										<node location="BOTTOM" size="0.5578512396694212" id="1343652896718"/>
-										<leaf id="1341852641478"/>
-									</backup-path>
-								</property>
-							</location>
-						</child>
 					</children>
 				</base>
 				<modes>
@@ -628,29 +607,6 @@
 												<node location="BOTTOM" size="0.97" id="1341852641448"/>
 												<node location="LEFT" size="0.9" id="1341852641451"/>
 												<leaf id="1341852641452"/>
-											</backup-path>
-										</property>
-									</location>
-								</property>
-							</properties>
-						</entry>
-						<entry id="single Logos">
-							<history>
-								<mode>dock.mode.normal</mode>
-							</history>
-							<properties>
-								<property id="dock.mode.normal">
-									<mode>dock.mode.normal</mode>
-									<root>ccontrol center</root>
-									<location>
-										<property factory="SplitDockPlaceholderProperty">
-											<placeholder>dock.single.Logos</placeholder>
-											<backup-path>
-												<node location="BOTTOM" size="0.97" id="1341852641448"/>
-												<node location="RIGHT" size="0.09999999999999998" id="1341852641451"/>
-												<node location="BOTTOM" size="0.5876288659793815" id="1341852641454"/>
-												<node location="BOTTOM" size="0.6491228070175439" id="1341852641470"/>
-												<leaf id="1341852641478"/>
 											</backup-path>
 										</property>
 									</location>

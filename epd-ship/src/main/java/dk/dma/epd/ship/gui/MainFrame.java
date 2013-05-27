@@ -34,18 +34,17 @@ import com.bbn.openmap.MapHandler;
 
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.gui.ComponentPanels.ActiveWaypointComponentPanel;
-import dk.dma.epd.ship.gui.ComponentPanels.AisComponentPanel;
-import dk.dma.epd.ship.gui.ComponentPanels.CursorComponentPanel;
-import dk.dma.epd.ship.gui.ComponentPanels.DynamicNoGoComponentPanel;
-import dk.dma.epd.ship.gui.ComponentPanels.GpsComponentPanel;
-import dk.dma.epd.ship.gui.ComponentPanels.MSIComponentPanel;
-import dk.dma.epd.ship.gui.ComponentPanels.MonaLisaCommunicationComponentPanel;
-import dk.dma.epd.ship.gui.ComponentPanels.NoGoComponentPanel;
-import dk.dma.epd.ship.gui.ComponentPanels.OwnShipComponentPanel;
-import dk.dma.epd.ship.gui.ComponentPanels.ScaleComponentPanel;
-import dk.dma.epd.ship.gui.Panels.LogoPanel;
 import dk.dma.epd.ship.gui.ais.AisDialog;
+import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.CursorComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.GpsComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.MSIComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.MonaLisaCommunicationComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
 import dk.dma.epd.ship.gui.monalisa.MonaLisaSTCCDialog;
 import dk.dma.epd.ship.gui.msi.MsiDialog;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
@@ -73,7 +72,6 @@ public class MainFrame extends JFrame implements WindowListener {
     private GpsComponentPanel gpsPanel;
     private CursorComponentPanel cursorPanel;
     private ActiveWaypointComponentPanel activeWaypointPanel;
-    private LogoPanel logoPanel;
     private MSIComponentPanel msiComponentPanel;
     private AisComponentPanel aisComponentPanel;
     private DynamicNoGoComponentPanel dynamicNoGoPanel;
@@ -124,7 +122,6 @@ public class MainFrame extends JFrame implements WindowListener {
         gpsPanel = new GpsComponentPanel();
         cursorPanel = new CursorComponentPanel();
         activeWaypointPanel = new ActiveWaypointComponentPanel();
-        logoPanel = new LogoPanel();
         chartPanel = new ChartPanel(activeWaypointPanel);
         msiComponentPanel = new MSIComponentPanel();
         aisComponentPanel = new AisComponentPanel();
@@ -299,10 +296,6 @@ public class MainFrame extends JFrame implements WindowListener {
 
     public CursorComponentPanel getCursorPanel() {
         return cursorPanel;
-    }
-
-    public LogoPanel getLogoPanel() {
-        return logoPanel;
     }
 
     public ActiveWaypointComponentPanel getActiveWaypointPanel() {

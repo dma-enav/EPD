@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.ComponentPanels;
+package dk.dma.epd.ship.gui.component_panels;
 
 import java.awt.BorderLayout;
 
@@ -26,7 +26,7 @@ import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.BlinkingLabel;
-import dk.dma.epd.ship.gui.Panels.MSIPanel;
+import dk.dma.epd.ship.gui.panels.MSIPanel;
 
 public class MSIComponentPanel extends OMComponentPanel implements
 IMsiUpdateListener {

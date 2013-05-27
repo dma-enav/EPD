@@ -67,9 +67,9 @@ import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.MapMenu;
 import dk.dma.epd.ship.gui.TopPanel;
-import dk.dma.epd.ship.gui.ComponentPanels.AisComponentPanel;
-import dk.dma.epd.ship.gui.ComponentPanels.ShowDockableDialog;
-import dk.dma.epd.ship.gui.ComponentPanels.ShowDockableDialog.dock_type;
+import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog;
+import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
 
 /**
  * AIS layer. Showing AIS targets and intended routes.

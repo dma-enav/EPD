@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.ComponentPanels;
+package dk.dma.epd.ship.gui.component_panels;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -27,7 +27,7 @@ import javax.swing.border.EtchedBorder;
 import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.epd.ship.ais.AisHandler;
-import dk.dma.epd.ship.gui.Panels.NoGoPanel;
+import dk.dma.epd.ship.gui.panels.NoGoPanel;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
 
