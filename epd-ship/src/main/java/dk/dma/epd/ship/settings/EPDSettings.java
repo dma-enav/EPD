@@ -88,7 +88,7 @@ public class EPDSettings implements Serializable {
         try (
             FileWriter outFile = new FileWriter(settingsFile);
             PrintWriter out = new PrintWriter(outFile);) {
-            out.println("# ee-INS settings saved: " + new Date());
+            out.println("# EPD-ship settings saved: " + new Date());
             TreeSet<String> keys = new TreeSet<>();
             for (Object key : props.keySet()) {
                 keys.add((String) key);

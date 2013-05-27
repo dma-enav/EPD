@@ -14,7 +14,7 @@ For detailed description see Wiki.
 
 ## Prerequisites ##
 
-* JDK 1.6+ (http://www.oracle.com/technetwork/java/javase/)
+* JDK 1.7 (http://www.oracle.com/technetwork/java/javase/)
 * Maven
 
 ## Quick start ##
@@ -35,62 +35,18 @@ be shown.
 
 Press OK and restart application.
 	
-## Project structure ###
-
-	|-- build
-	|-- dist
-	|-- extlib
-	`-- src
-	    `-- main
-	        |-- java
-	        `-- resources
-
-* `build` - generated directory with compiled class files
-* `extlib` - third party jar files
-* `src/main/java` - source root
-* `src/main/resources` - Resources like images, default settings, etc.
-* `dist` - a generated directory with a compiled distributable version of the application.
-  The application is run from within this directory.   
-
-## Versioning ##
-
-The version is controlled in `build.xml` as a property. The convention is to
-use the format `<major>.<minor>-<dev version>` for non-final versions, and 
-`<major>.<minor>` for final releases. E.g.
-
-	<property name="version" value="2.0-PRE1" />
-	
-for first pre-version of 2.0 and
-
-	<property name="version" value="2.0" />
-	
-for the final version. 
-
-Minor versions are for fixes and small improvements, while a major version is
-for the introduction of new functionality. Major and minor versions are
-reflected in the branching of the project. Branching should be done in the 
-following way.
-
-    -|-- * -- * -- * 2.x  (master branch version 2.x)
-     |             |
-     |             `-- 2.y (branch for fix or small improvement)  
-     |
-	 `-- * -- * -- 3.0 (branch for new major version)
-         |
-	     `-- dev (branch for individual task in new version)
- 
 
 ## ENC layer ##
 
-ee-INS does not come with an ENC layer but with the possibility to add one as 
+EPD-ship does not come with an ENC layer but with the possibility to add one as 
 a plugin. Currently the only known of OpenMap ENC layer is a commercial one
 from the danish company [Navicon](http://www.navicon.dk).
 
-To use Navicon ENC layer with ee-INS please follow the steps below
+To use Navicon ENC layer with EPD-ship please follow the steps below
 
 1. Contact [Navicon sales](mailto:sales@navicon.dk) regarding a purchase of their 
    [ENC/S52 rendering engine](http://navicon.dk/site/products.html). Mention the following:
-   * To be used with DMA ee-INS
+   * To be used with DMA E-navigation Prototype Display
    * Version for use with OpenMap 5
    * If you are using a 64-bit machine, ask for 64-bit dongle drivers
    
@@ -114,11 +70,11 @@ To use Navicon ENC layer with ee-INS please follow the steps below
 
 ## Eclipse development ##
 
-To use Eclipse as IDE just import project. Eclipse `.project` and settings files
-are included.
+Use Maven eclipse target
 
-Launch configuration `EeINS.launch` is included, so it is possible to run as Java 
-application from Eclipse. You will need to do a manual build before running.
+    mvn eclipse:eclipse
+
+or m2 Eclipse plugin.
 
 ## Contribution ##
 

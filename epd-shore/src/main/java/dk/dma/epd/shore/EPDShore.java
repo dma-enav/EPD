@@ -50,6 +50,7 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
+import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.utils.StaticImages;
 import dk.dma.epd.shore.gui.views.MainFrame;
@@ -70,8 +71,6 @@ import dk.dma.epd.shore.voyage.VoyageManager;
  */
 public class EPDShore extends EPD {
 
-    private static String VERSION;
-    private static String MINORVERSION;
     private static Logger LOG;
     private static MainFrame mainFrame;
     private static BeanContextServicesSupport beanHandler;
@@ -112,8 +111,7 @@ public class EPDShore extends EPD {
         // Set default exception handler
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
 
-        VERSION = "5.0";
-        LOG.info("Starting eNavigation Prototype Display Shore - version " + VERSION);
+        LOG.info("Starting eNavigation Prototype Display Shore - version " + VersionInfo.getVersion());
         LOG.info("Copyright (C) 2012 Danish Maritime Authority");
         LOG.info("This program comes with ABSOLUTELY NO WARRANTY.");
         LOG.info("This is free software, and you are welcome to redistribute it under certain conditions.");
@@ -395,15 +393,6 @@ public class EPDShore extends EPD {
     }
 
     /**
-     * Return minor version
-     * 
-     * @return - minor version
-     */
-    public static String getMinorVersion() {
-        return MINORVERSION;
-    }
-
-    /**
      * Return the msiHandker
      * 
      * @return - MsiHandler
@@ -437,15 +426,6 @@ public class EPDShore extends EPD {
      */
     public static ShoreServices getShoreServices() {
         return shoreServices;
-    }
-
-    /**
-     * Returns the version
-     * 
-     * @return - version
-     */
-    public static String getVersion() {
-        return VERSION;
     }
 
     /**

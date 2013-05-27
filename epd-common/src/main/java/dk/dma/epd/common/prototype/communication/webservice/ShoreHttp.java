@@ -44,7 +44,7 @@ public class ShoreHttp {
 
     private static final Logger LOG = LoggerFactory.getLogger(ShoreHttp.class);
 
-    private static final String USER_AGENT = "ee-INS";
+    private static final String USER_AGENT = "EPD";
     private static final String ENCODING = "UTF-8";
 
     private String uri;

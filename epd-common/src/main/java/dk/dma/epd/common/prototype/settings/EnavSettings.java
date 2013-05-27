@@ -63,7 +63,6 @@ public class EnavSettings implements Serializable {
     private double msiRelevanceFromOwnShipRange = 40.0d;
     private double msiVisibilityFromNewWaypoint = 30.0d;
     private boolean msiFilter = true;
-    private String updateServer = "http://service.e-navigation.net/";
     private String monaLisaServer = "www.optiroute.se/RouteRequest";
     private int monaLisaPort = 80;
     
@@ -95,7 +94,6 @@ public class EnavSettings implements Serializable {
         metocTimeDiffTolerance = PropUtils.intFromProperties(props, PREFIX + "metocTimeDiffTolerance", metocTimeDiffTolerance);
         msiPollInterval = PropUtils.intFromProperties(props, PREFIX + "msiPollInterval", msiPollInterval);
         msiTextboxesVisibleAtScale = PropUtils.intFromProperties(props, PREFIX + "msiTextboxesVisibleAtScale", msiTextboxesVisibleAtScale);
-        updateServer = props.getProperty(PREFIX + "updateServer", updateServer);
         msiRelevanceGpsUpdateRange = PropUtils.doubleFromProperties(props, PREFIX + "msiRelevanceGpsUpdateRange", msiRelevanceGpsUpdateRange);
         msiRelevanceFromOwnShipRange = PropUtils.doubleFromProperties(props, PREFIX + "msiRelevanceFromOwnShipRange", msiRelevanceFromOwnShipRange);
         msiVisibilityFromNewWaypoint = PropUtils.doubleFromProperties(props, PREFIX + "msiVisibilityFromNewWaypoint", msiVisibilityFromNewWaypoint);
@@ -104,9 +102,6 @@ public class EnavSettings implements Serializable {
         // Temporary hack to move away from enav.frv.dk to service.e-navigation.net
         if (serverName.contains("enav.frv.dk")) {
             serverName = "service.e-navigation.net";
-        }
-        if (updateServer.contains("enav.frv.dk")) {
-            updateServer = "http://service.e-navigation.net/";
         }
         
         cloudServerHost = props.getProperty(PREFIX + "cloudServerHost", cloudServerHost);
@@ -132,7 +127,6 @@ public class EnavSettings implements Serializable {
         props.put(PREFIX + "metocTimeDiffTolerance", Integer.toString(metocTimeDiffTolerance));
         props.put(PREFIX + "msiPollInterval", Integer.toString(msiPollInterval));
         props.put(PREFIX + "msiTextboxesVisibleAtScale", Integer.toString(msiTextboxesVisibleAtScale));
-        props.put(PREFIX + "updateServer", updateServer);
         props.put(PREFIX + "msiRelevanceGpsUpdateRange", Double.toString(msiRelevanceGpsUpdateRange));
         props.put(PREFIX + "msiRelevanceFromOwnShipRange", Double.toString(msiRelevanceFromOwnShipRange));
         props.put(PREFIX + "msiVisibilityFromNewWaypoint", Double.toString(msiVisibilityFromNewWaypoint));
@@ -231,14 +225,6 @@ public class EnavSettings implements Serializable {
         this.msiTextboxesVisibleAtScale = msiTextboxesVisibleAtScale;
     }
     
-    public String getUpdateServer() {
-        return updateServer;
-    }
-    
-    public void setUpdateServer(String updateServer) {
-        this.updateServer = updateServer;
-    }
-
     public double getDefaultCurrentLow() {
         return defaultCurrentLow;
     }

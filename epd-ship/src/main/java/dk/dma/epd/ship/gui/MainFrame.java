@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandler;
 
+import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.ComponentPanels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.ComponentPanels.AisComponentPanel;
@@ -55,8 +56,7 @@ import dk.dma.epd.ship.settings.EPDGuiSettings;
  */
 public class MainFrame extends JFrame implements WindowListener {
 
-    private static final String TITLE = "e-Navigation enhanced INS "
-            + EPDShip.getMinorVersion();
+    private static final String TITLE = "EPD-ship " + VersionInfo.getVersion();
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(MainFrame.class);

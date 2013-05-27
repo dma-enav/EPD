@@ -56,6 +56,7 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
+import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.route.RouteManagerDialog;
@@ -69,7 +70,6 @@ import dk.dma.epd.ship.service.EnavServiceHandler;
 import dk.dma.epd.ship.service.communication.ais.AisServices;
 import dk.dma.epd.ship.settings.EPDSensorSettings;
 import dk.dma.epd.ship.settings.EPDSettings;
-import dk.dma.epd.ship.util.UpdateCheckerThread;
 
 /**
  * Main class with main method.
@@ -79,8 +79,6 @@ import dk.dma.epd.ship.util.UpdateCheckerThread;
  */
 public class EPDShip  extends EPD {
 
-    private static String VERSION;
-    private static String MINORVERSION;
     private static Logger LOG;
     static MainFrame mainFrame;
     private static MapHandler mapHandler;
@@ -100,7 +98,6 @@ public class EPDShip  extends EPD {
     private static NogoHandler nogoHandler;
     private static EnavServiceHandler enavServiceHandler;
     private static DynamicNogoHandler dynamicNoGoHandler;
-    private static UpdateCheckerThread updateThread;
     private static TransponderFrame transponderFrame;
 
     public static void main(String[] args) throws IOException {
@@ -116,19 +113,11 @@ public class EPDShip  extends EPD {
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
 
         // Determine version
-        Package p = EPDShip.class.getPackage();
-        MINORVERSION = p.getImplementationVersion();
-        LOG.info("Starting eNavigation Prototype Display Ship - version " + MINORVERSION);
+        LOG.info("Starting eNavigation Prototype Display Ship - version " + VersionInfo.getVersion());
         LOG.info("Copyright (C) 2011 Danish Maritime Authority");
         LOG.info("This program comes with ABSOLUTELY NO WARRANTY.");
         LOG.info("This is free software, and you are welcome to redistribute it under certain conditions.");
         LOG.info("For details see LICENSE file.");
-        if (MINORVERSION == null) {
-            MINORVERSION = "?";
-            VERSION = "?";
-        } else {
-            VERSION = MINORVERSION.split("[-]")[0];
-        }
 
         // Create the bean context (map handler)
         mapHandler = new MapHandler();
@@ -233,10 +222,6 @@ public class EPDShip  extends EPD {
             LOG.error("Interrupted while waiting for GUI to be created", e);
         }
 
-        // Start thread to handle software updates
-        updateThread = new UpdateCheckerThread();
-        mapHandler.add(updateThread);
-        
         // Create embedded transponder frame
         transponderFrame = new TransponderFrame(home.resolve("transponder.xml").toString(), true, mainFrame);
         mapHandler.add(transponderFrame);
@@ -499,7 +484,7 @@ public class EPDShip  extends EPD {
             }
         }
 
-        LOG.info("Closing ee-INS");
+        LOG.info("Closing EPD-ship");
         System.exit(restart ? 2 : 0);
 
     }
@@ -536,14 +521,6 @@ public class EPDShip  extends EPD {
 
     public static Properties getProperties() {
         return properties;
-    }
-
-    public static String getVersion() {
-        return VERSION;
-    }
-
-    public static String getMinorVersion() {
-        return MINORVERSION;
     }
 
     public static EPDSettings getSettings() {

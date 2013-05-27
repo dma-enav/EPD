@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
 import dk.dma.epd.shore.gui.views.monalisa.SendVoyageDialog;
@@ -55,7 +56,7 @@ import dk.dma.epd.shore.voyage.Voyage;
  */
 public class MainFrame extends JFrame implements WindowListener {
 
-    private static final String TITLE = "eNav Shore Display System ";
+    private static final String TITLE = "EPD-shore " + VersionInfo.getVersion();
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(MainFrame.class);

@@ -441,7 +441,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
         JMenu help = new JMenu("Help");
         this.add(help);
 
-        JMenuItem aboutEeINS = new JMenuItem("About the EeINS");
+        JMenuItem aboutEeINS = new JMenuItem("About EPD-ship");
         help.add(aboutEeINS);
         aboutEeINS.setIcon(toolbarIcon("images/appicon.png"));
 
@@ -453,8 +453,8 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
                 JOptionPane
                         .showMessageDialog(
                                 mainFrame,
-                                "The e-Navigation enhanced INS (ee-INS) is developed by the Danish Maritime Authority (www.dma.dk). \n The user manual is available from service.e-navigation.net",
-                                "About the EeINS", JOptionPane.OK_OPTION, icon);
+                                "The E-navigation Prototype Display Ship (EPD-ship) is developed by the Danish Maritime Authority (www.dma.dk). \n The user manual is available from service.e-navigation.net",
+                                "About the EPD-ship", JOptionPane.OK_OPTION, icon);
             }
         });
 

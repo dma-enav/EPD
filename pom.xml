@@ -54,4 +54,19 @@
 			<url>http://repository-dma.forge.cloudbees.com/release/</url>
 		</repository>
 	</repositories>
+
+	<properties>
+		<timestamp>${maven.build.timestamp}</timestamp>
+		<maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+	</properties>
+
+	<build>
+	    <resources>
+	        <resource>
+	            <directory>src/main/resources</directory>
+	            <filtering>true</filtering>
+	        </resource>
+	    </resources>
+	</build>
+	
 </project>

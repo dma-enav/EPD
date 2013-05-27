@@ -35,7 +35,7 @@ public class RouteHttp {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouteHttp.class);
 
-    private static final String USER_AGENT = "ee-INS";
+    private static final String USER_AGENT = "EPD";
 
     private String uri;
     private String url;
