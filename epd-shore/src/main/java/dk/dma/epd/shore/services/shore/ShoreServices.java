@@ -18,11 +18,10 @@ package dk.dma.epd.shore.services.shore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bbn.openmap.MapHandlerChild;
-
 import dk.dma.epd.common.prototype.communication.webservice.ShoreHttp;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceErrorCode;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
+import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.prototype.status.ShoreServiceStatus;
@@ -32,37 +31,28 @@ import dk.frv.enav.common.xml.ShoreServiceResponse;
 import dk.frv.enav.common.xml.msi.request.MsiPollRequest;
 import dk.frv.enav.common.xml.msi.response.MsiResponse;
 
-
 /**
  * Shore service component providing the functional link to shore.
  */
-public class ShoreServices extends MapHandlerChild implements IStatusComponent {
+public class ShoreServices extends ShoreServicesCommon implements IStatusComponent {
 
     private static final Logger LOG = LoggerFactory.getLogger(ShoreServices.class);
 
     private AisHandler aisHandler;
-//    private GpsHandler gpsHandler;
-    private ESDEnavSettings enavSettings;
+    // private GpsHandler gpsHandler;
     private ShoreServiceStatus status = new ShoreServiceStatus();
 
-//    public ShoreServices(EnavSettings enavSettings) {
-//        this.enavSettings = enavSettings;
-//    }
-
     public ShoreServices(ESDEnavSettings enavSettings) {
-        this.enavSettings = enavSettings;
+        super(enavSettings);
     }
 
-
-
-    public static double floatToDouble (float converThisNumberToFloat) {
+    public static double floatToDouble(float converThisNumberToFloat) {
 
         String floatNumberInString = String.valueOf(converThisNumberToFloat);
         double floatNumberInDouble = Double.parseDouble(floatNumberInString);
         return floatNumberInDouble;
 
-        }
-
+    }
 
     public MsiResponse msiPoll(int lastMessage) throws ShoreServiceException {
         // Create request
@@ -70,15 +60,16 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         msiPollRequest.setLastMessage(lastMessage);
 
         // Add request parameters
-//        addRequestParameters(msiPollRequest);
+        // addRequestParameters(msiPollRequest);
 
-        MsiResponse msiResponse = (MsiResponse)makeRequest("/api/xml/msi", "dk.frv.enav.common.xml.msi.request", "dk.frv.enav.common.xml.msi.response", msiPollRequest);
+        MsiResponse msiResponse = (MsiResponse) makeRequest("/api/xml/msi", "dk.frv.enav.common.xml.msi.request",
+                "dk.frv.enav.common.xml.msi.response", msiPollRequest);
 
         return msiResponse;
     }
 
-
-    private ShoreServiceResponse makeRequest(String uri, String reqContextPath, String resContextPath, Object request) throws ShoreServiceException {
+    private ShoreServiceResponse makeRequest(String uri, String reqContextPath, String resContextPath, Object request)
+            throws ShoreServiceException {
         // Create HTTP request
         ShoreHttp shoreHttp = new ShoreHttp(uri, enavSettings);
         // Init HTTP
@@ -103,7 +94,7 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         ShoreServiceResponse res;
         try {
             Object resObj = shoreHttp.getXmlUnmarshalledContent(resContextPath);
-            res = (ShoreServiceResponse)resObj;
+            res = (ShoreServiceResponse) resObj;
         } catch (Exception e) {
             e.printStackTrace();
             LOG.error("Failed to unmarshal XML response: " + e.getMessage());
@@ -124,7 +115,7 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
     @Override
     public void findAndInit(Object obj) {
         if (aisHandler == null && obj instanceof AisHandler) {
-            aisHandler = (AisHandler)obj;
+            aisHandler = (AisHandler) obj;
         }
     }
 

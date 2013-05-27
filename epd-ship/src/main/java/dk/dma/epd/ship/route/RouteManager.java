@@ -54,7 +54,7 @@ import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
-import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
+import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -82,7 +82,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
 
     private volatile EnavServiceHandler enavServiceHandler;
     private volatile GpsHandler gpsHandler;
-    private volatile ShoreServices shoreServices;
+    private volatile ShoreServicesCommon shoreServices;
     private volatile AisHandler aisHandler;
     private volatile IntendedRouteService intendedRouteService;
     
@@ -718,8 +718,8 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
 
     @Override
     public void findAndInit(Object obj) {
-        if (shoreServices == null && obj instanceof ShoreServices) {
-            shoreServices = (ShoreServices) obj;
+        if (shoreServices == null && obj instanceof ShoreServicesCommon) {
+            shoreServices = (ShoreServicesCommon) obj;
         }
         if (gpsHandler == null && obj instanceof GpsHandler) {
             gpsHandler = (GpsHandler) obj;
