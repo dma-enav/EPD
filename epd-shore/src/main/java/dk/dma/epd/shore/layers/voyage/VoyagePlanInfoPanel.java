@@ -69,17 +69,17 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
     ChartPanel chartPanel;
     
     NotificationCenter notificationCenter;
-    
+    VoyageHandlingLayer voyageHandlingLayer;
     
     /**
      * Create the panel.
      * 
      * @param voyage
      */
-    public VoyagePlanInfoPanel() {
+    public VoyagePlanInfoPanel(VoyageHandlingLayer voyageHandlingLayer) {
         super();
 
-        
+        this.voyageHandlingLayer = voyageHandlingLayer;
         this.notificationCenter = EPDShore.getMainFrame().getNotificationCenter();
         
         // setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -321,7 +321,7 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
             System.out.println(voyage.getId());
             
             RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
-                    EPDShore.getMainFrame(), voyage.getRoute());
+                    EPDShore.getMainFrame(), voyage.getRoute(), voyageHandlingLayer);
             routePropertiesDialog.setVisible(true);
             
         }

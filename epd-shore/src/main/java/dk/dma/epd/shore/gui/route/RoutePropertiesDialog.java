@@ -17,7 +17,10 @@ package dk.dma.epd.shore.gui.route;
 
 import java.awt.Window;
 
+import javax.swing.event.DocumentEvent;
+
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.route.RouteManager;
 
 
@@ -25,6 +28,9 @@ import dk.dma.epd.shore.route.RouteManager;
  * Dialog with route properties
  */
 public class RoutePropertiesDialog extends  dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialog{
+
+    private static final long serialVersionUID = 1L;
+    VoyageHandlingLayer voyageHandlingLayer;
 
     public RoutePropertiesDialog(Window parent,
             RouteManager routeManager,
@@ -35,17 +41,19 @@ public class RoutePropertiesDialog extends  dk.dma.epd.common.prototype.gui.rout
     }
 
     
-    public RoutePropertiesDialog(Window mainFrame, Route route) {
-        super(mainFrame, route, false);
-        
-        
-        
-//        departurePicker.setEnabled(false);
-//        departureSpinner.setEnabled(false);
-//        arrivalPicker.setEnabled(false);
-//        arrivalSpinner.setEnabled(false);
+    public RoutePropertiesDialog(Window mainFrame, Route route, VoyageHandlingLayer voyageHandlingLayer) {
+        super(mainFrame, route, true);
+        this.voyageHandlingLayer = voyageHandlingLayer;
+        btnActivate.setVisible(false);
+
     }
 
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        super.insertUpdate(e);
+        
+        voyageHandlingLayer.updateVoyages();
+    }
 
     
 }

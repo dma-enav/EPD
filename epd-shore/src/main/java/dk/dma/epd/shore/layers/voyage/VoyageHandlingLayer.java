@@ -62,7 +62,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
     private JMapFrame jMapFrame;
 
     private VoyageManager voyageManager;
-    private VoyagePlanInfoPanel voyagePlanInfoPanel = new VoyagePlanInfoPanel();
+    private VoyagePlanInfoPanel voyagePlanInfoPanel = new VoyagePlanInfoPanel(this);
     // private MetocInfoPanel metocInfoPanel;
     // private WaypointInfoPanel waypointInfoPanel;
     private MapBean mapBean;

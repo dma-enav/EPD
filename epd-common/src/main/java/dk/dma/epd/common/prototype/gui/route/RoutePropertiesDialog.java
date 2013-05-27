@@ -103,7 +103,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
     private JButton btnZoomTo;
     private JButton btnDelete;
-    private JButton btnActivate;
+    protected JButton btnActivate;
 
     List<RoutePropertiesRow> waypointTable = new ArrayList<>();
     volatile boolean internalOperation;
@@ -162,12 +162,11 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
     public RoutePropertiesDialog(Window parent, Route route, boolean editable) {
         super(parent, "Route Properties", Dialog.ModalityType.APPLICATION_MODAL);
-        
-        if (!editable){
-            activeRoute = new ActiveRoute(route, null);    
+
+        if (!editable) {
+            activeRoute = new ActiveRoute(route, null);
         }
-        
-        
+
         this.setResizable(false);
 
         this.parent = parent;
@@ -906,19 +905,26 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
                                 JOptionPane.QUESTION_MESSAGE);
                 if (result == JOptionPane.YES_OPTION) {
                     route.deleteWaypoint(lastSelectedWp);
-                    routeManager.removeRoute(routeManager.getRouteIndex(route));
-                    routeManager
-                            .notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
-                    close();
+
+                    if (routeManager != null) {
+
+                        routeManager.removeRoute(routeManager
+                                .getRouteIndex(route));
+                        routeManager
+                                .notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
+                        close();
+                    }
                 }
             }
 
             else {
                 route.deleteWaypoint(lastSelectedWp);
+                
+                if (routeManager != null) {
                 routeManager
                         .notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
                 removeAndMoveWaypoints(lastSelectedWp);
-
+                }
             }
 
             // updateTable();
