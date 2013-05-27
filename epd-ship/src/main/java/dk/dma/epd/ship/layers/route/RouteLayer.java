@@ -191,9 +191,27 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         if (routeManager.isRouteActive()) {
             ActiveRoute activeRoute = routeManager.getActiveRoute();
             if (activeRoute.isVisible()) {
-                ActiveRouteGraphic activeRouteExtend = new ActiveRouteGraphic(
-                        activeRoute, activeRouteIndex, arrowsVisible,
-                        activeStroke, Color.RED);
+
+                ActiveRouteGraphic activeRouteExtend;
+                
+                Route route = routeManager.getRoutes().get(activeRouteIndex);
+                if (route.isStccApproved()) {
+                    Color greenApproved = new Color(0.39f, 0.69f, 0.49f, 0.6f);
+
+                    activeRouteExtend = new ActiveRouteGraphic(
+                            activeRoute, activeRouteIndex, arrowsVisible,
+                            activeStroke, Color.RED, greenApproved);
+                }else{
+                     activeRouteExtend = new ActiveRouteGraphic(
+                            activeRoute, activeRouteIndex, arrowsVisible,
+                            activeStroke, Color.RED);
+                }
+                
+                
+
+                
+                
+                
                 graphics.add(activeRouteExtend);
 
                 if (activeSafeHaven) {

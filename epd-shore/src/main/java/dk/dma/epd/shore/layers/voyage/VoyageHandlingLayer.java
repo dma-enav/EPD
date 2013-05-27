@@ -162,6 +162,23 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         return ret;
     }
 
+    private void checkIfETAChanged(){
+        if (!modified){
+            for (int i = 0; i < newRoute.getEtas().size(); i++) {
+                
+                if (initialRecievedRoute.getEtas().get(i) != newRoute.getEtas().get(i)){
+                    modified = true;
+                    System.out.println("Forcing modified");
+                    break;
+                }
+                
+            }
+//            newRoute
+            
+//            initialRecievedRoute
+        }
+    }
+    
     @Override
     public boolean mouseClicked(MouseEvent e) {
         if (e.getButton() != MouseEvent.BUTTON3) {
@@ -178,12 +195,14 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
                 break;
             }
         }
-
+        
         if (selectedGraphic instanceof WaypointCircle) {
             WaypointCircle wpc = (WaypointCircle) selectedGraphic;
 
             if (wpc.getRouteIndex() == 1) {
 
+                checkIfETAChanged();
+                
                 voyage.setRoute(newRoute);
 
                 routeMenu.voyageWaypontMenu(this, mapBean, voyage, modified, jMapFrame,
@@ -202,6 +221,8 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
             RouteLegGraphic rlg = (RouteLegGraphic) selectedGraphic;
 
             if (rlg.getRouteIndex() == 1) {
+                
+                checkIfETAChanged();
                 
                 voyage.setRoute(newRoute);
 

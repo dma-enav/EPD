@@ -31,4 +31,10 @@ public class ActiveRouteGraphic extends RouteGraphic {
         super(route, routeIndex, arrowsVisible, stroke, color);
     }
 
+    public ActiveRouteGraphic(Route route, int routeIndex, boolean arrowsVisible, Stroke stroke, Color color, Color backgroundColor) {
+        super(route, routeIndex, arrowsVisible,
+                stroke, color, backgroundColor, false);
+    }
+
+    
 }

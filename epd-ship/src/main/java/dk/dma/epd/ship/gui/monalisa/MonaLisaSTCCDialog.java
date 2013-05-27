@@ -247,7 +247,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
         // getContentPane().add(routeAcceptedPanel, BorderLayout.CENTER);
         getContentPane().add(routeNotAcceptedPanel, BorderLayout.CENTER);
-        
+
         JLabel lblReplyMessage = new JLabel("Reply message:");
         lblReplyMessage.setBounds(10, 142, 87, 14);
         routeNotAcceptedPanel.add(lblReplyMessage);
@@ -284,7 +284,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
         setSize(defaultSize);
 
         System.out.println("Activating normal");
-        
+
         lblMessages.setText("");
         chatMessages.setText("");
 
@@ -341,6 +341,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
         }
 
+        this.setVisible(true);
     }
 
     @Override
@@ -371,7 +372,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
             // Accept or send modified clicked, let monalisahandler figure it
             // out
             monaLisaHandler.sendReply(chatMessages.getText());
-//            this.setVisible(false);
+            // this.setVisible(false);
             btnAccept.setText("Accept");
         }
         if (e.getSource() == btnReject) {
@@ -420,11 +421,17 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
                 if (originalLat != newLat || originalLon != newLon) {
                     changes = changes + "Waypoint " + (i + 1)
                             + " new position\n";
+                } else {
+                    if (newRoute.getEtas().get(i) != originalRoute.getEtas()
+                            .get(i)) {
+                        changes = changes + "Waypoint " + (i + 1)
+                                + " ETA Changed\n";
+                    }
                 }
 
             }
 
-        }else{
+        } else {
             changes = "New waypoints added";
         }
 

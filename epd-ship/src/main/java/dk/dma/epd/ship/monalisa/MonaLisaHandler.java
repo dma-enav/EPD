@@ -424,6 +424,12 @@ public class MonaLisaHandler extends MapHandlerChild {
     private void sendModifiedReply(String message) {
 
         Route route = voyageLayer.getModifiedSTCCRoute();
+        
+        voyageLayer.startRouteNegotiation(route.copy());
+
+        // Hide the routeLayer one
+        route.setVisible(false);
+        
 
         // System.out.println(route);
         // System.out.println(route.getEtas().get(0));

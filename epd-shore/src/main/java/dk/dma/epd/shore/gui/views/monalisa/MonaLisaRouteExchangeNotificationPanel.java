@@ -279,8 +279,8 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
         optimize_btn.setEnabled(false);
         GuiStyler.styleButton(optimize_btn);
         optimize_btn.setPreferredSize(new Dimension(110, 20));
-        pane_3.add(optimize_btn);
-        optimize_btn.setEnabled(false);
+//        pane_3.add(optimize_btn);
+//        optimize_btn.setEnabled(false);
 
         scrollPane_1 = new JScrollPane();
         scrollPane_1.setBounds(0, 41, 408, 541);
