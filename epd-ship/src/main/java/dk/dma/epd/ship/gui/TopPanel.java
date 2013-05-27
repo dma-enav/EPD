@@ -32,6 +32,7 @@ import javax.swing.JSeparator;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
+import dk.dma.epd.common.prototype.gui.route.ButtonLabel;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;

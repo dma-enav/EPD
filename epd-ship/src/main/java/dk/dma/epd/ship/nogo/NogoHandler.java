@@ -27,7 +27,7 @@ import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
-import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
+import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.ComponentPanels.NoGoComponentPanel;
@@ -51,7 +51,7 @@ public class NogoHandler extends MapHandlerChild implements Runnable {
     Double draught;
     boolean nogoFailed;
 
-    private ShoreServices shoreServices;
+    private ShoreServicesCommon shoreServices;
 
     // Create a seperate layer for the nogo information
     private NogoLayer nogoLayer;
@@ -274,8 +274,8 @@ public class NogoHandler extends MapHandlerChild implements Runnable {
 
     @Override
     public void findAndInit(Object obj) {
-        if (obj instanceof ShoreServices) {
-            shoreServices = (ShoreServices) obj;
+        if (obj instanceof ShoreServicesCommon) {
+            shoreServices = (ShoreServicesCommon) obj;
         }
         if (obj instanceof NogoLayer) {
             nogoLayer = (NogoLayer) obj;

@@ -21,6 +21,7 @@ import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 
 public class RouteManager extends MapHandlerChild {
@@ -43,7 +44,31 @@ public class RouteManager extends MapHandlerChild {
     }
 
     public void addListener(MsiHandler msiHandler) {
-        // TODO Auto-generated method stub
         
     }
+
+    public boolean isActiveRoute(int routeId) {
+        return false;
+    }
+
+    public void notifyListeners(RoutesUpdateEvent routeWaypointDeleted) {
+                
+    }
+
+    public boolean validateMetoc(Route route) {        
+        return false;
+    }
+
+    public int getRouteIndex(Route route) {
+        return -1;
+    }
+
+    public void removeRoute(int routeIndex) {
+        
+    }
+
+    public void changeActiveWp(int index) {
+        
+    }
+    
 }

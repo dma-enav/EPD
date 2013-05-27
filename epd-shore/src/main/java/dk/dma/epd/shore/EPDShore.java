@@ -49,7 +49,7 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
-import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
+import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.utils.StaticImages;
@@ -59,6 +59,7 @@ import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteOptimization;
 import dk.dma.epd.shore.service.ais.AisServices;
+import dk.dma.epd.shore.services.shore.ShoreServices;
 import dk.dma.epd.shore.settings.ESDSensorSettings;
 import dk.dma.epd.shore.settings.ESDSettings;
 import dk.dma.epd.shore.voyage.VoyageManager;
@@ -84,7 +85,7 @@ public class EPDShore extends EPD {
     private static MonaLisaHandler monaLisaHandler;
     private static AisServices aisServices;
     private static AisReader aisReader;
-    private static ShoreServices shoreServices;
+    private static ShoreServicesCommon shoreServicesCommon;
     private static StaticImages staticImages;
     private static TransponderFrame transponderFrame;
     private static MonaLisaRouteOptimization monaLisaRouteExchange;
@@ -177,8 +178,8 @@ public class EPDShore extends EPD {
         beanHandler.add(aisServices);
         
         // Create shore services
-        shoreServices = new ShoreServices(getSettings().getEnavSettings());
-        beanHandler.add(shoreServices);
+        shoreServicesCommon = new ShoreServices(getSettings().getEnavSettings());
+        beanHandler.add(shoreServicesCommon);
 
         // Create mona lisa route exchange
         monaLisaRouteExchange = new MonaLisaRouteOptimization();
@@ -422,10 +423,10 @@ public class EPDShore extends EPD {
     /**
      * Return the shoreService used in shore connections like MSI
      * 
-     * @return - shoreServices
+     * @return - shoreServicesCommon
      */
-    public static ShoreServices getShoreServices() {
-        return shoreServices;
+    public static ShoreServicesCommon getShoreServices() {
+        return shoreServicesCommon;
     }
 
     /**

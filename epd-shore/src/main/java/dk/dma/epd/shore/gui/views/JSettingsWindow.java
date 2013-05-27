@@ -616,12 +616,12 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
             statusComponents.add((AisHandler) obj);
         }
         if (obj instanceof ShoreServices) {
-            // shoreServices = (ShoreServices) obj;
+            // shoreServices = (ShoreServicesCommon) obj;
             statusComponents.add((ShoreServices) obj);
         }
         if (obj instanceof WMSService) {
             // System.out.println("wmsService");
-            // shoreServices = (ShoreServices) obj;
+            // shoreServices = (ShoreServicesCommon) obj;
             statusComponents.add((WMSService) obj);
         }
     }

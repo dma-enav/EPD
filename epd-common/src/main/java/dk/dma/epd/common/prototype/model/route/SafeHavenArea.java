@@ -40,7 +40,7 @@ import dk.dma.epd.common.util.Calculator;
 public class SafeHavenArea extends OMGraphicList {
     private static final long serialVersionUID = 1L;
 
-    CenterRaster selectionGraphics;
+//    CenterRaster selectionGraphics;
 
     ImageIcon targetImage;
     int imageWidth;
@@ -57,8 +57,9 @@ public class SafeHavenArea extends OMGraphicList {
         hatchFill = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D big = hatchFill.createGraphics();
         Composite originalComposite = big.getComposite();
-        big.setComposite(makeComposite(0.7f));
-        big.setColor(Color.green);
+//        big.setColor(Color.green);
+        big.setColor(new Color(0f, 1f, 0f, 0.7f));
+//        big.setComposite(makeComposite(0.7f));
         big.drawLine(0, 0, 10, 10);
 
         hatchFillRectangle = new Rectangle(0, 0, 10, 10);
@@ -107,7 +108,8 @@ public class SafeHavenArea extends OMGraphicList {
         
         System.out.println("Moving symbol " + pos);
         
-        remove(poly);
+//        remove(poly);
+        graphics.clear();
 
 //        int width = 1000;
 //        int height = 500;
@@ -187,8 +189,8 @@ public class SafeHavenArea extends OMGraphicList {
         
     }
 
-    public void removeSymbol() {
-        remove(selectionGraphics);
-    }
+//    public void removeSymbol() {
+//        remove(selectionGraphics);
+//    }
 
 }

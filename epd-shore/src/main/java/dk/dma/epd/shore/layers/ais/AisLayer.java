@@ -505,7 +505,6 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable,
                     e.getPoint(), jMapFrame);
 
             if (newClosest instanceof PastTrackWpCircle) {
-                System.out.println("PAST TRACK CIRCLEEE");
                 closest = newClosest;
                 PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
                 pastTrackInfoPanel.setPos((int) containerPoint.getX(),

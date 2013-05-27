@@ -13,41 +13,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.route;
+package dk.dma.epd.shore.gui.views.menuitems;
 
-import javax.swing.JTextField;
+import javax.swing.JMenuItem;
 
-public class WaypointJTextField extends JTextField {
+import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 
+public class VoyageHideAll extends JMenuItem implements IMapMenuAction {
 
+    /**
+     *
+     */
     private static final long serialVersionUID = 1L;
-    int id;
-    String name;
+    private VoyageLayer voyageLayer;
 
-    
-    public WaypointJTextField(int id, String name){
+    public VoyageHideAll(String text) {
         super();
-        this.id = id;
-        this.name = name;
-    }
-    
-    public int getId() {
-        return id;
+        setText(text);
     }
 
     @Override
-    public String getName() {
-        return name;
+    public void doAction() {
+        voyageLayer.setVisible(!voyageLayer.isVisible());
     }
 
-    public void setId(int id) {
-        this.id = id;
+    /**
+     * @param voyageLayer the voyageLayer to set
+     */
+    public void setVoyageLayer(VoyageLayer voyageLayer) {
+        this.voyageLayer = voyageLayer;
     }
+    
 
-    
-    
-    
-    
-    
-    
 }

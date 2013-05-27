@@ -54,7 +54,7 @@ import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
-import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
+import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -82,7 +82,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
 
     private volatile EnavServiceHandler enavServiceHandler;
     private volatile GpsHandler gpsHandler;
-    private volatile ShoreServices shoreServices;
+    private volatile ShoreServicesCommon shoreServices;
     private volatile AisHandler aisHandler;
     private volatile IntendedRouteService intendedRouteService;
     
@@ -231,6 +231,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         notifyListeners(RoutesUpdateEvent.ROUTE_DEACTIVATED);
     }
 
+    @Override
     public void changeActiveWp(int index) {
         synchronized (this) {
             if (!isRouteActive()) {
@@ -242,6 +243,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         notifyListeners(RoutesUpdateEvent.ACTIVE_ROUTE_UPDATE);
     }
 
+    @Override
     public void notifyListeners(RoutesUpdateEvent e) {
         for (IRoutesUpdateListener listener : listeners) {
             listener.routesChanged(e);
@@ -250,6 +252,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         saveToFile();
     }
 
+    @Override
     public void removeRoute(int index) {
         synchronized (this) {
             if (index < 0 || index >= routes.size()) {
@@ -269,6 +272,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
     }
     
+    @Override
     public int getRouteIndex(Route route) {
         synchronized (this) {
             for (int i = 0; i < routes.size(); i++) {
@@ -301,6 +305,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         }
     }
 
+    @Override
     public boolean isActiveRoute(int index) {
         synchronized (this) {
             return isRouteActive() && index == activeRouteIndex;
@@ -621,6 +626,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
      * Validate if metoc is still valid for route If not METOC is removed Not
      * for active route
      */
+    @Override
     public boolean validateMetoc(Route route) {
         if (route instanceof ActiveRoute) {
             return false;
@@ -718,8 +724,8 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
 
     @Override
     public void findAndInit(Object obj) {
-        if (shoreServices == null && obj instanceof ShoreServices) {
-            shoreServices = (ShoreServices) obj;
+        if (shoreServices == null && obj instanceof ShoreServicesCommon) {
+            shoreServices = (ShoreServicesCommon) obj;
         }
         if (gpsHandler == null && obj instanceof GpsHandler) {
             gpsHandler = (GpsHandler) obj;

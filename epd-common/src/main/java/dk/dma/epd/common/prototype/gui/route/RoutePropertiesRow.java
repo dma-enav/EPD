@@ -13,9 +13,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.route;
+package dk.dma.epd.common.prototype.gui.route;
 
 import java.awt.Color;
+
 
 
 public class RoutePropertiesRow {

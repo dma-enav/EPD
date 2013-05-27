@@ -98,8 +98,10 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
             if (activeRoute.isVisible()) {
 
                 if (activeSafeHaven) {
+                    graphics.remove(safeHavenArea);
                     System.out.println("Activating safehaven");
                     if (activeRoute.getActiveWp().getOutLeg() != null) {
+                        
                         System.out.println("outleg isnt zero");
                         safeHavenArea.moveSymbol(
                                 activeRoute.getSafeHavenLocation(),
@@ -107,6 +109,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                                 activeRoute.getActiveWp().getOutLeg()
                                         .getSFWidth(), activeRoute
                                         .getActiveWp().getOutLeg().getSFLen());
+                        
                         graphics.add(safeHavenArea);
                     } else {
                         System.out.println("outleg is null");

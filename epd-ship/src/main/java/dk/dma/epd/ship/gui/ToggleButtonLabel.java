@@ -24,6 +24,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
+import dk.dma.epd.common.prototype.gui.route.ButtonLabel;
+
 public class ToggleButtonLabel extends ButtonLabel {
 
     private static final long serialVersionUID = 1L;

@@ -55,7 +55,7 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
-import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
+import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.MainFrame;
@@ -90,7 +90,7 @@ public class EPDShip  extends EPD {
     private static AisHandler aisHandler;
     private static RiskHandler riskHandler;
     private static RouteManager routeManager;
-    private static ShoreServices shoreServices;
+    private static ShoreServicesCommon shoreServices;
     private static MonaLisaHandler monaLisaHandler;
     private static MonaLisaRouteOptimization monaLisaRouteExchange;
     private static AisServices aisServices;
@@ -166,7 +166,7 @@ public class EPDShip  extends EPD {
         mapHandler.add(routeManager);
 
         // Create shore services
-        shoreServices = new ShoreServices(getSettings().getEnavSettings());
+        shoreServices = new ShoreServicesCommon(getSettings().getEnavSettings());
         mapHandler.add(shoreServices);
 
         // Create mona lisa route exchange
@@ -555,7 +555,7 @@ public class EPDShip  extends EPD {
         return mapHandler;
     }
 
-    public static ShoreServices getShoreServices() {
+    public static ShoreServicesCommon getShoreServices() {
         return shoreServices;
     }
 

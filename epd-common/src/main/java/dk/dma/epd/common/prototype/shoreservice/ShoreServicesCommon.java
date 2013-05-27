@@ -68,18 +68,17 @@ import dk.frv.enav.common.xml.risk.response.RiskResponse;
 /**
  * Shore service component providing the functional link to shore.
  */
-public class ShoreServices extends MapHandlerChild implements IStatusComponent {
+public class ShoreServicesCommon extends MapHandlerChild implements IStatusComponent {
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(ShoreServices.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ShoreServicesCommon.class);
 
     private AisHandlerCommon aisHandler;
     private GpsHandler gpsHandler;
-    private EnavSettings enavSettings;
+    protected EnavSettings enavSettings;
     private ShoreServiceStatus status = new ShoreServiceStatus();
     private static final String ENCODING = "UTF-8";
 
-    public ShoreServices(EnavSettings enavSettings) {
+    public ShoreServicesCommon(EnavSettings enavSettings) {
         this.enavSettings = enavSettings;
     }
 
@@ -142,8 +141,7 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         return xmlRoute;
     }
 
-    public static PositionReport convertPositionReport(
-            VesselPositionData position) {
+    public static PositionReport convertPositionReport(VesselPositionData position) {
         PositionReport enavshorePos = new PositionReport();
 
         if (position == null || position.getPos() == null) {
@@ -159,8 +157,7 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         return enavshorePos;
     }
 
-    public NogoResponse nogoPoll(double draught, Position northWestPoint,
-            Position southEastPoint, Date startDate, Date endDate)
+    public NogoResponse nogoPoll(double draught, Position northWestPoint, Position southEastPoint, Date startDate, Date endDate)
             throws ShoreServiceException {
         // Create request
         NogoRequest nogoRequest = new NogoRequest();
@@ -177,8 +174,7 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         // Add request parameters
         addRequestParameters(nogoRequest);
 
-        NogoResponse nogoResponse = (NogoResponse) makeRequest("/api/xml/nogo",
-                "dk.frv.enav.common.xml.nogo.request",
+        NogoResponse nogoResponse = (NogoResponse) makeRequest("/api/xml/nogo", "dk.frv.enav.common.xml.nogo.request",
                 "dk.frv.enav.common.xml.nogo.response", nogoRequest);
         return nogoResponse;
     }
@@ -191,15 +187,13 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         // Add request parameters
         addRequestParameters(msiPollRequest);
 
-        MsiResponse msiResponse = (MsiResponse) makeRequest("/api/xml/msi",
-                "dk.frv.enav.common.xml.msi.request",
+        MsiResponse msiResponse = (MsiResponse) makeRequest("/api/xml/msi", "dk.frv.enav.common.xml.msi.request",
                 "dk.frv.enav.common.xml.msi.response", msiPollRequest);
 
         return msiResponse;
     }
 
-    public List<RiskList> getRiskIndexes(double southWestLat,
-            double northEastLat, double southWestLon, double northEastLon)
+    public List<RiskList> getRiskIndexes(double southWestLat, double northEastLat, double southWestLon, double northEastLon)
             throws ShoreServiceException {
         // Create request
         RiskRequest req = new RiskRequest();
@@ -211,8 +205,7 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         // Add request parameters
         addRequestParameters(req);
 
-        RiskResponse resp = (RiskResponse) makeRequest("/api/xml/risk",
-                "dk.frv.enav.common.xml.risk.request",
+        RiskResponse resp = (RiskResponse) makeRequest("/api/xml/risk", "dk.frv.enav.common.xml.risk.request",
                 "dk.frv.enav.common.xml.risk.response", req);
 
         return resp.getList();
@@ -224,8 +217,7 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         if (route instanceof ActiveRoute) {
             GpsData gpsData = gpsHandler.getCurrentData();
             if (gpsData.isBadPosition()) {
-                throw new ShoreServiceException(
-                        ShoreServiceErrorCode.NO_VALID_GPS_DATA);
+                throw new ShoreServiceException(ShoreServiceErrorCode.NO_VALID_GPS_DATA);
             }
             pos = gpsData.getPosition();
         }
@@ -236,9 +228,8 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         addRequestParameters(request);
 
         // Make request
-        MetocForecastResponse res = (MetocForecastResponse) makeRequest(
-                "/api/xml/routeMetoc", "dk.frv.enav.common.xml.metoc.request",
-                "dk.frv.enav.common.xml.metoc.response", request);
+        MetocForecastResponse res = (MetocForecastResponse) makeRequest("/api/xml/routeMetoc",
+                "dk.frv.enav.common.xml.metoc.request", "dk.frv.enav.common.xml.metoc.response", request);
 
         return res.getMetocForecast();
     }
@@ -247,8 +238,7 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         if (aisHandler != null && aisHandler.getOwnShip() != null) {
             request.setMmsi(aisHandler.getOwnShip().getMmsi());
             if (aisHandler.getOwnShip().getPositionData() != null) {
-                PositionReport posReport = convertPositionReport(aisHandler
-                        .getOwnShip().getPositionData());
+                PositionReport posReport = convertPositionReport(aisHandler.getOwnShip().getPositionData());
                 if (posReport != null) {
                     request.setPositionReport(posReport);
                 }
@@ -257,8 +247,8 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
 
     }
 
-    private ShoreServiceResponse makeRequest(String uri, String reqContextPath,
-            String resContextPath, Object request) throws ShoreServiceException {
+    private ShoreServiceResponse makeRequest(String uri, String reqContextPath, String resContextPath, Object request)
+            throws ShoreServiceException {
         // Create HTTP request
         ShoreHttp shoreHttp = new ShoreHttp(uri, enavSettings);
         // Init HTTP
@@ -269,8 +259,7 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         } catch (Exception e) {
             e.printStackTrace();
             LOG.error("Failed to make XML request: " + e.getMessage());
-            throw new ShoreServiceException(
-                    ShoreServiceErrorCode.INTERNAL_ERROR);
+            throw new ShoreServiceException(ShoreServiceErrorCode.INTERNAL_ERROR);
         }
 
         // Make request
@@ -288,8 +277,7 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         } catch (Exception e) {
             e.printStackTrace();
             LOG.error("Failed to unmarshal XML response: " + e.getMessage());
-            throw new ShoreServiceException(
-                    ShoreServiceErrorCode.INVALID_RESPONSE);
+            throw new ShoreServiceException(ShoreServiceErrorCode.INVALID_RESPONSE);
         }
 
         // Set last fail/contact
@@ -297,8 +285,7 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
 
         // Report if an error response
         if (res.getErrorCode() != 0) {
-            throw new ShoreServiceException(
-                    ShoreServiceErrorCode.SERVICE_ERROR, res.getErrorMessage());
+            throw new ShoreServiceException(ShoreServiceErrorCode.SERVICE_ERROR, res.getErrorMessage());
         }
 
         return res;
@@ -329,10 +316,8 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
     }
 
     @SuppressWarnings({ "rawtypes", "unused" })
-    public SSPAResponse makeMonaLisaRouteRequest(
-            RouterequestType monaLisaRoute, int timeout, boolean showInput,
-            boolean showOutput) {
-        
+    public SSPAResponse makeMonaLisaRouteRequest(RouterequestType monaLisaRoute, int timeout, boolean showInput, boolean showOutput) {
+
         JAXBContext context = null;
         String xmlReturnRoute = "";
 
@@ -349,14 +334,10 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
             m.marshal(monaLisaRoute, st);
             xml = st.toString();
 
-            xml = xml
-                    .replace(
-                            "<ns2:RouteRequest xmlns:ns2=\"http://www.sspa.se/optiroute\"",
-                            "<RouteRequest xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\"");
-            xml = xml
-                    .replace(
-                            "xmlns=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">",
-                            "xmlns=\"http://www.sspa.se/optiroute\">");
+            xml = xml.replace("<ns2:RouteRequest xmlns:ns2=\"http://www.sspa.se/optiroute\"",
+                    "<RouteRequest xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\"");
+            xml = xml.replace("xmlns=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">",
+                    "xmlns=\"http://www.sspa.se/optiroute\">");
 
             xml = xml.replace("ns2:", "");
             xml = xml.replace(":ns2", "");
@@ -372,10 +353,8 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
             xml = xml.replace("latitude", "fi:latitude");
             xml = xml.replace("longitude", "fi:longitude");
 
-            
-            
-            //fix later maybe?
-            
+            // fix later maybe?
+
             // if (showInput) {
             // new XMLDialog(xml, "Sent XML");
             // }
@@ -413,10 +392,8 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         // new XMLDialog(xmlReturnRoute, "Returned XML");
         // }
 
-        if (xmlReturnRoute
-                .contains("<ErrorResponse xmlns=\"http://www.sspa.se/optiroute\">")) {
-            String errorMessage = xmlReturnRoute
-                    .split("<ErrorResponse xmlns=\"http://www.sspa.se/optiroute\">")[1]
+        if (xmlReturnRoute.contains("<ErrorResponse xmlns=\"http://www.sspa.se/optiroute\">")) {
+            String errorMessage = xmlReturnRoute.split("<ErrorResponse xmlns=\"http://www.sspa.se/optiroute\">")[1]
                     .split("</ErrorResponse>")[0];
 
             errorMessage = errorMessage.trim();
@@ -425,10 +402,8 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
         } else {
             if (xmlReturnRoute != null) {
                 if (xmlReturnRoute.length() > 300000) {
-                    System.out
-                            .println("Failed to recieve a route in the area, buffer timedout");
-                    return new SSPAResponse(null,
-                            "Failed to recieve a route in the area, buffer timedout");
+                    System.out.println("Failed to recieve a route in the area, buffer timedout");
+                    return new SSPAResponse(null, "Failed to recieve a route in the area, buffer timedout");
                 }
 
                 xmlReturnRoute
@@ -450,12 +425,10 @@ public class ShoreServices extends MapHandlerChild implements IStatusComponent {
                 StringReader sr = new StringReader(xmlReturnRoute);
 
                 try {
-                    jc = JAXBContext
-                            .newInstance("dk.dma.epd.common.prototype.monalisa.sspa");
+                    jc = JAXBContext.newInstance("dk.dma.epd.common.prototype.monalisa.sspa");
                     u = jc.createUnmarshaller();
 
-                    routeResponse = (RouteresponseType) ((javax.xml.bind.JAXBElement) u
-                            .unmarshal(sr)).getValue();
+                    routeResponse = (RouteresponseType) ((javax.xml.bind.JAXBElement) u.unmarshal(sr)).getValue();
 
                 } catch (JAXBException e1) {
                     e1.printStackTrace();

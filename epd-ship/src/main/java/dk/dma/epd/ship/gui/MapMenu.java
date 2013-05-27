@@ -463,10 +463,12 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     public void sendToSTCC(int routeIndex){
         removeAll();
         
+        System.out.println("Route index is: " + routeIndex + " Active route index is: " + routeManager.getActiveRouteIndex());
+        
         sendToSTCC.setRoute(route);
         sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
-                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() >0);
+                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() >0 && routeManager.getActiveRouteIndex() != routeIndex);
         
         if (monaLisaHandler.isTransaction()){
             sendToSTCC.setText("Show STCC info");
@@ -501,7 +503,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         sendToSTCC.setRoute(route);
         sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
-                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() >0);
+                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() >0 && routeManager.getActiveRouteIndex() != routeIndex);
         
         if (monaLisaHandler.isTransaction()){
             sendToSTCC.setText("Show STCC info");
