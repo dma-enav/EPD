@@ -40,7 +40,7 @@ import dk.dma.epd.common.prototype.msi.MsiStore;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
-import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
+import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
@@ -59,7 +59,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
 
     private static final Logger LOG = LoggerFactory.getLogger(MsiHandler.class);
 
-    private ShoreServices shoreServices;
+    private ShoreServicesCommon shoreServices;
     private RouteManager routeManager;
     private MsiLayer msiLayer;
 
@@ -377,8 +377,8 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
 
     @Override
     public void findAndInit(Object obj) {
-        if (obj instanceof ShoreServices) {
-            shoreServices = (ShoreServices) obj;
+        if (obj instanceof ShoreServicesCommon) {
+            shoreServices = (ShoreServicesCommon) obj;
         }
         if (obj instanceof RouteManager) {
             routeManager = (RouteManager) obj;

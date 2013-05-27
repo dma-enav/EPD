@@ -279,6 +279,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable, IRoutesUpda
      */
     public boolean poll() throws ShoreServiceException {
         if (shoreServices == null) {
+            LOG.error("shoreServices not bound");
             return false;
         }
         MsiResponse msiResponse = shoreServices.msiPoll(msiStore.getLastMessage());
