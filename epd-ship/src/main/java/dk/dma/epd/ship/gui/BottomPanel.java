@@ -33,7 +33,7 @@ import javax.swing.border.MatteBorder;
 import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
-import dk.dma.epd.common.prototype.shoreservice.ShoreServices;
+import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -48,7 +48,7 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
     private static final long serialVersionUID = 1L;
     // private MsiHandler msiHandler;
     // private MsiDialog msiDialog;
-    private ShoreServices shoreServices;
+    private ShoreServicesCommon shoreServices;
     private AisHandler aisHandler;
     private GpsHandler gpsHandler;
     private StatusLabel gpsStatus;
@@ -102,8 +102,8 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
         } else if (obj instanceof GpsHandler) {
             gpsHandler = (GpsHandler) obj;
             statusComponents.add(gpsHandler);
-        } else if (obj instanceof ShoreServices) {
-            shoreServices = (ShoreServices) obj;
+        } else if (obj instanceof ShoreServicesCommon) {
+            shoreServices = (ShoreServicesCommon) obj;
             statusComponents.add(shoreServices);
         }
 
