@@ -439,7 +439,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
                     RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
                             EPDShore.getMainFrame(), new Route(message
                                     .getRouteMessage().get(message
-                                            .getRouteMessage().size()-1).getRoute()), null);
+                                            .getRouteMessage().size()-1).getRoute()));
                     
                     routePropertiesDialog.setVisible(true);
 

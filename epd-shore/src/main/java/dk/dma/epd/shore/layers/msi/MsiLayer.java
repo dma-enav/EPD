@@ -33,6 +33,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
 import dk.dma.epd.common.prototype.layers.msi.MsiGraphic;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
+import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.shore.EPDShore;
@@ -50,7 +51,7 @@ import dk.frv.enav.common.xml.msi.MsiMessage;
  * Layer handling all msi messages
  *
  */
-public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener {
+public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener, IMsiUpdateListener {
     private static final long serialVersionUID = 1L;
 
     private MsiHandler msiHandler;
@@ -109,6 +110,7 @@ public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener 
     public void findAndInit(Object obj) {
         if (obj instanceof MsiHandler) {
             msiHandler = (MsiHandler)obj;
+            msiHandler.addListener(this);
         }
         if (obj instanceof MapBean){
             mapBean = (MapBean)obj;
@@ -277,6 +279,11 @@ public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener 
         mapBean.setCenter(center.getLatitude(), center.getLongitude());
         mapBean.setScale(EPDShore.getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale());
 
+    }
+
+    @Override
+    public void msiUpdate() {
+        doUpdate();
     }
 
 }

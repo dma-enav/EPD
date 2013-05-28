@@ -609,10 +609,16 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
         departurePicker.setDate(starttime);
         ((SpinnerDateModel) departureSpinner.getModel()).setValue(starttime);
 
+        
+        //Will this work
+        arrivalPicker.setDate(route.getEta(starttime));
+        ((SpinnerDateModel) arrivalSpinner.getModel()).setValue(route
+                .getEta(starttime));
+        
         if (activeRoute == null) {
-            arrivalPicker.setDate(route.getEta(starttime));
-            ((SpinnerDateModel) arrivalSpinner.getModel()).setValue(route
-                    .getEta(starttime));
+//            arrivalPicker.setDate(route.getEta(starttime));
+//            ((SpinnerDateModel) arrivalSpinner.getModel()).setValue(route
+//                    .getEta(starttime));
 
         } else {
             departurePicker.setEnabled(false);

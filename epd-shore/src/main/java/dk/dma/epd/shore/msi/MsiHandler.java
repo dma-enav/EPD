@@ -53,7 +53,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable, IRoutesUpda
 
     private static final Logger LOG = LoggerFactory.getLogger(MsiHandler.class);
 
-    private MsiLayer msiLayer;
+//    private MsiLayer msiLayer;
 
     private ShoreServices shoreServices;
     private RouteManager routeManager;
@@ -70,6 +70,8 @@ public class MsiHandler extends MapHandlerChild implements Runnable, IRoutesUpda
     private Set<IMsiUpdateListener> listeners = new HashSet<IMsiUpdateListener>();
     // private GpsHandler gpsHandler;
     private boolean gpsUpdate;
+    
+    
 
     /**
      * Constructor
@@ -110,9 +112,9 @@ public class MsiHandler extends MapHandlerChild implements Runnable, IRoutesUpda
             routeManager = (RouteManager) obj;
             routeManager.addListener(this);
         }
-        if (obj instanceof MsiLayer) {
-            msiLayer = (MsiLayer) obj;
-        }
+//        if (obj instanceof MsiLayer) {
+//            msiLayer = (MsiLayer) obj;
+//        }
         if (obj instanceof IMsiUpdateListener) {
             addListener((IMsiUpdateListener) obj);
         }
@@ -263,9 +265,14 @@ public class MsiHandler extends MapHandlerChild implements Runnable, IRoutesUpda
      */
     public void notifyUpdate() {
         // Update layer
-        if (msiLayer != null) {
-            msiLayer.doUpdate();
-        }
+//        if (msiLayer != null) {
+//            System.out.println("Getting msiLayer and updating");
+//            msiLayer.doUpdate();
+//        }else{
+//            System.out.println("Msilayer is null");
+//        }
+        
+        
         // Notify of MSI change
         for (IMsiUpdateListener listener : listeners) {
             listener.msiUpdate();
@@ -278,14 +285,17 @@ public class MsiHandler extends MapHandlerChild implements Runnable, IRoutesUpda
      * @throws ShoreServiceException
      */
     public boolean poll() throws ShoreServiceException {
+//        System.out.println("Polling");
         if (shoreServices == null) {
             LOG.error("shoreServices not bound");
             return false;
         }
         MsiResponse msiResponse = shoreServices.msiPoll(msiStore.getLastMessage());
         if (msiResponse == null || msiResponse.getMessages() == null || msiResponse.getMessages().size() == 0) {
+//            System.out.println("Something went wrong in getting a new mmsi");
             return false;
         }
+//        System.out.println("We got one");
         LOG.info("Received " + msiResponse.getMessages().size() + " new MSI messages");
         msiStore.update(msiResponse.getMessages(), calculationPosition, routeManager.getRoutes());
         return true;
@@ -347,7 +357,8 @@ public class MsiHandler extends MapHandlerChild implements Runnable, IRoutesUpda
     @Override
     public void run() {
         while (true) {
-            EPDShore.sleep(30000);
+            EPDShore.sleep(10000);
+//            System.out.println("Checking for new msi");
             updateMsi();
         }
     }

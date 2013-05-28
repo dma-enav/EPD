@@ -31,16 +31,17 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.WindowConstants;
+import javax.swing.border.MatteBorder;
 
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
+import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.layers.route.RouteLayer;
 import dk.dma.epd.ship.monalisa.MonaLisaHandler;
-import javax.swing.JTextField;
-import javax.swing.border.MatteBorder;
 
 public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
@@ -220,17 +221,17 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
         routeNotAcceptedPanel.add(spMessage);
 
         btnReject = new JButton("Reject");
-        btnReject.setBounds(10, 206, 70, 23);
+        btnReject.setBounds(0, 206, 70, 23);
         routeNotAcceptedPanel.add(btnReject);
         btnReject.addActionListener(this);
 
-        btnWait = new JButton("Wait");
-        btnWait.setBounds(90, 206, 70, 23);
+        btnWait = new JButton("View Route");
+        btnWait.setBounds(67, 206, 87, 23);
         btnWait.addActionListener(this);
         routeNotAcceptedPanel.add(btnWait);
 
         btnAccept = new JButton("Accept");
-        btnAccept.setBounds(170, 206, 117, 23);
+        btnAccept.setBounds(151, 206, 136, 23);
         btnAccept.addActionListener(this);
         routeNotAcceptedPanel.add(btnAccept);
 
@@ -312,6 +313,14 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
     public void handleReply(MonaLisaRouteRequestReply reply) {
         this.reply = reply;
+        this.setRouteName(new Route(reply.getRoute()), this.transactionID);
+        
+        if (EPDShip.getRouteManager().getActiveRouteIndex() != -1){
+            btnAccept.setText("Accept and Activate");
+        }else{
+            btnAccept.setText("Accept");
+        }
+        
 
         // Reply is in
         if (reply.getStatus() == MonaLisaRouteStatus.AGREED) {
@@ -383,7 +392,12 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
         }
         if (e.getSource() == btnWait) {
-            this.setVisible(false);
+//            this.setVisible(false);
+            
+            RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
+                    EPDShip.getMainFrame(), originalRoute, false);
+            
+            routePropertiesDialog.setVisible(true);
 
         }
 
@@ -424,8 +438,10 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
                 } else {
                     if (newRoute.getEtas().get(i) != originalRoute.getEtas()
                             .get(i)) {
-                        changes = changes + "Waypoint " + (i + 1)
-                                + " ETA Changed\n";
+                        changes = changes + "Wp " + (i + 1)
+                                + " ETA Changed from " + Formatter.formatShortDateTimeNoTz(originalRoute.getEtas().get(i))
+                                + " to " + Formatter.formatShortDateTimeNoTz(newRoute.getEtas().get(i) )
+                                +"\n";
                     }
                 }
 

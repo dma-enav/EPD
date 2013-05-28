@@ -23,37 +23,48 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.route.RouteManager;
 
-
 /**
  * Dialog with route properties
  */
-public class RoutePropertiesDialog extends  dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialog{
+public class RoutePropertiesDialog extends
+        dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialog {
 
     private static final long serialVersionUID = 1L;
     VoyageHandlingLayer voyageHandlingLayer;
 
-    public RoutePropertiesDialog(Window parent,
-            RouteManager routeManager,
+    public RoutePropertiesDialog(Window parent, RouteManager routeManager,
             int routeId) {
-        
+
         super(parent, routeManager, routeId);
         // TODO Auto-generated constructor stub
     }
 
-    
-    public RoutePropertiesDialog(Window mainFrame, Route route, VoyageHandlingLayer voyageHandlingLayer) {
+    public RoutePropertiesDialog(Window mainFrame, Route route,
+            VoyageHandlingLayer voyageHandlingLayer) {
         super(mainFrame, route, true);
         this.voyageHandlingLayer = voyageHandlingLayer;
         btnActivate.setVisible(false);
 
     }
+    
+    public RoutePropertiesDialog(Window mainFrame, Route route
+             ) {
+        super(mainFrame, route, false);
+
+        btnActivate.setVisible(false);
+
+    }
+    
+    
 
     @Override
     public void insertUpdate(DocumentEvent e) {
         super.insertUpdate(e);
-        
-        voyageHandlingLayer.updateVoyages();
+
+        if (voyageHandlingLayer != null) {
+            voyageHandlingLayer.updateVoyages();
+
+        }
     }
 
-    
 }

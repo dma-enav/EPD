@@ -92,8 +92,8 @@ public class MonaLisaHandler extends MapHandlerChild {
 
             // Display and initialize the GUI
             monaLisaSTCCDialog.initializeNew();
-            monaLisaSTCCDialog.setLocation(windowLocation);
-            monaLisaSTCCDialog.setLocationRelativeTo(EPDShip.getMainFrame());
+            monaLisaSTCCDialog.setLocation(50, 50);
+//            monaLisaSTCCDialog.setLocationRelativeTo(EPDShip.getMainFrame());
             monaLisaSTCCDialog.setVisible(true);
             monaLisaSTCCDialog.setRouteName(route, transactionID);
 
@@ -232,10 +232,17 @@ public class MonaLisaHandler extends MapHandlerChild {
             //Find the old one and set not accepted, possibly hide it?
             for (int i = 0; i < routeManager.getRoutes().size(); i++) {
                 if (routeManager.getRoutes().get(i).getMonalisarouteid() == currentTransaction){
-                    System.out.println("Found the old route id");
-                    
+
                     routeManager.getRoutes().get(i).setStccApproved(false);
-                    routeManager.getRoutes().get(i).setVisible(false);
+                    
+                    if (routeManager.getActiveRouteIndex() == i){
+                        
+   
+                        
+                    }else{
+                        routeManager.getRoutes().get(i).setVisible(false);    
+                    }
+                    
                     
                     try {
                         routeManager.getRoutes().get(i).setName(routeManager.getRoutes().get(i).getName().split(":")[1].trim());
@@ -310,6 +317,17 @@ public class MonaLisaHandler extends MapHandlerChild {
 
         voyageLayer.getModifiedSTCCRoute().setName("STCC Approved: " + voyageLayer.getModifiedSTCCRoute().getName());
         
+        boolean shouldActive = false;
+        
+        if (routeManager.getActiveRouteIndex() != -1){
+            routeManager.getRoutes().get(routeManager.getActiveRouteIndex()).setVisible(false); 
+            routeManager.deactivateRoute();
+            shouldActive = true;
+     }
+        
+
+
+        
         Route route = voyageLayer.getModifiedSTCCRoute();
         route.setStccApproved(true);
         
@@ -317,6 +335,15 @@ public class MonaLisaHandler extends MapHandlerChild {
         
         // route.setVisible(true);
         routeManager.addRoute(route);
+        
+        if (shouldActive){
+            int routeToActivate = routeManager.getRouteCount() - 1;
+            
+            routeManager.activateRoute(routeToActivate);
+        }
+        
+
+        
 
         routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
 
