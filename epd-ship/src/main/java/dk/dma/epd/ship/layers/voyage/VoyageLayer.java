@@ -450,6 +450,45 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     }
 
+    
+    public void handleReNegotiation(MonaLisaRouteRequestReply reply, Route previousAcceptedRoute) {
+        modifiedSTCCRoute = new Route(reply.getRoute());
+        stccRoute = modifiedSTCCRoute.copy();
+        this.primaryRoute = previousAcceptedRoute;
+        
+        // Stop the animation
+        stopRouteAnimated();
+
+        // Shore agrees
+        if (reply.getStatus() == MonaLisaRouteStatus.AGREED) {
+            // Display routeLayer with green
+            graphics.clear();
+            drawRoute(0, stccRoute, ECDISOrange, new Color(0.39f, 0.69f, 0.49f,
+                    0.6f), false);
+
+            drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
+                    false);
+        } else if (reply.getStatus() == MonaLisaRouteStatus.NEGOTIATING) {
+            // Draw old one in red and new one in green with lines
+            // seperated on new Color(1f, 1f, 0, 0.7f)
+            graphics.clear();
+
+            // New route in green
+            drawRoute(2, modifiedSTCCRoute, ECDISOrange, new Color(0.39f,
+                    0.69f, 0.49f, 0.6f), true);
+
+            // Old route in red
+            drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
+                    false);
+
+        } else if (reply.getStatus() == MonaLisaRouteStatus.REJECTED) {
+            // Display route with red - might not be relevant?
+            graphics.clear();
+            drawRoute(2, stccRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
+                    false);
+        }
+    }
+    
     public void handleReply(MonaLisaRouteRequestReply reply) {
 
         modifiedSTCCRoute = new Route(reply.getRoute());

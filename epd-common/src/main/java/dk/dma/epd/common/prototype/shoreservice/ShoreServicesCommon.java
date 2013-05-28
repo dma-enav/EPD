@@ -42,6 +42,7 @@ import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.monalisa.SSPAResponse;
+import dk.dma.epd.common.prototype.monalisa.XMLDialog;
 import dk.dma.epd.common.prototype.monalisa.sspa.RouterequestType;
 import dk.dma.epd.common.prototype.monalisa.sspa.RouteresponseType;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
@@ -355,9 +356,9 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
 
             // fix later maybe?
 
-            // if (showInput) {
-            // new XMLDialog(xml, "Sent XML");
-            // }
+             if (showInput) {
+             new XMLDialog(xml, "Sent XML");
+             }
 
             // System.out.println("Sending the following:");
             // System.out.println(xml);
@@ -388,9 +389,9 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
         System.out.println("Recieved the following:");
         System.out.println(xmlReturnRoute);
 
-        // if (showOutput) {
-        // new XMLDialog(xmlReturnRoute, "Returned XML");
-        // }
+         if (showOutput) {
+         new XMLDialog(xmlReturnRoute, "Returned XML");
+         }
 
         if (xmlReturnRoute.contains("<ErrorResponse xmlns=\"http://www.sspa.se/optiroute\">")) {
             String errorMessage = xmlReturnRoute.split("<ErrorResponse xmlns=\"http://www.sspa.se/optiroute\">")[1]

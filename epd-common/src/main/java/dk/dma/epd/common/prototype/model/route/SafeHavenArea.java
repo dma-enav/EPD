@@ -34,7 +34,6 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMPoly;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.graphics.CenterRaster;
 import dk.dma.epd.common.util.Calculator;
 
 public class SafeHavenArea extends OMGraphicList {
@@ -99,10 +98,7 @@ public class SafeHavenArea extends OMGraphicList {
         add(poly);
     }
 
-    private AlphaComposite makeComposite(float alpha) {
-        int type = AlphaComposite.SRC_OVER;
-        return AlphaComposite.getInstance(type, alpha);
-    }
+
 
     public void moveSymbol(Position pos, double bearing, double width, double height) {
         

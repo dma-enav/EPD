@@ -93,6 +93,13 @@ public class RouteGraphic extends OMGraphicList {
         routeWaypoints = route.getWaypoints();
         int i = 0;
         for (RouteWaypoint routeWaypoint : routeWaypoints) {
+            if (route instanceof ActiveRoute
+                    && ((ActiveRoute) route).getActiveWaypointIndex() == i) {
+                RouteWaypointGraphic routeWaypointGraphicActive = new RouteWaypointGraphic(
+                        route, routeIndex, i, routeWaypoint, Color.RED, 30, 30);
+                add(0, routeWaypointGraphicActive);
+            }
+            
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg routeLeg = routeWaypoint.getOutLeg();
 
