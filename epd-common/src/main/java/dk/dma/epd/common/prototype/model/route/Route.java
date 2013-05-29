@@ -703,17 +703,15 @@ public class Route implements Serializable {
             int count = i +1 ;
             
             if (name.contains("WP_")){
-                System.out.println("the name contains it");
-                
                 String wpcountTxt = "";
                 
                 if (count < 10){
                     wpcountTxt = "00"+count;
                 }
-                if (i >= 10){
+                if (count >= 10){
                     wpcountTxt = "0"+count;
                 }
-                if (i >= 100){
+                if (count >= 100){
                     wpcountTxt = ""+count;
                 }
                 

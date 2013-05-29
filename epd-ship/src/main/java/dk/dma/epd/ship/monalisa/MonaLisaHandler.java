@@ -18,6 +18,8 @@ package dk.dma.epd.ship.monalisa;
 import java.awt.Point;
 import java.util.HashMap;
 
+import javax.swing.JOptionPane;
+
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService;
@@ -269,8 +271,7 @@ public class MonaLisaHandler extends MapHandlerChild {
         if (transactionData.getRouteMessage().size() < transactionData
                 .getRouteReply().size()) {
             lastRoute = new Route(transactionData.getRouteReply()
-                    .get(transactionData.getRouteReply().size() - 1)
-                    .getRoute());
+                    .get(transactionData.getRouteReply().size() - 1).getRoute());
 
         } else {
             lastRoute = new Route(transactionData.getRouteMessage()
@@ -316,31 +317,6 @@ public class MonaLisaHandler extends MapHandlerChild {
                 "STCC Approved: "
                         + voyageLayer.getModifiedSTCCRoute().getName());
 
-        boolean shouldActive = false;
-
-        if (routeManager.getActiveRouteIndex() != -1) {
-            routeManager.getRoutes().get(routeManager.getActiveRouteIndex())
-                    .setVisible(false);
-            routeManager.deactivateRoute();
-            shouldActive = true;
-        }
-
-        Route route = voyageLayer.getModifiedSTCCRoute();
-        route.setStccApproved(true);
-
-        route.setMonalisarouteid(transactionID);
-
-        // route.setVisible(true);
-        routeManager.addRoute(route);
-
-        if (shouldActive) {
-            int routeToActivate = routeManager.getRouteCount() - 1;
-
-            routeManager.activateRoute(routeToActivate);
-        }
-
-        routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
-
         if (monaLisaNegotiationData.containsKey(transactionID)) {
 
             MonaLisaRouteNegotiationData transactionData = monaLisaNegotiationData
@@ -353,6 +329,52 @@ public class MonaLisaHandler extends MapHandlerChild {
             monaLisaNegotiationData.get(transactionID).setStatus(
                     MonaLisaRouteStatus.AGREED);
         }
+
+        boolean shouldActive = false;
+
+        if (routeManager.getActiveRouteIndex() != -1) {
+            int dialogresult = JOptionPane
+                    .showConfirmDialog(
+                            EPDShip.getMainFrame(),
+                            "Do you wish to deactivate and hide your old route\nAnd activate the new route?",
+                            "Route Activation", JOptionPane.YES_OPTION);
+            if (dialogresult == JOptionPane.YES_OPTION) {
+                shouldActive = true;
+
+                routeManager.getRoutes()
+                        .get(routeManager.getActiveRouteIndex())
+                        .setVisible(false);
+                routeManager.deactivateRoute();
+
+            }
+
+        } else {
+            int dialogresult = JOptionPane
+                    .showConfirmDialog(
+                            EPDShip.getMainFrame(),
+                            "Do you wish to activate the new route?",
+                            "Route Activation", JOptionPane.YES_OPTION);
+            if (dialogresult == JOptionPane.YES_OPTION) {
+                shouldActive = true;
+
+            }
+
+        }
+
+        Route route = voyageLayer.getModifiedSTCCRoute();
+        route.setStccApproved(true);
+
+        route.setMonalisarouteid(transactionID);
+
+        // route.setVisible(true);
+        routeManager.addRoute(route);
+
+        if (shouldActive) {
+            int routeToActivate = routeManager.getRouteCount() - 1;
+            routeManager.activateRoute(routeToActivate);
+        }
+
+        routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
 
         monaLisaSTCCDialog.setVisible(false);
 
