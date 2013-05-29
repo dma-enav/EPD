@@ -53,12 +53,18 @@ import dk.frv.enav.common.xml.msi.MsiMessage;
 public class MSINotificationPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
-    Border paddingLeft = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(65, 65, 65));
-    Border paddingBottom = BorderFactory.createMatteBorder(0, 0, 5, 0, new Color(83, 83, 83));
-    Border notificationPadding = BorderFactory.createCompoundBorder(paddingBottom, paddingLeft);
-    Border notificationsIndicatorImportant = BorderFactory.createMatteBorder(0, 0, 0, 10, new Color(206, 120, 120));
-    Border paddingLeftPressed = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(45, 45, 45));
-    Border notificationPaddingPressed = BorderFactory.createCompoundBorder(paddingBottom, paddingLeftPressed);
+    Border paddingLeft = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(
+            65, 65, 65));
+    Border paddingBottom = BorderFactory.createMatteBorder(0, 0, 5, 0,
+            new Color(83, 83, 83));
+    Border notificationPadding = BorderFactory.createCompoundBorder(
+            paddingBottom, paddingLeft);
+    Border notificationsIndicatorImportant = BorderFactory.createMatteBorder(0,
+            0, 0, 10, new Color(206, 120, 120));
+    Border paddingLeftPressed = BorderFactory.createMatteBorder(0, 8, 0, 0,
+            new Color(45, 45, 45));
+    Border notificationPaddingPressed = BorderFactory.createCompoundBorder(
+            paddingBottom, paddingLeftPressed);
 
     private JTable msiTable;
 
@@ -116,9 +122,9 @@ public class MSINotificationPanel extends JPanel {
 
         // masterPanel.add(mapPanel, BorderLayout.NORTH);
 
-        masterPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(
-                45, 45, 45)));
-
+        masterPanel.setBorder(BorderFactory.createEtchedBorder(
+                EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45,
+                        45)));
 
         masterPanel.setLayout(null);
         this.add(masterPanel);
@@ -133,8 +139,10 @@ public class MSINotificationPanel extends JPanel {
         leftScrollPane.setBounds(0, 20, 345, 560);
         leftPanel.add(leftScrollPane);
         leftScrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
-        leftScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        leftScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        leftScrollPane
+                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        leftScrollPane
+                .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         // Center
         // MARKER GOES HERE
         // headerPanel = new JPanel();
@@ -153,13 +161,15 @@ public class MSINotificationPanel extends JPanel {
         ((FlowLayout) headerPanel.getLayout()).setHgap(0);
         leftPanel.add(headerPanel);
 
-//        msiTable = new JTable();
+        // msiTable = new JTable();
 
         msiTable = new JTable(model) {
             private static final long serialVersionUID = 1L;
 
-            public Component prepareRenderer(TableCellRenderer renderer, int Index_row, int Index_col) {
-                Component comp = super.prepareRenderer(renderer, Index_row, Index_col);
+            public Component prepareRenderer(TableCellRenderer renderer,
+                    int Index_row, int Index_col) {
+                Component comp = super.prepareRenderer(renderer, Index_row,
+                        Index_col);
                 if (Index_row % 2 == 0) {
                     comp.setBackground(new Color(49, 49, 49));
                 } else {
@@ -171,12 +181,12 @@ public class MSINotificationPanel extends JPanel {
                     comp.setBackground(new Color(85, 85, 85));
                 }
 
-
-                //Paint based on awk
+                // Paint based on awk
                 if (msiTableModel != null) {
                     if (msiTableModel.isAwk(Index_row) && Index_col == 0) {
                         comp.setForeground(new Color(130, 165, 80));
-                    } else if (!msiTableModel.isAwk(Index_row) && Index_col == 0) {
+                    } else if (!msiTableModel.isAwk(Index_row)
+                            && Index_col == 0) {
                         comp.setForeground(new Color(165, 80, 80));
                     }
                 }
@@ -184,9 +194,7 @@ public class MSINotificationPanel extends JPanel {
                 return comp;
             }
 
-
         };
-
 
         msiTable.setTableHeader(null);
         msiTable.setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -210,8 +218,10 @@ public class MSINotificationPanel extends JPanel {
         leftScrollPane.setViewportView(msiTable);
         // scrollPane_2.setViewportView(routeTable);
 
-        leftScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        leftScrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(30, 30, 30)));
+        leftScrollPane
+                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        leftScrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
+                new Color(30, 30, 30)));
         // ((FlowLayout) headerPanel.getLayout()).setHgap(0);
         GridBagConstraints gbc_test = new GridBagConstraints();
         gbc_test.fill = GridBagConstraints.HORIZONTAL;
@@ -232,20 +242,35 @@ public class MSINotificationPanel extends JPanel {
         pane_3.setLayout(new FlowLayout());
         pane_3.setVisible(true);
 
-        but_read = new JLabel("Read", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/notificationcenter/tick.png")), SwingConstants.CENTER);
+        but_read = new JLabel("Read", new ImageIcon(EPDShore.class
+                .getClassLoader().getResource(
+                        "images/notificationcenter/tick.png")),
+                SwingConstants.CENTER);
         GuiStyler.styleButton(but_read);
         but_read.setPreferredSize(new Dimension(75, 20));
         pane_3.add(but_read);
 
-        but_goto = new JLabel("Goto", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/notificationcenter/map-pin.png")), SwingConstants.CENTER);
+        but_goto = new JLabel("Goto", new ImageIcon(EPDShore.class
+                .getClassLoader().getResource(
+                        "images/notificationcenter/map-pin.png")),
+                SwingConstants.CENTER);
         GuiStyler.styleButton(but_goto);
         but_goto.setPreferredSize(new Dimension(75, 20));
+
         pane_3.add(but_goto);
 
-        but_delete = new JLabel("Delete", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/notificationcenter/cross.png")), SwingConstants.CENTER);
+        but_delete = new JLabel("Delete", new ImageIcon(EPDShore.class
+                .getClassLoader().getResource(
+                        "images/notificationcenter/cross.png")),
+                SwingConstants.CENTER);
         GuiStyler.styleButton(but_delete);
         but_delete.setPreferredSize(new Dimension(75, 20));
         pane_3.add(but_delete);
+
+        but_read.setEnabled(false);
+        but_goto.setEnabled(false);
+        but_delete.setEnabled(false);
+
         scrollPane_1 = new JScrollPane();
         scrollPane_1.setBounds(0, 41, 408, 541);
         rightPanel.add(scrollPane_1);
@@ -263,9 +288,8 @@ public class MSINotificationPanel extends JPanel {
 
         addMouseListeners();
 
-        scrollPane_1.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(30, 30, 30)));
-
-
+        scrollPane_1.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
+                new Color(30, 30, 30)));
 
     }
 
@@ -279,17 +303,18 @@ public class MSINotificationPanel extends JPanel {
         msiTable.getColumnModel().getColumn(1).setPreferredWidth(60);
         msiTable.getColumnModel().getColumn(2).setPreferredWidth(90);
         msiTable.getColumnModel().getColumn(3).setPreferredWidth(137);
-        msiTable.getSelectionModel().addListSelectionListener(new MSIRowListener());
+        msiTable.getSelectionModel().addListSelectionListener(
+                new MSIRowListener());
 
         headerPanel.add(createHeaderColumn(msiTableModel.getColumnName(0), 40));
         headerPanel.add(createHeaderColumn(msiTableModel.getColumnName(1), 60));
         headerPanel.add(createHeaderColumn(msiTableModel.getColumnName(2), 90));
-        headerPanel.add(createHeaderColumn(msiTableModel.getColumnName(3), 155));
+        headerPanel
+                .add(createHeaderColumn(msiTableModel.getColumnName(3), 155));
         msiTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         msiTable.setRowSelectionAllowed(true);
         msiTable.setColumnSelectionAllowed(false);
-
 
         if (msiTable.getRowCount() > 0) {
             msiTable.setRowSelectionInterval(0, 0);
@@ -324,9 +349,20 @@ public class MSINotificationPanel extends JPanel {
         return container;
     }
 
- 
-
     public void readMessage(int selectedRow) {
+        
+//        System.out.println("Reading msi message " + selectedRow);
+        
+        this.currentSelection = selectedRow;
+        
+        if (selectedRow < msiHandler.getMessageList().size() && selectedRow > -1){
+            
+        
+        
+
+        but_read.setEnabled(true);
+        but_goto.setEnabled(true);
+        but_delete.setEnabled(true);
 
         // System.out.println(msiTableModel.isAwk(selectedRow));
 
@@ -340,53 +376,95 @@ public class MSINotificationPanel extends JPanel {
 
         doc.delete(0, doc.length());
         doc.append("<font size=\"2\" face=\"times, serif\" color=\"white\">");
-        for (int i = 0; i < ((MsiTableModel) msiTable.getModel()).areaGetColumnCount(); i++) {
+        for (int i = 0; i < ((MsiTableModel) msiTable.getModel())
+                .areaGetColumnCount(); i++) {
 
-            doc.append("<u><b>" + ((MsiTableModel) msiTable.getModel()).areaGetColumnName(i) + ":</b></u><br />"
-                    + ((MsiTableModel) msiTable.getModel()).areaGetValueAt(selectedRow, i) + "<br /><br />");
+            doc.append("<u><b>"
+                    + ((MsiTableModel) msiTable.getModel())
+                            .areaGetColumnName(i)
+                    + ":</b></u><br />"
+                    + ((MsiTableModel) msiTable.getModel()).areaGetValueAt(
+                            selectedRow, i) + "<br /><br />");
         }
 
         doc.append("</font>");
         area.setText(doc.toString());
-
+        }else{
+            area.setText("");
+            but_read.setEnabled(false);
+            but_goto.setEnabled(false);
+            but_delete.setEnabled(false);
+        }
     }
 
     public void addMouseListeners() {
 
         but_read.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-                MsiMessage msiMessage = msiHandler.getMessageList().get(currentSelection).msiMessage;
-                msiHandler.setAcknowledged(msiMessage);
-                msiTableModel.updateMessages();
-                but_read.setEnabled(false);
+
+                if (but_read.isEnabled()) {
+
+                    MsiMessage msiMessage = msiHandler.getMessageList().get(
+                            currentSelection).msiMessage;
+                    msiHandler.setAcknowledged(msiMessage);
+                    msiTableModel.updateMessages();
+                    but_read.setEnabled(false);
+                }
             }
         });
 
         but_goto.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
+                if (but_goto.isEnabled()) {
+                    if (EPDShore.getMainFrame().getActiveMapWindow() != null) {
+                        EPDShore.getMainFrame()
+                                .getActiveMapWindow()
+                                .getChartPanel()
+                                .zoomToPoint(
+                                        msiTableModel
+                                                .getMessageLatLon(currentSelection));
+                    } else if (EPDShore.getMainFrame().getMapWindows().size() > 0) {
+                        EPDShore.getMainFrame()
+                                .getMapWindows()
+                                .get(0)
+                                .getChartPanel()
+                                .zoomToPoint(
+                                        msiTableModel
+                                                .getMessageLatLon(currentSelection));
+                    }
 
-                if (EPDShore.getMainFrame().getActiveMapWindow() != null) {
-                    EPDShore.getMainFrame().getActiveMapWindow().getChartPanel()
-                            .zoomToPoint(msiTableModel.getMessageLatLon(currentSelection));
-                } else if (EPDShore.getMainFrame().getMapWindows().size() > 0) {
-                    EPDShore.getMainFrame().getMapWindows().get(0).getChartPanel()
-                            .zoomToPoint(msiTableModel.getMessageLatLon(currentSelection));
                 }
-
             }
         });
 
         but_delete.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
 
-                MsiMessage msiMessage = msiHandler.getMessageList().get(currentSelection).msiMessage;
-                msiHandler.deleteMessage(msiMessage);
+                if (but_delete.isEnabled()) {
 
-                msiTable.updateUI();
-                readMessage(currentSelection - 1);
+                    if (currentSelection < msiHandler.getMessageList().size()) {
 
+                        MsiMessage msiMessage = msiHandler.getMessageList()
+                                .get(currentSelection).msiMessage;
+                        msiHandler.deleteMessage(msiMessage);
+
+                        but_read.setEnabled(false);
+                        but_goto.setEnabled(false);
+                        but_delete.setEnabled(false);
+
+                        msiTable.updateUI();
+                        
+                        
+                        if (msiHandler.getMessageList().size() > currentSelection-1){
+                            readMessage(currentSelection - 1);
+                        }else{
+                            readMessage(msiHandler.getMessageList().size() + 1);
+                        }
+                        
+
+                    }
+                }
             }
-
         });
     }
 
@@ -398,7 +476,7 @@ public class MSINotificationPanel extends JPanel {
         msiTableModel.updateMessages();
         msiTable.updateUI();
     }
-    
+
     private class MSIRowListener implements ListSelectionListener {
 
         public void valueChanged(ListSelectionEvent event) {
