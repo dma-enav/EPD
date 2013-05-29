@@ -47,6 +47,7 @@ import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.RouteEditMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
+import dk.dma.epd.shore.layers.EncLayerFactory;
 import dk.dma.epd.shore.layers.GeneralLayer;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
@@ -497,9 +498,14 @@ public class ChartPanel extends OMComponentPanel {
             bgLayer.setVisible(false);
         }
         
-        
+        // Try to create ENC layer
+        EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore
+                .getSettings().getMapSettings());
+        encLayer = encLayerFactory.getEncLayer();
 
-
+        if (encLayer != null) {
+            mapHandler.add(encLayer);
+        }
     }
 
     /**
