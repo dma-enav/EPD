@@ -544,9 +544,13 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseDragged(MouseEvent e) {
+        System.out.println("Dragging is: " + dragging);
+
+        
         if (!javax.swing.SwingUtilities.isLeftMouseButton(e)) {
             return false;
         }
+        
 
         if (!dragging) {
             mainFrame.getGlassPane().setVisible(false);
