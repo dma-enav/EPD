@@ -665,28 +665,66 @@ public class Route implements Serializable {
             count = count.getInLeg().getStartWp();
         }
         
-        String wpcountTxt = "";
+//        String wpcountTxt = "";
+//        
+//        int wpCount = this.getWaypoints().size() +1;
+//        
+//        
+//        if (wpCount < 10){
+//            wpcountTxt = "00"+wpCount;
+//        }
+//        if (wpCount >= 10){
+//            wpcountTxt = "0"+wpCount;
+//        }
+//        if (wpCount >= 100){
+//            wpcountTxt = ""+wpCount;
+//        }
         
-        int wpCount = this.getWaypoints().size() +1;
-        
-        
-        if (wpCount < 10){
-            wpcountTxt = "00"+wpCount;
-        }
-        if (wpCount >= 10){
-            wpcountTxt = "0"+wpCount;
-        }
-        if (wpCount >= 100){
-            wpcountTxt = ""+wpCount;
-        }
-        
-        newWaypoint.setName("WP__" + wpcountTxt);
+        newWaypoint.setName("WP_" + i);
 
         // add the waypoint to the linked list in the right position
         waypoints.add(i, newWaypoint);
+        
+        renameWayPoints();
+        
+        
         calcValues(true);
     }
 
+    
+    
+    private void renameWayPoints(){
+        
+        
+        for (int i = 0; i < waypoints.size(); i++) {
+            
+            String name = waypoints.get(i).getName();
+
+            int count = i +1 ;
+            
+            if (name.contains("WP_")){
+                System.out.println("the name contains it");
+                
+                String wpcountTxt = "";
+                
+                if (count < 10){
+                    wpcountTxt = "00"+count;
+                }
+                if (i >= 10){
+                    wpcountTxt = "0"+count;
+                }
+                if (i >= 100){
+                    wpcountTxt = ""+count;
+                }
+                
+                waypoints.get(i).setName("WP_" + wpcountTxt);
+            }
+            
+        }
+        
+    }
+    
+    
     /**
      * Create a waypoint by appending the waypoint to current waypoint
      * 
