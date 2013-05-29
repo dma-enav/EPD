@@ -623,6 +623,9 @@ public class ChartPanel extends OMComponentPanel {
         double centerLon = (maxLon + minLon) / 2.0;
         map.setCenter(centerLat, centerLon);
         forceAisLayerUpdate();
+        
+        
+        //What scale should be used?
 
     }
 

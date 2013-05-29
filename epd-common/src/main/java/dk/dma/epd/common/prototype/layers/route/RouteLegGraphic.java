@@ -45,10 +45,10 @@ public class RouteLegGraphic extends OMGraphicList {
 
     private OMLine animationLine;
     private OMLine broadLine;
-
-    private int routeIndex;
     
     float[] dash = { 35.0f, 35.0f };
+    private int routeIndex;
+
     float dashPhase = 5000;
 
     /**
@@ -89,6 +89,19 @@ public class RouteLegGraphic extends OMGraphicList {
      *            Stroke type of the route leg
      */
     public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color,
+            Stroke stroke, Color broadLineColor, float[] broadLineDash) {
+        super();
+        this.routeIndex = routeIndex;
+        this.routeLeg = routeLeg;
+        this.color = color;
+        this.stroke = stroke;
+        this.setVague(true);
+        initGraphics();
+        addBroadLine(broadLineColor, broadLineDash);
+    }
+    
+    
+    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color,
             Stroke stroke, Color broadLineColor) {
         super();
         this.routeIndex = routeIndex;
@@ -97,10 +110,12 @@ public class RouteLegGraphic extends OMGraphicList {
         this.stroke = stroke;
         this.setVague(true);
         initGraphics();
-        addBroadLine(broadLineColor);
+        addBroadLine(broadLineColor, new float[] { 40.0f, 15.0f });
     }
     
-    private void addBroadLine(Color color){
+    
+    
+    private void addBroadLine(Color color, float[] broadLineDash){
         if (routeLeg.getEndWp() != null) {
 
             RouteWaypoint legStart = routeLeg.getStartWp();
@@ -115,7 +130,7 @@ public class RouteLegGraphic extends OMGraphicList {
             broadLine = new OMLine(startLat, startLon, endLat, endLon, lineType);
             broadLine.setLinePaint(color);
             broadLine.setStroke(new BasicStroke(12.0f, BasicStroke.CAP_BUTT,
-                    BasicStroke.JOIN_MITER, 10.0f, new float[] { 40.0f, 15.0f }, 0.0f));
+                    BasicStroke.JOIN_MITER, 10.0f, broadLineDash, 0.0f));
 
             add(broadLine);
         }

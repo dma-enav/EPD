@@ -20,7 +20,10 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
+import java.util.ArrayList;
+import java.util.List;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
@@ -131,10 +134,20 @@ public class ThreadedMapCreator implements Runnable {
         window.getChartPanel().getVoyageHandlingLayer().handleVoyage(originalRoute, voyage, renegotiate);
         window.setSize(1280, 768);
 
-        window.getChartPanel().getMap().setScale(70000);
-        window.getChartPanel().zoomToPoint(
-                voyage.getRoute().getWaypoints().get(0).getPos());
+        window.getChartPanel().getMap().setScale(2000000);
+        
+        
+//        window.getChartPanel().zoomToPoint(
+//                voyage.getRoute().getWaypoints().get(0).getPos());
     
+        List<Position> waypoints = new ArrayList<>();
+        
+        for (int i = 0; i < voyage.getRoute().getWaypoints().size(); i++) {
+            waypoints.add(voyage.getRoute().getWaypoints().get(i).getPos());
+        }
+        
+        window.getChartPanel().zoomTo(waypoints);
+        
         return window;
     }
 

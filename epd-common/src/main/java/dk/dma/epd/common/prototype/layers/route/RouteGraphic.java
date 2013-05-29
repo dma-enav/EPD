@@ -44,6 +44,7 @@ public class RouteGraphic extends OMGraphicList {
     protected Color color;
     protected Color broadLineColor;
     protected boolean circleDash;
+    protected boolean lineDash;
 
     private int routeIndex;
 
@@ -61,8 +62,9 @@ public class RouteGraphic extends OMGraphicList {
     }
 
     public RouteGraphic(Route route, int routeIndex, boolean arrowsVisible,
-            Stroke stroke, Color color, Color broadLineColor, boolean circleDash) {
+            Stroke stroke, Color color, Color broadLineColor, boolean circleDash, boolean lineDash) {
         super();
+        this.lineDash = lineDash;
         this.route = route;
         this.routeIndex = routeIndex;
         this.arrowsVisible = arrowsVisible;
@@ -89,6 +91,10 @@ public class RouteGraphic extends OMGraphicList {
         initGraphics();
     }
 
+    
+   
+    
+    
     public void initVoyageGraphics() {
         routeWaypoints = route.getWaypoints();
         int i = 0;
@@ -103,9 +109,20 @@ public class RouteGraphic extends OMGraphicList {
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg routeLeg = routeWaypoint.getOutLeg();
 
-                // Fat legs
-                RouteLegGraphic routeLegGraphic = new RouteLegGraphic(routeLeg,
-                        routeIndex, this.color, this.stroke, broadLineColor);
+                //Do we want dashed broad legs or continued?
+                RouteLegGraphic routeLegGraphic = null;
+                
+                if (lineDash){
+                    routeLegGraphic = new RouteLegGraphic(routeLeg,
+                            routeIndex, this.color, this.stroke, broadLineColor);
+                }else{
+                    float[] dash = { 1000000.0f };
+                    
+                    routeLegGraphic = new RouteLegGraphic(routeLeg,
+                            routeIndex, this.color, this.stroke, broadLineColor, dash);
+                }
+                
+   
 
                 add(routeLegGraphic);
                 routeLegs.add(0, routeLegGraphic);

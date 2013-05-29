@@ -664,6 +664,8 @@ public class Route implements Serializable {
             i++;
             count = count.getInLeg().getStartWp();
         }
+        
+        newWaypoint.setName(newWaypoint.getName() + " insert");
 
         // add the waypoint to the linked list in the right position
         waypoints.add(i, newWaypoint);

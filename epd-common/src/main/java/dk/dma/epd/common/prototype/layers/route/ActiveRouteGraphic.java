@@ -33,7 +33,7 @@ public class ActiveRouteGraphic extends RouteGraphic {
 
     public ActiveRouteGraphic(Route route, int routeIndex, boolean arrowsVisible, Stroke stroke, Color color, Color backgroundColor) {
         super(route, routeIndex, arrowsVisible,
-                stroke, color, backgroundColor, false);
+                stroke, color, backgroundColor, false, false);
     }
 
     

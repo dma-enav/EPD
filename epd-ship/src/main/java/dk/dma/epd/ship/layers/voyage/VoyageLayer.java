@@ -121,7 +121,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
         // Added the route as green, original recieved one
         RouteGraphic routeGraphic = new RouteGraphic(route, id, true, stroke,
-                color, broadLineColor, circleDash);
+                color, broadLineColor, circleDash, true);
         graphics.add(routeGraphic);
         graphics.project(getProjection(), true);
         doPrepare();

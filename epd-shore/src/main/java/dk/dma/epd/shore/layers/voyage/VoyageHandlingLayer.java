@@ -314,7 +314,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         // Modified route, ecdis line, green broadline
         RouteGraphic modifiedVoyageGraphic = new RouteGraphic(newRoute, 1,
                 false, stroke, ECDISOrange,
-                new Color(0.39f, 0.69f, 0.49f, 0.6f), true);
+                new Color(0.39f, 0.69f, 0.49f, 0.6f), true, true);
         graphics.add(modifiedVoyageGraphic);
 
         // graphics.project(getProjection(), true);
@@ -326,13 +326,13 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         
         //Red
         RouteGraphic originalRouteGraphic = new RouteGraphic(originalRoute, 0,
-                false, stroke, ECDISOrange, new Color(1f, 0, 0, 0.4f), false);
+                false, stroke, ECDISOrange, new Color(1f, 0, 0, 0.4f), false, true);
         graphics.add(originalRouteGraphic);
         
         
         if (routeChange){
             RouteGraphic voyageGraphic = new RouteGraphic(initialRecievedRoute, 0,
-                    false, stroke, ECDISOrange, new Color(1f, 1f, 0, 0.7f), false);      
+                    false, stroke, ECDISOrange, new Color(1f, 1f, 0, 0.7f), false, true);      
             graphics.add(voyageGraphic);
         }
         
@@ -483,7 +483,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
 
         // Added the route as green, original recieved one
         RouteGraphic voyageGraphic = new RouteGraphic(newRoute, 1, false,
-                stroke, ECDISOrange, new Color(0.39f, 0.69f, 0.49f, 0.6f), false);
+                stroke, ECDISOrange, new Color(0.39f, 0.69f, 0.49f, 0.6f), false, true);
 
         
         
@@ -524,7 +524,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         //Are the routes the same?
         //originalroute vs. newroute
         RouteGraphic originalRouteGraphic = new RouteGraphic(originalRoute, 1, false,
-                stroke, ECDISOrange,  new Color(1f, 0, 0, 0.4f), false);
+                stroke, ECDISOrange,  new Color(1f, 0, 0, 0.4f), false, true);
         graphics.add(originalRouteGraphic);
         }
         

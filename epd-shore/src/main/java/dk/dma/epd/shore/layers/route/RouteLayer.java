@@ -280,7 +280,6 @@ public class RouteLayer extends OMGraphicHandlerLayer implements IRoutesUpdateLi
     @Override
     public void findAndInit(Object obj) {
         if (obj instanceof RouteManager) {
-            System.out.println("yo");
             routeManager = (RouteManager)obj;
             routeManager.addListener(this);
         }
