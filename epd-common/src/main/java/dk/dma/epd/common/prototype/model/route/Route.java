@@ -665,7 +665,22 @@ public class Route implements Serializable {
             count = count.getInLeg().getStartWp();
         }
         
-        newWaypoint.setName(newWaypoint.getName() + " insert");
+        String wpcountTxt = "";
+        
+        int wpCount = this.getWaypoints().size() +1;
+        
+        
+        if (wpCount < 10){
+            wpcountTxt = "00"+wpCount;
+        }
+        if (wpCount >= 10){
+            wpcountTxt = "0"+wpCount;
+        }
+        if (wpCount >= 100){
+            wpcountTxt = ""+wpCount;
+        }
+        
+        newWaypoint.setName("WP__" + wpcountTxt);
 
         // add the waypoint to the linked list in the right position
         waypoints.add(i, newWaypoint);
