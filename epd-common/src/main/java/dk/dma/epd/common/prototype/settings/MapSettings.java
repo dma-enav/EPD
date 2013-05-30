@@ -31,7 +31,7 @@ public class MapSettings implements Serializable {
 
     private LatLonPoint center = new LatLonPoint.Double(56, 11);
     private float scale = 10000000;
-    private boolean useEnc = false;
+    private boolean useEnc = true;
     private boolean encVisible = true;
     private int maxScale = 5000;
     

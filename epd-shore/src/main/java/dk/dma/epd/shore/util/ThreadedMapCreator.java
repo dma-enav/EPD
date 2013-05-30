@@ -118,7 +118,7 @@ public class ThreadedMapCreator implements Runnable {
             window.getChartPanel().getBgLayer().setVisible(false);
         }
 
-        if (!mainFrame.isEncLayerEnabled() && window.getChartPanel().getEncLayer() != null) {
+        if (mainFrame.isUseEnc()) {
             if (!mainFrame.isEncLayerEnabled()) {
                 window.getChartPanel().getEncLayer().setVisible(false);
             } else {
@@ -176,7 +176,7 @@ public class ThreadedMapCreator implements Runnable {
             window.getChartPanel().getBgLayer().setVisible(false);
         }
 
-        if (EPDShore.getSettings().getMapSettings().isUseEnc()) {
+        if (mainFrame.isUseEnc()) {
             if (!mainFrame.isEncLayerEnabled() && window.getChartPanel().getEncLayer() != null) {
                 window.getChartPanel().getEncLayer().setVisible(false);
             } else {
@@ -227,14 +227,19 @@ public class ThreadedMapCreator implements Runnable {
             window.getChartPanel().getBgLayer().setVisible(false);
         }
 
-        
-        if (EPDShore.getSettings().getMapSettings().isUseEnc() && window.getChartPanel().getEncLayer() != null) {
-            if (!mainFrame.isEncLayerEnabled()) {
-                window.getChartPanel().getEncLayer().setVisible(false);
-            } else {
-                window.getChartPanel().getEncLayer().setVisible(true);
+        try {
+            if (mainFrame.isUseEnc()) {
+                if (!mainFrame.isEncLayerEnabled() && window.getChartPanel().getEncLayer() != null) {
+                    window.getChartPanel().getEncLayer().setVisible(false);
+                } else {
+                    window.getChartPanel().getEncLayer().setVisible(true);
+                }
             }
+        } catch (Exception e) {
+            mainFrame.setUseEnc(false);
         }
+
+        
         
         
         if (mainFrame.getWindowCount() == 1) {

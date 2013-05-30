@@ -351,7 +351,7 @@ public class ChartPanel extends OMComponentPanel {
         Properties props = EPDShore.getProperties();
 
         
-        if (EPDShore.getSettings().getMapSettings().isUseEnc()){
+        if (EPDShore.getSettings().getMapSettings().isUseEnc() && mainFrame.isUseEnc()){
             // Try to create ENC layer
             EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore
                     .getSettings().getMapSettings());

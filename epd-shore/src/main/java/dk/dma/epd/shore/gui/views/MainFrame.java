@@ -78,6 +78,7 @@ public class MainFrame extends JFrame implements WindowListener {
     private boolean wmsLayerEnabled;
     private boolean msiLayerEnabled = true;
     private boolean encLayerEnabled;
+    private boolean useEnc;
 
     private BeanContextServicesSupport beanHandler;
     private List<JMapFrame> mapWindows;
@@ -272,13 +273,25 @@ public class MainFrame extends JFrame implements WindowListener {
         if (this.getMapWindows().size() > 0) {
             if (this.getMapWindows().get(0).getChartPanel().getEncLayer() != null && !this.getToolbar().isEncButtonEnabled()) {
                 this.getToolbar().enableEncButton();
-            }else{
-                //Disabling ENC
-                EPDShore.getSettings().getMapSettings().setUseEnc(false);
-//            this.setEncLayerEnabled(false);
             }
+            
+//            else{
+//                //Disabling ENC
+//                useEnc = false;
+////            this.setEncLayerEnabled(false);
+//            }
         }
 
+    }
+
+    
+    
+    public boolean isUseEnc() {
+        return useEnc;
+    }
+
+    public void setUseEnc(boolean useEnc) {
+        this.useEnc = useEnc;
     }
 
     /**
@@ -386,7 +399,9 @@ public class MainFrame extends JFrame implements WindowListener {
         wmsLayerEnabled = guiSettings.useWMS();
         encLayerEnabled = EPDShore.getSettings().getMapSettings()
                 .isEncVisible();
-
+        useEnc = EPDShore.getSettings().getMapSettings().isUseEnc();
+        
+        
         Workspace workspace = EPDShore.getSettings().getWorkspace();
 
         setTitle(TITLE);
