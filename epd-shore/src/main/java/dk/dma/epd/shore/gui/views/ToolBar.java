@@ -192,8 +192,6 @@ public class ToolBar extends JInternalFrame {
                 if (mainFrame.isWmsLayerEnabled()) {
                     mainFrame.setWmsLayerEnabled(false);
                     for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                        // if(mainFrame.getMapWindows().get(i).getChartPanel().getWmsLayer().isVisible()){
-
                         mainFrame.getMapWindows().get(i).getChartPanel()
                                 .getWmsLayer().setVisible(false);
                         mainFrame.getMapWindows().get(i).getChartPanel()
@@ -204,12 +202,11 @@ public class ToolBar extends JInternalFrame {
                 } else {
                     mainFrame.setWmsLayerEnabled(true);
                     for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-
                         mainFrame.getMapWindows().get(i).getChartPanel()
                                 .getWmsLayer().setVisible(true);
                         mainFrame.getMapWindows().get(i).getChartPanel()
                                 .getBgLayer().setVisible(false);
-
+                        
                         setActiveToolItem(wms, layerToolItems);
                     }
                 }
@@ -246,6 +243,49 @@ public class ToolBar extends JInternalFrame {
             }
         });
         layerToolItems.addToolItem(msi);
+
+        if (EPDShore.getSettings().getMapSettings().isUseEnc()) {
+
+            // Tool: ENC layer
+            final JLabel enc = new JLabel(
+                    toolbarIcon("images/toolbar/map-medium.png"));
+            enc.setName("enc");
+            enc.addMouseListener(new MouseAdapter() {
+                public void mouseReleased(MouseEvent e) {
+                    if (mainFrame.isEncLayerEnabled()) {
+                        mainFrame.setEncLayerEnabled(false);
+                        for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
+                            mainFrame.getMapWindows().get(i).getChartPanel()
+                                    .getEncLayer().setVisible(false);
+//                            mainFrame.getMapWindows().get(i).getChartPanel()
+//                                    .getBgLayer().setVisible(true);
+                        }
+                        setInactiveToolItem(enc);
+
+                    } else {
+                        mainFrame.setEncLayerEnabled(true);
+                        for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
+
+                            mainFrame.getMapWindows().get(i).getChartPanel()
+                                    .getEncLayer().setVisible(true);
+//                            mainFrame.getMapWindows().get(i).getChartPanel()
+//                                    .getBgLayer().setVisible(false);
+
+                            setActiveToolItem(enc, layerToolItems);
+                        }
+                    }
+                }
+            });
+
+            // is visible vs. is active
+            // disable bg or wms or enc?
+
+            layerToolItems.addToolItem(enc);
+            if (EPDShore.getSettings().getMapSettings().isEncVisible()) {
+                setActiveToolItem(enc, layerToolItems);
+            }
+
+        }
 
         // Set that the layer tools can have more than 1 active tool item at a
         // time

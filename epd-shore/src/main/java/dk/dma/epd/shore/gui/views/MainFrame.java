@@ -77,7 +77,10 @@ public class MainFrame extends JFrame implements WindowListener {
     private int mouseMode = 2;
     private boolean wmsLayerEnabled;
     private boolean msiLayerEnabled = true;
-
+    private boolean encLayerEnabled;
+    
+    
+    
     private BeanContextServicesSupport beanHandler;
     private List<JMapFrame> mapWindows;
     private JMainDesktopPane desktop;
@@ -369,7 +372,9 @@ public class MainFrame extends JFrame implements WindowListener {
         // System.out.println("Setting wmslayer enabled to:" +
         // guiSettings.useWMS());
         wmsLayerEnabled = guiSettings.useWMS();
-
+        encLayerEnabled =EPDShore.getSettings().getMapSettings().isEncVisible();
+        
+        
         Workspace workspace = EPDShore.getSettings().getWorkspace();
 
         setTitle(TITLE);
@@ -711,6 +716,22 @@ public class MainFrame extends JFrame implements WindowListener {
      */
     public void setWmsLayerEnabled(boolean wmsLayerEnabled) {
         this.wmsLayerEnabled = wmsLayerEnabled;
+    }
+    
+    
+
+    /**
+     * @return the encLayerEnabled
+     */
+    public boolean isEncLayerEnabled() {
+        return encLayerEnabled;
+    }
+
+    /**
+     * @param encLayerEnabled the encLayerEnabled to set
+     */
+    public void setEncLayerEnabled(boolean encLayerEnabled) {
+        this.encLayerEnabled = encLayerEnabled;
     }
 
     /**

@@ -45,20 +45,19 @@ public class ThreadedMapCreator implements Runnable {
     private boolean loadFromWorkspace;
     private boolean monaLisaHandling;
     private boolean renegotiate;
-    
+
     private String shipName;
     private Voyage voyage;
-    
+
     private MainFrame mainFrame;
     private Route originalRoute;
-    
-    
-    public ThreadedMapCreator(MainFrame mainFrame, boolean workspace, boolean locked,
-            boolean alwaysInFront, Point2D center, float scale, String title,
-            Dimension size, Point location, Boolean maximized) {
+
+    public ThreadedMapCreator(MainFrame mainFrame, boolean workspace,
+            boolean locked, boolean alwaysInFront, Point2D center, float scale,
+            String title, Dimension size, Point location, Boolean maximized) {
 
         this.mainFrame = mainFrame;
-        
+
         this.workspace = workspace;
         this.locked = locked;
         this.alwaysInFront = alwaysInFront;
@@ -70,7 +69,7 @@ public class ThreadedMapCreator implements Runnable {
         this.maximized = maximized;
 
         loadFromWorkspace = true;
-        monaLisaHandling= false;
+        monaLisaHandling = false;
     }
 
     public ThreadedMapCreator(MainFrame mainFrame) {
@@ -78,8 +77,9 @@ public class ThreadedMapCreator implements Runnable {
         loadFromWorkspace = false;
         monaLisaHandling = false;
     }
-    
-    public ThreadedMapCreator(MainFrame mainFrame, String shipName, Voyage voyage, Route originalRoute, boolean renegotiate) {
+
+    public ThreadedMapCreator(MainFrame mainFrame, String shipName,
+            Voyage voyage, Route originalRoute, boolean renegotiate) {
         this.mainFrame = mainFrame;
         this.shipName = shipName;
         this.voyage = voyage;
@@ -88,24 +88,23 @@ public class ThreadedMapCreator implements Runnable {
         monaLisaHandling = true;
         this.renegotiate = renegotiate;
     }
-    
-    
-    public JMapFrame addMonaLisaHandlingWindow(String shipName, Voyage voyage, Route originalRoute, boolean renegotiate) {
+
+    public JMapFrame addMonaLisaHandlingWindow(String shipName, Voyage voyage,
+            Route originalRoute, boolean renegotiate) {
         mainFrame.increaseWindowCount();
 
-        JMapFrame window = new JMapFrame(mainFrame
-                .getWindowCount(), mainFrame, true);
-        
-        
-//        VoyageHandlingLayer voyageHandlingLayer = new VoyageHandlingLayer();
-//        voyageHandlingLayer.handleVoyage(voyage);
+        JMapFrame window = new JMapFrame(mainFrame.getWindowCount(), mainFrame,
+                true);
 
-//        window.getChartPanel().getMapHandler().add(voyageHandlingLayer);
-        
+        // VoyageHandlingLayer voyageHandlingLayer = new VoyageHandlingLayer();
+        // voyageHandlingLayer.handleVoyage(voyage);
+
+        // window.getChartPanel().getMapHandler().add(voyageHandlingLayer);
+
         mainFrame.getDesktop().add(window);
 
         window.setTitle("Handle route request " + shipName);
-        
+
         mainFrame.getMapWindows().add(window);
         mainFrame.getTopMenu().addMap(window, false, false);
 
@@ -119,6 +118,13 @@ public class ThreadedMapCreator implements Runnable {
             window.getChartPanel().getBgLayer().setVisible(false);
         }
 
+        if (EPDShore.getSettings().getMapSettings().isUseEnc()) {
+            if (!mainFrame.isEncLayerEnabled()) {
+                window.getChartPanel().getEncLayer().setVisible(false);
+            } else {
+                window.getChartPanel().getEncLayer().setVisible(true);
+            }
+        }
         if (!mainFrame.isMsiLayerEnabled()) {
             window.getChartPanel().getMsiLayer().setVisible(false);
 
@@ -128,36 +134,34 @@ public class ThreadedMapCreator implements Runnable {
             EPDShore.getBeanHandler().add(
                     window.getChartPanel().getWmsLayer().getWmsService());
         }
-        
+
         window.alwaysFront();
-        
-        window.getChartPanel().getVoyageHandlingLayer().handleVoyage(originalRoute, voyage, renegotiate);
+
+        window.getChartPanel().getVoyageHandlingLayer()
+                .handleVoyage(originalRoute, voyage, renegotiate);
         window.setSize(1280, 768);
 
         window.getChartPanel().getMap().setScale(2000000);
-        
-        
-//        window.getChartPanel().zoomToPoint(
-//                voyage.getRoute().getWaypoints().get(0).getPos());
-    
+
+        // window.getChartPanel().zoomToPoint(
+        // voyage.getRoute().getWaypoints().get(0).getPos());
+
         List<Position> waypoints = new ArrayList<>();
-        
+
         for (int i = 0; i < voyage.getRoute().getWaypoints().size(); i++) {
             waypoints.add(voyage.getRoute().getWaypoints().get(i).getPos());
         }
-        
+
         window.getChartPanel().zoomTo(waypoints);
-        
+
         return window;
     }
-
-    
 
     public JMapFrame addMapWindow() {
         mainFrame.increaseWindowCount();
 
-        JMapFrame window = new JMapFrame(mainFrame
-                .getWindowCount(), mainFrame, false);
+        JMapFrame window = new JMapFrame(mainFrame.getWindowCount(), mainFrame,
+                false);
         mainFrame.getDesktop().add(window);
 
         mainFrame.getMapWindows().add(window);
@@ -168,9 +172,16 @@ public class ThreadedMapCreator implements Runnable {
             window.getChartPanel().getWmsLayer().setVisible(false);
             window.getChartPanel().getBgLayer().setVisible(true);
         } else {
-            // System.out.println("wmslayer is enabled");
             window.getChartPanel().getWmsLayer().setVisible(true);
             window.getChartPanel().getBgLayer().setVisible(false);
+        }
+
+        if (EPDShore.getSettings().getMapSettings().isUseEnc()) {
+            if (!mainFrame.isEncLayerEnabled()) {
+                window.getChartPanel().getEncLayer().setVisible(false);
+            } else {
+                window.getChartPanel().getEncLayer().setVisible(true);
+            }
         }
 
         if (!mainFrame.isMsiLayerEnabled()) {
@@ -189,11 +200,11 @@ public class ThreadedMapCreator implements Runnable {
     public JMapFrame addMapWindow(boolean workspace, boolean locked,
             boolean alwaysInFront, Point2D center, float scale, String title,
             Dimension size, Point location, Boolean maximized) {
-        
+
         mainFrame.increaseWindowCount();
 
-        JMapFrame window = new JMapFrame(mainFrame
-                .getWindowCount(), mainFrame, center, scale);
+        JMapFrame window = new JMapFrame(mainFrame.getWindowCount(), mainFrame,
+                center, scale);
 
         window.setTitle(title);
         // Maybe not needed
@@ -204,8 +215,7 @@ public class ThreadedMapCreator implements Runnable {
 
         window.toFront();
 
-        mainFrame.getTopMenu()
-                .addMap(window, locked, alwaysInFront);
+        mainFrame.getTopMenu().addMap(window, locked, alwaysInFront);
 
         window.getChartPanel().getMsiLayer()
                 .setVisible(mainFrame.isMsiLayerEnabled());
@@ -217,6 +227,16 @@ public class ThreadedMapCreator implements Runnable {
             window.getChartPanel().getBgLayer().setVisible(false);
         }
 
+        
+        if (EPDShore.getSettings().getMapSettings().isUseEnc()) {
+            if (!mainFrame.isEncLayerEnabled()) {
+                window.getChartPanel().getEncLayer().setVisible(false);
+            } else {
+                window.getChartPanel().getEncLayer().setVisible(true);
+            }
+        }
+        
+        
         if (mainFrame.getWindowCount() == 1) {
             EPDShore.getBeanHandler().add(
                     window.getChartPanel().getWmsLayer().getWmsService());
@@ -225,9 +245,7 @@ public class ThreadedMapCreator implements Runnable {
         window.setSize(size);
 
         window.setLocation(location);
-        
-        
-        
+
         if (maximized) {
             window.setSize(600, 600);
             window.setMaximizedIcon();
@@ -246,7 +264,7 @@ public class ThreadedMapCreator implements Runnable {
         if (alwaysInFront) {
             window.alwaysFront();
         }
-        
+
         return window;
     }
 
@@ -257,13 +275,14 @@ public class ThreadedMapCreator implements Runnable {
             addMapWindow(workspace, locked, alwaysInFront, center, scale,
                     title, size, location, maximized);
             return;
-        } 
-        
-        if (monaLisaHandling){
-            addMonaLisaHandlingWindow(shipName, voyage, originalRoute, renegotiate);
+        }
+
+        if (monaLisaHandling) {
+            addMonaLisaHandlingWindow(shipName, voyage, originalRoute,
+                    renegotiate);
             return;
         }
-        
+
         addMapWindow();
 
     }

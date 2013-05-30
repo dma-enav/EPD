@@ -350,6 +350,12 @@ public class ChartPanel extends OMComponentPanel {
     public void initChartDefault(boolean voyageHandleLayer) {
         Properties props = EPDShore.getProperties();
 
+        // Try to create ENC layer
+        EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore
+                .getSettings().getMapSettings());
+        encLayer = encLayerFactory.getEncLayer();
+
+        
         map = new BufferedLayerMapBean();
 
         // LLXY llxyProjection = new LLXY((LatLonPoint) center, scale, 100,
@@ -472,6 +478,10 @@ public class ChartPanel extends OMComponentPanel {
         monaLisaHandler = EPDShore.getMonaLisaHandler();
         mapHandler.add(monaLisaHandler);
         
+        
+
+
+        
         // Create background layer
         String layerName = "background";
         bgLayer = new ShapeLayer();
@@ -480,9 +490,20 @@ public class ChartPanel extends OMComponentPanel {
         bgLayer.setVisible(true);
         mapHandler.add(bgLayer);
 
+        
+        if (encLayer != null) {
+            mapHandler.add(encLayer);
+        }
+        
+        
+        
+        
         // Add map to map handler
         mapHandler.add(map);
 
+        
+
+        
         // Force a MSI layer update
         msiLayer.doUpdate();
 
@@ -498,14 +519,7 @@ public class ChartPanel extends OMComponentPanel {
             bgLayer.setVisible(false);
         }
         
-        // Try to create ENC layer
-        EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore
-                .getSettings().getMapSettings());
-        encLayer = encLayerFactory.getEncLayer();
 
-        if (encLayer != null) {
-            mapHandler.add(encLayer);
-        }
     }
 
     /**
