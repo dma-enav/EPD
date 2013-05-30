@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.monalisa;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
@@ -56,7 +57,6 @@ public class MonaLisaRouteOptimization extends MapHandlerChild
     // private static final Logger LOG = Logger
     // .getLogger(MonaLisaRouteExchange.class);
 
-
     // private ShoreServiceStatus status = new ShoreServiceStatus();
     protected ShoreServicesCommon shoreService;
     protected RouteManager routeManager;
@@ -76,8 +76,6 @@ public class MonaLisaRouteOptimization extends MapHandlerChild
 
         // Create the ship data
         CurrentShipDataType currentShipData = new CurrentShipDataType();
-
-  
 
         // Current ship data
         currentShipData.setImoid("1234567");
@@ -150,7 +148,10 @@ public class MonaLisaRouteOptimization extends MapHandlerChild
 
     public Route convertRouteBack(RouteresponseType response) {
         Route route = new Route();
-
+//        route.setEtas(new ArrayList<Date>());
+        
+        ArrayList<Date> etas = new ArrayList<>();
+        
         route.setName("Optimized Mona Lisa Route");
 
         WaypointsType waypointsType = response.getRoute().getWaypoints();
@@ -219,6 +220,8 @@ public class MonaLisaRouteOptimization extends MapHandlerChild
                 }
             }
 
+            etas.add(responseWaypoint.getETA().toGregorianCalendar().getTime());
+            
             routeWaypoints.add(waypoint);
 
         }
@@ -252,6 +255,8 @@ public class MonaLisaRouteOptimization extends MapHandlerChild
             }
         }
 
+        route.setEtas(etas);
+        
         return route;
     }
 
@@ -318,7 +323,6 @@ public class MonaLisaRouteOptimization extends MapHandlerChild
 
     @Override
     public void findAndInit(Object obj) {
-
 
         if (shoreService == null && obj instanceof ShoreServicesCommon) {
             shoreService = (ShoreServicesCommon) obj;

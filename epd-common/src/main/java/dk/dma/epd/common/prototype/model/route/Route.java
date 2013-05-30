@@ -919,7 +919,8 @@ public class Route implements Serializable {
             RouteWaypoint currentWaypoint = getWaypoints().get(i);
 
             voyageWaypoint.setName(currentWaypoint.getName());
-            voyageWaypoint.setEta(etas.get(i));
+            voyageWaypoint.setEta(
+                    etas.get(i));
             voyageWaypoint.setLatitude(currentWaypoint.getPos().getLatitude());
             voyageWaypoint
                     .setLongitude(currentWaypoint.getPos().getLongitude());
