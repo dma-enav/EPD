@@ -141,7 +141,7 @@ public class ThreadedMapCreator implements Runnable {
                 .handleVoyage(originalRoute, voyage, renegotiate);
         window.setSize(1280, 768);
 
-        window.getChartPanel().getMap().setScale(2000000);
+        window.getChartPanel().getMap().setScale(1394055);
 
         // window.getChartPanel().zoomToPoint(
         // voyage.getRoute().getWaypoints().get(0).getPos());

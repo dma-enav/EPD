@@ -233,7 +233,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
         routeNotAcceptedPanel.add(btnViewRoute);
 
         btnAccept = new JButton("Accept");
-        btnAccept.setBounds(252, 363, 87, 23);
+        btnAccept.setBounds(194, 363, 145, 23);
         btnAccept.addActionListener(this);
         routeNotAcceptedPanel.add(btnAccept);
 
