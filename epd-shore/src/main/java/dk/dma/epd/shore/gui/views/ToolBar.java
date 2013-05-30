@@ -73,6 +73,8 @@ public class ToolBar extends JInternalFrame {
     private Border toolInnerEtchedBorder = BorderFactory.createEtchedBorder(
             EtchedBorder.LOWERED, new Color(37, 37, 37), new Color(52, 52, 52));
 
+    final JLabel enc = new JLabel(toolbarIcon("images/toolbar/map-medium.png"));
+
     private boolean routeCreation;
     private final JLabel newRoute;
     private final ToolItemGroup routeToolItems;
@@ -206,7 +208,7 @@ public class ToolBar extends JInternalFrame {
                                 .getWmsLayer().setVisible(true);
                         mainFrame.getMapWindows().get(i).getChartPanel()
                                 .getBgLayer().setVisible(false);
-                        
+
                         setActiveToolItem(wms, layerToolItems);
                     }
                 }
@@ -244,47 +246,60 @@ public class ToolBar extends JInternalFrame {
         });
         layerToolItems.addToolItem(msi);
 
-        if (EPDShore.getSettings().getMapSettings().isUseEnc()) {
+        try {
 
-            // Tool: ENC layer
-            final JLabel enc = new JLabel(
-                    toolbarIcon("images/toolbar/map-medium.png"));
-            enc.setName("enc");
-            enc.addMouseListener(new MouseAdapter() {
-                public void mouseReleased(MouseEvent e) {
-                    if (mainFrame.isEncLayerEnabled()) {
-                        mainFrame.setEncLayerEnabled(false);
-                        for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                            mainFrame.getMapWindows().get(i).getChartPanel()
-                                    .getEncLayer().setVisible(false);
-//                            mainFrame.getMapWindows().get(i).getChartPanel()
-//                                    .getBgLayer().setVisible(true);
-                        }
-                        setInactiveToolItem(enc);
+            if (EPDShore.getSettings().getMapSettings().isUseEnc()) {
 
-                    } else {
-                        mainFrame.setEncLayerEnabled(true);
-                        for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
+                // Tool: ENC layer
 
-                            mainFrame.getMapWindows().get(i).getChartPanel()
-                                    .getEncLayer().setVisible(true);
-//                            mainFrame.getMapWindows().get(i).getChartPanel()
-//                                    .getBgLayer().setVisible(false);
+                enc.setName("enc");
+                enc.addMouseListener(new MouseAdapter() {
+                    public void mouseReleased(MouseEvent e) {
+                        if (enc.isEnabled()) {
 
-                            setActiveToolItem(enc, layerToolItems);
+                            if (mainFrame.isEncLayerEnabled()) {
+                                mainFrame.setEncLayerEnabled(false);
+                                for (int i = 0; i < mainFrame.getMapWindows()
+                                        .size(); i++) {
+                                    mainFrame.getMapWindows().get(i)
+                                            .getChartPanel().getEncLayer()
+                                            .setVisible(false);
+                                    // mainFrame.getMapWindows().get(i).getChartPanel()
+                                    // .getBgLayer().setVisible(true);
+                                }
+                                setInactiveToolItem(enc);
+
+                            } else {
+                                mainFrame.setEncLayerEnabled(true);
+                                for (int i = 0; i < mainFrame.getMapWindows()
+                                        .size(); i++) {
+
+                                    mainFrame.getMapWindows().get(i)
+                                            .getChartPanel().getEncLayer()
+                                            .setVisible(true);
+                                    // mainFrame.getMapWindows().get(i).getChartPanel()
+                                    // .getBgLayer().setVisible(false);
+
+                                    setActiveToolItem(enc, layerToolItems);
+                                }
+                            }
                         }
                     }
+                });
+
+                // is visible vs. is active
+                // disable bg or wms or enc?
+
+                layerToolItems.addToolItem(enc);
+                if (EPDShore.getSettings().getMapSettings().isEncVisible()) {
+                    setActiveToolItem(enc, layerToolItems);
                 }
-            });
 
-            // is visible vs. is active
-            // disable bg or wms or enc?
-
-            layerToolItems.addToolItem(enc);
-            if (EPDShore.getSettings().getMapSettings().isEncVisible()) {
-                setActiveToolItem(enc, layerToolItems);
+                enc.setEnabled(false);
             }
-
+        } catch (Exception e) {
+            // TODO: handle exception
+            System.out.println("failed to load enc dongle");
         }
 
         // Set that the layer tools can have more than 1 active tool item at a
@@ -353,6 +368,10 @@ public class ToolBar extends JInternalFrame {
         // And finally refresh the toolbar
         repaintToolbar();
 
+    }
+
+    public void enableEncButton() {
+        enc.setEnabled(true);
     }
 
     public void newRoute() {
@@ -604,5 +623,9 @@ public class ToolBar extends JInternalFrame {
      */
     public int getHeight() {
         return height;
+    }
+
+    public boolean isEncButtonEnabled() {
+        return enc.isEnabled();
     }
 }

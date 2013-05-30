@@ -118,7 +118,7 @@ public class ThreadedMapCreator implements Runnable {
             window.getChartPanel().getBgLayer().setVisible(false);
         }
 
-        if (EPDShore.getSettings().getMapSettings().isUseEnc()) {
+        if (!mainFrame.isEncLayerEnabled() && window.getChartPanel().getEncLayer() != null) {
             if (!mainFrame.isEncLayerEnabled()) {
                 window.getChartPanel().getEncLayer().setVisible(false);
             } else {
@@ -177,7 +177,7 @@ public class ThreadedMapCreator implements Runnable {
         }
 
         if (EPDShore.getSettings().getMapSettings().isUseEnc()) {
-            if (!mainFrame.isEncLayerEnabled()) {
+            if (!mainFrame.isEncLayerEnabled() && window.getChartPanel().getEncLayer() != null) {
                 window.getChartPanel().getEncLayer().setVisible(false);
             } else {
                 window.getChartPanel().getEncLayer().setVisible(true);
@@ -228,7 +228,7 @@ public class ThreadedMapCreator implements Runnable {
         }
 
         
-        if (EPDShore.getSettings().getMapSettings().isUseEnc()) {
+        if (EPDShore.getSettings().getMapSettings().isUseEnc() && window.getChartPanel().getEncLayer() != null) {
             if (!mainFrame.isEncLayerEnabled()) {
                 window.getChartPanel().getEncLayer().setVisible(false);
             } else {
@@ -264,7 +264,7 @@ public class ThreadedMapCreator implements Runnable {
         if (alwaysInFront) {
             window.alwaysFront();
         }
-
+        
         return window;
     }
 

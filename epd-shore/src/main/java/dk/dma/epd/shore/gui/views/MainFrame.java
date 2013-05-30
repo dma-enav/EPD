@@ -78,9 +78,7 @@ public class MainFrame extends JFrame implements WindowListener {
     private boolean wmsLayerEnabled;
     private boolean msiLayerEnabled = true;
     private boolean encLayerEnabled;
-    
-    
-    
+
     private BeanContextServicesSupport beanHandler;
     private List<JMapFrame> mapWindows;
     private JMainDesktopPane desktop;
@@ -170,55 +168,57 @@ public class MainFrame extends JFrame implements WindowListener {
         // return window;
     }
 
-    public void addMonaLisaHandlingWindow(Route originalRoute, String shipName, Voyage voyage, boolean renegotiate) {
-        new ThreadedMapCreator(this, shipName, voyage, originalRoute, renegotiate).run();
-//        windowCount++;
-//        JMapFrame window = new JMapFrame(windowCount, this);
-//
-//        desktop.add(window);
-//
-//        mapWindows.add(window);
-//
-//        window.setTitle("Handle route request " + shipName);
-//        // window.toFront();
-//
-//        topMenu.addMap(window, false, false);
-//
-//        if (!wmsLayerEnabled) {
-//            // System.out.println("wmslayer is not enabled");
-//            window.getChartPanel().getWmsLayer().setVisible(false);
-//            window.getChartPanel().getBgLayer().setVisible(true);
-//        } else {
-//            // System.out.println("wmslayer is enabled");
-//            window.getChartPanel().getWmsLayer().setVisible(true);
-//            window.getChartPanel().getBgLayer().setVisible(false);
-//        }
-//
-//        if (!msiLayerEnabled) {
-//            window.getChartPanel().getMsiLayer().setVisible(false);
-//
-//        }
-//
-//        if (windowCount == 1) {
-//            beanHandler.add(window.getChartPanel().getWmsLayer()
-//                    .getWmsService());
-//        }
-//
-//        window.alwaysFront();
-//
-//        VoyageHandlingLayer voyageHandlingLayer = new VoyageHandlingLayer();
-//        voyageHandlingLayer.handleVoyage(voyage);
-//
-//        window.getChartPanel().getMapHandler().add(voyageHandlingLayer);
-//
-//        // map.setCenter(center);
-//        // map.setScale(scale);
-//
-//        window.getChartPanel().getMap().setScale(5);
-//        window.getChartPanel().zoomToPoint(
-//                voyage.getRoute().getWaypoints().get(0).getPos());
-//
-//        return window;
+    public void addMonaLisaHandlingWindow(Route originalRoute, String shipName,
+            Voyage voyage, boolean renegotiate) {
+        new ThreadedMapCreator(this, shipName, voyage, originalRoute,
+                renegotiate).run();
+        // windowCount++;
+        // JMapFrame window = new JMapFrame(windowCount, this);
+        //
+        // desktop.add(window);
+        //
+        // mapWindows.add(window);
+        //
+        // window.setTitle("Handle route request " + shipName);
+        // // window.toFront();
+        //
+        // topMenu.addMap(window, false, false);
+        //
+        // if (!wmsLayerEnabled) {
+        // // System.out.println("wmslayer is not enabled");
+        // window.getChartPanel().getWmsLayer().setVisible(false);
+        // window.getChartPanel().getBgLayer().setVisible(true);
+        // } else {
+        // // System.out.println("wmslayer is enabled");
+        // window.getChartPanel().getWmsLayer().setVisible(true);
+        // window.getChartPanel().getBgLayer().setVisible(false);
+        // }
+        //
+        // if (!msiLayerEnabled) {
+        // window.getChartPanel().getMsiLayer().setVisible(false);
+        //
+        // }
+        //
+        // if (windowCount == 1) {
+        // beanHandler.add(window.getChartPanel().getWmsLayer()
+        // .getWmsService());
+        // }
+        //
+        // window.alwaysFront();
+        //
+        // VoyageHandlingLayer voyageHandlingLayer = new VoyageHandlingLayer();
+        // voyageHandlingLayer.handleVoyage(voyage);
+        //
+        // window.getChartPanel().getMapHandler().add(voyageHandlingLayer);
+        //
+        // // map.setCenter(center);
+        // // map.setScale(scale);
+        //
+        // window.getChartPanel().getMap().setScale(5);
+        // window.getChartPanel().zoomToPoint(
+        // voyage.getRoute().getWaypoints().get(0).getPos());
+        //
+        // return window;
     }
 
     /**
@@ -240,8 +240,9 @@ public class MainFrame extends JFrame implements WindowListener {
             boolean alwaysInFront, Point2D center, float scale, String title,
             Dimension size, Point location, Boolean maximized) {
 
-        ThreadedMapCreator windowCreator = new ThreadedMapCreator(this,workspace,
-                locked, alwaysInFront, center, scale, title, size, location, maximized);
+        ThreadedMapCreator windowCreator = new ThreadedMapCreator(this,
+                workspace, locked, alwaysInFront, center, scale, title, size,
+                location, maximized);
 
         windowCreator.run();
 
@@ -267,6 +268,17 @@ public class MainFrame extends JFrame implements WindowListener {
         // }
         //
         // return window;
+
+        if (this.getMapWindows().size() > 0) {
+            if (this.getMapWindows().get(0).getChartPanel().getEncLayer() != null && !this.getToolbar().isEncButtonEnabled()) {
+                this.getToolbar().enableEncButton();
+            }else{
+                //Disabling ENC
+                EPDShore.getSettings().getMapSettings().setUseEnc(false);
+//            this.setEncLayerEnabled(false);
+            }
+        }
+
     }
 
     /**
@@ -372,9 +384,9 @@ public class MainFrame extends JFrame implements WindowListener {
         // System.out.println("Setting wmslayer enabled to:" +
         // guiSettings.useWMS());
         wmsLayerEnabled = guiSettings.useWMS();
-        encLayerEnabled =EPDShore.getSettings().getMapSettings().isEncVisible();
-        
-        
+        encLayerEnabled = EPDShore.getSettings().getMapSettings()
+                .isEncVisible();
+
         Workspace workspace = EPDShore.getSettings().getWorkspace();
 
         setTitle(TITLE);
@@ -578,13 +590,6 @@ public class MainFrame extends JFrame implements WindowListener {
 
                 );
 
-
-
-                
-               
-
-
-
                 // window.getChartPanel().getMap().setScale(0.001f);
                 // window.getChartPanel().getMap().setCenter(workspace.getCenter().get(i));
             }
@@ -717,8 +722,6 @@ public class MainFrame extends JFrame implements WindowListener {
     public void setWmsLayerEnabled(boolean wmsLayerEnabled) {
         this.wmsLayerEnabled = wmsLayerEnabled;
     }
-    
-    
 
     /**
      * @return the encLayerEnabled
@@ -728,7 +731,8 @@ public class MainFrame extends JFrame implements WindowListener {
     }
 
     /**
-     * @param encLayerEnabled the encLayerEnabled to set
+     * @param encLayerEnabled
+     *            the encLayerEnabled to set
      */
     public void setEncLayerEnabled(boolean encLayerEnabled) {
         this.encLayerEnabled = encLayerEnabled;
@@ -770,7 +774,7 @@ public class MainFrame extends JFrame implements WindowListener {
     public SendRouteDialog getSendRouteDialog() {
         return sendRouteDialog;
     }
-    
+
     public SendVoyageDialog getSendVoyageDialog() {
         return sendVoyageDialog;
     }

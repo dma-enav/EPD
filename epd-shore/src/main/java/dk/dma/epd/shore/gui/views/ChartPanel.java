@@ -350,10 +350,15 @@ public class ChartPanel extends OMComponentPanel {
     public void initChartDefault(boolean voyageHandleLayer) {
         Properties props = EPDShore.getProperties();
 
-        // Try to create ENC layer
-        EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore
-                .getSettings().getMapSettings());
-        encLayer = encLayerFactory.getEncLayer();
+        
+        if (mainFrame.isEncLayerEnabled()){
+            // Try to create ENC layer
+            EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore
+                    .getSettings().getMapSettings());
+            encLayer = encLayerFactory.getEncLayer();
+        }
+        
+
 
         
         map = new BufferedLayerMapBean();
