@@ -271,6 +271,10 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
                         newLatLon.getLongitude());
                 routeWaypoint.setPos(newLocation);
 
+//                newRoute.calcAllWpEta();
+                newRoute.calcValues(true);
+                
+                
                 if (!modified) {
                     changeName();
                 }

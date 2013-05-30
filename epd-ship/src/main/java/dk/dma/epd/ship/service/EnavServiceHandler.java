@@ -331,7 +331,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     }
 
     public void sendMonaLisaAck(long addressMMSI, long id, long ownMMSI,
-            boolean ack) {
+            boolean ack, String message) {
         String mmsiStr = "mmsi://" + addressMMSI;
 
         System.out.println(mmsiStr);
@@ -353,7 +353,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
             // }
         }
 
-        MonaLisaRouteAckMsg msg = new MonaLisaRouteAckMsg(ack, id, ownMMSI);
+        MonaLisaRouteAckMsg msg = new MonaLisaRouteAckMsg(ack, id, ownMMSI, message);
 
         if (end != null) {
 

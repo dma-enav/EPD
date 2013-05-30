@@ -16,13 +16,17 @@
 package dk.dma.epd.shore.gui.views.monalisa;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.util.Date;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
+import dk.dma.enav.model.voyage.Route;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
@@ -73,11 +77,32 @@ public class MonaLisaNegotiationView extends JPanel {
         GuiStyler.styleText(lblRouteName);
         requestPanel.add(lblRouteName);
 
-        JLabel requestMessageTxt = new JLabel(
-                monaLisaRouteRequestMessage.getMessage());
-        requestMessageTxt.setBounds(10, 40, 243, 14);
-        GuiStyler.styleText(requestMessageTxt);
-        requestPanel.add(requestMessageTxt);
+        
+        
+        
+        JTextArea requestMessageTxt = new JTextArea(monaLisaRouteRequestMessage.getMessage());
+        requestMessageTxt.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        requestMessageTxt.setBackground(Color.WHITE);
+        requestMessageTxt.setLineWrap(true);
+        requestMessageTxt.setBorder(null);
+        requestMessageTxt.setEditable(false);
+        
+        
+        GuiStyler.styleArea(requestMessageTxt);
+        
+        JScrollPane requestMessageSP = new JScrollPane(requestMessageTxt);
+        requestMessageSP.setBorder(new MatteBorder(1, 1, 1, 1, (Color) new Color(0, 0, 0)));
+        requestMessageSP.setBounds(10, 37, 243, 41);
+        requestPanel.add(requestMessageSP);
+        
+        
+        
+        
+//        JLabel requestMessageTxt = new JLabel(
+//                monaLisaRouteRequestMessage.getMessage());
+//        requestMessageTxt.setBounds(10, 40, 243, 14);
+//        GuiStyler.styleText(requestMessageTxt);
+//        requestPanel.add(requestMessageTxt);
 
         JLabel sentDateTxt = new JLabel(
                 Formatter.formatLongDateTime(monaLisaRouteRequestMessage
@@ -108,6 +133,9 @@ public class MonaLisaNegotiationView extends JPanel {
         lblNoReply.setBounds(10, 20, 243, 14);
         replyPanel.add(lblNoReply);
 
+        
+//        handleReply(new MonaLisaRouteRequestReply("TEST TEST MSG", -1, -1, 1, MonaLisaRouteStatus.AGREED, new Route()));
+        
     }
 
     public void handleReply(MonaLisaRouteRequestReply monaLisaRouteRequestReply) {
@@ -124,7 +152,7 @@ public class MonaLisaNegotiationView extends JPanel {
         replyPanel.add(lblMessage);
 
         JLabel lblType = new JLabel("Type:");
-        lblType.setBounds(10, 60, 46, 14);
+        lblType.setBounds(10, 94, 46, 14);
         GuiStyler.styleText(lblType);
         replyPanel.add(lblType);
 
@@ -134,13 +162,31 @@ public class MonaLisaNegotiationView extends JPanel {
         GuiStyler.styleText(repliedTxt);
         replyPanel.add(repliedTxt);
 
-        JLabel messageTxt = new JLabel(monaLisaRouteRequestReply.getMessage());
-        messageTxt.setBounds(65, 40, 188, 14);
-        GuiStyler.styleText(messageTxt);
-        replyPanel.add(messageTxt);
+        
+        JTextArea messageTxt = new JTextArea(monaLisaRouteRequestReply.getMessage());
+        messageTxt.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        messageTxt.setBackground(Color.WHITE);
+        messageTxt.setLineWrap(true);
+        messageTxt.setBorder(null);
+        messageTxt.setEditable(false);
+
+        GuiStyler.styleArea(messageTxt);
+        
+        JScrollPane replyMessageSP = new JScrollPane(messageTxt);
+        replyMessageSP.setBorder(new MatteBorder(1, 1, 1, 1, (Color) new Color(0, 0, 0)));
+        replyMessageSP.setBounds(10, 55, 243, 39);
+        replyPanel.add(replyMessageSP);
+        
+        
+        
+        
+//        JLabel messageTxt = new JLabel(monaLisaRouteRequestReply.getMessage());
+//        messageTxt.setBounds(65, 40, 188, 14);
+//        GuiStyler.styleText(messageTxt);
+//        replyPanel.add(messageTxt);
 
         JLabel typeTxt = new JLabel();
-        typeTxt.setBounds(65, 60, 188, 14);
+        typeTxt.setBounds(65, 94, 188, 14);
         GuiStyler.styleText(typeTxt);
         replyPanel.add(typeTxt);
 

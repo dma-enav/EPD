@@ -357,7 +357,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable, IRoutesUpda
     @Override
     public void run() {
         while (true) {
-            EPDShore.sleep(10000);
+            EPDShore.sleep(30000);
 //            System.out.println("Checking for new msi");
             updateMsi();
         }

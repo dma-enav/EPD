@@ -18,6 +18,7 @@ package dk.dma.epd.shore.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import dk.dma.enav.model.voyage.Route;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
@@ -41,6 +42,15 @@ public class MonaLisaRouteNegotiationData {
         handled = false;
     }
     
+    
+    
+    public Route getLatestRoute(){
+        if (routeMessages.size() > routeReplys.size()){
+            return routeMessages.get(routeMessages.size() - 1).getRoute();
+        }else{
+            return routeReplys.get(routeReplys.size() - 1).getRoute();
+        }
+    }
     
     
     /**

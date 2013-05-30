@@ -382,7 +382,6 @@ public class RouteLayer extends OMGraphicHandlerLayer implements IRoutesUpdateLi
         }
 
         if (selectedGraphic instanceof WaypointCircle) {
-            System.out.println("Dragging waypoint circle");
             WaypointCircle wpc = (WaypointCircle) selectedGraphic;
             if (routeManager.getActiveRouteIndex() != wpc.getRouteIndex()) {
                 RouteWaypoint routeWaypoint = wpc.getRoute().getWaypoints()

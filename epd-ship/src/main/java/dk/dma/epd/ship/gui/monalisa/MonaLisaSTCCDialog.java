@@ -67,7 +67,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
     private JButton btnReject;
     private JButton btnViewRoute;
     private JButton btnWait;
-    
+
     private JTextArea routeMessage;
     // private EnavServiceHandler enavServiceHandler;
     private MonaLisaHandler monaLisaHandler;
@@ -81,7 +81,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
     JPanel routeAcceptedPanel;
     JPanel routeNotAcceptedPanel;
 
-    private Route originalRoute;
+    private Route latestReceivedRoute;
     private MonaLisaRouteRequestReply reply;
 
     long transactionID;
@@ -191,7 +191,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
         routeNotAcceptedPanel.add(lblRouteTitle);
 
         JLabel lblChange = new JLabel("Route Changes:");
-        lblChange.setBounds(10, 30, 70, 14);
+        lblChange.setBounds(10, 30, 128, 14);
         routeNotAcceptedPanel.add(lblChange);
 
         lblChanges = new JTextArea("N/A");
@@ -207,7 +207,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
         routeNotAcceptedPanel.add(spChanges);
 
         JLabel lblMessageTitle = new JLabel("Message:");
-        lblMessageTitle.setBounds(10, 120, 46, 14);
+        lblMessageTitle.setBounds(10, 120, 115, 14);
         routeNotAcceptedPanel.add(lblMessageTitle);
 
         lblMessages = new JTextArea("N/A");
@@ -252,9 +252,9 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
         getContentPane().add(routeNotAcceptedPanel, BorderLayout.CENTER);
 
         JLabel lblReplyMessage = new JLabel("Reply message:");
-        lblReplyMessage.setBounds(10, 207, 87, 14);
+        lblReplyMessage.setBounds(10, 207, 145, 14);
         routeNotAcceptedPanel.add(lblReplyMessage);
-        
+
         JButton btnWait = new JButton("Wait");
         btnWait.setBounds(107, 298, 89, 23);
         routeNotAcceptedPanel.add(btnWait);
@@ -262,12 +262,12 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
     }
 
     public void setRouteName(Route route, long transactionID) {
-        this.originalRoute = route;
+        this.latestReceivedRoute = route;
         this.transactionID = transactionID;
 
         isActive = true;
 
-        routeName.setText("\"" + originalRoute.getName() + "\"");
+        routeName.setText("\"" + latestReceivedRoute.getName() + "\"");
 
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
@@ -321,16 +321,14 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
     public void handleReply(MonaLisaRouteRequestReply reply) {
         this.reply = reply;
         this.setRouteName(new Route(reply.getRoute()), this.transactionID);
-        
-        
+
         btnAccept.setText("Accept");
-        
-//        if (EPDShip.getRouteManager().getActiveRouteIndex() != -1){
-//            btnAccept.setText("Accept and Activate");
-//        }else{
-//            
-//        }
-        
+
+        // if (EPDShip.getRouteManager().getActiveRouteIndex() != -1){
+        // btnAccept.setText("Accept and Activate");
+        // }else{
+        //
+        // }
 
         // Reply is in
         if (reply.getStatus() == MonaLisaRouteStatus.AGREED) {
@@ -353,7 +351,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
             lblRouteTitle.setText("Route \"" + reply.getRoute().getName()
                     + "\" STCC Change request");
-            lblChanges.setText(findChanges(new Route(reply.getRoute())));
+            lblChanges.setText(findChanges());
             lblMessages.setText(reply.getMessage());
 
             // findChanges();
@@ -377,7 +375,8 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
                 // Is not active and button pressed - when can this happen?
                 // its being acked?
                 setInActive();
-                monaLisaHandler.sendAgreeMsg(transactionID);
+                monaLisaHandler.sendAgreeMsg(transactionID,
+                        chatMessages.getText());
                 this.setVisible(false);
 
             }
@@ -397,22 +396,21 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
         if (e.getSource() == btnReject) {
 
             // Send reject message
-            monaLisaHandler.sendReject();
+            monaLisaHandler.sendReject(chatMessages.getText());
             this.setVisible(false);
 
         }
         if (e.getSource() == btnViewRoute) {
 
-            
             RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
-                    EPDShip.getMainFrame(), originalRoute, false);
-            
+                    EPDShip.getMainFrame(), latestReceivedRoute, false);
+
             routePropertiesDialog.setVisible(true);
 
         }
-        
+
         if (e.getSource() == btnWait) {
-          this.setVisible(false);
+            this.setVisible(false);
         }
 
     }
@@ -427,45 +425,100 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
     }
 
-    private String findChanges(Route newRoute) {
+    private String findChanges() {
 
+        Route originalRoute = new Route(monaLisaHandler
+                .getMonaLisaNegotiationData()
+                .get(transactionID)
+                .getRouteMessage()
+                .get(monaLisaHandler.getMonaLisaNegotiationData()
+                        .get(transactionID).getRouteMessage().size() - 1)
+                .getRoute());
+        // transactionID
+        // System.out.println("The original route is comparable from : "
+        // + monaLisaHandler.getMonaLisaNegotiationData()
+        // .get(transactionID).getRouteMessage().size());
+        //
+        // System.out.println("Comparing ETAS");
+        //
+        // for (int i = 0; i < originalRoute.getEtas().size(); i++) {
+        // System.out.println("Original ETA for " + i + " is: "
+        // + originalRoute.getEtas().get(i)
+        // + " vs Receieved Route ETA: "
+        // + latestReceivedRoute.getEtas().get(i));
+        // }
+
+        // String
         String changes = "";
 
-        if (originalRoute.getWaypoints().size() == newRoute.getWaypoints()
-                .size()) {
+        if (originalRoute.getWaypoints().size() == latestReceivedRoute
+                .getWaypoints().size()) {
 
-            for (int i = 0; i < originalRoute.getWaypoints().size(); i++) {
+            for (int i = 0; i < latestReceivedRoute.getWaypoints().size(); i++) {
+
+                // System.out.println("Looking at index " + i);
 
                 double originalLat = originalRoute.getWaypoints().get(i)
                         .getPos().getLatitude();
                 double originalLon = originalRoute.getWaypoints().get(i)
                         .getPos().getLongitude();
 
-                double newLat = newRoute.getWaypoints().get(i).getPos()
-                        .getLatitude();
-                double newLon = newRoute.getWaypoints().get(i).getPos()
-                        .getLongitude();
+                double newLat = latestReceivedRoute.getWaypoints().get(i)
+                        .getPos().getLatitude();
+                double newLon = latestReceivedRoute.getWaypoints().get(i)
+                        .getPos().getLongitude();
 
                 if (originalLat != newLat || originalLon != newLon) {
                     changes = changes + "Waypoint " + (i + 1)
                             + " new position\n";
-                } else {
-                    if (newRoute.getEtas().get(i) != originalRoute.getEtas()
-                            .get(i)) {
-                        changes = changes + "Wp " + (i + 1)
-                                + " ETA Changed from " + Formatter.formatShortDateTimeNoTz(originalRoute.getEtas().get(i))
-                                + " to " + Formatter.formatShortDateTimeNoTz(newRoute.getEtas().get(i) )
-                                +"\n";
-                    }
+                }
+                System.out.println(originalRoute.getEtas().get(i).getTime()
+                        + " vs "
+                        + latestReceivedRoute.getEtas().get(i).getTime());
+
+                // System.out.println("new position " + changes);
+                // } else {
+                if (latestReceivedRoute.getEtas().get(i).getTime() != originalRoute
+                        .getEtas().get(i).getTime()) {
+                    changes = changes
+                            + "Wp "
+                            + (i + 1)
+                            + " ETA Changed from "
+                            + Formatter.formatShortDateTimeNoTz(originalRoute
+                                    .getEtas().get(i))
+                            + " to "
+                            + Formatter
+                                    .formatShortDateTimeNoTz(latestReceivedRoute
+                                            .getEtas().get(i)) + "\n";
+
+                    // System.out.println("new eta" + changes);
                 }
 
             }
 
         } else {
-            changes = "New waypoints added";
+
+            if (latestReceivedRoute.getWaypoints().size() > originalRoute
+                    .getWaypoints().size()) {
+                int wpAdded = latestReceivedRoute.getWaypoints().size()
+                        - originalRoute.getWaypoints().size();
+
+                changes = wpAdded + " new waypoints added";
+            } else {
+                int wpRemoved = originalRoute.getWaypoints().size()
+                        - latestReceivedRoute.getWaypoints().size();
+                changes = wpRemoved + " waypoints removed";
+            }
+
+        }
+
+        if (changes.equals("")) {
+            changes = "No changes in receieved route";
         }
 
         // changes = changes + "</html>";
+
+        System.out.println("Returning: " + changes);
 
         return changes;
     }

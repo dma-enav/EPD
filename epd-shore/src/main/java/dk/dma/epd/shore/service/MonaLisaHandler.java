@@ -158,6 +158,17 @@ public class MonaLisaHandler extends MapHandlerChild {
 
         if (monaLisaNegotiationData.containsKey(message.getId())) {
 
+            monaLisaNegotiationData.containsKey(message.getId());
+            
+            
+            
+            MonaLisaRouteRequestMessage routeMessage = new MonaLisaRouteService.MonaLisaRouteRequestMessage(
+                    message.getId(), monaLisaNegotiationData.get(message.getId()).getLatestRoute(), message.getMmsi(), message.getMessage());
+            
+            
+            monaLisaNegotiationData.get(message.getId()).addMessage(routeMessage);
+            
+            
             if (message.isAck()) {
 
                 System.out.println("Transaction with id" + message.getId()
