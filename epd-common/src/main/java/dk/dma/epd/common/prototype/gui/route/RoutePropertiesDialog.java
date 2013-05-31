@@ -520,7 +520,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
             eta = Formatter.formatShortDateTimeNoTz(route.getWpEta(i));
             ttg = Formatter.formatTime(route.getWpTtg(i));
 
-            if (currentWaypoint.getOutLeg() != null) {
+            if (currentWaypoint.getOutLeg() != null && currentWaypoint != null) {
 
                 // ttg = Long.toString(currentWaypoint.getOutLeg().calcTtg());
                 rng = Formatter.formatDistNM(route.getWpRng(i));
