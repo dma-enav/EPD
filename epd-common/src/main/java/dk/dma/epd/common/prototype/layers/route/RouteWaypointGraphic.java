@@ -128,6 +128,15 @@ public class RouteWaypointGraphic extends OMGraphicList {
 
         add(circle);
 
+        
+        
+        label.setLat(lat);
+        label.setLon(lon);
+        label.setY(25);
+        label.setLinePaint(color);
+        label.setTextMatteColor(Color.WHITE);
+        label.setData(routeWaypoint.getName());
+        add(label);
     }
     
     @Override

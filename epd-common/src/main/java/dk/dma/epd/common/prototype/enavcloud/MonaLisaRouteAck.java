@@ -29,17 +29,19 @@ public class MonaLisaRouteAck {
         private boolean ack;
         private long id;
         private long mmsi;
-
+        private String message;
+        
         public MonaLisaRouteAckMsg() {
         }
 
         /**
          * @param message
          */
-        public MonaLisaRouteAckMsg(boolean ack, long id, long mmsi) {
+        public MonaLisaRouteAckMsg(boolean ack, long id, long mmsi, String message) {
             this.ack = ack;
             this.id = id;
             this.mmsi = mmsi;
+            this.message = message;
         }
 
         
@@ -77,6 +79,20 @@ public class MonaLisaRouteAck {
          */
         public void setMmsi(long mmsi) {
             this.mmsi = mmsi;
+        }
+
+        /**
+         * @return the message
+         */
+        public String getMessage() {
+            return message;
+        }
+
+        /**
+         * @param message the message to set
+         */
+        public void setMessage(String message) {
+            this.message = message;
         }
         
         

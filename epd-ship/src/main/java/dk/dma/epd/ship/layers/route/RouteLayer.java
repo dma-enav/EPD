@@ -23,6 +23,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.List;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import com.bbn.openmap.MapBean;
@@ -101,7 +102,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                     graphics.remove(safeHavenArea);
                     System.out.println("Activating safehaven");
                     if (activeRoute.getActiveWp().getOutLeg() != null) {
-                        
+
                         System.out.println("outleg isnt zero");
                         safeHavenArea.moveSymbol(
                                 activeRoute.getSafeHavenLocation(),
@@ -109,7 +110,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                                 activeRoute.getActiveWp().getOutLeg()
                                         .getSFWidth(), activeRoute
                                         .getActiveWp().getOutLeg().getSFLen());
-                        
+
                         graphics.add(safeHavenArea);
                     } else {
                         System.out.println("outleg is null");
@@ -178,7 +179,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                     Color greenApproved = new Color(0.39f, 0.69f, 0.49f, 0.6f);
 
                     routeGraphic = new RouteGraphic(route, i, arrowsVisible,
-                            stroke, ECDISOrange, greenApproved, false);
+                            stroke, ECDISOrange, greenApproved, false, false);
                 } else {
                     routeGraphic = new RouteGraphic(route, i, arrowsVisible,
                             stroke, ECDISOrange);
@@ -191,9 +192,22 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         if (routeManager.isRouteActive()) {
             ActiveRoute activeRoute = routeManager.getActiveRoute();
             if (activeRoute.isVisible()) {
-                ActiveRouteGraphic activeRouteExtend = new ActiveRouteGraphic(
-                        activeRoute, activeRouteIndex, arrowsVisible,
-                        activeStroke, Color.RED);
+
+                ActiveRouteGraphic activeRouteExtend;
+
+                Route route = routeManager.getRoutes().get(activeRouteIndex);
+                if (route.isStccApproved()) {
+                    Color greenApproved = new Color(0.39f, 0.69f, 0.49f, 0.6f);
+
+                    activeRouteExtend = new ActiveRouteGraphic(activeRoute,
+                            activeRouteIndex, arrowsVisible, activeStroke,
+                            Color.RED, greenApproved);
+                } else {
+                    activeRouteExtend = new ActiveRouteGraphic(activeRoute,
+                            activeRouteIndex, arrowsVisible, activeStroke,
+                            Color.RED);
+                }
+
                 graphics.add(activeRouteExtend);
 
                 if (activeSafeHaven) {
@@ -568,6 +582,35 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                 routesChanged(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
                 dragging = true;
                 return true;
+            } else {
+                // Attemping to drag an active route, make a route copy and drag
+                // that one
+
+                int dialogresult = JOptionPane
+                        .showConfirmDialog(
+                                EPDShip.getMainFrame(),
+                                "You are trying to edit an active route \nDo you wish to make a copy to edit?",
+                                "Route Editing", JOptionPane.YES_OPTION);
+                if (dialogresult == JOptionPane.YES_OPTION) {
+                    Route route = routeManager.getRoute(
+                            routeManager.getActiveRouteIndex()).copy();
+                    route.setName(route.getName() + " copy");
+                    routeManager.addRoute(route);
+                    // dragging = true;
+
+                    // routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
+                }
+                return true;
+
+                // RouteWaypoint routeWaypoint = route.getWaypoints().get(
+                // wpc.getWpIndex());
+                // LatLonPoint newLatLon = mapBean.getProjection().inverse(
+                // e.getPoint());
+                // Position newLocation =
+                // Position.create(newLatLon.getLatitude(),
+                // newLatLon.getLongitude());
+                // routeWaypoint.setPos(newLocation);
+                // routesChanged(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
             }
         }
 

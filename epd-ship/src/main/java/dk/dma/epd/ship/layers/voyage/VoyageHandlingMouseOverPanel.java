@@ -13,28 +13,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.layers.route;
+package dk.dma.epd.ship.layers.voyage;
 
-import java.awt.Color;
-import java.awt.Stroke;
+import dk.dma.epd.ship.gui.InfoPanel;
 
-import dk.dma.epd.common.prototype.model.route.Route;
 
-/**
- * Graphic for active route
- */
-public class ActiveRouteGraphic extends RouteGraphic {
-
+public class VoyageHandlingMouseOverPanel extends InfoPanel {
     private static final long serialVersionUID = 1L;
 
-    public ActiveRouteGraphic(Route route, int routeIndex, boolean arrowsVisible, Stroke stroke, Color color) {
-        super(route, routeIndex, arrowsVisible, stroke, color);
+    public VoyageHandlingMouseOverPanel() {
+        super();
     }
 
-    public ActiveRouteGraphic(Route route, int routeIndex, boolean arrowsVisible, Stroke stroke, Color color, Color backgroundColor) {
-        super(route, routeIndex, arrowsVisible,
-                stroke, color, backgroundColor, false, false);
+    public void showType(int type) {
+
+        if (type == 0) {
+            showText("Original Sent Route");
+        }
+        if (type == 2) {
+            showText("Editable Route");
+        }
+        if (type == 1) {
+            showText("Route suggested by Shore");
+        }
+        if (type == 3) {
+            showText("Route currently being negotiated");
+        }
+
     }
 
-    
+  
 }

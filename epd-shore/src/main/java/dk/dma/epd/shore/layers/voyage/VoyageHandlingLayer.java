@@ -17,8 +17,11 @@ package dk.dma.epd.shore.layers.voyage;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
+
+import javax.swing.SwingUtilities;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
@@ -29,6 +32,7 @@ import com.bbn.openmap.omGraphics.OMList;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.layers.route.MetocPointGraphic;
 import dk.dma.epd.common.prototype.layers.route.RouteGraphic;
 import dk.dma.epd.common.prototype.layers.route.RouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.route.WaypointCircle;
@@ -44,6 +48,7 @@ import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MapMenu;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
+import dk.frv.enav.common.xml.metoc.MetocForecastPoint;
 
 //import dk.frv.enav.ins.gui.MapMenu;
 
@@ -62,7 +67,12 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
     private JMapFrame jMapFrame;
 
     private VoyageManager voyageManager;
-    private VoyagePlanInfoPanel voyagePlanInfoPanel = new VoyagePlanInfoPanel();
+    private VoyagePlanInfoPanel voyagePlanInfoPanel = new VoyagePlanInfoPanel(this);
+    
+    private VoyageHandlingMouseOverPanel voyageHandlingMouseOverPanel = new VoyageHandlingMouseOverPanel();
+    
+    private OMGraphic closest;
+    
     // private MetocInfoPanel metocInfoPanel;
     // private WaypointInfoPanel waypointInfoPanel;
     private MapBean mapBean;
@@ -118,6 +128,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
             voyagePlanInfoPanel.setParent(jMapFrame);
 
             jMapFrame.getGlassPanel().add(voyagePlanInfoPanel);
+            jMapFrame.getGlassPanel().add(voyageHandlingMouseOverPanel);
             // voyagePlanInfoPanel.setLocation(0, 0);
             voyagePlanInfoPanel.setBounds(0, 20, 208, 300);
             // metocInfoPanel = new MetocInfoPanel();
@@ -162,6 +173,23 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         return ret;
     }
 
+    private void checkIfETAChanged(){
+        if (!modified){
+            for (int i = 0; i < newRoute.getEtas().size(); i++) {
+                
+                if (initialRecievedRoute.getEtas().get(i) != newRoute.getEtas().get(i)){
+                    modified = true;
+                    System.out.println("Forcing modified");
+                    break;
+                }
+                
+            }
+//            newRoute
+            
+//            initialRecievedRoute
+        }
+    }
+    
     @Override
     public boolean mouseClicked(MouseEvent e) {
         if (e.getButton() != MouseEvent.BUTTON3) {
@@ -178,12 +206,14 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
                 break;
             }
         }
-
+        
         if (selectedGraphic instanceof WaypointCircle) {
             WaypointCircle wpc = (WaypointCircle) selectedGraphic;
 
             if (wpc.getRouteIndex() == 1) {
 
+                checkIfETAChanged();
+                
                 voyage.setRoute(newRoute);
 
                 routeMenu.voyageWaypontMenu(this, mapBean, voyage, modified, jMapFrame,
@@ -202,6 +232,8 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
             RouteLegGraphic rlg = (RouteLegGraphic) selectedGraphic;
 
             if (rlg.getRouteIndex() == 1) {
+                
+                checkIfETAChanged();
                 
                 voyage.setRoute(newRoute);
 
@@ -250,6 +282,10 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
                         newLatLon.getLongitude());
                 routeWaypoint.setPos(newLocation);
 
+//                newRoute.calcAllWpEta();
+                newRoute.calcValues(true);
+                
+                
                 if (!modified) {
                     changeName();
                 }
@@ -293,7 +329,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         // Modified route, ecdis line, green broadline
         RouteGraphic modifiedVoyageGraphic = new RouteGraphic(newRoute, 1,
                 false, stroke, ECDISOrange,
-                new Color(0.39f, 0.69f, 0.49f, 0.6f), true);
+                new Color(0.39f, 0.69f, 0.49f, 0.6f), true, true);
         graphics.add(modifiedVoyageGraphic);
 
         // graphics.project(getProjection(), true);
@@ -305,13 +341,13 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         
         //Red
         RouteGraphic originalRouteGraphic = new RouteGraphic(originalRoute, 0,
-                false, stroke, ECDISOrange, new Color(1f, 0, 0, 0.4f), false);
+                false, stroke, ECDISOrange, new Color(1f, 0, 0, 0.4f), false, true);
         graphics.add(originalRouteGraphic);
         
         
         if (routeChange){
-            RouteGraphic voyageGraphic = new RouteGraphic(initialRecievedRoute, 0,
-                    false, stroke, ECDISOrange, new Color(1f, 1f, 0, 0.7f), false);      
+            RouteGraphic voyageGraphic = new RouteGraphic(initialRecievedRoute, 2,
+                    false, stroke, ECDISOrange, new Color(1f, 1f, 0, 0.7f), false, true);      
             graphics.add(voyageGraphic);
         }
         
@@ -349,64 +385,52 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseMoved(MouseEvent e) {
-        // OMGraphic newClosest = null;
-        // OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-        // 2.0f);
-        //
-        // for (OMGraphic omGraphic : allClosest) {
-        // if (omGraphic instanceof MetocPointGraphic || omGraphic instanceof
-        // WaypointCircle) {
-        // newClosest = omGraphic;
-        // break;
-        // }
-        // }
-        //
-        // if (routeMetoc != null && metocInfoPanel != null) {
-        // if (newClosest != closest) {
-        // if (newClosest == null) {
-        // metocInfoPanel.setVisible(false);
-        // waypointInfoPanel.setVisible(false);
-        // closest = null;
-        // } else {
-        // if (newClosest instanceof MetocPointGraphic) {
-        // closest = newClosest;
-        // MetocPointGraphic pointGraphic = (MetocPointGraphic)newClosest;
-        // MetocForecastPoint pointForecast = pointGraphic.getMetocPoint();
-        // Point containerPoint = SwingUtilities.convertPoint(mapBean,
-        // e.getPoint(), jMapFrame);
-        // metocInfoPanel.setPos((int)containerPoint.getX(),
-        // (int)containerPoint.getY());
-        // metocInfoPanel.showText(pointForecast,
-        // pointGraphic.getMetocGraphic().getRoute().getRouteMetocSettings());
-        // waypointInfoPanel.setVisible(false);
-        // jMapFrame.getGlassPane().setVisible(true);
-        // return true;
-        // }
-        // }
-        // }
-        // }
-        //
-        // if (newClosest != closest) {
-        // if (newClosest instanceof WaypointCircle) {
-        // closest = newClosest;
-        // WaypointCircle waypointCircle = (WaypointCircle)closest;
-        // Point containerPoint = SwingUtilities.convertPoint(mapBean,
-        // e.getPoint(), jMapFrame);
-        // waypointInfoPanel.setPos((int)containerPoint.getX(),
-        // (int)containerPoint.getY() - 10);
-        // waypointInfoPanel.showWpInfo(waypointCircle.getRoute(),
-        // waypointCircle.getWpIndex());
-        // jMapFrame.getGlassPane().setVisible(true);
-        // metocInfoPanel.setVisible(false);
-        // return true;
-        // } else {
-        // waypointInfoPanel.setVisible(false);
-        // closest = null;
-        // return true;
-        // }
-        // }
+        OMGraphic newClosest = null;
+        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 2.0f);
+
+        for (OMGraphic omGraphic : allClosest) {
+            if (omGraphic instanceof RouteLegGraphic || omGraphic instanceof WaypointCircle) {
+                newClosest = omGraphic;
+                break;
+            }
+        }
+
+
+
+        if (newClosest != closest) {
+            if (newClosest instanceof WaypointCircle || newClosest instanceof RouteLegGraphic) {
+                closest = newClosest;
+                
+                if (closest instanceof  WaypointCircle){
+                    WaypointCircle waypointCircle = (WaypointCircle)closest;
+                    Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), jMapFrame);
+                    voyageHandlingMouseOverPanel.setPos((int)containerPoint.getX(), (int)containerPoint.getY() - 10);
+                    
+                    System.out.println("Waypoint Circle info: " + waypointCircle.getRouteIndex());
+                    
+                    voyageHandlingMouseOverPanel.showType(waypointCircle.getRouteIndex());
+                }else{
+                    RouteLegGraphic waypointLeg = (RouteLegGraphic)closest;
+                    Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), jMapFrame);
+                    voyageHandlingMouseOverPanel.setPos((int)containerPoint.getX(), (int)containerPoint.getY() - 10);
+                    
+                    System.out.println("Waypoint Circle info: " + waypointLeg.getRouteIndex());
+                    
+                    voyageHandlingMouseOverPanel.showType(waypointLeg.getRouteIndex());
+                }
+                
+
+                jMapFrame.getGlassPane().setVisible(true);
+                return true;
+            } else {
+                voyageHandlingMouseOverPanel.setVisible(false);
+                closest = null;
+                return true;
+            }
+        }
         return false;
     }
+
 
     @Override
     public boolean mousePressed(MouseEvent e) {
@@ -462,7 +486,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
 
         // Added the route as green, original recieved one
         RouteGraphic voyageGraphic = new RouteGraphic(newRoute, 1, false,
-                stroke, ECDISOrange, new Color(0.39f, 0.69f, 0.49f, 0.6f), false);
+                stroke, ECDISOrange, new Color(0.39f, 0.69f, 0.49f, 0.6f), false, true);
 
         
         
@@ -502,8 +526,8 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         
         //Are the routes the same?
         //originalroute vs. newroute
-        RouteGraphic originalRouteGraphic = new RouteGraphic(originalRoute, 1, false,
-                stroke, ECDISOrange,  new Color(1f, 0, 0, 0.4f), false);
+        RouteGraphic originalRouteGraphic = new RouteGraphic(originalRoute, 0, false,
+                stroke, ECDISOrange,  new Color(1f, 0, 0, 0.4f), false, true);
         graphics.add(originalRouteGraphic);
         }
         

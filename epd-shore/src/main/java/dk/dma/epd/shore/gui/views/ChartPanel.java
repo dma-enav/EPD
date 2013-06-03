@@ -48,6 +48,7 @@ import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.RouteEditMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
+import dk.dma.epd.shore.layers.EncLayerFactory;
 import dk.dma.epd.shore.layers.GeneralLayer;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
@@ -349,6 +350,17 @@ public class ChartPanel extends OMComponentPanel {
     public void initChartDefault(boolean voyageHandleLayer) {
         Properties props = EPDShore.getProperties();
 
+        
+        if (EPDShore.getSettings().getMapSettings().isUseEnc() && mainFrame.isUseEnc()){
+            // Try to create ENC layer
+            EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore
+                    .getSettings().getMapSettings());
+            encLayer = encLayerFactory.getEncLayer();
+        }
+        
+
+
+        
         map = new BufferedLayerMapBean();
 
         // LLXY llxyProjection = new LLXY((LatLonPoint) center, scale, 100,
@@ -471,6 +483,10 @@ public class ChartPanel extends OMComponentPanel {
         monaLisaHandler = EPDShore.getMonaLisaHandler();
         mapHandler.add(monaLisaHandler);
         
+        
+
+
+        
         // Create background layer
         String layerName = "background";
         bgLayer = new ShapeLayer();
@@ -479,9 +495,20 @@ public class ChartPanel extends OMComponentPanel {
         bgLayer.setVisible(true);
         mapHandler.add(bgLayer);
 
+        
+        if (encLayer != null) {
+            mapHandler.add(encLayer);
+        }
+        
+        
+        
+        
         // Add map to map handler
         mapHandler.add(map);
 
+        
+
+        
         // Force a MSI layer update
         msiLayer.doUpdate();
 
@@ -497,8 +524,6 @@ public class ChartPanel extends OMComponentPanel {
             bgLayer.setVisible(false);
         }
         
-        
-
 
     }
 
@@ -623,6 +648,9 @@ public class ChartPanel extends OMComponentPanel {
         double centerLon = (maxLon + minLon) / 2.0;
         map.setCenter(centerLat, centerLon);
         forceAisLayerUpdate();
+        
+        
+        //What scale should be used?
 
     }
 

@@ -29,19 +29,19 @@ public class RouteLeg implements Serializable {
 
     private static final int R = 6371; // earths radius in km
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * Planned leg speed
      */
-    protected double speed;    
+    protected double speed;
     /**
      * Sail heading rhumb line or great circle
      */
-    protected Heading heading;    
+    protected Heading heading;
     /**
      * XTD starboard nm
      */
-    protected Double xtdStarboard;    
+    protected Double xtdStarboard;
     /**
      * XTD port nm
      */
@@ -54,17 +54,15 @@ public class RouteLeg implements Serializable {
      * The end wp of leg
      */
     protected RouteWaypoint endWp;
-    
+
     protected double SFWidth = 1000;
     protected double SFLen = 500;
-    
-    
-        
+
     public RouteLeg() {
-        
+
     }
-    
-    public RouteLeg(RouteLeg rll){
+
+    public RouteLeg(RouteLeg rll) {
         this.speed = rll.getSpeed();
         this.heading = rll.getHeading();
         this.xtdStarboard = rll.getXtdStarboard();
@@ -74,16 +72,12 @@ public class RouteLeg implements Serializable {
         this.SFWidth = rll.getSFWidth();
         this.SFLen = rll.getSFLen();
     }
-    
-    
+
     public RouteLeg(RouteWaypoint startWp, RouteWaypoint endWp) {
         this.startWp = startWp;
         this.endWp = endWp;
     }
 
-    
-    
-    
     public double getSFWidth() {
         return SFWidth;
     }
@@ -119,7 +113,7 @@ public class RouteLeg implements Serializable {
     public Double getXtdStarboard() {
         return xtdStarboard;
     }
-    
+
     public Double getXtdStarboardMeters() {
         if (xtdStarboard == null) {
             return null;
@@ -134,7 +128,7 @@ public class RouteLeg implements Serializable {
     public Double getXtdPort() {
         return xtdPort;
     }
-    
+
     public Double getXtdPortMeters() {
         if (xtdPort == null) {
             return null;
@@ -145,7 +139,7 @@ public class RouteLeg implements Serializable {
     public void setXtdPort(Double xtdPort) {
         this.xtdPort = xtdPort;
     }
-    
+
     public Double getMaxXtd() {
         if (xtdPort == null) {
             return xtdStarboard;
@@ -155,36 +149,40 @@ public class RouteLeg implements Serializable {
         }
         return Math.max(xtdPort, xtdStarboard);
     }
-    
+
     public RouteWaypoint getStartWp() {
         return startWp;
     }
-    
+
     public void setStartWp(RouteWaypoint startWp) {
         this.startWp = startWp;
     }
-    
+
     public RouteWaypoint getEndWp() {
         return endWp;
     }
-    
+
     public void setEndWp(RouteWaypoint endWp) {
         this.endWp = endWp;
     }
-    
-    public double calcRng() {    
-        
-        
-        
-        return Calculator.range(startWp.getPos(), endWp.getPos(), heading);    
+
+    public double calcRng() {
+
+        return Calculator.range(startWp.getPos(), endWp.getPos(), heading);
     }
-    
+
     public double calcBrg() {
-        return Calculator.bearing(startWp.getPos(), endWp.getPos(), heading);
+        if (endWp != null) {
+            return Calculator
+                    .bearing(startWp.getPos(), endWp.getPos(), heading);
+        }
+        return 0.0;
+
     }
-    
+
     /**
      * Ttg in milliseconds
+     * 
      * @return
      */
     public long calcTtg() {
@@ -212,48 +210,53 @@ public class RouteLeg implements Serializable {
         builder.append("]");
         return builder.toString();
     }
-    
+
     /**
-     * Calculate the great circle cross track distance from a route leg to a given geographical location.
-     * Formula from <a href="http://www.movable-type.co.uk/scripts/latlong.html">http://www.movable-type.co.uk/scripts/latlong.html</a>
-     * @param crossTrackPoint Geographical location
+     * Calculate the great circle cross track distance from a route leg to a
+     * given geographical location. Formula from <a
+     * href="http://www.movable-type.co.uk/scripts/latlong.html"
+     * >http://www.movable-type.co.uk/scripts/latlong.html</a>
+     * 
+     * @param crossTrackPoint
+     *            Geographical location
      * @return Distance
      */
     public double calculateCrossTrackDist(Position crossTrackPoint) {
-        if(heading.equals(Heading.GC)){
+        if (heading.equals(Heading.GC)) {
             System.out.println("GC");
         } else {
             System.out.println("RL");
         }
-        double d13 = Calculator.range(startWp.getPos(), crossTrackPoint, Heading.GC);
-        double brng13 = Calculator.bearing(startWp.getPos(), crossTrackPoint, Heading.GC);
-        double brng12 = Calculator.bearing(startWp.getPos(), endWp.getPos(), heading);
-        
-        /*Formula:     dxt = asin(sin(d13/R)*sin(θ13−θ12)) * R
-        
-        where     
-        d13 is distance from start point to third point
-        θ13 is (initial) bearing from start point to third point
-        θ12 is (initial) bearing from start point to end point
-        R is the earth’s radius
-        
-        */     
+        double d13 = Calculator.range(startWp.getPos(), crossTrackPoint,
+                Heading.GC);
+        double brng13 = Calculator.bearing(startWp.getPos(), crossTrackPoint,
+                Heading.GC);
+        double brng12 = Calculator.bearing(startWp.getPos(), endWp.getPos(),
+                heading);
 
-        double dXt = Math.asin(Math.sin(d13/R)*Math.sin(brng13-brng12)) * R;
+        /*
+         * Formula: dxt = asin(sin(d13/R)*sin(θ13−θ12)) * R
+         * 
+         * where d13 is distance from start point to third point θ13 is
+         * (initial) bearing from start point to third point θ12 is (initial)
+         * bearing from start point to end point R is the earth’s radius
+         */
+
+        double dXt = Math.asin(Math.sin(d13 / R) * Math.sin(brng13 - brng12))
+                * R;
         return dXt;
     }
 
     public RouteLeg copy() {
-        
+
         RouteLeg newRouteLeg = new RouteLeg();
-        
-      newRouteLeg.setSpeed(getSpeed());
-      newRouteLeg.setHeading(getHeading());
-      newRouteLeg.setXtdStarboard(getXtdStarboard());
-      newRouteLeg.setXtdPort(getXtdPort());
-      newRouteLeg.setSFLen(getSFLen());
-      newRouteLeg.setSFWidth(getSFWidth());
-        
+
+        newRouteLeg.setSpeed(getSpeed());
+        newRouteLeg.setHeading(getHeading());
+        newRouteLeg.setXtdStarboard(getXtdStarboard());
+        newRouteLeg.setXtdPort(getXtdPort());
+        newRouteLeg.setSFLen(getSFLen());
+        newRouteLeg.setSFWidth(getSFWidth());
 
         return newRouteLeg;
     }

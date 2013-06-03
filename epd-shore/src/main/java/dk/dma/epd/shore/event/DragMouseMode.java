@@ -64,7 +64,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
     private boolean leaveShadow;
     private boolean useCursor;
     private JPanel glassFrame;
-
+    boolean layerMouseDrag;
 
 
     Cursor dragCursorMouseClicked;
@@ -269,76 +269,89 @@ public class DragMouseMode extends AbstractCoordMouseMode {
      *      redrawing when the mouse is move, but, I need to repain the original
      *      image.
      */
+    @Override
     public void mouseDragged(MouseEvent arg0) {
-//        chartPanel.getMap().setCursor(dragCursorMouseClicked);
+        if (arg0.getSource() instanceof MapBean) {
+            super.mouseDragged(arg0);
 
-        MapBean mb = (MapBean) arg0.getSource();
-        Point2D pnt = mb.getNonRotatedLocation(arg0);
-        int x = (int) pnt.getX();
-        int y = (int) pnt.getY();
+            // if(!mouseDragged) {
+            layerMouseDrag = mouseSupport.fireMapMouseDragged(arg0);
+            // }
+            if (!layerMouseDrag) {
 
-        if (!isPanning) {
-            int w = mb.getWidth();
-            int h = mb.getHeight();
+                MapBean mb = (MapBean) arg0.getSource();
+                Point2D pnt = mb.getNonRotatedLocation(arg0);
+                int x = (int) pnt.getX();
+                int y = (int) pnt.getY();
 
-            /*
-             * Making the image
-             */
+                if (!isPanning) {
+                    int w = mb.getWidth();
+                    int h = mb.getHeight();
 
-            if (bufferedMapImage == null || bufferedRenderingImage == null) {
-                createBuffers(w, h);
-            }
+                    /*
+                     * Making the image
+                     */
 
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            Graphics2D g = ge.createGraphics(bufferedMapImage);
-            g.setClip(0, 0, w, h);
-            Border border = mb.getBorder();
-            mb.setBorder(null);
-            if (mb.getRotation() != 0.0) {
-                double angle = mb.getRotation();
-                mb.setRotation(0.0);
-                mb.paintAll(g);
-                mb.setRotation(angle);
-            } else {
-                mb.paintAll(g);
-            }
-            mb.setBorder(border);
+                    if (bufferedMapImage == null
+                            || bufferedRenderingImage == null) {
+                        createBuffers(w, h);
+                    }
 
-            oX = x;
-            oY = y;
+                    GraphicsEnvironment ge = GraphicsEnvironment
+                            .getLocalGraphicsEnvironment();
+                    Graphics2D g = ge.createGraphics(bufferedMapImage);
+                    g.setClip(0, 0, w, h);
+                    Border border = mb.getBorder();
+                    mb.setBorder(null);
+                    if (mb.getRotation() != 0.0) {
+                        double angle = mb.getRotation();
+                        mb.setRotation(0.0);
+                        mb.paintAll(g);
+                        mb.setRotation(angle);
+                    } else {
+                        mb.paintAll(g);
+                    }
+                    mb.setBorder(border);
 
-            isPanning = true;
+                    oX = x;
+                    oY = y;
 
-        } else {
-            if (bufferedMapImage != null && bufferedRenderingImage != null) {
-                Graphics2D gr2d = (Graphics2D) bufferedRenderingImage.getGraphics();
-                /*
-                 * Drawing original image without transparence and in the
-                 * initial position
-                 */
-                if (leaveShadow) {
-                    gr2d.drawImage(bufferedMapImage, 0, 0, null);
+                    isPanning = true;
+
                 } else {
-                    gr2d.setPaint(mb.getBckgrnd());
-                    gr2d.fillRect(0, 0, mb.getWidth(), mb.getHeight());
+                    if (bufferedMapImage != null
+                            && bufferedRenderingImage != null) {
+                        Graphics2D gr2d = (Graphics2D) bufferedRenderingImage
+                                .getGraphics();
+                        /*
+                         * Drawing original image without transparence and in
+                         * the initial position
+                         */
+                        if (leaveShadow) {
+                            gr2d.drawImage(bufferedMapImage, 0, 0, null);
+                        } else {
+                            gr2d.setPaint(mb.getBckgrnd());
+                            gr2d.fillRect(0, 0, mb.getWidth(), mb.getHeight());
+                        }
+
+                        /*
+                         * Drawing image with transparence and in the mouse
+                         * position minus origianl mouse click position
+                         */
+                        gr2d.setComposite(AlphaComposite.getInstance(
+                                AlphaComposite.SRC_OVER, opaqueness));
+                        gr2d.drawImage(bufferedMapImage, x - oX, y - oY, null);
+
+                        ((Graphics2D) mb.getGraphics(true)).drawImage(
+                                bufferedRenderingImage, 0, 0, null);
+                    }
                 }
-
-                /*
-                 * Drawing image with transparence and in the mouse position
-                 * minus origianl mouse click position
-                 */
-                gr2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-                        opaqueness));
-                gr2d.drawImage(bufferedMapImage, x - oX, y - oY, null);
-
-//                ((Graphics2D) mb.getGraphics(true)).drawImage(bufferedRenderingImage,
-//                        0,
-//                        0,
-//                        null);
             }
         }
-        super.mouseDragged(arg0);
+        // }
+        // super.mouseDragged(arg0);
     }
+
 
     /**
      * Event on mouse pressed

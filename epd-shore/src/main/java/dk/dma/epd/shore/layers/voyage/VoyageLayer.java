@@ -264,7 +264,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
             return false;
         }
 
-        if (newClosest != closest) {
+        if (newClosest != closest && this.isVisible()) {
             Point containerPoint = SwingUtilities.convertPoint(chartPanel,
                     e.getPoint(), jMapFrame);
 
