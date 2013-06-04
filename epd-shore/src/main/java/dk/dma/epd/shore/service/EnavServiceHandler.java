@@ -337,31 +337,35 @@ public class EnavServiceHandler extends MapHandlerChild implements
         // For now ship id will be MMSI so we need to know
         // own ship information. Busy wait for it.
 
-        while (true) {
-            Util.sleep(1000);
-            if (this.aisHandler != null) {
-                VesselTarget ownShip = this.aisHandler.getOwnShip();
-                // System.out.println(ownShip);
-                if (ownShip != null) {
-                    if (ownShip.getMmsi() > 0) {
-                        shipId = ShipId
-                                .create(Long.toString(ownShip.getMmsi()));
-                        init();
-                        try {
-                            listenToBroadcasts();
-                            monaLisaRouteRequestListener();
-                            listenToAck();
-                        } catch (Exception e) {
-                            // Exception for virtual net
-                            System.out
-                                    .println("An exception occured trying to listen to broadcasts, possibly connection issue");
-                        }
-
-                        break;
-                    }
-                }
-            }
+        // while (true) {
+        Util.sleep(1000);
+        // System.out.println("Sleeping");
+        // if (this.aisHandler != null) {
+        // System.out.println("aishandler is not null!");
+        // VesselTarget ownShip = this.aisHandler.getOwnShip();
+        // // System.out.println(ownShip);
+        // if (ownShip != null) {
+        // System.out.println("ownship is null");
+        // if (ownShip.getMmsi() > 0) {
+        String shoreID = "999" + System.currentTimeMillis();
+        shoreID = (String) shoreID.subSequence(0, 9);
+        shipId = ShipId.create(shoreID);
+        init();
+        try {
+            listenToBroadcasts();
+            monaLisaRouteRequestListener();
+            listenToAck();
+        } catch (Exception e) {
+            // Exception for virtual net
+            System.out
+                    .println("An exception occured trying to listen to broadcasts, possibly connection issue");
         }
+
+        // break;
+        // }
+        // }
+        // }
+        // }
 
         while (true) {
             getRouteSuggestionServiceList();

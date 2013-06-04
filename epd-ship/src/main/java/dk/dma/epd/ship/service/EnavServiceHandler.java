@@ -320,6 +320,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
             monaLisaSTCCList = connection
                     .serviceFind(MonaLisaRouteService.INIT)
                     .nearest(Integer.MAX_VALUE).get();
+
         } catch (Exception e) {
             LOG.error(e.getMessage());
 
@@ -344,16 +345,16 @@ public class EnavServiceHandler extends MapHandlerChild implements
         for (int i = 0; i < monaLisaRouteAckList.size(); i++) {
             System.out.println(monaLisaRouteAckList.get(i).getId().toString());
 
-            // if
-            // (monaLisaRouteAckList.get(i).getId().toString().equals(mmsiStr))
-            // {
-            end = monaLisaRouteAckList.get(i);
-            // break;
+            if (monaLisaRouteAckList.get(i).getId().toString()
+                    .startsWith("mmsi://999")) {
+                end = monaLisaRouteAckList.get(i);
+                // break;
 
-            // }
+            }
         }
 
-        MonaLisaRouteAckMsg msg = new MonaLisaRouteAckMsg(ack, id, ownMMSI, message);
+        MonaLisaRouteAckMsg msg = new MonaLisaRouteAckMsg(ack, id, ownMMSI,
+                message);
 
         if (end != null) {
 
