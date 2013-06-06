@@ -89,6 +89,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
     HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>> contextSenders = new HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>>();
 
     List<ServiceEndpoint<MonaLisaRouteRequestMessage, MonaLisaRouteRequestReply>> monaLisaShipList = new ArrayList<>();
+    
+    private long ownMMSI;
 
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
         this.hostPort = String.format("%s:%d",
@@ -350,6 +352,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         String shoreID = "999" + System.currentTimeMillis();
         shoreID = (String) shoreID.subSequence(0, 9);
         shipId = ShipId.create(shoreID);
+        ownMMSI = Long.parseLong(shoreID);
         init();
         try {
             listenToBroadcasts();
@@ -372,6 +375,15 @@ public class EnavServiceHandler extends MapHandlerChild implements
             Util.sleep(10000);
         }
 
+    }
+
+    
+    
+    /**
+     * @return the ownMMSI
+     */
+    public long getOwnMMSI() {
+        return ownMMSI;
     }
 
     public void start() {

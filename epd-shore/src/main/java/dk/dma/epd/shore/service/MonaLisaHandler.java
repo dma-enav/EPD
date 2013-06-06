@@ -51,10 +51,12 @@ public class MonaLisaHandler extends MapHandlerChild {
     // notifyMonaLisaRouteExchangeListeners();
     // }
 
-    public void sendReply(long id, String text, long mmsi,
+    public void sendReply(long id, String text,
             long currentTimeMillis, MonaLisaRouteStatus replyStatus, Route route, boolean renegotiate) {
         
         // Should a reply be sent?
+        
+        long mmsi = enavServiceHandler.getOwnMMSI();
 
         MonaLisaRouteStatus status = monaLisaNegotiationData.get(id)
                 .getStatus();

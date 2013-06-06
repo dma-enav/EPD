@@ -327,9 +327,8 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
             }
 
             monaLisaHandler.sendReply(voyage.getId(), textArea.getText(),
-                    aisHandler.getOwnShip().getMmsi(), System
-                            .currentTimeMillis(), replyStatus, voyage
-                            .getRoute().getFullRouteData(), this.renegotiate);
+                    System.currentTimeMillis(), replyStatus, voyage.getRoute()
+                            .getFullRouteData(), this.renegotiate);
 
             // monaLisaHandler.sendReply(reply);
 
