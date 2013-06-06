@@ -19,6 +19,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import net.jcip.annotations.GuardedBy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,11 +51,16 @@ public class AisServices extends MapHandlerChild {
     
     private static final long INTENDED_ROUTE_BROADCAST_INTERVAL = 6 * 60 * 1000; // 6 min
     
+    private final Object sequenceLock = new Object();
+    @GuardedBy("sequenceLock")
     private Integer sequence = 0;
+    
     private NmeaSensor nmeaSensor;
     private EPDSettings settings;
     private AisHandler aisHandler;
     
+    private final Object lastIntendedRouteBroadcastLock = new Object();
+    @GuardedBy("lastIntendedRouteBroadcastLock")
     private Date lastIntendedRouteBroadcast = new Date(0);
     
     public AisServices() {
@@ -243,13 +250,13 @@ public class AisServices extends MapHandlerChild {
     }
 
     public void setLastIntendedRouteBroadcast() {
-        synchronized (lastIntendedRouteBroadcast) {
+        synchronized (lastIntendedRouteBroadcastLock) {
             lastIntendedRouteBroadcast = GnssTime.getInstance().getDate();
         }
     }
     
     public long getLastIntendedRouteBroadcast() {
-        synchronized (lastIntendedRouteBroadcast) {
+        synchronized (lastIntendedRouteBroadcastLock) {
             return lastIntendedRouteBroadcast.getTime();
         }
     }
@@ -269,7 +276,7 @@ public class AisServices extends MapHandlerChild {
     }
     
     private int nextSeq() {
-        synchronized (sequence) {
+        synchronized (sequenceLock) {
             int seq = sequence;
             sequence = (sequence + 1) % 4;
             return seq;
