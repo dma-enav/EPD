@@ -93,6 +93,18 @@ public class PastTrackGraphic extends OMGraphicList {
             this.arrowsVisible = show;
         }
     }
+    
+    @Override
+    public void setVisible(boolean visible){
+        super.setVisible(visible);
+        
+        if (!visible){
+            clear();
+            routeLegs.clear();
+            routeWps.clear();
+        }
+    }
+    
 
     public void update(List<PastTrackPoint> pastTrackPoints, Position pos) {
 
@@ -101,8 +113,10 @@ public class PastTrackGraphic extends OMGraphicList {
             setVisible(true);
         }
 
-            // Route has changed, draw new route
             clear();
+            routeLegs.clear();
+            routeWps.clear();
+            
             add(activeWpLine);
             
             List<Position> waypoints = new ArrayList<>();
