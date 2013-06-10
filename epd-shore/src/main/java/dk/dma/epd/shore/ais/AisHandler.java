@@ -15,17 +15,12 @@
  */
 package dk.dma.epd.shore.ais;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.enav.model.geometry.CoordinateSystem;
-import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
@@ -40,7 +35,7 @@ public class AisHandler extends AisHandlerCommon {
 
     private static final Logger LOG = LoggerFactory.getLogger(AisHandler.class);
 
-    protected Map<Long, List<PastTrackPoint>> pastTrack = new HashMap<Long, List<PastTrackPoint>>();
+    protected Map<Long, IPastTrackShore> pastTrack = new ConcurrentHashMap<>(100000);
 
     /**
      * Empty constructor not used
@@ -85,46 +80,34 @@ public class AisHandler extends AisHandlerCommon {
 
         // Add past track
         if (pastTrack.containsKey(mmsi)) {
-            LinkedList<PastTrackPoint> ptps = (LinkedList<PastTrackPoint>) pastTrack.get(mmsi);
+            IPastTrackShore ptps = pastTrack.get(mmsi);
 
-            // Should it add the key?
-            Position prevPos = ptps.get(ptps.size() - 1).getPosition();
-
-            // LOG.info("current size of pastTrack hashmap: "+pastTrack.size());
-
-            // In km, how often should points be saved? 1km?
-            if (prevPos.distanceTo(positionData.getPos(), CoordinateSystem.CARTESIAN) > 100) {
-                // System.out.println("Target " + mmsi + " has moved more than 50 since last");
-
-                try {
-                    ptps.add(new PastTrackPoint(new Date(), positionData.getPos()));
-                } catch (Exception exception) {
-                    LOG.error("Target " + mmsi + " has List<PastTrackPoint> size of " + ptps.size());
-                    LOG.error("current size of pastTrack hashmap: " + pastTrack.size());
-                    throw exception;
-                }
-
-            }
-
-            // System.out.println(prevPos.distanceTo(positionData.getPos(), CoordinateSystem.CARTESIAN));
+            //minDist 100m
+            ptps.addPosition(positionData.getPos(), 100);
 
         } else {
-            try {
-                pastTrack.put(mmsi, new LinkedList<PastTrackPoint>());
-                pastTrack.get(mmsi).add(new PastTrackPoint(new Date(), positionData.getPos()));
-            } catch (Exception exception) {
-                LOG.error("Failed to create or add new ArrayList<PastTrackPoint>");
-                LOG.error("current size of pastTrack hashmap: " + pastTrack.size());
-                throw exception;
-            }
+            pastTrack.put(mmsi, new PastTrackTree());
+            pastTrack.get(mmsi).addPosition(positionData.getPos(), 100);
 
         }
+        
+        //DEBUG on performance
+        long timeS = System.currentTimeMillis();
+        for (IPastTrackShore t: pastTrack.values()) {
+            t.cleanup(60*60*12);
+        }
+        long timeE = System.currentTimeMillis();
+        
+        if ((timeE-timeS)/1000 > 1) {
+            LOG.error("Time to clean pastTrack: "+(timeE-timeS)/1000);
+        }
+        
 
         // Publish update
         publishUpdate(vesselTarget);
     }
 
-    public Map<Long, List<PastTrackPoint>> getPastTrack() {
+    public Map<Long, IPastTrackShore> getPastTrack() {
         return pastTrack;
     }
 

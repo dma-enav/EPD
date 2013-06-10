@@ -21,6 +21,7 @@ import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.SwingUtilities;
 
@@ -33,6 +34,7 @@ import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMList;
 
+import dk.dma.ais.data.IPastTrack;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon.AisMessageExtended;
 import dk.dma.epd.common.prototype.ais.AisTarget;
@@ -43,6 +45,7 @@ import dk.dma.epd.common.prototype.layers.ais.AisTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteWpCircle;
 import dk.dma.epd.shore.ais.AisHandler;
+import dk.dma.epd.shore.ais.IPastTrackShore;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
@@ -246,12 +249,13 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTar
                             aisTargetGraphic.moveSymbol(vesselTarget.getPositionData().getPos());
                             selectionOnScreen = true;
 
-                            // if (mainFrame.getSelectedMMSI() != -1 &&
-                            // drawnVessels.containsKey(mainFrame.getSelectedMMSI())){
-                            drawnVessels.get(mainFrame.getSelectedMMSI()).updatePastTrack(
-                                    aisHandler.getPastTrack().get(mainFrame.getSelectedMMSI()));
-                            // System.out.println("hide it");
-                            // }
+                            Map<Long, IPastTrackShore> pastTrack = aisHandler.getPastTrack();
+                            
+                            if (pastTrack.containsKey(vesselTarget.getMmsi())) {
+                                drawnVessels.get(mainFrame.getSelectedMMSI()).updatePastTrack(
+                                        pastTrack.get(mainFrame.getSelectedMMSI()).getPoints());
+                            }
+                            
 
                             setStatusAreaTxt();
                         }
@@ -384,7 +388,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTar
                     if (aisHandler.getPastTrack().get(mmsi) != null) {
 
                         // highlightedMMSI = mmsi;
-                        ((VesselLayer) newClosest).getVessel().updatePastTrack(aisHandler.getPastTrack().get(mmsi));
+                        ((VesselLayer) newClosest).getVessel().updatePastTrack(aisHandler.getPastTrack().get(mmsi).getPoints());
 
                         // for (int i = 0; i <
                         // aisHandler.getPastTrack().get(mmsi).size(); i++) {

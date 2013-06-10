@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.shore.layers.ais;
 
+import java.util.Date;
+
 import com.bbn.openmap.omGraphics.OMCircle;
 
 /**
@@ -24,21 +26,31 @@ public class PastTrackWpCircle extends OMCircle {
     private static final long serialVersionUID = 1L;
 
     private PastTrackGraphic pastTrackGraphic;
-    private int index;
+    private final int index;
+    private final Date date;
     
     public PastTrackWpCircle(){
         super(0, 0, 0.1);
-
+        index = -1;
+        date = new Date(0);
     }
 
-    public PastTrackWpCircle(PastTrackGraphic pastTrackGraphic, int index, double latitude, double longitude, int offX1, int offY1, int w, int h) {
+    public PastTrackWpCircle(PastTrackGraphic pastTrackGraphic, int index, double latitude, double longitude, int offX1, int offY1, int w, int h, Date date) {
         super(latitude, longitude, offX1, offY1, w, h);
         this.index = index;
         this.pastTrackGraphic = pastTrackGraphic;
+        this.date = date;
     }
 
     public int getIndex() {
         return index;
+    }
+
+    /**
+     * Get the date of this PastTrackWpCircle
+     */
+    public Date getDate() {
+        return date;
     }
 
     public PastTrackGraphic getPastTrackGraphic() {

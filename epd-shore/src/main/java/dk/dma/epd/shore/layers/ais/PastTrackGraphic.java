@@ -18,6 +18,8 @@ package dk.dma.epd.shore.layers.ais;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
@@ -70,11 +72,12 @@ public class PastTrackGraphic extends OMGraphicList {
         add(leg);
     }
 
-    private void makeWpCircle(int index, Position wp) {
+    private void makeWpCircle(int index, PastTrackPoint p) {
         PastTrackWpCircle wpCircle = new PastTrackWpCircle(this, index,
-                wp.getLatitude(), wp.getLongitude(), 0, 0, 2, 2);
+                p.getPosition().getLatitude(), p.getPosition().getLongitude(), 0, 0, 2, 2, p.getDate());
         wpCircle.setStroke(new BasicStroke(3));
         wpCircle.setLinePaint(legColor);
+        
         routeWps.add(wpCircle);
         add(wpCircle);
     }
@@ -104,42 +107,90 @@ public class PastTrackGraphic extends OMGraphicList {
             routeWps.clear();
         }
     }
-    
+    /**
+     * updates gui PastTrack using any sort of Collection for improved performance
+     * @param pastTrackPoints
+     * @param pos
+     */
+    public void update(Collection<PastTrackPoint> pastTrackPoints, Position pos) {
+     // Set visible if not visible
+        if (!isVisible()) {
+            setVisible(true);
+        }
 
-    public void update(List<PastTrackPoint> pastTrackPoints, Position pos) {
+        clear();
+        routeLegs.clear();
+        routeWps.clear();
+        
+        add(activeWpLine);
 
+        Iterator<PastTrackPoint> it = pastTrackPoints.iterator();
+        
+        if (!it.hasNext()) {
+            return;
+        }
+        
+        PastTrackPoint start = it.next();
+        makeWpCircle(0, start);
+        int count = 0;            
+
+        while (it.hasNext()) {
+            PastTrackPoint end = it.next();
+            
+            count++;
+            makeWpCircle(count, end);
+            makeLegLine(count, start.getPosition(),end.getPosition());
+            
+            start = end;
+        }
+        
+
+        activeWpLineLL[0] = pos.getLatitude();
+        activeWpLineLL[1] = pos.getLongitude();
+        activeWpLineLL[2] = start.getPosition().getLatitude();
+        activeWpLineLL[3] = start.getPosition().getLongitude();
+        activeWpLine.setLL(activeWpLineLL);
+    }
+
+    /*public void update(List<PastTrackPoint> pastTrackPoints, Position pos) {
+        
         // Set visible if not visible
         if (!isVisible()) {
             setVisible(true);
         }
 
-            clear();
-            routeLegs.clear();
-            routeWps.clear();
-            
-            add(activeWpLine);
-            
-            List<Position> waypoints = new ArrayList<>();
-            
+        clear();
+        routeLegs.clear();
+        routeWps.clear();
+        
+        add(activeWpLine);
+        
+        
+        if (pastTrackPoints.isEmpty()) {
+            return;
+        }
 
-            
-            for (int i = 0; i < pastTrackPoints.size(); i++) {
-                waypoints.add(pastTrackPoints.get(i).getPosition());
-            }
-            
+        List<Position> waypoints = new ArrayList<>();
+        
+
+        
+        for (int i = 0; i < pastTrackPoints.size(); i++) {
+            waypoints.add(pastTrackPoints.get(i).getPosition());
+        }
+        
 //            List<Position> waypoints = cloudIntendedRoute.getWaypoints();
-            // Make first WP circle
-            makeWpCircle(0, waypoints.get(0));
-            for (int i=0; i < waypoints.size() - 1; i++) {
-                Position start = waypoints.get(i);
-                Position end = waypoints.get(i + 1);
-                
-                // Make wp circle
-                makeWpCircle(i + 1, end);
-                
-                // Make leg line
-                makeLegLine(i + 1, start, end);
-            }
+        // Make first WP circle
+        makeWpCircle(0, waypoints.get(0));
+        for (int i=0; i < waypoints.size() - 1; i++) {
+            Position start = waypoints.get(i);
+            Position end = waypoints.get(i + 1);
+            
+            // Make wp circle
+            makeWpCircle(i + 1, end);
+            
+            // Make leg line
+            makeLegLine(i + 1, start, end);
+        }
         
         // Update leg to first waypoint
         Position activeWpPos = pastTrackPoints.get(pastTrackPoints.size()-1).getPosition();
@@ -149,8 +200,5 @@ public class PastTrackGraphic extends OMGraphicList {
         activeWpLineLL[3] = activeWpPos.getLongitude();
         activeWpLine.setLL(activeWpLineLL);
 
-        
-
-        
-    }
+    }*/
 }

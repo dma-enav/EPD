@@ -24,7 +24,6 @@ import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteLegGraphic;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Calculator;
-import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.utils.InfoPanel;
 
 public class PastTrackInfoPanel extends InfoPanel {
@@ -47,7 +46,7 @@ public class PastTrackInfoPanel extends InfoPanel {
             str.append("<html>");
             str.append("<b>Past Track Point</b><br/>");
             str.append("<table border='0' cellpadding='2'>");
-            str.append("<tr><td>Time:</td><td>" + Formatter.formatShortDateTime(EPDShore.getAisHandler().getPastTrack().get(mmsi).get(wpCircle.getIndex()).getDate()) + "</td></tr>");
+            str.append("<tr><td>Time:</td><td>" + Formatter.formatShortDateTime(wpCircle.getDate()) + "</td></tr>");
 //            str.append("<tr><td>AVG SPD:</td><td>" + Formatter.formatSpeed(routeData.getSpeed()) + "</td></tr>");
             str.append("</table>");
             str.append("</html>");

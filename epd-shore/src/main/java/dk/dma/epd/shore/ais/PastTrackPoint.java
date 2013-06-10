@@ -19,26 +19,38 @@ import java.util.Date;
 
 import dk.dma.enav.model.geometry.Position;
 
-public class PastTrackPoint {
+public class PastTrackPoint implements Comparable<PastTrackPoint>{
 
-    Date date;
-    Position position;
+    private final Date date;
+    private final Position position;
 
     public PastTrackPoint(Date date, Position position) {
         this.date = date;
         this.position = position;
     }
 
-    public Date getDate() {
+    public final Date getDate() {
         return date;
     }
 
-    public Position getPosition() {
+    public final Position getPosition() {
         return position;
     }
 
     public String toString() {
         return "Date " + date + " Position: " + position;
     }
+    
+    public boolean isDead(int ttl) {
+        int elapsed = (int) ((System.currentTimeMillis() - getDate().getTime()) / 1000);
+        return elapsed > ttl;
+    }
+
+    @Override
+    public int compareTo(PastTrackPoint o) {
+        return this.getDate().compareTo(o.getDate());
+    }
+
+
 
 }

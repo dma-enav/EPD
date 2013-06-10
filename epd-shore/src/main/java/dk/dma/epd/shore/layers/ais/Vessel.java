@@ -18,7 +18,7 @@ package dk.dma.epd.shore.layers.ais;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.util.List;
+import java.util.Collection;
 
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
@@ -225,11 +225,8 @@ public class Vessel extends OMGraphicList {
         showVesselCirc(!b2);
     }
     
-    public void updatePastTrack(List<PastTrackPoint> pastTrack){
-        if (pastTrack != null){
-            pastTrackGraphic.update(pastTrack, this.getVesselTarget().getPositionData().getPos());            
-        }
-
+    public void updatePastTrack(Collection<PastTrackPoint> pastTrack) {
+        pastTrackGraphic.update(pastTrack,  this.getVesselTarget().getPositionData().getPos());
     }
     
     
