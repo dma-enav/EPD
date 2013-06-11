@@ -86,7 +86,7 @@ public class AisHandler extends AisHandlerCommon {
             ptps.addPosition(positionData.getPos(), 100);
 
         } else {
-            pastTrack.put(mmsi, new PastTrackTree());
+            pastTrack.put(mmsi, new PastTrackSortedSet());
             pastTrack.get(mmsi).addPosition(positionData.getPos(), 100);
 
         }

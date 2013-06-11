@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.NoSuchElementException;
-import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
@@ -29,7 +29,7 @@ import dk.dma.enav.model.geometry.Position;
  * @author jtj-sfs
  *
  */
-public class PastTrackTree extends TreeSet<PastTrackPoint> implements IPastTrackShore, Serializable {
+public class PastTrackSortedSet extends ConcurrentSkipListSet<PastTrackPoint> implements IPastTrackShore, Serializable {
     
     /**
      * 
@@ -62,6 +62,9 @@ public class PastTrackTree extends TreeSet<PastTrackPoint> implements IPastTrack
         }
     }
 
+    /**
+     * Collection for use with outside iterators
+     */
     @Override
     public Collection<PastTrackPoint> getPoints() {
         return this;
