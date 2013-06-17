@@ -68,7 +68,7 @@ public class SensorSettings implements Serializable {
     private int aisTcpPort = 4001;
     
     private SensorConnectionType gpsConnectionType = SensorConnectionType.AIS_SHARED;
-    private String gpsHostOrSerialPort = "COM11";
+    private String gpsHostOrSerialPort = "COM3";
     private String gpsFilename = "";
     private int gpsTcpPort = 8888;
     

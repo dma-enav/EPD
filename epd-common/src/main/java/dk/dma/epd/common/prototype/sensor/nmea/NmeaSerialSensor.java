@@ -21,28 +21,31 @@ import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.TooManyListenersException;
 
-import javax.comm.CommPortIdentifier;
 import javax.comm.PortInUseException;
-import javax.comm.SerialPort;
-import javax.comm.SerialPortEvent;
-import javax.comm.SerialPortEventListener;
 import javax.comm.UnsupportedCommOperationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gnu.io.CommPortIdentifier;
+import gnu.io.SerialPort;
+import gnu.io.SerialPortEvent;
+import gnu.io.SerialPortEventListener;
 
 import dk.dma.ais.reader.SendException;
 import dk.dma.ais.reader.SendRequest;
 import dk.dma.ais.sentence.Abk;
 import dk.dma.enav.util.function.Consumer;
 
+
 /**
  * Serial port NMEA sensor 
  * 
- * @todo Re-implement using rxvt and make thread-safe 
+ * @TODO make thread-safe 
  * 
  */
 public class NmeaSerialSensor extends NmeaSensor implements SerialPortEventListener{
+    
     
     private static Logger LOG = LoggerFactory.getLogger(NmeaSerialSensor.class);
     
@@ -73,6 +76,7 @@ public class NmeaSerialSensor extends NmeaSensor implements SerialPortEventListe
                     connect();
                 } catch (Exception e) {
                     LOG.error("Failed to open serial port");
+                    e.printStackTrace();
                 }
             }
             
@@ -86,7 +90,7 @@ public class NmeaSerialSensor extends NmeaSensor implements SerialPortEventListe
         }
     }
     
-    private void connect() throws IOException, UnsupportedCommOperationException, PortInUseException, TooManyListenersException {
+    private void connect() throws IOException, UnsupportedCommOperationException, PortInUseException, TooManyListenersException, gnu.io.PortInUseException, gnu.io.UnsupportedCommOperationException {
         // Find port
         findPort();        
         // Open port
@@ -116,7 +120,7 @@ public class NmeaSerialSensor extends NmeaSensor implements SerialPortEventListe
     }
     
     private void findPort() throws IOException {
-        LOG.debug("Searching for port " + serialPortName);
+        LOG.info("Searching for port " + serialPortName);
         Enumeration<?> portList = CommPortIdentifier.getPortIdentifiers();
         while (portList.hasMoreElements()) {
             portId = (CommPortIdentifier) portList.nextElement();
@@ -181,3 +185,4 @@ public class NmeaSerialSensor extends NmeaSensor implements SerialPortEventListe
     }
         
 }
+
