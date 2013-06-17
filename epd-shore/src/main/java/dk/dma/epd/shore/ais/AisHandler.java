@@ -35,7 +35,7 @@ public class AisHandler extends AisHandlerCommon {
 
     private static final Logger LOG = LoggerFactory.getLogger(AisHandler.class);
 
-    protected Map<Long, IPastTrackShore> pastTrack = new ConcurrentHashMap<>(100000);
+    protected ConcurrentHashMap<Long, IPastTrackShore> pastTrack = new ConcurrentHashMap<>(100000);
 
     /**
      * Empty constructor not used
@@ -83,18 +83,20 @@ public class AisHandler extends AisHandlerCommon {
             IPastTrackShore ptps = pastTrack.get(mmsi);
 
             //minDist 100m
+            //TODO: get minDist option from settings file.
             ptps.addPosition(positionData.getPos(), 100);
 
         } else {
-            pastTrack.put(mmsi, new PastTrackSortedSet());
+            pastTrack.putIfAbsent(mmsi, new PastTrackSortedSet());
             pastTrack.get(mmsi).addPosition(positionData.getPos(), 100);
 
         }
         
         //DEBUG on performance
+        
         long timeS = System.currentTimeMillis();
         for (IPastTrackShore t: pastTrack.values()) {
-            t.cleanup(60*60*12);
+            t.cleanup(60*60*24); //TODO: get ttl option in settings file
         }
         long timeE = System.currentTimeMillis();
         
