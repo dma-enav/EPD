@@ -19,8 +19,12 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
@@ -42,6 +46,8 @@ public class PastTrackGraphic extends OMGraphicList {
 
     private List<PastTrackLegGraphic> routeLegs = new ArrayList<>();
     private List<PastTrackWpCircle> routeWps = new ArrayList<>();
+    
+    private static final Logger LOG = LoggerFactory.getLogger(PastTrackGraphic.class);
 
     public PastTrackGraphic() {
         super();
@@ -135,7 +141,16 @@ public class PastTrackGraphic extends OMGraphicList {
         int count = 0;            
 
         while (it.hasNext()) {
-            PastTrackPoint end = it.next();
+            PastTrackPoint end = null;
+            try {
+                end = it.next();
+            } catch (ConcurrentModificationException e) {
+                LOG.error("Tried to iterate over pastTrackPoints, but failed even though ConcurrentSkipListSet should never throw this exception");
+                LOG.error(e.getLocalizedMessage());
+                return;
+            }
+                
+            
             
             count++;
             makeWpCircle(count, end);
