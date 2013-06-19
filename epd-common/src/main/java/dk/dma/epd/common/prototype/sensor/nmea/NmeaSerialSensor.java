@@ -15,6 +15,11 @@
  */
 package dk.dma.epd.common.prototype.sensor.nmea;
 
+import gnu.io.CommPortIdentifier;
+import gnu.io.SerialPort;
+import gnu.io.SerialPortEvent;
+import gnu.io.SerialPortEventListener;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,11 +31,6 @@ import javax.comm.UnsupportedCommOperationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import gnu.io.CommPortIdentifier;
-import gnu.io.SerialPort;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
 
 import dk.dma.ais.reader.SendException;
 import dk.dma.ais.reader.SendRequest;
