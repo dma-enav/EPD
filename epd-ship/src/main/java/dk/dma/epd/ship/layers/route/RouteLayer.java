@@ -86,11 +86,16 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
     private boolean dragging;
     SafeHavenArea safeHavenArea = new SafeHavenArea();
     private boolean activeSafeHaven;
+    
+    private float tolerance;
+    
 
     public RouteLayer() {
         new Thread(this).start();
         routeWidth = EPDShip.getSettings().getNavSettings().getRouteWidth();
-
+        tolerance =  EPDShip.getSettings().getGuiSettings().getMouseSelectTolerance();
+        
+        tolerance = 50f;
     }
 
     private void updateSafeHaven() {
@@ -100,10 +105,8 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
 
                 if (activeSafeHaven) {
                     graphics.remove(safeHavenArea);
-                    System.out.println("Activating safehaven");
                     if (activeRoute.getActiveWp().getOutLeg() != null) {
 
-                        System.out.println("outleg isnt zero");
                         safeHavenArea.moveSymbol(
                                 activeRoute.getSafeHavenLocation(),
                                 activeRoute.getSafeHavenBearing(),
@@ -113,7 +116,6 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
 
                         graphics.add(safeHavenArea);
                     } else {
-                        System.out.println("outleg is null");
                         safeHavenArea
                                 .moveSymbol(
                                         activeRoute.getSafeHavenLocation(),
@@ -473,13 +475,16 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseClicked(MouseEvent e) {
+        System.out.println("Mouse Clicked");
         if (e.getButton() != MouseEvent.BUTTON3) {
             return false;
         }
 
         selectedGraphic = null;
         OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-                5.0f);
+                tolerance);
+        
+        System.out.println("Going through LIST!");
         for (OMGraphic omGraphic : allClosest) {
             if (omGraphic instanceof SuggestedRouteGraphic
                     || omGraphic instanceof WaypointCircle
@@ -540,6 +545,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseDragged(MouseEvent e) {
+        System.out.println("Mouse dragged!");
         if (!javax.swing.SwingUtilities.isLeftMouseButton(e)) {
             return false;
         }
@@ -548,7 +554,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
             mainFrame.getGlassPane().setVisible(false);
             selectedGraphic = null;
             OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-                    5.0f);
+                    tolerance);
             for (OMGraphic omGraphic : allClosest) {
                 if (omGraphic instanceof WaypointCircle) {
                     selectedGraphic = omGraphic;
