@@ -37,7 +37,9 @@ public class GuiSettings implements Serializable {
     private boolean riskNogoDisabled;
     private boolean alwaysOpenDock = true;
     private boolean showDockMessage = true;
-
+    private float mouseSelectTolerance = 5.0f;
+    
+    
     public GuiSettings() {
 
     }
@@ -58,6 +60,9 @@ public class GuiSettings implements Serializable {
         riskNogoDisabled = PropUtils.booleanFromProperties(props, PREFIX + "riskNogoDisabled", riskNogoDisabled);
         alwaysOpenDock = PropUtils.booleanFromProperties(props, PREFIX + "alwaysOpenDock", alwaysOpenDock);
         showDockMessage = PropUtils.booleanFromProperties(props, PREFIX + "showDockMessage", showDockMessage);
+        mouseSelectTolerance = PropUtils.floatFromProperties(props, PREFIX + "mouseSelectTolerance", mouseSelectTolerance);
+        
+        
     }
 
     public void setProperties(Properties props) {
@@ -70,6 +75,7 @@ public class GuiSettings implements Serializable {
         props.put(PREFIX + "riskNogoDisabled", Boolean.toString(riskNogoDisabled));
         props.put(PREFIX + "alwaysOpenDock", Boolean.toString(alwaysOpenDock));
         props.put(PREFIX + "showDockMessage", Boolean.toString(showDockMessage));
+        props.put(PREFIX + "mouseSelectTolerance", Float.toString(mouseSelectTolerance));
     }
 
     
@@ -129,5 +135,21 @@ public class GuiSettings implements Serializable {
     public void setRiskNogoDisabled(boolean riskNogoDisabled) {
         this.riskNogoDisabled = riskNogoDisabled;
     }
+
+    /**
+     * @return the mouseSelectTolerance
+     */
+    public float getMouseSelectTolerance() {
+        return mouseSelectTolerance;
+    }
+
+    /**
+     * @param mouseSelectTolerance the mouseSelectTolerance to set
+     */
+    public void setMouseSelectTolerance(float mouseSelectTolerance) {
+        this.mouseSelectTolerance = mouseSelectTolerance;
+    }
+ 
+    
     
 }
