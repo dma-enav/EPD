@@ -43,6 +43,7 @@ import dk.dma.epd.common.prototype.layers.route.WaypointCircle;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.util.Util;
+import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gui.MainFrame;
@@ -80,6 +81,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
     private OMGraphic selectedGraphic;
     private MainFrame mainFrame;
 
+    private float tolerance;
     // private boolean modified;
 
     public VoyageLayer() {
@@ -89,7 +91,8 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
     public void startRouteNegotiation(Route route) {
 
         this.primaryRoute = route;
-
+        tolerance =  EPDShip.getSettings().getGuiSettings().getMouseSelectTolerance();
+        
         // Added the route as green, original recieved one
         drawRoute(route, ECDISOrange);
 
@@ -221,7 +224,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
             selectedGraphic = null;
             OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-                    5.0f);
+                    tolerance);
             for (OMGraphic omGraphic : allClosest) {
                 if (omGraphic instanceof WaypointCircle
                         || omGraphic instanceof RouteLegGraphic) {
@@ -259,7 +262,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         if (!dragging) {
             selectedGraphic = null;
             OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-                    5.0f);
+                    tolerance);
             for (OMGraphic omGraphic : allClosest) {
                 if (omGraphic instanceof WaypointCircle) {
                     selectedGraphic = omGraphic;
@@ -313,7 +316,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
     public boolean mouseMoved(MouseEvent e) {
         OMGraphic newClosest = null;
         OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-                2.0f);
+                tolerance);
 
         for (OMGraphic omGraphic : allClosest) {
             if (omGraphic instanceof RouteLegGraphic

@@ -94,8 +94,6 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         new Thread(this).start();
         routeWidth = EPDShip.getSettings().getNavSettings().getRouteWidth();
         tolerance =  EPDShip.getSettings().getGuiSettings().getMouseSelectTolerance();
-        
-        tolerance = 50f;
     }
 
     private void updateSafeHaven() {
