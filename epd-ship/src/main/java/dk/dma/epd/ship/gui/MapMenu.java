@@ -52,6 +52,7 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
+import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.menuitems.AisIntendedRouteToggle;
@@ -468,7 +469,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         sendToSTCC.setRoute(route);
         sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
-                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() >0 && routeManager.getActiveRouteIndex() != routeIndex);
+                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() >0 && routeManager.getActiveRouteIndex() != routeIndex && enavServiceHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
         
         if (monaLisaHandler.isTransaction()){
             sendToSTCC.setText("Show STCC info");
@@ -503,7 +504,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         sendToSTCC.setRoute(route);
         sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
-                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() >0 && routeManager.getActiveRouteIndex() != routeIndex);
+                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() >0 && routeManager.getActiveRouteIndex() != routeIndex && enavServiceHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
         
         if (monaLisaHandler.isTransaction()){
             sendToSTCC.setText("Show STCC info");

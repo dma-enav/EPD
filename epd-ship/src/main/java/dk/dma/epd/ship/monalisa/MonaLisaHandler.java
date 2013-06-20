@@ -28,6 +28,7 @@ import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteR
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.monalisa.MonaLisaSTCCDialog;
@@ -268,17 +269,17 @@ public class MonaLisaHandler extends MapHandlerChild {
 
         Route lastRoute = new Route(transactionData.getLatestRoute());
 
-//        if (transactionData.getRouteMessage().size() > transactionData
-//                .getRouteReply().size()) {
-//            lastRoute = new Route(transactionData.getRouteMessage()
-//                    .get(transactionData.getRouteMessage().size() - 1)
-//                    .getRoute());
-//
-//        } else {
-//            lastRoute = new Route(transactionData.getRouteReply()
-//                    .get(transactionData.getRouteReply().size() - 1).getRoute());
-//
-//        }
+        // if (transactionData.getRouteMessage().size() > transactionData
+        // .getRouteReply().size()) {
+        // lastRoute = new Route(transactionData.getRouteMessage()
+        // .get(transactionData.getRouteMessage().size() - 1)
+        // .getRoute());
+        //
+        // } else {
+        // lastRoute = new Route(transactionData.getRouteReply()
+        // .get(transactionData.getRouteReply().size() - 1).getRoute());
+        //
+        // }
 
         // Let layer handle itself
         voyageLayer.handleReNegotiation(newReply, lastRoute);
@@ -330,7 +331,7 @@ public class MonaLisaHandler extends MapHandlerChild {
             monaLisaNegotiationData.get(transactionID).setStatus(
                     MonaLisaRouteStatus.AGREED);
         }
-        
+
         Route route = voyageLayer.getModifiedSTCCRoute();
         route.setStccApproved(true);
 
@@ -339,8 +340,7 @@ public class MonaLisaHandler extends MapHandlerChild {
         // route.setVisible(true);
         routeManager.addRoute(route);
         routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
-        
-        
+
         boolean shouldActive = false;
 
         if (routeManager.getActiveRouteIndex() != -1) {
@@ -371,20 +371,15 @@ public class MonaLisaHandler extends MapHandlerChild {
 
         }
 
-
-
         if (shouldActive) {
             int routeToActivate = routeManager.getRouteCount() - 1;
             routeManager.activateRoute(routeToActivate);
         }
 
-
-
-
-
     }
 
     private void sendRejectMsg(long transactionID, String message) {
+
         // System.out.println("Send reject msg? " + transactionID);
 
         // Send ack message
@@ -402,10 +397,12 @@ public class MonaLisaHandler extends MapHandlerChild {
             MonaLisaRouteNegotiationData transactionData = monaLisaNegotiationData
                     .get(transactionID);
 
-            enavServiceHandler.sendMonaLisaAck(transactionData
-                    .getRouteMessage().get(0).getMmsi(), transactionID,
-                    transactionData.getRouteMessage().get(0).getMmsi(), false,
-                    message);
+            if (enavServiceHandler.getStatus().getStatus() == ComponentStatus.Status.OK) {
+                enavServiceHandler.sendMonaLisaAck(transactionData
+                        .getRouteMessage().get(0).getMmsi(), transactionID,
+                        transactionData.getRouteMessage().get(0).getMmsi(),
+                        false, message);
+            }
 
             monaLisaNegotiationData.get(transactionID).setStatus(
                     MonaLisaRouteStatus.REJECTED);
@@ -524,6 +521,5 @@ public class MonaLisaHandler extends MapHandlerChild {
     public HashMap<Long, MonaLisaRouteNegotiationData> getMonaLisaNegotiationData() {
         return monaLisaNegotiationData;
     }
-    
-    
+
 }

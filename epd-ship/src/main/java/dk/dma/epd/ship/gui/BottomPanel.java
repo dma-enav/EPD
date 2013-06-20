@@ -37,6 +37,7 @@ import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.ais.AisHandler;
+import dk.dma.epd.ship.service.EnavServiceHandler;
 
 
 
@@ -51,9 +52,12 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
     private ShoreServicesCommon shoreServices;
     private AisHandler aisHandler;
     private GpsHandler gpsHandler;
+    private EnavServiceHandler enavServiceHandler;
     private StatusLabel gpsStatus;
     private StatusLabel aisStatus;
     private StatusLabel shoreServiceStatus;
+    private StatusLabel cloudStatus;
+    
     private JToolBar toolBar;
     private List<IStatusComponent> statusComponents = new ArrayList<>();
 
@@ -78,6 +82,9 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
 
         shoreServiceStatus = new StatusLabel("Shore services");
         addToolbarComponent(shoreServiceStatus);
+        
+        cloudStatus = new StatusLabel("eNav Cloud");
+        addToolbarComponent(cloudStatus);
 
         new Thread(this).start();
     }
@@ -105,6 +112,10 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
         } else if (obj instanceof ShoreServicesCommon) {
             shoreServices = (ShoreServicesCommon) obj;
             statusComponents.add(shoreServices);
+        }
+        if (obj instanceof EnavServiceHandler) {
+            enavServiceHandler = (EnavServiceHandler) obj;
+            statusComponents.add(enavServiceHandler);
         }
 
     }
@@ -155,6 +166,9 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
         }
         if (shoreServices != null) {
             shoreServiceStatus.updateStatus(shoreServices);
+        }
+        if (enavServiceHandler != null) {
+            cloudStatus.updateStatus(enavServiceHandler);
         }
     }
 

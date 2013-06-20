@@ -53,6 +53,9 @@ import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggest
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.status.CloudStatus;
+import dk.dma.epd.common.prototype.status.ComponentStatus;
+import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -68,7 +71,7 @@ import dk.dma.navnet.client.MaritimeNetworkConnectionBuilder;
  * Component offering e-Navigation services
  */
 public class EnavServiceHandler extends MapHandlerChild implements
-        IGpsDataListener, Runnable {
+        IGpsDataListener, Runnable, IStatusComponent {
 
     private static final Logger LOG = LoggerFactory
             .getLogger(EnavServiceHandler.class);
@@ -80,6 +83,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private MonaLisaHandler monaLisaHandler;
     private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context;
     InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply> monaLisaContext;
+    protected CloudStatus cloudStatus = new CloudStatus();
 
     // End point holders for Mona Lisa Route Exchange
     private List<ServiceEndpoint<MonaLisaRouteRequestMessage, MonaLisaRouteRequestReply>> monaLisaSTCCList = new ArrayList<>();
@@ -96,10 +100,13 @@ public class EnavServiceHandler extends MapHandlerChild implements
     }
 
     private void intendedRouteListener() throws InterruptedException {
+
         connection.broadcastListen(EnavRouteBroadcast.class,
                 new BroadcastListener<EnavRouteBroadcast>() {
                     public void onMessage(BroadcastMessageHeader l,
                             EnavRouteBroadcast r) {
+
+                        cloudStatus.markCloudReception();
                         int id = Integer.parseInt(l.getId().toString()
                                 .split("mmsi://")[1]);
 
@@ -109,6 +116,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
     }
 
     private void getMonaLisaRouteAckList() {
+        cloudStatus.markCloudReception();
+
         try {
             monaLisaRouteAckList = connection
                     .serviceFind(MonaLisaRouteAck.INIT)
@@ -131,6 +140,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
                             public void process(
                                     RouteSuggestionMessage message,
                                     InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context) {
+
+                                cloudStatus.markCloudReception();
 
                                 setContext(context);
 
@@ -158,7 +169,9 @@ public class EnavServiceHandler extends MapHandlerChild implements
             context.complete(new RouteSuggestionService.RouteSuggestionReply(
                     message, id, aisHandler.getOwnShip().getMmsi(), System
                             .currentTimeMillis(), recievedAccepted));
+            cloudStatus.markSuccesfullSend();
         } catch (Exception e) {
+            cloudStatus.markFailedSend();
             System.out.println("Failed to reply");
         }
 
@@ -202,6 +215,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
         // Send it in a seperate thread
         sendThread.start();
+        cloudStatus.markSuccesfullSend();
     }
 
     /**
@@ -234,9 +248,17 @@ public class EnavServiceHandler extends MapHandlerChild implements
             enavCloudConnection.setHost(hostPort);
             // System.out.println(hostPort);
             connection = enavCloudConnection.build();
+
+            if (connection != null) {
+
+                cloudStatus.markCloudReception();
+                cloudStatus.markSuccesfullSend();
+            }
         } catch (Exception e) {
             // e.printStackTrace();
             System.out.println("Failed to connect to server");
+            cloudStatus.markFailedSend();
+            cloudStatus.markFailedReceive();
         }
 
         // ENavContainerConfiguration conf = new ENavContainerConfiguration();
@@ -280,7 +302,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         // own ship information. Busy wait for it.
 
         while (true) {
-            Util.sleep(1000);
+            Util.sleep(10000);
             if (this.aisHandler != null) {
                 VesselTarget ownShip = this.aisHandler.getOwnShip();
                 if (ownShip != null) {
@@ -288,25 +310,31 @@ public class EnavServiceHandler extends MapHandlerChild implements
                         shipId = ShipId
                                 .create(Long.toString(ownShip.getMmsi()));
                         init();
-                        try {
-                            intendedRouteListener();
-                            routeExchangeListener();
-                            monaLisaRouteRequestListener();
-                        } catch (Exception e) {
-                            // e.printStackTrace();
-                            System.out.println("Failed to setup listener");
-                        }
+                        if (connection != null) {
 
-                        break;
+                            try {
+                                intendedRouteListener();
+                                routeExchangeListener();
+                                monaLisaRouteRequestListener();
+                            } catch (Exception e) {
+                                // e.printStackTrace();
+                                System.out.println("Failed to setup listener");
+                                cloudStatus.markFailedSend();
+                                cloudStatus.markFailedReceive();
+                            }
+                            
+                            break;
+                        }
+                        
                     }
                 }
             }
         }
 
         while (true) {
-            System.out.println("Get new listener list");
             getSTCCList();
             getMonaLisaRouteAckList();
+            cloudStatus.markCloudReception();
             Util.sleep(10000);
         }
     }
@@ -360,9 +388,11 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
             // ConnectionFuture<Void> f =
             end.invoke(msg);
+            cloudStatus.markSuccesfullSend();
         } else {
             System.out.println("Failed to send ack "
                     + monaLisaRouteAckList.size());
+            cloudStatus.markFailedSend();
         }
     }
 
@@ -385,17 +415,19 @@ public class EnavServiceHandler extends MapHandlerChild implements
         if (end != null) {
             ConnectionFuture<MonaLisaRouteService.MonaLisaRouteRequestReply> f = end
                     .invoke(routeMessage);
-
+            cloudStatus.markSuccesfullSend();
             f.handle(new BiConsumer<MonaLisaRouteService.MonaLisaRouteRequestReply, Throwable>() {
 
                 @Override
                 public void accept(MonaLisaRouteRequestReply l, Throwable r) {
                     replyRecieved(l);
+                    cloudStatus.markCloudReception();
                 }
             });
 
         } else {
             // notifyRouteExchangeListeners();
+            cloudStatus.markFailedSend();
             System.out.println("Failed to send?");
         }
 
@@ -423,6 +455,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                 System.out
                                         .println("Ship received a request for reopening a transaction!");
 
+                                cloudStatus.markCloudReception();
+
                                 monaLisaHandler.handleReNegotiation(message);
                                 // Does transaction exist?
 
@@ -446,6 +480,11 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
                             }
                         }).awaitRegistered(4, TimeUnit.SECONDS);
+    }
+
+    @Override
+    public ComponentStatus getStatus() {
+        return cloudStatus;
     }
 
 }
