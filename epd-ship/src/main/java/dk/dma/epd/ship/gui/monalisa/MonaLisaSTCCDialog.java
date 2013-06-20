@@ -86,7 +86,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
     long transactionID;
 
-    // private MainFrame mainFrame;
+     private MainFrame mainFrame;
 
     /**
      * Create the dialog.
@@ -94,19 +94,21 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
     public MonaLisaSTCCDialog(MainFrame mainFrame) {
 
         super(mainFrame, "STCC Info", false);
-        // this.mainFrame = mainFrame;
+         this.mainFrame = mainFrame;
 
         setAlwaysOnTop(true);
         setResizable(false);
 
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-        setLocationRelativeTo(mainFrame);
+        
 
         // Default
         // setBounds(100, 100, 187, 208);
 
         // Modification
         setBounds(100, 100, 355, 425);
+        
+        setLocationRelativeTo(mainFrame);
 
         setResizable(false);
 
@@ -298,6 +300,8 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
         getContentPane().remove(routeNotAcceptedPanel);
         getContentPane().add(routeAcceptedPanel, BorderLayout.CENTER);
+        
+        setLocationRelativeTo(mainFrame);
     }
 
     private void activateNegotiationLayout() {
@@ -308,6 +312,8 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
         getContentPane().remove(routeAcceptedPanel);
         getContentPane().add(routeNotAcceptedPanel, BorderLayout.CENTER);
 
+        
+        setLocationRelativeTo(mainFrame);
     }
 
     public boolean isActive() {
