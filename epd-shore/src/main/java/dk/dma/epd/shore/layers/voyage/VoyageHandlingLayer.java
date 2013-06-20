@@ -72,6 +72,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
     private VoyageHandlingMouseOverPanel voyageHandlingMouseOverPanel = new VoyageHandlingMouseOverPanel();
     
     private OMGraphic closest;
+    private float tolerance;
     
     // private MetocInfoPanel metocInfoPanel;
     // private WaypointInfoPanel waypointInfoPanel;
@@ -107,6 +108,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         // voyageManager.addListener(this);
 
         voyagePlanInfoPanel.setVisible(true);
+        tolerance =  EPDShore.getSettings().getGuiSettings().getMouseSelectTolerance();
 
     }
 
@@ -198,7 +200,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
 
         selectedGraphic = null;
         OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-                5.0f);
+                tolerance);
         for (OMGraphic omGraphic : allClosest) {
             if (omGraphic instanceof WaypointCircle
                     || omGraphic instanceof RouteLegGraphic) {
@@ -261,7 +263,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
         if (!dragging) {
             selectedGraphic = null;
             OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-                    5.0f);
+                    tolerance);
             for (OMGraphic omGraphic : allClosest) {
                 if (omGraphic instanceof WaypointCircle) {
                     selectedGraphic = omGraphic;
@@ -386,7 +388,7 @@ public class VoyageHandlingLayer extends OMGraphicHandlerLayer implements
     @Override
     public boolean mouseMoved(MouseEvent e) {
         OMGraphic newClosest = null;
-        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 2.0f);
+        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), tolerance);
 
         for (OMGraphic omGraphic : allClosest) {
             if (omGraphic instanceof RouteLegGraphic || omGraphic instanceof WaypointCircle) {
