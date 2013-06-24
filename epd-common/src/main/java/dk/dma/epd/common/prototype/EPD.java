@@ -26,6 +26,8 @@ public abstract class EPD {
         return home;
     }
     
+    public abstract Path getSettingsPath();
+    
     /**
      * Function used to create a thread
      * 
