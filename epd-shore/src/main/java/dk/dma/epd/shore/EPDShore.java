@@ -18,6 +18,7 @@ package dk.dma.epd.shore;
 import java.beans.beancontext.BeanContextServicesSupport;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -45,7 +46,7 @@ import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
-import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensor;
+import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensorFactory;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
@@ -231,6 +232,10 @@ public class EPDShore extends EPD {
 
     public static EnavServiceHandler getEnavServiceHandler() {
         return enavServiceHandler;
+    }
+    
+    public Path getSettingsPath() {
+        return Paths.get(System.getProperty("user.home"), ".epd-shore");
     }
 
     /**
@@ -474,7 +479,7 @@ public class EPDShore extends EPD {
             aisSensor = new NmeaTcpSensor(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisTcpPort());
             break;
         case SERIAL:
-            aisSensor = new NmeaSerialSensor(sensorSettings.getAisHostOrSerialPort());
+            aisSensor = NmeaSerialSensorFactory.create(sensorSettings.getAisHostOrSerialPort());
             break;
         case FILE:
             aisSensor = new NmeaFileSensor(sensorSettings.getAisFilename(), sensorSettings);
@@ -495,7 +500,7 @@ public class EPDShore extends EPD {
             gpsSensor = new NmeaTcpSensor(sensorSettings.getGpsHostOrSerialPort(), sensorSettings.getGpsTcpPort());
             break;
         case SERIAL:
-            gpsSensor = new NmeaSerialSensor(sensorSettings.getGpsHostOrSerialPort());
+            gpsSensor = NmeaSerialSensorFactory.create(sensorSettings.getGpsHostOrSerialPort());
             break;
         case FILE:
             gpsSensor = new NmeaFileSensor(sensorSettings.getGpsFilename(), sensorSettings);

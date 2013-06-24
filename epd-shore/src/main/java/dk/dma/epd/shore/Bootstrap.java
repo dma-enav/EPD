@@ -16,25 +16,21 @@
 package dk.dma.epd.shore;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.core.io.Resource;
-
-import com.google.common.io.Resources;
+import dk.dma.epd.common.prototype.BootstrapCommon;
 
 /**
  * @author Kasper Nielsen, David Camre
  */
-class Bootstrap {
+class Bootstrap extends BootstrapCommon{
+    
+    public void Boostrap() {
+        home = Paths.get(System.getProperty("user.home"), ".epd-shore");
+    }
 
-    Path home = Paths.get(System.getProperty("user.home"), ".epd-shore");
-
-    void run() throws IOException {
+    public void run() throws IOException {
 
         Files.createDirectories(home);
 
@@ -60,33 +56,5 @@ class Bootstrap {
         EPDShore.properties.put("background.shapeFile", home.resolve(prev).toString());
         prev = EPDShore.properties.getProperty("background.spatialIndex");
         EPDShore.properties.put("background.spatialIndex", home.resolve(prev).toString());
-    }
-
-    void unpackFolderToAppHome(String folder) throws IOException {
-        ApplicationContext context = new ClassPathXmlApplicationContext();
-        // we do not support recursive folders
-        Resource[] xmlResources = context.getResources("classpath:/" + folder + "/*.*");
-        Path f = home.resolve(folder);
-        if (!Files.exists(f)) {
-            Files.createDirectories(f);
-        }
-        for (Resource r : xmlResources) {
-            Path destination = f.resolve(r.getFilename());
-            if (!Files.exists(destination)) {
-                Resources.copy(r.getURL(), Files.newOutputStream(destination));
-            }
-        }
-
-    }
-
-    void unpackToAppHome(String filename) throws IOException {
-        Path destination = home.resolve(filename);
-        if (!Files.exists(destination)) {
-            URL url = getClass().getResource("/" + filename);
-            if (url == null) {
-                throw new Error("Missing file src/resources/" + filename);
-            }
-            Resources.copy(url, Files.newOutputStream(destination));
-        }
     }
 }

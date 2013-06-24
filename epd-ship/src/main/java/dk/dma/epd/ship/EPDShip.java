@@ -18,6 +18,7 @@ package dk.dma.epd.ship;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -51,7 +52,6 @@ import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
-import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensorFactory;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
@@ -583,6 +583,11 @@ public class EPDShip  extends EPD {
      */
     public static MonaLisaHandler getMonaLisaHandler() {
         return monaLisaHandler;
+    }
+
+    @Override
+    public Path getSettingsPath() {
+        return Paths.get(System.getProperty("user.home"), ".epd-ship");
     }
 
 }
