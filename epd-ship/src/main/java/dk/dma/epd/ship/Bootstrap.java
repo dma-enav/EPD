@@ -75,6 +75,7 @@ class Bootstrap {
             Path destination = f.resolve(r.getFilename());
             if (!Files.exists(destination)) {
                 Resources.copy(r.getURL(), Files.newOutputStream(destination));
+//                System.out.println("Copying: " + r.getURL() + " with size: " + r.getFile().length());
             }
         }
 

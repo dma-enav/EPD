@@ -41,7 +41,7 @@ public class StatusDialog extends JDialog {
     public StatusDialog() {
         super((Frame)null, "Status", true);
         
-        setSize(300, 330);
+        setSize(300, 390);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         

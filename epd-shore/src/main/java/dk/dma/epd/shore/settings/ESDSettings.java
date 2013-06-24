@@ -172,13 +172,14 @@ public class ESDSettings implements Serializable {
         Properties props = new Properties();
         workspace.setProperties(props, mapWindows);
         try {
-            filename = Paths.get(EPDShore.getHomePath().toString() + "/workspaces/"
+            String filepath = Paths.get(EPDShore.getHomePath().toString() + "/workspaces/"
                     + filename).toString();
             
-            
+            filename = "workspaces/"
+                  + filename.toString();
             
             // System.out.println("Trying to save to: " + filename);
-            FileWriter outFile = new FileWriter(filename);
+            FileWriter outFile = new FileWriter(filepath);
             PrintWriter out = new PrintWriter(outFile);
             out.println("# workspace settings saved: " + new Date());
             TreeSet<String> keys = new TreeSet<String>();

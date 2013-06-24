@@ -67,6 +67,7 @@ public class ESDGuiSettings extends GuiSettings {
         workspace = props.getProperty(PREFIX + "workspace");
         wmsQuery = props.getProperty(PREFIX + "wmsQuery");
         useWMS = PropUtils.booleanFromProperties(props, PREFIX + "useWMS", useWMS);
+        super.readProperties(props);
     }
 
 
@@ -87,6 +88,8 @@ public class ESDGuiSettings extends GuiSettings {
         props.put(PREFIX + "workspace", workspace);
         props.put(PREFIX + "wmsQuery", wmsQuery);
         props.put(PREFIX + "useWMS", Boolean.toString(useWMS));
+        
+        super.setProperties(props);
     }
 
     public void setWmsQuery(String wmsQuery) {

@@ -81,11 +81,14 @@ public class RouteLayer extends OMGraphicHandlerLayer implements IRoutesUpdateLi
     private JMapFrame jMapFrame;
     private MapMenu routeMenu;
     private boolean dragging;
+    private float tolerance;
 
 
     public RouteLayer() {
         routeManager = EPDShore.getRouteManager();
         routeManager.addListener(this);
+        
+        tolerance =  EPDShore.getSettings().getGuiSettings().getMouseSelectTolerance();
     }
 
     @Override
@@ -336,7 +339,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements IRoutesUpdateLi
         }
 
         selectedGraphic = null;
-        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 5.0f);
+        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), tolerance);
         for (OMGraphic omGraphic : allClosest) {
             if (omGraphic instanceof WaypointCircle || omGraphic instanceof RouteLegGraphic) {
                 selectedGraphic = omGraphic;
@@ -372,7 +375,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements IRoutesUpdateLi
 
         if(!dragging){
             selectedGraphic = null;
-            OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 5.0f);
+            OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), tolerance);
             for (OMGraphic omGraphic : allClosest) {
                 if (omGraphic instanceof WaypointCircle) {
                     selectedGraphic = omGraphic;
@@ -422,7 +425,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements IRoutesUpdateLi
     @Override
     public boolean mouseMoved(MouseEvent e) {
         OMGraphic newClosest = null;
-        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 2.0f);
+        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), tolerance);
 
         for (OMGraphic omGraphic : allClosest) {
             if (omGraphic instanceof MetocPointGraphic || omGraphic instanceof WaypointCircle) {

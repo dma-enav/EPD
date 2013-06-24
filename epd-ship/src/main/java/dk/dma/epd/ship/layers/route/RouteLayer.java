@@ -94,8 +94,6 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         new Thread(this).start();
         routeWidth = EPDShip.getSettings().getNavSettings().getRouteWidth();
         tolerance =  EPDShip.getSettings().getGuiSettings().getMouseSelectTolerance();
-        
-        tolerance = 50f;
     }
 
     private void updateSafeHaven() {
@@ -475,7 +473,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseClicked(MouseEvent e) {
-        System.out.println("Mouse Clicked");
+//        System.out.println("Mouse Clicked");
         if (e.getButton() != MouseEvent.BUTTON3) {
             return false;
         }
@@ -545,7 +543,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseDragged(MouseEvent e) {
-        System.out.println("Mouse dragged!");
+//        System.out.println("Mouse dragged!");
         if (!javax.swing.SwingUtilities.isLeftMouseButton(e)) {
             return false;
         }

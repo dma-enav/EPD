@@ -73,6 +73,8 @@ public class MetocWindGraphic extends MetocRaster {
             markerDir += "100";
         } else if (windSpeedKnots > 100 && windSpeedKnots <= 105){
             markerDir += "105";
+        }else if (windSpeedKnots > 100){
+            markerDir += "105";
         }
 
         if(windSpeed >= windWarnLimit){
@@ -81,6 +83,7 @@ public class MetocWindGraphic extends MetocRaster {
             markerDir += ".png";
         }
         
+//        System.out.println("Marker dir: " + markerDir + " windspeedknots is " + windSpeedKnots);
         addRaster(markerDir, lat, lon, angle);
     }
 }
