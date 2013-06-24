@@ -19,22 +19,21 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 import com.google.common.io.Resources;
 
 /***
- * Inject required serial communication dll file into path and load native library
+ * Inject required serial communication native library file into path and load native library
  * @author jtj-sfs
  *
- * TODO: make work for linux/mac
+ * TODO: Doing more clean "runtime libraries" injection is difficult but it should be possible. Could move this to the boostrap routines.
  */
 public class NmeaSerialSensorFactory {
     
-    private static final String EPDNATIVEPATH = 
-            Paths.get(System.getProperty("java.io.tmpdir"),"epdNative").toAbsolutePath().toString();
-    
+    private static final Path EPDNATIVEPATH = Paths.get(System.getProperty("java.io.tmpdir"),"/epdNative/").toAbsolutePath();
+
     public static NmeaSerialSensor create(String comPort) {
         
         unpackLibs();
@@ -54,43 +53,36 @@ public class NmeaSerialSensorFactory {
         
     }
     
-    private static void addToLibraryPath(String path)
+    private static void addToLibraryPath(Path path)
             throws NoSuchFieldException, 
              IllegalAccessException {
-        System.setProperty("java.library.path", path);
+        System.setProperty("java.library.path", path.toAbsolutePath().toString());
         Field fieldSysPath = ClassLoader.class.getDeclaredField("sys_paths");
         fieldSysPath.setAccessible(true);
         fieldSysPath.set(null, null);
     }
     
-    private static List<String> findLibs() {
-        /*Path mainDir = Paths.get(NmeaSerialSensorFactory.class.getResource("/gun/io").toString());
-        
-        
-        Files.walkFileTree(mainDir, new SimpleFil) {
-        })
-        */
-        
-        return null;
-    }
-    
-    
     public static void unpackLibs() {
-        findLibs();
         String filename = "";
         String libDir = "";
         if (System.getProperty("os.name").startsWith("Windows")) {
             filename = "rxtxSerial.dll";
             libDir = "Windows/i368-mingw32/";
         } else if ("Linux".equals(System.getProperty("os.name"))) {
-            //TODO: implement for linux/mac/etc 
+            filename = "rxtxSerial.so";
+            if (System.getProperty("os.arch").equals("amd64")) {
+                libDir = "Linux/x86_64-unknown-linu-gnu/";
+            } else {
+                libDir = "Linux/i686-unknown-linux-gnu/";
+            }
+                    
         } else {
             return;
         }
                 
         
         try {
-            File dest = Paths.get(EPDNATIVEPATH,filename).toAbsolutePath().toFile();      
+            File dest = Paths.get(EPDNATIVEPATH.toAbsolutePath().toString(),filename).toAbsolutePath().toFile();      
             dest.createNewFile();
             
             FileOutputStream destOut = new FileOutputStream(dest);
