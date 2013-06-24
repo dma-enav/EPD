@@ -26,7 +26,7 @@ import dk.dma.epd.common.prototype.BootstrapCommon;
  */
 class Bootstrap extends BootstrapCommon{
     
-    public void Boostrap() {
+    Bootstrap() {
         home = Paths.get(System.getProperty("user.home"), ".epd-shore");
     }
 
