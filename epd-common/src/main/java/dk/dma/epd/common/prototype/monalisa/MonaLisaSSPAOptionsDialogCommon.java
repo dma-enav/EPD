@@ -22,13 +22,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JSpinner;
 
-import dk.dma.epd.common.prototype.route.RouteManager;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
 
 /**
  * The nogo dialog
  */
-public class MonaLisaSSPAOptionsDialog extends JDialog {
+public class MonaLisaSSPAOptionsDialogCommon extends JDialog {
     private static final long serialVersionUID = 1L;
 
     JSpinner spinnerDraught;
@@ -42,13 +42,13 @@ public class MonaLisaSSPAOptionsDialog extends JDialog {
 
 
 
-    private RouteManager routeManager;
+    private RouteManagerCommon routeManager;
 
     int routeid;
 
 
 
-    public MonaLisaSSPAOptionsDialog(JFrame parent, String string, boolean b) {
+    public MonaLisaSSPAOptionsDialogCommon(JFrame parent, String string, boolean b) {
         super(parent, string, b);
     }
 

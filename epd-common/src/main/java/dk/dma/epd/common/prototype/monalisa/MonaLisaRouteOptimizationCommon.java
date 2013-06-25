@@ -41,7 +41,7 @@ import dk.dma.epd.common.prototype.monalisa.sspa.RouterequestType;
 import dk.dma.epd.common.prototype.monalisa.sspa.RouteresponseType;
 import dk.dma.epd.common.prototype.monalisa.sspa.WaypointType;
 import dk.dma.epd.common.prototype.monalisa.sspa.WaypointsType;
-import dk.dma.epd.common.prototype.route.RouteManager;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 
 //import dk.frv.enav.ins.route.monalisa.se.sspa.optiroute.Routerequest;
@@ -49,7 +49,7 @@ import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 /**
  * Shore service component providing the functional link to shore.
  */
-public class MonaLisaRouteOptimization extends MapHandlerChild
+public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
 // implements
 {
     // Runnable
@@ -59,9 +59,9 @@ public class MonaLisaRouteOptimization extends MapHandlerChild
 
     // private ShoreServiceStatus status = new ShoreServiceStatus();
     protected ShoreServicesCommon shoreService;
-    protected RouteManager routeManager;
+    protected RouteManagerCommon routeManager;
 
-    public MonaLisaRouteOptimization() {
+    public MonaLisaRouteOptimizationCommon() {
 
     }
 
@@ -327,8 +327,8 @@ public class MonaLisaRouteOptimization extends MapHandlerChild
         if (shoreService == null && obj instanceof ShoreServicesCommon) {
             shoreService = (ShoreServicesCommon) obj;
         }
-        if (routeManager == null && obj instanceof RouteManager) {
-            routeManager = (RouteManager) obj;
+        if (routeManager == null && obj instanceof RouteManagerCommon) {
+            routeManager = (RouteManagerCommon) obj;
         }
     }
 

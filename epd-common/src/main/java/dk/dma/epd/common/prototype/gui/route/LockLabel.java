@@ -35,9 +35,9 @@ public class LockLabel extends ButtonLabel {
     ImageIcon unlockedIcon;
     ImageIcon lockedIcon;
     RoutePropertiesRow ownRow;
-    RoutePropertiesDialog routePropertiesDialog;
+    RoutePropertiesDialogCommon routePropertiesDialog;
 
-    public LockLabel(RoutePropertiesDialog routePropertiesDialog) {
+    public LockLabel(RoutePropertiesDialogCommon routePropertiesDialog) {
 
         unlockedIcon = toolbarIcon("images/toolbar/lock-unlock.png");
         lockedIcon = toolbarIcon("images/toolbar/lock.png");

@@ -16,8 +16,6 @@
 package dk.dma.epd.ship.gui.component_panels;
 
 import java.awt.BorderLayout;
-import java.util.Date;
-import java.util.Locale;
 
 import javax.swing.border.EtchedBorder;
 
@@ -26,7 +24,6 @@ import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
-import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.panels.MonaLisaCommunicationPanel;
 
@@ -69,10 +66,10 @@ public class MonaLisaCommunicationComponentPanel extends OMComponentPanel implem
     @Override
     public void run() {
         while (true) {
-            if (gnssTime != null) {
-                Date now = gnssTime.getDate();
-//                commsPanel.getTimeLabel().setText(Formatter.formatLongDateTime(now));
-            }
+//            if (gnssTime != null) {
+//                Date now = gnssTime.getDate();
+////                commsPanel.getTimeLabel().setText(Formatter.formatLongDateTime(now));
+//            }
             
             try {
                 Thread.sleep(500);

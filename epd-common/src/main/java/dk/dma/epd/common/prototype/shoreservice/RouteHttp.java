@@ -37,7 +37,7 @@ public class RouteHttp {
 
     private static final String USER_AGENT = "EPD";
 
-    private String uri;
+    private String uri = "";
     private String url;
     private String host;
     private int port = 80;

@@ -65,14 +65,14 @@ import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.route.RouteManager;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.ParseUtils;
 
 /**
  * Dialog with route properties
  */
-public class RoutePropertiesDialog extends JDialog implements ActionListener,
+public class RoutePropertiesDialogCommon extends JDialog implements ActionListener,
         Runnable, FocusListener, WindowListener, DocumentListener {
 
     private static final long serialVersionUID = 1L;
@@ -120,10 +120,10 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
     // private WptTableModel wptTableModel;
 
-    private RouteManager routeManager;
+    private RouteManagerCommon routeManager;
     protected ActiveRoute activeRoute;
 
-    public RoutePropertiesDialog(Window parent, RouteManager routeManager,
+    public RoutePropertiesDialogCommon(Window parent, RouteManagerCommon routeManager,
             int routeId) {
         super(parent, "Route Properties", Dialog.ModalityType.APPLICATION_MODAL);
 
@@ -160,7 +160,7 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
         parseRoute();
     }
 
-    public RoutePropertiesDialog(Window parent, Route route, boolean editable) {
+    public RoutePropertiesDialogCommon(Window parent, Route route, boolean editable) {
         super(parent, "Route Properties", Dialog.ModalityType.APPLICATION_MODAL);
 
         if (!editable) {
@@ -488,68 +488,77 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
             RouteWaypoint currentWaypoint = route.getWaypoints().get(i);
 
-            // generateWaypoints(-5 + ( (i+1) * 19));
+            if (currentWaypoint != null) {
 
-            String name = Formatter.formatString(currentWaypoint.getName());
-            String latitude = currentWaypoint.getPos().getLatitudeAsString();
-            String longitude = currentWaypoint.getPos().getLongitudeAsString();
-            String rad = "N/A";
-            if (currentWaypoint.getTurnRad() != null) {
-                rad = Formatter.formatDistNM(currentWaypoint.getTurnRad());
-                // rad =
-                // Double.toString(parseDouble(currentWaypoint.getTurnRad().toString()));
+                // generateWaypoints(-5 + ( (i+1) * 19));
+
+                String name = Formatter.formatString(currentWaypoint.getName());
+                String latitude = currentWaypoint.getPos()
+                        .getLatitudeAsString();
+                String longitude = currentWaypoint.getPos()
+                        .getLongitudeAsString();
+                String rad = "N/A";
+                if (currentWaypoint.getTurnRad() != null) {
+                    rad = Formatter.formatDistNM(currentWaypoint.getTurnRad());
+                    // rad =
+                    // Double.toString(parseDouble(currentWaypoint.getTurnRad().toString()));
+                }
+
+                String rot = "N/A";
+                // Error in ROT Calculations
+                // if (currentWaypoint.getRot() != null){
+                // rot = currentWaypoint.getRot().toString();
+                // }
+
+                String ttg = "N/A";
+                String eta = "N/A";
+                String rng = "N/A";
+                String brg = "N/A";
+                String heading = "N/A";
+                String speed = "N/A";
+                String xtds = "N/A";
+                String xtdp = "N/A";
+                String sfwidth = "N/A";
+                String sflen = "N/A";
+
+                eta = Formatter.formatShortDateTimeNoTz(route.getWpEta(i));
+                ttg = Formatter.formatTime(route.getWpTtg(i));
+
+                if (currentWaypoint.getOutLeg() != null
+                        && currentWaypoint != null) {
+
+                    // ttg =
+                    // Long.toString(currentWaypoint.getOutLeg().calcTtg());
+                    rng = Formatter.formatDistNM(route.getWpRng(i));
+                    // brg =
+                    // Double.toString(currentWaypoint.getOutLeg().calcBrg());
+                    brg = Formatter.formatDegrees(
+                            route.getWpBrg(currentWaypoint), 2);
+                    // heading =
+                    // (currentWaypoint.getOutLeg().getHeading().name());
+                    heading = Formatter.formatHeading(currentWaypoint
+                            .getHeading());
+
+                    speed = Formatter.formatSpeed(currentWaypoint.getOutLeg()
+                            .getSpeed());
+                    xtds = Formatter.formatMeters(currentWaypoint.getOutLeg()
+                            .getXtdStarboardMeters());
+                    xtdp = Formatter.formatMeters(currentWaypoint.getOutLeg()
+                            .getXtdPortMeters());
+                    sfwidth = Formatter.formatMeters(currentWaypoint
+                            .getOutLeg().getSFWidth());
+                    sflen = Formatter.formatMeters(currentWaypoint.getOutLeg()
+                            .getSFLen());
+
+                }
+
+                RoutePropertiesRow currentRow = generateWaypoint(-5 + (i + 1)
+                        * 19, name, latitude, longitude, rad, rot, ttg, eta,
+                        rng, brg, heading, speed, xtds, xtdp, sfwidth, sflen,
+                        i, route.getWaypoints().size());
+
+                waypointTable.add(currentRow);
             }
-
-            String rot = "N/A";
-            // Error in ROT Calculations
-            // if (currentWaypoint.getRot() != null){
-            // rot = currentWaypoint.getRot().toString();
-            // }
-
-            String ttg = "N/A";
-            String eta = "N/A";
-            String rng = "N/A";
-            String brg = "N/A";
-            String heading = "N/A";
-            String speed = "N/A";
-            String xtds = "N/A";
-            String xtdp = "N/A";
-            String sfwidth = "N/A";
-            String sflen = "N/A";
-
-            eta = Formatter.formatShortDateTimeNoTz(route.getWpEta(i));
-            ttg = Formatter.formatTime(route.getWpTtg(i));
-
-            if (currentWaypoint.getOutLeg() != null && currentWaypoint != null) {
-
-                // ttg = Long.toString(currentWaypoint.getOutLeg().calcTtg());
-                rng = Formatter.formatDistNM(route.getWpRng(i));
-                // brg = Double.toString(currentWaypoint.getOutLeg().calcBrg());
-                brg = Formatter.formatDegrees(route.getWpBrg(currentWaypoint),
-                        2);
-                // heading = (currentWaypoint.getOutLeg().getHeading().name());
-                heading = Formatter.formatHeading(currentWaypoint.getHeading());
-
-                speed = Formatter.formatSpeed(currentWaypoint.getOutLeg()
-                        .getSpeed());
-                xtds = Formatter.formatMeters(currentWaypoint.getOutLeg()
-                        .getXtdStarboardMeters());
-                xtdp = Formatter.formatMeters(currentWaypoint.getOutLeg()
-                        .getXtdPortMeters());
-                sfwidth = Formatter.formatMeters(currentWaypoint.getOutLeg()
-                        .getSFWidth());
-                sflen = Formatter.formatMeters(currentWaypoint.getOutLeg()
-                        .getSFLen());
-
-            }
-
-            RoutePropertiesRow currentRow = generateWaypoint(-5 + (i + 1) * 19,
-                    name, latitude, longitude, rad, rot, ttg, eta, rng, brg,
-                    heading, speed, xtds, xtdp, sfwidth, sflen, i, route
-                            .getWaypoints().size());
-
-            waypointTable.add(currentRow);
-
         }
 
         waypointList.setPreferredSize(new Dimension(195, -5
@@ -609,16 +618,15 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
         departurePicker.setDate(starttime);
         ((SpinnerDateModel) departureSpinner.getModel()).setValue(starttime);
 
-        
-        //Will this work
+        // Will this work
         arrivalPicker.setDate(route.getEta(starttime));
         ((SpinnerDateModel) arrivalSpinner.getModel()).setValue(route
                 .getEta(starttime));
-        
+
         if (activeRoute == null) {
-//            arrivalPicker.setDate(route.getEta(starttime));
-//            ((SpinnerDateModel) arrivalSpinner.getModel()).setValue(route
-//                    .getEta(starttime));
+            // arrivalPicker.setDate(route.getEta(starttime));
+            // ((SpinnerDateModel) arrivalSpinner.getModel()).setValue(route
+            // .getEta(starttime));
 
         } else {
             departurePicker.setEnabled(false);
@@ -925,11 +933,11 @@ public class RoutePropertiesDialog extends JDialog implements ActionListener,
 
             else {
                 route.deleteWaypoint(lastSelectedWp);
-                
+
                 if (routeManager != null) {
-                routeManager
-                        .notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
-                removeAndMoveWaypoints(lastSelectedWp);
+                    routeManager
+                            .notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
+                    removeAndMoveWaypoints(lastSelectedWp);
                 }
             }
 

@@ -17,7 +17,7 @@ package dk.dma.epd.ship.gui.menuitems;
 
 import javax.swing.JMenuItem;
 
-import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialog;
+import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.route.RouteManager;
 
@@ -37,7 +37,7 @@ public class RouteProperties extends JMenuItem implements IMapMenuAction {
     
     @Override
     public void doAction() {
-        RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(EPDShip.getMainFrame(), routeManager, routeIndex);
+        RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(EPDShip.getMainFrame(), routeManager, routeIndex);
         routePropertiesDialog.setVisible(true);
     }
     

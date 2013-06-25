@@ -32,7 +32,6 @@ import com.bbn.openmap.omGraphics.OMList;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.layers.route.MetocPointGraphic;
 import dk.dma.epd.common.prototype.layers.route.RouteGraphic;
 import dk.dma.epd.common.prototype.layers.route.RouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.route.WaypointCircle;
@@ -48,7 +47,6 @@ import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MapMenu;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
-import dk.frv.enav.common.xml.metoc.MetocForecastPoint;
 
 //import dk.frv.enav.ins.gui.MapMenu;
 

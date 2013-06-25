@@ -100,7 +100,7 @@ public class Route implements Serializable {
     protected boolean safeHaven = true;
 
     protected boolean stccApproved;
-    
+
     protected long monalisarouteid;
 
     public Route() {
@@ -157,32 +157,30 @@ public class Route implements Serializable {
         // method) for route legs, but
         // forward referencing a waypoint which has not been created has to be
         // solved in some way...
-        for (int i =0; i < waypoints.size(); i++) {
+        for (int i = 0; i < waypoints.size(); i++) {
             RouteWaypoint currWaypoint = waypoints.get(i);
-            
+
             RouteWaypoint nextWaypoint = null;
-            
-            if (i +1 < waypoints.size()){
+
+            if (i + 1 < waypoints.size()) {
                 nextWaypoint = waypoints.get(i + 1);
             }
-            
-            
-            
+
             RouteLeg routeLeg;
-            
-            if (this.waypoints.get(i).getOutLeg() != null){
+
+            if (this.waypoints.get(i).getOutLeg() != null) {
                 routeLeg = this.waypoints.get(i).getOutLeg();
-//                System.out.println("OUT LEG! for " + i);
-            }else{
+                // System.out.println("OUT LEG! for " + i);
+            } else {
                 routeLeg = this.waypoints.get(i).getInLeg();
-//                System.out.println("IN LEG! for " + i);
+                // System.out.println("IN LEG! for " + i);
             }
 
             RouteLeg newRouteLeg = new RouteLeg();
-            
-            
-//            System.out.println("Setting the speed to " + routeLeg.getSpeed());
-            
+
+            // System.out.println("Setting the speed to " +
+            // routeLeg.getSpeed());
+
             newRouteLeg.setSpeed(routeLeg.getSpeed());
             newRouteLeg.setHeading(routeLeg.getHeading());
             newRouteLeg.setXtdStarboard(routeLeg.getXtdStarboard());
@@ -192,17 +190,14 @@ public class Route implements Serializable {
 
             newRouteLeg.setStartWp(currWaypoint);
             newRouteLeg.setEndWp(nextWaypoint);
-            
-            
-            
-            currWaypoint.setOutLeg(newRouteLeg);   
-            
-            if (nextWaypoint != null){
+
+            currWaypoint.setOutLeg(newRouteLeg);
+
+            if (nextWaypoint != null) {
                 nextWaypoint.setInLeg(newRouteLeg);
             }
-            
-            
-//            currWaypoint.setInLeg(newRouteLeg);
+
+            // currWaypoint.setInLeg(newRouteLeg);
         }
 
         // System.out.println("Routeleg speed is: " + routeLeg.getSpeed());
@@ -322,12 +317,12 @@ public class Route implements Serializable {
      */
     public void setStccApproved(boolean stccApproved) {
         this.stccApproved = stccApproved;
-        
-        if (!stccApproved){
-            monalisarouteid = -1;            
+
+        if (!stccApproved) {
+            monalisarouteid = -1;
         }
     }
-    
+
     /**
      * @return the monalisarouteid
      */
@@ -336,7 +331,8 @@ public class Route implements Serializable {
     }
 
     /**
-     * @param monalisarouteid the monalisarouteid to set
+     * @param monalisarouteid
+     *            the monalisarouteid to set
      */
     public void setMonalisarouteid(long monalisarouteid) {
         this.monalisarouteid = monalisarouteid;
@@ -654,75 +650,69 @@ public class Route implements Serializable {
 
         // find current waypoint index
         RouteWaypoint count = routeLeg.getStartWp();
-        
-        
-//        System.out.println("Current count is: " + count);
-        
+
+        // System.out.println("Current count is: " + count);
+
         int i = 1;
         while (count.getInLeg() != null) {
-//            System.out.println(i);
+            // System.out.println(i);
             i++;
             count = count.getInLeg().getStartWp();
         }
-        
-//        String wpcountTxt = "";
-//        
-//        int wpCount = this.getWaypoints().size() +1;
-//        
-//        
-//        if (wpCount < 10){
-//            wpcountTxt = "00"+wpCount;
-//        }
-//        if (wpCount >= 10){
-//            wpcountTxt = "0"+wpCount;
-//        }
-//        if (wpCount >= 100){
-//            wpcountTxt = ""+wpCount;
-//        }
-        
+
+        // String wpcountTxt = "";
+        //
+        // int wpCount = this.getWaypoints().size() +1;
+        //
+        //
+        // if (wpCount < 10){
+        // wpcountTxt = "00"+wpCount;
+        // }
+        // if (wpCount >= 10){
+        // wpcountTxt = "0"+wpCount;
+        // }
+        // if (wpCount >= 100){
+        // wpcountTxt = ""+wpCount;
+        // }
+
         newWaypoint.setName("WP_" + i);
 
         // add the waypoint to the linked list in the right position
         waypoints.add(i, newWaypoint);
-        
+
         renameWayPoints();
-        
-        
+
         calcValues(true);
     }
 
-    
-    
-    private void renameWayPoints(){
-        
-        
+    private void renameWayPoints() {
+
         for (int i = 0; i < waypoints.size(); i++) {
-            
+
             String name = waypoints.get(i).getName();
 
-            int count = i +1 ;
-            
-            if (name.contains("WP_")){
+            int count = i + 1;
+
+            if (name.contains("WP_")) {
                 String wpcountTxt = "";
-                
-                if (count < 10){
-                    wpcountTxt = "00"+count;
+
+                if (count < 10) {
+                    wpcountTxt = "00" + count;
                 }
-                if (count >= 10){
-                    wpcountTxt = "0"+count;
+                if (count >= 10) {
+                    wpcountTxt = "0" + count;
                 }
-                if (count >= 100){
-                    wpcountTxt = ""+count;
+                if (count >= 100) {
+                    wpcountTxt = "" + count;
                 }
-                
+
                 waypoints.get(i).setName("WP_" + wpcountTxt);
             }
-            
+
         }
-        
+
     }
-    
-    
+
     /**
      * Create a waypoint by appending the waypoint to current waypoint
      * 
@@ -751,10 +741,14 @@ public class Route implements Serializable {
             // TODO: Add new waypoint between two waypoints
         }
 
-        wp.setPos(position);
+        if (position != null) {
 
-        // Calculate rot
-        wp.calcRot();
+            wp.setPos(position);
+
+            // Calculate rot
+            wp.calcRot();
+
+        }
 
         return wp;
     }
@@ -919,8 +913,7 @@ public class Route implements Serializable {
             RouteWaypoint currentWaypoint = getWaypoints().get(i);
 
             voyageWaypoint.setName(currentWaypoint.getName());
-            voyageWaypoint.setEta(
-                    etas.get(i));
+            voyageWaypoint.setEta(etas.get(i));
             voyageWaypoint.setLatitude(currentWaypoint.getPos().getLatitude());
             voyageWaypoint
                     .setLongitude(currentWaypoint.getPos().getLongitude());
@@ -982,7 +975,7 @@ public class Route implements Serializable {
         if (routeWaypoints.size() > 1) {
             for (int i = 0; i < routeWaypoints.size(); i++) {
 
-//                 System.out.println("Looking at waypoint:" + i);
+                // System.out.println("Looking at waypoint:" + i);
                 RouteWaypoint waypoint = routeWaypoints.get(i);
                 Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
 
@@ -991,15 +984,15 @@ public class Route implements Serializable {
                     RouteWaypoint prevWaypoint = routeWaypoints.get(i - 1);
 
                     if (waypoint.getInLeg() != null) {
-//                         System.out.println("Setting inleg prev for waypoint:"
-//                         + i);
+                        // System.out.println("Setting inleg prev for waypoint:"
+                        // + i);
                         waypoint.getInLeg().setStartWp(prevWaypoint);
                         waypoint.getInLeg().setEndWp(waypoint);
                     }
 
                     if (prevWaypoint.getOutLeg() != null) {
-//                         System.out.println("Setting outleg prev for waypoint:"
-//                         + i);
+                        // System.out.println("Setting outleg prev for waypoint:"
+                        // + i);
                         prevWaypoint.getOutLeg().setStartWp(prevWaypoint);
                         prevWaypoint.getOutLeg().setEndWp(waypoint);
 
@@ -1011,8 +1004,8 @@ public class Route implements Serializable {
 
                     // SOG
                     if (cloudWaypoint.getRouteLeg().getSpeed() != null) {
-//                        System.out.println("Setting speed to "
-//                                + cloudWaypoint.getRouteLeg().getSpeed());
+                        // System.out.println("Setting speed to "
+                        // + cloudWaypoint.getRouteLeg().getSpeed());
                         waypoint.setSpeed(cloudWaypoint.getRouteLeg()
                                 .getSpeed());
                     }
@@ -1031,14 +1024,16 @@ public class Route implements Serializable {
 
                     // SF Width
                     if (cloudWaypoint.getRouteLeg().getSFWidth() != null) {
-//                        System.out.println("Setting SF width to: " + cloudWaypoint.getRouteLeg().getSFWidth());
+                        // System.out.println("Setting SF width to: " +
+                        // cloudWaypoint.getRouteLeg().getSFWidth());
                         waypoint.getOutLeg().setSFWidth(
                                 cloudWaypoint.getRouteLeg().getSFWidth());
                     }
 
                     // SF Len
                     if (cloudWaypoint.getRouteLeg().getSFLen() != null) {
-//                        System.out.println("Setting SF len to: " + cloudWaypoint.getRouteLeg().getSFLen());
+                        // System.out.println("Setting SF len to: " +
+                        // cloudWaypoint.getRouteLeg().getSFLen());
                         waypoint.getOutLeg().setSFLen(
                                 cloudWaypoint.getRouteLeg().getSFLen());
                     }
@@ -1062,8 +1057,8 @@ public class Route implements Serializable {
         etas = new ArrayList<>();
         // this.calcAllWpEta();
         for (int i = 0; i < cloudRouteWaypoints.size(); i++) {
-//            System.out.println("Adding for wp: " + i + " : "
-//                    + cloudRouteWaypoints.get(i).getEta());
+            // System.out.println("Adding for wp: " + i + " : "
+            // + cloudRouteWaypoints.get(i).getEta());
             etas.add(cloudRouteWaypoints.get(i).getEta());
         }
 

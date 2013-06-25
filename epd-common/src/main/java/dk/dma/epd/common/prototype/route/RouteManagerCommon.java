@@ -24,7 +24,7 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 
-public class RouteManager extends MapHandlerChild {
+public class RouteManagerCommon extends MapHandlerChild {
 
     public void addRoute(Route route) {
 

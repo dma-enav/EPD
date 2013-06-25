@@ -180,7 +180,7 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
      */
     protected void updateClassBStatics(AisMessage24 msg24) {
         // Try to find exiting target
-        VesselTarget vesselTarget = vesselTargets.get(msg24.getUserId());
+        VesselTarget vesselTarget = vesselTargets.get( (long) msg24.getUserId());
         // If not exists, wait for it to be created by position report
         if (vesselTarget == null) {
             return;
@@ -370,8 +370,8 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
             return new VesselTarget(vesselTargets.get(mmsi));
         } else if (sarTargets.containsKey(mmsi)) {
             return new SarTarget(sarTargets.get(mmsi));
-        } else if (atonTargets.containsKey(mmsi)) {
-            return new AtoNTarget(atonTargets.get(mmsi));
+        } else if (atonTargets.containsKey((int) mmsi)) {
+            return new AtoNTarget(atonTargets.get((int) mmsi));
         }
         return null;
     }
@@ -409,7 +409,7 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
         // Remove dead targets
         for (Long mmsi : deadTargets) {
             LOG.debug("Dead AtoN target " + mmsi);
-            atonTargets.remove(mmsi);
+            atonTargets.remove( mmsi.intValue());
         }
 
         deadTargets.clear();

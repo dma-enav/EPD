@@ -505,8 +505,8 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
         optimize_btn.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 if (optimize_btn.isEnabled()) {
-                    MonaLisaRouteNegotiationData message = routeTableModel
-                            .getMessages().get(currentSelection);
+//                    MonaLisaRouteNegotiationData message = routeTableModel
+//                            .getMessages().get(currentSelection);
 
                     // enavServiceHandler.getRouteSuggestions().get(new
                     // RouteSuggestionKey(message.getMmsi(), message.getId()));

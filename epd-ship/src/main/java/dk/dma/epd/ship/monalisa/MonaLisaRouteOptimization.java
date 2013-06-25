@@ -27,7 +27,7 @@ import dk.dma.epd.common.prototype.monalisa.sspa.RouterequestType;
 /**
  * Shore service component providing the functional link to shore.
  */
-public class MonaLisaRouteOptimization extends dk.dma.epd.common.prototype.monalisa.MonaLisaRouteOptimization{
+public class MonaLisaRouteOptimization extends dk.dma.epd.common.prototype.monalisa.MonaLisaRouteOptimizationCommon{
     // Runnable
 
     // private static final Logger LOG = Logger

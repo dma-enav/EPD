@@ -87,7 +87,7 @@ public class VesselLayer extends CenterRaster {
      * @param shipType Ship type relative to "GUIDELINES FOR THE INSTALLATION OF A SHIPBORNE AUTOMATIC IDENTIFICATION SYSTEM (AIS)"
      */
     public void setImageIcon(String shipType) {
-        if(this.shipType != shipType) {
+        if(!this.shipType.equals(shipType)) {
             this.shipType = shipType;
             if (shipType.startsWith("Passenger")) {
                 vesselIcon = staticImages.getVesselBlue();

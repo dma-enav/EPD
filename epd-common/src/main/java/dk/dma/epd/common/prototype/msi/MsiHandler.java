@@ -42,7 +42,7 @@ import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.common.prototype.layers.msi.MsiLayer;
-import dk.dma.epd.common.prototype.route.RouteManager;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 import dk.frv.enav.common.xml.msi.response.MsiResponse;
@@ -57,7 +57,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     private static final Logger LOG = LoggerFactory.getLogger(MsiHandler.class);
 
     private ShoreServicesCommon shoreServices;
-    private RouteManager routeManager;
+    private RouteManagerCommon routeManager;
     
     private MsiLayer msiLayer;
 
@@ -435,8 +435,8 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         if (obj instanceof ShoreServicesCommon) {
             shoreServices = (ShoreServicesCommon) obj;
         }
-        if (obj instanceof RouteManager) {
-            routeManager = (RouteManager) obj;
+        if (obj instanceof RouteManagerCommon) {
+            routeManager = (RouteManagerCommon) obj;
             routeManager.addListener(this);
         }
         if (obj instanceof MsiLayer) {

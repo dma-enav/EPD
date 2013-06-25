@@ -374,6 +374,7 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
             // Make request
             try {
                 routeHttp.makeRequest();
+
                 xmlReturnRoute = routeHttp.getResponseBody();
             } catch (Exception e) {
                 // status.markContactError(e);
@@ -386,8 +387,8 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
             return new SSPAResponse(null, e.getMessage());
         }
 
-        System.out.println("Recieved the following:");
-        System.out.println(xmlReturnRoute);
+//        System.out.println("Recieved the following:");
+//        System.out.println(xmlReturnRoute);
 
          if (showOutput) {
          new XMLDialog(xmlReturnRoute, "Returned XML");
@@ -407,12 +408,12 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
                     return new SSPAResponse(null, "Failed to recieve a route in the area, buffer timedout");
                 }
 
-                xmlReturnRoute
+                xmlReturnRoute = xmlReturnRoute
                         .replace(
                                 "<RouteResponse xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\" xmlns=\"http://www.sspa.se/optiroute\">",
                                 "<RouteResponse xmlns=\"http://www.sspa.se/optiroute\" xmlns:ns2=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">");
 
-                xmlReturnRoute.replace("fi", "ns2");
+                xmlReturnRoute=                xmlReturnRoute.replace("fi", "ns2");
 
                 // System.out.println(xmlReturnRoute);
 

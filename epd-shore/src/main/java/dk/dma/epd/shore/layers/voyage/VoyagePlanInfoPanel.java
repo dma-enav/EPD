@@ -47,7 +47,7 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
     private JPanel masterPanel;
     private JPanel notificationPanel;
     private static int moveHandlerHeight = 18;
-    private JMapFrame parent;
+//    private JMapFrame parent;
     private Voyage voyage;
     private AisHandler aisHandler;
 
@@ -205,7 +205,7 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
 
 
     public void setParent(JMapFrame parent) {
-        this.parent = parent;
+//        this.parent = parent;
 
         VoyageInfoPlanMoveMouseListener mml = new VoyageInfoPlanMoveMouseListener(
                 this, parent);

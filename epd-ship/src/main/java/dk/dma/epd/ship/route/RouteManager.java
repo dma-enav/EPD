@@ -72,7 +72,7 @@ import dk.frv.enav.common.xml.metoc.MetocForecast;
  * Manager for handling a collection of routes and active route
  */
 @ThreadSafe
-public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager implements Runnable,
+public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManagerCommon implements Runnable,
         Serializable, IGpsDataListener, IAisRouteSuggestionListener, ActiveRouteProvider {
 
     private static final long serialVersionUID = 1L;

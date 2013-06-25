@@ -27,7 +27,7 @@ import dk.dma.epd.shore.route.RouteManager;
  * Dialog with route properties
  */
 public class RoutePropertiesDialog extends
-        dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialog {
+        dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon {
 
     private static final long serialVersionUID = 1L;
     VoyageHandlingLayer voyageHandlingLayer;

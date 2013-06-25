@@ -36,7 +36,6 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
-import dk.dma.epd.common.prototype.layers.route.MetocGraphic;
 import dk.dma.epd.common.prototype.layers.route.RouteGraphic;
 import dk.dma.epd.common.prototype.layers.route.RouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.route.WaypointCircle;
@@ -48,7 +47,6 @@ import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.MapMenu;
-import dk.dma.epd.ship.layers.route.MetocInfoPanel;
 import dk.dma.epd.ship.monalisa.MonaLisaHandler;
 
 /**

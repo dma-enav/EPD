@@ -40,7 +40,7 @@ public class RouteGraphic extends OMGraphicList {
     private LinkedList<RouteWaypoint> routeWaypoints;
     private List<RouteLegGraphic> routeLegs = new ArrayList<>();
 
-    protected Stroke stroke;
+    protected Stroke routeStroke;
     protected Color color;
     protected Color broadLineColor;
     protected boolean circleDash;
@@ -56,7 +56,7 @@ public class RouteGraphic extends OMGraphicList {
         this.route = route;
         this.routeIndex = routeIndex;
         this.arrowsVisible = arrowsVisible;
-        this.stroke = stroke;
+        this.routeStroke = stroke;
         this.color = color;
         initGraphics();
     }
@@ -68,7 +68,7 @@ public class RouteGraphic extends OMGraphicList {
         this.route = route;
         this.routeIndex = routeIndex;
         this.arrowsVisible = arrowsVisible;
-        this.stroke = stroke;
+        this.routeStroke = stroke;
         this.color = color;
         this.broadLineColor = broadLineColor;
         this.circleDash = circleDash;
@@ -82,7 +82,7 @@ public class RouteGraphic extends OMGraphicList {
     public RouteGraphic(boolean arrowsVisible, Stroke stroke, Color color) {
         super();
         this.arrowsVisible = arrowsVisible;
-        this.stroke = stroke;
+        this.routeStroke = stroke;
         this.color = color;
     }
 
@@ -114,12 +114,12 @@ public class RouteGraphic extends OMGraphicList {
                 
                 if (lineDash){
                     routeLegGraphic = new RouteLegGraphic(routeLeg,
-                            routeIndex, this.color, this.stroke, broadLineColor);
+                            routeIndex, this.color, this.routeStroke, broadLineColor);
                 }else{
                     float[] dash = { 1000000.0f };
                     
                     routeLegGraphic = new RouteLegGraphic(routeLeg,
-                            routeIndex, this.color, this.stroke, broadLineColor, dash);
+                            routeIndex, this.color, this.routeStroke, broadLineColor, dash);
                 }
                 
    
@@ -152,7 +152,7 @@ public class RouteGraphic extends OMGraphicList {
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg routeLeg = routeWaypoint.getOutLeg();
                 RouteLegGraphic routeLegGraphic = new RouteLegGraphic(routeLeg,
-                        routeIndex, this.color, this.stroke);
+                        routeIndex, this.color, this.routeStroke);
                 add(routeLegGraphic);
                 routeLegs.add(0, routeLegGraphic);
             }

@@ -36,16 +36,21 @@ public class RouteSuggestionKey {
     @Override
     public boolean equals(Object key) {
 
-        RouteSuggestionKey routeKey = (RouteSuggestionKey) key;
-        
-        return routeKey.getId() == this.id && routeKey.getMmsi() == this.mmsi;
+        if (key != null) {
+
+            RouteSuggestionKey routeKey = (RouteSuggestionKey) key;
+
+            return routeKey.getId() == this.id
+                    && routeKey.getMmsi() == this.mmsi;
+        }
+        return false;
     }
-    
-    public int hashCode(){
+
+    public int hashCode() {
         return super.hashCode();
     }
 
-    public String toString(){
+    public String toString() {
         return "mmsi: " + this.mmsi + " id: " + this.id;
     }
 }

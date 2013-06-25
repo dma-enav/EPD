@@ -59,7 +59,7 @@ import dk.dma.epd.shore.settings.ESDEnavSettings;
 /**
  * Manager for handling a collection of routes and active route
  */
-public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager implements Runnable, Serializable, IGpsDataListener, IAisRouteSuggestionListener {
+public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManagerCommon implements Runnable, Serializable, IGpsDataListener, IAisRouteSuggestionListener {
 
     private static final long serialVersionUID = 1L;
     private static final String ROUTESFILE = EPDShore.getHomePath().resolve(".routes").toString();

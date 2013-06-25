@@ -29,7 +29,7 @@ import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 /**
  * Shore service component providing the functional link to shore.
  */
-public class MonaLisaRouteOptimization extends dk.dma.epd.common.prototype.monalisa.MonaLisaRouteOptimization{
+public class MonaLisaRouteOptimization extends dk.dma.epd.common.prototype.monalisa.MonaLisaRouteOptimizationCommon{
   
 
     public MonaLisaOptimizationResponse makeRouteRequest(Route route,

@@ -26,7 +26,6 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -51,7 +50,7 @@ import dk.dma.epd.ship.route.RouteManager;
 /**
  * The nogo dialog
  */
-public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monalisa.MonaLisaSSPAOptionsDialog implements ActionListener {
+public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monalisa.MonaLisaSSPAOptionsDialogCommon implements ActionListener {
     private static final long serialVersionUID = 1L;
     private JButton requestOptiBtn;
     private JButton cancelButton;

@@ -35,7 +35,7 @@ import javax.swing.border.MatteBorder;
 
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
 import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
-import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialog;
+import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
@@ -82,7 +82,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
     JPanel routeNotAcceptedPanel;
 
     private Route latestReceivedRoute;
-    private MonaLisaRouteRequestReply reply;
+//    private MonaLisaRouteRequestReply reply;
 
     long transactionID;
 
@@ -325,7 +325,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
     }
 
     public void handleReply(MonaLisaRouteRequestReply reply) {
-        this.reply = reply;
+//        this.reply = reply;
         this.setRouteName(new Route(reply.getRoute()), this.transactionID);
 
         btnAccept.setText("Accept");
@@ -408,7 +408,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
         }
         if (e.getSource() == btnViewRoute) {
 
-            RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
+            RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(
                     EPDShip.getMainFrame(), latestReceivedRoute, false);
 
             routePropertiesDialog.setVisible(true);

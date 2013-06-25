@@ -49,7 +49,7 @@ import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
  * The nogo dialog
  */
 public class MonaLisaSSPAOptionsDialog extends
-        dk.dma.epd.common.prototype.monalisa.MonaLisaSSPAOptionsDialog
+        dk.dma.epd.common.prototype.monalisa.MonaLisaSSPAOptionsDialogCommon
         implements ActionListener {
     private static final long serialVersionUID = 1L;
     private JButton requestOptiBtn;

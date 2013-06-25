@@ -16,7 +16,6 @@
 package dk.dma.epd.ship.gui.panels;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -27,11 +26,11 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
-import javax.swing.JScrollPane;
 
 public class MonaLisaCommunicationPanel extends JPanel implements
         ActionListener {
@@ -39,9 +38,9 @@ public class MonaLisaCommunicationPanel extends JPanel implements
     private static final long serialVersionUID = 1L;
 
     JTextArea chatMessages;
-    private JButton btnSend;
-    private JTextField textField;
-    private JPanel panel;
+//    private JButton btnSend;
+//    private JTextField textField;
+//    private JPanel panel;
     private JTextField txtField;
 
     public MonaLisaCommunicationPanel() {

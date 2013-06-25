@@ -39,7 +39,7 @@ public class VoyageGraphic extends OMGraphicList {
     private LinkedList<RouteWaypoint> routeWaypoints;
     private List<VoyageLegGraphic> routeLegs = new ArrayList<>();
 
-    protected Stroke stroke;
+    protected Stroke voyageStroke;
     protected Color color;
 
     private int voyageIndex;
@@ -51,7 +51,7 @@ public class VoyageGraphic extends OMGraphicList {
         this.voyage = voyage;
         this.voyageIndex = voyageIndex;
 
-        stroke = new BasicStroke(12.0f, // Width
+        voyageStroke = new BasicStroke(12.0f, // Width
 //        stroke = new BasicStroke(5.0f, // Width
                 BasicStroke.CAP_SQUARE, // End cap
                 BasicStroke.JOIN_MITER, // Join style
@@ -67,7 +67,7 @@ public class VoyageGraphic extends OMGraphicList {
 
     public VoyageGraphic(Stroke stroke, Color color) {
         super();
-        this.stroke = stroke;
+        this.voyageStroke = stroke;
         this.color = color;
     }
 
@@ -83,7 +83,7 @@ public class VoyageGraphic extends OMGraphicList {
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg routeLeg = routeWaypoint.getOutLeg();
                 VoyageLegGraphic voyageLegGraphic = new VoyageLegGraphic(routeLeg,
-                        voyageIndex, this.color, this.stroke);
+                        voyageIndex, this.color, this.voyageStroke);
                 add(voyageLegGraphic);
                 routeLegs.add(0, voyageLegGraphic);
             }
