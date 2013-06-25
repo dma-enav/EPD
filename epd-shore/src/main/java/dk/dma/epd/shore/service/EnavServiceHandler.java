@@ -283,13 +283,20 @@ public class EnavServiceHandler extends MapHandlerChild implements
             }
         });
 
-        try {
-            enavCloudConnection.setHost(hostPort);
-            System.out.println(hostPort);
-            connection = enavCloudConnection.build();
-        } catch (Exception e) {
-            e.printStackTrace();
+        while (connection == null){
+            try {
+                enavCloudConnection.setHost(hostPort);
+                System.out.println(hostPort);
+                connection = enavCloudConnection.build();
+                break;
+            } catch (Exception e) {
+//                e.printStackTrace();
+                System.out.println("Failed to connect");
+                Util.sleep(10000);
+            }
+            
         }
+        
 
         // ENavContainerConfiguration conf = new ENavContainerConfiguration();
         // conf.addDatasource(new JmsC2SMessageSource(hostPort, shipId));
