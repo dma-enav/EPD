@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -35,9 +36,14 @@ public class NmeaSerialSensorFactory {
     private static final Path EPDNATIVEPATH = Paths.get(System.getProperty("java.io.tmpdir"),"/epdNative/").toAbsolutePath();
 
     public static NmeaSerialSensor create(String comPort) {
+        try {
+            Files.createDirectories(EPDNATIVEPATH);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         
         unpackLibs();
-        
+
         try {
             addToLibraryPath(EPDNATIVEPATH);
             System.loadLibrary("rxtxSerial");
@@ -69,13 +75,16 @@ public class NmeaSerialSensorFactory {
             filename = "rxtxSerial.dll";
             libDir = "Windows/i368-mingw32/";
         } else if ("Linux".equals(System.getProperty("os.name"))) {
-            filename = "rxtxSerial.so";
+            filename = "librxtxSerial.so";
             if (System.getProperty("os.arch").equals("amd64")) {
                 libDir = "Linux/x86_64-unknown-linu-gnu/";
             } else {
                 libDir = "Linux/i686-unknown-linux-gnu/";
             }
                     
+        } else if (System.getProperty("os.name").startsWith("Mac")) {
+            filename = "rxtxSerial.jnilib";
+            libDir = "Mac_OS_X/";
         } else {
             return;
         }
