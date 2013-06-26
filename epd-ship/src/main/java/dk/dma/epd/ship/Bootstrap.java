@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import org.apache.log4j.xml.DOMConfigurator;
+
 import dk.dma.epd.common.prototype.BootstrapCommon;
 
 
@@ -38,7 +40,8 @@ public class Bootstrap extends BootstrapCommon {
 
         // Log4j
         unpackToAppHome("log4j.xml");
-        //DOMConfigurator.configure(home.resolve("log4j.xml").toUri().toURL());
+        // actually use the definitions
+        DOMConfigurator.configure(home.resolve("log4j.xml").toUri().toURL());
 
         // Properties
         unpackToAppHome("epd-ship.properties");
