@@ -45,7 +45,6 @@ import dk.dma.ais.packet.AisPacketReader;
 import dk.dma.ais.proprietary.IProprietarySourceTag;
 import dk.dma.ais.proprietary.IProprietaryTag;
 import dk.dma.ais.proprietary.ProprietaryFactory;
-import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.reader.SendException;
 import dk.dma.ais.reader.SendRequest;
 import dk.dma.ais.reader.SendThread;
