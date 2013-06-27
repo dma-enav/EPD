@@ -68,12 +68,12 @@
 		<dependency>
 			<groupId>dk.dma.3rdparty</groupId>
 			<artifactId>docking-frames-common</artifactId>
-			<version>1.2.3</version>
+			<version>1.2.4</version>
 		</dependency>
 		<dependency>
 			<groupId>dk.dma.3rdparty</groupId>
 			<artifactId>docking-frames-core</artifactId>
-			<version>1.2.3</version>
+			<version>1.2.4</version>
 		</dependency>
 		<dependency>
 			<groupId>net.gescobar</groupId>
