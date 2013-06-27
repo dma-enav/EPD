@@ -18,6 +18,7 @@ package dk.dma.epd.ship.gui.route;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.StringWriter;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -25,12 +26,19 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.monalisa.XMLDialog;
+import dk.dma.epd.common.prototype.shoreservice.Metoc;
+import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
+import dk.frv.enav.common.xml.metoc.request.MetocForecastRequest;
 
 /**
  * Dialog shown when requesting METOC
@@ -45,6 +53,7 @@ public class MetocRequestDialog extends JDialog implements Runnable, ActionListe
     private JLabel statusLbl;
     private JButton cancelBtn;
     private Boolean cancelReq = false;
+    private Boolean rawMetoc = false;
     
     public MetocRequestDialog(Window parent, RouteManager routeManager, Route route) {
         super(parent, "Request METOC");
@@ -103,7 +112,9 @@ public class MetocRequestDialog extends JDialog implements Runnable, ActionListe
             MetocForecast metocForecast = route.getMetocForecast();
             JOptionPane.showMessageDialog(parent, "Received " + metocForecast.getForecasts().size() + " METOC forecast points", "Shore service result",
                     JOptionPane.INFORMATION_MESSAGE);
-        }        
+
+        }
+        
     }
     
     private void initGui() {
@@ -143,6 +154,14 @@ public class MetocRequestDialog extends JDialog implements Runnable, ActionListe
             route.removeMetoc();
             routeManager.notifyListeners(RoutesUpdateEvent.METOC_SETTINGS_CHANGED);
         }
+    }
+
+    public Boolean getRawMetoc() {
+        return rawMetoc;
+    }
+
+    public void setRawMetoc(Boolean rawMetoc) {
+        this.rawMetoc = rawMetoc;
     }
 
 }

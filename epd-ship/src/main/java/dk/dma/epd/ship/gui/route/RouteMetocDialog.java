@@ -25,6 +25,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.StringWriter;
 import java.util.Set;
 
 import javax.swing.DefaultComboBoxModel;
@@ -40,13 +41,21 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
+import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteMetocSettings;
+import dk.dma.epd.common.prototype.monalisa.XMLDialog;
+import dk.dma.epd.common.prototype.shoreservice.Metoc;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.frv.enav.common.xml.metoc.MetocDataTypes;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
+import dk.frv.enav.common.xml.metoc.request.MetocForecastRequest;
 /**
  * Dialog with METOC settings 
  */
@@ -81,6 +90,7 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
     private Route route;
     private JPanel providerPanel;
     private JComboBox<String> providerBox;
+    private JCheckBox chckbxShowRawRequest;
 
 
 
@@ -94,7 +104,7 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
             route = routeManager.getRoute(routeId);
         }
         
-        setSize(270, 496);
+        setSize(270, 517);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(parent);
                 
@@ -135,6 +145,27 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
         currentLimit.addFocusListener(this);
         waveLimit.setText(String.format("%.2f", metocSettings.getWaveWarnLimit()));
         waveLimit.addFocusListener(this);
+        
+        //show raw xml
+        if (chckbxShowRawRequest.isSelected()) {
+            try {
+                MetocForecastRequest req = Metoc.generateMetocRequest(route, EPDShip.getGpsHandler().getCurrentData().getPosition());
+                
+                JAXBContext context = JAXBContext.newInstance(MetocForecastRequest.class);
+                Marshaller m = context.createMarshaller();
+                m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+                m.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+                StringWriter st = new StringWriter();
+                
+                m.marshal(req, st);
+                
+                new XMLDialog(st.toString(), "RAW XML Request").setVisible(true);
+                
+            } catch (ShoreServiceException | JAXBException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
     
     void saveValues() {
@@ -295,36 +326,36 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
         
         GroupLayout groupLayout = new GroupLayout(getContentPane());
         groupLayout.setHorizontalGroup(
-            groupLayout.createParallelGroup(Alignment.TRAILING)
+            groupLayout.createParallelGroup(Alignment.LEADING)
                 .addGroup(groupLayout.createSequentialGroup()
-                    .addContainerGap(183, Short.MAX_VALUE)
+                    .addContainerGap(190, Short.MAX_VALUE)
                     .addComponent(closeBtn, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
                     .addContainerGap())
                 .addGroup(groupLayout.createSequentialGroup()
-                    .addComponent(statusPanel, GroupLayout.PREFERRED_SIZE, 259, Short.MAX_VALUE)
-                    .addGap(3))
-                .addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
                     .addComponent(providerPanel, GroupLayout.PREFERRED_SIZE, 259, GroupLayout.PREFERRED_SIZE)
                     .addContainerGap())
-                .addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
+                .addGroup(groupLayout.createSequentialGroup()
                     .addComponent(typesPanel, GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
                     .addContainerGap())
-                .addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
+                .addGroup(groupLayout.createSequentialGroup()
                     .addComponent(warnLimitsPanel, GroupLayout.PREFERRED_SIZE, 259, Short.MAX_VALUE)
                     .addContainerGap())
+                .addGroup(groupLayout.createSequentialGroup()
+                    .addComponent(statusPanel, GroupLayout.PREFERRED_SIZE, 266, Short.MAX_VALUE)
+                    .addGap(3))
         );
         groupLayout.setVerticalGroup(
             groupLayout.createParallelGroup(Alignment.LEADING)
                 .addGroup(groupLayout.createSequentialGroup()
                     .addGap(7)
-                    .addComponent(statusPanel, GroupLayout.PREFERRED_SIZE, 142, GroupLayout.PREFERRED_SIZE)
+                    .addComponent(statusPanel, GroupLayout.PREFERRED_SIZE, 164, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(providerPanel, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(typesPanel, GroupLayout.PREFERRED_SIZE, 103, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(warnLimitsPanel, GroupLayout.PREFERRED_SIZE, 111, GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(ComponentPlacement.RELATED, 226, Short.MAX_VALUE)
+                    .addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(closeBtn)
                     .addGap(17))
         );
@@ -403,12 +434,17 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
         );
         typesPanel.setLayout(gl_typesPanel);
         
+        chckbxShowRawRequest = new JCheckBox("Show Raw Request (debug)");
+        
         GroupLayout gl_statusPanel = new GroupLayout(statusPanel);
         gl_statusPanel.setHorizontalGroup(
             gl_statusPanel.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_statusPanel.createSequentialGroup()
                     .addGroup(gl_statusPanel.createParallelGroup(Alignment.LEADING)
-                        .addComponent(showCheckbox)
+                        .addComponent(chckbxShowRawRequest)
+                        .addGroup(gl_statusPanel.createSequentialGroup()
+                            .addGap(63)
+                            .addComponent(requestBtn))
                         .addGroup(gl_statusPanel.createSequentialGroup()
                             .addComponent(intervalLbl)
                             .addPreferredGap(ComponentPlacement.RELATED)
@@ -417,15 +453,15 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
                             .addComponent(currentLabel)
                             .addPreferredGap(ComponentPlacement.RELATED)
                             .addComponent(currentMetocDataLbl))
-                        .addGroup(gl_statusPanel.createSequentialGroup()
-                            .addGap(63)
-                            .addComponent(requestBtn)))
-                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(showCheckbox))
+                    .addContainerGap(119, Short.MAX_VALUE))
         );
         gl_statusPanel.setVerticalGroup(
             gl_statusPanel.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_statusPanel.createSequentialGroup()
                     .addComponent(showCheckbox)
+                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addComponent(chckbxShowRawRequest)
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addGroup(gl_statusPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(intervalLbl)
@@ -434,7 +470,7 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
                     .addGroup(gl_statusPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(currentLabel)
                         .addComponent(currentMetocDataLbl))
-                    .addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGap(18)
                     .addComponent(requestBtn)
                     .addContainerGap())
         );
