@@ -43,6 +43,7 @@ import bibliothek.gui.dock.common.SingleCDockableFactory;
 import bibliothek.gui.dock.common.action.predefined.CBlank;
 import bibliothek.gui.dock.common.intern.CDockable;
 import bibliothek.gui.dock.common.mode.ExtendedMode;
+import bibliothek.gui.dock.common.theme.ThemeMap;
 import bibliothek.gui.dock.displayer.DisplayerDockBorder;
 import bibliothek.gui.dock.themes.ThemeManager;
 import bibliothek.gui.dock.util.Priority;
@@ -154,12 +155,13 @@ public class DockableComponents {
         control.getContentArea().setMinimumAreaSize(new Dimension(0, 0));
 
         // Frames
-        BorderMod bridge = new BorderMod();
-        control.getController()
-                .getThemeManager()
-                .publish(Priority.CLIENT, DisplayerDockBorder.KIND,
-                        ThemeManager.BORDER_MODIFIER_TYPE, bridge);
+//        BorderMod bridge = new BorderMod();
+//        control.getController()
+//                .getThemeManager()
+//                .publish(Priority.CLIENT, DisplayerDockBorder.KIND,
+//                        ThemeManager.BORDER_MODIFIER_TYPE, bridge);
 
+        control.setTheme( ThemeMap.KEY_FLAT_THEME );
     }
 
     public JMenu createDockableMenu() {
