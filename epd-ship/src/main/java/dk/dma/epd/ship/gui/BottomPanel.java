@@ -63,8 +63,8 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
 
     public BottomPanel() {
         super();
-        setBorder(new CompoundBorder(new MatteBorder(1, 0, 0, 0, new Color(255, 255, 255)), new MatteBorder(1, 0, 0, 0,
-                new Color(192, 192, 192))));
+//        setBorder(new CompoundBorder(new MatteBorder(1, 0, 0, 0, new Color(255, 255, 255)), new MatteBorder(1, 0, 0, 0,
+//                new Color(192, 192, 192))));
         FlowLayout flowLayout = (FlowLayout) getLayout();
         flowLayout.setVgap(2);
         flowLayout.setHgap(3);

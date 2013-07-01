@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.PropertyConsumer;
+import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
@@ -451,7 +452,35 @@ public class EPDShip  extends EPD {
 
     private static void initLookAndFeel() {
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            
+            Properties props = new Properties();
+            props.put("logoString", "EPD-Ship");
+            props.put("backgroundPattern", "false");
+            props.put("textAntiAliasingMode", "TEXT_ANTIALIAS_VBGR");
+            props.put("menuOpaque", "true");
+            props.put("tooltipCastShadow", "true");
+            
+            //small font
+            props.setProperty("controlTextFont", "Dialog 10");
+            props.setProperty("systemTextFont", "Dialog 10");
+            props.setProperty("userTextFont", "Dialog 10");
+            props.setProperty("menuTextFont", "Dialog 10");
+            props.setProperty("windowTitleFont", "Dialog bold 10");
+            props.setProperty("subTextFont", "Dialog 8");
+            
+            
+//            props.put("tooltipBorderSize", "15");
+//            props.put("tooltipShadowSize", "15");
+
+//          NoireLookAndFeel laf = new NoireLookAndFeel();
+            HiFiLookAndFeel laf = new HiFiLookAndFeel();
+//          NoireLookAndFeel.setCurrentTheme(props);
+            HiFiLookAndFeel.setCurrentTheme(props);
+            
+            UIManager.setLookAndFeel(laf);
+            
+            
         } catch (Exception e) {
             LOG.error("Failed to set look and feed: " + e.getMessage());
         }
