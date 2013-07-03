@@ -281,7 +281,7 @@ public class EpdMsiLayer extends MsiLayer implements MapMouseListener {
 
         if (selectedGraphic instanceof MsiSymbolGraphic) {
             MsiSymbolGraphic msi = (MsiSymbolGraphic) selectedGraphic;
-            mainFrame.getGlassPane().setVisible(false);
+//            mainFrame.getGlassPane().setVisible(false);
             msiMenu.msiMenu(topPanel, msi);
             msiMenu.setVisible(true);
             msiMenu.show(this, e.getX() - 2, e.getY() - 2);

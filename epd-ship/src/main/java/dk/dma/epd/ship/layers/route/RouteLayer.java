@@ -494,7 +494,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         routeMenu.setRouteLocation(new Point(e.getX(), e.getY()));
 
         if (selectedGraphic instanceof SuggestedRouteGraphic) {
-            mainFrame.getGlassPane().setVisible(false);
+//            mainFrame.getGlassPane().setVisible(false);
             waypointInfoPanel.setVisible(false);
             SuggestedRouteGraphic suggestedRoute = (SuggestedRouteGraphic) selectedGraphic;
             RecievedRoute aisSuggestedRoute = suggestedRoute
@@ -549,7 +549,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         }
 
         if (!dragging) {
-            mainFrame.getGlassPane().setVisible(false);
+//            mainFrame.getGlassPane().setVisible(false);
             selectedGraphic = null;
             OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
                     tolerance);
@@ -657,7 +657,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
             if (newClosest != closest) {
                 if (newClosest == null) {
                     metocInfoPanel.setVisible(false);
-                    mainFrame.getGlassPane().setVisible(false);
+//                    mainFrame.getGlassPane().setVisible(false);
                     waypointInfoPanel.setVisible(false);
                     closest = null;
                 } else {

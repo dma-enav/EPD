@@ -330,6 +330,13 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         }
 
         addSeparator();
+//        JSeparator separator = new JSeparator(SwingConstants.VERTICAL);
+//        separator.setSize(new Dimension(50,50));
+//        separator.setVisible(true);
+        
+//        add(separator);
+//        addSeparator();
+        
         add(clearMap);
         add(hideIntendedRoutes);
         add(scaleMenu);
@@ -499,7 +506,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         routeAppendWaypoint.setRouteIndex(routeIndex);
         add(routeAppendWaypoint);
 
-        addSeparator();
+//        addSeparator();
+        Separator seperator = new Separator();
+        this.add(seperator);
 
         sendToSTCC.setRoute(route);
         sendToSTCC.setRouteLocation(windowLocation);
@@ -760,4 +769,16 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         this.windowLocation = point;
     }
 
+//    @Override
+//    public void show(boolean show){
+//        
+//    }
+    
+    @Override
+    public void setVisible(boolean visible){
+        System.out.println("Set visible: " + visible);
+//        super.setVisible(true);
+        super.setVisible(visible);
+    }
+    
 }

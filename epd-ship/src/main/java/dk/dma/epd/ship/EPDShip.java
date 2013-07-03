@@ -317,7 +317,7 @@ public class EPDShip  extends EPD {
         initLookAndFeel();
 
         // Make sure we have nice window decorations.
-        JFrame.setDefaultLookAndFeelDecorated(true);
+        JFrame.setDefaultLookAndFeelDecorated(false);
 
         // Create and set up the main window
         mainFrame = new MainFrame();

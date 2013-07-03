@@ -492,7 +492,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements IAisTargetListene
                         VesselTargetTriangle vtt = (VesselTargetTriangle) selectedGraphic;
                         VesselTargetGraphic vesselTargetGraphic = vtt.getVesselTargetGraphic();
 
-                        mainFrame.getGlassPane().setVisible(false);
+//                        mainFrame.getGlassPane().setVisible(false);
                         aisTargetMenu.aisMenu(vesselTargetGraphic, topPanel);
                         aisTargetMenu.setVisible(true);
                         aisTargetMenu.show(this, e.getX() - 2, e.getY() - 2);
@@ -542,7 +542,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements IAisTargetListene
     public void mouseEntered(MouseEvent e) {
         // hackish?
         if (e.getComponent() instanceof MapBean) {
-            aisTargetMenu.setVisible(false);
+//            aisTargetMenu.setVisible(false);
         }
     }
 

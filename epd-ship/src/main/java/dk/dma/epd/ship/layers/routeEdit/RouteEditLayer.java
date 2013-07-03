@@ -149,6 +149,7 @@ public class RouteEditLayer extends OMGraphicHandlerLayer implements
             mapMenu.routeEditMenu();
             mapMenu.setVisible(true);
             mapMenu.show(this, e.getX() - 2, e.getY() - 2);
+            
             return true;
         }
         return false;
