@@ -28,7 +28,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
-public class ButtonLabel extends JLabel{
+public class ButtonLabelCommon extends JLabel{
 
     private static final long serialVersionUID = 1L;
     public static Font defaultFont = new Font("Arial", Font.PLAIN, 11);
@@ -42,17 +42,17 @@ public class ButtonLabel extends JLabel{
     public static Border toolInnerEtchedBorder = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED,
             new Color(37, 37, 37), borderColor);
 
-    public ButtonLabel(){
+    public ButtonLabelCommon(){
         super();
     }
     
-    public ButtonLabel(String text){
+    public ButtonLabelCommon(String text){
         super(text);
         styleButton(this);
     }
     
     
-    public ButtonLabel(ImageIcon toolbarIcon) {
+    public ButtonLabelCommon(ImageIcon toolbarIcon) {
         super(toolbarIcon);
         styleIconButton(this);
     }

@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.ship.gui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -24,12 +25,14 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
-import dk.dma.epd.common.prototype.gui.route.ButtonLabel;
+import dk.dma.epd.common.prototype.gui.route.ButtonLabelCommon;
 
-public class ToggleButtonLabel extends ButtonLabel {
+public class ToggleButtonLabel extends ButtonLabelCommon {
 
     private static final long serialVersionUID = 1L;
     boolean toggled;
+    public static Color clickedColor = new Color(80, 80, 80);
+    public static Color standardColor = new Color(128, 128, 128);
 
     public ToggleButtonLabel(String text) {
         super(text);

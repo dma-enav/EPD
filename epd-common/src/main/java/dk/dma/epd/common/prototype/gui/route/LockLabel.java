@@ -28,7 +28,7 @@ import javax.swing.border.MatteBorder;
 
 import dk.dma.epd.common.prototype.EPD;
 
-public class LockLabel extends ButtonLabel {
+public class LockLabel extends ButtonLabelCommon {
 
     private static final long serialVersionUID = 1L;
     boolean toggled;
