@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.PropertyConsumer;
+import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
@@ -306,7 +307,7 @@ public class EPDShore extends EPD {
         initLookAndFeel();
 
         // Make sure we have nice window decorations.
-        JFrame.setDefaultLookAndFeelDecorated(true);
+        JFrame.setDefaultLookAndFeelDecorated(false);
 
         // Create and set up the main window
         mainFrame = new MainFrame();
@@ -439,17 +440,38 @@ public class EPDShore extends EPD {
      */
     private static void initLookAndFeel() {
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            
+            Properties props = new Properties();
+            props.put("logoString", "EPD-Shore");
+            props.put("backgroundPattern", "false");
+            props.put("textAntiAliasingMode", "TEXT_ANTIALIAS_VBGR");
+//            props.put("menuOpaque", "true");
+//            props.put("tooltipCastShadow", "true");
+            
+            //small font
+            props.setProperty("controlTextFont", "Dialog 10");
+            props.setProperty("systemTextFont", "Dialog 10");
+            props.setProperty("userTextFont", "Dialog 10");
+            props.setProperty("menuTextFont", "Dialog 10");
+            props.setProperty("windowTitleFont", "Dialog bold 10");
+            props.setProperty("subTextFont", "Dialog 8");
+            
+            
+//            props.put("tooltipBorderSize", "15");
+//            props.put("tooltipShadowSize", "15");
+
+//          NoireLookAndFeel laf = new NoireLookAndFeel();
+            HiFiLookAndFeel laf = new HiFiLookAndFeel();
+//          NoireLookAndFeel.setCurrentTheme(props);
+            HiFiLookAndFeel.setCurrentTheme(props);
+            
+            UIManager.setLookAndFeel(laf);
+            
+            
         } catch (Exception e) {
             LOG.error("Failed to set look and feed: " + e.getMessage());
         }
-
-        // Uncomment for fancy look and feel
-        /**
-         * try { for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) { if ("Nimbus".equals(info.getName())) {
-         * UIManager.setLookAndFeel(info.getClassName()); break; } } } catch (Exception e) { // If Nimbus is not available, you can
-         * set the GUI to another look and feel. }
-         **/
 
     }
 
