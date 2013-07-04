@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.ship.gui;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
@@ -27,8 +26,6 @@ import javax.swing.Box;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.MatteBorder;
 
 import com.bbn.openmap.gui.OMComponentPanel;
 
