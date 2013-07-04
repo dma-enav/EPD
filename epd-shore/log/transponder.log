@@ -1,0 +1,118 @@
+2013-07-04 12:39:12,731 INFO  [EPDShore] Starting eNavigation Prototype Display Shore - version 0.1-SNAPSHOT
+2013-07-04 12:39:12,732 INFO  [EPDShore] Copyright (C) 2012 Danish Maritime Authority
+2013-07-04 12:39:12,732 INFO  [EPDShore] This program comes with ABSOLUTELY NO WARRANTY.
+2013-07-04 12:39:12,732 INFO  [EPDShore] This is free software, and you are welcome to redistribute it under certain conditions.
+2013-07-04 12:39:12,732 INFO  [EPDShore] For details see LICENSE file.
+2013-07-04 12:39:12,913 INFO  [EPDShore] Using settings file: settings.properties
+2013-07-04 12:39:12,914 INFO  [ESDSettings] Trying to load C:\Users\David\.epd-shore\settings.properties
+2013-07-04 12:39:13,068 INFO  [AisHandlerCommon] AIS handler loaded total targets: 0
+2013-07-04 12:39:13,069 INFO  [AisHandlerCommon] Found AIS sensor
+2013-07-04 12:39:14,043 ERROR [NmeaTcpSensor] Could not connect to NMEA source: localhost: Connection refused: connect
+2013-07-04 12:39:14,043 ERROR [NmeaTcpSensor] TCP NMEA sensor failed: Connection refused: connect retry in 5 seconds
+2013-07-04 12:39:14,676 INFO  [EnavServiceHandler] Connecting to enav cloud server: 54.228.193.75:80 with shipId 999137293
+2013-07-04 12:39:14,913 INFO  [WebSocketClient] Started org.eclipse.jetty.websocket.client.WebSocketClient@b14de02
+2013-07-04 12:39:15,161 INFO  [WebSocketClient] Stopped org.eclipse.jetty.websocket.client.WebSocketClient@b14de02
+2013-07-04 12:39:19,255 ERROR [ExceptionHandler] Uncaught exception from thread AWT-EventQueue-0
+java.lang.NoSuchMethodError: dk.dma.epd.shore.gui.views.MSINotificationPanel$MSIRowListener.<init>(Ldk/dma/epd/shore/gui/views/MSINotificationPanel;Ldk/dma/epd/shore/gui/views/MSINotificationPanel$MSIRowListener;)V
+	at dk.dma.epd.shore.gui.views.MSINotificationPanel.initTable(MSINotificationPanel.java:307)
+	at dk.dma.epd.shore.gui.views.NotificationCenter.findAndInit(NotificationCenter.java:521)
+	at dk.dma.epd.shore.gui.utils.ComponentFrame.findAndInit(ComponentFrame.java:107)
+	at dk.dma.epd.shore.gui.utils.ComponentFrame.setBeanContext(ComponentFrame.java:198)
+	at java.beans.beancontext.BeanContextSupport.add(Unknown Source)
+	at dk.dma.epd.shore.gui.views.MainFrame.initGUI(MainFrame.java:465)
+	at dk.dma.epd.shore.gui.views.MainFrame.<init>(MainFrame.java:108)
+	at dk.dma.epd.shore.EPDShore.createAndShowGUI(EPDShore.java:312)
+	at dk.dma.epd.shore.EPDShore.access$000(EPDShore.java:74)
+	at dk.dma.epd.shore.EPDShore$1.run(EPDShore.java:210)
+	at java.awt.event.InvocationEvent.dispatch(Unknown Source)
+	at java.awt.EventQueue.dispatchEventImpl(Unknown Source)
+	at java.awt.EventQueue.access$200(Unknown Source)
+	at java.awt.EventQueue$3.run(Unknown Source)
+	at java.awt.EventQueue$3.run(Unknown Source)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.security.ProtectionDomain$1.doIntersectionPrivilege(Unknown Source)
+	at java.awt.EventQueue.dispatchEvent(Unknown Source)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+	at java.awt.EventDispatchThread.run(Unknown Source)
+2013-07-04 12:39:20,037 ERROR [NmeaTcpSensor] Could not connect to NMEA source: localhost: Connection refused: connect
+2013-07-04 12:39:20,037 ERROR [NmeaTcpSensor] TCP NMEA sensor failed: Connection refused: connect retry in 5 seconds
+2013-07-04 12:39:25,170 INFO  [WebSocketClient] Started org.eclipse.jetty.websocket.client.WebSocketClient@1e5db970
+2013-07-04 12:39:25,267 INFO  [WebSocketClient] Stopped org.eclipse.jetty.websocket.client.WebSocketClient@1e5db970
+2013-07-04 12:39:26,037 ERROR [NmeaTcpSensor] Could not connect to NMEA source: localhost: Connection refused: connect
+2013-07-04 12:39:26,037 ERROR [NmeaTcpSensor] TCP NMEA sensor failed: Connection refused: connect retry in 5 seconds
+2013-07-04 12:39:55,534 INFO  [EPDShore] Starting eNavigation Prototype Display Shore - version 0.1-SNAPSHOT
+2013-07-04 12:39:55,535 INFO  [EPDShore] Copyright (C) 2012 Danish Maritime Authority
+2013-07-04 12:39:55,535 INFO  [EPDShore] This program comes with ABSOLUTELY NO WARRANTY.
+2013-07-04 12:39:55,535 INFO  [EPDShore] This is free software, and you are welcome to redistribute it under certain conditions.
+2013-07-04 12:39:55,535 INFO  [EPDShore] For details see LICENSE file.
+2013-07-04 12:39:55,555 INFO  [EPDShore] Using settings file: settings.properties
+2013-07-04 12:39:55,555 INFO  [ESDSettings] Trying to load C:\Users\David\.epd-shore\settings.properties
+2013-07-04 12:39:55,630 INFO  [AisHandlerCommon] AIS handler loaded total targets: 0
+2013-07-04 12:39:55,631 INFO  [AisHandlerCommon] Found AIS sensor
+2013-07-04 12:39:56,662 ERROR [NmeaTcpSensor] Could not connect to NMEA source: localhost: Connection refused: connect
+2013-07-04 12:39:56,662 ERROR [NmeaTcpSensor] TCP NMEA sensor failed: Connection refused: connect retry in 5 seconds
+2013-07-04 12:39:56,838 INFO  [EnavServiceHandler] Connecting to enav cloud server: 54.228.193.75:80 with shipId 999137293
+2013-07-04 12:39:56,995 INFO  [WebSocketClient] Started org.eclipse.jetty.websocket.client.WebSocketClient@606c6ea6
+2013-07-04 12:39:57,056 ERROR [ExceptionHandler] Uncaught exception from thread AWT-EventQueue-0
+java.lang.NoSuchMethodError: dk.dma.epd.shore.gui.views.MSINotificationPanel$MSIRowListener.<init>(Ldk/dma/epd/shore/gui/views/MSINotificationPanel;Ldk/dma/epd/shore/gui/views/MSINotificationPanel$MSIRowListener;)V
+	at dk.dma.epd.shore.gui.views.MSINotificationPanel.initTable(MSINotificationPanel.java:307)
+	at dk.dma.epd.shore.gui.views.NotificationCenter.findAndInit(NotificationCenter.java:521)
+	at dk.dma.epd.shore.gui.utils.ComponentFrame.findAndInit(ComponentFrame.java:107)
+	at dk.dma.epd.shore.gui.utils.ComponentFrame.setBeanContext(ComponentFrame.java:198)
+	at java.beans.beancontext.BeanContextSupport.add(Unknown Source)
+	at dk.dma.epd.shore.gui.views.MainFrame.initGUI(MainFrame.java:465)
+	at dk.dma.epd.shore.gui.views.MainFrame.<init>(MainFrame.java:108)
+	at dk.dma.epd.shore.EPDShore.createAndShowGUI(EPDShore.java:312)
+	at dk.dma.epd.shore.EPDShore.access$000(EPDShore.java:74)
+	at dk.dma.epd.shore.EPDShore$1.run(EPDShore.java:210)
+	at java.awt.event.InvocationEvent.dispatch(Unknown Source)
+	at java.awt.EventQueue.dispatchEventImpl(Unknown Source)
+	at java.awt.EventQueue.access$200(Unknown Source)
+	at java.awt.EventQueue$3.run(Unknown Source)
+	at java.awt.EventQueue$3.run(Unknown Source)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.security.ProtectionDomain$1.doIntersectionPrivilege(Unknown Source)
+	at java.awt.EventQueue.dispatchEvent(Unknown Source)
+	at java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+	at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+	at java.awt.EventDispatchThread.run(Unknown Source)
+2013-07-04 12:39:57,280 INFO  [WebSocketClient] Stopped org.eclipse.jetty.websocket.client.WebSocketClient@606c6ea6
+2013-07-04 12:45:18,837 INFO  [EPDShore] Starting eNavigation Prototype Display Shore - version 0.1-SNAPSHOT
+2013-07-04 12:45:18,840 INFO  [EPDShore] Copyright (C) 2012 Danish Maritime Authority
+2013-07-04 12:45:18,840 INFO  [EPDShore] This program comes with ABSOLUTELY NO WARRANTY.
+2013-07-04 12:45:18,840 INFO  [EPDShore] This is free software, and you are welcome to redistribute it under certain conditions.
+2013-07-04 12:45:18,840 INFO  [EPDShore] For details see LICENSE file.
+2013-07-04 12:45:18,863 INFO  [EPDShore] Using settings file: settings.properties
+2013-07-04 12:45:18,863 INFO  [ESDSettings] Trying to load C:\Users\David\.epd-shore\settings.properties
+2013-07-04 12:45:18,991 INFO  [AisHandlerCommon] AIS handler loaded total targets: 0
+2013-07-04 12:45:18,991 INFO  [AisHandlerCommon] Found AIS sensor
+2013-07-04 12:45:20,000 ERROR [NmeaTcpSensor] Could not connect to NMEA source: localhost: Connection refused: connect
+2013-07-04 12:45:20,000 ERROR [NmeaTcpSensor] TCP NMEA sensor failed: Connection refused: connect retry in 5 seconds
+2013-07-04 12:45:20,248 INFO  [EnavServiceHandler] Connecting to enav cloud server: 54.228.193.75:80 with shipId 999137293
+2013-07-04 12:45:20,396 INFO  [WebSocketClient] Started org.eclipse.jetty.websocket.client.WebSocketClient@7b9f36c7
+2013-07-04 12:45:20,548 ERROR [EncLayerFactory] No enc.properties file found
+2013-07-04 12:45:20,573 INFO  [WebSocketClient] Stopped org.eclipse.jetty.websocket.client.WebSocketClient@7b9f36c7
+2013-07-04 12:45:23,879 INFO  [Transponder] Waiting for connection on port 4002
+2013-07-04 12:45:25,000 INFO  [Transponder] Client connected
+2013-07-04 12:45:25,001 INFO  [NmeaTcpSensor] NMEA source connected localhost:4002
+2013-07-04 12:45:25,136 INFO  [RestClient] Authenticate username: anon password: $2a$10$F0h/QcDZgYGHbaG0qv2l4eL2UQ0BB5FLgqBaa0Hy9w0quA2oxu06W
+2013-07-04 12:45:26,691 INFO  [RestClient] Resverse mmsi: 999999999 authToken: ea698784-9e88-419e-872d-7f1340e149a1
+2013-07-04 12:45:26,812 INFO  [WebSocketClient] Started org.eclipse.jetty.websocket.client.WebSocketClient@853b148
+2013-07-04 12:45:26,928 INFO  [WebSocketSession] Client connected: service.e-navigation.net/176.34.179.50:10001
+2013-07-04 12:45:30,602 INFO  [WebSocketClient] Started org.eclipse.jetty.websocket.client.WebSocketClient@265e24be
+2013-07-04 12:45:30,694 INFO  [WebSocketClient] Stopped org.eclipse.jetty.websocket.client.WebSocketClient@265e24be
+2013-07-04 12:45:40,700 INFO  [WebSocketClient] Started org.eclipse.jetty.websocket.client.WebSocketClient@572ac466
+2013-07-04 12:45:40,781 INFO  [WebSocketClient] Stopped org.eclipse.jetty.websocket.client.WebSocketClient@572ac466
+2013-07-04 12:45:44,305 INFO  [WebSocketSession] Client connection closed: service.e-navigation.net/176.34.179.50:10001
+2013-07-04 12:45:44,306 INFO  [Transponder] Lost connection to client
+2013-07-04 12:45:44,306 INFO  [Transponder] Waiting for connection on port 4002
+2013-07-04 12:45:44,306 INFO  [Transponder] Transponder stopped
+2013-07-04 12:45:44,306 INFO  [NmeaTcpSensor] Disconnecting source localhost:4002
+2013-07-04 12:45:44,308 INFO  [EPDShore] Closing ESD

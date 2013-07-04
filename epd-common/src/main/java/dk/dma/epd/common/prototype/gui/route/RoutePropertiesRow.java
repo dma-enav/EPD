@@ -43,11 +43,12 @@ public class RoutePropertiesRow {
     boolean last;
     boolean locked;
     int offset = 9;
-    Color selectedColor = Color.yellow;
-    Color notSelected = Color.white;
-
-    Color selectNotEdit = new Color(255, 215, 0);
-    Color notSelectNotEdit = new Color(240, 240, 240);
+    Color selectNotEdit = new Color(192, 192, 192);
+    Color selectedColor = new Color(128, 128, 128);
+    
+    
+    Color notSelected = new Color(80, 80, 80);
+    Color notSelectNotEdit = new Color(48, 48, 48);
 
     public RoutePropertiesRow(WaypointJTextField nameTxT,
             WaypointJTextField latTxT, WaypointJTextField lonTxT,

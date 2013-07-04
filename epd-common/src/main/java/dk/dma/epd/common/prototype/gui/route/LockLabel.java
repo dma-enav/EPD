@@ -43,6 +43,8 @@ public class LockLabel extends ButtonLabel {
         lockedIcon = toolbarIcon("images/toolbar/lock.png");
         this.setIcon(unlockedIcon);
         styleButton(this);
+        
+        this.setBackground(new Color(48, 48, 48));
 
         this.routePropertiesDialog = routePropertiesDialog;
     }
@@ -83,9 +85,9 @@ public class LockLabel extends ButtonLabel {
     @Override
     public void styleButton(final JLabel label) {
 
-        label.setOpaque(true);
-        label.setBorder(new MatteBorder(1, 1, 1, 1, new Color(65, 65,
-                65)));
+//        label.setOpaque(true);
+//        label.setBorder(new MatteBorder(1, 1, 1, 1, new Color(65, 65,
+//                65)));
 
         label.setPreferredSize(new Dimension(17, 20));
         // label.setFont(defaultFont);
@@ -138,13 +140,13 @@ public class LockLabel extends ButtonLabel {
 
         // Toggle it
         if (selected && this.isEnabled()) {
-            this.setBackground(clickedColor);
-            this.setBorder(BorderFactory.createCompoundBorder(
-                    toolPaddingBorder, toolInnerEtchedBorder));
+//            this.setBackground(clickedColor);
+//            this.setBorder(BorderFactory.createCompoundBorder(
+//                    toolPaddingBorder, toolInnerEtchedBorder));
         } else {
             // Untoggle it
-            this.setBorder(toolPaddingBorder);
-            this.setBackground(standardColor);
+//            this.setBorder(toolPaddingBorder);
+//            this.setBackground(standardColor);
         }
         toggled = selected;
     }
@@ -152,9 +154,9 @@ public class LockLabel extends ButtonLabel {
     public void setSelected(boolean selected, int icon) {
 
         if (selected && this.isEnabled()) {
-            this.setBackground(clickedColor);
+//            this.setBackground(clickedColor);
         } else {
-            this.setBackground(standardColor);
+//            this.setBackground(standardColor);
         }
         toggled = selected;
 
@@ -184,14 +186,14 @@ public class LockLabel extends ButtonLabel {
                 if (label.isEnabled()) {
                     if (toggled) {
                         // Untoggle it
-                        label.setBorder(toolPaddingBorder);
-                        label.setBackground(standardColor);
+//                        label.setBorder(toolPaddingBorder);
+//                        label.setBackground(standardColor);
                         // toggled = false;
                     } else {
                         // Toggle it
-                        label.setBackground(clickedColor);
-                        label.setBorder(BorderFactory.createCompoundBorder(
-                                toolPaddingBorder, toolInnerEtchedBorder));
+//                        label.setBackground(clickedColor);
+//                        label.setBorder(BorderFactory.createCompoundBorder(
+//                                toolPaddingBorder, toolInnerEtchedBorder));
                         label.setOpaque(true);
                         // toggled = true;
                     }
