@@ -458,8 +458,8 @@ public class EPDShip  extends EPD {
             props.put("logoString", "EPD-Ship");
             props.put("backgroundPattern", "false");
             props.put("textAntiAliasingMode", "TEXT_ANTIALIAS_VBGR");
-            props.put("menuOpaque", "true");
-            props.put("tooltipCastShadow", "true");
+//            props.put("menuOpaque", "true");
+//            props.put("tooltipCastShadow", "true");
             
             //small font
             props.setProperty("controlTextFont", "Dialog 10");

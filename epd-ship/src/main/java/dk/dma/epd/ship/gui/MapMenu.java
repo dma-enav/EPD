@@ -489,6 +489,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     }
     
     public void generalRouteMenu(int routeIndex) {
+        
         if (routeManager.getActiveRouteIndex() == routeIndex) {
             routeActivateToggle.setText("Deactivate route");
             routeHide.setEnabled(false);
@@ -508,7 +509,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
 //        addSeparator();
         Separator seperator = new Separator();
+        seperator.setVisible(true);
         this.add(seperator);
+        
 
         sendToSTCC.setRoute(route);
         sendToSTCC.setRouteLocation(windowLocation);
@@ -586,7 +589,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         routeProperties.setRouteIndex(routeIndex);
         add(routeProperties);
 
-        generalMenu(false);
+//        generalMenu(false);
+        this.repaint();
     }
 
     public void routeLegMenu(int routeIndex, RouteLeg routeLeg, Point point) {
@@ -612,7 +616,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
     public void routeWaypointMenu(int routeIndex, int routeWaypointIndex) {
         removeAll();
-
+        
         routeWaypointActivateToggle.setRouteWaypointIndex(routeWaypointIndex);
         routeWaypointActivateToggle.setRouteManager(routeManager);
 
@@ -774,11 +778,29 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 //        
 //    }
     
-    @Override
-    public void setVisible(boolean visible){
-        System.out.println("Set visible: " + visible);
-//        super.setVisible(true);
-        super.setVisible(visible);
-    }
+//    @Override
+//    public void setVisible(boolean visible){
+//        System.out.println("Set visible: " + visible);
+//        super.setVisible(visible);
+//    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
 }

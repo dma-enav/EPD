@@ -481,8 +481,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         selectedGraphic = null;
         OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
                 tolerance);
-        
-        System.out.println("Going through LIST!");
+
         for (OMGraphic omGraphic : allClosest) {
             if (omGraphic instanceof SuggestedRouteGraphic
                     || omGraphic instanceof WaypointCircle
@@ -501,23 +500,23 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
                     .getRouteSuggestion();
             routeMenu.suggestedRouteMenu(aisSuggestedRoute);
             routeMenu.setVisible(true);
-            routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+//            routeMenu.show(this, e.getX() - 2, e.getY() - 2);
             routeMenu(e);
             return true;
         }
         if (selectedGraphic instanceof WaypointCircle) {
             WaypointCircle wpc = (WaypointCircle) selectedGraphic;
-            mainFrame.getGlassPane().setVisible(false);
+//            mainFrame.getGlassPane().setVisible(false);
             waypointInfoPanel.setVisible(false);
             routeMenu.routeWaypointMenu(wpc.getRouteIndex(), wpc.getWpIndex());
             routeMenu.setVisible(true);
-            // routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+//             routeMenu.show(this, e.getX() - 2, e.getY() - 2);
             routeMenu(e);
             return true;
         }
         if (selectedGraphic instanceof RouteLegGraphic) {
             RouteLegGraphic rlg = (RouteLegGraphic) selectedGraphic;
-            mainFrame.getGlassPane().setVisible(false);
+//            mainFrame.getGlassPane().setVisible(false);
             waypointInfoPanel.setVisible(false);
             routeMenu.routeLegMenu(rlg.getRouteIndex(), rlg.getRouteLeg(),
                     e.getPoint());
