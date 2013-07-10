@@ -82,8 +82,8 @@ public class NmeaSerialSensorFactory {
             } else {
                 libDir = "Windows/mfz-rxtx-2.2-20081207-win-x64/";
             }
-                    
-            libDir = "Windows/i368-mingw32/";
+            
+            
         } else if ("Linux".equals(osName)) {
             filename = "librxtxSerial.so";
             if (System.getProperty("os.arch").equals("amd64")) {
@@ -95,6 +95,7 @@ public class NmeaSerialSensorFactory {
         } else if (osName.startsWith("Mac")) {
             filename = "rxtxSerial.jnilib";
             libDir = "Mac_OS_X/";
+            
         } else {
             return;
         }
