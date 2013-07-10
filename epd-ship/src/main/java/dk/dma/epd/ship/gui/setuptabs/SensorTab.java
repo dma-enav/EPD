@@ -60,7 +60,7 @@ public class SensorTab extends JPanel implements ActionListener {
         
         JLabel label_2 = new JLabel("Connection type");
         
-        JLabel label_3 = new JLabel("TPC-port");
+        JLabel label_3 = new JLabel("TCP-port");
         
         JLabel label_4 = new JLabel("AIS-file name");
         
@@ -125,7 +125,7 @@ public class SensorTab extends JPanel implements ActionListener {
         
         JLabel label_6 = new JLabel("Connection type");
         
-        JLabel label_7 = new JLabel("TPC-port");
+        JLabel label_7 = new JLabel("TCP-port");
         
         JLabel label_8 = new JLabel("GPS-file name");
         
