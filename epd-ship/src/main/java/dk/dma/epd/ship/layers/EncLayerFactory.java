@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.ship.layers;
 
+import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -54,8 +55,7 @@ public class EncLayerFactory {
     }
 
     public static void addToLibraryPath(String path)
-            throws NoSuchFieldException, 
-             IllegalAccessException {
+            throws NoSuchFieldException, IllegalAccessException {
         System.setProperty("java.library.path", path);
         Field fieldSysPath = ClassLoader.class.getDeclaredField("sys_paths");
         fieldSysPath.setAccessible(true);
@@ -70,18 +70,19 @@ public class EncLayerFactory {
         }
 
         // // Try to load ENC props
-//        if (!PropUtils.loadProperties(encProps, "..\\..\\.epd-ship",
-//                "enc.properties")) {
-      if (!PropUtils.loadProperties(encProps, EPDShip.getHomePath().toString(),
-      "enc.properties")) {
-            
+        // if (!PropUtils.loadProperties(encProps, "..\\..\\.epd-ship",
+        // "enc.properties")) {
+        if (!PropUtils.loadProperties(encProps, EPDShip.getHomePath()
+                .toString(), "enc.properties")) {
+
             LOG.error("No enc.properties file found");
             return;
         }
 
         // Add external jars to runpath
         try {
-            addSoftwareLibrary(new File(EPDShip.getHomePath() + "\\lib\\s52.jar"));
+            addSoftwareLibrary(new File(EPDShip.getHomePath()
+                    + "\\lib\\s52.jar"));
             addSoftwareLibrary(new File(EPDShip.getHomePath()
                     + "\\lib\\s57csv.jar"));
             addSoftwareLibrary(new File(EPDShip.getHomePath()
@@ -101,11 +102,12 @@ public class EncLayerFactory {
         // EeINS.getHomePath().toString()+"\\navicon\\data");
         // encProps.put("enc.certLocation", "file:\\\\" +
         // EeINS.getHomePath().toString()+"\\navicon\\data");
-        encProps.put("enc.certLocation",EPDShip.getHomePath().toString()+
-                "\\" + encProps.get("enc.certLocation"));
+        encProps.put("enc.certLocation", EPDShip.getHomePath().toString()
+                + "\\" + encProps.get("enc.certLocation"));
 
         try {
-            addToLibraryPath(EPDShip.getHomePath().toString()+ "\\navicon\\native");
+            addToLibraryPath(EPDShip.getHomePath().toString()
+                    + "\\navicon\\native");
         } catch (Exception e) {
             // TODO: handle exception
         }
@@ -197,6 +199,8 @@ public class EncLayerFactory {
                     Boolean.toString(mapSettings.isUsePlainAreas()));
             marinerSettings.setProperty("MARINER_PARAM.S52_MAR_TWO_SHADES",
                     Boolean.toString(mapSettings.isS52TwoShades()));
+            marinerSettings.setProperty("MARINER_PARAM.color",
+                    mapSettings.getColor().toUpperCase());
 
             // Set settings on layer
             argTypes = new Class<?>[1];

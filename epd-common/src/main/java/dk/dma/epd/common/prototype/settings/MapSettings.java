@@ -44,6 +44,7 @@ public class MapSettings implements Serializable {
     private boolean useSimplePointSymbols = true;
     private boolean usePlainAreas;
     private boolean s52TwoShades;
+    private String color = "Day";
 
     public MapSettings() {
     }
@@ -66,6 +67,7 @@ public class MapSettings implements Serializable {
         useSimplePointSymbols = PropUtils.booleanFromProperties(props, PREFIX + "useSimplePointSymbols", useSimplePointSymbols);
         usePlainAreas = PropUtils.booleanFromProperties(props, PREFIX + "usePlainAreas", usePlainAreas);
         s52TwoShades = PropUtils.booleanFromProperties(props, PREFIX + "s52TwoShades", s52TwoShades);
+        color = props.getProperty(PREFIX + "color", color);
     }
 
     public void setProperties(Properties props) {
@@ -86,6 +88,7 @@ public class MapSettings implements Serializable {
         props.put(PREFIX + "useSimplePointSymbols", Boolean.toString(useSimplePointSymbols));
         props.put(PREFIX + "usePlainAreas", Boolean.toString(usePlainAreas));
         props.put(PREFIX + "s52TwoShades", Boolean.toString(s52TwoShades));
+        props.put(PREFIX + "color", color);
     }
 
     public LatLonPoint getCenter() {
@@ -199,5 +202,22 @@ public class MapSettings implements Serializable {
     public void setS52TwoShades(boolean s52TwoShades) {
         this.s52TwoShades = s52TwoShades;
     }
+
+    /**
+     * @return the color
+     */
+    public String getColor() {
+        return color;
+    }
+
+    /**
+     * @param color the color to set
+     */
+    public void setColor(String color) {
+        this.color = color;
+    }
+    
+    
+    
     
 }
