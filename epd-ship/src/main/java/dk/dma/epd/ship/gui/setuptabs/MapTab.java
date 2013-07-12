@@ -30,6 +30,9 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.epd.ship.settings.EPDMapSettings;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 /**
  * Map tab panel in setup panel
@@ -116,6 +119,16 @@ public class MapTab extends JPanel {
 //        comboBoxColorProfile.setModel(new DefaultComboBoxModel(new String[] {"Day", "Dusk", "Night"}));
         
         JLabel lblColorProfile = new JLabel("Color profile");
+        
+        JButton btnAdvancedOptions = new JButton("Advanced Options");
+        btnAdvancedOptions.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                AdvancedSettingsWindow advSettingsWindow = new AdvancedSettingsWindow();
+//                advSettingsWindow.setVisible(true);
+//                btnAdvancedOptions
+                
+            }
+        });
         GroupLayout gl_panel = new GroupLayout(panel);
         gl_panel.setHorizontalGroup(
             gl_panel.createParallelGroup(Alignment.LEADING)
@@ -146,13 +159,14 @@ public class MapTab extends JPanel {
                             .addGap(54)
                             .addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
                                 .addComponent(chckbxTwoShades)
-                                .addComponent(chckbxPlainAreas)))
+                                .addComponent(chckbxPlainAreas)
+                                .addComponent(btnAdvancedOptions)))
                         .addGroup(gl_panel.createSequentialGroup()
                             .addGap(18)
                             .addComponent(comboBoxColorProfile, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(ComponentPlacement.UNRELATED)
                             .addComponent(lblColorProfile)))
-                    .addContainerGap(120, Short.MAX_VALUE))
+                    .addContainerGap(108, Short.MAX_VALUE))
         );
         gl_panel.setVerticalGroup(
             gl_panel.createParallelGroup(Alignment.LEADING)
@@ -179,14 +193,16 @@ public class MapTab extends JPanel {
                         .addGroup(gl_panel.createSequentialGroup()
                             .addComponent(chckbxPlainAreas)
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(chckbxTwoShades))
+                            .addComponent(chckbxTwoShades)
+                            .addPreferredGap(ComponentPlacement.UNRELATED)
+                            .addComponent(btnAdvancedOptions))
                         .addGroup(gl_panel.createSequentialGroup()
                             .addComponent(chckbxShowText)
                             .addPreferredGap(ComponentPlacement.RELATED)
                             .addComponent(chckbxShallowPattern)
                             .addPreferredGap(ComponentPlacement.RELATED)
                             .addComponent(chckbxSimplePointSymbols)))
-                    .addContainerGap(9, Short.MAX_VALUE))
+                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panel.setLayout(gl_panel);
         

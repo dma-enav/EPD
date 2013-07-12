@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.ship.layers;
 
-import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -201,6 +200,9 @@ public class EncLayerFactory {
                     Boolean.toString(mapSettings.isS52TwoShades()));
             marinerSettings.setProperty("MARINER_PARAM.color",
                     mapSettings.getColor().toUpperCase());
+            
+            marinerSettings.setProperty("enc.viewGroupSettings",
+                    mapSettings.getS52mapSettings());
 
             // Set settings on layer
             argTypes = new Class<?>[1];
