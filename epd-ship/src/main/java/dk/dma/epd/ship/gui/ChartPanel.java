@@ -75,8 +75,10 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
 
     private MapHandler mapHandler;
+    private MapHandler dragMapHandler;
     private LayerHandler layerHandler;
     private BufferedLayerMapBean map;
+    private BufferedLayerMapBean dragMap;
     private GpsLayer gpsLayer;
     private Layer encLayer;
     private AisLayer aisLayer;
@@ -107,6 +109,7 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         super();
         // Set map handler
         mapHandler = EPDShip.getMapHandler();
+        dragMapHandler = new MapHandler();
         // Set layout
         setLayout(new BorderLayout());
         // Set border
@@ -116,6 +119,9 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         this.maxScale = EPDShip.getSettings().getMapSettings().getMaxScale();
     }
 
+    /**
+     * 
+     */
     public void initChart() {
 
         EPDMapSettings mapSettings = EPDShip.getSettings().getMapSettings();
@@ -129,6 +135,9 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
         map.setDoubleBuffered(true);
+        
+        dragMap = new BufferedLayerMapBean();
+        dragMap.setDoubleBuffered(true);
 
         // Orthographic test = new Orthographic((LatLonPoint)
         // mapSettings.getCenter(), mapSettings.getScale(), 1000, 1000);
@@ -167,6 +176,8 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
 
         // Add layer handler to map handler
         mapHandler.add(layerHandler);
+        
+        dragMapHandler.add(new LayerHandler());
 
         // Create the general layer
         generalLayer = new GeneralLayer();
@@ -236,21 +247,37 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         coastalOutlineLayer.setAddAsBackground(true);
         coastalOutlineLayer.setVisible(true);
         mapHandler.add(coastalOutlineLayer);
+        
+        
+        CoastalOutlineLayer coastalOutlineLayerDrag = new CoastalOutlineLayer();
+        coastalOutlineLayerDrag.setProperties(layerName, props);
+        coastalOutlineLayerDrag.setAddAsBackground(true);
+        coastalOutlineLayerDrag.setVisible(true);
+        dragMapHandler.add(coastalOutlineLayerDrag);
+        
+        
 
         if (encLayer != null) {
             mapHandler.add(encLayer);
+            
         }
 
         // Add map to map handler
         mapHandler.add(map);
+        
+        dragMapHandler.add(dragMap);
 
         // Set last postion
         map.setCenter(mapSettings.getCenter());
+        dragMap.setCenter(mapSettings.getCenter());
 
         // Get from settings
         map.setScale(mapSettings.getScale());
+        dragMap.setScale(mapSettings.getScale());
 
+        add(dragMap);
         add(map);
+        
 
         // Force a route layer and sensor panel update
         routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
@@ -276,6 +303,16 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         }
 
         getMap().addMouseWheelListener(this);
+    }
+
+    
+    
+    
+    /**
+     * @return the dragMap
+     */
+    public BufferedLayerMapBean getDragMap() {
+        return dragMap;
     }
 
     public void saveSettings() {
