@@ -71,20 +71,32 @@ public class NmeaSerialSensorFactory {
     public static void unpackLibs() {
         String filename = "";
         String libDir = "";
-        if (System.getProperty("os.name").startsWith("Windows")) {
+        
+        final String osArch =  System.getProperty("os.arch");
+        final String osName = System.getProperty("os.name");
+        
+        if (osName.startsWith("Windows")) {
             filename = "rxtxSerial.dll";
-            libDir = "Windows/i368-mingw32/";
-        } else if ("Linux".equals(System.getProperty("os.name"))) {
+            
+            if (osArch.equals("x86")) {
+                libDir = "Windows/i368-mingw32/";
+            } else {
+                libDir = "Windows/mfz-rxtx-2.2-20081207-win-x64/";
+            }
+            
+            
+        } else if (osName.equals("Linux")) {
             filename = "librxtxSerial.so";
-            if (System.getProperty("os.arch").equals("amd64")) {
+            if (osArch.equals("amd64")) {
                 libDir = "Linux/x86_64-unknown-linu-gnu/";
             } else {
                 libDir = "Linux/i686-unknown-linux-gnu/";
             }
                     
-        } else if (System.getProperty("os.name").startsWith("Mac")) {
+        } else if (osName.startsWith("Mac")) {
             filename = "rxtxSerial.jnilib";
             libDir = "Mac_OS_X/";
+            
         } else {
             return;
         }
