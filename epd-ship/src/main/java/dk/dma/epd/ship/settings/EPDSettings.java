@@ -28,7 +28,6 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.epd.common.prototype.settings.S57LayerSettings;
 import dk.dma.epd.ship.EPDShip;
 
 

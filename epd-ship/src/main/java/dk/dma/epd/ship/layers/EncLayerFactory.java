@@ -31,7 +31,6 @@ import com.bbn.openmap.util.PropUtils;
 
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.settings.EPDMapSettings;
-import dk.navicon.s52.pure.presentation.S52Layer;
 
 /**
  * Factory class for creating ENC layer. If ENC is enabled is uses the file
