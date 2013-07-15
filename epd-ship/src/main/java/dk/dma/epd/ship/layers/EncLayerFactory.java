@@ -31,6 +31,7 @@ import com.bbn.openmap.util.PropUtils;
 
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.settings.EPDMapSettings;
+import dk.navicon.s52.pure.presentation.S52Layer;
 
 /**
  * Factory class for creating ENC layer. If ENC is enabled is uses the file
@@ -198,11 +199,8 @@ public class EncLayerFactory {
                     Boolean.toString(mapSettings.isUsePlainAreas()));
             marinerSettings.setProperty("MARINER_PARAM.S52_MAR_TWO_SHADES",
                     Boolean.toString(mapSettings.isS52TwoShades()));
-            marinerSettings.setProperty("MARINER_PARAM.color",
-                    mapSettings.getColor().toUpperCase());
-            
-            marinerSettings.setProperty("enc.viewGroupSettings",
-                    mapSettings.getS52mapSettings());
+            marinerSettings.setProperty("MARINER_PARAM.color", mapSettings
+                    .getColor().toUpperCase());
 
             // Set settings on layer
             argTypes = new Class<?>[1];
@@ -212,6 +210,16 @@ public class EncLayerFactory {
             method = encLayer.getClass().getDeclaredMethod(
                     "setS52MarinerSettings", argTypes);
             method.invoke(encLayer, arguments);
+            
+            
+            //Set s57 settings
+            Properties s57Props = new Properties();
+            s57Props.setProperty("enc.viewGroupSettings",
+                     EPDShip.getSettings().getS57Settings().getS52mapSettings());
+                
+            encLayer.setProperties(s57Props);
+                
+
 
             return true;
         } catch (Exception e) {

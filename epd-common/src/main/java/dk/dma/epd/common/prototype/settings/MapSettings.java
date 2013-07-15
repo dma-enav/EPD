@@ -15,11 +15,7 @@
  */
 package dk.dma.epd.common.prototype.settings;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Properties;
 
 import com.bbn.openmap.proj.coords.LatLonPoint;
@@ -49,7 +45,6 @@ public class MapSettings implements Serializable {
     private boolean usePlainAreas;
     private boolean s52TwoShades;
     private String color = "Day";
-    private String s52mapSettings = "rO0ABXNyABNqYXZhLnV0aWwuQXJyYXlMaXN0eIHSHZnHYZ0DAAFJAARzaXpleHAAAAADdwQAAAAK\r\ndXIALltMZGsubmF2aWNvbi5zNTIucHJlc2VudGF0aW9uLlM1MlZpZXdpbmdHcm91cDvfPiU5sdDr\r\ndgIAAHhwAAAAFXNyACtkay5uYXZpY29uLnM1Mi5wcmVzZW50YXRpb24uUzUyVmlld2luZ0dyb3Vw\r\nSAufCAw34vECAAZJAAJpZEkAAnIxWgAGc3RhdHVzTAAFbGV2ZWx0ABNMamF2YS9sYW5nL0ludGVn\r\nZXI7TAAEbW9kZXQAMkxkay9uYXZpY29uL3M1Mi9wcmVzZW50YXRpb24vUzUyVmlld2luZ0dyb3Vw\r\nJE1PREU7TAAEbmFtZXQAEkxqYXZhL2xhbmcvU3RyaW5nO3hwAAAAAgAAUhIBc3IAEWphdmEubGFu\r\nZy5JbnRlZ2VyEuKgpPeBhzgCAAFJAAV2YWx1ZXhyABBqYXZhLmxhbmcuTnVtYmVyhqyVHQuU4IsC\r\nAAB4cAADDUB+cgAwZGsubmF2aWNvbi5zNTIucHJlc2VudGF0aW9uLlM1MlZpZXdpbmdHcm91cCRN\r\nT0RFAAAAAAAAAAASAAB4cgAOamF2YS5sYW5nLkVudW0AAAAAAAAAABIAAHhwdAADb2ZmdAAOdW5r\r\nbm93biBvYmplY3RzcgAwZGsubmF2aWNvbi5zNTIucHJlc2VudGF0aW9uLlM1MlZpZXdpbmdHcm91\r\ncFJhbmdlhrD568s+zcACAAFJAAJyMnhxAH4ABAAAAAMAAFIcAXNxAH4ACQAJJ8B+cQB+AAx0AARh\r\ndXRvdAATY2hhcnQgZGF0YSBjb3ZlcmFnZQAAUkRzcQB+ABEAAAAEAABV+gFzcQB+AAkAD0JAfnEA\r\nfgAMdAACb250AA1sYW5kIGZlYXR1cmVzAABW9HNxAH4ABAAAAAUAAFniAXNxAH4ACQADDUBxAH4A\r\nDnQAJmFyZWEgb2YgZGVwdGggbGVzcyB0aGFuIHNhZmV0eSBjb250b3Vyc3EAfgARAAAABgAAWewB\r\nc3EAfgAJAAAnEHEAfgAOdAAZd2F0ZXIgYW5kIHNlYWJlZCBmZWF0dXJlcwAAXcpzcQB+ABEAAAAH\r\nAABhsgFzcQB+AAkAB6EgcQB+ABR0AA50cmFmZmljIHJvdXRlcwAAYdBzcQB+ABEAAAAIAABlmgFz\r\ncQB+AAkAAw1AcQB+ABR0ABBjYXV0aW9uYXJ5IGFyZWFzAABlwnNxAH4AEQAAAAkAAGZiAXNxAH4A\r\nCQAAJxBxAH4AFHQAEWluZm9ybWF0aW9uIGFyZWFzAABmnnNxAH4AEQAAAAoAAGmCAXNxAH4ACQAD\r\nDUBxAH4AFHQAD2J1b3lzICYgYmVhY29ucwAAaapzcQB+AAQAAAALAABpvgFzcQB+AAkAAw1AcQB+\r\nABR0AAZsaWdodHNzcQB+AAQAAAAMAABpyAFzcQB+AAkAAw1AcQB+ABR0AAtmb2cgc2lnbmFsc3Nx\r\nAH4AEQAAAA4AAG1qAXNxAH4ACQADDUBxAH4AFHQAHXNlcnZpY2VzIChwaWxvdCwgc2lnbmFsIHN0\r\nbnMpAABtdHNxAH4AEQAAABMAAM8SAXNxAH4ACQADDUBxAH4AFHQAEm1hcmluZXJzJyBmZWF0dXJl\r\ncwAAz1hzcQB+ABEAAAAWAADawAFzcQB+AAkAAw1AcQB+ABR0ACVtYXJpbmVycycgYXNzaWdubWVu\r\ndHMgdG8gc3RkLiBkaXNwbGF5AADep3NxAH4AEQAAABcAAHkiAXNxAH4ACQAAw1BxAH4ADnQAHGlu\r\nZm9ybWF0aW9uIGFib3V0IGNoYXJ0IGRhdGEAAHlec3EAfgARAAAAGAAAfQoBc3EAfgAJAA9CQHEA\r\nfgAZdAANbGFuZCBmZWF0dXJlcwAAfsxzcQB+AAQAAAAZAACA8gFzcQB+AAkAAw1AcQB+AA50AAlz\r\nb3VuZGluZ3NzcgAyZGsubmF2aWNvbi5zNTIucHJlc2VudGF0aW9uLlM1MlZpZXdpbmdHcm91cFJh\r\nbmdlT3L85Hm/ctpeagIAAUkABW9yVmFseHEAfgARAAAAGgAAgPwBc3EAfgAJAAGGoHEAfgAOdAAj\r\nZGVwdGggY29udG91cnMsIGN1cnJlbnRzLCBtYWduZXRpY3MAAIEkAAB5aHNxAH4AEQAAABsAAITa\r\nAXNxAH4ACQADDUBxAH4ADnQAF3NlYWJlZCBhbmQgb2JzdHJ1Y3Rpb25zAACFFnNxAH4AEQAAABwA\r\nAJR6AXNxAH4ACQADDUBxAH4AFHQAI3NlcnZpY2VzIGFuZCBzbWFsbCBjcmFmdCBmYWNpbGl0aWVz\r\nAACVQnNxAH4AEQAAAB4AAPI6AXNxAH4ACQADDUBxAH4AFHQADnBvc2l0aW9uIGZpeGVzAADyRHVx\r\nAH4AAgAAAAxzcQB+AAQAAAAgAAAACgFzcQB+AAkAAw1AcQB+AA50AA5pbXBvcnRhbnQgdGV4dHNx\r\nAH4ABAAAACEAAAALAXNxAH4ACQABhqBxAH4ADnQAHXZlcnRpY2FsIGNsZWFyYW5jZSBvZiBicmlk\r\nZ2Vzc3EAfgAEAAAAIgAAABQBc3EAfgAJAAMNQHEAfgAOdAAKb3RoZXIgdGV4dHNxAH4ABAAAACMA\r\nAAAVAXNxAH4ACQABhqBxAH4ADnQAHG5hbWVzIGZvciBwb3NpdGlvbiByZXBvcnRpbmdzcQB+AAQA\r\nAAAkAAAAFwFzcQB+AAkAAST4cQB+AA50ABhsaWdodCBkZXNjcmlwdGlvbiBzdHJpbmdzcQB+AAQA\r\nAAAlAAAAGAFzcQB+AAkAAw1AcQB+AA50ADxub3RlIG9uIGNoYXJ0IGRhdGEgKElORk9STSkgb3Ig\r\nbmF1dGljYWwgcHVibGljYXRpb24gKFRYVERTQylzcQB+AAQAAAAmAAAAGQFzcQB+AAkAAYagcQB+\r\nAA50ACNuYXR1cmUgb2Ygc2VhYmVkIChOQVRTVVIgb2YgU0JEQVJFKXNxAH4ABAAAACcAAAAaAXNx\r\nAH4ACQAJJ8BxAH4ADnQAMGdlb2dyYXBoaWMgbmFtZXMgKE9CSk5BTSBvZiBTRUFBUkUsIExORFJH\r\nTiBldGMuKXNxAH4ABAAAACgAAAAbAXNxAH4ACQADDUBxAH4ADnQAT3ZhbHVlIG9mOiBtYWduZXRp\r\nYyB2YXJpYXRpb24gKFZBTE1BRyBvZiBNQUdWQVIpOyBzd2VwdCBkZXB0aCAoRFJWQUwxIG9mIFNX\r\nUEFSRSlzcQB+AAQAAAApAAAAHAFzcQB+AAkAAw1AcQB+AA50ACBoZWlnaHQgIG9mIGlzbGV0IG9y\r\nIGxhbmQgZmVhdHVyZXNxAH4ABAAAACoAAAAdAXNxAH4ACQAAw1BxAH4ADnQAJ2JlcnRoIG51bWJl\r\nciAoT0JKTkFNIG9mIEJFUlRIUywgQUNIQlJUKXNxAH4ABAAAACsAAAAfAXNxAH4ACQADDUBxAH4A\r\nDnQAL25hdGlvbmFsIGxhbmd1YWdlIHRleHQgKE5PQkpOTSwgTklORk9NLCBOVFhURFMpdXEAfgAC\r\nAAAABnNxAH4AEQAAAGkAAAAAAXNxAH4ACQExLQBxAH4AFHQACE92ZXJ2aWV3AJiWgHNxAH4AEQAA\r\nAGgAAAAAAXNxAH4ACQAW42BxAH4AFHQAB0dlbmVyYWwAHoSAc3EAfgARAAAAZwAAAAABc3EAfgAJ\r\nAAST4HEAfgAUdAAHQ29hc3RhbAAMNQBzcQB+ABEAAABmAAAAAAFzcQB+AAkAATiAcQB+ABR0AAhB\r\ncHByb2FjaAAGGoBzcQB+ABEAAABlAAAJxAFzcQB+AAkAAGGocQB+ABR0AAdIYXJib3VyAAGGoHNx\r\nAH4AEQAAAGQAAAAAAXNxAH4ACQAAHUxxAH4AFHQACEJlcnRoaW5nAADDUHg\\=";
 
     public MapSettings() {
     }
@@ -73,7 +68,6 @@ public class MapSettings implements Serializable {
         usePlainAreas = PropUtils.booleanFromProperties(props, PREFIX + "usePlainAreas", usePlainAreas);
         s52TwoShades = PropUtils.booleanFromProperties(props, PREFIX + "s52TwoShades", s52TwoShades);
         color = props.getProperty(PREFIX + "color", color);
-        s52mapSettings = props.getProperty(PREFIX + "s52mapSettings", s52mapSettings);
             }
 
     public void setProperties(Properties props) {
@@ -95,13 +89,9 @@ public class MapSettings implements Serializable {
         props.put(PREFIX + "usePlainAreas", Boolean.toString(usePlainAreas));
         props.put(PREFIX + "s52TwoShades", Boolean.toString(s52TwoShades));
         props.put(PREFIX + "color", color);
-//        props.put(PREFIX + "s52mapSettings", s52mapSettings);
-        
     }
     
     
-
-
     public LatLonPoint getCenter() {
         return center;
     }
@@ -228,21 +218,5 @@ public class MapSettings implements Serializable {
         this.color = color;
     }
 
-    /**
-     * @return the s52mapSettings
-     */
-    public String getS52mapSettings() {
-        return s52mapSettings;
-    }
-
-    /**
-     * @param s52mapSettings the s52mapSettings to set
-     */
-    public void setS52mapSettings(String s52mapSettings) {
-        this.s52mapSettings = s52mapSettings;
-    }
-    
-    
-    
     
 }

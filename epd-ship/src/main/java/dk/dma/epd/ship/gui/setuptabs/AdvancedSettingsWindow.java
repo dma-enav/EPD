@@ -18,12 +18,7 @@ package dk.dma.epd.ship.gui.setuptabs;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.lang.reflect.Method;
-import java.util.Date;
-import java.util.Properties;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -32,8 +27,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 
 import dk.dma.epd.ship.EPDShip;
-import dk.navicon.s52.presentation.S52ViewingGroup;
-import dk.navicon.s52.pure.presentation.S52Layer;
 
 public class AdvancedSettingsWindow extends JDialog {
 
@@ -95,55 +88,7 @@ public class AdvancedSettingsWindow extends JDialog {
             Method m = c.getMethod("viewGrpSettingsAsString");
             String result = (String) m.invoke(null);
 
-//            Properties newProps = new Properties();
-//
-//            newProps.put("enc.viewGroupSettings", result);
-//
-//
-//            File propFile = new File(EPDShip.getHomePath().resolve("settings.properties").toString());
-//            Properties props = new Properties();
-//            if (propFile.exists()) {
-//                try {
-//                    FileInputStream fis = new FileInputStream(propFile);
-//                    props.load(fis);
-//                    fis.close();
-//                } catch (Exception e) {
-//                    System.out.println(e);
-//                }
-//            }
-//
-//            props.putAll(newProps);
-//            try {
-//                System.out.println("STORING IT");
-//                FileOutputStream fis = new FileOutputStream(propFile);
-//                props.store(fis, "Created "
-//                        + new Date());
-//                fis.close();
-//            } catch (Exception e) {
-//                System.out.println(e);
-//            }
-
-            // System.out.println("Setting: " + sb.toString());
-            // s52Layer.setProperties(props);
-
-            // System.out.println("Original result:");
-
-            // fromString
-            // result
-            // S52Layer.fromString(S52ViewingGroup.viewGrpSettingsAsString());
-
-            // System.out.println(S52ViewingGroup.viewGrpSettingsAsString());
-
-            // result = result.replace("\n", "foo").replace("\r",
-            // "bar").replace("\=", "fub");
-
-            // result = result.replace("\r", "\r");
-            // System.out.println("Received result");
-            // System.out.println(result);
-            // result = result.replace("\\", "\\\\");
-            // \
-
-             EPDShip.getSettings().getMapSettings().setS52mapSettings(result);
+            EPDShip.getSettings().getS57Settings().setS52mapSettings(result);
 
         } catch (Exception e) {
             // TODO Auto-generated catch block
