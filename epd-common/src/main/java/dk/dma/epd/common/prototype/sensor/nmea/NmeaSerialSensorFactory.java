@@ -41,7 +41,6 @@ public class NmeaSerialSensorFactory {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
         unpackLibs();
 
         try {
@@ -53,8 +52,11 @@ public class NmeaSerialSensorFactory {
         } catch (IllegalAccessException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
+        } catch (UnsatisfiedLinkError e1) {
+            System.out.println(System.getProperty("java.library.path"));
+            e1.printStackTrace(); 
         }
-        
+
         return new NmeaSerialSensor(comPort);
         
     }
@@ -71,20 +73,32 @@ public class NmeaSerialSensorFactory {
     public static void unpackLibs() {
         String filename = "";
         String libDir = "";
-        if (System.getProperty("os.name").startsWith("Windows")) {
+        
+        final String osArch =  System.getProperty("os.arch");
+        final String osName = System.getProperty("os.name");
+        
+        if (osName.startsWith("Windows")) {
             filename = "rxtxSerial.dll";
-            libDir = "Windows/i368-mingw32/";
-        } else if ("Linux".equals(System.getProperty("os.name"))) {
+            
+            if (osArch.indexOf("64") != -1) {
+                libDir = "Windows/mfz-rxtx-2.2-20081207-win-x64/";
+            } else {
+                libDir = "Windows/i368-mingw32/";
+            }
+            
+            
+        } else if (osName.equals("Linux")) {
             filename = "librxtxSerial.so";
-            if (System.getProperty("os.arch").equals("amd64")) {
+            if (osArch.equals("amd64")) {
                 libDir = "Linux/x86_64-unknown-linu-gnu/";
             } else {
                 libDir = "Linux/i686-unknown-linux-gnu/";
             }
                     
-        } else if (System.getProperty("os.name").startsWith("Mac")) {
+        } else if (osName.startsWith("Mac")) {
             filename = "rxtxSerial.jnilib";
             libDir = "Mac_OS_X/";
+            
         } else {
             return;
         }

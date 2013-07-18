@@ -28,6 +28,11 @@ import javax.swing.border.TitledBorder;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.epd.ship.settings.EPDMapSettings;
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 /**
  * Map tab panel in setup panel
@@ -49,6 +54,7 @@ public class MapTab extends JPanel {
     private JCheckBox chckbxSimplePointSymbols;
     private JCheckBox chckbxPlainAreas;
     private JCheckBox chckbxTwoShades;
+    private JComboBox<String[]> comboBoxColorProfile;
     private EPDMapSettings mapSettings;
     
     /**
@@ -106,6 +112,23 @@ public class MapTab extends JPanel {
         JLabel lblSafetyContour = new JLabel("Safety contour");
         
         JLabel lblDeepContour = new JLabel("Deep contour");
+        
+        String[] colorModes = { "Day", "Dusk", "Night"};
+        
+        comboBoxColorProfile = new JComboBox(colorModes);
+//        comboBoxColorProfile.setModel(new DefaultComboBoxModel(new String[] {"Day", "Dusk", "Night"}));
+        
+        JLabel lblColorProfile = new JLabel("Color profile");
+        
+        JButton btnAdvancedOptions = new JButton("Advanced Options");
+        btnAdvancedOptions.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                AdvancedSettingsWindow advSettingsWindow = new AdvancedSettingsWindow();
+//                advSettingsWindow.setVisible(true);
+//                btnAdvancedOptions
+                
+            }
+        });
         GroupLayout gl_panel = new GroupLayout(panel);
         gl_panel.setHorizontalGroup(
             gl_panel.createParallelGroup(Alignment.LEADING)
@@ -131,18 +154,28 @@ public class MapTab extends JPanel {
                             .addComponent(spinnerDeepContour, GroupLayout.PREFERRED_SIZE, 64, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(ComponentPlacement.RELATED)
                             .addComponent(lblDeepContour)))
-                    .addGap(54)
                     .addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-                        .addComponent(chckbxTwoShades)
-                        .addComponent(chckbxPlainAreas))
-                    .addContainerGap(148, Short.MAX_VALUE))
+                        .addGroup(gl_panel.createSequentialGroup()
+                            .addGap(54)
+                            .addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
+                                .addComponent(chckbxTwoShades)
+                                .addComponent(chckbxPlainAreas)
+                                .addComponent(btnAdvancedOptions)))
+                        .addGroup(gl_panel.createSequentialGroup()
+                            .addGap(18)
+                            .addComponent(comboBoxColorProfile, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(ComponentPlacement.UNRELATED)
+                            .addComponent(lblColorProfile)))
+                    .addContainerGap(108, Short.MAX_VALUE))
         );
         gl_panel.setVerticalGroup(
             gl_panel.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_panel.createSequentialGroup()
                     .addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(spinnerShallowContour, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(lblNewLabel))
+                        .addComponent(lblNewLabel)
+                        .addComponent(comboBoxColorProfile, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblColorProfile))
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(spinnerSafetyDepth, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
@@ -160,14 +193,16 @@ public class MapTab extends JPanel {
                         .addGroup(gl_panel.createSequentialGroup()
                             .addComponent(chckbxPlainAreas)
                             .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(chckbxTwoShades))
+                            .addComponent(chckbxTwoShades)
+                            .addPreferredGap(ComponentPlacement.UNRELATED)
+                            .addComponent(btnAdvancedOptions))
                         .addGroup(gl_panel.createSequentialGroup()
                             .addComponent(chckbxShowText)
                             .addPreferredGap(ComponentPlacement.RELATED)
                             .addComponent(chckbxShallowPattern)
                             .addPreferredGap(ComponentPlacement.RELATED)
                             .addComponent(chckbxSimplePointSymbols)))
-                    .addContainerGap(9, Short.MAX_VALUE))
+                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panel.setLayout(gl_panel);
         
@@ -265,6 +300,8 @@ public class MapTab extends JPanel {
         chckbxSimplePointSymbols.setSelected(mapSettings.isUseSimplePointSymbols());
         chckbxPlainAreas.setSelected(mapSettings.isUsePlainAreas());
         chckbxTwoShades.setSelected(mapSettings.isS52TwoShades());
+        
+        comboBoxColorProfile.setSelectedItem(mapSettings.getColor());
     }
     
     public void saveSettings() {
@@ -283,6 +320,7 @@ public class MapTab extends JPanel {
         mapSettings.setUseSimplePointSymbols(chckbxSimplePointSymbols.isSelected());
         mapSettings.setUsePlainAreas(chckbxPlainAreas.isSelected());
         mapSettings.setS52TwoShades(chckbxTwoShades.isSelected());
+        mapSettings.setColor(comboBoxColorProfile.getSelectedItem().toString());
+        
     }
-    
 }
