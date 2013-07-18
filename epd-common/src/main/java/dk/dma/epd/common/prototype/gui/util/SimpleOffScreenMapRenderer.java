@@ -40,6 +40,9 @@ import com.bbn.openmap.event.ProjectionListener;
 public class SimpleOffScreenMapRenderer extends Thread implements
         ProjectionListener, Runnable {
 
+    private static final int SCREEN_BOUND_X = 0;
+    private static final int SCREEN_BOUND_Y = 5000;
+    
     protected MapBean sourceBean;
     protected MapBean targetBean;
     private final Object imgLock = new Object();
@@ -72,7 +75,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
         frame.setVisible(false);
         frame.setSize(new Dimension(targetBean.getWidth(), targetBean
                 .getHeight()));
-        frame.setBounds(0, 0, targetBean.getWidth(), targetBean.getHeight());
+        frame.setBounds(SCREEN_BOUND_X, SCREEN_BOUND_Y, targetBean.getWidth(), targetBean.getHeight());
         frame.add(targetBean);
         frame.setVisible(true);
 
@@ -153,9 +156,10 @@ public class SimpleOffScreenMapRenderer extends Thread implements
         if ((int) frame.getSize().getWidth() != w
                 || (int) frame.getSize().getHeight() != h) {
             frame.setSize(w, h);
+            frame.setBounds(SCREEN_BOUND_X, SCREEN_BOUND_Y, w, h);
         }
 
-        frame.setBounds(0, 0, w, h);
+        
         targetBean.setSize(w, h);
 
         if (img.getWidth() != w || img.getHeight() != h) {
