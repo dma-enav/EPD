@@ -28,6 +28,8 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.epd.ship.EPDShip;
+
 
 /**
  * Settings class
@@ -45,6 +47,7 @@ public class EPDSettings implements Serializable {
     private final EPDNavSettings navSettings = new EPDNavSettings();
     private final EPDAisSettings aisSettings = new EPDAisSettings();
     private final EPDEnavSettings enavSettings = new EPDEnavSettings();
+    private final EPDS57LayerSettings s57Settings = new EPDS57LayerSettings();
 
     public EPDSettings() {
         this("settings.properties");
@@ -75,6 +78,8 @@ public class EPDSettings implements Serializable {
         mapSettings.readProperties(props);
         navSettings.readProperties(props);
         sensorSettings.readProperties(props);
+        
+        s57Settings.readSettings(EPDShip.getHomePath().resolve("s57Props.properties").toString());
     }
 
     public void saveToFile() {
@@ -100,6 +105,10 @@ public class EPDSettings implements Serializable {
         } catch (IOException e) {
             LOG.error("Failed to save settings file");
         }
+        
+        
+        
+        s57Settings.saveSettings(EPDShip.getHomePath().resolve("s57Props.properties").toString());
     }
 
     public EPDGuiSettings getGuiSettings() {
@@ -130,4 +139,13 @@ public class EPDSettings implements Serializable {
         return settingsFile;
     }
 
+    /**
+     * @return the s57Settings
+     */
+    public EPDS57LayerSettings getS57Settings() {
+        return s57Settings;
+    }
+
+    
+    
 }
