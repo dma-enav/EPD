@@ -147,7 +147,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
         int h = (int) sourceBean.getSize().getHeight();
 
         float scaleDiff = targetBean.getScale() / sourceBean.getScale();
-        if (Math.abs(scaleDiff - 1.0) > 0.09) {
+        if (Math.abs(scaleDiff - 3.0) > 0.01) {
             targetBean.setScale((float) (sourceBean.getScale() * 3));
         }
         if (!targetBean.getCenter().equals(sourceBean)) {
