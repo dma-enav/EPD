@@ -17,6 +17,10 @@ package dk.dma.epd.ship.layers.background;
 
 import java.awt.Graphics;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.bbn.openmap.layer.shape.BufferedShapeLayer;
 import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
@@ -26,9 +30,11 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 public class CoastalOutlineLayer extends ShapeLayer {
     
     private static final long serialVersionUID = 1L;
+    private Logger LOG;
     
     public CoastalOutlineLayer() {
         super();
+        LOG = LoggerFactory.getLogger(CoastalOutlineLayer.class);
     }
     
     public void forceRedraw() {
@@ -40,9 +46,11 @@ public class CoastalOutlineLayer extends ShapeLayer {
         if (!isVisible()) {
             return null;
         }
+        
         //long start = System.nanoTime();
         OMGraphicList list = super.prepare();
-        //System.out.println("Finished CoastalOutlineLayer.prepare() in " + EeINS.elapsed(start) + " ms\n---");
+        //long end = System.nanoTime();
+        //LOG.debug("Time to prepare: "+(end-start)/1000000);
         return list;
     }
     
@@ -50,7 +58,8 @@ public class CoastalOutlineLayer extends ShapeLayer {
     public void paint(Graphics g) {
         //long start = System.nanoTime();
         super.paint(g);
-        //System.out.println("Finished CoastalOutlineLayer.paint() in " + EeINS.elapsed(start) + " ms\n---");
+        //long end = System.nanoTime();
+        //LOG.debug("Time to paint: "+(end-start)/1000000);
     }
     
 }

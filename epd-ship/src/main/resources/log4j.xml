@@ -55,6 +55,11 @@
 		<level value="FATAL" />
 	</logger>
 
+	<logger name="dk.navicon">
+		<level value="FATAL" />
+	</logger>
+
+
 	<root>
 		<level value="ALL" />
 		<appender-ref ref="CONSOLE" />

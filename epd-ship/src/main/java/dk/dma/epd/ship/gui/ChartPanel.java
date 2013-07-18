@@ -21,8 +21,10 @@ import java.awt.Point;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 
 import javax.swing.BorderFactory;
 
@@ -41,6 +43,8 @@ import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.gui.util.MapBeanSlave;
+import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
@@ -79,8 +83,10 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
     private LayerHandler layerHandler;
     private BufferedLayerMapBean map;
     private BufferedLayerMapBean dragMap;
+    private SimpleOffScreenMapRenderer dragMapRenderer;
     private GpsLayer gpsLayer;
     private Layer encLayer;
+    private Layer encDragLayer;
     private AisLayer aisLayer;
     private GeneralLayer generalLayer;
     private CoastalOutlineLayer coastalOutlineLayer;
@@ -131,6 +137,12 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShip
                 .getSettings().getMapSettings());
         encLayer = encLayerFactory.getEncLayer();
+        
+        EncLayerFactory encLayerFactory2 = new EncLayerFactory(EPDShip
+                .getSettings().getMapSettings());
+        
+        encDragLayer = encLayerFactory2.getEncLayer();
+
 
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
@@ -246,6 +258,7 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         coastalOutlineLayer.setProperties(layerName, props);
         coastalOutlineLayer.setAddAsBackground(true);
         coastalOutlineLayer.setVisible(true);
+        
         mapHandler.add(coastalOutlineLayer);
         
         
@@ -254,18 +267,17 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         coastalOutlineLayerDrag.setAddAsBackground(true);
         coastalOutlineLayerDrag.setVisible(true);
         dragMapHandler.add(coastalOutlineLayerDrag);
-        
-        
 
         if (encLayer != null) {
             mapHandler.add(encLayer);
-            
+            dragMapHandler.add(encDragLayer);
         }
 
         // Add map to map handler
         mapHandler.add(map);
         
         dragMapHandler.add(dragMap);
+        
 
         // Set last postion
         map.setCenter(mapSettings.getCenter());
@@ -275,10 +287,13 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         map.setScale(mapSettings.getScale());
         dragMap.setScale(mapSettings.getScale());
 
-        add(dragMap);
         add(map);
         
-
+        // create an offscreen renderer
+        dragMapRenderer = new SimpleOffScreenMapRenderer(map,dragMap,3);
+        dragMapRenderer.start();
+        
+        
         // Force a route layer and sensor panel update
         routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
         activeWaypointPanel.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
@@ -303,11 +318,18 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         }
 
         getMap().addMouseWheelListener(this);
+        
+        
+        
     }
 
     
     
     
+    public SimpleOffScreenMapRenderer getDragMapRenderer() {
+        return dragMapRenderer;
+    }
+
     /**
      * @return the dragMap
      */
