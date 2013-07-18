@@ -15,28 +15,24 @@
  */
 package dk.dma.epd.ship.event;
 
-import java.awt.AlphaComposite;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.Properties;
 
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
-import javax.swing.border.Border;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.PanMouseMode;
-import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.image.ImageScaler;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.util.PropUtils;
@@ -50,6 +46,8 @@ public class DragMouseMode extends AbstractCoordMouseMode {
 
     private static final long serialVersionUID = 1L;
 
+    private final Logger LOG = LoggerFactory.getLogger(DragMouseMode.class);
+    
     /**
      * Mouse Mode identifier, which is "RouteEdit".
      */
@@ -61,7 +59,6 @@ public class DragMouseMode extends AbstractCoordMouseMode {
 
     private boolean isPanning;
     private BufferedImage bufferedMapImage;
-    private BufferedImage bufferedRenderingImage;
     private int beanBufferWidth;
     private int beanBufferHeight;
     private int oX, oY;
@@ -103,13 +100,9 @@ public class DragMouseMode extends AbstractCoordMouseMode {
             if (bufferedMapImage != null) {
                 bufferedMapImage.flush();
             }
-            if (bufferedRenderingImage != null) {
-                bufferedRenderingImage.flush();
-            }
             beanBufferWidth = 0;
             beanBufferHeight = 0;
-            bufferedMapImage = null;
-            bufferedRenderingImage = null;
+
         }
     }
 
@@ -225,137 +218,50 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                 int y = (int) pnt.getY();
 
                 if (!isPanning) {
-                    int w = mb.getWidth()*2;
-                    int h = mb.getHeight()*2;
-                    
-                    
-                    
-                    
-                    
-                    
-//                    MapBean map = EPDShip.getMainFrame().getChartPanel().getDragMap();
-//                    
-//                    
-//                    
-//                    Dimension mapDimension = EPDShip.getMainFrame().getChartPanel().getMap().getSize();
-//
-//                    map.setSize( (int) mapDimension.getHeight() *2, (int) mapDimension.getWidth() *2);
-//                    
-//                    Point2D center = EPDShip.getMainFrame().getChartPanel().getMap().getCenter();
-//                    map.setSize(w*2, h*2);
-//                    map.setScale(EPDShip.getMainFrame().getChartPanel().getMap().getScale());
-//                    map.setCenter(center);
-//
-//                    map.setVisible(true);
-//                    
-//                    
-//                    Graphics2D drawGraphics = (Graphics2D) map.getGraphics();
-//                    
-//                    mb.paintAll(drawGraphics);
-                    
-                    
-                    
 
                     /*
                      * Making the image
                      */
-
-                    if (bufferedMapImage == null
-                            || bufferedRenderingImage == null) {
-                        createBuffers(w, h);
-                    }
-
-                    
-                    
-                    
-                    
-//                    GraphicsEnvironment ge = GraphicsEnvironment
-//                            .getLocalGraphicsEnvironment();
-
-//                    Graphics2D g = ge.createGraphics(bufferedMapImage);
-                    
-                    
-//                    drawGraphics.drawImage(bufferedMapImage, null, 0, 0);
-                    
-                    
                     try {
-                        bufferedMapImage = ImageIO.read(new File("C:\\map.jpg"));
-                    } catch (IOException e) {
+                        long time = System.currentTimeMillis();
+                        bufferedMapImage = EPDShip.getMainFrame().getChartPanel().getDragMapRenderer().call();
+                        long end = System.currentTimeMillis();
+                        
+                        System.out.println("Time to get screenshot: "+(end-time));
+                        
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
                     }
-                    
-                    
-//                    File f = new File("C:\\bufferedMapImage.png");
-//                    try {
-//                        ImageIO.write(bufferedMapImage, "PNG", f);
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-                    
-//                    g.setClip(0, 0, w, h);
-//                    Border border = mb.getBorder();
-//                    mb.setBorder(null);
-//                    if (mb.getRotation() != 0.0) {
-//                        double angle = mb.getRotation();
-//                        mb.setRotation(0.0);
-//                        mb.paintAll(g);
-//                        mb.setRotation(angle);
-//                    } else {
-//                        mb.paintAll(g);
-//                    }
-//                    mb.setBorder(border);
 
+
+                    
+                    
+                    isPanning = true;
+                    EPDShip.getMainFrame().getChartPanel().getMap().setVisible(false);
+                    
+                    
                     oX = x;
                     oY = y;
 
-                    isPanning = true;
-                    EPDShip.getMainFrame().getChartPanel().getMap().setVisible(false);
-
                 } else {
-                    if (bufferedMapImage != null
-                            && bufferedRenderingImage != null) {
+                    if (bufferedMapImage != null) {
+                        final int startX = mb.getWidth();
+                        final int startY = mb.getHeight();
                         
+                        final int posX = startX-(x-oX);
+                        final int posY = startY-(y-oY);
                         
-                        
-                        
-                        
-                        Graphics2D gr2d = (Graphics2D) bufferedRenderingImage
-                                .getGraphics();
-                        /*
-                         * Drawing original image without transparence and in
-                         * the initial position
-                         */
-//                        if (leaveShadow) {
-//                            gr2d.drawImage(bufferedMapImage, 0, 0, null);
-//                        } else {
-//                            gr2d.setPaint(mb.getBckgrnd());
-//                            gr2d.fillRect(0, 0, mb.getWidth(), mb.getHeight());
-//                        }
+                        if (posX > 0 && (posX+startX) < (bufferedMapImage.getWidth()) && posY > 0 && (posY+startY) < bufferedMapImage.getHeight()) {
+                            final BufferedImage renderImage;
+                            LOG.debug("posX ="+posX+" posY="+posY);
+                            renderImage = bufferedMapImage.getSubimage(posX, posY, mb.getWidth(), mb.getHeight());                                
+                            
 
-                        
-   
-                        
-//                        File f2 = new File("C:\\bufferedRenderingImage.png");
-//                        try {
-//                            ImageIO.write(bufferedRenderingImage, "PNG", f2);
-//                        } catch (IOException e) {
-//                            // TODO Auto-generated catch block
-//                            e.printStackTrace();
-//                        }
-                        
-                        
-                        /*
-                         * Drawing image with transparence and in the mouse
-                         * position minus origianl mouse click position
-                         */
-//                        gr2d.setComposite(AlphaComposite.getInstance(
-//                                AlphaComposite.SRC_OVER, opaqueness));
-                        System.out.println("X is " + x + "oX is: " + oX);
-                        System.out.println("Y is " + y + "oY is: " + oY);
-                        gr2d.drawImage(bufferedMapImage, x - 2500, y - 1500, null);
-//                        gr2d.drawImage(bufferedMapImage, x - oX, y - oY, null);
+                            ((Graphics2D) mb.getGraphics(true)).drawImage(
+                                    renderImage, 0, 0, null);
 
-                        ((Graphics2D) mb.getGraphics(true)).drawImage(
-                                bufferedRenderingImage, 0, 0, null);
+                        }
                     }
                 }
             }
@@ -371,7 +277,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
     @Override
     public void mouseReleased(MouseEvent arg0) {
         if (isPanning && arg0.getSource() instanceof MapBean) {
-            EPDShip.getMainFrame().getChartPanel().getMap().setVisible(true);
+            
             MapBean mb = (MapBean) arg0.getSource();
             Projection proj = mb.getProjection();
             Point2D center = proj.forward(proj.getCenter());
@@ -380,10 +286,20 @@ public class DragMouseMode extends AbstractCoordMouseMode {
             int x = (int) pnt.getX();
             int y = (int) pnt.getY();
 
+            EPDShip.getMainFrame().getChartPanel().getDragMapRenderer().updateTargetMap();
+            MapBean offScreenBean = EPDShip.getMainFrame().getChartPanel().getDragMapRenderer().getTargetBean();
+            
+            
+
             center.setLocation(center.getX() - x + oX, center.getY() - y + oY);
+
+            //finally set both centers
+            offScreenBean.setCenter(proj.inverse(center));
+            offScreenBean.getParent().repaint();
             mb.setCenter(proj.inverse(center));
+            
             isPanning = false;
-            // bufferedMapImage = null; //clean up when not active...
+            EPDShip.getMainFrame().getChartPanel().getMap().setVisible(true);
         }
         super.mouseReleased(arg0);
     }
@@ -414,16 +330,6 @@ public class DragMouseMode extends AbstractCoordMouseMode {
 
     public int getOY() {
         return oY;
-    }
-
-    public void projectionChanged(ProjectionEvent e) {
-        Object obj = e.getSource();
-        if (obj instanceof MapBean) {
-            MapBean mb = (MapBean) obj;
-            int w = mb.getWidth();
-            int h = mb.getHeight();
-            createBuffers(w, h);
-        }
     }
 
     /**
@@ -457,12 +363,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
         if (bufferedMapImage != null) {
             bufferedMapImage.flush();
         }
-        if (bufferedRenderingImage != null) {
-            bufferedRenderingImage.flush();
-        }
         // New images...
         bufferedMapImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-        bufferedRenderingImage = new BufferedImage(w, h,
-                BufferedImage.TYPE_INT_ARGB);
     }
 }
