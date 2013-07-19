@@ -123,6 +123,8 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         this.activeWaypointPanel = activeWaypointPanel;
         // Max scale
         this.maxScale = EPDShip.getSettings().getMapSettings().getMaxScale();
+        
+        setBackground(new Color(0.1f, 0.1f, 0.1f, 0.1f));
     }
 
     /**
@@ -306,6 +308,7 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
 
         // Set ENC map settings
         encLayerFactory.setMapSettings();
+        encLayerFactory2.setMapSettings();
 
         // Show AIS or not
         aisVisible(EPDShip.getSettings().getAisSettings().isVisible());
@@ -389,6 +392,7 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
     public void encVisible(boolean visible) {
         if (encLayer != null) {
             encLayer.setVisible(visible);
+            encDragLayer.setVisible(visible);
             coastalOutlineLayer.setVisible(!visible);
             if (!visible) {
                 // Force update of background layer
