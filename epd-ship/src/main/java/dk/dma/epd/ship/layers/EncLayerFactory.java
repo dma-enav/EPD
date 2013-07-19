@@ -209,16 +209,13 @@ public class EncLayerFactory {
             method = encLayer.getClass().getDeclaredMethod(
                     "setS52MarinerSettings", argTypes);
             method.invoke(encLayer, arguments);
-            
-            
-            //Set s57 settings
-            Properties s57Props = new Properties();
-            s57Props.setProperty("enc.viewGroupSettings",
-                     EPDShip.getSettings().getS57Settings().getS52mapSettings());
-                
-            encLayer.setProperties(s57Props);
-                
 
+            // Set s57 settings
+            Properties s57Props = new Properties();
+            s57Props.setProperty("enc.viewGroupSettings", EPDShip.getSettings()
+                    .getS57Settings().getS52mapSettings());
+
+            encLayer.setProperties(s57Props);
 
             return true;
         } catch (Exception e) {
@@ -228,6 +225,28 @@ public class EncLayerFactory {
         }
 
         return false;
+    }
+
+    public void emptyCacheAndPrepare() {
+
+        if (encLayer == null) {
+            return;
+        } else {
+
+            Class<?> c;
+            try {
+                c = Class.forName("dk.navicon.s52.pure.presentation");
+                Method m = c.getMethod("emptyCellCache");
+                m.invoke(null);
+
+                Method m2 = c.getMethod("doPrepare");
+                m2.invoke(null);
+
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
 
 }
