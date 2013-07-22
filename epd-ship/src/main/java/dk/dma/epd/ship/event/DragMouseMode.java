@@ -64,6 +64,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
     private boolean leaveShadow;
     private boolean useCursor;
     boolean layerMouseDrag;
+    boolean mouseDragged;
 
     /**
      * Construct a RouteEditMouseMode. Sets the ID of the mode to the modeID,
@@ -207,12 +208,19 @@ public class DragMouseMode extends AbstractCoordMouseMode {
     @Override
     public void mouseDragged(MouseEvent arg0) {
         if (arg0.getSource() instanceof MapBean) {
-            super.mouseDragged(arg0);
+//            System.out.println(arg0);
+//            super.mouseDragged(arg0);
 
-            // if(!mouseDragged) {
+             if(!mouseDragged) {
             layerMouseDrag = mouseSupport.fireMapMouseDragged(arg0);
-            // }
+             }
+            
+//            System.out.println(layerMouseDrag);
+             
+             
             if (!layerMouseDrag) {
+                
+                mouseDragged = true;
 
                 MapBean mb = (MapBean) arg0.getSource();
                 Point2D pnt = mb.getNonRotatedLocation(arg0);
@@ -306,6 +314,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
             mb.setCenter(proj.inverse(center));
             isPanning = false;
             // bufferedMapImage = null; //clean up when not active...
+            mouseDragged = false;
         }
         super.mouseReleased(arg0);
     }
