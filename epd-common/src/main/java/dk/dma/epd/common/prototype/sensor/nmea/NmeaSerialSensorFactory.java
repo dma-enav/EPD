@@ -41,7 +41,6 @@ public class NmeaSerialSensorFactory {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
         unpackLibs();
 
         try {
@@ -53,8 +52,11 @@ public class NmeaSerialSensorFactory {
         } catch (IllegalAccessException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
+        } catch (UnsatisfiedLinkError e1) {
+            System.out.println(System.getProperty("java.library.path"));
+            e1.printStackTrace(); 
         }
-        
+
         return new NmeaSerialSensor(comPort);
         
     }
@@ -78,10 +80,10 @@ public class NmeaSerialSensorFactory {
         if (osName.startsWith("Windows")) {
             filename = "rxtxSerial.dll";
             
-            if (osArch.equals("x86")) {
-                libDir = "Windows/i368-mingw32/";
-            } else {
+            if (osArch.indexOf("64") != -1) {
                 libDir = "Windows/mfz-rxtx-2.2-20081207-win-x64/";
+            } else {
+                libDir = "Windows/i368-mingw32/";
             }
             
             
