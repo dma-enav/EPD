@@ -21,10 +21,8 @@ import java.awt.Point;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.Callable;
 
 import javax.swing.BorderFactory;
 
@@ -43,7 +41,6 @@ import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.gui.util.MapBeanSlave;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -302,13 +299,16 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         // Add this class as GPS data listener
         EPDShip.getGpsHandler().addListener(this);
 
+        
+        
+        
         // Set ENC map settings
         encLayerFactory.setMapSettings();
         encLayerFactory2.setMapSettings();
 
         // Hack to flush ENC layer
-        encLayerFactory.emptyCacheAndPrepare();
-//        encLayerFactory2.emptyCacheAndPrepare();
+        encLayerFactory.reapplySettings();
+        encLayerFactory2.reapplySettings();
 
         // Show AIS or not
         aisVisible(EPDShip.getSettings().getAisSettings().isVisible());
