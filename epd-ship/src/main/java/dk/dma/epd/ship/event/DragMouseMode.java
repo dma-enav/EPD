@@ -317,7 +317,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
 //=======
             // bufferedMapImage = null; //clean up when not active...
             mouseDragged = false;
-//>>>>>>> .merge_file_a20664
+
         }
         super.mouseReleased(arg0);
     }
