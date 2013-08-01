@@ -77,7 +77,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
                 .getHeight()));
         frame.setBounds(SCREEN_BOUND_X, SCREEN_BOUND_Y, targetBean.getWidth(), targetBean.getHeight());
         frame.add(targetBean);
-        frame.setVisible(true);
+        frame.setVisible(false);
 
         sourceBean.addProjectionListener(this);
 
@@ -92,8 +92,9 @@ public class SimpleOffScreenMapRenderer extends Thread implements
 
     public BufferedImage getScreenshot() {
         synchronized (imgLock) {
-
+            
             long start = System.currentTimeMillis();
+            
             frame.repaint();
             this.targetBean.paint(img.getGraphics());
             long end = System.currentTimeMillis();
@@ -142,7 +143,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
     }
 
     public void updateTargetMap() {
-
+        frame.setVisible(false);
         int w = (int) sourceBean.getSize().getWidth();
         int h = (int) sourceBean.getSize().getHeight();
 
@@ -169,8 +170,9 @@ public class SimpleOffScreenMapRenderer extends Thread implements
                         BufferedImage.TYPE_INT_RGB);
             }
         }
-
+        frame.setVisible(true);
         this.frame.repaint();
     }
+    
 
 }
