@@ -7,7 +7,7 @@
 	<!-- CONSOLE -->
 	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
 		<param name="Target" value="System.out" />
-		<param name="Threshold" value="ALL" />
+		<param name="Threshold" value="INFO" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c] %m%n" />
 		</layout>
@@ -56,7 +56,7 @@
 	</logger>
 
 	<root>
-		<level value="ALL" />
+		<level value="INFO" />
 		<appender-ref ref="CONSOLE" />
 		<appender-ref ref="LOGFILE" />
 		<appender-ref ref="DEBUG" />
