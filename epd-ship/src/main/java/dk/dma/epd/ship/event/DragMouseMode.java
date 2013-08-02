@@ -210,7 +210,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
 //            super.mouseDragged(arg0);
 
              if(!mouseDragged) {
-            layerMouseDrag = mouseSupport.fireMapMouseDragged(arg0);
+                 layerMouseDrag = mouseSupport.fireMapMouseDragged(arg0);
              }
             
 //            System.out.println(layerMouseDrag);
@@ -236,7 +236,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                                 .getChartPanel().getDragMapRenderer().call();
                         long end = System.currentTimeMillis();
 
-                        System.out.println("Time to get screenshot: "
+                        LOG.debug("Time to get screenshot: "
                                 + (end - time));
 
                     } catch (Exception e) {
@@ -245,8 +245,8 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                     }
 
                     isPanning = true;
-//                    EPDShip.getMainFrame().getChartPanel().getMap()
-//                            .setVisible(false);
+                    EPDShip.getMainFrame().getChartPanel().getMap()
+                            .setVisible(false);
 
                     oX = x;
                     oY = y;
@@ -308,7 +308,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
 
             // finally set both centers
             offScreenBean.setCenter(proj.inverse(center));
-            offScreenBean.getParent().repaint();
+            //offScreenBean.getParent().repaint();
             mb.setCenter(proj.inverse(center));
 
             isPanning = false;

@@ -40,8 +40,8 @@ import com.bbn.openmap.event.ProjectionListener;
 public class SimpleOffScreenMapRenderer extends Thread implements
         ProjectionListener, Runnable {
 
-    private static final int SCREEN_BOUND_X = 0;
-    private static final int SCREEN_BOUND_Y = 5000;
+    private static final int SCREEN_BOUND_X = -5000;
+    private static final int SCREEN_BOUND_Y = -5000;
     
     protected MapBean sourceBean;
     protected MapBean targetBean;
@@ -77,36 +77,35 @@ public class SimpleOffScreenMapRenderer extends Thread implements
                 .getHeight()));
         frame.setBounds(SCREEN_BOUND_X, SCREEN_BOUND_Y, targetBean.getWidth(), targetBean.getHeight());
         frame.add(targetBean);
-        frame.setVisible(false);
+        frame.setVisible(true);
 
         sourceBean.addProjectionListener(this);
 
     }
 
     public BufferedImage call() {
-
         BufferedImage i = getScreenshot();
-
         return i;
     }
 
     public BufferedImage getScreenshot() {
         synchronized (imgLock) {
-            
             long start = System.currentTimeMillis();
             
-            frame.repaint();
+            //frame.repaint();
             this.targetBean.paint(img.getGraphics());
             long end = System.currentTimeMillis();
-
             LOG.debug("To Paint: " + (end - start));
-
+            
+            
+            
             AffineTransform at = new AffineTransform();
-
             at.scale(3.0, 3.0);
             AffineTransformOp scaleOp = new AffineTransformOp(at,
                     AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
             scaleOp.filter(img, outImg);
+            
+            
         }
 
         return outImg;
@@ -134,7 +133,6 @@ public class SimpleOffScreenMapRenderer extends Thread implements
     }
 
     public void saveScreenShot(File out) {
-
         try {
             ImageIO.write(this.getScreenshot(), "PNG", out);
         } catch (IOException e) {
@@ -142,8 +140,8 @@ public class SimpleOffScreenMapRenderer extends Thread implements
         }
     }
 
-    public void updateTargetMap() {
-        frame.setVisible(false);
+    public synchronized void updateTargetMap() {
+        frame.setVisible(true);
         int w = (int) sourceBean.getSize().getWidth();
         int h = (int) sourceBean.getSize().getHeight();
 
@@ -151,15 +149,16 @@ public class SimpleOffScreenMapRenderer extends Thread implements
         if (Math.abs(scaleDiff - 3.0) > 0.01) {
             targetBean.setScale((float) (sourceBean.getScale() * 3));
         }
+        
         if (!targetBean.getCenter().equals(sourceBean)) {
             targetBean.setCenter(sourceBean.getCenter());
         }
+        
         if ((int) frame.getSize().getWidth() != w
                 || (int) frame.getSize().getHeight() != h) {
             frame.setSize(w, h);
             frame.setBounds(SCREEN_BOUND_X, SCREEN_BOUND_Y, w, h);
         }
-
         
         targetBean.setSize(w, h);
 
@@ -170,8 +169,9 @@ public class SimpleOffScreenMapRenderer extends Thread implements
                         BufferedImage.TYPE_INT_RGB);
             }
         }
-        frame.setVisible(true);
+        
         this.frame.repaint();
+        frame.setVisible(false);
     }
     
 
