@@ -245,8 +245,8 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                     }
 
                     isPanning = true;
-//                    EPDShip.getMainFrame().getChartPanel().getMap()
-//                            .setVisible(false);
+                    EPDShip.getMainFrame().getChartPanel().getMap()
+                            .setVisible(false);
 
                     oX = x;
                     oY = y;
@@ -312,10 +312,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
             mb.setCenter(proj.inverse(center));
 
             isPanning = false;
-//<<<<<<< .merge_file_a01328
-//            EPDShip.getMainFrame().getChartPanel().getMap().setVisible(true);
-//=======
-            // bufferedMapImage = null; //clean up when not active...
+            EPDShip.getMainFrame().getChartPanel().getMap().setVisible(true);
             mouseDragged = false;
 
         }
