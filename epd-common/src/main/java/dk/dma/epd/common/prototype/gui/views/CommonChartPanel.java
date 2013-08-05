@@ -13,31 +13,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.layers.ais;
+package dk.dma.epd.common.prototype.gui.views;
 
-import dk.dma.epd.common.prototype.gui.util.InfoPanel;
-import dk.dma.epd.shore.EPDShore;
+import com.bbn.openmap.Layer;
+import com.bbn.openmap.MapBean;
+import com.bbn.openmap.gui.OMComponentPanel;
 
-/**
- * MSI mouse over info
- */
-public class HighlightInfoPanel extends InfoPanel {
+public abstract class CommonChartPanel extends OMComponentPanel {
 
+    /**
+     * 
+     */
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Constructor for creating an WMSInfoPanel that uses the loadingIMG
-     */
-    public HighlightInfoPanel() {
-        super(EPDShore.getStaticImages().getHighlightIcon());
+    public MapBean getMap() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
-    /**
-     * Show the image
-     */
-    public void displayHighlight(int x, int y){
-        setPos(x, y);
-        showImage();
+    public Layer getBgLayer() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

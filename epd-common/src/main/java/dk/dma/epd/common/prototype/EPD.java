@@ -28,6 +28,7 @@ public abstract class EPD {
     
     public abstract Path getSettingsPath();
     
+    
     /**
      * Function used to create a thread
      * 
@@ -41,6 +42,11 @@ public abstract class EPD {
         thread.setName(name);
         thread.start();
         return thread;
+    }
+
+    public static Object getMainFrame() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

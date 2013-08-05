@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.layers.wms;
+package dk.dma.epd.common.prototype.layers.wms;
 
 import java.awt.Graphics;
 import java.awt.Image;
@@ -29,8 +29,8 @@ import com.bbn.openmap.proj.Projection;
 import dk.dma.epd.common.graphics.CenterRaster;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
-import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.status.WMSStatus;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.status.WMSStatus;
 
 
 
@@ -56,9 +56,9 @@ public class WMSService extends WMSPlugIn implements ImageServerConstants, IStat
     /**
      * Constructor for the WMS Service - loads the WMS server from the settings file
      */
-    public WMSService() {
+    public WMSService(String wmsQuery) {
         super();
-        wmsQuery = EPDShore.getSettings().getGuiSettings().getWmsQuery();
+        this.wmsQuery = wmsQuery;
     }
 
     public void setWMSString(String wmsString){
@@ -185,7 +185,7 @@ public class WMSService extends WMSPlugIn implements ImageServerConstants, IStat
 
             if (wmsImg.getIconHeight() == -1 || wmsImg.getIconWidth() ==-1){
 //                System.out.println("no WMS");
-                Image noImage = new ImageIcon(EPDShore.class.getClassLoader().getResource("images/noWMSAvailable.png")).getImage();
+                Image noImage = new ImageIcon(EPD.class.getClassLoader().getResource("images/noWMSAvailable.png")).getImage();
                 BufferedImage bi = new BufferedImage(noImage.getWidth(null), noImage.getHeight(null), BufferedImage.TYPE_INT_ARGB);
                 Graphics g = bi.createGraphics();
                 g.drawImage(noImage, 0, 0, wmsWidth, wmsHeight, null, null);

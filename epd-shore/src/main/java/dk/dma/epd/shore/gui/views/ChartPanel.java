@@ -33,14 +33,15 @@ import com.bbn.openmap.MapBean;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.event.ProjectionSupport;
-import com.bbn.openmap.gui.OMComponentPanel;
 import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
+import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.shore.EPDShore;
@@ -56,7 +57,6 @@ import dk.dma.epd.shore.layers.route.RouteLayer;
 import dk.dma.epd.shore.layers.routeEdit.RouteEditLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
-import dk.dma.epd.shore.layers.wms.WMSLayer;
 import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.settings.ESDMapSettings;
 import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
@@ -66,7 +66,7 @@ import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
  * 
  * @author David A. Camre (davidcamre@gmail.com)
  */
-public class ChartPanel extends OMComponentPanel {
+public class ChartPanel extends CommonChartPanel {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
@@ -419,7 +419,7 @@ public class ChartPanel extends OMComponentPanel {
         mapHandler.add(layerHandler);
 
         // Add WMS Layer
-        wmsLayer = new WMSLayer();
+        wmsLayer = new WMSLayer(EPDShore.getSettings().getGuiSettings().getWmsQuery());
 
         mapHandler.add(wmsLayer);
 

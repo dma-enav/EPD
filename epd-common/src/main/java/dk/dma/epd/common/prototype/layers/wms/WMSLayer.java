@@ -13,15 +13,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.layers.wms;
+package dk.dma.epd.common.prototype.layers.wms;
 
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
-import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.gui.views.ChartPanel;
-import dk.dma.epd.shore.gui.views.JMapFrame;
-import dk.dma.epd.shore.gui.views.MainFrame;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 
 /**
  * Layer handling all WMS data and displaying of it
@@ -32,10 +30,9 @@ import dk.dma.epd.shore.gui.views.MainFrame;
 public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     private static final long serialVersionUID = 1L;
     private OMGraphicList list = new OMGraphicList();
-    private ChartPanel chartPanel;
+    private CommonChartPanel chartPanel;   
     private WMSInfoPanel wmsInfoPanel;
-    private JMapFrame jMapFrame;
-    private MainFrame mainFrame;
+
 
     volatile boolean shouldRun = true;
     private WMSService wmsService;
@@ -49,8 +46,8 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     /**
      * Constructor that starts the WMS layer in a seperate thread
      */
-    public WMSLayer() {
-        wmsService = new WMSService();
+    public WMSLayer(String query) {
+        wmsService = new WMSService(query);
         new Thread(this).start();
 
     }
@@ -71,9 +68,9 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
         // wmsInfoPanel.setVisible(false);
 
         if (wmsService.isWmsImage() && this.isVisible()) {
-            jMapFrame.getChartPanel().getBgLayer().setVisible(false);
+            chartPanel.getBgLayer().setVisible(false);
         } else {
-            jMapFrame.getChartPanel().getBgLayer().setVisible(true);
+            chartPanel.getBgLayer().setVisible(true);
         }
 
         doPrepare();
@@ -81,18 +78,9 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
 
     @Override
     public void findAndInit(Object obj) {
-        if (obj instanceof ChartPanel) {
-            chartPanel = (ChartPanel) obj;
+        if (obj instanceof CommonChartPanel) {
+            this.chartPanel = (CommonChartPanel) obj;
             // chartPanel.getMapHandler().addPropertyChangeListener("WMS", pcl)
-        }
-        if (obj instanceof JMapFrame) {
-            jMapFrame = (JMapFrame) obj;
-            wmsInfoPanel = new WMSInfoPanel();
-            jMapFrame.getGlassPanel().add(wmsInfoPanel);
-            wmsInfoPanel.setPos(20, 30);
-        }
-        if (obj instanceof MainFrame){
-            mainFrame = (MainFrame) obj;
         }
 
     }
@@ -106,10 +94,15 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     @Override
     public void run() {
         while (shouldRun) {
-            EPDShore.sleep(1000);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 
 //            if (this.isVisible() && jMapFrame.getWidth() > 0 && jMapFrame.getWidth() > 0 && chartPanel.getMap().getScale() <= 3428460) {
-            if (mainFrame.isWmsLayerEnabled() && jMapFrame.getWidth() > 0 && jMapFrame.getWidth() > 0 && chartPanel.getMap().getScale() <= 3428460) {
+            if (chartPanel.getWidth() > 0 && chartPanel.getHeight() > 0 && chartPanel.getMap().getScale() <= 3428460) {
                 setVisible(true);
                 chartPanel.getBgLayer().setVisible(false);
 
@@ -130,10 +123,11 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
                     // System.out.println(jMapFrame.getHeight());
                     // System.out.println(jMapFrame.getWidth());
 
-                    wmsInfoPanel.displayLoadingImage();
+                    //wmsInfoPanel.displayLoadingImage();
                     // wmsInfoPanel.setVisible(true);
 
-                    jMapFrame.getGlassPanel().setVisible(true);
+                    //
+                    //jMapFrame.getGlassPanel().setVisible(true);
 
                     upperLeftLon = chartPanel.getMap().getProjection().getUpperLeft().getX();
                     upperLeftLat = chartPanel.getMap().getProjection().getUpperLeft().getY();
@@ -158,7 +152,7 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
                             lowerRightLat, width, height);
 
                     drawWMS(wmsService.getWmsList());
-                    wmsInfoPanel.setVisible(false);
+                    //wmsInfoPanel.setVisible(false);
                 }
             }else{
                 this.setVisible(false);

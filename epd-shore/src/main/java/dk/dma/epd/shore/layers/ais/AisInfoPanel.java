@@ -15,7 +15,7 @@
  */
 package dk.dma.epd.shore.layers.ais;
 
-import dk.dma.epd.shore.gui.utils.InfoPanel;
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 
 /**
  * AIS mouse over info
