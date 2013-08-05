@@ -23,6 +23,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
@@ -34,6 +35,7 @@ import com.bbn.openmap.MapHandler;
 
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.gui.VOCT.SARInput;
 import dk.dma.epd.ship.gui.ais.AisDialog;
 import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
@@ -205,6 +207,13 @@ public class MainFrame extends JFrame implements WindowListener {
         }else{
             doNormal();
         }
+        
+        
+        
+        //Voct specific test
+        SARInput dialog = new SARInput();
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
     }
 
     public MonaLisaSTCCDialog getMonaLisaSTCCDialog() {
