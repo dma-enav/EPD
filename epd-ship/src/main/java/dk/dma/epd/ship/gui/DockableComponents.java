@@ -59,13 +59,18 @@ import dk.dma.epd.ship.gui.component_panels.MSIComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.MonaLisaCommunicationComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.SARComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
+import dk.dma.epd.ship.gui.panels.SARPanel;
 
 public class DockableComponents {
 
     private static final String[] PANEL_NAMES = { "Chart", "Scale", "Own Ship",
             "GPS", "Cursor", "Active Waypoint", "MSI", "AIS Target",
-            "Dynamic NoGo", "NoGo", "Mona Lisa Communication" };
+            "Dynamic NoGo", "NoGo", "SAR" };
+    
+//    "Mona Lisa Communication", 
+    
     Map<String, PanelDockable> dmap;
     private CControl control;
     DockableFactory factory;
@@ -82,6 +87,7 @@ public class DockableComponents {
     private DynamicNoGoComponentPanel dynamicNoGoPanel;
     private NoGoComponentPanel nogoPanel;
     private MonaLisaCommunicationComponentPanel monaLisaPanel;
+    private SARComponentPanel sarPanel;
 
     
     private boolean locked;
@@ -102,9 +108,10 @@ public class DockableComponents {
         dynamicNoGoPanel = mainFrame.getDynamicNoGoPanel();
         nogoPanel = mainFrame.getNogoPanel();
         monaLisaPanel = mainFrame.getMonaLisaPanel();
+        sarPanel = mainFrame.getSarPanel();
 
         factory = new DockableFactory(chartPanel, scalePanel, ownShipPanel, gpsPanel, cursorPanel, activeWaypointPanel, msiPanel,
-                aisPanel, dynamicNoGoPanel, nogoPanel, monaLisaPanel);
+                aisPanel, dynamicNoGoPanel, nogoPanel, monaLisaPanel, sarPanel);
 
         CContentArea contentArea = control.getContentArea();
         mainFrame.getContentPane().add(contentArea);
@@ -460,6 +467,8 @@ public class DockableComponents {
         DynamicNoGoComponentPanel dynamicNoGoPanel;
         NoGoComponentPanel nogoPanel;
         MonaLisaCommunicationComponentPanel monaLisaPanel;
+        SARComponentPanel sarPanel;
+        
 
         public DockableFactory(ChartPanel chartPanel,
                 ScaleComponentPanel scalePanel,
@@ -469,7 +478,7 @@ public class DockableComponents {
                 MSIComponentPanel msiPanel,
                 AisComponentPanel aisPanel,
                 DynamicNoGoComponentPanel dynamicNoGoPanel,
-                NoGoComponentPanel nogoPanel, MonaLisaCommunicationComponentPanel monaLisaPanel) {
+                NoGoComponentPanel nogoPanel, MonaLisaCommunicationComponentPanel monaLisaPanel, SARComponentPanel sarPanel) {
 
             super();
 
@@ -485,6 +494,7 @@ public class DockableComponents {
             this.dynamicNoGoPanel = dynamicNoGoPanel;
             this.nogoPanel = nogoPanel;
             this.monaLisaPanel = monaLisaPanel;
+            this.sarPanel = sarPanel;
 
         }
 
@@ -531,6 +541,10 @@ public class DockableComponents {
             if (id.equals("Mona Lisa Communication")) {
                 return new PanelDockable(id, monaLisaPanel);
             }
+            if (id.equals("SAR")) {
+                return new PanelDockable(id, sarPanel);
+            }
+
 
             return new PanelDockable(id, new JPanel());
 
