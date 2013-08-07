@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import dk.dma.ais.reader.AisReader;
-import dk.dma.ais.reader.AisStreamReader;
+import dk.dma.ais.reader.AisReaders;
 import dk.dma.epd.common.text.Formatter;
 
 /**
@@ -49,7 +49,7 @@ public class RouteInjector {
 
     public void collectTrack() throws Exception {
         // Make reader for input file
-        AisReader aisReader = new AisStreamReader(new FileInputStream(inFilename));
+        AisReader aisReader = AisReaders.createReaderFromInputStream(new FileInputStream(inFilename));
         // Register handler
         aisReader.registerHandler(trackCollector);
         // Register proprietary handler (optional)
@@ -96,7 +96,7 @@ public class RouteInjector {
         AisRouteInject injector = new AisRouteInject(outFilename, route, mmsi);
 
         // Make reader for input file
-        AisReader aisReader = new AisStreamReader(new FileInputStream(inFilename));
+        AisReader aisReader = AisReaders.createReaderFromInputStream(new FileInputStream(inFilename));
         // Register handler
         aisReader.registerHandler(injector);
         // Register proprietary handler (optional)
