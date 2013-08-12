@@ -62,6 +62,7 @@ import dk.dma.epd.ship.layers.nogo.DynamicNogoLayer;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
 import dk.dma.epd.ship.layers.routeEdit.RouteEditLayer;
+import dk.dma.epd.ship.layers.voct.VoctLayer;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.settings.EPDMapSettings;
 
@@ -90,6 +91,9 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
     private EpdMsiLayer msiLayer;
     private NogoLayer nogoLayer;
     private DynamicNogoLayer dynamicNogoLayer;
+    private VoctLayer voctLayer;
+    
+    
     private TopPanel topPanel;
     private RouteEditMouseMode routeEditMouseMode;
     private RouteEditLayer routeEditLayer;
@@ -217,6 +221,11 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         gpsLayer.setVisible(true);
         mapHandler.add(gpsLayer);
 
+        
+        voctLayer = new VoctLayer();
+        voctLayer.setVisible(true);
+        mapHandler.add(voctLayer);
+        
         // Create a esri shape layer
         // URL dbf = EeINS.class.getResource("/shape/urbanap020.dbf");
         // URL shp = EeINS.class.getResource("/shape/urbanap020.shp");
