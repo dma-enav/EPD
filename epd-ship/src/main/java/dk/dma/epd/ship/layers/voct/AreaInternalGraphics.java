@@ -40,7 +40,7 @@ import dk.dma.epd.common.util.Converter;
  * Graphic for effective area for a SRU
  */
 @SuppressWarnings("unused")
-public class EffectivePoDAreaGraphic extends OMGraphicList {
+public class AreaInternalGraphics extends OMGraphicList {
     private static final long serialVersionUID = 1L;
 
     private Rectangle hatchFillRectangle;
@@ -49,18 +49,27 @@ public class EffectivePoDAreaGraphic extends OMGraphicList {
     private OMPoly poly;
     
     private boolean frame;
-    Double width;
     Double length;
+    Double width;
 
+    EffectiveSRUAreaGraphics effecticeSRUAreaGraphics;
+    
     // Initialize with
-    public EffectivePoDAreaGraphic(Position startPos, Double width,
-            Double length) {
+    public AreaInternalGraphics(Position A, Position B, Position C, Position D, Double width,
+            Double length, EffectiveSRUAreaGraphics effecticeSRUAreaGraphics) {
         super();
         
         this.setVague(true);
         
-        this.width = width;
         this.length = length;
+        this.width = width;
+
+        
+
+        
+        
+        
+        this.effecticeSRUAreaGraphics= effecticeSRUAreaGraphics;
 
         // this.nogoColor = color;
 
@@ -89,16 +98,17 @@ public class EffectivePoDAreaGraphic extends OMGraphicList {
         // Go left radius length
         // Position A = findPosition(topCenter, 270,
         // Converter.nmToMeters(radius));
-        Position A = startPos;
-        Position B = Calculator
-                .findPosition(A, 90, Converter.nmToMeters(width));
+        
+//        Position A = startPos;
+//        Position B = Calculator
+//                .findPosition(A, 90, Converter.nmToMeters(width));
+//
+//        Position D = Calculator.findPosition(A, 180,
+//                Converter.nmToMeters(length));
+//        Position C = Calculator
+//                .findPosition(D, 90, Converter.nmToMeters(width));
 
-        Position D = Calculator.findPosition(A, 180,
-                Converter.nmToMeters(length));
-        Position C = Calculator
-                .findPosition(D, 90, Converter.nmToMeters(width));
-
-        drawPolygon(A, B, C, D);
+        drawPolygon(A, B, D, C);
 
         // drawAreaBox();
         // drawPolyline();
@@ -119,9 +129,20 @@ public class EffectivePoDAreaGraphic extends OMGraphicList {
         // }
 
     }
+    
+    public void updatePosition(Position A, Position B, Position C, Position D, Double width,
+            Double length){
+        
+        graphics.clear();
+        this.length = length;
+        this.width = width;
+
+        drawPolygon(A, B, D, C);
+        
+    }
 
     public void moveCenter(Position newCenter){
-        
+
         graphics.clear();
         
         // First top side of the box
@@ -130,7 +151,7 @@ public class EffectivePoDAreaGraphic extends OMGraphicList {
 
         // Bottom side of the box
         Position bottomCenter = Calculator.findPosition(newCenter, 180,
-                Converter.nmToMeters(width/2));
+                Converter.nmToMeters(length/2));
         
         
 
@@ -139,13 +160,18 @@ public class EffectivePoDAreaGraphic extends OMGraphicList {
                 Converter.nmToMeters(width/2));
         Position B = Calculator.findPosition(topCenter, 90,
                 Converter.nmToMeters(width/2));
-        Position C = Calculator.findPosition(bottomCenter, 90,
-                Converter.nmToMeters(length/2));
-        Position D = Calculator.findPosition(bottomCenter, 270,
-                Converter.nmToMeters(length/2));
-        
-        drawPolygon(A, B, C, D);
 
+        Position C = Calculator.findPosition(bottomCenter, 270,
+                Converter.nmToMeters(width/2));
+        
+        Position D = Calculator.findPosition(bottomCenter, 90,
+                Converter.nmToMeters(width/2));
+        
+        drawPolygon(A, B, D, C);
+
+        
+        effecticeSRUAreaGraphics.updateLines(A, B, C, D);
+        
     }
     
     private AlphaComposite makeComposite(float alpha) {
@@ -186,7 +212,7 @@ public class EffectivePoDAreaGraphic extends OMGraphicList {
         poly = new OMPoly(polyPoints,
                 OMGraphicConstants.DECIMAL_DEGREES,
                 OMGraphicConstants.LINETYPE_RHUMB, 1);
-        poly.setLinePaint(Color.black);
+        poly.setLinePaint(clear);
         poly.setFillPaint(new Color(0, 0, 0, 1));
         poly.setTextureMask(new TexturePaint(hatchFill, hatchFillRectangle));
 

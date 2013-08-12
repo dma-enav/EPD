@@ -26,7 +26,6 @@ import com.bbn.openmap.omGraphics.OMList;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 
@@ -82,7 +81,13 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         double width = Math.sqrt(10.0);
         double length = Math.sqrt(10.0);
         
-        EffectivePoDAreaGraphic effectiveArea = new EffectivePoDAreaGraphic(A,
+        
+        
+        
+//        AreaInternalGraphics effectiveArea = new AreaInternalGraphics(A,
+//                width, length);
+//        graphics.add(effectiveArea);
+        EffectiveSRUAreaGraphics effectiveArea = new EffectiveSRUAreaGraphics(A,
                 width, length);
         graphics.add(effectiveArea);
 
@@ -162,10 +167,10 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
         selectedGraphic = null;
         OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-                2.0f);
+                5.0f);
 
         for (OMGraphic omGraphic : allClosest) {
-            if (omGraphic instanceof EffectivePoDAreaGraphic) {
+            if (omGraphic instanceof AreaInternalGraphics) {
 //                System.out.println("Selected Effective Area");
                 selectedGraphic = omGraphic;
                 break;
@@ -196,6 +201,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     public void mouseExited(MouseEvent paramMouseEvent) {
         // TODO Auto-generated method stub
 
+        
     }
 
     @Override
@@ -211,18 +217,53 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
                     2.0f);
             for (OMGraphic omGraphic : allClosest) {
-                if (omGraphic instanceof EffectivePoDAreaGraphic) {
+                if (omGraphic instanceof SarEffectiveAreaLines  ) {
 //                    System.out.println("selected something");
                     selectedGraphic = omGraphic;
                     break;
+                }else{
+                    if (omGraphic instanceof AreaInternalGraphics  ) {
+//                      System.out.println("selected something");
+                      selectedGraphic = omGraphic;
+//                      break;
+                  }
+//                    if (|| omGraphic instanceof AreaInternalGraphics)
                 }
             }
         }
 
+        if (selectedGraphic instanceof SarEffectiveAreaLines) {
+            System.out.println("Selected line");
+              SarEffectiveAreaLines selectedLine = (SarEffectiveAreaLines) selectedGraphic;
 
-        if (selectedGraphic instanceof EffectivePoDAreaGraphic) {
-//            System.out.println("Moving box");
-            EffectivePoDAreaGraphic selectedArea = (EffectivePoDAreaGraphic) selectedGraphic;
+              
+              
+              
+              //If bottom or top we can only adjust latitude
+              
+              //If sides we can adjust longitude
+              
+              
+            // New Position of line
+            LatLonPoint newLatLon = mapBean.getProjection().inverse(
+                    e.getPoint());
+            
+            
+
+            Position newPos = Position.create(newLatLon.getLatitude(),
+                    newLatLon.getLongitude());
+
+            selectedLine.updateArea(newPos);
+            
+            doPrepare();
+            dragging = true;
+            return true;
+
+        }
+        
+        if (selectedGraphic instanceof AreaInternalGraphics) {
+            System.out.println("Moving box");
+            AreaInternalGraphics selectedArea = (AreaInternalGraphics) selectedGraphic;
 
             // New Center
             LatLonPoint newLatLon = mapBean.getProjection().inverse(
@@ -237,6 +278,9 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             return true;
 
         }
+        
+        
+
 
         // if (selectedGraphic instanceof WaypointCircle) {
         // WaypointCircle wpc = (WaypointCircle) selectedGraphic;
