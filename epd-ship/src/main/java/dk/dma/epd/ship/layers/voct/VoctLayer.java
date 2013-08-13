@@ -79,7 +79,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
         // Effective Area: 10 nm2 Initialize by creating box
         double width = Math.sqrt(10.0);
-        double length = Math.sqrt(10.0);
+        double height = Math.sqrt(10.0);
         
         
         
@@ -88,7 +88,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 //                width, length);
 //        graphics.add(effectiveArea);
         EffectiveSRUAreaGraphics effectiveArea = new EffectiveSRUAreaGraphics(A,
-                width, length);
+                width, height);
         graphics.add(effectiveArea);
 
         
@@ -262,17 +262,27 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         }
         
         if (selectedGraphic instanceof AreaInternalGraphics) {
-            System.out.println("Moving box");
+//            System.out.println("Moving box");
             AreaInternalGraphics selectedArea = (AreaInternalGraphics) selectedGraphic;
 
+            
             // New Center
             LatLonPoint newLatLon = mapBean.getProjection().inverse(
                     e.getPoint());
 
             Position newPos = Position.create(newLatLon.getLatitude(),
                     newLatLon.getLongitude());
+            
+            if (!dragging){
+//                System.out.println("only once? first time?");
+                selectedArea.adjustInternalPosition(newPos);
+            }
 
-            selectedArea.moveCenter(newPos);
+//            if (!(newPos == initialBoxRelativePosition)){
+                selectedArea.moveRelative(newPos);    
+//            }
+
+            
             doPrepare();
             dragging = true;
             return true;

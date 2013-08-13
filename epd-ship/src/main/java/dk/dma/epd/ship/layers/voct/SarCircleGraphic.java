@@ -18,8 +18,10 @@ package dk.dma.epd.ship.layers.voct;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
 import java.util.Date;
@@ -102,6 +104,14 @@ public class SarCircleGraphic extends OMGraphicList {
         cirle.setTextureMask(new TexturePaint(hatchFill, hatchFillRectangle));
 
         add(cirle);
+    }
+    
+    @Override
+    public void render(Graphics gr) {
+        Graphics2D image = (Graphics2D) gr;
+        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        super.render(image);
     }
 
 

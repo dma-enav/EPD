@@ -17,6 +17,9 @@ package dk.dma.epd.ship.layers.voct;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
@@ -88,5 +91,13 @@ public class SarEffectiveAreaLines extends OMGraphicList{
         }
         
         
+    }
+    
+    @Override
+    public void render(Graphics gr) {
+        Graphics2D image = (Graphics2D) gr;
+        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        super.render(image);
     }
 }

@@ -33,6 +33,7 @@ import com.bbn.openmap.omGraphics.OMPoly;
 import com.bbn.openmap.proj.Length;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 
@@ -47,29 +48,46 @@ public class AreaInternalGraphics extends OMGraphicList {
     private BufferedImage hatchFill;
 
     private OMPoly poly;
-    
+
     private boolean frame;
-    Double length;
+    Double height;
     Double width;
 
     EffectiveSRUAreaGraphics effecticeSRUAreaGraphics;
+
+    Position A;
+    Position B;
+    Position C;
+    Position D;
     
+    
+    
+    double distanceToTop;
+    double distanceToBottom;
+    double distanceToLeft;
+    double distanceToRight;
+    
+    
+    
+    Position relativePosition;
+
     // Initialize with
-    public AreaInternalGraphics(Position A, Position B, Position C, Position D, Double width,
-            Double length, EffectiveSRUAreaGraphics effecticeSRUAreaGraphics) {
+    public AreaInternalGraphics(Position A, Position B, Position C, Position D,
+            Double width, Double height,
+            EffectiveSRUAreaGraphics effecticeSRUAreaGraphics) {
         super();
-        
+
         this.setVague(true);
-        
-        this.length = length;
+
+        this.height = height;
         this.width = width;
 
-        
+        this.A = A;
+        this.B = B;
+        this.C = C;
+        this.D = D;
 
-        
-        
-        
-        this.effecticeSRUAreaGraphics= effecticeSRUAreaGraphics;
+        this.effecticeSRUAreaGraphics = effecticeSRUAreaGraphics;
 
         // this.nogoColor = color;
 
@@ -98,17 +116,17 @@ public class AreaInternalGraphics extends OMGraphicList {
         // Go left radius length
         // Position A = findPosition(topCenter, 270,
         // Converter.nmToMeters(radius));
-        
-//        Position A = startPos;
-//        Position B = Calculator
-//                .findPosition(A, 90, Converter.nmToMeters(width));
-//
-//        Position D = Calculator.findPosition(A, 180,
-//                Converter.nmToMeters(length));
-//        Position C = Calculator
-//                .findPosition(D, 90, Converter.nmToMeters(width));
 
-        drawPolygon(A, B, D, C);
+        // Position A = startPos;
+        // Position B = Calculator
+        // .findPosition(A, 90, Converter.nmToMeters(width));
+        //
+        // Position D = Calculator.findPosition(A, 180,
+        // Converter.nmToMeters(length));
+        // Position C = Calculator
+        // .findPosition(D, 90, Converter.nmToMeters(width));
+
+        drawPolygon();
 
         // drawAreaBox();
         // drawPolyline();
@@ -129,57 +147,104 @@ public class AreaInternalGraphics extends OMGraphicList {
         // }
 
     }
-    
-    public void updatePosition(Position A, Position B, Position C, Position D, Double width,
-            Double length){
-        
+
+    public void updatePosition(Position A, Position B, Position C, Position D,
+            Double width, Double height) {
+
         graphics.clear();
-        this.length = length;
+        this.height = height;
         this.width = width;
 
-        drawPolygon(A, B, D, C);
-        
+        this.A = A;
+        this.B = B;
+        this.C = C;
+        this.D = D;
+
+        drawPolygon();
+
     }
 
-    public void moveCenter(Position newCenter){
+    public void moveRelative(Position newPos) {
 
-        graphics.clear();
+        //relativePosition is 
         
+        
+        graphics.clear();
+
+        // find topside of box
+        // distance from mouseOffset to
+
         // First top side of the box
-        Position topCenter = Calculator.findPosition(newCenter, 0,
-                Converter.nmToMeters(length/2));
+        Position topSide = Calculator.findPosition(newPos, 0,
+                Converter.nmToMeters(distanceToTop));
 
         // Bottom side of the box
-        Position bottomCenter = Calculator.findPosition(newCenter, 180,
-                Converter.nmToMeters(length/2));
-        
-        
+        Position bottomSide = Calculator.findPosition(newPos, 180,
+                Converter.nmToMeters(distanceToBottom));
 
+        
+        
         // Go left radius length
-        Position A = Calculator.findPosition(topCenter, 270,
-                Converter.nmToMeters(width/2));
-        Position B = Calculator.findPosition(topCenter, 90,
-                Converter.nmToMeters(width/2));
+        A = Calculator.findPosition(topSide, 270,
+                Converter.nmToMeters(distanceToLeft));
+        
+        B = Calculator.findPosition(topSide, 90,
+                Converter.nmToMeters(distanceToRight));
 
-        Position C = Calculator.findPosition(bottomCenter, 270,
-                Converter.nmToMeters(width/2));
-        
-        Position D = Calculator.findPosition(bottomCenter, 90,
-                Converter.nmToMeters(width/2));
-        
-        drawPolygon(A, B, D, C);
+        C = Calculator.findPosition(bottomSide, 270,
+                Converter.nmToMeters(distanceToLeft));
 
-        
+        D = Calculator.findPosition(bottomSide, 90,
+                Converter.nmToMeters(distanceToRight));
+
+        drawPolygon();
+
         effecticeSRUAreaGraphics.updateLines(A, B, C, D);
+
+    }
+
+    public void adjustInternalPosition(Position relativePosition){
+     
+//        this.relativePosition = relativePosition;
+        
+        Position topPoint = Position.create(A.getLatitude(), relativePosition.getLongitude());
+        Position bottomPoint = Position.create(C.getLatitude(), relativePosition.getLongitude());
+        
+        
+        Position leftPoint = Position.create(relativePosition.getLatitude(), A.getLongitude());
+        Position rightPoint = Position.create(relativePosition.getLatitude(), B.getLongitude());
+        
+        
+        distanceToTop = Math.abs(Calculator.range(relativePosition, topPoint, Heading.RL));
+        distanceToBottom = Math.abs(Calculator.range(relativePosition, bottomPoint, Heading.RL));
+        
+        
+        distanceToLeft = Math.abs(Calculator.range(leftPoint, relativePosition, Heading.RL));
+        distanceToRight = Math.abs(Calculator.range(rightPoint, relativePosition, Heading.RL));
+        
+//        System.out.println("Distance to top: " + distanceToTop);
+//        System.out.println("Distance to Bottom: " + distanceToBottom);
+//        
+//        System.out.println("Distance to left: " + distanceToLeft);
+//        
+//        System.out.println("Distance to right: " + distanceToRight);
+        
+        
+        System.out.println("Difference height is: " + (height - distanceToLeft+distanceToRight));
+        
+        System.out.println("Difference width is: " + (width - distanceToTop+distanceToBottom));
+
+        
+        
         
     }
-    
+
     private AlphaComposite makeComposite(float alpha) {
         int type = AlphaComposite.SRC_OVER;
         return AlphaComposite.getInstance(type, alpha);
     }
 
-    private void drawPolygon(Position A, Position B, Position C, Position D) {
+    private void drawPolygon() {
         // space for lat-lon points plus first lat-lon pair to close the polygon
         double[] polyPoints = new double[8 + 2];
         int j = 0;
@@ -191,12 +256,12 @@ public class AreaInternalGraphics extends OMGraphicList {
         polyPoints[j + 1] = B.getLongitude();
         j += 2;
 
-        polyPoints[j] = C.getLatitude();
-        polyPoints[j + 1] = C.getLongitude();
-        j += 2;
-
         polyPoints[j] = D.getLatitude();
         polyPoints[j + 1] = D.getLongitude();
+        j += 2;
+
+        polyPoints[j] = C.getLatitude();
+        polyPoints[j + 1] = C.getLongitude();
         j += 2;
 
         // double[] polyPoints = new double[polygon.getPolygon().size() * 2 +
@@ -209,21 +274,16 @@ public class AreaInternalGraphics extends OMGraphicList {
         // }
         polyPoints[j] = polyPoints[0];
         polyPoints[j + 1] = polyPoints[1];
-        poly = new OMPoly(polyPoints,
-                OMGraphicConstants.DECIMAL_DEGREES,
+        poly = new OMPoly(polyPoints, OMGraphicConstants.DECIMAL_DEGREES,
                 OMGraphicConstants.LINETYPE_RHUMB, 1);
         poly.setLinePaint(clear);
         poly.setFillPaint(new Color(0, 0, 0, 1));
         poly.setTextureMask(new TexturePaint(hatchFill, hatchFillRectangle));
 
-        
-        
         add(poly);
-        
-        
 
     }
-    
+
     @Override
     public void render(Graphics gr) {
         Graphics2D image = (Graphics2D) gr;

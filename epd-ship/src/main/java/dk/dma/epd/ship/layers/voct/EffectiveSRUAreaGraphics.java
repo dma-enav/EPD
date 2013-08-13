@@ -40,10 +40,10 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
     }
 
     public EffectiveSRUAreaGraphics(Position startPos, Double width,
-            Double length) {
+            Double height) {
         super();
 
-        totalSize = width * length; 
+        totalSize = width * height; 
                 
         
         A = startPos;
@@ -51,11 +51,11 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
                 .findPosition(A, 90, Converter.nmToMeters(width));
 
         C = Calculator.findPosition(A, 180,
-                Converter.nmToMeters(length));
+                Converter.nmToMeters(height));
         D = Calculator
                 .findPosition(C, 90, Converter.nmToMeters(width));
 
-        effectiveArea = new AreaInternalGraphics(A, B, C, D, width, length,
+        effectiveArea = new AreaInternalGraphics(A, B, C, D, width, height,
                 this);
 
         topLine = new SarEffectiveAreaLines(A, B, LineType.TOP, this);
@@ -90,7 +90,7 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
             C = newPos;
             
             //New length
-            double length = Calculator.range(A, C, Heading.RL);
+            double length = Calculator.range(A, C, Heading.GC);
             
             //Recalculate width
             double width = totalSize/length;
