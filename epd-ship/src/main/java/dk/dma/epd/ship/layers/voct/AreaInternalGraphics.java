@@ -59,16 +59,12 @@ public class AreaInternalGraphics extends OMGraphicList {
     Position B;
     Position C;
     Position D;
-    
-    
-    
-    double distanceToTop;
-    double distanceToBottom;
-    double distanceToLeft;
-    double distanceToRight;
-    
-    
-    
+
+    Double distanceToTop;
+    Double distanceToBottom;
+    Double distanceToLeft;
+    Double distanceToRight;
+
     Position relativePosition;
 
     // Initialize with
@@ -166,9 +162,8 @@ public class AreaInternalGraphics extends OMGraphicList {
 
     public void moveRelative(Position newPos) {
 
-        //relativePosition is 
-        
-        
+        // relativePosition is
+
         graphics.clear();
 
         // find topside of box
@@ -182,12 +177,10 @@ public class AreaInternalGraphics extends OMGraphicList {
         Position bottomSide = Calculator.findPosition(newPos, 180,
                 Converter.nmToMeters(distanceToBottom));
 
-        
-        
         // Go left radius length
         A = Calculator.findPosition(topSide, 270,
                 Converter.nmToMeters(distanceToLeft));
-        
+
         B = Calculator.findPosition(topSide, 90,
                 Converter.nmToMeters(distanceToRight));
 
@@ -203,40 +196,71 @@ public class AreaInternalGraphics extends OMGraphicList {
 
     }
 
-    public void adjustInternalPosition(Position relativePosition){
-     
-//        this.relativePosition = relativePosition;
-        
-        Position topPoint = Position.create(A.getLatitude(), relativePosition.getLongitude());
-        Position bottomPoint = Position.create(C.getLatitude(), relativePosition.getLongitude());
-        
-        
-        Position leftPoint = Position.create(relativePosition.getLatitude(), A.getLongitude());
-        Position rightPoint = Position.create(relativePosition.getLatitude(), B.getLongitude());
-        
-        
-        distanceToTop = Math.abs(Calculator.range(relativePosition, topPoint, Heading.RL));
-        distanceToBottom = Math.abs(Calculator.range(relativePosition, bottomPoint, Heading.RL));
-        
-        
-        distanceToLeft = Math.abs(Calculator.range(leftPoint, relativePosition, Heading.RL));
-        distanceToRight = Math.abs(Calculator.range(rightPoint, relativePosition, Heading.RL));
-        
-//        System.out.println("Distance to top: " + distanceToTop);
-//        System.out.println("Distance to Bottom: " + distanceToBottom);
-//        
-//        System.out.println("Distance to left: " + distanceToLeft);
-//        
-//        System.out.println("Distance to right: " + distanceToRight);
-        
-        
-        System.out.println("Difference height is: " + (height - distanceToLeft+distanceToRight));
-        
-        System.out.println("Difference width is: " + (width - distanceToTop+distanceToBottom));
+    public void adjustInternalPosition(Position relativePosition) {
 
-        
-        
-        
+        // this.relativePosition = relativePosition;
+
+        Position topPoint = Position.create(A.getLatitude(),
+                relativePosition.getLongitude());
+        Position bottomPoint = Position.create(C.getLatitude(),
+                relativePosition.getLongitude());
+
+        Position leftPoint = Position.create(relativePosition.getLatitude(),
+                A.getLongitude());
+        Position rightPoint = Position.create(relativePosition.getLatitude(),
+                B.getLongitude());
+
+        distanceToTop = Math.abs(Calculator.range(relativePosition, topPoint,
+                Heading.RL));
+        distanceToBottom = Math.abs(Calculator.range(relativePosition,
+                bottomPoint, Heading.RL));
+
+        distanceToLeft = Math.abs(Calculator.range(leftPoint, relativePosition,
+                Heading.RL));
+        distanceToRight = Math.abs(Calculator.range(rightPoint,
+                relativePosition, Heading.RL));
+
+        // System.out.println("Distance to top: " + distanceToTop);
+        // System.out.println("Distance to Bottom: " + distanceToBottom);
+        //
+        // System.out.println("Distance to left: " + distanceToLeft);
+        //
+        // System.out.println("Distance to right: " + distanceToRight);
+
+        //
+        //
+
+//        System.out.println("Height is: " + height);
+
+        // Fix for uncertainly accuracy issue introduced by pixel resolution
+        Double newHeight = distanceToTop + distanceToBottom;
+        Double newWidth = distanceToLeft + distanceToRight;
+
+        Double differenceHeight = height - newHeight;
+        Double differenceWidth = width - newWidth;
+
+
+        distanceToTop = distanceToTop + (differenceHeight / 2);
+        distanceToBottom = distanceToBottom + (differenceHeight / 2);
+        distanceToLeft = distanceToLeft + (differenceWidth / 2);
+        distanceToRight = distanceToRight + (differenceWidth / 2);
+
+        // System.out.println("Calculated height is: "
+        // + (distanceToTop + distanceToBottom));
+        // System.out.println("Difference is:" + differenceHeight);
+
+        // System.out.println("Difference height is: " + (height -
+        // distanceToLeft+distanceToRight));
+
+//        Double h2 = distanceToTop + distanceToBottom;
+//        Double diffh2 = height - h2;
+
+//        double diff2 = width - distanceToLeft + distanceToRight;
+
+//        System.out.println("Difference height is: " + diffh2);
+
+//        System.out.println("Difference width is: " + diff2);
+
     }
 
     private AlphaComposite makeComposite(float alpha) {

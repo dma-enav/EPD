@@ -82,13 +82,15 @@ public class SarEffectiveAreaLines extends OMGraphicList{
             Position newPos = Position.create(pos.getLatitude(), A.getLongitude());
             
             effectiveSRUAreaGraphics.updateLength(type, newPos);
-            
-            
-            //Update point A;
-            //Make the height smaller
-            
-            
+    
+        }else{
+            if (this.type == LineType.LEFT || this.type == LineType.RIGHT){
+                Position newPos = Position.create(A.getLatitude(), pos.getLongitude());
+                
+                effectiveSRUAreaGraphics.updateLength(type, newPos);
+            }
         }
+        
         
         
     }

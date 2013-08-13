@@ -233,7 +233,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         }
 
         if (selectedGraphic instanceof SarEffectiveAreaLines) {
-            System.out.println("Selected line");
+//            System.out.println("Selected line");
               SarEffectiveAreaLines selectedLine = (SarEffectiveAreaLines) selectedGraphic;
 
               

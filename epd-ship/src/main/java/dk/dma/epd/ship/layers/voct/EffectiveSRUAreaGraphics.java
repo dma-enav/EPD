@@ -28,12 +28,14 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
     AreaInternalGraphics effectiveArea;
     SarEffectiveAreaLines topLine;
     SarEffectiveAreaLines bottomLine;
+    SarEffectiveAreaLines leftLine;
+    SarEffectiveAreaLines rightLine;
     
     Position A;
     Position B;
     Position C;
     Position D;
-    double totalSize;
+    Double totalSize;
     
     public enum LineType {
         TOP, BOTTOM, LEFT, RIGHT 
@@ -60,10 +62,17 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
 
         topLine = new SarEffectiveAreaLines(A, B, LineType.TOP, this);
         bottomLine = new SarEffectiveAreaLines(C, D, LineType.BOTTOM, this);
-
+        
+        leftLine = new SarEffectiveAreaLines(A, C, LineType.LEFT, this);
+        
+        rightLine = new SarEffectiveAreaLines(B, D, LineType.RIGHT, this);
+        
+        
         add(effectiveArea);
         add(bottomLine);
         add(topLine);
+        add(leftLine);
+        add(rightLine);
         
         
 
@@ -77,7 +86,8 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         
         topLine.updateLine(A, B);
         bottomLine.updateLine(C, D);
-        
+        leftLine.updateLine(A,C);
+        rightLine.updateLine(B, D);
         
     }
 
@@ -90,10 +100,10 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
             C = newPos;
             
             //New length
-            double length = Calculator.range(A, C, Heading.GC);
+            Double length = Calculator.range(A, C, Heading.GC);
             
             //Recalculate width
-            double width = totalSize/length;
+            Double width = totalSize/length;
             
             //Recalculate B and D
             B = Calculator
@@ -102,16 +112,85 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
             D = Calculator
                     .findPosition(C, 90, Converter.nmToMeters(width));
 
-//            this.clear();
-            
             effectiveArea.updatePosition(A, B, C, D, width, length);
             
             updateLines(A, B, C, D);
+
+        }
+        if (type == LineType.TOP){
             
-            System.out.println("Done updating");
+            //We update A point
+            A = newPos;
             
+            //New length
+            Double length = Calculator.range(A, C, Heading.GC);
             
+            //Recalculate width
+            Double width = totalSize/length;
             
+            //Recalculate B and D
+            B = Calculator
+                    .findPosition(A, 90, Converter.nmToMeters(width));
+            
+            D = Calculator
+                    .findPosition(C, 90, Converter.nmToMeters(width));
+
+            effectiveArea.updatePosition(A, B, C, D, width, length);
+            
+            updateLines(A, B, C, D);
+
+        }
+        
+        if (type == LineType.LEFT){
+            
+            //We update A point
+            A = newPos;
+            
+            //New width
+            
+            //New length
+            Double width = Calculator.range(A, B, Heading.GC);
+            
+            //Recalculate width
+            Double height = totalSize/width;
+            
+            //Recalculate C and D
+            C = Calculator
+                    .findPosition(A, 180, Converter.nmToMeters(height));
+            
+            D = Calculator
+                    .findPosition(C, 90, Converter.nmToMeters(width));
+
+            effectiveArea.updatePosition(A, B, C, D, width, height);
+            
+            updateLines(A, B, C, D);
+
+        }
+        
+        if (type == LineType.RIGHT){
+            
+            //We update B point
+            B = newPos;
+            
+            //New width
+            
+            //New length
+            Double width = Calculator.range(A, B, Heading.GC);
+            
+            //Recalculate width
+            Double height = totalSize/width;
+            
+            //Recalculate C and D
+            C = Calculator
+                    .findPosition(A, 180, Converter.nmToMeters(height));
+            
+            D = Calculator
+                    .findPosition(C, 90, Converter.nmToMeters(width));
+
+            effectiveArea.updatePosition(A, B, C, D, width, height);
+            
+            updateLines(A, B, C, D);
+
         }
         
         //Top or bottom has been changed
