@@ -41,7 +41,7 @@ import dk.dma.ais.message.AisMessage18;
 import dk.dma.ais.message.AisMessageException;
 import dk.dma.ais.message.AisPositionMessage;
 import dk.dma.ais.packet.AisPacket;
-import dk.dma.ais.packet.AisPacketReader;
+import dk.dma.ais.packet.AisPacketParser;
 import dk.dma.ais.proprietary.IProprietarySourceTag;
 import dk.dma.ais.proprietary.IProprietaryTag;
 import dk.dma.ais.proprietary.ProprietaryFactory;
@@ -86,7 +86,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     @GuardedBy("this")
     private int replaySpeedup = 1;
 
-    private final AisPacketReader packetReader = new AisPacketReader();
+    private final AisPacketParser packetReader = new AisPacketParser();
 
     protected final SendThreadPool sendThreadPool = new SendThreadPool();
     protected final Set<SensorType> sensorTypes = Collections.newSetFromMap(new ConcurrentHashMap<SensorType, Boolean>());
