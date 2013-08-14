@@ -15,11 +15,18 @@
  */
 package dk.dma.epd.common.prototype.layers.wms;
 
+
+import javax.swing.SwingUtilities;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphicList;
+import com.bbn.openmap.proj.Projection;
 
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+
 
 /**
  * Layer handling all WMS data and displaying of it
@@ -32,27 +39,32 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     private OMGraphicList list = new OMGraphicList();
     private CommonChartPanel chartPanel;   
     private WMSInfoPanel wmsInfoPanel;
-
-
+    //simple flag set on projectionChanged to register for new WMS
     volatile boolean shouldRun = true;
-    private WMSService wmsService;
+    private AbstractWMSService wmsService;
     private Double upperLeftLon = 0.0;
     private Double upperLeftLat = 0.0;
     private Double lowerRightLon = 0.0;
     private Double lowerRightLat = 0.0;
     private int height = -1;
     private int width = -1;
+    
+    
+    private static final Logger LOG = LoggerFactory
+            .getLogger(WMSLayer.class);
+
 
     /**
      * Constructor that starts the WMS layer in a seperate thread
      */
     public WMSLayer(String query) {
-        wmsService = new WMSService(query);
+        
+        wmsService = new StreamingTiledWmsService(query, 4);
         new Thread(this).start();
 
     }
 
-    public WMSService getWmsService() {
+    public AbstractWMSService getWmsService() {
         return wmsService;
     }
 
@@ -65,6 +77,8 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     public void drawWMS(OMGraphicList list) {
         this.list.clear();
         this.list.add(list);
+        
+        
         // wmsInfoPanel.setVisible(false);
 
         if (wmsService.isWmsImage() && this.isVisible()) {
@@ -81,82 +95,70 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
         if (obj instanceof CommonChartPanel) {
             this.chartPanel = (CommonChartPanel) obj;
             // chartPanel.getMapHandler().addPropertyChangeListener("WMS", pcl)
+            
+            //this.chartPanel.getMap().addProjectionListener(this);
         }
 
     }
 
     @Override
-    public synchronized OMGraphicList prepare() {
+    public OMGraphicList prepare() {
         list.project(getProjection());
         return list;
+    }
+    
+    @Override
+    public void projectionChanged(ProjectionEvent e) {
+        //OMGraphicsHandlerLayer has its own thing
+        
+        super.projectionChanged(e);
+        
+        clearWMS();
+        
+        Projection proj = e.getProjection();
+
+        width = proj.getWidth();
+        height = proj.getHeight();
+        if (width > 0 && height > 0 && proj.getScale() <= 3428460) {
+            
+            upperLeftLon = proj.getUpperLeft().getX();
+            upperLeftLat = proj.getUpperLeft().getY();
+            lowerRightLon = proj.getLowerRight().getX();
+            lowerRightLat = proj.getLowerRight().getY();
+        
+
+            wmsService.setZoomLevel(proj.getScale());
+            wmsService.setWMSPosition(upperLeftLon, upperLeftLat, upperLeftLon, upperLeftLat, lowerRightLon,
+                    lowerRightLat, width, height);
+            
+
+        } else {
+            this.setVisible(false);
+        }
+    }
+    
+    public void clearWMS() {
+        this.drawWMS(new OMGraphicList());
     }
 
     @Override
     public void run() {
         while (shouldRun) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(200); 
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-
-//            if (this.isVisible() && jMapFrame.getWidth() > 0 && jMapFrame.getWidth() > 0 && chartPanel.getMap().getScale() <= 3428460) {
-            if (chartPanel.getWidth() > 0 && chartPanel.getHeight() > 0 && chartPanel.getMap().getScale() <= 3428460) {
-                setVisible(true);
-                chartPanel.getBgLayer().setVisible(false);
-
-                // if (height != chartPanel.getMap().getHeight() || width !=
-                // chartPanel.getMap().getWidth()){
-                // wmsInfoPanel.setPos( (jMapFrame.getChartPanel().getHeight() /
-                // 2) -50, (jMapFrame.getChartPanel().getWidth() / 2) - 50);
-                // }
-
-                if (upperLeftLon != chartPanel.getMap().getProjection().getUpperLeft().getX()
-                        || upperLeftLat != chartPanel.getMap().getProjection().getUpperLeft().getY()
-                        || lowerRightLon != chartPanel.getMap().getProjection().getLowerRight().getX()
-                        || lowerRightLat != chartPanel.getMap().getProjection().getLowerRight().getY()
-                        || width != chartPanel.getMap().getWidth() || height != chartPanel.getMap().getHeight()) {
-
-                    // System.out.println("New request");
-                    // wmsInfoPanel.showText("Loading");
-                    // System.out.println(jMapFrame.getHeight());
-                    // System.out.println(jMapFrame.getWidth());
-
-                    //wmsInfoPanel.displayLoadingImage();
-                    // wmsInfoPanel.setVisible(true);
-
-                    //
-                    //jMapFrame.getGlassPanel().setVisible(true);
-
-                    upperLeftLon = chartPanel.getMap().getProjection().getUpperLeft().getX();
-                    upperLeftLat = chartPanel.getMap().getProjection().getUpperLeft().getY();
-                    lowerRightLon = chartPanel.getMap().getProjection().getLowerRight().getX();
-                    lowerRightLat = chartPanel.getMap().getProjection().getLowerRight().getY();
-
-                    width = chartPanel.getMap().getWidth();
-                    height = chartPanel.getMap().getHeight();
-
-//                    System.out.println(height);
-//                    System.out.println(width);
-
-                    // System.out.println(chartPanel.getMap().getProjection().forward(chartPanel.getMap().getProjection().getLowerRight()));
-                    // System.out.println(upperLeftLon);
-                    // System.out.println(upperLeftLat);
-                    // System.out.println(lowerRightLon);
-                    // System.out.println(lowerRightLat);
-
-                    wmsService.setZoomLevel(chartPanel.getMap().getScale());
-                    wmsService.setWMSPosition(chartPanel.getMap().getProjection().getCenter().getX(), chartPanel
-                            .getMap().getProjection().getCenter().getY(), upperLeftLon, upperLeftLat, lowerRightLon,
-                            lowerRightLat, width, height);
-
-                    drawWMS(wmsService.getWmsList());
-                    //wmsInfoPanel.setVisible(false);
-                }
-            }else{
-                this.setVisible(false);
-                chartPanel.getBgLayer().setVisible(true);
+            
+            
+            width = getProjection().getWidth();
+            height = getProjection().getHeight();
+            if (width > 0 && height > 0 && getProjection().getScale() <= 3428460) {
+                this.setVisible(true);
+                OMGraphicList result = wmsService.getWmsList();
+                
+                drawWMS(result);                
             }
         }
     }

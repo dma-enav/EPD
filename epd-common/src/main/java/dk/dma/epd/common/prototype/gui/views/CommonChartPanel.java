@@ -26,14 +26,8 @@ public abstract class CommonChartPanel extends OMComponentPanel {
      */
     private static final long serialVersionUID = 1L;
 
-    public MapBean getMap() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    public abstract MapBean getMap();
 
-    public Layer getBgLayer() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    public abstract Layer getBgLayer();
 
 }

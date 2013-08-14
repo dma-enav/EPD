@@ -41,7 +41,9 @@ import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
+import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
@@ -68,7 +70,7 @@ import dk.dma.epd.ship.settings.EPDMapSettings;
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
  */
-public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
+public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         MouseWheelListener {
 
     private static final long serialVersionUID = 1L;
@@ -102,6 +104,7 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
     private ActiveWaypointComponentPanel activeWaypointPanel;
 
     private NogoDialog nogoDialog;
+    private WMSLayer wmsLayer;
 
     public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel) {
         super();
@@ -126,10 +129,11 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
                 .getSettings().getMapSettings());
         encLayer = encLayerFactory.getEncLayer();
 
+
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
         map.setDoubleBuffered(true);
-
+    
         // Orthographic test = new Orthographic((LatLonPoint)
         // mapSettings.getCenter(), mapSettings.getScale(), 1000, 1000);
         // map.setProjection(test);
@@ -240,18 +244,26 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         if (encLayer != null) {
             mapHandler.add(encLayer);
         }
+        
 
         // Add map to map handler
         mapHandler.add(map);
+        
+
+        // Add WMS Layer
+        wmsLayer = new WMSLayer("http://kortforsyningen.kms.dk/soe_enc_primar?ignoreillegallayers=TRUE&transparent=TRUE&login=StatSofart&password=114karls&VERSION=1.1.1&REQUEST=GetMap&SRS=EPSG:4326&LAYERS=cells&STYLES=style-id-246&FORMAT=image/gif&service=WMS");
+        mapHandler.add(wmsLayer);
 
         // Set last postion
         map.setCenter(mapSettings.getCenter());
 
         // Get from settings
         map.setScale(mapSettings.getScale());
-
+        
+        
         add(map);
 
+        
         // Force a route layer and sensor panel update
         routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
         activeWaypointPanel.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
@@ -298,6 +310,10 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
 
     public Layer getEncLayer() {
         return encLayer;
+    }
+    
+    public Layer getBgLayer() {
+        return coastalOutlineLayer;
     }
 
     public void centreOnShip() {
