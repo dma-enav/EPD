@@ -46,7 +46,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
-import dk.dma.epd.common.prototype.layers.wms.WMSService;
+import dk.dma.epd.common.prototype.layers.wms.SingleWMSService;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -619,10 +619,10 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
             // shoreServices = (ShoreServicesCommon) obj;
             statusComponents.add((ShoreServices) obj);
         }
-        if (obj instanceof WMSService) {
+        if (obj instanceof SingleWMSService) {
             // System.out.println("wmsService");
             // shoreServices = (ShoreServicesCommon) obj;
-            statusComponents.add((WMSService) obj);
+            statusComponents.add((SingleWMSService) obj);
         }
     }
 

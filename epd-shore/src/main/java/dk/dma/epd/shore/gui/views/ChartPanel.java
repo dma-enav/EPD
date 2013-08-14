@@ -225,11 +225,7 @@ public class ChartPanel extends CommonChartPanel {
         aisLayer.getAisThread().interrupt();
     }
 
-    /**
-     * Return the bg shape layer
-     * 
-     * @return bgLayer
-     */
+
     public Layer getBgLayer() {
         return bgLayer;
     }
