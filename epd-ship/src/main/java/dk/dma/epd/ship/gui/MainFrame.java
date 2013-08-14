@@ -35,7 +35,6 @@ import com.bbn.openmap.MapHandler;
 
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.gui.VOCT.SARInput;
 import dk.dma.epd.ship.gui.ais.AisDialog;
 import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
@@ -50,8 +49,9 @@ import dk.dma.epd.ship.gui.component_panels.SARComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
 import dk.dma.epd.ship.gui.monalisa.MonaLisaSTCCDialog;
 import dk.dma.epd.ship.gui.msi.MsiDialog;
-import dk.dma.epd.ship.gui.panels.SARPanel;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
+import dk.dma.epd.ship.gui.voct.EffortAllocationWindow;
+import dk.dma.epd.ship.gui.voct.SARInput;
 import dk.dma.epd.ship.settings.EPDGuiSettings;
 
 /**
@@ -216,9 +216,15 @@ public class MainFrame extends JFrame implements WindowListener {
         
         
         //Voct specific test
-        SARInput dialog = new SARInput();
+//        SARInput dialog = new SARInput();
+//        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+//        dialog.setVisible(true);
+        
+        EffortAllocationWindow dialog = new EffortAllocationWindow();
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setVisible(true);
+      
+        
     }
 
     public MonaLisaSTCCDialog getMonaLisaSTCCDialog() {

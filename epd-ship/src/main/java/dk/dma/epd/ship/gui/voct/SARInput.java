@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.VOCT;
+package dk.dma.epd.ship.gui.voct;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
