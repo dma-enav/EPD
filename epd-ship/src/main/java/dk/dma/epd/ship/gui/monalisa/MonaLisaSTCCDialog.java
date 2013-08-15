@@ -173,7 +173,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
         routeAcceptedPanel.add(statusField);
 
         routeMessage = new JTextArea();
-        routeMessage.setBackground(new Color(240, 240, 240));
+//        routeMessage.setBackground(new Color(240, 240, 240));
         routeMessage.setBorder(null);
         routeMessage.setLineWrap(true);
         routeMessage.setEditable(false);
@@ -198,7 +198,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
         lblChanges = new JTextArea("N/A");
         lblChanges.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        lblChanges.setBackground(new Color(240, 240, 240));
+//        lblChanges.setBackground(new Color(240, 240, 240));
         lblChanges.setBorder(null);
         lblChanges.setLineWrap(true);
         lblChanges.setEditable(false);
@@ -214,7 +214,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
         lblMessages = new JTextArea("N/A");
         lblMessages.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        lblMessages.setBackground(new Color(240, 240, 240));
+//        lblMessages.setBackground(new Color(240, 240, 240));
         lblMessages.setBorder(null);
         lblMessages.setLineWrap(true);
         lblMessages.setEditable(false);
@@ -241,7 +241,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
         chatMessages = new JTextArea("");
         chatMessages.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        chatMessages.setBackground(Color.WHITE);
+//        chatMessages.setBackground(Color.WHITE);
         chatMessages.setLineWrap(true);
         chatMessages.setBorder(null);
 
