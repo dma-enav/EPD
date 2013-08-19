@@ -15,9 +15,14 @@
  */
 package dk.dma.epd.ship.gui.setuptabs;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -28,11 +33,6 @@ import javax.swing.border.TitledBorder;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.epd.ship.settings.EPDMapSettings;
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 /**
  * Map tab panel in setup panel
