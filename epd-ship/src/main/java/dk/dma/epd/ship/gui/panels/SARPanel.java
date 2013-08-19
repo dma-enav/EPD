@@ -41,12 +41,12 @@ public class SARPanel extends JPanel {
     
     private static final long serialVersionUID = 1L;
     private RouteManager routeManager;
-    private JPanel panel_1;
-    private JPanel panel_2;
-    private JPanel panel_3;
-    private JPanel panel_4;
-    private JPanel panel_5;
-    private JPanel panel_6;
+    private JPanel statusPanel;
+    private JPanel timeAndDatePanel;
+    private JPanel weatherPanel;
+    private JPanel datumPanel;
+    private JPanel searchAreaPanel;
+    private JPanel buttonPanel;
     private JButton btnReopenCalculations;
     private JButton btnEffortAllocation;
     private JLabel lblTimeOfLast;
@@ -85,13 +85,20 @@ public class SARPanel extends JPanel {
     private JLabel lblE_4;
     private JLabel label_4;
     private Component horizontalStrut;
+    private JPanel effortAllocationPanel;
+    private JLabel lblProbabilityOfDetection;
+    private JLabel label_5;
+    private JLabel lblEffectiveSearchArea;
+    private JLabel lblNm;
+    private JLabel lblSearchCraftGround;
+    private JLabel lblKnhr;
 
     public SARPanel() {
         GridBagLayout gridBagLayout = new GridBagLayout();
         gridBagLayout.columnWidths = new int[] {100, 0};
-        gridBagLayout.rowHeights = new int[]{20, 16, 16, 16, 16, 16, 16, 10};
-        gridBagLayout.columnWeights = new double[]{0.0, Double.MIN_VALUE};
-        gridBagLayout.rowWeights = new double[]{0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, Double.MIN_VALUE};
+        gridBagLayout.rowHeights = new int[]{20, 16, 16, 16, 16, 16, 16, 0, 10};
+        gridBagLayout.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+        gridBagLayout.rowWeights = new double[]{0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, Double.MIN_VALUE};
         setLayout(gridBagLayout);
         JLabel lblSAR = new JLabel("Search And Rescue");
         lblSAR.setHorizontalAlignment(SwingConstants.CENTER);
@@ -104,20 +111,20 @@ public class SARPanel extends JPanel {
         gbc_lblSAR.gridy = 0;
         add(lblSAR, gbc_lblSAR);
         
-        panel_1 = new JPanel();
-        panel_1.setBorder(new TitledBorder(null, "Status", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        GridBagConstraints gbc_panel_1 = new GridBagConstraints();
-        gbc_panel_1.insets = new Insets(0, 0, 5, 0);
-        gbc_panel_1.fill = GridBagConstraints.BOTH;
-        gbc_panel_1.gridx = 0;
-        gbc_panel_1.gridy = 1;
-        add(panel_1, gbc_panel_1);
-        GridBagLayout gbl_panel_1 = new GridBagLayout();
-        gbl_panel_1.columnWidths = new int[]{32, 28, 0};
-        gbl_panel_1.rowHeights = new int[]{14, 0};
-        gbl_panel_1.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
-        gbl_panel_1.rowWeights = new double[]{1.0, Double.MIN_VALUE};
-        panel_1.setLayout(gbl_panel_1);
+        statusPanel = new JPanel();
+        statusPanel.setBorder(new TitledBorder(null, "Status", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        GridBagConstraints gbc_statusPanel = new GridBagConstraints();
+        gbc_statusPanel.insets = new Insets(0, 0, 5, 0);
+        gbc_statusPanel.fill = GridBagConstraints.BOTH;
+        gbc_statusPanel.gridx = 0;
+        gbc_statusPanel.gridy = 1;
+        add(statusPanel, gbc_statusPanel);
+        GridBagLayout gbl_statusPanel = new GridBagLayout();
+        gbl_statusPanel.columnWidths = new int[]{32, 28, 0};
+        gbl_statusPanel.rowHeights = new int[]{14, 0};
+        gbl_statusPanel.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
+        gbl_statusPanel.rowWeights = new double[]{1.0, Double.MIN_VALUE};
+        statusPanel.setLayout(gbl_statusPanel);
         
         JLabel lblType = new JLabel("Type:");
         GridBagConstraints gbc_lblType = new GridBagConstraints();
@@ -125,29 +132,29 @@ public class SARPanel extends JPanel {
         gbc_lblType.insets = new Insets(0, 0, 5, 0);
         gbc_lblType.gridx = 0;
         gbc_lblType.gridy = 0;
-        panel_1.add(lblType, gbc_lblType);
+        statusPanel.add(lblType, gbc_lblType);
         
         JLabel lblRapidResponse = new JLabel("Rapid Response");
         GridBagConstraints gbc_lblRapidResponse = new GridBagConstraints();
         gbc_lblRapidResponse.anchor = GridBagConstraints.WEST;
         gbc_lblRapidResponse.gridx = 1;
         gbc_lblRapidResponse.gridy = 0;
-        panel_1.add(lblRapidResponse, gbc_lblRapidResponse);
+        statusPanel.add(lblRapidResponse, gbc_lblRapidResponse);
         
-        panel_2 = new JPanel();
-        panel_2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Date and Time", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        GridBagConstraints gbc_panel_2 = new GridBagConstraints();
-        gbc_panel_2.insets = new Insets(0, 0, 5, 0);
-        gbc_panel_2.fill = GridBagConstraints.BOTH;
-        gbc_panel_2.gridx = 0;
-        gbc_panel_2.gridy = 2;
-        add(panel_2, gbc_panel_2);
-        GridBagLayout gbl_panel_2 = new GridBagLayout();
-        gbl_panel_2.columnWidths = new int[] {32, 28, 0};
-        gbl_panel_2.rowHeights = new int[]{14, 0, 0, 0};
-        gbl_panel_2.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
-        gbl_panel_2.rowWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
-        panel_2.setLayout(gbl_panel_2);
+        timeAndDatePanel = new JPanel();
+        timeAndDatePanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Date and Time", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        GridBagConstraints gbc_timeAndDatePanel = new GridBagConstraints();
+        gbc_timeAndDatePanel.insets = new Insets(0, 0, 5, 0);
+        gbc_timeAndDatePanel.fill = GridBagConstraints.BOTH;
+        gbc_timeAndDatePanel.gridx = 0;
+        gbc_timeAndDatePanel.gridy = 2;
+        add(timeAndDatePanel, gbc_timeAndDatePanel);
+        GridBagLayout gbl_timeAndDatePanel = new GridBagLayout();
+        gbl_timeAndDatePanel.columnWidths = new int[] {32, 28, 0};
+        gbl_timeAndDatePanel.rowHeights = new int[]{14, 0, 0, 0};
+        gbl_timeAndDatePanel.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
+        gbl_timeAndDatePanel.rowWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
+        timeAndDatePanel.setLayout(gbl_timeAndDatePanel);
         
         lblTimeOfLast = new JLabel("Time of Last Known Position (LKP):");
         GridBagConstraints gbc_lblTimeOfLast = new GridBagConstraints();
@@ -155,7 +162,7 @@ public class SARPanel extends JPanel {
         gbc_lblTimeOfLast.insets = new Insets(0, 0, 5, 5);
         gbc_lblTimeOfLast.gridx = 0;
         gbc_lblTimeOfLast.gridy = 0;
-        panel_2.add(lblTimeOfLast, gbc_lblTimeOfLast);
+        timeAndDatePanel.add(lblTimeOfLast, gbc_lblTimeOfLast);
         
         label = new JLabel("08:00 02/07/2013");
         GridBagConstraints gbc_label = new GridBagConstraints();
@@ -163,7 +170,7 @@ public class SARPanel extends JPanel {
         gbc_label.insets = new Insets(0, 0, 5, 0);
         gbc_label.gridx = 1;
         gbc_label.gridy = 0;
-        panel_2.add(label, gbc_label);
+        timeAndDatePanel.add(label, gbc_label);
         
         lblNewLabel = new JLabel("Time of Commence Search Start:");
         GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
@@ -171,7 +178,7 @@ public class SARPanel extends JPanel {
         gbc_lblNewLabel.insets = new Insets(0, 0, 5, 5);
         gbc_lblNewLabel.gridx = 0;
         gbc_lblNewLabel.gridy = 1;
-        panel_2.add(lblNewLabel, gbc_lblNewLabel);
+        timeAndDatePanel.add(lblNewLabel, gbc_lblNewLabel);
         
         lblNewLabel_1 = new JLabel("10:30 02/07/2013");
         GridBagConstraints gbc_lblNewLabel_1 = new GridBagConstraints();
@@ -179,7 +186,7 @@ public class SARPanel extends JPanel {
         gbc_lblNewLabel_1.insets = new Insets(0, 0, 5, 0);
         gbc_lblNewLabel_1.gridx = 1;
         gbc_lblNewLabel_1.gridy = 1;
-        panel_2.add(lblNewLabel_1, gbc_lblNewLabel_1);
+        timeAndDatePanel.add(lblNewLabel_1, gbc_lblNewLabel_1);
         
         lblTimeElasped = new JLabel("Time elasped:");
         GridBagConstraints gbc_lblTimeElasped = new GridBagConstraints();
@@ -187,29 +194,29 @@ public class SARPanel extends JPanel {
         gbc_lblTimeElasped.insets = new Insets(0, 0, 0, 5);
         gbc_lblTimeElasped.gridx = 0;
         gbc_lblTimeElasped.gridy = 2;
-        panel_2.add(lblTimeElasped, gbc_lblTimeElasped);
+        timeAndDatePanel.add(lblTimeElasped, gbc_lblTimeElasped);
         
         lblHours = new JLabel("2 hours 30 minutes");
         GridBagConstraints gbc_lblHours = new GridBagConstraints();
         gbc_lblHours.fill = GridBagConstraints.HORIZONTAL;
         gbc_lblHours.gridx = 1;
         gbc_lblHours.gridy = 2;
-        panel_2.add(lblHours, gbc_lblHours);
+        timeAndDatePanel.add(lblHours, gbc_lblHours);
         
-        panel_3 = new JPanel();
-        panel_3.setBorder(new TitledBorder(null, "Last Surface Drifts dw continuation", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        GridBagConstraints gbc_panel_3 = new GridBagConstraints();
-        gbc_panel_3.insets = new Insets(0, 0, 5, 0);
-        gbc_panel_3.fill = GridBagConstraints.BOTH;
-        gbc_panel_3.gridx = 0;
-        gbc_panel_3.gridy = 3;
-        add(panel_3, gbc_panel_3);
-        GridBagLayout gbl_panel_3 = new GridBagLayout();
-        gbl_panel_3.columnWidths = new int[] {32, 28, 0};
-        gbl_panel_3.rowHeights = new int[] {14, 0, 0, 0};
-        gbl_panel_3.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
-        gbl_panel_3.rowWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
-        panel_3.setLayout(gbl_panel_3);
+        weatherPanel = new JPanel();
+        weatherPanel.setBorder(new TitledBorder(null, "Last Surface Drifts dw continuation", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        GridBagConstraints gbc_weatherPanel = new GridBagConstraints();
+        gbc_weatherPanel.insets = new Insets(0, 0, 5, 0);
+        gbc_weatherPanel.fill = GridBagConstraints.BOTH;
+        gbc_weatherPanel.gridx = 0;
+        gbc_weatherPanel.gridy = 3;
+        add(weatherPanel, gbc_weatherPanel);
+        GridBagLayout gbl_weatherPanel = new GridBagLayout();
+        gbl_weatherPanel.columnWidths = new int[] {32, 28, 0};
+        gbl_weatherPanel.rowHeights = new int[] {14, 0, 0, 0};
+        gbl_weatherPanel.columnWeights = new double[]{1.0, 0.0, Double.MIN_VALUE};
+        gbl_weatherPanel.rowWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+        weatherPanel.setLayout(gbl_weatherPanel);
         
         lblDirection = new JLabel("Direction:");
         GridBagConstraints gbc_lblDirection = new GridBagConstraints();
@@ -217,7 +224,7 @@ public class SARPanel extends JPanel {
         gbc_lblDirection.insets = new Insets(0, 0, 5, 5);
         gbc_lblDirection.gridx = 0;
         gbc_lblDirection.gridy = 0;
-        panel_3.add(lblDirection, gbc_lblDirection);
+        weatherPanel.add(lblDirection, gbc_lblDirection);
         
         label_1 = new JLabel("180°");
         GridBagConstraints gbc_label_1 = new GridBagConstraints();
@@ -225,7 +232,7 @@ public class SARPanel extends JPanel {
         gbc_label_1.insets = new Insets(0, 0, 5, 0);
         gbc_label_1.gridx = 1;
         gbc_label_1.gridy = 0;
-        panel_3.add(label_1, gbc_label_1);
+        weatherPanel.add(label_1, gbc_label_1);
         
         lblSpeed = new JLabel("Speed:");
         GridBagConstraints gbc_lblSpeed = new GridBagConstraints();
@@ -233,29 +240,29 @@ public class SARPanel extends JPanel {
         gbc_lblSpeed.insets = new Insets(0, 0, 0, 5);
         gbc_lblSpeed.gridx = 0;
         gbc_lblSpeed.gridy = 1;
-        panel_3.add(lblSpeed, gbc_lblSpeed);
+        weatherPanel.add(lblSpeed, gbc_lblSpeed);
         
         lblKt = new JLabel("1.8 kt");
         GridBagConstraints gbc_lblKt = new GridBagConstraints();
         gbc_lblKt.anchor = GridBagConstraints.WEST;
         gbc_lblKt.gridx = 1;
         gbc_lblKt.gridy = 1;
-        panel_3.add(lblKt, gbc_lblKt);
+        weatherPanel.add(lblKt, gbc_lblKt);
         
-        panel_4 = new JPanel();
-        panel_4.setBorder(new TitledBorder(null, "Position of Datum to LKP", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        GridBagConstraints gbc_panel_4 = new GridBagConstraints();
-        gbc_panel_4.insets = new Insets(0, 0, 5, 0);
-        gbc_panel_4.fill = GridBagConstraints.BOTH;
-        gbc_panel_4.gridx = 0;
-        gbc_panel_4.gridy = 4;
-        add(panel_4, gbc_panel_4);
-        GridBagLayout gbl_panel_4 = new GridBagLayout();
-        gbl_panel_4.columnWidths = new int[] {0, 0, 0, 0, 0};
-        gbl_panel_4.rowHeights = new int[] {0, 0};
-        gbl_panel_4.columnWeights = new double[]{1.0, 1.0, 1.0, 1.0, 1.0};
-        gbl_panel_4.rowWeights = new double[]{1.0, 1.0};
-        panel_4.setLayout(gbl_panel_4);
+        datumPanel = new JPanel();
+        datumPanel.setBorder(new TitledBorder(null, "Position of Datum to LKP", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        GridBagConstraints gbc_datumPanel = new GridBagConstraints();
+        gbc_datumPanel.insets = new Insets(0, 0, 5, 0);
+        gbc_datumPanel.fill = GridBagConstraints.BOTH;
+        gbc_datumPanel.gridx = 0;
+        gbc_datumPanel.gridy = 4;
+        add(datumPanel, gbc_datumPanel);
+        GridBagLayout gbl_datumPanel = new GridBagLayout();
+        gbl_datumPanel.columnWidths = new int[] {0, 0, 0, 0, 0};
+        gbl_datumPanel.rowHeights = new int[] {0, 0};
+        gbl_datumPanel.columnWeights = new double[]{1.0, 1.0, 1.0, 1.0, 1.0};
+        gbl_datumPanel.rowWeights = new double[]{1.0, 1.0};
+        datumPanel.setLayout(gbl_datumPanel);
         
         lblLatitude = new JLabel("Latitude");
         GridBagConstraints gbc_lblLatitude = new GridBagConstraints();
@@ -263,209 +270,265 @@ public class SARPanel extends JPanel {
         gbc_lblLatitude.insets = new Insets(0, 0, 5, 5);
         gbc_lblLatitude.gridx = 1;
         gbc_lblLatitude.gridy = 0;
-        panel_4.add(lblLatitude, gbc_lblLatitude);
+        datumPanel.add(lblLatitude, gbc_lblLatitude);
         
         lblLongitude = new JLabel("Longitude");
         GridBagConstraints gbc_lblLongitude = new GridBagConstraints();
         gbc_lblLongitude.insets = new Insets(0, 0, 5, 5);
         gbc_lblLongitude.gridx = 2;
         gbc_lblLongitude.gridy = 0;
-        panel_4.add(lblLongitude, gbc_lblLongitude);
+        datumPanel.add(lblLongitude, gbc_lblLongitude);
         
         lblRdv = new JLabel("RDV");
         GridBagConstraints gbc_lblRdv = new GridBagConstraints();
         gbc_lblRdv.insets = new Insets(0, 0, 5, 5);
         gbc_lblRdv.gridx = 3;
         gbc_lblRdv.gridy = 0;
-        panel_4.add(lblRdv, gbc_lblRdv);
+        datumPanel.add(lblRdv, gbc_lblRdv);
         
         lblRadius = new JLabel("Radius");
         GridBagConstraints gbc_lblRadius = new GridBagConstraints();
         gbc_lblRadius.insets = new Insets(0, 0, 5, 0);
         gbc_lblRadius.gridx = 4;
         gbc_lblRadius.gridy = 0;
-        panel_4.add(lblRadius, gbc_lblRadius);
+        datumPanel.add(lblRadius, gbc_lblRadius);
         
         lblDownwind = new JLabel("Downwind:");
         GridBagConstraints gbc_lblDownwind = new GridBagConstraints();
         gbc_lblDownwind.insets = new Insets(0, 0, 0, 5);
         gbc_lblDownwind.gridx = 0;
         gbc_lblDownwind.gridy = 1;
-        panel_4.add(lblDownwind, gbc_lblDownwind);
+        datumPanel.add(lblDownwind, gbc_lblDownwind);
         
         lblN = new JLabel("56°18,2 N\t");
         GridBagConstraints gbc_lblN = new GridBagConstraints();
         gbc_lblN.insets = new Insets(0, 0, 0, 5);
         gbc_lblN.gridx = 1;
         gbc_lblN.gridy = 1;
-        panel_4.add(lblN, gbc_lblN);
+        datumPanel.add(lblN, gbc_lblN);
         
         lblE = new JLabel("7°58,0 E\t");
         GridBagConstraints gbc_lblE = new GridBagConstraints();
         gbc_lblE.insets = new Insets(0, 0, 0, 5);
         gbc_lblE.gridx = 2;
         gbc_lblE.gridy = 1;
-        panel_4.add(lblE, gbc_lblE);
+        datumPanel.add(lblE, gbc_lblE);
         
         label_2 = new JLabel("4.41");
         GridBagConstraints gbc_label_2 = new GridBagConstraints();
         gbc_label_2.insets = new Insets(0, 0, 0, 5);
         gbc_label_2.gridx = 3;
         gbc_label_2.gridy = 1;
-        panel_4.add(label_2, gbc_label_2);
+        datumPanel.add(label_2, gbc_label_2);
         
         label_3 = new JLabel("2.42");
         GridBagConstraints gbc_label_3 = new GridBagConstraints();
         gbc_label_3.gridx = 4;
         gbc_label_3.gridy = 1;
-        panel_4.add(label_3, gbc_label_3);
+        datumPanel.add(label_3, gbc_label_3);
         
-        panel_5 = new JPanel();
-        panel_5.setBorder(new TitledBorder(null, "Positions of the Search Area", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        GridBagConstraints gbc_panel_5 = new GridBagConstraints();
-        gbc_panel_5.insets = new Insets(0, 0, 5, 0);
-        gbc_panel_5.fill = GridBagConstraints.BOTH;
-        gbc_panel_5.gridx = 0;
-        gbc_panel_5.gridy = 5;
-        add(panel_5, gbc_panel_5);
-        GridBagLayout gbl_panel_5 = new GridBagLayout();
-        gbl_panel_5.columnWidths = new int[] {32, 28, 0};
-        gbl_panel_5.rowHeights = new int[] {0, 14, 0, 0, 0, 0, 0};
-        gbl_panel_5.columnWeights = new double[]{1.0, 1.0, 1.0};
-        gbl_panel_5.rowWeights = new double[]{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
-        panel_5.setLayout(gbl_panel_5);
+        searchAreaPanel = new JPanel();
+        searchAreaPanel.setBorder(new TitledBorder(null, "Positions of the Search Area", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        GridBagConstraints gbc_searchAreaPanel = new GridBagConstraints();
+        gbc_searchAreaPanel.insets = new Insets(0, 0, 5, 0);
+        gbc_searchAreaPanel.fill = GridBagConstraints.BOTH;
+        gbc_searchAreaPanel.gridx = 0;
+        gbc_searchAreaPanel.gridy = 5;
+        add(searchAreaPanel, gbc_searchAreaPanel);
+        GridBagLayout gbl_searchAreaPanel = new GridBagLayout();
+        gbl_searchAreaPanel.columnWidths = new int[] {32, 28, 0};
+        gbl_searchAreaPanel.rowHeights = new int[] {0, 14, 0, 0, 0, 0, 0};
+        gbl_searchAreaPanel.columnWeights = new double[]{1.0, 1.0, 1.0};
+        gbl_searchAreaPanel.rowWeights = new double[]{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+        searchAreaPanel.setLayout(gbl_searchAreaPanel);
         
         lblLatitude_1 = new JLabel("Latitude");
         GridBagConstraints gbc_lblLatitude_1 = new GridBagConstraints();
         gbc_lblLatitude_1.insets = new Insets(0, 0, 5, 5);
         gbc_lblLatitude_1.gridx = 1;
         gbc_lblLatitude_1.gridy = 0;
-        panel_5.add(lblLatitude_1, gbc_lblLatitude_1);
+        searchAreaPanel.add(lblLatitude_1, gbc_lblLatitude_1);
         
         lblLongitude_1 = new JLabel("Longitude");
         GridBagConstraints gbc_lblLongitude_1 = new GridBagConstraints();
         gbc_lblLongitude_1.insets = new Insets(0, 0, 5, 0);
         gbc_lblLongitude_1.gridx = 2;
         gbc_lblLongitude_1.gridy = 0;
-        panel_5.add(lblLongitude_1, gbc_lblLongitude_1);
+        searchAreaPanel.add(lblLongitude_1, gbc_lblLongitude_1);
         
         lblA = new JLabel("A");
         GridBagConstraints gbc_lblA = new GridBagConstraints();
         gbc_lblA.insets = new Insets(0, 0, 5, 5);
         gbc_lblA.gridx = 0;
         gbc_lblA.gridy = 1;
-        panel_5.add(lblA, gbc_lblA);
+        searchAreaPanel.add(lblA, gbc_lblA);
         
         lblN_1 = new JLabel("56°20,6 N\t");
         GridBagConstraints gbc_lblN_1 = new GridBagConstraints();
         gbc_lblN_1.insets = new Insets(0, 0, 5, 5);
         gbc_lblN_1.gridx = 1;
         gbc_lblN_1.gridy = 1;
-        panel_5.add(lblN_1, gbc_lblN_1);
+        searchAreaPanel.add(lblN_1, gbc_lblN_1);
         
         lblE_1 = new JLabel("7°53,6 E\t");
         GridBagConstraints gbc_lblE_1 = new GridBagConstraints();
         gbc_lblE_1.insets = new Insets(0, 0, 5, 0);
         gbc_lblE_1.gridx = 2;
         gbc_lblE_1.gridy = 1;
-        panel_5.add(lblE_1, gbc_lblE_1);
+        searchAreaPanel.add(lblE_1, gbc_lblE_1);
         
         lblB = new JLabel("B");
         GridBagConstraints gbc_lblB = new GridBagConstraints();
         gbc_lblB.insets = new Insets(0, 0, 5, 5);
         gbc_lblB.gridx = 0;
         gbc_lblB.gridy = 2;
-        panel_5.add(lblB, gbc_lblB);
+        searchAreaPanel.add(lblB, gbc_lblB);
         
         lblN_2 = new JLabel("56°20,6 N\t");
         GridBagConstraints gbc_lblN_2 = new GridBagConstraints();
         gbc_lblN_2.insets = new Insets(0, 0, 5, 5);
         gbc_lblN_2.gridx = 1;
         gbc_lblN_2.gridy = 2;
-        panel_5.add(lblN_2, gbc_lblN_2);
+        searchAreaPanel.add(lblN_2, gbc_lblN_2);
         
         lblE_2 = new JLabel("8°02,4 E\t");
         GridBagConstraints gbc_lblE_2 = new GridBagConstraints();
         gbc_lblE_2.insets = new Insets(0, 0, 5, 0);
         gbc_lblE_2.gridx = 2;
         gbc_lblE_2.gridy = 2;
-        panel_5.add(lblE_2, gbc_lblE_2);
+        searchAreaPanel.add(lblE_2, gbc_lblE_2);
         
         lblC = new JLabel("C");
         GridBagConstraints gbc_lblC = new GridBagConstraints();
         gbc_lblC.insets = new Insets(0, 0, 5, 5);
         gbc_lblC.gridx = 0;
         gbc_lblC.gridy = 3;
-        panel_5.add(lblC, gbc_lblC);
+        searchAreaPanel.add(lblC, gbc_lblC);
         
         lblN_3 = new JLabel("56°15,8 N\t");
         GridBagConstraints gbc_lblN_3 = new GridBagConstraints();
         gbc_lblN_3.insets = new Insets(0, 0, 5, 5);
         gbc_lblN_3.gridx = 1;
         gbc_lblN_3.gridy = 3;
-        panel_5.add(lblN_3, gbc_lblN_3);
+        searchAreaPanel.add(lblN_3, gbc_lblN_3);
         
         lblE_3 = new JLabel("8°02,4 E\t");
         GridBagConstraints gbc_lblE_3 = new GridBagConstraints();
         gbc_lblE_3.insets = new Insets(0, 0, 5, 0);
         gbc_lblE_3.gridx = 2;
         gbc_lblE_3.gridy = 3;
-        panel_5.add(lblE_3, gbc_lblE_3);
+        searchAreaPanel.add(lblE_3, gbc_lblE_3);
         
         lblD = new JLabel("D");
         GridBagConstraints gbc_lblD = new GridBagConstraints();
         gbc_lblD.insets = new Insets(0, 0, 5, 5);
         gbc_lblD.gridx = 0;
         gbc_lblD.gridy = 4;
-        panel_5.add(lblD, gbc_lblD);
+        searchAreaPanel.add(lblD, gbc_lblD);
         
         lblN_4 = new JLabel("56°15,8 N\t");
         GridBagConstraints gbc_lblN_4 = new GridBagConstraints();
         gbc_lblN_4.insets = new Insets(0, 0, 5, 5);
         gbc_lblN_4.gridx = 1;
         gbc_lblN_4.gridy = 4;
-        panel_5.add(lblN_4, gbc_lblN_4);
+        searchAreaPanel.add(lblN_4, gbc_lblN_4);
         
         lblE_4 = new JLabel("7°53,6 E\t");
         GridBagConstraints gbc_lblE_4 = new GridBagConstraints();
         gbc_lblE_4.insets = new Insets(0, 0, 5, 0);
         gbc_lblE_4.gridx = 2;
         gbc_lblE_4.gridy = 4;
-        panel_5.add(lblE_4, gbc_lblE_4);
+        searchAreaPanel.add(lblE_4, gbc_lblE_4);
         
         horizontalStrut = Box.createHorizontalStrut(20);
         GridBagConstraints gbc_horizontalStrut = new GridBagConstraints();
         gbc_horizontalStrut.insets = new Insets(0, 0, 5, 5);
         gbc_horizontalStrut.gridx = 1;
         gbc_horizontalStrut.gridy = 5;
-        panel_5.add(horizontalStrut, gbc_horizontalStrut);
+        searchAreaPanel.add(horizontalStrut, gbc_horizontalStrut);
         
         lblAreaSize = new JLabel("Area [nm²]");
         GridBagConstraints gbc_lblAreaSize = new GridBagConstraints();
         gbc_lblAreaSize.insets = new Insets(0, 0, 0, 5);
         gbc_lblAreaSize.gridx = 0;
         gbc_lblAreaSize.gridy = 6;
-        panel_5.add(lblAreaSize, gbc_lblAreaSize);
+        searchAreaPanel.add(lblAreaSize, gbc_lblAreaSize);
         
         label_4 = new JLabel("23");
         GridBagConstraints gbc_label_4 = new GridBagConstraints();
         gbc_label_4.insets = new Insets(0, 0, 0, 5);
         gbc_label_4.gridx = 1;
         gbc_label_4.gridy = 6;
-        panel_5.add(label_4, gbc_label_4);
+        searchAreaPanel.add(label_4, gbc_label_4);
         
-        panel_6 = new JPanel();
-        GridBagConstraints gbc_panel_6 = new GridBagConstraints();
-        gbc_panel_6.fill = GridBagConstraints.BOTH;
-        gbc_panel_6.gridx = 0;
-        gbc_panel_6.gridy = 6;
-        add(panel_6, gbc_panel_6);
+        buttonPanel = new JPanel();
+        GridBagConstraints gbc_buttonPanel = new GridBagConstraints();
+        gbc_buttonPanel.insets = new Insets(0, 0, 5, 0);
+        gbc_buttonPanel.fill = GridBagConstraints.BOTH;
+        gbc_buttonPanel.gridx = 0;
+        gbc_buttonPanel.gridy = 6;
+        add(buttonPanel, gbc_buttonPanel);
         
         btnReopenCalculations = new JButton("Reopen Calculations");
-        panel_6.add(btnReopenCalculations);
+        buttonPanel.add(btnReopenCalculations);
         
         btnEffortAllocation = new JButton("Effort Allocation");
-        panel_6.add(btnEffortAllocation);
+        buttonPanel.add(btnEffortAllocation);
+        
+        effortAllocationPanel = new JPanel();
+        effortAllocationPanel.setBorder(new TitledBorder(null, "Effort Allocation", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        GridBagConstraints gbc_effortAllocationPanel = new GridBagConstraints();
+        gbc_effortAllocationPanel.fill = GridBagConstraints.BOTH;
+        gbc_effortAllocationPanel.gridx = 0;
+        gbc_effortAllocationPanel.gridy = 7;
+        add(effortAllocationPanel, gbc_effortAllocationPanel);
+        GridBagLayout gbl_effortAllocationPanel = new GridBagLayout();
+        gbl_effortAllocationPanel.columnWidths = new int[]{0, 0, 0};
+        gbl_effortAllocationPanel.rowHeights = new int[]{0, 0, 0, 0};
+        gbl_effortAllocationPanel.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+        gbl_effortAllocationPanel.rowWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
+        effortAllocationPanel.setLayout(gbl_effortAllocationPanel);
+        
+        lblProbabilityOfDetection = new JLabel("Probability of Detection:");
+        GridBagConstraints gbc_lblProbabilityOfDetection = new GridBagConstraints();
+        gbc_lblProbabilityOfDetection.insets = new Insets(0, 0, 5, 5);
+        gbc_lblProbabilityOfDetection.gridx = 0;
+        gbc_lblProbabilityOfDetection.gridy = 0;
+        effortAllocationPanel.add(lblProbabilityOfDetection, gbc_lblProbabilityOfDetection);
+        
+        label_5 = new JLabel("79%");
+        GridBagConstraints gbc_label_5 = new GridBagConstraints();
+        gbc_label_5.insets = new Insets(0, 0, 5, 0);
+        gbc_label_5.gridx = 1;
+        gbc_label_5.gridy = 0;
+        effortAllocationPanel.add(label_5, gbc_label_5);
+        
+        lblEffectiveSearchArea = new JLabel("Effective Search Area:");
+        GridBagConstraints gbc_lblEffectiveSearchArea = new GridBagConstraints();
+        gbc_lblEffectiveSearchArea.insets = new Insets(0, 0, 5, 5);
+        gbc_lblEffectiveSearchArea.gridx = 0;
+        gbc_lblEffectiveSearchArea.gridy = 1;
+        effortAllocationPanel.add(lblEffectiveSearchArea, gbc_lblEffectiveSearchArea);
+        
+        lblNm = new JLabel("10 nm2");
+        GridBagConstraints gbc_lblNm = new GridBagConstraints();
+        gbc_lblNm.insets = new Insets(0, 0, 5, 0);
+        gbc_lblNm.gridx = 1;
+        gbc_lblNm.gridy = 1;
+        effortAllocationPanel.add(lblNm, gbc_lblNm);
+        
+        lblSearchCraftGround = new JLabel("Search Craft Ground Speed:");
+        GridBagConstraints gbc_lblSearchCraftGround = new GridBagConstraints();
+        gbc_lblSearchCraftGround.insets = new Insets(0, 0, 0, 5);
+        gbc_lblSearchCraftGround.gridx = 0;
+        gbc_lblSearchCraftGround.gridy = 2;
+        effortAllocationPanel.add(lblSearchCraftGround, gbc_lblSearchCraftGround);
+        
+        lblKnhr = new JLabel("15 kn/h");
+        GridBagConstraints gbc_lblKnhr = new GridBagConstraints();
+        gbc_lblKnhr.gridx = 1;
+        gbc_lblKnhr.gridy = 2;
+        effortAllocationPanel.add(lblKnhr, gbc_lblKnhr);
     }
     
     
