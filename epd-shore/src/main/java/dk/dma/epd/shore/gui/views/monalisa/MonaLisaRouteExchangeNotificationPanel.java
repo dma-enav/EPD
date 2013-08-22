@@ -415,7 +415,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
                 System.out.println("bad select row");
             } else {
                 
-                if (aisData.getStaticData() != null){
+                if (aisData.getStaticData() != null && message != null){
                     area.updateLabels(message, aisData);    
                 }else{
                     area.updateLabels(message);
