@@ -34,14 +34,16 @@ public class AtonTargetGraphic extends TargetGraphic {
     private static final long serialVersionUID = 1L;
     private ImageIcon atonImage = new ImageIcon(AtonTargetGraphic.class.getResource("/images/aton/aton.png"));
     private CenterRaster atonMark;
+    private  AtoNTarget atonTarget;
     
     public AtonTargetGraphic() {
         super();
+        setVague(true);
     }
     
     @Override
     public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings) {
-        AtoNTarget atonTarget = (AtoNTarget)aisTarget;
+        atonTarget = (AtoNTarget)aisTarget;
         Position pos = atonTarget.getPos();
         float lat = (float)pos.getLatitude();
         float lon = (float)pos.getLongitude();
@@ -56,4 +58,10 @@ public class AtonTargetGraphic extends TargetGraphic {
         
     }
 
+    public AtoNTarget getAtonTarget() {
+        return atonTarget;
+    }
+
+    
+    
 }
