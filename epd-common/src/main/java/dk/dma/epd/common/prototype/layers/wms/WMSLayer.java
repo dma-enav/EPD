@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.common.prototype.layers.wms;
 
-
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
@@ -29,39 +28,31 @@ import com.bbn.openmap.proj.Projection;
 
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 
-
 /**
  * Layer handling all WMS data and displaying of it
- *
+ * 
  * @author David A. Camre (davidcamre@gmail.com)
- *
+ * 
  */
 public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     private static final long serialVersionUID = 1L;
     private OMGraphicList list = new OMGraphicList();
-    private CommonChartPanel chartPanel;   
-    private WMSInfoPanel wmsInfoPanel;
-    //simple flag set on projectionChanged to register for new WMS
+    private CommonChartPanel chartPanel;
+    //private WMSInfoPanel wmsInfoPanel;
     volatile boolean shouldRun = true;
     private StreamingTiledWmsService wmsService;
-    private Double upperLeftLon = 0.0;
-    private Double upperLeftLat = 0.0;
-    private Double lowerRightLon = 0.0;
-    private Double lowerRightLat = 0.0;
     private int height = -1;
     private int width = -1;
     private float lastScale = -1F;
-    private static final Logger LOG = LoggerFactory
-            .getLogger(WMSLayer.class);
+    private Logger LOG;
 
     private CopyOnWriteArrayList<OMGraphic> testList = new CopyOnWriteArrayList<>();
-    
 
     /**
      * Constructor that starts the WMS layer in a seperate thread
      */
     public WMSLayer(String query) {
-        
+        LOG = LoggerFactory.getLogger(WMSLayer.class);
         wmsService = new StreamingTiledWmsService(query, 4);
         new Thread(this).start();
 
@@ -73,7 +64,7 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
 
     /**
      * Draw the WMS onto the map
-     *
+     * 
      * @param list
      *            of elements to be drawn
      */
@@ -81,8 +72,8 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
         this.testList.addAllAbsent(list);
         this.list.clear();
         this.list.addAll(this.testList);
-        //this.list.addAll(list);
-        
+        // this.list.addAll(list);
+
         if (this.isVisible()) {
         } else {
             chartPanel.getBgLayer().setVisible(true);
@@ -96,8 +87,8 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
         if (obj instanceof CommonChartPanel) {
             this.chartPanel = (CommonChartPanel) obj;
             // chartPanel.getMapHandler().addPropertyChangeListener("WMS", pcl)
-            
-            //this.chartPanel.getMap().addProjectionListener(this);
+
+            // this.chartPanel.getMap().addProjectionListener(this);
         }
 
     }
@@ -107,31 +98,31 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
         list.project(getProjection());
         return list;
     }
-    
+
     @Override
     public synchronized void projectionChanged(ProjectionEvent e) {
         Projection proj = e.getProjection().makeClone();
-        
+
         if (proj.getScale() != lastScale) {
             clearWMS();
             lastScale = proj.getScale();
-            
+
         }
 
         width = proj.getWidth();
         height = proj.getHeight();
         if (width > 0 && height > 0 && proj.getScale() <= 3428460) {
             wmsService.queue(proj);
-            
+
         } else {
             this.setVisible(false);
         }
-        
-        //OMGraphicsHandlerLayer has its own thing
+
+        // OMGraphicsHandlerLayer has its own thing
         super.projectionChanged(e);
-        
+
     }
-    
+
     public void clearWMS() {
         this.testList.clear();
         this.drawWMS(new OMGraphicList());
@@ -141,20 +132,20 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     public void run() {
         while (shouldRun) {
             try {
-                Thread.sleep(250); 
+                Thread.sleep(250);
                 final Projection proj = this.getProjection();
                 width = proj.getWidth();
                 height = proj.getHeight();
-                
+
                 if (width > 0 && height > 0 && proj.getScale() <= 3428460) {
                     this.setVisible(true);
                     OMGraphicList result = wmsService.getWmsList(proj);
                     drawWMS(result);
                 }
-                
-            } catch (InterruptedException | NullPointerException e) {
 
-                //do nothing
+            } catch (InterruptedException | NullPointerException e) {
+                LOG.debug(e.getMessage());
+                // do nothing
             }
         }
     }
