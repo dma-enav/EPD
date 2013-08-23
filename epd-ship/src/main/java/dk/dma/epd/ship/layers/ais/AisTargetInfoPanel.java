@@ -18,6 +18,8 @@ package dk.dma.epd.ship.layers.ais;
 import java.text.DecimalFormat;
 
 import dk.dma.ais.message.AisMessage;
+import dk.dma.epd.common.prototype.ais.AisTarget.Status;
+import dk.dma.epd.common.prototype.ais.AtoNTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
@@ -40,6 +42,19 @@ public class AisTargetInfoPanel extends InfoPanel implements Runnable {
     public AisTargetInfoPanel() {
         super();
         new Thread(this).start();
+    }
+    
+    public void showAtonInfo(AtoNTarget atonTarget){
+        String name = atonTarget.getName();
+        Status status = atonTarget.getStatus();
+        StringBuilder str = new StringBuilder();
+        str.append("<html>");
+        str.append("Virtual AtoN");
+        str.append("<br>" + name + "</br>");
+        str.append("<br>Status: " + status + "</br>");
+        str.append("</html>");
+
+        showText(str.toString());
     }
 
     public void showAisInfo(VesselTarget vesselTarget) {

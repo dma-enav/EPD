@@ -24,7 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MainFrame;
@@ -141,7 +143,46 @@ public class ThreadedMapCreator implements Runnable {
                 .handleVoyage(originalRoute, voyage, renegotiate);
         window.setSize(1280, 768);
 
-        window.getChartPanel().getMap().setScale(1394055);
+        
+        //The two positions that must be shown
+        Position pos1 = voyage.getRoute().getWaypoints().get(0).getPos();
+        Position pos2 = voyage.getRoute().getWaypoints().get(voyage.getRoute().getWaypoints().size()-1).getPos();
+        
+        double distance = Calculator.range(pos1, pos2, Heading.RL);
+//        System.out.println("Distance is: " + distance);
+        int scale = 250000;
+
+        if (distance > 1){
+            scale = 60000;
+        }
+        
+        if (distance > 5){
+            scale = 120000;
+        }
+        
+        if (scale > 10){
+            scale = 240000;
+        }
+        
+        if (distance > 25){
+            scale = 500000;
+        }
+        if (distance > 50){
+            scale = 1000000;
+        }
+        if (distance > 100){
+            scale = 2500000;
+        }
+        if (distance > 200){
+            scale = 5000000;
+        }
+        if (distance > 400){
+            scale = 10000000;
+        }
+    
+        //5 mil
+        
+        window.getChartPanel().getMap().setScale(scale);
 
         // window.getChartPanel().zoomToPoint(
         // voyage.getRoute().getWaypoints().get(0).getPos());

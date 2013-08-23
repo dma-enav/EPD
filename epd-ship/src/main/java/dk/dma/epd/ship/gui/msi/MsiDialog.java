@@ -239,40 +239,40 @@ public class MsiDialog extends ComponentFrame implements ListSelectionListener, 
         MsiLocation msiLocation = msiMessage.getLocation();
         
         buf.append("<table>");
-        buf.append("<tr><td><b>Unique ID</b></td><td>" + msiMessage.getId() + "</td></tr>");
-        buf.append("<tr><td><b>Msg ID</b></td><td>" + msiMessage.getMessageId() + "</td></tr>");
-        buf.append("<tr><td><b>Version</b></td><td>" + msiMessage.getVersion() + "</td></tr>");
-        buf.append("<tr><td><b>Message</b></td><td>" + msiMessage.getMessage() + "</td></tr>");
-        buf.append("<tr><td><b>ENC text</b></td><td>" + Formatter.formatString(msiMessage.getEncText(), "") + "</td></tr>");
+        buf.append("<font color =\"FFFFFF\"><tr><td><b>Unique ID</b></td><td>" + msiMessage.getId() + "</td></tr>");
+        buf.append("<font color =\"FFFFFF\"><tr><td><b>Msg ID</b></td><td>" + msiMessage.getMessageId() + "</td></tr>");
+        buf.append("<font color =\"FFFFFF\"><tr><td><b>Version</b></td><td>" + msiMessage.getVersion() + "</td></tr>");
+        buf.append("<font color =\"FFFFFF\"><tr><td><b>Message</b></td><td>" + msiMessage.getMessage() + "</td></tr>");
+        buf.append("<font color =\"FFFFFF\"><tr><td><b>ENC text</b></td><td>" + Formatter.formatString(msiMessage.getEncText(), "") + "</td></tr>");
         if (msiLocation != null) {
-            buf.append("<tr><td><b>Area</b></td><td>" + Formatter.formatString(msiLocation.getArea(), "") + "</td></tr>");
+            buf.append("<font color =\"FFFFFF\"><tr><td><b>Area</b></td><td>" + Formatter.formatString(msiLocation.getArea(), "") + "</td></tr>");
             if (msiLocation.getSubArea() != null && msiLocation.getSubArea().length() > 0) {
-                buf.append("<tr><td><b>Sub area</b></td><td>" + Formatter.formatString(msiLocation.getSubArea(), "") + "</td></tr>");
+                buf.append("<font color =\"FFFFFF\"><tr><td><b>Sub area</b></td><td>" + Formatter.formatString(msiLocation.getSubArea(), "") + "</td></tr>");
             }
         }
-        buf.append("<tr><td><b>Updated</b></td><td>" + Formatter.formatShortDateTime(msiMessage.getUpdated()) + "</td></tr>");
-        buf.append("<tr><td><b>Created</b></td><td>" + Formatter.formatShortDateTime(msiMessage.getCreated()) + "</td></tr>");        
-        buf.append("<tr><td><b>Reference</b></td><td>" + Formatter.formatString(msiMessage.getReference(), "") + "</td></tr>");
+        buf.append("<font color =\"FFFFFF\"><tr><td><b>Updated</b></td><td>" + Formatter.formatShortDateTime(msiMessage.getUpdated()) + "</td></tr>");
+        buf.append("<font color =\"FFFFFF\"><tr><td><b>Created</b></td><td>" + Formatter.formatShortDateTime(msiMessage.getCreated()) + "</td></tr>");        
+        buf.append("<font color =\"FFFFFF\"><tr><td><b>Reference</b></td><td>" + Formatter.formatString(msiMessage.getReference(), "") + "</td></tr>");
         if (msiMessage.getNavtexNo() != null && msiMessage.getNavtexNo().length() > 0) {
-            buf.append("<tr><td><b>Navtex no</b></td><td>" + Formatter.formatString(msiMessage.getNavtexNo(), "") + "</td></tr>");
+            buf.append("<font color =\"FFFFFF\"><tr><td><b>Navtex no</b></td><td>" + Formatter.formatString(msiMessage.getNavtexNo(), "") + "</td></tr>");
         }
-        buf.append("<tr><td><b>Priority</b></td><td>" + Formatter.formatString(msiMessage.getPriority(), "") + "</td></tr>");
-        buf.append("<tr><td><b>Valid from</b></td><td>" + Formatter.formatShortDateTime(msiMessage.getValidFrom()) + "</td></tr>");
-        buf.append("<tr><td><b>Valid to</b></td><td>" + Formatter.formatShortDateTime(msiMessage.getValidTo()) + "</td></tr>");
+        buf.append("<font color =\"FFFFFF\"><tr><td><b>Priority</b></td><td>" + Formatter.formatString(msiMessage.getPriority(), "") + "</td></tr>");
+        buf.append("<font color =\"FFFFFF\"><tr><td><b>Valid from</b></td><td>" + Formatter.formatShortDateTime(msiMessage.getValidFrom()) + "</td></tr>");
+        buf.append("<font color =\"FFFFFF\"><tr><td><b>Valid to</b></td><td>" + Formatter.formatShortDateTime(msiMessage.getValidTo()) + "</td></tr>");
         if (msiMessage.getLocationPrecision() != null) {
-            buf.append("<tr><td><b>Location precision</b></td><td>" + Formatter.formatDouble(msiMessage.getLocationPrecision(), 2) + "</td></tr>");
+            buf.append("<font color =\"FFFFFF\"><tr><td><b>Location precision</b></td><td>" + Formatter.formatDouble(msiMessage.getLocationPrecision(), 2) + "</td></tr>");
         }
         if (msiMessage.getValidForDraugth() != null) {
-            buf.append("<tr><td><b>Valid for draught</b></td><td>" + Formatter.formatDouble(msiMessage.getValidForDraugth(), 2) + " m</td></tr>");
+            buf.append("<font color =\"FFFFFF\"><tr><td><b>Valid for draught</b></td><td>" + Formatter.formatDouble(msiMessage.getValidForDraugth(), 2) + " m</td></tr>");
         }
         if (msiMessage.getValidForShipType() != null) {
-            buf.append("<tr><td><b>Valid for ship type</b></td><td>" + Formatter.formatString(msiMessage.getValidForShipType(), "") + "</td></tr>");
+            buf.append("<font color =\"FFFFFF\"><tr><td><b>Valid for ship type</b></td><td>" + Formatter.formatString(msiMessage.getValidForShipType(), "") + "</td></tr>");
         }
-        buf.append("<tr><td><b>Organisation</b></td><td>" + Formatter.formatString(msiMessage.getOrganisation(), "") + "</td></tr>");
-        buf.append("<tr><td><b>Username</b></td><td>" + Formatter.formatString(msiMessage.getUsername(), "") + "</td></tr>");
+        buf.append("<font color =\"FFFFFF\"><tr><td><b>Organisation</b></td><td>" + Formatter.formatString(msiMessage.getOrganisation(), "") + "</td></tr>");
+        buf.append("<font color =\"FFFFFF\"><tr><td><b>Username</b></td><td>" + Formatter.formatString(msiMessage.getUsername(), "") + "</td></tr>");
         
         if (msiLocation != null && msiLocation.getPoints() != null) {
-            buf.append("<tr><td><b>Location</b></td><td>");
+            buf.append("<font color =\"FFFFFF\"><tr><td><b>Location</b></td><td>");
             buf.append(msiLocation.getLocationType().name() + ": ");
             List<String> points = new ArrayList<>();
             for (MsiPoint msiPoint : msiLocation.getPoints()) {

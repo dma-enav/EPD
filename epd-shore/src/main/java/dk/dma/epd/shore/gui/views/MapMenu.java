@@ -601,8 +601,10 @@ public class MapMenu extends JPopupMenu implements ActionListener,
                 && monaLisaHandler.getMonaLisaNegotiationData().containsKey(
                         transactionID));
 
-        
-        
+//        System.out.println("Ship available: " + EPDShore.getEnavServiceHandler()
+//                .shipAvailableForMonaLisaTransaction(mmsi));
+//        System.out.println("Key is contained: " + monaLisaHandler.getMonaLisaNegotiationData().containsKey(
+//                transactionID));
         add(voyageZoomToShip);
         add(voyageShowTransaction);
 

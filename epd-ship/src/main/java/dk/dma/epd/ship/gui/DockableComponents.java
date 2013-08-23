@@ -132,10 +132,10 @@ public class DockableComponents {
         }
 
         control.intern().getController().getRelocator().setDragOnlyTitel(true);
-
+//
         List<SingleCDockable> mdlist = control.getRegister()
                 .getSingleDockables();
-
+//
         for (int i = 0; i < mdlist.size(); i++) {
             PanelDockable dockable = (PanelDockable) mdlist.get(i);
             dockable.setStackable(false);
@@ -147,20 +147,10 @@ public class DockableComponents {
             // dockable.putAction(CDockable.ACTION_KEY_MINIMIZE, CBlank.BLANK);
             dockable.putAction(CDockable.ACTION_KEY_EXTERNALIZE, CBlank.BLANK);
             // dockable.putAction(CDockable.ACTION_KEY_CLOSE, CBlank.BLANK);
-            
-            
             dockable.getContentPane().getComponent(0).setVisible(true);
         }
-
+//
         control.getContentArea().setMinimumAreaSize(new Dimension(0, 0));
-
-        // Frames
-//        BorderMod bridge = new BorderMod();
-//        control.getController()
-//                .getThemeManager()
-//                .publish(Priority.CLIENT, DisplayerDockBorder.KIND,
-//                        ThemeManager.BORDER_MODIFIER_TYPE, bridge);
-
         control.setTheme( ThemeMap.KEY_FLAT_THEME );
     }
 
@@ -403,26 +393,49 @@ public class DockableComponents {
         // System.out.println(locked);
         // toggleFrameLock();
 
-        control.intern().getController().getRelocator().setDragOnlyTitel(true);
-
-        List<SingleCDockable> mdlist = control.getRegister()
-                .getSingleDockables();
-
-        for (int i = 0; i < mdlist.size(); i++) {
-            PanelDockable dockable = (PanelDockable) mdlist.get(i);
-            dockable.setStackable(false);
-            dockable.setMinimizable(false);
-            dockable.setMaximizable(false);
-        }
-
-        control.getContentArea().setMinimumAreaSize(new Dimension(0, 0));
+//        control.intern().getController().getRelocator().setDragOnlyTitel(true);
+//
+//        List<SingleCDockable> mdlist = control.getRegister()
+//                .getSingleDockables();
+//
+//        for (int i = 0; i < mdlist.size(); i++) {
+//            PanelDockable dockable = (PanelDockable) mdlist.get(i);
+//            dockable.setStackable(false);
+//            dockable.setMinimizable(false);
+//            dockable.setMaximizable(false);
+//        }
+//
+//        control.getContentArea().setMinimumAreaSize(new Dimension(0, 0));
 
         // Frames
-        BorderMod bridge = new BorderMod();
-        control.getController()
-                .getThemeManager()
-                .publish(Priority.CLIENT, DisplayerDockBorder.KIND,
-                        ThemeManager.BORDER_MODIFIER_TYPE, bridge);
+//        BorderMod bridge = new BorderMod();
+//        control.getController()
+//                .getThemeManager()
+//                .publish(Priority.CLIENT, DisplayerDockBorder.KIND,
+//                        ThemeManager.BORDER_MODIFIER_TYPE, bridge);
+        
+        
+        control.intern().getController().getRelocator().setDragOnlyTitel(true);
+        //
+                List<SingleCDockable> mdlist = control.getRegister()
+                        .getSingleDockables();
+        
+                for (int i = 0; i < mdlist.size(); i++) {
+                    PanelDockable dockable = (PanelDockable) mdlist.get(i);
+                    dockable.setStackable(false);
+                    dockable.setMinimizable(false);
+                    dockable.setMaximizable(false);
+                    dockable.setTitleIcon(new ImageIcon());
+                    dockable.setExternalizable(false);
+                    // dockable.putAction(CDockable.ACTION_KEY_MAXIMIZE, CBlank.BLANK);
+                    // dockable.putAction(CDockable.ACTION_KEY_MINIMIZE, CBlank.BLANK);
+                    dockable.putAction(CDockable.ACTION_KEY_EXTERNALIZE, CBlank.BLANK);
+                    // dockable.putAction(CDockable.ACTION_KEY_CLOSE, CBlank.BLANK);
+                    dockable.getContentPane().getComponent(0).setVisible(true);
+                }
+        
+                control.getContentArea().setMinimumAreaSize(new Dimension(0, 0));
+                control.setTheme( ThemeMap.KEY_FLAT_THEME );
 
         lock();
         // System.out.println(locked);

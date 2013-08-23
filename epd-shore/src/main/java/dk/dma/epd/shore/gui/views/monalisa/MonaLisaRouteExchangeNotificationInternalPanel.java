@@ -223,29 +223,40 @@ public class MonaLisaRouteExchangeNotificationInternalPanel extends JPanel {
     public void updateLabels(MonaLisaRouteNegotiationData message,
             VesselTarget aisData) {
 
-        transactionIDText.setText(message.getId() + "");
+        if (aisData.getStaticData() != null) {
 
-        // Color coding?
-        pendngTxt.setText(message.getStatus().toString());
-        setStatusColor(message.getStatus());
+            transactionIDText.setText(message.getId() + "");
 
-        mmsiTxt.setText(message.getRouteMessage().get(0).getMmsi() + "");
+            // Color coding?
+            pendngTxt.setText(message.getStatus().toString());
+            setStatusColor(message.getStatus());
 
-        nameTxt.setText(aisData.getStaticData().getName().trim());
-        callSignTxt.setText(aisData.getStaticData().getCallsign().trim());
-        destinationTxt.setText(aisData.getStaticData().getDestination().trim());
+            mmsiTxt.setText(message.getRouteMessage().get(0).getMmsi() + "");
 
-        typeTxt.setText(aisData.getStaticData().getShipType().toString());
+            nameTxt.setText(aisData.getStaticData().getName().trim());
+            callSignTxt.setText(aisData.getStaticData().getCallsign().trim());
 
-        lengthTxt.setText(aisData.getStaticData().getDimBow()
-                + aisData.getStaticData().getDimStern() + "");
-        widthTxt.setText(aisData.getStaticData().getDimPort()
-                + aisData.getStaticData().getDimStarboard() + "");
-        draughtTxt.setText(aisData.getStaticData().getDraught() / 10 + "");
-        sogTxt.setText(aisData.getPositionData().getSog() + "");
-        cogTxt.setText(aisData.getPositionData().getCog() + "");
+            if (aisData.getStaticData().getDestination() != null){
+                destinationTxt.setText(aisData.getStaticData().getDestination()
+                        .trim());
+            }else{
+                destinationTxt.setText("N/A");
+            }
+            
 
-        setNegotiationTabs(message);
+
+            typeTxt.setText(aisData.getStaticData().getShipType().toString());
+
+            lengthTxt.setText(aisData.getStaticData().getDimBow()
+                    + aisData.getStaticData().getDimStern() + "");
+            widthTxt.setText(aisData.getStaticData().getDimPort()
+                    + aisData.getStaticData().getDimStarboard() + "");
+            draughtTxt.setText(aisData.getStaticData().getDraught() / 10 + "");
+            sogTxt.setText(aisData.getPositionData().getSog() + "");
+            cogTxt.setText(aisData.getPositionData().getCog() + "");
+
+            setNegotiationTabs(message);
+        }
     }
 
     private void setStatusColor(MonaLisaRouteStatus status) {
@@ -296,13 +307,13 @@ public class MonaLisaRouteExchangeNotificationInternalPanel extends JPanel {
     private void setNegotiationTabs(MonaLisaRouteNegotiationData message) {
         // tabbedPane.setVisible(true);
 
-         tabbedPane.removeAll();
+        tabbedPane.removeAll();
 
         // for each route message
-        for (int i = message.getRouteMessage().size()-1; i > -1; i--) {
-            
+        for (int i = message.getRouteMessage().size() - 1; i > -1; i--) {
+
             System.out.println("looking at message " + i);
-            
+
             MonaLisaNegotiationView negotiation = new MonaLisaNegotiationView(
                     message.getRouteMessage().get(i));
 
@@ -313,9 +324,7 @@ public class MonaLisaRouteExchangeNotificationInternalPanel extends JPanel {
             }
 
             if (message.isCompleted()) {
-                
-                
-                
+
                 System.out.println("Its completed with status "
                         + message.getStatus());
             }
