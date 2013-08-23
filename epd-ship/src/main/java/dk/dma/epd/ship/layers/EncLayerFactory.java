@@ -18,6 +18,7 @@ package dk.dma.epd.ship.layers;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -171,6 +172,11 @@ public class EncLayerFactory {
         Class<?>[] argTypes = new Class<?>[0];
         Object[] arguments = new Object[0];
         try {
+            
+
+            
+            
+            
             // Get settings
             Method method = encLayer.getClass().getDeclaredMethod(
                     "getS52MarinerSettings", argTypes);
@@ -209,16 +215,18 @@ public class EncLayerFactory {
             method = encLayer.getClass().getDeclaredMethod(
                     "setS52MarinerSettings", argTypes);
             method.invoke(encLayer, arguments);
-            
-            
-            //Set s57 settings
-            Properties s57Props = new Properties();
-            s57Props.setProperty("enc.viewGroupSettings",
-                     EPDShip.getSettings().getS57Settings().getS52mapSettings());
-                
-            encLayer.setProperties(s57Props);
-                
 
+
+            
+            
+            // Set s57 settings
+            Properties s57Props = new Properties();
+            s57Props.setProperty("enc.viewGroupSettings", EPDShip.getSettings()
+                    .getS57Settings().getS52mapSettings());
+
+            encLayer.setProperties(s57Props);
+            
+            
 
             return true;
         } catch (Exception e) {
@@ -228,6 +236,76 @@ public class EncLayerFactory {
         }
 
         return false;
+    }
+
+    public void reapplySettings() {
+        
+        if (encLayer == null) {
+            return;
+        } else {
+
+            
+            try {
+                Class<?>[] argTypes = new Class<?>[0];
+                Object[] arguments = new Object[0];
+                // Get settings
+                Method method = encLayer.getClass().getDeclaredMethod(
+                        "getS52MarinerSettings", argTypes);
+                Object obj = method.invoke(encLayer, arguments);
+                Properties marinerSettings = (Properties) obj;
+
+                argTypes = new Class<?>[1];
+                argTypes[0] = Properties.class;
+                arguments = new Object[1];
+                arguments[0] = marinerSettings;
+                
+               method = encLayer.getClass().getDeclaredMethod(
+                        "setS52MarinerSettings", argTypes);
+               
+                    method.invoke(encLayer, arguments);
+            
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            
+            
+//            Object obj = method.invoke(encLayer, arguments);
+//            marinerSettings = (Properties) obj;
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+//            
+//            Class<?> c;
+//            try {
+//                c = Class.forName("dk.navicon.s52.pure.presentation.S52Layer");
+//                
+//                
+//                
+////                
+////                Class<?> s52layer = (c) encLayer;
+//                
+//                
+//                Method m = c.getMethod("emptyCellCache");
+//                m.invoke(null);
+//
+//                Method m2 = c.getMethod("doPrepare");
+//                m2.invoke(null);
+//
+//            } catch (Exception e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+        }
     }
 
 }
