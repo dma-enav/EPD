@@ -128,8 +128,10 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShip
                 .getSettings().getMapSettings());
         encLayer = encLayerFactory.getEncLayer();
-
-
+        // Add WMS Layer
+        wmsLayer = new WMSLayer("http://kortforsyningen.kms.dk/soe_enc_primar?ignoreillegallayers=TRUE&transparent=TRUE&login=StatSofart&password=114karls&VERSION=1.1.1&REQUEST=GetMap&SRS=EPSG:4326&LAYERS=cells&STYLES=style-id-246&FORMAT=image/gif&service=WMS");
+        mapHandler.add(wmsLayer);
+        
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
         map.setDoubleBuffered(true);
@@ -241,6 +243,8 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         coastalOutlineLayer.setVisible(true);
         mapHandler.add(coastalOutlineLayer);
 
+        
+        
         if (encLayer != null) {
             mapHandler.add(encLayer);
         }
@@ -250,9 +254,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         mapHandler.add(map);
         
 
-        // Add WMS Layer
-        wmsLayer = new WMSLayer("http://kortforsyningen.kms.dk/soe_enc_primar?ignoreillegallayers=TRUE&transparent=TRUE&login=StatSofart&password=114karls&VERSION=1.1.1&REQUEST=GetMap&SRS=EPSG:4326&LAYERS=cells&STYLES=style-id-246&FORMAT=image/gif&service=WMS");
-        mapHandler.add(wmsLayer);
+
 
         // Set last postion
         map.setCenter(mapSettings.getCenter());
