@@ -15,18 +15,20 @@
  */
 package dk.dma.epd.common.prototype.layers.wms;
 
+import java.text.DecimalFormat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
+import com.bbn.openmap.proj.Proj;
+import com.bbn.openmap.proj.Projection;
 
 import dk.dma.epd.common.prototype.status.WMSStatus;
 
 public abstract class AbstractWMSService {    
-    private static final Logger LOG = LoggerFactory
-            .getLogger(AbstractWMSService.class);
+    protected Logger LOG;
 
-    protected OMGraphicList wmsList = new OMGraphicList();
     protected String wmsQuery = "";
     protected String width;
     protected String height;
@@ -44,17 +46,38 @@ public abstract class AbstractWMSService {
 //    protected Double deltaY = 0.00068;
     private Double deltaX = 0.000000;
     private Double deltaY = 0.000000;
-    protected boolean wmsImage;
     protected WMSStatus status = new WMSStatus();
-    protected float zoomLevel = -1;    
-    
-    
+    protected float zoomLevel = -1;
+
+
     public AbstractWMSService(String wmsQuery) {
-       this.wmsQuery = wmsQuery;
+        this.LOG = LoggerFactory.getLogger(this.getClass());
+        this.wmsQuery = wmsQuery;        
+     }
+    
+    public AbstractWMSService(String wmsQuery, Projection p) {
+       this(wmsQuery);
+       this.setWMSPosition(p);
+       this.setZoomLevel(p);
+       
     }
     
-
-    public void setZoomLevel(float zoom){
+    protected void setZoomLevel(Projection p) {
+        setZoomLevel(p.getScale());
+    }
+    
+    protected void setWMSPosition(Projection p) {
+        setWMSPosition(p.getUpperLeft().getX(),
+                p.getUpperLeft().getY(),
+                p.getUpperLeft().getX(),
+                p.getUpperLeft().getY(),
+                p.getLowerRight().getX(),
+                p.getLowerRight().getY(),
+                p.getWidth(),
+                p.getHeight());
+    }
+    
+    protected void setZoomLevel(float zoom){
         zoomLevel = zoom;
     }
     /**
@@ -68,7 +91,7 @@ public abstract class AbstractWMSService {
      * @param w
      * @param h
      */
-    public void setWMSPosition(Double ullon, Double ullat, 
+    protected void setWMSPosition(Double ullon, Double ullat, 
             Double upperLeftLon, 
             Double upperLeftLat, 
             Double lowerRightLon, 
@@ -86,16 +109,15 @@ public abstract class AbstractWMSService {
         this.upperLeftLat = upperLeftLat;
         this.lowerRightLon = lowerRightLon;
         this.lowerRightLat = lowerRightLat;
+        
     }
     
-    
-
     /**
      * Get the generated WMS query
      * @author David A. Camre (davidcamre@gmail.com)
      * @return
      */
-    public String getQueryString(){
+    protected String getQueryString(){
         String queryString = "";
 
 
@@ -162,17 +184,12 @@ public abstract class AbstractWMSService {
         this.wmsQuery = wmsString;
     }
     
-
-
-    public boolean isWmsImage() {
-        return wmsImage;
-    }
     
     /**
      * After the query has been generated this completes it and returns a OMGraphiclist of the graphics
      * @return
      */
-    public abstract OMGraphicList getWmsList();
+    public abstract OMGraphicList getWmsList(Projection p);
 
     
     public String getBbox() {
@@ -182,6 +199,20 @@ public abstract class AbstractWMSService {
         Double.toString(lowerRightLon + deltaX) + "," +
         Double.toString(upperLeftLat + deltaY);
 
+    }
+    
+    public static Projection normalizeProjection(Projection p) {
+        Proj p2 = (Proj)p.makeClone();
+        double x = p.getCenter().getX();
+        double y = p.getCenter().getY();
+        
+
+        p2.setCenter(Math.round(x),Math.round(y));
+        p2.setWidth(p.getWidth()+25);
+        p2.setHeight(p.getHeight()+25);
+        
+        return (Projection)p.makeClone();
+        
     }
     
 }

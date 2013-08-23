@@ -16,12 +16,14 @@
 package dk.dma.epd.common.prototype.layers.wms;
 
 
-import javax.swing.SwingUtilities;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
+import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.Projection;
 
@@ -41,18 +43,19 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     private WMSInfoPanel wmsInfoPanel;
     //simple flag set on projectionChanged to register for new WMS
     volatile boolean shouldRun = true;
-    private AbstractWMSService wmsService;
+    private StreamingTiledWmsService wmsService;
     private Double upperLeftLon = 0.0;
     private Double upperLeftLat = 0.0;
     private Double lowerRightLon = 0.0;
     private Double lowerRightLat = 0.0;
     private int height = -1;
     private int width = -1;
-    
-    
+    private float lastScale = -1F;
     private static final Logger LOG = LoggerFactory
             .getLogger(WMSLayer.class);
 
+    private CopyOnWriteArrayList<OMGraphic> testList = new CopyOnWriteArrayList<>();
+    
 
     /**
      * Constructor that starts the WMS layer in a seperate thread
@@ -75,14 +78,12 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
      *            of elements to be drawn
      */
     public void drawWMS(OMGraphicList list) {
+        this.testList.addAllAbsent(list);
         this.list.clear();
-        this.list.add(list);
+        this.list.addAll(this.testList);
+        //this.list.addAll(list);
         
-        
-        // wmsInfoPanel.setVisible(false);
-
-        if (wmsService.isWmsImage() && this.isVisible()) {
-            chartPanel.getBgLayer().setVisible(false);
+        if (this.isVisible()) {
         } else {
             chartPanel.getBgLayer().setVisible(true);
         }
@@ -108,36 +109,31 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     }
     
     @Override
-    public void projectionChanged(ProjectionEvent e) {
-        //OMGraphicsHandlerLayer has its own thing
+    public synchronized void projectionChanged(ProjectionEvent e) {
+        Projection proj = e.getProjection().makeClone();
         
-        super.projectionChanged(e);
-        
-        clearWMS();
-        
-        Projection proj = e.getProjection();
+        if (proj.getScale() != lastScale) {
+            clearWMS();
+            lastScale = proj.getScale();
+            
+        }
 
         width = proj.getWidth();
         height = proj.getHeight();
         if (width > 0 && height > 0 && proj.getScale() <= 3428460) {
+            wmsService.queue(proj);
             
-            upperLeftLon = proj.getUpperLeft().getX();
-            upperLeftLat = proj.getUpperLeft().getY();
-            lowerRightLon = proj.getLowerRight().getX();
-            lowerRightLat = proj.getLowerRight().getY();
-        
-
-            wmsService.setZoomLevel(proj.getScale());
-            wmsService.setWMSPosition(upperLeftLon, upperLeftLat, upperLeftLon, upperLeftLat, lowerRightLon,
-                    lowerRightLat, width, height);
-            
-
         } else {
             this.setVisible(false);
         }
+        
+        //OMGraphicsHandlerLayer has its own thing
+        super.projectionChanged(e);
+        
     }
     
     public void clearWMS() {
+        this.testList.clear();
         this.drawWMS(new OMGraphicList());
     }
 
@@ -145,20 +141,20 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     public void run() {
         while (shouldRun) {
             try {
-                Thread.sleep(200); 
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            
-            
-            width = getProjection().getWidth();
-            height = getProjection().getHeight();
-            if (width > 0 && height > 0 && getProjection().getScale() <= 3428460) {
-                this.setVisible(true);
-                OMGraphicList result = wmsService.getWmsList();
+                Thread.sleep(250); 
+                final Projection proj = this.getProjection();
+                width = proj.getWidth();
+                height = proj.getHeight();
                 
-                drawWMS(result);                
+                if (width > 0 && height > 0 && proj.getScale() <= 3428460) {
+                    this.setVisible(true);
+                    OMGraphicList result = wmsService.getWmsList(proj);
+                    drawWMS(result);
+                }
+                
+            } catch (InterruptedException | NullPointerException e) {
+
+                //do nothing
             }
         }
     }

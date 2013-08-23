@@ -15,7 +15,9 @@
  */
 package dk.dma.epd.common.prototype.layers.wms;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -25,91 +27,88 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.bbn.openmap.omGraphics.OMGraphicList;
+import com.bbn.openmap.proj.Proj;
+import com.bbn.openmap.proj.Projection;
+
+import dk.dma.enav.model.geometry.CoordinateSystem;
+import dk.dma.enav.model.geometry.Position;
 
 public class TiledWMSService extends AbstractWMSService {
-    private static final Logger LOG = LoggerFactory
-            .getLogger(TiledWMSService.class);
     
-    protected ArrayList<SingleWMSService> wmsInstances = new ArrayList<>();
     protected int root;
-    private int sqrRoot;
-    protected volatile boolean needUpdate;
+    protected int sqrRoot;
+
+    private Projection projection;
     
     public TiledWMSService(String wmsQuery, int tileNumber) {
         super(wmsQuery);
-        
-        for (int i=0; i<tileNumber; i++) {
-            wmsInstances.add(new SingleWMSService(wmsQuery));
-        }
-        
         this.root = tileNumber;
         this.sqrRoot = (int) Math.sqrt(root);
     }
     
-    @Override
-    public void setZoomLevel(float zoom){
-        super.setZoomLevel(zoom);
-     
-        for (SingleWMSService i: wmsInstances) {
-            i.setZoomLevel(zoomLevel);
-        }
+    protected final Collection<SingleWMSService> getTiles(Projection p){
+        super.setWMSPosition(p);
+        super.setZoomLevel(p.getScale());
+        this.setProjection(p);
         
-        needUpdate = true;
-        
-    }
-    
-    @Override
-    public void setWMSPosition(Double ullon, Double ullat, 
-            Double upperLeftLon, 
-            Double upperLeftLat, 
-            Double lowerRightLon, 
-            Double lowerRightLat, 
-            int w, int h){
-        
-        super.setWMSPosition(ullon, ullat, upperLeftLon, upperLeftLat, lowerRightLon, lowerRightLat, w, h);
-        
+        //TODO: there is certainly an issue here since i'm overlaying tiles based on 2D geometry. I really should use projection geometry
         Double rectWidth = (lowerRightLon-upperLeftLon)/sqrRoot;
         Double rectHeight = (lowerRightLat-upperLeftLat)/sqrRoot;
+        
+        Double meanRectWidth = CoordinateSystem.GEODETIC.distanceBetween(Position.create(upperLeftLat,upperLeftLon), Position.create(upperLeftLat,lowerRightLon))/sqrRoot;
+        Double meanRectHeight = CoordinateSystem.GEODETIC.distanceBetween(Position.create(upperLeftLat,upperLeftLon), Position.create(lowerRightLat, upperLeftLon))/sqrRoot;
         
         int rectW = (int)Math.round(wmsWidth/sqrRoot);
         int rectH = (int)Math.round(wmsHeight/sqrRoot);
         
+    
+        Collection<SingleWMSService>wmsInstances = new ArrayList<>();
+        for (int i=0;i<root;i++) { 
+            wmsInstances.add(new SingleWMSService(wmsQuery,p));
+        }
+        
         Iterator<SingleWMSService>it = wmsInstances.iterator();
+                
         for (int i=0; i<sqrRoot; i++){
             Double lonOffset = rectWidth*i;
             for (int j=0; j<sqrRoot; j++) {
                 Double latOffset = rectHeight*j;
 
-                AbstractWMSService s = it.next();
+                SingleWMSService s = it.next();
                 
                 Double minLon = wmsullon+lonOffset;
                 Double maxLon = wmsullon+lonOffset+rectWidth;
                 Double minLat = wmsullat+latOffset;
                 Double maxLat = wmsullat+latOffset+rectHeight;
-                
+                 
+                //TODO: we cheat here, we add 1 pixel to width and height to overlap all tiles, but we really should change the projection as well  
                 s.setWMSPosition(minLon+rectWidth/2,minLat+rectHeight/2,
-                        minLon, minLat, maxLon, maxLat,rectW,rectH);
+                        minLon, minLat, maxLon, maxLat,rectW+1,rectH+1);
+                
+                s.setZoomLevel(p.getScale());
             }
         }
         
-        needUpdate = true;
+        return wmsInstances;
+        
     }
     
-    
+    private void setProjection(Projection p) {
+        this.projection = p;
+        
+    }
+
+
     @Override
-    public OMGraphicList getWmsList() {                
-        if (!needUpdate) {
-            return wmsList;
-        }
+    public OMGraphicList getWmsList(Projection p) {                
         
         OMGraphicList result = new OMGraphicList(); 
         
         //why not make this a field? because we want total separation between results
         ExecutorService es = Executors.newCachedThreadPool();
+        
+        Collection<SingleWMSService> wmsInstances = this.getTiles(p);
         
         try {
             List<Future<OMGraphicList>> futures = es.invokeAll(wmsInstances, 10, TimeUnit.SECONDS);
@@ -126,8 +125,6 @@ public class TiledWMSService extends AbstractWMSService {
                 
             }
             
-            needUpdate = false;
-            
             
             
         } catch (InterruptedException | ExecutionException e ) {
@@ -137,11 +134,11 @@ public class TiledWMSService extends AbstractWMSService {
         // Singlethreaded alternative
         /*
         for (SingleWMSService s: wmsInstances) {
-            result.addAll(s.getWmsList());
+            result.addAll(s.getWmsList(p));
         }
         */
         
-        wmsList = result;
+        
         
         return result;
      

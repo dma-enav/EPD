@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.image.ImageServerConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
-import com.bbn.openmap.omGraphics.OMRaster;
+import com.bbn.openmap.proj.Projection;
 
 import dk.dma.epd.common.graphics.CenterRaster;
 import dk.dma.epd.common.prototype.EPD;
@@ -36,32 +36,30 @@ import dk.dma.epd.common.prototype.status.IStatusComponent;
 
 
 
-public class SingleWMSService extends AbstractWMSService implements ImageServerConstants, IStatusComponent, Callable<OMGraphicList> {
+public final class SingleWMSService extends AbstractWMSService implements ImageServerConstants, IStatusComponent, Callable<OMGraphicList> {
     private static final Logger LOG = LoggerFactory
             .getLogger(SingleWMSService.class);
+    private Projection projection;
     
-    /**
-     * Initialize a SingleWMSService instance that uses wmsQuery as base string
-     * @param wmsQuery base string for web service address
-     */
+
+    public SingleWMSService(String wmsQuery, Projection p) {
+        super(wmsQuery,p);
+        this.projection = p;
+    }
+    
     public SingleWMSService(String wmsQuery) {
         super(wmsQuery);
     }
+    
 
-
-    public OMGraphicList getWmsList() {
+    public OMGraphicList getWmsList(Projection p) {
         java.net.URL url = null;
+        
+        OMGraphicList wmsList = new OMGraphicList();
+        
         try {
             
-            url = new java.net.URL(getQueryString());
-            /*
-            java.net.HttpURLConnection urlc = (java.net.HttpURLConnection) url.openConnection();
-            urlc.setRequestProperty("User-Agent","Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14");
-            urlc.setDoInput(true);
-            urlc.setDoOutput(true);
-            urlc.setRequestMethod("GET");
-            urlc.disconnect();*/
-            wmsList.clear();
+            url = new java.net.URL(getQueryString());            
 
             ImageIcon wmsImg = new ImageIcon(url);
             wmsImg.getImage();
@@ -73,31 +71,29 @@ public class SingleWMSService extends AbstractWMSService implements ImageServerC
                 g.drawImage(noImage, 0, 0, wmsWidth, wmsHeight, null);
                 ImageIcon noImageIcon = new ImageIcon(bi);
                 wmsList.add(new CenterRaster(this.wmsullat, this.wmsullon, this.wmsWidth, this.wmsHeight, noImageIcon));
-                wmsImage = false;
             }else{
                 status.markContactSuccess();
                 wmsList.add(new CenterRaster(this.wmsullat, this.wmsullon, this.wmsWidth, this.wmsHeight, wmsImg));
-                wmsImage = true;
             }
 
         } catch (java.net.MalformedURLException murle) {
             status.markContactError(murle);
-            System.out.println("Bad URL!");
+            LOG.error("Bad URL!");
         }
-        System.out.println("thread done");
+        //LOG.debug("DONE DOWNLOADING");
+        
         return wmsList;
     }
-
 
     @Override
     public ComponentStatus getStatus() {
         return status;
     }
 
-
     @Override
     public OMGraphicList call() throws Exception {
-        return getWmsList();
+        return getWmsList(this.projection);
     }
+
 
 }

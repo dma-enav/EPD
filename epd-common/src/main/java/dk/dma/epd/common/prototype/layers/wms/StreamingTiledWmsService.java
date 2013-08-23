@@ -15,111 +15,155 @@
  */
 package dk.dma.epd.common.prototype.layers.wms;
 
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
-import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
+import com.bbn.openmap.proj.Projection;
 
-public class StreamingTiledWmsService extends TiledWMSService implements Runnable {
+public class StreamingTiledWmsService extends TiledWMSService implements Runnable,AsyncWMSService {
 
     private boolean shouldRun = true;
-    CopyOnWriteArrayList<OMGraphic> wmsListSafe = new CopyOnWriteArrayList<>();
-    ExecutorService pool =  Executors.newFixedThreadPool(root);
-    ExecutorCompletionService<OMGraphicList> completionService = new ExecutorCompletionService<>(pool);
+    ConcurrentHashMap<String, OMGraphicList> cache = new ConcurrentHashMap<String, OMGraphicList>();
+    ConcurrentHashMap<String, OMGraphicList> tmpCache = new ConcurrentHashMap<String, OMGraphicList>();
+    LinkedBlockingDeque<Projection> projectionJobs = new LinkedBlockingDeque<>(5);
+    
+    
+    private Thread t;
     
     
     public StreamingTiledWmsService(String wmsQuery, int tileNumber) {
         super(wmsQuery,tileNumber);
         
-        new Thread(this).start();
-    }
-    
-    @Override
-    public void setZoomLevel(float zoom){
-        wmsListSafe.clear();
-        super.setZoomLevel(zoom);
-        needUpdate = true;
+        this.t = new Thread(this);
+        this.t.start();
     }
     
     
     @Override
-    public void setWMSPosition(Double ullon, Double ullat, 
-            Double upperLeftLon, 
-            Double upperLeftLat, 
-            Double lowerRightLon, 
-            Double lowerRightLat, 
-            int w, int h){
+    public OMGraphicList getWmsList(Projection p) {
+        final OMGraphicList result = new OMGraphicList();
+        final String key = getID(p);
+        if (cache.containsKey(key)) {
+            //LOG.debug("CACHE HIT");
+            tmpCache.remove(key);
+            result.addAll(cache.get(key));            
+        } else if (tmpCache.containsKey(key)){
+            //LOG.debug("TMPCACHE HIT");
+            result.addAll(tmpCache.get(key));
+        }
         
-        
-        wmsListSafe.clear();
-        super.setWMSPosition(ullon, ullat, upperLeftLon, upperLeftLat, lowerRightLon, lowerRightLat, w, h);
-        needUpdate = true;
-    }
-    
-
-
-    @Override
-    public OMGraphicList getWmsList() {
-        OMGraphicList result = new OMGraphicList();
-        //System.out.println(wmsListSafe.size());
-        result.addAll(wmsListSafe);
         return result;
     }
     
-    
-
     /**
      * Stop the thread
      */
     public void stop() {
         shouldRun  = false;
     }
+    
 
     @Override
     public void run() {
         while (shouldRun) {
+            Projection job = null;
             try {
-                Thread.sleep(200);
+                //blocks until projection bbox job ready
+                job = projectionJobs.takeLast();
+                
+                Thread.sleep(1000); //only take jobs every second
+                //LOG.debug("JOB TAKEN");
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             
-
-            if (needUpdate) {
-                System.out.println("heavyTick");
-                
-                
-                
-                
-                for (SingleWMSService i: wmsInstances) {
-                    completionService.submit(i);
-                }
-                
-                for (int i = 0; i< wmsInstances.size(); i++) {
-                    Future<OMGraphicList> future;
-
-                    try {
-                        future = completionService.take();
-                        wmsListSafe.addAll(future.get());
-                        needUpdate = false;
-                        
-                    } catch (InterruptedException | ExecutionException | NullPointerException e ) {
-                        
-                    }                    
-                }
-                
-                
+            if (cache.containsKey(getID(job))) {
+                //LOG.debug("CACHE HIT!");
             } else {
-                //System.out.println("lightTick");
+                asyncDownload(job);
             }
         }
+    }
+    /**
+     * Complete asynchronous download and update of caches
+     * @param job
+     */
+    public void asyncDownload(final Projection job) {
+        new Thread(new Runnable() {
+            
+            @Override
+            public void run() {
+                Collection<SingleWMSService> workers = getTiles(job);
+                OMGraphicList result = new OMGraphicList();
+                
+                ExecutorService pool =  Executors.newFixedThreadPool(4);
+                ExecutorCompletionService<OMGraphicList> completionService = new ExecutorCompletionService<>(pool);
+                
+                for (SingleWMSService w: workers) {
+                    completionService.submit(w);
+                }
+                
+                
+                boolean allSuccess = true;
+                for (int i=0; i <workers.size(); i++) {
+                    Future<OMGraphicList> future;
+                    try {
+                        future = completionService.poll(5000,TimeUnit.MILLISECONDS);
+                        OMGraphicList tile = future.get();
+                        result.addAll(tile);
+                        tmpCache.putIfAbsent(getID(job), new OMGraphicList());
+                        tmpCache.get(getID(job)).addAll(tile);
+                    } catch (InterruptedException | ExecutionException | NullPointerException e ) {
+                        allSuccess = false;
+                        LOG.debug("A Tile failed to download within the alotted time. (5000ms)");
+                    }
+                }
+                    
+                if (allSuccess) {
+                    tmpCache.remove(getID(job));
+                    cache.put(getID(job),result);
+                }
+                
+            }
+        }).start();
         
+    }
+            
+    public void queue(Projection p) {
+        //p = normalizeProjection(p);
+        if (this.projectionJobs.offer(p)) {
+            
+        } else {
+            LOG.debug("Queue is full, kicking old job in favor of new");
+            try {
+                this.projectionJobs.takeFirst();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            this.projectionJobs.offer(p);
+        }
+        
+    }
+        
+    //meh!
+    public String getBbox(Projection p) {
+        String meh =(new SingleWMSService(wmsQuery, p)).getBbox();
+        //System.out.println(meh);
+        return meh;
+    }
+    
+    public String getID(Projection p) {
+        return getBbox(p);
     }
 
 }
