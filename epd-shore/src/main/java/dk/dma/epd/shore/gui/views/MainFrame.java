@@ -98,6 +98,8 @@ public class MainFrame extends JFrame implements WindowListener {
     private StatusArea statusArea = new StatusArea(this);
     private JMapFrame activeMapWindow;
     private long selectedMMSI = -1;
+    
+    private boolean sarCreated;
 
     /**
      * Constructor
@@ -137,90 +139,25 @@ public class MainFrame extends JFrame implements WindowListener {
     public void addMapWindow() {
 
         new ThreadedMapCreator(this).run();
-        // windowCount++;
-        // JMapFrame window = new JMapFrame(windowCount, this);
-        //
-        // desktop.add(window);
-        //
-        // mapWindows.add(window);
-        // // window.toFront();
-        //
-        // topMenu.addMap(window, false, false);
-        //
-        // if (!wmsLayerEnabled) {
-        // // System.out.println("wmslayer is not enabled");
-        // window.getChartPanel().getWmsLayer().setVisible(false);
-        // window.getChartPanel().getBgLayer().setVisible(true);
-        // } else {
-        // // System.out.println("wmslayer is enabled");
-        // window.getChartPanel().getWmsLayer().setVisible(true);
-        // window.getChartPanel().getBgLayer().setVisible(false);
-        // }
-        //
-        // if (!msiLayerEnabled) {
-        // window.getChartPanel().getMsiLayer().setVisible(false);
-        //
-        // }
-        //
-        // if (windowCount == 1) {
-        // beanHandler.add(window.getChartPanel().getWmsLayer()
-        // .getWmsService());
-        // }
-
-        // return window;
     }
 
+    
+    public void addSARWindow() {
+        
+        if (sarCreated){
+            //Warning message about one SAR operation being underway?
+        }else{
+            new ThreadedMapCreator(this, sarCreated).run();
+        }
+        
+        //When creating a SAR window it displays map but also input boxes for starting it.
+        
+    }
+    
     public void addMonaLisaHandlingWindow(Route originalRoute, String shipName,
             Voyage voyage, boolean renegotiate) {
         new ThreadedMapCreator(this, shipName, voyage, originalRoute,
                 renegotiate).run();
-        // windowCount++;
-        // JMapFrame window = new JMapFrame(windowCount, this);
-        //
-        // desktop.add(window);
-        //
-        // mapWindows.add(window);
-        //
-        // window.setTitle("Handle route request " + shipName);
-        // // window.toFront();
-        //
-        // topMenu.addMap(window, false, false);
-        //
-        // if (!wmsLayerEnabled) {
-        // // System.out.println("wmslayer is not enabled");
-        // window.getChartPanel().getWmsLayer().setVisible(false);
-        // window.getChartPanel().getBgLayer().setVisible(true);
-        // } else {
-        // // System.out.println("wmslayer is enabled");
-        // window.getChartPanel().getWmsLayer().setVisible(true);
-        // window.getChartPanel().getBgLayer().setVisible(false);
-        // }
-        //
-        // if (!msiLayerEnabled) {
-        // window.getChartPanel().getMsiLayer().setVisible(false);
-        //
-        // }
-        //
-        // if (windowCount == 1) {
-        // beanHandler.add(window.getChartPanel().getWmsLayer()
-        // .getWmsService());
-        // }
-        //
-        // window.alwaysFront();
-        //
-        // VoyageHandlingLayer voyageHandlingLayer = new VoyageHandlingLayer();
-        // voyageHandlingLayer.handleVoyage(voyage);
-        //
-        // window.getChartPanel().getMapHandler().add(voyageHandlingLayer);
-        //
-        // // map.setCenter(center);
-        // // map.setScale(scale);
-        //
-        // window.getChartPanel().getMap().setScale(5);
-        // window.getChartPanel().zoomToPoint(
-        // voyage.getRoute().getWaypoints().get(0).getPos());
-        //
-        // return window;
     }
 
     /**
@@ -248,28 +185,6 @@ public class MainFrame extends JFrame implements WindowListener {
 
         windowCreator.run();
 
-        // windowCount++;
-        //
-        // JMapFrame window = new JMapFrame(windowCount, this, center, scale);
-        // desktop.add(window, workspace);
-        // mapWindows.add(window);
-        // window.toFront();
-        // topMenu.addMap(window, locked, alwaysInFront);
-        // window.getChartPanel().getMsiLayer().setVisible(isMsiLayerEnabled());
-        //
-        // if (!wmsLayerEnabled) {
-        // window.getChartPanel().getWmsLayer().setVisible(false);
-        // window.getChartPanel().getBgLayer().setVisible(true);
-        // } else {
-        // window.getChartPanel().getBgLayer().setVisible(false);
-        // }
-        //
-        // if (windowCount == 1) {
-        // beanHandler.add(window.getChartPanel().getWmsLayer()
-        // .getWmsService());
-        // }
-        //
-        // return window;
 
         if (this.getMapWindows().size() > 0) {
             if (this.getMapWindows().get(0).getChartPanel().getEncLayer() != null && !this.getToolbar().isEncButtonEnabled()) {
