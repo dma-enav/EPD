@@ -54,6 +54,8 @@ public class ThreadedMapCreator implements Runnable {
 
     private MainFrame mainFrame;
     private Route originalRoute;
+    
+    private boolean SAR;
 
     public ThreadedMapCreator(MainFrame mainFrame, boolean workspace,
             boolean locked, boolean alwaysInFront, Point2D center, float scale,
@@ -82,7 +84,10 @@ public class ThreadedMapCreator implements Runnable {
     }
 
     public ThreadedMapCreator(MainFrame mainFrame, boolean SAR) {
-
+        this.mainFrame = mainFrame;
+        loadFromWorkspace = false;
+        monaLisaHandling = false;
+        this.SAR = true;
     }
 
     public ThreadedMapCreator(MainFrame mainFrame, String shipName,
@@ -229,6 +234,28 @@ public class ThreadedMapCreator implements Runnable {
 
         return window;
     }
+    
+    private JMapFrame addSARWindow() {
+//        mainFrame.increaseWindowCount();
+
+        JMapFrame window = new JMapFrame(-1, mainFrame,
+                MapFrameType.SAR);
+
+        mainFrame.getDesktop().add(window);
+
+        window.setTitle("Search and Rescue");
+
+        mainFrame.getMapWindows().add(window);
+        
+//        mainFrame.getTopMenu().addMap(window, false, false);
+
+        window.alwaysFront();
+
+        window.setSize(1280, 768);
+
+        return window;
+    }
+    
 
     @Override
     public void run() {
@@ -244,6 +271,12 @@ public class ThreadedMapCreator implements Runnable {
         if (monaLisaHandling) {
             JMapFrame mapFrame = addMonaLisaHandlingWindow(shipName, voyage,
                     originalRoute, renegotiate);
+            setupSharedLayers(mapFrame);
+            return;
+        }
+        
+        if (SAR){
+            JMapFrame mapFrame = addSARWindow();
             setupSharedLayers(mapFrame);
             return;
         }

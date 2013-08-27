@@ -98,6 +98,10 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         graphics.add(effectiveArea);
 
         
+        EffectiveSRUAreaGraphics effectiveArea2 = new EffectiveSRUAreaGraphics(A,
+                width, height);
+        graphics.add(effectiveArea2);
+        
 
         System.out.println("A is: " + A.getLongitude());
         System.out.println("B is: " + B);

@@ -255,7 +255,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
         
         newSar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                mainFrame.addMapWindow();
+                mainFrame.addSARWindow();
             }
         });
 

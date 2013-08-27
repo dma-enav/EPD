@@ -458,16 +458,22 @@ public class ToolBar extends JInternalFrame {
         }
 
         for (int i = 0; i < EPDShore.getMainFrame().getMapWindows().size(); i++) {
-            EPDShore.getMainFrame().getMapWindows().get(i).getChartPanel()
-                    .getRouteEditLayer().doPrepare();
-            EPDShore.getMainFrame().getMapWindows().get(i).getChartPanel()
-                    .getNewRouteContainerLayer().getWaypoints().clear();
-            EPDShore.getMainFrame().getMapWindows().get(i).getChartPanel()
-                    .getNewRouteContainerLayer().getRouteGraphics().clear();
-            EPDShore.getMainFrame().getMapWindows().get(i).getChartPanel()
-                    .getNewRouteContainerLayer().doPrepare();
-        }
 
+            if (EPDShore.getMainFrame().getMapWindows().get(i).getChartPanel()
+                    .getRouteEditLayer() != null
+                    && EPDShore.getMainFrame().getMapWindows().get(i)
+                            .getChartPanel().getNewRouteContainerLayer() != null) {
+
+                EPDShore.getMainFrame().getMapWindows().get(i).getChartPanel()
+                        .getRouteEditLayer().doPrepare();
+                EPDShore.getMainFrame().getMapWindows().get(i).getChartPanel()
+                        .getNewRouteContainerLayer().getWaypoints().clear();
+                EPDShore.getMainFrame().getMapWindows().get(i).getChartPanel()
+                        .getNewRouteContainerLayer().getRouteGraphics().clear();
+                EPDShore.getMainFrame().getMapWindows().get(i).getChartPanel()
+                        .getNewRouteContainerLayer().doPrepare();
+            }
+        }
     }
 
     /**

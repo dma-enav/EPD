@@ -54,6 +54,7 @@ import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
 import dk.dma.epd.shore.layers.route.RouteLayer;
 import dk.dma.epd.shore.layers.routeEdit.RouteEditLayer;
+import dk.dma.epd.shore.layers.voct.VoctLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.layers.wms.WMSLayer;
@@ -96,6 +97,8 @@ public class ChartPanel extends OMComponentPanel {
     private RouteEditLayer routeEditLayer;
     private NewRouteContainerLayer newRouteContainerLayer;
     private VoyageHandlingLayer voyageHandlingLayer;
+    
+    private VoctLayer voctLayer;
 
     private MainFrame mainFrame;
     private Color background = new Color(168, 228, 255);
@@ -360,32 +363,6 @@ public class ChartPanel extends OMComponentPanel {
 
         map = new BufferedLayerMapBean();
 
-        // LLXY llxyProjection = new LLXY((LatLonPoint) center, scale, 100,
-        // 100);
-        //
-        // map.setProjection(llxyProjection);
-
-        // Projection projx =
-        // ProjectionFactory.loadDefaultProjections().makeProjection("com.bbn.openmap.proj.LLXY",
-        // map.getProjection());
-        // Projection projx =
-        // ProjectionFactory.loadDefaultProjections().makeProjection(null,
-        // center, scale, 100, 100, null);
-        // System.out.println("map projection set");
-        // LLXY test = new LLXY(null, alignmentX, maxScale, maxScale);
-
-        // map.setProjection(test);
-
-        // Projection newProx = map.getProjection().makeClone();
-        //
-        // Projection newProj =
-        // ProjectionFactory.loadDefaultProjections().makeProjection("com.bbn.openmap.proj.LLXY",
-        // newProx);
-
-        // map.setDoubleBuffered(true);
-
-        // System.out.println(map.getBackground());
-
         mouseDelegator = new MouseDelegator();
         mapHandler.add(mouseDelegator);
 
@@ -399,6 +376,8 @@ public class ChartPanel extends OMComponentPanel {
         mouseDelegator.addMouseMode(selectMouseMode);
         mouseDelegator.addMouseMode(routeEditMouseMode);
 
+        System.out.println("adding mouse modes");
+        
         setMouseMode(mainFrame.getMouseMode());
 
         mapHandler.add(dragMouseMode);
@@ -425,15 +404,19 @@ public class ChartPanel extends OMComponentPanel {
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
 
-        // Add MSI Layer
-        msiLayer = new MsiLayer();
-        msiLayer.setVisible(true);
-        mapHandler.add(msiLayer);
+        
+        if (type != MapFrameType.SAR){
+            // Add MSI Layer
+            msiLayer = new MsiLayer();
+            msiLayer.setVisible(true);
+            mapHandler.add(msiLayer);
 
-        // Add Route Layer
-        routeLayer = new RouteLayer();
-        routeLayer.setVisible(true);
-        mapHandler.add(routeLayer);
+            // Add Route Layer
+            routeLayer = new RouteLayer();
+            routeLayer.setVisible(true);
+            mapHandler.add(routeLayer);
+        }
+        
 
         if (type == MapFrameType.monaLisa) {
 
@@ -453,27 +436,33 @@ public class ChartPanel extends OMComponentPanel {
             voyageLayer = new VoyageLayer();
             voyageLayer.setVisible(true);
             mapHandler.add(voyageLayer);
+            
+
+            
+            // Create route editing layer
+            newRouteContainerLayer = new NewRouteContainerLayer();
+            newRouteContainerLayer.setVisible(true);
+            mapHandler.add(newRouteContainerLayer);
+            routeEditLayer = new RouteEditLayer();
+            routeEditLayer.setVisible(true);
+            mapHandler.add(routeEditLayer);
+
         }
 
+        
+        if (type == MapFrameType.SAR){
+            voctLayer = new VoctLayer();
+            voctLayer.setVisible(true);
+            mapHandler.add(voctLayer);
+        }
+        
         // Add AIS Layer
         aisLayer = new AisLayer();
         aisLayer.setVisible(true);
         mapHandler.add(aisLayer);
 
-        // Create route editing layer
-        newRouteContainerLayer = new NewRouteContainerLayer();
-        newRouteContainerLayer.setVisible(true);
-        mapHandler.add(newRouteContainerLayer);
-        routeEditLayer = new RouteEditLayer();
-        routeEditLayer.setVisible(true);
-        mapHandler.add(routeEditLayer);
+        
 
-        // Create MSI handler
-        msiHandler = EPDShore.getMsiHandler();
-        mapHandler.add(msiHandler);
-
-        monaLisaHandler = EPDShore.getMonaLisaHandler();
-        mapHandler.add(monaLisaHandler);
 
         // Create background layer
         String layerName = "background";
@@ -490,14 +479,30 @@ public class ChartPanel extends OMComponentPanel {
         // Add map to map handler
         mapHandler.add(map);
 
-        // Force a MSI layer update
-        msiLayer.doUpdate();
 
-        // Force a route layer update
-        routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
 
-        // Force a voyage layer update
-        voyageLayer.voyagesChanged(VoyageUpdateEvent.VOYAGE_ADDED);
+        
+        if (type == MapFrameType.monaLisa || type == MapFrameType.standard){
+            
+            // Create MSI handler
+            msiHandler = EPDShore.getMsiHandler();
+            mapHandler.add(msiHandler);
+
+            monaLisaHandler = EPDShore.getMonaLisaHandler();
+            mapHandler.add(monaLisaHandler);
+            
+            // Force a MSI layer update
+            msiLayer.doUpdate();
+
+            // Force a route layer update
+            routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
+            
+            // Force a voyage layer update
+            voyageLayer.voyagesChanged(VoyageUpdateEvent.VOYAGE_ADDED);
+        }
+        
+        
+
 
         if (wmsLayer.isVisible()) {
             // System.out.println("wms is visible");

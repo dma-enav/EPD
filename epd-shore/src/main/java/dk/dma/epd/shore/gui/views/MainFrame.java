@@ -141,7 +141,9 @@ public class MainFrame extends JFrame implements WindowListener {
         new ThreadedMapCreator(this).run();
     }
 
-    
+    /**
+     * 
+     */
     public void addSARWindow() {
         
         if (sarCreated){
@@ -160,6 +162,11 @@ public class MainFrame extends JFrame implements WindowListener {
                 renegotiate).run();
     }
 
+    
+
+
+
+    
     /**
      * Add a new mapWindow with specific parameters, usually called when loading
      * a workspace
