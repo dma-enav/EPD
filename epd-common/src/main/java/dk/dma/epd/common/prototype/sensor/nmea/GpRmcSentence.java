@@ -21,6 +21,7 @@ import java.util.TimeZone;
 
 import dk.dma.ais.sentence.Sentence;
 import dk.dma.ais.sentence.SentenceException;
+import dk.dma.ais.sentence.SentenceLine;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTimeMessage;
@@ -30,54 +31,60 @@ import dk.dma.epd.common.util.ParseUtils;
  * GPRMC sentence representation
  */
 public class GpRmcSentence extends Sentence {
-    
+
     private GpsMessage gpsMessage;
     private GnssTimeMessage gnssTimeMessage;
-    private String status;    
-    
+    private String status;
+
     public GpRmcSentence() {
         super();
     }
 
-    @Override
     public int parse(String line) throws SentenceException {
+        return parse(new SentenceLine(line));
+    }
+
+    @Override
+    public int parse(SentenceLine sl) throws SentenceException {
         // Do common parsing
-        super.baseParse(line);
-        
+        super.baseParse(sl);
+
         // Check RMC
         if (!this.formatter.equals("RMC")) {
             throw new SentenceException("Not RMC sentence");
         }
-        
+
         // Check that there is a least 10 fields
-        if (fields.length < 10) {
-            throw new SentenceException("RMC sentence " + line + "     does not have at least 10 fields ");
+        if (sl.getFields().size() < 10) {
+            throw new SentenceException("RMC sentence " + sl.getLine() + "     does not have at least 10 fields ");
         }
-        
+
         // Get lat and lon
         Position pos = null;
         Double sog = null;
         Double cog = null;
         try {
-            if (fields[3].length() > 2 && fields[5].length() > 3) {
-                double lat = ParseUtils.parseLatitude(fields[3].substring(0, 2), fields[3].substring(2, fields[3].length() - 1), fields[4]);
-                double lon = ParseUtils.parseLongitude(fields[5].substring(0, 3), fields[5].substring(3, fields[5].length() - 1), fields[6]);
+            if (sl.getFields().get(3).length() > 2 && sl.getFields().get(5).length() > 3) {
+                double lat = ParseUtils.parseLatitude(sl.getFields().get(3).substring(0, 2),
+                        sl.getFields().get(3).substring(2, sl.getFields().get(3).length() - 1), sl.getFields().get(4));
+                double lon = ParseUtils.parseLongitude(sl.getFields().get(5).substring(0, 3),
+                        sl.getFields().get(5).substring(3, sl.getFields().get(5).length() - 1), sl.getFields().get(6));
                 pos = Position.create(lat, lon);
             }
-            if (fields[7].length() > 0) {
-                sog = ParseUtils.parseDouble(fields[7]);
+            if (sl.getFields().get(7).length() > 0) {
+                sog = ParseUtils.parseDouble(sl.getFields().get(7));
             }
-            if (fields[8].length() > 0) {
-                cog = ParseUtils.parseDouble(fields[8]);
+            if (sl.getFields().get(8).length() > 0) {
+                cog = ParseUtils.parseDouble(sl.getFields().get(8));
             }
         } catch (FormatException e1) {
-            throw new SentenceException("GPS sentence not valid: " + line);
+            throw new SentenceException("GPS sentence not valid: " + sl.getLine());
         }
-        
+
         gpsMessage = new GpsMessage(pos, sog, cog);
-        
+
         // Parse time
-        String dateTimeStr = fields[1] + " " + fields[9];
+        String dateTimeStr = sl.getFields().get(1) + " " + sl.getFields().get(9);
         SimpleDateFormat dateFormat = new SimpleDateFormat("HHmmss.SS ddMMyy");
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0000"));
         try {
@@ -85,13 +92,13 @@ public class GpRmcSentence extends Sentence {
         } catch (ParseException e) {
             throw new SentenceException("GPS time " + dateTimeStr + " not valid ");
         }
-        
+
         // Get status
-        status = fields[2];
-        
+        status = sl.getFields().get(2);
+
         return 0;
     }
-    
+
     @Override
     public String getEncoded() {
         return null;
@@ -100,7 +107,7 @@ public class GpRmcSentence extends Sentence {
     public GpsMessage getGpsMessage() {
         return gpsMessage;
     }
-    
+
     public GnssTimeMessage getGnssTimeMessage() {
         return gnssTimeMessage;
     }

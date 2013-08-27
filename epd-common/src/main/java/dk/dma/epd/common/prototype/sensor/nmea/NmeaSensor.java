@@ -51,6 +51,7 @@ import dk.dma.ais.reader.SendThread;
 import dk.dma.ais.reader.SendThreadPool;
 import dk.dma.ais.sentence.Abk;
 import dk.dma.ais.sentence.SentenceException;
+import dk.dma.ais.sentence.SentenceLine;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.util.function.Consumer;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTimeMessage;
@@ -162,7 +163,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     protected void handleAbk(String msg) {
         Abk abk = new Abk();
         try {
-            abk.parse(msg);
+            abk.parse(new SentenceLine(msg));
             sendThreadPool.handleAbk(abk);
         } catch (Exception e) {
             LOG.error("Failed to parse ABK: " + msg + ": " + e.getMessage());
@@ -174,7 +175,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         if (!ProprietaryFactory.isProprietaryTag(msg)) {
             return;
         }
-        IProprietaryTag tag = ProprietaryFactory.parseTag(msg);
+        IProprietaryTag tag = ProprietaryFactory.parseTag(new SentenceLine(msg));
 
         if (!(tag instanceof IProprietarySourceTag)) {
             return;
