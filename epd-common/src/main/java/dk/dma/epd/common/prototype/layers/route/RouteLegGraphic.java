@@ -45,7 +45,7 @@ public class RouteLegGraphic extends OMGraphicList {
 
     private OMLine animationLine;
     private OMLine broadLine;
-    
+
     float[] dash = { 35.0f, 35.0f };
     private int routeIndex;
 
@@ -73,9 +73,7 @@ public class RouteLegGraphic extends OMGraphicList {
         this.setVague(true);
         initGraphics();
     }
-    
-    
-    
+
     /**
      * Creates a voyage leg
      * 
@@ -99,8 +97,7 @@ public class RouteLegGraphic extends OMGraphicList {
         initGraphics();
         addBroadLine(broadLineColor, broadLineDash);
     }
-    
-    
+
     public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color,
             Stroke stroke, Color broadLineColor) {
         super();
@@ -112,10 +109,8 @@ public class RouteLegGraphic extends OMGraphicList {
         initGraphics();
         addBroadLine(broadLineColor, new float[] { 40.0f, 15.0f });
     }
-    
-    
-    
-    private void addBroadLine(Color color, float[] broadLineDash){
+
+    private void addBroadLine(Color color, float[] broadLineDash) {
         if (routeLeg.getEndWp() != null) {
 
             RouteWaypoint legStart = routeLeg.getStartWp();
@@ -164,8 +159,6 @@ public class RouteLegGraphic extends OMGraphicList {
     public void addAnimatorLine() {
         if (routeLeg.getEndWp() != null) {
 
-
-
             RouteWaypoint legStart = routeLeg.getStartWp();
             RouteWaypoint legEnd = routeLeg.getEndWp();
 
@@ -175,44 +168,48 @@ public class RouteLegGraphic extends OMGraphicList {
             double endLat = legEnd.getPos().getLatitude();
             double endLon = legEnd.getPos().getLongitude();
 
-            animationLine = new OMLine(startLat, startLon, endLat, endLon, lineType);
+            animationLine = new OMLine(startLat, startLon, endLat, endLon,
+                    lineType);
             animationLine.setLinePaint(new Color(1f, 1f, 0, 0.6f));
-            animationLine.setStroke(new BasicStroke(10.0f, BasicStroke.CAP_BUTT,
-                    BasicStroke.JOIN_MITER, 10.0f, dash, dashPhase));
+            animationLine.setStroke(new BasicStroke(10.0f,
+                    BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash,
+                    dashPhase));
 
             add(animationLine);
         }
     }
 
-    public void updateAnimationLine(){
-//        broadline.setLinePaint(new Color(0f, 1f, 0, 0.6f));
+    public void updateAnimationLine() {
+        // broadline.setLinePaint(new Color(0f, 1f, 0, 0.6f));
         float[] dash = { 35.0f, 35.0f };
-//        float dashPhase = 18.0f;
-//        System.out.println("Adding to dashPhase " + dashPhase);
-        
+        // float dashPhase = 18.0f;
+        // System.out.println("Adding to dashPhase " + dashPhase);
+
         dashPhase -= 9.0f;
-        if (dashPhase < 0){
-//            System.out.println("Resetting!");
+        if (dashPhase < 0) {
+            // System.out.println("Resetting!");
             dashPhase = 5000;
         }
-//        System.out.println("Dashphase is now " + dashPhase);
-        
-        if (animationLine != null){
-            
-        
-        
-        animationLine.setStroke(new BasicStroke(10.0f, BasicStroke.CAP_BUTT,
-                BasicStroke.JOIN_MITER, 10.0f, dash, dashPhase));
-        
+        // System.out.println("Dashphase is now " + dashPhase);
+
+        if (animationLine != null) {
+
+            animationLine.setStroke(new BasicStroke(10.0f,
+                    BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash,
+                    dashPhase));
+
         }
-//        System.out.println("Changing stroke! " + dashPhase);
+        // System.out.println("Changing stroke! " + dashPhase);
     }
-    
+
     public void setArrows(boolean arrowsVisible) {
-        if (!arrowsVisible) {
-            line.setArrowHead(null);
-        } else {
-            line.setArrowHead(arrow);
+
+        if (line != null) {
+            if (!arrowsVisible) {
+                line.setArrowHead(null);
+            } else {
+                line.setArrowHead(arrow);
+            }
         }
 
     }

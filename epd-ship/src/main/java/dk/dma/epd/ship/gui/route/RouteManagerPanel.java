@@ -484,8 +484,8 @@ ListSelectionListener, TableModelListener, MouseListener {
     private void importFromFile() {
         // Get filename from dialog
         JFileChooser fc = new JFileChooser(EPDShip.getHomePath()
-                .resolve(".aisview").toString()
-                + "/routes");
+                .resolve("routes").toString());
+
         // private static final String aisViewFile =
         // EeINS.getHomePath().resolve(".aisview").toString();
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
