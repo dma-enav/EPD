@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.layers.voct;
+package dk.dma.epd.common.prototype.layers.voct;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;

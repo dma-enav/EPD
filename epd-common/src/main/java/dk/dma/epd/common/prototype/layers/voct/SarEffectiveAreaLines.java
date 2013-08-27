@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.layers.voct;
+package dk.dma.epd.common.prototype.layers.voct;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -25,7 +25,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.ship.layers.voct.EffectiveSRUAreaGraphics.LineType;
+import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics.LineType;
 
 public class SarEffectiveAreaLines extends OMGraphicList{
 

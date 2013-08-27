@@ -26,6 +26,10 @@ import com.bbn.openmap.omGraphics.OMList;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.layers.voct.AreaInternalGraphics;
+import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics;
+import dk.dma.epd.common.prototype.layers.voct.SarEffectiveAreaLines;
+import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 
