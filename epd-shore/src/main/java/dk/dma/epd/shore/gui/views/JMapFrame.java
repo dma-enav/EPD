@@ -59,24 +59,24 @@ import dk.dma.epd.shore.gui.utils.ComponentFrame;
 public class JMapFrame extends ComponentFrame implements MouseListener  {
     
     private static final long serialVersionUID = 1L;
-    private ChartPanel chartPanel;
+    protected ChartPanel chartPanel;
     boolean locked;
     boolean alwaysInFront;
     MouseMotionListener[] actions;
-    private int id;
-    private final MainFrame mainFrame;
-    private JPanel glassPanel;
-    private JLabel moveHandler;
-    private JPanel mapPanel;
-    private JPanel masterPanel;
-    private JLabel maximize;
-    private MapMenu mapMenu;
+    protected int id;
+    protected final MainFrame mainFrame;
+    protected JPanel glassPanel;
+    protected JLabel moveHandler;
+    protected JPanel mapPanel;
+    protected JPanel masterPanel;
+    protected JLabel maximize;
+    protected MapMenu mapMenu;
 
-    private static int moveHandlerHeight = 18;
-    private boolean maximized;
+    protected static int moveHandlerHeight = 18;
+    protected boolean maximized;
     public int width;
     public int height;
-    private static int chartPanelOffset = 12;
+    protected static int chartPanelOffset = 12;
     JInternalFrame mapFrame;
 
     /**

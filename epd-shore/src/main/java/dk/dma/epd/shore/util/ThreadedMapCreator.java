@@ -31,6 +31,7 @@ import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.gui.views.MapFrameType;
+import dk.dma.epd.shore.gui.views.SARFrame;
 import dk.dma.epd.shore.voyage.Voyage;
 
 public class ThreadedMapCreator implements Runnable {
@@ -235,10 +236,10 @@ public class ThreadedMapCreator implements Runnable {
         return window;
     }
     
-    private JMapFrame addSARWindow() {
+    private SARFrame addSARWindow() {
 //        mainFrame.increaseWindowCount();
 
-        JMapFrame window = new JMapFrame(-1, mainFrame,
+        SARFrame window = new SARFrame(-1, mainFrame,
                 MapFrameType.SAR);
 
         mainFrame.getDesktop().add(window);

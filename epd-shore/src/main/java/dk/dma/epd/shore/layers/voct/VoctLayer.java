@@ -33,6 +33,9 @@ import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
+import dk.dma.epd.shore.gui.views.JMapFrame;
+
+
 
 
 public class VoctLayer extends OMGraphicHandlerLayer implements
@@ -45,9 +48,14 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     private OMGraphic selectedGraphic;
     private boolean dragging;
     private MapBean mapBean;
+    private JMapFrame jMapFrame;
+    
+//    private SARPanel sarPanel = new SARPanel(this);
 
     public VoctLayer() {
         drawSAR();
+        
+//        sarPanel.setVisible(true);
     }
 
     public void drawSAR() {
@@ -130,7 +138,27 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public void findAndInit(Object obj) {
+        if (obj instanceof JMapFrame) {
+            // if (waypointInfoPanel == null && voyageManager != null) {
+            // waypointInfoPanel = new WaypointInfoPanel();
+            // }
+            //
+            jMapFrame = (JMapFrame) obj;
+            
+//            sarPanel.setParent(jMapFrame);
 
+//            jMapFrame.getGlassPanel().add(sarPanel);
+            // voyagePlanInfoPanel.setLocation(0, 0);
+//            sarPanel.setBounds(0, 20, 208, 768);
+            
+            
+            
+            
+//            jMapFrame.getGlassPanel().add(voyageInfoPanel);
+            // shipIndicatorPanel = new ShipIndicatorPanel();
+            // jMapFrame.getGlassPanel().add(shipIndicatorPanel);
+
+        }
         // if (obj instanceof DynamicNogoHandler) {
         // dynamicNogoHandler = (DynamicNogoHandler) obj;
         // }
