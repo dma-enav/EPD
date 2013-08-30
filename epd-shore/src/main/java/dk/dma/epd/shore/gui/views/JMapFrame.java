@@ -50,12 +50,14 @@ import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 
 
+
+
 /**
  * Class for setting up a map frame
  * @author Steffen D. Sommer (steffendsommer@gmail.com), David A. Camre (davidcamre@gmail.com)
  */
 public class JMapFrame extends ComponentFrame implements MouseListener  {
-
+    
     private static final long serialVersionUID = 1L;
     private ChartPanel chartPanel;
     boolean locked;
@@ -82,7 +84,7 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
      * @param id        id number for this map frame
      * @param mainFrame    reference to the mainframe
      */
-    public JMapFrame(int id, MainFrame mainFrame, boolean voyageHandleLayer) {
+    public JMapFrame(int id, MainFrame mainFrame, MapFrameType type) {
         super("New Window " + id, true, true, true, true);
 
         this.mainFrame = mainFrame;
@@ -93,7 +95,7 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
         this.setVisible(true);
 
         initGlassPane();
-        chartPanel.initChart(voyageHandleLayer);
+        chartPanel.initChart(type);
         initGUI();
     }
 

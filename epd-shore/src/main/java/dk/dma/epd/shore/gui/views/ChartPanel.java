@@ -79,8 +79,7 @@ public class ChartPanel extends CommonChartPanel {
     private Layer bgLayer;
     private GeneralLayer generalLayer;
     private MonaLisaHandler monaLisaHandler;
-    
-    
+
     private NavigationMouseMode mapNavMouseMode;
     private DragMouseMode dragMouseMode;
     private SelectMouseMode selectMouseMode;
@@ -294,16 +293,16 @@ public class ChartPanel extends CommonChartPanel {
     }
 
     /**
-     * Initiate the chart
+     * Initiate the chart with a custom map type
      */
-    public void initChart(boolean voyageHandleLayer) {
+    public void initChart(MapFrameType mapType) {
 
         ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
 
         // this.center = mapSettings.getCenter();
         // this.scale = mapSettings.getScale();
 
-        initChartDefault(voyageHandleLayer);
+        initChartDefault(mapType);
 
         // Set last postion
         map.setCenter(mapSettings.getCenter());
@@ -329,7 +328,7 @@ public class ChartPanel extends CommonChartPanel {
         // this.center = center;
         // this.scale = scale;
         //
-        initChartDefault(false);
+        initChartDefault(MapFrameType.standard);
 
         // Get from settings
         map.setCenter(center);
@@ -341,22 +340,20 @@ public class ChartPanel extends CommonChartPanel {
 
     /**
      * Initiate the default map values - must be called by a chart
-     * @param voyageLayer2 
+     * 
+     * @param voyageLayer2
      */
-    public void initChartDefault(boolean voyageHandleLayer) {
+    public void initChartDefault(MapFrameType type) {
         Properties props = EPDShore.getProperties();
 
-        
-        if (EPDShore.getSettings().getMapSettings().isUseEnc() && mainFrame.isUseEnc()){
+        if (EPDShore.getSettings().getMapSettings().isUseEnc()
+                && mainFrame.isUseEnc()) {
             // Try to create ENC layer
             EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore
                     .getSettings().getMapSettings());
             encLayer = encLayerFactory.getEncLayer();
         }
-        
 
-
-        
         map = new BufferedLayerMapBean();
 
         // LLXY llxyProjection = new LLXY((LatLonPoint) center, scale, 100,
@@ -424,7 +421,6 @@ public class ChartPanel extends CommonChartPanel {
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
 
-
         // Add MSI Layer
         msiLayer = new MsiLayer();
         msiLayer.setVisible(true);
@@ -434,30 +430,27 @@ public class ChartPanel extends CommonChartPanel {
         routeLayer = new RouteLayer();
         routeLayer.setVisible(true);
         mapHandler.add(routeLayer);
-        
 
-        
-        
-        if (voyageHandleLayer){
+        if (type == MapFrameType.monaLisa) {
 
-            
             // Add Voyage Layer
             voyageLayer = new VoyageLayer(true);
             voyageLayer.setVisible(true);
             mapHandler.add(voyageLayer);
-            
-            voyageHandlingLayer = new VoyageHandlingLayer();   
+
+            voyageHandlingLayer = new VoyageHandlingLayer();
             voyageHandlingLayer.setVisible(true);
             mapHandler.add(voyageHandlingLayer);
-            
-        }else{
+
+        }
+
+        if (type == MapFrameType.standard) {
             // Add Voyage Layer
             voyageLayer = new VoyageLayer();
             voyageLayer.setVisible(true);
             mapHandler.add(voyageLayer);
         }
 
-        
         // Add AIS Layer
         aisLayer = new AisLayer();
         aisLayer.setVisible(true);
@@ -475,14 +468,9 @@ public class ChartPanel extends CommonChartPanel {
         msiHandler = EPDShore.getMsiHandler();
         mapHandler.add(msiHandler);
 
-        
         monaLisaHandler = EPDShore.getMonaLisaHandler();
         mapHandler.add(monaLisaHandler);
-        
-        
 
-
-        
         // Create background layer
         String layerName = "background";
         bgLayer = new ShapeLayer();
@@ -491,35 +479,26 @@ public class ChartPanel extends CommonChartPanel {
         bgLayer.setVisible(true);
         mapHandler.add(bgLayer);
 
-        
         if (encLayer != null) {
             mapHandler.add(encLayer);
         }
-        
-        
-        
-        
+
         // Add map to map handler
         mapHandler.add(map);
 
-        
-
-        
         // Force a MSI layer update
         msiLayer.doUpdate();
 
         // Force a route layer update
         routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
-        
-        
-        //Force a voyage layer update
+
+        // Force a voyage layer update
         voyageLayer.voyagesChanged(VoyageUpdateEvent.VOYAGE_ADDED);
 
         if (wmsLayer.isVisible()) {
             // System.out.println("wms is visible");
             bgLayer.setVisible(false);
         }
-        
 
     }
 
@@ -644,9 +623,8 @@ public class ChartPanel extends CommonChartPanel {
         double centerLon = (maxLon + minLon) / 2.0;
         map.setCenter(centerLat, centerLon);
         forceAisLayerUpdate();
-        
-        
-        //What scale should be used?
+
+        // What scale should be used?
 
     }
 
@@ -679,7 +657,4 @@ public class ChartPanel extends CommonChartPanel {
         return voyageHandlingLayer;
     }
 
-    
-    
-    
 }
