@@ -405,7 +405,7 @@ public class ChartPanel extends OMComponentPanel {
         mapHandler.add(generalLayer);
 
         
-        if (type != MapFrameType.SAR){
+//        if (type != MapFrameType.SAR){
             // Add MSI Layer
             msiLayer = new MsiLayer();
             msiLayer.setVisible(true);
@@ -415,7 +415,7 @@ public class ChartPanel extends OMComponentPanel {
             routeLayer = new RouteLayer();
             routeLayer.setVisible(true);
             mapHandler.add(routeLayer);
-        }
+//        }
         
 
         if (type == MapFrameType.monaLisa) {
@@ -431,7 +431,7 @@ public class ChartPanel extends OMComponentPanel {
 
         }
 
-        if (type == MapFrameType.standard) {
+//        if (type == MapFrameType.standard) {
             // Add Voyage Layer
             voyageLayer = new VoyageLayer();
             voyageLayer.setVisible(true);
@@ -447,7 +447,7 @@ public class ChartPanel extends OMComponentPanel {
             routeEditLayer.setVisible(true);
             mapHandler.add(routeEditLayer);
 
-        }
+//        }
 
         
         if (type == MapFrameType.SAR){

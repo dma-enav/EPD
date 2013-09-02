@@ -19,26 +19,24 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 
 import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 
-import dk.dma.epd.shore.route.RouteManager;
-import javax.swing.JCheckBox;
+import dk.dma.epd.shore.EPDShore;
 
-/**
- * Active waypoint panel in sensor panel
- */
 public class SARPanel extends JPanel {
     
     private static final long serialVersionUID = 1L;
-    private RouteManager routeManager;
     private JPanel statusPanel;
     private JPanel timeAndDatePanel;
     private JPanel weatherPanel;
@@ -84,13 +82,20 @@ public class SARPanel extends JPanel {
     private JLabel label_4;
     private Component horizontalStrut;
     private JPanel effortAllocationPanel;
-    private JLabel lblProbabilityOfDetection;
+    private JLabel typeShip;
     private JLabel lblMhvBopa;
-    private JLabel lblEffectiveSearchArea;
     private JLabel lblNm;
-    private JLabel lblSearchCraftGround;
     private JButton btnSruList;
+    
+    
+    private static int iconWidth = 20;
+    private static int iconHeight = 20;
+    private JLabel typeHeli;
     private JCheckBox checkBox;
+    private JCheckBox checkBox_1;
+    private JCheckBox checkBox_2;
+    private JLabel typePlane;
+    private JLabel lblRescue;
 
     public SARPanel() {
         GridBagLayout gridBagLayout = new GridBagLayout();
@@ -477,7 +482,7 @@ public class SARPanel extends JPanel {
         btnReopenCalculations = new JButton("Reopen Calculations");
         buttonPanel.add(btnReopenCalculations);
         
-        btnEffortAllocation = new JButton("Effort Allocation");
+        btnEffortAllocation = new JButton("Allocated SRUs");
         buttonPanel.add(btnEffortAllocation);
         
         btnSruList = new JButton("SRU List");
@@ -492,57 +497,89 @@ public class SARPanel extends JPanel {
         gbc_effortAllocationPanel.gridy = 7;
         add(effortAllocationPanel, gbc_effortAllocationPanel);
         GridBagLayout gbl_effortAllocationPanel = new GridBagLayout();
-        gbl_effortAllocationPanel.columnWidths = new int[]{0, 0, 0};
-        gbl_effortAllocationPanel.rowHeights = new int[]{0, 0, 0, 0};
-        gbl_effortAllocationPanel.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
-        gbl_effortAllocationPanel.rowWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
+        gbl_effortAllocationPanel.columnWidths = new int[]{0, 0, 0, 0};
+        gbl_effortAllocationPanel.rowHeights = new int[]{0, 0, 0, 0, 0};
+        gbl_effortAllocationPanel.columnWeights = new double[]{1.0, 1.0, 0.0, Double.MIN_VALUE};
+        gbl_effortAllocationPanel.rowWeights = new double[]{1.0, 1.0, 0.0, 1.0, Double.MIN_VALUE};
         effortAllocationPanel.setLayout(gbl_effortAllocationPanel);
         
-        lblProbabilityOfDetection = new JLabel("SRU Name:");
-        GridBagConstraints gbc_lblProbabilityOfDetection = new GridBagConstraints();
-        gbc_lblProbabilityOfDetection.insets = new Insets(0, 0, 5, 5);
-        gbc_lblProbabilityOfDetection.gridx = 0;
-        gbc_lblProbabilityOfDetection.gridy = 0;
-        effortAllocationPanel.add(lblProbabilityOfDetection, gbc_lblProbabilityOfDetection);
+        typeShip = new JLabel(toolbarIcon("images/voct/ship.png"));
+        
+        
+        
+        GridBagConstraints gbc_typeShip = new GridBagConstraints();
+        gbc_typeShip.insets = new Insets(0, 0, 5, 5);
+        gbc_typeShip.gridx = 0;
+        gbc_typeShip.gridy = 0;
+        effortAllocationPanel.add(typeShip, gbc_typeShip);
         
         lblMhvBopa = new JLabel("MHV Bopa");
         GridBagConstraints gbc_lblMhvBopa = new GridBagConstraints();
-        gbc_lblMhvBopa.insets = new Insets(0, 0, 5, 0);
+        gbc_lblMhvBopa.insets = new Insets(0, 0, 5, 5);
         gbc_lblMhvBopa.gridx = 1;
         gbc_lblMhvBopa.gridy = 0;
         effortAllocationPanel.add(lblMhvBopa, gbc_lblMhvBopa);
         
-        lblEffectiveSearchArea = new JLabel("Type:");
-        GridBagConstraints gbc_lblEffectiveSearchArea = new GridBagConstraints();
-        gbc_lblEffectiveSearchArea.insets = new Insets(0, 0, 5, 5);
-        gbc_lblEffectiveSearchArea.gridx = 0;
-        gbc_lblEffectiveSearchArea.gridy = 1;
-        effortAllocationPanel.add(lblEffectiveSearchArea, gbc_lblEffectiveSearchArea);
+        checkBox = new JCheckBox("");
+        GridBagConstraints gbc_checkBox = new GridBagConstraints();
+        gbc_checkBox.insets = new Insets(0, 0, 5, 0);
+        gbc_checkBox.gridx = 2;
+        gbc_checkBox.gridy = 0;
+        effortAllocationPanel.add(checkBox, gbc_checkBox);
         
-        lblNm = new JLabel("Ship");
+        typeHeli = new JLabel(toolbarIcon("images/voct/helicopter.png"));
+        GridBagConstraints gbc_typeHeli = new GridBagConstraints();
+        gbc_typeHeli.insets = new Insets(0, 0, 5, 5);
+        gbc_typeHeli.gridx = 0;
+        gbc_typeHeli.gridy = 1;
+        effortAllocationPanel.add(typeHeli, gbc_typeHeli);
+        
+        lblNm = new JLabel("R169");
         GridBagConstraints gbc_lblNm = new GridBagConstraints();
-        gbc_lblNm.insets = new Insets(0, 0, 5, 0);
+        gbc_lblNm.insets = new Insets(0, 0, 5, 5);
         gbc_lblNm.gridx = 1;
         gbc_lblNm.gridy = 1;
         effortAllocationPanel.add(lblNm, gbc_lblNm);
         
-        lblSearchCraftGround = new JLabel("Show Area:");
-        GridBagConstraints gbc_lblSearchCraftGround = new GridBagConstraints();
-        gbc_lblSearchCraftGround.insets = new Insets(0, 0, 0, 5);
-        gbc_lblSearchCraftGround.gridx = 0;
-        gbc_lblSearchCraftGround.gridy = 2;
-        effortAllocationPanel.add(lblSearchCraftGround, gbc_lblSearchCraftGround);
+        checkBox_1 = new JCheckBox("");
+        GridBagConstraints gbc_checkBox_1 = new GridBagConstraints();
+        gbc_checkBox_1.insets = new Insets(0, 0, 5, 0);
+        gbc_checkBox_1.gridx = 2;
+        gbc_checkBox_1.gridy = 1;
+        effortAllocationPanel.add(checkBox_1, gbc_checkBox_1);
         
-        checkBox = new JCheckBox("");
-        GridBagConstraints gbc_checkBox = new GridBagConstraints();
-        gbc_checkBox.gridx = 1;
-        gbc_checkBox.gridy = 2;
-        effortAllocationPanel.add(checkBox, gbc_checkBox);
+        typePlane = new JLabel(toolbarIcon("images/voct/plane.png"));
+        GridBagConstraints gbc_typePlane = new GridBagConstraints();
+        gbc_typePlane.insets = new Insets(0, 0, 5, 5);
+        gbc_typePlane.gridx = 0;
+        gbc_typePlane.gridy = 2;
+        effortAllocationPanel.add(typePlane, gbc_typePlane);
+        
+        lblRescue = new JLabel("Rescue 170");
+        GridBagConstraints gbc_lblRescue = new GridBagConstraints();
+        gbc_lblRescue.insets = new Insets(0, 0, 5, 5);
+        gbc_lblRescue.gridx = 1;
+        gbc_lblRescue.gridy = 2;
+        effortAllocationPanel.add(lblRescue, gbc_lblRescue);
+        
+        checkBox_2 = new JCheckBox("");
+        GridBagConstraints gbc_checkBox_2 = new GridBagConstraints();
+        gbc_checkBox_2.insets = new Insets(0, 0, 5, 0);
+        gbc_checkBox_2.gridx = 2;
+        gbc_checkBox_2.gridy = 2;
+        effortAllocationPanel.add(checkBox_2, gbc_checkBox_2);
     }
     
     
-    
-    public void setRouteManager(RouteManager routeManager) {
-        this.routeManager = routeManager;
+
+    public ImageIcon toolbarIcon(String imgpath) {
+
+        ImageIcon icon = new ImageIcon(EPDShore.class.getClassLoader()
+                .getResource(imgpath));
+        Image img = icon.getImage();
+        Image newimg = img.getScaledInstance(iconWidth, iconHeight,
+                java.awt.Image.SCALE_DEFAULT);
+        ImageIcon newImage = new ImageIcon(newimg);
+        return newImage;
     }
 }
