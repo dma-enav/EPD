@@ -47,6 +47,14 @@ public final class SingleWMSService extends AbstractWMSService implements ImageS
         this.projection = p;
     }
     
+    public Projection getProjection() {
+        return projection;
+    }
+
+    public void setProjection(Projection projection) {
+        this.projection = projection;
+    }
+
     public SingleWMSService(String wmsQuery) {
         super(wmsQuery);
     }
@@ -63,7 +71,7 @@ public final class SingleWMSService extends AbstractWMSService implements ImageS
 
             ImageIcon wmsImg = new ImageIcon(url);
             wmsImg.getImage();
-
+            
             if (wmsImg.getIconHeight() == -1 || wmsImg.getIconWidth() ==-1){
                 Image noImage = new ImageIcon(EPD.class.getClassLoader().getResource("images/noWMSAvailable.png")).getImage();
                 BufferedImage bi = new BufferedImage(noImage.getWidth(null), noImage.getHeight(null), BufferedImage.TYPE_INT_ARGB);
@@ -71,9 +79,12 @@ public final class SingleWMSService extends AbstractWMSService implements ImageS
                 g.drawImage(noImage, 0, 0, wmsWidth, wmsHeight, null);
                 ImageIcon noImageIcon = new ImageIcon(bi);
                 wmsList.add(new CenterRaster(this.wmsullat, this.wmsullon, this.wmsWidth, this.wmsHeight, noImageIcon));
+                
             }else{
                 status.markContactSuccess();
-                wmsList.add(new CenterRaster(this.wmsullat, this.wmsullon, this.wmsWidth, this.wmsHeight, wmsImg));
+                //wmsList.add(new CenterRaster(this.wmsullat, this.wmsullon, this.wmsWidth, this.wmsHeight, wmsImg));
+                //wmsList.add(new OMRaster(this.projection.getUpperLeft().getY(),this.projection.getUpperLeft().getX(),this.wmsWidth,this.wmsHeight,wmsImg));
+                wmsList.add(new CenterRaster(getProjection().getCenter().getY(),getProjection().getCenter().getX(),this.wmsWidth,this.wmsHeight,wmsImg));
             }
 
         } catch (java.net.MalformedURLException murle) {
@@ -92,7 +103,7 @@ public final class SingleWMSService extends AbstractWMSService implements ImageS
 
     @Override
     public OMGraphicList call() throws Exception {
-        return getWmsList(this.projection);
+        return getWmsList(getProjection());
     }
 
 

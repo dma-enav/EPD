@@ -35,13 +35,21 @@ public class StreamingTiledWmsService extends TiledWMSService implements
     ConcurrentHashMap<String, OMGraphicList> cache = new ConcurrentHashMap<String, OMGraphicList>();
     ConcurrentHashMap<String, OMGraphicList> tmpCache = new ConcurrentHashMap<String, OMGraphicList>();
     LinkedBlockingDeque<Projection> projectionJobs = new LinkedBlockingDeque<>(
-            5);
+            1);
 
     private Thread t;
 
     public StreamingTiledWmsService(String wmsQuery, int tileNumber) {
         super(wmsQuery, tileNumber);
 
+        this.t = new Thread(this);
+        this.t.start();
+    }
+    
+    public StreamingTiledWmsService(String wmsQuery, int tileNumber, ConcurrentHashMap<String, OMGraphicList> sharedCache) {
+        super(wmsQuery, tileNumber);
+        this.cache = sharedCache;
+        
         this.t = new Thread(this);
         this.t.start();
     }
@@ -117,7 +125,7 @@ public class StreamingTiledWmsService extends TiledWMSService implements
                 for (int i = 0; i < workers.size(); i++) {
                     Future<OMGraphicList> future;
                     try {
-                        future = completionService.poll(5000,
+                        future = completionService.poll(Math.max(100,5000/(i+1)),
                                 TimeUnit.MILLISECONDS);
                         OMGraphicList tile = future.get();
                         result.addAll(tile);
@@ -126,13 +134,15 @@ public class StreamingTiledWmsService extends TiledWMSService implements
                     } catch (InterruptedException | ExecutionException
                             | NullPointerException e) {
                         allSuccess = false;
-                        LOG.debug("A Tile failed to download within the alotted time. (5000ms)");
+                        //LOG.debug("A Tile failed to download within the alotted time. (~5000ms)");
                     }
                 }
 
                 if (allSuccess) {
                     tmpCache.remove(getID(job));
                     cache.put(getID(job), result);
+                } else {
+                    queue(job);
                 }
 
             }
@@ -141,7 +151,7 @@ public class StreamingTiledWmsService extends TiledWMSService implements
     }
 
     public void queue(Projection p) {
-        // p = normalizeProjection(p);
+        //p = normalizeProjection(p);
         if (this.projectionJobs.offer(p)) {
 
         } else {
@@ -165,7 +175,7 @@ public class StreamingTiledWmsService extends TiledWMSService implements
     }
 
     public String getID(Projection p) {
-        return getBbox(p);
+        return p.getCenter().toString()+p.getScale();
     }
 
 }

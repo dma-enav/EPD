@@ -17,11 +17,11 @@
 package dk.dma.epd.common.prototype.gui.util;
 
 import java.awt.Dimension;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
+import com.bbn.openmap.proj.Projection;
 
 /**
  * @author jtj-sfs
@@ -40,15 +41,26 @@ import com.bbn.openmap.event.ProjectionListener;
 public class SimpleOffScreenMapRenderer extends Thread implements
         ProjectionListener, Runnable {
 
-    private static final int SCREEN_BOUND_X = -5000;
-    private static final int SCREEN_BOUND_Y = -5000;
+    private static final int SCREEN_BOUND_X = 5000;
+    private static final int SCREEN_BOUND_Y = 5000;
     
     protected MapBean sourceBean;
     protected MapBean targetBean;
     private final Object imgLock = new Object();
     private BufferedImage img;
-    private BufferedImage outImg;
+    volatile private BufferedImage outImg;
+    public BufferedImage getImg() {
+        return img;
+    }
+
+
+
+    public void setImg(BufferedImage img) {
+        this.img = img;
+    }
+
     private JFrame frame;
+    private LinkedBlockingDeque<Projection> events = new LinkedBlockingDeque<Projection>();  
 
     private Logger LOG;
 
@@ -77,39 +89,71 @@ public class SimpleOffScreenMapRenderer extends Thread implements
                 .getHeight()));
         frame.setBounds(SCREEN_BOUND_X, SCREEN_BOUND_Y, targetBean.getWidth(), targetBean.getHeight());
         frame.add(targetBean);
-        frame.setVisible(true);
+        //frame.setVisible(true);
 
         sourceBean.addProjectionListener(this);
 
     }
 
-    public BufferedImage call() {
-        BufferedImage i = getScreenshot();
-        return i;
+    public void drawGrid(BufferedImage image) {
+        int i = 100;
+        while(i < image.getHeight()) {
+            int j = 100;
+            while (j < image.getWidth()) {
+                image.getGraphics().drawLine(j,0,j,image.getHeight());
+                j+=100;
+            }
+            image.getGraphics().drawLine(0,i,image.getWidth(),i);
+            i+=100;
+        }
     }
 
-    public BufferedImage getScreenshot() {
-        synchronized (imgLock) {
-            long start = System.currentTimeMillis();
-            
-            //frame.repaint();
-            this.targetBean.paint(img.getGraphics());
-            long end = System.currentTimeMillis();
-            LOG.debug("To Paint: " + (end - start));
-            
-            
-            
-            AffineTransform at = new AffineTransform();
-            at.scale(3.0, 3.0);
-            AffineTransformOp scaleOp = new AffineTransformOp(at,
-                    AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-            scaleOp.filter(img, outImg);
-            
-            
-        }
+    public void updateOutImg() {
+        outImg.flush();
+        //for (int i=0; i<10; i++) {
+        //    outImg.getGraphics().drawRect(0, 0, outImg.getWidth()/(10-i), outImg.getHeight()/(10-i));
+        //}
+        
+        drawGrid(outImg);
 
+
+        new Thread(new Runnable() {
+            
+            @Override
+            public void run() {
+                long start = System.currentTimeMillis();
+                
+                //frame.repaint();
+                targetBean.paint(img.getGraphics());
+                long end = System.currentTimeMillis();
+                LOG.debug("To Paint: " + (end - start));
+                
+                
+                
+                /*AffineTransform at = new AffineTransform();
+                at.scale(1.0, 1.0);
+                AffineTransformOp scaleOp = new AffineTransformOp(at,
+                        AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+                scaleOp.filter(img, outImg);*/
+                
+                drawGrid(img);
+                setOutImg(img);
+                
+                
+            }
+        }).start();
+
+    }
+    
+    public BufferedImage getOutImg() {
         return outImg;
     }
+    
+    public void setOutImg(BufferedImage i) {
+        outImg = i;
+        setImg(new BufferedImage(i.getWidth(), i.getHeight(), BufferedImage.TYPE_INT_RGB));
+    }
+    
 
     public MapBean getTargetBean() {
         return this.targetBean;
@@ -117,41 +161,42 @@ public class SimpleOffScreenMapRenderer extends Thread implements
 
     @Override
     public void projectionChanged(ProjectionEvent arg0) {
-        updateTargetMap();
+        this.events.offerLast(arg0.getProjection().makeClone()); 
     }
 
     @Override
     public void run() {
         while (true) {
             try {
-                Thread.sleep(1000);
+                final LinkedList<Projection> l = new LinkedList<Projection>();
+                updateTargetMap(events.takeLast());
+                this.events.drainTo(l);                
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                this.frame.repaint();
+                
             }
         }
     }
 
     public void saveScreenShot(File out) {
         try {
-            ImageIO.write(this.getScreenshot(), "PNG", out);
+            ImageIO.write(this.getOutImg(), "PNG", out);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public synchronized void updateTargetMap() {
+    public void updateTargetMap(final Projection p) {
         frame.setVisible(true);
-        int w = (int) sourceBean.getSize().getWidth();
-        int h = (int) sourceBean.getSize().getHeight();
+        int w = (int) p.getWidth()*3;
+        int h = (int) p.getHeight()*3;
 
-        float scaleDiff = targetBean.getScale() / sourceBean.getScale();
-        if (Math.abs(scaleDiff - 3.0) > 0.01) {
-            targetBean.setScale((float) (sourceBean.getScale() * 3));
-        }
+        float scaleDiff = targetBean.getScale() / p.getScale();
         
-        if (!targetBean.getCenter().equals(sourceBean)) {
-            targetBean.setCenter(sourceBean.getCenter());
+        if (Math.abs(scaleDiff - 1.0) > 0.01) {
+            targetBean.setScale((float) (p.getScale() * 1));
+        }
+        if (!targetBean.getCenter().equals(p.getCenter())) {
+            targetBean.setCenter(p.getCenter());
         }
         
         if ((int) frame.getSize().getWidth() != w
@@ -165,12 +210,13 @@ public class SimpleOffScreenMapRenderer extends Thread implements
         if (img.getWidth() != w || img.getHeight() != h) {
             synchronized (imgLock) {
                 img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-                outImg = new BufferedImage(w * 3, h * 3,
+                outImg = new BufferedImage(w, h,
                         BufferedImage.TYPE_INT_RGB);
             }
         }
         
         this.frame.repaint();
+        this.updateOutImg();
         frame.setVisible(false);
     }
     

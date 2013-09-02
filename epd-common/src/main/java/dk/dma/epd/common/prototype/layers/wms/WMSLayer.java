@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.layers.wms;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
@@ -56,6 +57,12 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
         wmsService = new StreamingTiledWmsService(query, 4);
         new Thread(this).start();
 
+    }
+    
+    public WMSLayer(String query,ConcurrentHashMap<String, OMGraphicList> sharedCache) {
+        LOG = LoggerFactory.getLogger(WMSLayer.class);
+        wmsService = new StreamingTiledWmsService(query, 4, sharedCache);
+        new Thread(this).start();
     }
 
     public AbstractWMSService getWmsService() {

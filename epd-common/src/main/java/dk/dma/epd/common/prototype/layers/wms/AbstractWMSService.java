@@ -188,14 +188,7 @@ public abstract class AbstractWMSService {
     }
 
     public static Projection normalizeProjection(Projection p) {
-        Proj p2 = (Proj) p.makeClone();
-        double x = p.getCenter().getX();
-        double y = p.getCenter().getY();
-
-        p2.setCenter(Math.round(x), Math.round(y));
-        p2.setWidth(p.getWidth() + 25);
-        p2.setHeight(p.getHeight() + 25);
-
+        //TODO: implement
         return (Projection) p.makeClone();
 
     }

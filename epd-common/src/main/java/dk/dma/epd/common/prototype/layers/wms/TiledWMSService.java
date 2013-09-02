@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 Danish Maritime Authority
+/* Copyright (c) 2011 Danish Maritime Aut7hority
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,6 +18,7 @@ package dk.dma.epd.common.prototype.layers.wms;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -27,6 +28,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
+import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.Projection;
 
 public class TiledWMSService extends AbstractWMSService {
@@ -34,6 +36,7 @@ public class TiledWMSService extends AbstractWMSService {
     protected int root;
     protected int sqrRoot;
 
+    @SuppressWarnings("unused")
     private Projection projection;
 
     public TiledWMSService(String wmsQuery, int tileNumber) {
@@ -41,8 +44,23 @@ public class TiledWMSService extends AbstractWMSService {
         this.root = tileNumber;
         this.sqrRoot = (int) Math.sqrt(root);
     }
-
+    /**
+     * get a single tile if width < 1500 otherwise, get four tiles
+     * @param p projection
+     * @return list of rasterizable image tiles
+     */
     protected final Collection<SingleWMSService> getTiles(Projection p) {
+        
+        if (p.getWidth() > 1500 || p.getHeight() > 1500) {
+            return getTiles(p,sqrRoot);
+        }
+        
+        LinkedList<SingleWMSService> l = new LinkedList<>();
+        l.add(new SingleWMSService(wmsQuery, p.makeClone()));
+        return l;
+    }
+    
+    protected final Collection<SingleWMSService> getTiles(Projection p, int sqrRoot) {
         super.setWMSPosition(p);
         super.setZoomLevel(p.getScale());
         this.setProjection(p);
@@ -61,6 +79,9 @@ public class TiledWMSService extends AbstractWMSService {
 
         int rectW = (int) Math.round(wmsWidth / sqrRoot);
         int rectH = (int) Math.round(wmsHeight / sqrRoot);
+        
+        //rectW = 20;
+        //rectH = 20;
 
         Collection<SingleWMSService> wmsInstances = new ArrayList<>();
         for (int i = 0; i < root; i++) {
@@ -77,26 +98,61 @@ public class TiledWMSService extends AbstractWMSService {
                 SingleWMSService s = it.next();
 
                 Double minLon = wmsullon + lonOffset;
-                Double maxLon = wmsullon + lonOffset + rectWidth;
+                //Double maxLon = wmsullon + lonOffset + rectWidth;
                 Double minLat = wmsullat + latOffset;
-                Double maxLat = wmsullat + latOffset + rectHeight;
+                //Double maxLat = wmsullat + latOffset + rectHeight;
+                
+                Proj pCurrent = (Proj) p.makeClone();
+                
+                pCurrent.setWidth(rectW+1); //overlap one pixel
+                pCurrent.setHeight(rectH+1);
+                pCurrent.setCenter(minLat+rectHeight/2,minLon+rectWidth/2);
+                
+                s.setProjection(pCurrent);
+                s.setWMSPosition(pCurrent);
+                s.setZoomLevel(pCurrent);
 
                 // TODO: we cheat here, we add 1 pixel to width and height to
                 // overlap all tiles, but we really should change the projection
                 // as well
-                s.setWMSPosition(minLon + rectWidth / 2, minLat + rectHeight
-                        / 2, minLon, minLat, maxLon, maxLat, rectW + 1,
-                        rectH + 1);
+                /*
+                s.setWMSPosition(minLon, minLat, minLon, minLat, maxLon, maxLat, rectW -10,
+                        rectH -10);
 
                 s.setZoomLevel(p.getScale());
+                */
             }
         }
 
         return wmsInstances;
-
-    }
-
-    private void setProjection(Projection p) {
+        
+    } 
+    
+    
+    /*
+     * Experimented with various pre-fetching strategies
+     */
+    /*
+    protected final Collection<SingleWMSService> getTiles(Projection p) {
+        
+        LinkedList<SingleWMSService> l = new LinkedList<>();
+        
+        Projection pCurrent = p.makeClone();
+        
+        
+        int degrees = 45;
+        for (int i=0; i<8; i++) {
+            pCurrent = p.makeClone();
+            Proj pC = (Proj)pCurrent;
+            pCurrent.pan(degrees*i);
+            
+            l.add(new SingleWMSService(wmsQuery, pCurrent.makeClone()));
+        }
+        
+        return l;
+    }*/
+    
+    private void setProjection(final Projection p) {
         this.projection = p;
 
     }
