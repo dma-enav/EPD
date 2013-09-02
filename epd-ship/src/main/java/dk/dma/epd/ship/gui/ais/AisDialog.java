@@ -88,6 +88,8 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         setLocationRelativeTo(parent);
+        
+//        initGui();
     }
 
     private void initGui() {
@@ -98,6 +100,9 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         closeBtn.addActionListener(this);
         gotoBtn = new JButton("Goto");
         gotoBtn.addActionListener(this);
+        
+        JButton addToSar = new JButton("Add Selected Vessel");
+        
         
         detailsPanel = new JPanel();
         //detailsPanel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
@@ -257,7 +262,7 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
                         .addContainerGap())
             );
 
-        detailsPanel.setLayout(gl_detailsPanel);
+//        detailsPanel.setLayout(gl_detailsPanel);
         getContentPane().setLayout(gl_detailsPanel);
                 
     }
