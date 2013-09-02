@@ -352,7 +352,10 @@ public class JMenuWorkspaceBar extends JMenuBar {
      */
     public void removeMapMenu(final JMapFrame window) {
         JMenu menuItem = mapMenus.get(window.getId());
-        maps.remove(menuItem);
+        if (menuItem != null){
+            maps.remove(menuItem);    
+        }
+        
     }
 
     public void lockMapMenu(final JMapFrame window, boolean locked) {

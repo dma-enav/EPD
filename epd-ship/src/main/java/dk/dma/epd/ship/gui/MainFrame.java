@@ -52,6 +52,7 @@ import dk.dma.epd.ship.gui.msi.MsiDialog;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.gui.voct.EffortAllocationWindow;
 import dk.dma.epd.ship.gui.voct.SARInput;
+import dk.dma.epd.ship.gui.voct.SARInvitationRequest;
 import dk.dma.epd.ship.settings.EPDGuiSettings;
 
 /**
@@ -220,10 +221,13 @@ public class MainFrame extends JFrame implements WindowListener {
 //        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 //        dialog.setVisible(true);
         
-        EffortAllocationWindow dialog = new EffortAllocationWindow();
+//        EffortAllocationWindow dialog = new EffortAllocationWindow();
+//        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+//        dialog.setVisible(true);
+      
+        SARInvitationRequest dialog = new SARInvitationRequest(this);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setVisible(true);
-      
         
     }
 
