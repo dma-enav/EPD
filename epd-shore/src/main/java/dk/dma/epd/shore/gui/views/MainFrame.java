@@ -32,7 +32,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
 
@@ -44,6 +46,7 @@ import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
 import dk.dma.epd.shore.gui.views.monalisa.SendVoyageDialog;
+import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
 import dk.dma.epd.shore.settings.ESDGuiSettings;
 import dk.dma.epd.shore.settings.Workspace;
 import dk.dma.epd.shore.util.ThreadedMapCreator;
@@ -94,6 +97,9 @@ public class MainFrame extends JFrame implements WindowListener {
     private RouteManagerDialog routeManagerDialog = new RouteManagerDialog(this);
     private SendRouteDialog sendRouteDialog = new SendRouteDialog();
     private SendVoyageDialog sendVoyageDialog = new SendVoyageDialog();
+    
+    private SRUManagerDialog sruManagerDialog = new SRUManagerDialog(this);
+    
 
     private StatusArea statusArea = new StatusArea(this);
     private JMapFrame activeMapWindow;
@@ -367,6 +373,7 @@ public class MainFrame extends JFrame implements WindowListener {
         desktop.getManager().setRouteManager(routeManagerDialog);
         desktop.getManager().setRouteExchangeDialog(sendRouteDialog);
         desktop.getManager().setSendVoyageDialog(sendVoyageDialog);
+        desktop.getManager().setSRUManagerDialog(sruManagerDialog);
 
         desktop.add(statusArea, true);
         desktop.add(notificationCenter, true);
@@ -389,9 +396,15 @@ public class MainFrame extends JFrame implements WindowListener {
         desktop.add(routeManagerDialog, true);
         beanHandler.add(routeManagerDialog);
         beanHandler.add(routeManagerDialog.getRouteManager());
-        // routeManagerDialog.setVisible(true);
+        
+        desktop.add(sruManagerDialog, true);
+        beanHandler.add(sruManagerDialog);
 
         setWorkSpace(workspace);
+        
+   
+        sruManagerDialog.setVisible(true);
+
     }
 
     /**
@@ -721,4 +734,13 @@ public class MainFrame extends JFrame implements WindowListener {
         return topMenu;
     }
 
+    /**
+     * @return the sruManagerDialog
+     */
+    public SRUManagerDialog getSruManagerDialog() {
+        return sruManagerDialog;
+    }
+
+    
+    
 }

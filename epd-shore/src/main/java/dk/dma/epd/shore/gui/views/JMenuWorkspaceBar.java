@@ -259,6 +259,14 @@ public class JMenuWorkspaceBar extends JMenuBar {
             }
         });
 
+        
+        sruList.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                mainFrame.getSruManagerDialog().setVisible(true);
+                System.out.println(mainFrame.getSruManagerDialog().isVisible());
+            }
+        });
+
 
     }
 

@@ -64,6 +64,7 @@ import dk.dma.epd.shore.service.ais.AisServices;
 import dk.dma.epd.shore.services.shore.ShoreServices;
 import dk.dma.epd.shore.settings.ESDSensorSettings;
 import dk.dma.epd.shore.settings.ESDSettings;
+import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
 /**
@@ -96,6 +97,7 @@ public class EPDShore extends EPD {
     private static RouteManager routeManager;
     private static VoyageManager voyageManager;
     private static EnavServiceHandler enavServiceHandler;
+    private static SRUManager sruManager;
 
     /**
      * Starts the program by initializing the various threads and spawning the main GUI
@@ -172,6 +174,9 @@ public class EPDShore extends EPD {
         // voyageManager = new VoyageManager();
         voyageManager = VoyageManager.loadVoyageManager();
         beanHandler.add(voyageManager);
+        
+        sruManager = SRUManager.loadSRUManager();
+        beanHandler.add(sruManager);
 
 
         
@@ -397,6 +402,10 @@ public class EPDShore extends EPD {
 
     public static RouteManager getRouteManager() {
         return routeManager;
+    }
+    
+    public static SRUManager getSRUManager() {
+        return sruManager;
     }
 
     /**

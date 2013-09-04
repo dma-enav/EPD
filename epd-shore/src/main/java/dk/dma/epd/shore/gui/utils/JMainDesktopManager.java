@@ -38,6 +38,7 @@ import dk.dma.epd.shore.gui.views.SendRouteDialog;
 import dk.dma.epd.shore.gui.views.StatusArea;
 import dk.dma.epd.shore.gui.views.ToolBar;
 import dk.dma.epd.shore.gui.views.monalisa.SendVoyageDialog;
+import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
 
 public class JMainDesktopManager extends DefaultDesktopManager {
     /**
@@ -54,9 +55,12 @@ public class JMainDesktopManager extends DefaultDesktopManager {
     private RouteManagerDialog routeManager;
     private SendRouteDialog routeDialog;
     private SendVoyageDialog sendVoyageDialog;
+    private SRUManagerDialog sruManagerDialog;
+    
     
     /**
      * Constructor for desktopmanager
+     * 
      * @param desktop
      */
     public JMainDesktopManager(JMainDesktopPane desktop) {
@@ -71,10 +75,10 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
         if (f instanceof JMapFrame) {
 
-            if (EPDShore.getMainFrame() != null){
-            EPDShore.getMainFrame().setActiveMapWindow((JMapFrame) f);
+            if (EPDShore.getMainFrame() != null) {
+                EPDShore.getMainFrame().setActiveMapWindow((JMapFrame) f);
             }
-            
+
             if (toFront.size() == 0) {
                 super.activateFrame(f);
             } else {
@@ -82,7 +86,8 @@ public class JMainDesktopManager extends DefaultDesktopManager {
                     super.activateFrame(f);
                 } else {
                     super.activateFrame(f);
-                    Iterator<Map.Entry<Integer, JInternalFrame>> it = toFront.entrySet().iterator();
+                    Iterator<Map.Entry<Integer, JInternalFrame>> it = toFront
+                            .entrySet().iterator();
                     while (it.hasNext()) {
                         Map.Entry<Integer, JInternalFrame> pairs = it.next();
                         super.activateFrame(pairs.getValue());
@@ -99,14 +104,16 @@ public class JMainDesktopManager extends DefaultDesktopManager {
         super.activateFrame(routeManager);
         super.activateFrame(routeDialog);
         super.activateFrame(sendVoyageDialog);
+        super.activateFrame(sruManagerDialog);
     }
-    
-    public void clearToFront(){
+
+    public void clearToFront() {
         toFront.clear();
     }
 
     /**
      * Set an internalframe to be infront
+     * 
      * @param id
      * @param f
      */
@@ -136,6 +143,7 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
     /**
      * return the scrollPane
+     * 
      * @return
      */
     private JScrollPane getScrollPane() {
@@ -150,6 +158,7 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
     /**
      * Get scrollPane insets
+     * 
      * @return
      */
     private Insets getScrollPaneInsets() {
@@ -182,8 +191,9 @@ public class JMainDesktopManager extends DefaultDesktopManager {
             }
             Dimension d = scrollPane.getVisibleRect().getSize();
             if (scrollPane.getBorder() != null) {
-                d.setSize(d.getWidth() - scrollInsets.left - scrollInsets.right, d.getHeight() - scrollInsets.top
-                        - scrollInsets.bottom);
+                d.setSize(
+                        d.getWidth() - scrollInsets.left - scrollInsets.right,
+                        d.getHeight() - scrollInsets.top - scrollInsets.bottom);
             }
 
             if (x <= d.getWidth()) {
@@ -210,8 +220,9 @@ public class JMainDesktopManager extends DefaultDesktopManager {
         if (scrollPane != null) {
             Dimension d = scrollPane.getVisibleRect().getSize();
             if (scrollPane.getBorder() != null) {
-                d.setSize(d.getWidth() - scrollInsets.left - scrollInsets.right, d.getHeight() - scrollInsets.top
-                        - scrollInsets.bottom);
+                d.setSize(
+                        d.getWidth() - scrollInsets.left - scrollInsets.right,
+                        d.getHeight() - scrollInsets.top - scrollInsets.bottom);
             }
 
             d.setSize(d.getWidth() - 20, d.getHeight() - 20);
@@ -223,22 +234,25 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
     /**
      * Set notification center
+     * 
      * @param notCenter
      */
     public void setNotCenter(NotificationCenter notCenter) {
         this.notCenter = notCenter;
     }
-    
+
     /**
      * Set Settings Window
+     * 
      * @param notCenter
      */
     public void setSettings(JSettingsWindow settings) {
         this.settings = settings;
     }
-    
+
     /**
      * Set RouteManager Window
+     * 
      * @param notCenter
      */
     public void setRouteManager(RouteManagerDialog routeManager) {
@@ -247,6 +261,7 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
     /**
      * Set RouteExchange Dialog
+     * 
      * @param notCenter
      */
     public void setRouteExchangeDialog(SendRouteDialog routeDialog) {
@@ -255,14 +270,16 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
     /**
      * Set Voyage Send Dialog
+     * 
      * @param notCenter
      */
     public void setSendVoyageDialog(SendVoyageDialog sendVoyageDialog) {
         this.sendVoyageDialog = sendVoyageDialog;
     }
-    
+
     /**
      * Set notification area
+     * 
      * @param notificationArea
      */
     public void setNotificationArea(NotificationArea notificationArea) {
@@ -271,6 +288,7 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
     /**
      * Set status area
+     * 
      * @param statusArea
      */
     public void setStatusArea(StatusArea statusArea) {
@@ -279,9 +297,15 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
     /**
      * Set toolbar
+     * 
      * @param toolbar
      */
     public void setToolbar(ToolBar toolbar) {
         this.toolbar = toolbar;
+    }
+
+    public void setSRUManagerDialog(SRUManagerDialog sruManagerDialog) {
+        this.sruManagerDialog = sruManagerDialog;
+
     }
 }
