@@ -326,6 +326,45 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
                 msiHandler.notifyUpdate();
             }
         });
+        
+        
+        
+        
+        
+        
+        JCheckBoxMenuItem newSAR = new JCheckBoxMenuItem("SAR Operation");
+        tools.add(newSAR);
+
+        newSAR.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                //This is where we initiate the SAR
+                
+                
+                
+                
+//                EPDShip.getSettings()
+//                        .getEnavSettings()
+//                        .setMsiFilter(
+//                                !EPDShip.getSettings().getEnavSettings()
+//                                        .isMsiFilter());
+//                msiHandler.notifyUpdate();
+            }
+        });
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
         layouts = new JMenu("Layouts");
         this.add(layouts);
