@@ -39,6 +39,7 @@ import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
@@ -71,12 +72,8 @@ public class ChartPanel extends CommonChartPanel {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
 
-    private MapHandler mapHandler;
-    private LayerHandler layerHandler;
     private MsiHandler msiHandler;
-    private BufferedLayerMapBean map;
-    private Layer encLayer;
-    private Layer bgLayer;
+
     private GeneralLayer generalLayer;
     private MonaLisaHandler monaLisaHandler;
 
@@ -85,12 +82,10 @@ public class ChartPanel extends CommonChartPanel {
     private SelectMouseMode selectMouseMode;
 
     private RouteEditMouseMode routeEditMouseMode;
-
-    private MouseDelegator mouseDelegator;
+    
     public int maxScale = 5000;
     private AisLayer aisLayer;
     private MsiLayer msiLayer;
-    private WMSLayer wmsLayer;
     private RouteLayer routeLayer;
     private VoyageLayer voyageLayer;
     private RouteEditLayer routeEditLayer;
@@ -104,6 +99,8 @@ public class ChartPanel extends CommonChartPanel {
 
     protected transient ProjectionSupport projectionSupport = new ProjectionSupport(
             this, false);
+    private BufferedLayerMapBean dragMap;
+    private SimpleOffScreenMapRenderer dragMapRenderer;
 
     /**
      * Constructor
@@ -119,6 +116,7 @@ public class ChartPanel extends CommonChartPanel {
         this.mainFrame = mainFrame;
         // Create the charts own maphandler
         mapHandler = new MapHandler();
+        dragMapHandler = new MapHandler();
 
         // Add the aishandler to this bean
         mapHandler.add(EPDShore.getAisHandler());
@@ -127,6 +125,8 @@ public class ChartPanel extends CommonChartPanel {
         mapHandler.add(mainFrame);
         mapHandler.add(mainFrame.getStatusArea());
         mapHandler.add(jmapFrame);
+        
+
 
         // Set layout
         // setLayout(new BorderLayout());
@@ -345,6 +345,8 @@ public class ChartPanel extends CommonChartPanel {
      */
     public void initChartDefault(MapFrameType type) {
         Properties props = EPDShore.getProperties();
+        
+        ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
 
         if (EPDShore.getSettings().getMapSettings().isUseEnc()
                 && mainFrame.isUseEnc()) {
@@ -499,6 +501,26 @@ public class ChartPanel extends CommonChartPanel {
             // System.out.println("wms is visible");
             bgLayer.setVisible(false);
         }
+        
+        
+        //TODO: CLEANUP
+        //dragMap
+        dragMap = new BufferedLayerMapBean();
+        dragMap.setDoubleBuffered(true);
+        dragMap.setCenter(mapSettings.getCenter());
+        dragMap.setScale(mapSettings.getScale());
+        dragMapHandler.add(new LayerHandler());
+        //if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
+
+            dragMapHandler.add(dragMap);
+            WMSLayer wmsDragLayer = new WMSLayer(mapSettings.getWmsQuery());
+            dragMapHandler.add(wmsDragLayer);
+            
+            // create an offscreen renderer
+            
+        //}        
+        dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
+        dragMapRenderer.start();
 
     }
 

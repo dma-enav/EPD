@@ -17,13 +17,13 @@ package dk.dma.epd.ship.event;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.RasterFormatException;
 import java.util.Properties;
 
 import javax.swing.ImageIcon;
@@ -46,6 +46,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
 
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unused")
     private final Logger LOG = LoggerFactory.getLogger(DragMouseMode.class);
 
     /**
@@ -58,15 +59,19 @@ public class DragMouseMode extends AbstractCoordMouseMode {
     public static final float DEFAULT_OPAQUENESS = 0.5f;
 
     private boolean isPanning;
-    private BufferedImage bufferedMapImage;
+    volatile private BufferedImage bufferedMapImage;
     private int beanBufferWidth;
     private int beanBufferHeight;
     private int oX, oY;
     private float opaqueness;
-    private boolean leaveShadow;
-    private boolean useCursor;
-    boolean layerMouseDrag;
-    boolean mouseDragged;
+    volatile private boolean leaveShadow;
+    volatile private boolean useCursor;
+    volatile boolean layerMouseDrag;
+    volatile boolean mouseDragged;
+
+    volatile private long timeToLayerMouseDrag;
+
+    private BufferedImage onScreenMap;
 
     /**
      * Construct a RouteEditMouseMode. Sets the ID of the mode to the modeID,
@@ -226,61 +231,48 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                 int y = (int) pnt.getY();
 
                 if (!isPanning) {
-
-                    /*
-                     * Making the image
-                     */
-                    try {
-                        long time = System.currentTimeMillis();
-                        bufferedMapImage = EPDShip.getMainFrame()
-                                .getChartPanel().getDragMapRenderer().call();
-                        long end = System.currentTimeMillis();
-
-                        LOG.debug("Time to get screenshot: "
-                                + (end - time));
-
-                    } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-
+                    timeToLayerMouseDrag = System.currentTimeMillis();
+ 
                     isPanning = true;
-                    EPDShip.getMainFrame().getChartPanel().getMap()
-                            .setVisible(false);
+                    
+                    
+                    EPDShip.getMainFrame().getChartPanel().getDragMapRenderer().updateOutImg();
 
+                    onScreenMap = new BufferedImage(mb.getWidth(), mb.getHeight(),BufferedImage.TYPE_INT_RGB);
+                    mb.paint(onScreenMap.getGraphics());
                     oX = x;
                     oY = y;
+                    
+                    EPDShip.getMainFrame().getChartPanel().getMap()
+                    .setVisible(false);
 
                 } else {
-                    if (bufferedMapImage != null) {
-                        final int startX = mb.getWidth();
-                        final int startY = mb.getHeight();
 
-                        final int posX = startX - (x - oX);
-                        final int posY = startY - (y - oY);
+                    final int startX = mb.getWidth();
+                    final int startY = mb.getHeight();
 
-                        // LOG.debug("posX ="+posX+" posY="+posY);
-                        if (posX > 0
-                                && (posX + startX) < (bufferedMapImage
-                                        .getWidth())
-                                && posY > 0
-                                && (posY + startY) < bufferedMapImage
-                                        .getHeight()) {
-                            final BufferedImage renderImage;
+                    final int posX = startX - (x - oX);
+                    final int posY = startY - (y - oY);
 
-                            renderImage = bufferedMapImage.getSubimage(posX,
-                                    posY, mb.getWidth(), mb.getHeight());
+                    try {
+                        //LOG.debug("Time to get offScreenMap: ")
+                        final BufferedImage offScreenMap = EPDShip.getMainFrame()
+                                .getChartPanel().getDragMapRenderer().getOutImg().getSubimage(posX,
+                                posY, mb.getWidth(), mb.getHeight());
+                        
+                        final BufferedImage renderImage = offScreenMap;
+                        //renderImage.getGraphics().drawImage(offScreenMap,0,0,null);                        
+                        renderImage.getGraphics().drawImage(onScreenMap,x-oX,y-oY,null);
 
-                            ((Graphics2D) mb.getGraphics(true)).drawImage(
-                                    renderImage, 0, 0, null);
 
-                        }
+                        mb.getGraphics(true).drawImage(
+                                renderImage, 0, 0, null);
+                    } catch (RasterFormatException e) {
+                        //was out of bounds, sorry
                     }
                 }
             }
         }
-        // }
-        // super.mouseDragged(arg0);
     }
 
     /**
@@ -299,16 +291,10 @@ public class DragMouseMode extends AbstractCoordMouseMode {
             int x = (int) pnt.getX();
             int y = (int) pnt.getY();
 
-            EPDShip.getMainFrame().getChartPanel().getDragMapRenderer()
-                    .updateTargetMap();
-            MapBean offScreenBean = EPDShip.getMainFrame().getChartPanel()
-                    .getDragMapRenderer().getTargetBean();
-
+            
             center.setLocation(center.getX() - x + oX, center.getY() - y + oY);
 
-            // finally set both centers
-            offScreenBean.setCenter(proj.inverse(center));
-            //offScreenBean.getParent().repaint();
+            //this will trigger "projection changed" in SimpleOffScreenMapRenderer
             mb.setCenter(proj.inverse(center));
 
             isPanning = false;

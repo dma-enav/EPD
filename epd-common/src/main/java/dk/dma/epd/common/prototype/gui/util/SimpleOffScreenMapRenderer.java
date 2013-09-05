@@ -20,11 +20,14 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,19 +44,17 @@ import com.bbn.openmap.proj.Projection;
 public class SimpleOffScreenMapRenderer extends Thread implements
         ProjectionListener, Runnable {
 
-    private static final int SCREEN_BOUND_X = 5000;
-    private static final int SCREEN_BOUND_Y = 5000;
+    private static final int SCREEN_BOUND_X = 10000;
+    private static final int SCREEN_BOUND_Y = 10000;
     
     protected MapBean sourceBean;
     protected MapBean targetBean;
     private final Object imgLock = new Object();
     private BufferedImage img;
-    volatile private BufferedImage outImg;
+    private volatile BufferedImage outImg;
     public BufferedImage getImg() {
         return img;
     }
-
-
 
     public void setImg(BufferedImage img) {
         this.img = img;
@@ -95,7 +96,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
 
     }
 
-    public void drawGrid(BufferedImage image) {
+    private void drawGrid(BufferedImage image) {
         int i = 100;
         while(i < image.getHeight()) {
             int j = 100;
@@ -109,13 +110,6 @@ public class SimpleOffScreenMapRenderer extends Thread implements
     }
 
     public void updateOutImg() {
-        outImg.flush();
-        //for (int i=0; i<10; i++) {
-        //    outImg.getGraphics().drawRect(0, 0, outImg.getWidth()/(10-i), outImg.getHeight()/(10-i));
-        //}
-        
-        drawGrid(outImg);
-
 
         new Thread(new Runnable() {
             
@@ -161,7 +155,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
 
     @Override
     public void projectionChanged(ProjectionEvent arg0) {
-        this.events.offerLast(arg0.getProjection().makeClone()); 
+        this.events.offerLast(arg0.getProjection().makeClone());
     }
 
     @Override
@@ -186,38 +180,47 @@ public class SimpleOffScreenMapRenderer extends Thread implements
     }
 
     public void updateTargetMap(final Projection p) {
-        frame.setVisible(true);
-        int w = (int) p.getWidth()*3;
-        int h = (int) p.getHeight()*3;
+        SwingUtilities.invokeLater(new Runnable() {
+            
+            @Override
+            public void run() {
 
-        float scaleDiff = targetBean.getScale() / p.getScale();
-        
-        if (Math.abs(scaleDiff - 1.0) > 0.01) {
-            targetBean.setScale((float) (p.getScale() * 1));
-        }
-        if (!targetBean.getCenter().equals(p.getCenter())) {
-            targetBean.setCenter(p.getCenter());
-        }
-        
-        if ((int) frame.getSize().getWidth() != w
-                || (int) frame.getSize().getHeight() != h) {
-            frame.setSize(w, h);
-            frame.setBounds(SCREEN_BOUND_X, SCREEN_BOUND_Y, w, h);
-        }
-        
-        targetBean.setSize(w, h);
+                frame.setVisible(true);
+                int w = (int) p.getWidth()*3;
+                int h = (int) p.getHeight()*3;
 
-        if (img.getWidth() != w || img.getHeight() != h) {
-            synchronized (imgLock) {
-                img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-                outImg = new BufferedImage(w, h,
-                        BufferedImage.TYPE_INT_RGB);
+                float scaleDiff = targetBean.getScale() / p.getScale();
+                
+                if (Math.abs(scaleDiff - 1.0) > 0.01) {
+                    targetBean.setScale((float) (p.getScale() * 1));
+                }
+                if (!targetBean.getCenter().equals(p.getCenter())) {
+                    targetBean.setCenter(p.getCenter());
+                }
+                
+                if ((int) frame.getSize().getWidth() != w
+                        || (int) frame.getSize().getHeight() != h) {
+                    frame.setSize(w, h);
+                    frame.setBounds(SCREEN_BOUND_X, SCREEN_BOUND_Y, w, h);
+                }
+                
+                targetBean.setSize(w, h);
+
+                if (img.getWidth() != w || img.getHeight() != h) {
+                    synchronized (imgLock) {
+                        img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+                        outImg = new BufferedImage(w, h,
+                                BufferedImage.TYPE_INT_RGB);
+                    }
+                }
+                
+                frame.repaint();
+                updateOutImg(); //background paint
+                frame.setVisible(false);
+
+                
             }
-        }
-        
-        this.frame.repaint();
-        this.updateOutImg();
-        frame.setVisible(false);
+        });
     }
     
 

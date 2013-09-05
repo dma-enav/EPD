@@ -51,7 +51,7 @@ public class TiledWMSService extends AbstractWMSService {
      */
     protected final Collection<SingleWMSService> getTiles(Projection p) {
         
-        if (p.getWidth() > 1500 || p.getHeight() > 1500) {
+        if (p.getWidth() > 2000 || p.getHeight() > 1400) {
             return getTiles(p,sqrRoot);
         }
         

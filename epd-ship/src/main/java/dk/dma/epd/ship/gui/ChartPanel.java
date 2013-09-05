@@ -40,8 +40,8 @@ import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
+import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -76,21 +76,12 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
 
-    private MapHandler mapHandler;
-    private MapHandler dragMapHandler;
-    private LayerHandler layerHandler;
-    private BufferedLayerMapBean map;
-    private BufferedLayerMapBean dragMap;
-    private SimpleOffScreenMapRenderer dragMapRenderer;
     private GpsLayer gpsLayer;
-    private Layer encLayer;
-    private Layer encDragLayer;
     private AisLayer aisLayer;
     private GeneralLayer generalLayer;
     private CoastalOutlineLayer coastalOutlineLayer;
     private NavigationMouseMode mapNavMouseMode;
     private DragMouseMode dragMouseMode;
-    private MouseDelegator mouseDelegator;
     private RouteLayer routeLayer;
     private VoyageLayer voyageLayer;
     private EpdMsiLayer msiLayer;
@@ -102,13 +93,13 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
     private NewRouteContainerLayer newRouteContainerLayer;
     public int maxScale = 5000;
     private MSIFilterMouseMode msiFilterMouseMode;
-    private GpsData gpsData;
+
     private boolean nogoMode;
 
     private ActiveWaypointComponentPanel activeWaypointPanel;
 
     private NogoDialog nogoDialog;
-    private WMSLayer wmsLayer;
+    
 
     public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel) {
         super();
@@ -140,25 +131,25 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         encLayer = encLayerFactory.getEncLayer();
 
         // Add WMS Layer
-        wmsLayer = new WMSLayer("http://kortforsyningen.kms.dk/soe_enc_primar?ignoreillegallayers=TRUE&transparent=TRUE&login=StatSofart&password=114karls&VERSION=1.1.1&REQUEST=GetMap&SRS=EPSG:4326&LAYERS=cells&STYLES=style-id-246&FORMAT=image/gif&service=WMS");
-        mapHandler.add(wmsLayer);
+        if (mapSettings.isUseWms()) {
+            wmsLayer = new WMSLayer(mapSettings.getWmsQuery());
+            mapHandler.add(wmsLayer);            
+        }
+        
+
         
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
         map.setDoubleBuffered(true);
     
-        EncLayerFactory encLayerFactory2 = new EncLayerFactory(EPDShip
-                .getSettings().getMapSettings());
+        EncLayerFactory encLayerFactory2 = new EncLayerFactory(mapSettings);
 
         encDragLayer = encLayerFactory2.getEncLayer();
 
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
         map.setDoubleBuffered(true);
-
-        dragMap = new BufferedLayerMapBean();
-        dragMap.setDoubleBuffered(true);
-
+        
         // Orthographic test = new Orthographic((LatLonPoint)
         // mapSettings.getCenter(), mapSettings.getScale(), 1000, 1000);
         // map.setProjection(test);
@@ -184,7 +175,6 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         mapHandler.add(mapNavMouseMode);
         mapHandler.add(routeEditMouseMode);
         mapHandler.add(msiFilterMouseMode);
-
         mapHandler.add(activeWaypointPanel);
 
         // Use the LayerHandler to manage all layers, whether they are
@@ -197,7 +187,6 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         // Add layer handler to map handler
         mapHandler.add(layerHandler);
 
-        dragMapHandler.add(new LayerHandler());
 
         // Create the general layer
         generalLayer = new GeneralLayer();
@@ -273,33 +262,44 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         coastalOutlineLayerDrag.setProperties(layerName, props);
         coastalOutlineLayerDrag.setAddAsBackground(true);
         coastalOutlineLayerDrag.setVisible(true);
-        dragMapHandler.add(coastalOutlineLayerDrag);
+        //dragMapHandler.add(coastalOutlineLayerDrag);
 
         if (encLayer != null) {
             mapHandler.add(encLayer);
-            dragMapHandler.add(encDragLayer);
         }
         
         // Add map to map handler
         mapHandler.add(map);
-        dragMapHandler.add(dragMap);
-      //TODO: cleanup
-        WMSLayer wmsDragLayer = new WMSLayer("http://kortforsyningen.kms.dk/soe_enc_primar?ignoreillegallayers=TRUE&transparent=TRUE&login=StatSofart&password=114karls&VERSION=1.1.1&REQUEST=GetMap&SRS=EPSG:4326&LAYERS=cells&STYLES=style-id-246&FORMAT=image/gif&service=WMS");
-        dragMapHandler.add(wmsDragLayer);
-
+        
         // Set last postion
         map.setCenter(mapSettings.getCenter());
-        dragMap.setCenter(mapSettings.getCenter());
+        
 
         // Get from settings
         map.setScale(mapSettings.getScale());
 
         add(map);
-
+        
+        //TODO: CLEANUP
+        //dragMap
+        dragMap = new BufferedLayerMapBean();
+        dragMap.setDoubleBuffered(true);
+        dragMap.setCenter(mapSettings.getCenter());
         dragMap.setScale(mapSettings.getScale());
-        // create an offscreen renderer
+        
+        dragMapHandler.add(new LayerHandler());
+        if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
+
+            dragMapHandler.add(dragMap);
+            WMSLayer wmsDragLayer = new WMSLayer(mapSettings.getWmsQuery());
+            dragMapHandler.add(wmsDragLayer);
+            
+            // create an offscreen renderer
+            
+        }        
         dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
         dragMapRenderer.start();
+
 
         // Force a route layer and sensor panel update
         routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);

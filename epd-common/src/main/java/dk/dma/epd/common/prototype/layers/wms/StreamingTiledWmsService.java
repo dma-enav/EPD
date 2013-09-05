@@ -38,6 +38,7 @@ public class StreamingTiledWmsService extends TiledWMSService implements
             1);
 
     private Thread t;
+    private ExecutorService handOffPool = Executors.newFixedThreadPool(1);
 
     public StreamingTiledWmsService(String wmsQuery, int tileNumber) {
         super(wmsQuery, tileNumber);
@@ -106,7 +107,7 @@ public class StreamingTiledWmsService extends TiledWMSService implements
      * @param job
      */
     public void asyncDownload(final Projection job) {
-        new Thread(new Runnable() {
+        handOffPool.execute(new Runnable() {
 
             @Override
             public void run() {
@@ -146,7 +147,8 @@ public class StreamingTiledWmsService extends TiledWMSService implements
                 }
 
             }
-        }).start();
+        });
+
 
     }
 
@@ -175,7 +177,7 @@ public class StreamingTiledWmsService extends TiledWMSService implements
     }
 
     public String getID(Projection p) {
-        return p.getCenter().toString()+p.getScale();
+        return getBbox(p)+Math.round(p.getScale());
     }
 
 }

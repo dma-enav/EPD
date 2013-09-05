@@ -15,12 +15,58 @@
  */
 package dk.dma.epd.common.prototype.gui.views;
 
+import com.bbn.openmap.BufferedLayerMapBean;
 import com.bbn.openmap.Layer;
+import com.bbn.openmap.LayerHandler;
 import com.bbn.openmap.MapBean;
+import com.bbn.openmap.MapHandler;
+import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
-public abstract class CommonChartPanel extends OMComponentPanel {
+import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
+import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
+import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 
+/**
+ * The panel with chart. Initializes all layers to be shown on the map.
+ * 
+ * @author Jens Tuxen (mail@jenstuxen.com)
+ */
+public abstract class CommonChartPanel extends OMComponentPanel {
+    protected MapHandler mapHandler;
+    protected MapHandler dragMapHandler;
+    protected LayerHandler layerHandler;
+    protected BufferedLayerMapBean map;
+    protected BufferedLayerMapBean dragMap;
+    protected SimpleOffScreenMapRenderer dragMapRenderer;
+    protected Layer encLayer;
+    protected Layer encDragLayer;
+    protected Layer bgLayer;
+    protected GpsData gpsData;
+    protected MouseDelegator mouseDelegator;
+    protected WMSLayer wmsLayer;
+    
+    public MapHandler getMapHandler() {
+        return mapHandler;
+    }
+
+    
+    public SimpleOffScreenMapRenderer getDragMapRenderer() {
+        return dragMapRenderer;
+    }
+
+    public void setDragMapRenderer(SimpleOffScreenMapRenderer dragMapRenderer) {
+        this.dragMapRenderer = dragMapRenderer;
+    }
+
+    public Layer getEncLayer() {
+        return encLayer;
+    }
+
+    public void setEncLayer(Layer encLayer) {
+        this.encLayer = encLayer;
+    }
+    
     /**
      * 
      */
@@ -29,5 +75,7 @@ public abstract class CommonChartPanel extends OMComponentPanel {
     public abstract MapBean getMap();
 
     public abstract Layer getBgLayer();
+    
+
 
 }

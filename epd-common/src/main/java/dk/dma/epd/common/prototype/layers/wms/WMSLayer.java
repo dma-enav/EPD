@@ -75,10 +75,12 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
      * @param list
      *            of elements to be drawn
      */
-    public void drawWMS(OMGraphicList list) {
-        this.testList.addAllAbsent(list);
-        this.list.clear();
-        this.list.addAll(this.testList);
+    public void drawWMS(OMGraphicList tiles) {
+        this.testList.addAllAbsent(tiles);
+        list.clear();
+        list.addAll(testList);
+        list.addAll(tiles);
+                
         // this.list.addAll(list);
 
         if (this.isVisible()) {

@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
-import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.Projection;
 
 import dk.dma.epd.common.prototype.status.WMSStatus;
