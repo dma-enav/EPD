@@ -70,6 +70,7 @@ import dk.dma.epd.ship.risk.RiskHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.EnavServiceHandler;
 import dk.dma.epd.ship.service.communication.ais.AisServices;
+import dk.dma.epd.ship.service.voct.VOCTManager;
 import dk.dma.epd.ship.settings.EPDSensorSettings;
 import dk.dma.epd.ship.settings.EPDSettings;
 
@@ -101,6 +102,7 @@ public class EPDShip  extends EPD {
     private static EnavServiceHandler enavServiceHandler;
     private static DynamicNogoHandler dynamicNoGoHandler;
     private static TransponderFrame transponderFrame;
+    private static VOCTManager voctManager;
 
     public static void main(String[] args) throws IOException {
         
@@ -167,6 +169,10 @@ public class EPDShip  extends EPD {
         routeManager = RouteManager.loadRouteManager();
         mapHandler.add(routeManager);
 
+        
+        voctManager = VOCTManager.loadVOCTManager();
+        mapHandler.add(voctManager);
+        
         // Create shore services
         shoreServices = new ShoreServicesCommon(getSettings().getEnavSettings());
         mapHandler.add(shoreServices);

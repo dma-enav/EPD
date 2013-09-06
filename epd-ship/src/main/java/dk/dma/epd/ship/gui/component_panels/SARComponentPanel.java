@@ -24,13 +24,16 @@ import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.gui.OMComponentPanel;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
+import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
+import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.ship.event.IMapCoordListener;
 import dk.dma.epd.ship.gui.panels.SARPanel;
+import dk.dma.epd.ship.service.voct.VOCTManager;
 
-public class SARComponentPanel extends OMComponentPanel implements IGpsDataListener, Runnable, ProjectionListener, IMapCoordListener {
+public class SARComponentPanel extends OMComponentPanel implements IGpsDataListener, Runnable, ProjectionListener, IMapCoordListener, VOCTUpdateListener {
 
     private static final long serialVersionUID = 1L;
     private final SARPanel sarPanel;
@@ -82,6 +85,24 @@ public class SARComponentPanel extends OMComponentPanel implements IGpsDataListe
         if (obj instanceof GpsHandler) {
             ((GpsHandler)obj).addListener(this);
         }
+        
+        if (obj instanceof VOCTManager) {
+//            ((VOCTManager)obj).addListener(this);
+            sarPanel.setVoctManager((VOCTManager) obj);
+        }
+    }
+
+    @Override
+    public void voctUpdated(VOCTUpdateEvent e) {
+        
+        if (e == VOCTUpdateEvent.SAR_CANCEL){
+            sarPanel.sarCancel();
+        }
+        
+        if (e == VOCTUpdateEvent.SAR_READY){
+            sarPanel.sarComplete();
+        }
+        
     }
     
 

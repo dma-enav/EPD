@@ -15,30 +15,119 @@
  */
 package dk.dma.epd.ship.service.voct;
 
+import java.io.Serializable;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import javax.swing.JDialog;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
+import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
+import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
+import dk.dma.epd.common.util.Util;
+import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.gui.voct.SARInput;
+
 /**
- * The VOCTManager is responsible for maintaining current VOCT Status and all information relevant to the VOCT
+ * The VOCTManager is responsible for maintaining current VOCT Status and all
+ * information relevant to the VOCT
  * 
  * The VOCT Manager can be initiated through the cloud or manually by the user
  * 
- *
+ * 
  */
- 
 
+public class VOCTManager implements Runnable, Serializable {
 
-
-public class VOCTManager {
-
-    
-    
+    private static final long serialVersionUID = 1L;
     private SAROperation sarOperation;
-    
-    
-    public VOCTManager(){
-        
+    private static final Logger LOG = LoggerFactory
+            .getLogger(VOCTManager.class);
+
+    private boolean hasSar;
+
+    private SARInput sarInputDialog;
+
+    private CopyOnWriteArrayList<VOCTUpdateListener> listeners = new CopyOnWriteArrayList<>();
+
+    public VOCTManager() {
+        EPDShip.startThread(this, "VOCTManager");
+        LOG.info("Started VOCT Manager");
     }
-    
-    
-//    private SAR_TYPE type;
-    
-    
+
+    public void initializeSarOperation() {
+        LOG.info("Started new SAR Operation");
+        if (!hasSar) {
+            hasSar = true;
+
+            // Create the GUI input boxes
+
+            // Voct specific test
+            sarInputDialog = new SARInput(this);
+            sarInputDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            sarInputDialog.setVisible(true);
+
+        } else {
+            // Cannot inititate a SAR without terminating the existing one, show existing dialog?
+            sarInputDialog.setVisible(true);
+        }
+
+    }
+
+    public void setSarType(SAR_TYPE type) {
+        sarOperation = new SAROperation(type, this);
+    }
+
+    public void setSARVariables() {
+        // sarOperation
+    }
+
+    /**
+     * User has clicked the Cancel button, abort operation and reset
+     */
+    public void cancelSarOperation() {
+        sarOperation = null;
+        hasSar = false;
+
+        notifyListeners(VOCTUpdateEvent.SAR_CANCEL);
+    }
+
+    @Override
+    public void run() {
+
+        // Maintanaince routines
+        while (true) {
+            Util.sleep(10000);
+
+        }
+
+    }
+
+    public static VOCTManager loadVOCTManager() {
+
+        // Where we load or serialize old VOCTS
+        return new VOCTManager();
+
+    }
+
+    public void notifyListeners(VOCTUpdateEvent e) {
+        for (VOCTUpdateListener listener : listeners) {
+            listener.voctUpdated(e);
+        }
+
+        // Persist update VOCT info
+        // saveToFile();
+    }
+
+    public void addListener(VOCTUpdateListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(VOCTUpdateListener listener) {
+        listeners.remove(listener);
+    }
+
 }

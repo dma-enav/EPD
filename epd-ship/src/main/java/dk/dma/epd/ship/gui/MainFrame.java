@@ -216,18 +216,15 @@ public class MainFrame extends JFrame implements WindowListener {
         
         
         
-        //Voct specific test
-//        SARInput dialog = new SARInput();
-//        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-//        dialog.setVisible(true);
+
         
 //        EffortAllocationWindow dialog = new EffortAllocationWindow();
 //        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 //        dialog.setVisible(true);
       
-        SARInvitationRequest dialog = new SARInvitationRequest(this);
-        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        dialog.setVisible(true);
+//        SARInvitationRequest dialog = new SARInvitationRequest(this);
+//        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+//        dialog.setVisible(true);
         
     }
 
