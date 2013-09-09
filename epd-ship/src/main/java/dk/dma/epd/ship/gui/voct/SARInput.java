@@ -17,7 +17,6 @@ package dk.dma.epd.ship.gui.voct;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Image;
@@ -38,16 +37,20 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerDateModel;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import org.jdesktop.swingx.JXDatePicker;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.service.voct.LeewayValues;
+import dk.dma.epd.ship.service.voct.SAR_TYPE;
 import dk.dma.epd.ship.service.voct.VOCTManager;
-import javax.swing.ScrollPaneConstants;
 
 public class SARInput extends JDialog implements ActionListener {
 
@@ -55,14 +58,13 @@ public class SARInput extends JDialog implements ActionListener {
 
     private final JPanel initPanel = new JPanel();
 
-    private JTextField textField;
-    private JTextField textField_1;
     private JTextField lkpFirstLat;
-    private JTextField textField_2;
-    private JTextField textField_3;
-    private JTextField textField_4;
-    private JTextField textField_5;
-    private JTextField textField_6;
+
+    private JTextField textField;
+
+    private JTextField xErrorField;
+    private JTextField yErrorField;
+    private JTextField safetyFactorField;
 
     private JComboBox<String> typeSelectionComboBox;
     private JButton nextButton;
@@ -97,16 +99,36 @@ public class SARInput extends JDialog implements ActionListener {
 
     static final String SELECTSARTYPE = "Select SAR Type";
     static final String INPUTSARRAPIDRESPONSE = "Rapid Response Input Panel";
+    static final String CONFIRMPANELRAPIDRESPONSE = "Rapid Response Confirm Panel";
 
     // First card shown is the select sar type
     String currentCard = SELECTSARTYPE;
 
-    Date currentDate = new Date();
+    // Initialize with currentDate on CET
+    DateTimeZone timeZone = DateTimeZone.forID("CET");
+    DateTime LKPDate = new DateTime(timeZone);
+    DateTime CSSDate = new DateTime(timeZone);
+
     private JTextField lkpSecondLat;
     private JTextField lkpThirdLat;
     private JTextField lkpFirstLon;
     private JTextField lkpSecondLon;
     private JTextField lkpThirdLon;
+
+    int surfaceDriftPanelHeight = 50;
+    int metocPoints;
+    private JPanel surfaceDriftPanel;
+    private JButton btnAddPoint;
+    private JScrollPane scrollPaneSurfaceDrift;
+    private JComboBox<String> searchObjectDropDown;
+    private JLabel searchObjectText;
+
+    private JXDatePicker commenceStartSearch;
+    private JXDatePicker lkpDatePicker;
+    private JSpinner lkpSpinner;
+    private JSpinner commenceStartSpinner;
+
+    private JComboBox<String> timeZoneDropdown;
 
     /**
      * 
@@ -118,8 +140,14 @@ public class SARInput extends JDialog implements ActionListener {
         this.voctManager = voctManager;
         setTitle("SAR Operation");
         this.setModal(true);
-        setBounds(100, 100, 559, 733);
-        // setBounds(100, 100, 559, 433);
+
+        CSSDate = CSSDate.plusHours(1);
+
+        System.out.println(LKPDate.toDate());
+        System.out.println(CSSDate.toDate());
+
+        // setBounds(100, 100, 559, 733);
+        setBounds(100, 100, 559, 433);
 
         masterPanel = new JPanel();
 
@@ -135,6 +163,13 @@ public class SARInput extends JDialog implements ActionListener {
 
         initPanel();
         inputPanel();
+        confirmPanel();
+    }
+
+    private void confirmPanel() {
+        JPanel confirmPanel = new JPanel();
+        masterPanel.add(confirmPanel, CONFIRMPANELRAPIDRESPONSE);
+
     }
 
     private void inputPanel() {
@@ -164,10 +199,10 @@ public class SARInput extends JDialog implements ActionListener {
         inputPanel.add(lkpPanel);
         lkpPanel.setLayout(null);
 
-        JXDatePicker lkpDatePicker = new JXDatePicker();
+        lkpDatePicker = new JXDatePicker();
         lkpDatePicker.setBounds(170, 22, 105, 20);
         lkpPanel.add(lkpDatePicker);
-        lkpDatePicker.setDate(currentDate);
+        lkpDatePicker.setDate(LKPDate.toDate());
 
         lkpDatePicker.setFormats(format);
 
@@ -175,11 +210,10 @@ public class SARInput extends JDialog implements ActionListener {
         lblTimeOfLast.setBounds(13, 25, 147, 14);
         lkpPanel.add(lblTimeOfLast);
 
-        Date date = new Date();
-        SpinnerDateModel currentTimeModel = new SpinnerDateModel(date, null,
-                null, Calendar.HOUR_OF_DAY);
+        SpinnerDateModel lkpTimeModel = new SpinnerDateModel(LKPDate.toDate(),
+                null, null, Calendar.HOUR_OF_DAY);
 
-        JSpinner lkpSpinner = new JSpinner(currentTimeModel);
+        lkpSpinner = new JSpinner(lkpTimeModel);
 
         lkpSpinner.setLocation(278, 22);
         lkpSpinner.setSize(54, 20);
@@ -199,11 +233,12 @@ public class SARInput extends JDialog implements ActionListener {
         lkpPanel.add(lkpFirstLat);
         lkpFirstLat.setColumns(10);
 
-        JComboBox comboBox_1 = new JComboBox();
-        comboBox_1.setModel(new DefaultComboBoxModel(new String[] { "UTC",
-                "CET", "GMT" }));
-        comboBox_1.setBounds(342, 22, 46, 20);
-        lkpPanel.add(comboBox_1);
+        timeZoneDropdown = new JComboBox<String>();
+        timeZoneDropdown.setModel(new DefaultComboBoxModel<String>(new String[] {
+                "CET", "UTC", "GMT" }));
+        timeZoneDropdown.setBounds(342, 22, 46, 20);
+        lkpPanel.add(timeZoneDropdown);
+        timeZoneDropdown.addActionListener(this);
 
         lkpSecondLat = new JTextField();
         lkpSecondLat.setText("21");
@@ -255,22 +290,21 @@ public class SARInput extends JDialog implements ActionListener {
         commenceStartPanel.setLayout(null);
         inputPanel.add(commenceStartPanel);
 
-        JXDatePicker commenceStartSearch = new JXDatePicker();
+        commenceStartSearch = new JXDatePicker();
         commenceStartSearch.setBounds(170, 22, 105, 20);
         commenceStartPanel.add(commenceStartSearch);
 
         commenceStartSearch.setFormats(format);
-        commenceStartSearch.setDate(currentDate);
+        commenceStartSearch.setDate(CSSDate.toDate());
 
         JLabel lblCommenceStartSearch = new JLabel("Time of Search Start:");
         lblCommenceStartSearch.setBounds(13, 25, 147, 14);
         commenceStartPanel.add(lblCommenceStartSearch);
 
-        Date date2 = new Date();
-        SpinnerDateModel currentTimeModel2 = new SpinnerDateModel(date2, null,
-                null, Calendar.HOUR_OF_DAY);
+        SpinnerDateModel CSSTimeModel = new SpinnerDateModel(CSSDate.toDate(),
+                null, null, Calendar.HOUR_OF_DAY);
 
-        JSpinner commenceStartSpinner = new JSpinner(currentTimeModel2);
+        commenceStartSpinner = new JSpinner(CSSTimeModel);
 
         commenceStartSpinner.setLocation(278, 22);
         commenceStartSpinner.setSize(54, 20);
@@ -280,40 +314,41 @@ public class SARInput extends JDialog implements ActionListener {
 
         commenceStartPanel.add(commenceStartSpinner);
 
-        
-        
-        JPanel surfaceDriftPanel = new JPanel();
-        JScrollPane scrollPaneSurfaceDrift = new JScrollPane(surfaceDriftPanel);
-        scrollPaneSurfaceDrift.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-        scrollPaneSurfaceDrift.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        
+        surfaceDriftPanel = new JPanel();
+        scrollPaneSurfaceDrift = new JScrollPane(surfaceDriftPanel);
+        scrollPaneSurfaceDrift
+                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
         surfaceDriftPanel.setBorder(new TitledBorder(null, "Surface Drift",
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        
-//        surfaceDriftPanel.setBounds(20, 195, 494, 9000);
-//        surfaceDriftPanel.setSize(494, 9000)
 
-        surfaceDriftPanel.setPreferredSize(new Dimension(494, 600));
-        
+        // surfaceDriftPanel.setBounds(20, 195, 494, 9000);
+        // surfaceDriftPanel.setSize(494, 9000)
+
+        // Add 1 to start, 110 + 56
+
+        surfaceDriftPanel.setPreferredSize(new Dimension(494,
+                surfaceDriftPanelHeight));
+
+        // surfaceDriftPanelHeight
+
         scrollPaneSurfaceDrift.setBounds(20, 195, 494, 166);
-        
+
         inputPanel.add(scrollPaneSurfaceDrift);
-        
-        
+
         surfaceDriftPanel.setLayout(null);
-        
-        surfaceDriftPanel.add(addPoint(0));
-        surfaceDriftPanel.add(addPoint(1));
-        surfaceDriftPanel.add(addPoint(2));
+
+        surfaceDriftPanel.add(addPoint(metocPoints));
 
         JButton btnFetchMetocData = new JButton("Fetch METOC Data");
         btnFetchMetocData.setEnabled(false);
         btnFetchMetocData.setBounds(10, 22, 123, 23);
         surfaceDriftPanel.add(btnFetchMetocData);
 
-        JButton btnAddPoint = new JButton("Add point");
-        btnAddPoint.setBounds(395, 22, 89, 23);
+        btnAddPoint = new JButton("Add point");
+        btnAddPoint.setBounds(379, 22, 89, 23);
         surfaceDriftPanel.add(btnAddPoint);
+        btnAddPoint.addActionListener(this);
 
         JPanel panel = new JPanel();
         panel.setBorder(new TitledBorder(null, "Other variables",
@@ -327,20 +362,22 @@ public class SARInput extends JDialog implements ActionListener {
         lblInitialPositionError.setBounds(13, 25, 164, 14);
         panel.add(lblInitialPositionError);
 
-        textField_4 = new JTextField();
-        textField_4.setBounds(184, 22, 86, 20);
-        panel.add(textField_4);
-        textField_4.setColumns(10);
+        xErrorField = new JTextField();
+        xErrorField.setText("1.0");
+        xErrorField.setBounds(184, 22, 86, 20);
+        panel.add(xErrorField);
+        xErrorField.setColumns(10);
 
         JLabel lblSruNavigationalError = new JLabel(
                 "SRU Navigational Error (Y), nm:");
         lblSruNavigationalError.setBounds(13, 50, 164, 14);
         panel.add(lblSruNavigationalError);
 
-        textField_5 = new JTextField();
-        textField_5.setBounds(184, 47, 86, 20);
-        panel.add(textField_5);
-        textField_5.setColumns(10);
+        yErrorField = new JTextField();
+        yErrorField.setText("0.1");
+        yErrorField.setBounds(184, 47, 86, 20);
+        panel.add(yErrorField);
+        yErrorField.setColumns(10);
 
         JLabel lblNoteGps = new JLabel("Note: GPS = 0.1 nm");
         lblNoteGps.setBounds(280, 50, 122, 14);
@@ -350,10 +387,11 @@ public class SARInput extends JDialog implements ActionListener {
         lblSafetyFactorFs.setBounds(13, 75, 147, 14);
         panel.add(lblSafetyFactorFs);
 
-        textField_6 = new JTextField();
-        textField_6.setBounds(184, 72, 86, 20);
-        panel.add(textField_6);
-        textField_6.setColumns(10);
+        safetyFactorField = new JTextField();
+        safetyFactorField.setText("1.0");
+        safetyFactorField.setBounds(184, 72, 86, 20);
+        panel.add(safetyFactorField);
+        safetyFactorField.setColumns(10);
 
         JPanel panel_1 = new JPanel();
         panel_1.setBorder(new TitledBorder(null, "Search Object",
@@ -362,16 +400,21 @@ public class SARInput extends JDialog implements ActionListener {
         inputPanel.add(panel_1);
         panel_1.setLayout(null);
 
-        JComboBox comboBox_3 = new JComboBox();
-        comboBox_3.setModel(new DefaultComboBoxModel(
-                new String[] { "Person in water (PIW)" }));
-        comboBox_3.setBounds(10, 22, 457, 20);
-        panel_1.add(comboBox_3);
+        searchObjectDropDown = new JComboBox<String>();
+        searchObjectDropDown.setModel(new DefaultComboBoxModel<String>());
+        searchObjectDropDown.setBounds(10, 22, 457, 20);
+        panel_1.add(searchObjectDropDown);
+        searchObjectDropDown.addActionListener(this);
 
-        JLabel lblLeeway = new JLabel(
-                "Leeway = 0.011 x U + 0.068, Divergence = 30");
-        lblLeeway.setBounds(10, 53, 457, 14);
-        panel_1.add(lblLeeway);
+        searchObjectText = new JLabel();
+        searchObjectText.setText(LeewayValues.getLeeWayContent().get(0));
+        searchObjectText.setBounds(10, 53, 457, 14);
+        panel_1.add(searchObjectText);
+
+        for (int i = 0; i < LeewayValues.getLeeWayTypes().size(); i++) {
+            searchObjectDropDown.addItem(LeewayValues.getLeeWayTypes().get(i));
+
+        }
 
     }
 
@@ -441,6 +484,11 @@ public class SARInput extends JDialog implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent arg0) {
 
+        if (arg0.getSource()  == timeZoneDropdown){
+            updateTimeZone();
+            return;
+        }
+        
         if (arg0.getSource() == typeSelectionComboBox) {
             int selectedIndex = typeSelectionComboBox.getSelectedIndex();
             // 0 Rapid Response
@@ -474,14 +522,51 @@ public class SARInput extends JDialog implements ActionListener {
         if (arg0.getSource() == nextButton) {
             // Get the current card and action depends on that
 
+            System.out.println("Next button pressed, currently at :"
+                    + currentCard);
+
             // We're at SAR selection screen
             if (currentCard == SELECTSARTYPE) {
                 CardLayout cl = (CardLayout) (masterPanel.getLayout());
                 btnBack.setEnabled(true);
 
+                inititateSarType();
+
                 // The type select determines which panel we show
                 cl.show(masterPanel, INPUTSARRAPIDRESPONSE);
                 currentCard = INPUTSARRAPIDRESPONSE;
+                return;
+            }
+
+            // We're at input screen
+            if (currentCard == INPUTSARRAPIDRESPONSE) {
+                updateValues();
+                CardLayout cl = (CardLayout) (masterPanel.getLayout());
+                btnBack.setEnabled(true);
+                nextButton.setText("Finish");
+
+                // The type select determines which panel we show
+                cl.show(masterPanel, CONFIRMPANELRAPIDRESPONSE);
+                currentCard = CONFIRMPANELRAPIDRESPONSE;
+                return;
+            }
+
+            // We're at confirmation screen
+            if (currentCard == CONFIRMPANELRAPIDRESPONSE) {
+                System.out.println(currentCard);
+                CardLayout cl = (CardLayout) (masterPanel.getLayout());
+                btnBack.setEnabled(true);
+                nextButton.setText("Next");
+
+                // Set the dialog back to input screen for reentering
+                cl.show(masterPanel, INPUTSARRAPIDRESPONSE);
+                currentCard = INPUTSARRAPIDRESPONSE;
+
+                System.out.println("Hiding");
+
+                // Inititate calculations and hide dialog
+                this.setVisible(false);
+                return;
             }
 
         }
@@ -494,6 +579,17 @@ public class SARInput extends JDialog implements ActionListener {
                 cl.show(masterPanel, SELECTSARTYPE);
                 btnBack.setEnabled(false);
                 currentCard = SELECTSARTYPE;
+                return;
+            }
+
+            // We're at confirmation
+            if (currentCard == CONFIRMPANELRAPIDRESPONSE) {
+                CardLayout cl = (CardLayout) (masterPanel.getLayout());
+                cl.show(masterPanel, INPUTSARRAPIDRESPONSE);
+                btnBack.setEnabled(true);
+                nextButton.setText("Next");
+                currentCard = INPUTSARRAPIDRESPONSE;
+                return;
             }
 
         }
@@ -501,6 +597,18 @@ public class SARInput extends JDialog implements ActionListener {
         if (arg0.getSource() == cancelButton) {
             this.setVisible(false);
             voctManager.cancelSarOperation();
+        }
+
+        if (arg0.getSource() == btnAddPoint) {
+            surfaceDriftPanel.add(addPoint(metocPoints));
+            scrollPaneSurfaceDrift.validate();
+            scrollPaneSurfaceDrift.repaint();
+
+        }
+
+        if (arg0.getSource() == searchObjectDropDown) {
+            searchObjectText.setText(LeewayValues.getLeeWayContent().get(
+                    searchObjectDropDown.getSelectedIndex()));
         }
 
     }
@@ -521,12 +629,11 @@ public class SARInput extends JDialog implements ActionListener {
         pointXPanel.setBorder(new TitledBorder(null, "Point " + (number + 1),
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
-//        int offset = 56 + (474 * number);
+        // int offset = 56 + (474 * number);
         int offset = 56 + (110 * number);
         System.out.println("Offset is " + offset);
-        
-        
-        pointXPanel.setBounds(10, offset, 474, 99);
+
+        pointXPanel.setBounds(5, offset, 464, 99);
         pointXPanel.setLayout(null);
 
         JXDatePicker surfaceDriftPicker = new JXDatePicker();
@@ -573,7 +680,7 @@ public class SARInput extends JDialog implements ActionListener {
         comboBox.setBounds(372, 47, 33, 20);
         pointXPanel.add(comboBox);
 
-        textField_1 = new JTextField();
+        JTextField textField_1 = new JTextField();
         textField_1.setText("00.0°");
         textField_1.setBounds(415, 47, 47, 20);
         pointXPanel.add(textField_1);
@@ -583,7 +690,7 @@ public class SARInput extends JDialog implements ActionListener {
         lblLeewayKnots.setBounds(13, 78, 147, 14);
         pointXPanel.add(lblLeewayKnots);
 
-        textField_2 = new JTextField();
+        JTextField textField_2 = new JTextField();
         textField_2.setColumns(10);
         textField_2.setBounds(160, 75, 33, 20);
         pointXPanel.add(textField_2);
@@ -597,12 +704,146 @@ public class SARInput extends JDialog implements ActionListener {
         comboBox_2.setBounds(372, 75, 33, 20);
         pointXPanel.add(comboBox_2);
 
-        textField_3 = new JTextField();
+        JTextField textField_3 = new JTextField();
         textField_3.setText("00.0°");
         textField_3.setColumns(10);
         textField_3.setBounds(415, 75, 47, 20);
         pointXPanel.add(textField_3);
 
+        surfaceDriftPanelHeight = surfaceDriftPanelHeight + 110;
+
+        surfaceDriftPanel.setPreferredSize(new Dimension(494,
+                surfaceDriftPanelHeight));
+
+        metocPoints++;
+
         return pointXPanel;
+    }
+
+    private void updateValues() {
+
+        // voctManager
+
+    }
+
+    private void checkTime() {
+        // LKP must be before commence start
+
+        commenceStartSearch.getDate();
+
+        lkpDatePicker.getDate();
+
+        lkpSpinner.getValue();
+
+        commenceStartSpinner.getValue();
+
+        DateTimeZone timeZone = DateTimeZone.forID("CET");
+
+        DateTime TLKP = new DateTime(2013, 7, 2, 8, 0, timeZone);
+
+        DateTime CSS = new DateTime(2013, 7, 2, 10, 30, timeZone);
+    }
+
+    @SuppressWarnings("deprecation")
+    private void updateTimeZone() {
+
+        System.out.println("Updating timezone");
+        
+        String selectedTimeZone = (String) timeZoneDropdown.getSelectedItem();
+
+        System.out.println("Old timezone is: " + timeZone);
+        
+        // Got the new timezone, now to convert
+        timeZone = DateTimeZone.forID(selectedTimeZone);
+        
+        System.out.println("new timezone is: " + timeZone);
+
+        LKPDate = LKPDate.toDateTime(timeZone);
+        CSSDate = CSSDate.toDateTime(timeZone);
+        
+        
+        //Used to store the new values to transfer between timezones
+//        Date lkpDummyDate = new Date();
+//        
+//        Date cssDummyDate = new Date();
+//        
+//        lkpDummyDate.setMonth(LKPDate.getMonthOfYear());
+//        lkpDummyDate.set
+        
+        
+        
+        
+//        System.out.println(LKPDate.getDayOfMonth() + " vs " + lkpDummyDate.getDay());
+        
+        
+//        lkpDummyDate.setYear(LKPDate.getYear());
+//        
+//        lkpDummyDate.setHours(LKPDate.getHourOfDay());
+//        lkpDummyDate.setMinutes(LKPDate.getMinuteOfDay());
+        
+//        System.out.println("Dummy date: " + lkpDummyDate);
+//        System.out.println("Real date: " + LKPDate );
+        
+        
+        
+        
+//        System.out.println(LKPDate.getHourOfDay());
+//        System.out.println(LKPDate.getMinuteOfDay());
+//        System.out.println(LKPDate);
+//        System.out.println(CSSDate.toDate());
+
+        // Update the spinners
+
+        lkpDatePicker.setDate(LKPDate.toDate());
+
+//        SpinnerDateModel lkpTimeModel = new SpinnerDateModel(LKPDate.toDate(),
+//                null, null, Calendar.HOUR_OF_DAY);
+//        lkpSpinner.setModel(lkpTimeModel);
+
+        lkpSpinner.getModel().setValue(LKPDate.toDate());
+        
+
+        commenceStartSearch.setDate(CSSDate.toDate());
+
+        SpinnerDateModel CSSTimeModel = new SpinnerDateModel(CSSDate.toDate(),
+                null, null, Calendar.HOUR_OF_DAY);
+
+        commenceStartSpinner.setModel(CSSTimeModel);
+
+        // ((SpinnerDateModel) departureSpinner.getModel()).setValue(starttime);
+
+        // JSpinner.DateEditor editor = (JSpinner.DateEditor) departureSpinner
+        // .getEditor();
+
+        // System.out.println("DepartureTime was changed to "
+        // + departureSpinner.getValue());
+        // SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+        // Date testDate = null;
+
+        // testDate = df.parse(editor.getTextField().getText());
+
+    }
+
+    private void inititateSarType() {
+        int selectedIndex = typeSelectionComboBox.getSelectedIndex();
+        // 0 Rapid Response
+        // 1 Datum Point
+        // 2 Datum Line
+        // 3 Back track
+
+        switch (selectedIndex) {
+        case 0:
+            voctManager.setSarType(SAR_TYPE.RAPID_RESPONSE);
+            break;
+        case 1:
+            voctManager.setSarType(SAR_TYPE.DATUM_POINT);
+            break;
+        case 2:
+            voctManager.setSarType(SAR_TYPE.DATUM_LINE);
+            break;
+        case 3:
+            voctManager.setSarType(SAR_TYPE.BACKTRACK);
+            break;
+        }
     }
 }

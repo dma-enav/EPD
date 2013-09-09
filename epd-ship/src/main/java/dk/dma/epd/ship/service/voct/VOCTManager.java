@@ -71,13 +71,15 @@ public class VOCTManager implements Runnable, Serializable {
             sarInputDialog.setVisible(true);
 
         } else {
-            // Cannot inititate a SAR without terminating the existing one, show existing dialog?
+            // Cannot inititate a SAR without terminating the existing one, show
+            // existing dialog?
             sarInputDialog.setVisible(true);
         }
 
     }
 
     public void setSarType(SAR_TYPE type) {
+        sarOperation = null;
         sarOperation = new SAROperation(type, this);
     }
 

@@ -76,19 +76,13 @@ public class SAROperation {
 
     // Safety Factor, FS
     double SF;
-    
-    
+
     VOCTManager voctManager;
 
     public SAROperation(SAR_TYPE operationType, VOCTManager voctManager) {
         this.operationType = operationType;
         this.voctManager = voctManager;
 
-        
-        
-        
-        
-        
         // Standard use CET?
         DateTimeZone timeZone = DateTimeZone.forID("CET");
 
@@ -123,6 +117,208 @@ public class SAROperation {
 
         rapidResponse(LKP, TWCHeading, downWind, LWknots, TWCknots, difference,
                 x, y, SF);
+    }
+
+    /**
+     * @return the operationType
+     */
+    public SAR_TYPE getOperationType() {
+        return operationType;
+    }
+
+    /**
+     * @return the tLKP
+     */
+    public DateTime getTLKP() {
+        return TLKP;
+    }
+
+    /**
+     * @param tLKP
+     *            the tLKP to set
+     */
+    public void setTLKP(DateTime tLKP) {
+        TLKP = tLKP;
+    }
+
+    /**
+     * @return the cSS
+     */
+    public DateTime getCSS() {
+        return CSS;
+    }
+
+    /**
+     * @param cSS
+     *            the cSS to set
+     */
+    public void setCSS(DateTime cSS) {
+        CSS = cSS;
+    }
+
+    /**
+     * @return the cTSD
+     */
+    public Date getCTSD() {
+        return CTSD;
+    }
+
+    /**
+     * @param cTSD
+     *            the cTSD to set
+     */
+    public void setCTSD(Date cTSD) {
+        CTSD = cTSD;
+    }
+
+    /**
+     * @return the lKP
+     */
+    public Position getLKP() {
+        return LKP;
+    }
+
+    /**
+     * @param lKP
+     *            the lKP to set
+     */
+    public void setLKP(Position lKP) {
+        LKP = lKP;
+    }
+
+    /**
+     * @return the tWCknots
+     */
+    public double getTWCknots() {
+        return TWCknots;
+    }
+
+    /**
+     * @param tWCknots
+     *            the tWCknots to set
+     */
+    public void setTWCknots(double tWCknots) {
+        TWCknots = tWCknots;
+    }
+
+    /**
+     * @return the tWCHeading
+     */
+    public double getTWCHeading() {
+        return TWCHeading;
+    }
+
+    /**
+     * @param tWCHeading
+     *            the tWCHeading to set
+     */
+    public void setTWCHeading(double tWCHeading) {
+        TWCHeading = tWCHeading;
+    }
+
+    /**
+     * @return the lWknots
+     */
+    public double getLWknots() {
+        return LWknots;
+    }
+
+    /**
+     * @param lWknots
+     *            the lWknots to set
+     */
+    public void setLWknots(double lWknots) {
+        LWknots = lWknots;
+    }
+
+    /**
+     * @return the lWHeading
+     */
+    public double getLWHeading() {
+        return LWHeading;
+    }
+
+    /**
+     * @param lWHeading
+     *            the lWHeading to set
+     */
+    public void setLWHeading(double lWHeading) {
+        LWHeading = lWHeading;
+    }
+
+    /**
+     * @return the downWind
+     */
+    public double getDownWind() {
+        return downWind;
+    }
+
+    /**
+     * @param downWind
+     *            the downWind to set
+     */
+    public void setDownWind(double downWind) {
+        this.downWind = downWind;
+    }
+
+    /**
+     * @return the x
+     */
+    public double getX() {
+        return x;
+    }
+
+    /**
+     * @param x
+     *            the x to set
+     */
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    /**
+     * @return the y
+     */
+    public double getY() {
+        return y;
+    }
+
+    /**
+     * @param y
+     *            the y to set
+     */
+    public void setY(double y) {
+        this.y = y;
+    }
+
+    /**
+     * @return the sF
+     */
+    public double getSF() {
+        return SF;
+    }
+
+    /**
+     * @param sF
+     *            the sF to set
+     */
+    public void setSF(double sF) {
+        SF = sF;
+    }
+
+    /**
+     * @return the voctManager
+     */
+    public VOCTManager getVoctManager() {
+        return voctManager;
+    }
+
+    /**
+     * @param voctManager
+     *            the voctManager to set
+     */
+    public void setVoctManager(VOCTManager voctManager) {
+        this.voctManager = voctManager;
     }
 
     private static void rapidResponse(Position LKP, double TWCHeading,
