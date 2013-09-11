@@ -23,8 +23,9 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -59,8 +60,6 @@ public class SARInput extends JDialog implements ActionListener {
     private final JPanel initPanel = new JPanel();
 
     private JTextField lkpFirstLat;
-
-    private JTextField textField;
 
     private JTextField xErrorField;
     private JTextField yErrorField;
@@ -99,7 +98,7 @@ public class SARInput extends JDialog implements ActionListener {
 
     static final String SELECTSARTYPE = "Select SAR Type";
     static final String INPUTSARRAPIDRESPONSE = "Rapid Response Input Panel";
-    static final String CONFIRMPANELRAPIDRESPONSE = "Rapid Response Confirm Panel";
+    static final String CALCULATIONSPANELRAPIDRESPONSE = "Rapid Response Calculations Panel";
 
     // First card shown is the select sar type
     String currentCard = SELECTSARTYPE;
@@ -117,7 +116,7 @@ public class SARInput extends JDialog implements ActionListener {
 
     int surfaceDriftPanelHeight = 50;
     int metocPoints;
-    private JPanel surfaceDriftPanel;
+    private JPanel surfaceDriftPanelContainer;
     private JButton btnAddPoint;
     private JScrollPane scrollPaneSurfaceDrift;
     private JComboBox<String> searchObjectDropDown;
@@ -129,6 +128,9 @@ public class SARInput extends JDialog implements ActionListener {
     private JSpinner commenceStartSpinner;
 
     private JComboBox<String> timeZoneDropdown;
+
+    private List<SurfaceDriftPanel> surfaceDriftPanelList = new ArrayList<SurfaceDriftPanel>();
+    private JLabel calculationsText = new JLabel();
 
     /**
      * 
@@ -163,13 +165,129 @@ public class SARInput extends JDialog implements ActionListener {
 
         initPanel();
         inputPanel();
-        confirmPanel();
+        calculationsPanel();
     }
 
-    private void confirmPanel() {
-        JPanel confirmPanel = new JPanel();
-        masterPanel.add(confirmPanel, CONFIRMPANELRAPIDRESPONSE);
+    private void calculationsPanel() {
+        JPanel calculationsPanel = new JPanel();
+        JScrollPane calculationsScrollPanel = new JScrollPane(calculationsPanel);
+        calculationsPanel.setLayout(null);
 
+        masterPanel
+                .add(calculationsScrollPanel, CALCULATIONSPANELRAPIDRESPONSE);
+
+        JLabel lblCalculationsPanelTitle = new JLabel(
+                "Rapid Response Calculations");
+        lblCalculationsPanelTitle.setBounds(10, 11, 207, 14);
+        calculationsPanel.add(lblCalculationsPanelTitle);
+
+        calculationsPanel.add(calculationsText);
+        calculationsText.setBounds(10, 30, 521, 319);
+
+    }
+
+    private void generateRapidResponseCalculations(){
+        
+        
+        //Where we grab the data that was input in the previous window
+        //Will be seperate for each type of calculation but HTML generated to keep layout simple and possibly exportable
+        
+//      LKPDate;
+//      CSSDate;
+        
+        
+        double difference = (double) (LKPDate.getMillis() - CSSDate.getMillis()) / 60 / 60 / 1000;
+//        System.out.println("Hours since started: " + difference);
+        
+
+        
+        //Generate a html sheet of rapid response calculations
+        StringBuilder str = new StringBuilder();
+        String name = "How does this look";
+        
+        str.append("<html>");
+        str.append("<br>Time of Last Known Position: " + LKPDate + "</br>");
+        str.append("<br>Commence Search Start time: " + CSSDate + "</br>");
+        str.append("<br>Time difference: " + difference + " hours</br>");
+        
+        
+      double currentTWC = surfaceDriftPanelList.get(0).getTWCKnots() * difference;
+        
+        str.append("<br>Using " + metocPoints + " weather points</br>");
+        
+        str.append("<br>TWC is " + currentTWC + " with heading " + surfaceDriftPanelList.get(0).getTWCHeading() + "</br>");
+        
+        str.append("<br>Using formula for " + searchObjectDropDown.getSelectedItem() + " with values as " + LeewayValues.getLeeWayContent().get(
+                searchObjectDropDown.getSelectedIndex()) + "</br>");
+        
+        double leewaySpeed = LeewayValues.personInWater(surfaceDriftPanelList.get(0).getLeeway());
+        
+        str.append("<br>Gives a Leeway speed of " + leewaySpeed + " with heading " + surfaceDriftPanelList.get(0).getLeewayHeading() + "</br>");
+        
+        double leeway = leewaySpeed * difference;
+        str.append("<br>Leeway is " + leeway + " weather points</br>");
+
+//        
+//        Ellipsoid reference = Ellipsoid.WGS84;
+//        double[] endBearing = new double[1];
+//
+//        // Object starts at LKP, with TWCheading, drifting for currentWTC
+//        // knots where will it end up
+//        Position currentPos = calculateEndingGlobalCoordinates(reference,
+//                LKP, TWCHeading, Converter.nmToMeters(currentTWC),
+//                endBearing);
+//
+//        System.out.println("Current is: " + currentPos.getLatitude());
+//        System.out.println("Current is: " + currentPos.getLongitude());
+//
+//        endBearing = new double[1];
+//        
+//        Position windPos = calculateEndingGlobalCoordinates(reference,
+//                currentPos, downWind, Converter.nmToMeters(leeway),
+//                endBearing);
+//
+//        
+//        
+//        System.out.println("Wind pos is: " + windPos.getLatitude());
+//        System.out.println("Wind pos is: " + windPos.getLongitude());
+//        
+//        
+//        Position datum = windPos;
+//        
+//        System.out.println("Final position is " + datum);
+//
+//        // RDV Direction
+//        double rdvDirection = bearing(LKP, windPos, Heading.RL);
+//
+//        System.out.println("RDV Direction: " + rdvDirection);
+//
+//        // RDV Distance
+//        double rdvDistance = range(LKP, windPos, Heading.RL);
+//
+//        System.out.println("RDV Distance: " + rdvDistance);
+//
+//        // RDV Speed
+//        double rdvSpeed = rdvDistance / timeElasped;
+//
+//        System.out.println("RDV Speed: " + rdvSpeed);
+//
+//        // Radius:
+//        double radius = x + y + 0.3 * rdvDistance * SF;
+//
+//        System.out.println("Radius is: " + radius);
+//        
+        
+        
+        
+        
+        
+        
+        str.append("</html>");
+
+        calculationsText.setText(str.toString());
+        
+        
+        
     }
 
     private void inputPanel() {
@@ -234,8 +352,8 @@ public class SARInput extends JDialog implements ActionListener {
         lkpFirstLat.setColumns(10);
 
         timeZoneDropdown = new JComboBox<String>();
-        timeZoneDropdown.setModel(new DefaultComboBoxModel<String>(new String[] {
-                "CET", "UTC", "GMT" }));
+        timeZoneDropdown.setModel(new DefaultComboBoxModel<String>(
+                new String[] { "CET", "UTC", "GMT" }));
         timeZoneDropdown.setBounds(342, 22, 46, 20);
         lkpPanel.add(timeZoneDropdown);
         timeZoneDropdown.addActionListener(this);
@@ -314,20 +432,21 @@ public class SARInput extends JDialog implements ActionListener {
 
         commenceStartPanel.add(commenceStartSpinner);
 
-        surfaceDriftPanel = new JPanel();
-        scrollPaneSurfaceDrift = new JScrollPane(surfaceDriftPanel);
+        surfaceDriftPanelContainer = new JPanel();
+        scrollPaneSurfaceDrift = new JScrollPane(surfaceDriftPanelContainer);
         scrollPaneSurfaceDrift
                 .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        surfaceDriftPanel.setBorder(new TitledBorder(null, "Surface Drift",
-                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        surfaceDriftPanelContainer.setBorder(new TitledBorder(null,
+                "Surface Drift", TitledBorder.LEADING, TitledBorder.TOP, null,
+                null));
 
         // surfaceDriftPanel.setBounds(20, 195, 494, 9000);
         // surfaceDriftPanel.setSize(494, 9000)
 
         // Add 1 to start, 110 + 56
 
-        surfaceDriftPanel.setPreferredSize(new Dimension(494,
+        surfaceDriftPanelContainer.setPreferredSize(new Dimension(494,
                 surfaceDriftPanelHeight));
 
         // surfaceDriftPanelHeight
@@ -336,18 +455,18 @@ public class SARInput extends JDialog implements ActionListener {
 
         inputPanel.add(scrollPaneSurfaceDrift);
 
-        surfaceDriftPanel.setLayout(null);
+        surfaceDriftPanelContainer.setLayout(null);
 
-        surfaceDriftPanel.add(addPoint(metocPoints));
+        surfaceDriftPanelContainer.add(addPoint(metocPoints));
 
         JButton btnFetchMetocData = new JButton("Fetch METOC Data");
         btnFetchMetocData.setEnabled(false);
         btnFetchMetocData.setBounds(10, 22, 123, 23);
-        surfaceDriftPanel.add(btnFetchMetocData);
+        surfaceDriftPanelContainer.add(btnFetchMetocData);
 
         btnAddPoint = new JButton("Add point");
         btnAddPoint.setBounds(379, 22, 89, 23);
-        surfaceDriftPanel.add(btnAddPoint);
+        surfaceDriftPanelContainer.add(btnAddPoint);
         btnAddPoint.addActionListener(this);
 
         JPanel panel = new JPanel();
@@ -484,11 +603,11 @@ public class SARInput extends JDialog implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent arg0) {
 
-        if (arg0.getSource()  == timeZoneDropdown){
+        if (arg0.getSource() == timeZoneDropdown) {
             updateTimeZone();
             return;
         }
-        
+
         if (arg0.getSource() == typeSelectionComboBox) {
             int selectedIndex = typeSelectionComboBox.getSelectedIndex();
             // 0 Rapid Response
@@ -545,14 +664,16 @@ public class SARInput extends JDialog implements ActionListener {
                 btnBack.setEnabled(true);
                 nextButton.setText("Finish");
 
+                generateRapidResponseCalculations();
+
                 // The type select determines which panel we show
-                cl.show(masterPanel, CONFIRMPANELRAPIDRESPONSE);
-                currentCard = CONFIRMPANELRAPIDRESPONSE;
+                cl.show(masterPanel, CALCULATIONSPANELRAPIDRESPONSE);
+                currentCard = CALCULATIONSPANELRAPIDRESPONSE;
                 return;
             }
 
             // We're at confirmation screen
-            if (currentCard == CONFIRMPANELRAPIDRESPONSE) {
+            if (currentCard == CALCULATIONSPANELRAPIDRESPONSE) {
                 System.out.println(currentCard);
                 CardLayout cl = (CardLayout) (masterPanel.getLayout());
                 btnBack.setEnabled(true);
@@ -583,7 +704,7 @@ public class SARInput extends JDialog implements ActionListener {
             }
 
             // We're at confirmation
-            if (currentCard == CONFIRMPANELRAPIDRESPONSE) {
+            if (currentCard == CALCULATIONSPANELRAPIDRESPONSE) {
                 CardLayout cl = (CardLayout) (masterPanel.getLayout());
                 cl.show(masterPanel, INPUTSARRAPIDRESPONSE);
                 btnBack.setEnabled(true);
@@ -600,7 +721,7 @@ public class SARInput extends JDialog implements ActionListener {
         }
 
         if (arg0.getSource() == btnAddPoint) {
-            surfaceDriftPanel.add(addPoint(metocPoints));
+            surfaceDriftPanelContainer.add(addPoint(metocPoints));
             scrollPaneSurfaceDrift.validate();
             scrollPaneSurfaceDrift.repaint();
 
@@ -625,99 +746,19 @@ public class SARInput extends JDialog implements ActionListener {
     }
 
     private JPanel addPoint(int number) {
-        JPanel pointXPanel = new JPanel();
-        pointXPanel.setBorder(new TitledBorder(null, "Point " + (number + 1),
-                TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
-        // int offset = 56 + (474 * number);
-        int offset = 56 + (110 * number);
-        System.out.println("Offset is " + offset);
-
-        pointXPanel.setBounds(5, offset, 464, 99);
-        pointXPanel.setLayout(null);
-
-        JXDatePicker surfaceDriftPicker = new JXDatePicker();
-        surfaceDriftPicker.setBounds(160, 22, 105, 20);
-        pointXPanel.add(surfaceDriftPicker);
-
-        surfaceDriftPicker.setFormats(format);
-
-        JLabel lblsurfaceDriftTime = new JLabel("Date & Time of Surface Drift:");
-        lblsurfaceDriftTime.setBounds(13, 25, 147, 14);
-        pointXPanel.add(lblsurfaceDriftTime);
-
-        Date date3 = new Date();
-        SpinnerDateModel currentTimeModel3 = new SpinnerDateModel(date3, null,
-                null, Calendar.HOUR_OF_DAY);
-
-        JSpinner surfaceDriftSpinner = new JSpinner(currentTimeModel3);
-
-        surfaceDriftSpinner.setLocation(268, 22);
-        surfaceDriftSpinner.setSize(54, 20);
-        JSpinner.DateEditor dateEditorSurfaceDrift = new JSpinner.DateEditor(
-                surfaceDriftSpinner, "HH:mm");
-        surfaceDriftSpinner.setEditor(dateEditorSurfaceDrift);
-
-        pointXPanel.add(surfaceDriftSpinner);
-
-        JLabel lblTWC = new JLabel("Total Water Current, knots:");
-        lblTWC.setBounds(13, 50, 147, 14);
-        pointXPanel.add(lblTWC);
-
-        textField = new JTextField();
-        textField.setBounds(160, 47, 33, 20);
-        pointXPanel.add(textField);
-        textField.setColumns(10);
-
-        JLabel lblTwcVectorHeading = new JLabel(
-                "TWC Vector, Heading or Degrees:");
-        lblTwcVectorHeading.setBounds(203, 50, 173, 14);
-        pointXPanel.add(lblTwcVectorHeading);
-
-        JComboBox comboBox = new JComboBox();
-        comboBox.setModel(new DefaultComboBoxModel(new String[] { "N", "NE",
-                "NW", "S", "SW", "SE", "E", "W" }));
-        comboBox.setBounds(372, 47, 33, 20);
-        pointXPanel.add(comboBox);
-
-        JTextField textField_1 = new JTextField();
-        textField_1.setText("00.0°");
-        textField_1.setBounds(415, 47, 47, 20);
-        pointXPanel.add(textField_1);
-        textField_1.setColumns(10);
-
-        JLabel lblLeewayKnots = new JLabel("Leeway, knots:");
-        lblLeewayKnots.setBounds(13, 78, 147, 14);
-        pointXPanel.add(lblLeewayKnots);
-
-        JTextField textField_2 = new JTextField();
-        textField_2.setColumns(10);
-        textField_2.setBounds(160, 75, 33, 20);
-        pointXPanel.add(textField_2);
-
-        JLabel lblLwVectorHeading = new JLabel("LW Vector, Heading or Degrees:");
-        lblLwVectorHeading.setBounds(203, 78, 173, 14);
-        pointXPanel.add(lblLwVectorHeading);
-
-        JComboBox comboBox_2 = new JComboBox();
-        comboBox_2.setModel(new DefaultComboBoxModel(new String[] { "N" }));
-        comboBox_2.setBounds(372, 75, 33, 20);
-        pointXPanel.add(comboBox_2);
-
-        JTextField textField_3 = new JTextField();
-        textField_3.setText("00.0°");
-        textField_3.setColumns(10);
-        textField_3.setBounds(415, 75, 47, 20);
-        pointXPanel.add(textField_3);
+        SurfaceDriftPanel surfaceDriftPanel = new SurfaceDriftPanel(number);
 
         surfaceDriftPanelHeight = surfaceDriftPanelHeight + 110;
 
-        surfaceDriftPanel.setPreferredSize(new Dimension(494,
+        surfaceDriftPanelContainer.setPreferredSize(new Dimension(494,
                 surfaceDriftPanelHeight));
 
         metocPoints++;
 
-        return pointXPanel;
+        surfaceDriftPanelList.add(surfaceDriftPanel);
+
+        return surfaceDriftPanel;
     }
 
     private void updateValues() {
@@ -748,60 +789,53 @@ public class SARInput extends JDialog implements ActionListener {
     private void updateTimeZone() {
 
         System.out.println("Updating timezone");
-        
+
         String selectedTimeZone = (String) timeZoneDropdown.getSelectedItem();
 
         System.out.println("Old timezone is: " + timeZone);
-        
+
         // Got the new timezone, now to convert
         timeZone = DateTimeZone.forID(selectedTimeZone);
-        
+
         System.out.println("new timezone is: " + timeZone);
 
         LKPDate = LKPDate.toDateTime(timeZone);
         CSSDate = CSSDate.toDateTime(timeZone);
-        
-        
-        //Used to store the new values to transfer between timezones
-//        Date lkpDummyDate = new Date();
-//        
-//        Date cssDummyDate = new Date();
-//        
-//        lkpDummyDate.setMonth(LKPDate.getMonthOfYear());
-//        lkpDummyDate.set
-        
-        
-        
-        
-//        System.out.println(LKPDate.getDayOfMonth() + " vs " + lkpDummyDate.getDay());
-        
-        
-//        lkpDummyDate.setYear(LKPDate.getYear());
-//        
-//        lkpDummyDate.setHours(LKPDate.getHourOfDay());
-//        lkpDummyDate.setMinutes(LKPDate.getMinuteOfDay());
-        
-//        System.out.println("Dummy date: " + lkpDummyDate);
-//        System.out.println("Real date: " + LKPDate );
-        
-        
-        
-        
-//        System.out.println(LKPDate.getHourOfDay());
-//        System.out.println(LKPDate.getMinuteOfDay());
-//        System.out.println(LKPDate);
-//        System.out.println(CSSDate.toDate());
+
+        // Used to store the new values to transfer between timezones
+        // Date lkpDummyDate = new Date();
+        //
+        // Date cssDummyDate = new Date();
+        //
+        // lkpDummyDate.setMonth(LKPDate.getMonthOfYear());
+        // lkpDummyDate.set
+
+        // System.out.println(LKPDate.getDayOfMonth() + " vs " +
+        // lkpDummyDate.getDay());
+
+        // lkpDummyDate.setYear(LKPDate.getYear());
+        //
+        // lkpDummyDate.setHours(LKPDate.getHourOfDay());
+        // lkpDummyDate.setMinutes(LKPDate.getMinuteOfDay());
+
+        // System.out.println("Dummy date: " + lkpDummyDate);
+        // System.out.println("Real date: " + LKPDate );
+
+        // System.out.println(LKPDate.getHourOfDay());
+        // System.out.println(LKPDate.getMinuteOfDay());
+        // System.out.println(LKPDate);
+        // System.out.println(CSSDate.toDate());
 
         // Update the spinners
 
         lkpDatePicker.setDate(LKPDate.toDate());
 
-//        SpinnerDateModel lkpTimeModel = new SpinnerDateModel(LKPDate.toDate(),
-//                null, null, Calendar.HOUR_OF_DAY);
-//        lkpSpinner.setModel(lkpTimeModel);
+        // SpinnerDateModel lkpTimeModel = new
+        // SpinnerDateModel(LKPDate.toDate(),
+        // null, null, Calendar.HOUR_OF_DAY);
+        // lkpSpinner.setModel(lkpTimeModel);
 
         lkpSpinner.getModel().setValue(LKPDate.toDate());
-        
 
         commenceStartSearch.setDate(CSSDate.toDate());
 
