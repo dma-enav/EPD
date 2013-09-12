@@ -16,7 +16,9 @@
 
 package dk.dma.epd.common.prototype.gui.util;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -52,6 +54,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
     private final Object imgLock = new Object();
     private BufferedImage img;
     private volatile BufferedImage outImg;
+    private final boolean dummy = false;
     public BufferedImage getImg() {
         return img;
     }
@@ -90,13 +93,21 @@ public class SimpleOffScreenMapRenderer extends Thread implements
                 .getHeight()));
         frame.setBounds(SCREEN_BOUND_X, SCREEN_BOUND_Y, targetBean.getWidth(), targetBean.getHeight());
         frame.add(targetBean);
-        //frame.setVisible(true);
+        frame.setVisible(false);
+        frame.setFocusableWindowState(false);
 
         sourceBean.addProjectionListener(this);
+        
+        updateTargetMap(this.sourceBean.getProjection());
 
     }
 
     private void drawGrid(BufferedImage image) {
+        Graphics2D g = (Graphics2D) image.getGraphics();
+        //g.setPaint ( Color.BLACK );
+        //g.fillRect ( 0, 0, image.getWidth(), image.getHeight() );
+        
+        g.setPaint(Color.BLACK);
         int i = 100;
         while(i < image.getHeight()) {
             int j = 100;
@@ -111,6 +122,8 @@ public class SimpleOffScreenMapRenderer extends Thread implements
 
     public void updateOutImg() {
 
+        drawGrid(img);
+        
         new Thread(new Runnable() {
             
             @Override
@@ -130,7 +143,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
                         AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
                 scaleOp.filter(img, outImg);*/
                 
-                drawGrid(img);
+                
                 setOutImg(img);
                 
                 
@@ -180,6 +193,8 @@ public class SimpleOffScreenMapRenderer extends Thread implements
     }
 
     public void updateTargetMap(final Projection p) {
+        
+        //might not be necessary
         SwingUtilities.invokeLater(new Runnable() {
             
             @Override
