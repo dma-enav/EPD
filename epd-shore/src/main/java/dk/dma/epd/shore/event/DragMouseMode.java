@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.shore.event;
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
@@ -23,6 +24,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.util.Properties;
 
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.bbn.openmap.MapBean;
@@ -65,15 +68,13 @@ public class DragMouseMode extends AbstractCoordMouseMode {
     private boolean useCursor;
     private JPanel glassFrame;
     boolean layerMouseDrag;
-    
-
-
     Cursor dragCursorMouseClicked;
     Cursor dragCursor;
 
     private BufferedImage onScreenMap;
-
     private CommonChartPanel chartPanel;
+
+    private JMapFrame jMapFrame;
 
     /**
      * Construct a Drag Mouse Mode. Sets the ID of the mode to the modeID, the
@@ -285,38 +286,42 @@ public class DragMouseMode extends AbstractCoordMouseMode {
             if (!layerMouseDrag) {
 
                 MapBean mb = (MapBean) arg0.getSource();
-                Point2D pnt = mb.getNonRotatedLocation(arg0);
+
+                if (chartPanel == null) {
+                    chartPanel = findChartPanel(mb);
+                }
+                
+                if (jMapFrame == null) {
+                    jMapFrame = findJMapFrame(mb);
+                }
+                Point2D pnt = chartPanel.getMap().getNonRotatedLocation(arg0);
                 int x = (int) pnt.getX();
                 int y = (int) pnt.getY();
-
+                
                 if (!isPanning) {
 
                     isPanning = true;
                     
-                    Container parent = mb.getParent();
-                    while(true) {
-                        if (parent instanceof CommonChartPanel){
-                            chartPanel = (CommonChartPanel)parent;
-                            break;
-                        } else {
-                            parent = parent.getParent();
-                        }
-                        
-                    }
 
                     //chartPanel.getDragMapRenderer().updateOutImg();
 
-                    onScreenMap = new BufferedImage(mb.getWidth(), mb.getHeight(),BufferedImage.TYPE_INT_RGB);
+                    onScreenMap = new BufferedImage(chartPanel.getWidth(),chartPanel.getHeight(),BufferedImage.TYPE_INT_RGB);
                     mb.paint(onScreenMap.getGraphics());
                     oX = x;
                     oY = y;
                     
-                    ((ChartPanel)parent).getMap().setVisible(false);
+                    for(Component c :chartPanel.getComponents()) {
+                        c.setVisible(false);
+                    }
+                    
+                    chartPanel.getMap().setVisible(true);
+                    
+                    
 
                 } else {
-
-                    final int startX = mb.getWidth();
-                    final int startY = mb.getHeight();
+                    
+                    final int startX = chartPanel.getWidth();
+                    final int startY = chartPanel.getHeight();
 
                     final int posX = startX - (x - oX);
                     final int posY = startY - (y - oY);
@@ -325,22 +330,54 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                         
                         //LOG.debug("Time to get offScreenMap: ")
                         final BufferedImage offScreenMap = chartPanel.getDragMapRenderer().getOutImg().getSubimage(posX,
-                                posY, mb.getWidth(), mb.getHeight());
+                                posY, chartPanel.getWidth(), chartPanel.getHeight());
                         
                         final BufferedImage renderImage = offScreenMap;
                         //renderImage.getGraphics().drawImage(offScreenMap,0,0,null);                        
                         renderImage.getGraphics().drawImage(onScreenMap,x-oX,y-oY,null);
 
-
-                        mb.getGraphics(true).drawImage(
+                        chartPanel.getGraphics().drawImage(
                                 renderImage, 0, 0, null);
-                    } catch (RasterFormatException | NullPointerException e) {
+
+                    } catch (RasterFormatException e) {
                         //was out of bounds, sorry
+                        //throw e;
+
                     }
                 }
             }
         }
     }
+    
+    public CommonChartPanel findChartPanel(Container parent) {
+        for (int i=0; i<10; i++) {
+            System.out.println("parent = "+parent.getClass());
+            if (parent instanceof CommonChartPanel){
+                chartPanel = (CommonChartPanel)parent;
+                
+                return (CommonChartPanel) parent;
+            } else {
+                parent = parent.getParent();
+            }
+            
+        }
+        
+        return null;
+    }
+    
+    public JMapFrame findJMapFrame(Container parent) {
+        for (int i=0; i<10; i++) {
+            if (parent instanceof JMapFrame){
+                jMapFrame = (JMapFrame)parent;
+                return (JMapFrame) parent;
+            } else {
+                parent = parent.getParent();
+            }
+            
+        }
+        
+        return null;
+    }    
 
 
     /**
@@ -373,7 +410,10 @@ public class DragMouseMode extends AbstractCoordMouseMode {
             mb.setCenter(proj.inverse(center));
 
             isPanning = false;
-            chartPanel.getMap().setVisible(true);
+
+            for(Component c :chartPanel.getComponents()) {
+                c.setVisible(false);
+            }
         }
         super.mouseReleased(arg0);
         glassFrame.setCursor(dragCursor);

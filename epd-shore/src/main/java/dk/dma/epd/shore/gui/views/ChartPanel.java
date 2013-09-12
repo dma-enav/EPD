@@ -100,7 +100,6 @@ public class ChartPanel extends CommonChartPanel {
     protected transient ProjectionSupport projectionSupport = new ProjectionSupport(
             this, false);
     private BufferedLayerMapBean dragMap;
-    private SimpleOffScreenMapRenderer dragMapRenderer;
 
     /**
      * Constructor
@@ -121,7 +120,7 @@ public class ChartPanel extends CommonChartPanel {
         // Add the aishandler to this bean
         mapHandler.add(EPDShore.getAisHandler());
         mapHandler.add(EPDShore.getShoreServices());
-        mapHandler.add(this);
+        //mapHandler.add(this);
         mapHandler.add(mainFrame);
         mapHandler.add(mainFrame.getStatusArea());
         mapHandler.add(jmapFrame);
@@ -238,23 +237,7 @@ public class ChartPanel extends CommonChartPanel {
         return encLayer;
     }
 
-    /**
-     * Return the mapBean
-     * 
-     * @return map
-     */
-    public MapBean getMap() {
-        return map;
-    }
-
-    /**
-     * Return the mapHandler
-     * 
-     * @return mapHandler
-     */
-    public MapHandler getMapHandler() {
-        return mapHandler;
-    }
+ 
 
     /**
      * Return the maxScale set for the map
@@ -312,6 +295,23 @@ public class ChartPanel extends CommonChartPanel {
         map.setScale(mapSettings.getScale());
 
         add(map);
+        
+        //TODO: CLEANUP
+        //dragMap
+        dragMap = new BufferedLayerMapBean();
+        dragMap.setDoubleBuffered(true);
+        dragMap.setCenter(mapSettings.getCenter());
+        dragMap.setScale(mapSettings.getScale());
+        dragMapHandler.add(new LayerHandler());
+        //if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
+
+        dragMapHandler.add(dragMap);
+        WMSLayer wmsDragLayer = new WMSLayer(EPDShore.getSettings().getGuiSettings().getWmsQuery());
+        dragMapHandler.add(wmsDragLayer);
+            
+        //}        
+        dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
+        dragMapRenderer.start();
 
     }
 
@@ -335,6 +335,24 @@ public class ChartPanel extends CommonChartPanel {
         map.setScale(scale);
 
         add(map);
+
+        ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
+        //TODO: CLEANUP
+        //dragMap
+        dragMap = new BufferedLayerMapBean();
+        dragMap.setDoubleBuffered(true);
+        dragMap.setCenter(mapSettings.getCenter());
+        dragMap.setScale(mapSettings.getScale());
+        dragMapHandler.add(new LayerHandler());
+        //if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
+
+        dragMapHandler.add(dragMap);
+        WMSLayer wmsDragLayer = new WMSLayer(EPDShore.getSettings().getGuiSettings().getWmsQuery());
+        dragMapHandler.add(wmsDragLayer);
+            
+        //}        
+        dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
+        dragMapRenderer.start();
 
     }
 
@@ -499,28 +517,10 @@ public class ChartPanel extends CommonChartPanel {
 
         if (wmsLayer.isVisible()) {
             // System.out.println("wms is visible");
-            bgLayer.setVisible(false);
+            //bgLayer.setVisible(false);
         }
         
         
-        //TODO: CLEANUP
-        //dragMap
-        dragMap = new BufferedLayerMapBean();
-        dragMap.setDoubleBuffered(true);
-        dragMap.setCenter(mapSettings.getCenter());
-        dragMap.setScale(mapSettings.getScale());
-        dragMapHandler.add(new LayerHandler());
-        //if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
-
-            dragMapHandler.add(dragMap);
-            WMSLayer wmsDragLayer = new WMSLayer(mapSettings.getWmsQuery());
-            dragMapHandler.add(wmsDragLayer);
-            
-            // create an offscreen renderer
-            
-        //}        
-        dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
-        dragMapRenderer.start();
 
     }
 
