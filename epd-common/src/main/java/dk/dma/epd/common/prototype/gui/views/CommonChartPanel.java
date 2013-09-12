@@ -46,11 +46,6 @@ public abstract class CommonChartPanel extends OMComponentPanel {
     protected MouseDelegator mouseDelegator;
     protected WMSLayer wmsLayer;
     
-    public MapHandler getMapHandler() {
-        return mapHandler;
-    }
-
-    
     public SimpleOffScreenMapRenderer getDragMapRenderer() {
         return dragMapRenderer;
     }
@@ -72,8 +67,19 @@ public abstract class CommonChartPanel extends OMComponentPanel {
      */
     private static final long serialVersionUID = 1L;
 
-    public abstract MapBean getMap();
-
+    public MapBean getMap() {
+        return map;
+    }
+    
+    /**
+     * Return the mapHandler
+     * 
+     * @return mapHandler
+     */
+    public MapHandler getMapHandler() {
+        return mapHandler;
+    }
+    
     public abstract Layer getBgLayer();
     
 

@@ -336,9 +336,6 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
 
     }
 
-    public SimpleOffScreenMapRenderer getDragMapRenderer() {
-        return dragMapRenderer;
-    }
 
     /**
      * @return the dragMap
@@ -353,9 +350,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         mapSettings.setScale(map.getScale());
     }
 
-    public MapBean getMap() {
-        return map;
-    }
+
 
     public MapHandler getMapHandler() {
         return mapHandler;
