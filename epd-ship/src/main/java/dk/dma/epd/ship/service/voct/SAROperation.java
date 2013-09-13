@@ -50,6 +50,9 @@ public class SAROperation {
     // Last known Position
     Position LKP;
 
+    // COmmence Start Point
+    Position CSP;
+
     // SURFACE DRIFT VARIABLES
 
     // Observed Total Water Current (WTC, knots)
@@ -82,15 +85,22 @@ public class SAROperation {
     public SAROperation(SAR_TYPE operationType, VOCTManager voctManager) {
         this.operationType = operationType;
         this.voctManager = voctManager;
+    }
 
+    public void startRapidResponseCalculations(DateTimeZone timeZone,
+            DateTime TLKP, DateTime CSS, Position LKP, Position CSP,
+            double TWCknots, double TWCHeading, double LWknots,
+            double LWHeading, double x, double y, double SF) {
         // Standard use CET?
-        DateTimeZone timeZone = DateTimeZone.forID("CET");
+        timeZone = DateTimeZone.forID("CET");
 
         TLKP = new DateTime(2013, 7, 2, 8, 0, timeZone);
 
         CSS = new DateTime(2013, 7, 2, 10, 30, timeZone);
 
         LKP = Position.create(56.37167, 7.966667);
+
+        CSP = Position.create(56.37167, 7.966667);
 
         TWCknots = 2;
 
@@ -321,6 +331,9 @@ public class SAROperation {
         this.voctManager = voctManager;
     }
 
+    
+    
+    
     private static void rapidResponse(Position LKP, double TWCHeading,
             double downWind, double LWknots, double TWCknots,
             double timeElasped, double x, double y, double SF) {

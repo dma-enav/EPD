@@ -23,8 +23,6 @@ import javax.swing.JDialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
-import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
 import dk.dma.epd.common.util.Util;
@@ -82,6 +80,14 @@ public class VOCTManager implements Runnable, Serializable {
         sarOperation = null;
         sarOperation = new SAROperation(type, this);
     }
+    
+    public SAR_TYPE getSarType(){
+        if (sarOperation != null){
+            return sarOperation.getOperationType();
+        }
+        return SAR_TYPE.NONE;
+    }
+    
 
     public void setSARVariables() {
         // sarOperation

@@ -22,10 +22,13 @@ import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -122,7 +125,7 @@ public class SARInput extends JDialog implements ActionListener {
     private JComboBox<String> searchObjectDropDown;
     private JLabel searchObjectText;
 
-    private JXDatePicker commenceStartSearch;
+    private JXDatePicker cssDatePicker;
     private JXDatePicker lkpDatePicker;
     private JSpinner lkpSpinner;
     private JSpinner commenceStartSpinner;
@@ -131,6 +134,13 @@ public class SARInput extends JDialog implements ActionListener {
 
     private List<SurfaceDriftPanel> surfaceDriftPanelList = new ArrayList<SurfaceDriftPanel>();
     private JLabel calculationsText = new JLabel();
+    private JButton btnNewButton;
+    private JTextField textField;
+    private JTextField textField_1;
+    private JTextField textField_2;
+    private JTextField textField_3;
+    private JTextField textField_4;
+    private JTextField textField_5;
 
     /**
      * 
@@ -143,13 +153,15 @@ public class SARInput extends JDialog implements ActionListener {
         setTitle("SAR Operation");
         this.setModal(true);
 
+        format.setTimeZone(TimeZone.getTimeZone("CET"));
+        
         CSSDate = CSSDate.plusHours(1);
 
         System.out.println(LKPDate.toDate());
         System.out.println(CSSDate.toDate());
 
-        // setBounds(100, 100, 559, 733);
-        setBounds(100, 100, 559, 433);
+         setBounds(100, 100, 559, 733);
+//        setBounds(100, 100, 559, 433);
 
         masterPanel = new JPanel();
 
@@ -330,7 +342,9 @@ public class SARInput extends JDialog implements ActionListener {
 
         SpinnerDateModel lkpTimeModel = new SpinnerDateModel(LKPDate.toDate(),
                 null, null, Calendar.HOUR_OF_DAY);
-
+        
+        
+        
         lkpSpinner = new JSpinner(lkpTimeModel);
 
         lkpSpinner.setLocation(278, 22);
@@ -404,16 +418,16 @@ public class SARInput extends JDialog implements ActionListener {
         commenceStartPanel.setBorder(new TitledBorder(null,
                 "Commence Search Start", TitledBorder.LEADING,
                 TitledBorder.TOP, null, null));
-        commenceStartPanel.setBounds(20, 134, 494, 53);
+        commenceStartPanel.setBounds(20, 134, 494, 91);
         commenceStartPanel.setLayout(null);
         inputPanel.add(commenceStartPanel);
 
-        commenceStartSearch = new JXDatePicker();
-        commenceStartSearch.setBounds(170, 22, 105, 20);
-        commenceStartPanel.add(commenceStartSearch);
+        cssDatePicker = new JXDatePicker();
+        cssDatePicker.setBounds(170, 22, 105, 20);
+        commenceStartPanel.add(cssDatePicker);
 
-        commenceStartSearch.setFormats(format);
-        commenceStartSearch.setDate(CSSDate.toDate());
+        cssDatePicker.setFormats(format);
+        cssDatePicker.setDate(CSSDate.toDate());
 
         JLabel lblCommenceStartSearch = new JLabel("Time of Search Start:");
         lblCommenceStartSearch.setBounds(13, 25, 147, 14);
@@ -431,6 +445,54 @@ public class SARInput extends JDialog implements ActionListener {
         commenceStartSpinner.setEditor(dateEditorCommenceSearchStart);
 
         commenceStartPanel.add(commenceStartSpinner);
+        
+        JLabel lblCommenceStartPosition = new JLabel("Commence Start Position:");
+        lblCommenceStartPosition.setBounds(13, 56, 147, 14);
+        commenceStartPanel.add(lblCommenceStartPosition);
+        
+        textField = new JTextField();
+        textField.setText("56");
+        textField.setColumns(10);
+        textField.setBounds(170, 53, 20, 20);
+        commenceStartPanel.add(textField);
+        
+        textField_1 = new JTextField();
+        textField_1.setText("21");
+        textField_1.setColumns(10);
+        textField_1.setBounds(190, 53, 20, 20);
+        commenceStartPanel.add(textField_1);
+        
+        textField_2 = new JTextField();
+        textField_2.setText("639");
+        textField_2.setColumns(10);
+        textField_2.setBounds(210, 53, 30, 20);
+        commenceStartPanel.add(textField_2);
+        
+        JComboBox comboBox = new JComboBox();
+        comboBox.setBounds(240, 53, 30, 20);
+        commenceStartPanel.add(comboBox);
+        
+        textField_3 = new JTextField();
+        textField_3.setText("13");
+        textField_3.setColumns(10);
+        textField_3.setBounds(278, 53, 20, 20);
+        commenceStartPanel.add(textField_3);
+        
+        textField_4 = new JTextField();
+        textField_4.setText("67");
+        textField_4.setColumns(10);
+        textField_4.setBounds(298, 53, 20, 20);
+        commenceStartPanel.add(textField_4);
+        
+        textField_5 = new JTextField();
+        textField_5.setText("070");
+        textField_5.setColumns(10);
+        textField_5.setBounds(318, 53, 30, 20);
+        commenceStartPanel.add(textField_5);
+        
+        JComboBox comboBox_1 = new JComboBox();
+        comboBox_1.setBounds(348, 53, 30, 20);
+        commenceStartPanel.add(comboBox_1);
 
         surfaceDriftPanelContainer = new JPanel();
         scrollPaneSurfaceDrift = new JScrollPane(surfaceDriftPanelContainer);
@@ -451,7 +513,7 @@ public class SARInput extends JDialog implements ActionListener {
 
         // surfaceDriftPanelHeight
 
-        scrollPaneSurfaceDrift.setBounds(20, 195, 494, 166);
+        scrollPaneSurfaceDrift.setBounds(20, 233, 494, 166);
 
         inputPanel.add(scrollPaneSurfaceDrift);
 
@@ -465,14 +527,19 @@ public class SARInput extends JDialog implements ActionListener {
         surfaceDriftPanelContainer.add(btnFetchMetocData);
 
         btnAddPoint = new JButton("Add point");
-        btnAddPoint.setBounds(379, 22, 89, 23);
+        btnAddPoint.setBounds(265, 22, 89, 23);
         surfaceDriftPanelContainer.add(btnAddPoint);
+        
+        btnNewButton = new JButton("Remove Last");
+        btnNewButton.setEnabled(false);
+        btnNewButton.setBounds(364, 22, 120, 23);
+        surfaceDriftPanelContainer.add(btnNewButton);
         btnAddPoint.addActionListener(this);
 
         JPanel panel = new JPanel();
         panel.setBorder(new TitledBorder(null, "Other variables",
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        panel.setBounds(20, 372, 487, 100);
+        panel.setBounds(20, 410, 487, 100);
         inputPanel.add(panel);
         panel.setLayout(null);
 
@@ -515,7 +582,7 @@ public class SARInput extends JDialog implements ActionListener {
         JPanel panel_1 = new JPanel();
         panel_1.setBorder(new TitledBorder(null, "Search Object",
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        panel_1.setBounds(20, 482, 487, 87);
+        panel_1.setBounds(20, 520, 487, 87);
         inputPanel.add(panel_1);
         panel_1.setLayout(null);
 
@@ -770,7 +837,7 @@ public class SARInput extends JDialog implements ActionListener {
     private void checkTime() {
         // LKP must be before commence start
 
-        commenceStartSearch.getDate();
+        cssDatePicker.getDate();
 
         lkpDatePicker.getDate();
 
@@ -787,75 +854,42 @@ public class SARInput extends JDialog implements ActionListener {
 
     @SuppressWarnings("deprecation")
     private void updateTimeZone() {
-
-        System.out.println("Updating timezone");
+        
+        System.out.println("Updated timezone");
 
         String selectedTimeZone = (String) timeZoneDropdown.getSelectedItem();
 
-        System.out.println("Old timezone is: " + timeZone);
-
-        // Got the new timezone, now to convert
         timeZone = DateTimeZone.forID(selectedTimeZone);
 
-        System.out.println("new timezone is: " + timeZone);
-
+        System.out.println("LKP time is: " + LKPDate);
+        
+        System.out.println("To date version of lkp is: " + LKPDate.toDate());
+        
+        //Updated internal time
         LKPDate = LKPDate.toDateTime(timeZone);
         CSSDate = CSSDate.toDateTime(timeZone);
 
-        // Used to store the new values to transfer between timezones
-        // Date lkpDummyDate = new Date();
-        //
-        // Date cssDummyDate = new Date();
-        //
-        // lkpDummyDate.setMonth(LKPDate.getMonthOfYear());
-        // lkpDummyDate.set
-
-        // System.out.println(LKPDate.getDayOfMonth() + " vs " +
-        // lkpDummyDate.getDay());
-
-        // lkpDummyDate.setYear(LKPDate.getYear());
-        //
-        // lkpDummyDate.setHours(LKPDate.getHourOfDay());
-        // lkpDummyDate.setMinutes(LKPDate.getMinuteOfDay());
-
-        // System.out.println("Dummy date: " + lkpDummyDate);
-        // System.out.println("Real date: " + LKPDate );
-
-        // System.out.println(LKPDate.getHourOfDay());
-        // System.out.println(LKPDate.getMinuteOfDay());
-        // System.out.println(LKPDate);
-        // System.out.println(CSSDate.toDate());
-
-        // Update the spinners
-
-        lkpDatePicker.setDate(LKPDate.toDate());
-
-        // SpinnerDateModel lkpTimeModel = new
-        // SpinnerDateModel(LKPDate.toDate(),
-        // null, null, Calendar.HOUR_OF_DAY);
-        // lkpSpinner.setModel(lkpTimeModel);
-
-        lkpSpinner.getModel().setValue(LKPDate.toDate());
-
-        commenceStartSearch.setDate(CSSDate.toDate());
-
-        SpinnerDateModel CSSTimeModel = new SpinnerDateModel(CSSDate.toDate(),
-                null, null, Calendar.HOUR_OF_DAY);
-
-        commenceStartSpinner.setModel(CSSTimeModel);
-
-        // ((SpinnerDateModel) departureSpinner.getModel()).setValue(starttime);
-
-        // JSpinner.DateEditor editor = (JSpinner.DateEditor) departureSpinner
-        // .getEditor();
-
-        // System.out.println("DepartureTime was changed to "
-        // + departureSpinner.getValue());
-        // SimpleDateFormat df = new SimpleDateFormat("HH:mm");
-        // Date testDate = null;
-
-        // testDate = df.parse(editor.getTextField().getText());
-
+        
+        //Update spinners
+        
+        Date lkpTempDate = new Date();
+        lkpTempDate.setHours(LKPDate.getHourOfDay());
+//        lkpTempDate.setMinutes(LKPDate.getMinuteOfDay());
+        
+        System.out.println(LKPDate.getHourOfDay());
+        System.out.println(LKPDate.getMinuteOfDay());
+        
+        
+        
+        lkpSpinner.getModel().setValue(lkpTempDate);
+        
+        Date CSSTempDate = new Date();
+        CSSTempDate.setHours(CSSDate.getHourOfDay());
+//        CSSTempDate.setMinutes(CSSDate.getMinuteOfDay());
+        
+        commenceStartSpinner.getModel().setValue(lkpTempDate);
+        
+        //What about datepickers?
     }
 
     private void inititateSarType() {
@@ -879,5 +913,31 @@ public class SARInput extends JDialog implements ActionListener {
             voctManager.setSarType(SAR_TYPE.BACKTRACK);
             break;
         }
+    }
+    
+    
+    private void validateInputAndInititate(){
+        SAR_TYPE type = voctManager.getSarType();
+        
+        switch (type) {
+        case RAPID_RESPONSE:
+            voctManager.setSarType(SAR_TYPE.RAPID_RESPONSE);
+            break;
+        case DATUM_POINT:
+            voctManager.setSarType(SAR_TYPE.DATUM_POINT);
+            break;
+        case DATUM_LINE:
+            voctManager.setSarType(SAR_TYPE.DATUM_LINE);
+            break;
+        case BACKTRACK:
+            voctManager.setSarType(SAR_TYPE.BACKTRACK);
+            break;
+        case NONE:
+            break;
+        }
+    }
+    
+    private void validateRapidResponse(){
+        
     }
 }
