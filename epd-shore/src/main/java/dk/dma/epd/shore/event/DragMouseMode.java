@@ -299,25 +299,15 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                 int y = (int) pnt.getY();
                 
                 if (!isPanning) {
-
                     isPanning = true;
-                    
-
-                    //chartPanel.getDragMapRenderer().updateOutImg();
 
                     onScreenMap = new BufferedImage(chartPanel.getWidth(),chartPanel.getHeight(),BufferedImage.TYPE_INT_RGB);
                     mb.paint(onScreenMap.getGraphics());
                     oX = x;
                     oY = y;
-                    
-                    for(Component c :chartPanel.getComponents()) {
-                        c.setVisible(false);
-                    }
-                    
-                    chartPanel.getMap().setVisible(true);
-                    
-                    
-
+               
+                    chartPanel.getMap().setVisible(false);
+ 
                 } else {
                     
                     final int startX = chartPanel.getWidth();
@@ -336,7 +326,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                         //renderImage.getGraphics().drawImage(offScreenMap,0,0,null);                        
                         renderImage.getGraphics().drawImage(onScreenMap,x-oX,y-oY,null);
 
-                        chartPanel.getGraphics().drawImage(
+                        jMapFrame.getGlassPane().getGraphics().drawImage(
                                 renderImage, 0, 0, null);
 
                     } catch (RasterFormatException e) {
@@ -411,9 +401,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
 
             isPanning = false;
 
-            for(Component c :chartPanel.getComponents()) {
-                c.setVisible(false);
-            }
+            chartPanel.getMap().setVisible(true);
         }
         super.mouseReleased(arg0);
         glassFrame.setCursor(dragCursor);

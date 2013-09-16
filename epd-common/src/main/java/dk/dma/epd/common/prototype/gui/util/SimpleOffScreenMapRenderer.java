@@ -54,7 +54,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
     private final Object imgLock = new Object();
     private BufferedImage img;
     private volatile BufferedImage outImg;
-    private final boolean dummy = false;
+    private boolean dummy = false;
     public BufferedImage getImg() {
         return img;
     }
@@ -68,6 +68,10 @@ public class SimpleOffScreenMapRenderer extends Thread implements
 
     private Logger LOG;
 
+    public SimpleOffScreenMapRenderer() {
+        dummy = true;
+    }
+    
     public SimpleOffScreenMapRenderer(MapBean sourceBean, MapBean targetBean,
             int sizeFactor) {
         super();
@@ -121,8 +125,12 @@ public class SimpleOffScreenMapRenderer extends Thread implements
     }
 
     public void updateOutImg() {
-
         drawGrid(img);
+        
+        if (isDummy()) {
+            setOutImg(img);
+            return;
+        }
         
         new Thread(new Runnable() {
             
@@ -152,6 +160,10 @@ public class SimpleOffScreenMapRenderer extends Thread implements
 
     }
     
+    private boolean isDummy() {
+        return dummy;
+    }
+
     public BufferedImage getOutImg() {
         return outImg;
     }
