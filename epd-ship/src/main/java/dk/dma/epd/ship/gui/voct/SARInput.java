@@ -39,6 +39,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
@@ -46,17 +47,23 @@ import javax.swing.SpinnerDateModel;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import org.jdesktop.swingx.JXDatePicker;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.FormatException;
+import dk.dma.epd.common.util.ParseUtils;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.service.voct.LeewayValues;
 import dk.dma.epd.ship.service.voct.SAR_TYPE;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 
-public class SARInput extends JDialog implements ActionListener {
+public class SARInput extends JDialog implements ActionListener,
+        DocumentListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -142,6 +149,9 @@ public class SARInput extends JDialog implements ActionListener {
     private JTextField textField_4;
     private JTextField textField_5;
 
+    private JComboBox<String> comboLKPLat;
+    private JComboBox<String> comboLKPLon;
+
     /**
      * 
      * Create the dialog.
@@ -154,14 +164,14 @@ public class SARInput extends JDialog implements ActionListener {
         this.setModal(true);
 
         format.setTimeZone(TimeZone.getTimeZone("CET"));
-        
+
         CSSDate = CSSDate.plusHours(1);
 
         System.out.println(LKPDate.toDate());
         System.out.println(CSSDate.toDate());
 
-         setBounds(100, 100, 559, 733);
-//        setBounds(100, 100, 559, 433);
+        setBounds(100, 100, 559, 733);
+        // setBounds(100, 100, 559, 433);
 
         masterPanel = new JPanel();
 
@@ -198,108 +208,105 @@ public class SARInput extends JDialog implements ActionListener {
 
     }
 
-    private void generateRapidResponseCalculations(){
-        
-        
-        //Where we grab the data that was input in the previous window
-        //Will be seperate for each type of calculation but HTML generated to keep layout simple and possibly exportable
-        
-//      LKPDate;
-//      CSSDate;
-        
-        
-        double difference = (double) (LKPDate.getMillis() - CSSDate.getMillis()) / 60 / 60 / 1000;
-//        System.out.println("Hours since started: " + difference);
-        
+    private void generateRapidResponseCalculations() {
 
-        
-        //Generate a html sheet of rapid response calculations
+        // Where we grab the data that was input in the previous window
+        // Will be seperate for each type of calculation but HTML generated to
+        // keep layout simple and possibly exportable
+
+        // LKPDate;
+        // CSSDate;
+
+        double difference = (double) (LKPDate.getMillis() - CSSDate.getMillis()) / 60 / 60 / 1000;
+        // System.out.println("Hours since started: " + difference);
+
+        // Generate a html sheet of rapid response calculations
         StringBuilder str = new StringBuilder();
         String name = "How does this look";
-        
+
         str.append("<html>");
         str.append("<br>Time of Last Known Position: " + LKPDate + "</br>");
         str.append("<br>Commence Search Start time: " + CSSDate + "</br>");
         str.append("<br>Time difference: " + difference + " hours</br>");
-        
-        
-      double currentTWC = surfaceDriftPanelList.get(0).getTWCKnots() * difference;
-        
+
+        double currentTWC = surfaceDriftPanelList.get(0).getTWCKnots()
+                * difference;
+
         str.append("<br>Using " + metocPoints + " weather points</br>");
-        
-        str.append("<br>TWC is " + currentTWC + " with heading " + surfaceDriftPanelList.get(0).getTWCHeading() + "</br>");
-        
-        str.append("<br>Using formula for " + searchObjectDropDown.getSelectedItem() + " with values as " + LeewayValues.getLeeWayContent().get(
-                searchObjectDropDown.getSelectedIndex()) + "</br>");
-        
-        double leewaySpeed = LeewayValues.personInWater(surfaceDriftPanelList.get(0).getLeeway());
-        
-        str.append("<br>Gives a Leeway speed of " + leewaySpeed + " with heading " + surfaceDriftPanelList.get(0).getLeewayHeading() + "</br>");
-        
+
+        str.append("<br>TWC is " + currentTWC + " with heading "
+                + surfaceDriftPanelList.get(0).getTWCHeading() + "</br>");
+
+        str.append("<br>Using formula for "
+                + searchObjectDropDown.getSelectedItem()
+                + " with values as "
+                + LeewayValues.getLeeWayContent().get(
+                        searchObjectDropDown.getSelectedIndex()) + "</br>");
+
+        double leewaySpeed = LeewayValues.personInWater(surfaceDriftPanelList
+                .get(0).getLeeway());
+
+        str.append("<br>Gives a Leeway speed of " + leewaySpeed
+                + " with heading "
+                + surfaceDriftPanelList.get(0).getLeewayHeading() + "</br>");
+
         double leeway = leewaySpeed * difference;
         str.append("<br>Leeway is " + leeway + " weather points</br>");
 
-//        
-//        Ellipsoid reference = Ellipsoid.WGS84;
-//        double[] endBearing = new double[1];
-//
-//        // Object starts at LKP, with TWCheading, drifting for currentWTC
-//        // knots where will it end up
-//        Position currentPos = calculateEndingGlobalCoordinates(reference,
-//                LKP, TWCHeading, Converter.nmToMeters(currentTWC),
-//                endBearing);
-//
-//        System.out.println("Current is: " + currentPos.getLatitude());
-//        System.out.println("Current is: " + currentPos.getLongitude());
-//
-//        endBearing = new double[1];
-//        
-//        Position windPos = calculateEndingGlobalCoordinates(reference,
-//                currentPos, downWind, Converter.nmToMeters(leeway),
-//                endBearing);
-//
-//        
-//        
-//        System.out.println("Wind pos is: " + windPos.getLatitude());
-//        System.out.println("Wind pos is: " + windPos.getLongitude());
-//        
-//        
-//        Position datum = windPos;
-//        
-//        System.out.println("Final position is " + datum);
-//
-//        // RDV Direction
-//        double rdvDirection = bearing(LKP, windPos, Heading.RL);
-//
-//        System.out.println("RDV Direction: " + rdvDirection);
-//
-//        // RDV Distance
-//        double rdvDistance = range(LKP, windPos, Heading.RL);
-//
-//        System.out.println("RDV Distance: " + rdvDistance);
-//
-//        // RDV Speed
-//        double rdvSpeed = rdvDistance / timeElasped;
-//
-//        System.out.println("RDV Speed: " + rdvSpeed);
-//
-//        // Radius:
-//        double radius = x + y + 0.3 * rdvDistance * SF;
-//
-//        System.out.println("Radius is: " + radius);
-//        
-        
-        
-        
-        
-        
-        
+        //
+        // Ellipsoid reference = Ellipsoid.WGS84;
+        // double[] endBearing = new double[1];
+        //
+        // // Object starts at LKP, with TWCheading, drifting for currentWTC
+        // // knots where will it end up
+        // Position currentPos = calculateEndingGlobalCoordinates(reference,
+        // LKP, TWCHeading, Converter.nmToMeters(currentTWC),
+        // endBearing);
+        //
+        // System.out.println("Current is: " + currentPos.getLatitude());
+        // System.out.println("Current is: " + currentPos.getLongitude());
+        //
+        // endBearing = new double[1];
+        //
+        // Position windPos = calculateEndingGlobalCoordinates(reference,
+        // currentPos, downWind, Converter.nmToMeters(leeway),
+        // endBearing);
+        //
+        //
+        //
+        // System.out.println("Wind pos is: " + windPos.getLatitude());
+        // System.out.println("Wind pos is: " + windPos.getLongitude());
+        //
+        //
+        // Position datum = windPos;
+        //
+        // System.out.println("Final position is " + datum);
+        //
+        // // RDV Direction
+        // double rdvDirection = bearing(LKP, windPos, Heading.RL);
+        //
+        // System.out.println("RDV Direction: " + rdvDirection);
+        //
+        // // RDV Distance
+        // double rdvDistance = range(LKP, windPos, Heading.RL);
+        //
+        // System.out.println("RDV Distance: " + rdvDistance);
+        //
+        // // RDV Speed
+        // double rdvSpeed = rdvDistance / timeElasped;
+        //
+        // System.out.println("RDV Speed: " + rdvSpeed);
+        //
+        // // Radius:
+        // double radius = x + y + 0.3 * rdvDistance * SF;
+        //
+        // System.out.println("Radius is: " + radius);
+        //
+
         str.append("</html>");
 
         calculationsText.setText(str.toString());
-        
-        
-        
+
     }
 
     private void inputPanel() {
@@ -342,9 +349,7 @@ public class SARInput extends JDialog implements ActionListener {
 
         SpinnerDateModel lkpTimeModel = new SpinnerDateModel(LKPDate.toDate(),
                 null, null, Calendar.HOUR_OF_DAY);
-        
-        
-        
+
         lkpSpinner = new JSpinner(lkpTimeModel);
 
         lkpSpinner.setLocation(278, 22);
@@ -354,6 +359,11 @@ public class SARInput extends JDialog implements ActionListener {
         lkpSpinner.setEditor(dateEditorLKP);
 
         lkpPanel.add(lkpSpinner);
+
+        ((DefaultEditor) lkpSpinner.getEditor()).getTextField().getDocument()
+                .addDocumentListener(this);
+        ((DefaultEditor) lkpSpinner.getEditor()).getTextField().getDocument()
+                .putProperty("name", "lkpSpinner");
 
         JLabel lblLastKnownPosition = new JLabel("Last Known Position:");
         lblLastKnownPosition.setBounds(13, 50, 147, 14);
@@ -384,7 +394,7 @@ public class SARInput extends JDialog implements ActionListener {
         lkpThirdLat.setBounds(210, 47, 30, 20);
         lkpPanel.add(lkpThirdLat);
 
-        JComboBox comboLKPLat = new JComboBox();
+        comboLKPLat = new JComboBox();
         comboLKPLat
                 .setModel(new DefaultComboBoxModel(new String[] { "N", "S" }));
         comboLKPLat.setBounds(240, 47, 30, 20);
@@ -402,7 +412,7 @@ public class SARInput extends JDialog implements ActionListener {
         lkpSecondLon.setBounds(298, 47, 20, 20);
         lkpPanel.add(lkpSecondLon);
 
-        JComboBox comboLKPLon = new JComboBox();
+        comboLKPLon = new JComboBox();
         comboLKPLon
                 .setModel(new DefaultComboBoxModel(new String[] { "E", "W" }));
         comboLKPLon.setBounds(348, 47, 30, 20);
@@ -445,51 +455,51 @@ public class SARInput extends JDialog implements ActionListener {
         commenceStartSpinner.setEditor(dateEditorCommenceSearchStart);
 
         commenceStartPanel.add(commenceStartSpinner);
-        
+
         JLabel lblCommenceStartPosition = new JLabel("Commence Start Position:");
         lblCommenceStartPosition.setBounds(13, 56, 147, 14);
         commenceStartPanel.add(lblCommenceStartPosition);
-        
+
         textField = new JTextField();
         textField.setText("56");
         textField.setColumns(10);
         textField.setBounds(170, 53, 20, 20);
         commenceStartPanel.add(textField);
-        
+
         textField_1 = new JTextField();
         textField_1.setText("21");
         textField_1.setColumns(10);
         textField_1.setBounds(190, 53, 20, 20);
         commenceStartPanel.add(textField_1);
-        
+
         textField_2 = new JTextField();
         textField_2.setText("639");
         textField_2.setColumns(10);
         textField_2.setBounds(210, 53, 30, 20);
         commenceStartPanel.add(textField_2);
-        
+
         JComboBox comboBox = new JComboBox();
         comboBox.setBounds(240, 53, 30, 20);
         commenceStartPanel.add(comboBox);
-        
+
         textField_3 = new JTextField();
         textField_3.setText("13");
         textField_3.setColumns(10);
         textField_3.setBounds(278, 53, 20, 20);
         commenceStartPanel.add(textField_3);
-        
+
         textField_4 = new JTextField();
         textField_4.setText("67");
         textField_4.setColumns(10);
         textField_4.setBounds(298, 53, 20, 20);
         commenceStartPanel.add(textField_4);
-        
+
         textField_5 = new JTextField();
         textField_5.setText("070");
         textField_5.setColumns(10);
         textField_5.setBounds(318, 53, 30, 20);
         commenceStartPanel.add(textField_5);
-        
+
         JComboBox comboBox_1 = new JComboBox();
         comboBox_1.setBounds(348, 53, 30, 20);
         commenceStartPanel.add(comboBox_1);
@@ -529,7 +539,7 @@ public class SARInput extends JDialog implements ActionListener {
         btnAddPoint = new JButton("Add point");
         btnAddPoint.setBounds(265, 22, 89, 23);
         surfaceDriftPanelContainer.add(btnAddPoint);
-        
+
         btnNewButton = new JButton("Remove Last");
         btnNewButton.setEnabled(false);
         btnNewButton.setBounds(364, 22, 120, 23);
@@ -854,7 +864,7 @@ public class SARInput extends JDialog implements ActionListener {
 
     @SuppressWarnings("deprecation")
     private void updateTimeZone() {
-        
+
         System.out.println("Updated timezone");
 
         String selectedTimeZone = (String) timeZoneDropdown.getSelectedItem();
@@ -862,34 +872,30 @@ public class SARInput extends JDialog implements ActionListener {
         timeZone = DateTimeZone.forID(selectedTimeZone);
 
         System.out.println("LKP time is: " + LKPDate);
-        
+
         System.out.println("To date version of lkp is: " + LKPDate.toDate());
-        
-        //Updated internal time
+
+        // Updated internal time
         LKPDate = LKPDate.toDateTime(timeZone);
         CSSDate = CSSDate.toDateTime(timeZone);
 
-        
-        //Update spinners
-        
+        // Update spinners
+
         Date lkpTempDate = new Date();
         lkpTempDate.setHours(LKPDate.getHourOfDay());
-//        lkpTempDate.setMinutes(LKPDate.getMinuteOfDay());
-        
+        // lkpTempDate.setMinutes(LKPDate.getMinuteOfDay());
+
         System.out.println(LKPDate.getHourOfDay());
         System.out.println(LKPDate.getMinuteOfDay());
-        
-        
-        
+
         lkpSpinner.getModel().setValue(lkpTempDate);
-        
+
         Date CSSTempDate = new Date();
         CSSTempDate.setHours(CSSDate.getHourOfDay());
-//        CSSTempDate.setMinutes(CSSDate.getMinuteOfDay());
-        
+        // CSSTempDate.setMinutes(CSSDate.getMinuteOfDay());
+
         commenceStartSpinner.getModel().setValue(lkpTempDate);
-        
-        //What about datepickers?
+
     }
 
     private void inititateSarType() {
@@ -914,14 +920,13 @@ public class SARInput extends JDialog implements ActionListener {
             break;
         }
     }
-    
-    
-    private void validateInputAndInititate(){
+
+    private void validateInputAndInititate() {
         SAR_TYPE type = voctManager.getSarType();
-        
+
         switch (type) {
         case RAPID_RESPONSE:
-            voctManager.setSarType(SAR_TYPE.RAPID_RESPONSE);
+            validateRapidResponse();
             break;
         case DATUM_POINT:
             voctManager.setSarType(SAR_TYPE.DATUM_POINT);
@@ -936,8 +941,103 @@ public class SARInput extends JDialog implements ActionListener {
             break;
         }
     }
-    
-    private void validateRapidResponse(){
+
+    private void validateRapidResponse() {
+
+        //Get LKP values
+        double rapidResponseLat = getRapidResponseLat();
+        double rapidResponseLon = getRapidResponseLon();
+        
+        Position rapidResponsePosition;
+        
+        if (rapidResponseLat != -9999 && rapidResponseLon != -9999){
+            rapidResponsePosition = Position.create(rapidResponseLat, rapidResponseLon);
+        }
+        
+        //Time and date will be automatically sorted
+        
+        
         
     }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        String name = (String) e.getDocument().getProperty("name");
+
+        // Departure
+        if ("lkpSpinner".equals(name)) {
+            JSpinner.DateEditor editor = (JSpinner.DateEditor) lkpSpinner
+                    .getEditor();
+            // System.out.println("DepartureTime was changed to "
+            // + departureSpinner.getValue());
+            SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+            Date testDate = null;
+            try {
+                testDate = df.parse(editor.getTextField().getText());
+
+                LKPDate = LKPDate.withHourOfDay(testDate.getHours());
+                LKPDate = LKPDate.withMinuteOfHour(testDate.getMinutes());
+            } catch (ParseException e1) {
+                // Ignore
+            }
+
+            // departurePicker
+
+            // System.out.println("DepartureTime text was changed to "
+            // + editor.getTextField().getText());
+        }
+
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+        // TODO Auto-generated method stub
+
+    }
+
+    private double getRapidResponseLat() {
+        String LKPLatitude = lkpFirstLat.getText() + " "
+                + lkpSecondLat.getText() + "." + lkpThirdLat.getText()
+                + comboLKPLat.getSelectedItem();
+
+        try {
+            return parseLat(LKPLatitude);
+        } catch (Exception e1) {
+            // Invalid lon, we do nothing, focus lost will handle it
+        }
+
+        return -9999;
+
+    }
+
+    private double getRapidResponseLon() {
+        String LKPLongitude = lkpFirstLon.getText() + " "
+                + lkpSecondLon.getText() + "." + lkpThirdLon.getText()
+                + comboLKPLon.getSelectedItem();
+
+        try {
+            return parseLon(LKPLongitude);
+        } catch (Exception e1) {
+            // Invalid lon, we do nothing, focus lost will handle it
+        }
+
+        return -9999;
+
+    }
+
+    private static double parseLon(String lonStr) throws FormatException {
+        return ParseUtils.parseLongitude(lonStr);
+    }
+
+    private static double parseLat(String latStr) throws FormatException {
+        return ParseUtils.parseLatitude(latStr);
+    }
+
 }
