@@ -69,8 +69,6 @@ public class DragMouseMode extends AbstractCoordMouseMode {
     volatile boolean layerMouseDrag;
     volatile boolean mouseDragged;
 
-    volatile private long timeToLayerMouseDrag;
-
     private BufferedImage onScreenMap;
 
     /**
@@ -231,7 +229,6 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                 int y = (int) pnt.getY();
 
                 if (!isPanning) {
-                    timeToLayerMouseDrag = System.currentTimeMillis();
  
                     isPanning = true;
                     
@@ -243,10 +240,11 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                     oX = x;
                     oY = y;
                     
-                    EPDShip.getMainFrame().getChartPanel().getMap()
-                    .setVisible(false);
+                    EPDShip.getMainFrame().getChartPanel().getMap().setVisible(false);
 
                 } else {
+                    System.out.println("getMap():"+ EPDShip.getMainFrame().getChartPanel().getMap().getName());
+                    System.out.println("MB:"+mb.getName());
 
                     final int startX = mb.getWidth();
                     final int startY = mb.getHeight();
@@ -265,7 +263,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                         renderImage.getGraphics().drawImage(onScreenMap,x-oX,y-oY,null);
 
 
-                        mb.getGraphics(true).drawImage(
+                        EPDShip.getMainFrame().getChartPanel().getGraphics().drawImage(
                                 renderImage, 0, 0, null);
                     } catch (RasterFormatException e) {
                         //was out of bounds, sorry
@@ -295,6 +293,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
             center.setLocation(center.getX() - x + oX, center.getY() - y + oY);
 
             //this will trigger "projection changed" in SimpleOffScreenMapRenderer
+            //which listens to mb
             mb.setCenter(proj.inverse(center));
 
             isPanning = false;
