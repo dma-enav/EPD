@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.BufferedLayerMapBean;
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
-import com.bbn.openmap.MapBean;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.proj.Proj;
@@ -135,12 +134,6 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
             wmsLayer = new WMSLayer(mapSettings.getWmsQuery());
             mapHandler.add(wmsLayer);            
         }
-        
-
-        
-        // Create a MapBean, and add it to the MapHandler.
-        map = new BufferedLayerMapBean();
-        map.setDoubleBuffered(true);
     
         EncLayerFactory encLayerFactory2 = new EncLayerFactory(mapSettings);
 
@@ -289,15 +282,18 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         
         dragMapHandler.add(new LayerHandler());
         if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
+            
 
             dragMapHandler.add(dragMap);
             WMSLayer wmsDragLayer = new WMSLayer(mapSettings.getWmsQuery());
             dragMapHandler.add(wmsDragLayer);
-            
-            // create an offscreen renderer
-            
-        }        
-        dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
+            dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
+        } else {
+            System.out.println("dummy");
+            //create dummy map dragging
+            dragMapRenderer = new SimpleOffScreenMapRenderer(map,dragMap,true);
+        }
+        
         dragMapRenderer.start();
 
 
