@@ -336,13 +336,12 @@ public class ChartPanel extends CommonChartPanel {
 
         add(map);
 
-        ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
         //TODO: CLEANUP
         //dragMap
         dragMap = new BufferedLayerMapBean();
         dragMap.setDoubleBuffered(true);
-        dragMap.setCenter(mapSettings.getCenter());
-        dragMap.setScale(mapSettings.getScale());
+        dragMap.setCenter(center);
+        dragMap.setScale(scale);
         dragMapHandler.add(new LayerHandler());
         //if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
 
@@ -431,15 +430,18 @@ public class ChartPanel extends CommonChartPanel {
         // Add layer handler to map handler
         mapHandler.add(layerHandler);
 
-        // Add WMS Layer
-        wmsLayer = new WMSLayer(EPDShore.getSettings().getGuiSettings().getWmsQuery());
-
-        mapHandler.add(wmsLayer);
 
         // Create the general layer
         generalLayer = new GeneralLayer();
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
+        
+        //Add WMS Layer
+        if (EPDShore.getSettings().getGuiSettings().getWmsQuery().length() > 12 && EPDShore.getSettings().getGuiSettings().useWMS()) {
+            wmsLayer = new WMSLayer(EPDShore.getSettings().getGuiSettings().getWmsQuery());
+            wmsLayer.setVisible(true);
+            mapHandler.add(wmsLayer);    
+        }
 
         // Add MSI Layer
         msiLayer = new MsiLayer();

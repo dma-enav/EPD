@@ -28,6 +28,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.jdesktop.swingx.painter.PainterGlasspane;
+
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.PanMouseMode;
 import com.bbn.openmap.event.ProjectionEvent;
@@ -66,6 +68,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
     private float opaqueness;
     private boolean leaveShadow;
     private boolean useCursor;
+    volatile boolean mouseDragged;
     private JPanel glassFrame;
     boolean layerMouseDrag;
     Cursor dragCursorMouseClicked;
@@ -280,9 +283,11 @@ public class DragMouseMode extends AbstractCoordMouseMode {
         if (arg0.getSource() instanceof MapBean) {
             super.mouseDragged(arg0);
 
-            // if(!mouseDragged) {
-            layerMouseDrag = mouseSupport.fireMapMouseDragged(arg0);
-            // }
+            if(!mouseDragged) {
+                layerMouseDrag = mouseSupport.fireMapMouseDragged(arg0);
+                
+            }
+            
             if (!layerMouseDrag) {
 
                 MapBean mb = (MapBean) arg0.getSource();
@@ -306,10 +311,14 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                     oX = x;
                     oY = y;
                
-                    chartPanel.getMap().setVisible(false);
- 
-                } else {
+                    chartPanel.getBgLayer().setVisible(false);
                     
+                    jMapFrame.getGlassPane().setVisible(false);
+                    jMapFrame.getGlassPanel().setVisible(false);
+                    
+                    
+ 
+                } else {           
                     final int startX = chartPanel.getWidth();
                     final int startY = chartPanel.getHeight();
 
@@ -326,8 +335,9 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                         //renderImage.getGraphics().drawImage(offScreenMap,0,0,null);                        
                         renderImage.getGraphics().drawImage(onScreenMap,x-oX,y-oY,null);
 
-                        jMapFrame.getGlassPane().getGraphics().drawImage(
-                                renderImage, 0, 0, null);
+                        
+                        
+                        
 
                     } catch (RasterFormatException e) {
                         //was out of bounds, sorry
@@ -402,6 +412,10 @@ public class DragMouseMode extends AbstractCoordMouseMode {
             isPanning = false;
 
             chartPanel.getMap().setVisible(true);
+            chartPanel.getBgLayer().setVisible(true);
+            jMapFrame.getGlassPane().setVisible(true);
+            jMapFrame.getGlassPanel().setVisible(true);
+            mouseDragged = false;
         }
         super.mouseReleased(arg0);
         glassFrame.setCursor(dragCursor);
