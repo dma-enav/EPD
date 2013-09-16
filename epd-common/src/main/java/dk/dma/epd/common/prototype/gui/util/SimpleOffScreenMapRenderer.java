@@ -22,10 +22,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -41,7 +39,7 @@ import com.bbn.openmap.proj.Projection;
 
 /**
  * @author jtj-sfs
- *
+ * Simple "Off Screen" renderer of maps using jframe
  */
 public class SimpleOffScreenMapRenderer extends Thread implements
         ProjectionListener, Runnable {
@@ -54,7 +52,8 @@ public class SimpleOffScreenMapRenderer extends Thread implements
     private final Object imgLock = new Object();
     private BufferedImage img;
     private volatile BufferedImage outImg;
-    private boolean dummy = false;
+    private volatile boolean dummy = false;
+    
     public BufferedImage getImg() {
         return img;
     }
@@ -68,9 +67,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
 
     private Logger LOG;
 
-    public SimpleOffScreenMapRenderer() {
-        dummy = true;
-    }
+    
     
     public SimpleOffScreenMapRenderer(MapBean sourceBean, MapBean targetBean,
             int sizeFactor) {
@@ -104,6 +101,23 @@ public class SimpleOffScreenMapRenderer extends Thread implements
         
         updateTargetMap(this.sourceBean.getProjection());
 
+    }
+    
+    /**
+     * 
+     */
+    public SimpleOffScreenMapRenderer(MapBean sourceBean, MapBean targetBean, boolean dummy) {
+        super();
+        this.dummy = dummy;
+        this.sourceBean = sourceBean;
+        sourceBean.addProjectionListener(this);
+        
+        int w = 256;
+        int h = 256;
+        
+        img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        updateTargetMap(this.sourceBean.getProjection());
+        
     }
 
     private void drawGrid(BufferedImage image) {
@@ -168,7 +182,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
         return outImg;
     }
     
-    public void setOutImg(BufferedImage i) {
+    private void setOutImg(BufferedImage i) {
         outImg = i;
         setImg(new BufferedImage(i.getWidth(), i.getHeight(), BufferedImage.TYPE_INT_RGB));
     }
@@ -205,16 +219,23 @@ public class SimpleOffScreenMapRenderer extends Thread implements
     }
 
     public void updateTargetMap(final Projection p) {
+        final int w = (int) p.getWidth()*3;
+        final int h = (int) p.getHeight()*3;
         
+        if (isDummy()) {
+            if (img.getWidth() != w || img.getHeight() != h) {
+                setImageSize(w,h);
+            }
+            return;
+        }
+            
+            
         //might not be necessary
         SwingUtilities.invokeLater(new Runnable() {
             
             @Override
             public void run() {
-
                 frame.setVisible(true);
-                int w = (int) p.getWidth()*3;
-                int h = (int) p.getHeight()*3;
 
                 float scaleDiff = targetBean.getScale() / p.getScale();
                 
@@ -234,21 +255,27 @@ public class SimpleOffScreenMapRenderer extends Thread implements
                 targetBean.setSize(w, h);
 
                 if (img.getWidth() != w || img.getHeight() != h) {
-                    synchronized (imgLock) {
-                        img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-                        outImg = new BufferedImage(w, h,
-                                BufferedImage.TYPE_INT_RGB);
-                    }
+                    setImageSize(w,h);
                 }
-                
+
                 frame.repaint();
                 updateOutImg(); //background paint
                 frame.setVisible(false);
-
-                
             }
         });
+
     }
-    
+
+
+    protected void setImageSize(int w, int h) {        
+        synchronized (imgLock) {
+            img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+            outImg = new BufferedImage(w, h,
+                    BufferedImage.TYPE_INT_RGB);
+        }
+    }
 
 }
+    
+
+

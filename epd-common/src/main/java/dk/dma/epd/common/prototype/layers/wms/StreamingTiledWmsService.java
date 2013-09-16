@@ -94,10 +94,21 @@ public class StreamingTiledWmsService extends TiledWMSService implements
             }
 
             if (cache.containsKey(getID(job))) {
-                // LOG.debug("CACHE HIT!");
+                clearCache();
             } else {
                 asyncDownload(job);
+                
             }
+        }
+    }
+    
+    
+
+    private void clearCache() {
+        if (cache.keySet().size() > 128) {
+            LOG.debug("pruning cache (memory concern)");
+            cache.clear();
+            tmpCache.clear();
         }
     }
 
@@ -114,7 +125,7 @@ public class StreamingTiledWmsService extends TiledWMSService implements
                 Collection<SingleWMSService> workers = getTiles(job);
                 OMGraphicList result = new OMGraphicList();
 
-                ExecutorService pool = Executors.newFixedThreadPool(4);
+                ExecutorService pool = Executors.newFixedThreadPool(Math.max(workers.size(),4));
                 ExecutorCompletionService<OMGraphicList> completionService = new ExecutorCompletionService<>(
                         pool);
 
@@ -143,9 +154,9 @@ public class StreamingTiledWmsService extends TiledWMSService implements
                     tmpCache.remove(getID(job));
                     cache.put(getID(job), result);
                 } else {
+                    LOG.debug("A Tile failed to download, resubmitting job");
                     queue(job);
                 }
-
             }
         });
 
@@ -179,5 +190,4 @@ public class StreamingTiledWmsService extends TiledWMSService implements
     public String getID(Projection p) {
         return getBbox(p)+Math.round(p.getScale());
     }
-
 }
