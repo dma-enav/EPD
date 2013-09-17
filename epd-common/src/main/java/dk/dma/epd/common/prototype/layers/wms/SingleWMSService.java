@@ -78,7 +78,7 @@ public final class SingleWMSService extends AbstractWMSService implements ImageS
                 Graphics g = bi.createGraphics();
                 g.drawImage(noImage, 0, 0, wmsWidth, wmsHeight, null);
                 ImageIcon noImageIcon = new ImageIcon(bi);
-                wmsList.add(new CenterRaster(this.wmsullat, this.wmsullon, this.wmsWidth, this.wmsHeight, noImageIcon));
+                wmsList.add(new CenterRaster(getProjection().getCenter().getY(),getProjection().getCenter().getX(), this.wmsWidth, this.wmsHeight, noImageIcon));
                 
             }else{
                 status.markContactSuccess();
