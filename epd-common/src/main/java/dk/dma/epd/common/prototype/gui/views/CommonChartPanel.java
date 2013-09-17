@@ -57,6 +57,10 @@ public abstract class CommonChartPanel extends OMComponentPanel {
     public Layer getEncLayer() {
         return encLayer;
     }
+    
+    public Layer getWmsLayer() {
+        return wmsLayer;
+    }
 
     public void setEncLayer(Layer encLayer) {
         this.encLayer = encLayer;
@@ -82,6 +86,17 @@ public abstract class CommonChartPanel extends OMComponentPanel {
     
     public abstract Layer getBgLayer();
     
+    /**
+     * Initiate dragmap with mapsettings
+     */
+    protected abstract void initDragMap();
+    
+    /**
+     * @return the dragMap
+     */
+    public final BufferedLayerMapBean getDragMap() {
+        return dragMap;
+    }
 
 
 }
