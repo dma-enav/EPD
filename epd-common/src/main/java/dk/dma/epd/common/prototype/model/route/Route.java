@@ -1000,7 +1000,7 @@ public class Route implements Serializable {
                 }
 
                 // Leg
-                if (cloudWaypoint.getRouteLeg() != null) {
+                if (cloudWaypoint.getRouteLeg() != null && waypoint.getOutLeg() != null) {
 
                     // SOG
                     if (cloudWaypoint.getRouteLeg().getSpeed() != null) {
