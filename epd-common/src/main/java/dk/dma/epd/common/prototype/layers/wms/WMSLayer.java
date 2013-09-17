@@ -80,16 +80,7 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
         list.clear();
         list.addAll(testList);
         list.addAll(tiles);
-                
-        // this.list.addAll(list);
-
-        if (this.isVisible()) {
-            doPrepare();
-        } else {
-            chartPanel.getBgLayer().setVisible(true);
-        }
-
-        
+        doPrepare();            
     }
 
     @Override
@@ -110,7 +101,7 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     }
 
     @Override
-    public synchronized void projectionChanged(ProjectionEvent e) {
+    public void projectionChanged(ProjectionEvent e) {
         Projection proj = e.getProjection().makeClone();
 
         if (proj.getScale() != lastScale) {
@@ -148,7 +139,6 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
                 height = proj.getHeight();
 
                 if (width > 0 && height > 0 && proj.getScale() <= 3428460) {
-                    this.setVisible(true);
                     OMGraphicList result = wmsService.getWmsList(proj);
                     drawWMS(result);
                 }

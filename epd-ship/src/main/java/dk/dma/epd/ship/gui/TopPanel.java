@@ -66,6 +66,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
     private final ToggleButtonLabel aisBtn = new ToggleButtonLabel(toolbarIcon("images/toolbar/board-game.png"));
     // private ToggleButtonLabel riskBtn = new ToggleButtonLabel("Risk");
     private final ToggleButtonLabel encBtn = new ToggleButtonLabel(toolbarIcon("images/toolbar/map-medium.png"));
+    private final ToggleButtonLabel wmsBtn = new ToggleButtonLabel(toolbarIcon("images/toolbar/map-medium.png"));
     private final ToggleButtonLabel newRouteBtn = new ToggleButtonLabel(toolbarIcon("images/toolbar/marker--plus.png"));
     private final ToggleButtonLabel toggleSafeHaven = new ToggleButtonLabel(
             toolbarIcon("images/toolbar/document-resize-actual.png"));
@@ -125,6 +126,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         aisToggleName.setToolTipText("Show/hide AIS Name Labels");
         // riskBtn.setToolTipText("Show/hide risk info");
         encBtn.setToolTipText("Show/hide ENC");
+        
+        wmsBtn.setToolTipText("Show/hide WMS seacharts");
         // tglbtnMsiFilter
         // .setToolTipText("Enable/disable MSI message filtering based on position and routes");
 
@@ -150,6 +153,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         add(aisBtn);
         add(aisToggleName);
         add(encBtn);
+        add(wmsBtn);
         add(toggleSafeHaven);
         // add(tglbtnMsiFilter);
         // if (showRiskAndNogo)
@@ -191,6 +195,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         aisBtn.addMouseListener(this);
         // riskBtn.addMouseListener(this);
         encBtn.addMouseListener(this);
+        wmsBtn.addMouseListener(this);
         aisToggleName.addMouseListener(this);
         // tglbtnMsiFilter.addMouseListener(this);
         // lockFrames.addMouseListener(this);
@@ -202,6 +207,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         
         navigationMouseMode.addMouseListener(this);
         dragMouseMode.addMouseListener(this);
+
         
         
         
@@ -320,6 +326,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         // msiDialog.setVisible(true);
         // }
         // } else
+        
         if (e.getSource() == autoFollowBtn) {
             EPDShip.getSettings().getNavSettings().setAutoFollow(autoFollowBtn.isSelected());
             if (autoFollowBtn.isSelected()) {
@@ -345,6 +352,10 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
             EPDShip.getSettings().getMapSettings().setEncVisible(encBtn.isSelected());
             mainFrame.getChartPanel().encVisible(encBtn.isSelected());
             menuBar.getEncLayer().setSelected(EPDShip.getSettings().getMapSettings().isEncVisible());
+           
+        } else if (e.getSource() == wmsBtn) {
+            mainFrame.getChartPanel().getWmsLayer().setVisible(wmsBtn.isSelected());
+            System.out.println("WMS BUTTON IS SELECTED: "+wmsBtn.isSelected());
         } else if (e.getSource() == routeManagerBtn) {
             RouteManagerDialog routeManagerDialog = new RouteManagerDialog(mainFrame);
             routeManagerDialog.setVisible(true);

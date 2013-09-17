@@ -289,7 +289,6 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
             dragMapHandler.add(wmsDragLayer);
             dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
         } else {
-            System.out.println("dummy");
             //create dummy map dragging
             dragMapRenderer = new SimpleOffScreenMapRenderer(map,dragMap,true);
         }
@@ -331,14 +330,33 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         getMap().addMouseWheelListener(this);
 
     }
+    
+    
+
+    protected void initDragMap() {
+        EPDMapSettings mapSettings = EPDShip.getSettings().getMapSettings();
+        //TODO: CLEANUP
+        //dragMap
+        dragMap = new BufferedLayerMapBean();
+        dragMap.setDoubleBuffered(true);
+        dragMap.setCenter(mapSettings.getCenter());
+        dragMap.setScale(mapSettings.getScale());
+        
+        dragMapHandler.add(new LayerHandler());
+        if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
+            dragMapHandler.add(dragMap);
+            WMSLayer wmsDragLayer = new WMSLayer(mapSettings.getWmsQuery());
+            dragMapHandler.add(wmsDragLayer);
+            dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
+        } else {
+            //create dummy map dragging
+            dragMapRenderer = new SimpleOffScreenMapRenderer(map,dragMap,true);
+        }
+        dragMapRenderer.start();
+    }    
 
 
-    /**
-     * @return the dragMap
-     */
-    public BufferedLayerMapBean getDragMap() {
-        return dragMap;
-    }
+
 
     public void saveSettings() {
         EPDMapSettings mapSettings = EPDShip.getSettings().getMapSettings();

@@ -243,8 +243,6 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                     EPDShip.getMainFrame().getChartPanel().getMap().setVisible(false);
 
                 } else {
-                    System.out.println("getMap():"+ EPDShip.getMainFrame().getChartPanel().getMap().getName());
-                    System.out.println("MB:"+mb.getName());
 
                     final int startX = mb.getWidth();
                     final int startY = mb.getHeight();
