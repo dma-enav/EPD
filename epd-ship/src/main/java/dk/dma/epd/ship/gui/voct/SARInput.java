@@ -142,15 +142,18 @@ public class SARInput extends JDialog implements ActionListener,
     private List<SurfaceDriftPanel> surfaceDriftPanelList = new ArrayList<SurfaceDriftPanel>();
     private JLabel calculationsText = new JLabel();
     private JButton btnNewButton;
-    private JTextField textField;
-    private JTextField textField_1;
-    private JTextField textField_2;
-    private JTextField textField_3;
-    private JTextField textField_4;
-    private JTextField textField_5;
+    private JTextField cssFirstLat;
+    private JTextField cssSecondLat;
+    private JTextField cssThirdLat;
+    private JTextField cssFirstLon;
+    private JTextField cssSecondLon;
+    private JTextField cssThirdLon;
 
     private JComboBox<String> comboLKPLat;
     private JComboBox<String> comboLKPLon;
+
+    private JComboBox<String> comboCSSLon;
+    private JComboBox<String> comboCSSLat;
 
     /**
      * 
@@ -460,49 +463,52 @@ public class SARInput extends JDialog implements ActionListener,
         lblCommenceStartPosition.setBounds(13, 56, 147, 14);
         commenceStartPanel.add(lblCommenceStartPosition);
 
-        textField = new JTextField();
-        textField.setText("56");
-        textField.setColumns(10);
-        textField.setBounds(170, 53, 20, 20);
-        commenceStartPanel.add(textField);
+        cssFirstLat = new JTextField();
+        cssFirstLat.setText("56");
+        cssFirstLat.setColumns(10);
+        cssFirstLat.setBounds(170, 53, 20, 20);
+        commenceStartPanel.add(cssFirstLat);
 
-        textField_1 = new JTextField();
-        textField_1.setText("21");
-        textField_1.setColumns(10);
-        textField_1.setBounds(190, 53, 20, 20);
-        commenceStartPanel.add(textField_1);
+        cssSecondLat = new JTextField();
+        cssSecondLat.setText("21");
+        cssSecondLat.setColumns(10);
+        cssSecondLat.setBounds(190, 53, 20, 20);
+        commenceStartPanel.add(cssSecondLat);
 
-        textField_2 = new JTextField();
-        textField_2.setText("639");
-        textField_2.setColumns(10);
-        textField_2.setBounds(210, 53, 30, 20);
-        commenceStartPanel.add(textField_2);
+        cssThirdLat = new JTextField();
+        cssThirdLat.setText("639");
+        cssThirdLat.setColumns(10);
+        cssThirdLat.setBounds(210, 53, 30, 20);
+        commenceStartPanel.add(cssThirdLat);
 
-        JComboBox comboBox = new JComboBox();
-        comboBox.setBounds(240, 53, 30, 20);
-        commenceStartPanel.add(comboBox);
+        comboCSSLat = new JComboBox();
+        comboCSSLat
+                .setModel(new DefaultComboBoxModel(new String[] { "N", "S" }));
+        comboCSSLat.setBounds(240, 53, 30, 20);
+        commenceStartPanel.add(comboCSSLat);
 
-        textField_3 = new JTextField();
-        textField_3.setText("13");
-        textField_3.setColumns(10);
-        textField_3.setBounds(278, 53, 20, 20);
-        commenceStartPanel.add(textField_3);
+        cssFirstLon = new JTextField();
+        cssFirstLon.setText("13");
+        cssFirstLon.setColumns(10);
+        cssFirstLon.setBounds(278, 53, 20, 20);
+        commenceStartPanel.add(cssFirstLon);
 
-        textField_4 = new JTextField();
-        textField_4.setText("67");
-        textField_4.setColumns(10);
-        textField_4.setBounds(298, 53, 20, 20);
-        commenceStartPanel.add(textField_4);
+        cssSecondLon = new JTextField();
+        cssSecondLon.setText("67");
+        cssSecondLon.setColumns(10);
+        cssSecondLon.setBounds(298, 53, 20, 20);
+        commenceStartPanel.add(cssSecondLon);
 
-        textField_5 = new JTextField();
-        textField_5.setText("070");
-        textField_5.setColumns(10);
-        textField_5.setBounds(318, 53, 30, 20);
-        commenceStartPanel.add(textField_5);
+        cssThirdLon = new JTextField();
+        cssThirdLon.setText("070");
+        cssThirdLon.setColumns(10);
+        cssThirdLon.setBounds(318, 53, 30, 20);
+        commenceStartPanel.add(cssThirdLon);
 
-        JComboBox comboBox_1 = new JComboBox();
-        comboBox_1.setBounds(348, 53, 30, 20);
-        commenceStartPanel.add(comboBox_1);
+        comboCSSLon = new JComboBox();
+        comboCSSLon.setModel(new DefaultComboBoxModel(new String[] {"E", "W"}));
+        comboCSSLon.setBounds(348, 53, 30, 20);
+        commenceStartPanel.add(comboCSSLon);
 
         surfaceDriftPanelContainer = new JPanel();
         scrollPaneSurfaceDrift = new JScrollPane(surfaceDriftPanelContainer);
@@ -738,14 +744,21 @@ public class SARInput extends JDialog implements ActionListener,
             if (currentCard == INPUTSARRAPIDRESPONSE) {
                 updateValues();
                 CardLayout cl = (CardLayout) (masterPanel.getLayout());
-                btnBack.setEnabled(true);
-                nextButton.setText("Finish");
 
-                generateRapidResponseCalculations();
+                if (validateInputAndInititate()){
+                    btnBack.setEnabled(true);
+                    nextButton.setText("Finish");
 
-                // The type select determines which panel we show
-                cl.show(masterPanel, CALCULATIONSPANELRAPIDRESPONSE);
-                currentCard = CALCULATIONSPANELRAPIDRESPONSE;
+                    // The type select determines which panel we show
+                    cl.show(masterPanel, CALCULATIONSPANELRAPIDRESPONSE);
+                    currentCard = CALCULATIONSPANELRAPIDRESPONSE;
+                }else{
+                    //do nothing, missing data
+                }
+
+                // generateRapidResponseCalculations();
+
+
                 return;
             }
 
@@ -921,43 +934,71 @@ public class SARInput extends JDialog implements ActionListener,
         }
     }
 
-    private void validateInputAndInititate() {
+    private boolean validateInputAndInititate() {
         SAR_TYPE type = voctManager.getSarType();
 
+        System.out.println("Type is" + type);
+        
         switch (type) {
         case RAPID_RESPONSE:
-            validateRapidResponse();
-            break;
+            return validateRapidResponse();
         case DATUM_POINT:
             voctManager.setSarType(SAR_TYPE.DATUM_POINT);
-            break;
+            return false;
         case DATUM_LINE:
             voctManager.setSarType(SAR_TYPE.DATUM_LINE);
-            break;
+            return false;
         case BACKTRACK:
             voctManager.setSarType(SAR_TYPE.BACKTRACK);
-            break;
+            return false;
         case NONE:
-            break;
+            return false;
         }
+
+        return false;
     }
 
-    private void validateRapidResponse() {
+    private boolean validateRapidResponse() {
 
-        //Get LKP values
-        double rapidResponseLat = getRapidResponseLat();
-        double rapidResponseLon = getRapidResponseLon();
+        System.out.println("Validating");
         
+        // Get LKP values
+        double rapidResponseLKPLat = getRapidResponseLKPLat();
+        double rapidResponseLKPLon = getRapidResponseLKPLon();
+
         Position rapidResponsePosition;
-        
-        if (rapidResponseLat != -9999 && rapidResponseLon != -9999){
-            rapidResponsePosition = Position.create(rapidResponseLat, rapidResponseLon);
+
+        if (rapidResponseLKPLat != -9999 && rapidResponseLKPLon != -9999) {
+            rapidResponsePosition = Position.create(rapidResponseLKPLat,
+                    rapidResponseLKPLon);
+        } else {
+            // msgbox
+            System.out.println("Failed lat");
+            return false;
         }
-        
-        //Time and date will be automatically sorted
-        
-        
-        
+
+        // Get CSS values
+        double commenceSearchStartLat = getRapidResponseCSSLat();
+        double commenceSearchStartLon = getRapidResponseCSSLon();
+
+        Position commenceStartPosition;
+
+        if (commenceSearchStartLat != -9999 && commenceSearchStartLon != -9999) {
+            commenceStartPosition = Position.create(commenceSearchStartLat,
+                    commenceSearchStartLon);
+        } else {
+            System.out.println("Failed lon");
+            System.out.println(commenceSearchStartLat);
+            System.out.println(commenceSearchStartLon);
+            // msgbox
+            return false;
+        }
+
+        System.out.println("All validated correctly, we got positions");
+
+        // Time and date will be automatically sorted
+
+        return true;
     }
 
     @SuppressWarnings("deprecation")
@@ -1002,10 +1043,10 @@ public class SARInput extends JDialog implements ActionListener,
 
     }
 
-    private double getRapidResponseLat() {
-        String LKPLatitude = lkpFirstLat.getText() + " "
-                + lkpSecondLat.getText() + "." + lkpThirdLat.getText()
-                + comboLKPLat.getSelectedItem();
+    private double getRapidResponseCSSLat() {
+        String LKPLatitude = cssFirstLat.getText() + " "
+                + cssSecondLat.getText() + "." + cssThirdLat.getText()
+                + comboCSSLat.getSelectedItem();
 
         try {
             return parseLat(LKPLatitude);
@@ -1017,15 +1058,52 @@ public class SARInput extends JDialog implements ActionListener,
 
     }
 
-    private double getRapidResponseLon() {
-        String LKPLongitude = lkpFirstLon.getText() + " "
-                + lkpSecondLon.getText() + "." + lkpThirdLon.getText()
-                + comboLKPLon.getSelectedItem();
+    private double getRapidResponseCSSLon() {
+        String LKPLongitude = cssFirstLon.getText() + " "
+                + cssSecondLon.getText() + "." + cssThirdLon.getText()
+                + comboCSSLon.getSelectedItem();
 
+        System.out.println(LKPLongitude);
+        
         try {
             return parseLon(LKPLongitude);
         } catch (Exception e1) {
             // Invalid lon, we do nothing, focus lost will handle it
+        }
+
+        return -9999;
+
+    }
+
+    private double getRapidResponseLKPLat() {
+        String LKPLatitude = lkpFirstLat.getText() + " "
+                + lkpSecondLat.getText() + "." + lkpThirdLat.getText()
+                + comboLKPLat.getSelectedItem();
+
+        System.out.println(LKPLatitude);
+        
+        try {
+            return parseLat(LKPLatitude);
+        } catch (Exception e1) {
+            // Invalid lon, we do nothing, focus lost will handle it
+        }
+
+        return -9999;
+
+    }
+
+    private double getRapidResponseLKPLon() {
+        String LKPLongitude = lkpFirstLon.getText() + " "
+                + lkpSecondLon.getText() + "." + lkpThirdLon.getText()
+                + comboLKPLon.getSelectedItem();
+
+        System.out.println(LKPLongitude);
+        
+        try {
+            return parseLon(LKPLongitude);
+        } catch (Exception e1) {
+            // Invalid lon, we do nothing, focus lost will handle it
+            System.out.println(e1.getMessage());
         }
 
         return -9999;
