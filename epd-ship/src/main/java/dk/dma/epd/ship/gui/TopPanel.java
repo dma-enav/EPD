@@ -355,7 +355,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
            
         } else if (e.getSource() == wmsBtn) {
             mainFrame.getChartPanel().getWmsLayer().setVisible(wmsBtn.isSelected());
-            System.out.println("WMS BUTTON IS SELECTED: "+wmsBtn.isSelected());
         } else if (e.getSource() == routeManagerBtn) {
             RouteManagerDialog routeManagerDialog = new RouteManagerDialog(mainFrame);
             routeManagerDialog.setVisible(true);
