@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.shore.event;
 
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
@@ -24,11 +23,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.util.Properties;
 
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-
-import org.jdesktop.swingx.painter.PainterGlasspane;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.PanMouseMode;
@@ -38,7 +33,6 @@ import com.bbn.openmap.util.PropUtils;
 
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 
 /**
