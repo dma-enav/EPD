@@ -45,7 +45,12 @@ public abstract class CommonChartPanel extends OMComponentPanel {
     protected GpsData gpsData;
     protected MouseDelegator mouseDelegator;
     protected WMSLayer wmsLayer;
+    protected WMSLayer wmsDragLayer;
     
+    public WMSLayer getWmsDragLayer() {
+        return wmsDragLayer;
+    }
+
     public SimpleOffScreenMapRenderer getDragMapRenderer() {
         return dragMapRenderer;
     }
