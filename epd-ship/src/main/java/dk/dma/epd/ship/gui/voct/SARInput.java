@@ -996,7 +996,19 @@ public class SARInput extends JDialog implements ActionListener,
 
         System.out.println("All validated correctly, we got positions");
 
+        System.out.println("LKP Date is " + LKPDate);
+        System.out.println("CSS Date is " + CSSDate);
+        
         // Time and date will be automatically sorted
+        
+        //Get weather
+        SurfaceDriftPanel firstPanel = surfaceDriftPanelList.get(0);
+        
+        if (firstPanel.getTWCKnots() == -9999){
+            //Error message is handled within function
+            return false;
+        }
+        System.out.println(firstPanel.getTWCKnots());
 
         return true;
     }

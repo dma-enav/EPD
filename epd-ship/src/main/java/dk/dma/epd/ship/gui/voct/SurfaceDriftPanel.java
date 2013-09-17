@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.ship.gui.voct;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -22,6 +24,7 @@ import java.util.Date;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
@@ -30,7 +33,7 @@ import javax.swing.border.TitledBorder;
 
 import org.jdesktop.swingx.JXDatePicker;
 
-public class SurfaceDriftPanel extends JPanel {
+public class SurfaceDriftPanel extends JPanel implements ActionListener {
 
     private static final long serialVersionUID = 1L;
     private SimpleDateFormat format = new SimpleDateFormat("E dd/MM/yyyy");
@@ -40,9 +43,27 @@ public class SurfaceDriftPanel extends JPanel {
     JTextField leewayField;
     JTextField leewayHeadingField;
 
-    public double getTWCKnots() {
+    JComboBox<String> twcHeadingDropdown;
+    JComboBox<String> lwHeadingDropdown;
 
-        return Double.parseDouble(twcField.getText());
+    JXDatePicker surfaceDriftPicker;
+    
+    int id;
+
+    private void displayMissingField(String fieldname) {
+        // Missing or incorrect value in
+        JOptionPane.showMessageDialog(this, "Missing or incorrect value in\n"
+                + fieldname + "in surface drift Point " + id, "Input Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public double getTWCKnots() {
+        if (twcField.getText().equals("")) {
+            displayMissingField("TWC Knots");
+            return -9999;
+        } else {
+            return Double.parseDouble(twcField.getText());
+        }
+
     }
 
     public double getLeeway() {
@@ -70,7 +91,9 @@ public class SurfaceDriftPanel extends JPanel {
 
     public SurfaceDriftPanel(int number) {
 
-        setBorder(new TitledBorder(null, "Point " + (number + 1),
+        this.id = number+1;
+        
+        setBorder(new TitledBorder(null, "Point " + id,
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
         // int offset = 56 + (474 * number);
@@ -79,8 +102,9 @@ public class SurfaceDriftPanel extends JPanel {
         setBounds(5, offset, 464, 99);
         setLayout(null);
 
-        JXDatePicker surfaceDriftPicker = new JXDatePicker();
+        surfaceDriftPicker = new JXDatePicker();
         surfaceDriftPicker.setBounds(160, 22, 105, 20);
+        surfaceDriftPicker.setDate(new Date());
         add(surfaceDriftPicker);
 
         surfaceDriftPicker.setFormats(format);
@@ -117,15 +141,16 @@ public class SurfaceDriftPanel extends JPanel {
         lblTwcVectorHeading.setBounds(203, 50, 173, 14);
         add(lblTwcVectorHeading);
 
-        JComboBox<String> comboBox = new JComboBox<String>();
-        comboBox.setModel(new DefaultComboBoxModel<String>(new String[] { "N",
-                "NE", "NW", "S", "SW", "SE", "E", "W" }));
-        comboBox.setBounds(372, 47, 33, 20);
-        add(comboBox);
+        twcHeadingDropdown = new JComboBox<String>();
+        twcHeadingDropdown.setModel(new DefaultComboBoxModel<String>(
+                new String[] { "N", "NE", "NW", "S", "SW", "SE", "E", "W" }));
+        twcHeadingDropdown.setBounds(372, 47, 39, 20);
+        add(twcHeadingDropdown);
+        twcHeadingDropdown.addActionListener(this);
 
         twcHeadingField = new JTextField();
         twcHeadingField.setText("00.0°");
-        twcHeadingField.setBounds(415, 47, 47, 20);
+        twcHeadingField.setBounds(415, 47, 39, 20);
         add(twcHeadingField);
         twcHeadingField.setColumns(10);
 
@@ -142,18 +167,92 @@ public class SurfaceDriftPanel extends JPanel {
         lblLwVectorHeading.setBounds(203, 78, 173, 14);
         add(lblLwVectorHeading);
 
-        JComboBox<String> comboBox_2 = new JComboBox<String>();
-        comboBox_2.setModel(new DefaultComboBoxModel<String>(new String[] {
-                "N", "NE", "NW", "S", "SW", "SE", "E", "W" }));
-        comboBox_2.setBounds(372, 75, 33, 20);
-        add(comboBox_2);
+        lwHeadingDropdown = new JComboBox<String>();
+        lwHeadingDropdown.setModel(new DefaultComboBoxModel<String>(
+                new String[] { "N", "NE", "NW", "S", "SW", "SE", "E", "W" }));
+        lwHeadingDropdown.setBounds(372, 75, 39, 20);
+        add(lwHeadingDropdown);
+        lwHeadingDropdown.addActionListener(this);
 
         leewayHeadingField = new JTextField();
         leewayHeadingField.setText("00.0°");
         leewayHeadingField.setColumns(10);
-        leewayHeadingField.setBounds(415, 75, 47, 20);
+        leewayHeadingField.setBounds(415, 75, 39, 20);
         add(leewayHeadingField);
 
     }
 
+    @Override
+    public void actionPerformed(ActionEvent arg0) {
+
+        if (arg0.getSource() == twcHeadingDropdown) {
+
+            String value = (String) twcHeadingDropdown.getSelectedItem();
+
+            switch (value) {
+            case "N":
+                twcHeadingField.setText("00.0°");
+                break;
+            case "NE":
+                twcHeadingField.setText("45.0°");
+                break;
+            case "NW":
+                twcHeadingField.setText("315.0°");
+                break;
+            case "S":
+                twcHeadingField.setText("180.0°");
+                break;
+            case "SW":
+                twcHeadingField.setText("225.0°");
+                break;
+            case "SE":
+                twcHeadingField.setText("135.0°");
+                break;
+            case "E":
+                twcHeadingField.setText("90°");
+                break;
+            case "W":
+                twcHeadingField.setText("270°");
+                break;
+
+            }
+            return;
+        }
+
+        if (arg0.getSource() == lwHeadingDropdown) {
+
+            String value = (String) lwHeadingDropdown.getSelectedItem();
+
+            switch (value) {
+            case "N":
+                leewayHeadingField.setText("00.0°");
+                break;
+            case "NE":
+                leewayHeadingField.setText("45.0°");
+                break;
+            case "NW":
+                leewayHeadingField.setText("315.0°");
+                break;
+            case "S":
+                leewayHeadingField.setText("180.0°");
+                break;
+            case "SW":
+                leewayHeadingField.setText("225.0°");
+                break;
+            case "SE":
+                leewayHeadingField.setText("135.0°");
+                break;
+            case "E":
+                leewayHeadingField.setText("90°");
+                break;
+            case "W":
+                leewayHeadingField.setText("270°");
+                break;
+
+            }
+
+            return;
+
+        }
+    }
 }
