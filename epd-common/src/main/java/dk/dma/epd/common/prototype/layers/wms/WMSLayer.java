@@ -84,11 +84,12 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
         // this.list.addAll(list);
 
         if (this.isVisible()) {
+            doPrepare();
         } else {
             chartPanel.getBgLayer().setVisible(true);
         }
 
-        doPrepare();
+        
     }
 
     @Override
