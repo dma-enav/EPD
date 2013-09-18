@@ -114,7 +114,10 @@ public class ThreadedMapCreator implements Runnable {
 
         window.getChartPanel().getVoyageHandlingLayer()
                 .handleVoyage(originalRoute, voyage, renegotiate);
-        window.setSize(1280, 768);
+        
+        
+        window.setSize(mainFrame.getSize());
+//        window.setSize(1280, 768);
 
         // The two positions that must be shown
         Position pos1 = voyage.getRoute().getWaypoints().get(0).getPos();
