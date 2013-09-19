@@ -38,13 +38,13 @@ import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     private static final long serialVersionUID = 1L;
     private OMGraphicList list = new OMGraphicList();
-    private CommonChartPanel chartPanel;
     //private WMSInfoPanel wmsInfoPanel;
     volatile boolean shouldRun = true;
     private StreamingTiledWmsService wmsService;
     private int height = -1;
     private int width = -1;
     private float lastScale = -1F;
+    @SuppressWarnings("unused")
     private Logger LOG;
 
     private CopyOnWriteArrayList<OMGraphic> testList = new CopyOnWriteArrayList<>();
@@ -86,8 +86,6 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     @Override
     public void findAndInit(Object obj) {
         if (obj instanceof CommonChartPanel) {
-            this.chartPanel = (CommonChartPanel) obj;
-            // chartPanel.getMapHandler().addPropertyChangeListener("WMS", pcl)
 
             // this.chartPanel.getMap().addProjectionListener(this);
         }
