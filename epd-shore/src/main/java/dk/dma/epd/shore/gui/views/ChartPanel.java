@@ -358,7 +358,7 @@ public class ChartPanel extends CommonChartPanel {
      */
     public void initChartDefault(MapFrameType type) {
         Properties props = EPDShore.getProperties();
-        
+        ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
         
 
         if (EPDShore.getSettings().getMapSettings().isUseEnc()
@@ -433,9 +433,11 @@ public class ChartPanel extends CommonChartPanel {
         mapHandler.add(generalLayer);
         
         
+        
+        
         wmsLayer = new WMSLayer(EPDShore.getSettings().getMapSettings().getWmsQuery());
         //Add WMS Layer
-        if (EPDShore.getSettings().getGuiSettings().getWmsQuery().length() > 12 && EPDShore.getSettings().getGuiSettings().useWMS()) {
+        if (mapSettings.getWmsQuery().length() > 12 && mapSettings.isUseWms()) {
             wmsLayer.setVisible(true);
             mapHandler.add(wmsLayer);    
         }
