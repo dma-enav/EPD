@@ -269,6 +269,9 @@ public class EPDShore extends EPD {
 
         // Main application
 
+        String filename = "temp.workspace";
+        mainFrame.saveWorkSpace(filename);
+        
         mainFrame.saveSettings();
         settings.saveToFile();
 
