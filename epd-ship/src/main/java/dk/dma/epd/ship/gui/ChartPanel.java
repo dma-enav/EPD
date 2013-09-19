@@ -131,8 +131,9 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         encLayer = encLayerFactory.getEncLayer();
 
         // Add WMS Layer
+        wmsLayer = new WMSLayer(mapSettings.getWmsQuery());
         if (mapSettings.isUseWms()) {
-            wmsLayer = new WMSLayer(mapSettings.getWmsQuery());
+            wmsLayer.setVisible(true);
             mapHandler.add(wmsLayer);            
         }
     
