@@ -306,9 +306,9 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                     oY = y;
                
                     chartPanel.getBgLayer().setVisible(false);
-                    
                     jMapFrame.getGlassPane().setVisible(false);
                     jMapFrame.getGlassPanel().setVisible(false);
+                    chartPanel.getMap().setVisible(true);
                     
                     
  
@@ -328,10 +328,8 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                         final BufferedImage renderImage = offScreenMap;
                         //renderImage.getGraphics().drawImage(offScreenMap,0,0,null);                        
                         renderImage.getGraphics().drawImage(onScreenMap,x-oX,y-oY,null);
-
                         
-                        
-                        
+                        chartPanel.getMap().getGraphics().drawImage(renderImage, 0,0, null);
 
                     } catch (RasterFormatException e) {
                         //was out of bounds, sorry
