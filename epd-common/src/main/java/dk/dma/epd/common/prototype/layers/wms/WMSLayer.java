@@ -144,7 +144,7 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
                 }
 
             } catch (InterruptedException | NullPointerException e) {
-                LOG.debug(e.getMessage());
+                //LOG.debug(e.getMessage());
                 // do nothing
             }
         }
