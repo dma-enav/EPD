@@ -275,7 +275,7 @@ public class ThreadedMapCreator implements Runnable {
             window.getChartPanel().getBgLayer().setVisible(true);
         } else {
             window.getChartPanel().getWmsLayer().setVisible(true);
-            window.getChartPanel().getBgLayer().setVisible(false);
+            window.getChartPanel().getBgLayer().setVisible(true);
         }
 
         if (mainFrame.isUseEnc()) {

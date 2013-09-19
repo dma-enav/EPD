@@ -45,6 +45,7 @@ import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
 import dk.dma.epd.shore.gui.views.monalisa.SendVoyageDialog;
 import dk.dma.epd.shore.settings.ESDGuiSettings;
+import dk.dma.epd.shore.settings.ESDMapSettings;
 import dk.dma.epd.shore.settings.Workspace;
 import dk.dma.epd.shore.util.ThreadedMapCreator;
 import dk.dma.epd.shore.voyage.Voyage;
@@ -394,10 +395,11 @@ public class MainFrame extends JFrame implements WindowListener {
         beanHandler = EPDShore.getBeanHandler();
         // Get settings
         ESDGuiSettings guiSettings = EPDShore.getSettings().getGuiSettings();
+        ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
 
         // System.out.println("Setting wmslayer enabled to:" +
         // guiSettings.useWMS());
-        wmsLayerEnabled = guiSettings.useWMS();
+        wmsLayerEnabled = mapSettings.isUseWms();
         encLayerEnabled = EPDShore.getSettings().getMapSettings()
                 .isEncVisible();
         useEnc = EPDShore.getSettings().getMapSettings().isUseEnc();

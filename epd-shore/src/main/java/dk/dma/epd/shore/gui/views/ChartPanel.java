@@ -340,7 +340,8 @@ public class ChartPanel extends CommonChartPanel {
         dragMapHandler.add(new LayerHandler());
         if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
             dragMapHandler.add(dragMap);
-            WMSLayer wmsDragLayer = new WMSLayer(mapSettings.getWmsQuery());
+            wmsDragLayer = new WMSLayer(mapSettings.getWmsQuery());
+            wmsDragLayer.setVisible(true);
             dragMapHandler.add(wmsDragLayer);
             dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
         } else {
@@ -431,9 +432,10 @@ public class ChartPanel extends CommonChartPanel {
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
         
+        
+        wmsLayer = new WMSLayer(EPDShore.getSettings().getMapSettings().getWmsQuery());
         //Add WMS Layer
         if (EPDShore.getSettings().getGuiSettings().getWmsQuery().length() > 12 && EPDShore.getSettings().getGuiSettings().useWMS()) {
-            wmsLayer = new WMSLayer(EPDShore.getSettings().getGuiSettings().getWmsQuery());
             wmsLayer.setVisible(true);
             mapHandler.add(wmsLayer);    
         }
@@ -511,12 +513,6 @@ public class ChartPanel extends CommonChartPanel {
 
         // Force a voyage layer update
         voyageLayer.voyagesChanged(VoyageUpdateEvent.VOYAGE_ADDED);
-
-        if (wmsLayer.isVisible()) {
-            // System.out.println("wms is visible");
-            //bgLayer.setVisible(false);
-        }
-        
         
 
     }
