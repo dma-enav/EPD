@@ -47,13 +47,14 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
     JComboBox<String> lwHeadingDropdown;
 
     JXDatePicker surfaceDriftPicker;
-    
+
     int id;
 
     private void displayMissingField(String fieldname) {
         // Missing or incorrect value in
         JOptionPane.showMessageDialog(this, "Missing or incorrect value in\n"
-                + fieldname + "in surface drift Point " + id, "Input Error", JOptionPane.ERROR_MESSAGE);
+                + fieldname + " in surface drift Point " + id, "Input Error",
+                JOptionPane.ERROR_MESSAGE);
     }
 
     public double getTWCKnots() {
@@ -61,40 +62,78 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
             displayMissingField("TWC Knots");
             return -9999;
         } else {
-            return Double.parseDouble(twcField.getText());
+            try {
+                return Double.parseDouble(twcField.getText());
+            } catch (Exception e) {
+                displayMissingField("TWC Knots");
+                return -9999;
+            }
         }
 
     }
 
     public double getLeeway() {
 
-        return Double.parseDouble(leewayField.getText());
+        if (leewayField.getText().equals("")) {
+            displayMissingField("TWC Knots");
+            return -9999;
+        } else {
+            try {
+                return Double.parseDouble(leewayField.getText());
+            } catch (Exception e) {
+                displayMissingField("Leeway Knots");
+                return -9999;
+            }
+        }
     }
 
     public double getTWCHeading() {
-
         String twcField = twcHeadingField.getText();
 
-        String value = twcField.substring(0, twcField.length() - 1);
-
-        return Double.parseDouble(value);
+        
+        
+        if (twcField.equals("")) {
+            displayMissingField("TWC Heading");
+            return -9999;
+        } else {
+            try {
+                String value = twcField.substring(0, twcField.length() - 1);
+                return Double.parseDouble(value);
+            } catch (Exception e) {
+                displayMissingField("TWC Heading");
+                return -9999;
+            }
+        }
     }
 
     public double getLeewayHeading() {
-
+        
+        
         String leewayField = leewayHeadingField.getText();
 
-        String value = leewayField.substring(0, leewayField.length() - 1);
+        
+        
+        if (leewayField.equals("")) {
+            displayMissingField("Leeway Heading");
+            return -9999;
+        } else {
+            try {
+                String value = leewayField.substring(0, leewayField.length() - 1);
+                return Double.parseDouble(value);
+            } catch (Exception e) {
+                displayMissingField("Leeway Heading");
+                return -9999;
+            }
+        }
 
-        return Double.parseDouble(value);
     }
 
     public SurfaceDriftPanel(int number) {
 
-        this.id = number+1;
-        
-        setBorder(new TitledBorder(null, "Point " + id,
-                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        this.id = number + 1;
+
+        setBorder(new TitledBorder(null, "Point " + id, TitledBorder.LEADING,
+                TitledBorder.TOP, null, null));
 
         // int offset = 56 + (474 * number);
         int offset = 56 + (110 * number);

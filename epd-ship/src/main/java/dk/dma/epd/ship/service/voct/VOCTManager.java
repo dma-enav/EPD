@@ -20,9 +20,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JDialog;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
 import dk.dma.epd.common.util.Util;
@@ -50,6 +52,8 @@ public class VOCTManager implements Runnable, Serializable {
     private SARInput sarInputDialog;
 
     private CopyOnWriteArrayList<VOCTUpdateListener> listeners = new CopyOnWriteArrayList<>();
+
+    private RapidResponseData rapidResponseData;
 
     public VOCTManager() {
         EPDShip.startThread(this, "VOCTManager");
@@ -80,17 +84,23 @@ public class VOCTManager implements Runnable, Serializable {
         sarOperation = null;
         sarOperation = new SAROperation(type, this);
     }
-    
-    public SAR_TYPE getSarType(){
-        if (sarOperation != null){
+
+    public SAR_TYPE getSarType() {
+        if (sarOperation != null) {
             return sarOperation.getOperationType();
         }
         return SAR_TYPE.NONE;
     }
-    
 
-    public void setSARVariables() {
-        // sarOperation
+    public String inputRapidResponseData(DateTime TLKP, DateTime CSS,
+            Position LKP, Position CSP, double TWCknots, double TWCHeading,
+            double LWknots, double LWHeading, double x, double y, double SF,
+            int searchObject) {
+
+        return sarOperation.startRapidResponseCalculations(TLKP, CSS, LKP, CSP,
+                TWCknots, TWCHeading, LWknots, LWHeading, x, y, SF,
+                searchObject);
+
     }
 
     /**
@@ -136,6 +146,23 @@ public class VOCTManager implements Runnable, Serializable {
 
     public void removeListener(VOCTUpdateListener listener) {
         listeners.remove(listener);
+    }
+
+    /**
+     * @return the rapidResponseData
+     */
+    public RapidResponseData getRapidResponseData() {
+        return rapidResponseData;
+    }
+
+    /**
+     * @param rapidResponseData
+     *            the rapidResponseData to set
+     */
+    public void setRapidResponseData(RapidResponseData rapidResponseData) {
+        this.rapidResponseData = rapidResponseData;
+
+        notifyListeners(VOCTUpdateEvent.SAR_READY);
     }
 
 }

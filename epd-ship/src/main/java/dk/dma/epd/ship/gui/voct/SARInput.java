@@ -36,6 +36,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -154,6 +155,8 @@ public class SARInput extends JDialog implements ActionListener,
 
     private JComboBox<String> comboCSSLon;
     private JComboBox<String> comboCSSLat;
+
+    private String calculationsHTML;
 
     /**
      * 
@@ -506,7 +509,8 @@ public class SARInput extends JDialog implements ActionListener,
         commenceStartPanel.add(cssThirdLon);
 
         comboCSSLon = new JComboBox();
-        comboCSSLon.setModel(new DefaultComboBoxModel(new String[] {"E", "W"}));
+        comboCSSLon
+                .setModel(new DefaultComboBoxModel(new String[] { "E", "W" }));
         comboCSSLon.setBounds(348, 53, 30, 20);
         commenceStartPanel.add(comboCSSLon);
 
@@ -543,6 +547,7 @@ public class SARInput extends JDialog implements ActionListener,
         surfaceDriftPanelContainer.add(btnFetchMetocData);
 
         btnAddPoint = new JButton("Add point");
+        btnAddPoint.setEnabled(false);
         btnAddPoint.setBounds(265, 22, 89, 23);
         surfaceDriftPanelContainer.add(btnAddPoint);
 
@@ -745,19 +750,17 @@ public class SARInput extends JDialog implements ActionListener,
                 updateValues();
                 CardLayout cl = (CardLayout) (masterPanel.getLayout());
 
-                if (validateInputAndInititate()){
+                if (validateInputAndInititate()) {
+                    calculationsText.setText(calculationsHTML);
                     btnBack.setEnabled(true);
                     nextButton.setText("Finish");
 
                     // The type select determines which panel we show
                     cl.show(masterPanel, CALCULATIONSPANELRAPIDRESPONSE);
                     currentCard = CALCULATIONSPANELRAPIDRESPONSE;
-                }else{
-                    //do nothing, missing data
+                } else {
+                    // do nothing, missing data, internally sorted
                 }
-
-                // generateRapidResponseCalculations();
-
 
                 return;
             }
@@ -938,7 +941,7 @@ public class SARInput extends JDialog implements ActionListener,
         SAR_TYPE type = voctManager.getSarType();
 
         System.out.println("Type is" + type);
-        
+
         switch (type) {
         case RAPID_RESPONSE:
             return validateRapidResponse();
@@ -961,7 +964,7 @@ public class SARInput extends JDialog implements ActionListener,
     private boolean validateRapidResponse() {
 
         System.out.println("Validating");
-        
+
         // Get LKP values
         double rapidResponseLKPLat = getRapidResponseLKPLat();
         double rapidResponseLKPLon = getRapidResponseLKPLon();
@@ -998,19 +1001,146 @@ public class SARInput extends JDialog implements ActionListener,
 
         System.out.println("LKP Date is " + LKPDate);
         System.out.println("CSS Date is " + CSSDate);
-        
+
         // Time and date will be automatically sorted
-        
-        //Get weather
+
+        // Get weather
         SurfaceDriftPanel firstPanel = surfaceDriftPanelList.get(0);
-        
-        if (firstPanel.getTWCKnots() == -9999){
-            //Error message is handled within function
+
+        double TWCKnots = firstPanel.getTWCKnots();
+
+        if (TWCKnots == -9999) {
+            // Error message is handled within function
             return false;
         }
-        System.out.println(firstPanel.getTWCKnots());
+
+        double leewayKnots = firstPanel.getLeeway();
+
+        if (leewayKnots == -9999) {
+            // Error message is handled within function
+            return false;
+        }
+
+        double twcHeading = firstPanel.getTWCHeading();
+
+        if (twcHeading == -9999) {
+            // Error message is handled within function
+            return false;
+        }
+
+        double leewayHeading = firstPanel.getLeewayHeading();
+
+        if (leewayHeading == -9999) {
+            // Error message is handled within function
+            return false;
+        }
+
+        double xError = getInitialPositionError();
+
+        if (xError == -9999) {
+            // Error message is handled within function
+            return false;
+        }
+
+        double yError = getNavError();
+
+        if (yError == -9999) {
+            // Error message is handled within function
+            return false;
+        }
+
+        double safetyFactor = getSafetyFactor();
+
+        if (safetyFactor == -9999) {
+            // Error message is handled within function
+            return false;
+        }
+
+        int searchObject = searchObjectDropDown.getSelectedIndex();
+
+        // Only valid search objects is value 0 to 19
+        if (searchObject > 0 || searchObject > 19) {
+            // Error message is handled within function
+            return false;
+        }
+
+        // rapidResponsePosition
+        // commenceStartPosition
+        // TWCKnots
+        // twcHeading
+        // leewayKnots
+        // leewayHeading
+        // xError
+        // yError
+        // safetyFactor
+        // searchObject
+
+        calculationsHTML = voctManager.inputRapidResponseData(LKPDate, CSSDate,
+                rapidResponsePosition, commenceStartPosition, TWCKnots,
+                twcHeading, leewayKnots, leewayHeading, xError, yError,
+                safetyFactor, searchObject);
 
         return true;
+    }
+
+    private double getSafetyFactor() {
+
+        String sfField = yErrorField.getText();
+
+        if (sfField.equals("")) {
+            displayMissingField("Safety Factor, FS");
+            return -9999;
+        } else {
+            try {
+                return Double.parseDouble(sfField);
+            } catch (Exception e) {
+                displayMissingField("Safety Factor, FS");
+                return -9999;
+            }
+        }
+
+    }
+
+    private double getNavError() {
+
+        String yField = yErrorField.getText();
+
+        if (yField.equals("")) {
+            displayMissingField("Navigational Error, Y");
+            return -9999;
+        } else {
+            try {
+                return Double.parseDouble(yField);
+            } catch (Exception e) {
+                displayMissingField("Navigational Error, Y");
+                return -9999;
+            }
+        }
+
+    }
+
+    private double getInitialPositionError() {
+
+        String xField = xErrorField.getText();
+
+        if (xField.equals("")) {
+            displayMissingField("Initial Position Error, X");
+            return -9999;
+        } else {
+            try {
+                return Double.parseDouble(xField);
+            } catch (Exception e) {
+                displayMissingField("Initial Position Error, X");
+                return -9999;
+            }
+        }
+
+    }
+
+    private void displayMissingField(String fieldname) {
+        // Missing or incorrect value in
+        JOptionPane.showMessageDialog(this, "Missing or incorrect value in "
+                + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
     }
 
     @SuppressWarnings("deprecation")
@@ -1076,7 +1206,7 @@ public class SARInput extends JDialog implements ActionListener,
                 + comboCSSLon.getSelectedItem();
 
         System.out.println(LKPLongitude);
-        
+
         try {
             return parseLon(LKPLongitude);
         } catch (Exception e1) {
@@ -1093,7 +1223,7 @@ public class SARInput extends JDialog implements ActionListener,
                 + comboLKPLat.getSelectedItem();
 
         System.out.println(LKPLatitude);
-        
+
         try {
             return parseLat(LKPLatitude);
         } catch (Exception e1) {
@@ -1110,7 +1240,7 @@ public class SARInput extends JDialog implements ActionListener,
                 + comboLKPLon.getSelectedItem();
 
         System.out.println(LKPLongitude);
-        
+
         try {
             return parseLon(LKPLongitude);
         } catch (Exception e1) {

@@ -87,46 +87,43 @@ public class SAROperation {
         this.voctManager = voctManager;
     }
 
-    public void startRapidResponseCalculations(DateTimeZone timeZone,
-            DateTime TLKP, DateTime CSS, Position LKP, Position CSP,
-            double TWCknots, double TWCHeading, double LWknots,
-            double LWHeading, double x, double y, double SF) {
-        // Standard use CET?
-        timeZone = DateTimeZone.forID("CET");
+    public String startRapidResponseCalculations(DateTime TLKP, DateTime CSS,
+            Position LKP, Position CSP, double TWCknots, double TWCHeading,
+            double LWknots, double LWHeading, double x, double y, double SF,
+            int searchObject) {
 
-        TLKP = new DateTime(2013, 7, 2, 8, 0, timeZone);
-
-        CSS = new DateTime(2013, 7, 2, 10, 30, timeZone);
-
-        LKP = Position.create(56.37167, 7.966667);
-
-        CSP = Position.create(56.37167, 7.966667);
-
-        TWCknots = 2;
-
-        TWCHeading = 180;
-
-        LWknots = 15;
-
-        LWHeading = 270;
+        // LKP = Position.create(56.37167, 7.966667);
+        //
+        // CSP = Position.create(56.37167, 7.966667);
+        //
+        // TWCknots = 2;
+        //
+        // TWCHeading = 180;
+        //
+        // LWknots = 15;
+        //
+        // LWHeading = 270;
 
         downWind = LWHeading - 180;
 
-        x = 1.0;
-
-        y = 0.1;
-
-        SF = 1.0;
+        // x = 1.0;
+        //
+        // y = 0.1;
+        //
+        // SF = 1.0;
 
         System.out.println("Starting search with the following parameters");
         System.out.println("Time of Last known position: " + TLKP);
         System.out.println("Commence Search Start time: " + CSS);
 
         double difference = (double) (CSS.getMillis() - TLKP.getMillis()) / 60 / 60 / 1000;
-        System.out.println("Hours since started: " + difference);
+        // System.out.println("Hours since started: " + difference);
 
         rapidResponse(LKP, TWCHeading, downWind, LWknots, TWCknots, difference,
                 x, y, SF);
+
+        return "Rapid response";
+
     }
 
     /**
@@ -331,19 +328,18 @@ public class SAROperation {
         this.voctManager = voctManager;
     }
 
-    
-    
-    
-    private static void rapidResponse(Position LKP, double TWCHeading,
+    private void rapidResponse(Position LKP, double TWCHeading,
             double downWind, double LWknots, double TWCknots,
             double timeElasped, double x, double y, double SF) {
-        System.out.println("Calculation for Rapid Response");
 
-        System.out.println("LKP is: " + LKP);
+        // System.out.println("Calculation for Rapid Response");
+
+        // System.out.println("LKP is: " + LKP);
 
         double currentTWC = TWCknots * timeElasped;
-        System.out.println("Current TWC is: " + currentTWC + " with heading: "
-                + TWCHeading);
+        // System.out.println("Current TWC is: " + currentTWC +
+        // " with heading: "
+        // + TWCHeading);
 
         // Example person in water, influenced by the wind of LWknots speed
         // will have a final speed of leewayspeed:
@@ -404,12 +400,22 @@ public class SAROperation {
 
         System.out.println("Radius is: " + radius);
 
+        RapidResponseData data = new RapidResponseData(LKP, datum, currentPos,
+                radius);
+
+        // datum
+        // radius
+        // LKP
+        // windPos
+
         // find box
 
-        findBox(datum, radius);
+        findRapidResponseBox(datum, radius, data);
+        
+        voctManager.setRapidResponseData(data);
     }
 
-    public static void findBox(Position datum, double radius) {
+    public static void findRapidResponseBox(Position datum, double radius, RapidResponseData data) {
         // Search box
         // The box is square around the circle, with center point at datum
         // Radius is the calculated Radius
@@ -449,19 +455,23 @@ public class SAROperation {
 
         System.out.println("Area in nm2 is: " + area);
 
-        // Effort Allocation
+        // Effort Allocation /// wait
 
-        // desired pod, in decimals
-        double pod = 0.79;
-
-        // Swep Width
-        double W = 0.5;
-
-        // System.out.println("W : 0.8");
-        // System.out.println("S : 0.7875");
-
-        // System.out.println("POD is " + findPoD(0.8, 0.7875));
-        System.out.println("POD is " + findPoD(1.1, 0.8));
+        // // desired pod, in decimals
+        // double pod = 0.79;
+        //
+        // // Swep Width
+        // double W = 0.5;
+        //
+        // // System.out.println("W : 0.8");
+        // // System.out.println("S : 0.7875");
+        //
+        // // System.out.println("POD is " + findPoD(0.8, 0.7875));
+        // System.out.println("POD is " + findPoD(1.1, 0.8));
+        
+        
+        data.setBox(A, B, C, D);
+        
     }
 
     public static double findPoD(double W, double S) {

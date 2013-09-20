@@ -30,11 +30,15 @@ import dk.dma.epd.common.prototype.layers.voct.AreaInternalGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics;
 import dk.dma.epd.common.prototype.layers.voct.SarEffectiveAreaLines;
 import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
+import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
+import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
+import dk.dma.epd.ship.service.voct.RapidResponseData;
+import dk.dma.epd.ship.service.voct.VOCTManager;
 
 public class VoctLayer extends OMGraphicHandlerLayer implements
-        MapMouseListener {
+        MapMouseListener, VOCTUpdateListener {
     private static final long serialVersionUID = 1L;
 
     // private DynamicNogoHandler dynamicNogoHandler = null;
@@ -43,77 +47,12 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     private OMGraphic selectedGraphic;
     private boolean dragging;
     private MapBean mapBean;
+    private VOCTManager voctManager;
 
     public VoctLayer() {
-        drawSAR();
+//        drawSAR();
     }
 
-    public void drawSAR() {
-        // Position A = Position.create(56.335, 7.885);
-        // Position B = Position.create(56.335, 8.034444);
-        // Position C = Position.create(56.252222, 8.034444);
-        // Position D = Position.create(56.252222, 7.885);
-        //
-        // Position datum = Position.create(56.300555555555555,
-        // 7.966666666666667);
-        // double radius = 2.42;
-        //
-
-        Position A = Position.create(56.3318597430453, 7.906002842313335);
-        Position B = Position.create(56.3318597430453, 8.062171759296268);
-        Position C = Position.create(56.24510270810811, 8.061995117339452);
-        Position D = Position.create(56.24510270810811, 7.906179484270152);
-
-        Position datum = Position.create(56.2885059390279, 7.984087300804801);
-        double radius = 2.6080318165935816;
-
-        Position LKP = Position.create(56.37167, 7.966667);
-        Position WTCPoint = Position.create(56.28850716421507, 7.966667);
-
-        graphics.clear();
-
-        SarGraphics sarGraphics = new SarGraphics(datum, radius, A, B, C, D,
-                LKP, WTCPoint);
-         graphics.add(sarGraphics);
-
-        // Probability of Detection Area - updateable
-
-        // PoD for each SRU, initialized with an effective area? possibly a
-        // unique ID
-
-        // Effective Area: 10 nm2 Initialize by creating box
-        double width = Math.sqrt(10.0);
-        double height = Math.sqrt(10.0);
-        
-        
-        
-        
-//        AreaInternalGraphics effectiveArea = new AreaInternalGraphics(A,
-//                width, length);
-//        graphics.add(effectiveArea);
-        EffectiveSRUAreaGraphics effectiveArea = new EffectiveSRUAreaGraphics(A,
-                width, height);
-        graphics.add(effectiveArea);
-
-        
-
-        System.out.println("A is: " + A.getLongitude());
-        System.out.println("B is: " + B);
-        System.out.println("C is: " + C);
-        System.out.println("D is: " + D);
-
-        System.out.println("Datum is: " + datum);
-        
-        
-//        SomeGraphics routeLegGraphic = new SomeGraphics(A, B, C, D);
-//        graphics.add(routeLegGraphic);
-//        
-//        WaypointCircle wpCircle = new WaypointCircle(EPDShip.getRouteManager().getRoute(0), 0, 0);
-//        graphics.add(wpCircle);
-
-        
-        doPrepare();
-    }
 
 
     @Override
@@ -125,9 +64,10 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     @Override
     public void findAndInit(Object obj) {
 
-        // if (obj instanceof DynamicNogoHandler) {
-        // dynamicNogoHandler = (DynamicNogoHandler) obj;
-        // }
+        if (obj instanceof VOCTManager) {
+            voctManager = (VOCTManager) obj;
+            voctManager.addListener(this);
+        }
         if (obj instanceof MapBean) {
             mapBean = (MapBean) obj;
         }
@@ -151,12 +91,12 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         // TODO Auto-generated method stub
         return false;
     }
-    
+
     @Override
     public boolean mouseReleased(MouseEvent e) {
         if (dragging) {
             dragging = false;
-//            doPrepare();
+            // doPrepare();
             return true;
         }
         return false;
@@ -175,7 +115,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
         for (OMGraphic omGraphic : allClosest) {
             if (omGraphic instanceof AreaInternalGraphics) {
-//                System.out.println("Selected Effective Area");
+                // System.out.println("Selected Effective Area");
                 selectedGraphic = omGraphic;
                 break;
             }
@@ -205,7 +145,6 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     public void mouseExited(MouseEvent paramMouseEvent) {
         // TODO Auto-generated method stub
 
-        
     }
 
     @Override
@@ -216,85 +155,74 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         }
 
         if (!dragging) {
-//            mainFrame.getGlassPane().setVisible(false);
+            // mainFrame.getGlassPane().setVisible(false);
             selectedGraphic = null;
             OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
                     2.0f);
             for (OMGraphic omGraphic : allClosest) {
-                if (omGraphic instanceof SarEffectiveAreaLines  ) {
-//                    System.out.println("selected something");
+                if (omGraphic instanceof SarEffectiveAreaLines) {
+                    // System.out.println("selected something");
                     selectedGraphic = omGraphic;
                     break;
-                }else{
-                    if (omGraphic instanceof AreaInternalGraphics  ) {
-//                      System.out.println("selected something");
-                      selectedGraphic = omGraphic;
-//                      break;
-                  }
-//                    if (|| omGraphic instanceof AreaInternalGraphics)
+                } else {
+                    if (omGraphic instanceof AreaInternalGraphics) {
+                        // System.out.println("selected something");
+                        selectedGraphic = omGraphic;
+                        // break;
+                    }
+                    // if (|| omGraphic instanceof AreaInternalGraphics)
                 }
             }
         }
 
         if (selectedGraphic instanceof SarEffectiveAreaLines) {
-//            System.out.println("Selected line");
-              SarEffectiveAreaLines selectedLine = (SarEffectiveAreaLines) selectedGraphic;
+            // System.out.println("Selected line");
+            SarEffectiveAreaLines selectedLine = (SarEffectiveAreaLines) selectedGraphic;
 
-              
-              
-              
-              //If bottom or top we can only adjust latitude
-              
-              //If sides we can adjust longitude
-              
-              
+            // If bottom or top we can only adjust latitude
+
+            // If sides we can adjust longitude
+
             // New Position of line
             LatLonPoint newLatLon = mapBean.getProjection().inverse(
                     e.getPoint());
-            
-            
 
             Position newPos = Position.create(newLatLon.getLatitude(),
                     newLatLon.getLongitude());
 
             selectedLine.updateArea(newPos);
-            
+
             doPrepare();
             dragging = true;
             return true;
 
         }
-        
+
         if (selectedGraphic instanceof AreaInternalGraphics) {
-//            System.out.println("Moving box");
+            // System.out.println("Moving box");
             AreaInternalGraphics selectedArea = (AreaInternalGraphics) selectedGraphic;
 
-            
             // New Center
             LatLonPoint newLatLon = mapBean.getProjection().inverse(
                     e.getPoint());
 
             Position newPos = Position.create(newLatLon.getLatitude(),
                     newLatLon.getLongitude());
-            
-            if (!dragging){
-//                System.out.println("only once? first time?");
+
+            if (!dragging) {
+                // System.out.println("only once? first time?");
                 selectedArea.adjustInternalPosition(newPos);
             }
 
-//            if (!(newPos == initialBoxRelativePosition)){
-                selectedArea.moveRelative(newPos);    
-//            }
+            // if (!(newPos == initialBoxRelativePosition)){
+            selectedArea.moveRelative(newPos);
+            // }
 
-            
             doPrepare();
             dragging = true;
             return true;
 
         }
-        
-        
-
 
         // if (selectedGraphic instanceof WaypointCircle) {
         // WaypointCircle wpc = (WaypointCircle) selectedGraphic;
@@ -368,13 +296,87 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         repaint();
     }
 
-    // public void addFrame(String message, Date validFrom, Date validTo, Double
-    // draught, int errorCode){
-    // SarGraphics nogoGraphic = new SarGraphics(null, validFrom, validTo,
-    // draught, message, nogoHandler.getNorthWestPoint(),
-    // nogoHandler.getSouthEastPoint(),
-    // errorCode, true, Color.RED);
-    // graphics.add(nogoGraphic);
-    // }
+    @Override
+    public void voctUpdated(VOCTUpdateEvent e) {
 
+        if (e == VOCTUpdateEvent.SAR_CANCEL) {
+            graphics.clear();
+            this.setVisible(false);
+        }
+
+        if (e == VOCTUpdateEvent.SAR_READY) {
+            drawRapidResponse();
+            this.setVisible(true);
+        }
+
+    }
+
+    private void drawRapidResponse() {
+        
+        
+        
+        
+//        Position A = Position.create(56.3318597430453, 7.906002842313335);
+//        Position B = Position.create(56.3318597430453, 8.062171759296268);
+//        Position C = Position.create(56.24510270810811, 8.061995117339452);
+//        Position D = Position.create(56.24510270810811, 7.906179484270152);
+//
+//        Position datum = Position.create(56.2885059390279, 7.984087300804801);
+//        double radius = 2.6080318165935816;
+//
+//        Position LKP = Position.create(56.37167, 7.966667);
+//        Position WTCPoint = Position.create(56.28850716421507, 7.966667);
+
+        RapidResponseData data = voctManager.getRapidResponseData();
+        
+      Position A = data.getA();
+      Position B = data.getB();
+      Position C = data.getC();
+      Position D = data.getD();
+
+      Position datum = data.getDatum();
+      double radius = data.getRadius();
+
+      Position LKP = data.getLKP();
+      Position WTCPoint = data.getWtc();
+        
+        
+        graphics.clear();
+
+        SarGraphics sarGraphics = new SarGraphics(datum, radius, A, B, C, D,
+                LKP, WTCPoint);
+        graphics.add(sarGraphics);
+
+        // Probability of Detection Area - updateable
+
+        // PoD for each SRU, initialized with an effective area? possibly a
+        // unique ID
+
+        // Effective Area: 10 nm2 Initialize by creating box
+        double width = Math.sqrt(10.0);
+        double height = Math.sqrt(10.0);
+
+        // AreaInternalGraphics effectiveArea = new AreaInternalGraphics(A,
+        // width, length);
+        // graphics.add(effectiveArea);
+        EffectiveSRUAreaGraphics effectiveArea = new EffectiveSRUAreaGraphics(
+                A, width, height);
+        graphics.add(effectiveArea);
+
+        System.out.println("A is: " + A.getLongitude());
+        System.out.println("B is: " + B);
+        System.out.println("C is: " + C);
+        System.out.println("D is: " + D);
+
+        System.out.println("Datum is: " + datum);
+
+        // SomeGraphics routeLegGraphic = new SomeGraphics(A, B, C, D);
+        // graphics.add(routeLegGraphic);
+        //
+        // WaypointCircle wpCircle = new
+        // WaypointCircle(EPDShip.getRouteManager().getRoute(0), 0, 0);
+        // graphics.add(wpCircle);
+
+        doPrepare();
+    }
 }

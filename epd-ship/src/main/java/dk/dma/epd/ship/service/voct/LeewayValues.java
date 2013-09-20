@@ -92,10 +92,7 @@ public class LeewayValues {
         
         leeWayTypes.put(19, "Wreckage");
         leeWayContent.put(19, "0.020 x U, Divergence: 10");
-                
     }
-    
-    
     
     
     /**
