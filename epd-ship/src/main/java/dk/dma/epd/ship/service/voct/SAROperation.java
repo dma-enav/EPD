@@ -38,47 +38,47 @@ public class SAROperation {
 
     SAR_TYPE operationType;
 
-    // Time of Last known position
-    DateTime TLKP;
-
-    // Commence Search Start
-    DateTime CSS;
-
-    // Commence time of surface Drift - When is this used?
-    Date CTSD;
-
-    // Last known Position
-    Position LKP;
-
-    // COmmence Start Point
-    Position CSP;
-
-    // SURFACE DRIFT VARIABLES
-
-    // Observed Total Water Current (WTC, knots)
-    double TWCknots;
-
-    // TWC Vector //either a direction or heading, or degrees
-    double TWCHeading;
-
-    // Leeway (LW), knots
-    double LWknots;
-
-    // Leeway Vector, heading or degrees
-    double LWHeading;
-
-    // The way the wind is blow means the object is pushed in the opposite
-    // direction
-    double downWind;
-
-    // Initial Position Error X, nm
-    double x;
-
-    // SRU Navigational Error Y, (GPS = 0.1 nm), nm
-    double y;
-
-    // Safety Factor, FS
-    double SF;
+    // // Time of Last known position
+    // DateTime TLKP;
+    //
+    // // Commence Search Start
+    // DateTime CSS;
+    //
+    // // Commence time of surface Drift - When is this used?
+    // Date CTSD;
+    //
+    // // Last known Position
+    // Position LKP;
+    //
+    // // COmmence Start Point
+    // Position CSP;
+    //
+    // // SURFACE DRIFT VARIABLES
+    //
+    // // Observed Total Water Current (WTC, knots)
+    // double TWCknots;
+    //
+    // // TWC Vector //either a direction or heading, or degrees
+    // double TWCHeading;
+    //
+    // // Leeway (LW), knots
+    // double LWknots;
+    //
+    // // Leeway Vector, heading or degrees
+    // double LWHeading;
+    //
+    // // The way the wind is blow means the object is pushed in the opposite
+    // // direction
+    // double downWind;
+    //
+    // // Initial Position Error X, nm
+    // double x;
+    //
+    // // SRU Navigational Error Y, (GPS = 0.1 nm), nm
+    // double y;
+    //
+    // // Safety Factor, FS
+    // double SF;
 
     VOCTManager voctManager;
 
@@ -87,231 +87,25 @@ public class SAROperation {
         this.voctManager = voctManager;
     }
 
-    public String startRapidResponseCalculations(DateTime TLKP, DateTime CSS,
-            Position LKP, Position CSP, double TWCknots, double TWCHeading,
-            double LWknots, double LWHeading, double x, double y, double SF,
-            int searchObject) {
-
-        // LKP = Position.create(56.37167, 7.966667);
-        //
-        // CSP = Position.create(56.37167, 7.966667);
-        //
-        // TWCknots = 2;
-        //
-        // TWCHeading = 180;
-        //
-        // LWknots = 15;
-        //
-        // LWHeading = 270;
-
-        downWind = LWHeading - 180;
-
-        // x = 1.0;
-        //
-        // y = 0.1;
-        //
-        // SF = 1.0;
+    public void startRapidResponseCalculations(RapidResponseData data) {
+        double downWind = data.getLWHeading() - 180;
+        data.setDownWind(downWind);
 
         System.out.println("Starting search with the following parameters");
-        System.out.println("Time of Last known position: " + TLKP);
-        System.out.println("Commence Search Start time: " + CSS);
+        System.out.println("Time of Last known position: " + data.getLKPDate());
+        System.out.println("Commence Search Start time: " + data.getCSSDate());
 
-        double difference = (double) (CSS.getMillis() - TLKP.getMillis()) / 60 / 60 / 1000;
+        double difference = (double) (data.getCSSDate().getMillis() - data
+                .getLKPDate().getMillis()) / 60 / 60 / 1000;
+
+        data.setTimeElasped(difference);
+
         // System.out.println("Hours since started: " + difference);
 
-        rapidResponse(LKP, TWCHeading, downWind, LWknots, TWCknots, difference,
-                x, y, SF);
-
-        return "Rapid response";
-
+        rapidResponse(data);
     }
 
-    /**
-     * @return the operationType
-     */
-    public SAR_TYPE getOperationType() {
-        return operationType;
-    }
-
-    /**
-     * @return the tLKP
-     */
-    public DateTime getTLKP() {
-        return TLKP;
-    }
-
-    /**
-     * @param tLKP
-     *            the tLKP to set
-     */
-    public void setTLKP(DateTime tLKP) {
-        TLKP = tLKP;
-    }
-
-    /**
-     * @return the cSS
-     */
-    public DateTime getCSS() {
-        return CSS;
-    }
-
-    /**
-     * @param cSS
-     *            the cSS to set
-     */
-    public void setCSS(DateTime cSS) {
-        CSS = cSS;
-    }
-
-    /**
-     * @return the cTSD
-     */
-    public Date getCTSD() {
-        return CTSD;
-    }
-
-    /**
-     * @param cTSD
-     *            the cTSD to set
-     */
-    public void setCTSD(Date cTSD) {
-        CTSD = cTSD;
-    }
-
-    /**
-     * @return the lKP
-     */
-    public Position getLKP() {
-        return LKP;
-    }
-
-    /**
-     * @param lKP
-     *            the lKP to set
-     */
-    public void setLKP(Position lKP) {
-        LKP = lKP;
-    }
-
-    /**
-     * @return the tWCknots
-     */
-    public double getTWCknots() {
-        return TWCknots;
-    }
-
-    /**
-     * @param tWCknots
-     *            the tWCknots to set
-     */
-    public void setTWCknots(double tWCknots) {
-        TWCknots = tWCknots;
-    }
-
-    /**
-     * @return the tWCHeading
-     */
-    public double getTWCHeading() {
-        return TWCHeading;
-    }
-
-    /**
-     * @param tWCHeading
-     *            the tWCHeading to set
-     */
-    public void setTWCHeading(double tWCHeading) {
-        TWCHeading = tWCHeading;
-    }
-
-    /**
-     * @return the lWknots
-     */
-    public double getLWknots() {
-        return LWknots;
-    }
-
-    /**
-     * @param lWknots
-     *            the lWknots to set
-     */
-    public void setLWknots(double lWknots) {
-        LWknots = lWknots;
-    }
-
-    /**
-     * @return the lWHeading
-     */
-    public double getLWHeading() {
-        return LWHeading;
-    }
-
-    /**
-     * @param lWHeading
-     *            the lWHeading to set
-     */
-    public void setLWHeading(double lWHeading) {
-        LWHeading = lWHeading;
-    }
-
-    /**
-     * @return the downWind
-     */
-    public double getDownWind() {
-        return downWind;
-    }
-
-    /**
-     * @param downWind
-     *            the downWind to set
-     */
-    public void setDownWind(double downWind) {
-        this.downWind = downWind;
-    }
-
-    /**
-     * @return the x
-     */
-    public double getX() {
-        return x;
-    }
-
-    /**
-     * @param x
-     *            the x to set
-     */
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    /**
-     * @return the y
-     */
-    public double getY() {
-        return y;
-    }
-
-    /**
-     * @param y
-     *            the y to set
-     */
-    public void setY(double y) {
-        this.y = y;
-    }
-
-    /**
-     * @return the sF
-     */
-    public double getSF() {
-        return SF;
-    }
-
-    /**
-     * @param sF
-     *            the sF to set
-     */
-    public void setSF(double sF) {
-        SF = sF;
-    }
+   
 
     /**
      * @return the voctManager
@@ -328,32 +122,81 @@ public class SAROperation {
         this.voctManager = voctManager;
     }
 
-    private void rapidResponse(Position LKP, double TWCHeading,
-            double downWind, double LWknots, double TWCknots,
-            double timeElasped, double x, double y, double SF) {
+    private double searchObjectValue(int searchObject, double LWKnots) {
+
+        switch (searchObject) {
+        case 0:
+            return LeewayValues.personInWater(LWKnots);
+        case 1:
+            return LeewayValues.raftFourToSix(LWKnots);
+        case 2:
+            return LeewayValues.raftFourToSixWithDriftAnker(LWKnots);
+        case 3:
+            return LeewayValues.raftFourToSixWithoutDriftAnker(LWKnots);
+        case 4:
+            return LeewayValues.raftFifteenToTwentyFive(LWKnots);
+        case 5:
+            return LeewayValues.raftFifteenToTwentyFiveWithDriftAnker(LWKnots);
+        case 6:
+            return LeewayValues
+                    .raftFifteenToTwentyFiveWitouthDriftAnker(LWKnots);
+        case 7:
+            return LeewayValues.dinghyFlatBottom(LWKnots);
+        case 8:
+            return LeewayValues.dinghyWithKeel(LWKnots);
+        case 9:
+            return LeewayValues.dinghyCapsized(LWKnots);
+        case 10:
+            return LeewayValues.kayakWithPerson(LWKnots);
+        case 11:
+            return LeewayValues.surfboardWithPerson(LWKnots);
+        case 12:
+            return LeewayValues.windsurferWithPersonMastAndSailInWater(LWKnots);
+        case 13:
+            return LeewayValues.sailboatLongKeel(LWKnots);
+        case 14:
+            return LeewayValues.sailboatFinKeel(LWKnots);
+        case 15:
+            return LeewayValues.motorboat(LWKnots);
+        case 16:
+            return LeewayValues.fishingVessel(LWKnots);
+        case 17:
+            return LeewayValues.trawler(LWKnots);
+        case 18:
+            return LeewayValues.coaster(LWKnots);
+        case 19:
+            return LeewayValues.wreckage(LWKnots);
+
+        }
+
+        return -9999.9;
+    }
+
+    // private void rapidResponse(Position LKP, double TWCHeading,
+    // double downWind, double LWknots, double LWHeading, double TWCknots,
+    // double timeElasped, double x, double y, double SF,
+    // int searchObject, DateTime LKPDate, DateTime CSSDate) {
+
+    private void rapidResponse(RapidResponseData data) {
 
         // System.out.println("Calculation for Rapid Response");
 
-        // System.out.println("LKP is: " + LKP);
-
-        double currentTWC = TWCknots * timeElasped;
+        double currentTWC = data.getTWCknots() * data.getTimeElasped();
         // System.out.println("Current TWC is: " + currentTWC +
         // " with heading: "
         // + TWCHeading);
 
         // Example person in water, influenced by the wind of LWknots speed
         // will have a final speed of leewayspeed:
-        double leewayspeed = LeewayValues.personInWater(LWknots);
+        // double leewayspeed = LeewayValues.personInWater(LWknots);
+        double leewayspeed = searchObjectValue(data.getSearchObject(),
+                data.LWknots);
 
         // Leeway, object have floated for how long at what time
-        double leeway = leewayspeed * timeElasped;
+        double leeway = leewayspeed * data.getTimeElasped();
 
         System.out.println("Leeway is: " + leeway
-                + " nautical miles with heading: " + downWind);
-        // leeway = 0.5875;
-
-        System.out.println(LKP.getLatitude());
-        System.out.println(LKP.getLongitude());
+                + " nautical miles with heading: " + data.getDownWind());
 
         Ellipsoid reference = Ellipsoid.WGS84;
         double[] endBearing = new double[1];
@@ -361,47 +204,56 @@ public class SAROperation {
         // Object starts at LKP, with TWCheading, drifting for currentWTC
         // knots where will it end up
         Position currentPos = Calculator.calculateEndingGlobalCoordinates(
-                reference, LKP, TWCHeading, Converter.nmToMeters(currentTWC),
-                endBearing);
+                reference, data.getLKP(), data.getTWCHeading(),
+                Converter.nmToMeters(currentTWC), endBearing);
 
         System.out.println("Current is: " + currentPos.getLatitude());
         System.out.println("Current is: " + currentPos.getLongitude());
 
+        data.setWtc(currentPos);
+
         endBearing = new double[1];
 
         Position windPos = Calculator.calculateEndingGlobalCoordinates(
-                reference, currentPos, downWind, Converter.nmToMeters(leeway),
-                endBearing);
+                reference, currentPos, data.getDownWind(),
+                Converter.nmToMeters(leeway), endBearing);
 
         System.out.println("Wind pos is: " + windPos.getLatitude());
         System.out.println("Wind pos is: " + windPos.getLongitude());
 
         Position datum = windPos;
 
+        data.setDatum(datum);
+
         System.out.println("Final position is " + datum);
 
         // RDV Direction
-        double rdvDirection = Calculator.bearing(LKP, windPos, Heading.RL);
+        double rdvDirection = Calculator.bearing(data.getLKP(), windPos,
+                Heading.RL);
 
+        data.setRdvDirection(rdvDirection);
         System.out.println("RDV Direction: " + rdvDirection);
 
         // RDV Distance
-        double rdvDistance = Calculator.range(LKP, windPos, Heading.RL);
+        double rdvDistance = Calculator.range(data.getLKP(), windPos,
+                Heading.RL);
 
+        data.setRdvDistance(rdvDistance);
         System.out.println("RDV Distance: " + rdvDistance);
 
         // RDV Speed
-        double rdvSpeed = rdvDistance / timeElasped;
+        double rdvSpeed = rdvDistance / data.getTimeElasped();
 
+        data.setRdvSpeed(rdvSpeed);
         System.out.println("RDV Speed: " + rdvSpeed);
 
         // Radius:
-        double radius = x + y + 0.3 * rdvDistance * SF;
+        double radius = data.getX() + data.getY() + 0.3 * rdvDistance
+                * data.getSF();
+
+        data.setRadius(radius);
 
         System.out.println("Radius is: " + radius);
-
-        RapidResponseData data = new RapidResponseData(LKP, datum, currentPos,
-                radius);
 
         // datum
         // radius
@@ -411,11 +263,12 @@ public class SAROperation {
         // find box
 
         findRapidResponseBox(datum, radius, data);
-        
+
         voctManager.setRapidResponseData(data);
     }
 
-    public static void findRapidResponseBox(Position datum, double radius, RapidResponseData data) {
+    public static void findRapidResponseBox(Position datum, double radius,
+            RapidResponseData data) {
         // Search box
         // The box is square around the circle, with center point at datum
         // Radius is the calculated Radius
@@ -468,10 +321,9 @@ public class SAROperation {
         //
         // // System.out.println("POD is " + findPoD(0.8, 0.7875));
         // System.out.println("POD is " + findPoD(1.1, 0.8));
-        
-        
+
         data.setBox(A, B, C, D);
-        
+
     }
 
     public static double findPoD(double W, double S) {
@@ -491,5 +343,9 @@ public class SAROperation {
 
         return pod;
 
+    }
+
+    public SAR_TYPE getOperationType() {
+        return this.operationType;
     }
 }

@@ -17,6 +17,7 @@ package dk.dma.epd.ship.gui.voct;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -47,7 +48,8 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
     JComboBox<String> lwHeadingDropdown;
 
     JXDatePicker surfaceDriftPicker;
-
+    JSpinner surfaceDriftSpinner;
+    
     int id;
 
     private void displayMissingField(String fieldname) {
@@ -127,6 +129,33 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
         }
 
     }
+    
+    
+    @SuppressWarnings("deprecation")
+    public Date getDateTime(){
+        
+//        surfaceDriftPicker
+//        surfaceDriftSpinner
+        Date date = surfaceDriftPicker.getDate();
+        
+        JSpinner.DateEditor editor = (JSpinner.DateEditor) surfaceDriftSpinner
+                .getEditor();
+        // System.out.println("DepartureTime was changed to "
+        // + departureSpinner.getValue());
+        SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+        Date testDate = null;
+        try {
+            testDate = df.parse(editor.getTextField().getText());
+
+            date.setHours(testDate.getHours());
+            date.setMinutes(testDate.getMinutes());
+        } catch (ParseException e1) {
+            // Ignore
+        }
+        
+        return date;
+    }
+    
 
     public SurfaceDriftPanel(int number) {
 
@@ -156,7 +185,7 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
         SpinnerDateModel currentTimeModel3 = new SpinnerDateModel(date3, null,
                 null, Calendar.HOUR_OF_DAY);
 
-        JSpinner surfaceDriftSpinner = new JSpinner(currentTimeModel3);
+        surfaceDriftSpinner = new JSpinner(currentTimeModel3);
 
         surfaceDriftSpinner.setLocation(268, 22);
         surfaceDriftSpinner.setSize(54, 20);

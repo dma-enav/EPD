@@ -92,14 +92,16 @@ public class VOCTManager implements Runnable, Serializable {
         return SAR_TYPE.NONE;
     }
 
-    public String inputRapidResponseData(DateTime TLKP, DateTime CSS,
+    public void inputRapidResponseData(DateTime TLKP, DateTime CSS,
             Position LKP, Position CSP, double TWCknots, double TWCHeading,
             double LWknots, double LWHeading, double x, double y, double SF,
             int searchObject) {
 
-        return sarOperation.startRapidResponseCalculations(TLKP, CSS, LKP, CSP,
+        RapidResponseData data = new RapidResponseData(TLKP, CSS, LKP, CSP,
                 TWCknots, TWCHeading, LWknots, LWHeading, x, y, SF,
                 searchObject);
+
+        sarOperation.startRapidResponseCalculations(data);
 
     }
 

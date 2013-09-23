@@ -62,6 +62,7 @@ import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.service.voct.LeewayValues;
 import dk.dma.epd.ship.service.voct.SAR_TYPE;
 import dk.dma.epd.ship.service.voct.VOCTManager;
+import javax.swing.SwingConstants;
 
 public class SARInput extends JDialog implements ActionListener,
         DocumentListener {
@@ -199,18 +200,14 @@ public class SARInput extends JDialog implements ActionListener,
     private void calculationsPanel() {
         JPanel calculationsPanel = new JPanel();
         JScrollPane calculationsScrollPanel = new JScrollPane(calculationsPanel);
-        calculationsPanel.setLayout(null);
 
         masterPanel
                 .add(calculationsScrollPanel, CALCULATIONSPANELRAPIDRESPONSE);
-
-        JLabel lblCalculationsPanelTitle = new JLabel(
-                "Rapid Response Calculations");
-        lblCalculationsPanelTitle.setBounds(10, 11, 207, 14);
-        calculationsPanel.add(lblCalculationsPanelTitle);
+        calculationsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        calculationsText.setVerticalAlignment(SwingConstants.TOP);
+        calculationsText.setHorizontalAlignment(SwingConstants.LEFT);
 
         calculationsPanel.add(calculationsText);
-        calculationsText.setBounds(10, 30, 521, 319);
 
     }
 
@@ -459,6 +456,11 @@ public class SARInput extends JDialog implements ActionListener,
         JSpinner.DateEditor dateEditorCommenceSearchStart = new JSpinner.DateEditor(
                 commenceStartSpinner, "HH:mm");
         commenceStartSpinner.setEditor(dateEditorCommenceSearchStart);
+
+        ((DefaultEditor) commenceStartSpinner.getEditor()).getTextField()
+                .getDocument().addDocumentListener(this);
+        ((DefaultEditor) commenceStartSpinner.getEditor()).getTextField()
+                .getDocument().putProperty("name", "commenceStartSpinner");
 
         commenceStartPanel.add(commenceStartSpinner);
 
@@ -751,7 +753,7 @@ public class SARInput extends JDialog implements ActionListener,
                 CardLayout cl = (CardLayout) (masterPanel.getLayout());
 
                 if (validateInputAndInititate()) {
-                    calculationsText.setText(calculationsHTML);
+                    calculationsText.setText(voctManager.getRapidResponseData().generateHTML());
                     btnBack.setEnabled(true);
                     nextButton.setText("Finish");
 
@@ -860,7 +862,7 @@ public class SARInput extends JDialog implements ActionListener,
 
     }
 
-    private void checkTime() {
+    private void checkTimeold() {
         // LKP must be before commence start
 
         cssDatePicker.getDate();
@@ -878,39 +880,38 @@ public class SARInput extends JDialog implements ActionListener,
         DateTime CSS = new DateTime(2013, 7, 2, 10, 30, timeZone);
     }
 
-    @SuppressWarnings("deprecation")
     private void updateTimeZone() {
 
-        System.out.println("Updated timezone");
+        // System.out.println("Updated timezone");
 
         String selectedTimeZone = (String) timeZoneDropdown.getSelectedItem();
 
         timeZone = DateTimeZone.forID(selectedTimeZone);
 
-        System.out.println("LKP time is: " + LKPDate);
-
-        System.out.println("To date version of lkp is: " + LKPDate.toDate());
-
-        // Updated internal time
-        LKPDate = LKPDate.toDateTime(timeZone);
-        CSSDate = CSSDate.toDateTime(timeZone);
+        // System.out.println("LKP time is: " + LKPDate);
+        //
+        // // Updated internal time
+        // LKPDate = LKPDate.toDateTime(timeZone);
+        // CSSDate = CSSDate.toDateTime(timeZone);
+        //
+        // System.out.println("LKP time is: " + LKPDate);
 
         // Update spinners
 
-        Date lkpTempDate = new Date();
-        lkpTempDate.setHours(LKPDate.getHourOfDay());
-        // lkpTempDate.setMinutes(LKPDate.getMinuteOfDay());
-
-        System.out.println(LKPDate.getHourOfDay());
-        System.out.println(LKPDate.getMinuteOfDay());
-
-        lkpSpinner.getModel().setValue(lkpTempDate);
-
-        Date CSSTempDate = new Date();
-        CSSTempDate.setHours(CSSDate.getHourOfDay());
-        // CSSTempDate.setMinutes(CSSDate.getMinuteOfDay());
-
-        commenceStartSpinner.getModel().setValue(lkpTempDate);
+        // Date lkpTempDate = new Date();
+        // lkpTempDate.setHours(LKPDate.getHourOfDay());
+        // // lkpTempDate.setMinutes(LKPDate.getMinuteOfDay());
+        //
+        // System.out.println(LKPDate.getHourOfDay());
+        // System.out.println(LKPDate.getMinuteOfDay());
+        //
+        // lkpSpinner.getModel().setValue(lkpTempDate);
+        //
+        // Date CSSTempDate = new Date();
+        // CSSTempDate.setHours(CSSDate.getHourOfDay());
+        // // CSSTempDate.setMinutes(CSSDate.getMinuteOfDay());
+        //
+        // commenceStartSpinner.getModel().setValue(lkpTempDate);
 
     }
 
@@ -1074,13 +1075,46 @@ public class SARInput extends JDialog implements ActionListener,
         // yError
         // safetyFactor
         // searchObject
+        
+        
+        if (!checkTime()){
+            return false;
+        }
+        
+        if (!checkMetocTime()){
+            return false;
+        }
 
-        calculationsHTML = voctManager.inputRapidResponseData(LKPDate, CSSDate,
+        voctManager.inputRapidResponseData(LKPDate, CSSDate,
                 rapidResponsePosition, commenceStartPosition, TWCKnots,
                 twcHeading, leewayKnots, leewayHeading, xError, yError,
                 safetyFactor, searchObject);
 
         return true;
+    }
+
+    
+    private boolean checkMetocTime(){
+        // The weather point must be before LKP
+        if (LKPDate.isAfter(surfaceDriftPanelList.get(0).getDateTime().getTime())) {
+            return true;
+        }
+
+        displayMsgbox("Surfact drift point must be before\nLast Known Position");
+
+        return false; 
+    }
+    
+    private boolean checkTime() {
+
+        // Do we start the search AFTER the LKP
+        if (CSSDate.isAfter(LKPDate)) {
+            return true;
+        }
+
+        displayMsgbox("Commence Search Start Must be after\nLast Known Position");
+
+        return false;
     }
 
     private double getSafetyFactor() {
@@ -1143,6 +1177,12 @@ public class SARInput extends JDialog implements ActionListener,
                 + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
     }
 
+    private void displayMsgbox(String msg) {
+        // Missing or incorrect value in
+        JOptionPane.showMessageDialog(this, msg, "Input Error",
+                JOptionPane.ERROR_MESSAGE);
+    }
+
     @SuppressWarnings("deprecation")
     @Override
     public void insertUpdate(DocumentEvent e) {
@@ -1161,6 +1201,29 @@ public class SARInput extends JDialog implements ActionListener,
 
                 LKPDate = LKPDate.withHourOfDay(testDate.getHours());
                 LKPDate = LKPDate.withMinuteOfHour(testDate.getMinutes());
+            } catch (ParseException e1) {
+                // Ignore
+            }
+
+            // departurePicker
+
+            // System.out.println("DepartureTime text was changed to "
+            // + editor.getTextField().getText());
+        }
+
+        // Departure
+        if ("commenceStartSpinner".equals(name)) {
+            JSpinner.DateEditor editor = (JSpinner.DateEditor) commenceStartSpinner
+                    .getEditor();
+            // System.out.println("DepartureTime was changed to "
+            // + departureSpinner.getValue());
+            SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+            Date testDate = null;
+            try {
+                testDate = df.parse(editor.getTextField().getText());
+
+                CSSDate = CSSDate.withHourOfDay(testDate.getHours());
+                CSSDate = CSSDate.withMinuteOfHour(testDate.getMinutes());
             } catch (ParseException e1) {
                 // Ignore
             }
