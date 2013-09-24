@@ -196,8 +196,6 @@ public class ToolBar extends JInternalFrame {
                     for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
                         mainFrame.getMapWindows().get(i).getChartPanel()
                                 .getWmsLayer().setVisible(false);
-                        mainFrame.getMapWindows().get(i).getChartPanel()
-                                .getBgLayer().setVisible(true);
                     }
                     setInactiveToolItem(wms);
 
@@ -206,9 +204,6 @@ public class ToolBar extends JInternalFrame {
                     for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
                         mainFrame.getMapWindows().get(i).getChartPanel()
                                 .getWmsLayer().setVisible(true);
-                        mainFrame.getMapWindows().get(i).getChartPanel()
-                                .getBgLayer().setVisible(false);
-
                         setActiveToolItem(wms, layerToolItems);
                     }
                 }
