@@ -59,13 +59,13 @@ public class DragMouseMode extends AbstractCoordMouseMode {
     public static final float DEFAULT_OPAQUENESS = 0.5f;
 
     private boolean isPanning;
-    volatile private BufferedImage bufferedMapImage;
+    private volatile BufferedImage bufferedMapImage;
     private int beanBufferWidth;
     private int beanBufferHeight;
     private int oX, oY;
     private float opaqueness;
-    volatile private boolean leaveShadow;
-    volatile private boolean useCursor;
+    private volatile boolean leaveShadow;
+    private volatile boolean useCursor;
     volatile boolean layerMouseDrag;
     volatile boolean mouseDragged;
 
