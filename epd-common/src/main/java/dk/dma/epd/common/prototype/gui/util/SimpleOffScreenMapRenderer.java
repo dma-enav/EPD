@@ -52,7 +52,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
     private final Object imgLock = new Object();
     private BufferedImage img;
     private volatile BufferedImage outImg;
-    private volatile boolean dummy = false;
+    private volatile boolean dummy;
     
     public BufferedImage getImg() {
         return img;
@@ -72,7 +72,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
     public SimpleOffScreenMapRenderer(MapBean sourceBean, MapBean targetBean,
             int sizeFactor) {
         super();
-
+        this.dummy = false;
         this.LOG = LoggerFactory.getLogger(SimpleOffScreenMapRenderer.class);
 
         this.sourceBean = sourceBean;
