@@ -36,8 +36,8 @@ public class MapSettings implements Serializable {
     private LatLonPoint center = new LatLonPoint.Double(56, 11);
     private float scale = 10000000;
     private boolean useEnc = true;
-    private boolean useWms = false;
-    private boolean useWmsDragging = false;
+    private boolean useWms; //default = false
+    private boolean useWmsDragging;
 
 
     public boolean isUseWmsDragging() {
