@@ -304,7 +304,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             this.setVisible(false);
         }
 
-        if (e == VOCTUpdateEvent.SAR_READY) {
+        if (e == VOCTUpdateEvent.SAR_DISPLAY) {
             drawRapidResponse();
             this.setVisible(true);
         }

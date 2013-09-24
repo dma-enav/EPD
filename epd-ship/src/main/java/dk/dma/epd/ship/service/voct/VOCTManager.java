@@ -60,7 +60,7 @@ public class VOCTManager implements Runnable, Serializable {
         LOG.info("Started VOCT Manager");
     }
 
-    public void initializeSarOperation() {
+    public void showSarInput() {
         LOG.info("Started new SAR Operation");
         if (!hasSar) {
             hasSar = true;
@@ -78,6 +78,15 @@ public class VOCTManager implements Runnable, Serializable {
             sarInputDialog.setVisible(true);
         }
 
+    }
+
+    
+    
+    /**
+     * @return the hasSar
+     */
+    public boolean isHasSar() {
+        return hasSar;
     }
 
     public void setSarType(SAR_TYPE type) {
@@ -115,6 +124,11 @@ public class VOCTManager implements Runnable, Serializable {
         notifyListeners(VOCTUpdateEvent.SAR_CANCEL);
     }
 
+    public void displaySar(){
+        notifyListeners(VOCTUpdateEvent.SAR_DISPLAY);
+    }
+    
+    
     @Override
     public void run() {
 

@@ -157,8 +157,6 @@ public class SARInput extends JDialog implements ActionListener,
     private JComboBox<String> comboCSSLon;
     private JComboBox<String> comboCSSLat;
 
-    private String calculationsHTML;
-
     /**
      * 
      * Create the dialog.
@@ -343,6 +341,7 @@ public class SARInput extends JDialog implements ActionListener,
         lkpDatePicker.setBounds(170, 22, 105, 20);
         lkpPanel.add(lkpDatePicker);
         lkpDatePicker.setDate(LKPDate.toDate());
+        lkpDatePicker.addActionListener(this);
 
         lkpDatePicker.setFormats(format);
 
@@ -437,6 +436,7 @@ public class SARInput extends JDialog implements ActionListener,
 
         cssDatePicker = new JXDatePicker();
         cssDatePicker.setBounds(170, 22, 105, 20);
+        cssDatePicker.addActionListener(this);
         commenceStartPanel.add(cssDatePicker);
 
         cssDatePicker.setFormats(format);
@@ -690,6 +690,7 @@ public class SARInput extends JDialog implements ActionListener,
 
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void actionPerformed(ActionEvent arg0) {
 
@@ -753,7 +754,8 @@ public class SARInput extends JDialog implements ActionListener,
                 CardLayout cl = (CardLayout) (masterPanel.getLayout());
 
                 if (validateInputAndInititate()) {
-                    calculationsText.setText(voctManager.getRapidResponseData().generateHTML());
+                    calculationsText.setText(voctManager.getRapidResponseData()
+                            .generateHTML());
                     btnBack.setEnabled(true);
                     nextButton.setText("Finish");
 
@@ -780,7 +782,9 @@ public class SARInput extends JDialog implements ActionListener,
 
                 System.out.println("Hiding");
 
-                // Inititate calculations and hide dialog
+                // Display SAR command
+                voctManager.displaySar();
+
                 this.setVisible(false);
                 return;
             }
@@ -813,18 +817,44 @@ public class SARInput extends JDialog implements ActionListener,
         if (arg0.getSource() == cancelButton) {
             this.setVisible(false);
             voctManager.cancelSarOperation();
+            return;
         }
 
         if (arg0.getSource() == btnAddPoint) {
             surfaceDriftPanelContainer.add(addPoint(metocPoints));
             scrollPaneSurfaceDrift.validate();
             scrollPaneSurfaceDrift.repaint();
+            return;
 
         }
 
         if (arg0.getSource() == searchObjectDropDown) {
             searchObjectText.setText(LeewayValues.getLeeWayContent().get(
                     searchObjectDropDown.getSelectedIndex()));
+            return;
+        }
+
+        if (arg0.getSource() == lkpDatePicker) {
+            
+            Date tempDate = lkpDatePicker.getDate();
+            
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(tempDate);
+            
+            LKPDate = LKPDate.withDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH)+1,
+                    cal.get(Calendar.DAY_OF_MONTH));
+            return;
+        }
+        if (arg0.getSource() == cssDatePicker) {
+            
+            Date tempDate = cssDatePicker.getDate();
+            
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(tempDate);
+            
+            CSSDate = CSSDate.withDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH)+1,
+                    cal.get(Calendar.DAY_OF_MONTH));
+            return;
         }
 
     }
@@ -860,24 +890,6 @@ public class SARInput extends JDialog implements ActionListener,
 
         // voctManager
 
-    }
-
-    private void checkTimeold() {
-        // LKP must be before commence start
-
-        cssDatePicker.getDate();
-
-        lkpDatePicker.getDate();
-
-        lkpSpinner.getValue();
-
-        commenceStartSpinner.getValue();
-
-        DateTimeZone timeZone = DateTimeZone.forID("CET");
-
-        DateTime TLKP = new DateTime(2013, 7, 2, 8, 0, timeZone);
-
-        DateTime CSS = new DateTime(2013, 7, 2, 10, 30, timeZone);
     }
 
     private void updateTimeZone() {
@@ -1060,8 +1072,9 @@ public class SARInput extends JDialog implements ActionListener,
         int searchObject = searchObjectDropDown.getSelectedIndex();
 
         // Only valid search objects is value 0 to 19
-        if (searchObject > 0 || searchObject > 19) {
+        if (searchObject < 0 || searchObject > 20) {
             // Error message is handled within function
+            System.out.println("failed search object with id " + searchObject);
             return false;
         }
 
@@ -1075,13 +1088,12 @@ public class SARInput extends JDialog implements ActionListener,
         // yError
         // safetyFactor
         // searchObject
-        
-        
-        if (!checkTime()){
+
+        if (!checkTime()) {
             return false;
         }
-        
-        if (!checkMetocTime()){
+
+        if (!checkMetocTime()) {
             return false;
         }
 
@@ -1093,18 +1105,18 @@ public class SARInput extends JDialog implements ActionListener,
         return true;
     }
 
-    
-    private boolean checkMetocTime(){
+    private boolean checkMetocTime() {
         // The weather point must be before LKP
-        if (LKPDate.isAfter(surfaceDriftPanelList.get(0).getDateTime().getTime())) {
+        if (LKPDate.isAfter(surfaceDriftPanelList.get(0).getDateTime()
+                .getTime())) {
             return true;
         }
 
         displayMsgbox("Surfact drift point must be before\nLast Known Position");
 
-        return false; 
+        return false;
     }
-    
+
     private boolean checkTime() {
 
         // Do we start the search AFTER the LKP

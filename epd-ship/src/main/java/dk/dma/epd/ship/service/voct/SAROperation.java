@@ -326,26 +326,22 @@ public class SAROperation {
 
     }
 
-    public static double findPoD(double W, double S) {
-        System.out.println("W is " + W);
-        System.out.println("S is " + S);
-
-        double val1 = -8.0 / 5.0;
-        double val2 = W / S;
-        double val3 = Math.pow(val2, 7.0 / 5.0);
-
-        // System.out.println("val 1: " + val1);
-        // System.out.println("val 2: " + val2);
-        // System.out.println("val 3: " + val3);
-        // System.out.println("internal: " + (val1*val3));
-
-        double pod = 1 - Math.exp(val1 * val3);
-
-        return pod;
-
-    }
-
     public SAR_TYPE getOperationType() {
         return this.operationType;
     }
+    
+    
+    public static double findS(double W, double PoD){
+//      S = W*(-5/8*ln(1-x))^(-5/7)
+      
+      double val1 = (-5.0/8.0)*Math.log(1-PoD);
+      double val2 = Math.pow(val1, -5.0/7.0);
+      
+      
+//      System.out.println("Val 1 is " + val1);
+//      System.out.println("Val 2 is " + val2);
+      
+      return W*val2;
+  }
+  
 }

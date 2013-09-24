@@ -20,6 +20,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.text.Formatter;
 
 public class RapidResponseData {
 
@@ -457,7 +458,7 @@ public class RapidResponseData {
     public String generateHTML() {
         
         
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMMM, yyyy, 'kl.' HH':'mm");
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMMM, yyyy, 'at.' HH':'mm");
         
         // // Generate a html sheet of rapid response calculations
         StringBuilder str = new StringBuilder();
@@ -476,8 +477,8 @@ public class RapidResponseData {
         str.append("<br>Commence Search Point: " + CSP.toString() + "</br>");
         str.append("<hr>");
         str.append("<font size=\"4\">");
-        str.append("Total Water Current: " + TWCknots + " knots with heading " + TWCHeading + "");
-        str.append("<br>Leeway: " + LWknots + " knots with heading " + LWHeading + "</br>");
+        str.append("Total Water Current: " + TWCknots + " knots with heading " + TWCHeading + "°");
+        str.append("<br>Leeway: " + LWknots + " knots with heading " + LWHeading + "°</br>");
         str.append("<hr>");
         str.append("<font size=\"4\">");
         str.append("Initial Position Error, X in nautical miles: " + x + "");
@@ -489,13 +490,13 @@ public class RapidResponseData {
         str.append("<br>With value: " + LeewayValues.getLeeWayContent().get(searchObject) + "</br>");
         str.append("<hr>");
         str.append("<font size=\"4\">");
-        str.append("Time Elapsed: " + timeElasped + " hours");
+        str.append("Time Elapsed: " + Formatter.formatHours(timeElasped) + "");
         str.append("<br>Applying Leeway and TWC gives a datum of  " + datum.toString() + "</br>");
         str.append("<br>With the following Residual Drift Vector</br>");
-        str.append("<br>RDV Direction: " + rdvDirection + "</br>");
-        str.append("<br>RDV Distance: " + rdvDistance + "</br>");
-        str.append("<br>RDV Speed: " + rdvSpeed + "</br>");
-        str.append("<br>With radius: " + radius + "</br>");
+        str.append("<br>RDV Direction: " + rdvDirection + "°</br>");
+        str.append("<br>RDV Distance: " + Formatter.formatDouble(rdvDistance, 2) + " nm</br>");
+        str.append("<br>RDV Speed: " + Formatter.formatDouble(rdvSpeed, 2) + " kn/h</br>");
+        str.append("<br>With radius: " + Formatter.formatDouble(radius, 2) + "nm </br>");
         str.append("<hr>");
         str.append("<font size=\"4\">");
         str.append("Search Area:");
@@ -503,7 +504,7 @@ public class RapidResponseData {
         str.append("<br>B: " + B.toString() + "</br>");
         str.append("<br>C: " + C.toString() + "</br>");
         str.append("<br>D: " + D.toString() + "</br>");
-        str.append("<br>Total Size: " + (radius*2*radius*2) + " nm2</br>");
+        str.append("<br>Total Size: " + Formatter.formatDouble(radius*2*radius*2, 2) + " nm2</br>");
 
         str.append("</font>");
         str.append("</td>");

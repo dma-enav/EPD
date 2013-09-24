@@ -32,7 +32,12 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 
-import dk.dma.epd.ship.route.RouteManager;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
+import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.ship.gui.voct.EffortAllocationWindow;
+import dk.dma.epd.ship.service.voct.RapidResponseData;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 
 /**
@@ -55,24 +60,24 @@ public class SARPanel extends JPanel implements ActionListener {
     private JButton btnReopenCalculations;
     private JButton btnEffortAllocation;
     private JLabel lblTimeOfLast;
-    private JLabel label;
+    private JLabel lkpDate;
     private JLabel lblNewLabel;
-    private JLabel lblNewLabel_1;
+    private JLabel cssDateStart;
     private JLabel lblTimeElasped;
-    private JLabel lblHours;
+    private JLabel timeElapsed;
     private JLabel lblDirection;
-    private JLabel label_1;
+    private JLabel rdvDirection;
     private JLabel lblSpeed;
-    private JLabel lblKt;
+    private JLabel rdvSpeed;
     private JLabel lblDownwind;
     private JLabel lblLatitude;
     private JLabel lblLongitude;
     private JLabel lblRdv;
     private JLabel lblRadius;
-    private JLabel lblN;
-    private JLabel lblE;
-    private JLabel label_2;
-    private JLabel label_3;
+    private JLabel datumLat;
+    private JLabel datumLon;
+    private JLabel rdvDistance;
+    private JLabel datumRadius;
     private JLabel lblA;
     private JLabel lblB;
     private JLabel lblC;
@@ -80,15 +85,15 @@ public class SARPanel extends JPanel implements ActionListener {
     private JLabel lblAreaSize;
     private JLabel lblLatitude_1;
     private JLabel lblLongitude_1;
-    private JLabel lblN_1;
-    private JLabel lblE_1;
-    private JLabel lblN_2;
-    private JLabel lblE_2;
-    private JLabel lblN_3;
-    private JLabel lblE_3;
-    private JLabel lblN_4;
-    private JLabel lblE_4;
-    private JLabel label_4;
+    private JLabel pointAlat;
+    private JLabel pointAlon;
+    private JLabel pointBlat;
+    private JLabel pointBlon;
+    private JLabel pointClat;
+    private JLabel pointClon;
+    private JLabel pointDlat;
+    private JLabel pointDlon;
+    private JLabel areaSize;
     private Component horizontalStrut;
     private JPanel effortAllocationPanel;
     private JLabel lblProbabilityOfDetection;
@@ -237,13 +242,13 @@ public class SARPanel extends JPanel implements ActionListener {
         gbc_lblTimeOfLast.gridy = 0;
         timeAndDatePanel.add(lblTimeOfLast, gbc_lblTimeOfLast);
 
-        label = new JLabel("08:00 02/07/2013");
-        GridBagConstraints gbc_label = new GridBagConstraints();
-        gbc_label.fill = GridBagConstraints.HORIZONTAL;
-        gbc_label.insets = new Insets(0, 0, 5, 0);
-        gbc_label.gridx = 1;
-        gbc_label.gridy = 0;
-        timeAndDatePanel.add(label, gbc_label);
+        lkpDate = new JLabel("N/A");
+        GridBagConstraints gbc_lkpDate = new GridBagConstraints();
+        gbc_lkpDate.fill = GridBagConstraints.HORIZONTAL;
+        gbc_lkpDate.insets = new Insets(0, 0, 5, 0);
+        gbc_lkpDate.gridx = 1;
+        gbc_lkpDate.gridy = 0;
+        timeAndDatePanel.add(lkpDate, gbc_lkpDate);
 
         lblNewLabel = new JLabel("Time of Commence Search Start:");
         GridBagConstraints gbc_lblNewLabel = new GridBagConstraints();
@@ -253,13 +258,13 @@ public class SARPanel extends JPanel implements ActionListener {
         gbc_lblNewLabel.gridy = 1;
         timeAndDatePanel.add(lblNewLabel, gbc_lblNewLabel);
 
-        lblNewLabel_1 = new JLabel("10:30 02/07/2013");
-        GridBagConstraints gbc_lblNewLabel_1 = new GridBagConstraints();
-        gbc_lblNewLabel_1.fill = GridBagConstraints.HORIZONTAL;
-        gbc_lblNewLabel_1.insets = new Insets(0, 0, 5, 0);
-        gbc_lblNewLabel_1.gridx = 1;
-        gbc_lblNewLabel_1.gridy = 1;
-        timeAndDatePanel.add(lblNewLabel_1, gbc_lblNewLabel_1);
+        cssDateStart = new JLabel("N/A");
+        GridBagConstraints gbc_cssDateStart = new GridBagConstraints();
+        gbc_cssDateStart.fill = GridBagConstraints.HORIZONTAL;
+        gbc_cssDateStart.insets = new Insets(0, 0, 5, 0);
+        gbc_cssDateStart.gridx = 1;
+        gbc_cssDateStart.gridy = 1;
+        timeAndDatePanel.add(cssDateStart, gbc_cssDateStart);
 
         lblTimeElasped = new JLabel("Time elasped:");
         GridBagConstraints gbc_lblTimeElasped = new GridBagConstraints();
@@ -269,12 +274,12 @@ public class SARPanel extends JPanel implements ActionListener {
         gbc_lblTimeElasped.gridy = 2;
         timeAndDatePanel.add(lblTimeElasped, gbc_lblTimeElasped);
 
-        lblHours = new JLabel("2 hours 30 minutes");
-        GridBagConstraints gbc_lblHours = new GridBagConstraints();
-        gbc_lblHours.fill = GridBagConstraints.HORIZONTAL;
-        gbc_lblHours.gridx = 1;
-        gbc_lblHours.gridy = 2;
-        timeAndDatePanel.add(lblHours, gbc_lblHours);
+        timeElapsed = new JLabel("N/A");
+        GridBagConstraints gbc_timeElapsed = new GridBagConstraints();
+        gbc_timeElapsed.fill = GridBagConstraints.HORIZONTAL;
+        gbc_timeElapsed.gridx = 1;
+        gbc_timeElapsed.gridy = 2;
+        timeAndDatePanel.add(timeElapsed, gbc_timeElapsed);
 
         weatherPanel = new JPanel();
         weatherPanel.setBorder(new TitledBorder(null,
@@ -302,13 +307,13 @@ public class SARPanel extends JPanel implements ActionListener {
         gbc_lblDirection.gridy = 0;
         weatherPanel.add(lblDirection, gbc_lblDirection);
 
-        label_1 = new JLabel("180°");
-        GridBagConstraints gbc_label_1 = new GridBagConstraints();
-        gbc_label_1.anchor = GridBagConstraints.WEST;
-        gbc_label_1.insets = new Insets(0, 0, 5, 0);
-        gbc_label_1.gridx = 1;
-        gbc_label_1.gridy = 0;
-        weatherPanel.add(label_1, gbc_label_1);
+        rdvDirection = new JLabel("N/A");
+        GridBagConstraints gbc_rdvDirection = new GridBagConstraints();
+        gbc_rdvDirection.anchor = GridBagConstraints.WEST;
+        gbc_rdvDirection.insets = new Insets(0, 0, 5, 0);
+        gbc_rdvDirection.gridx = 1;
+        gbc_rdvDirection.gridy = 0;
+        weatherPanel.add(rdvDirection, gbc_rdvDirection);
 
         lblSpeed = new JLabel("Speed:");
         GridBagConstraints gbc_lblSpeed = new GridBagConstraints();
@@ -318,12 +323,12 @@ public class SARPanel extends JPanel implements ActionListener {
         gbc_lblSpeed.gridy = 1;
         weatherPanel.add(lblSpeed, gbc_lblSpeed);
 
-        lblKt = new JLabel("1.8 kt");
-        GridBagConstraints gbc_lblKt = new GridBagConstraints();
-        gbc_lblKt.anchor = GridBagConstraints.WEST;
-        gbc_lblKt.gridx = 1;
-        gbc_lblKt.gridy = 1;
-        weatherPanel.add(lblKt, gbc_lblKt);
+        rdvSpeed = new JLabel("1.8 kt");
+        GridBagConstraints gbc_rdvSpeed = new GridBagConstraints();
+        gbc_rdvSpeed.anchor = GridBagConstraints.WEST;
+        gbc_rdvSpeed.gridx = 1;
+        gbc_rdvSpeed.gridy = 1;
+        weatherPanel.add(rdvSpeed, gbc_rdvSpeed);
 
         datumPanel = new JPanel();
         datumPanel.setBorder(new TitledBorder(null, "Position of Datum to LKP",
@@ -377,32 +382,32 @@ public class SARPanel extends JPanel implements ActionListener {
         gbc_lblDownwind.gridy = 1;
         datumPanel.add(lblDownwind, gbc_lblDownwind);
 
-        lblN = new JLabel("56°18,2 N\t");
-        GridBagConstraints gbc_lblN = new GridBagConstraints();
-        gbc_lblN.insets = new Insets(0, 0, 0, 5);
-        gbc_lblN.gridx = 1;
-        gbc_lblN.gridy = 1;
-        datumPanel.add(lblN, gbc_lblN);
+        datumLat = new JLabel("N/A");
+        GridBagConstraints gbc_datumLat = new GridBagConstraints();
+        gbc_datumLat.insets = new Insets(0, 0, 0, 5);
+        gbc_datumLat.gridx = 1;
+        gbc_datumLat.gridy = 1;
+        datumPanel.add(datumLat, gbc_datumLat);
 
-        lblE = new JLabel("7°58,0 E\t");
-        GridBagConstraints gbc_lblE = new GridBagConstraints();
-        gbc_lblE.insets = new Insets(0, 0, 0, 5);
-        gbc_lblE.gridx = 2;
-        gbc_lblE.gridy = 1;
-        datumPanel.add(lblE, gbc_lblE);
+        datumLon = new JLabel("N/A");
+        GridBagConstraints gbc_datumLon = new GridBagConstraints();
+        gbc_datumLon.insets = new Insets(0, 0, 0, 5);
+        gbc_datumLon.gridx = 2;
+        gbc_datumLon.gridy = 1;
+        datumPanel.add(datumLon, gbc_datumLon);
 
-        label_2 = new JLabel("4.41");
-        GridBagConstraints gbc_label_2 = new GridBagConstraints();
-        gbc_label_2.insets = new Insets(0, 0, 0, 5);
-        gbc_label_2.gridx = 3;
-        gbc_label_2.gridy = 1;
-        datumPanel.add(label_2, gbc_label_2);
+        rdvDistance = new JLabel("N/A");
+        GridBagConstraints gbc_rdvDistance = new GridBagConstraints();
+        gbc_rdvDistance.insets = new Insets(0, 0, 0, 5);
+        gbc_rdvDistance.gridx = 3;
+        gbc_rdvDistance.gridy = 1;
+        datumPanel.add(rdvDistance, gbc_rdvDistance);
 
-        label_3 = new JLabel("2.42");
-        GridBagConstraints gbc_label_3 = new GridBagConstraints();
-        gbc_label_3.gridx = 4;
-        gbc_label_3.gridy = 1;
-        datumPanel.add(label_3, gbc_label_3);
+        datumRadius = new JLabel("N/A");
+        GridBagConstraints gbc_datumRadius = new GridBagConstraints();
+        gbc_datumRadius.gridx = 4;
+        gbc_datumRadius.gridy = 1;
+        datumPanel.add(datumRadius, gbc_datumRadius);
 
         searchAreaPanel = new JPanel();
         searchAreaPanel.setBorder(new TitledBorder(null,
@@ -443,19 +448,19 @@ public class SARPanel extends JPanel implements ActionListener {
         gbc_lblA.gridy = 1;
         searchAreaPanel.add(lblA, gbc_lblA);
 
-        lblN_1 = new JLabel("56°20,6 N\t");
-        GridBagConstraints gbc_lblN_1 = new GridBagConstraints();
-        gbc_lblN_1.insets = new Insets(0, 0, 5, 5);
-        gbc_lblN_1.gridx = 1;
-        gbc_lblN_1.gridy = 1;
-        searchAreaPanel.add(lblN_1, gbc_lblN_1);
+        pointAlat = new JLabel("N/A");
+        GridBagConstraints gbc_pointAlat = new GridBagConstraints();
+        gbc_pointAlat.insets = new Insets(0, 0, 5, 5);
+        gbc_pointAlat.gridx = 1;
+        gbc_pointAlat.gridy = 1;
+        searchAreaPanel.add(pointAlat, gbc_pointAlat);
 
-        lblE_1 = new JLabel("7°53,6 E\t");
-        GridBagConstraints gbc_lblE_1 = new GridBagConstraints();
-        gbc_lblE_1.insets = new Insets(0, 0, 5, 0);
-        gbc_lblE_1.gridx = 2;
-        gbc_lblE_1.gridy = 1;
-        searchAreaPanel.add(lblE_1, gbc_lblE_1);
+        pointAlon = new JLabel("N/A");
+        GridBagConstraints gbc_pointAlon = new GridBagConstraints();
+        gbc_pointAlon.insets = new Insets(0, 0, 5, 0);
+        gbc_pointAlon.gridx = 2;
+        gbc_pointAlon.gridy = 1;
+        searchAreaPanel.add(pointAlon, gbc_pointAlon);
 
         lblB = new JLabel("B");
         GridBagConstraints gbc_lblB = new GridBagConstraints();
@@ -464,19 +469,19 @@ public class SARPanel extends JPanel implements ActionListener {
         gbc_lblB.gridy = 2;
         searchAreaPanel.add(lblB, gbc_lblB);
 
-        lblN_2 = new JLabel("56°20,6 N\t");
-        GridBagConstraints gbc_lblN_2 = new GridBagConstraints();
-        gbc_lblN_2.insets = new Insets(0, 0, 5, 5);
-        gbc_lblN_2.gridx = 1;
-        gbc_lblN_2.gridy = 2;
-        searchAreaPanel.add(lblN_2, gbc_lblN_2);
+        pointBlat = new JLabel("N/A");
+        GridBagConstraints gbc_pointBlat = new GridBagConstraints();
+        gbc_pointBlat.insets = new Insets(0, 0, 5, 5);
+        gbc_pointBlat.gridx = 1;
+        gbc_pointBlat.gridy = 2;
+        searchAreaPanel.add(pointBlat, gbc_pointBlat);
 
-        lblE_2 = new JLabel("8°02,4 E\t");
-        GridBagConstraints gbc_lblE_2 = new GridBagConstraints();
-        gbc_lblE_2.insets = new Insets(0, 0, 5, 0);
-        gbc_lblE_2.gridx = 2;
-        gbc_lblE_2.gridy = 2;
-        searchAreaPanel.add(lblE_2, gbc_lblE_2);
+        pointBlon = new JLabel("N/A");
+        GridBagConstraints gbc_pointBlon = new GridBagConstraints();
+        gbc_pointBlon.insets = new Insets(0, 0, 5, 0);
+        gbc_pointBlon.gridx = 2;
+        gbc_pointBlon.gridy = 2;
+        searchAreaPanel.add(pointBlon, gbc_pointBlon);
 
         lblC = new JLabel("C");
         GridBagConstraints gbc_lblC = new GridBagConstraints();
@@ -485,19 +490,19 @@ public class SARPanel extends JPanel implements ActionListener {
         gbc_lblC.gridy = 3;
         searchAreaPanel.add(lblC, gbc_lblC);
 
-        lblN_3 = new JLabel("56°15,8 N\t");
-        GridBagConstraints gbc_lblN_3 = new GridBagConstraints();
-        gbc_lblN_3.insets = new Insets(0, 0, 5, 5);
-        gbc_lblN_3.gridx = 1;
-        gbc_lblN_3.gridy = 3;
-        searchAreaPanel.add(lblN_3, gbc_lblN_3);
+        pointClat = new JLabel("N/A");
+        GridBagConstraints gbc_pointClat = new GridBagConstraints();
+        gbc_pointClat.insets = new Insets(0, 0, 5, 5);
+        gbc_pointClat.gridx = 1;
+        gbc_pointClat.gridy = 3;
+        searchAreaPanel.add(pointClat, gbc_pointClat);
 
-        lblE_3 = new JLabel("8°02,4 E\t");
-        GridBagConstraints gbc_lblE_3 = new GridBagConstraints();
-        gbc_lblE_3.insets = new Insets(0, 0, 5, 0);
-        gbc_lblE_3.gridx = 2;
-        gbc_lblE_3.gridy = 3;
-        searchAreaPanel.add(lblE_3, gbc_lblE_3);
+        pointClon = new JLabel("N/A");
+        GridBagConstraints gbc_pointClon = new GridBagConstraints();
+        gbc_pointClon.insets = new Insets(0, 0, 5, 0);
+        gbc_pointClon.gridx = 2;
+        gbc_pointClon.gridy = 3;
+        searchAreaPanel.add(pointClon, gbc_pointClon);
 
         lblD = new JLabel("D");
         GridBagConstraints gbc_lblD = new GridBagConstraints();
@@ -506,19 +511,19 @@ public class SARPanel extends JPanel implements ActionListener {
         gbc_lblD.gridy = 4;
         searchAreaPanel.add(lblD, gbc_lblD);
 
-        lblN_4 = new JLabel("56°15,8 N\t");
-        GridBagConstraints gbc_lblN_4 = new GridBagConstraints();
-        gbc_lblN_4.insets = new Insets(0, 0, 5, 5);
-        gbc_lblN_4.gridx = 1;
-        gbc_lblN_4.gridy = 4;
-        searchAreaPanel.add(lblN_4, gbc_lblN_4);
+        pointDlat = new JLabel("N/A");
+        GridBagConstraints gbc_pointDlat = new GridBagConstraints();
+        gbc_pointDlat.insets = new Insets(0, 0, 5, 5);
+        gbc_pointDlat.gridx = 1;
+        gbc_pointDlat.gridy = 4;
+        searchAreaPanel.add(pointDlat, gbc_pointDlat);
 
-        lblE_4 = new JLabel("7°53,6 E\t");
-        GridBagConstraints gbc_lblE_4 = new GridBagConstraints();
-        gbc_lblE_4.insets = new Insets(0, 0, 5, 0);
-        gbc_lblE_4.gridx = 2;
-        gbc_lblE_4.gridy = 4;
-        searchAreaPanel.add(lblE_4, gbc_lblE_4);
+        pointDlon = new JLabel("N/A");
+        GridBagConstraints gbc_pointDlon = new GridBagConstraints();
+        gbc_pointDlon.insets = new Insets(0, 0, 5, 0);
+        gbc_pointDlon.gridx = 2;
+        gbc_pointDlon.gridy = 4;
+        searchAreaPanel.add(pointDlon, gbc_pointDlon);
 
         horizontalStrut = Box.createHorizontalStrut(20);
         GridBagConstraints gbc_horizontalStrut = new GridBagConstraints();
@@ -534,12 +539,12 @@ public class SARPanel extends JPanel implements ActionListener {
         gbc_lblAreaSize.gridy = 6;
         searchAreaPanel.add(lblAreaSize, gbc_lblAreaSize);
 
-        label_4 = new JLabel("23");
-        GridBagConstraints gbc_label_4 = new GridBagConstraints();
-        gbc_label_4.insets = new Insets(0, 0, 0, 5);
-        gbc_label_4.gridx = 1;
-        gbc_label_4.gridy = 6;
-        searchAreaPanel.add(label_4, gbc_label_4);
+        areaSize = new JLabel("N/A");
+        GridBagConstraints gbc_areaSize = new GridBagConstraints();
+        gbc_areaSize.insets = new Insets(0, 0, 0, 5);
+        gbc_areaSize.gridx = 1;
+        gbc_areaSize.gridy = 6;
+        searchAreaPanel.add(areaSize, gbc_areaSize);
 
         buttonPanel = new JPanel();
         GridBagConstraints gbc_buttonPanel = new GridBagConstraints();
@@ -550,9 +555,11 @@ public class SARPanel extends JPanel implements ActionListener {
         sarStartedPanel.add(buttonPanel, gbc_buttonPanel);
 
         btnReopenCalculations = new JButton("Reopen Calculations");
+        btnReopenCalculations.addActionListener(this);
         buttonPanel.add(btnReopenCalculations);
 
         btnEffortAllocation = new JButton("Effort Allocation");
+        btnEffortAllocation.addActionListener(this);
         buttonPanel.add(btnEffortAllocation);
 
         effortAllocationPanel = new JPanel();
@@ -629,28 +636,62 @@ public class SARPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent arg0) {
 
-        if (arg0.getSource() == btnStartSar) {
+        if (arg0.getSource() == btnStartSar || arg0.getSource() == btnReopenCalculations) {
 
             if (voctManager != null) {
 
-                voctManager.initializeSarOperation();
-
-                
-
+                voctManager.showSarInput();
 
             }
         }
+        
+        if (arg0.getSource() == btnEffortAllocation) {
 
+            //We have a SAR in progress
+            if (voctManager != null && voctManager.isHasSar()) {
+
+                //Determine what type of SAR then retrieve the input data
+                EffortAllocationWindow window = new EffortAllocationWindow(voctManager.getRapidResponseData());
+                window.setVisible(true);
+            }
+        }
+        
     }
-    
-    public void sarComplete(){
-      CardLayout cl = (CardLayout) (this.getLayout());
-      cl.show(this, SARPANEL);
+
+    public void sarComplete(RapidResponseData data) {
+        setRapidResponseData(data);
+        CardLayout cl = (CardLayout) (this.getLayout());
+        cl.show(this, SARPANEL);
     }
-    
-    public void sarCancel(){
+
+    public void sarCancel() {
         CardLayout cl = (CardLayout) (this.getLayout());
         cl.show(this, NOSARPANEL);
     }
-    
+
+    private void setRapidResponseData(RapidResponseData data) {
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("HH':'mm '-' dd'/'MM");
+        
+        lkpDate.setText(fmt.print(data.getLKPDate()));
+        cssDateStart.setText(fmt.print(data.getCSSDate()));
+        timeElapsed.setText(Formatter.formatHours(data.getTimeElasped()) + "");
+        rdvDirection.setText(Formatter.formatDouble(data.getRdvDirection(), 2) + "°");
+        rdvSpeed.setText(Formatter.formatDouble(data.getRdvSpeed(), 2) + "kn/h");
+        datumLat.setText(data.getDatum().getLatitudeAsString());
+        datumLon.setText(data.getDatum().getLongitudeAsString());
+        rdvDistance.setText(Formatter.formatDouble(data.getRdvDistance(), 2) + " nm");
+        datumRadius.setText(Formatter.formatDouble(data.getRadius(), 2) + " nm");
+        
+        pointAlat.setText(data.getA().getLatitudeAsString());
+        pointAlon.setText(data.getA().getLongitudeAsString());
+        pointBlat.setText(data.getB().getLatitudeAsString());
+        pointBlon.setText(data.getB().getLongitudeAsString());
+        pointClat.setText(data.getC().getLatitudeAsString());
+        pointClon.setText(data.getC().getLongitudeAsString());
+        pointDlat.setText(data.getD().getLatitudeAsString());
+        pointDlon.setText(data.getD().getLongitudeAsString());
+
+        areaSize.setText(Formatter.formatDouble(data.getRadius()*2* data.getRadius()*2, 2) + " ");
+    }
+
 }

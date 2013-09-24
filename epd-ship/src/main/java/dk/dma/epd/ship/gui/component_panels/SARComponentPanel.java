@@ -37,6 +37,7 @@ public class SARComponentPanel extends OMComponentPanel implements IGpsDataListe
 
     private static final long serialVersionUID = 1L;
     private final SARPanel sarPanel;
+    private VOCTManager voctManager;
     
     public SARComponentPanel(){
         super();
@@ -87,8 +88,9 @@ public class SARComponentPanel extends OMComponentPanel implements IGpsDataListe
         }
         
         if (obj instanceof VOCTManager) {
-//            ((VOCTManager)obj).addListener(this);
-            sarPanel.setVoctManager((VOCTManager) obj);
+            voctManager= (VOCTManager) obj;
+            voctManager.addListener(this);
+            sarPanel.setVoctManager(voctManager);
         }
     }
 
@@ -99,8 +101,8 @@ public class SARComponentPanel extends OMComponentPanel implements IGpsDataListe
             sarPanel.sarCancel();
         }
         
-        if (e == VOCTUpdateEvent.SAR_READY){
-            sarPanel.sarComplete();
+        if (e == VOCTUpdateEvent.SAR_DISPLAY){
+            sarPanel.sarComplete(voctManager.getRapidResponseData());
         }
         
     }
