@@ -339,11 +339,15 @@ public class SAROperation {
         double groundSpeed = data.getGroundSpeed();
         int timeSearching = data.getSearchTime();
         
+        System.out.println("Track Spacing is: "  + trackSpacing) ;
+        System.out.println("Ground speed is: "  + groundSpeed) ;
+        System.out.println("Time searching is: "  + timeSearching) ;
+        
         double areaSize = trackSpacing * groundSpeed * timeSearching;
         
         data.setEffectiveAreaSize(areaSize);
         
-        System.out.println(areaSize);
+        System.out.println("Area size: " + areaSize);
         
     }
     

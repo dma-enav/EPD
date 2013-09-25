@@ -40,6 +40,7 @@ import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.gui.voct.EffortAllocationWindow;
 import dk.dma.epd.ship.service.voct.RapidResponseData;
 import dk.dma.epd.ship.service.voct.VOCTManager;
+import javax.swing.JSpinner;
 
 /**
  * Active waypoint panel in sensor panel
@@ -98,11 +99,11 @@ public class SARPanel extends JPanel implements ActionListener {
     private Component horizontalStrut;
     private JPanel effortAllocationPanel;
     private JLabel lblProbabilityOfDetection;
-    private JLabel label_5;
+    private JLabel poDVal;
     private JLabel lblEffectiveSearchArea;
-    private JLabel lblNm;
+    private JLabel searchAreaSizeVal;
     private JLabel lblSearchCraftGround;
-    private JLabel lblKnhr;
+    private JLabel searchCraftGroundSpeedVal;
 
     static final String SARPANEL = "SAR Panel";
     static final String NOSARPANEL = "NO Sar panel";
@@ -110,6 +111,10 @@ public class SARPanel extends JPanel implements ActionListener {
     private EffortAllocationWindow effortAllocationWindow;
 
     private VOCTManager voctManager;
+    private JLabel lblTrackSpacing;
+    private JLabel trackSpacingVal;
+    private JLabel lblTimeSpentSearching;
+    private JSpinner timeSpentSearchingVal;
 
     public SARPanel() {
 
@@ -576,10 +581,10 @@ public class SARPanel extends JPanel implements ActionListener {
         sarStartedPanel.add(effortAllocationPanel, gbc_effortAllocationPanel);
         GridBagLayout gbl_effortAllocationPanel = new GridBagLayout();
         gbl_effortAllocationPanel.columnWidths = new int[] { 0, 0, 0 };
-        gbl_effortAllocationPanel.rowHeights = new int[] { 0, 0, 0, 0 };
+        gbl_effortAllocationPanel.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
         gbl_effortAllocationPanel.columnWeights = new double[] { 1.0, 1.0,
                 Double.MIN_VALUE };
-        gbl_effortAllocationPanel.rowWeights = new double[] { 1.0, 1.0, 1.0,
+        gbl_effortAllocationPanel.rowWeights = new double[] { 1.0, 1.0, 1.0, 1.0, 1.0,
                 Double.MIN_VALUE };
         effortAllocationPanel.setLayout(gbl_effortAllocationPanel);
 
@@ -591,12 +596,12 @@ public class SARPanel extends JPanel implements ActionListener {
         effortAllocationPanel.add(lblProbabilityOfDetection,
                 gbc_lblProbabilityOfDetection);
 
-        label_5 = new JLabel("79%");
-        GridBagConstraints gbc_label_5 = new GridBagConstraints();
-        gbc_label_5.insets = new Insets(0, 0, 5, 0);
-        gbc_label_5.gridx = 1;
-        gbc_label_5.gridy = 0;
-        effortAllocationPanel.add(label_5, gbc_label_5);
+        poDVal = new JLabel("N/A");
+        GridBagConstraints gbc_PoDVal = new GridBagConstraints();
+        gbc_PoDVal.insets = new Insets(0, 0, 5, 0);
+        gbc_PoDVal.gridx = 1;
+        gbc_PoDVal.gridy = 0;
+        effortAllocationPanel.add(poDVal, gbc_PoDVal);
 
         lblEffectiveSearchArea = new JLabel("Effective Search Area:");
         GridBagConstraints gbc_lblEffectiveSearchArea = new GridBagConstraints();
@@ -606,26 +611,55 @@ public class SARPanel extends JPanel implements ActionListener {
         effortAllocationPanel.add(lblEffectiveSearchArea,
                 gbc_lblEffectiveSearchArea);
 
-        lblNm = new JLabel("10 nm2");
-        GridBagConstraints gbc_lblNm = new GridBagConstraints();
-        gbc_lblNm.insets = new Insets(0, 0, 5, 0);
-        gbc_lblNm.gridx = 1;
-        gbc_lblNm.gridy = 1;
-        effortAllocationPanel.add(lblNm, gbc_lblNm);
+        searchAreaSizeVal = new JLabel("N/A");
+        GridBagConstraints gbc_searchAreaSizeVal = new GridBagConstraints();
+        gbc_searchAreaSizeVal.insets = new Insets(0, 0, 5, 0);
+        gbc_searchAreaSizeVal.gridx = 1;
+        gbc_searchAreaSizeVal.gridy = 1;
+        effortAllocationPanel.add(searchAreaSizeVal, gbc_searchAreaSizeVal);
 
         lblSearchCraftGround = new JLabel("Search Craft Ground Speed:");
         GridBagConstraints gbc_lblSearchCraftGround = new GridBagConstraints();
-        gbc_lblSearchCraftGround.insets = new Insets(0, 0, 0, 5);
+        gbc_lblSearchCraftGround.insets = new Insets(0, 0, 5, 5);
         gbc_lblSearchCraftGround.gridx = 0;
         gbc_lblSearchCraftGround.gridy = 2;
         effortAllocationPanel.add(lblSearchCraftGround,
                 gbc_lblSearchCraftGround);
 
-        lblKnhr = new JLabel("15 kn/h");
-        GridBagConstraints gbc_lblKnhr = new GridBagConstraints();
-        gbc_lblKnhr.gridx = 1;
-        gbc_lblKnhr.gridy = 2;
-        effortAllocationPanel.add(lblKnhr, gbc_lblKnhr);
+        searchCraftGroundSpeedVal = new JLabel("N/A");
+        GridBagConstraints gbc_searchCraftGroundSpeedVal = new GridBagConstraints();
+        gbc_searchCraftGroundSpeedVal.insets = new Insets(0, 0, 5, 0);
+        gbc_searchCraftGroundSpeedVal.gridx = 1;
+        gbc_searchCraftGroundSpeedVal.gridy = 2;
+        effortAllocationPanel.add(searchCraftGroundSpeedVal, gbc_searchCraftGroundSpeedVal);
+        
+        lblTrackSpacing = new JLabel("Track Spacing:");
+        GridBagConstraints gbc_lblTrackSpacing = new GridBagConstraints();
+        gbc_lblTrackSpacing.insets = new Insets(0, 0, 5, 5);
+        gbc_lblTrackSpacing.gridx = 0;
+        gbc_lblTrackSpacing.gridy = 3;
+        effortAllocationPanel.add(lblTrackSpacing, gbc_lblTrackSpacing);
+        
+        trackSpacingVal = new JLabel("N/A");
+        GridBagConstraints gbc_trackSpacingVal = new GridBagConstraints();
+        gbc_trackSpacingVal.insets = new Insets(0, 0, 5, 0);
+        gbc_trackSpacingVal.gridx = 1;
+        gbc_trackSpacingVal.gridy = 3;
+        effortAllocationPanel.add(trackSpacingVal, gbc_trackSpacingVal);
+        
+        lblTimeSpentSearching = new JLabel("Time Spent Searching:");
+        GridBagConstraints gbc_lblTimeSpentSearching = new GridBagConstraints();
+        gbc_lblTimeSpentSearching.insets = new Insets(0, 0, 0, 5);
+        gbc_lblTimeSpentSearching.gridx = 0;
+        gbc_lblTimeSpentSearching.gridy = 4;
+        effortAllocationPanel.add(lblTimeSpentSearching, gbc_lblTimeSpentSearching);
+        
+        timeSpentSearchingVal = new JSpinner();
+        timeSpentSearchingVal.setEnabled(false);
+        GridBagConstraints gbc_timeSpentSearchingVal = new GridBagConstraints();
+        gbc_timeSpentSearchingVal.gridx = 1;
+        gbc_timeSpentSearchingVal.gridy = 4;
+        effortAllocationPanel.add(timeSpentSearchingVal, gbc_timeSpentSearchingVal);
     }
 
     /**
@@ -676,7 +710,11 @@ public class SARPanel extends JPanel implements ActionListener {
     }
 
     public void effortAllocationComplete(RapidResponseData data){
-        
+        poDVal.setText(data.getPod() * 100 + "%");
+        searchAreaSizeVal.setText(Formatter.formatDouble(data.getEffectiveAreaSize(), 2) + " nm2");
+        searchCraftGroundSpeedVal.setText(Formatter.formatDouble(data.getGroundSpeed(), 0) + " knots");
+        trackSpacingVal.setText(Formatter.formatDouble(data.getTrackSpacing(), 2) + " nm");
+        timeSpentSearchingVal.setValue(data.getSearchTime());
     }
     
     

@@ -366,9 +366,13 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     }
 
     private void createEffectiveArea() {
+        System.out.println("Do we get to here?");
         // Probability of Detection Area - updateable
 
-        graphics.remove(effectiveArea);
+        if (graphics.contains(effectiveArea)){
+            graphics.remove(effectiveArea);
+        }
+            
 
         RapidResponseData data = voctManager.getRapidResponseData();
 

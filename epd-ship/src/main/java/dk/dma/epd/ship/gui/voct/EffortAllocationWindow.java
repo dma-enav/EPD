@@ -72,7 +72,6 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
     private JTextField waterElevationField;
     private JTextField probabilityOfDetectionVal;
 
-    private RapidResponseData rapidResponseData;
 
     JComboBox<String> targetTypeDropdown;
     JSpinner hoursSearching;
@@ -95,7 +94,6 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
         getContentPane().setLayout(new BorderLayout());
 
         this.voctManager = voctManager;
-        this.rapidResponseData = voctManager.getRapidResponseData();
 
         buttomBar();
 
@@ -339,6 +337,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             if (checkValues()) {
                 // Ready to go
                 voctManager.EffortAllocationDataEntered();
+                this.setVisible(false);
             }
         }
 
@@ -346,6 +345,8 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
 
     private boolean checkValues() {
 
+        RapidResponseData rapidResponseData = voctManager.getRapidResponseData();
+        
         if (getMaxSpeed() == -9999) {
             return false;
         }
