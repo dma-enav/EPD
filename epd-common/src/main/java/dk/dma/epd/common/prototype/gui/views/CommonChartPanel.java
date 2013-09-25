@@ -40,7 +40,7 @@ public abstract class CommonChartPanel extends OMComponentPanel {
     protected BufferedLayerMapBean dragMap;
     protected SimpleOffScreenMapRenderer dragMapRenderer;
     protected Layer encLayer;
-    protected Layer encDragLayer;
+//    protected Layer encDragLayer;
     protected Layer bgLayer;
     protected GpsData gpsData;
     protected MouseDelegator mouseDelegator;

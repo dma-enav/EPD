@@ -136,9 +136,9 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
             mapHandler.add(wmsLayer);            
         }
     
-        EncLayerFactory encLayerFactory2 = new EncLayerFactory(mapSettings);
-
-        encDragLayer = encLayerFactory2.getEncLayer();
+//        EncLayerFactory encLayerFactory2 = new EncLayerFactory(mapSettings);
+//
+//        encDragLayer = encLayerFactory2.getEncLayer();
 
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
@@ -312,11 +312,11 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         
         // Set ENC map settings
         encLayerFactory.setMapSettings();
-        encLayerFactory2.setMapSettings();
+//        encLayerFactory2.setMapSettings();
 
         // Hack to flush ENC layer
         encLayerFactory.reapplySettings();
-        encLayerFactory2.reapplySettings();
+//        encLayerFactory2.reapplySettings();
 
         // Show AIS or not
         aisVisible(EPDShip.getSettings().getAisSettings().isVisible());
@@ -413,7 +413,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
     public void encVisible(boolean visible) {
         if (encLayer != null) {
             encLayer.setVisible(visible);
-            encDragLayer.setVisible(visible);
+//            encDragLayer.setVisible(visible);
             coastalOutlineLayer.setVisible(!visible);
             if (!visible) {
                 // Force update of background layer
