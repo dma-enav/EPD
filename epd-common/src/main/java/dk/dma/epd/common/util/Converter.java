@@ -22,6 +22,7 @@ public class Converter {
     
     private static final int NM_IN_METERS = 1852;
     private static final double M_IN_NM = 0.868976242;
+    private static final double M_IN_FEET = 3.2808;
 
     public static double metersToNm(double meters) {
         return meters / NM_IN_METERS;
@@ -35,5 +36,8 @@ public class Converter {
         return m * M_IN_NM;
     }
     
-    
+ 
+    public static double metersToFeet(double m){
+        return m * M_IN_FEET;
+    }
 }

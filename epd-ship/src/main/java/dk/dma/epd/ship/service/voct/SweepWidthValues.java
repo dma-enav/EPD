@@ -593,4 +593,63 @@ public class SweepWidthValues {
         largerVesselsShipThree.put(20, 29.2);    
         
     }
+
+
+
+    /**
+     * @return the sweepWidthTypes
+     */
+    public static HashMap<Integer, String> getSweepWidthTypes() {
+        return SweepWidthTypes;
+    }
+
+
+
+    /**
+     * @param sweepWidthTypes the sweepWidthTypes to set
+     */
+    public static void setSweepWidthTypes(HashMap<Integer, String> sweepWidthTypes) {
+        SweepWidthTypes = sweepWidthTypes;
+    }
+
+
+
+    /**
+     * @return the smallerVessels
+     */
+    public static HashMap<Integer, HashMap<Integer, Double>> getSmallerVessels() {
+        return smallerVessels;
+    }
+
+
+
+    /**
+     * @param smallerVessels the smallerVessels to set
+     */
+    public static void setSmallerVessels(
+            HashMap<Integer, HashMap<Integer, Double>> smallerVessels) {
+        SweepWidthValues.smallerVessels = smallerVessels;
+    }
+
+
+
+    /**
+     * @return the largerVessels
+     */
+    public static HashMap<Integer, HashMap<Integer, Double>> getLargerVessels() {
+        return largerVessels;
+    }
+
+
+
+    /**
+     * @param largerVessels the largerVessels to set
+     */
+    public static void setLargerVessels(
+            HashMap<Integer, HashMap<Integer, Double>> largerVessels) {
+        SweepWidthValues.largerVessels = largerVessels;
+    }
+    
+    
+    
 }

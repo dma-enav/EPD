@@ -331,7 +331,23 @@ public class SAROperation {
     }
     
     
-    public static double findS(double W, double PoD){
+    public void calculateEffortAllocation(RapidResponseData data){
+        double trackSpacing = findS(data.getW(), data.getPod());
+        
+        data.setTrackSpacing(trackSpacing);
+        
+        double groundSpeed = data.getGroundSpeed();
+        int timeSearching = data.getSearchTime();
+        
+        double areaSize = trackSpacing * groundSpeed * timeSearching;
+        
+        data.setEffectiveAreaSize(areaSize);
+        
+        System.out.println(areaSize);
+        
+    }
+    
+    private double findS(double W, double PoD){
 //      S = W*(-5/8*ln(1-x))^(-5/7)
       
       double val1 = (-5.0/8.0)*Math.log(1-PoD);

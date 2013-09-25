@@ -209,107 +209,6 @@ public class SARInput extends JDialog implements ActionListener,
 
     }
 
-    private void generateRapidResponseCalculations() {
-
-        // Where we grab the data that was input in the previous window
-        // Will be seperate for each type of calculation but HTML generated to
-        // keep layout simple and possibly exportable
-
-        // LKPDate;
-        // CSSDate;
-
-        double difference = (double) (LKPDate.getMillis() - CSSDate.getMillis()) / 60 / 60 / 1000;
-        // System.out.println("Hours since started: " + difference);
-
-        // Generate a html sheet of rapid response calculations
-        StringBuilder str = new StringBuilder();
-        String name = "How does this look";
-
-        str.append("<html>");
-        str.append("<br>Time of Last Known Position: " + LKPDate + "</br>");
-        str.append("<br>Commence Search Start time: " + CSSDate + "</br>");
-        str.append("<br>Time difference: " + difference + " hours</br>");
-
-        double currentTWC = surfaceDriftPanelList.get(0).getTWCKnots()
-                * difference;
-
-        str.append("<br>Using " + metocPoints + " weather points</br>");
-
-        str.append("<br>TWC is " + currentTWC + " with heading "
-                + surfaceDriftPanelList.get(0).getTWCHeading() + "</br>");
-
-        str.append("<br>Using formula for "
-                + searchObjectDropDown.getSelectedItem()
-                + " with values as "
-                + LeewayValues.getLeeWayContent().get(
-                        searchObjectDropDown.getSelectedIndex()) + "</br>");
-
-        double leewaySpeed = LeewayValues.personInWater(surfaceDriftPanelList
-                .get(0).getLeeway());
-
-        str.append("<br>Gives a Leeway speed of " + leewaySpeed
-                + " with heading "
-                + surfaceDriftPanelList.get(0).getLeewayHeading() + "</br>");
-
-        double leeway = leewaySpeed * difference;
-        str.append("<br>Leeway is " + leeway + " weather points</br>");
-
-        //
-        // Ellipsoid reference = Ellipsoid.WGS84;
-        // double[] endBearing = new double[1];
-        //
-        // // Object starts at LKP, with TWCheading, drifting for currentWTC
-        // // knots where will it end up
-        // Position currentPos = calculateEndingGlobalCoordinates(reference,
-        // LKP, TWCHeading, Converter.nmToMeters(currentTWC),
-        // endBearing);
-        //
-        // System.out.println("Current is: " + currentPos.getLatitude());
-        // System.out.println("Current is: " + currentPos.getLongitude());
-        //
-        // endBearing = new double[1];
-        //
-        // Position windPos = calculateEndingGlobalCoordinates(reference,
-        // currentPos, downWind, Converter.nmToMeters(leeway),
-        // endBearing);
-        //
-        //
-        //
-        // System.out.println("Wind pos is: " + windPos.getLatitude());
-        // System.out.println("Wind pos is: " + windPos.getLongitude());
-        //
-        //
-        // Position datum = windPos;
-        //
-        // System.out.println("Final position is " + datum);
-        //
-        // // RDV Direction
-        // double rdvDirection = bearing(LKP, windPos, Heading.RL);
-        //
-        // System.out.println("RDV Direction: " + rdvDirection);
-        //
-        // // RDV Distance
-        // double rdvDistance = range(LKP, windPos, Heading.RL);
-        //
-        // System.out.println("RDV Distance: " + rdvDistance);
-        //
-        // // RDV Speed
-        // double rdvSpeed = rdvDistance / timeElasped;
-        //
-        // System.out.println("RDV Speed: " + rdvSpeed);
-        //
-        // // Radius:
-        // double radius = x + y + 0.3 * rdvDistance * SF;
-        //
-        // System.out.println("Radius is: " + radius);
-        //
-
-        str.append("</html>");
-
-        calculationsText.setText(str.toString());
-
-    }
-
     private void inputPanel() {
 
         JPanel inputPanel = new JPanel();
@@ -396,9 +295,9 @@ public class SARInput extends JDialog implements ActionListener,
         lkpThirdLat.setBounds(210, 47, 30, 20);
         lkpPanel.add(lkpThirdLat);
 
-        comboLKPLat = new JComboBox();
+        comboLKPLat = new JComboBox<String>();
         comboLKPLat
-                .setModel(new DefaultComboBoxModel(new String[] { "N", "S" }));
+                .setModel(new DefaultComboBoxModel<String>(new String[] { "N", "S" }));
         comboLKPLat.setBounds(240, 47, 30, 20);
         lkpPanel.add(comboLKPLat);
 
@@ -414,9 +313,9 @@ public class SARInput extends JDialog implements ActionListener,
         lkpSecondLon.setBounds(298, 47, 20, 20);
         lkpPanel.add(lkpSecondLon);
 
-        comboLKPLon = new JComboBox();
+        comboLKPLon = new JComboBox<String>();
         comboLKPLon
-                .setModel(new DefaultComboBoxModel(new String[] { "E", "W" }));
+                .setModel(new DefaultComboBoxModel<String>(new String[] { "E", "W" }));
         comboLKPLon.setBounds(348, 47, 30, 20);
         lkpPanel.add(comboLKPLon);
 
@@ -486,9 +385,9 @@ public class SARInput extends JDialog implements ActionListener,
         cssThirdLat.setBounds(210, 53, 30, 20);
         commenceStartPanel.add(cssThirdLat);
 
-        comboCSSLat = new JComboBox();
+        comboCSSLat = new JComboBox<String>();
         comboCSSLat
-                .setModel(new DefaultComboBoxModel(new String[] { "N", "S" }));
+                .setModel(new DefaultComboBoxModel<String>(new String[] { "N", "S" }));
         comboCSSLat.setBounds(240, 53, 30, 20);
         commenceStartPanel.add(comboCSSLat);
 
@@ -510,9 +409,9 @@ public class SARInput extends JDialog implements ActionListener,
         cssThirdLon.setBounds(318, 53, 30, 20);
         commenceStartPanel.add(cssThirdLon);
 
-        comboCSSLon = new JComboBox();
+        comboCSSLon = new JComboBox<String>();
         comboCSSLon
-                .setModel(new DefaultComboBoxModel(new String[] { "E", "W" }));
+                .setModel(new DefaultComboBoxModel<String>(new String[] { "E", "W" }));
         comboCSSLon.setBounds(348, 53, 30, 20);
         commenceStartPanel.add(comboCSSLon);
 
@@ -690,7 +589,6 @@ public class SARInput extends JDialog implements ActionListener,
 
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void actionPerformed(ActionEvent arg0) {
 

@@ -48,12 +48,11 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     private boolean dragging;
     private MapBean mapBean;
     private VOCTManager voctManager;
+    EffectiveSRUAreaGraphics effectiveArea;
 
     public VoctLayer() {
-//        drawSAR();
+        // drawSAR();
     }
-
-
 
     @Override
     public synchronized OMGraphicList prepare() {
@@ -308,60 +307,46 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             drawRapidResponse();
             this.setVisible(true);
         }
+        
+        if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY) {
+            createEffectiveArea();
+            this.setVisible(true);
+        }
 
     }
 
     private void drawRapidResponse() {
-        
-        
-        
-        
-//        Position A = Position.create(56.3318597430453, 7.906002842313335);
-//        Position B = Position.create(56.3318597430453, 8.062171759296268);
-//        Position C = Position.create(56.24510270810811, 8.061995117339452);
-//        Position D = Position.create(56.24510270810811, 7.906179484270152);
-//
-//        Position datum = Position.create(56.2885059390279, 7.984087300804801);
-//        double radius = 2.6080318165935816;
-//
-//        Position LKP = Position.create(56.37167, 7.966667);
-//        Position WTCPoint = Position.create(56.28850716421507, 7.966667);
+
+        // Position A = Position.create(56.3318597430453, 7.906002842313335);
+        // Position B = Position.create(56.3318597430453, 8.062171759296268);
+        // Position C = Position.create(56.24510270810811, 8.061995117339452);
+        // Position D = Position.create(56.24510270810811, 7.906179484270152);
+        //
+        // Position datum = Position.create(56.2885059390279,
+        // 7.984087300804801);
+        // double radius = 2.6080318165935816;
+        //
+        // Position LKP = Position.create(56.37167, 7.966667);
+        // Position WTCPoint = Position.create(56.28850716421507, 7.966667);
 
         RapidResponseData data = voctManager.getRapidResponseData();
-        
-      Position A = data.getA();
-      Position B = data.getB();
-      Position C = data.getC();
-      Position D = data.getD();
 
-      Position datum = data.getDatum();
-      double radius = data.getRadius();
+        Position A = data.getA();
+        Position B = data.getB();
+        Position C = data.getC();
+        Position D = data.getD();
 
-      Position LKP = data.getLKP();
-      Position WTCPoint = data.getWtc();
-        
-        
+        Position datum = data.getDatum();
+        double radius = data.getRadius();
+
+        Position LKP = data.getLKP();
+        Position WTCPoint = data.getWtc();
+
         graphics.clear();
 
         SarGraphics sarGraphics = new SarGraphics(datum, radius, A, B, C, D,
                 LKP, WTCPoint);
         graphics.add(sarGraphics);
-
-        // Probability of Detection Area - updateable
-
-        // PoD for each SRU, initialized with an effective area? possibly a
-        // unique ID
-
-        // Effective Area: 10 nm2 Initialize by creating box
-        double width = Math.sqrt(10.0);
-        double height = Math.sqrt(10.0);
-
-        // AreaInternalGraphics effectiveArea = new AreaInternalGraphics(A,
-        // width, length);
-        // graphics.add(effectiveArea);
-        EffectiveSRUAreaGraphics effectiveArea = new EffectiveSRUAreaGraphics(
-                A, width, height);
-        graphics.add(effectiveArea);
 
         System.out.println("A is: " + A.getLongitude());
         System.out.println("B is: " + B);
@@ -379,4 +364,31 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
         doPrepare();
     }
+
+    private void createEffectiveArea() {
+        // Probability of Detection Area - updateable
+
+        graphics.remove(effectiveArea);
+
+        RapidResponseData data = voctManager.getRapidResponseData();
+
+        // PoD for each SRU, initialized with an effective area? possibly a
+        // unique ID
+
+        double effectiveAreaSize = data.getEffectiveAreaSize();
+
+        // Effective Area: 10 nm2 Initialize by creating box
+        double width = Math.sqrt(effectiveAreaSize);
+        double height = Math.sqrt(effectiveAreaSize);
+
+        // AreaInternalGraphics effectiveArea = new AreaInternalGraphics(A,
+        // width, length);
+        // graphics.add(effectiveArea);
+        effectiveArea = new EffectiveSRUAreaGraphics(data.getA(), width, height);
+        graphics.add(effectiveArea);
+        
+        doPrepare();
+    }
+    
+    
 }

@@ -104,6 +104,9 @@ public class SARComponentPanel extends OMComponentPanel implements IGpsDataListe
         if (e == VOCTUpdateEvent.SAR_DISPLAY){
             sarPanel.sarComplete(voctManager.getRapidResponseData());
         }
+        if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY){
+            sarPanel.sarComplete(voctManager.getRapidResponseData());
+        }
         
     }
     

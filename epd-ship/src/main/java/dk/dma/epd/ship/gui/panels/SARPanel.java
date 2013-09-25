@@ -26,6 +26,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -105,6 +106,8 @@ public class SARPanel extends JPanel implements ActionListener {
 
     static final String SARPANEL = "SAR Panel";
     static final String NOSARPANEL = "NO Sar panel";
+
+    private EffortAllocationWindow effortAllocationWindow;
 
     private VOCTManager voctManager;
 
@@ -636,7 +639,8 @@ public class SARPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent arg0) {
 
-        if (arg0.getSource() == btnStartSar || arg0.getSource() == btnReopenCalculations) {
+        if (arg0.getSource() == btnStartSar
+                || arg0.getSource() == btnReopenCalculations) {
 
             if (voctManager != null) {
 
@@ -644,18 +648,25 @@ public class SARPanel extends JPanel implements ActionListener {
 
             }
         }
-        
+
         if (arg0.getSource() == btnEffortAllocation) {
 
-            //We have a SAR in progress
+            // We have a SAR in progress
             if (voctManager != null && voctManager.isHasSar()) {
 
-                //Determine what type of SAR then retrieve the input data
-                EffortAllocationWindow window = new EffortAllocationWindow(voctManager.getRapidResponseData());
-                window.setVisible(true);
+                // Determine what type of SAR then retrieve the input data
+                if (effortAllocationWindow == null) {
+                    effortAllocationWindow = new EffortAllocationWindow(
+                            voctManager);
+                    effortAllocationWindow
+                            .setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+                }
+                
+                effortAllocationWindow.setVisible(true);
+
             }
         }
-        
+
     }
 
     public void sarComplete(RapidResponseData data) {
@@ -664,24 +675,33 @@ public class SARPanel extends JPanel implements ActionListener {
         cl.show(this, SARPANEL);
     }
 
+    public void effortAllocationComplete(RapidResponseData data){
+        
+    }
+    
+    
     public void sarCancel() {
         CardLayout cl = (CardLayout) (this.getLayout());
         cl.show(this, NOSARPANEL);
     }
 
     private void setRapidResponseData(RapidResponseData data) {
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("HH':'mm '-' dd'/'MM");
-        
+        DateTimeFormatter fmt = DateTimeFormat
+                .forPattern("HH':'mm '-' dd'/'MM");
+
         lkpDate.setText(fmt.print(data.getLKPDate()));
         cssDateStart.setText(fmt.print(data.getCSSDate()));
         timeElapsed.setText(Formatter.formatHours(data.getTimeElasped()) + "");
-        rdvDirection.setText(Formatter.formatDouble(data.getRdvDirection(), 2) + "°");
+        rdvDirection.setText(Formatter.formatDouble(data.getRdvDirection(), 2)
+                + "°");
         rdvSpeed.setText(Formatter.formatDouble(data.getRdvSpeed(), 2) + "kn/h");
         datumLat.setText(data.getDatum().getLatitudeAsString());
         datumLon.setText(data.getDatum().getLongitudeAsString());
-        rdvDistance.setText(Formatter.formatDouble(data.getRdvDistance(), 2) + " nm");
-        datumRadius.setText(Formatter.formatDouble(data.getRadius(), 2) + " nm");
-        
+        rdvDistance.setText(Formatter.formatDouble(data.getRdvDistance(), 2)
+                + " nm");
+        datumRadius
+                .setText(Formatter.formatDouble(data.getRadius(), 2) + " nm");
+
         pointAlat.setText(data.getA().getLatitudeAsString());
         pointAlon.setText(data.getA().getLongitudeAsString());
         pointBlat.setText(data.getB().getLatitudeAsString());
@@ -691,7 +711,9 @@ public class SARPanel extends JPanel implements ActionListener {
         pointDlat.setText(data.getD().getLatitudeAsString());
         pointDlon.setText(data.getD().getLongitudeAsString());
 
-        areaSize.setText(Formatter.formatDouble(data.getRadius()*2* data.getRadius()*2, 2) + " ");
+        areaSize.setText(Formatter.formatDouble(
+                data.getRadius() * 2 * data.getRadius() * 2, 2)
+                + " ");
     }
 
 }

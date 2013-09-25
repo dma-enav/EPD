@@ -22,7 +22,7 @@ import java.util.EnumSet;
  * Different events for routes
  */
 public enum VOCTUpdateEvent {
-    NEW_SAR, SAR_CANCEL, SAR_READY, SAR_DISPLAY;
+    NEW_SAR, SAR_CANCEL, SAR_READY, SAR_DISPLAY, EFFORT_ALLOCATION_READY, EFFORT_ALLOCATION_DISPLAY;
     
     public boolean is(VOCTUpdateEvent... events) {
         return EnumSet.copyOf(Arrays.asList(events)).contains(this);

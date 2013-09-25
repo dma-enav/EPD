@@ -31,6 +31,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -44,8 +45,13 @@ import javax.swing.border.TitledBorder;
 import org.jdesktop.swingx.JXDatePicker;
 
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.service.voct.LeewayValues;
 import dk.dma.epd.ship.service.voct.RapidResponseData;
+import dk.dma.epd.ship.service.voct.SweepWidthValues;
+import dk.dma.epd.ship.service.voct.VOCTManager;
+import dk.dma.epd.ship.service.voct.WeatherCorrectionFactors;
 
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
@@ -61,32 +67,35 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
     private final JPanel initPanel = new JPanel();
 
     private JLabel shipName;
-
-    private JTextField shipWidth;
-    private JTextField shipLength;
     private JTextField topSpeed;
-    private JTextField weatherCurrent;
-    private JTextField waterElevation;
+    private JTextField windspeedField;
+    private JTextField waterElevationField;
     private JTextField probabilityOfDetectionVal;
 
     private RapidResponseData rapidResponseData;
+
     JComboBox<String> targetTypeDropdown;
     JSpinner hoursSearching;
+    private JComboBox<String> sruType;
+    JComboBox<Integer> visibilityDropDown;
 
     private JCheckBox editPoD;
     private JButton calculate;
+    private JComboBox<Double> fatigueDropDown;
+    private VOCTManager voctManager;
 
     /**
      * Create the dialog.
      */
-    public EffortAllocationWindow(RapidResponseData data) {
+    public EffortAllocationWindow(VOCTManager voctManager) {
         setTitle("Effort Allocation");
         this.setModal(true);
         // setBounds(100, 100, 559, 733);
         setBounds(100, 100, 559, 575);
         getContentPane().setLayout(new BorderLayout());
 
-        this.rapidResponseData = data;
+        this.voctManager = voctManager;
+        this.rapidResponseData = voctManager.getRapidResponseData();
 
         buttomBar();
 
@@ -129,7 +138,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             panel_1.add(txtField);
             txtField.setBackground(UIManager.getColor("Button.background"));
             txtField.setEditable(false);
-            txtField.setText("Probability of Detection is a statistical measurement for determining the success rate for location an object lost at sea. More text to explain, guidelines, please verify information");
+            txtField.setText("Probability of Detection is a statistical measurement for determining the success rate for location an object lost at sea. Recommended PoD is 79%");
 
             JPanel panel_2 = new JPanel();
             panel_2.setBorder(new TitledBorder(null, "SRU Information",
@@ -142,10 +151,6 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             lblVesselName.setBounds(10, 22, 83, 14);
             panel_2.add(lblVesselName);
 
-            JLabel lblVesselDimensions = new JLabel("Vessel Dimensions:");
-            lblVesselDimensions.setBounds(10, 47, 105, 14);
-            panel_2.add(lblVesselDimensions);
-
             JLabel lblTopSpeed = new JLabel("Top Speed, knots:");
             lblTopSpeed.setBounds(10, 69, 105, 14);
             panel_2.add(lblTopSpeed);
@@ -154,28 +159,30 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             shipName.setBounds(112, 22, 95, 14);
             panel_2.add(shipName);
 
-            shipWidth = new JTextField();
-            shipWidth.setBounds(111, 44, 59, 20);
-            panel_2.add(shipWidth);
-            shipWidth.setColumns(10);
-
-            shipLength = new JTextField();
-            shipLength.setBounds(217, 44, 86, 20);
-            panel_2.add(shipLength);
-            shipLength.setColumns(10);
-
-            JLabel lblWidth = new JLabel("width, ");
-            lblWidth.setBounds(180, 47, 46, 14);
-            panel_2.add(lblWidth);
-
-            JLabel lblLength = new JLabel("length");
-            lblLength.setBounds(313, 47, 46, 14);
-            panel_2.add(lblLength);
-
             topSpeed = new JTextField();
-            topSpeed.setBounds(111, 66, 86, 20);
+            topSpeed.setBounds(109, 66, 34, 20);
             panel_2.add(topSpeed);
             topSpeed.setColumns(10);
+
+            JLabel lblNewLabel = new JLabel("Type:");
+            lblNewLabel.setBounds(10, 44, 34, 14);
+            panel_2.add(lblNewLabel);
+
+            sruType = new JComboBox<String>();
+            sruType.setModel(new DefaultComboBoxModel<String>(new String[] {
+                    "Smaller vessel (40 feet)", "Ship (90 feet)" }));
+            sruType.setBounds(109, 41, 148, 20);
+            panel_2.add(sruType);
+
+            JLabel lblFatigue = new JLabel("Fatigue:");
+            lblFatigue.setBounds(273, 22, 46, 14);
+            panel_2.add(lblFatigue);
+
+            fatigueDropDown = new JComboBox<Double>();
+            fatigueDropDown.setModel(new DefaultComboBoxModel<Double>(
+                    new Double[] { 1.0, 0.9 }));
+            fatigueDropDown.setBounds(329, 19, 45, 20);
+            panel_2.add(fatigueDropDown);
 
             JPanel panel_3 = new JPanel();
             panel_3.setBorder(new TitledBorder(UIManager
@@ -193,9 +200,14 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             targetTypeDropdown = new JComboBox<String>();
             targetTypeDropdown.setBounds(139, 18, 354, 20);
             panel_3.add(targetTypeDropdown);
-            targetTypeDropdown.setModel(new DefaultComboBoxModel<String>(
-                    new String[] { "Person in Water, raft or boat < 30 ft",
-                            "Other targets" }));
+            // targetTypeDropdown.setModel(new DefaultComboBoxModel<String>(
+            // new String[] { "Person in Water, raft or boat < 30 ft",
+            // "Other targets" }));
+
+            for (int i = 0; i < SweepWidthValues.getSweepWidthTypes().size(); i++) {
+                targetTypeDropdown.addItem(SweepWidthValues
+                        .getSweepWidthTypes().get(i));
+            }
 
             JLabel lblTimeSpentSearching = new JLabel("Time spent searching:");
             lblTimeSpentSearching.setBounds(10, 46, 124, 14);
@@ -218,23 +230,33 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             panel.add(panel_4);
             panel_4.setLayout(null);
 
-            JLabel lblWindCurrentKnots = new JLabel("Wind Current, knots:");
-            lblWindCurrentKnots.setBounds(12, 26, 147, 14);
-            panel_4.add(lblWindCurrentKnots);
+            JLabel lblWindKnots = new JLabel("Wind Speed, knots:");
+            lblWindKnots.setBounds(12, 26, 147, 14);
+            panel_4.add(lblWindKnots);
 
-            weatherCurrent = new JTextField();
-            weatherCurrent.setColumns(10);
-            weatherCurrent.setBounds(159, 23, 33, 20);
-            panel_4.add(weatherCurrent);
+            windspeedField = new JTextField();
+            windspeedField.setColumns(10);
+            windspeedField.setBounds(159, 23, 33, 20);
+            panel_4.add(windspeedField);
 
             JLabel lblTotalWindCurrent = new JLabel("Water Elevation, feet:");
             lblTotalWindCurrent.setBounds(12, 56, 147, 14);
             panel_4.add(lblTotalWindCurrent);
 
-            waterElevation = new JTextField();
-            waterElevation.setColumns(10);
-            waterElevation.setBounds(159, 53, 33, 20);
-            panel_4.add(waterElevation);
+            waterElevationField = new JTextField();
+            waterElevationField.setColumns(10);
+            waterElevationField.setBounds(159, 53, 33, 20);
+            panel_4.add(waterElevationField);
+
+            JLabel lblVisibilityNm = new JLabel("Visibility, nm");
+            lblVisibilityNm.setBounds(212, 26, 68, 14);
+            panel_4.add(lblVisibilityNm);
+
+            visibilityDropDown = new JComboBox<Integer>();
+            visibilityDropDown.setModel(new DefaultComboBoxModel<Integer>(
+                    new Integer[] { 1, 3, 5, 10, 15, 20 }));
+            visibilityDropDown.setBounds(276, 23, 45, 20);
+            panel_4.add(visibilityDropDown);
 
             JPanel panel_5 = new JPanel();
             panel_5.setBorder(new TitledBorder(UIManager
@@ -273,15 +295,18 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             if (ownship.getStaticData() != null) {
                 shipName.setText(ownship.getStaticData().getName());
 
-                String length = Integer.toString(ownship.getStaticData()
-                        .getDimBow() + ownship.getStaticData().getDimStern())
-                        + " M";
-                String width = Integer.toString(ownship.getStaticData()
-                        .getDimPort()
-                        + ownship.getStaticData().getDimStarboard()) + " M";
+                double length = ownship.getStaticData().getDimBow()
+                        + ownship.getStaticData().getDimStern();
+                // String width = Integer.toString(ownship.getStaticData()
+                // .getDimPort()
+                // + ownship.getStaticData().getDimStarboard()) + " M";
 
-                shipWidth.setText(width);
-                shipLength.setText(length);
+                // Is the lenght indicated by the AIS longer than 89 feet then
+                // it falls under Ship category
+                if (Converter.metersToFeet(length) > 89) {
+                    sruType.setSelectedIndex(1);
+                }
+
             }
         }
     }
@@ -303,9 +328,225 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
         if (arg0.getSource() == editPoD) {
             if (editPoD.isSelected()) {
                 probabilityOfDetectionVal.setEnabled(true);
+                probabilityOfDetectionVal.setEditable(true);
             } else {
                 probabilityOfDetectionVal.setEnabled(false);
+                probabilityOfDetectionVal.setEditable(false);
+            }
+        }
+
+        if (arg0.getSource() == calculate) {
+            if (checkValues()) {
+                // Ready to go
+                voctManager.EffortAllocationDataEntered();
+            }
+        }
+
+    }
+
+    private boolean checkValues() {
+
+        if (getMaxSpeed() == -9999) {
+            return false;
+        }
+
+        rapidResponseData.setGroundSpeed(getMaxSpeed());
+
+        // Wc = Wu x Fw x Fv x Ff
+
+        // Wu is done by table lookup
+
+        int targetType = targetTypeDropdown.getSelectedIndex();
+        int visibility = (int) visibilityDropDown.getSelectedItem();
+
+        double wu = 0.0;
+
+        if (sruType.getSelectedIndex() == 0) {
+            // Small type
+            wu = SweepWidthSmallShipLookup(targetType, visibility);
+        } else {
+            if (sruType.getSelectedIndex() == 1) {
+                wu = SweepWidthLargeShipLookup(targetType, visibility);
+            }
+        }
+
+        int windSpeed = getWindSpeed();
+
+        if (windSpeed == -9999) {
+            return false;
+        }
+
+        int waterLevel = getWaterElevation();
+        if (waterLevel == -9999) {
+            return false;
+        }
+
+        int fwRow = 0;
+
+        if (windSpeed >= 0 && windSpeed <= 15 || waterLevel >= 0
+                && waterLevel <= 3) {
+            fwRow = 0;
+        }
+
+        if (windSpeed > 15 && windSpeed <= 25 || waterLevel > 3
+                && waterLevel <= 5) {
+            fwRow = 1;
+        }
+
+        if (windSpeed > 25 || waterLevel > 5) {
+            fwRow = 2;
+        }
+
+        // Two types of search object for FW
+        // Person in Water, raft or boat less than 30 feet
+        // Or
+        // Other
+        double fw;
+
+        // PIW, raft or small boat
+        if (targetType >= 0 && targetType <= 10 || targetType >= 14
+                && targetType < 17) {
+            fw = WeatherCorrectionFactors.getPIWAndSmallBoats().get(fwRow);
+        } else {
+            // Other object
+            fw = WeatherCorrectionFactors.getOtherObjects().get(fwRow);
+        }
+
+        double ff = (double) fatigueDropDown.getSelectedItem();
+
+        double wc = wu * fw * ff;
+
+        rapidResponseData.setW(wc);
+
+        System.out.println("The following Sweep Width is calculated:");
+        System.out.println("Wc = Wu x Fw x Ff");
+        System.out.println(wc + " = " + wu + " * " + fw + " * " + ff);
+
+        double probabilityOfDetection = getProbabilityOfDetection();
+        System.out.println(probabilityOfDetection);
+        if (probabilityOfDetection == -9999) {
+            return false;
+        }
+
+        rapidResponseData.setPod(probabilityOfDetection);
+
+        int timeSearching = getSearchTimeHours();
+        
+        if (timeSearching == -9999) {
+            System.out.println("failed to get time searching spinner val");
+            return false;
+        }
+        rapidResponseData.setSearchTime(timeSearching);
+
+        return true;
+    }
+
+    private double SweepWidthSmallShipLookup(int searchObject, int visibility) {
+        return SweepWidthValues.getSmallerVessels().get(searchObject)
+                .get(visibility);
+    }
+
+    private double SweepWidthLargeShipLookup(int searchObject, int visibility) {
+        return SweepWidthValues.getLargerVessels().get(searchObject)
+                .get(visibility);
+    }
+
+    private int getWindSpeed() {
+
+        String windSpeed = windspeedField.getText();
+
+        if (windSpeed.equals("")) {
+            displayMissingField("Wind Speed");
+            return -9999;
+        } else {
+            try {
+                return Integer.parseInt(windSpeed);
+            } catch (Exception e) {
+                displayMissingField("Wind speed");
+                return -9999;
+            }
+        }
+
+    }
+
+    private int getWaterElevation() {
+
+        String waterElevation = waterElevationField.getText();
+
+        if (waterElevation.equals("")) {
+            displayMissingField("Water Elevation");
+            return -9999;
+        } else {
+            try {
+                return Integer.parseInt(waterElevation);
+            } catch (Exception e) {
+                displayMissingField("Water Elevation");
+                return -9999;
+            }
+        }
+
+    }
+
+    private int getSearchTimeHours() {
+
+        // String groundSpeed = (String) hoursSearching.getValue();
+
+        try {
+            return (int) hoursSearching.getValue();
+        } catch (Exception e) {
+            displayMissingField("Time Searching");
+            return -9999;
+        }
+
+    }
+
+    private double getMaxSpeed() {
+
+        String groundSpeed = topSpeed.getText();
+
+        if (groundSpeed.equals("")) {
+            displayMissingField("SRU Top Speed");
+            return -9999;
+        } else {
+            try {
+                return Double.parseDouble(groundSpeed);
+            } catch (Exception e) {
+                displayMissingField("SRU Top Speed");
+                return -9999;
+            }
+        }
+
+    }
+
+    private double getProbabilityOfDetection() {
+
+        String probabilityOfDetection = probabilityOfDetectionVal.getText();
+
+        // Remove %
+        try {
+            probabilityOfDetection = (String) probabilityOfDetection
+                    .subSequence(0, probabilityOfDetection.length() - 1);
+        } catch (Exception e) {
+            // Invalid
+        }
+
+        if (probabilityOfDetection.equals("")) {
+            displayMissingField("Probability of Detection");
+            return -9999;
+        } else {
+            try {
+                return Double.parseDouble(probabilityOfDetection) / 100;
+            } catch (Exception e) {
+                displayMissingField("Probability of Detection");
+                return -9999;
             }
         }
     }
+
+    private void displayMissingField(String fieldname) {
+        // Missing or incorrect value in
+        JOptionPane.showMessageDialog(this, "Missing or incorrect value in "
+                + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
+    }
+
 }

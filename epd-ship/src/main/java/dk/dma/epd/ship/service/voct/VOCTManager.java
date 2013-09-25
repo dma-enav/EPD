@@ -181,4 +181,12 @@ public class VOCTManager implements Runnable, Serializable {
         notifyListeners(VOCTUpdateEvent.SAR_READY);
     }
 
+    public void EffortAllocationDataEntered(){
+        notifyListeners(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
+        sarOperation.calculateEffortAllocation(rapidResponseData);
+        
+        notifyListeners(VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY);
+
+    }
+    
 }
