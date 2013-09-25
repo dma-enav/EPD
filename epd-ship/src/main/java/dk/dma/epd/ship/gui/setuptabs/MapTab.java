@@ -30,13 +30,13 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
+import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.settings.EPDMapSettings;
 
 /**
@@ -72,6 +72,7 @@ public class MapTab extends JPanel {
     /**
      * Create the panel.
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public MapTab() {
         
         JPanel panel = new JPanel();
@@ -181,8 +182,14 @@ public class MapTab extends JPanel {
         JLabel lblColorProfile = new JLabel("Color profile");
         
         JButton btnAdvancedOptions = new JButton("Advanced Options");
+        
+        if (!EPDShip.getSettings().getMapSettings().isUseEnc()){
+            btnAdvancedOptions.setEnabled(false);
+        }
+        
         btnAdvancedOptions.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
+                @SuppressWarnings("unused")
                 AdvancedSettingsWindow advSettingsWindow = new AdvancedSettingsWindow();
 //                advSettingsWindow.setVisible(true);
 //                btnAdvancedOptions

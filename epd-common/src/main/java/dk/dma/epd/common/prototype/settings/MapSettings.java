@@ -16,10 +16,6 @@
 package dk.dma.epd.common.prototype.settings;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Properties;
 
 import com.bbn.openmap.proj.coords.LatLonPoint;

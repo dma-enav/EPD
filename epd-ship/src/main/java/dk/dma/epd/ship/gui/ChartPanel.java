@@ -131,8 +131,9 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         // Add WMS Layer
         if (mapSettings.isUseWms()) {
             wmsLayer = new WMSLayer(mapSettings.getWmsQuery());
+            mapHandler.add(wmsLayer);
         }
-
+        
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
         map.setDoubleBuffered(true);
@@ -265,10 +266,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
 
         encLayerFactory.setMapSettings();
         
-        if (wmsLayer != null) {
-            mapHandler.add(wmsLayer);
-        }
-        
+
         // Set last postion
         map.setCenter(mapSettings.getCenter());
 

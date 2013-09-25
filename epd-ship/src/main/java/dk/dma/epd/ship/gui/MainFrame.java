@@ -41,7 +41,6 @@ import dk.dma.epd.ship.gui.component_panels.CursorComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.GpsComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.MSIComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.MonaLisaCommunicationComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
@@ -76,7 +75,7 @@ public class MainFrame extends JFrame implements WindowListener {
     private AisComponentPanel aisComponentPanel;
     private DynamicNoGoComponentPanel dynamicNoGoPanel;
     private NoGoComponentPanel nogoPanel;
-    private MonaLisaCommunicationComponentPanel monaLisaPanel;
+//    private MonaLisaCommunicationComponentPanel monaLisaPanel;
     
     private JPanel glassPanel;
     private MsiDialog msiDialog;
@@ -127,7 +126,7 @@ public class MainFrame extends JFrame implements WindowListener {
         aisComponentPanel = new AisComponentPanel();
         dynamicNoGoPanel = new DynamicNoGoComponentPanel();
         nogoPanel = new NoGoComponentPanel();
-        monaLisaPanel = new MonaLisaCommunicationComponentPanel();
+//        monaLisaPanel = new MonaLisaCommunicationComponentPanel();
         
         //Mona Lisa Dialog
         monaLisaSTCCDialog = new MonaLisaSTCCDialog(this);
@@ -169,7 +168,7 @@ public class MainFrame extends JFrame implements WindowListener {
         mapHandler.add(aisComponentPanel);
         mapHandler.add(dynamicNoGoPanel);
         mapHandler.add(nogoPanel);
-        mapHandler.add(monaLisaPanel);
+//        mapHandler.add(monaLisaPanel);
         
         // Create top menubar
         menuBar = new MenuBar();
@@ -326,9 +325,9 @@ public class MainFrame extends JFrame implements WindowListener {
         return nogoPanel;
     }
 
-    public MonaLisaCommunicationComponentPanel getMonaLisaPanel() {
-        return monaLisaPanel;
-    }
+//    public MonaLisaCommunicationComponentPanel getMonaLisaPanel() {
+//        return monaLisaPanel;
+//    }
 
     
     

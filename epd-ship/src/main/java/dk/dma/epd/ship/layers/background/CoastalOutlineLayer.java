@@ -20,7 +20,6 @@ import java.awt.Graphics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bbn.openmap.layer.shape.BufferedShapeLayer;
 import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
@@ -30,6 +29,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 public class CoastalOutlineLayer extends ShapeLayer {
     
     private static final long serialVersionUID = 1L;
+    @SuppressWarnings("unused")
     private Logger LOG;
     
     public CoastalOutlineLayer() {
