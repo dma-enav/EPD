@@ -7,7 +7,7 @@
 	<!-- CONSOLE -->
 	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
 		<param name="Target" value="System.out" />
-		<param name="Threshold" value="ALL" />
+		<param name="Threshold" value="DEBUG" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c] %m%n" />
 		</layout>
@@ -35,6 +35,14 @@
 		</layout>
 	</appender>
 
+	<logger name="org.eclipse">
+		<level value="FATAL" />
+	</logger>
+	
+	<logger name="org.eclipse.jetty">
+		<level value="FATAL" />
+	</logger>
+	
 	<logger name="org.apache.commons.httpclient">
 		<level value="ERROR" />
 	</logger>
@@ -54,7 +62,15 @@
 	<logger name="dk.navicon.s57">
 		<level value="FATAL" />
 	</logger>
+	
+	<logger name="org.eclipse.jetty">
+		<level value="FATAL" />
+	</logger>
 
+	<logger name="dk.navicon">
+	<level value="FATAL" />
+	</logger>
+	
 	<root>
 		<level value="ALL" />
 		<appender-ref ref="CONSOLE" />

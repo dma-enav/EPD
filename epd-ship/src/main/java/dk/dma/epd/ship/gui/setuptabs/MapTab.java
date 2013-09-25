@@ -18,15 +18,20 @@ package dk.dma.epd.ship.gui.setuptabs;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.ListModel;
+import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 
@@ -56,6 +61,13 @@ public class MapTab extends JPanel {
     private JCheckBox chckbxTwoShades;
     private JComboBox<String[]> comboBoxColorProfile;
     private EPDMapSettings mapSettings;
+    private JCheckBox checkBoxUseWms;
+    private JPanel panel_2;
+    private JTextField wmsQueryTextField;
+    private JList<String> list;
+    private JLabel label;
+    private DefaultListModel<String> listModel;
+    private JCheckBox checkBoxUseWmsWhenDragging;
     
     /**
      * Create the panel.
@@ -67,25 +79,73 @@ public class MapTab extends JPanel {
         
         JPanel panel_1 = new JPanel();
         panel_1.setBorder(new TitledBorder(null, "General", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        
+        panel_2 = new JPanel();
+        panel_2.setBorder(new TitledBorder(null, "WMS Settings", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        
+        JLabel lblWmsUrl = new JLabel("WMS URL");
+        
+        wmsQueryTextField = new JTextField();
+        wmsQueryTextField.setColumns(10);
+        
+        listModel = new DefaultListModel<>();
+        list = new JList<String>(listModel);
+        list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        list.setLayoutOrientation(JList.VERTICAL);
+        
+        
+        label = new JLabel("WMS Services");
+        
+        GroupLayout gl_panel_2 = new GroupLayout(panel_2);
+        gl_panel_2.setHorizontalGroup(
+            gl_panel_2.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_panel_2.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(gl_panel_2.createParallelGroup(Alignment.LEADING, false)
+                        .addComponent(list, GroupLayout.PREFERRED_SIZE, 321, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(wmsQueryTextField, GroupLayout.PREFERRED_SIZE, 321, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblWmsUrl)
+                        .addComponent(label))
+                    .addContainerGap())
+        );
+        gl_panel_2.setVerticalGroup(
+            gl_panel_2.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_panel_2.createSequentialGroup()
+                    .addGap(4)
+                    .addComponent(lblWmsUrl)
+                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addComponent(wmsQueryTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addComponent(label)
+                    .addPreferredGap(ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
+                    .addComponent(list, GroupLayout.PREFERRED_SIZE, 103, GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap())
+        );
+        panel_2.setLayout(gl_panel_2);
         GroupLayout groupLayout = new GroupLayout(this);
         groupLayout.setHorizontalGroup(
             groupLayout.createParallelGroup(Alignment.TRAILING)
                 .addGroup(groupLayout.createSequentialGroup()
                     .addContainerGap()
-                    .addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-                        .addComponent(panel_1, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE)
-                        .addComponent(panel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE))
-                    .addContainerGap())
+                    .addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+                        .addComponent(panel_1, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 406, Short.MAX_VALUE)
+                        .addComponent(panel_2, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 406, Short.MAX_VALUE)
+                        .addComponent(panel, GroupLayout.DEFAULT_SIZE, 406, Short.MAX_VALUE))
+                    .addGap(465))
         );
         groupLayout.setVerticalGroup(
             groupLayout.createParallelGroup(Alignment.LEADING)
                 .addGroup(groupLayout.createSequentialGroup()
                     .addContainerGap()
-                    .addComponent(panel_1, GroupLayout.PREFERRED_SIZE, 159, GroupLayout.PREFERRED_SIZE)
+                    .addComponent(panel_1, GroupLayout.PREFERRED_SIZE, 171, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(panel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(113, Short.MAX_VALUE))
+                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addComponent(panel_2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(21, Short.MAX_VALUE))
         );
+        groupLayout.setAutoCreateGaps(true);
+        groupLayout.setAutoCreateContainerGaps(true);
         
         spinnerShallowContour = new JSpinner();
         
@@ -166,7 +226,7 @@ public class MapTab extends JPanel {
                             .addComponent(comboBoxColorProfile, GroupLayout.PREFERRED_SIZE, 70, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(ComponentPlacement.UNRELATED)
                             .addComponent(lblColorProfile)))
-                    .addContainerGap(108, Short.MAX_VALUE))
+                    .addContainerGap(823, Short.MAX_VALUE))
         );
         gl_panel.setVerticalGroup(
             gl_panel.createParallelGroup(Alignment.LEADING)
@@ -229,13 +289,17 @@ public class MapTab extends JPanel {
         JLabel lblDefaultMapScale = new JLabel("Default map scale");
         
         JLabel lblMaximumZoomLevel = new JLabel("Maximum scale");
+        
+        checkBoxUseWms = new JCheckBox("Use WMS");
+        
+        checkBoxUseWmsWhenDragging = new JCheckBox("Drag WMS (disable for performance)");
+        checkBoxUseWmsWhenDragging.setToolTipText("disable wms when dragging map / during navigation. Disable to improve performance");
         GroupLayout gl_panel_1 = new GroupLayout(panel_1);
         gl_panel_1.setHorizontalGroup(
             gl_panel_1.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_panel_1.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
-                        .addComponent(chckbxUseENC)
                         .addGroup(gl_panel_1.createSequentialGroup()
                             .addComponent(spinnerDefaultMapScale, GroupLayout.PREFERRED_SIZE, 64, GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(ComponentPlacement.RELATED)
@@ -246,14 +310,26 @@ public class MapTab extends JPanel {
                             .addComponent(lblMaximumZoomLevel))
                         .addComponent(lblStartupMapCenter)
                         .addGroup(gl_panel_1.createSequentialGroup()
-                            .addComponent(lblLatitude)
-                            .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(spinnerLatitude, GroupLayout.PREFERRED_SIZE, 64, GroupLayout.PREFERRED_SIZE)
-                            .addGap(29)
-                            .addComponent(lblLongitude)
-                            .addGap(5)
-                            .addComponent(spinnerLongitude, GroupLayout.PREFERRED_SIZE, 64, GroupLayout.PREFERRED_SIZE)))
-                    .addContainerGap(138, Short.MAX_VALUE))
+                            .addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
+                                .addGroup(gl_panel_1.createSequentialGroup()
+                                    .addComponent(lblLatitude)
+                                    .addPreferredGap(ComponentPlacement.RELATED)
+                                    .addComponent(spinnerLatitude, GroupLayout.PREFERRED_SIZE, 64, GroupLayout.PREFERRED_SIZE)
+                                    .addGap(28)
+                                    .addComponent(lblLongitude)
+                                    .addPreferredGap(ComponentPlacement.RELATED)
+                                    .addComponent(spinnerLongitude, GroupLayout.PREFERRED_SIZE, 64, GroupLayout.PREFERRED_SIZE)
+                                    .addGap(19))
+                                .addGroup(gl_panel_1.createSequentialGroup()
+                                    .addComponent(chckbxUseENC)
+                                    .addGap(18)
+                                    .addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
+                                        .addComponent(checkBoxUseWmsWhenDragging)
+                                        .addGroup(gl_panel_1.createSequentialGroup()
+                                            .addComponent(checkBoxUseWms, GroupLayout.DEFAULT_SIZE, 184, Short.MAX_VALUE)
+                                            .addPreferredGap(ComponentPlacement.RELATED)))))
+                            .addGap(98)))
+                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         gl_panel_1.setVerticalGroup(
             gl_panel_1.createParallelGroup(Alignment.LEADING)
@@ -274,8 +350,12 @@ public class MapTab extends JPanel {
                         .addComponent(lblLongitude)
                         .addComponent(spinnerLongitude, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(chckbxUseENC)
-                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE)
+                        .addComponent(chckbxUseENC)
+                        .addComponent(checkBoxUseWms))
+                    .addPreferredGap(ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
+                    .addComponent(checkBoxUseWmsWhenDragging)
+                    .addContainerGap())
         );
         panel_1.setLayout(gl_panel_1);
         setLayout(groupLayout);
@@ -302,6 +382,17 @@ public class MapTab extends JPanel {
         chckbxTwoShades.setSelected(mapSettings.isS52TwoShades());
         
         comboBoxColorProfile.setSelectedItem(mapSettings.getColor());
+        
+        String[] wmsProviders = mapSettings.getWmsProviders();
+        
+        for (int i=0; i<wmsProviders.length; i++) {
+            listModel.addElement(wmsProviders[i]);
+        }
+        
+        wmsQueryTextField.setText(mapSettings.getWmsQuery());
+        checkBoxUseWms.setSelected(mapSettings.isUseWms());
+        checkBoxUseWmsWhenDragging.setSelected(mapSettings.isUseWmsDragging());
+        
     }
     
     public void saveSettings() {
@@ -310,6 +401,8 @@ public class MapTab extends JPanel {
         LatLonPoint center = new LatLonPoint.Double((Double) spinnerLatitude.getValue(), (Double) spinnerLongitude.getValue());
         mapSettings.setCenter(center);
         mapSettings.setUseEnc(chckbxUseENC.isSelected());
+        mapSettings.setUseWms(checkBoxUseWms.isSelected());
+        mapSettings.setUseWmsDragging(checkBoxUseWmsWhenDragging.isSelected());
         
         mapSettings.setS52ShallowContour((Integer) spinnerShallowContour.getValue());
         mapSettings.setS52SafetyDepth((Integer) spinnerSafetyDepth.getValue());
@@ -321,6 +414,15 @@ public class MapTab extends JPanel {
         mapSettings.setUsePlainAreas(chckbxPlainAreas.isSelected());
         mapSettings.setS52TwoShades(chckbxTwoShades.isSelected());
         mapSettings.setColor(comboBoxColorProfile.getSelectedItem().toString());
+        
+        
+        //WMS
+        mapSettings.setWmsQuery(wmsQueryTextField.getText());
+        String[] arr = new String[list.getModel().getSize()];
+        for (int i=0; i<list.getModel().getSize(); i++) {
+            arr[i] = list.getModel().getElementAt(i); 
+        }
+        mapSettings.setWmsProviders(arr);
         
     }
 }

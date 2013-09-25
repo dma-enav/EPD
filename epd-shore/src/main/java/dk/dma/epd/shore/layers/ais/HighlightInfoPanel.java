@@ -15,8 +15,8 @@
  */
 package dk.dma.epd.shore.layers.ais;
 
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.gui.utils.InfoPanel;
 
 /**
  * MSI mouse over info

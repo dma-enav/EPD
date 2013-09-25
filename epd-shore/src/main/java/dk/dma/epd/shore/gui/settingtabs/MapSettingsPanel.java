@@ -42,6 +42,7 @@ public class MapSettingsPanel extends JPanel{
     JSpinner longitudeSpinner;
     JTextField wmsTextField;
     JCheckBox wmsCheckBox;
+    private JCheckBox chckbxWmsDrag;
 
     public MapSettingsPanel(ESDSettings settings){
         super();
@@ -134,7 +135,7 @@ public class MapSettingsPanel extends JPanel{
         wmsCheckBox.setFont(GuiStyler.defaultFont);
         wmsCheckBox.setBackground(GuiStyler.backgroundColor);
         wmsCheckBox.setForeground(GuiStyler.textColor);
-        wmsCheckBox.setBounds(6, 24, 377, 23);
+        wmsCheckBox.setBounds(6, 24, 174, 23);
         wmsSettingsPanel.add(wmsCheckBox);
 
         wmsTextField = new JTextField();
@@ -152,6 +153,10 @@ public class MapSettingsPanel extends JPanel{
         GuiStyler.styleText(lblNewLabel_1);
         lblNewLabel_1.setBounds(6, 131, 457, 46);
         wmsSettingsPanel.add(lblNewLabel_1);
+        
+        chckbxWmsDrag = new JCheckBox("WMS is used when dragging (disable for performance)");
+        chckbxWmsDrag.setBounds(6, 50, 364, 23);
+        wmsSettingsPanel.add(chckbxWmsDrag);
 
 
         loadSettings();
@@ -159,7 +164,6 @@ public class MapSettingsPanel extends JPanel{
 
     private void loadSettings(){
         ESDMapSettings mapSettings = settings.getMapSettings();
-        ESDGuiSettings guiSettings = settings.getGuiSettings();
 
         defaultMapScaleSpinner.setValue(mapSettings.getScale());
 //        System.out.println(mapScale);
@@ -169,8 +173,10 @@ public class MapSettingsPanel extends JPanel{
         Float longitude = mapSettings.getCenter().getLongitude();
         latitudeSpinner.setValue(latitude.doubleValue());
         longitudeSpinner.setValue(longitude.doubleValue());
-        wmsTextField.setText(guiSettings.getWmsQuery());
-        wmsCheckBox.setSelected(guiSettings.useWMS());
+        
+        wmsTextField.setText(mapSettings.getWmsQuery());
+        wmsCheckBox.setSelected(mapSettings.isUseWms());
+        chckbxWmsDrag.setSelected(mapSettings.isUseWmsDragging());
 
     }
 
@@ -185,5 +191,9 @@ public class MapSettingsPanel extends JPanel{
 
         guiSettings.setUseWMS(wmsCheckBox.isSelected());
         guiSettings.setWmsQuery(wmsTextField.getText());
+        
+        mapSettings.setUseWms(wmsCheckBox.isSelected());
+        mapSettings.setWmsQuery(wmsTextField.getText());
+        mapSettings.setUseWmsDragging(chckbxWmsDrag.isSelected());
     }
 }

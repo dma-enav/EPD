@@ -48,6 +48,7 @@ import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.PersistentConnection.State;
 import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
@@ -104,6 +105,7 @@ public class EPDShip  extends EPD {
     private static TransponderFrame transponderFrame;
     private static VOCTManager voctManager;
 
+
     public static void main(String[] args) throws IOException {
         
         home = Paths.get(System.getProperty("user.home"), ".epd-ship");
@@ -158,6 +160,8 @@ public class EPDShip  extends EPD {
         // Start position handler and add to bean context
         gpsHandler = new GpsHandler();
         mapHandler.add(gpsHandler);
+
+
 
         // Start AIS target monitoring
         aisHandler = new AisHandler(settings.getSensorSettings(), settings.getAisSettings());
@@ -238,6 +242,7 @@ public class EPDShip  extends EPD {
             transponderFrame.startTransponder();
         }
         
+
     }
 
     private static void startSensors() {

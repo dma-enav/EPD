@@ -13,42 +13,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.layers.ais;
+package dk.dma.epd.common.prototype.layers.wms;
+
+import javax.swing.ImageIcon;
 
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 
 /**
- * AIS mouse over info
+ * MSI mouse over info
  */
-public class AisInfoPanel extends InfoPanel {
+public class WMSInfoPanel extends InfoPanel {
 
     private static final long serialVersionUID = 1L;
+    static ImageIcon loadingImg = new ImageIcon("images/loading.gif");
 
     /**
-     * Constructor
+     * Constructor for creating an WMSInfoPanel that uses the loadingIMG
      */
-    public AisInfoPanel() {
-        super();
+    public WMSInfoPanel() {
+        super(loadingImg);
     }
 
     /**
-     * Display a AIS info
-     * 
-     * @param vessel
+     * Show the image
      */
-    public void showAisInfo(Vessel vessel) {
-        if (vessel != null) {
-
-            String aisText = "<HTML>";
-            if (!vessel.getName().equals("N/A")) {
-                aisText += vessel.getName() + " (" + vessel.getMMSI() + ")";
-            } else {
-                aisText += vessel.getMMSI();
-            }
-            aisText += "<BR/>COG " + vessel.getHeading() + "° SOG "
-                    + vessel.getSog() + " kn";
-            aisText += "</HTML>";
-            showText(aisText);
-        }
+    public void displayLoadingImage(){
+        showImage();
     }
+
 }

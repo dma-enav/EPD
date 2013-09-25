@@ -15,28 +15,29 @@
  */
 package dk.dma.epd.ship.event;
 
-import java.awt.AlphaComposite;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.RasterFormatException;
 import java.util.Properties;
 
 import javax.swing.ImageIcon;
-import javax.swing.border.Border;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.PanMouseMode;
-import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.image.ImageScaler;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.util.PropUtils;
+
+import dk.dma.epd.ship.EPDShip;
 
 /**
  * Mouse mode for route edit
@@ -44,6 +45,9 @@ import com.bbn.openmap.util.PropUtils;
 public class DragMouseMode extends AbstractCoordMouseMode {
 
     private static final long serialVersionUID = 1L;
+
+    @SuppressWarnings("unused")
+    private final Logger LOG = LoggerFactory.getLogger(DragMouseMode.class);
 
     /**
      * Mouse Mode identifier, which is "RouteEdit".
@@ -55,16 +59,17 @@ public class DragMouseMode extends AbstractCoordMouseMode {
     public static final float DEFAULT_OPAQUENESS = 0.5f;
 
     private boolean isPanning;
-    private BufferedImage bufferedMapImage;
-    private BufferedImage bufferedRenderingImage;
+    private volatile BufferedImage bufferedMapImage;
     private int beanBufferWidth;
     private int beanBufferHeight;
     private int oX, oY;
     private float opaqueness;
-    private boolean leaveShadow;
-    private boolean useCursor;
-    boolean layerMouseDrag;
-    boolean mouseDragged;
+    private volatile boolean leaveShadow;
+    private volatile boolean useCursor;
+    volatile boolean layerMouseDrag;
+    volatile boolean mouseDragged;
+
+    private BufferedImage onScreenMap;
 
     /**
      * Construct a RouteEditMouseMode. Sets the ID of the mode to the modeID,
@@ -99,13 +104,9 @@ public class DragMouseMode extends AbstractCoordMouseMode {
             if (bufferedMapImage != null) {
                 bufferedMapImage.flush();
             }
-            if (bufferedRenderingImage != null) {
-                bufferedRenderingImage.flush();
-            }
             beanBufferWidth = 0;
             beanBufferHeight = 0;
-            bufferedMapImage = null;
-            bufferedRenderingImage = null;
+
         }
     }
 
@@ -212,7 +213,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
 //            super.mouseDragged(arg0);
 
              if(!mouseDragged) {
-            layerMouseDrag = mouseSupport.fireMapMouseDragged(arg0);
+                 layerMouseDrag = mouseSupport.fireMapMouseDragged(arg0);
              }
             
 //            System.out.println(layerMouseDrag);
@@ -228,71 +229,46 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                 int y = (int) pnt.getY();
 
                 if (!isPanning) {
-                    int w = mb.getWidth();
-                    int h = mb.getHeight();
+ 
+                    isPanning = true;
+                    
+                    
+                    EPDShip.getMainFrame().getChartPanel().getDragMapRenderer().updateOutImg();
 
-                    /*
-                     * Making the image
-                     */
-
-                    if (bufferedMapImage == null
-                            || bufferedRenderingImage == null) {
-                        createBuffers(w, h);
-                    }
-
-                    GraphicsEnvironment ge = GraphicsEnvironment
-                            .getLocalGraphicsEnvironment();
-                    Graphics2D g = ge.createGraphics(bufferedMapImage);
-                    g.setClip(0, 0, w, h);
-                    Border border = mb.getBorder();
-                    mb.setBorder(null);
-                    if (mb.getRotation() != 0.0) {
-                        double angle = mb.getRotation();
-                        mb.setRotation(0.0);
-                        mb.paintAll(g);
-                        mb.setRotation(angle);
-                    } else {
-                        mb.paintAll(g);
-                    }
-                    mb.setBorder(border);
-
+                    onScreenMap = new BufferedImage(mb.getWidth(), mb.getHeight(),BufferedImage.TYPE_INT_RGB);
+                    mb.paint(onScreenMap.getGraphics());
                     oX = x;
                     oY = y;
-
-                    isPanning = true;
+                    
+                    EPDShip.getMainFrame().getChartPanel().getMap().setVisible(false);
 
                 } else {
-                    if (bufferedMapImage != null
-                            && bufferedRenderingImage != null) {
-                        Graphics2D gr2d = (Graphics2D) bufferedRenderingImage
-                                .getGraphics();
-                        /*
-                         * Drawing original image without transparence and in
-                         * the initial position
-                         */
-                        if (leaveShadow) {
-                            gr2d.drawImage(bufferedMapImage, 0, 0, null);
-                        } else {
-                            gr2d.setPaint(mb.getBckgrnd());
-                            gr2d.fillRect(0, 0, mb.getWidth(), mb.getHeight());
-                        }
 
-                        /*
-                         * Drawing image with transparence and in the mouse
-                         * position minus origianl mouse click position
-                         */
-                        gr2d.setComposite(AlphaComposite.getInstance(
-                                AlphaComposite.SRC_OVER, opaqueness));
-                        gr2d.drawImage(bufferedMapImage, x - oX, y - oY, null);
+                    final int startX = mb.getWidth();
+                    final int startY = mb.getHeight();
 
-                        ((Graphics2D) mb.getGraphics(true)).drawImage(
-                                bufferedRenderingImage, 0, 0, null);
+                    final int posX = startX - (x - oX);
+                    final int posY = startY - (y - oY);
+
+                    try {
+                        //LOG.debug("Time to get offScreenMap: ")
+                        final BufferedImage offScreenMap = EPDShip.getMainFrame()
+                                .getChartPanel().getDragMapRenderer().getOutImg().getSubimage(posX,
+                                posY, mb.getWidth(), mb.getHeight());
+                        
+                        final BufferedImage renderImage = offScreenMap;
+                        //renderImage.getGraphics().drawImage(offScreenMap,0,0,null);                        
+                        renderImage.getGraphics().drawImage(onScreenMap,x-oX,y-oY,null);
+
+
+                        EPDShip.getMainFrame().getChartPanel().getGraphics().drawImage(
+                                renderImage, 0, 0, null);
+                    } catch (RasterFormatException e) {
+                        //was out of bounds, sorry
                     }
                 }
             }
         }
-        // }
-        // super.mouseDragged(arg0);
     }
 
     /**
@@ -302,6 +278,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
     @Override
     public void mouseReleased(MouseEvent arg0) {
         if (isPanning && arg0.getSource() instanceof MapBean) {
+
             MapBean mb = (MapBean) arg0.getSource();
             Projection proj = mb.getProjection();
             Point2D center = proj.forward(proj.getCenter());
@@ -310,11 +287,17 @@ public class DragMouseMode extends AbstractCoordMouseMode {
             int x = (int) pnt.getX();
             int y = (int) pnt.getY();
 
+            
             center.setLocation(center.getX() - x + oX, center.getY() - y + oY);
+
+            //this will trigger "projection changed" in SimpleOffScreenMapRenderer
+            //which listens to mb
             mb.setCenter(proj.inverse(center));
+
             isPanning = false;
-            // bufferedMapImage = null; //clean up when not active...
+            EPDShip.getMainFrame().getChartPanel().getMap().setVisible(true);
             mouseDragged = false;
+
         }
         super.mouseReleased(arg0);
     }
@@ -345,16 +328,6 @@ public class DragMouseMode extends AbstractCoordMouseMode {
 
     public int getOY() {
         return oY;
-    }
-
-    public void projectionChanged(ProjectionEvent e) {
-        Object obj = e.getSource();
-        if (obj instanceof MapBean) {
-            MapBean mb = (MapBean) obj;
-            int w = mb.getWidth();
-            int h = mb.getHeight();
-            createBuffers(w, h);
-        }
     }
 
     /**
@@ -388,12 +361,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
         if (bufferedMapImage != null) {
             bufferedMapImage.flush();
         }
-        if (bufferedRenderingImage != null) {
-            bufferedRenderingImage.flush();
-        }
         // New images...
         bufferedMapImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-        bufferedRenderingImage = new BufferedImage(w, h,
-                BufferedImage.TYPE_INT_ARGB);
     }
 }

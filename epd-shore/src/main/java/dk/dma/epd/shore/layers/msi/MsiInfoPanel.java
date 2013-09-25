@@ -15,7 +15,7 @@
  */
 package dk.dma.epd.shore.layers.msi;
 
-import dk.dma.epd.shore.gui.utils.InfoPanel;
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 
 /**

@@ -29,18 +29,19 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.BufferedLayerMapBean;
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
-import com.bbn.openmap.MapBean;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.event.ProjectionSupport;
-import com.bbn.openmap.gui.OMComponentPanel;
 import com.bbn.openmap.layer.shape.ShapeLayer;
 import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
+import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
+import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.shore.EPDShore;
@@ -57,7 +58,6 @@ import dk.dma.epd.shore.layers.routeEdit.RouteEditLayer;
 import dk.dma.epd.shore.layers.voct.VoctLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
-import dk.dma.epd.shore.layers.wms.WMSLayer;
 import dk.dma.epd.shore.service.MonaLisaHandler;
 import dk.dma.epd.shore.settings.ESDMapSettings;
 import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
@@ -67,17 +67,13 @@ import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
  * 
  * @author David A. Camre (davidcamre@gmail.com)
  */
-public class ChartPanel extends OMComponentPanel {
+public class ChartPanel extends CommonChartPanel {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
 
-    private MapHandler mapHandler;
-    private LayerHandler layerHandler;
     private MsiHandler msiHandler;
-    private BufferedLayerMapBean map;
-    private Layer encLayer;
-    private Layer bgLayer;
+
     private GeneralLayer generalLayer;
     private MonaLisaHandler monaLisaHandler;
 
@@ -86,12 +82,10 @@ public class ChartPanel extends OMComponentPanel {
     private SelectMouseMode selectMouseMode;
 
     private RouteEditMouseMode routeEditMouseMode;
-
-    private MouseDelegator mouseDelegator;
+    
     public int maxScale = 5000;
     private AisLayer aisLayer;
     private MsiLayer msiLayer;
-    private WMSLayer wmsLayer;
     private RouteLayer routeLayer;
     private VoyageLayer voyageLayer;
     private RouteEditLayer routeEditLayer;
@@ -107,6 +101,7 @@ public class ChartPanel extends OMComponentPanel {
 
     protected transient ProjectionSupport projectionSupport = new ProjectionSupport(
             this, false);
+    private BufferedLayerMapBean dragMap;
 
     /**
      * Constructor
@@ -122,14 +117,17 @@ public class ChartPanel extends OMComponentPanel {
         this.mainFrame = mainFrame;
         // Create the charts own maphandler
         mapHandler = new MapHandler();
+        dragMapHandler = new MapHandler();
 
         // Add the aishandler to this bean
         mapHandler.add(EPDShore.getAisHandler());
         mapHandler.add(EPDShore.getShoreServices());
-        mapHandler.add(this);
+        //mapHandler.add(this);
         mapHandler.add(mainFrame);
         mapHandler.add(mainFrame.getStatusArea());
         mapHandler.add(jmapFrame);
+        
+
 
         // Set layout
         // setLayout(new BorderLayout());
@@ -227,11 +225,7 @@ public class ChartPanel extends OMComponentPanel {
         aisLayer.getAisThread().interrupt();
     }
 
-    /**
-     * Return the bg shape layer
-     * 
-     * @return bgLayer
-     */
+
     public Layer getBgLayer() {
         return bgLayer;
     }
@@ -245,23 +239,7 @@ public class ChartPanel extends OMComponentPanel {
         return encLayer;
     }
 
-    /**
-     * Return the mapBean
-     * 
-     * @return map
-     */
-    public MapBean getMap() {
-        return map;
-    }
-
-    /**
-     * Return the mapHandler
-     * 
-     * @return mapHandler
-     */
-    public MapHandler getMapHandler() {
-        return mapHandler;
-    }
+ 
 
     /**
      * Return the maxScale set for the map
@@ -319,6 +297,8 @@ public class ChartPanel extends OMComponentPanel {
         map.setScale(mapSettings.getScale());
 
         add(map);
+        
+        initDragMap();
 
     }
 
@@ -343,6 +323,35 @@ public class ChartPanel extends OMComponentPanel {
 
         add(map);
 
+        initDragMap();
+
+
+    }
+    
+    /**
+     * Initiate dragmap with mapsettings
+     */
+    protected void initDragMap() {
+        ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
+        //TODO: CLEANUP
+        //dragMap
+        dragMap = new BufferedLayerMapBean();
+        dragMap.setDoubleBuffered(true);
+        dragMap.setCenter(mapSettings.getCenter());
+        dragMap.setScale(mapSettings.getScale());
+        
+        dragMapHandler.add(new LayerHandler());
+        if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
+            dragMapHandler.add(dragMap);
+            wmsDragLayer = new WMSLayer(mapSettings.getWmsQuery());
+            wmsDragLayer.setVisible(true);
+            dragMapHandler.add(wmsDragLayer);
+            dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
+        } else {
+            //create dummy map dragging
+            dragMapRenderer = new SimpleOffScreenMapRenderer(map,dragMap,true);
+        }
+        dragMapRenderer.start();
     }
 
     /**
@@ -352,6 +361,8 @@ public class ChartPanel extends OMComponentPanel {
      */
     public void initChartDefault(MapFrameType type) {
         Properties props = EPDShore.getProperties();
+        ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
+        
 
         if (EPDShore.getSettings().getMapSettings().isUseEnc()
                 && mainFrame.isUseEnc()) {
@@ -394,15 +405,21 @@ public class ChartPanel extends OMComponentPanel {
         // Add layer handler to map handler
         mapHandler.add(layerHandler);
 
-        // Add WMS Layer
-        wmsLayer = new WMSLayer();
-
-        mapHandler.add(wmsLayer);
 
         // Create the general layer
         generalLayer = new GeneralLayer();
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
+        
+        
+        
+        
+        wmsLayer = new WMSLayer(EPDShore.getSettings().getMapSettings().getWmsQuery());
+        //Add WMS Layer
+        if (mapSettings.getWmsQuery().length() > 12 && mapSettings.isUseWms()) {
+            wmsLayer.setVisible(true);
+            mapHandler.add(wmsLayer);    
+        }
 
         
 //        if (type != MapFrameType.SAR){
@@ -508,6 +525,7 @@ public class ChartPanel extends OMComponentPanel {
             // System.out.println("wms is visible");
             bgLayer.setVisible(false);
         }
+
 
     }
 

@@ -21,10 +21,10 @@ import java.util.Date;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteLegGraphic;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Calculator;
-import dk.dma.epd.shore.gui.utils.InfoPanel;
 
 public class PastTrackInfoPanel extends InfoPanel {
     private static final long serialVersionUID = 1L;

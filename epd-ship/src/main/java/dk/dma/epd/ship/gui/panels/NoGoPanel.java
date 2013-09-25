@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.ship.gui.panels;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -43,17 +42,15 @@ public class NoGoPanel extends JPanel {
     private final JLabel lblNewLabel_1 = new JLabel("Valid to");
     private final JLabel lblNewLabel_2 = new JLabel("Draught");
     private final JLabel statLabel5 = new JLabel("N/A");
-    private final JLabel navWarning1 = new JLabel("Do not use this for");
-    private final JLabel navWarning2 = new JLabel("navigational purposes");
 
     public NoGoPanel() {
         GridBagLayout gridBagLayout = new GridBagLayout();
         gridBagLayout.columnWidths = new int[] { 10, 10 };
-        gridBagLayout.rowHeights = new int[] { 20, 16, 15, 0, 0, 0, 0, 0, 0, 0,
+        gridBagLayout.rowHeights = new int[] { 20, 16, 15, 0, 0, 0, 0,
                 10 };
         gridBagLayout.columnWeights = new double[] { 1.0, 1.0 };
         gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-                0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
+                0.0, Double.MIN_VALUE };
         setLayout(gridBagLayout);
         nogoTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         nogoTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -153,32 +150,9 @@ public class NoGoPanel extends JPanel {
         statLabel5.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         GridBagConstraints gbc_statLabel5 = new GridBagConstraints();
         gbc_statLabel5.gridwidth = 2;
-        gbc_statLabel5.insets = new Insets(0, 0, 5, 0);
         gbc_statLabel5.gridx = 0;
         gbc_statLabel5.gridy = 6;
         add(statLabel5, gbc_statLabel5);
-        navWarning1.setForeground(Color.RED);
-
-        navWarning1.setHorizontalAlignment(SwingConstants.LEFT);
-        navWarning1.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        GridBagConstraints gbc_navWarning1 = new GridBagConstraints();
-        gbc_navWarning1.gridwidth = 2;
-        gbc_navWarning1.anchor = GridBagConstraints.NORTH;
-        gbc_navWarning1.insets = new Insets(0, 0, 5, 0);
-        gbc_navWarning1.gridx = 0;
-        gbc_navWarning1.gridy = 8;
-        add(navWarning1, gbc_navWarning1);
-
-        GridBagConstraints gbc_navWarning2 = new GridBagConstraints();
-        gbc_navWarning2.anchor = GridBagConstraints.NORTH;
-        gbc_navWarning2.gridwidth = 2;
-        gbc_navWarning2.gridx = 0;
-        gbc_navWarning2.gridy = 9;
-        add(navWarning2, gbc_navWarning2);
-        navWarning2.setForeground(Color.RED);
-
-        navWarning2.setHorizontalAlignment(SwingConstants.LEFT);
-        navWarning2.setFont(new Font("Segoe UI", Font.PLAIN, 12));
     }
 
     public JLabel getStatusTitleLabel() {
@@ -203,14 +177,6 @@ public class NoGoPanel extends JPanel {
 
     public JLabel getStatLabel4() {
         return statLabel4;
-    }
-
-    public JLabel getNavWarning1() {
-        return navWarning1;
-    }
-
-    public JLabel getNavWarning2() {
-        return navWarning2;
     }
 
     public JLabel getStatLabel5() {

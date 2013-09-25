@@ -120,8 +120,22 @@ public class ThreadedMapCreator implements Runnable {
 
         window.getChartPanel().getVoyageHandlingLayer()
                 .handleVoyage(originalRoute, voyage, renegotiate);
-        window.setSize(1280, 768);
+        
+        int positionX = 200;
+        int positionY = 200;
+        
+        
+        
+        int width = (int) (mainFrame.getSize().getWidth() - positionX - 100);
+        int height = (int) (mainFrame.getSize().getHeight() - positionY - 100);
+        
+        window.setSize(width, height);
+//        window.setSize(1280, 768);
 
+        
+        //100, 100
+        window.setLocation(positionX, positionY);
+        
         // The two positions that must be shown
         Position pos1 = voyage.getRoute().getWaypoints().get(0).getPos();
         Position pos2 = voyage.getRoute().getWaypoints()
@@ -295,7 +309,7 @@ public class ThreadedMapCreator implements Runnable {
             window.getChartPanel().getBgLayer().setVisible(true);
         } else {
             window.getChartPanel().getWmsLayer().setVisible(true);
-            window.getChartPanel().getBgLayer().setVisible(false);
+            window.getChartPanel().getBgLayer().setVisible(true);
         }
 
         if (mainFrame.isUseEnc()) {

@@ -32,16 +32,17 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.BufferedLayerMapBean;
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
-import com.bbn.openmap.MapBean;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.MouseDelegator;
-import com.bbn.openmap.gui.OMComponentPanel;
 import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
+import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
+import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
@@ -69,23 +70,18 @@ import dk.dma.epd.ship.settings.EPDMapSettings;
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
  */
-public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
+public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         MouseWheelListener {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
 
-    private MapHandler mapHandler;
-    private LayerHandler layerHandler;
-    private BufferedLayerMapBean map;
     private GpsLayer gpsLayer;
-    private Layer encLayer;
     private AisLayer aisLayer;
     private GeneralLayer generalLayer;
     private CoastalOutlineLayer coastalOutlineLayer;
     private NavigationMouseMode mapNavMouseMode;
     private DragMouseMode dragMouseMode;
-    private MouseDelegator mouseDelegator;
     private RouteLayer routeLayer;
     private VoyageLayer voyageLayer;
     private EpdMsiLayer msiLayer;
@@ -100,17 +96,19 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
     private NewRouteContainerLayer newRouteContainerLayer;
     public int maxScale = 5000;
     private MSIFilterMouseMode msiFilterMouseMode;
-    private GpsData gpsData;
+
     private boolean nogoMode;
 
     private ActiveWaypointComponentPanel activeWaypointPanel;
 
     private NogoDialog nogoDialog;
+    
 
     public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel) {
         super();
         // Set map handler
         mapHandler = EPDShip.getMapHandler();
+        dragMapHandler = new MapHandler();
         // Set layout
         setLayout(new BorderLayout());
         // Set border
@@ -118,8 +116,13 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         this.activeWaypointPanel = activeWaypointPanel;
         // Max scale
         this.maxScale = EPDShip.getSettings().getMapSettings().getMaxScale();
+
+        setBackground(new Color(0.1f, 0.1f, 0.1f, 0.1f));
     }
 
+    /**
+     * 
+     */
     public void initChart() {
 
         EPDMapSettings mapSettings = EPDShip.getSettings().getMapSettings();
@@ -130,10 +133,21 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
                 .getSettings().getMapSettings());
         encLayer = encLayerFactory.getEncLayer();
 
+        // Add WMS Layer
+        wmsLayer = new WMSLayer(mapSettings.getWmsQuery());
+        if (mapSettings.isUseWms()) {
+            wmsLayer.setVisible(true);
+            mapHandler.add(wmsLayer);            
+        }
+    
+        EncLayerFactory encLayerFactory2 = new EncLayerFactory(mapSettings);
+
+        encDragLayer = encLayerFactory2.getEncLayer();
+
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
         map.setDoubleBuffered(true);
-
+        
         // Orthographic test = new Orthographic((LatLonPoint)
         // mapSettings.getCenter(), mapSettings.getScale(), 1000, 1000);
         // map.setProjection(test);
@@ -159,7 +173,6 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         mapHandler.add(mapNavMouseMode);
         mapHandler.add(routeEditMouseMode);
         mapHandler.add(msiFilterMouseMode);
-
         mapHandler.add(activeWaypointPanel);
 
         // Use the LayerHandler to manage all layers, whether they are
@@ -172,6 +185,7 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         // Add layer handler to map handler
         mapHandler.add(layerHandler);
 
+
         // Create the general layer
         generalLayer = new GeneralLayer();
         generalLayer.setVisible(true);
@@ -181,7 +195,7 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         routeLayer = new RouteLayer();
         routeLayer.setVisible(true);
         mapHandler.add(routeLayer);
-        
+
         // Create voyage layer
         voyageLayer = new VoyageLayer();
         voyageLayer.setVisible(true);
@@ -244,22 +258,53 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         coastalOutlineLayer.setProperties(layerName, props);
         coastalOutlineLayer.setAddAsBackground(true);
         coastalOutlineLayer.setVisible(true);
+
         mapHandler.add(coastalOutlineLayer);
+
+        CoastalOutlineLayer coastalOutlineLayerDrag = new CoastalOutlineLayer();
+        coastalOutlineLayerDrag.setProperties(layerName, props);
+        coastalOutlineLayerDrag.setAddAsBackground(true);
+        coastalOutlineLayerDrag.setVisible(true);
+        //dragMapHandler.add(coastalOutlineLayerDrag);
 
         if (encLayer != null) {
             mapHandler.add(encLayer);
         }
-
+        
         // Add map to map handler
         mapHandler.add(map);
-
+        
         // Set last postion
         map.setCenter(mapSettings.getCenter());
+        
 
         // Get from settings
         map.setScale(mapSettings.getScale());
 
         add(map);
+        
+        //TODO: CLEANUP
+        //dragMap
+        dragMap = new BufferedLayerMapBean();
+        dragMap.setDoubleBuffered(true);
+        dragMap.setCenter(mapSettings.getCenter());
+        dragMap.setScale(mapSettings.getScale());
+        
+        dragMapHandler.add(new LayerHandler());
+        if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
+            
+
+            dragMapHandler.add(dragMap);
+            wmsDragLayer = new WMSLayer(mapSettings.getWmsQuery());
+            dragMapHandler.add(wmsDragLayer);
+            dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
+        } else {
+            //create dummy map dragging
+            dragMapRenderer = new SimpleOffScreenMapRenderer(map,dragMap,true);
+        }
+        
+        dragMapRenderer.start();
+
 
         // Force a route layer and sensor panel update
         routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
@@ -271,8 +316,16 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         // Add this class as GPS data listener
         EPDShip.getGpsHandler().addListener(this);
 
+        
+        
+        
         // Set ENC map settings
         encLayerFactory.setMapSettings();
+        encLayerFactory2.setMapSettings();
+
+        // Hack to flush ENC layer
+        encLayerFactory.reapplySettings();
+        encLayerFactory2.reapplySettings();
 
         // Show AIS or not
         aisVisible(EPDShip.getSettings().getAisSettings().isVisible());
@@ -285,7 +338,35 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         }
 
         getMap().addMouseWheelListener(this);
+
     }
+    
+    
+
+    protected void initDragMap() {
+        EPDMapSettings mapSettings = EPDShip.getSettings().getMapSettings();
+        //TODO: CLEANUP
+        //dragMap
+        dragMap = new BufferedLayerMapBean();
+        dragMap.setDoubleBuffered(true);
+        dragMap.setCenter(mapSettings.getCenter());
+        dragMap.setScale(mapSettings.getScale());
+        
+        dragMapHandler.add(new LayerHandler());
+        if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
+            dragMapHandler.add(dragMap);
+            WMSLayer wmsDragLayer = new WMSLayer(mapSettings.getWmsQuery());
+            dragMapHandler.add(wmsDragLayer);
+            dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
+        } else {
+            //create dummy map dragging
+            dragMapRenderer = new SimpleOffScreenMapRenderer(map,dragMap,true);
+        }
+        dragMapRenderer.start();
+    }    
+
+
+
 
     public void saveSettings() {
         EPDMapSettings mapSettings = EPDShip.getSettings().getMapSettings();
@@ -293,9 +374,7 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
         mapSettings.setScale(map.getScale());
     }
 
-    public MapBean getMap() {
-        return map;
-    }
+
 
     public MapHandler getMapHandler() {
         return mapHandler;
@@ -307,6 +386,10 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
 
     public Layer getEncLayer() {
         return encLayer;
+    }
+    
+    public Layer getBgLayer() {
+        return coastalOutlineLayer;
     }
 
     public void centreOnShip() {
@@ -339,6 +422,7 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
     public void encVisible(boolean visible) {
         if (encLayer != null) {
             encLayer.setVisible(visible);
+            encDragLayer.setVisible(visible);
             coastalOutlineLayer.setVisible(!visible);
             if (!visible) {
                 // Force update of background layer
@@ -362,11 +446,11 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
             routeEditLayer.setVisible(true);
             routeEditLayer.setEnabled(true);
             newRouteContainerLayer.setVisible(true);
-            
+
             EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
-            .setSelected(false);
-    EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
-            .setSelected(false);
+                    .setSelected(false);
+            EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
+                    .setSelected(false);
         }
 
         // Mode1 is NavMouseMode
@@ -394,9 +478,9 @@ public class ChartPanel extends OMComponentPanel implements IGpsDataListener,
             if (mode == 2) {
                 mouseDelegator.setActive(dragMouseMode);
                 EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
-                .setSelected(false);
-        EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
-                .setSelected(true);
+                        .setSelected(false);
+                EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
+                        .setSelected(true);
                 System.out.println("Setting drag mouse mode");
             }
         }

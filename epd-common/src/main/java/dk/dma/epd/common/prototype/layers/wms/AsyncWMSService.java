@@ -13,32 +13,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.layers.wms;
+package dk.dma.epd.common.prototype.layers.wms;
 
-import javax.swing.ImageIcon;
+import com.bbn.openmap.proj.Projection;
 
-import dk.dma.epd.shore.gui.utils.InfoPanel;
-
-/**
- * MSI mouse over info
- */
-public class WMSInfoPanel extends InfoPanel {
-
-    private static final long serialVersionUID = 1L;
-    static ImageIcon loadingImg = new ImageIcon("images/loading.gif");
-
-    /**
-     * Constructor for creating an WMSInfoPanel that uses the loadingIMG
-     */
-    public WMSInfoPanel() {
-        super(loadingImg);
-    }
-
-    /**
-     * Show the image
-     */
-    public void displayLoadingImage(){
-        showImage();
-    }
-
+public interface AsyncWMSService {
+    void queue(Projection p);
 }

@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.ship.gui;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
@@ -35,6 +36,10 @@ import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.service.EnavServiceHandler;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Font;
 
 
 
@@ -57,22 +62,45 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
     
     private JToolBar toolBar;
     private List<IStatusComponent> statusComponents = new ArrayList<>();
+    private JLabel lblDoNotUse;
+    private JPanel statusIcons;
+    private JPanel navWarnings;
 
     public BottomPanel() {
         super();
-//        setBorder(new CompoundBorder(new MatteBorder(1, 0, 0, 0, new Color(255, 255, 255)), new MatteBorder(1, 0, 0, 0,
-//                new Color(192, 192, 192))));
-        FlowLayout flowLayout = (FlowLayout) getLayout();
-        flowLayout.setVgap(2);
-        flowLayout.setHgap(3);
-        flowLayout.setAlignment(FlowLayout.RIGHT);
-
-        toolBar = new JToolBar();
-        toolBar.setFloatable(false);
-        add(toolBar);
-
-        gpsStatus = new StatusLabel("GPS");
-        addToolbarComponent(gpsStatus);
+        setLayout(new BorderLayout(0, 0));
+        
+        navWarnings = new JPanel();
+        FlowLayout flowLayout = (FlowLayout) navWarnings.getLayout();
+        flowLayout.setHgap(10);
+//        navWarnings.add(navWarnings);
+        
+        lblDoNotUse = new JLabel("Do not use this for navigational purposes");
+        lblDoNotUse.setFont(new Font("Tahoma", Font.PLAIN, 12));
+        lblDoNotUse.setForeground(Color.RED);
+        navWarnings.add(lblDoNotUse);
+        lblDoNotUse.setHorizontalAlignment(SwingConstants.LEFT);
+        
+        add(navWarnings, BorderLayout.WEST);
+        
+        statusIcons = new JPanel();
+        
+        
+        add(statusIcons, BorderLayout.EAST);
+        
+                toolBar = new JToolBar();
+                statusIcons.add(toolBar);
+                toolBar.setFloatable(false);
+                
+                        gpsStatus = new StatusLabel("GPS");
+                        addToolbarComponent(gpsStatus);
+                        Component horizontalStrut = Box.createHorizontalStrut(5);
+                        toolBar.add(horizontalStrut);
+                        JSeparator separator = new JSeparator();
+                        separator.setOrientation(SwingConstants.VERTICAL);
+                        toolBar.add(separator);
+                        horizontalStrut = Box.createHorizontalStrut(5);
+                        toolBar.add(horizontalStrut);
 
         aisStatus = new StatusLabel("AIS");
         addToolbarComponent(aisStatus);
@@ -87,13 +115,6 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
     }
 
     private void addToolbarComponent(Component component) {
-        Component horizontalStrut = Box.createHorizontalStrut(5);
-        toolBar.add(horizontalStrut);
-        JSeparator separator = new JSeparator();
-        separator.setOrientation(SwingConstants.VERTICAL);
-        toolBar.add(separator);
-        horizontalStrut = Box.createHorizontalStrut(5);
-        toolBar.add(horizontalStrut);
         toolBar.add(component);
         component.addMouseListener(this);
     }

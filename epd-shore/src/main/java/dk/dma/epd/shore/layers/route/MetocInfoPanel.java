@@ -17,9 +17,9 @@ package dk.dma.epd.shore.layers.route;
 
 import java.util.Date;
 
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.model.route.RouteMetocSettings;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.shore.gui.utils.InfoPanel;
 import dk.frv.enav.common.xml.metoc.MetocDataTypes;
 import dk.frv.enav.common.xml.metoc.MetocForecastPoint;
 
