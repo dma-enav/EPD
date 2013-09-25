@@ -23,7 +23,6 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import javax.swing.ImageIcon;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
@@ -42,7 +41,6 @@ import dk.dma.epd.ship.gui.component_panels.CursorComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.GpsComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.MSIComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.MonaLisaCommunicationComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.SARComponentPanel;
@@ -50,9 +48,6 @@ import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
 import dk.dma.epd.ship.gui.monalisa.MonaLisaSTCCDialog;
 import dk.dma.epd.ship.gui.msi.MsiDialog;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
-import dk.dma.epd.ship.gui.voct.EffortAllocationWindow;
-import dk.dma.epd.ship.gui.voct.SARInput;
-import dk.dma.epd.ship.gui.voct.SARInvitationRequest;
 import dk.dma.epd.ship.settings.EPDGuiSettings;
 
 /**
@@ -81,9 +76,7 @@ public class MainFrame extends JFrame implements WindowListener {
     private AisComponentPanel aisComponentPanel;
     private DynamicNoGoComponentPanel dynamicNoGoPanel;
     private NoGoComponentPanel nogoPanel;
-    private MonaLisaCommunicationComponentPanel monaLisaPanel;
     private SARComponentPanel sarPanel;
-    
     private JPanel glassPanel;
     private MsiDialog msiDialog;
     private AisDialog aisDialog;
@@ -133,8 +126,8 @@ public class MainFrame extends JFrame implements WindowListener {
         aisComponentPanel = new AisComponentPanel();
         dynamicNoGoPanel = new DynamicNoGoComponentPanel();
         nogoPanel = new NoGoComponentPanel();
-        monaLisaPanel = new MonaLisaCommunicationComponentPanel();
         sarPanel = new SARComponentPanel();
+
         
         //Mona Lisa Dialog
         monaLisaSTCCDialog = new MonaLisaSTCCDialog(this);
@@ -176,7 +169,6 @@ public class MainFrame extends JFrame implements WindowListener {
         mapHandler.add(aisComponentPanel);
         mapHandler.add(dynamicNoGoPanel);
         mapHandler.add(nogoPanel);
-        mapHandler.add(monaLisaPanel);
         mapHandler.add(sarPanel);
         
         // Create top menubar
@@ -347,9 +339,9 @@ public class MainFrame extends JFrame implements WindowListener {
         return nogoPanel;
     }
 
-    public MonaLisaCommunicationComponentPanel getMonaLisaPanel() {
-        return monaLisaPanel;
-    }
+//    public MonaLisaCommunicationComponentPanel getMonaLisaPanel() {
+//        return monaLisaPanel;
+//    }
 
     
     
