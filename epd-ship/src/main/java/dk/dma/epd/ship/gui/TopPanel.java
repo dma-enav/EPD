@@ -218,6 +218,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         autoFollowBtn.setSelected(EPDShip.getSettings().getNavSettings().isAutoFollow());
         aisBtn.setSelected(EPDShip.getSettings().getAisSettings().isVisible());
         encBtn.setSelected(EPDShip.getSettings().getMapSettings().isEncVisible());
+        wmsBtn.setSelected(EPDShip.getSettings().getMapSettings().isWmsVisible());
         // tglbtnMsiFilter.setSelected(EeINS.getSettings().getEnavSettings()
         // .isMsiFilter());
         aisToggleName.setSelected(EPDShip.getSettings().getAisSettings().isShowNameLabels());
@@ -289,6 +290,12 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         encBtn.setEnabled(false);
         encBtn.setSelected(false);
     }
+    
+    
+    public void setWMSDisabled() {
+        wmsBtn.setEnabled(false);
+        wmsBtn.setSelected(false);
+    }
 
     public ToggleButtonLabel getNewRouteBtn() {
         return newRouteBtn;
@@ -354,7 +361,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
             menuBar.getEncLayer().setSelected(EPDShip.getSettings().getMapSettings().isEncVisible());
            
         } else if (e.getSource() == wmsBtn) {
-            mainFrame.getChartPanel().getWmsLayer().setVisible(wmsBtn.isSelected());
+            EPDShip.getSettings().getMapSettings().setWmsVisible(wmsBtn.isSelected());
+            mainFrame.getChartPanel().wmsVisible(wmsBtn.isSelected());
             //mainFrame.getChartPanel().getWmsDragLayer().setVisible(wmsBtn.isSelected());
         } else if (e.getSource() == routeManagerBtn) {
             RouteManagerDialog routeManagerDialog = new RouteManagerDialog(mainFrame);

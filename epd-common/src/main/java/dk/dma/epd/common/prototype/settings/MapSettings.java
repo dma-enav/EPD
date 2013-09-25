@@ -49,6 +49,7 @@ public class MapSettings implements Serializable {
     }
 
     private boolean encVisible = true;
+    private boolean wmsVisible;
     private int maxScale = 5000;
     
     private boolean s52ShowText;
@@ -83,6 +84,7 @@ public class MapSettings implements Serializable {
         useWms = PropUtils.booleanFromProperties(props, PREFIX + "useWms", useWms);
         useWmsDragging = PropUtils.booleanFromProperties(props, PREFIX + "useWmsDragging", useWmsDragging);
         encVisible = PropUtils.booleanFromProperties(props, PREFIX + "encVisible", encVisible);
+        wmsVisible = PropUtils.booleanFromProperties(props, PREFIX + "wmsVisible", wmsVisible);
         maxScale = PropUtils.intFromProperties(props, PREFIX + "maxScale", maxScale);
 
         //settings for wms
@@ -116,6 +118,7 @@ public class MapSettings implements Serializable {
         props.put(PREFIX + "useWms", Boolean.toString(useWms));
         props.put(PREFIX + "useWmsDragging", Boolean.toString(useWmsDragging));
         props.put(PREFIX + "encVisible", Boolean.toString(encVisible));
+        props.put(PREFIX + "wmsVisible", Boolean.toString(wmsVisible));
         props.put(PREFIX + "maxScale", Integer.toString(maxScale));
         
         
@@ -183,6 +186,20 @@ public class MapSettings implements Serializable {
         this.encVisible = encVisible;
     }
     
+    /**
+     * @return the wmsVisible
+     */
+    public boolean isWmsVisible() {
+        return wmsVisible;
+    }
+
+    /**
+     * @param wmsVisible the wmsVisible to set
+     */
+    public void setWmsVisible(boolean wmsVisible) {
+        this.wmsVisible = wmsVisible;
+    }
+
     public int getMaxScale() {
         return maxScale;
     }

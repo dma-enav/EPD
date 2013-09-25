@@ -38,7 +38,7 @@ import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     private static final long serialVersionUID = 1L;
     private OMGraphicList list = new OMGraphicList();
-    private CommonChartPanel chartPanel;
+//    private CommonChartPanel chartPanel;
     //private WMSInfoPanel wmsInfoPanel;
     volatile boolean shouldRun = true;
     private StreamingTiledWmsService wmsService;
@@ -54,6 +54,7 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
      */
     public WMSLayer(String query) {
         LOG = LoggerFactory.getLogger(WMSLayer.class);
+        LOG.debug("WMS Layer inititated");
         wmsService = new StreamingTiledWmsService(query, 4);
         new Thread(this).start();
 
@@ -86,7 +87,7 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     @Override
     public void findAndInit(Object obj) {
         if (obj instanceof CommonChartPanel) {
-            this.chartPanel = (CommonChartPanel) obj;
+//            this.chartPanel = (CommonChartPanel) obj;
             // chartPanel.getMapHandler().addPropertyChangeListener("WMS", pcl)
 
             // this.chartPanel.getMap().addProjectionListener(this);
@@ -156,5 +157,11 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     public void stop() {
         shouldRun = false;
     }
+    
+//    @Override
+//    public void setVisible(boolean visible){
+//        System.out.println("Set visible called on WMS Layer " + visible);
+//        super.setVisible(visible);
+//    }
 
 }

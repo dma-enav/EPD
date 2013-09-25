@@ -723,6 +723,8 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
         return encLayer;
     }
 
+    
+    
     public JCheckBoxMenuItem getNogoLayer() {
         return nogoLayer;
     }

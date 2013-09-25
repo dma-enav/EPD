@@ -98,7 +98,6 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
     private ActiveWaypointComponentPanel activeWaypointPanel;
 
     private NogoDialog nogoDialog;
-    
 
     public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel) {
         super();
@@ -130,20 +129,14 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         encLayer = encLayerFactory.getEncLayer();
 
         // Add WMS Layer
-        wmsLayer = new WMSLayer(mapSettings.getWmsQuery());
         if (mapSettings.isUseWms()) {
-            wmsLayer.setVisible(true);
-            mapHandler.add(wmsLayer);            
+            wmsLayer = new WMSLayer(mapSettings.getWmsQuery());
         }
-    
-//        EncLayerFactory encLayerFactory2 = new EncLayerFactory(mapSettings);
-//
-//        encDragLayer = encLayerFactory2.getEncLayer();
 
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
         map.setDoubleBuffered(true);
-        
+
         // Orthographic test = new Orthographic((LatLonPoint)
         // mapSettings.getCenter(), mapSettings.getScale(), 1000, 1000);
         // map.setProjection(test);
@@ -180,7 +173,6 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
 
         // Add layer handler to map handler
         mapHandler.add(layerHandler);
-
 
         // Create the general layer
         generalLayer = new GeneralLayer();
@@ -256,46 +248,58 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         coastalOutlineLayerDrag.setProperties(layerName, props);
         coastalOutlineLayerDrag.setAddAsBackground(true);
         coastalOutlineLayerDrag.setVisible(true);
-        //dragMapHandler.add(coastalOutlineLayerDrag);
+        // dragMapHandler.add(coastalOutlineLayerDrag);
 
+
+
+
+        
         if (encLayer != null) {
             mapHandler.add(encLayer);
         }
+
+        
         
         // Add map to map handler
         mapHandler.add(map);
+
+        encLayerFactory.setMapSettings();
+        
+        if (wmsLayer != null) {
+            mapHandler.add(wmsLayer);
+        }
         
         // Set last postion
         map.setCenter(mapSettings.getCenter());
-        
 
         // Get from settings
         map.setScale(mapSettings.getScale());
-
-        add(map);
+        // Set ENC map settings
         
-        //TODO: CLEANUP
-        //dragMap
+        add(map);
+
+        
+
+        
+        // TODO: CLEANUP
+        // dragMap
         dragMap = new BufferedLayerMapBean();
         dragMap.setDoubleBuffered(true);
         dragMap.setCenter(mapSettings.getCenter());
         dragMap.setScale(mapSettings.getScale());
-        
+
         dragMapHandler.add(new LayerHandler());
         if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
-            
-
             dragMapHandler.add(dragMap);
             wmsDragLayer = new WMSLayer(mapSettings.getWmsQuery());
             dragMapHandler.add(wmsDragLayer);
             dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
         } else {
-            //create dummy map dragging
-            dragMapRenderer = new SimpleOffScreenMapRenderer(map,dragMap,true);
+            // create dummy map dragging
+            dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, true);
         }
-        
-        dragMapRenderer.start();
 
+        dragMapRenderer.start();
 
         // Force a route layer and sensor panel update
         routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
@@ -307,42 +311,35 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         // Add this class as GPS data listener
         EPDShip.getGpsHandler().addListener(this);
 
+
         
-        
-        
-        // Set ENC map settings
-        encLayerFactory.setMapSettings();
-//        encLayerFactory2.setMapSettings();
+        // encLayerFactory2.setMapSettings();
 
         // Hack to flush ENC layer
-        encLayerFactory.reapplySettings();
-//        encLayerFactory2.reapplySettings();
+        // encLayerFactory.reapplySettings();
+        // encLayerFactory2.reapplySettings();
 
         // Show AIS or not
         aisVisible(EPDShip.getSettings().getAisSettings().isVisible());
         // Show ENC or not
         encVisible(EPDShip.getSettings().getMapSettings().isEncVisible());
-        // Maybe disable ENC
-        if (encLayer == null && topPanel != null) {
-            topPanel.setEncDisabled();
-            coastalOutlineLayer.setVisible(true);
-        }
 
+        // Show WMS or not
+        wmsVisible(EPDShip.getSettings().getMapSettings().isWmsVisible());
+        
         getMap().addMouseWheelListener(this);
 
     }
-    
-    
 
     protected void initDragMap() {
         EPDMapSettings mapSettings = EPDShip.getSettings().getMapSettings();
-        //TODO: CLEANUP
-        //dragMap
+        // TODO: CLEANUP
+        // dragMap
         dragMap = new BufferedLayerMapBean();
         dragMap.setDoubleBuffered(true);
         dragMap.setCenter(mapSettings.getCenter());
         dragMap.setScale(mapSettings.getScale());
-        
+
         dragMapHandler.add(new LayerHandler());
         if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
             dragMapHandler.add(dragMap);
@@ -350,22 +347,17 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
             dragMapHandler.add(wmsDragLayer);
             dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
         } else {
-            //create dummy map dragging
-            dragMapRenderer = new SimpleOffScreenMapRenderer(map,dragMap,true);
+            // create dummy map dragging
+            dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, true);
         }
         dragMapRenderer.start();
-    }    
-
-
-
+    }
 
     public void saveSettings() {
         EPDMapSettings mapSettings = EPDShip.getSettings().getMapSettings();
         mapSettings.setCenter((LatLonPoint) map.getCenter());
         mapSettings.setScale(map.getScale());
     }
-
-
 
     public MapHandler getMapHandler() {
         return mapHandler;
@@ -378,7 +370,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
     public Layer getEncLayer() {
         return encLayer;
     }
-    
+
     public Layer getBgLayer() {
         return coastalOutlineLayer;
     }
@@ -413,7 +405,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
     public void encVisible(boolean visible) {
         if (encLayer != null) {
             encLayer.setVisible(visible);
-//            encDragLayer.setVisible(visible);
+            // encDragLayer.setVisible(visible);
             coastalOutlineLayer.setVisible(!visible);
             if (!visible) {
                 // Force update of background layer
@@ -421,6 +413,12 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
             }
         } else {
             coastalOutlineLayer.setVisible(true);
+        }
+    }
+
+    public void wmsVisible(boolean visible) {
+        if (wmsLayer != null) {
+            wmsLayer.setVisible(visible);
         }
     }
 
@@ -728,6 +726,9 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
             // Maybe no S52 layer
             if (encLayer == null) {
                 topPanel.setEncDisabled();
+            }
+            if (wmsLayer == null) {
+                topPanel.setWMSDisabled();
             }
         }
     }
