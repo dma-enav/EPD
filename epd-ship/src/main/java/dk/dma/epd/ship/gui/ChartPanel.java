@@ -21,6 +21,7 @@ import java.awt.Point;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -44,6 +45,8 @@ import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
+import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.ship.EPDShip;
@@ -65,13 +68,14 @@ import dk.dma.epd.ship.layers.route.RouteLayer;
 import dk.dma.epd.ship.layers.routeEdit.RouteEditLayer;
 import dk.dma.epd.ship.layers.voct.VoctLayer;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
+import dk.dma.epd.ship.service.voct.VOCTManager;
 import dk.dma.epd.ship.settings.EPDMapSettings;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
  */
 public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
-        MouseWheelListener {
+        MouseWheelListener, VOCTUpdateListener {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
@@ -88,14 +92,14 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
     private NogoLayer nogoLayer;
     private DynamicNogoLayer dynamicNogoLayer;
     private VoctLayer voctLayer;
-    
-    
+
     private TopPanel topPanel;
     private RouteEditMouseMode routeEditMouseMode;
     private RouteEditLayer routeEditLayer;
     private NewRouteContainerLayer newRouteContainerLayer;
     public int maxScale = 5000;
     private MSIFilterMouseMode msiFilterMouseMode;
+    private VOCTManager voctManager;
 
     private boolean nogoMode;
 
@@ -137,7 +141,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
             wmsLayer = new WMSLayer(mapSettings.getWmsQuery());
             mapHandler.add(wmsLayer);
         }
-        
+
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
         map.setDoubleBuffered(true);
@@ -228,11 +232,10 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         gpsLayer.setVisible(true);
         mapHandler.add(gpsLayer);
 
-        
         voctLayer = new VoctLayer();
         voctLayer.setVisible(true);
         mapHandler.add(voctLayer);
-        
+
         // Create a esri shape layer
         // URL dbf = EeINS.class.getResource("/shape/urbanap020.dbf");
         // URL shp = EeINS.class.getResource("/shape/urbanap020.shp");
@@ -260,21 +263,14 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         coastalOutlineLayerDrag.setVisible(true);
         // dragMapHandler.add(coastalOutlineLayerDrag);
 
-
-
-
-        
         if (encLayer != null) {
             mapHandler.add(encLayer);
         }
 
-        
-        
         // Add map to map handler
         mapHandler.add(map);
 
         encLayerFactory.setMapSettings();
-        
 
         // Set last postion
         map.setCenter(mapSettings.getCenter());
@@ -282,12 +278,9 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         // Get from settings
         map.setScale(mapSettings.getScale());
         // Set ENC map settings
-        
+
         add(map);
 
-        
-
-        
         // TODO: CLEANUP
         // dragMap
         dragMap = new BufferedLayerMapBean();
@@ -318,8 +311,6 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         // Add this class as GPS data listener
         EPDShip.getGpsHandler().addListener(this);
 
-
-        
         // encLayerFactory2.setMapSettings();
 
         // Hack to flush ENC layer
@@ -333,7 +324,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
 
         // Show WMS or not
         wmsVisible(EPDShip.getSettings().getMapSettings().isWmsVisible());
-        
+
         getMap().addMouseWheelListener(this);
 
     }
@@ -738,6 +729,10 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
                 topPanel.setWMSDisabled();
             }
         }
+        if (obj instanceof VOCTManager) {
+            voctManager = (VOCTManager) obj;
+            voctManager.addListener(this);
+        }
     }
 
     /**
@@ -782,6 +777,21 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         p.setCenter(llp);
         map.setProjection(p);
         manualProjChange();
+    }
+
+    @Override
+    public void voctUpdated(VOCTUpdateEvent e) {
+
+        if (e == VOCTUpdateEvent.SAR_DISPLAY) {
+
+            List<Position> waypoints = new ArrayList<Position>();
+            waypoints.add(voctManager.getRapidResponseData().getA());
+            waypoints.add(voctManager.getRapidResponseData().getB());
+            waypoints.add(voctManager.getRapidResponseData().getC());
+            waypoints.add(voctManager.getRapidResponseData().getD());
+
+            this.zoomTo(waypoints);
+        }
     }
 
 }
