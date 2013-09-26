@@ -19,8 +19,10 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
+import dk.dma.epd.common.prototype.model.voct.RapidResponseData;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
+
 
 public class EffectiveSRUAreaGraphics extends OMGraphicList {
     private static final long serialVersionUID = 1L;
@@ -36,15 +38,22 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
     Position C;
     Position D;
     Double totalSize;
+
+    
+    RapidResponseData rapidResponseData;
+    
     
     public enum LineType {
         TOP, BOTTOM, LEFT, RIGHT 
     }
 
     public EffectiveSRUAreaGraphics(Position startPos, Double width,
-            Double height) {
+            Double height, RapidResponseData data) {
         super();
 
+        
+        this.rapidResponseData= data;
+        
         totalSize = width * height; 
                 
         
@@ -57,6 +66,15 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         D = Calculator
                 .findPosition(C, 90, Converter.nmToMeters(width));
 
+        
+        rapidResponseData.setEffectiveAreaA(A);
+        rapidResponseData.setEffectiveAreaB(B);
+        rapidResponseData.setEffectiveAreaC(C);
+        rapidResponseData.setEffectiveAreaD(D);
+        
+        rapidResponseData.setEffectiveAreaHeight(height);
+        rapidResponseData.setEffectiveAreaWidth(width);
+        
         effectiveArea = new AreaInternalGraphics(A, B, C, D, width, height,
                 this);
 
@@ -94,16 +112,20 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
     
     public void updateLength(LineType type, Position newPos){
      
+        
+        double height = 0;
+        double width = 0;
+        
         if (type == LineType.BOTTOM){
             
             //We update C point
             C = newPos;
             
             //New length
-            Double length = Calculator.range(A, C, Heading.GC);
+             height = Calculator.range(A, C, Heading.GC);
             
             //Recalculate width
-            Double width = totalSize/length;
+             width = totalSize/height;
             
             //Recalculate B and D
             B = Calculator
@@ -112,7 +134,7 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
             D = Calculator
                     .findPosition(C, 90, Converter.nmToMeters(width));
 
-            effectiveArea.updatePosition(A, B, C, D, width, length);
+            effectiveArea.updatePosition(A, B, C, D, width, height);
             
             updateLines(A, B, C, D);
 
@@ -123,10 +145,10 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
             A = newPos;
             
             //New length
-            Double length = Calculator.range(A, C, Heading.GC);
+             height = Calculator.range(A, C, Heading.GC);
             
             //Recalculate width
-            Double width = totalSize/length;
+             width = totalSize/height;
             
             //Recalculate B and D
             B = Calculator
@@ -135,7 +157,7 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
             D = Calculator
                     .findPosition(C, 90, Converter.nmToMeters(width));
 
-            effectiveArea.updatePosition(A, B, C, D, width, length);
+            effectiveArea.updatePosition(A, B, C, D, width, height);
             
             updateLines(A, B, C, D);
 
@@ -149,10 +171,10 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
             //New width
             
             //New length
-            Double width = Calculator.range(A, B, Heading.GC);
+             width = Calculator.range(A, B, Heading.GC);
             
             //Recalculate width
-            Double height = totalSize/width;
+             height = totalSize/width;
             
             //Recalculate C and D
             C = Calculator
@@ -175,10 +197,10 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
             //New width
             
             //New length
-            Double width = Calculator.range(A, B, Heading.GC);
+             width = Calculator.range(A, B, Heading.GC);
             
             //Recalculate width
-            Double height = totalSize/width;
+             height = totalSize/width;
             
             //Recalculate C and D
             C = Calculator
@@ -190,8 +212,23 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
             effectiveArea.updatePosition(A, B, C, D, width, height);
             
             updateLines(A, B, C, D);
-
+            
         }
+        
+        
+        System.out.println("Updating effective area values");
+        
+        
+        rapidResponseData.setEffectiveAreaA(A);
+        rapidResponseData.setEffectiveAreaB(B);
+        rapidResponseData.setEffectiveAreaC(C);
+        rapidResponseData.setEffectiveAreaD(D);
+        
+        rapidResponseData.setEffectiveAreaHeight(height);
+        rapidResponseData.setEffectiveAreaWidth(width);
+        
+        
+        
         
         //Top or bottom has been changed
 

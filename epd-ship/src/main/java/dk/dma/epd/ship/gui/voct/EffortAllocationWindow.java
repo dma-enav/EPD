@@ -45,13 +45,13 @@ import javax.swing.border.TitledBorder;
 import org.jdesktop.swingx.JXDatePicker;
 
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.model.voct.LeewayValues;
+import dk.dma.epd.common.prototype.model.voct.RapidResponseData;
+import dk.dma.epd.common.prototype.model.voct.SweepWidthValues;
+import dk.dma.epd.common.prototype.model.voct.WeatherCorrectionFactors;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.service.voct.LeewayValues;
-import dk.dma.epd.ship.service.voct.RapidResponseData;
-import dk.dma.epd.ship.service.voct.SweepWidthValues;
 import dk.dma.epd.ship.service.voct.VOCTManager;
-import dk.dma.epd.ship.service.voct.WeatherCorrectionFactors;
 
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;

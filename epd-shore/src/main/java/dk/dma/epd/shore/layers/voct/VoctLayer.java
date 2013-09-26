@@ -102,12 +102,12 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 //                width, length);
 //        graphics.add(effectiveArea);
         EffectiveSRUAreaGraphics effectiveArea = new EffectiveSRUAreaGraphics(A,
-                width, height);
+                width, height, null);
         graphics.add(effectiveArea);
 
         
         EffectiveSRUAreaGraphics effectiveArea2 = new EffectiveSRUAreaGraphics(A,
-                width, height);
+                width, height, null);
         graphics.add(effectiveArea2);
         
 
@@ -319,7 +319,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             }
 
 //            if (!(newPos == initialBoxRelativePosition)){
-                selectedArea.moveRelative(newPos);    
+                selectedArea.moveRelative(newPos, null);    
 //            }
 
             

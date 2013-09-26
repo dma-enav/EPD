@@ -30,11 +30,12 @@ import dk.dma.epd.common.prototype.layers.voct.AreaInternalGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics;
 import dk.dma.epd.common.prototype.layers.voct.SarEffectiveAreaLines;
 import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
+import dk.dma.epd.common.prototype.layers.voct.SearchPatternTemp;
+import dk.dma.epd.common.prototype.model.voct.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
-import dk.dma.epd.ship.service.voct.RapidResponseData;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 
 public class VoctLayer extends OMGraphicHandlerLayer implements
@@ -66,6 +67,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         if (obj instanceof VOCTManager) {
             voctManager = (VOCTManager) obj;
             voctManager.addListener(this);
+            voctManager.setVoctLayer(this);
         }
         if (obj instanceof MapBean) {
             mapBean = (MapBean) obj;
@@ -214,7 +216,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             }
 
             // if (!(newPos == initialBoxRelativePosition)){
-            selectedArea.moveRelative(newPos);
+            selectedArea.moveRelative(newPos, voctManager.getRapidResponseData());
             // }
 
             doPrepare();
@@ -307,7 +309,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             drawRapidResponse();
             this.setVisible(true);
         }
-        
+
         if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY) {
             createEffectiveArea();
             this.setVisible(true);
@@ -369,10 +371,9 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         System.out.println("Do we get to here?");
         // Probability of Detection Area - updateable
 
-        if (graphics.contains(effectiveArea)){
+        if (graphics.contains(effectiveArea)) {
             graphics.remove(effectiveArea);
         }
-            
 
         RapidResponseData data = voctManager.getRapidResponseData();
 
@@ -388,11 +389,15 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         // AreaInternalGraphics effectiveArea = new AreaInternalGraphics(A,
         // width, length);
         // graphics.add(effectiveArea);
-        effectiveArea = new EffectiveSRUAreaGraphics(data.getA(), width, height);
+        effectiveArea = new EffectiveSRUAreaGraphics(data.getA(), width, height, data);
         graphics.add(effectiveArea);
-        
+
         doPrepare();
     }
-    
-    
+
+    public void drawPoints(Position A, Position B) {
+        SearchPatternTemp testLine = new SearchPatternTemp(A, B);
+        graphics.add(testLine);
+        doPrepare();
+    }
 }

@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.service.voct;
+package dk.dma.epd.common.prototype.model.voct;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -22,48 +22,58 @@ import org.joda.time.format.DateTimeFormatter;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.text.Formatter;
 
+
 public class RapidResponseData {
 
-    DateTime LKPDate;
-    DateTime CSSDate;
+    private DateTime LKPDate;
+    private DateTime CSSDate;
 
-    Position LKP;
-    Position CSP;
-    double x;
-    double y;
-    double SF;
-    int searchObject;
-    double TWCHeading;
-    double TWCknots;
+    private Position LKP;
+    private Position CSP;
+    private double x;
+    private double y;
+    private double SF;
+    private int searchObject;
+    private double TWCHeading;
+    private double TWCknots;
 
-    double LWknots;
-    double LWHeading;
-    double downWind;
+    private double LWknots;
+    private double LWHeading;
+    private double downWind;
 
-    Position datum;
-    Position wtc;
+    private Position datum;
+    private Position wtc;
 
-    double radius;
+    private double radius;
 
-    double timeElasped;
+    private double timeElasped;
 
-    double rdvDirection;
-    double rdvDistance;
-    double rdvSpeed;
+    private double rdvDirection;
+    private double rdvDistance;
+    private double rdvSpeed;
 
-    Position A;
-    Position B;
-    Position C;
-    Position D;
+    private Position A;
+    private Position B;
+    private Position C;
+    private Position D;
 
     
     
-    double w;
-    double groundSpeed;
-    double pod;
-    double trackSpacing;
-    int searchTime;
-    double effectiveAreaSize;
+    private double w;
+    private double groundSpeed;
+    private double pod;
+    private double trackSpacing;
+    private int searchTime;
+    private double effectiveAreaSize;
+    
+    
+    double effectiveAreaWidth;
+    double effectiveAreaHeight;
+    
+    Position effectiveAreaA;
+    Position effectiveAreaB;
+    Position effectiveAreaC;
+    Position effectiveAreaD;
     
     
     
@@ -553,6 +563,93 @@ public class RapidResponseData {
         return D;
     }
 
+    
+    
+    
+    /**
+     * @return the effectiveAreaWidth
+     */
+    public double getEffectiveAreaWidth() {
+        return effectiveAreaWidth;
+    }
+
+    /**
+     * @param effectiveAreaWidth the effectiveAreaWidth to set
+     */
+    public void setEffectiveAreaWidth(double effectiveAreaWidth) {
+        this.effectiveAreaWidth = effectiveAreaWidth;
+    }
+
+    /**
+     * @return the effectiveAreaHeight
+     */
+    public double getEffectiveAreaHeight() {
+        return effectiveAreaHeight;
+    }
+
+    /**
+     * @param effectiveAreaHeight the effectiveAreaHeight to set
+     */
+    public void setEffectiveAreaHeight(double effectiveAreaHeight) {
+        this.effectiveAreaHeight = effectiveAreaHeight;
+    }
+
+    /**
+     * @return the effectiveAreaA
+     */
+    public Position getEffectiveAreaA() {
+        return effectiveAreaA;
+    }
+
+    /**
+     * @param effectiveAreaA the effectiveAreaA to set
+     */
+    public void setEffectiveAreaA(Position effectiveAreaA) {
+        this.effectiveAreaA = effectiveAreaA;
+    }
+
+    /**
+     * @return the effectiveAreaB
+     */
+    public Position getEffectiveAreaB() {
+        return effectiveAreaB;
+    }
+
+    /**
+     * @param effectiveAreaB the effectiveAreaB to set
+     */
+    public void setEffectiveAreaB(Position effectiveAreaB) {
+        this.effectiveAreaB = effectiveAreaB;
+    }
+
+    /**
+     * @return the effectiveAreaC
+     */
+    public Position getEffectiveAreaC() {
+        return effectiveAreaC;
+    }
+
+    /**
+     * @param effectiveAreaC the effectiveAreaC to set
+     */
+    public void setEffectiveAreaC(Position effectiveAreaC) {
+        this.effectiveAreaC = effectiveAreaC;
+    }
+
+    /**
+     * @return the effectiveAreaD
+     */
+    public Position getEffectiveAreaD() {
+        return effectiveAreaD;
+    }
+
+    /**
+     * @param effectiveAreaD the effectiveAreaD to set
+     */
+    public void setEffectiveAreaD(Position effectiveAreaD) {
+        this.effectiveAreaD = effectiveAreaD;
+    }
+
     public String generateHTML() {
         
         
@@ -616,4 +713,7 @@ public class RapidResponseData {
 
         return str.toString();
     }
+    
+    
+    
 }

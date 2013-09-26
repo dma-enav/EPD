@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.service.voct;
+package dk.dma.epd.common.prototype.model.voct;
 
 public enum SAR_TYPE{
     RAPID_RESPONSE, DATUM_POINT, DATUM_LINE, BACKTRACK, NONE

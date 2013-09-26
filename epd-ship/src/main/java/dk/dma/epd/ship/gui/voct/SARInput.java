@@ -57,10 +57,10 @@ import org.joda.time.DateTimeZone;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.FormatException;
+import dk.dma.epd.common.prototype.model.voct.LeewayValues;
+import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.util.ParseUtils;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.service.voct.LeewayValues;
-import dk.dma.epd.ship.service.voct.SAR_TYPE;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 import javax.swing.SwingConstants;
 
@@ -284,13 +284,13 @@ public class SARInput extends JDialog implements ActionListener,
         timeZoneDropdown.addActionListener(this);
 
         lkpSecondLat = new JTextField();
-        lkpSecondLat.setText("21");
+        lkpSecondLat.setText("30");
         lkpSecondLat.setColumns(10);
         lkpSecondLat.setBounds(190, 47, 20, 20);
         lkpPanel.add(lkpSecondLat);
 
         lkpThirdLat = new JTextField();
-        lkpThirdLat.setText("639");
+        lkpThirdLat.setText("290");
         lkpThirdLat.setColumns(10);
         lkpThirdLat.setBounds(210, 47, 30, 20);
         lkpPanel.add(lkpThirdLat);
@@ -302,13 +302,13 @@ public class SARInput extends JDialog implements ActionListener,
         lkpPanel.add(comboLKPLat);
 
         lkpFirstLon = new JTextField();
-        lkpFirstLon.setText("13");
+        lkpFirstLon.setText("11");
         lkpFirstLon.setColumns(10);
         lkpFirstLon.setBounds(278, 47, 20, 20);
         lkpPanel.add(lkpFirstLon);
 
         lkpSecondLon = new JTextField();
-        lkpSecondLon.setText("67");
+        lkpSecondLon.setText("57");
         lkpSecondLon.setColumns(10);
         lkpSecondLon.setBounds(298, 47, 20, 20);
         lkpPanel.add(lkpSecondLon);
@@ -320,7 +320,7 @@ public class SARInput extends JDialog implements ActionListener,
         lkpPanel.add(comboLKPLon);
 
         lkpThirdLon = new JTextField();
-        lkpThirdLon.setText("070");
+        lkpThirdLon.setText("840");
         lkpThirdLon.setColumns(10);
         lkpThirdLon.setBounds(318, 47, 30, 20);
         lkpPanel.add(lkpThirdLon);
@@ -374,13 +374,13 @@ public class SARInput extends JDialog implements ActionListener,
         commenceStartPanel.add(cssFirstLat);
 
         cssSecondLat = new JTextField();
-        cssSecondLat.setText("21");
+        cssSecondLat.setText("20");
         cssSecondLat.setColumns(10);
         cssSecondLat.setBounds(190, 53, 20, 20);
         commenceStartPanel.add(cssSecondLat);
 
         cssThirdLat = new JTextField();
-        cssThirdLat.setText("639");
+        cssThirdLat.setText("000");
         cssThirdLat.setColumns(10);
         cssThirdLat.setBounds(210, 53, 30, 20);
         commenceStartPanel.add(cssThirdLat);
@@ -392,19 +392,19 @@ public class SARInput extends JDialog implements ActionListener,
         commenceStartPanel.add(comboCSSLat);
 
         cssFirstLon = new JTextField();
-        cssFirstLon.setText("13");
+        cssFirstLon.setText("12");
         cssFirstLon.setColumns(10);
         cssFirstLon.setBounds(278, 53, 20, 20);
         commenceStartPanel.add(cssFirstLon);
 
         cssSecondLon = new JTextField();
-        cssSecondLon.setText("67");
+        cssSecondLon.setText("00");
         cssSecondLon.setColumns(10);
         cssSecondLon.setBounds(298, 53, 20, 20);
         commenceStartPanel.add(cssSecondLon);
 
         cssThirdLon = new JTextField();
-        cssThirdLon.setText("070");
+        cssThirdLon.setText("000");
         cssThirdLon.setColumns(10);
         cssThirdLon.setBounds(318, 53, 30, 20);
         commenceStartPanel.add(cssThirdLon);

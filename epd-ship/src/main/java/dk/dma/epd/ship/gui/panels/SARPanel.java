@@ -36,9 +36,9 @@ import javax.swing.border.TitledBorder;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import dk.dma.epd.common.prototype.model.voct.RapidResponseData;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.gui.voct.EffortAllocationWindow;
-import dk.dma.epd.ship.service.voct.RapidResponseData;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 import javax.swing.JSpinner;
 
@@ -115,6 +115,8 @@ public class SARPanel extends JPanel implements ActionListener {
     private JLabel trackSpacingVal;
     private JLabel lblTimeSpentSearching;
     private JSpinner timeSpentSearchingVal;
+    private JPanel searchPatternsPanel;
+    private JButton btnGenerateSearchPattern;
 
     public SARPanel() {
 
@@ -174,11 +176,11 @@ public class SARPanel extends JPanel implements ActionListener {
 
         GridBagLayout gridBagLayout = new GridBagLayout();
         gridBagLayout.columnWidths = new int[] { 100, 0 };
-        gridBagLayout.rowHeights = new int[] { 20, 16, 16, 16, 16, 16, 16, 0,
+        gridBagLayout.rowHeights = new int[] { 20, 16, 16, 16, 16, 16, 16, 0, 0,
                 10 };
         gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
         gridBagLayout.rowWeights = new double[] { 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-                1.0, 1.0, Double.MIN_VALUE };
+                1.0, 1.0, 1.0, Double.MIN_VALUE };
         sarStartedPanel.setLayout(gridBagLayout);
         JLabel lblSAR = new JLabel("Search And Rescue");
         lblSAR.setHorizontalAlignment(SwingConstants.CENTER);
@@ -575,6 +577,7 @@ public class SARPanel extends JPanel implements ActionListener {
                 "Effort Allocation", TitledBorder.LEADING, TitledBorder.TOP,
                 null, null));
         GridBagConstraints gbc_effortAllocationPanel = new GridBagConstraints();
+        gbc_effortAllocationPanel.insets = new Insets(0, 0, 5, 0);
         gbc_effortAllocationPanel.fill = GridBagConstraints.BOTH;
         gbc_effortAllocationPanel.gridx = 0;
         gbc_effortAllocationPanel.gridy = 7;
@@ -660,6 +663,18 @@ public class SARPanel extends JPanel implements ActionListener {
         gbc_timeSpentSearchingVal.gridx = 1;
         gbc_timeSpentSearchingVal.gridy = 4;
         effortAllocationPanel.add(timeSpentSearchingVal, gbc_timeSpentSearchingVal);
+        
+        searchPatternsPanel = new JPanel();
+        searchPatternsPanel.setBorder(new TitledBorder(null, "Search Patterns", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        GridBagConstraints gbc_searchPatternsPanel = new GridBagConstraints();
+        gbc_searchPatternsPanel.fill = GridBagConstraints.BOTH;
+        gbc_searchPatternsPanel.gridx = 0;
+        gbc_searchPatternsPanel.gridy = 8;
+        sarStartedPanel.add(searchPatternsPanel, gbc_searchPatternsPanel);
+        
+        btnGenerateSearchPattern = new JButton("Generate Search Pattern");
+        searchPatternsPanel.add(btnGenerateSearchPattern);
+        btnGenerateSearchPattern.addActionListener(this);
     }
 
     /**
@@ -681,6 +696,7 @@ public class SARPanel extends JPanel implements ActionListener {
                 voctManager.showSarInput();
 
             }
+            return;
         }
 
         if (arg0.getSource() == btnEffortAllocation) {
@@ -699,6 +715,12 @@ public class SARPanel extends JPanel implements ActionListener {
                 effortAllocationWindow.setVisible(true);
 
             }
+            return;
+        }
+        
+        
+        if (arg0.getSource() == btnGenerateSearchPattern){
+            voctManager.generateSearchPattern();
         }
 
     }
