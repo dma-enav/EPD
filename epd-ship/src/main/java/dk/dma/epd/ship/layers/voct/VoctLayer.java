@@ -380,8 +380,10 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         // PoD for each SRU, initialized with an effective area? possibly a
         // unique ID
 
-        double effectiveAreaSize = data.getEffectiveAreaSize();
+        double effectiveAreaSize = voctManager.getRapidResponseData().getEffectiveAreaSize();
 
+        System.out.println("EFFECTIVE AREA IS " + effectiveAreaSize);
+        
         // Effective Area: 10 nm2 Initialize by creating box
         double width = Math.sqrt(effectiveAreaSize);
         double height = Math.sqrt(effectiveAreaSize);

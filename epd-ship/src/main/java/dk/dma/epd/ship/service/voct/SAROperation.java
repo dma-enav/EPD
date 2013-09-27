@@ -108,8 +108,6 @@ public class SAROperation {
         rapidResponse(data);
     }
 
-   
-
     /**
      * @return the voctManager
      */
@@ -175,10 +173,32 @@ public class SAROperation {
         return -9999.9;
     }
 
-    // private void rapidResponse(Position LKP, double TWCHeading,
-    // double downWind, double LWknots, double LWHeading, double TWCknots,
-    // double timeElasped, double x, double y, double SF,
-    // int searchObject, DateTime LKPDate, DateTime CSSDate) {
+    public Position applyDriftToPoint(RapidResponseData data, Position point,
+            double timeElapsed) {
+        double currentTWC = data.getTWCknots() * timeElapsed;
+        double leewayspeed = searchObjectValue(data.getSearchObject(),
+                data.getLWknots());
+        double leeway = leewayspeed * timeElapsed;
+
+        Ellipsoid reference = Ellipsoid.WGS84;
+        double[] endBearing = new double[1];
+
+        // Object starts at LKP, with TWCheading, drifting for currentWTC
+        // knots where will it end up
+        Position currentPos = Calculator.calculateEndingGlobalCoordinates(
+                reference, point, data.getTWCHeading(),
+                Converter.nmToMeters(currentTWC), endBearing);
+
+        endBearing = new double[1];
+
+        Position windPos = Calculator.calculateEndingGlobalCoordinates(
+                reference, currentPos, data.getDownWind(),
+                Converter.nmToMeters(leeway), endBearing);
+
+        Position datum = windPos;
+
+        return datum;
+    }
 
     private void rapidResponse(RapidResponseData data) {
 
@@ -332,39 +352,37 @@ public class SAROperation {
     public SAR_TYPE getOperationType() {
         return this.operationType;
     }
-    
-    
-    public void calculateEffortAllocation(RapidResponseData data){
+
+    public void calculateEffortAllocation(RapidResponseData data) {
         double trackSpacing = findS(data.getW(), data.getPod());
-        
+
         data.setTrackSpacing(trackSpacing);
-        
+
         double groundSpeed = data.getGroundSpeed();
         int timeSearching = data.getSearchTime();
-        
-        System.out.println("Track Spacing is: "  + trackSpacing) ;
-        System.out.println("Ground speed is: "  + groundSpeed) ;
-        System.out.println("Time searching is: "  + timeSearching) ;
-        
+
+        System.out.println("Track Spacing is: " + trackSpacing);
+        System.out.println("Ground speed is: " + groundSpeed);
+        System.out.println("Time searching is: " + timeSearching);
+
         double areaSize = trackSpacing * groundSpeed * timeSearching;
-        
+
         data.setEffectiveAreaSize(areaSize);
-        
+
         System.out.println("Area size: " + areaSize);
-        
+
     }
-    
-    private double findS(double W, double PoD){
-//      S = W*(-5/8*ln(1-x))^(-5/7)
-      
-      double val1 = (-5.0/8.0)*Math.log(1-PoD);
-      double val2 = Math.pow(val1, -5.0/7.0);
-      
-      
-//      System.out.println("Val 1 is " + val1);
-//      System.out.println("Val 2 is " + val2);
-      
-      return W*val2;
-  }
-  
+
+    private double findS(double W, double PoD) {
+        // S = W*(-5/8*ln(1-x))^(-5/7)
+
+        double val1 = (-5.0 / 8.0) * Math.log(1 - PoD);
+        double val2 = Math.pow(val1, -5.0 / 7.0);
+
+        // System.out.println("Val 1 is " + val1);
+        // System.out.println("Val 2 is " + val2);
+
+        return W * val2;
+    }
+
 }

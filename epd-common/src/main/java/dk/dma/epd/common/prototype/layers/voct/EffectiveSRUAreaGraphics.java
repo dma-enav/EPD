@@ -55,7 +55,8 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         this.rapidResponseData= data;
         
         totalSize = width * height; 
-                
+        
+        System.out.println("Back to origianal size is: " + width*height);
         
         A = startPos;
         B = Calculator

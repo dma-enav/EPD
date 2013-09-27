@@ -220,71 +220,147 @@ public class VOCTManager implements Runnable, Serializable {
 
         double smallest = aCSP;
 
-        Position toDrawTo = null;
+        Position toDrawTo = A;
 
-        double horizontalBearing = B.rhumbLineBearingTo(B);
-        double verticalBearing = B.rhumbLineBearingTo(D);
+        double horizontalBearing = A.rhumbLineBearingTo(B);
+        double verticalBearing = A.rhumbLineBearingTo(C);
 
         if (bCSP < smallest) {
             smallest = bCSP;
             toDrawTo = B;
             System.out.println("Draw to is B " + smallest);
             horizontalBearing = B.rhumbLineBearingTo(A);
-            verticalBearing = B.rhumbLineBearingTo(C);
+            verticalBearing = B.rhumbLineBearingTo(D);
         }
         if (cCSP < smallest) {
             smallest = cCSP;
             toDrawTo = C;
             System.out.println("Draw to is C " + smallest);
             horizontalBearing = C.rhumbLineBearingTo(D);
-            verticalBearing = C.rhumbLineBearingTo(B);
+            verticalBearing = C.rhumbLineBearingTo(A);
         }
         if (dCSP < smallest) {
             smallest = dCSP;
             toDrawTo = D;
             System.out.println("Draw to is D " + smallest);
             horizontalBearing = D.rhumbLineBearingTo(C);
-            verticalBearing = D.rhumbLineBearingTo(A);
+            verticalBearing = D.rhumbLineBearingTo(B);
+
         }
 
-//        voctLayer.drawPoints(CSP, toDrawTo);
+        System.out.println("Horizontal = " + horizontalBearing);
+        System.out.println("Vertical = " + verticalBearing);
 
-        System.out.println(verticalBearing);
-        System.out.println(horizontalBearing);
-        
+        // voctLayer.drawPoints(CSP, toDrawTo);
+
+        // Hack
+        // if (horizontalBearing > 180){
+        // horizontalBearing = 270;
+        // }
+        //
+        // if (horizontalBearing < 180){
+        // horizontalBearing = 90;
+        // }
+        //
+        //
+        // if (verticalBearing > 270 || verticalBearing < 90){
+        // verticalBearing = 0;
+        // }else{
+        // verticalBearing = 90;
+        // }
+
+        // if (verticalBearing < 270 || verticalBearing > 90){
+        // verticalBearing = 90;
+        // }
+
+        System.out.println("Horizontal = " + horizontalBearing);
+        System.out.println("Vertical = " + verticalBearing);
+
         double S = rapidResponseData.getTrackSpacing();
 
-        
-        Position verticalPos = Calculator.findPosition(toDrawTo, verticalBearing,
-                Converter.nmToMeters(S/2));
-        Position finalPos =  Calculator.findPosition(verticalPos, horizontalBearing,
-                Converter.nmToMeters(S/2));
-        
+        Position verticalPos = Calculator.findPosition(toDrawTo,
+                verticalBearing, Converter.nmToMeters(S / 2));
+        Position finalPos = Calculator.findPosition(verticalPos,
+                horizontalBearing, Converter.nmToMeters(S / 2));
+
         voctLayer.drawPoints(CSP, finalPos);
-//        voctLayer.drawPoints(verticalPos, finalPos);
-//        toDrawTo
+        // voctLayer.drawPoints(verticalPos, finalPos);
+        // toDrawTo
+
+        // Position routeStartPoint =
+
+        double totalLengthOfTrack = rapidResponseData.getEffectiveAreaSize()
+                / S;
+        double trackLength = rapidResponseData.getEffectiveAreaWidth() - S;
+
+        double trackPlotted = 0;
+
+        Position currentPos = finalPos;
+        Position nextPos;
+
+        System.out.println("Track Plotted is: " + trackPlotted
+                + " vs. the total length " + totalLengthOfTrack);
+
+        while (trackPlotted < totalLengthOfTrack) {
+
+            // Move horizontally
+            nextPos = Calculator.findPosition(currentPos, horizontalBearing,
+                    Converter.nmToMeters(trackLength));
+
+            horizontalBearing = -horizontalBearing;
+
+            System.out.println(totalLengthOfTrack + " vs " + (trackPlotted + trackLength));
+            
+            if ( (trackPlotted + trackLength) <= totalLengthOfTrack) {
+
+                trackPlotted = trackPlotted + trackLength;
+
+                voctLayer.drawPoints(currentPos, nextPos);
+
+                currentPos = nextPos;
+
+                // Move vertically
+                nextPos = Calculator.findPosition(currentPos, verticalBearing,
+                        Converter.nmToMeters(S / 2));
+
+                if ((trackPlotted + (S / 2)) <= totalLengthOfTrack ) {
+
+                    trackPlotted = trackPlotted + (S / 2);
+
+                    voctLayer.drawPoints(currentPos, nextPos);
+
+                    currentPos = nextPos;
+
+                    System.out.println("Track Plotted is: " + trackPlotted
+                            + " vs. the total length " + totalLengthOfTrack);
+                }else{
+                    //Cannot draw ½S track, draw what we can
+                    double remainingDistance = totalLengthOfTrack - trackPlotted;
+                    
+                    nextPos = Calculator.findPosition(currentPos, verticalBearing,
+                            Converter.nmToMeters(remainingDistance));
+                    trackPlotted = trackPlotted + remainingDistance;
+                    voctLayer.drawPoints(currentPos, nextPos);
+                    currentPos = nextPos;
+                }
+            } else {
+                
+                horizontalBearing = -horizontalBearing;
+                
+                double remainingDistance = totalLengthOfTrack - trackPlotted;
+                nextPos = Calculator.findPosition(currentPos, horizontalBearing,
+                        Converter.nmToMeters(remainingDistance));
+                
+                trackPlotted = trackPlotted + remainingDistance;
+
+                voctLayer.drawPoints(currentPos, nextPos);
+                currentPos = nextPos;
+            }
+        }
+
         
-//        Position routeStartPoint =
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        System.out.println(" FINISHED Track Plotted is: " + trackPlotted
+                + " vs. the total length " + totalLengthOfTrack);
         
         // //Should I go left or right? / better way!
         //

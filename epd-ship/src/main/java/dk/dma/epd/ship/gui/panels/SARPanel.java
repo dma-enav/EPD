@@ -36,8 +36,13 @@ import javax.swing.border.TitledBorder;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.voct.RapidResponseData;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.common.util.Calculator;
+import dk.dma.epd.common.util.Converter;
+import dk.dma.epd.common.util.Ellipsoid;
 import dk.dma.epd.ship.gui.voct.EffortAllocationWindow;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 import javax.swing.JSpinner;
@@ -691,6 +696,36 @@ public class SARPanel extends JPanel implements ActionListener {
         if (arg0.getSource() == btnStartSar
                 || arg0.getSource() == btnReopenCalculations) {
 
+            
+            
+//            Position startPos = Position.create(56, 0);
+//            
+//            Ellipsoid reference = Ellipsoid.WGS84;
+//            double[] endBearing = new double[1];
+//
+//            // Object starts at LKP, with TWCheading, drifting for currentWTC
+//            // knots where will it end up
+//            Position newPos = Calculator.calculateEndingGlobalCoordinates(
+//                    reference, startPos, 270,
+//                    100, endBearing);
+//            
+//            System.out.println("Position Start = " + startPos);
+//            System.out.println("Moving 1 meter at 270 degrees gives us " + newPos);
+//            
+//            double bearingPos = startPos.rhumbLineBearingTo(newPos);
+//            
+//            
+//            
+//            System.out.println("Rhumb line gives us " + bearingPos);
+//            
+//            double calcPos = Calculator.bearing(startPos, newPos, Heading.RL);
+//            
+//            System.out.println("Calculator bearing gives us " + calcPos);
+            
+//            Calculator.bearing(pos1, pos2, heading)
+//            Calculator.calculateEndingGlobalCoordinates(ellipsoid, start, startBearing, distance, endBearing)
+            
+            
             if (voctManager != null) {
 
                 voctManager.showSarInput();
