@@ -31,6 +31,7 @@ import javax.swing.WindowConstants;
 
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.setuptabs.AisTab;
+import dk.dma.epd.ship.gui.setuptabs.CloudTab;
 import dk.dma.epd.ship.gui.setuptabs.ENavTab;
 import dk.dma.epd.ship.gui.setuptabs.MapTab;
 import dk.dma.epd.ship.gui.setuptabs.NavigationTab;
@@ -50,6 +51,8 @@ public class SetupDialog extends JDialog implements ActionListener {
     private SensorTab sensorTab;
     private MapTab mapTab;
     private EPDSettings settings;
+    
+    private CloudTab cloudTab;
     
     public SetupDialog(JFrame parent) {
         super(parent, "Setup", true);
@@ -79,6 +82,9 @@ public class SetupDialog extends JDialog implements ActionListener {
         mapTab = new MapTab();
         tabbedPane.addTab("Map", null, mapTab, null);
         
+        this.cloudTab = new CloudTab();
+        tabbedPane.addTab("Cloud", null, cloudTab, null);
+        
         JPanel panel = new JPanel();
         getContentPane().add(panel, BorderLayout.SOUTH);
         panel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
@@ -100,6 +106,7 @@ public class SetupDialog extends JDialog implements ActionListener {
         navTab.loadSettings(settings.getNavSettings());
         sensorTab.loadSettings(settings.getSensorSettings());
         mapTab.loadSettings(settings.getMapSettings());
+        this.cloudTab.loadSettings(settings.getEnavSettings());
     }
     
     public void saveSettings() {
@@ -108,6 +115,7 @@ public class SetupDialog extends JDialog implements ActionListener {
         navTab.saveSettings();
         sensorTab.saveSettings();
         mapTab.saveSettings();
+        this.cloudTab.saveSettings();
         settings.saveToFile();
     }
 
