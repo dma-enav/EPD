@@ -86,11 +86,11 @@ public class MapSettings implements Serializable {
         //settings for wms
         wmsProviders = props.getProperty(PREFIX + "wmsProviders", "").split(",", 128);
         wmsQuery = props.getProperty(PREFIX + "wmsQuery", "");
-        
-        for (int i=0;i<wmsProviders.length;i++) {
-            System.out.println(wmsProviders[i]);
-        }
-        
+//        
+//        for (int i=0;i<wmsProviders.length;i++) {
+//            System.out.println(wmsProviders[i]);
+//        }
+//        
             
         
         // settings for S52 layer
