@@ -16,46 +16,35 @@
 package dk.dma.epd.ship.gui.voct;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
-import javax.swing.SpinnerDateModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
-import org.jdesktop.swingx.JXDatePicker;
-
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.model.voct.LeewayValues;
-import dk.dma.epd.common.prototype.model.voct.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.SweepWidthValues;
 import dk.dma.epd.common.prototype.model.voct.WeatherCorrectionFactors;
+import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.service.voct.VOCTManager;
-
-import javax.swing.SpinnerModel;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.JCheckBox;
 
 public class EffortAllocationWindow extends JDialog implements ActionListener {
 
@@ -351,7 +340,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             return false;
         }
 
-        rapidResponseData.setGroundSpeed(getMaxSpeed());
+        rapidResponseData.getEffortAllocationData().setGroundSpeed(getMaxSpeed());
 
         // Wc = Wu x Fw x Fv x Ff
 
@@ -417,7 +406,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
 
         double wc = wu * fw * ff;
 
-        rapidResponseData.setW(wc);
+        rapidResponseData.getEffortAllocationData().setW(wc);
 
         System.out.println("The following Sweep Width is calculated:");
         System.out.println("Wc = Wu x Fw x Ff");
@@ -429,7 +418,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             return false;
         }
 
-        rapidResponseData.setPod(probabilityOfDetection);
+        rapidResponseData.getEffortAllocationData().setPod(probabilityOfDetection);
 
         int timeSearching = getSearchTimeHours();
         
@@ -437,7 +426,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             System.out.println("failed to get time searching spinner val");
             return false;
         }
-        rapidResponseData.setSearchTime(timeSearching);
+        rapidResponseData.getEffortAllocationData().setSearchTime(timeSearching);
 
         return true;
     }

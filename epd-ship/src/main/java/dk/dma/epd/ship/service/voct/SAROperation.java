@@ -23,8 +23,8 @@ import org.joda.time.DateTimeZone;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.voct.LeewayValues;
-import dk.dma.epd.common.prototype.model.voct.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
+import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Ellipsoid;
@@ -175,6 +175,7 @@ public class SAROperation {
 
     public Position applyDriftToPoint(RapidResponseData data, Position point,
             double timeElapsed) {
+        
         double currentTWC = data.getTWCknots() * timeElapsed;
         double leewayspeed = searchObjectValue(data.getSearchObject(),
                 data.getLWknots());
@@ -354,12 +355,12 @@ public class SAROperation {
     }
 
     public void calculateEffortAllocation(RapidResponseData data) {
-        double trackSpacing = findS(data.getW(), data.getPod());
+        double trackSpacing = findS(data.getEffortAllocationData().getW(), data.getEffortAllocationData().getPod());
 
-        data.setTrackSpacing(trackSpacing);
+        data.getEffortAllocationData().setTrackSpacing(trackSpacing);
 
-        double groundSpeed = data.getGroundSpeed();
-        int timeSearching = data.getSearchTime();
+        double groundSpeed = data.getEffortAllocationData().getGroundSpeed();
+        int timeSearching = data.getEffortAllocationData().getSearchTime();
 
         System.out.println("Track Spacing is: " + trackSpacing);
         System.out.println("Ground speed is: " + groundSpeed);
@@ -367,7 +368,7 @@ public class SAROperation {
 
         double areaSize = trackSpacing * groundSpeed * timeSearching;
 
-        data.setEffectiveAreaSize(areaSize);
+        data.getEffortAllocationData().setEffectiveAreaSize(areaSize);
 
         System.out.println("Area size: " + areaSize);
 

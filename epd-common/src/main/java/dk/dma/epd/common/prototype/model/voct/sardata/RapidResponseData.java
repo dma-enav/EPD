@@ -13,17 +13,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.model.voct;
+package dk.dma.epd.common.prototype.model.voct.sardata;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 import dk.dma.epd.common.text.Formatter;
 
 
-public class RapidResponseData {
+public class RapidResponseData extends SARData{
 
     private DateTime LKPDate;
     private DateTime CSSDate;
@@ -59,21 +60,7 @@ public class RapidResponseData {
 
     
     
-    private double w;
-    private double groundSpeed;
-    private double pod;
-    private double trackSpacing;
-    private int searchTime;
-    private double effectiveAreaSize;
-    
-    
-    double effectiveAreaWidth;
-    double effectiveAreaHeight;
-    
-    Position effectiveAreaA;
-    Position effectiveAreaB;
-    Position effectiveAreaC;
-    Position effectiveAreaD;
+   
     
     
     
@@ -90,13 +77,13 @@ public class RapidResponseData {
 
     // Init data
     public RapidResponseData(DateTime TLKP, DateTime CSS, Position LKP,
-            Position CSP, double TWCknots, double TWCHeading, double LWknots,
+            double TWCknots, double TWCHeading, double LWknots,
             double LWHeading, double x, double y, double SF, int searchObject) {
 
         this.LKP = LKP;
         this.LKPDate = TLKP;
         this.CSSDate = CSS;
-        this.CSP = CSP;
+        
         this.TWCknots = TWCknots;
         this.TWCHeading = TWCHeading;
         this.LWknots = LWknots;
@@ -119,90 +106,7 @@ public class RapidResponseData {
     
     
     
-    /**
-     * @return the effectiveAreaSize
-     */
-    public double getEffectiveAreaSize() {
-        return effectiveAreaSize;
-    }
-
-    /**
-     * @param effectiveAreaSize the effectiveAreaSize to set
-     */
-    public void setEffectiveAreaSize(double effectiveAreaSize) {
-        this.effectiveAreaSize = effectiveAreaSize;
-    }
-
-    /**
-     * @return the searchTime
-     */
-    public int getSearchTime() {
-        return searchTime;
-    }
-
-    /**
-     * @param searchTime the searchTime to set
-     */
-    public void setSearchTime(int searchTime) {
-        this.searchTime = searchTime;
-    }
-
-    /**
-     * @return the w
-     */
-    public double getW() {
-        return w;
-    }
-
-    /**
-     * @param w the w to set
-     */
-    public void setW(double w) {
-        this.w = w;
-    }
-
-    /**
-     * @return the groundSpeed
-     */
-    public double getGroundSpeed() {
-        return groundSpeed;
-    }
-
-    /**
-     * @param groundSpeed the groundSpeed to set
-     */
-    public void setGroundSpeed(double groundSpeed) {
-        this.groundSpeed = groundSpeed;
-    }
-
-    /**
-     * @return the pod
-     */
-    public double getPod() {
-        return pod;
-    }
-
-    /**
-     * @param pod the pod to set
-     */
-    public void setPod(double pod) {
-        this.pod = pod;
-    }
-
-    /**
-     * @return the trackSpacing
-     */
-    public double getTrackSpacing() {
-        return trackSpacing;
-    }
-
-    /**
-     * @param trackSpacing the trackSpacing to set
-     */
-    public void setTrackSpacing(double trackSpacing) {
-        this.trackSpacing = trackSpacing;
-    }
-
+  
     /**
      * @return the rdvDirection
      */
@@ -566,89 +470,6 @@ public class RapidResponseData {
     
     
     
-    /**
-     * @return the effectiveAreaWidth
-     */
-    public double getEffectiveAreaWidth() {
-        return effectiveAreaWidth;
-    }
-
-    /**
-     * @param effectiveAreaWidth the effectiveAreaWidth to set
-     */
-    public void setEffectiveAreaWidth(double effectiveAreaWidth) {
-        this.effectiveAreaWidth = effectiveAreaWidth;
-    }
-
-    /**
-     * @return the effectiveAreaHeight
-     */
-    public double getEffectiveAreaHeight() {
-        return effectiveAreaHeight;
-    }
-
-    /**
-     * @param effectiveAreaHeight the effectiveAreaHeight to set
-     */
-    public void setEffectiveAreaHeight(double effectiveAreaHeight) {
-        this.effectiveAreaHeight = effectiveAreaHeight;
-    }
-
-    /**
-     * @return the effectiveAreaA
-     */
-    public Position getEffectiveAreaA() {
-        return effectiveAreaA;
-    }
-
-    /**
-     * @param effectiveAreaA the effectiveAreaA to set
-     */
-    public void setEffectiveAreaA(Position effectiveAreaA) {
-        this.effectiveAreaA = effectiveAreaA;
-    }
-
-    /**
-     * @return the effectiveAreaB
-     */
-    public Position getEffectiveAreaB() {
-        return effectiveAreaB;
-    }
-
-    /**
-     * @param effectiveAreaB the effectiveAreaB to set
-     */
-    public void setEffectiveAreaB(Position effectiveAreaB) {
-        this.effectiveAreaB = effectiveAreaB;
-    }
-
-    /**
-     * @return the effectiveAreaC
-     */
-    public Position getEffectiveAreaC() {
-        return effectiveAreaC;
-    }
-
-    /**
-     * @param effectiveAreaC the effectiveAreaC to set
-     */
-    public void setEffectiveAreaC(Position effectiveAreaC) {
-        this.effectiveAreaC = effectiveAreaC;
-    }
-
-    /**
-     * @return the effectiveAreaD
-     */
-    public Position getEffectiveAreaD() {
-        return effectiveAreaD;
-    }
-
-    /**
-     * @param effectiveAreaD the effectiveAreaD to set
-     */
-    public void setEffectiveAreaD(Position effectiveAreaD) {
-        this.effectiveAreaD = effectiveAreaD;
-    }
 
     public String generateHTML() {
         
@@ -669,7 +490,6 @@ public class RapidResponseData {
         str.append("Time of Last Known Position: " + fmt.print(LKPDate) + "");
         str.append("<br>Last Known Position: " + LKP.toString() + "</br>");
         str.append("<br>Commence Search Start time: " + fmt.print(CSSDate) + "</br>");
-        str.append("<br>Commence Search Point: " + CSP.toString() + "</br>");
         str.append("<hr>");
         str.append("<font size=\"4\">");
         str.append("Total Water Current: " + TWCknots + " knots with heading " + TWCHeading + "°");

@@ -16,6 +16,10 @@
 package dk.dma.epd.ship.service.voct;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JDialog;
@@ -26,10 +30,14 @@ import org.slf4j.LoggerFactory;
 
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.model.voct.RapidResponseData;
+import dk.dma.epd.common.Heading;
+import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.RouteLeg;
+import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
+import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Util;
@@ -115,11 +123,11 @@ public class VOCTManager implements Runnable, Serializable {
     }
 
     public void inputRapidResponseData(DateTime TLKP, DateTime CSS,
-            Position LKP, Position CSP, double TWCknots, double TWCHeading,
+            Position LKP, double TWCknots, double TWCHeading,
             double LWknots, double LWHeading, double x, double y, double SF,
             int searchObject) {
 
-        RapidResponseData data = new RapidResponseData(TLKP, CSS, LKP, CSP,
+        RapidResponseData data = new RapidResponseData(TLKP, CSS, LKP,
                 TWCknots, TWCHeading, LWknots, LWHeading, x, y, SF,
                 searchObject);
 
@@ -206,10 +214,10 @@ public class VOCTManager implements Runnable, Serializable {
 
         // Find closest corner point
 
-        Position A = rapidResponseData.getEffectiveAreaA();
-        Position B = rapidResponseData.getEffectiveAreaB();
-        Position C = rapidResponseData.getEffectiveAreaC();
-        Position D = rapidResponseData.getEffectiveAreaD();
+        Position A = rapidResponseData.getEffortAllocationData().getEffectiveAreaA();
+        Position B = rapidResponseData.getEffortAllocationData().getEffectiveAreaB();
+        Position C = rapidResponseData.getEffortAllocationData().getEffectiveAreaC();
+        Position D = rapidResponseData.getEffortAllocationData().getEffectiveAreaD();
 
         Position CSP = rapidResponseData.getCSP();
 
@@ -276,7 +284,7 @@ public class VOCTManager implements Runnable, Serializable {
         System.out.println("Horizontal = " + horizontalBearing);
         System.out.println("Vertical = " + verticalBearing);
 
-        double S = rapidResponseData.getTrackSpacing();
+        double S = rapidResponseData.getEffortAllocationData().getTrackSpacing();
 
         Position verticalPos = Calculator.findPosition(toDrawTo,
                 verticalBearing, Converter.nmToMeters(S / 2));
@@ -289,9 +297,9 @@ public class VOCTManager implements Runnable, Serializable {
 
         // Position routeStartPoint =
 
-        double totalLengthOfTrack = rapidResponseData.getEffectiveAreaSize()
+        double totalLengthOfTrack = rapidResponseData.getEffortAllocationData().getEffectiveAreaSize()
                 / S;
-        double trackLength = rapidResponseData.getEffectiveAreaWidth() - S;
+        double trackLength = rapidResponseData.getEffortAllocationData().getEffectiveAreaWidth() - S;
 
         double trackPlotted = 0;
 
@@ -301,6 +309,10 @@ public class VOCTManager implements Runnable, Serializable {
         System.out.println("Track Plotted is: " + trackPlotted
                 + " vs. the total length " + totalLengthOfTrack);
 
+        List<Position> positionList = new ArrayList<Position>();
+
+        positionList.add(currentPos);
+
         while (trackPlotted < totalLengthOfTrack) {
 
             // Move horizontally
@@ -309,9 +321,10 @@ public class VOCTManager implements Runnable, Serializable {
 
             horizontalBearing = -horizontalBearing;
 
-            System.out.println(totalLengthOfTrack + " vs " + (trackPlotted + trackLength));
-            
-            if ( (trackPlotted + trackLength) <= totalLengthOfTrack) {
+            System.out.println(totalLengthOfTrack + " vs "
+                    + (trackPlotted + trackLength));
+
+            if ((trackPlotted + trackLength) <= totalLengthOfTrack) {
 
                 trackPlotted = trackPlotted + trackLength;
 
@@ -319,11 +332,13 @@ public class VOCTManager implements Runnable, Serializable {
 
                 currentPos = nextPos;
 
+                positionList.add(currentPos);
+
                 // Move vertically
                 nextPos = Calculator.findPosition(currentPos, verticalBearing,
                         Converter.nmToMeters(S / 2));
 
-                if ((trackPlotted + (S / 2)) <= totalLengthOfTrack ) {
+                if ((trackPlotted + (S / 2)) <= totalLengthOfTrack) {
 
                     trackPlotted = trackPlotted + (S / 2);
 
@@ -331,37 +346,90 @@ public class VOCTManager implements Runnable, Serializable {
 
                     currentPos = nextPos;
 
+                    positionList.add(currentPos);
+
                     System.out.println("Track Plotted is: " + trackPlotted
                             + " vs. the total length " + totalLengthOfTrack);
-                }else{
-                    //Cannot draw ½S track, draw what we can
-                    double remainingDistance = totalLengthOfTrack - trackPlotted;
-                    
-                    nextPos = Calculator.findPosition(currentPos, verticalBearing,
+                } else {
+                    // Cannot draw ½S track, draw what we can
+                    double remainingDistance = totalLengthOfTrack
+                            - trackPlotted;
+
+                    nextPos = Calculator.findPosition(currentPos,
+                            verticalBearing,
                             Converter.nmToMeters(remainingDistance));
                     trackPlotted = trackPlotted + remainingDistance;
                     voctLayer.drawPoints(currentPos, nextPos);
                     currentPos = nextPos;
+                    positionList.add(currentPos);
                 }
             } else {
-                
+
                 horizontalBearing = -horizontalBearing;
-                
+
                 double remainingDistance = totalLengthOfTrack - trackPlotted;
-                nextPos = Calculator.findPosition(currentPos, horizontalBearing,
+                nextPos = Calculator.findPosition(currentPos,
+                        horizontalBearing,
                         Converter.nmToMeters(remainingDistance));
-                
+
                 trackPlotted = trackPlotted + remainingDistance;
 
                 voctLayer.drawPoints(currentPos, nextPos);
                 currentPos = nextPos;
+                positionList.add(currentPos);
             }
         }
 
+        Route searchRoute = new Route(positionList);
         
+        LinkedList<RouteWaypoint> waypoints = searchRoute.getWaypoints();
+        for (RouteWaypoint routeWaypoint : waypoints) {
+            if (routeWaypoint.getOutLeg() != null) {
+                RouteLeg outLeg = routeWaypoint.getOutLeg();
+                double xtd = EPDShip.getSettings().getNavSettings().getDefaultXtd();
+                outLeg.setXtdPort(xtd);
+                outLeg.setXtdStarboard(xtd);
+                outLeg.setHeading(Heading.RL);
+                outLeg.setSpeed(rapidResponseData.getEffortAllocationData().getGroundSpeed());
+            }
+            routeWaypoint.setTurnRad(EPDShip.getSettings().getNavSettings().getDefaultTurnRad());
+
+        }
+        
+        searchRoute.setStarttime(new Date(rapidResponseData.getCSSDate().getMillis()));
+//        searchRoute.adjustStartTime();
+        searchRoute.calcValues(true);
+        
+        
+        
+        
+//        searchRoute.setSpeed(rapidResponseData.getGroundSpeed());
+        searchRoute.setName("Parallel Sweep Search");
+
+        System.out.println(positionList.size());
+
         System.out.println(" FINISHED Track Plotted is: " + trackPlotted
                 + " vs. the total length " + totalLengthOfTrack);
-        
+
+        DateTime lkpDate = rapidResponseData.getCSSDate();
+
+        for (int i = 0; i < searchRoute.getWaypoints().size(); i++) {
+            Date wpETA = searchRoute.getEtas().get(i);
+            Position wpPos = searchRoute.getWaypoints().get(i).getPos();
+            
+            double timeElapsed = ((double) (wpETA.getTime() - lkpDate.getMillis()))  / 60 / 60 / 1000;
+            System.out.println("Elapsed is for " + i + " is " + timeElapsed);
+
+            Position newPos = sarOperation.applyDriftToPoint(rapidResponseData, wpPos, timeElapsed);
+
+            searchRoute.getWaypoints().get(i).setPos(newPos);
+
+        }
+
+         
+
+        EPDShip.getRouteManager().addRoute(searchRoute);
+
         // //Should I go left or right? / better way!
         //
         // double horizontalBearing;

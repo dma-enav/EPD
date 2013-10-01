@@ -19,7 +19,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.model.voct.RapidResponseData;
+import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 
@@ -68,13 +68,13 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
                 .findPosition(C, 90, Converter.nmToMeters(width));
 
         
-        rapidResponseData.setEffectiveAreaA(A);
-        rapidResponseData.setEffectiveAreaB(B);
-        rapidResponseData.setEffectiveAreaC(C);
-        rapidResponseData.setEffectiveAreaD(D);
+        rapidResponseData.getEffortAllocationData().setEffectiveAreaA(A);
+        rapidResponseData.getEffortAllocationData().setEffectiveAreaB(B);
+        rapidResponseData.getEffortAllocationData().setEffectiveAreaC(C);
+        rapidResponseData.getEffortAllocationData().setEffectiveAreaD(D);
         
-        rapidResponseData.setEffectiveAreaHeight(height);
-        rapidResponseData.setEffectiveAreaWidth(width);
+        rapidResponseData.getEffortAllocationData().setEffectiveAreaHeight(height);
+        rapidResponseData.getEffortAllocationData().setEffectiveAreaWidth(width);
         
         effectiveArea = new AreaInternalGraphics(A, B, C, D, width, height,
                 this);
@@ -220,13 +220,13 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         System.out.println("Updating effective area values");
         
         
-        rapidResponseData.setEffectiveAreaA(A);
-        rapidResponseData.setEffectiveAreaB(B);
-        rapidResponseData.setEffectiveAreaC(C);
-        rapidResponseData.setEffectiveAreaD(D);
+        rapidResponseData.getEffortAllocationData().setEffectiveAreaA(A);
+        rapidResponseData.getEffortAllocationData().setEffectiveAreaB(B);
+        rapidResponseData.getEffortAllocationData().setEffectiveAreaC(C);
+        rapidResponseData.getEffortAllocationData().setEffectiveAreaD(D);
         
-        rapidResponseData.setEffectiveAreaHeight(height);
-        rapidResponseData.setEffectiveAreaWidth(width);
+        rapidResponseData.getEffortAllocationData().setEffectiveAreaHeight(height);
+        rapidResponseData.getEffortAllocationData().setEffectiveAreaWidth(width);
         
         
         

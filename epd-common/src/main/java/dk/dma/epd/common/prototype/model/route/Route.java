@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.bbn.openmap.proj.coords.LatLonPoint;
+
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.voyage.Waypoint;
 import dk.dma.epd.common.Heading;
@@ -136,7 +138,45 @@ public class Route implements Serializable {
         parseRoute(cloudRouteData);
     }
 
+    public Route(List<Position> positions) {
+
+        if (positions.size() >= 2) {
+
+            for (int i = 0; i < positions.size(); i++) {
+
+                RouteWaypoint newWaypoint = new RouteWaypoint();
+                newWaypoint.setName("");
+                newWaypoint.setPos(positions.get(i));
+                waypoints.add(newWaypoint);
+
+                if (waypoints.size() > 1) {
+                    RouteLeg newLeg = new RouteLeg();
+                    newLeg.setHeading(Heading.RL);
+                    RouteWaypoint prevWaypoint = waypoints
+                            .get(waypoints.size() - 2);
+                    prevWaypoint.setOutLeg(newLeg);
+                    newWaypoint.setInLeg(newLeg);
+                    newLeg.setStartWp(prevWaypoint);
+                    newLeg.setEndWp(newWaypoint);
+                }
+
+            }
+
+        }
+        
+        
+        
+
+    }
+
     // Methods
+
+    public void setSpeed(double SOG) {
+        for (int i = 0; i < waypoints.size(); i++) {
+            waypoints.get(i).setSpeed(SOG);
+        }
+        this.calcAllWpEta();
+    }
 
     /**
      * Performs a deep copy of a route.
@@ -1000,7 +1040,8 @@ public class Route implements Serializable {
                 }
 
                 // Leg
-                if (cloudWaypoint.getRouteLeg() != null && waypoint.getOutLeg() != null) {
+                if (cloudWaypoint.getRouteLeg() != null
+                        && waypoint.getOutLeg() != null) {
 
                     // SOG
                     if (cloudWaypoint.getRouteLeg().getSpeed() != null) {

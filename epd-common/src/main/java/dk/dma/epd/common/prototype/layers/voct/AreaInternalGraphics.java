@@ -34,7 +34,7 @@ import com.bbn.openmap.proj.Length;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.model.voct.RapidResponseData;
+import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 
@@ -196,10 +196,10 @@ public class AreaInternalGraphics extends OMGraphicList {
 
         effecticeSRUAreaGraphics.updateLines(A, B, C, D);
         
-        data.setEffectiveAreaA(A);
-        data.setEffectiveAreaB(B);
-        data.setEffectiveAreaC(C);
-        data.setEffectiveAreaD(D);
+        data.getEffortAllocationData().setEffectiveAreaA(A);
+        data.getEffortAllocationData().setEffectiveAreaB(B);
+        data.getEffortAllocationData().setEffectiveAreaC(C);
+        data.getEffortAllocationData().setEffectiveAreaD(D);
 
     }
 

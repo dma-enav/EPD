@@ -29,6 +29,8 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
@@ -36,16 +38,11 @@ import javax.swing.border.TitledBorder;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.model.voct.RapidResponseData;
+import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.common.util.Calculator;
-import dk.dma.epd.common.util.Converter;
-import dk.dma.epd.common.util.Ellipsoid;
 import dk.dma.epd.ship.gui.voct.EffortAllocationWindow;
+import dk.dma.epd.ship.gui.voct.SearchPatternDialog;
 import dk.dma.epd.ship.service.voct.VOCTManager;
-import javax.swing.JSpinner;
 
 /**
  * Active waypoint panel in sensor panel
@@ -111,10 +108,12 @@ public class SARPanel extends JPanel implements ActionListener {
     private JLabel searchCraftGroundSpeedVal;
 
     static final String SARPANEL = "SAR Panel";
-    static final String NOSARPANEL = "NO Sar panel";
+    static final String NOSARPANEL = "No Sar panel";
 
     private EffortAllocationWindow effortAllocationWindow;
-
+    private SearchPatternDialog searchPatternDialog;
+    
+    
     private VOCTManager voctManager;
     private JLabel lblTrackSpacing;
     private JLabel trackSpacingVal;
@@ -176,7 +175,11 @@ public class SARPanel extends JPanel implements ActionListener {
     }
 
     private void initSarOperation() {
+        
+        
+        
         sarStartedPanel = new JPanel();
+        
         add(sarStartedPanel, SARPANEL);
 
         GridBagLayout gridBagLayout = new GridBagLayout();
@@ -755,7 +758,9 @@ public class SARPanel extends JPanel implements ActionListener {
         
         
         if (arg0.getSource() == btnGenerateSearchPattern){
-            voctManager.generateSearchPattern();
+//            voctManager.generateSearchPattern();
+            searchPatternDialog = new SearchPatternDialog();
+            searchPatternDialog.setVisible(true);
         }
 
     }
@@ -767,11 +772,11 @@ public class SARPanel extends JPanel implements ActionListener {
     }
 
     public void effortAllocationComplete(RapidResponseData data){
-        poDVal.setText(data.getPod() * 100 + "%");
-        searchAreaSizeVal.setText(Formatter.formatDouble(data.getEffectiveAreaSize(), 2) + " nm2");
-        searchCraftGroundSpeedVal.setText(Formatter.formatDouble(data.getGroundSpeed(), 0) + " knots");
-        trackSpacingVal.setText(Formatter.formatDouble(data.getTrackSpacing(), 2) + " nm");
-        timeSpentSearchingVal.setValue(data.getSearchTime());
+        poDVal.setText(data.getEffortAllocationData().getPod() * 100 + "%");
+        searchAreaSizeVal.setText(Formatter.formatDouble(data.getEffortAllocationData().getEffectiveAreaSize(), 2) + " nm2");
+        searchCraftGroundSpeedVal.setText(Formatter.formatDouble(data.getEffortAllocationData().getGroundSpeed(), 0) + " knots");
+        trackSpacingVal.setText(Formatter.formatDouble(data.getEffortAllocationData().getTrackSpacing(), 2) + " nm");
+        timeSpentSearchingVal.setValue(data.getEffortAllocationData().getSearchTime());
     }
     
     

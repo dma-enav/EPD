@@ -31,9 +31,9 @@ import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics;
 import dk.dma.epd.common.prototype.layers.voct.SarEffectiveAreaLines;
 import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
 import dk.dma.epd.common.prototype.layers.voct.SearchPatternTemp;
-import dk.dma.epd.common.prototype.model.voct.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
+import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.service.voct.VOCTManager;
@@ -380,7 +380,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         // PoD for each SRU, initialized with an effective area? possibly a
         // unique ID
 
-        double effectiveAreaSize = voctManager.getRapidResponseData().getEffectiveAreaSize();
+        double effectiveAreaSize = voctManager.getRapidResponseData().getEffortAllocationData().getEffectiveAreaSize();
 
         System.out.println("EFFECTIVE AREA IS " + effectiveAreaSize);
         
