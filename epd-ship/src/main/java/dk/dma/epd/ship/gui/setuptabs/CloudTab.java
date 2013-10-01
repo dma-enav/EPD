@@ -35,77 +35,114 @@ public class CloudTab extends JPanel {
     private JTextField textFieldServerPort;
     private JTextField textFieldServerName;
     private EPDEnavSettings enavSettings;
-    
-    
+
     public CloudTab() {
-        
+
         JPanel CloudPanel = new JPanel();
-        CloudPanel.setBorder(new TitledBorder(null, "HTTP Settings", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        
+        CloudPanel.setBorder(new TitledBorder(null, "HTTP Settings",
+                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+
         JLabel label_3 = new JLabel("Server name:");
-        
+
         JLabel label_4 = new JLabel("Server port:");
-        
+
         textFieldServerPort = new JTextField();
-        
+
         textFieldServerName = new JTextField();
         textFieldServerName.setColumns(10);
         GroupLayout gl_CloudPanel = new GroupLayout(CloudPanel);
-        gl_CloudPanel.setHorizontalGroup(
-        	gl_CloudPanel.createParallelGroup(Alignment.LEADING)
-        		.addGroup(gl_CloudPanel.createSequentialGroup()
-        			.addContainerGap()
-        			.addGroup(gl_CloudPanel.createParallelGroup(Alignment.LEADING)
-        				.addComponent(label_3)
-        				.addComponent(label_4))
-        			.addGap(36)
-        			.addGroup(gl_CloudPanel.createParallelGroup(Alignment.LEADING, false)
-        				.addComponent(textFieldServerPort, GroupLayout.PREFERRED_SIZE, 288, GroupLayout.PREFERRED_SIZE)
-        				.addComponent(textFieldServerName, GroupLayout.PREFERRED_SIZE, 288, GroupLayout.PREFERRED_SIZE))
-        			.addContainerGap())
-        );
-        gl_CloudPanel.setVerticalGroup(
-        	gl_CloudPanel.createParallelGroup(Alignment.LEADING)
-        		.addGroup(gl_CloudPanel.createSequentialGroup()
-        			.addGroup(gl_CloudPanel.createParallelGroup(Alignment.BASELINE)
-        				.addComponent(label_3)
-        				.addComponent(textFieldServerName, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-        			.addPreferredGap(ComponentPlacement.RELATED)
-        			.addGroup(gl_CloudPanel.createParallelGroup(Alignment.BASELINE)
-        				.addComponent(textFieldServerPort, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        				.addComponent(label_4))
-        			.addContainerGap(34, Short.MAX_VALUE))
-        );
+        gl_CloudPanel
+                .setHorizontalGroup(gl_CloudPanel
+                        .createParallelGroup(Alignment.LEADING)
+                        .addGroup(
+                                gl_CloudPanel
+                                        .createSequentialGroup()
+                                        .addContainerGap()
+                                        .addGroup(
+                                                gl_CloudPanel
+                                                        .createParallelGroup(
+                                                                Alignment.LEADING)
+                                                        .addComponent(label_3)
+                                                        .addComponent(label_4))
+                                        .addGap(36)
+                                        .addGroup(
+                                                gl_CloudPanel
+                                                        .createParallelGroup(
+                                                                Alignment.LEADING,
+                                                                false)
+                                                        .addComponent(
+                                                                textFieldServerPort,
+                                                                GroupLayout.PREFERRED_SIZE,
+                                                                288,
+                                                                GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(
+                                                                textFieldServerName,
+                                                                GroupLayout.PREFERRED_SIZE,
+                                                                288,
+                                                                GroupLayout.PREFERRED_SIZE))
+                                        .addContainerGap()));
+        gl_CloudPanel
+                .setVerticalGroup(gl_CloudPanel
+                        .createParallelGroup(Alignment.LEADING)
+                        .addGroup(
+                                gl_CloudPanel
+                                        .createSequentialGroup()
+                                        .addGroup(
+                                                gl_CloudPanel
+                                                        .createParallelGroup(
+                                                                Alignment.BASELINE)
+                                                        .addComponent(label_3)
+                                                        .addComponent(
+                                                                textFieldServerName,
+                                                                GroupLayout.PREFERRED_SIZE,
+                                                                GroupLayout.DEFAULT_SIZE,
+                                                                GroupLayout.PREFERRED_SIZE))
+                                        .addPreferredGap(
+                                                ComponentPlacement.RELATED)
+                                        .addGroup(
+                                                gl_CloudPanel
+                                                        .createParallelGroup(
+                                                                Alignment.BASELINE)
+                                                        .addComponent(
+                                                                textFieldServerPort,
+                                                                GroupLayout.PREFERRED_SIZE,
+                                                                GroupLayout.DEFAULT_SIZE,
+                                                                GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(label_4))
+                                        .addContainerGap(34, Short.MAX_VALUE)));
         CloudPanel.setLayout(gl_CloudPanel);
         GroupLayout groupLayout = new GroupLayout(this);
-        groupLayout.setHorizontalGroup(
-        	groupLayout.createParallelGroup(Alignment.LEADING)
-        		.addGroup(groupLayout.createSequentialGroup()
-        			.addContainerGap()
-        			.addComponent(CloudPanel, GroupLayout.PREFERRED_SIZE, 434, Short.MAX_VALUE)
-        			.addGap(6))
-        );
-        groupLayout.setVerticalGroup(
-        	groupLayout.createParallelGroup(Alignment.LEADING)
-        		.addGroup(groupLayout.createSequentialGroup()
-        			.addContainerGap()
-        			.addComponent(CloudPanel, GroupLayout.PREFERRED_SIZE, 72, GroupLayout.PREFERRED_SIZE)
-        			.addContainerGap(217, Short.MAX_VALUE))
-        );
+        groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(
+                Alignment.LEADING).addGroup(
+                groupLayout
+                        .createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(CloudPanel, GroupLayout.PREFERRED_SIZE,
+                                434, Short.MAX_VALUE).addGap(6)));
+        groupLayout.setVerticalGroup(groupLayout.createParallelGroup(
+                Alignment.LEADING).addGroup(
+                groupLayout
+                        .createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(CloudPanel, GroupLayout.PREFERRED_SIZE,
+                                72, GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(217, Short.MAX_VALUE)));
         setLayout(groupLayout);
     }
 
     public void loadSettings(EPDEnavSettings enavSettings) {
         this.enavSettings = enavSettings;
         textFieldServerName.setText(enavSettings.getCloudServerHost());
-        textFieldServerPort.setText(Integer.toString(enavSettings.getCloudServerPort()));
+        textFieldServerPort.setText(Integer.toString(enavSettings
+                .getCloudServerPort()));
     }
-    
+
     public void saveSettings() {
         enavSettings.setCloudServerHost(textFieldServerName.getText());
-        enavSettings.setCloudServerPort(getIntVal(textFieldServerPort.getText(), enavSettings.getHttpPort()));
+        enavSettings.setCloudServerPort(getIntVal(
+                textFieldServerPort.getText(), enavSettings.getHttpPort()));
     }
-    
+
     private static int getIntVal(String fieldVal, int defaultValue) {
         Integer val;
         try {
