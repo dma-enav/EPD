@@ -45,7 +45,7 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerDateModel;
-import javax.swing.UIManager;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
@@ -59,10 +59,10 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARWeatherData;
 import dk.dma.epd.common.util.ParseUtils;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.service.voct.VOCTManager;
-import javax.swing.SwingConstants;
 
 public class SARInput extends JDialog implements ActionListener,
         DocumentListener {
@@ -147,6 +147,7 @@ public class SARInput extends JDialog implements ActionListener,
 
     private JComboBox<String> comboLKPLat;
     private JComboBox<String> comboLKPLon;
+    private JTextField sarIDTxtField;
 
     /**
      * 
@@ -158,6 +159,7 @@ public class SARInput extends JDialog implements ActionListener,
         this.voctManager = voctManager;
         setTitle("SAR Operation");
         this.setModal(true);
+        this.setResizable(false);
 
         format.setTimeZone(TimeZone.getTimeZone("CET"));
 
@@ -215,15 +217,10 @@ public class SARInput extends JDialog implements ActionListener,
         // getContentPane().add(inputPanel, BorderLayout.CENTER);
         inputPanel.setLayout(null);
 
-        JLabel lblRapidResponseOperation = new JLabel(
-                "Rapid Response Operation");
-        lblRapidResponseOperation.setBounds(10, 11, 207, 14);
-        inputPanel.add(lblRapidResponseOperation);
-
         JPanel lkpPanel = new JPanel();
         lkpPanel.setBorder(new TitledBorder(null, "Last Known Position",
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        lkpPanel.setBounds(20, 36, 494, 87);
+        lkpPanel.setBounds(20, 59, 494, 87);
         inputPanel.add(lkpPanel);
         lkpPanel.setLayout(null);
 
@@ -320,7 +317,7 @@ public class SARInput extends JDialog implements ActionListener,
         commenceStartPanel.setBorder(new TitledBorder(null,
                 "Commence Search Start", TitledBorder.LEADING,
                 TitledBorder.TOP, null, null));
-        commenceStartPanel.setBounds(20, 134, 494, 53);
+        commenceStartPanel.setBounds(20, 157, 494, 53);
         commenceStartPanel.setLayout(null);
         inputPanel.add(commenceStartPanel);
 
@@ -373,7 +370,7 @@ public class SARInput extends JDialog implements ActionListener,
 
         // surfaceDriftPanelHeight
 
-        scrollPaneSurfaceDrift.setBounds(20, 198, 494, 201);
+        scrollPaneSurfaceDrift.setBounds(20, 224, 494, 175);
 
         inputPanel.add(scrollPaneSurfaceDrift);
 
@@ -457,6 +454,21 @@ public class SARInput extends JDialog implements ActionListener,
         searchObjectText.setText(LeewayValues.getLeeWayContent().get(0));
         searchObjectText.setBounds(10, 53, 457, 14);
         panel_1.add(searchObjectText);
+        
+        JPanel panel_2 = new JPanel();
+        panel_2.setBorder(new TitledBorder(null, "Rapid Response Operation", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        panel_2.setBounds(20, 0, 487, 48);
+        inputPanel.add(panel_2);
+        panel_2.setLayout(null);
+        
+        JLabel lblSarId = new JLabel("SAR No.");
+        lblSarId.setBounds(10, 23, 55, 14);
+        panel_2.add(lblSarId);
+        
+        sarIDTxtField = new JTextField("");
+        sarIDTxtField.setBounds(58, 20, 136, 20);
+        panel_2.add(sarIDTxtField);
+        sarIDTxtField.setColumns(10);
 
         for (int i = 0; i < LeewayValues.getLeeWayTypes().size(); i++) {
             searchObjectDropDown.addItem(LeewayValues.getLeeWayTypes().get(i));
@@ -496,12 +508,14 @@ public class SARInput extends JDialog implements ActionListener,
 
         descriptiveText.setBounds(10, 52, 503, 112);
         panel.add(descriptiveText);
-        descriptiveText.setBackground(UIManager.getColor("Button.background"));
+//        descriptiveText.setBackground(UIManager.getColor("Button.background"));
+        descriptiveText.setOpaque(false);
         descriptiveText.setEditable(false);
         descriptiveText.setText(rapidresponseTxt);
 
         descriptiveImage = new JLabel(" ");
-        descriptiveImage.setBounds(126, 202, 282, 127);
+        descriptiveImage.setHorizontalAlignment(SwingConstants.CENTER);
+        descriptiveImage.setBounds(20, 131, 493, 200);
         panel.add(descriptiveImage);
         descriptiveImage.setIcon(rapidResponseIcon);
 
@@ -699,7 +713,7 @@ public class SARInput extends JDialog implements ActionListener,
     private static ImageIcon scaleImage(ImageIcon icon) {
         // Scale it?
         Image img = icon.getImage();
-        Image newimg = img.getScaledInstance(282, 127,
+        Image newimg = img.getScaledInstance(444, 200,
                 java.awt.Image.SCALE_SMOOTH);
 
         ImageIcon newIcon = new ImageIcon(newimg);
@@ -869,6 +883,12 @@ public class SARInput extends JDialog implements ActionListener,
             return false;
         }
 
+        SARWeatherData sarWeatherData = new SARWeatherData(twcHeading, TWCKnots, leewayKnots, leewayHeading);
+        
+        List<SARWeatherData> sarWeatherDataPoints = new ArrayList<SARWeatherData>();
+        sarWeatherDataPoints.add(sarWeatherData);
+        
+        
         double xError = getInitialPositionError();
 
         if (xError == -9999) {
@@ -918,10 +938,11 @@ public class SARInput extends JDialog implements ActionListener,
             return false;
         }
 
-        voctManager.inputRapidResponseData(LKPDate, CSSDate,
-                rapidResponsePosition, TWCKnots,
-                twcHeading, leewayKnots, leewayHeading, xError, yError,
-                safetyFactor, searchObject);
+
+        
+        voctManager.inputRapidResponseData(sarIDTxtField.getText(), LKPDate, CSSDate,
+                rapidResponsePosition, xError, yError,
+                safetyFactor, searchObject, sarWeatherDataPoints);
 
         return true;
     }
@@ -1093,7 +1114,7 @@ public class SARInput extends JDialog implements ActionListener,
         try {
             return parseLat(LKPLatitude);
         } catch (Exception e1) {
-            // Invalid lon, we do nothing, focus lost will handle it
+            displayMissingField("LKP Latitude");
         }
 
         return -9999;
@@ -1110,7 +1131,7 @@ public class SARInput extends JDialog implements ActionListener,
         try {
             return parseLon(LKPLongitude);
         } catch (Exception e1) {
-            // Invalid lon, we do nothing, focus lost will handle it
+            displayMissingField("LKP Longitude");
             System.out.println(e1.getMessage());
         }
 
@@ -1125,5 +1146,4 @@ public class SARInput extends JDialog implements ActionListener,
     private static double parseLat(String latStr) throws FormatException {
         return ParseUtils.parseLatitude(latStr);
     }
-
 }

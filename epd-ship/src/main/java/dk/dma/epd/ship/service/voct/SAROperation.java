@@ -15,16 +15,12 @@
  */
 package dk.dma.epd.ship.service.voct;
 
-import java.util.Date;
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Ellipsoid;
@@ -91,8 +87,7 @@ public class SAROperation {
     }
 
     public void startRapidResponseCalculations(RapidResponseData data) {
-        double downWind = data.getLWHeading() - 180;
-        data.setDownWind(downWind);
+
 
         System.out.println("Starting search with the following parameters");
         System.out.println("Time of Last known position: " + data.getLKPDate());
@@ -173,12 +168,12 @@ public class SAROperation {
         return -9999.9;
     }
 
-    public Position applyDriftToPoint(RapidResponseData data, Position point,
+    public Position applyDriftToPoint(SARData data, Position point,
             double timeElapsed) {
         
-        double currentTWC = data.getTWCknots() * timeElapsed;
+        double currentTWC = data.getWeatherPoints().get(0).getTWCknots() * timeElapsed;
         double leewayspeed = searchObjectValue(data.getSearchObject(),
-                data.getLWknots());
+                data.getWeatherPoints().get(0).getLWknots());
         double leeway = leewayspeed * timeElapsed;
 
         Ellipsoid reference = Ellipsoid.WGS84;
@@ -187,13 +182,13 @@ public class SAROperation {
         // Object starts at LKP, with TWCheading, drifting for currentWTC
         // knots where will it end up
         Position currentPos = Calculator.calculateEndingGlobalCoordinates(
-                reference, point, data.getTWCHeading(),
+                reference, point, data.getWeatherPoints().get(0).getTWCHeading(),
                 Converter.nmToMeters(currentTWC), endBearing);
 
         endBearing = new double[1];
 
         Position windPos = Calculator.calculateEndingGlobalCoordinates(
-                reference, currentPos, data.getDownWind(),
+                reference, currentPos, data.getWeatherPoints().get(0).getDownWind(),
                 Converter.nmToMeters(leeway), endBearing);
 
         Position datum = windPos;
@@ -205,7 +200,7 @@ public class SAROperation {
 
         // System.out.println("Calculation for Rapid Response");
 
-        double currentTWC = data.getTWCknots() * data.getTimeElasped();
+        double currentTWC = data.getWeatherPoints().get(0).getTWCknots() * data.getTimeElasped();
         // System.out.println("Current TWC is: " + currentTWC +
         // " with heading: "
         // + TWCHeading);
@@ -214,13 +209,13 @@ public class SAROperation {
         // will have a final speed of leewayspeed:
         // double leewayspeed = LeewayValues.personInWater(LWknots);
         double leewayspeed = searchObjectValue(data.getSearchObject(),
-                data.getLWknots());
+                data.getWeatherPoints().get(0).getLWknots());
 
         // Leeway, object have floated for how long at what time
         double leeway = leewayspeed * data.getTimeElasped();
 
         System.out.println("Leeway is: " + leeway
-                + " nautical miles with heading: " + data.getDownWind());
+                + " nautical miles with heading: " + data.getWeatherPoints().get(0).getDownWind());
 
         Ellipsoid reference = Ellipsoid.WGS84;
         double[] endBearing = new double[1];
@@ -228,7 +223,7 @@ public class SAROperation {
         // Object starts at LKP, with TWCheading, drifting for currentWTC
         // knots where will it end up
         Position currentPos = Calculator.calculateEndingGlobalCoordinates(
-                reference, data.getLKP(), data.getTWCHeading(),
+                reference, data.getLKP(), data.getWeatherPoints().get(0).getTWCHeading(),
                 Converter.nmToMeters(currentTWC), endBearing);
 
         System.out.println("Current is: " + currentPos.getLatitude());
@@ -239,7 +234,7 @@ public class SAROperation {
         endBearing = new double[1];
 
         Position windPos = Calculator.calculateEndingGlobalCoordinates(
-                reference, currentPos, data.getDownWind(),
+                reference, currentPos, data.getWeatherPoints().get(0).getDownWind(),
                 Converter.nmToMeters(leeway), endBearing);
 
         System.out.println("Wind pos is: " + windPos.getLatitude());

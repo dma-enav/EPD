@@ -75,22 +75,26 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
     /**
      * Create the dialog.
      */
-    public EffortAllocationWindow(VOCTManager voctManager) {
+    public EffortAllocationWindow() {
         setTitle("Effort Allocation");
         this.setModal(true);
+        this.setResizable(false);
+        
         // setBounds(100, 100, 559, 733);
         setBounds(100, 100, 559, 575);
         getContentPane().setLayout(new BorderLayout());
 
-        this.voctManager = voctManager;
-
         buttomBar();
 
         initPanel();
-
-        setValues();
-
+        
+        this.setVisible(false);
     }
+    
+    public void setVoctManager(VOCTManager voctManager){
+        this.voctManager = voctManager;
+    }
+    
 
     private void initPanel() {
         initPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -275,7 +279,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
 
     }
 
-    private void setValues() {
+    public void setValues() {
         VesselTarget ownship = EPDShip.getAisHandler().getOwnShip();
 
         if (ownship != null) {

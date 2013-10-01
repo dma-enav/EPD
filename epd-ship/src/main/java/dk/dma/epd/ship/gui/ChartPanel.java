@@ -187,6 +187,11 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         generalLayer = new GeneralLayer();
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
+        
+        // Create VOCT Layer
+        voctLayer = new VoctLayer();
+        voctLayer.setVisible(true);
+        mapHandler.add(voctLayer);
 
         // Create route layer
         routeLayer = new RouteLayer();
@@ -232,9 +237,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         gpsLayer.setVisible(true);
         mapHandler.add(gpsLayer);
 
-        voctLayer = new VoctLayer();
-        voctLayer.setVisible(true);
-        mapHandler.add(voctLayer);
+
 
         // Create a esri shape layer
         // URL dbf = EeINS.class.getResource("/shape/urbanap020.dbf");

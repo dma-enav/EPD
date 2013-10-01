@@ -29,7 +29,6 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -38,11 +37,15 @@ import javax.swing.border.TitledBorder;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.voct.EffortAllocationWindow;
 import dk.dma.epd.ship.gui.voct.SearchPatternDialog;
 import dk.dma.epd.ship.service.voct.VOCTManager;
+import javax.swing.JCheckBox;
 
 /**
  * Active waypoint panel in sensor panel
@@ -110,10 +113,6 @@ public class SARPanel extends JPanel implements ActionListener {
     static final String SARPANEL = "SAR Panel";
     static final String NOSARPANEL = "No Sar panel";
 
-    private EffortAllocationWindow effortAllocationWindow;
-    private SearchPatternDialog searchPatternDialog;
-    
-    
     private VOCTManager voctManager;
     private JLabel lblTrackSpacing;
     private JLabel trackSpacingVal;
@@ -121,6 +120,12 @@ public class SARPanel extends JPanel implements ActionListener {
     private JSpinner timeSpentSearchingVal;
     private JPanel searchPatternsPanel;
     private JButton btnGenerateSearchPattern;
+
+    private EffortAllocationWindow effortAllocationWindow = new EffortAllocationWindow();
+    private SearchPatternDialog searchPatternDialog = new SearchPatternDialog();
+
+    private SARData sarData;
+    private JCheckBox chckbxShowDynamicPattern;
 
     public SARPanel() {
 
@@ -175,17 +180,15 @@ public class SARPanel extends JPanel implements ActionListener {
     }
 
     private void initSarOperation() {
-        
-        
-        
+
         sarStartedPanel = new JPanel();
-        
+
         add(sarStartedPanel, SARPANEL);
 
         GridBagLayout gridBagLayout = new GridBagLayout();
         gridBagLayout.columnWidths = new int[] { 100, 0 };
-        gridBagLayout.rowHeights = new int[] { 20, 16, 16, 16, 16, 16, 16, 0, 0,
-                10 };
+        gridBagLayout.rowHeights = new int[] { 20, 16, 16, 16, 16, 16, 16, 0,
+                0, 10 };
         gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
         gridBagLayout.rowWeights = new double[] { 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
                 1.0, 1.0, 1.0, Double.MIN_VALUE };
@@ -595,8 +598,8 @@ public class SARPanel extends JPanel implements ActionListener {
         gbl_effortAllocationPanel.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
         gbl_effortAllocationPanel.columnWeights = new double[] { 1.0, 1.0,
                 Double.MIN_VALUE };
-        gbl_effortAllocationPanel.rowWeights = new double[] { 1.0, 1.0, 1.0, 1.0, 1.0,
-                Double.MIN_VALUE };
+        gbl_effortAllocationPanel.rowWeights = new double[] { 1.0, 1.0, 1.0,
+                1.0, 1.0, Double.MIN_VALUE };
         effortAllocationPanel.setLayout(gbl_effortAllocationPanel);
 
         lblProbabilityOfDetection = new JLabel("Probability of Detection:");
@@ -642,46 +645,74 @@ public class SARPanel extends JPanel implements ActionListener {
         gbc_searchCraftGroundSpeedVal.insets = new Insets(0, 0, 5, 0);
         gbc_searchCraftGroundSpeedVal.gridx = 1;
         gbc_searchCraftGroundSpeedVal.gridy = 2;
-        effortAllocationPanel.add(searchCraftGroundSpeedVal, gbc_searchCraftGroundSpeedVal);
-        
+        effortAllocationPanel.add(searchCraftGroundSpeedVal,
+                gbc_searchCraftGroundSpeedVal);
+
         lblTrackSpacing = new JLabel("Track Spacing:");
         GridBagConstraints gbc_lblTrackSpacing = new GridBagConstraints();
         gbc_lblTrackSpacing.insets = new Insets(0, 0, 5, 5);
         gbc_lblTrackSpacing.gridx = 0;
         gbc_lblTrackSpacing.gridy = 3;
         effortAllocationPanel.add(lblTrackSpacing, gbc_lblTrackSpacing);
-        
+
         trackSpacingVal = new JLabel("N/A");
         GridBagConstraints gbc_trackSpacingVal = new GridBagConstraints();
         gbc_trackSpacingVal.insets = new Insets(0, 0, 5, 0);
         gbc_trackSpacingVal.gridx = 1;
         gbc_trackSpacingVal.gridy = 3;
         effortAllocationPanel.add(trackSpacingVal, gbc_trackSpacingVal);
-        
+
         lblTimeSpentSearching = new JLabel("Time Spent Searching:");
         GridBagConstraints gbc_lblTimeSpentSearching = new GridBagConstraints();
         gbc_lblTimeSpentSearching.insets = new Insets(0, 0, 0, 5);
         gbc_lblTimeSpentSearching.gridx = 0;
         gbc_lblTimeSpentSearching.gridy = 4;
-        effortAllocationPanel.add(lblTimeSpentSearching, gbc_lblTimeSpentSearching);
-        
+        effortAllocationPanel.add(lblTimeSpentSearching,
+                gbc_lblTimeSpentSearching);
+
         timeSpentSearchingVal = new JSpinner();
         timeSpentSearchingVal.setEnabled(false);
         GridBagConstraints gbc_timeSpentSearchingVal = new GridBagConstraints();
         gbc_timeSpentSearchingVal.gridx = 1;
         gbc_timeSpentSearchingVal.gridy = 4;
-        effortAllocationPanel.add(timeSpentSearchingVal, gbc_timeSpentSearchingVal);
-        
+        effortAllocationPanel.add(timeSpentSearchingVal,
+                gbc_timeSpentSearchingVal);
+
         searchPatternsPanel = new JPanel();
-        searchPatternsPanel.setBorder(new TitledBorder(null, "Search Patterns", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        searchPatternsPanel.setBorder(new TitledBorder(null, "Search Patterns",
+                TitledBorder.LEADING, TitledBorder.TOP, null, null));
         GridBagConstraints gbc_searchPatternsPanel = new GridBagConstraints();
         gbc_searchPatternsPanel.fill = GridBagConstraints.BOTH;
         gbc_searchPatternsPanel.gridx = 0;
         gbc_searchPatternsPanel.gridy = 8;
         sarStartedPanel.add(searchPatternsPanel, gbc_searchPatternsPanel);
-        
+        GridBagLayout gbl_searchPatternsPanel = new GridBagLayout();
+        gbl_searchPatternsPanel.columnWidths = new int[] { 153, 0 };
+        gbl_searchPatternsPanel.rowHeights = new int[] { 23, 0, 0 };
+        gbl_searchPatternsPanel.columnWeights = new double[] { 1.0,
+                Double.MIN_VALUE };
+        gbl_searchPatternsPanel.rowWeights = new double[] { 1.0, 1.0,
+                Double.MIN_VALUE };
+        searchPatternsPanel.setLayout(gbl_searchPatternsPanel);
+
         btnGenerateSearchPattern = new JButton("Generate Search Pattern");
-        searchPatternsPanel.add(btnGenerateSearchPattern);
+        btnGenerateSearchPattern.setEnabled(false);
+        GridBagConstraints gbc_btnGenerateSearchPattern = new GridBagConstraints();
+        gbc_btnGenerateSearchPattern.insets = new Insets(0, 0, 5, 0);
+        gbc_btnGenerateSearchPattern.gridx = 0;
+        gbc_btnGenerateSearchPattern.gridy = 0;
+        searchPatternsPanel.add(btnGenerateSearchPattern,
+                gbc_btnGenerateSearchPattern);
+
+        chckbxShowDynamicPattern = new JCheckBox("Show Dynamic Pattern");
+        chckbxShowDynamicPattern.setSelected(false);
+        chckbxShowDynamicPattern.setEnabled(false);
+        chckbxShowDynamicPattern.addActionListener(this);
+        GridBagConstraints gbc_chckbxShowDynamicPattern = new GridBagConstraints();
+        gbc_chckbxShowDynamicPattern.gridx = 0;
+        gbc_chckbxShowDynamicPattern.gridy = 1;
+        searchPatternsPanel.add(chckbxShowDynamicPattern,
+                gbc_chckbxShowDynamicPattern);
         btnGenerateSearchPattern.addActionListener(this);
     }
 
@@ -691,6 +722,8 @@ public class SARPanel extends JPanel implements ActionListener {
      */
     public void setVoctManager(VOCTManager voctManager) {
         this.voctManager = voctManager;
+        effortAllocationWindow.setVoctManager(voctManager);
+        searchPatternDialog.setVoctManager(voctManager);
     }
 
     @Override
@@ -699,36 +732,38 @@ public class SARPanel extends JPanel implements ActionListener {
         if (arg0.getSource() == btnStartSar
                 || arg0.getSource() == btnReopenCalculations) {
 
-            
-            
-//            Position startPos = Position.create(56, 0);
-//            
-//            Ellipsoid reference = Ellipsoid.WGS84;
-//            double[] endBearing = new double[1];
-//
-//            // Object starts at LKP, with TWCheading, drifting for currentWTC
-//            // knots where will it end up
-//            Position newPos = Calculator.calculateEndingGlobalCoordinates(
-//                    reference, startPos, 270,
-//                    100, endBearing);
-//            
-//            System.out.println("Position Start = " + startPos);
-//            System.out.println("Moving 1 meter at 270 degrees gives us " + newPos);
-//            
-//            double bearingPos = startPos.rhumbLineBearingTo(newPos);
-//            
-//            
-//            
-//            System.out.println("Rhumb line gives us " + bearingPos);
-//            
-//            double calcPos = Calculator.bearing(startPos, newPos, Heading.RL);
-//            
-//            System.out.println("Calculator bearing gives us " + calcPos);
-            
-//            Calculator.bearing(pos1, pos2, heading)
-//            Calculator.calculateEndingGlobalCoordinates(ellipsoid, start, startBearing, distance, endBearing)
-            
-            
+            // Position startPos = Position.create(56, 0);
+            //
+            // Ellipsoid reference = Ellipsoid.WGS84;
+            // double[] endBearing = new double[1];
+            //
+            // // Object starts at LKP, with TWCheading, drifting for currentWTC
+            // // knots where will it end up
+            // Position newPos = Calculator.calculateEndingGlobalCoordinates(
+            // reference, startPos, 270,
+            // 100, endBearing);
+            //
+            // System.out.println("Position Start = " + startPos);
+            // System.out.println("Moving 1 meter at 270 degrees gives us " +
+            // newPos);
+            //
+            // double bearingPos = startPos.rhumbLineBearingTo(newPos);
+            //
+            //
+            //
+            // System.out.println("Rhumb line gives us " + bearingPos);
+            //
+            // double calcPos = Calculator.bearing(startPos, newPos,
+            // Heading.RL);
+            //
+            // System.out.println("Calculator bearing gives us " + calcPos);
+
+            // Calculator.bearing(pos1, pos2, heading)
+            // Calculator.calculateEndingGlobalCoordinates(ellipsoid, start,
+            // startBearing, distance, endBearing)
+
+            // searchPatternDialog.setVisible(true);
+
             if (voctManager != null) {
 
                 voctManager.showSarInput();
@@ -743,49 +778,100 @@ public class SARPanel extends JPanel implements ActionListener {
             if (voctManager != null && voctManager.isHasSar()) {
 
                 // Determine what type of SAR then retrieve the input data
-                if (effortAllocationWindow == null) {
-                    effortAllocationWindow = new EffortAllocationWindow(
-                            voctManager);
+                if (effortAllocationWindow != null) {
+                    effortAllocationWindow.setValues();
                     effortAllocationWindow
-                            .setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+                            .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+                    effortAllocationWindow.setVisible(true);
                 }
-                
-                effortAllocationWindow.setVisible(true);
 
             }
             return;
         }
+
+        if (arg0.getSource() == btnGenerateSearchPattern) {
+
+            if (searchPatternDialog != null) {
+                searchPatternDialog.setValues();
+                searchPatternDialog
+                        .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+                searchPatternDialog.setVisible(true);
+            }
+            
+            return;
+        }
         
-        
-        if (arg0.getSource() == btnGenerateSearchPattern){
-//            voctManager.generateSearchPattern();
-            searchPatternDialog = new SearchPatternDialog();
-            searchPatternDialog.setVisible(true);
+        if (arg0.getSource() == chckbxShowDynamicPattern){
+            
+            if(chckbxShowDynamicPattern.isSelected()){
+                sarData.getSearchPatternRoute().switchToDynamic();    
+            }else{
+                sarData.getSearchPatternRoute().switchToStatic();
+            }
+            
+            EPDShip.getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_CHANGED);
+            
+            
+            return;
         }
 
     }
 
     public void sarComplete(RapidResponseData data) {
+        this.sarData = data;
+        poDVal.setText("N/A");
+        searchAreaSizeVal.setText("N/A");
+        searchCraftGroundSpeedVal.setText("N/A");
+        trackSpacingVal.setText("N/A");
+        timeSpentSearchingVal.setValue(0);
+        timeSpentSearchingVal.setEnabled(false);
+        
+        
+        btnGenerateSearchPattern.setEnabled(false);
+        chckbxShowDynamicPattern.setEnabled(false);
+
+        // Hide if window is currently visible, could be from user clicking on
+        // map in full screen mode
+        searchPatternDialog.setVisible(false);
+
         setRapidResponseData(data);
         CardLayout cl = (CardLayout) (this.getLayout());
         cl.show(this, SARPANEL);
     }
-
-    public void effortAllocationComplete(RapidResponseData data){
-        poDVal.setText(data.getEffortAllocationData().getPod() * 100 + "%");
-        searchAreaSizeVal.setText(Formatter.formatDouble(data.getEffortAllocationData().getEffectiveAreaSize(), 2) + " nm2");
-        searchCraftGroundSpeedVal.setText(Formatter.formatDouble(data.getEffortAllocationData().getGroundSpeed(), 0) + " knots");
-        trackSpacingVal.setText(Formatter.formatDouble(data.getEffortAllocationData().getTrackSpacing(), 2) + " nm");
-        timeSpentSearchingVal.setValue(data.getEffortAllocationData().getSearchTime());
+    
+    public void searchPatternGenerated(SARData sarData){
+        chckbxShowDynamicPattern.setEnabled(true);
+        chckbxShowDynamicPattern.setSelected(false);
     }
-    
-    
+
+    public void effortAllocationComplete(RapidResponseData data) {
+        this.sarData = data;
+        poDVal.setText(data.getEffortAllocationData().getPod() * 100 + "%");
+        searchAreaSizeVal.setText(Formatter.formatDouble(data
+                .getEffortAllocationData().getEffectiveAreaSize(), 2)
+                + " nm2");
+        searchCraftGroundSpeedVal.setText(Formatter.formatDouble(data
+                .getEffortAllocationData().getGroundSpeed(), 0)
+                + " knots");
+        trackSpacingVal.setText(Formatter.formatDouble(data
+                .getEffortAllocationData().getTrackSpacing(), 2)
+                + " nm");
+        timeSpentSearchingVal.setValue(data.getEffortAllocationData()
+                .getSearchTime());
+        btnGenerateSearchPattern.setEnabled(true);
+        chckbxShowDynamicPattern.setEnabled(false);
+    }
+
     public void sarCancel() {
         CardLayout cl = (CardLayout) (this.getLayout());
         cl.show(this, NOSARPANEL);
+        chckbxShowDynamicPattern.setEnabled(false);
     }
 
     private void setRapidResponseData(RapidResponseData data) {
+
+        sarData = data;
+
         DateTimeFormatter fmt = DateTimeFormat
                 .forPattern("HH':'mm '-' dd'/'MM");
 

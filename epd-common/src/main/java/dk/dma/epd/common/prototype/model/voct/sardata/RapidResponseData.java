@@ -23,24 +23,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 import dk.dma.epd.common.text.Formatter;
 
-
-public class RapidResponseData extends SARData{
-
-    private DateTime LKPDate;
-    private DateTime CSSDate;
-
-    private Position LKP;
-    private Position CSP;
-    private double x;
-    private double y;
-    private double SF;
-    private int searchObject;
-    private double TWCHeading;
-    private double TWCknots;
-
-    private double LWknots;
-    private double LWHeading;
-    private double downWind;
+public class RapidResponseData extends SARData {
 
     private Position datum;
     private Position wtc;
@@ -58,42 +41,21 @@ public class RapidResponseData extends SARData{
     private Position C;
     private Position D;
 
-    
-    
-   
-    
-    
-    
-    // public RapidResponseData(Position lKP, Position datum, Position wtc,
-    // double radius, DateTime LKPDate, DateTime CSSDate) {
-    // super();
-    // LKP = lKP;
-    // this.datum = datum;
-    // this.wtc = wtc;
-    // this.radius = radius;
-    // this.LKPDate = LKPDate;
-    // this.CSSDate = CSSDate;
-    // }
 
     // Init data
-    public RapidResponseData(DateTime TLKP, DateTime CSS, Position LKP,
-            double TWCknots, double TWCHeading, double LWknots,
-            double LWHeading, double x, double y, double SF, int searchObject) {
+    public RapidResponseData(String sarID, DateTime TLKP, DateTime CSS, Position LKP,
+            double x, double y, double SF, int searchObject) {
 
-        this.LKP = LKP;
-        this.LKPDate = TLKP;
-        this.CSSDate = CSS;
+        this.setSarID(sarID);
         
-        this.TWCknots = TWCknots;
-        this.TWCHeading = TWCHeading;
-        this.LWknots = LWknots;
-        this.LWHeading = LWHeading;
+        this.setLKP(LKP);
+        this.setLKPDate(TLKP);
+        this.setCSSDate(CSS);
 
-        this.x = x;
-        this.y = y;
-        this.SF = SF;
-        this.searchObject = searchObject;
-
+        this.setX(x);
+        this.setY(y);
+        this.setSF(SF);
+        this.setSearchObject(searchObject);
     }
 
     public void setBox(Position A, Position B, Position C, Position D) {
@@ -103,10 +65,6 @@ public class RapidResponseData extends SARData{
         this.D = D;
     }
 
-    
-    
-    
-  
     /**
      * @return the rdvDirection
      */
@@ -153,186 +111,6 @@ public class RapidResponseData extends SARData{
     }
 
     /**
-     * @return the downWind
-     */
-    public double getDownWind() {
-        return downWind;
-    }
-
-    /**
-     * @param downWind
-     *            the downWind to set
-     */
-    public void setDownWind(double downWind) {
-        this.downWind = downWind;
-    }
-
-    /**
-     * @return the lKPDate
-     */
-    public DateTime getLKPDate() {
-        return LKPDate;
-    }
-
-    /**
-     * @param lKPDate
-     *            the lKPDate to set
-     */
-    public void setLKPDate(DateTime lKPDate) {
-        LKPDate = lKPDate;
-    }
-
-    /**
-     * @return the cSSDate
-     */
-    public DateTime getCSSDate() {
-        return CSSDate;
-    }
-
-    /**
-     * @param cSSDate
-     *            the cSSDate to set
-     */
-    public void setCSSDate(DateTime cSSDate) {
-        CSSDate = cSSDate;
-    }
-
-    /**
-     * @return the cSP
-     */
-    public Position getCSP() {
-        return CSP;
-    }
-
-    /**
-     * @param cSP
-     *            the cSP to set
-     */
-    public void setCSP(Position cSP) {
-        CSP = cSP;
-    }
-
-    /**
-     * @return the x
-     */
-    public double getX() {
-        return x;
-    }
-
-    /**
-     * @param x
-     *            the x to set
-     */
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    /**
-     * @return the y
-     */
-    public double getY() {
-        return y;
-    }
-
-    /**
-     * @param y
-     *            the y to set
-     */
-    public void setY(double y) {
-        this.y = y;
-    }
-
-    /**
-     * @return the sF
-     */
-    public double getSF() {
-        return SF;
-    }
-
-    /**
-     * @param sF
-     *            the sF to set
-     */
-    public void setSF(double sF) {
-        SF = sF;
-    }
-
-    /**
-     * @return the searchObject
-     */
-    public int getSearchObject() {
-        return searchObject;
-    }
-
-    /**
-     * @param searchObject
-     *            the searchObject to set
-     */
-    public void setSearchObject(int searchObject) {
-        this.searchObject = searchObject;
-    }
-
-    /**
-     * @return the tWCHeading
-     */
-    public double getTWCHeading() {
-        return TWCHeading;
-    }
-
-    /**
-     * @param tWCHeading
-     *            the tWCHeading to set
-     */
-    public void setTWCHeading(double tWCHeading) {
-        TWCHeading = tWCHeading;
-    }
-
-    /**
-     * @return the tWCknots
-     */
-    public double getTWCknots() {
-        return TWCknots;
-    }
-
-    /**
-     * @param tWCknots
-     *            the tWCknots to set
-     */
-    public void setTWCknots(double tWCknots) {
-        TWCknots = tWCknots;
-    }
-
-    /**
-     * @return the lWknots
-     */
-    public double getLWknots() {
-        return LWknots;
-    }
-
-    /**
-     * @param lWknots
-     *            the lWknots to set
-     */
-    public void setLWknots(double lWknots) {
-        LWknots = lWknots;
-    }
-
-    /**
-     * @return the lWHeading
-     */
-    public double getLWHeading() {
-        return LWHeading;
-    }
-
-    /**
-     * @param lWHeading
-     *            the lWHeading to set
-     */
-    public void setLWHeading(double lWHeading) {
-        LWHeading = lWHeading;
-    }
-
-    /**
      * @return the timeElasped
      */
     public double getTimeElasped() {
@@ -345,14 +123,6 @@ public class RapidResponseData extends SARData{
      */
     public void setTimeElasped(double timeElasped) {
         this.timeElasped = timeElasped;
-    }
-
-    /**
-     * @param lKP
-     *            the lKP to set
-     */
-    public void setLKP(Position lKP) {
-        LKP = lKP;
     }
 
     /**
@@ -412,13 +182,6 @@ public class RapidResponseData extends SARData{
     }
 
     /**
-     * @return the lKP
-     */
-    public Position getLKP() {
-        return LKP;
-    }
-
-    /**
      * @return the datum
      */
     public Position getDatum() {
@@ -467,15 +230,11 @@ public class RapidResponseData extends SARData{
         return D;
     }
 
-    
-    
-    
-
     public String generateHTML() {
-        
-        
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMMM, yyyy, 'at.' HH':'mm");
-        
+
+        DateTimeFormatter fmt = DateTimeFormat
+                .forPattern("dd MMMM, yyyy, 'at.' HH':'mm");
+
         // // Generate a html sheet of rapid response calculations
         StringBuilder str = new StringBuilder();
         // String name = "How does this look";
@@ -487,31 +246,43 @@ public class RapidResponseData extends SARData{
         str.append("<h1>Search and Rescue - Rapid Response</h1>");
         str.append("<hr>");
         str.append("<font size=\"4\">");
-        str.append("Time of Last Known Position: " + fmt.print(LKPDate) + "");
-        str.append("<br>Last Known Position: " + LKP.toString() + "</br>");
-        str.append("<br>Commence Search Start time: " + fmt.print(CSSDate) + "</br>");
+        str.append("Time of Last Known Position: "
+                + fmt.print(this.getLKPDate()) + "");
+        str.append("<br>Last Known Position: " + this.getLKP().toString()
+                + "</br>");
+        str.append("<br>Commence Search Start time: "
+                + fmt.print(this.getCSSDate()) + "</br>");
+
+        str.append(this.getWeatherPoints().get(0).generateHTML());
+
         str.append("<hr>");
         str.append("<font size=\"4\">");
-        str.append("Total Water Current: " + TWCknots + " knots with heading " + TWCHeading + "°");
-        str.append("<br>Leeway: " + LWknots + " knots with heading " + LWHeading + "°</br>");
+        str.append("Initial Position Error, X in nautical miles: "
+                + this.getX() + "");
+        str.append("<br>SRU Navigational Error, Y in nautical miles: "
+                + this.getY() + "</br>");
+        str.append("<br>Safety Factor, Fs: " + this.getSF() + "</br>");
         str.append("<hr>");
         str.append("<font size=\"4\">");
-        str.append("Initial Position Error, X in nautical miles: " + x + "");
-        str.append("<br>SRU Navigational Error, Y in nautical miles: " + y + "</br>");
-        str.append("<br>Safety Factor, Fs: " + SF + "</br>");
-        str.append("<hr>");
-        str.append("<font size=\"4\">");
-        str.append("Search Object: " + LeewayValues.getLeeWayTypes().get(searchObject) + "");
-        str.append("<br>With value: " + LeewayValues.getLeeWayContent().get(searchObject) + "</br>");
+        str.append("Search Object: "
+                + LeewayValues.getLeeWayTypes().get(this.getSearchObject())
+                + "");
+        str.append("<br>With value: "
+                + LeewayValues.getLeeWayContent().get(this.getSearchObject())
+                + "</br>");
         str.append("<hr>");
         str.append("<font size=\"4\">");
         str.append("Time Elapsed: " + Formatter.formatHours(timeElasped) + "");
-        str.append("<br>Applying Leeway and TWC gives a datum of  " + datum.toString() + "</br>");
+        str.append("<br>Applying Leeway and TWC gives a datum of  "
+                + datum.toString() + "</br>");
         str.append("<br>With the following Residual Drift Vector</br>");
         str.append("<br>RDV Direction: " + rdvDirection + "°</br>");
-        str.append("<br>RDV Distance: " + Formatter.formatDouble(rdvDistance, 2) + " nm</br>");
-        str.append("<br>RDV Speed: " + Formatter.formatDouble(rdvSpeed, 2) + " kn/h</br>");
-        str.append("<br>With radius: " + Formatter.formatDouble(radius, 2) + "nm </br>");
+        str.append("<br>RDV Distance: "
+                + Formatter.formatDouble(rdvDistance, 2) + " nm</br>");
+        str.append("<br>RDV Speed: " + Formatter.formatDouble(rdvSpeed, 2)
+                + " kn/h</br>");
+        str.append("<br>With radius: " + Formatter.formatDouble(radius, 2)
+                + "nm </br>");
         str.append("<hr>");
         str.append("<font size=\"4\">");
         str.append("Search Area:");
@@ -519,7 +290,9 @@ public class RapidResponseData extends SARData{
         str.append("<br>B: " + B.toString() + "</br>");
         str.append("<br>C: " + C.toString() + "</br>");
         str.append("<br>D: " + D.toString() + "</br>");
-        str.append("<br>Total Size: " + Formatter.formatDouble(radius*2*radius*2, 2) + " nm2</br>");
+        str.append("<br>Total Size: "
+                + Formatter.formatDouble(radius * 2 * radius * 2, 2)
+                + " nm2</br>");
 
         str.append("</font>");
         str.append("</td>");
@@ -533,7 +306,5 @@ public class RapidResponseData extends SARData{
 
         return str.toString();
     }
-    
-    
-    
+
 }

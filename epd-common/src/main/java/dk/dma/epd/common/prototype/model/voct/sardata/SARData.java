@@ -15,11 +15,34 @@
  */
 package dk.dma.epd.common.prototype.model.voct.sardata;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.joda.time.DateTime;
+
+import dk.dma.enav.model.geometry.Position;
+
 public class SARData {
 
     
-    EffortAllocationData effortAllocationData;
+    String sarID;
+    private DateTime LKPDate;
+    private DateTime CSSDate;
 
+    private Position LKP;
+    private Position CSP;
+    EffortAllocationData effortAllocationData = new EffortAllocationData();
+
+    private double x;
+    private double y;
+    private double SF;
+    
+    private int searchObject;
+
+    private List<SARWeatherData> weatherPoints = new ArrayList<SARWeatherData>();
+    
+    SearchPatternRoute searchPatternRoute;
+    
     /**
      * @return the effortAllocationData
      */
@@ -35,6 +58,170 @@ public class SARData {
     }
     
     
+
+    /**
+     * @return the lKPDate
+     */
+    public DateTime getLKPDate() {
+        return LKPDate;
+    }
+
+    /**
+     * @param lKPDate
+     *            the lKPDate to set
+     */
+    public void setLKPDate(DateTime lKPDate) {
+        LKPDate = lKPDate;
+    }
+
+    /**
+     * @return the cSSDate
+     */
+    public DateTime getCSSDate() {
+        return CSSDate;
+    }
+
+    /**
+     * @param cSSDate
+     *            the cSSDate to set
+     */
+    public void setCSSDate(DateTime cSSDate) {
+        CSSDate = cSSDate;
+    }
+
+    /**
+     * @return the cSP
+     */
+    public Position getCSP() {
+        return CSP;
+    }
+
+    /**
+     * @param cSP
+     *            the cSP to set
+     */
+    public void setCSP(Position cSP) {
+        CSP = cSP;
+    }
+
+    /**
+     * @return the x
+     */
+    public double getX() {
+        return x;
+    }
+
+    /**
+     * @param x
+     *            the x to set
+     */
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    /**
+     * @return the y
+     */
+    public double getY() {
+        return y;
+    }
+
+    /**
+     * @param y
+     *            the y to set
+     */
+    public void setY(double y) {
+        this.y = y;
+    }
+
+    /**
+     * @return the sF
+     */
+    public double getSF() {
+        return SF;
+    }
+
+    /**
+     * @param sF
+     *            the sF to set
+     */
+    public void setSF(double sF) {
+        SF = sF;
+    }
+
+    /**
+     * @return the searchObject
+     */
+    public int getSearchObject() {
+        return searchObject;
+    }
+    
+    /**
+     * @param searchObject
+     *            the searchObject to set
+     */
+    public void setSearchObject(int searchObject) {
+        this.searchObject = searchObject;
+    }
+
+    /**
+     * @param lKP
+     *            the lKP to set
+     */
+    public void setLKP(Position lKP) {
+        LKP = lKP;
+    }
+    
+    /**
+     * @return the lKP
+     */
+    public Position getLKP() {
+        return LKP;
+    }
+
+    /**
+     * @return the weatherPoints
+     */
+    public List<SARWeatherData> getWeatherPoints() {
+        return weatherPoints;
+    }
+
+    /**
+     * @param weatherPoints the weatherPoints to set
+     */
+    public void setWeatherPoints(List<SARWeatherData> weatherPoints) {
+        this.weatherPoints = weatherPoints;
+    }
+
+    /**
+     * @return the searchPatternRoute
+     */
+    public SearchPatternRoute getSearchPatternRoute() {
+        return searchPatternRoute;
+    }
+
+    /**
+     * @param searchPatternRoute the searchPatternRoute to set
+     */
+    public void setSearchPatternRoute(SearchPatternRoute searchPatternRoute) {
+        this.searchPatternRoute = searchPatternRoute;
+    }
+
+    /**
+     * @return the sarID
+     */
+    public String getSarID() {
+        return sarID;
+    }
+
+    /**
+     * @param sarID the sarID to set
+     */
+    public void setSarID(String sarID) {
+        this.sarID = sarID;
+    }
+
     
     
+
 }
