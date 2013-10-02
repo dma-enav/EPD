@@ -46,14 +46,12 @@ public class SarLinesGraphics extends OMGraphicList {
     private Rectangle hatchFillRectangle;
     private BufferedImage hatchFill;
 
-    
-
     float[] dash = { 0.1f };
-    
-    public SarLinesGraphics(Position LKP, Position current, Position datum           ) {
+
+    public SarLinesGraphics(Position LKP, Position current, Position datum, boolean downWind, String datumLabelTxt) {
         super();
 
-//        this.nogoColor = color;
+        // this.nogoColor = color;
 
         // Draw the data
 
@@ -66,60 +64,47 @@ public class SarLinesGraphics extends OMGraphicList {
 
         hatchFillRectangle = new Rectangle(0, 0, 10, 10);
         big.setComposite(originalComposite);
-        
+
         lineType = LINETYPE_RHUMB;
 
-        
-        //RDV
+        // RDV
         drawLine(LKP, datum);
-        
-        // TWC
-        drawLine(LKP, current);
-        
-        // LW
-        drawLine(current, datum);
-        
+
         Font font = new Font(Font.DIALOG, Font.PLAIN, 12);
         
-        OMText LKPlabel = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);    
-        LKPlabel.setLat(LKP.getLatitude());
-        LKPlabel.setLon(LKP.getLongitude());
-        LKPlabel.setY(25);
-        LKPlabel.setLinePaint(Color.black);
-        LKPlabel.setTextMatteColor(Color.WHITE);
-        LKPlabel.setData("LKP");
-        add(LKPlabel);
+        if (downWind){
+            // TWC
+            drawLine(LKP, current);
+            
+            OMText LKPlabel = new OMText(0, 0, 0, 0, "", font,
+                    OMText.JUSTIFY_CENTER);
+            LKPlabel.setLat(LKP.getLatitude());
+            LKPlabel.setLon(LKP.getLongitude());
+            LKPlabel.setY(25);
+            LKPlabel.setLinePaint(Color.black);
+            LKPlabel.setTextMatteColor(Color.WHITE);
+            LKPlabel.setData("LKP");
+            add(LKPlabel);
+        }
+
+        // LW
+        drawLine(current, datum);
+
         
-        OMText datumLabel = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);    
+
+        
+        
+
+
+        OMText datumLabel = new OMText(0, 0, 0, 0, "", font,
+                OMText.JUSTIFY_CENTER);
         datumLabel.setLat(datum.getLatitude());
         datumLabel.setLon(datum.getLongitude());
         datumLabel.setY(25);
         datumLabel.setLinePaint(Color.black);
         datumLabel.setTextMatteColor(Color.WHITE);
-        datumLabel.setData("Datum");
+        datumLabel.setData(datumLabelTxt);
         add(datumLabel);
-        
-        
-        
-//        drawCircle(datum, radius);
-
-        // drawAreaBox();
-        // drawPolyline();
-//        drawPolygon(A, B, C, D);
-        // drawPoints();
-
-        // Draw the message
-//        if (errorCode == -1 || errorCode == 1 || errorCode == 17) {
-//            OMPoint polyPoint = new OMPoint(0, 0);
-//
-//            // Dummy point to make selection appear
-//            // polyPoint.setVisible(false);
-//            add(polyPoint);
-//        }
-
-//        if (frame) {
-//            drawAreaBox();
-//        }
 
     }
 
@@ -128,27 +113,27 @@ public class SarLinesGraphics extends OMGraphicList {
         return AlphaComposite.getInstance(type, alpha);
     }
 
-
-    private void drawLine(Position A, Position B){
+    private void drawLine(Position A, Position B) {
         OMArrowHead arrow = new OMArrowHead(
                 OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, 1, 5);
-        
-        OMLine line = new OMLine(A.getLatitude(), A.getLongitude(), B.getLatitude(), B.getLongitude(), lineType);
-        
+
+        OMLine line = new OMLine(A.getLatitude(), A.getLongitude(),
+                B.getLatitude(), B.getLongitude(), lineType);
+
         line.setLinePaint(Color.black);
         line.setStroke(new BasicStroke(2.0f, BasicStroke.JOIN_MITER,
                 BasicStroke.JOIN_MITER, 1.0f, dash, 0.0f));
 
         line.setArrowHead(arrow);
-        
+
         add(line);
 
-        
     }
 
     private void drawCircle(Position datum, double radius) {
-         
-        OMCircle cirle = new OMCircle(datum.getLatitude(), datum.getLongitude(), radius, Length.NM);
+
+        OMCircle cirle = new OMCircle(datum.getLatitude(),
+                datum.getLongitude(), radius, Length.NM);
         cirle.setLinePaint(Color.black);
         cirle.setFillPaint(new Color(0, 0, 0, 1));
         cirle.setTextureMask(new TexturePaint(hatchFill, hatchFillRectangle));
@@ -156,7 +141,6 @@ public class SarLinesGraphics extends OMGraphicList {
         add(cirle);
     }
 
-    
     @Override
     public void render(Graphics gr) {
         Graphics2D image = (Graphics2D) gr;

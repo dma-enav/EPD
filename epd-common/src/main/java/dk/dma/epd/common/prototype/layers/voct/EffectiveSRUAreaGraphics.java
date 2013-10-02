@@ -20,6 +20,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 
@@ -40,7 +41,7 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
     Double totalSize;
 
     
-    RapidResponseData rapidResponseData;
+    SARData sarData;
     
     
     public enum LineType {
@@ -48,15 +49,15 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
     }
 
     public EffectiveSRUAreaGraphics(Position startPos, Double width,
-            Double height, RapidResponseData data) {
+            Double height, SARData data) {
         super();
 
         
-        this.rapidResponseData= data;
+        this.sarData = data;
         
         totalSize = width * height; 
         
-        System.out.println("Back to origianal size is: " + width*height);
+        System.out.println("Back to original size is: " + width*height);
         
         A = startPos;
         B = Calculator
@@ -68,13 +69,13 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
                 .findPosition(C, 90, Converter.nmToMeters(width));
 
         
-        rapidResponseData.getEffortAllocationData().setEffectiveAreaA(A);
-        rapidResponseData.getEffortAllocationData().setEffectiveAreaB(B);
-        rapidResponseData.getEffortAllocationData().setEffectiveAreaC(C);
-        rapidResponseData.getEffortAllocationData().setEffectiveAreaD(D);
+        sarData.getEffortAllocationData().setEffectiveAreaA(A);
+        sarData.getEffortAllocationData().setEffectiveAreaB(B);
+        sarData.getEffortAllocationData().setEffectiveAreaC(C);
+        sarData.getEffortAllocationData().setEffectiveAreaD(D);
         
-        rapidResponseData.getEffortAllocationData().setEffectiveAreaHeight(height);
-        rapidResponseData.getEffortAllocationData().setEffectiveAreaWidth(width);
+        sarData.getEffortAllocationData().setEffectiveAreaHeight(height);
+        sarData.getEffortAllocationData().setEffectiveAreaWidth(width);
         
         effectiveArea = new AreaInternalGraphics(A, B, C, D, width, height,
                 this);
@@ -92,7 +93,6 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         add(topLine);
         add(leftLine);
         add(rightLine);
-        
         
 
     }
@@ -220,13 +220,13 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         System.out.println("Updating effective area values");
         
         
-        rapidResponseData.getEffortAllocationData().setEffectiveAreaA(A);
-        rapidResponseData.getEffortAllocationData().setEffectiveAreaB(B);
-        rapidResponseData.getEffortAllocationData().setEffectiveAreaC(C);
-        rapidResponseData.getEffortAllocationData().setEffectiveAreaD(D);
+        sarData.getEffortAllocationData().setEffectiveAreaA(A);
+        sarData.getEffortAllocationData().setEffectiveAreaB(B);
+        sarData.getEffortAllocationData().setEffectiveAreaC(C);
+        sarData.getEffortAllocationData().setEffectiveAreaD(D);
         
-        rapidResponseData.getEffortAllocationData().setEffectiveAreaHeight(height);
-        rapidResponseData.getEffortAllocationData().setEffectiveAreaWidth(width);
+        sarData.getEffortAllocationData().setEffectiveAreaHeight(height);
+        sarData.getEffortAllocationData().setEffectiveAreaWidth(width);
         
         
         

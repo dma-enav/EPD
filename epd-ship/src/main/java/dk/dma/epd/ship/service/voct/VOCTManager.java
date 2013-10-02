@@ -29,7 +29,9 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARWeatherData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
 import dk.dma.epd.common.util.Util;
@@ -61,7 +63,8 @@ public class VOCTManager implements Runnable, Serializable {
 
     private CopyOnWriteArrayList<VOCTUpdateListener> listeners = new CopyOnWriteArrayList<>();
 
-    private RapidResponseData rapidResponseData;
+    private SARData sarData;
+    
     VoctLayer voctLayer;
 
     public VOCTManager() {
@@ -115,17 +118,33 @@ public class VOCTManager implements Runnable, Serializable {
         }
         return SAR_TYPE.NONE;
     }
+    
 
-    public void inputRapidResponseData(String sarID, DateTime TLKP, DateTime CSS,
+    public void inputRapidResponseDatumData(String sarID, DateTime TLKP, DateTime CSS,
             Position LKP, double x, double y, double SF, int searchObject,
             List<SARWeatherData> sarWeatherDataPoints) {
 
-        RapidResponseData data = new RapidResponseData(sarID, TLKP, CSS, LKP, x, y,
-                SF, searchObject);
+        if (getSarType() == SAR_TYPE.RAPID_RESPONSE){
+            RapidResponseData data = new RapidResponseData(sarID, TLKP, CSS, LKP, x, y,
+                    SF, searchObject);
+            
+            data.setWeatherPoints(sarWeatherDataPoints);
+            
+            sarOperation.startRapidResponseCalculations(data);
+        }
         
-        data.setWeatherPoints(sarWeatherDataPoints);
+
         
-        sarOperation.startRapidResponseCalculations(data);
+        if (getSarType() == SAR_TYPE.DATUM_POINT){
+            DatumPointData data = new DatumPointData(sarID, TLKP, CSS, LKP, x, y,
+                    SF, searchObject);
+            
+            data.setWeatherPoints(sarWeatherDataPoints);
+            
+            sarOperation.startDatumPointCalculations(data);
+        }
+
+
     }
 
     /**
@@ -177,26 +196,27 @@ public class VOCTManager implements Runnable, Serializable {
         listeners.remove(listener);
     }
 
+
     /**
-     * @return the rapidResponseData
+     * @return the sarData
      */
-    public RapidResponseData getRapidResponseData() {
-        return rapidResponseData;
+    public SARData getSarData() {
+        return sarData;
     }
 
     /**
-     * @param rapidResponseData
-     *            the rapidResponseData to set
+     * @param sarData the sarData to set
      */
-    public void setRapidResponseData(RapidResponseData rapidResponseData) {
-        this.rapidResponseData = rapidResponseData;
-
+    public void setSarData(SARData sarData) {
+        this.sarData = sarData;
+        
         notifyListeners(VOCTUpdateEvent.SAR_READY);
     }
 
+
     public void EffortAllocationDataEntered() {
         notifyListeners(VOCTUpdateEvent.EFFORT_ALLOCATION_READY);
-        sarOperation.calculateEffortAllocation(rapidResponseData);
+        sarOperation.calculateEffortAllocation(sarData);
 
         System.out.println("Display");
         notifyListeners(VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY);
@@ -205,21 +225,21 @@ public class VOCTManager implements Runnable, Serializable {
     
     public void generateSearchPattern(SearchPatternGenerator.searchPattern type, Position CSP){
         
-        rapidResponseData.setCSP(CSP);
+        sarData.setCSP(CSP);
         
         SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(this, sarOperation);
         
-        SearchPatternRoute searchRoute = searchPatternGenerator.generateSearchPattern(type, rapidResponseData);
+        SearchPatternRoute searchRoute = searchPatternGenerator.generateSearchPattern(type, sarData);
         
         //Remove old and overwrite
-        if (rapidResponseData.getSearchPatternRoute() != null){
-            int routeIndex = EPDShip.getRouteManager().getRouteIndex(rapidResponseData.getSearchPatternRoute());
+        if (sarData.getSearchPatternRoute() != null){
+            int routeIndex = EPDShip.getRouteManager().getRouteIndex(sarData.getSearchPatternRoute());
          
             EPDShip.getRouteManager().removeRoute(routeIndex);
         }
         
         
-        rapidResponseData.setSearchPatternRoute(searchRoute);
+        sarData.setSearchPatternRoute(searchRoute);
         
         EPDShip.getRouteManager().addRoute(searchRoute);
         

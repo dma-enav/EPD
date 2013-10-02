@@ -31,9 +31,12 @@ import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics;
 import dk.dma.epd.common.prototype.layers.voct.SarEffectiveAreaLines;
 import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
 import dk.dma.epd.common.prototype.layers.voct.SearchPatternTemp;
+import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.service.voct.VOCTManager;
@@ -216,7 +219,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             }
 
             // if (!(newPos == initialBoxRelativePosition)){
-            selectedArea.moveRelative(newPos, voctManager.getRapidResponseData());
+            selectedArea.moveRelative(newPos, voctManager.getSarData());
             // }
 
             doPrepare();
@@ -306,7 +309,13 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         }
 
         if (e == VOCTUpdateEvent.SAR_DISPLAY) {
-            drawRapidResponse();
+            if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
+                drawRapidResponse();
+            }
+            if (voctManager.getSarType() == SAR_TYPE.DATUM_POINT) {
+                drawDatumPoint();
+            }
+            
             this.setVisible(true);
         }
 
@@ -316,22 +325,44 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         }
 
     }
+    
+    
+    
+    
+    private void drawDatumPoint() {
+
+        DatumPointData data = (DatumPointData) voctManager.getSarData();
+
+//        Position A = data.getA();
+//        Position B = data.getB();
+//        Position C = data.getC();
+//        Position D = data.getD();
+
+        Position datumDownWind = data.getDatumDownWind();
+        Position datumMin = data.getDatumMin();
+        Position datumMax = data.getDatumMax();
+        
+        double radiusDownWind = data.getRadiusDownWind();
+        double radiusMin = data.getRadiusMin();
+        double radiusMax = data.getRadiusMax();
+
+        Position LKP = data.getLKP();
+        Position WTCPoint = data.getWtc();
+
+        graphics.clear();
+
+//        public SarGraphics(Position datumDownWind, Position datumMin, Position datumMax, double radiusDownWind, double radiusMin, double radiusMax, Position LKP, Position current) {
+        SarGraphics sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint);
+
+        graphics.add(sarGraphics);
+
+        doPrepare();
+    }
+
 
     private void drawRapidResponse() {
 
-        // Position A = Position.create(56.3318597430453, 7.906002842313335);
-        // Position B = Position.create(56.3318597430453, 8.062171759296268);
-        // Position C = Position.create(56.24510270810811, 8.061995117339452);
-        // Position D = Position.create(56.24510270810811, 7.906179484270152);
-        //
-        // Position datum = Position.create(56.2885059390279,
-        // 7.984087300804801);
-        // double radius = 2.6080318165935816;
-        //
-        // Position LKP = Position.create(56.37167, 7.966667);
-        // Position WTCPoint = Position.create(56.28850716421507, 7.966667);
-
-        RapidResponseData data = voctManager.getRapidResponseData();
+        RapidResponseData data = (RapidResponseData) voctManager.getSarData();
 
         Position A = data.getA();
         Position B = data.getB();
@@ -357,13 +388,6 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
         System.out.println("Datum is: " + datum);
 
-        // SomeGraphics routeLegGraphic = new SomeGraphics(A, B, C, D);
-        // graphics.add(routeLegGraphic);
-        //
-        // WaypointCircle wpCircle = new
-        // WaypointCircle(EPDShip.getRouteManager().getRoute(0), 0, 0);
-        // graphics.add(wpCircle);
-
         doPrepare();
     }
 
@@ -375,15 +399,16 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             graphics.remove(effectiveArea);
         }
 
-        RapidResponseData data = voctManager.getRapidResponseData();
+        SARData data = voctManager.getSarData();
 
         // PoD for each SRU, initialized with an effective area? possibly a
         // unique ID
 
-        double effectiveAreaSize = voctManager.getRapidResponseData().getEffortAllocationData().getEffectiveAreaSize();
+        double effectiveAreaSize = voctManager.getSarData()
+                .getEffortAllocationData().getEffectiveAreaSize();
 
         System.out.println("EFFECTIVE AREA IS " + effectiveAreaSize);
-        
+
         // Effective Area: 10 nm2 Initialize by creating box
         double width = Math.sqrt(effectiveAreaSize);
         double height = Math.sqrt(effectiveAreaSize);
@@ -391,7 +416,16 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         // AreaInternalGraphics effectiveArea = new AreaInternalGraphics(A,
         // width, length);
         // graphics.add(effectiveArea);
-        effectiveArea = new EffectiveSRUAreaGraphics(data.getA(), width, height, data);
+
+        Position startingPosition = data.getLKP();
+
+        if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
+            startingPosition = ((RapidResponseData) data).getA();
+        }
+
+        effectiveArea = new EffectiveSRUAreaGraphics(startingPosition, width,
+                height, data);
+
         graphics.add(effectiveArea);
 
         doPrepare();

@@ -45,8 +45,10 @@ import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
+import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.ship.EPDShip;
@@ -187,7 +189,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         generalLayer = new GeneralLayer();
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
-        
+
         // Create VOCT Layer
         voctLayer = new VoctLayer();
         voctLayer.setVisible(true);
@@ -236,8 +238,6 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         gpsLayer = new GpsLayer();
         gpsLayer.setVisible(true);
         mapHandler.add(gpsLayer);
-
-
 
         // Create a esri shape layer
         // URL dbf = EeINS.class.getResource("/shape/urbanap020.dbf");
@@ -787,13 +787,18 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
 
         if (e == VOCTUpdateEvent.SAR_DISPLAY) {
 
-            List<Position> waypoints = new ArrayList<Position>();
-            waypoints.add(voctManager.getRapidResponseData().getA());
-            waypoints.add(voctManager.getRapidResponseData().getB());
-            waypoints.add(voctManager.getRapidResponseData().getC());
-            waypoints.add(voctManager.getRapidResponseData().getD());
+            if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
+                RapidResponseData data = (RapidResponseData) voctManager
+                        .getSarData();
 
-            this.zoomTo(waypoints);
+                List<Position> waypoints = new ArrayList<Position>();
+                waypoints.add(data.getA());
+                waypoints.add(data.getB());
+                waypoints.add(data.getC());
+                waypoints.add(data.getD());
+
+                this.zoomTo(waypoints);
+            }
         }
     }
 

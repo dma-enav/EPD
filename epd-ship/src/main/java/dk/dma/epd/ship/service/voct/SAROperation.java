@@ -89,7 +89,8 @@ public class SAROperation {
 
     public void startRapidResponseCalculations(RapidResponseData data) {
 
-        System.out.println("Starting search with the following parameters");
+        System.out
+                .println("Starting Rapid Response with the following parameters");
         System.out.println("Time of Last known position: " + data.getLKPDate());
         System.out.println("Commence Search Start time: " + data.getCSSDate());
 
@@ -101,6 +102,22 @@ public class SAROperation {
         // System.out.println("Hours since started: " + difference);
 
         rapidResponse(data);
+    }
+
+    public void startDatumPointCalculations(DatumPointData data) {
+        System.out
+                .println("Starting Datum Point with the following parameters");
+        System.out.println("Time of Last known position: " + data.getLKPDate());
+        System.out.println("Commence Search Start time: " + data.getCSSDate());
+
+        double difference = (double) (data.getCSSDate().getMillis() - data
+                .getLKPDate().getMillis()) / 60 / 60 / 1000;
+
+        data.setTimeElasped(difference);
+
+        // System.out.println("Hours since started: " + difference);
+
+        datumPoint(data);
     }
 
     /**
@@ -217,12 +234,16 @@ public class SAROperation {
         return -9999;
     }
 
-    public void datumPoint(DatumPointData data, double timeElapsed) {
+    public void datumPoint(DatumPointData data) {
+
+        double timeElapsed = data.getTimeElasped();
 
         double currentTWC = data.getWeatherPoints().get(0).getTWCknots()
                 * timeElapsed;
+        
         double leewayspeed = searchObjectValue(data.getSearchObject(), data
                 .getWeatherPoints().get(0).getLWknots());
+        
         double leeway = leewayspeed * timeElapsed;
         double leewayDivergence = searchObjectValue(data.getSearchObject());
 
@@ -237,9 +258,9 @@ public class SAROperation {
                 endBearing);
 
         // This is the TWC point
-
+        data.setWtc(currentPos);
+        
         // We now have 3 different datums to calculate, DW, min and max.
-
         endBearing = new double[1];
 
         Position datumDownWind = Calculator.calculateEndingGlobalCoordinates(
@@ -323,6 +344,7 @@ public class SAROperation {
 
         data.setRadiusMax(radiusMax);
 
+        voctManager.setSarData(data);
     }
 
     private void findSmallestSquare(DatumPointData data) {
@@ -338,27 +360,26 @@ public class SAROperation {
 
         double radiusMin = data.getRadiusMin();
         double radiusMax = data.getRadiusMax();
-        
-        
+
         // Bearing between the two points - this will be the direction of the
         // box.
-        double lengthBearing = Calculator.bearing(datumMax, datumMin, Heading.RL);
-        
-        
+        double lengthBearing = Calculator.bearing(datumMax, datumMin,
+                Heading.RL);
+
         Ellipsoid reference = Ellipsoid.WGS84;
         double[] endBearing = new double[1];
-        
-        //Find top Position from radius
+
+        // Find top Position from radius
         Position TopPointMin = Calculator.calculateEndingGlobalCoordinates(
-                reference, datumMin, lengthBearing + 90, Converter.nmToMeters(radiusMin),
-                endBearing);
-        
-        //Position top of min circle, turn 180 around and go radius distance to find a box point
-        Position LeftPointInnerBox = Calculator.calculateEndingGlobalCoordinates(
-                reference, TopPointMin, lengthBearing + 180, Converter.nmToMeters(radiusMin),
-                endBearing);
-        
-        
+                reference, datumMin, lengthBearing + 90,
+                Converter.nmToMeters(radiusMin), endBearing);
+
+        // Position top of min circle, turn 180 around and go radius distance to
+        // find a box point
+        Position LeftPointInnerBox = Calculator
+                .calculateEndingGlobalCoordinates(reference, TopPointMin,
+                        lengthBearing + 180, Converter.nmToMeters(radiusMin),
+                        endBearing);
 
     }
 
@@ -484,7 +505,7 @@ public class SAROperation {
 
         findRapidResponseBox(datum, radius, data);
 
-        voctManager.setRapidResponseData(data);
+        voctManager.setSarData(data);
     }
 
     public static void findRapidResponseBox(Position datum, double radius,
@@ -550,7 +571,7 @@ public class SAROperation {
         return this.operationType;
     }
 
-    public void calculateEffortAllocation(RapidResponseData data) {
+    public void calculateEffortAllocation(SARData data) {
         double trackSpacing = findS(data.getEffortAllocationData().getW(), data
                 .getEffortAllocationData().getPod());
 

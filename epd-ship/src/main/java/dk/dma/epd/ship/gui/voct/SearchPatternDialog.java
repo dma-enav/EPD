@@ -188,7 +188,7 @@ public class SearchPatternDialog extends JDialog implements ActionListener {
             importCSPFromDropdown = new JComboBox<String>();
             importCSPFromDropdown.setModel(new DefaultComboBoxModel<String>(
                     new String[] { "Import From:", "Top Left", "Top Right",
-                            "Bottom Left", "Bottom Right", "Datum" }));
+                            "Bottom Left", "Bottom Right"}));
             importCSPFromDropdown.setBounds(385, 49, 127, 20);
             importCSPFromDropdown.addActionListener(this);
             cspPanel.add(importCSPFromDropdown);
@@ -431,20 +431,17 @@ public class SearchPatternDialog extends JDialog implements ActionListener {
         case 0:
             return;
         case 1:
-            importedPosition = voctManager.getRapidResponseData().getEffortAllocationData().getEffectiveAreaA();            
+            importedPosition = voctManager.getSarData().getEffortAllocationData().getEffectiveAreaA();            
             break;
         case 2:
-            importedPosition = voctManager.getRapidResponseData().getEffortAllocationData().getEffectiveAreaB();
+            importedPosition = voctManager.getSarData().getEffortAllocationData().getEffectiveAreaB();
             break;
         case 3:
-            importedPosition = voctManager.getRapidResponseData().getEffortAllocationData().getEffectiveAreaC();
+            importedPosition = voctManager.getSarData().getEffortAllocationData().getEffectiveAreaC();
             break;
         case 4:
-            importedPosition = voctManager.getRapidResponseData().getEffortAllocationData().getEffectiveAreaD();
+            importedPosition = voctManager.getSarData().getEffortAllocationData().getEffectiveAreaD();
             break;
-        case 5:
-            importedPosition = voctManager.getRapidResponseData().getDatum();
-            break;            
         }
 
 

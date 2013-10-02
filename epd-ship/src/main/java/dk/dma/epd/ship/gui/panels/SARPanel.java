@@ -38,6 +38,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.text.Formatter;
@@ -817,7 +818,7 @@ public class SARPanel extends JPanel implements ActionListener {
 
     }
 
-    public void sarComplete(RapidResponseData data) {
+    public void sarComplete(SARData data) {
         this.sarData = data;
         poDVal.setText("N/A");
         searchAreaSizeVal.setText("N/A");
@@ -834,7 +835,13 @@ public class SARPanel extends JPanel implements ActionListener {
         // map in full screen mode
         searchPatternDialog.setVisible(false);
 
-        setRapidResponseData(data);
+        
+        //Activate the relevant panel
+        if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE){
+            setRapidResponseData((RapidResponseData) data);    
+        }
+        
+        
         CardLayout cl = (CardLayout) (this.getLayout());
         cl.show(this, SARPANEL);
     }
@@ -844,7 +851,7 @@ public class SARPanel extends JPanel implements ActionListener {
         chckbxShowDynamicPattern.setSelected(false);
     }
 
-    public void effortAllocationComplete(RapidResponseData data) {
+    public void effortAllocationComplete(SARData data) {
         this.sarData = data;
         poDVal.setText(data.getEffortAllocationData().getPod() * 100 + "%");
         searchAreaSizeVal.setText(Formatter.formatDouble(data

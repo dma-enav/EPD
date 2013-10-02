@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -49,9 +50,10 @@ import org.joda.time.DateTimeZone;
 
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.prototype.model.voct.LeewayValues;
+import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.util.ParseUtils;
 
-public class RapidResponseInputPanel extends JPanel implements ActionListener,
+public class RapidResponseDatumPointInputPanel extends JPanel implements ActionListener,
         DocumentListener {
 
     private static final long serialVersionUID = 1L;
@@ -96,8 +98,9 @@ public class RapidResponseInputPanel extends JPanel implements ActionListener,
     private JComboBox<String> comboLKPLat;
     private JComboBox<String> comboLKPLon;
     private JTextField sarIDTxtField;
+    private JPanel topPanel;
 
-    public RapidResponseInputPanel() {
+    public RapidResponseDatumPointInputPanel() {
 
         format.setTimeZone(TimeZone.getTimeZone("CET"));
 
@@ -351,20 +354,20 @@ public class RapidResponseInputPanel extends JPanel implements ActionListener,
         searchObjectText.setBounds(10, 53, 457, 14);
         panel_1.add(searchObjectText);
 
-        JPanel panel_2 = new JPanel();
-        panel_2.setBorder(new TitledBorder(null, "Rapid Response Operation",
+        topPanel = new JPanel();
+        topPanel.setBorder(new TitledBorder(null, "",
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        panel_2.setBounds(20, 0, 487, 48);
-        add(panel_2);
-        panel_2.setLayout(null);
+        topPanel.setBounds(20, 0, 487, 48);
+        add(topPanel);
+        topPanel.setLayout(null);
 
         JLabel lblSarId = new JLabel("SAR No.");
         lblSarId.setBounds(10, 23, 55, 14);
-        panel_2.add(lblSarId);
+        topPanel.add(lblSarId);
 
         sarIDTxtField = new JTextField("");
         sarIDTxtField.setBounds(58, 20, 136, 20);
-        panel_2.add(sarIDTxtField);
+        topPanel.add(sarIDTxtField);
         sarIDTxtField.setColumns(10);
 
         for (int i = 0; i < LeewayValues.getLeeWayTypes().size(); i++) {
@@ -411,8 +414,13 @@ public class RapidResponseInputPanel extends JPanel implements ActionListener,
             try {
                 testDate = df.parse(editor.getTextField().getText());
 
-                LKPDate = LKPDate.withHourOfDay(testDate.getHours());
-                LKPDate = LKPDate.withMinuteOfHour(testDate.getMinutes());
+                
+                
+                Calendar cal = new GregorianCalendar();
+                cal.setTime(testDate);
+                
+                LKPDate = LKPDate.withHourOfDay(cal.get(Calendar.HOUR_OF_DAY));
+                LKPDate = LKPDate.withMinuteOfHour(cal.get(Calendar.MINUTE));
             } catch (ParseException e1) {
                 // Ignore
             }
@@ -434,8 +442,13 @@ public class RapidResponseInputPanel extends JPanel implements ActionListener,
             try {
                 testDate = df.parse(editor.getTextField().getText());
 
-                CSSDate = CSSDate.withHourOfDay(testDate.getHours());
-                CSSDate = CSSDate.withMinuteOfHour(testDate.getMinutes());
+                
+                Calendar cal = new GregorianCalendar();
+                cal.setTime(testDate);
+                
+                
+                CSSDate = CSSDate.withHourOfDay(cal.get(Calendar.HOUR_OF_DAY));
+                CSSDate = CSSDate.withMinuteOfHour(cal.get(Calendar.MINUTE));
             } catch (ParseException e1) {
                 // Ignore
             }
@@ -537,7 +550,7 @@ public class RapidResponseInputPanel extends JPanel implements ActionListener,
 
     }
 
-    public double getRapidResponseLKPLat() {
+    public double getRapidResponseDatumLKPLat() {
         String LKPLatitude = lkpFirstLat.getText() + " "
                 + lkpSecondLat.getText() + "." + lkpThirdLat.getText()
                 + comboLKPLat.getSelectedItem();
@@ -554,7 +567,7 @@ public class RapidResponseInputPanel extends JPanel implements ActionListener,
 
     }
 
-    public double getRapidResponseLKPLon() {
+    public double getRapidResponseDatumLKPLon() {
         String LKPLongitude = lkpFirstLon.getText() + " "
                 + lkpSecondLon.getText() + "." + lkpThirdLon.getText()
                 + comboLKPLon.getSelectedItem();
@@ -698,4 +711,19 @@ public class RapidResponseInputPanel extends JPanel implements ActionListener,
         return CSSDate;
     }
 
+    
+    public void setSARType(SAR_TYPE type){
+        
+        if (type == SAR_TYPE.RAPID_RESPONSE){
+            topPanel.setBorder(new TitledBorder(null, "Rapid Response Operation",
+                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        }
+        
+        if (type == SAR_TYPE.DATUM_POINT){
+            topPanel.setBorder(new TitledBorder(null, "Datum Point Operation",
+                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        }
+        
+    }
+    
 }

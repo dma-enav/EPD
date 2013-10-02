@@ -42,6 +42,7 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.model.voct.SweepWidthValues;
 import dk.dma.epd.common.prototype.model.voct.WeatherCorrectionFactors;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.service.voct.VOCTManager;
@@ -338,13 +339,13 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
 
     private boolean checkValues() {
 
-        RapidResponseData rapidResponseData = voctManager.getRapidResponseData();
+        SARData sarData = voctManager.getSarData();
         
         if (getMaxSpeed() == -9999) {
             return false;
         }
 
-        rapidResponseData.getEffortAllocationData().setGroundSpeed(getMaxSpeed());
+        sarData.getEffortAllocationData().setGroundSpeed(getMaxSpeed());
 
         // Wc = Wu x Fw x Fv x Ff
 
@@ -410,7 +411,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
 
         double wc = wu * fw * ff;
 
-        rapidResponseData.getEffortAllocationData().setW(wc);
+        sarData.getEffortAllocationData().setW(wc);
 
         System.out.println("The following Sweep Width is calculated:");
         System.out.println("Wc = Wu x Fw x Ff");
@@ -422,7 +423,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             return false;
         }
 
-        rapidResponseData.getEffortAllocationData().setPod(probabilityOfDetection);
+        sarData.getEffortAllocationData().setPod(probabilityOfDetection);
 
         int timeSearching = getSearchTimeHours();
         
@@ -430,7 +431,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             System.out.println("failed to get time searching spinner val");
             return false;
         }
-        rapidResponseData.getEffortAllocationData().setSearchTime(timeSearching);
+        sarData.getEffortAllocationData().setSearchTime(timeSearching);
 
         return true;
     }

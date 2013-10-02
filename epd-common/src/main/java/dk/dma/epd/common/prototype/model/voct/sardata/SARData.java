@@ -237,6 +237,11 @@ public class SARData {
         this.sarID = sarID;
     }
 
+
+    public String generateHTML() {
+        return "Invalid type";
+    }
+
     
     
 

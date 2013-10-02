@@ -83,7 +83,7 @@ public class SARInput extends JDialog implements ActionListener,
     private JPanel masterPanel;
 
     private static final String SELECTSARTYPE = "Select SAR Type";
-    private static final String INPUTSARRAPIDRESPONSE = "Rapid Response Input Panel";
+    private static final String INPUTSARRAPIDRESPONSEDATUM = "Rapid Response And Datum Input Panel";
     private static final String CALCULATIONSPANELRAPIDRESPONSE = "Rapid Response Calculations Panel";
 
     // First card shown is the select sar type
@@ -92,7 +92,7 @@ public class SARInput extends JDialog implements ActionListener,
 
     
     private JLabel calculationsText = new JLabel();
-    private RapidResponseInputPanel rapidResponseInputPanel;
+    private RapidResponseDatumPointInputPanel rapidResponseDatumPointInputPanel;
 
     /**
      * 
@@ -144,13 +144,13 @@ public class SARInput extends JDialog implements ActionListener,
 
     private void inputPanel() {
 
-        rapidResponseInputPanel = new RapidResponseInputPanel();
+        rapidResponseDatumPointInputPanel = new RapidResponseDatumPointInputPanel();
 
         JScrollPane rapidResponseScrollPanel = new JScrollPane(
-                rapidResponseInputPanel);
+                rapidResponseDatumPointInputPanel);
         rapidResponseScrollPanel.setPreferredSize(new Dimension(559, 363));
 
-        masterPanel.add(rapidResponseScrollPanel, INPUTSARRAPIDRESPONSE);
+        masterPanel.add(rapidResponseScrollPanel, INPUTSARRAPIDRESPONSEDATUM);
 
     }
 
@@ -263,19 +263,21 @@ public class SARInput extends JDialog implements ActionListener,
 
                 inititateSarType();
 
+                
+                
                 // The type select determines which panel we show
-                cl.show(masterPanel, INPUTSARRAPIDRESPONSE);
-                currentCard = INPUTSARRAPIDRESPONSE;
+                cl.show(masterPanel, currentCard);
+                
                 return;
             }
 
             // We're at input screen
-            if (currentCard == INPUTSARRAPIDRESPONSE) {
+            if (currentCard == INPUTSARRAPIDRESPONSEDATUM) {
                 updateValues();
                 CardLayout cl = (CardLayout) (masterPanel.getLayout());
 
                 if (validateInputAndInititate()) {
-                    calculationsText.setText(voctManager.getRapidResponseData()
+                    calculationsText.setText(voctManager.getSarData()
                             .generateHTML());
                     btnBack.setEnabled(true);
                     nextButton.setText("Finish");
@@ -298,8 +300,8 @@ public class SARInput extends JDialog implements ActionListener,
                 nextButton.setText("Next");
 
                 // Set the dialog back to input screen for reentering
-                cl.show(masterPanel, INPUTSARRAPIDRESPONSE);
-                currentCard = INPUTSARRAPIDRESPONSE;
+                cl.show(masterPanel, INPUTSARRAPIDRESPONSEDATUM);
+                currentCard = INPUTSARRAPIDRESPONSEDATUM;
 
                 System.out.println("Hiding");
 
@@ -315,7 +317,7 @@ public class SARInput extends JDialog implements ActionListener,
         if (arg0.getSource() == btnBack) {
 
             // If we're at Rapid Response or Datum or Back back go back to init
-            if (currentCard == INPUTSARRAPIDRESPONSE) {
+            if (currentCard == INPUTSARRAPIDRESPONSEDATUM) {
                 CardLayout cl = (CardLayout) (masterPanel.getLayout());
                 cl.show(masterPanel, SELECTSARTYPE);
                 btnBack.setEnabled(false);
@@ -326,10 +328,10 @@ public class SARInput extends JDialog implements ActionListener,
             // We're at confirmation
             if (currentCard == CALCULATIONSPANELRAPIDRESPONSE) {
                 CardLayout cl = (CardLayout) (masterPanel.getLayout());
-                cl.show(masterPanel, INPUTSARRAPIDRESPONSE);
+                cl.show(masterPanel, INPUTSARRAPIDRESPONSEDATUM);
                 btnBack.setEnabled(true);
                 nextButton.setText("Next");
-                currentCard = INPUTSARRAPIDRESPONSE;
+                currentCard = INPUTSARRAPIDRESPONSEDATUM;
                 return;
             }
 
@@ -370,15 +372,21 @@ public class SARInput extends JDialog implements ActionListener,
         switch (selectedIndex) {
         case 0:
             voctManager.setSarType(SAR_TYPE.RAPID_RESPONSE);
+            rapidResponseDatumPointInputPanel.setSARType(SAR_TYPE.RAPID_RESPONSE);
+            currentCard = INPUTSARRAPIDRESPONSEDATUM;
             break;
         case 1:
             voctManager.setSarType(SAR_TYPE.DATUM_POINT);
+            rapidResponseDatumPointInputPanel.setSARType(SAR_TYPE.DATUM_POINT);
+            currentCard = INPUTSARRAPIDRESPONSEDATUM;
             break;
         case 2:
             voctManager.setSarType(SAR_TYPE.DATUM_LINE);
+//            currentCard = INPUTSARRAPIDRESPONSEDATUM;
             break;
         case 3:
             voctManager.setSarType(SAR_TYPE.BACKTRACK);
+            currentCard = INPUTSARRAPIDRESPONSEDATUM;
             break;
         }
     }
@@ -392,8 +400,7 @@ public class SARInput extends JDialog implements ActionListener,
         case RAPID_RESPONSE:
             return validateRapidResponse();
         case DATUM_POINT:
-            voctManager.setSarType(SAR_TYPE.DATUM_POINT);
-            return false;
+            return validateRapidResponse();
         case DATUM_LINE:
             voctManager.setSarType(SAR_TYPE.DATUM_LINE);
             return false;
@@ -412,8 +419,8 @@ public class SARInput extends JDialog implements ActionListener,
         System.out.println("Validating");
 
         // Get LKP values
-        double rapidResponseLKPLat = rapidResponseInputPanel.getRapidResponseLKPLat();
-        double rapidResponseLKPLon = rapidResponseInputPanel.getRapidResponseLKPLon();
+        double rapidResponseLKPLat = rapidResponseDatumPointInputPanel.getRapidResponseDatumLKPLat();
+        double rapidResponseLKPLon = rapidResponseDatumPointInputPanel.getRapidResponseDatumLKPLon();
 
         Position rapidResponsePosition;
 
@@ -428,13 +435,13 @@ public class SARInput extends JDialog implements ActionListener,
 
         System.out.println("All validated correctly, we got positions");
 
-        System.out.println("LKP Date is " + rapidResponseInputPanel.getLKPDate());
-        System.out.println("CSS Date is " + rapidResponseInputPanel.getCSSDate());
+        System.out.println("LKP Date is " + rapidResponseDatumPointInputPanel.getLKPDate());
+        System.out.println("CSS Date is " + rapidResponseDatumPointInputPanel.getCSSDate());
 
         // Time and date will be automatically sorted
 
         // Get weather
-        SurfaceDriftPanel firstPanel = rapidResponseInputPanel.getSurfaceDriftPanelList().get(0);
+        SurfaceDriftPanel firstPanel = rapidResponseDatumPointInputPanel.getSurfaceDriftPanelList().get(0);
 
         double TWCKnots = firstPanel.getTWCKnots();
 
@@ -470,28 +477,28 @@ public class SARInput extends JDialog implements ActionListener,
         List<SARWeatherData> sarWeatherDataPoints = new ArrayList<SARWeatherData>();
         sarWeatherDataPoints.add(sarWeatherData);
 
-        double xError = rapidResponseInputPanel.getInitialPositionError();
+        double xError = rapidResponseDatumPointInputPanel.getInitialPositionError();
 
         if (xError == -9999) {
             // Error message is handled within function
             return false;
         }
 
-        double yError = rapidResponseInputPanel.getNavError();
+        double yError = rapidResponseDatumPointInputPanel.getNavError();
 
         if (yError == -9999) {
             // Error message is handled within function
             return false;
         }
 
-        double safetyFactor = rapidResponseInputPanel.getSafetyFactor();
+        double safetyFactor = rapidResponseDatumPointInputPanel.getSafetyFactor();
 
         if (safetyFactor == -9999) {
             // Error message is handled within function
             return false;
         }
 
-        int searchObject = rapidResponseInputPanel.getSearchItemID();
+        int searchObject = rapidResponseDatumPointInputPanel.getSearchItemID();
 
         // Only valid search objects is value 0 to 19
         if (searchObject < 0 || searchObject > 20) {
@@ -511,16 +518,18 @@ public class SARInput extends JDialog implements ActionListener,
         // safetyFactor
         // searchObject
 
-        if (!rapidResponseInputPanel.checkTime()) {
+        if (!rapidResponseDatumPointInputPanel.checkTime()) {
             return false;
         }
 
-        if (!rapidResponseInputPanel.checkMetocTime()) {
+        if (!rapidResponseDatumPointInputPanel.checkMetocTime()) {
             return false;
         }
+        
+        
 
-        voctManager.inputRapidResponseData(rapidResponseInputPanel.getSARID(), rapidResponseInputPanel.getLKPDate(),
-                rapidResponseInputPanel.getCSSDate(), rapidResponsePosition, xError, yError, safetyFactor,
+        voctManager.inputRapidResponseDatumData(rapidResponseDatumPointInputPanel.getSARID(), rapidResponseDatumPointInputPanel.getLKPDate(),
+                rapidResponseDatumPointInputPanel.getCSSDate(), rapidResponsePosition, xError, yError, safetyFactor,
                 searchObject, sarWeatherDataPoints);
 
         return true;

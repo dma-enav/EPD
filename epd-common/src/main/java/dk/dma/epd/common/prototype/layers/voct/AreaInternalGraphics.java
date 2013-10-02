@@ -35,6 +35,7 @@ import com.bbn.openmap.proj.Length;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 
@@ -161,7 +162,7 @@ public class AreaInternalGraphics extends OMGraphicList {
 
     }
 
-    public void moveRelative(Position newPos, RapidResponseData data) {
+    public void moveRelative(Position newPos, SARData data) {
 
         
         // relativePosition is

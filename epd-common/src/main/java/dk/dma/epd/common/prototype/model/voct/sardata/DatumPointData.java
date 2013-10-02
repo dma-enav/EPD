@@ -373,6 +373,7 @@ public class DatumPointData extends SARData {
         return D;
     }
 
+    @Override
     public String generateHTML() {
 
         DateTimeFormatter fmt = DateTimeFormat
@@ -429,10 +430,10 @@ public class DatumPointData extends SARData {
         str.append("<hr>");
         str.append("<font size=\"4\">");
         str.append("Search Area:");
-        str.append("<br>A: " + A.toString() + "</br>");
-        str.append("<br>B: " + B.toString() + "</br>");
-        str.append("<br>C: " + C.toString() + "</br>");
-        str.append("<br>D: " + D.toString() + "</br>");
+//        str.append("<br>A: " + A.toString() + "</br>");
+//        str.append("<br>B: " + B.toString() + "</br>");
+//        str.append("<br>C: " + C.toString() + "</br>");
+//        str.append("<br>D: " + D.toString() + "</br>");
 //        str.append("<br>Total Size: "
 //                + Formatter.formatDouble(radius * 2 * radius * 2, 2)
 //                + " nm2</br>");

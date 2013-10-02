@@ -221,6 +221,7 @@ public class RapidResponseData extends SARData {
         return D;
     }
 
+    @Override
     public String generateHTML() {
 
         DateTimeFormatter fmt = DateTimeFormat

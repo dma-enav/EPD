@@ -102,13 +102,13 @@ public class SARComponentPanel extends OMComponentPanel implements IGpsDataListe
         }
         
         if (e == VOCTUpdateEvent.SAR_DISPLAY){
-            sarPanel.sarComplete(voctManager.getRapidResponseData());
+            sarPanel.sarComplete(voctManager.getSarData());
         }
         if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY){
-            sarPanel.effortAllocationComplete(voctManager.getRapidResponseData());
+            sarPanel.effortAllocationComplete(voctManager.getSarData());
         }
         if (e == VOCTUpdateEvent.SEARCH_PATTERN_GENERATED){
-            sarPanel.searchPatternGenerated(voctManager.getRapidResponseData());
+            sarPanel.searchPatternGenerated(voctManager.getSarData());
         }
         
     }
