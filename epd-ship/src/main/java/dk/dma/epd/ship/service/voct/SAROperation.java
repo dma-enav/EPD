@@ -19,6 +19,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.util.Calculator;
@@ -87,7 +88,6 @@ public class SAROperation {
     }
 
     public void startRapidResponseCalculations(RapidResponseData data) {
-
 
         System.out.println("Starting search with the following parameters");
         System.out.println("Time of Last known position: " + data.getLKPDate());
@@ -168,12 +168,207 @@ public class SAROperation {
         return -9999.9;
     }
 
+    private int searchObjectValue(int searchObject) {
+
+        switch (searchObject) {
+        case 0:
+            return LeewayValues.personInWater();
+        case 1:
+            return LeewayValues.raftFourToSix();
+        case 2:
+            return LeewayValues.raftFourToSixWithDriftAnker();
+        case 3:
+            return LeewayValues.raftFourToSixWithoutDriftAnker();
+        case 4:
+            return LeewayValues.raftFifteenToTwentyFive();
+        case 5:
+            return LeewayValues.raftFifteenToTwentyFiveWithDriftAnker();
+        case 6:
+            return LeewayValues.raftFifteenToTwentyFiveWitouthDriftAnker();
+        case 7:
+            return LeewayValues.dinghyFlatBottom();
+        case 8:
+            return LeewayValues.dinghyWithKeel();
+        case 9:
+            return LeewayValues.dinghyCapsized();
+        case 10:
+            return LeewayValues.kayakWithPerson();
+        case 11:
+            return LeewayValues.surfboardWithPerson();
+        case 12:
+            return LeewayValues.windsurferWithPersonMastAndSailInWater();
+        case 13:
+            return LeewayValues.sailboatLongKeel();
+        case 14:
+            return LeewayValues.sailboatFinKeel();
+        case 15:
+            return LeewayValues.motorboat();
+        case 16:
+            return LeewayValues.fishingVessel();
+        case 17:
+            return LeewayValues.trawler();
+        case 18:
+            return LeewayValues.coaster();
+        case 19:
+            return LeewayValues.wreckage();
+
+        }
+
+        return -9999;
+    }
+
+    public void datumPoint(DatumPointData data, double timeElapsed) {
+
+        double currentTWC = data.getWeatherPoints().get(0).getTWCknots()
+                * timeElapsed;
+        double leewayspeed = searchObjectValue(data.getSearchObject(), data
+                .getWeatherPoints().get(0).getLWknots());
+        double leeway = leewayspeed * timeElapsed;
+        double leewayDivergence = searchObjectValue(data.getSearchObject());
+
+        Ellipsoid reference = Ellipsoid.WGS84;
+        double[] endBearing = new double[1];
+
+        // Object starts at LKP, with TWCheading, drifting for currentWTC
+        // knots where will it end up
+        Position currentPos = Calculator.calculateEndingGlobalCoordinates(
+                reference, data.getLKP(), data.getWeatherPoints().get(0)
+                        .getTWCHeading(), Converter.nmToMeters(currentTWC),
+                endBearing);
+
+        // This is the TWC point
+
+        // We now have 3 different datums to calculate, DW, min and max.
+
+        endBearing = new double[1];
+
+        Position datumDownWind = Calculator.calculateEndingGlobalCoordinates(
+                reference, currentPos, data.getWeatherPoints().get(0)
+                        .getDownWind(), Converter.nmToMeters(leeway),
+                endBearing);
+
+        endBearing = new double[1];
+
+        Position datumMin = Calculator.calculateEndingGlobalCoordinates(
+                reference, currentPos, data.getWeatherPoints().get(0)
+                        .getDownWind()
+                        - leewayDivergence, Converter.nmToMeters(leeway),
+                endBearing);
+
+        endBearing = new double[1];
+
+        Position datumMax = Calculator.calculateEndingGlobalCoordinates(
+                reference, currentPos, data.getWeatherPoints().get(0)
+                        .getDownWind()
+                        + leewayDivergence, Converter.nmToMeters(leeway),
+                endBearing);
+
+        data.setDatumDownWind(datumDownWind);
+        data.setDatumMin(datumMin);
+        data.setDatumMax(datumMax);
+
+        // RDV Direction
+        double rdvDirectionDownWind = Calculator.bearing(data.getLKP(),
+                datumDownWind, Heading.RL);
+
+        data.setRdvDirectionDownWind(rdvDirectionDownWind);
+
+        double rdvDirectionMin = Calculator.bearing(data.getLKP(), datumMin,
+                Heading.RL);
+
+        data.setRdvDirectionMin(rdvDirectionMin);
+
+        double rdvDirectionMax = Calculator.bearing(data.getLKP(), datumMax,
+                Heading.RL);
+
+        data.setRdvDirectionMax(rdvDirectionMax);
+
+        // RDV Distance
+        double rdvDistanceDownWind = Calculator.range(data.getLKP(),
+                datumDownWind, Heading.RL);
+
+        data.setRdvDistanceDownWind(rdvDistanceDownWind);
+
+        double rdvDistanceMin = Calculator.range(data.getLKP(), datumMin,
+                Heading.RL);
+
+        data.setRdvDistanceMin(rdvDistanceMin);
+
+        double rdvDistanceMax = Calculator.range(data.getLKP(), datumMax,
+                Heading.RL);
+
+        data.setRdvDistanceMax(rdvDistanceMin);
+
+        // RDV Speed
+        double rdvSpeedDownWind = rdvDistanceDownWind / data.getTimeElasped();
+        data.setRdvSpeedDownWind(rdvSpeedDownWind);
+
+        double rdvSpeedMin = rdvDistanceMin / data.getTimeElasped();
+        data.setRdvSpeedMin(rdvSpeedMin);
+
+        double rdvSpeedMax = rdvDistanceMax / data.getTimeElasped();
+        data.setRdvSpeedMax(rdvSpeedMax);
+
+        // Radius:
+        double radiusDownWind = data.getX() + data.getY() + 0.3
+                * rdvDistanceDownWind * data.getSF();
+        data.setRadiusDownWind(radiusDownWind);
+
+        double radiusMin = data.getX() + data.getY() + 0.3 * rdvDistanceMin
+                * data.getSF();
+        data.setRadiusMin(radiusMin);
+
+        double radiusMax = data.getX() + data.getY() + 0.3 * rdvDistanceMax
+                * data.getSF();
+
+        data.setRadiusMax(radiusMax);
+
+    }
+
+    private void findSmallestSquare(DatumPointData data) {
+
+        // Find circles furtest from each other - that will be the encompassing
+        // box - after this box has been decided grow the box so it encompasses
+        // the last circle.
+
+        // Will always be max and min?
+
+        Position datumMin = data.getDatumMin();
+        Position datumMax = data.getDatumMax();
+
+        double radiusMin = data.getRadiusMin();
+        double radiusMax = data.getRadiusMax();
+        
+        
+        // Bearing between the two points - this will be the direction of the
+        // box.
+        double lengthBearing = Calculator.bearing(datumMax, datumMin, Heading.RL);
+        
+        
+        Ellipsoid reference = Ellipsoid.WGS84;
+        double[] endBearing = new double[1];
+        
+        //Find top Position from radius
+        Position TopPointMin = Calculator.calculateEndingGlobalCoordinates(
+                reference, datumMin, lengthBearing + 90, Converter.nmToMeters(radiusMin),
+                endBearing);
+        
+        //Position top of min circle, turn 180 around and go radius distance to find a box point
+        Position LeftPointInnerBox = Calculator.calculateEndingGlobalCoordinates(
+                reference, TopPointMin, lengthBearing + 180, Converter.nmToMeters(radiusMin),
+                endBearing);
+        
+        
+
+    }
+
     public Position applyDriftToPoint(SARData data, Position point,
             double timeElapsed) {
-        
-        double currentTWC = data.getWeatherPoints().get(0).getTWCknots() * timeElapsed;
-        double leewayspeed = searchObjectValue(data.getSearchObject(),
-                data.getWeatherPoints().get(0).getLWknots());
+
+        double currentTWC = data.getWeatherPoints().get(0).getTWCknots()
+                * timeElapsed;
+        double leewayspeed = searchObjectValue(data.getSearchObject(), data
+                .getWeatherPoints().get(0).getLWknots());
         double leeway = leewayspeed * timeElapsed;
 
         Ellipsoid reference = Ellipsoid.WGS84;
@@ -182,14 +377,16 @@ public class SAROperation {
         // Object starts at LKP, with TWCheading, drifting for currentWTC
         // knots where will it end up
         Position currentPos = Calculator.calculateEndingGlobalCoordinates(
-                reference, point, data.getWeatherPoints().get(0).getTWCHeading(),
-                Converter.nmToMeters(currentTWC), endBearing);
+                reference, point, data.getWeatherPoints().get(0)
+                        .getTWCHeading(), Converter.nmToMeters(currentTWC),
+                endBearing);
 
         endBearing = new double[1];
 
         Position windPos = Calculator.calculateEndingGlobalCoordinates(
-                reference, currentPos, data.getWeatherPoints().get(0).getDownWind(),
-                Converter.nmToMeters(leeway), endBearing);
+                reference, currentPos, data.getWeatherPoints().get(0)
+                        .getDownWind(), Converter.nmToMeters(leeway),
+                endBearing);
 
         Position datum = windPos;
 
@@ -200,7 +397,8 @@ public class SAROperation {
 
         // System.out.println("Calculation for Rapid Response");
 
-        double currentTWC = data.getWeatherPoints().get(0).getTWCknots() * data.getTimeElasped();
+        double currentTWC = data.getWeatherPoints().get(0).getTWCknots()
+                * data.getTimeElasped();
         // System.out.println("Current TWC is: " + currentTWC +
         // " with heading: "
         // + TWCHeading);
@@ -208,14 +406,15 @@ public class SAROperation {
         // Example person in water, influenced by the wind of LWknots speed
         // will have a final speed of leewayspeed:
         // double leewayspeed = LeewayValues.personInWater(LWknots);
-        double leewayspeed = searchObjectValue(data.getSearchObject(),
-                data.getWeatherPoints().get(0).getLWknots());
+        double leewayspeed = searchObjectValue(data.getSearchObject(), data
+                .getWeatherPoints().get(0).getLWknots());
 
         // Leeway, object have floated for how long at what time
         double leeway = leewayspeed * data.getTimeElasped();
 
         System.out.println("Leeway is: " + leeway
-                + " nautical miles with heading: " + data.getWeatherPoints().get(0).getDownWind());
+                + " nautical miles with heading: "
+                + data.getWeatherPoints().get(0).getDownWind());
 
         Ellipsoid reference = Ellipsoid.WGS84;
         double[] endBearing = new double[1];
@@ -223,8 +422,9 @@ public class SAROperation {
         // Object starts at LKP, with TWCheading, drifting for currentWTC
         // knots where will it end up
         Position currentPos = Calculator.calculateEndingGlobalCoordinates(
-                reference, data.getLKP(), data.getWeatherPoints().get(0).getTWCHeading(),
-                Converter.nmToMeters(currentTWC), endBearing);
+                reference, data.getLKP(), data.getWeatherPoints().get(0)
+                        .getTWCHeading(), Converter.nmToMeters(currentTWC),
+                endBearing);
 
         System.out.println("Current is: " + currentPos.getLatitude());
         System.out.println("Current is: " + currentPos.getLongitude());
@@ -234,8 +434,9 @@ public class SAROperation {
         endBearing = new double[1];
 
         Position windPos = Calculator.calculateEndingGlobalCoordinates(
-                reference, currentPos, data.getWeatherPoints().get(0).getDownWind(),
-                Converter.nmToMeters(leeway), endBearing);
+                reference, currentPos, data.getWeatherPoints().get(0)
+                        .getDownWind(), Converter.nmToMeters(leeway),
+                endBearing);
 
         System.out.println("Wind pos is: " + windPos.getLatitude());
         System.out.println("Wind pos is: " + windPos.getLongitude());
@@ -350,7 +551,8 @@ public class SAROperation {
     }
 
     public void calculateEffortAllocation(RapidResponseData data) {
-        double trackSpacing = findS(data.getEffortAllocationData().getW(), data.getEffortAllocationData().getPod());
+        double trackSpacing = findS(data.getEffortAllocationData().getW(), data
+                .getEffortAllocationData().getPod());
 
         data.getEffortAllocationData().setTrackSpacing(trackSpacing);
 

@@ -43,6 +43,22 @@ public class SARData {
     
     SearchPatternRoute searchPatternRoute;
     
+    
+    public SARData(String sarID, DateTime TLKP, DateTime CSS, Position LKP,
+            double x, double y, double SF, int searchObject) {
+
+        this.setSarID(sarID);
+        this.setLKP(LKP);
+        this.setLKPDate(TLKP);
+        this.setCSSDate(CSS);
+
+        this.setX(x);
+        this.setY(y);
+        this.setSF(SF);
+        this.setSearchObject(searchObject);
+    }
+    
+    
     /**
      * @return the effortAllocationData
      */
