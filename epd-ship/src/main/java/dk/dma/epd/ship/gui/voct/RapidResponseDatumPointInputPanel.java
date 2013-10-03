@@ -52,6 +52,7 @@ import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.util.ParseUtils;
+import javax.swing.SwingConstants;
 
 public class RapidResponseDatumPointInputPanel extends JPanel implements ActionListener,
         DocumentListener {
@@ -99,6 +100,8 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
     private JComboBox<String> comboLKPLon;
     private JTextField sarIDTxtField;
     private JPanel topPanel;
+    
+
 
     public RapidResponseDatumPointInputPanel() {
 
@@ -158,8 +161,9 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
         lkpPanel.add(lblLastKnownPosition);
 
         lkpFirstLat = new JTextField();
+        lkpFirstLat.setHorizontalAlignment(SwingConstants.RIGHT);
         lkpFirstLat.setText("56");
-        lkpFirstLat.setBounds(170, 47, 20, 20);
+        lkpFirstLat.setBounds(170, 47, 30, 20);
         lkpPanel.add(lkpFirstLat);
         lkpFirstLat.setColumns(10);
 
@@ -173,43 +177,44 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
         lkpSecondLat = new JTextField();
         lkpSecondLat.setText("30");
         lkpSecondLat.setColumns(10);
-        lkpSecondLat.setBounds(190, 47, 20, 20);
+        lkpSecondLat.setBounds(200, 47, 20, 20);
         lkpPanel.add(lkpSecondLat);
 
         lkpThirdLat = new JTextField();
         lkpThirdLat.setText("290");
         lkpThirdLat.setColumns(10);
-        lkpThirdLat.setBounds(210, 47, 30, 20);
+        lkpThirdLat.setBounds(220, 47, 30, 20);
         lkpPanel.add(lkpThirdLat);
 
         comboLKPLat = new JComboBox<String>();
         comboLKPLat.setModel(new DefaultComboBoxModel<String>(new String[] {
                 "N", "S" }));
-        comboLKPLat.setBounds(240, 47, 30, 20);
+        comboLKPLat.setBounds(250, 47, 30, 20);
         lkpPanel.add(comboLKPLat);
 
         lkpFirstLon = new JTextField();
+        lkpFirstLon.setHorizontalAlignment(SwingConstants.RIGHT);
         lkpFirstLon.setText("11");
         lkpFirstLon.setColumns(10);
-        lkpFirstLon.setBounds(278, 47, 20, 20);
+        lkpFirstLon.setBounds(290, 47, 30, 20);
         lkpPanel.add(lkpFirstLon);
 
         lkpSecondLon = new JTextField();
         lkpSecondLon.setText("57");
         lkpSecondLon.setColumns(10);
-        lkpSecondLon.setBounds(298, 47, 20, 20);
+        lkpSecondLon.setBounds(320, 47, 20, 20);
         lkpPanel.add(lkpSecondLon);
 
         comboLKPLon = new JComboBox<String>();
         comboLKPLon.setModel(new DefaultComboBoxModel<String>(new String[] {
                 "E", "W" }));
-        comboLKPLon.setBounds(348, 47, 30, 20);
+        comboLKPLon.setBounds(370, 47, 30, 20);
         lkpPanel.add(comboLKPLon);
 
         lkpThirdLon = new JTextField();
         lkpThirdLon.setText("840");
         lkpThirdLon.setColumns(10);
-        lkpThirdLon.setBounds(318, 47, 30, 20);
+        lkpThirdLon.setBounds(340, 47, 30, 20);
         lkpPanel.add(lkpThirdLon);
 
         JPanel commenceStartPanel = new JPanel();
@@ -638,6 +643,10 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
             return -9999;
         } else {
             try {
+                if (sfField.contains(",")){
+                    sfField = sfField.replace(",", ".");
+                }
+                
                 return Double.parseDouble(sfField);
             } catch (Exception e) {
                 displayMissingField("Safety Factor, FS");
@@ -656,6 +665,9 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
             return -9999;
         } else {
             try {
+                if (yField.contains(",")){
+                    yField = yField.replace(",", ".");
+                }
                 return Double.parseDouble(yField);
             } catch (Exception e) {
                 displayMissingField("Navigational Error, Y");
@@ -674,6 +686,9 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
             return -9999;
         } else {
             try {
+                if (xField.contains(",")){
+                    xField = xField.replace(",", ".");
+                }
                 return Double.parseDouble(xField);
             } catch (Exception e) {
                 displayMissingField("Initial Position Error, X");

@@ -39,6 +39,7 @@ import org.joda.time.format.DateTimeFormatter;
 
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.text.Formatter;
@@ -128,6 +129,9 @@ public class SARPanel extends JPanel implements ActionListener {
     private SARData sarData;
     private JCheckBox chckbxShowDynamicPattern;
 
+    
+    private JLabel lblSarType;
+    
     public SARPanel() {
 
         setLayout(new CardLayout());
@@ -230,12 +234,12 @@ public class SARPanel extends JPanel implements ActionListener {
         gbc_lblType.gridy = 0;
         statusPanel.add(lblType, gbc_lblType);
 
-        JLabel lblRapidResponse = new JLabel("Rapid Response");
+        lblSarType = new JLabel("N/A");
         GridBagConstraints gbc_lblRapidResponse = new GridBagConstraints();
         gbc_lblRapidResponse.anchor = GridBagConstraints.WEST;
         gbc_lblRapidResponse.gridx = 1;
         gbc_lblRapidResponse.gridy = 0;
-        statusPanel.add(lblRapidResponse, gbc_lblRapidResponse);
+        statusPanel.add(lblSarType, gbc_lblRapidResponse);
 
         timeAndDatePanel = new JPanel();
         timeAndDatePanel.setBorder(new TitledBorder(UIManager
@@ -841,6 +845,20 @@ public class SARPanel extends JPanel implements ActionListener {
             setRapidResponseData((RapidResponseData) data);    
         }
         
+        if (voctManager.getSarType() == SAR_TYPE.DATUM_POINT){
+            setDatumPointData( (DatumPointData) data);    
+        }
+        
+        if (voctManager.getSarType() == SAR_TYPE.DATUM_LINE){
+            setDatumLineData(data);
+        }
+        
+        if (voctManager.getSarType() == SAR_TYPE.BACKTRACK){
+            setBackTrackData(data);
+        }
+        
+        
+//        setDatumPointData
         
         CardLayout cl = (CardLayout) (this.getLayout());
         cl.show(this, SARPANEL);
@@ -875,8 +893,35 @@ public class SARPanel extends JPanel implements ActionListener {
         chckbxShowDynamicPattern.setEnabled(false);
     }
 
+    private void setDatumPointData(DatumPointData data){
+        
+        lblSarType.setText("Datum Point");
+        
+        sarData = data;
+    }
+    
+    
+    private void setDatumLineData(SARData data){
+        
+        lblSarType.setText("Datum Line");
+        
+//        sarData = data;
+    }
+    
+    
+    private void setBackTrackData(SARData data){
+        
+        lblSarType.setText("Backtrack");
+        
+//        sarData = data;
+    }
+    
+    
     private void setRapidResponseData(RapidResponseData data) {
 
+        
+        lblSarType.setText("Rapid Response");
+        
         sarData = data;
 
         DateTimeFormatter fmt = DateTimeFormat

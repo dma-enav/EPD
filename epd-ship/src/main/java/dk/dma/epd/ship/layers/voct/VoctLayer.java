@@ -333,10 +333,10 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
         DatumPointData data = (DatumPointData) voctManager.getSarData();
 
-//        Position A = data.getA();
-//        Position B = data.getB();
-//        Position C = data.getC();
-//        Position D = data.getD();
+        Position A = data.getA();
+        Position B = data.getB();
+        Position C = data.getC();
+        Position D = data.getD();
 
         Position datumDownWind = data.getDatumDownWind();
         Position datumMin = data.getDatumMin();
@@ -352,7 +352,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         graphics.clear();
 
 //        public SarGraphics(Position datumDownWind, Position datumMin, Position datumMax, double radiusDownWind, double radiusMin, double radiusMax, Position LKP, Position current) {
-        SarGraphics sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint);
+        SarGraphics sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint, A, B, C, D);
 
         graphics.add(sarGraphics);
 

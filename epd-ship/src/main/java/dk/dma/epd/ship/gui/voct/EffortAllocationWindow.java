@@ -504,6 +504,9 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             return -9999;
         } else {
             try {
+                if (groundSpeed.contains(",")){
+                    groundSpeed = groundSpeed.replace(",", ".");
+                }
                 return Double.parseDouble(groundSpeed);
             } catch (Exception e) {
                 displayMissingField("SRU Top Speed");
@@ -522,7 +525,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             probabilityOfDetection = (String) probabilityOfDetection
                     .subSequence(0, probabilityOfDetection.length() - 1);
         } catch (Exception e) {
-            // Invalid
+            // Invalid - ignore
         }
 
         if (probabilityOfDetection.equals("")) {
@@ -530,6 +533,10 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             return -9999;
         } else {
             try {
+                if (probabilityOfDetection.contains(",")){
+                    probabilityOfDetection = probabilityOfDetection.replace(",", ".");
+                }
+                
                 return Double.parseDouble(probabilityOfDetection) / 100;
             } catch (Exception e) {
                 displayMissingField("Probability of Detection");

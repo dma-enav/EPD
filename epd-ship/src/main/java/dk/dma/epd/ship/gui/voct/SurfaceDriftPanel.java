@@ -65,7 +65,12 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
             return -9999;
         } else {
             try {
-                return Double.parseDouble(twcField.getText());
+                String twcFieldStr = twcField.getText();
+                if (twcFieldStr.contains(",")){
+                    twcFieldStr = twcFieldStr.replace(",", ".");
+                }
+                
+                return Double.parseDouble(twcFieldStr);
             } catch (Exception e) {
                 displayMissingField("TWC Knots");
                 return -9999;
@@ -81,7 +86,12 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
             return -9999;
         } else {
             try {
-                return Double.parseDouble(leewayField.getText());
+                
+                String leewayFieldStr = leewayField.getText();
+                if (leewayFieldStr.contains(",")){
+                    leewayFieldStr = leewayFieldStr.replace(",", ".");
+                }
+                return Double.parseDouble(leewayFieldStr);
             } catch (Exception e) {
                 displayMissingField("Leeway Knots");
                 return -9999;

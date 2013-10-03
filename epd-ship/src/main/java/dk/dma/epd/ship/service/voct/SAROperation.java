@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.ship.service.voct;
 
+import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.voct.LeewayValues;
@@ -240,10 +241,10 @@ public class SAROperation {
 
         double currentTWC = data.getWeatherPoints().get(0).getTWCknots()
                 * timeElapsed;
-        
+
         double leewayspeed = searchObjectValue(data.getSearchObject(), data
                 .getWeatherPoints().get(0).getLWknots());
-        
+
         double leeway = leewayspeed * timeElapsed;
         double leewayDivergence = searchObjectValue(data.getSearchObject());
 
@@ -259,7 +260,7 @@ public class SAROperation {
 
         // This is the TWC point
         data.setWtc(currentPos);
-        
+
         // We now have 3 different datums to calculate, DW, min and max.
         endBearing = new double[1];
 
@@ -331,18 +332,20 @@ public class SAROperation {
         data.setRdvSpeedMax(rdvSpeedMax);
 
         // Radius:
-        double radiusDownWind = data.getX() + data.getY() + 0.3
+        double radiusDownWind = (data.getX() + data.getY()) + 0.3
                 * rdvDistanceDownWind * data.getSF();
         data.setRadiusDownWind(radiusDownWind);
 
-        double radiusMin = data.getX() + data.getY() + 0.3 * rdvDistanceMin
+        double radiusMin = (data.getX() + data.getY()) + 0.3 * rdvDistanceMin
                 * data.getSF();
         data.setRadiusMin(radiusMin);
 
-        double radiusMax = data.getX() + data.getY() + 0.3 * rdvDistanceMax
+        double radiusMax = (data.getX() + data.getY()) + 0.3 * rdvDistanceMax
                 * data.getSF();
 
         data.setRadiusMax(radiusMax);
+
+        findSmallestSquare(data);
 
         voctManager.setSarData(data);
     }
@@ -357,9 +360,11 @@ public class SAROperation {
 
         Position datumMin = data.getDatumMin();
         Position datumMax = data.getDatumMax();
+        Position datumDownWind = data.getDatumDownWind();
 
         double radiusMin = data.getRadiusMin();
         double radiusMax = data.getRadiusMax();
+        double radiusDownWind = data.getRadiusDownWind();
 
         // Bearing between the two points - this will be the direction of the
         // box.
@@ -369,17 +374,157 @@ public class SAROperation {
         Ellipsoid reference = Ellipsoid.WGS84;
         double[] endBearing = new double[1];
 
+        // Find A and D
+
+        // Find top Position from radius
+        Position TopPointMax = Calculator.calculateEndingGlobalCoordinates(
+                reference, datumMax, lengthBearing + 90,
+                Converter.nmToMeters(radiusMax), endBearing);
+
+        endBearing = new double[1];
+
+        Position BottomPointMax = Calculator.calculateEndingGlobalCoordinates(
+                reference, datumMax, lengthBearing - 90,
+                Converter.nmToMeters(radiusMax), endBearing);
+        endBearing = new double[1];
+
+        Position topPointMaxInnerBox = Calculator
+                .calculateEndingGlobalCoordinates(reference, TopPointMax,
+                        lengthBearing + 180, Converter.nmToMeters(radiusMax),
+                        endBearing);
+
+        data.setA(topPointMaxInnerBox);
+
+        Position bottomPointMaxInnerBox = Calculator
+                .calculateEndingGlobalCoordinates(reference, BottomPointMax,
+                        lengthBearing + 180, Converter.nmToMeters(radiusMax),
+                        endBearing);
+
+        data.setD(bottomPointMaxInnerBox);
+
         // Find top Position from radius
         Position TopPointMin = Calculator.calculateEndingGlobalCoordinates(
                 reference, datumMin, lengthBearing + 90,
                 Converter.nmToMeters(radiusMin), endBearing);
 
+        endBearing = new double[1];
+
+        Position BottomPointMin = Calculator.calculateEndingGlobalCoordinates(
+                reference, datumMin, lengthBearing - 90,
+                Converter.nmToMeters(radiusMin), endBearing);
+        endBearing = new double[1];
+
         // Position top of min circle, turn 180 around and go radius distance to
         // find a box point
-        Position LeftPointInnerBox = Calculator
+        Position topPointMinInnerBox = Calculator
                 .calculateEndingGlobalCoordinates(reference, TopPointMin,
-                        lengthBearing + 180, Converter.nmToMeters(radiusMin),
+                        lengthBearing, Converter.nmToMeters(radiusMin),
                         endBearing);
+
+        data.setB(topPointMinInnerBox);
+
+        endBearing = new double[1];
+
+        Position bottomPointMinInnerBox = Calculator
+                .calculateEndingGlobalCoordinates(reference, BottomPointMin,
+                        lengthBearing, Converter.nmToMeters(radiusMin),
+                        endBearing);
+        endBearing = new double[1];
+
+        data.setC(bottomPointMinInnerBox);
+
+        System.out.println("Bearing from datum to max is");
+        double bearingFromDownwindToMax = Calculator.bearing(datumDownWind,
+                datumMax, Heading.RL);
+        System.out.println(bearingFromDownwindToMax);
+
+        double growthBearing;
+
+        
+        System.out.println("Length bearing of normal box is " + lengthBearing);
+        
+        if (bearingFromDownwindToMax > 90 && bearingFromDownwindToMax < 270) {
+            growthBearing = lengthBearing + 90;
+        }else{
+            growthBearing = -(lengthBearing + 90);
+        }
+        
+            // Going down - replace D, C
+            growthBearing = lengthBearing + 90;
+            
+            
+            System.out.println("Growing in plus 90 " + growthBearing);
+            
+            double boxLength = topPointMaxInnerBox.distanceTo(
+                    topPointMinInnerBox, CoordinateSystem.GEODETIC);
+
+                System.out.println("Length of Box: " + boxLength);
+            
+            Position growthCenterPosition = Calculator
+                    .calculateEndingGlobalCoordinates(reference, datumDownWind,
+                            growthBearing, Converter.nmToMeters(radiusDownWind),
+                            endBearing);
+            endBearing = new double[1];
+            
+//            data.setB(growthCenterPosition);
+            
+//            
+//            
+//            
+            Position A = Calculator.calculateEndingGlobalCoordinates(reference,
+                    growthCenterPosition, lengthBearing - 180,
+                    boxLength/2, endBearing);
+            endBearing = new double[1];
+            data.setA(A);
+//            
+            Position B = Calculator.calculateEndingGlobalCoordinates(reference,
+                    growthCenterPosition, lengthBearing,
+                    boxLength/2, endBearing);
+            endBearing = new double[1];
+            
+            data.setB(B);
+            
+            // C
+            // D
+
+            // C bottomPointMinInnerBox
+            // D bottomPointMaxInnerBox
+//        } 
+        
+//        else {
+//            // Going up - replace A, B
+//            growthBearing = -(lengthBearing + 90);
+//            
+//            System.out.println("Growing in minus " + growthBearing);
+//            
+//            double boxLength = bottomPointMaxInnerBox.distanceTo(
+//                    bottomPointMinInnerBox, CoordinateSystem.GEODETIC);
+//
+//                System.out.println("Length of Box: " + boxLength);
+//            
+//            Position growthCenterPosition = Calculator
+//                    .calculateEndingGlobalCoordinates(reference, datumDownWind,
+//                            growthBearing, Converter.nmToMeters(radiusDownWind),
+//                            endBearing);
+//            endBearing = new double[1];
+//            
+//            Position D = Calculator.calculateEndingGlobalCoordinates(reference,
+//                    growthCenterPosition, lengthBearing - 180,
+//                    boxLength/2, endBearing);
+//            endBearing = new double[1];
+//            
+//            data.setD(D);
+//            
+//            Position C = Calculator.calculateEndingGlobalCoordinates(reference,
+//                    growthCenterPosition, lengthBearing,
+//                    boxLength/2, endBearing);
+//            endBearing = new double[1];
+//            
+////            data.setC(C);
+//
+//        }
+
+
 
     }
 
@@ -489,7 +634,7 @@ public class SAROperation {
         System.out.println("RDV Speed: " + rdvSpeed);
 
         // Radius:
-        double radius = data.getX() + data.getY() + 0.3 * rdvDistance
+        double radius = (data.getX() + data.getY()) + 0.3 * rdvDistance
                 * data.getSF();
 
         data.setRadius(radius);
