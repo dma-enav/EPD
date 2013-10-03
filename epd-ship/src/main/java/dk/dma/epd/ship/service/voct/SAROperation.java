@@ -525,7 +525,9 @@ public class SAROperation {
 //        }
 
 
-
+     
+            
+//            double 
     }
 
     public Position applyDriftToPoint(SARData data, Position point,

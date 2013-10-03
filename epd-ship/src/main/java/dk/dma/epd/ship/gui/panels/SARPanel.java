@@ -37,6 +37,7 @@ import javax.swing.border.TitledBorder;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
@@ -63,7 +64,6 @@ public class SARPanel extends JPanel implements ActionListener {
     private JPanel statusPanel;
     private JPanel timeAndDatePanel;
     private JPanel weatherPanel;
-    private JPanel datumPanel;
     private JPanel searchAreaPanel;
     private JPanel buttonPanel;
     private JButton btnReopenCalculations;
@@ -78,15 +78,6 @@ public class SARPanel extends JPanel implements ActionListener {
     private JLabel rdvDirection;
     private JLabel lblSpeed;
     private JLabel rdvSpeed;
-    private JLabel lblDownwind;
-    private JLabel lblLatitude;
-    private JLabel lblLongitude;
-    private JLabel lblRdv;
-    private JLabel lblRadius;
-    private JLabel datumLat;
-    private JLabel datumLon;
-    private JLabel rdvDistance;
-    private JLabel datumRadius;
     private JLabel lblA;
     private JLabel lblB;
     private JLabel lblC;
@@ -114,7 +105,13 @@ public class SARPanel extends JPanel implements ActionListener {
 
     static final String SARPANEL = "SAR Panel";
     static final String NOSARPANEL = "No Sar panel";
-
+    
+    
+    static final String RAPIDRESPONSEDATUM = "Rapid Response Datum Panel";
+    static final String DATUMPOINTDATUM = "Datum Point Datum Panel";
+    private SARPanelRapidResponseDatumPanel rapidResponseDatumPanel;
+    private SARPanelDatumPointDatumPanel datumPointDatumPanel;
+    
     private VOCTManager voctManager;
     private JLabel lblTrackSpacing;
     private JLabel trackSpacingVal;
@@ -128,6 +125,7 @@ public class SARPanel extends JPanel implements ActionListener {
 
     private SARData sarData;
     private JCheckBox chckbxShowDynamicPattern;
+    private JPanel datumPanel;
 
     
     private JLabel lblSarType;
@@ -349,7 +347,7 @@ public class SARPanel extends JPanel implements ActionListener {
         gbc_lblSpeed.gridy = 1;
         weatherPanel.add(lblSpeed, gbc_lblSpeed);
 
-        rdvSpeed = new JLabel("1.8 kt");
+        rdvSpeed = new JLabel("N/A");
         GridBagConstraints gbc_rdvSpeed = new GridBagConstraints();
         gbc_rdvSpeed.anchor = GridBagConstraints.WEST;
         gbc_rdvSpeed.gridx = 1;
@@ -357,83 +355,25 @@ public class SARPanel extends JPanel implements ActionListener {
         weatherPanel.add(rdvSpeed, gbc_rdvSpeed);
 
         datumPanel = new JPanel();
-        datumPanel.setBorder(new TitledBorder(null, "Position of Datum to LKP",
-                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        datumPanel.setLayout(new CardLayout());
+
         GridBagConstraints gbc_datumPanel = new GridBagConstraints();
         gbc_datumPanel.insets = new Insets(0, 0, 5, 0);
         gbc_datumPanel.fill = GridBagConstraints.BOTH;
         gbc_datumPanel.gridx = 0;
         gbc_datumPanel.gridy = 4;
         sarStartedPanel.add(datumPanel, gbc_datumPanel);
-        GridBagLayout gbl_datumPanel = new GridBagLayout();
-        gbl_datumPanel.columnWidths = new int[] { 0, 0, 0, 0, 0 };
-        gbl_datumPanel.rowHeights = new int[] { 0, 0 };
-        gbl_datumPanel.columnWeights = new double[] { 1.0, 1.0, 1.0, 1.0, 1.0 };
-        gbl_datumPanel.rowWeights = new double[] { 1.0, 1.0 };
-        datumPanel.setLayout(gbl_datumPanel);
+        
+        
+        
+        //Multiple datum panels
+        rapidResponseDatumPanel = new SARPanelRapidResponseDatumPanel();
+        datumPointDatumPanel = new SARPanelDatumPointDatumPanel();
+        datumPanel.add(rapidResponseDatumPanel, RAPIDRESPONSEDATUM);
+        datumPanel.add(datumPointDatumPanel, DATUMPOINTDATUM);
 
-        lblLatitude = new JLabel("Latitude");
-        GridBagConstraints gbc_lblLatitude = new GridBagConstraints();
-        gbc_lblLatitude.fill = GridBagConstraints.HORIZONTAL;
-        gbc_lblLatitude.insets = new Insets(0, 0, 5, 5);
-        gbc_lblLatitude.gridx = 1;
-        gbc_lblLatitude.gridy = 0;
-        datumPanel.add(lblLatitude, gbc_lblLatitude);
-
-        lblLongitude = new JLabel("Longitude");
-        GridBagConstraints gbc_lblLongitude = new GridBagConstraints();
-        gbc_lblLongitude.insets = new Insets(0, 0, 5, 5);
-        gbc_lblLongitude.gridx = 2;
-        gbc_lblLongitude.gridy = 0;
-        datumPanel.add(lblLongitude, gbc_lblLongitude);
-
-        lblRdv = new JLabel("RDV");
-        GridBagConstraints gbc_lblRdv = new GridBagConstraints();
-        gbc_lblRdv.insets = new Insets(0, 0, 5, 5);
-        gbc_lblRdv.gridx = 3;
-        gbc_lblRdv.gridy = 0;
-        datumPanel.add(lblRdv, gbc_lblRdv);
-
-        lblRadius = new JLabel("Radius");
-        GridBagConstraints gbc_lblRadius = new GridBagConstraints();
-        gbc_lblRadius.insets = new Insets(0, 0, 5, 0);
-        gbc_lblRadius.gridx = 4;
-        gbc_lblRadius.gridy = 0;
-        datumPanel.add(lblRadius, gbc_lblRadius);
-
-        lblDownwind = new JLabel("Downwind:");
-        GridBagConstraints gbc_lblDownwind = new GridBagConstraints();
-        gbc_lblDownwind.insets = new Insets(0, 0, 0, 5);
-        gbc_lblDownwind.gridx = 0;
-        gbc_lblDownwind.gridy = 1;
-        datumPanel.add(lblDownwind, gbc_lblDownwind);
-
-        datumLat = new JLabel("N/A");
-        GridBagConstraints gbc_datumLat = new GridBagConstraints();
-        gbc_datumLat.insets = new Insets(0, 0, 0, 5);
-        gbc_datumLat.gridx = 1;
-        gbc_datumLat.gridy = 1;
-        datumPanel.add(datumLat, gbc_datumLat);
-
-        datumLon = new JLabel("N/A");
-        GridBagConstraints gbc_datumLon = new GridBagConstraints();
-        gbc_datumLon.insets = new Insets(0, 0, 0, 5);
-        gbc_datumLon.gridx = 2;
-        gbc_datumLon.gridy = 1;
-        datumPanel.add(datumLon, gbc_datumLon);
-
-        rdvDistance = new JLabel("N/A");
-        GridBagConstraints gbc_rdvDistance = new GridBagConstraints();
-        gbc_rdvDistance.insets = new Insets(0, 0, 0, 5);
-        gbc_rdvDistance.gridx = 3;
-        gbc_rdvDistance.gridy = 1;
-        datumPanel.add(rdvDistance, gbc_rdvDistance);
-
-        datumRadius = new JLabel("N/A");
-        GridBagConstraints gbc_datumRadius = new GridBagConstraints();
-        gbc_datumRadius.gridx = 4;
-        gbc_datumRadius.gridy = 1;
-        datumPanel.add(datumRadius, gbc_datumRadius);
+     
+        
 
         searchAreaPanel = new JPanel();
         searchAreaPanel.setBorder(new TitledBorder(null,
@@ -894,10 +834,71 @@ public class SARPanel extends JPanel implements ActionListener {
     }
 
     private void setDatumPointData(DatumPointData data){
+        sarData = data;
+        
         
         lblSarType.setText("Datum Point");
         
-        sarData = data;
+        CardLayout cl = (CardLayout) (datumPanel.getLayout());
+        cl.show(datumPanel, DATUMPOINTDATUM);
+        
+        DateTimeFormatter fmt = DateTimeFormat
+                .forPattern("HH':'mm '-' dd'/'MM");
+
+        lkpDate.setText(fmt.print(data.getLKPDate()));
+        cssDateStart.setText(fmt.print(data.getCSSDate()));
+        timeElapsed.setText(Formatter.formatHours(data.getTimeElasped()) + "");
+        
+        rdvDirection.setText(Formatter.formatDouble(data.getRdvDirectionDownWind(), 2)
+                + "°");
+        rdvSpeed.setText(Formatter.formatDouble(data.getRdvSpeedDownWind(), 2) + "kn/h");
+        
+        
+        
+        
+
+        
+        
+        datumPointDatumPanel.setDatumLatDownWind(data.getDatumDownWind().getLatitudeAsString());
+        datumPointDatumPanel.setDatumLonDownWind(data.getDatumDownWind().getLongitudeAsString());
+        datumPointDatumPanel.setrdvDistanceDownWind(Formatter.formatDouble(data.getRdvDistanceDownWind(), 2)
+                + " nm");
+        datumPointDatumPanel.setdatumRadiusDownWind(Formatter.formatDouble(data.getRadiusDownWind(), 2) + " nm");
+        
+        
+        datumPointDatumPanel.setDatumLatMin(data.getDatumMin().getLatitudeAsString());
+        datumPointDatumPanel.setDatumLonMin(data.getDatumMin().getLongitudeAsString());
+        datumPointDatumPanel.setrdvDistanceMin(Formatter.formatDouble(data.getRdvDistanceMin(), 2)
+                + " nm");
+        datumPointDatumPanel.setdatumRadiusMin(Formatter.formatDouble(data.getRadiusMin(), 2) + " nm");
+        
+        
+        datumPointDatumPanel.setDatumLatMax(data.getDatumMax().getLatitudeAsString());
+        datumPointDatumPanel.setDatumLonMax(data.getDatumMax().getLongitudeAsString());
+        datumPointDatumPanel.setrdvDistanceMax(Formatter.formatDouble(data.getRdvDistanceMax(), 2)
+                + " nm");
+        datumPointDatumPanel.setdatumRadiusMax(Formatter.formatDouble(data.getRadiusMax(), 2) + " nm");
+
+        
+        
+        
+
+        pointAlat.setText(data.getA().getLatitudeAsString());
+        pointAlon.setText(data.getA().getLongitudeAsString());
+        pointBlat.setText(data.getB().getLatitudeAsString());
+        pointBlon.setText(data.getB().getLongitudeAsString());
+        pointClat.setText(data.getC().getLatitudeAsString());
+        pointClon.setText(data.getC().getLongitudeAsString());
+        pointDlat.setText(data.getD().getLatitudeAsString());
+        pointDlon.setText(data.getD().getLongitudeAsString());
+        
+        double width = data.getA().distanceTo(data.getB(), CoordinateSystem.CARTESIAN);
+        double height = data.getA().distanceTo(data.getC(), CoordinateSystem.CARTESIAN);
+        
+
+        areaSize.setText(Formatter.formatDouble(
+                width * height, 2)
+                + " ");
     }
     
     
@@ -919,6 +920,10 @@ public class SARPanel extends JPanel implements ActionListener {
     
     private void setRapidResponseData(RapidResponseData data) {
 
+        CardLayout cl = (CardLayout) (datumPanel.getLayout());
+        cl.show(datumPanel, RAPIDRESPONSEDATUM);
+        
+        
         
         lblSarType.setText("Rapid Response");
         
@@ -933,12 +938,18 @@ public class SARPanel extends JPanel implements ActionListener {
         rdvDirection.setText(Formatter.formatDouble(data.getRdvDirection(), 2)
                 + "°");
         rdvSpeed.setText(Formatter.formatDouble(data.getRdvSpeed(), 2) + "kn/h");
-        datumLat.setText(data.getDatum().getLatitudeAsString());
-        datumLon.setText(data.getDatum().getLongitudeAsString());
-        rdvDistance.setText(Formatter.formatDouble(data.getRdvDistance(), 2)
+        
+        
+        
+        rapidResponseDatumPanel.setDatumLat(data.getDatum().getLatitudeAsString());
+        rapidResponseDatumPanel.setDatumLon(data.getDatum().getLongitudeAsString());
+        rapidResponseDatumPanel.setrdvDistance(Formatter.formatDouble(data.getRdvDistance(), 2)
                 + " nm");
-        datumRadius
-                .setText(Formatter.formatDouble(data.getRadius(), 2) + " nm");
+        rapidResponseDatumPanel.setdatumRadius(Formatter.formatDouble(data.getRadius(), 2) + " nm");
+        
+
+        
+        
 
         pointAlat.setText(data.getA().getLatitudeAsString());
         pointAlon.setText(data.getA().getLongitudeAsString());
