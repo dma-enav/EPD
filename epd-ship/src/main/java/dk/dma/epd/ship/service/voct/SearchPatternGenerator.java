@@ -55,6 +55,9 @@ public class SearchPatternGenerator {
         case Parallel_Sweep_Search:
             return parallelSweepSearch(data.getCSP(),
                     data.getEffortAllocationData(), data);
+        case Creeping_Line_Search:
+            return creepingLineSearch(data.getCSP(),
+                    data.getEffortAllocationData(), data);
         default:
             return null;
 
@@ -62,6 +65,226 @@ public class SearchPatternGenerator {
 
     }
 
+    
+    
+    private SearchPatternRoute creepingLineSearch(Position CSP,
+            EffortAllocationData effortAllocationData, SARData sarData) {
+        
+        // Find closest corner point
+        Position A = effortAllocationData.getEffectiveAreaA();
+        Position B = effortAllocationData.getEffectiveAreaB();
+        Position C = effortAllocationData.getEffectiveAreaC();
+        Position D = effortAllocationData.getEffectiveAreaD();
+
+        double aCSP = A.distanceTo(CSP, CoordinateSystem.CARTESIAN);
+        double bCSP = B.distanceTo(CSP, CoordinateSystem.CARTESIAN);
+        double cCSP = C.distanceTo(CSP, CoordinateSystem.CARTESIAN);
+        double dCSP = D.distanceTo(CSP, CoordinateSystem.CARTESIAN);
+
+        // Assumptions about the corners, A is top left, B is top right, C is
+        // bottom left and D is bottom right.
+        // Using these assumptions we can determine which way to let the search
+        // pattern unfold
+        double smallest = aCSP;
+
+        Position toDrawTo = A;
+
+        double horizontalBearing   = A.rhumbLineBearingTo(B);
+        double verticalBearing = A.rhumbLineBearingTo(C);
+
+        if (bCSP < smallest) {
+            smallest = bCSP;
+            toDrawTo = B;
+            horizontalBearing = B.rhumbLineBearingTo(A);
+            verticalBearing = B.rhumbLineBearingTo(D);
+        }
+        if (cCSP < smallest) {
+            smallest = cCSP;
+            toDrawTo = C;
+            horizontalBearing = C.rhumbLineBearingTo(D);
+            verticalBearing = C.rhumbLineBearingTo(A);
+        }
+        if (dCSP < smallest) {
+            smallest = dCSP;
+            toDrawTo = D;
+            horizontalBearing = D.rhumbLineBearingTo(C);
+            verticalBearing = D.rhumbLineBearingTo(B);
+
+        }
+
+        double S = effortAllocationData.getTrackSpacing();
+
+        // Find init position from the corner
+        Position verticalPos = Calculator.findPosition(toDrawTo,
+                verticalBearing, Converter.nmToMeters(S / 2));
+
+        // This is where we start
+        Position finalPos = Calculator.findPosition(verticalPos,
+                horizontalBearing, Converter.nmToMeters(S / 2));
+
+        // Determine how long of a track we can generate
+        double totalLengthOfTrack = effortAllocationData.getEffectiveAreaSize()
+                / S;
+
+        // Individual track length - has ½S in each end, so we take width minus
+        // S
+        double trackLength = effortAllocationData.getEffectiveAreaWidth() - S;
+
+        // We have not plotted anything yet
+        double trackPlotted = 0;
+
+        // Note what if the CSP is too far from the area? - To be determined
+
+        Position currentPos = finalPos;
+        Position nextPos;
+
+        List<Position> positionList = new ArrayList<Position>();
+
+        positionList.add(currentPos);
+
+        while (trackPlotted < totalLengthOfTrack) {
+
+            System.out.println("Vertical Bearing " + verticalBearing);
+            
+            // Move vertically
+            nextPos = Calculator.findPosition(currentPos, verticalBearing,
+                    Converter.nmToMeters(trackLength));
+
+            // Reverse direction
+            verticalBearing = verticalBearing + 180;
+
+            // Do we place another track?
+            if ((trackPlotted + trackLength) <= totalLengthOfTrack) {
+
+                trackPlotted = trackPlotted + trackLength;
+
+                currentPos = nextPos;
+
+                positionList.add(currentPos);
+
+                // Move horizontally
+                nextPos = Calculator.findPosition(currentPos, horizontalBearing,
+                        Converter.nmToMeters(S / 2));
+
+                // Do we move up a half ½S distance?
+                if ((trackPlotted + (S / 2)) <= totalLengthOfTrack) {
+
+                    trackPlotted = trackPlotted + (S / 2);
+
+                    currentPos = nextPos;
+
+                    positionList.add(currentPos);
+
+                    System.out.println("Track Plotted is: " + trackPlotted
+                            + " vs. the total length " + totalLengthOfTrack);
+                } else {
+                    // Cannot draw ½S track, draw what we can
+                    double remainingDistance = totalLengthOfTrack
+                            - trackPlotted;
+
+                    nextPos = Calculator.findPosition(currentPos,
+                            horizontalBearing,
+                            Converter.nmToMeters(remainingDistance));
+                    trackPlotted = trackPlotted + remainingDistance;
+                    currentPos = nextPos;
+                    positionList.add(currentPos);
+                }
+            } else {
+                // Cannot draw the full length of the track, draw the remaining
+                // distance
+                verticalBearing = verticalBearing + 180;
+
+                double remainingDistance = totalLengthOfTrack - trackPlotted;
+                nextPos = Calculator.findPosition(currentPos,
+                        verticalBearing,
+                        Converter.nmToMeters(remainingDistance));
+
+                trackPlotted = trackPlotted + remainingDistance;
+
+                currentPos = nextPos;
+                positionList.add(currentPos);
+            }
+        }
+
+        // Create a new Search Pattern Route based on static locations
+        SearchPatternRoute searchRoute = new SearchPatternRoute(positionList);
+
+        // Set values to each waypoint
+        LinkedList<RouteWaypoint> waypoints = searchRoute.getWaypoints();
+        for (RouteWaypoint routeWaypoint : waypoints) {
+            if (routeWaypoint.getOutLeg() != null) {
+                RouteLeg outLeg = routeWaypoint.getOutLeg();
+                double xtd = EPDShip.getSettings().getNavSettings()
+                        .getDefaultXtd();
+                outLeg.setXtdPort(xtd);
+                outLeg.setXtdStarboard(xtd);
+                outLeg.setHeading(Heading.RL);
+                outLeg.setSpeed(effortAllocationData.getGroundSpeed());
+            }
+            routeWaypoint.setTurnRad(EPDShip.getSettings().getNavSettings()
+                    .getDefaultTurnRad());
+
+        }
+
+        // Search Route Start time to CSS
+        searchRoute.setStarttime(new Date(sarData.getCSSDate().getMillis()));
+
+        // Calculate ETAS and TTGS based on these values
+        searchRoute.calcValues(true);
+
+        
+        // Setname
+        if (sarData.getSarID().equals("")){
+            searchRoute.setName("Creeping Line Search");            
+        }else{
+            searchRoute.setName("Creeping Line Search - SAR No. " + sarData.getSarID());
+        }
+        
+
+
+        // Dynamic waypoints
+        List<Position> waypointsAdjustedForWeather = new ArrayList<Position>();
+
+        // We must calculate from time 0 of our arrival as the effective area
+        // has been calculated from LKP
+        // Thus our time 0 is Commence Search Start
+        DateTime cssDate = sarData.getCSSDate();
+
+        for (int i = 0; i < searchRoute.getWaypoints().size(); i++) {
+            Date wpETA = searchRoute.getEtas().get(i);
+            Position wpPos = searchRoute.getWaypoints().get(i).getPos();
+
+            // How long has elapsed since time 0
+            double timeElapsed = ((double) (wpETA.getTime() - cssDate
+                    .getMillis())) / 60 / 60 / 1000;
+
+            // System.out.println("Elapsed is for " + i + " is " + timeElapsed);
+
+            Position newPos = sarOperation.applyDriftToPoint(sarData, wpPos,
+                    timeElapsed);
+
+            waypointsAdjustedForWeather.add(newPos);
+            // searchRoute.getWaypoints().get(i).setPos(newPos);
+        }
+
+        searchRoute.setDynamicPositions(waypointsAdjustedForWeather);
+        
+        searchRoute.getWaypoints().get(0).setName("Start");
+        
+        searchRoute.getWaypoints().get(searchRoute.getWaypoints().size()-1).setName("End");
+        
+
+        return searchRoute;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
     private SearchPatternRoute parallelSweepSearch(Position CSP,
             EffortAllocationData effortAllocationData, SARData sarData) {
         // Find closest corner point
@@ -269,6 +492,9 @@ public class SearchPatternGenerator {
         return searchRoute;
     }
 
+    
+    
+    
     public void generateSearchPatternInvalid(RapidResponseData rapidResponseData) {
 
         //

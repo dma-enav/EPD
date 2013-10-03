@@ -44,6 +44,7 @@ import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.voct.EffortAllocationWindow;
 import dk.dma.epd.ship.gui.voct.SearchPatternDialog;
@@ -105,13 +106,12 @@ public class SARPanel extends JPanel implements ActionListener {
 
     static final String SARPANEL = "SAR Panel";
     static final String NOSARPANEL = "No Sar panel";
-    
-    
+
     static final String RAPIDRESPONSEDATUM = "Rapid Response Datum Panel";
     static final String DATUMPOINTDATUM = "Datum Point Datum Panel";
     private SARPanelRapidResponseDatumPanel rapidResponseDatumPanel;
     private SARPanelDatumPointDatumPanel datumPointDatumPanel;
-    
+
     private VOCTManager voctManager;
     private JLabel lblTrackSpacing;
     private JLabel trackSpacingVal;
@@ -127,9 +127,8 @@ public class SARPanel extends JPanel implements ActionListener {
     private JCheckBox chckbxShowDynamicPattern;
     private JPanel datumPanel;
 
-    
     private JLabel lblSarType;
-    
+
     public SARPanel() {
 
         setLayout(new CardLayout());
@@ -363,17 +362,12 @@ public class SARPanel extends JPanel implements ActionListener {
         gbc_datumPanel.gridx = 0;
         gbc_datumPanel.gridy = 4;
         sarStartedPanel.add(datumPanel, gbc_datumPanel);
-        
-        
-        
-        //Multiple datum panels
+
+        // Multiple datum panels
         rapidResponseDatumPanel = new SARPanelRapidResponseDatumPanel();
         datumPointDatumPanel = new SARPanelDatumPointDatumPanel();
         datumPanel.add(rapidResponseDatumPanel, RAPIDRESPONSEDATUM);
         datumPanel.add(datumPointDatumPanel, DATUMPOINTDATUM);
-
-     
-        
 
         searchAreaPanel = new JPanel();
         searchAreaPanel.setBorder(new TitledBorder(null,
@@ -742,21 +736,21 @@ public class SARPanel extends JPanel implements ActionListener {
                         .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
                 searchPatternDialog.setVisible(true);
             }
-            
+
             return;
         }
-        
-        if (arg0.getSource() == chckbxShowDynamicPattern){
-            
-            if(chckbxShowDynamicPattern.isSelected()){
-                sarData.getSearchPatternRoute().switchToDynamic();    
-            }else{
+
+        if (arg0.getSource() == chckbxShowDynamicPattern) {
+
+            if (chckbxShowDynamicPattern.isSelected()) {
+                sarData.getSearchPatternRoute().switchToDynamic();
+            } else {
                 sarData.getSearchPatternRoute().switchToStatic();
             }
-            
-            EPDShip.getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_CHANGED);
-            
-            
+
+            EPDShip.getRouteManager().notifyListeners(
+                    RoutesUpdateEvent.ROUTE_CHANGED);
+
             return;
         }
 
@@ -770,8 +764,7 @@ public class SARPanel extends JPanel implements ActionListener {
         trackSpacingVal.setText("N/A");
         timeSpentSearchingVal.setValue(0);
         timeSpentSearchingVal.setEnabled(false);
-        
-        
+
         btnGenerateSearchPattern.setEnabled(false);
         chckbxShowDynamicPattern.setEnabled(false);
 
@@ -779,32 +772,30 @@ public class SARPanel extends JPanel implements ActionListener {
         // map in full screen mode
         searchPatternDialog.setVisible(false);
 
-        
-        //Activate the relevant panel
-        if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE){
-            setRapidResponseData((RapidResponseData) data);    
+        // Activate the relevant panel
+        if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
+            setRapidResponseData((RapidResponseData) data);
         }
-        
-        if (voctManager.getSarType() == SAR_TYPE.DATUM_POINT){
-            setDatumPointData( (DatumPointData) data);    
+
+        if (voctManager.getSarType() == SAR_TYPE.DATUM_POINT) {
+            setDatumPointData((DatumPointData) data);
         }
-        
-        if (voctManager.getSarType() == SAR_TYPE.DATUM_LINE){
+
+        if (voctManager.getSarType() == SAR_TYPE.DATUM_LINE) {
             setDatumLineData(data);
         }
-        
-        if (voctManager.getSarType() == SAR_TYPE.BACKTRACK){
+
+        if (voctManager.getSarType() == SAR_TYPE.BACKTRACK) {
             setBackTrackData(data);
         }
-        
-        
-//        setDatumPointData
-        
+
+        // setDatumPointData
+
         CardLayout cl = (CardLayout) (this.getLayout());
         cl.show(this, SARPANEL);
     }
-    
-    public void searchPatternGenerated(SARData sarData){
+
+    public void searchPatternGenerated(SARData sarData) {
         chckbxShowDynamicPattern.setEnabled(true);
         chckbxShowDynamicPattern.setSelected(false);
     }
@@ -833,55 +824,59 @@ public class SARPanel extends JPanel implements ActionListener {
         chckbxShowDynamicPattern.setEnabled(false);
     }
 
-    private void setDatumPointData(DatumPointData data){
+    private void setDatumPointData(DatumPointData data) {
         sarData = data;
-        
-        
+
         lblSarType.setText("Datum Point");
-        
+
         CardLayout cl = (CardLayout) (datumPanel.getLayout());
         cl.show(datumPanel, DATUMPOINTDATUM);
-        
+
         DateTimeFormatter fmt = DateTimeFormat
                 .forPattern("HH':'mm '-' dd'/'MM");
 
         lkpDate.setText(fmt.print(data.getLKPDate()));
         cssDateStart.setText(fmt.print(data.getCSSDate()));
         timeElapsed.setText(Formatter.formatHours(data.getTimeElasped()) + "");
-        
-        rdvDirection.setText(Formatter.formatDouble(data.getRdvDirectionDownWind(), 2)
+
+        rdvDirection.setText(Formatter.formatDouble(
+                data.getRdvDirectionDownWind(), 2)
                 + "°");
-        rdvSpeed.setText(Formatter.formatDouble(data.getRdvSpeedDownWind(), 2) + "kn/h");
-        
-        
-        
-        
+        rdvSpeed.setText(Formatter.formatDouble(data.getRdvSpeedDownWind(), 2)
+                + "kn/h");
 
-        
-        
-        datumPointDatumPanel.setDatumLatDownWind(data.getDatumDownWind().getLatitudeAsString());
-        datumPointDatumPanel.setDatumLonDownWind(data.getDatumDownWind().getLongitudeAsString());
-        datumPointDatumPanel.setrdvDistanceDownWind(Formatter.formatDouble(data.getRdvDistanceDownWind(), 2)
+        datumPointDatumPanel.setDatumLatDownWind(data.getDatumDownWind()
+                .getLatitudeAsString());
+        datumPointDatumPanel.setDatumLonDownWind(data.getDatumDownWind()
+                .getLongitudeAsString());
+        datumPointDatumPanel.setrdvDistanceDownWind(Formatter.formatDouble(
+                data.getRdvDistanceDownWind(), 2)
                 + " nm");
-        datumPointDatumPanel.setdatumRadiusDownWind(Formatter.formatDouble(data.getRadiusDownWind(), 2) + " nm");
-        
-        
-        datumPointDatumPanel.setDatumLatMin(data.getDatumMin().getLatitudeAsString());
-        datumPointDatumPanel.setDatumLonMin(data.getDatumMin().getLongitudeAsString());
-        datumPointDatumPanel.setrdvDistanceMin(Formatter.formatDouble(data.getRdvDistanceMin(), 2)
+        datumPointDatumPanel.setdatumRadiusDownWind(Formatter.formatDouble(
+                data.getRadiusDownWind(), 2)
                 + " nm");
-        datumPointDatumPanel.setdatumRadiusMin(Formatter.formatDouble(data.getRadiusMin(), 2) + " nm");
-        
-        
-        datumPointDatumPanel.setDatumLatMax(data.getDatumMax().getLatitudeAsString());
-        datumPointDatumPanel.setDatumLonMax(data.getDatumMax().getLongitudeAsString());
-        datumPointDatumPanel.setrdvDistanceMax(Formatter.formatDouble(data.getRdvDistanceMax(), 2)
-                + " nm");
-        datumPointDatumPanel.setdatumRadiusMax(Formatter.formatDouble(data.getRadiusMax(), 2) + " nm");
 
-        
-        
-        
+        datumPointDatumPanel.setDatumLatMin(data.getDatumMin()
+                .getLatitudeAsString());
+        datumPointDatumPanel.setDatumLonMin(data.getDatumMin()
+                .getLongitudeAsString());
+        datumPointDatumPanel.setrdvDistanceMin(Formatter.formatDouble(
+                data.getRdvDistanceMin(), 2)
+                + " nm");
+        datumPointDatumPanel.setdatumRadiusMin(Formatter.formatDouble(
+                data.getRadiusMin(), 2)
+                + " nm");
+
+        datumPointDatumPanel.setDatumLatMax(data.getDatumMax()
+                .getLatitudeAsString());
+        datumPointDatumPanel.setDatumLonMax(data.getDatumMax()
+                .getLongitudeAsString());
+        datumPointDatumPanel.setrdvDistanceMax(Formatter.formatDouble(
+                data.getRdvDistanceMax(), 2)
+                + " nm");
+        datumPointDatumPanel.setdatumRadiusMax(Formatter.formatDouble(
+                data.getRadiusMax(), 2)
+                + " nm");
 
         pointAlat.setText(data.getA().getLatitudeAsString());
         pointAlon.setText(data.getA().getLongitudeAsString());
@@ -891,42 +886,36 @@ public class SARPanel extends JPanel implements ActionListener {
         pointClon.setText(data.getC().getLongitudeAsString());
         pointDlat.setText(data.getD().getLatitudeAsString());
         pointDlon.setText(data.getD().getLongitudeAsString());
-        
-        double width = data.getA().distanceTo(data.getB(), CoordinateSystem.CARTESIAN);
-        double height = data.getA().distanceTo(data.getC(), CoordinateSystem.CARTESIAN);
-        
 
-        areaSize.setText(Formatter.formatDouble(
-                width * height, 2)
-                + " ");
-    }
-    
-    
-    private void setDatumLineData(SARData data){
+        double width = Converter.metersToNm(data.getA().distanceTo(data.getB(),
+                CoordinateSystem.GEODETIC));
+        double height = Converter.metersToNm(data.getA().distanceTo(data.getC(),
+                CoordinateSystem.GEODETIC));
         
+        areaSize.setText(Formatter.formatDouble(width * height, 2) + " ");
+    }
+
+    private void setDatumLineData(SARData data) {
+
         lblSarType.setText("Datum Line");
-        
-//        sarData = data;
+
+        // sarData = data;
     }
-    
-    
-    private void setBackTrackData(SARData data){
-        
+
+    private void setBackTrackData(SARData data) {
+
         lblSarType.setText("Backtrack");
-        
-//        sarData = data;
+
+        // sarData = data;
     }
-    
-    
+
     private void setRapidResponseData(RapidResponseData data) {
 
         CardLayout cl = (CardLayout) (datumPanel.getLayout());
         cl.show(datumPanel, RAPIDRESPONSEDATUM);
-        
-        
-        
+
         lblSarType.setText("Rapid Response");
-        
+
         sarData = data;
 
         DateTimeFormatter fmt = DateTimeFormat
@@ -938,18 +927,17 @@ public class SARPanel extends JPanel implements ActionListener {
         rdvDirection.setText(Formatter.formatDouble(data.getRdvDirection(), 2)
                 + "°");
         rdvSpeed.setText(Formatter.formatDouble(data.getRdvSpeed(), 2) + "kn/h");
-        
-        
-        
-        rapidResponseDatumPanel.setDatumLat(data.getDatum().getLatitudeAsString());
-        rapidResponseDatumPanel.setDatumLon(data.getDatum().getLongitudeAsString());
-        rapidResponseDatumPanel.setrdvDistance(Formatter.formatDouble(data.getRdvDistance(), 2)
-                + " nm");
-        rapidResponseDatumPanel.setdatumRadius(Formatter.formatDouble(data.getRadius(), 2) + " nm");
-        
 
-        
-        
+        rapidResponseDatumPanel.setDatumLat(data.getDatum()
+                .getLatitudeAsString());
+        rapidResponseDatumPanel.setDatumLon(data.getDatum()
+                .getLongitudeAsString());
+        rapidResponseDatumPanel.setrdvDistance(Formatter.formatDouble(
+                data.getRdvDistance(), 2)
+                + " nm");
+        rapidResponseDatumPanel.setdatumRadius(Formatter.formatDouble(
+                data.getRadius(), 2)
+                + " nm");
 
         pointAlat.setText(data.getA().getLatitudeAsString());
         pointAlon.setText(data.getA().getLongitudeAsString());
