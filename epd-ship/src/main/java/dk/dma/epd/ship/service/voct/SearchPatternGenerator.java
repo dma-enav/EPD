@@ -33,6 +33,7 @@ import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
+import dk.dma.epd.common.util.Ellipsoid;
 import dk.dma.epd.ship.EPDShip;
 
 public class SearchPatternGenerator {
@@ -58,6 +59,9 @@ public class SearchPatternGenerator {
         case Creeping_Line_Search:
             return creepingLineSearch(data.getCSP(),
                     data.getEffortAllocationData(), data);
+        case Expanding_Square_Search:
+            return expandingSquareSearch(data.getCSP(),
+                    data.getEffortAllocationData(), data);
         default:
             return null;
 
@@ -65,6 +69,245 @@ public class SearchPatternGenerator {
 
     }
 
+    private SearchPatternRoute expandingSquareSearch(Position CSP,
+            EffortAllocationData effortAllocationData, SARData sarData) {
+        
+        
+        Position A = effortAllocationData.getEffectiveAreaA();
+        Position B = effortAllocationData.getEffectiveAreaB();
+        Position C = effortAllocationData.getEffectiveAreaC();
+        Position D = effortAllocationData.getEffectiveAreaD();
+        
+        double width = A.distanceTo(B, CoordinateSystem.CARTESIAN);
+        double height = D.distanceTo(C, CoordinateSystem.CARTESIAN);
+        
+        
+        
+        
+        double verticalBearing = Calculator.bearing(A, B,
+                Heading.RL);
+        
+        
+        verticalBearing = 180;
+        
+        double horizontalBearing = Calculator.bearing(D, C,
+                Heading.RL);
+        
+        horizontalBearing = 90;
+        
+        
+        System.out.println("width bearing is " + horizontalBearing);
+        System.out.println("height bearing is " + verticalBearing);
+
+        Ellipsoid reference = Ellipsoid.WGS84;
+        double[] endBearing = new double[1];
+
+
+
+        //Find center of top line
+        
+        Position topCenter = Calculator.calculateEndingGlobalCoordinates(
+                reference, A, horizontalBearing,
+                width/2, endBearing);
+        
+        
+        //Move down
+        Position center = Calculator.calculateEndingGlobalCoordinates(
+                reference, topCenter, verticalBearing,
+                height/2, endBearing);
+        
+        
+        
+        
+        double S = effortAllocationData.getTrackSpacing();
+        
+        //Start from center position
+        
+        // Determine how long of a track we can generate
+        double totalLengthOfTrack = effortAllocationData.getEffectiveAreaSize()
+                / S;
+
+        // We have not plotted anything yet
+        double trackPlotted = 0;
+        double currentTrackLength = S;
+
+
+        Position currentPos = center;
+        Position nextPos;
+
+        List<Position> positionList = new ArrayList<Position>();
+
+        positionList.add(currentPos);
+
+        
+        
+        horizontalBearing = 90;
+        verticalBearing = 0;
+        
+        
+        //First move vertical
+        
+        int multiplier = 2;
+        
+        while (trackPlotted < totalLengthOfTrack) {
+
+            // Move vertical
+            nextPos = Calculator.findPosition(currentPos, verticalBearing,
+                    Converter.nmToMeters(currentTrackLength));
+
+            // Reverse direction
+            verticalBearing = reverseDirection(verticalBearing);
+
+            // Do we place another track?
+            if ((trackPlotted + currentTrackLength) <= totalLengthOfTrack) {
+
+                trackPlotted = trackPlotted + currentTrackLength;
+
+                currentPos = nextPos;
+
+                positionList.add(currentPos);
+
+                // Move horizontally
+                nextPos = Calculator.findPosition(currentPos, horizontalBearing,
+                        Converter.nmToMeters(currentTrackLength));
+                
+                // Reverse direction
+                horizontalBearing = reverseDirection(horizontalBearing);
+
+                
+                // Do we move up?
+                if ((trackPlotted + currentTrackLength) <= totalLengthOfTrack) {
+
+                    trackPlotted = trackPlotted + currentTrackLength;
+
+                    currentPos = nextPos;
+
+                    positionList.add(currentPos);
+
+                    currentTrackLength = multiplier *S;
+                    multiplier = multiplier +2;
+                    
+                    
+                } 
+                
+                
+                
+                else {
+                    // Cannot draw vertical track, draw what we can
+                    System.out.println("Cannot draw vertical track, draw what we can");
+                    
+                    break;
+                    
+                    //Reverse direction
+//                    verticalBearing = reverseDirection(verticalBearing);
+//                    
+//                    double remainingDistance = totalLengthOfTrack
+//                            - trackPlotted;
+//
+//                    nextPos = Calculator.findPosition(currentPos,
+//                            verticalBearing,
+//                            Converter.nmToMeters(remainingDistance));
+//                    trackPlotted = trackPlotted + remainingDistance;
+//                    currentPos = nextPos;
+//                    positionList.add(currentPos);
+                }
+            } else {
+                System.out.println("Cannot draw horizontal track, draw what we can");
+                break;
+                // Cannot draw the full length of the track, draw the remaining
+                // distance
+//                horizontalBearing = reverseDirection(horizontalBearing);
+//
+//                double remainingDistance = totalLengthOfTrack - trackPlotted;
+//                nextPos = Calculator.findPosition(currentPos,
+//                        horizontalBearing,
+//                        Converter.nmToMeters(remainingDistance));
+//
+//                trackPlotted = trackPlotted + remainingDistance;
+//
+//                currentPos = nextPos;
+//                positionList.add(currentPos);
+            }
+        }
+
+        
+        
+        
+        
+
+        
+        // Create a new Search Pattern Route based on static locations
+        SearchPatternRoute searchRoute = new SearchPatternRoute(positionList);
+
+        // Set values to each waypoint
+        LinkedList<RouteWaypoint> waypoints = searchRoute.getWaypoints();
+        for (RouteWaypoint routeWaypoint : waypoints) {
+            if (routeWaypoint.getOutLeg() != null) {
+                RouteLeg outLeg = routeWaypoint.getOutLeg();
+                double xtd = EPDShip.getSettings().getNavSettings()
+                        .getDefaultXtd();
+                outLeg.setXtdPort(xtd);
+                outLeg.setXtdStarboard(xtd);
+                outLeg.setHeading(Heading.RL);
+                outLeg.setSpeed(effortAllocationData.getGroundSpeed());
+            }
+            routeWaypoint.setTurnRad(EPDShip.getSettings().getNavSettings()
+                    .getDefaultTurnRad());
+
+        }
+
+        // Search Route Start time to CSS
+        searchRoute.setStarttime(new Date(sarData.getCSSDate().getMillis()));
+
+        // Calculate ETAS and TTGS based on these values
+        searchRoute.calcValues(true);
+
+        
+        // Setname
+        if (sarData.getSarID().equals("")){
+            searchRoute.setName("Expanding Square Search");            
+        }else{
+            searchRoute.setName("Expanding Square Search - SAR No. " + sarData.getSarID());
+        }
+        
+
+
+        // Dynamic waypoints
+        List<Position> waypointsAdjustedForWeather = new ArrayList<Position>();
+
+        // We must calculate from time 0 of our arrival as the effective area
+        // has been calculated from LKP
+        // Thus our time 0 is Commence Search Start
+        DateTime cssDate = sarData.getCSSDate();
+
+        for (int i = 0; i < searchRoute.getWaypoints().size(); i++) {
+            Date wpETA = searchRoute.getEtas().get(i);
+            Position wpPos = searchRoute.getWaypoints().get(i).getPos();
+
+            // How long has elapsed since time 0
+            double timeElapsed = ((double) (wpETA.getTime() - cssDate
+                    .getMillis())) / 60 / 60 / 1000;
+
+            // System.out.println("Elapsed is for " + i + " is " + timeElapsed);
+
+            Position newPos = sarOperation.applyDriftToPoint(sarData, wpPos,
+                    timeElapsed);
+
+            waypointsAdjustedForWeather.add(newPos);
+            // searchRoute.getWaypoints().get(i).setPos(newPos);
+        }
+
+        searchRoute.setDynamicPositions(waypointsAdjustedForWeather);
+        
+        searchRoute.getWaypoints().get(0).setName("Start");
+        
+        searchRoute.getWaypoints().get(searchRoute.getWaypoints().size()-1).setName("End");
+        
+
+        return searchRoute;
+        
+        
+    }
     
     
     private SearchPatternRoute creepingLineSearch(Position CSP,
@@ -599,4 +842,21 @@ public class SearchPatternGenerator {
         //
     }
 
+    private double reverseDirection(double direction){
+        double newDirection = direction + 180;
+
+        if (newDirection > 360){
+            newDirection = newDirection - 360;
+        }
+        
+        if (newDirection < -0 ){
+            newDirection = newDirection + 360;
+        }
+        
+        return newDirection;
+        
+        
+        
+    }
+    
 }
