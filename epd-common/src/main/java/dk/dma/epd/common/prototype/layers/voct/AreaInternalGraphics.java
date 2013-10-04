@@ -93,13 +93,9 @@ public class AreaInternalGraphics extends OMGraphicList {
         this.effecticeSRUAreaGraphics = effecticeSRUAreaGraphics;
 
         
-        
-//        verticalBearing = Calculator.bearing(A, C, Heading.RL);
-//        horizontalBearing= Calculator.bearing(A, B, Heading.RL);
         this.verticalBearing = verticalBearing;
         this.horizontalBearing = horizontalBearing;
         
-        // this.nogoColor = color;
 
         // Draw the data
 
@@ -220,6 +216,7 @@ public class AreaInternalGraphics extends OMGraphicList {
 
         Position topPoint = Position.create(A.getLatitude(),
                 relativePosition.getLongitude());
+        
         Position bottomPoint = Position.create(C.getLatitude(),
                 relativePosition.getLongitude());
 

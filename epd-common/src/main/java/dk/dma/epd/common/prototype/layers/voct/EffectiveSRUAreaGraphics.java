@@ -110,8 +110,11 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         add(topLine);
         add(leftLine);
         add(rightLine);
-
     }
+    
+    
+    
+    
 
     public void updateLines(Position A, Position B, Position C, Position D) {
         
@@ -131,9 +134,13 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
 
         double height = 0;
         double width = 0;
+        
+        System.out.println(type);
 
         if (type == LineType.BOTTOM) {
 
+            
+            
             // if (Calculator.bearing(A, newPos, Heading.RL) > 0){
 
             // We update C point
@@ -163,6 +170,8 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         }
         if (type == LineType.TOP) {
 
+            
+            
             // Make sure it doesn\t go over and place A under C
 //            if (newPos.getLatitude() - 0.001 > C.getLatitude()) {
 

@@ -52,6 +52,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     private boolean dragging;
     private MapBean mapBean;
     private VOCTManager voctManager;
+    
     EffectiveSRUAreaGraphics effectiveArea;
 
     public VoctLayer() {

@@ -465,69 +465,33 @@ public class SAROperation {
                             growthBearing, Converter.nmToMeters(radiusDownWind),
                             endBearing);
             endBearing = new double[1];
-            
-//            data.setB(growthCenterPosition);
-            
-//            
-//            
-//            
+          
             Position A = Calculator.calculateEndingGlobalCoordinates(reference,
                     growthCenterPosition, lengthBearing - 180,
                     boxLength/2, endBearing);
             endBearing = new double[1];
             data.setA(A);
-//            
+
             Position B = Calculator.calculateEndingGlobalCoordinates(reference,
                     growthCenterPosition, lengthBearing,
                     boxLength/2, endBearing);
             endBearing = new double[1];
             
             data.setB(B);
-            
-            // C
-            // D
-
-            // C bottomPointMinInnerBox
-            // D bottomPointMaxInnerBox
-//        } 
-        
-//        else {
-//            // Going up - replace A, B
-//            growthBearing = -(lengthBearing + 90);
-//            
-//            System.out.println("Growing in minus " + growthBearing);
-//            
-//            double boxLength = bottomPointMaxInnerBox.distanceTo(
-//                    bottomPointMinInnerBox, CoordinateSystem.GEODETIC);
-//
-//                System.out.println("Length of Box: " + boxLength);
-//            
-//            Position growthCenterPosition = Calculator
-//                    .calculateEndingGlobalCoordinates(reference, datumDownWind,
-//                            growthBearing, Converter.nmToMeters(radiusDownWind),
-//                            endBearing);
-//            endBearing = new double[1];
-//            
-//            Position D = Calculator.calculateEndingGlobalCoordinates(reference,
-//                    growthCenterPosition, lengthBearing - 180,
-//                    boxLength/2, endBearing);
-//            endBearing = new double[1];
-//            
-//            data.setD(D);
-//            
-//            Position C = Calculator.calculateEndingGlobalCoordinates(reference,
-//                    growthCenterPosition, lengthBearing,
-//                    boxLength/2, endBearing);
-//            endBearing = new double[1];
-//            
-////            data.setC(C);
-//
-//        }
-
-
      
             
-//            double 
+//            Position An = data.getA();
+//            Position Bn = data.getB();
+//            Position Cn = data.getC();
+//            Position Dn = data.getD();
+//            
+//            
+//            data.setA(Dn);
+//            data.setB(Cn);
+//            
+//            data.setC(An);
+//            data.setD(Bn);
+            
     }
 
     public Position applyDriftToPoint(SARData data, Position point,
