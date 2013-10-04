@@ -76,24 +76,24 @@ public class SearchPatternGenerator {
         Position A = effortAllocationData.getEffectiveAreaA();
         Position B = effortAllocationData.getEffectiveAreaB();
         Position C = effortAllocationData.getEffectiveAreaC();
-        Position D = effortAllocationData.getEffectiveAreaD();
+//        Position D = effortAllocationData.getEffectiveAreaD();
         
         double width = A.distanceTo(B, CoordinateSystem.CARTESIAN);
-        double height = D.distanceTo(C, CoordinateSystem.CARTESIAN);
+        double height = A.distanceTo(C, CoordinateSystem.CARTESIAN);
         
         
         
         
-        double verticalBearing = Calculator.bearing(A, B,
+        double verticalBearing = Calculator.bearing(A, C,
                 Heading.RL);
         
         
-        verticalBearing = 180;
+//        verticalBearing = 180;
         
-        double horizontalBearing = Calculator.bearing(D, C,
+        double horizontalBearing = Calculator.bearing(A, B,
                 Heading.RL);
         
-        horizontalBearing = 90;
+//        horizontalBearing = 90;
         
         
         System.out.println("width bearing is " + horizontalBearing);
@@ -110,6 +110,7 @@ public class SearchPatternGenerator {
                 reference, A, horizontalBearing,
                 width/2, endBearing);
         
+        endBearing = new double[1];
         
         //Move down
         Position center = Calculator.calculateEndingGlobalCoordinates(
@@ -117,6 +118,7 @@ public class SearchPatternGenerator {
                 height/2, endBearing);
         
         
+//        center = topCenter;
         
         
         double S = effortAllocationData.getTrackSpacing();
@@ -156,7 +158,7 @@ public class SearchPatternGenerator {
                     Converter.nmToMeters(currentTrackLength));
 
             // Reverse direction
-            verticalBearing = reverseDirection(verticalBearing);
+            verticalBearing = Calculator.reverseDirection(verticalBearing);
 
             // Do we place another track?
             if ((trackPlotted + currentTrackLength) <= totalLengthOfTrack) {
@@ -172,7 +174,7 @@ public class SearchPatternGenerator {
                         Converter.nmToMeters(currentTrackLength));
                 
                 // Reverse direction
-                horizontalBearing = reverseDirection(horizontalBearing);
+                horizontalBearing = Calculator.reverseDirection(horizontalBearing);
 
                 
                 // Do we move up?
@@ -371,7 +373,7 @@ public class SearchPatternGenerator {
 
         // Individual track length - has ½S in each end, so we take width minus
         // S
-        double trackLength = effortAllocationData.getEffectiveAreaWidth() - S;
+        double trackHeight = Calculator.range(A, C, Heading.RL) - S;
 
         // We have not plotted anything yet
         double trackPlotted = 0;
@@ -391,15 +393,15 @@ public class SearchPatternGenerator {
             
             // Move vertically
             nextPos = Calculator.findPosition(currentPos, verticalBearing,
-                    Converter.nmToMeters(trackLength));
+                    Converter.nmToMeters(trackHeight));
 
             // Reverse direction
             verticalBearing = verticalBearing + 180;
 
             // Do we place another track?
-            if ((trackPlotted + trackLength) <= totalLengthOfTrack) {
+            if ((trackPlotted + trackHeight) <= totalLengthOfTrack) {
 
-                trackPlotted = trackPlotted + trackLength;
+                trackPlotted = trackPlotted + trackHeight;
 
                 currentPos = nextPos;
 
@@ -588,7 +590,7 @@ public class SearchPatternGenerator {
 
         // Individual track length - has ½S in each end, so we take width minus
         // S
-        double trackLength = effortAllocationData.getEffectiveAreaWidth() - S;
+        double trackLength = Calculator.range(A, B, Heading.RL) - S;
 
         // We have not plotted anything yet
         double trackPlotted = 0;
@@ -842,21 +844,6 @@ public class SearchPatternGenerator {
         //
     }
 
-    private double reverseDirection(double direction){
-        double newDirection = direction + 180;
 
-        if (newDirection > 360){
-            newDirection = newDirection - 360;
-        }
-        
-        if (newDirection < -0 ){
-            newDirection = newDirection + 360;
-        }
-        
-        return newDirection;
-        
-        
-        
-    }
     
 }

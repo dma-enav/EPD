@@ -721,7 +721,8 @@ public class SAROperation {
     public void calculateEffortAllocation(SARData data) {
         double trackSpacing = findS(data.getEffortAllocationData().getW(), data
                 .getEffortAllocationData().getPod());
-
+        
+        
         data.getEffortAllocationData().setTrackSpacing(trackSpacing);
 
         double groundSpeed = data.getEffortAllocationData().getGroundSpeed();

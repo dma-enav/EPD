@@ -69,10 +69,15 @@ public class AreaInternalGraphics extends OMGraphicList {
 
     Position relativePosition;
 
+
+    double verticalBearing = 180;
+    double horizontalBearing = 90;
+    
+    
     // Initialize with
     public AreaInternalGraphics(Position A, Position B, Position C, Position D,
             Double width, Double height,
-            EffectiveSRUAreaGraphics effecticeSRUAreaGraphics) {
+            EffectiveSRUAreaGraphics effecticeSRUAreaGraphics, double verticalBearing, double horizontalBearing) {
         super();
 
         this.setVague(true);
@@ -87,6 +92,13 @@ public class AreaInternalGraphics extends OMGraphicList {
 
         this.effecticeSRUAreaGraphics = effecticeSRUAreaGraphics;
 
+        
+        
+//        verticalBearing = Calculator.bearing(A, C, Heading.RL);
+//        horizontalBearing= Calculator.bearing(A, B, Heading.RL);
+        this.verticalBearing = verticalBearing;
+        this.horizontalBearing = horizontalBearing;
+        
         // this.nogoColor = color;
 
         // Draw the data
@@ -173,40 +185,38 @@ public class AreaInternalGraphics extends OMGraphicList {
         // distance from mouseOffset to
 
         // First top side of the box
-        Position topSide = Calculator.findPosition(newPos, 0,
+        Position topSide = Calculator.findPosition(newPos, Calculator.reverseDirection(verticalBearing),
                 Converter.nmToMeters(distanceToTop));
 
         // Bottom side of the box
-        Position bottomSide = Calculator.findPosition(newPos, 180,
+        Position bottomSide = Calculator.findPosition(newPos, verticalBearing,
                 Converter.nmToMeters(distanceToBottom));
 
         // Go left radius length
-        A = Calculator.findPosition(topSide, 270,
+        A = Calculator.findPosition(topSide, Calculator.reverseDirection(horizontalBearing),
                 Converter.nmToMeters(distanceToLeft));
 
-        B = Calculator.findPosition(topSide, 90,
+        B = Calculator.findPosition(topSide, horizontalBearing,
                 Converter.nmToMeters(distanceToRight));
 
-        C = Calculator.findPosition(bottomSide, 270,
+        C = Calculator.findPosition(bottomSide, Calculator.reverseDirection(horizontalBearing),
                 Converter.nmToMeters(distanceToLeft));
 
-        D = Calculator.findPosition(bottomSide, 90,
+        D = Calculator.findPosition(bottomSide, horizontalBearing,
                 Converter.nmToMeters(distanceToRight));
 
         drawPolygon();
 
         effecticeSRUAreaGraphics.updateLines(A, B, C, D);
         
-        data.getEffortAllocationData().setEffectiveAreaA(A);
-        data.getEffortAllocationData().setEffectiveAreaB(B);
-        data.getEffortAllocationData().setEffectiveAreaC(C);
-        data.getEffortAllocationData().setEffectiveAreaD(D);
+//        data.getEffortAllocationData().setEffectiveAreaA(A);
+//        data.getEffortAllocationData().setEffectiveAreaB(B);
+//        data.getEffortAllocationData().setEffectiveAreaC(C);
+//        data.getEffortAllocationData().setEffectiveAreaD(D);
 
     }
 
     public void adjustInternalPosition(Position relativePosition) {
-
-        // this.relativePosition = relativePosition;
 
         Position topPoint = Position.create(A.getLatitude(),
                 relativePosition.getLongitude());

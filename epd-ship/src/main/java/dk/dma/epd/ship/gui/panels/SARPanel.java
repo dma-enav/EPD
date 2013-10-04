@@ -731,6 +731,11 @@ public class SARPanel extends JPanel implements ActionListener {
         if (arg0.getSource() == btnGenerateSearchPattern) {
 
             if (searchPatternDialog != null) {
+                
+                //Semi hack for optimziation
+                voctManager.updateEffectiveAreaLocation();
+                
+                
                 searchPatternDialog.setValues();
                 searchPatternDialog
                         .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
@@ -953,4 +958,5 @@ public class SARPanel extends JPanel implements ActionListener {
                 + " ");
     }
 
+    
 }

@@ -246,4 +246,9 @@ public class VOCTManager implements Runnable, Serializable {
         notifyListeners(VOCTUpdateEvent.SEARCH_PATTERN_GENERATED);
     }
 
+    
+    public void updateEffectiveAreaLocation(){
+        voctLayer.updateEffectiveAreaLocation(sarData);
+    }
+    
 }

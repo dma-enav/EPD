@@ -228,62 +228,6 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
         }
 
-        // if (selectedGraphic instanceof WaypointCircle) {
-        // WaypointCircle wpc = (WaypointCircle) selectedGraphic;
-        // if (routeManager.getActiveRouteIndex() != wpc.getRouteIndex()) {
-        // RouteWaypoint routeWaypoint = wpc.getRoute().getWaypoints()
-        // .get(wpc.getWpIndex());
-        // LatLonPoint newLatLon = mapBean.getProjection().inverse(
-        // e.getPoint());
-        // Position newLocation = Position.create(newLatLon.getLatitude(),
-        // newLatLon.getLongitude());
-        // routeWaypoint.setPos(newLocation);
-        //
-        // if (wpc.getRoute().isStccApproved()) {
-        //
-        // wpc.getRoute().setStccApproved(false);
-        // try {
-        // wpc.getRoute().setName(
-        // wpc.getRoute().getName().split(":")[1].trim());
-        // } catch (Exception e2) {
-        // System.out
-        // .println("Failed to remove STCC Approved part of name");
-        // }
-        // }
-        // routesChanged(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
-        // dragging = true;
-        // return true;
-        // } else {
-        // // Attemping to drag an active route, make a route copy and drag
-        // // that one
-        //
-        // int dialogresult = JOptionPane
-        // .showConfirmDialog(
-        // EPDShip.getMainFrame(),
-        // "You are trying to edit an active route \nDo you wish to make a copy to edit?",
-        // "Route Editing", JOptionPane.YES_OPTION);
-        // if (dialogresult == JOptionPane.YES_OPTION) {
-        // Route route = routeManager.getRoute(
-        // routeManager.getActiveRouteIndex()).copy();
-        // route.setName(route.getName() + " copy");
-        // routeManager.addRoute(route);
-        // // dragging = true;
-        //
-        // // routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
-        // }
-        // return true;
-        //
-        // // RouteWaypoint routeWaypoint = route.getWaypoints().get(
-        // // wpc.getWpIndex());
-        // // LatLonPoint newLatLon = mapBean.getProjection().inverse(
-        // // e.getPoint());
-        // // Position newLocation =
-        // // Position.create(newLatLon.getLatitude(),
-        // // newLatLon.getLongitude());
-        // // routeWaypoint.setPos(newLocation);
-        // // routesChanged(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
-        // }
-        // }
 
         return false;
     }
@@ -392,7 +336,6 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     }
 
     private void createEffectiveArea() {
-        System.out.println("Do we get to here?");
         // Probability of Detection Area - updateable
 
         if (graphics.contains(effectiveArea)) {
@@ -413,17 +356,17 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         double width = Math.sqrt(effectiveAreaSize);
         double height = Math.sqrt(effectiveAreaSize);
 
-        // AreaInternalGraphics effectiveArea = new AreaInternalGraphics(A,
-        // width, length);
-        // graphics.add(effectiveArea);
 
-        Position startingPosition = data.getLKP();
+        
+        
+        
+//        Position startingPosition = data.getLKP();
+//
+//        if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
+//            startingPosition = ((RapidResponseData) data).getA();
+//        }
 
-        if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
-            startingPosition = ((RapidResponseData) data).getA();
-        }
-
-        effectiveArea = new EffectiveSRUAreaGraphics(startingPosition, width,
+        effectiveArea = new EffectiveSRUAreaGraphics(width,
                 height, data);
 
         graphics.add(effectiveArea);
@@ -435,5 +378,9 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         SearchPatternTemp testLine = new SearchPatternTemp(A, B);
         graphics.add(testLine);
         doPrepare();
+    }
+    
+    public void updateEffectiveAreaLocation(SARData sarData){
+        effectiveArea.updateEffectiveAreaSize(sarData);
     }
 }

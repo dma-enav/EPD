@@ -25,8 +25,8 @@ public class EffortAllocationData {
     private int searchTime;
     private double effectiveAreaSize;
 
-    private double effectiveAreaWidth;
-    private double effectiveAreaHeight;
+//    private double effectiveAreaWidth;
+//    private double effectiveAreaHeight;
 
     private Position effectiveAreaA;
     private Position effectiveAreaB;
@@ -119,37 +119,27 @@ public class EffortAllocationData {
         this.trackSpacing = trackSpacing;
     }
 
-    
-    
-    
 
-    /**
-     * @return the effectiveAreaWidth
-     */
-    public double getEffectiveAreaWidth() {
-        return effectiveAreaWidth;
-    }
+//    /**
+//     * @param effectiveAreaWidth the effectiveAreaWidth to set
+//     */
+//    public void setEffectiveAreaWidth(double effectiveAreaWidth) {
+//        this.effectiveAreaWidth = effectiveAreaWidth;
+//    }
 
-    /**
-     * @param effectiveAreaWidth the effectiveAreaWidth to set
-     */
-    public void setEffectiveAreaWidth(double effectiveAreaWidth) {
-        this.effectiveAreaWidth = effectiveAreaWidth;
-    }
+//    /**
+//     * @return the effectiveAreaHeight
+//     */
+//    public double getEffectiveAreaHeight() {
+//        return effectiveAreaHeight;
+//    }
 
-    /**
-     * @return the effectiveAreaHeight
-     */
-    public double getEffectiveAreaHeight() {
-        return effectiveAreaHeight;
-    }
-
-    /**
-     * @param effectiveAreaHeight the effectiveAreaHeight to set
-     */
-    public void setEffectiveAreaHeight(double effectiveAreaHeight) {
-        this.effectiveAreaHeight = effectiveAreaHeight;
-    }
+//    /**
+//     * @param effectiveAreaHeight the effectiveAreaHeight to set
+//     */
+//    public void setEffectiveAreaHeight(double effectiveAreaHeight) {
+//        this.effectiveAreaHeight = effectiveAreaHeight;
+//    }
 
     /**
      * @return the effectiveAreaA
@@ -162,6 +152,7 @@ public class EffortAllocationData {
      * @param effectiveAreaA the effectiveAreaA to set
      */
     public void setEffectiveAreaA(Position effectiveAreaA) {
+        System.out.println("Updatng new A");
         this.effectiveAreaA = effectiveAreaA;
     }
 

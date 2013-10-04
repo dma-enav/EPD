@@ -209,4 +209,19 @@ public class Calculator {
         return Position.create(latitude, longitude);
     }
 
+    
+    public static double reverseDirection(double direction){
+        double newDirection = direction + 180;
+
+        if (newDirection > 360){
+            newDirection = newDirection - 360;
+        }
+        
+        if (newDirection < -0 ){
+            newDirection = newDirection + 360;
+        }
+        
+        return newDirection;
+        
+    }
 }
