@@ -43,6 +43,8 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
     double verticalBearing = 180;
     double horizontalBearing = 90;
 
+    double deltaCorrection = 0.004;
+    
     SARData sarData;
 
     public enum LineType {
@@ -131,14 +133,14 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         double height = 0;
         double width = 0;
 
-        System.out.println(type);
+//        System.out.println(type);
 
         if (type == LineType.BOTTOM) {
 
             double deltaValue = A.getLatitude()
-                    - (newPos.getLatitude() + 0.002);
+                    - (newPos.getLatitude() + deltaCorrection);
 
-            System.out.println(deltaValue);
+//            System.out.println(deltaValue);
 
             if (deltaValue > 0) {
 
@@ -171,9 +173,9 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         }
         if (type == LineType.TOP) {
 
-            double deltaValue = newPos.getLongitude()
-                    - (B.getLongitude() + 0.002);
-            System.out.println(deltaValue);
+            double deltaValue = newPos.getLatitude()
+                    - (C.getLatitude() + deltaCorrection);
+//            System.out.println(deltaValue);
 
             // Make sure it doesn\t go over and place A under C
             // if (newPos.getLatitude() - 0.001 > C.getLatitude()) {
@@ -205,9 +207,9 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
 
         if (type == LineType.LEFT) {
             double deltaValue = B.getLongitude()
-                    - (newPos.getLongitude() + 0.002);
+                    - (newPos.getLongitude() + deltaCorrection);
             
-            System.out.println(deltaValue);
+//            System.out.println(deltaValue);
 
             
             if (deltaValue > 0) {
@@ -240,11 +242,11 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
 
             
             double deltaValue = newPos.getLongitude()
-                    - (A.getLongitude() + 0.002);
+                    - (A.getLongitude() + deltaCorrection);
             
        
 
-            System.out.println(deltaValue);
+//            System.out.println(deltaValue);
 
             if (deltaValue > 0) {
             
