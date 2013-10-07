@@ -15,6 +15,9 @@
  */
 package dk.dma.epd.common.prototype.layers.wms;
 
+import java.util.Observable;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,8 +25,10 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.Projection;
 
 import dk.dma.epd.common.prototype.status.WMSStatus;
+import dk.dma.epd.common.prototype.event.WMSEvent;
+import dk.dma.epd.common.prototype.event.WMSEventListener;
 
-public abstract class AbstractWMSService {
+public abstract class AbstractWMSService extends Observable {
     protected Logger LOG;
 
     protected String wmsQuery = "";
@@ -45,10 +50,12 @@ public abstract class AbstractWMSService {
     private Double deltaY = 0.000000;
     protected WMSStatus status = new WMSStatus();
     protected float zoomLevel = -1;
+    protected final CopyOnWriteArrayList<WMSEventListener> listeners;
 
     public AbstractWMSService(String wmsQuery) {
         this.LOG = LoggerFactory.getLogger(this.getClass());
         this.wmsQuery = wmsQuery;
+        this.listeners = new CopyOnWriteArrayList<>();
     }
 
     public AbstractWMSService(String wmsQuery, Projection p) {
@@ -190,6 +197,23 @@ public abstract class AbstractWMSService {
         //TODO: implement
         return (Projection) p.makeClone();
 
+    }
+
+    public void addWMSEventListener(WMSEventListener l) {
+	this.listeners.add(l);
+    }
+
+    public void removeMyChangeListener(WMSEventListener l) {
+	this.listeners.remove(l);
+    }
+
+    // Event firing method. Called internally by other class methods.
+    protected void fireWMSEvent() {
+	WMSEvent evt = new WMSEvent(this);
+
+	for (WMSEventListener l : listeners) {
+	    l.changeEventReceived(evt);
+	}
     }
 
 }

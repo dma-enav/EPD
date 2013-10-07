@@ -143,6 +143,7 @@ public class StreamingTiledWmsService extends TiledWMSService implements
                         result.addAll(tile);
                         tmpCache.putIfAbsent(getID(job), new OMGraphicList());
                         tmpCache.get(getID(job)).addAll(tile);
+                        fireWMSEvent();
                     } catch (InterruptedException | ExecutionException
                             | NullPointerException e) {
                         allSuccess = false;
@@ -153,6 +154,7 @@ public class StreamingTiledWmsService extends TiledWMSService implements
                 if (allSuccess) {
                     tmpCache.remove(getID(job));
                     cache.put(getID(job), result);
+                    fireWMSEvent();
                 } else {
                     LOG.debug("A Tile failed to download, resubmitting job");
                     queue(job);
