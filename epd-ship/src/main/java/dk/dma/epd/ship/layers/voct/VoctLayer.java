@@ -248,7 +248,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             // mainFrame.getGlassPane().setVisible(false);
             selectedGraphic = null;
             OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-                    2.0f);
+                    3.0f);
             for (OMGraphic omGraphic : allClosest) {
                 if (omGraphic instanceof SarEffectiveAreaLines) {
                     // System.out.println("selected something");
