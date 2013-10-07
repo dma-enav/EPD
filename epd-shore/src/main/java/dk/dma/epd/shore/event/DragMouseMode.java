@@ -322,7 +322,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                     try {
                         
                         //LOG.debug("Time to get offScreenMap: ")
-                        final BufferedImage offScreenMap = chartPanel.getDragMapRenderer().getOutImg().getSubimage(posX,
+                        final BufferedImage offScreenMap = chartPanel.getDragMapRenderer().getFinalBuffer().getSubimage(posX,
                                 posY, chartPanel.getWidth(), chartPanel.getHeight());
                         
                         final BufferedImage renderImage = offScreenMap;
