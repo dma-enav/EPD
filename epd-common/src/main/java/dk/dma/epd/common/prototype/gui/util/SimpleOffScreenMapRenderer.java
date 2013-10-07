@@ -49,17 +49,17 @@ public class SimpleOffScreenMapRenderer extends Thread implements
     
     protected MapBean sourceBean;
     protected MapBean targetBean;
-    private final Object imgLock = new Object();
-    private BufferedImage img;
-    private volatile BufferedImage outImg;
+    private final Object internalBufferLock = new Object();
+    private BufferedImage internalBuffer;
+    private volatile BufferedImage finalBuffer;
     private volatile boolean dummy;
     
-    public BufferedImage getImg() {
-        return img;
+    public BufferedImage getinternalBuffer() {
+        return internalBuffer;
     }
 
-    public void setImg(BufferedImage img) {
-        this.img = img;
+    public void setinternalBuffer(BufferedImage internalBuffer) {
+        this.internalBuffer = internalBuffer;
     }
 
     private JFrame frame;
@@ -86,7 +86,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
         int w = targetBean.getWidth();
         int h = targetBean.getHeight();
 
-        img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        internalBuffer = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 
         this.frame = new JFrame();
         frame.setVisible(false);
@@ -115,7 +115,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
         int w = 256;
         int h = 256;
         
-        img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        internalBuffer = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         updateTargetMap(this.sourceBean.getProjection());
         
     }
@@ -138,11 +138,11 @@ public class SimpleOffScreenMapRenderer extends Thread implements
         }
     }
 
-    public void updateOutImg() {
-        drawGrid(img);
+    public void updateFinalBuffer() {
+        drawGrid(internalBuffer);
         
         if (isDummy()) {
-            setOutImg(img);
+            setFinalBuffer(internalBuffer);
             return;
         }
         
@@ -153,7 +153,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
                 long start = System.currentTimeMillis();
                 
                 //frame.repaint();
-                targetBean.paint(img.getGraphics());
+                targetBean.paint(internalBuffer.getGraphics());
                 long end = System.currentTimeMillis();
                 LOG.debug("To Paint: " + (end - start));
                 
@@ -163,10 +163,10 @@ public class SimpleOffScreenMapRenderer extends Thread implements
                 at.scale(1.0, 1.0);
                 AffineTransformOp scaleOp = new AffineTransformOp(at,
                         AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-                scaleOp.filter(img, outImg);*/
+                scaleOp.filter(internalBuffer, finalBuffer);*/
                 
                 
-                setOutImg(img);
+                setFinalBuffer(internalBuffer);
                 
                 
             }
@@ -178,13 +178,13 @@ public class SimpleOffScreenMapRenderer extends Thread implements
         return dummy;
     }
 
-    public BufferedImage getOutImg() {
-        return outImg;
+    public BufferedImage getFinalBuffer() {
+        return finalBuffer;
     }
     
-    private void setOutImg(BufferedImage i) {
-        outImg = i;
-        setImg(new BufferedImage(i.getWidth(), i.getHeight(), BufferedImage.TYPE_INT_RGB));
+    private void setFinalBuffer(BufferedImage i) {
+        finalBuffer = i;
+        setinternalBuffer(new BufferedImage(i.getWidth(), i.getHeight(), BufferedImage.TYPE_INT_RGB));
     }
     
 
@@ -212,7 +212,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
 
     public void saveScreenShot(File out) {
         try {
-            ImageIO.write(this.getOutImg(), "PNG", out);
+            ImageIO.write(this.getFinalBuffer(), "PNG", out);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -223,7 +223,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
         final int h = (int) p.getHeight()*3;
         
         if (isDummy()) {
-            if (img.getWidth() != w || img.getHeight() != h) {
+            if (internalBuffer.getWidth() != w || internalBuffer.getHeight() != h) {
                 setImageSize(w,h);
             }
             return;
@@ -235,7 +235,7 @@ public class SimpleOffScreenMapRenderer extends Thread implements
             
             @Override
             public void run() {
-                frame.setVisible(true);
+                //frame.setVisible(true);
 
                 float scaleDiff = targetBean.getScale() / p.getScale();
                 
@@ -254,12 +254,12 @@ public class SimpleOffScreenMapRenderer extends Thread implements
                 
                 targetBean.setSize(w, h);
 
-                if (img.getWidth() != w || img.getHeight() != h) {
+                if (internalBuffer.getWidth() != w || internalBuffer.getHeight() != h) {
                     setImageSize(w,h);
                 }
 
                 frame.repaint();
-                updateOutImg(); //background paint
+                updateFinalBuffer(); //background paint
                 frame.setVisible(false);
             }
         });
@@ -268,9 +268,9 @@ public class SimpleOffScreenMapRenderer extends Thread implements
 
 
     protected void setImageSize(int w, int h) {        
-        synchronized (imgLock) {
-            img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-            outImg = new BufferedImage(w, h,
+        synchronized (internalBufferLock) {
+            internalBuffer = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+            finalBuffer = new BufferedImage(w, h,
                     BufferedImage.TYPE_INT_RGB);
         }
     }
