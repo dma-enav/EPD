@@ -126,7 +126,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
         selectedGraphic = null;
         OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-                5.0f);
+                3.0f);
 
         for (OMGraphic omGraphic : allClosest) {
             if (omGraphic instanceof AreaInternalGraphics) {
@@ -173,7 +173,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             // mainFrame.getGlassPane().setVisible(false);
             selectedGraphic = null;
             OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-                    2.0f);
+                    3.0f);
             for (OMGraphic omGraphic : allClosest) {
                 if (omGraphic instanceof SarEffectiveAreaLines) {
                     // System.out.println("selected something");
@@ -248,7 +248,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             // mainFrame.getGlassPane().setVisible(false);
             selectedGraphic = null;
             OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
-                    3.0f);
+                    2.0f);
             for (OMGraphic omGraphic : allClosest) {
                 if (omGraphic instanceof SarEffectiveAreaLines) {
                     // System.out.println("selected something");
@@ -301,7 +301,6 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
         if (selectedGraphic != null
                 && selectedGraphic instanceof AreaInternalGraphics) {
-            System.out.println("Cursor set");
             mainFrame.getGlassPane().setVisible(true);
             mainFrame.getGlassPane()
                     .setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));

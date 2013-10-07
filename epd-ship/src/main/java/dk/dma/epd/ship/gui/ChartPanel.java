@@ -48,6 +48,7 @@ import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
@@ -798,6 +799,22 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
                 waypoints.add(data.getD());
 
                 this.zoomTo(waypoints);
+                return;
+            }
+            
+            
+            if (voctManager.getSarType() == SAR_TYPE.DATUM_POINT) {
+                DatumPointData data = (DatumPointData) voctManager
+                        .getSarData();
+
+                List<Position> waypoints = new ArrayList<Position>();
+                waypoints.add(data.getA());
+                waypoints.add(data.getB());
+                waypoints.add(data.getC());
+                waypoints.add(data.getD());
+
+                this.zoomTo(waypoints);
+                return;
             }
         }
     }

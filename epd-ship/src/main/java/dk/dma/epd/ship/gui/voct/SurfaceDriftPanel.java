@@ -49,7 +49,7 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
 
     JXDatePicker surfaceDriftPicker;
     JSpinner surfaceDriftSpinner;
-    
+
     int id;
 
     private void displayMissingField(String fieldname) {
@@ -66,10 +66,10 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
         } else {
             try {
                 String twcFieldStr = twcField.getText();
-                if (twcFieldStr.contains(",")){
+                if (twcFieldStr.contains(",")) {
                     twcFieldStr = twcFieldStr.replace(",", ".");
                 }
-                
+
                 return Double.parseDouble(twcFieldStr);
             } catch (Exception e) {
                 displayMissingField("TWC Knots");
@@ -86,9 +86,9 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
             return -9999;
         } else {
             try {
-                
+
                 String leewayFieldStr = leewayField.getText();
-                if (leewayFieldStr.contains(",")){
+                if (leewayFieldStr.contains(",")) {
                     leewayFieldStr = leewayFieldStr.replace(",", ".");
                 }
                 return Double.parseDouble(leewayFieldStr);
@@ -102,14 +102,19 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
     public double getTWCHeading() {
         String twcField = twcHeadingField.getText();
 
-        
-        
         if (twcField.equals("")) {
             displayMissingField("TWC Heading");
             return -9999;
         } else {
             try {
-                String value = twcField.substring(0, twcField.length() - 1);
+                String value;
+
+                if (twcField.contains("°")) {
+                    value = twcField.substring(0, twcField.length() - 1);
+                } else {
+                    value = twcField;
+                }
+
                 return Double.parseDouble(value);
             } catch (Exception e) {
                 displayMissingField("TWC Heading");
@@ -119,18 +124,23 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
     }
 
     public double getLeewayHeading() {
-        
-        
+
         String leewayField = leewayHeadingField.getText();
 
-        
-        
         if (leewayField.equals("")) {
             displayMissingField("Leeway Heading");
             return -9999;
         } else {
             try {
-                String value = leewayField.substring(0, leewayField.length() - 1);
+
+                String value;
+
+                if (leewayField.contains("°")) {
+                    value = leewayField.substring(0, leewayField.length() - 1);
+                } else {
+                    value = leewayField;
+                }
+
                 return Double.parseDouble(value);
             } catch (Exception e) {
                 displayMissingField("Leeway Heading");
@@ -139,15 +149,14 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
         }
 
     }
-    
-    
+
     @SuppressWarnings("deprecation")
-    public Date getDateTime(){
-        
-//        surfaceDriftPicker
-//        surfaceDriftSpinner
+    public Date getDateTime() {
+
+        // surfaceDriftPicker
+        // surfaceDriftSpinner
         Date date = surfaceDriftPicker.getDate();
-        
+
         JSpinner.DateEditor editor = (JSpinner.DateEditor) surfaceDriftSpinner
                 .getEditor();
         // System.out.println("DepartureTime was changed to "
@@ -162,10 +171,9 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
         } catch (ParseException e1) {
             // Ignore
         }
-        
+
         return date;
     }
-    
 
     public SurfaceDriftPanel(int number) {
 

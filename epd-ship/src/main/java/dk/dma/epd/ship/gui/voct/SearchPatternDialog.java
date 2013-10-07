@@ -188,7 +188,7 @@ public class SearchPatternDialog extends JDialog implements ActionListener {
             importCSPFromDropdown = new JComboBox<String>();
             importCSPFromDropdown.setModel(new DefaultComboBoxModel<String>(
                     new String[] { "Import From:", "Top Left", "Top Right",
-                            "Bottom Left", "Bottom Right"}));
+                            "Bottom Left", "Bottom Right" }));
             importCSPFromDropdown.setBounds(385, 49, 127, 20);
             importCSPFromDropdown.addActionListener(this);
             cspPanel.add(importCSPFromDropdown);
@@ -249,21 +249,6 @@ public class SearchPatternDialog extends JDialog implements ActionListener {
     }
 
     public boolean getValuesAndInititate() {
-        // Get CSS values
-        double commenceSearchStartLat = getCSSLat();
-        double commenceSearchStartLon = getCSSLon();
-
-        Position commenceStartPosition;
-
-        if (commenceSearchStartLat != -9999 && commenceSearchStartLon != -9999) {
-            commenceStartPosition = Position.create(commenceSearchStartLat,
-                    commenceSearchStartLon);
-        } else {
-            // Failed to parse CSP
-            displayMissingField("Commence Start Position");
-            return false;
-        }
-
         SearchPatternGenerator.searchPattern searchPatternType = SearchPatternGenerator.searchPattern.unknown;
 
         // commenceStartPosition
@@ -291,6 +276,26 @@ public class SearchPatternDialog extends JDialog implements ActionListener {
         case 4:
             searchPatternType = SearchPatternGenerator.searchPattern.Expanding_Square_Search;
             break;
+        }
+
+        Position commenceStartPosition = null;
+
+        if (searchPatternType != SearchPatternGenerator.searchPattern.Expanding_Square_Search) {
+
+            // Get CSS values
+            double commenceSearchStartLat = getCSSLat();
+            double commenceSearchStartLon = getCSSLon();
+
+            if (commenceSearchStartLat != -9999
+                    && commenceSearchStartLon != -9999) {
+                commenceStartPosition = Position.create(commenceSearchStartLat,
+                        commenceSearchStartLon);
+            } else {
+                // Failed to parse CSP
+                displayMissingField("Commence Start Position");
+                return false;
+            }
+
         }
 
         // Create the route
@@ -381,23 +386,33 @@ public class SearchPatternDialog extends JDialog implements ActionListener {
 
             switch (selectedIndex) {
             case 0:
+                toggleInput(true);
+                generateButton.setEnabled(true);
                 descriptiveImage.setIcon(parallelsweepsearchIcon);
                 descriptiveText.setText(parallelSweepSearch);
                 break;
             case 1:
+                toggleInput(true);
+                generateButton.setEnabled(true);
                 descriptiveImage.setIcon(creepingLineSearchIcon);
                 descriptiveText.setText(creepingLineSearch);
                 break;
             case 2:
+                toggleInput(false);
+                generateButton.setEnabled(false);
                 descriptiveImage.setIcon(trackLineSearchReturnIcon);
                 descriptiveText.setText(trackLineSearchReturn);
                 break;
             case 3:
+                toggleInput(false);
+                generateButton.setEnabled(false);
                 descriptiveImage.setIcon(trackLineSearchNonReturnIcon);
                 descriptiveText.setText(trackLineSearchNonReturn);
                 break;
 
             case 4:
+                toggleInput(false);
+                generateButton.setEnabled(true);
                 descriptiveImage.setIcon(expandingSquareSearchIcon);
                 descriptiveText.setText(expandingSquareSearch);
                 break;
@@ -424,6 +439,24 @@ public class SearchPatternDialog extends JDialog implements ActionListener {
         }
     }
 
+    
+    private void toggleInput(boolean enabled){
+        cssFirstLat.setEnabled(enabled);
+        cssSecondLat.setEnabled(enabled);
+        cssThirdLat.setEnabled(enabled);
+
+        comboCSSLat.setEnabled(enabled);
+        cssFirstLon.setEnabled(enabled);
+        cssSecondLon.setEnabled(enabled);
+        cssThirdLon.setEnabled(enabled);
+        comboCSSLon.setEnabled(enabled);
+        importCSPFromDropdown.setEnabled(enabled);
+
+
+        
+    }
+
+    
     private void setValues(int position) {
         Position importedPosition = null;
 
@@ -431,79 +464,77 @@ public class SearchPatternDialog extends JDialog implements ActionListener {
         case 0:
             return;
         case 1:
-            importedPosition = voctManager.getSarData().getEffortAllocationData().getEffectiveAreaA();            
+            importedPosition = voctManager.getSarData()
+                    .getEffortAllocationData().getEffectiveAreaA();
             break;
         case 2:
-            importedPosition = voctManager.getSarData().getEffortAllocationData().getEffectiveAreaB();
+            importedPosition = voctManager.getSarData()
+                    .getEffortAllocationData().getEffectiveAreaB();
             break;
         case 3:
-            importedPosition = voctManager.getSarData().getEffortAllocationData().getEffectiveAreaC();
+            importedPosition = voctManager.getSarData()
+                    .getEffortAllocationData().getEffectiveAreaC();
             break;
         case 4:
-            importedPosition = voctManager.getSarData().getEffortAllocationData().getEffectiveAreaD();
+            importedPosition = voctManager.getSarData()
+                    .getEffortAllocationData().getEffectiveAreaD();
             break;
         }
 
-
-        
         String lat = importedPosition.getLatitudeAsString();
-        
-        
+
         System.out.println("Lat is" + lat);
-        
-        //Get last character
-        
-        String latValues = lat.substring(0, lat.length()-1);
+
+        // Get last character
+
+        String latValues = lat.substring(0, lat.length() - 1);
         System.out.println("Lat values is: " + latValues);
-        
+
         String firstSplit = latValues.split(" ")[1].trim();
-        
+
         System.out.println("Split space 1 is " + firstSplit);
-        
+
         System.out.println(firstSplit.contains("."));
-        
+
         for (int i = 0; i < firstSplit.split("\\.").length; i++) {
-            System.out.println("Splitted val is" +firstSplit.split("\\.")[i]);
+            System.out.println("Splitted val is" + firstSplit.split("\\.")[i]);
         }
-        
+
         String firstValueLat = latValues.split(" ")[0].trim();
         String secondValueLat = firstSplit.split("\\.")[0].trim();
-        String thirdValueLat =  firstSplit.split("\\.")[1].trim();
-        String lastCharLat = lat.substring(lat.length()-1, lat.length()).trim();
-        
-        
+        String thirdValueLat = firstSplit.split("\\.")[1].trim();
+        String lastCharLat = lat.substring(lat.length() - 1, lat.length())
+                .trim();
+
         cssFirstLat.setText(firstValueLat);
         cssSecondLat.setText(secondValueLat);
         cssThirdLat.setText(thirdValueLat);
-        if (lastCharLat.equals("N")){
+        if (lastCharLat.equals("N")) {
             comboCSSLat.setSelectedIndex(0);
-        }else{
+        } else {
             comboCSSLat.setSelectedIndex(1);
         }
-        
-        
+
         String lon = importedPosition.getLongitudeAsString();
-        
-        String lonValues = lon.substring(0, lat.length()-1);
-        
+
+        String lonValues = lon.substring(0, lat.length() - 1);
+
         String firstValueLon = lonValues.split(" ")[0].trim();
         String secondValueLon = lonValues.split(" ")[1].split("\\.")[0].trim();
-        String thirdValueLon =  lonValues.split(" ")[1].split("\\.")[1].trim();
-        String lastCharLon = lon.substring(lon.length()-1, lon.length()).trim();
-        
-        
-        
+        String thirdValueLon = lonValues.split(" ")[1].split("\\.")[1].trim();
+        String lastCharLon = lon.substring(lon.length() - 1, lon.length())
+                .trim();
 
         cssFirstLon.setText(firstValueLon);
         cssSecondLon.setText(secondValueLon);
         cssThirdLon.setText(thirdValueLon);
-        
-        if (lastCharLon.equals("E")){
+
+        if (lastCharLon.equals("E")) {
             comboCSSLat.setSelectedIndex(0);
-        }else{
+        } else {
             comboCSSLat.setSelectedIndex(1);
         }
-        
+
         comboCSSLon.setSelectedIndex(0);
     }
 

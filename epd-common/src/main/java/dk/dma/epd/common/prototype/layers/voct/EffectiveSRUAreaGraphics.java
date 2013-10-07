@@ -77,7 +77,7 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         Position topCenter = Calculator.findPosition(centerPosition,
                 Calculator.reverseDirection(verticalBearing),
                 Converter.nmToMeters(height / 2));
-        
+
         A = Calculator.findPosition(topCenter,
                 Calculator.reverseDirection(horizontalBearing),
                 Converter.nmToMeters(width / 2));
@@ -111,13 +111,9 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         add(leftLine);
         add(rightLine);
     }
-    
-    
-    
-    
 
     public void updateLines(Position A, Position B, Position C, Position D) {
-        
+
         this.A = A;
         this.B = B;
         this.C = C;
@@ -134,46 +130,56 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
 
         double height = 0;
         double width = 0;
-        
+
         System.out.println(type);
 
         if (type == LineType.BOTTOM) {
 
-            
-            
-            // if (Calculator.bearing(A, newPos, Heading.RL) > 0){
+            double deltaValue = A.getLatitude()
+                    - (newPos.getLatitude() + 0.002);
 
-            // We update C point
-            C = newPos;
+            System.out.println(deltaValue);
 
-            // New length
-            height = Calculator.range(A, C, Heading.GC);
+            if (deltaValue > 0) {
 
-            // Recalculate width
-            width = totalSize / height;
+                // if (Calculator.bearing(A, newPos, Heading.RL) > 0){
 
-            // if (height > 1 && width > 1) {
+                // We update C point
+                C = newPos;
 
-            // Recalculate B and D
-            B = Calculator.findPosition(A, horizontalBearing,
-                    Converter.nmToMeters(width));
+                // New length
+                height = Calculator.range(A, C, Heading.GC);
 
-            D = Calculator.findPosition(C, horizontalBearing,
-                    Converter.nmToMeters(width));
+                // Recalculate width
+                width = totalSize / height;
 
-            effectiveArea.updatePosition(A, B, C, D, width, height);
+                // if (height > 1 && width > 1) {
 
-            updateLines(A, B, C, D);
-            // }
-            // }
+                // Recalculate B and D
+                B = Calculator.findPosition(A, horizontalBearing,
+                        Converter.nmToMeters(width));
+
+                D = Calculator.findPosition(C, horizontalBearing,
+                        Converter.nmToMeters(width));
+
+                effectiveArea.updatePosition(A, B, C, D, width, height);
+
+                updateLines(A, B, C, D);
+                // }
+            }
 
         }
         if (type == LineType.TOP) {
 
-            
-            
+            double deltaValue = newPos.getLongitude()
+                    - (B.getLongitude() + 0.002);
+            System.out.println(deltaValue);
+
             // Make sure it doesn\t go over and place A under C
-//            if (newPos.getLatitude() - 0.001 > C.getLatitude()) {
+            // if (newPos.getLatitude() - 0.001 > C.getLatitude()) {
+
+            //C latitude must always be below As latitude
+            if (deltaValue > 0) {
 
                 // We update A point
                 A = newPos;
@@ -194,11 +200,18 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
                 effectiveArea.updatePosition(A, B, C, D, width, height);
 
                 updateLines(A, B, C, D);
-//            }
+            }
         }
 
         if (type == LineType.LEFT) {
+            double deltaValue = B.getLongitude()
+                    - (newPos.getLongitude() + 0.002);
+            
+            System.out.println(deltaValue);
 
+            
+            if (deltaValue > 0) {
+            
             // We update A point
             A = newPos;
 
@@ -220,11 +233,21 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
             effectiveArea.updatePosition(A, B, C, D, width, height);
 
             updateLines(A, B, C, D);
-
+            }
         }
 
         if (type == LineType.RIGHT) {
 
+            
+            double deltaValue = newPos.getLongitude()
+                    - (A.getLongitude() + 0.002);
+            
+       
+
+            System.out.println(deltaValue);
+
+            if (deltaValue > 0) {
+            
             // We update B point
             B = newPos;
 
@@ -246,10 +269,10 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
             effectiveArea.updatePosition(A, B, C, D, width, height);
 
             updateLines(A, B, C, D);
-
+            }
         }
 
-//        System.out.println("Updating effective area values");
+        // System.out.println("Updating effective area values");
 
         // sarData.getEffortAllocationData().setEffectiveAreaA(A);
         // sarData.getEffortAllocationData().setEffectiveAreaB(B);
@@ -268,10 +291,8 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         // calculate new width and get points for that
 
     }
-    
-    
-    
-    public void updateEffectiveAreaSize(SARData sarData){
+
+    public void updateEffectiveAreaSize(SARData sarData) {
         sarData.getEffortAllocationData().setEffectiveAreaA(A);
         sarData.getEffortAllocationData().setEffectiveAreaB(B);
         sarData.getEffortAllocationData().setEffectiveAreaC(C);
