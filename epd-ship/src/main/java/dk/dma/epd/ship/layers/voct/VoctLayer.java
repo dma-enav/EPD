@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.ship.layers.voct;
 
+import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 
 import com.bbn.openmap.MapBean;
@@ -28,6 +29,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.layers.voct.AreaInternalGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics;
+import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics.LineType;
 import dk.dma.epd.common.prototype.layers.voct.SarEffectiveAreaLines;
 import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
 import dk.dma.epd.common.prototype.layers.voct.SearchPatternTemp;
@@ -37,8 +39,10 @@ import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
+import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
+import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 
 public class VoctLayer extends OMGraphicHandlerLayer implements
@@ -52,8 +56,10 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     private boolean dragging;
     private MapBean mapBean;
     private VOCTManager voctManager;
-    
+
     EffectiveSRUAreaGraphics effectiveArea;
+
+    private MainFrame mainFrame;
 
     public VoctLayer() {
         // drawSAR();
@@ -68,6 +74,10 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     @Override
     public void findAndInit(Object obj) {
 
+        if (obj instanceof MainFrame){
+            mainFrame = (MainFrame) obj;
+        }
+        
         if (obj instanceof VOCTManager) {
             voctManager = (VOCTManager) obj;
             voctManager.addListener(this);
@@ -229,13 +239,80 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
         }
 
-
         return false;
     }
 
     @Override
-    public boolean mouseMoved(MouseEvent paramMouseEvent) {
-        // TODO Auto-generated method stub
+    public boolean mouseMoved(MouseEvent e) {
+        if (!dragging) {
+            // mainFrame.getGlassPane().setVisible(false);
+            selectedGraphic = null;
+            OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
+                    2.0f);
+            for (OMGraphic omGraphic : allClosest) {
+                if (omGraphic instanceof SarEffectiveAreaLines) {
+                    // System.out.println("selected something");
+                    selectedGraphic = omGraphic;
+                    break;
+                } else {
+                    if (omGraphic instanceof AreaInternalGraphics) {
+                        // System.out.println("selected something");
+                        selectedGraphic = omGraphic;
+                        // break;
+                    }
+                    // if (|| omGraphic instanceof AreaInternalGraphics)
+                }
+            }
+        }
+
+        if (selectedGraphic instanceof SarEffectiveAreaLines) {
+            // System.out.println("Selected line");
+            SarEffectiveAreaLines selectedLine = (SarEffectiveAreaLines) selectedGraphic;
+            
+            LineType type = selectedLine.getType();
+            
+            Cursor cursor = null;
+            
+            
+            if (type == LineType.BOTTOM){
+                cursor = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
+            }
+            
+            if (type == LineType.TOP){
+                cursor = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
+            }
+            
+            if (type == LineType.LEFT){
+                cursor = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);
+            }
+            
+            if (type == LineType.RIGHT){
+                cursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
+            }
+            
+            
+            mainFrame.getGlassPane().setVisible(true);
+            mainFrame.getGlassPane()
+                    .setCursor(cursor);
+            
+            return true;
+            
+        }
+
+        if (selectedGraphic != null
+                && selectedGraphic instanceof AreaInternalGraphics) {
+            System.out.println("Cursor set");
+            mainFrame.getGlassPane().setVisible(true);
+            mainFrame.getGlassPane()
+                    .setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+            return true;
+
+        }
+
+        EPDShip.getMainFrame().getGlassPane()
+                .setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        EPDShip.getMainFrame().getGlassPane().setVisible(false);
+
         return false;
     }
 
@@ -260,7 +337,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             if (voctManager.getSarType() == SAR_TYPE.DATUM_POINT) {
                 drawDatumPoint();
             }
-            
+
             this.setVisible(true);
         }
 
@@ -270,10 +347,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         }
 
     }
-    
-    
-    
-    
+
     private void drawDatumPoint() {
 
         DatumPointData data = (DatumPointData) voctManager.getSarData();
@@ -286,7 +360,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         Position datumDownWind = data.getDatumDownWind();
         Position datumMin = data.getDatumMin();
         Position datumMax = data.getDatumMax();
-        
+
         double radiusDownWind = data.getRadiusDownWind();
         double radiusMin = data.getRadiusMin();
         double radiusMax = data.getRadiusMax();
@@ -296,14 +370,17 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
         graphics.clear();
 
-//        public SarGraphics(Position datumDownWind, Position datumMin, Position datumMax, double radiusDownWind, double radiusMin, double radiusMax, Position LKP, Position current) {
-        SarGraphics sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint, A, B, C, D);
+        // public SarGraphics(Position datumDownWind, Position datumMin,
+        // Position datumMax, double radiusDownWind, double radiusMin, double
+        // radiusMax, Position LKP, Position current) {
+        SarGraphics sarGraphics = new SarGraphics(datumDownWind, datumMin,
+                datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint,
+                A, B, C, D);
 
         graphics.add(sarGraphics);
 
         doPrepare();
     }
-
 
     private void drawRapidResponse() {
 
@@ -357,18 +434,13 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         double width = Math.sqrt(effectiveAreaSize);
         double height = Math.sqrt(effectiveAreaSize);
 
+        // Position startingPosition = data.getLKP();
+        //
+        // if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
+        // startingPosition = ((RapidResponseData) data).getA();
+        // }
 
-        
-        
-        
-//        Position startingPosition = data.getLKP();
-//
-//        if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
-//            startingPosition = ((RapidResponseData) data).getA();
-//        }
-
-        effectiveArea = new EffectiveSRUAreaGraphics(width,
-                height, data);
+        effectiveArea = new EffectiveSRUAreaGraphics(width, height, data);
 
         graphics.add(effectiveArea);
 
@@ -380,8 +452,8 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         graphics.add(testLine);
         doPrepare();
     }
-    
-    public void updateEffectiveAreaLocation(SARData sarData){
+
+    public void updateEffectiveAreaLocation(SARData sarData) {
         effectiveArea.updateEffectiveAreaSize(sarData);
     }
 }

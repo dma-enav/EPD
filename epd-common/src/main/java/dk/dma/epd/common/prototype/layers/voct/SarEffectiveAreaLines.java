@@ -53,6 +53,15 @@ public class SarEffectiveAreaLines extends OMGraphicList{
  
     
     
+    /**
+     * @return the type
+     */
+    public LineType getType() {
+        return type;
+    }
+
+
+
     private void drawLine(Position A, Position B){
         this.A = A;
         this.B = B;
