@@ -165,12 +165,12 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable, WMSEven
 
     @Override
     public void changeEventReceived(WMSEvent evt) {
-	final Projection proj = this.getProjection();
-	if (width > 0 && height > 0 && proj.getScale() <= 3428460) {
-	    OMGraphicList result = wmsService.getWmsList(proj);
-	    drawWMS(result);
-	}
-	
+        final Projection proj = this.getProjection();
+        if (width > 0 && height > 0 && proj.getScale() <= 3428460) {
+            OMGraphicList result = wmsService.getWmsList(proj);
+            drawWMS(result);
+        }
+        
     }
     
 //    @Override

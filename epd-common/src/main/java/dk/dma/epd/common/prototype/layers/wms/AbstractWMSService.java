@@ -200,20 +200,20 @@ public abstract class AbstractWMSService extends Observable {
     }
 
     public void addWMSEventListener(WMSEventListener l) {
-	this.listeners.add(l);
+        this.listeners.add(l);
     }
 
     public void removeMyChangeListener(WMSEventListener l) {
-	this.listeners.remove(l);
+        this.listeners.remove(l);
     }
 
     // Event firing method. Called internally by other class methods.
     protected void fireWMSEvent() {
-	WMSEvent evt = new WMSEvent(this);
+        WMSEvent evt = new WMSEvent(this);
 
-	for (WMSEventListener l : listeners) {
-	    l.changeEventReceived(evt);
-	}
+        for (WMSEventListener l : listeners) {
+            l.changeEventReceived(evt);
+        }
     }
 
 }
