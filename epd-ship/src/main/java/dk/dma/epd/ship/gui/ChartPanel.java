@@ -448,23 +448,20 @@ MouseWheelListener {
      * @param mode
      *            0 for NavMode, 1 for DragMode, 2 for SelectMode
      */
-    public void setMouseMode(int mode) {
-        // Mode0 is routeEditMouseMode
-        if (mode == 0) {
+    public void setMouseMode(String modeID) {
+        // Switching to RouteEditMouseMode
+        if(modeID.equals(RouteEditMouseMode.MODE_ID)) {
             mouseDelegator.setActive(routeEditMouseMode);
             routeEditLayer.setVisible(true);
             routeEditLayer.setEnabled(true);
             newRouteContainerLayer.setVisible(true);
 
             EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
-                    .setSelected(false);
+            .setSelected(false);
             EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
-                    .setSelected(false);
+            .setSelected(false);
         }
-
-        // Mode1 is NavMouseMode
-        // Mode2 is DragMouseMode
-        if (mode == 1 || mode == 2) {
+        if(modeID.equals(NavigationMouseMode.MODE_ID) || modeID.equals(DragMouseMode.MODE_ID)) {
             routeEditLayer.setVisible(false);
             routeEditLayer.doPrepare();
             newRouteContainerLayer.setVisible(false);
@@ -472,28 +469,42 @@ MouseWheelListener {
             newRouteContainerLayer.getRouteGraphics().clear();
             newRouteContainerLayer.doPrepare();
             EPDShip.getMainFrame().getTopPanel().getNewRouteBtn()
-                    .setSelected(false);
+            .setSelected(false);
             EPDShip.getMainFrame().getEeINSMenuBar().getNewRoute()
-                    .setSelected(false);
-
-            if (mode == 1) {
+            .setSelected(false);
+            if(modeID.equals(NavigationMouseMode.MODE_ID)) {
                 System.out.println("Setting nav mouse mode");
                 mouseDelegator.setActive(mapNavMouseMode);
                 EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
-                        .setSelected(true);
+                .setSelected(true);
                 EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
-                        .setSelected(false);
+                .setSelected(false);
             }
-            if (mode == 2) {
+            if(modeID.equals(DragMouseMode.MODE_ID)) {
                 mouseDelegator.setActive(dragMouseMode);
                 EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
-                        .setSelected(false);
+                .setSelected(false);
                 EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
-                        .setSelected(true);
+                .setSelected(true);
                 System.out.println("Setting drag mouse mode");
             }
         }
-
+        if(modeID.equals(DistanceCircleMouseMode.MODE_ID)) {
+            String prevMouseModeId = this.mouseDelegator.getActiveMouseMode().getID();
+            // Store previous mouse mode ID such that we can go back to that mouse mode
+            this.rangeCirclesMouseMode.setPreviousMouseModeModeID(prevMouseModeId);
+            System.out.println("Setting DistanceCircleMouseMode");
+            // Display the ruler layer.
+            this.rulerLayer.setVisible(true);
+            this.mouseDelegator.setActive(this.rangeCirclesMouseMode);
+        }
+        else {
+            // When mouse mode is changed to something different than distance circle mode
+            // we untoggle the distance circle mode button
+            this.topPanel.getToggleButtonDistanceCircleMouseMode().setSelected(false);
+            // hide ruler layer when not in "distance circles mode"
+            this.rulerLayer.setVisible(false);
+        }
     }
 
     // public void editMode(boolean enable) {
