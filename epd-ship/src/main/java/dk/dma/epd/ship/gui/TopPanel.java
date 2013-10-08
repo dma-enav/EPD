@@ -180,6 +180,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         add(encBtn);
         add(wmsBtn);
         add(toggleSafeHaven);
+        // add the toggle button to the component
+        this.add(this.toggleRangeCirclesMode);
         // add(tglbtnMsiFilter);
         // if (showRiskAndNogo)
         // add(riskBtn);
