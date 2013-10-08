@@ -234,26 +234,32 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         // nogoButton.setSelected(true);
 
         toggleSafeHaven.addMouseListener(this);
-        
+
         navigationMouseMode.addMouseListener(this);
         dragMouseMode.addMouseListener(this);
 
-        
-        
-        
+        // Listen for mouse input on the range circle toggle button
+        this.toggleRangeCirclesMode.addMouseListener(this);
+
         updateButtons();
     }
 
     public void updateButtons() {
-        autoFollowBtn.setSelected(EPDShip.getSettings().getNavSettings().isAutoFollow());
+        autoFollowBtn.setSelected(EPDShip.getSettings().getNavSettings()
+                .isAutoFollow());
         aisBtn.setSelected(EPDShip.getSettings().getAisSettings().isVisible());
-        encBtn.setSelected(EPDShip.getSettings().getMapSettings().isEncVisible());
-        wmsBtn.setSelected(EPDShip.getSettings().getMapSettings().isWmsVisible());
+        encBtn.setSelected(EPDShip.getSettings().getMapSettings()
+                .isEncVisible());
+        wmsBtn.setSelected(EPDShip.getSettings().getMapSettings()
+                .isWmsVisible());
         // tglbtnMsiFilter.setSelected(EeINS.getSettings().getEnavSettings()
         // .isMsiFilter());
-        aisToggleName.setSelected(EPDShip.getSettings().getAisSettings().isShowNameLabels());
+        aisToggleName.setSelected(EPDShip.getSettings().getAisSettings()
+                .isShowNameLabels());
 
         navigationMouseMode.setSelected(true);
+        // range circles mode is disabled by default.
+        this.toggleRangeCirclesMode.setSelected(false);
     }
 
     public void disableAutoFollow() {
