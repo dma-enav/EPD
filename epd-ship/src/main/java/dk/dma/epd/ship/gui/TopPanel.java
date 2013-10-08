@@ -479,8 +479,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
     }
 
-    
-    
     public ToggleButtonLabel getNavigationMouseMode() {
         return navigationMouseMode;
     }
