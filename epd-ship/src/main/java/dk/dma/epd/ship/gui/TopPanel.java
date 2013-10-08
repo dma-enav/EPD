@@ -130,7 +130,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         zoomInBtn.setToolTipText("Zoom in : Shortcut Numpad +");
         zoomOutBtn.setToolTipText("Zoom out : Shortcut Numpad -");
         centreBtn.setToolTipText("Centre on ship : Shortcut C");
-        
+
         navigationMouseMode.setToolTipText("Navigation Mouse Mode");
         dragMouseMode.setToolTipText("Drag mouse mode");
 
@@ -140,19 +140,23 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         // routeBtn.setVisible(false);
         newRouteBtn.setToolTipText("Add a new route : Shortcut Ctrl N");
         routeManagerBtn.setToolTipText("Routes Manager : Shortcut Ctrl R");
-        msiButton.setToolTipText("Maritime Safety Information : Shortcut Ctrl M");
+        msiButton
+                .setToolTipText("Maritime Safety Information : Shortcut Ctrl M");
         aisButton.setToolTipText("Show nearby vessels : Shortcut Ctrl A");
         // nogoButton.setToolTipText("Show/hide NoGo area");
         aisBtn.setToolTipText("Show/hide AIS targets");
         aisToggleName.setToolTipText("Show/hide AIS Name Labels");
         // riskBtn.setToolTipText("Show/hide risk info");
         encBtn.setToolTipText("Show/hide ENC");
-        
+
         wmsBtn.setToolTipText("Show/hide WMS seacharts");
         // tglbtnMsiFilter
         // .setToolTipText("Enable/disable MSI message filtering based on position and routes");
 
         toggleSafeHaven.setToolTipText("Show/hide SafeHaven guidelines");
+
+        this.toggleRangeCirclesMode
+                .setToolTipText("Enable range circles mode.");
 
         // Temporary
         // boolean showRiskAndNogo = !EeINS.getSettings().getGuiSettings()
