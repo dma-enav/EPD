@@ -47,7 +47,7 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
     double horizontalBearing = 90;
 
     double deltaCorrection = 0.004;
-    
+
     SARData sarData;
 
     public enum LineType {
@@ -76,38 +76,26 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
             horizontalBearing = Calculator.bearing(datumData.getA(),
                     datumData.getB(), Heading.RL);
             centerPosition = datumData.getDatumDownWind();
-            
-            
-            
-            //Reversing if direction is opposite way of assumed, assumed to be headed in 90 direction ie. right
-            if (horizontalBearing > 180 || horizontalBearing < 0){
-                
-                horizontalBearing = Calculator.reverseDirection(horizontalBearing);
-                
+
+            // Reversing if direction is opposite way of assumed, assumed to be
+            // headed in 90 direction ie. right
+            if (horizontalBearing > 180 || horizontalBearing < 0) {
+
+                horizontalBearing = Calculator
+                        .reverseDirection(horizontalBearing);
+
             }
-            
-            if (verticalBearing > 270 || verticalBearing < 90){
-                
+
+            if (verticalBearing > 270 || verticalBearing < 90) {
+
                 verticalBearing = Calculator.reverseDirection(verticalBearing);
-                
+
             }
-            
-            
-            
-        
-            
+
             System.out.println("Vertical bearing is: " + verticalBearing);
             System.out.println("Horizontal bearing is: " + horizontalBearing);
         }
 
-        
-        
-        
-        
-        
-        
-        
-        
         // Find A position
         Position topCenter = Calculator.findPosition(centerPosition,
                 Calculator.reverseDirection(verticalBearing),
@@ -170,326 +158,451 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
 
         if (type == LineType.BOTTOM) {
 
-            double deltaValue = A.getLatitude()
-                    - (newPos.getLatitude() + deltaCorrection);
+            newPos = findIntersectionBottom(newPos);
 
-//            System.out.println(deltaValue);
+            if (newPos != null) {
 
-            if (deltaValue > 0) {
+                // Check that we haven't moved the cursor to the "opposite" side
+                // of the line ie. inversing
+                double deltaValue = A.getLatitude()
+                        - (newPos.getLatitude() + deltaCorrection);
 
-                // if (Calculator.bearing(A, newPos, Heading.RL) > 0){
+                // System.out.println(deltaValue);
 
-                // We update C point
-                C = newPos;
+                if (deltaValue > 0) {
 
-                // New length
-                height = Calculator.range(A, C, Heading.GC);
+                    // if (Calculator.bearing(A, newPos, Heading.RL) > 0){
 
-                // Recalculate width
-                width = totalSize / height;
+                    // We update C point
+                    C = newPos;
 
-                // if (height > 1 && width > 1) {
+                    // New length
+                    height = Calculator.range(A, C, Heading.GC);
 
-                // Recalculate B and D
-                B = Calculator.findPosition(A, horizontalBearing,
-                        Converter.nmToMeters(width));
+                    // Recalculate width
+                    width = totalSize / height;
 
-                D = Calculator.findPosition(C, horizontalBearing,
-                        Converter.nmToMeters(width));
+                    // if (height > 1 && width > 1) {
 
-                effectiveArea.updatePosition(A, B, C, D, width, height);
+                    // Recalculate B and D
+                    B = Calculator.findPosition(A, horizontalBearing,
+                            Converter.nmToMeters(width));
 
-                updateLines(A, B, C, D);
-                // }
+                    D = Calculator.findPosition(C, horizontalBearing,
+                            Converter.nmToMeters(width));
+
+                    effectiveArea.updatePosition(A, B, C, D, width, height);
+
+                    updateLines(A, B, C, D);
+                    // }
+                }
             }
-
         }
         if (type == LineType.TOP) {
 
-            int lengthMax = 500000;
-            //The mouse can be in 4 different areas
-            
-            double bearing = A.rhumbLineBearingTo(newPos);
-            System.out.println(bearing);
-            
-            System.out.println("Vertical bearing " + verticalBearing);
-            System.out.println("Horizontal bearing " + horizontalBearing);
-            
-            Geo intersectionPoint = null;
-            
-            if (bearing > 0 && bearing < 90){
-                
-                System.out.println("Calculating");
-            
-                //Create a line going from C, in reverse vertical direction eg up
-                Position verticalEndPosition = Calculator.findPosition(C, Calculator.reverseDirection(verticalBearing), lengthMax);
-                Geo a1 = new Geo(C.getLatitude(), C.getLongitude());
-                Geo a2 = new Geo(verticalEndPosition.getLatitude(), verticalEndPosition.getLongitude());
-                
-                
-                
-                //Create a line going from newPos in reverse horizontal direction eg left
-                Position horizontalEndPosition = Calculator.findPosition(newPos, Calculator.reverseDirection(horizontalBearing), lengthMax);
-                
-                Geo b1 = new Geo(newPos.getLatitude(), newPos.getLongitude());
-                Geo b2 = new Geo(horizontalEndPosition.getLatitude(), horizontalEndPosition.getLongitude());
-                
-                intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
-                
-  
-                if (intersectionPoint == null){
-                    System.out.println("Does these intersect?");
-                    
-                    System.out.println(a1.getLatitude());
-                    System.out.println(a1.getLongitude());
-                    System.out.println(a2.getLatitude());
-                    System.out.println(a2.getLongitude());
-                    System.out.println(b1.getLatitude());
-                    System.out.println(b1.getLongitude());
-                    System.out.println(b2.getLatitude());
-                    System.out.println(b2.getLongitude());
+            newPos = findIntersectionTop(newPos);
+
+            if (newPos != null) {
+
+                double deltaValue = newPos.getLatitude()
+                        - (C.getLatitude() + deltaCorrection);
+                // System.out.println(deltaValue);
+
+                // Make sure it doesn\t go over and place A under C
+                // if (newPos.getLatitude() - 0.001 > C.getLatitude()) {
+
+                // C latitude must always be below As latitude
+                if (deltaValue > 0) {
+
+                    // We update A point
+                    A = newPos;
+
+                    // New length
+                    height = Calculator.range(A, C, Heading.RL);
+
+                    // Recalculate width
+                    width = totalSize / height;
+
+                    // Recalculate B and D
+                    B = Calculator.findPosition(A, horizontalBearing,
+                            Converter.nmToMeters(width));
+
+                    D = Calculator.findPosition(C, horizontalBearing,
+                            Converter.nmToMeters(width));
+
+                    effectiveArea.updatePosition(A, B, C, D, width, height);
+
+                    updateLines(A, B, C, D);
                 }
-                
-                System.out.println(intersectionPoint);
-            }
-            
-            if (bearing > 270){
-                
-                //Create a line going from C, in reverse vertical direction eg up
-                Position verticalEndPosition = Calculator.findPosition(C, Calculator.reverseDirection(verticalBearing), lengthMax);
-                Geo a1 = new Geo(C.getLatitude(), C.getLongitude());
-                Geo a2 = new Geo(verticalEndPosition.getLatitude(), verticalEndPosition.getLongitude());
-                
-                
-                
-                //Create a line going from newPos in horizontal direction eg right
-                Position horizontalEndPosition = Calculator.findPosition(newPos, horizontalBearing, lengthMax);
-                
-                Geo b1 = new Geo(newPos.getLatitude(), newPos.getLongitude());
-                Geo b2 = new Geo(horizontalEndPosition.getLatitude(), horizontalEndPosition.getLongitude());
-                
-                intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
-            }
-            
-            if (bearing > 90 && bearing < 180){
-                //Create a line going from C, in vertical direction eg up
-                Position verticalEndPosition = Calculator.findPosition(C, Calculator.reverseDirection(verticalBearing), lengthMax);
-                Geo a1 = new Geo(C.getLatitude(), C.getLongitude());
-                Geo a2 = new Geo(verticalEndPosition.getLatitude(), verticalEndPosition.getLongitude());
-                
-                
-                
-                //Create a line going from newPos in horizontal direction eg left
-                Position horizontalEndPosition = Calculator.findPosition(newPos, Calculator.reverseDirection(horizontalBearing), lengthMax);
-                
-                Geo b1 = new Geo(newPos.getLatitude(), newPos.getLongitude());
-                Geo b2 = new Geo(horizontalEndPosition.getLatitude(), horizontalEndPosition.getLongitude());
-                
-                intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
-            }
-            
-            
-            if (bearing > 180 && bearing < 270){
-                //Create a line going from C, in vertical direction eg up
-                Position verticalEndPosition = Calculator.findPosition(C, Calculator.reverseDirection(verticalBearing), lengthMax);
-                Geo a1 = new Geo(C.getLatitude(), C.getLongitude());
-                Geo a2 = new Geo(verticalEndPosition.getLatitude(), verticalEndPosition.getLongitude());
-                
-                
-                
-                //Create a line going from newPos in horizontal direction eg right
-                Position horizontalEndPosition = Calculator.findPosition(newPos, horizontalBearing, lengthMax);
-                
-                Geo b1 = new Geo(newPos.getLatitude(), newPos.getLongitude());
-                Geo b2 = new Geo(horizontalEndPosition.getLatitude(), horizontalEndPosition.getLongitude());
-                
-                intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
-            }
-            
-            //Top we are modifying A
-   System.out.println("total size " + totalSize);
-            
-            //Where does line A C intersect with line newPos directional new point width
-//            Position newPosEndPoint = Calculator.findPosition(newPos, horizontalBearing,
-//                    50000);
-            
-            
-//            double[] newPosition = Intersection.getSegIntersection(A.getLatitude(), A.getLongitude(), C.getLatitude(), C.getLongitude(), newPos.getLatitude(), newPos.getLongitude(),
-//                    newPosEndPoint.getLatitude(), newPosEndPoint.getLongitude());
-//          
-            
-
-
-            
-            
-            
-            
-//            if (newPosition == null){
-//                newPosEndPoint = Calculator.findPosition(newPos, Calculator.reverseDirection(horizontalBearing),
-//                        50000);
-//                
-//                b2 = new Geo(newPosEndPoint.getLatitude(), newPosEndPoint.getLongitude());
-//                newPosition = Intersection.segmentsIntersect(a1, a2, b1, b2);
-//            }
-            
-
-            
-            
-//            System.out.println("geo position " + newPosition);
-            
-//            OMLine omLine = new OMLine(newPos.getLatitude(), newPos.getLongitude(), newPosEndPoint.getLatitude(), newPosEndPoint.getLongitude(), LINETYPE_STRAIGHT);
-            
-//            add(new SarEffectiveAreaLines(newPos, newPosEndPoint, LineType.TOP, this));
-            
-//            add(omLine);
-//         System.out.println(newPosition.getLatitude());
-//         System.out.println(newPosition.getLongitude());
-            
-            
-            if (intersectionPoint != null){
-                
-            
-            newPos = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
-            
-            System.out.println(newPos);
-            }else{
-                System.out.println("somtehign went bad... for mouse bearing " + bearing);
-                
-
-                
-                return;
-            }
-            
-            //newPos
-            
-//            double deltaLat = A.getLatitude() - newPos.getLatitude();
-//            double deltaLon = A.getLongitude() - newPos.getLongitude();
-//            
-            
-            
-            
-            
-//            
-//            
-            double deltaValue = newPos.getLatitude()
-                    - (C.getLatitude() + deltaCorrection);
-//            System.out.println(deltaValue);
-
-            // Make sure it doesn\t go over and place A under C
-            // if (newPos.getLatitude() - 0.001 > C.getLatitude()) {
-
-            //C latitude must always be below As latitude
-            if (deltaValue > 0) {
-
-                // We update A point
-                A = newPos;
-
-                // New length
-                height = Calculator.range(A, C, Heading.RL);
-
-                // Recalculate width
-                width = totalSize / height;
-
-                // Recalculate B and D
-                B = Calculator.findPosition(A, horizontalBearing,
-                        Converter.nmToMeters(width));
-
-                D = Calculator.findPosition(C, horizontalBearing,
-                        Converter.nmToMeters(width));
-
-                effectiveArea.updatePosition(A, B, C, D, width, height);
-
-                updateLines(A, B, C, D);
             }
         }
 
         if (type == LineType.LEFT) {
-            double deltaValue = B.getLongitude()
-                    - (newPos.getLongitude() + deltaCorrection);
-            
-//            System.out.println(deltaValue);
+     
 
-            
-            if (deltaValue > 0) {
-            
-            // We update A point
-            A = newPos;
+            newPos = findIntersectionLeft(newPos);
 
-            // New width
+            if (newPos != null) {
 
-            // New length
-            width = Calculator.range(A, B, Heading.RL);
+                double deltaValue = B.getLongitude()
+                        - (newPos.getLongitude() + deltaCorrection);
+                // System.out.println(deltaValue);
 
-            // Recalculate width
-            height = totalSize / width;
+                if (deltaValue > 0) {
 
-            // Recalculate C and D
-            C = Calculator.findPosition(A, verticalBearing,
-                    Converter.nmToMeters(height));
+                    
+                    
+                    // We update C point
+                    A = newPos;
 
-            D = Calculator.findPosition(C, horizontalBearing,
-                    Converter.nmToMeters(width));
+                    // New width
 
-            effectiveArea.updatePosition(A, B, C, D, width, height);
+                    // New length
+                    width = Calculator.range(A, B, Heading.RL);
 
-            updateLines(A, B, C, D);
+                    // Recalculate width
+                    height = totalSize / width;
+
+                    // Recalculate C and D
+                    C = Calculator.findPosition(A, verticalBearing,
+                            Converter.nmToMeters(height));
+
+                    D = Calculator.findPosition(C, horizontalBearing,
+                            Converter.nmToMeters(width));
+
+                    effectiveArea.updatePosition(A, B, C, D, width, height);
+
+                    updateLines(A, B, C, D);
+                }
             }
         }
 
         if (type == LineType.RIGHT) {
 
+            newPos = findIntersectionRight(newPos);
+
+            if (newPos != null) {
             
             double deltaValue = newPos.getLongitude()
                     - (A.getLongitude() + deltaCorrection);
-            
-       
 
-//            System.out.println(deltaValue);
+            // System.out.println(deltaValue);
 
             if (deltaValue > 0) {
-            
-            // We update B point
-            B = newPos;
 
-            // New width
+                // We update B point
+                B = newPos;
 
-            // New length
-            width = Calculator.range(A, B, Heading.RL);
+                // New width
 
-            // Recalculate width
-            height = totalSize / width;
+                // New length
+                width = Calculator.range(A, B, Heading.RL);
 
-            // Recalculate C and D
-            C = Calculator.findPosition(A, verticalBearing,
-                    Converter.nmToMeters(height));
+                // Recalculate width
+                height = totalSize / width;
 
-            D = Calculator.findPosition(C, horizontalBearing,
-                    Converter.nmToMeters(width));
+                // Recalculate C and D
+                C = Calculator.findPosition(A, verticalBearing,
+                        Converter.nmToMeters(height));
 
-            effectiveArea.updatePosition(A, B, C, D, width, height);
+                D = Calculator.findPosition(C, horizontalBearing,
+                        Converter.nmToMeters(width));
 
-            updateLines(A, B, C, D);
+                effectiveArea.updatePosition(A, B, C, D, width, height);
+
+                updateLines(A, B, C, D);
             }
         }
+        }
+    }
 
-        // System.out.println("Updating effective area values");
+    
+    
+    private Position findIntersectionRight(Position newPos) {
+        // The mouse can be in 4 different areas
+        int lengthMax = 500000;
 
-        // sarData.getEffortAllocationData().setEffectiveAreaA(A);
-        // sarData.getEffortAllocationData().setEffectiveAreaB(B);
-        // sarData.getEffortAllocationData().setEffectiveAreaC(C);
-        // sarData.getEffortAllocationData().setEffectiveAreaD(D);
+        double bearing = A.rhumbLineBearingTo(newPos);
 
-        // sarData.getEffortAllocationData().setEffectiveAreaHeight(height);
-        // sarData.getEffortAllocationData().setEffectiveAreaWidth(width);
+//        System.out.println("Vertical bearing " + verticalBearing);
+//        System.out.println("Horizontal bearing " + horizontalBearing);
 
-        // Top or bottom has been changed
+        Geo intersectionPoint = null;
 
-        // If bottom
+        if (bearing > 180 && bearing <= 270 ) {
 
-        // A is the same, we get a new B.
-        // Using two points we get a new length, using new length we must
-        // calculate new width and get points for that
+            // Create a line going from newPos, in  vertical direction eg up
+            Position verticalEndPosition = Calculator.findPosition(newPos,
+                    Calculator.reverseDirection(verticalBearing), lengthMax);
+            Geo a1 = new Geo(newPos.getLatitude(), newPos.getLongitude());
+            Geo a2 = new Geo(verticalEndPosition.getLatitude(),
+                    verticalEndPosition.getLongitude());
 
+            // Create a line going from A in reverse horizontal direction
+            // eg left
+            Position horizontalEndPosition = Calculator.findPosition(A,
+                    horizontalBearing, lengthMax);
+
+            Geo b1 = new Geo(A.getLatitude(), A.getLongitude());
+            Geo b2 = new Geo(horizontalEndPosition.getLatitude(),
+                    horizontalEndPosition.getLongitude());
+
+            intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
+
+        }
+        
+        if (bearing > 270 || bearing  < 180) {
+            
+            // if (bearing > 90 && bearing < 180){
+
+            // Create a line going from newPos, in  vertical direction eg down
+            Position verticalEndPosition = Calculator.findPosition(newPos,
+                    Calculator.reverseDirection(verticalBearing), lengthMax);
+            Geo a1 = new Geo(newPos.getLatitude(), newPos.getLongitude());
+            Geo a2 = new Geo(verticalEndPosition.getLatitude(),
+                    verticalEndPosition.getLongitude());
+
+            // Create a line going from D in reverse horizontal direction
+            // eg left
+            Position horizontalEndPosition = Calculator.findPosition(A,
+                    horizontalBearing, lengthMax);
+
+            Geo b1 = new Geo(A.getLatitude(), A.getLongitude());
+            Geo b2 = new Geo(horizontalEndPosition.getLatitude(),
+                    horizontalEndPosition.getLongitude());
+
+            intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
+
+        }
+
+
+
+        if (intersectionPoint != null) {
+
+            newPos = Position.create(intersectionPoint.getLatitude(),
+                    intersectionPoint.getLongitude());
+
+            return newPos;
+
+        } else {
+            System.out.println("something went bad... for mouse bearing "
+                    + bearing);
+
+            return null;
+        }
+    }
+    
+    private Position findIntersectionLeft(Position newPos) {
+        // The mouse can be in 4 different areas
+        int lengthMax = 500000;
+
+        double bearing = B.rhumbLineBearingTo(newPos);
+
+//        System.out.println("Vertical bearing " + verticalBearing);
+//        System.out.println("Horizontal bearing " + horizontalBearing);
+
+        Geo intersectionPoint = null;
+
+        if (bearing > 180 && bearing <= 270 ) {
+
+            // Create a line going from newPos, in  vertical direction eg up
+            Position verticalEndPosition = Calculator.findPosition(newPos,
+                    Calculator.reverseDirection(verticalBearing), lengthMax);
+            Geo a1 = new Geo(newPos.getLatitude(), newPos.getLongitude());
+            Geo a2 = new Geo(verticalEndPosition.getLatitude(),
+                    verticalEndPosition.getLongitude());
+
+            // Create a line going from B in reverse horizontal direction
+            // eg left
+            Position horizontalEndPosition = Calculator.findPosition(B,
+                    Calculator.reverseDirection(horizontalBearing), lengthMax);
+
+            Geo b1 = new Geo(B.getLatitude(), B.getLongitude());
+            Geo b2 = new Geo(horizontalEndPosition.getLatitude(),
+                    horizontalEndPosition.getLongitude());
+
+            intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
+
+        }
+        
+        if (bearing > 270 || bearing  < 180) {
+            
+            // if (bearing > 90 && bearing < 180){
+
+            // Create a line going from newPos, in  vertical direction eg down
+            Position verticalEndPosition = Calculator.findPosition(newPos,
+                    verticalBearing, lengthMax);
+            Geo a1 = new Geo(newPos.getLatitude(), newPos.getLongitude());
+            Geo a2 = new Geo(verticalEndPosition.getLatitude(),
+                    verticalEndPosition.getLongitude());
+
+            // Create a line going from D in reverse horizontal direction
+            // eg left
+            Position horizontalEndPosition = Calculator.findPosition(B,
+                    Calculator.reverseDirection(horizontalBearing), lengthMax);
+
+            Geo b1 = new Geo(B.getLatitude(), B.getLongitude());
+            Geo b2 = new Geo(horizontalEndPosition.getLatitude(),
+                    horizontalEndPosition.getLongitude());
+
+            intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
+
+        }
+
+
+
+        if (intersectionPoint != null) {
+
+            newPos = Position.create(intersectionPoint.getLatitude(),
+                    intersectionPoint.getLongitude());
+
+            return newPos;
+
+        } else {
+            System.out.println("something went bad... for mouse bearing "
+                    + bearing);
+
+            return null;
+        }
+    }
+    
+    
+    private Position findIntersectionTop(Position newPos) {
+        // The mouse can be in 4 different areas
+        int lengthMax = 500000;
+
+        double bearing = A.rhumbLineBearingTo(newPos);
+
+        System.out.println("Vertical bearing " + verticalBearing);
+        System.out.println("Horizontal bearing " + horizontalBearing);
+
+        Geo intersectionPoint = null;
+
+        if (bearing >= 0 && bearing <= 180) {
+
+            // if (bearing > 90 && bearing < 180){
+
+            // Create a line going from C, in reverse vertical direction eg up
+            Position verticalEndPosition = Calculator.findPosition(C,
+                    Calculator.reverseDirection(verticalBearing), lengthMax);
+            Geo a1 = new Geo(C.getLatitude(), C.getLongitude());
+            Geo a2 = new Geo(verticalEndPosition.getLatitude(),
+                    verticalEndPosition.getLongitude());
+
+            // Create a line going from newPos in reverse horizontal direction
+            // eg left
+            Position horizontalEndPosition = Calculator.findPosition(newPos,
+                    Calculator.reverseDirection(horizontalBearing), lengthMax);
+
+            Geo b1 = new Geo(newPos.getLatitude(), newPos.getLongitude());
+            Geo b2 = new Geo(horizontalEndPosition.getLatitude(),
+                    horizontalEndPosition.getLongitude());
+
+            intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
+        }
+
+        if (bearing > 180) {
+
+            // Create a line going from C, in reverse vertical direction eg up
+            Position verticalEndPosition = Calculator.findPosition(C,
+                    Calculator.reverseDirection(verticalBearing), lengthMax);
+            Geo a1 = new Geo(C.getLatitude(), C.getLongitude());
+            Geo a2 = new Geo(verticalEndPosition.getLatitude(),
+                    verticalEndPosition.getLongitude());
+
+            // Create a line going from newPos in horizontal direction eg right
+            Position horizontalEndPosition = Calculator.findPosition(newPos,
+                    horizontalBearing, lengthMax);
+
+            Geo b1 = new Geo(newPos.getLatitude(), newPos.getLongitude());
+            Geo b2 = new Geo(horizontalEndPosition.getLatitude(),
+                    horizontalEndPosition.getLongitude());
+
+            intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
+        }
+
+        if (intersectionPoint != null) {
+
+            newPos = Position.create(intersectionPoint.getLatitude(),
+                    intersectionPoint.getLongitude());
+
+            return newPos;
+
+        } else {
+            System.out.println("something went bad... for mouse bearing "
+                    + bearing);
+
+            return null;
+        }
+    }
+
+    private Position findIntersectionBottom(Position newPos) {
+        // The mouse can be in 4 different areas
+        int lengthMax = 500000;
+
+        double bearing = C.rhumbLineBearingTo(newPos);
+
+        System.out.println("Vertical bearing " + verticalBearing);
+        System.out.println("Horizontal bearing " + horizontalBearing);
+
+        Geo intersectionPoint = null;
+
+        if (bearing >= 0 && bearing <= 180) {
+
+            // if (bearing > 90 && bearing < 180){
+
+            // Create a line going from C, in reverse vertical direction eg up
+            Position verticalEndPosition = Calculator.findPosition(A,
+                    verticalBearing, lengthMax);
+            Geo a1 = new Geo(A.getLatitude(), A.getLongitude());
+            Geo a2 = new Geo(verticalEndPosition.getLatitude(),
+                    verticalEndPosition.getLongitude());
+
+            // Create a line going from newPos in reverse horizontal direction
+            // eg left
+            Position horizontalEndPosition = Calculator.findPosition(newPos,
+                    Calculator.reverseDirection(horizontalBearing), lengthMax);
+
+            Geo b1 = new Geo(newPos.getLatitude(), newPos.getLongitude());
+            Geo b2 = new Geo(horizontalEndPosition.getLatitude(),
+                    horizontalEndPosition.getLongitude());
+
+            intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
+        }
+
+        if (bearing > 180) {
+
+            // Create a line going from C, in reverse vertical direction eg up
+            Position verticalEndPosition = Calculator.findPosition(C,
+                    verticalBearing, lengthMax);
+            Geo a1 = new Geo(C.getLatitude(), C.getLongitude());
+            Geo a2 = new Geo(verticalEndPosition.getLatitude(),
+                    verticalEndPosition.getLongitude());
+
+            // Create a line going from newPos in horizontal direction eg right
+            Position horizontalEndPosition = Calculator.findPosition(newPos,
+                    horizontalBearing, lengthMax);
+
+            Geo b1 = new Geo(newPos.getLatitude(), newPos.getLongitude());
+            Geo b2 = new Geo(horizontalEndPosition.getLatitude(),
+                    horizontalEndPosition.getLongitude());
+
+            intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
+        }
+
+        if (intersectionPoint != null) {
+
+            newPos = Position.create(intersectionPoint.getLatitude(),
+                    intersectionPoint.getLongitude());
+
+            return newPos;
+
+        } else {
+            System.out.println("something went bad... for mouse bearing "
+                    + bearing);
+
+            return null;
+        }
     }
 
     public void updateEffectiveAreaSize(SARData sarData) {
