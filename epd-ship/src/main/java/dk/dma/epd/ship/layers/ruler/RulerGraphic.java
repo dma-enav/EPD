@@ -15,18 +15,13 @@
  */
 package dk.dma.epd.ship.layers.ruler;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
-import org.junit.internal.JUnitSystem;
-
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
-import com.bbn.openmap.omGraphics.OMRangeRings;
 import com.bbn.openmap.omGraphics.OMText;
 import com.bbn.openmap.proj.Length;
 
@@ -35,8 +30,6 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Calculator;
-import dk.dma.epd.common.util.Compressor;
-import dk.dma.epd.common.util.Converter;
 
 public class RulerGraphic extends OMGraphicList {
 
