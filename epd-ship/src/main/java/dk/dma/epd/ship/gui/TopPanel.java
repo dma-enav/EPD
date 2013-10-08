@@ -329,8 +329,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         encBtn.setEnabled(false);
         encBtn.setSelected(false);
     }
-    
-    
+
     public void setWMSDisabled() {
         wmsBtn.setEnabled(false);
         wmsBtn.setSelected(false);
@@ -372,13 +371,15 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         // msiDialog.setVisible(true);
         // }
         // } else
-        
+
         if (e.getSource() == autoFollowBtn) {
-            EPDShip.getSettings().getNavSettings().setAutoFollow(autoFollowBtn.isSelected());
+            EPDShip.getSettings().getNavSettings()
+                    .setAutoFollow(autoFollowBtn.isSelected());
             if (autoFollowBtn.isSelected()) {
                 mainFrame.getChartPanel().autoFollow();
             }
-            menuBar.getAutoFollow().setSelected(EPDShip.getSettings().getNavSettings().isAutoFollow());
+            menuBar.getAutoFollow().setSelected(
+                    EPDShip.getSettings().getNavSettings().isAutoFollow());
 
         } else if (e.getSource() == centreBtn) {
             mainFrame.getChartPanel().centreOnShip();
@@ -387,24 +388,30 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         } else if (e.getSource() == zoomOutBtn) {
             mainFrame.getChartPanel().doZoom(2f);
         } else if (e.getSource() == aisBtn) {
-            EPDShip.getSettings().getAisSettings().setVisible(aisBtn.isSelected());
+            EPDShip.getSettings().getAisSettings()
+                    .setVisible(aisBtn.isSelected());
             mainFrame.getChartPanel().aisVisible(aisBtn.isSelected());
 
-            menuBar.getAisLayer().setSelected(EPDShip.getSettings().getAisSettings().isVisible());
+            menuBar.getAisLayer().setSelected(
+                    EPDShip.getSettings().getAisSettings().isVisible());
 
             // } else if (e.getSource() == riskBtn) {
             // EeINS.getRiskHandler().toggleRiskHandler(riskBtn.isSelected());
         } else if (e.getSource() == encBtn) {
-            EPDShip.getSettings().getMapSettings().setEncVisible(encBtn.isSelected());
+            EPDShip.getSettings().getMapSettings()
+                    .setEncVisible(encBtn.isSelected());
             mainFrame.getChartPanel().encVisible(encBtn.isSelected());
-            menuBar.getEncLayer().setSelected(EPDShip.getSettings().getMapSettings().isEncVisible());
-           
+            menuBar.getEncLayer().setSelected(
+                    EPDShip.getSettings().getMapSettings().isEncVisible());
+
         } else if (e.getSource() == wmsBtn) {
-            EPDShip.getSettings().getMapSettings().setWmsVisible(wmsBtn.isSelected());
+            EPDShip.getSettings().getMapSettings()
+                    .setWmsVisible(wmsBtn.isSelected());
             mainFrame.getChartPanel().wmsVisible(wmsBtn.isSelected());
-            //mainFrame.getChartPanel().getWmsDragLayer().setVisible(wmsBtn.isSelected());
+            // mainFrame.getChartPanel().getWmsDragLayer().setVisible(wmsBtn.isSelected());
         } else if (e.getSource() == routeManagerBtn) {
-            RouteManagerDialog routeManagerDialog = new RouteManagerDialog(mainFrame);
+            RouteManagerDialog routeManagerDialog = new RouteManagerDialog(
+                    mainFrame);
             routeManagerDialog.setVisible(true);
         } else if (e.getSource() == setupBtn) {
             SetupDialog setupDialog = new SetupDialog(mainFrame);
