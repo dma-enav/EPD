@@ -487,6 +487,10 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         return dragMouseMode;
     }
 
+    public ToggleButtonLabel getToggleButtonDistanceCircleMouseMode() {
+        return this.toggleRangeCirclesMode;
+    }
+
     public ButtonLabel getMsiButton() {
         return msiButton;
     }
