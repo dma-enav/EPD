@@ -75,7 +75,7 @@ import dk.dma.epd.ship.settings.EPDMapSettings;
  * The panel with chart. Initializes all layers to be shown on the map.
  */
 public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
-        MouseWheelListener {
+MouseWheelListener {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
