@@ -423,11 +423,16 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             aisDialog.setVisible(true);
             aisDialog.setSelection(-1, true);
         } else if (e.getSource() == newRouteBtn) {
-            if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID) {
+            if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID
+                    || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID) {
                 menuBar.getNewRoute().setSelected(true);
-                mainFrame.getChartPanel().setMouseMode(0);
+                // mainFrame.getChartPanel().setMouseMode(0);
+                mainFrame.getChartPanel().setMouseMode(
+                        RouteEditMouseMode.MODE_ID);
             } else {
-                mainFrame.getChartPanel().setMouseMode(1);
+                // mainFrame.getChartPanel().setMouseMode(1);
+                mainFrame.getChartPanel().setMouseMode(
+                        NavigationMouseMode.MODE_ID);
                 menuBar.getNewRoute().setSelected(false);
             }
             // } else if (e.getSource() == nogoButton) {
@@ -440,10 +445,28 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             routeLayer.toggleSafeHaven();
         } else if (e.getSource() == dragMouseMode) {
             System.out.println("Drag mouse mode!");
-            mainFrame.getChartPanel().setMouseMode(2);
+            // mainFrame.getChartPanel().setMouseMode(2);
+            mainFrame.getChartPanel().setMouseMode(DragMouseMode.MODE_ID);
         } else if (e.getSource() == navigationMouseMode) {
-            mainFrame.getChartPanel().setMouseMode(1);
+            // mainFrame.getChartPanel().setMouseMode(1);
+            mainFrame.getChartPanel().setMouseMode(NavigationMouseMode.MODE_ID);
             System.out.println("Nav mouse mode!");
+        }
+        // react on mouse click on "toggle distance circles mode"
+        else if (e.getSource() == this.toggleRangeCirclesMode) {
+            if (this.toggleRangeCirclesMode.isSelected()) {
+                // this.mainFrame.getChartPanel().setMouseMode(3);
+                this.mainFrame.getChartPanel().setMouseMode(
+                        DistanceCircleMouseMode.MODE_ID);
+            } else {
+                // go back to navigation mouse mode
+                // this.mainFrame.getChartPanel().setMouseMode(1);
+                // go back to previously active mouse mode
+                this.mainFrame.getChartPanel().setMouseMode(
+                        ((DistanceCircleMouseMode) this.mainFrame
+                                .getChartPanel().getMouseDelegator()
+                                .getActiveMouseMode()).getPreviousMouseMode());
+            }
         }
         // else if (e.getSource() == tglbtnMsiFilter) {
         // EeINS.getSettings().getEnavSettings()
