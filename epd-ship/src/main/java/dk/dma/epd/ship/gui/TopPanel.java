@@ -275,10 +275,13 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     }
 
     public void newRoute() {
-        if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID)  {
-            mainFrame.getChartPanel().setMouseMode(0);
+        if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID
+                || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID) {
+            // mainFrame.getChartPanel().setMouseMode(0);
+            mainFrame.getChartPanel().setMouseMode(RouteEditMouseMode.MODE_ID);
         } else {
-            mainFrame.getChartPanel().setMouseMode(1);
+            // mainFrame.getChartPanel().setMouseMode(1);
+            mainFrame.getChartPanel().setMouseMode(NavigationMouseMode.MODE_ID);
         }
     }
 
