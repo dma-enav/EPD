@@ -86,19 +86,26 @@ public class SarEffectiveAreaLines extends OMGraphicList{
     public void updateArea(Position pos){
         //The position is the new one
         
-        //change lat
-        if (this.type == LineType.BOTTOM || this.type == LineType.TOP){
-            Position newPos = Position.create(pos.getLatitude(), A.getLongitude());
-            
-            effectiveSRUAreaGraphics.updateLength(type, newPos);
-    
-        }else{
-            if (this.type == LineType.LEFT || this.type == LineType.RIGHT){
-                Position newPos = Position.create(A.getLatitude(), pos.getLongitude());
-                
-                effectiveSRUAreaGraphics.updateLength(type, newPos);
-            }
-        }
+        //we need to change both lat and lon
+        
+        
+        effectiveSRUAreaGraphics.updateLength(type, pos);
+        
+//        //change lat
+//        if (this.type == LineType.BOTTOM || this.type == LineType.TOP){
+//            Position newPos = Position.create(pos.getLatitude(), A.getLongitude());
+//            
+//            effectiveSRUAreaGraphics.updateLength(type, newPos);
+//            
+//    
+//        }else{
+//            // change lon
+//            if (this.type == LineType.LEFT || this.type == LineType.RIGHT){
+//                Position newPos = Position.create(A.getLatitude(), pos.getLongitude());
+//                
+//                effectiveSRUAreaGraphics.updateLength(type, newPos);
+//            }
+//        }
         
         
         

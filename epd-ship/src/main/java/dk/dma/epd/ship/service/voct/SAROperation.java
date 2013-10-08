@@ -484,13 +484,13 @@ public class SAROperation {
 //            Position Bn = data.getB();
 //            Position Cn = data.getC();
 //            Position Dn = data.getD();
-//            
-//            
+////            
+////            
 //            data.setA(Dn);
 //            data.setB(Cn);
-//            
-//            data.setC(An);
-//            data.setD(Bn);
+////            
+//            data.setC(Bn);
+//            data.setD(An);
             
     }
 

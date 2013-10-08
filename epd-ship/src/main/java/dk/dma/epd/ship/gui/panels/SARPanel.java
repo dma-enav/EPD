@@ -848,7 +848,7 @@ public class SARPanel extends JPanel implements ActionListener {
                 data.getRdvDirectionDownWind(), 2)
                 + "°");
         rdvSpeed.setText(Formatter.formatDouble(data.getRdvSpeedDownWind(), 2)
-                + "kn/h");
+                + " kn");
 
         datumPointDatumPanel.setDatumLatDownWind(data.getDatumDownWind()
                 .getLatitudeAsString());
