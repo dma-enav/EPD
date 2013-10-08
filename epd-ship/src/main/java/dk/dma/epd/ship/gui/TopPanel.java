@@ -46,37 +46,56 @@ import dk.dma.epd.ship.layers.route.RouteLayer;
 /**
  * The top buttons panel
  */
-public class TopPanel extends OMComponentPanel implements ActionListener, MouseListener {
+public class TopPanel extends OMComponentPanel implements ActionListener,
+        MouseListener {
 
     private static final long serialVersionUID = 1L;
 
-    private final ButtonLabel zoomInBtn = new ButtonLabel(toolbarIcon("images/toolbar/magnifier-zoom-in.png"));
-    private final ButtonLabel zoomOutBtn = new ButtonLabel(toolbarIcon("images/toolbar/magnifier-zoom-out.png"));
-    private final ButtonLabel centreBtn = new ButtonLabel(toolbarIcon("images/toolbar/arrow-in.png"));
+    private final ButtonLabel zoomInBtn = new ButtonLabel(
+            toolbarIcon("images/toolbar/magnifier-zoom-in.png"));
+    private final ButtonLabel zoomOutBtn = new ButtonLabel(
+            toolbarIcon("images/toolbar/magnifier-zoom-out.png"));
+    private final ButtonLabel centreBtn = new ButtonLabel(
+            toolbarIcon("images/toolbar/arrow-in.png"));
     private final ToggleButtonLabel autoFollowBtn = new ToggleButtonLabel(
             toolbarIcon("images/toolbar/arrow-curve-000-double.png"));
-    private final ButtonLabel setupBtn = new ButtonLabel(toolbarIcon("images/toolbar/wrench.png"));
+    private final ButtonLabel setupBtn = new ButtonLabel(
+            toolbarIcon("images/toolbar/wrench.png"));
     // private ToggleButtonLabel routeBtn = new
     // ToggleButtonLabel(toolbarIcon("images/toolbar/marker--plus.png"));
-    private final ButtonLabel routeManagerBtn = new ButtonLabel(toolbarIcon("images/toolbar/marker.png"));
-    private final ButtonLabel msiButton = new ButtonLabel(toolbarIcon("images/toolbar/msi_symbol_16.png"));
-    private final ButtonLabel aisButton = new ButtonLabel(toolbarIcon("images/toolbar/radar.png"));
+    private final ButtonLabel routeManagerBtn = new ButtonLabel(
+            toolbarIcon("images/toolbar/marker.png"));
+    private final ButtonLabel msiButton = new ButtonLabel(
+            toolbarIcon("images/toolbar/msi_symbol_16.png"));
+    private final ButtonLabel aisButton = new ButtonLabel(
+            toolbarIcon("images/toolbar/radar.png"));
     private final ToggleButtonLabel aisToggleName = new ToggleButtonLabel(
             toolbarIcon("images/toolbar/edit-letter-spacing.png"));
     // private ToggleButtonLabel nogoButton = new
     // ToggleButtonLabel("Toggle NoGo");
-    private final ToggleButtonLabel aisBtn = new ToggleButtonLabel(toolbarIcon("images/toolbar/board-game.png"));
+    private final ToggleButtonLabel aisBtn = new ToggleButtonLabel(
+            toolbarIcon("images/toolbar/board-game.png"));
     // private ToggleButtonLabel riskBtn = new ToggleButtonLabel("Risk");
-    private final ToggleButtonLabel encBtn = new ToggleButtonLabel(toolbarIcon("images/toolbar/map-medium.png"));
-    private final ToggleButtonLabel wmsBtn = new ToggleButtonLabel(toolbarIcon("images/toolbar/map-medium.png"));
-    private final ToggleButtonLabel newRouteBtn = new ToggleButtonLabel(toolbarIcon("images/toolbar/marker--plus.png"));
+    private final ToggleButtonLabel encBtn = new ToggleButtonLabel(
+            toolbarIcon("images/toolbar/map-medium.png"));
+    private final ToggleButtonLabel wmsBtn = new ToggleButtonLabel(
+            toolbarIcon("images/toolbar/map-medium.png"));
+    private final ToggleButtonLabel newRouteBtn = new ToggleButtonLabel(
+            toolbarIcon("images/toolbar/marker--plus.png"));
     private final ToggleButtonLabel toggleSafeHaven = new ToggleButtonLabel(
             toolbarIcon("images/toolbar/document-resize-actual.png"));
 
-    
-    private final ToggleButtonLabel navigationMouseMode = new ToggleButtonLabel(toolbarIcon("images/toolbar/zoom.png"));
+    private final ToggleButtonLabel navigationMouseMode = new ToggleButtonLabel(
+            toolbarIcon("images/toolbar/zoom.png"));
     private final ToggleButtonLabel dragMouseMode = new ToggleButtonLabel(
             toolbarIcon("images/toolbar/drag.png"));
+
+    // TODO update to unique icon
+    /**
+     * Toggle button to enable "click to display range circles".
+     */
+    private final ToggleButtonLabel toggleRangeCirclesMode = new ToggleButtonLabel(
+            toolbarIcon("images/toolbar/ruler-triangle.png"));
     // private final ToggleButtonLabel tglbtnMsiFilter = new ToggleButtonLabel(
     // "MSI filter");
 
