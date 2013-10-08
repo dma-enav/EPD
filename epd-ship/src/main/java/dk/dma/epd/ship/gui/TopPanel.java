@@ -540,7 +540,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         ImageIcon icon = new ImageIcon(url);
 
         Image img = icon.getImage();
-        Image newimg = img.getScaledInstance(iconWidth, iconHeight, java.awt.Image.SCALE_DEFAULT);
+        Image newimg = img.getScaledInstance(iconWidth, iconHeight,
+                java.awt.Image.SCALE_DEFAULT);
         ImageIcon newImage = new ImageIcon(newimg);
         return newImage;
     }
