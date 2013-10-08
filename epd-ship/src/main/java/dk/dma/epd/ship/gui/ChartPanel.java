@@ -98,11 +98,14 @@ MouseWheelListener {
     public int maxScale = 5000;
     private MSIFilterMouseMode msiFilterMouseMode;
 
+    private DistanceCircleMouseMode rangeCirclesMouseMode;
+
     private boolean nogoMode;
 
     private ActiveWaypointComponentPanel activeWaypointPanel;
 
     private NogoDialog nogoDialog;
+    private RulerLayer rulerLayer;
 
     public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel) {
         super();
@@ -138,7 +141,7 @@ MouseWheelListener {
             wmsLayer = new WMSLayer(mapSettings.getWmsQuery());
             mapHandler.add(wmsLayer);
         }
-        
+
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
         map.setDoubleBuffered(true);
@@ -158,17 +161,23 @@ MouseWheelListener {
         routeEditMouseMode = new RouteEditMouseMode();
         msiFilterMouseMode = new MSIFilterMouseMode();
         dragMouseMode = new DragMouseMode();
+        this.rangeCirclesMouseMode = new DistanceCircleMouseMode(false);
 
         mouseDelegator.addMouseMode(mapNavMouseMode);
         mouseDelegator.addMouseMode(routeEditMouseMode);
         mouseDelegator.addMouseMode(msiFilterMouseMode);
         mouseDelegator.addMouseMode(dragMouseMode);
+        this.mouseDelegator.addMouseMode(this.rangeCirclesMouseMode);
+
         mouseDelegator.setActive(mapNavMouseMode);
+        // Inform the distance circle mouse mode what mouse mode was initially the active one
+        this.rangeCirclesMouseMode.setPreviousMouseModeModeID(NavigationMouseMode.MODE_ID);
 
         mapHandler.add(mapNavMouseMode);
         mapHandler.add(routeEditMouseMode);
         mapHandler.add(msiFilterMouseMode);
         mapHandler.add(activeWaypointPanel);
+        mapHandler.add(rangeCirclesMouseMode);
 
         // Use the LayerHandler to manage all layers, whether they are
         // on the map or not. You can add a layer to the map by
@@ -189,6 +198,11 @@ MouseWheelListener {
         routeLayer = new RouteLayer();
         routeLayer.setVisible(true);
         mapHandler.add(routeLayer);
+
+        // Create ruler layer
+        this.rulerLayer = new RulerLayer();
+        this.rulerLayer.setVisible(true);
+        mapHandler.add(rulerLayer);
 
         // Create voyage layer
         voyageLayer = new VoyageLayer();
@@ -259,18 +273,18 @@ MouseWheelListener {
 
 
 
-        
+
         if (encLayer != null) {
             mapHandler.add(encLayer);
         }
 
-        
-        
+
+
         // Add map to map handler
         mapHandler.add(map);
 
         encLayerFactory.setMapSettings();
-        
+
 
         // Set last postion
         map.setCenter(mapSettings.getCenter());
@@ -278,12 +292,12 @@ MouseWheelListener {
         // Get from settings
         map.setScale(mapSettings.getScale());
         // Set ENC map settings
-        
+
         add(map);
 
-        
 
-        
+
+
         // TODO: CLEANUP
         // dragMap
         dragMap = new BufferedLayerMapBean();
@@ -315,7 +329,7 @@ MouseWheelListener {
         EPDShip.getGpsHandler().addListener(this);
 
 
-        
+
         // encLayerFactory2.setMapSettings();
 
         // Hack to flush ENC layer
@@ -329,8 +343,11 @@ MouseWheelListener {
 
         // Show WMS or not
         wmsVisible(EPDShip.getSettings().getMapSettings().isWmsVisible());
-        
+
         getMap().addMouseWheelListener(this);
+
+
+
 
     }
 
