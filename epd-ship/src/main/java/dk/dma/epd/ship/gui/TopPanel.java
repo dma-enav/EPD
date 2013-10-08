@@ -32,9 +32,11 @@ import javax.swing.JSeparator;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
+import dk.dma.epd.common.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
+import dk.dma.epd.ship.event.RouteEditMouseMode;
 import dk.dma.epd.ship.gui.ais.AisDialog;
 import dk.dma.epd.ship.gui.msi.MsiDialog;
 import dk.dma.epd.ship.gui.route.RouteManagerDialog;
