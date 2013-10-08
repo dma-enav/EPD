@@ -25,7 +25,7 @@ import dk.dma.epd.ship.event.RouteEditMouseMode;
 import dk.dma.epd.ship.gui.MainFrame;
 
 public class GeneralNewRoute extends JMenuItem implements IMapMenuAction {
-    
+
     /**
      * 
      */
@@ -37,15 +37,16 @@ public class GeneralNewRoute extends JMenuItem implements IMapMenuAction {
         super();
         setText(text);
     }
-    
+
     @Override
     public void doAction() {
-        if(mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID){
-//            mainFrame.getChartPanel().setMouseMode(0);
-        	mainFrame.getChartPanel().setMouseMode(RouteEditMouseMode.MODE_ID);
+        if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID
+                || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID) {
+            // mainFrame.getChartPanel().setMouseMode(0);
+            mainFrame.getChartPanel().setMouseMode(RouteEditMouseMode.MODE_ID);
         } else {
-//            mainFrame.getChartPanel().setMouseMode(1);
-        	mainFrame.getChartPanel().setMouseMode(NavigationMouseMode.MODE_ID);
+            // mainFrame.getChartPanel().setMouseMode(1);
+            mainFrame.getChartPanel().setMouseMode(NavigationMouseMode.MODE_ID);
         }
     }
 
