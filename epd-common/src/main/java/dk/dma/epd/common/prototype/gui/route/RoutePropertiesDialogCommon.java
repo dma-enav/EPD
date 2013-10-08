@@ -618,14 +618,23 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         departurePicker.setDate(starttime);
         ((SpinnerDateModel) departureSpinner.getModel()).setValue(starttime);
 
-        // Will this work
+        // Attempt to get ETA (only possible if GPS data is available)
         Date etaStart = route.getEta(starttime);
         if (etaStart != null){
+        	// GPS data available.
             arrivalPicker.setDate(etaStart);
-            
             ((SpinnerDateModel) arrivalSpinner.getModel()).setValue(etaStart);
-    
         }
+        else
+        {
+        	// No GPS data available.
+        	// Find the default ETA.
+        	Date defaultEta = route.getEtas().get(route.getEtas().size() - 1);
+        	arrivalPicker.setDate(defaultEta);
+        	((SpinnerDateModel) arrivalSpinner.getModel()).setValue(defaultEta);
+        }
+        
+        
         
         if (activeRoute == null) {
             // arrivalPicker.setDate(route.getEta(starttime));
