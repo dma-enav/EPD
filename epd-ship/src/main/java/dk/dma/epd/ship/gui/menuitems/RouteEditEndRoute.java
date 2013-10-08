@@ -25,6 +25,7 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.route.RouteManager;
 
 public class RouteEditEndRoute extends JMenuItem implements IMapMenuAction {
@@ -75,7 +76,8 @@ public class RouteEditEndRoute extends JMenuItem implements IMapMenuAction {
         newRouteLayer.getWaypoints().clear();
         newRouteLayer.getRouteGraphics().clear();
         newRouteLayer.doPrepare();
-        EPDShip.getMainFrame().getChartPanel().setMouseMode(1);
+        //EPDShip.getMainFrame().getChartPanel().setMouseMode(1);
+        EPDShip.getMainFrame().getChartPanel().setMouseMode(NavigationMouseMode.MODE_ID);
     }
 
     public void setNewRouteLayer(NewRouteContainerLayer newRouteLayer) {
