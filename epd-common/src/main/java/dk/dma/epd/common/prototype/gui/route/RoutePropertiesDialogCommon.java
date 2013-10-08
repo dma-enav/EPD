@@ -72,8 +72,9 @@ import dk.dma.epd.common.util.ParseUtils;
 /**
  * Dialog with route properties
  */
-public class RoutePropertiesDialogCommon extends JDialog implements ActionListener,
-        Runnable, FocusListener, WindowListener, DocumentListener {
+public class RoutePropertiesDialogCommon extends JDialog implements
+        ActionListener, Runnable, FocusListener, WindowListener,
+        DocumentListener {
 
     private static final long serialVersionUID = 1L;
     private final JPanel contentPanel = new JPanel();
@@ -94,7 +95,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     protected JSpinner arrivalSpinner;
 
     private Border fieldBorder = new MatteBorder(1, 1, 1, 1, new Color(65, 65,
-            65));
+        65));
     private Border columnBorder = new MatteBorder(1, 1, 0, 0, new Color(65, 65,
             65));
 
@@ -123,8 +124,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     private RouteManagerCommon routeManager;
     protected ActiveRoute activeRoute;
 
-    public RoutePropertiesDialogCommon(Window parent, RouteManagerCommon routeManager,
-            int routeId) {
+    public RoutePropertiesDialogCommon(Window parent,
+            RouteManagerCommon routeManager, int routeId) {
         super(parent, "Route Properties", Dialog.ModalityType.APPLICATION_MODAL);
 
         this.setResizable(false);
@@ -160,7 +161,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         parseRoute();
     }
 
-    public RoutePropertiesDialogCommon(Window parent, Route route, boolean editable) {
+    public RoutePropertiesDialogCommon(Window parent, Route route,
+            boolean editable) {
         super(parent, "Route Properties", Dialog.ModalityType.APPLICATION_MODAL);
 
         if (!editable) {
