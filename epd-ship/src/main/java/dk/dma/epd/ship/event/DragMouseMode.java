@@ -233,7 +233,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                     isPanning = true;
                     
                     
-                    EPDShip.getMainFrame().getChartPanel().getDragMapRenderer().updateOutImg();
+                    EPDShip.getMainFrame().getChartPanel().getDragMapRenderer().updateFinalBuffer();
 
                     onScreenMap = new BufferedImage(mb.getWidth(), mb.getHeight(),BufferedImage.TYPE_INT_RGB);
                     mb.paint(onScreenMap.getGraphics());
@@ -253,7 +253,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                     try {
                         //LOG.debug("Time to get offScreenMap: ")
                         final BufferedImage offScreenMap = EPDShip.getMainFrame()
-                                .getChartPanel().getDragMapRenderer().getOutImg().getSubimage(posX,
+                                .getChartPanel().getDragMapRenderer().getFinalBuffer().getSubimage(posX,
                                 posY, mb.getWidth(), mb.getHeight());
                         
                         final BufferedImage renderImage = offScreenMap;
