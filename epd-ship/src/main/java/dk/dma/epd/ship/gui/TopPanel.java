@@ -92,9 +92,9 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
     // TODO update to unique icon
     /**
-     * Toggle button to enable "click to display range circles".
+     * Toggle button to enable distance circle mode.
      */
-    private final ToggleButtonLabel toggleRangeCirclesMode = new ToggleButtonLabel(
+    private final ToggleButtonLabel toggleDistanceCircleMode = new ToggleButtonLabel(
             toolbarIcon("images/toolbar/ruler-triangle.png"));
     // private final ToggleButtonLabel tglbtnMsiFilter = new ToggleButtonLabel(
     // "MSI filter");
@@ -155,7 +155,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
         toggleSafeHaven.setToolTipText("Show/hide SafeHaven guidelines");
 
-        this.toggleRangeCirclesMode
+        this.toggleDistanceCircleMode
                 .setToolTipText("Enable range circles mode.");
 
         // Temporary
@@ -166,6 +166,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         add(zoomOutBtn);
         add(navigationMouseMode);
         add(dragMouseMode);
+        // add the toggle button to the component
+        this.add(this.toggleDistanceCircleMode);
         add(centreBtn);
         add(autoFollowBtn);
         add(setupBtn);
@@ -180,8 +182,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         add(encBtn);
         add(wmsBtn);
         add(toggleSafeHaven);
-        // add the toggle button to the component
-        this.add(this.toggleRangeCirclesMode);
+        
         // add(tglbtnMsiFilter);
         // if (showRiskAndNogo)
         // add(riskBtn);
@@ -239,7 +240,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         dragMouseMode.addMouseListener(this);
 
         // Listen for mouse input on the range circle toggle button
-        this.toggleRangeCirclesMode.addMouseListener(this);
+        this.toggleDistanceCircleMode.addMouseListener(this);
 
         updateButtons();
     }
@@ -259,7 +260,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
         navigationMouseMode.setSelected(true);
         // range circles mode is disabled by default.
-        this.toggleRangeCirclesMode.setSelected(false);
+        this.toggleDistanceCircleMode.setSelected(false);
     }
 
     public void disableAutoFollow() {
@@ -453,8 +454,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             System.out.println("Nav mouse mode!");
         }
         // react on mouse click on "toggle distance circles mode"
-        else if (e.getSource() == this.toggleRangeCirclesMode) {
-            if (this.toggleRangeCirclesMode.isSelected()) {
+        else if (e.getSource() == this.toggleDistanceCircleMode) {
+            if (this.toggleDistanceCircleMode.isSelected()) {
                 // this.mainFrame.getChartPanel().setMouseMode(3);
                 this.mainFrame.getChartPanel().setMouseMode(
                         DistanceCircleMouseMode.MODE_ID);
@@ -488,7 +489,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     }
 
     public ToggleButtonLabel getToggleButtonDistanceCircleMouseMode() {
-        return this.toggleRangeCirclesMode;
+        return this.toggleDistanceCircleMode;
     }
 
     public ButtonLabel getMsiButton() {
