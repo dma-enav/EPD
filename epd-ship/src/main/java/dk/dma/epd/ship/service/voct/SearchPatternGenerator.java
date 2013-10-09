@@ -141,10 +141,11 @@ public class SearchPatternGenerator {
 
         positionList.add(currentPos);
 
+        System.out.println("Horizontal Bearing " + horizontalBearing);
+        System.out.println("Vertical Bearing " + verticalBearing);
         
-        
-        horizontalBearing = 90;
-        verticalBearing = 0;
+//        horizontalBearing = 90;
+//        verticalBearing = 0;
         
         
         //First move vertical
@@ -396,7 +397,8 @@ public class SearchPatternGenerator {
                     Converter.nmToMeters(trackHeight));
 
             // Reverse direction
-            verticalBearing = verticalBearing + 180;
+//            verticalBearing = verticalBearing + 180;
+            verticalBearing = Calculator.reverseDirection(verticalBearing);
 
             // Do we place another track?
             if ((trackPlotted + trackHeight) <= totalLengthOfTrack) {
@@ -437,7 +439,7 @@ public class SearchPatternGenerator {
             } else {
                 // Cannot draw the full length of the track, draw the remaining
                 // distance
-                verticalBearing = verticalBearing + 180;
+                verticalBearing = Calculator.reverseDirection(verticalBearing);
 
                 double remainingDistance = totalLengthOfTrack - trackPlotted;
                 nextPos = Calculator.findPosition(currentPos,
@@ -611,7 +613,8 @@ public class SearchPatternGenerator {
                     Converter.nmToMeters(trackLength));
 
             // Reverse direction
-            horizontalBearing = -horizontalBearing;
+            horizontalBearing = Calculator.reverseDirection(horizontalBearing);
+//            horizontalBearing = -horizontalBearing;
 
             // Do we place another track?
             if ((trackPlotted + trackLength) <= totalLengthOfTrack) {
@@ -652,7 +655,7 @@ public class SearchPatternGenerator {
             } else {
                 // Cannot draw the full length of the track, draw the remaining
                 // distance
-                horizontalBearing = -horizontalBearing;
+                horizontalBearing = Calculator.reverseDirection(horizontalBearing);
 
                 double remainingDistance = totalLengthOfTrack - trackPlotted;
                 nextPos = Calculator.findPosition(currentPos,
