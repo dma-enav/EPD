@@ -109,7 +109,7 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
             try {
                 String value;
 
-                if (twcField.contains("°")) {
+                if (twcField.contains("Â°")) {
                     value = twcField.substring(0, twcField.length() - 1);
                 } else {
                     value = twcField;
@@ -135,7 +135,7 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
 
                 String value;
 
-                if (leewayField.contains("°")) {
+                if (leewayField.contains("Â°")) {
                     value = leewayField.substring(0, leewayField.length() - 1);
                 } else {
                     value = leewayField;
@@ -235,7 +235,7 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
         twcHeadingDropdown.addActionListener(this);
 
         twcHeadingField = new JTextField();
-        twcHeadingField.setText("00.0°");
+        twcHeadingField.setText("00.0Â°");
         twcHeadingField.setBounds(415, 47, 39, 20);
         add(twcHeadingField);
         twcHeadingField.setColumns(10);
@@ -261,7 +261,7 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
         lwHeadingDropdown.addActionListener(this);
 
         leewayHeadingField = new JTextField();
-        leewayHeadingField.setText("00.0°");
+        leewayHeadingField.setText("00.0Â°");
         leewayHeadingField.setColumns(10);
         leewayHeadingField.setBounds(415, 75, 39, 20);
         add(leewayHeadingField);
@@ -277,28 +277,28 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
 
             switch (value) {
             case "N":
-                twcHeadingField.setText("00.0°");
+                twcHeadingField.setText("00.0Â°");
                 break;
             case "NE":
-                twcHeadingField.setText("45.0°");
+                twcHeadingField.setText("45.0Â°");
                 break;
             case "NW":
-                twcHeadingField.setText("315.0°");
+                twcHeadingField.setText("315.0Â°");
                 break;
             case "S":
-                twcHeadingField.setText("180.0°");
+                twcHeadingField.setText("180.0Â°");
                 break;
             case "SW":
-                twcHeadingField.setText("225.0°");
+                twcHeadingField.setText("225.0Â°");
                 break;
             case "SE":
-                twcHeadingField.setText("135.0°");
+                twcHeadingField.setText("135.0Â°");
                 break;
             case "E":
-                twcHeadingField.setText("90°");
+                twcHeadingField.setText("90Â°");
                 break;
             case "W":
-                twcHeadingField.setText("270°");
+                twcHeadingField.setText("270Â°");
                 break;
 
             }
@@ -311,28 +311,28 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
 
             switch (value) {
             case "N":
-                leewayHeadingField.setText("00.0°");
+                leewayHeadingField.setText("00.0Â°");
                 break;
             case "NE":
-                leewayHeadingField.setText("45.0°");
+                leewayHeadingField.setText("45.0Â°");
                 break;
             case "NW":
-                leewayHeadingField.setText("315.0°");
+                leewayHeadingField.setText("315.0Â°");
                 break;
             case "S":
-                leewayHeadingField.setText("180.0°");
+                leewayHeadingField.setText("180.0Â°");
                 break;
             case "SW":
-                leewayHeadingField.setText("225.0°");
+                leewayHeadingField.setText("225.0Â°");
                 break;
             case "SE":
-                leewayHeadingField.setText("135.0°");
+                leewayHeadingField.setText("135.0Â°");
                 break;
             case "E":
-                leewayHeadingField.setText("90°");
+                leewayHeadingField.setText("90Â°");
                 break;
             case "W":
-                leewayHeadingField.setText("270°");
+                leewayHeadingField.setText("270Â°");
                 break;
 
             }

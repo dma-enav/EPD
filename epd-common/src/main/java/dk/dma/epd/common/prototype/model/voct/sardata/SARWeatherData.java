@@ -118,9 +118,9 @@ public class SARWeatherData {
         str.append("<hr>");
         str.append("<font size=\"4\">");
         str.append("Total Water Current: " + TWCknots + " knots with heading "
-                + TWCHeading + "°");
+                + TWCHeading + "Â°");
         str.append("<br>Leeway: " + LWknots + " knots with heading "
-                + LWHeading + "°</br>");
+                + LWHeading + "Â°</br>");
         
         return str.toString();
     }
