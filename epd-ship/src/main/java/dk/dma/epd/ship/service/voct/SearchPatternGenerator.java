@@ -96,8 +96,8 @@ public class SearchPatternGenerator {
 //        horizontalBearing = 90;
         
         
-        System.out.println("width bearing is " + horizontalBearing);
-        System.out.println("height bearing is " + verticalBearing);
+//        System.out.println("width bearing is " + horizontalBearing);
+//        System.out.println("height bearing is " + verticalBearing);
 
         Ellipsoid reference = Ellipsoid.WGS84;
         double[] endBearing = new double[1];
@@ -140,9 +140,9 @@ public class SearchPatternGenerator {
         List<Position> positionList = new ArrayList<Position>();
 
         positionList.add(currentPos);
-
-        System.out.println("Horizontal Bearing " + horizontalBearing);
-        System.out.println("Vertical Bearing " + verticalBearing);
+//
+//        System.out.println("Horizontal Bearing " + horizontalBearing);
+//        System.out.println("Vertical Bearing " + verticalBearing);
         
 //        horizontalBearing = 90;
 //        verticalBearing = 0;

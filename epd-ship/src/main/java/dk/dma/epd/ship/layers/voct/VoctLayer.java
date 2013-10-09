@@ -269,25 +269,100 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             // System.out.println("Selected line");
             SarEffectiveAreaLines selectedLine = (SarEffectiveAreaLines) selectedGraphic;
             
+            double bearing = selectedLine.getA().rhumbLineBearingTo(selectedLine.getB());
+            System.out.println(bearing);
+            
             LineType type = selectedLine.getType();
             
             Cursor cursor = null;
             
             
+            
+            
             if (type == LineType.BOTTOM){
                 cursor = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
+                
+                //Straight line
+                if (bearing > 80 && bearing < 100  ||  bearing > 260 && bearing < 280){
+                    cursor = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);    
+                }
+                
+                //SE line
+                if (bearing > 100 && bearing < 170  ||  bearing > 290 && bearing < 350){
+                    cursor = Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR);    
+                }
+                
+                
+                //SW line
+                if (bearing > 0 && bearing < 80  ||  bearing > 190 && bearing < 270){
+                    cursor = Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR);    
+                }
+                
+                
             }
             
             if (type == LineType.TOP){
                 cursor = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
+                
+                //Straight line
+                if (bearing > 80 && bearing < 100  ||  bearing > 260 && bearing < 280){
+                    cursor = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);    
+                }
+                
+                //NE line
+                if (bearing > 100 && bearing < 170  ||  bearing > 290 && bearing < 350){
+                    cursor = Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);    
+                }
+                
+                //NW line
+                if (bearing > 0 && bearing < 80  ||  bearing > 190 && bearing < 270){
+                    cursor = Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);    
+                }
+
             }
             
             if (type == LineType.LEFT){
                 cursor = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);
+                
+                //Straight line
+                if (bearing > 170 && bearing < 190  ||  bearing < 10 && bearing < 350){
+                    cursor = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);    
+                }
+                
+                //NE line
+                if (bearing > 130 && bearing < 160  ||  bearing > 210 && bearing < 240){
+                    cursor = Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);    
+                }
+                
+                //NW line
+                if (bearing > 130 && bearing < 160 ||  bearing > 300 && bearing < 330){
+                    cursor = Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);    
+                }
+
+                
+                
+                
             }
             
             if (type == LineType.RIGHT){
                 cursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
+                
+                //Straight line
+                if (bearing > 170 && bearing < 190  ||  bearing < 10 && bearing < 350){
+                    cursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR); 
+                }
+                
+                //NE line
+                if (bearing > 130 && bearing < 160  ||  bearing > 210 && bearing < 240){
+                    cursor = Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);    
+                }
+                
+                //NW line
+                if (bearing > 130 && bearing < 160 ||  bearing > 300 && bearing < 330){
+                    cursor = Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);    
+                }
+                
+                
             }
             
             

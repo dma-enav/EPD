@@ -77,20 +77,33 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
                     datumData.getB(), Heading.RL);
             centerPosition = datumData.getDatumDownWind();
 
+            
+            //Vertical and horizontal must be swapped since the direction has been set to very east or very west
+            if (verticalBearing < 280 && verticalBearing > 260 || verticalBearing <100 && verticalBearing > 70){
+                
+                double newVer = verticalBearing;
+                System.out.println("swapping");
+                verticalBearing = horizontalBearing;
+                horizontalBearing = newVer;
+                
+            }
+            
+            
             // Reversing if direction is opposite way of assumed, assumed to be
             // headed in 90 direction ie. right
             if (horizontalBearing > 180 || horizontalBearing < 0) {
 
                 horizontalBearing = Calculator
                         .reverseDirection(horizontalBearing);
-
             }
 
             if (verticalBearing > 270 || verticalBearing < 90) {
-
                 verticalBearing = Calculator.reverseDirection(verticalBearing);
-
             }
+            
+
+            
+            
 
             System.out.println("Vertical bearing is: " + verticalBearing);
             System.out.println("Horizontal bearing is: " + horizontalBearing);
@@ -398,12 +411,14 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
 
         double bearing = B.rhumbLineBearingTo(newPos);
 
+        
+        
 //        System.out.println("Vertical bearing " + verticalBearing);
 //        System.out.println("Horizontal bearing " + horizontalBearing);
 
         Geo intersectionPoint = null;
 
-        if (bearing > 180 && bearing <= 270 ) {
+        if (bearing > 180) {
 
             // Create a line going from newPos, in  vertical direction eg up
             Position verticalEndPosition = Calculator.findPosition(newPos,
@@ -423,9 +438,16 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
 
             intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
 
+            
+            System.out.println(a1);
+            System.out.println(a2);
+            System.out.println(b1);
+            System.out.println(b2);
+            System.out.println(intersectionPoint);
+            
         }
         
-        if (bearing > 270 || bearing  < 180) {
+        if (bearing > 0 && bearing  <= 180) {
             
             // if (bearing > 90 && bearing < 180){
 

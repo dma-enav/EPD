@@ -54,6 +54,24 @@ public class SarEffectiveAreaLines extends OMGraphicList{
     
     
     /**
+     * @return the a
+     */
+    public Position getA() {
+        return A;
+    }
+
+
+
+    /**
+     * @return the b
+     */
+    public Position getB() {
+        return B;
+    }
+
+
+
+    /**
      * @return the type
      */
     public LineType getType() {
