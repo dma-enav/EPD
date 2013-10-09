@@ -75,7 +75,7 @@ import dk.dma.epd.ship.settings.EPDMapSettings;
  * The panel with chart. Initializes all layers to be shown on the map.
  */
 public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
-MouseWheelListener {
+        MouseWheelListener {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
@@ -170,8 +170,10 @@ MouseWheelListener {
         this.mouseDelegator.addMouseMode(this.rangeCirclesMouseMode);
 
         mouseDelegator.setActive(mapNavMouseMode);
-        // Inform the distance circle mouse mode what mouse mode was initially the active one
-        this.rangeCirclesMouseMode.setPreviousMouseModeModeID(NavigationMouseMode.MODE_ID);
+        // Inform the distance circle mouse mode what mouse mode was initially
+        // the active one
+        this.rangeCirclesMouseMode
+                .setPreviousMouseModeModeID(NavigationMouseMode.MODE_ID);
 
         mapHandler.add(mapNavMouseMode);
         mapHandler.add(routeEditMouseMode);
@@ -270,21 +272,14 @@ MouseWheelListener {
         coastalOutlineLayerDrag.setVisible(true);
         // dragMapHandler.add(coastalOutlineLayerDrag);
 
-
-
-
-
         if (encLayer != null) {
             mapHandler.add(encLayer);
         }
-
-
 
         // Add map to map handler
         mapHandler.add(map);
 
         encLayerFactory.setMapSettings();
-
 
         // Set last postion
         map.setCenter(mapSettings.getCenter());
@@ -294,9 +289,6 @@ MouseWheelListener {
         // Set ENC map settings
 
         add(map);
-
-
-
 
         // TODO: CLEANUP
         // dragMap
@@ -328,8 +320,6 @@ MouseWheelListener {
         // Add this class as GPS data listener
         EPDShip.getGpsHandler().addListener(this);
 
-
-
         // encLayerFactory2.setMapSettings();
 
         // Hack to flush ENC layer
@@ -345,9 +335,6 @@ MouseWheelListener {
         wmsVisible(EPDShip.getSettings().getMapSettings().isWmsVisible());
 
         getMap().addMouseWheelListener(this);
-
-
-
 
     }
 
