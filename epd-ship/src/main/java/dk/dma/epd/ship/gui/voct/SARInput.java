@@ -424,6 +424,12 @@ public class SARInput extends JDialog implements ActionListener,
 
         // Get LKP values
         double rapidResponseLKPLat = rapidResponseDatumPointInputPanel.getRapidResponseDatumLKPLat();
+        
+        if (rapidResponseLKPLat == -9999){
+            return false;
+        }
+            
+        
         double rapidResponseLKPLon = rapidResponseDatumPointInputPanel.getRapidResponseDatumLKPLon();
 
         Position rapidResponsePosition;

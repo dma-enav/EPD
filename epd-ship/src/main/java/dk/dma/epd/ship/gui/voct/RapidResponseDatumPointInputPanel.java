@@ -162,7 +162,8 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
 
         lkpFirstLat = new JTextField();
         lkpFirstLat.setHorizontalAlignment(SwingConstants.RIGHT);
-        lkpFirstLat.setText("56");
+//        lkpFirstLat.setText("56");
+        lkpFirstLat.setText("");
         lkpFirstLat.setBounds(170, 47, 30, 20);
         lkpPanel.add(lkpFirstLat);
         lkpFirstLat.setColumns(10);
@@ -175,13 +176,15 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
         timeZoneDropdown.addActionListener(this);
 
         lkpSecondLat = new JTextField();
-        lkpSecondLat.setText("30");
+//        lkpSecondLat.setText("30");
+        lkpSecondLat.setText("");
         lkpSecondLat.setColumns(10);
         lkpSecondLat.setBounds(200, 47, 20, 20);
         lkpPanel.add(lkpSecondLat);
 
         lkpThirdLat = new JTextField();
-        lkpThirdLat.setText("290");
+//        lkpThirdLat.setText("290");
+        lkpThirdLat.setText("");
         lkpThirdLat.setColumns(10);
         lkpThirdLat.setBounds(220, 47, 30, 20);
         lkpPanel.add(lkpThirdLat);
@@ -194,13 +197,15 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
 
         lkpFirstLon = new JTextField();
         lkpFirstLon.setHorizontalAlignment(SwingConstants.RIGHT);
-        lkpFirstLon.setText("11");
+//        lkpFirstLon.setText("11");
+        lkpFirstLon.setText("");
         lkpFirstLon.setColumns(10);
         lkpFirstLon.setBounds(290, 47, 30, 20);
         lkpPanel.add(lkpFirstLon);
 
         lkpSecondLon = new JTextField();
-        lkpSecondLon.setText("57");
+//        lkpSecondLon.setText("57");
+        lkpSecondLon.setText("");
         lkpSecondLon.setColumns(10);
         lkpSecondLon.setBounds(320, 47, 20, 20);
         lkpPanel.add(lkpSecondLon);
@@ -212,7 +217,8 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
         lkpPanel.add(comboLKPLon);
 
         lkpThirdLon = new JTextField();
-        lkpThirdLon.setText("840");
+//        lkpThirdLon.setText("840");
+        lkpThirdLon.setText("");
         lkpThirdLon.setColumns(10);
         lkpThirdLon.setBounds(340, 47, 30, 20);
         lkpPanel.add(lkpThirdLon);
@@ -311,7 +317,8 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
         panel.add(lblInitialPositionError);
 
         xErrorField = new JTextField();
-        xErrorField.setText("1.0");
+//        xErrorField.setText("1.0");
+        xErrorField.setText("");
         xErrorField.setBounds(184, 22, 86, 20);
         panel.add(xErrorField);
         xErrorField.setColumns(10);

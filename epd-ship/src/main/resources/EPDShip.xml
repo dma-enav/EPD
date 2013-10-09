@@ -21,7 +21,7 @@
 													</placeholders>
 												</leaf>
 												<node nodeId="1341852641451" orientation="HORIZONTAL" divider="0.8791666666666667">
-													<leaf id="0" nodeId="1341852641452">
+													<leaf id="1" nodeId="1341852641452">
 														<placeholders>
 															<placeholder>dock.single.Chart</placeholder>
 														</placeholders>
@@ -103,7 +103,7 @@
 													</node>
 												</node>
 											</node>
-											<leaf id="1" nodeId="1378306570288">
+											<leaf id="0" nodeId="1378306570288">
 												<placeholders>
 													<placeholder>dock.single.SAR</placeholder>
 												</placeholders>
@@ -119,20 +119,20 @@
 							</adjacent>
 							<children ignore="false">
 								<child>
-									<layout factory="predefined" placeholder="dock.single.Chart">
-										<replacement id="dockablesingle Chart"/>
+									<layout factory="predefined" placeholder="dock.single.SAR">
+										<replacement id="dockablesingle SAR"/>
 										<delegate id="delegate_ccontrol backup factory id">
-											<id>Chart</id>
+											<id>SAR</id>
 											<area/>
 										</delegate>
 									</layout>
 									<children ignore="false"/>
 								</child>
 								<child>
-									<layout factory="predefined" placeholder="dock.single.SAR">
-										<replacement id="dockablesingle SAR"/>
+									<layout factory="predefined" placeholder="dock.single.Chart">
+										<replacement id="dockablesingle Chart"/>
 										<delegate id="delegate_ccontrol backup factory id">
-											<id>SAR</id>
+											<id>Chart</id>
 											<area/>
 										</delegate>
 									</layout>
@@ -287,21 +287,6 @@
 								<children ignore="false"/>
 							</layout>
 						</child>
-						<child key="single Scale" root="ccontrol center" location="true">
-							<location>
-								<property factory="SplitDockPlaceholderProperty">
-									<placeholder>dock.single.Scale</placeholder>
-									<backup-path>
-										<node location="BOTTOM" size="0.9655555555555555" id="1341852641448"/>
-										<node location="RIGHT" size="0.12083333333333335" id="1341852641451"/>
-										<node location="TOP" size="0.11751152073732717" id="1341852641454"/>
-										<node location="TOP" size="0.36194895591647336" id="1341852641456"/>
-										<node location="TOP" size="0.3357664233576642" id="1341852641458"/>
-										<leaf id="1341852641460"/>
-									</backup-path>
-								</property>
-							</location>
-						</child>
 						<child key="single AIS Target" root="ccontrol center" location="true">
 							<location>
 								<property factory="SplitDockPlaceholderProperty">
@@ -316,6 +301,41 @@
 									</backup-path>
 								</property>
 							</location>
+							<layout>
+								<layout factory="predefined" placeholder="dock.single.AIS\ Target">
+									<replacement id="dockablesingle AIS Target"/>
+									<delegate id="delegate_ccontrol backup factory id">
+										<id>AIS Target</id>
+										<area/>
+									</delegate>
+								</layout>
+								<children ignore="false"/>
+							</layout>
+						</child>
+						<child key="single Scale" root="ccontrol center" location="true">
+							<location>
+								<property factory="SplitDockPlaceholderProperty">
+									<placeholder>dock.single.Scale</placeholder>
+									<backup-path>
+										<node location="BOTTOM" size="0.9655555555555555" id="1341852641448"/>
+										<node location="RIGHT" size="0.12083333333333335" id="1341852641451"/>
+										<node location="TOP" size="0.11751152073732717" id="1341852641454"/>
+										<node location="TOP" size="0.36194895591647336" id="1341852641456"/>
+										<node location="TOP" size="0.3357664233576642" id="1341852641458"/>
+										<leaf id="1341852641460"/>
+									</backup-path>
+								</property>
+							</location>
+							<layout>
+								<layout factory="predefined" placeholder="dock.single.Scale">
+									<replacement id="dockablesingle Scale"/>
+									<delegate id="delegate_ccontrol backup factory id">
+										<id>Scale</id>
+										<area/>
+									</delegate>
+								</layout>
+								<children ignore="false"/>
+							</layout>
 						</child>
 						<child key="single Own Ship" root="ccontrol center" location="true">
 							<location>
@@ -331,6 +351,16 @@
 									</backup-path>
 								</property>
 							</location>
+							<layout>
+								<layout factory="predefined" placeholder="dock.single.Own\ Ship">
+									<replacement id="dockablesingle Own Ship"/>
+									<delegate id="delegate_ccontrol backup factory id">
+										<id>Own Ship</id>
+										<area/>
+									</delegate>
+								</layout>
+								<children ignore="false"/>
+							</layout>
 						</child>
 						<child key="single MonaLisaCommunication" root="ccontrol center" location="true">
 							<location>
@@ -387,6 +417,16 @@
 									</backup-path>
 								</property>
 							</location>
+							<layout>
+								<layout factory="predefined" placeholder="dock.single.MSI">
+									<replacement id="dockablesingle MSI"/>
+									<delegate id="delegate_ccontrol backup factory id">
+										<id>MSI</id>
+										<area/>
+									</delegate>
+								</layout>
+								<children ignore="false"/>
+							</layout>
 						</child>
 						<child key="single NoGo" root="ccontrol center" location="true">
 							<location>
@@ -429,21 +469,16 @@
 									</backup-path>
 								</property>
 							</location>
-						</child>
-						<child key="single GPS" root="ccontrol center" location="true">
-							<location>
-								<property factory="SplitDockPlaceholderProperty">
-									<placeholder>dock.single.GPS</placeholder>
-									<backup-path>
-										<node location="BOTTOM" size="0.9655555555555555" id="1341852641448"/>
-										<node location="RIGHT" size="0.12083333333333335" id="1341852641451"/>
-										<node location="TOP" size="0.11751152073732717" id="1341852641454"/>
-										<node location="BOTTOM" size="0.6380510440835266" id="1341852641456"/>
-										<node location="TOP" size="0.5093632958801498" id="1341852641464"/>
-										<leaf id="1341852641466"/>
-									</backup-path>
-								</property>
-							</location>
+							<layout>
+								<layout factory="predefined" placeholder="dock.single.Active\ Waypoint">
+									<replacement id="dockablesingle Active Waypoint"/>
+									<delegate id="delegate_ccontrol backup factory id">
+										<id>Active Waypoint</id>
+										<area/>
+									</delegate>
+								</layout>
+								<children ignore="false"/>
+							</layout>
 						</child>
 						<child key="single Cursor" root="ccontrol center" location="true">
 							<location>
@@ -460,6 +495,41 @@
 									</backup-path>
 								</property>
 							</location>
+							<layout>
+								<layout factory="predefined" placeholder="dock.single.Cursor">
+									<replacement id="dockablesingle Cursor"/>
+									<delegate id="delegate_ccontrol backup factory id">
+										<id>Cursor</id>
+										<area/>
+									</delegate>
+								</layout>
+								<children ignore="false"/>
+							</layout>
+						</child>
+						<child key="single GPS" root="ccontrol center" location="true">
+							<location>
+								<property factory="SplitDockPlaceholderProperty">
+									<placeholder>dock.single.GPS</placeholder>
+									<backup-path>
+										<node location="BOTTOM" size="0.9655555555555555" id="1341852641448"/>
+										<node location="RIGHT" size="0.12083333333333335" id="1341852641451"/>
+										<node location="TOP" size="0.11751152073732717" id="1341852641454"/>
+										<node location="BOTTOM" size="0.6380510440835266" id="1341852641456"/>
+										<node location="TOP" size="0.5093632958801498" id="1341852641464"/>
+										<leaf id="1341852641466"/>
+									</backup-path>
+								</property>
+							</location>
+							<layout>
+								<layout factory="predefined" placeholder="dock.single.GPS">
+									<replacement id="dockablesingle GPS"/>
+									<delegate id="delegate_ccontrol backup factory id">
+										<id>GPS</id>
+										<area/>
+									</delegate>
+								</layout>
+								<children ignore="false"/>
+							</layout>
 						</child>
 						<child key="single Mona Lisa Communication" root="ccontrol center" location="true">
 							<location>
