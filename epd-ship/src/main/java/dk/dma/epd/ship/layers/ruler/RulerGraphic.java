@@ -95,7 +95,7 @@ public class RulerGraphic extends OMGraphicList {
         // Clear old data
         this.clear();
         // Still display center
-        this.add(center);
+        this.add(this.center);
         // Create line from center to periphery (distance line)
         OMLine omLine = new OMLine(centerPos.getLatitude(),
                 centerPos.getLongitude(), gl.getLatitude(), gl.getLongitude(),
@@ -109,13 +109,18 @@ public class RulerGraphic extends OMGraphicList {
         this.add(outerCircle);
         // Text offset from center
         float offsetY = (this.centerPixelHeight + 1.0f) * 3.0f;
-        // Calculate distance in nm
+        // Calculate distance in nautical miles
+        // TODO use Heading.GC in these calculations?
         double distNM = Calculator.range(this.centerPos, gl, Heading.RL);
-        // Pretty print distance
-        String ppDist = "Dist.: " + Formatter.formatDistNM(distNM);
+        //double bearing = Calculator.bearing(this.centerPos, gl, Heading.RL);
+        // Calculate angle
+        double angle = this.centerPos.rhumbLineBearingTo(gl);
+        
+        // Pretty print distance and azimuth
+        String ppDistAzimuth = "Dist.: " + Formatter.formatDistNM(distNM) + "\n" + "Angle: " + Formatter.formatDegrees(angle, 1);
         // Create OMText
         OMText text = new OMText(centerPos.getLatitude(),
-                centerPos.getLongitude(), 0, offsetY, ppDist,
+                centerPos.getLongitude(), 0, offsetY, ppDistAzimuth,
                 OMText.JUSTIFY_CENTER);
 
         this.add(text);
