@@ -17,7 +17,6 @@ package dk.dma.epd.ship.layers.ruler;
 
 import java.awt.event.MouseEvent;
 
-import com.bbn.openmap.event.DistanceMouseMode;
 import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.event.MapMouseMode;
 import com.bbn.openmap.event.ProjectionEvent;
@@ -26,10 +25,8 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.event.DistanceCircleMouseMode;
-import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.gui.ChartPanel;
-import dk.dma.epd.ship.gui.TopPanel;
 
 public class RulerLayer extends OMGraphicHandlerLayer implements
         MapMouseListener {
@@ -39,14 +36,11 @@ public class RulerLayer extends OMGraphicHandlerLayer implements
     private OMGraphicList graphics = new OMGraphicList();
     private ChartPanel chartPanel;
     private RulerGraphic rulerGraphic;
-    private TopPanel topPanel;
 
     @Override
     public void findAndInit(Object obj) {
         if (obj instanceof ChartPanel) {
             this.chartPanel = (ChartPanel) obj;
-        } else if (obj instanceof TopPanel) {
-            this.topPanel = (TopPanel) obj;
         }
     }
 
@@ -185,5 +179,7 @@ public class RulerLayer extends OMGraphicHandlerLayer implements
         // TODO Auto-generated method stub
         return false;
     }
+
+    
 
 }
