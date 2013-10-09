@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.monalisa;
+package dk.dma.epd.ship.gui.route.strategic;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -33,17 +33,17 @@ import javax.swing.JTextArea;
 import javax.swing.WindowConstants;
 import javax.swing.border.MatteBorder;
 
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.layers.route.RouteLayer;
-import dk.dma.epd.ship.monalisa.MonaLisaHandler;
+import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
 
-public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
+public class RequestStrategicRouteDialog extends JDialog implements ActionListener {
 
     private static final long serialVersionUID = 1L;
     JLabel routeName;
@@ -70,7 +70,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
     private JTextArea routeMessage;
     // private EnavServiceHandler enavServiceHandler;
-    private MonaLisaHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler strategicRouteExchangeHandler;
     RouteLayer routeLayer;
 
     private boolean isActive;
@@ -91,7 +91,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
     /**
      * Create the dialog.
      */
-    public MonaLisaSTCCDialog(MainFrame mainFrame) {
+    public RequestStrategicRouteDialog(MainFrame mainFrame) {
 
         super(mainFrame, "STCC Info", false);
          this.mainFrame = mainFrame;
@@ -112,7 +112,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
         setResizable(false);
 
-        monaLisaHandler = EPDShip.getMonaLisaHandler();
+        strategicRouteExchangeHandler = EPDShip.getStrategicRouteExchangeHandler();
 
         // enavServiceHandler = EPDShip.getEnavServiceHandler();
         // enavServiceHandler.setMonaLisaSTCCDialog(this);
@@ -324,7 +324,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
         isActive = false;
     }
 
-    public void handleReply(MonaLisaRouteRequestReply reply) {
+    public void handleReply(StrategicRouteRequestReply reply) {
 //        this.reply = reply;
         this.setRouteName(new Route(reply.getRoute()), this.transactionID);
 
@@ -337,7 +337,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
         // }
 
         // Reply is in
-        if (reply.getStatus() == MonaLisaRouteStatus.AGREED) {
+        if (reply.getStatus() == StrategicRouteStatus.AGREED) {
             this.setSize(defaultSize);
             statusField.setText("Route Agreed");
             lblPostRoute.setText("STCC Agreed");
@@ -352,7 +352,7 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
             activateDefaultLayout();
 
-        } else if (reply.getStatus() == MonaLisaRouteStatus.NEGOTIATING) {
+        } else if (reply.getStatus() == StrategicRouteStatus.NEGOTIATING) {
             activateNegotiationLayout();
 
             lblRouteTitle.setText("Route \"" + reply.getRoute().getName()
@@ -375,13 +375,13 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
             // Cancel request
             if (isActive) {
                 setInActive();
-                monaLisaHandler.cancelRouteRequest(transactionID);
+                strategicRouteExchangeHandler.cancelRouteRequest(transactionID);
                 this.setVisible(false);
             } else {
                 // Is not active and button pressed - when can this happen?
                 // its being acked?
                 setInActive();
-                monaLisaHandler.sendAgreeMsg(transactionID,
+                strategicRouteExchangeHandler.sendAgreeMsg(transactionID,
                         chatMessages.getText());
                 this.setVisible(false);
 
@@ -395,14 +395,14 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
             System.out.println("btn accept");
             // Accept or send modified clicked, let monalisahandler figure it
             // out
-            monaLisaHandler.sendReply(chatMessages.getText());
+            strategicRouteExchangeHandler.sendReply(chatMessages.getText());
             // this.setVisible(false);
             btnAccept.setText("Accept");
         }
         if (e.getSource() == btnReject) {
 
             // Send reject message
-            monaLisaHandler.sendReject(chatMessages.getText());
+            strategicRouteExchangeHandler.sendReject(chatMessages.getText());
             this.setVisible(false);
 
         }
@@ -433,11 +433,11 @@ public class MonaLisaSTCCDialog extends JDialog implements ActionListener {
 
     private String findChanges() {
 
-        Route originalRoute = new Route(monaLisaHandler
+        Route originalRoute = new Route(strategicRouteExchangeHandler
                 .getMonaLisaNegotiationData()
                 .get(transactionID)
                 .getRouteMessage()
-                .get(monaLisaHandler.getMonaLisaNegotiationData()
+                .get(strategicRouteExchangeHandler.getMonaLisaNegotiationData()
                         .get(transactionID).getRouteMessage().size() - 1)
                 .getRoute());
         // transactionID

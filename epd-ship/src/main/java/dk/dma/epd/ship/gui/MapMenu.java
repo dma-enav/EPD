@@ -88,10 +88,10 @@ import dk.dma.epd.ship.gui.menuitems.SuggestedRouteDetails;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
-import dk.dma.epd.ship.monalisa.MonaLisaHandler;
-import dk.dma.epd.ship.monalisa.RecievedRoute;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.ship.route.strategic.RecievedRoute;
+import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
 import dk.dma.epd.ship.service.EnavServiceHandler;
 
 /**
@@ -157,7 +157,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private MouseDelegator mouseDelegator;
     private EnavServiceHandler enavServiceHandler;
     private Point windowLocation;
-    private MonaLisaHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler monaLisaHandler;
     
 //    private RouteLayer routeLayer;
 //    private VoyageLayer voyageLayer;
@@ -703,8 +703,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         if (obj instanceof EnavServiceHandler) {
             enavServiceHandler = (EnavServiceHandler) obj;
         }
-        if (obj instanceof MonaLisaHandler) {
-            monaLisaHandler = (MonaLisaHandler) obj;
+        if (obj instanceof StrategicRouteExchangeHandler) {
+            monaLisaHandler = (StrategicRouteExchangeHandler) obj;
         }
 //        if (obj instanceof VoyageLayer) {
 //            voyageLayer = (VoyageLayer) obj;

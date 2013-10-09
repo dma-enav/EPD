@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.monalisa;
+package dk.dma.epd.shore.gui.views.strategicRouteExchange;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,13 +23,13 @@ import javax.swing.table.AbstractTableModel;
 
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.ais.AisHandler;
-import dk.dma.epd.shore.service.MonaLisaHandler;
-import dk.dma.epd.shore.service.MonaLisaRouteNegotiationData;
+import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
+import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 
 /**
  * Table model for Route Exchange Notifications
  */
-public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
+public class StrategicRouteExchangeTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
 
 //    private static final String[] AREA_COLUMN_NAMES = { "ID", "MMSI",
@@ -40,17 +40,17 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
             "Called", "Status" };
 
 //    private EnavServiceHandler enavServiceHandler;
-    private MonaLisaHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler strategicRouteExchangeHandler;
     private AisHandler aisHandler;
 
-    private List<MonaLisaRouteNegotiationData> messages = new ArrayList<MonaLisaRouteNegotiationData>();
+    private List<StrategicRouteNegotiationData> messages = new ArrayList<StrategicRouteNegotiationData>();
 
     /**
      * Constructor for creating the msi table model
      * 
      * @param msiHandler
      */
-    public MonaLisaRouteExchangeTableModel() {
+    public StrategicRouteExchangeTableModel() {
         super();
         updateMessages();
     }
@@ -68,8 +68,8 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
     
     
     
-    public void setMonaLisaHandler(MonaLisaHandler monaLisaHandler) {
-        this.monaLisaHandler = monaLisaHandler;
+    public void setStrategicRouteExchangeHandler(StrategicRouteExchangeHandler strategicRouteExchangeHandler) {
+        this.strategicRouteExchangeHandler = strategicRouteExchangeHandler;
     }
 
     /**
@@ -113,7 +113,7 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
      * 
      * @return
      */
-    public List<MonaLisaRouteNegotiationData> getMessages() {
+    public List<StrategicRouteNegotiationData> getMessages() {
         return messages;
 
     }
@@ -135,7 +135,7 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
         if (rowIndex == -1) {
             return "";
         }
-        MonaLisaRouteNegotiationData message = messages.get(rowIndex);
+        StrategicRouteNegotiationData message = messages.get(rowIndex);
 
         switch (columnIndex) {
         case 0:
@@ -272,13 +272,13 @@ public class MonaLisaRouteExchangeTableModel extends AbstractTableModel {
      * Update messages
      */
     public void updateMessages() {
-        if (monaLisaHandler != null){
+        if (strategicRouteExchangeHandler != null){
             
         
         messages.clear();
 
-        for (Iterator<MonaLisaRouteNegotiationData> it = monaLisaHandler
-                .getMonaLisaNegotiationData().values().iterator(); it.hasNext();) {
+        for (Iterator<StrategicRouteNegotiationData> it = strategicRouteExchangeHandler
+                .getStrategicNegotiationData().values().iterator(); it.hasNext();) {
             messages.add(it.next());
         }
         }

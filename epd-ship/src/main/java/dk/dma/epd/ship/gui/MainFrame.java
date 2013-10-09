@@ -45,9 +45,9 @@ import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.SARComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
-import dk.dma.epd.ship.gui.monalisa.MonaLisaSTCCDialog;
 import dk.dma.epd.ship.gui.msi.MsiDialog;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
+import dk.dma.epd.ship.gui.route.strategic.RequestStrategicRouteDialog;
 import dk.dma.epd.ship.settings.EPDGuiSettings;
 
 /**
@@ -87,7 +87,7 @@ public class MainFrame extends JFrame implements WindowListener {
     private MapMenu mapMenu;
     private MenuBar menuBar;
 
-    private MonaLisaSTCCDialog monaLisaSTCCDialog;
+    private RequestStrategicRouteDialog monaLisaSTCCDialog;
     
     public MainFrame() {
         super();
@@ -130,7 +130,7 @@ public class MainFrame extends JFrame implements WindowListener {
 
         
         //Mona Lisa Dialog
-        monaLisaSTCCDialog = new MonaLisaSTCCDialog(this);
+        monaLisaSTCCDialog = new RequestStrategicRouteDialog(this);
         
         // Unmovable panels
         bottomPanel = new BottomPanel();
@@ -220,7 +220,7 @@ public class MainFrame extends JFrame implements WindowListener {
         
     }
 
-    public MonaLisaSTCCDialog getMonaLisaSTCCDialog() {
+    public RequestStrategicRouteDialog getMonaLisaSTCCDialog() {
         return monaLisaSTCCDialog;
     }
 

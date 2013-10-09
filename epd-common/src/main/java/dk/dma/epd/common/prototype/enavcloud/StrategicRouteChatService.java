@@ -23,38 +23,32 @@ import dk.dma.enav.communication.service.spi.ServiceInitiationPoint;
 import dk.dma.enav.communication.service.spi.ServiceMessage;
 import dk.dma.enav.model.voyage.Route;
 
-public class MonaLisaRouteService {
-    
+public class StrategicRouteChatService {
+
     /** An initiation point */
-    public static final ServiceInitiationPoint<MonaLisaRouteRequestMessage> INIT = new ServiceInitiationPoint<>(
-            MonaLisaRouteRequestMessage.class);
-    
-    public enum MonaLisaRouteStatus {
-        PENDING, AGREED, REJECTED, NEGOTIATING, CANCELED
-    }
-    
-    public static class MonaLisaRouteRequestReply extends ServiceMessage<Void> {
+    public static final ServiceInitiationPoint<MonaLisaChatAck> INIT = new ServiceInitiationPoint<>(
+            MonaLisaChatAck.class);
+
+    public static class MonaLisaChatMsg extends ServiceMessage<Void> {
 
         private String message;
         private long id;
         private long mmsi;
         private long sendDate;
-        private MonaLisaRouteStatus status;
-        private Route route;
-
-        public MonaLisaRouteRequestReply() {
+        private String name;
+        
+        public MonaLisaChatMsg() {
         }
 
         /**
          * @param message
          */
-        public MonaLisaRouteRequestReply(String message, long id, long mmsi, long sendDate, MonaLisaRouteStatus status, Route route) {
+        public MonaLisaChatMsg(String message, long id, long mmsi, long sendDate, String name) {
             this.message = message;
             this.id = id;
             this.mmsi = mmsi;
             this.sendDate = sendDate;
-            this.status = status;
-            this.route = route;
+            this.name = name;
         }
 
         /**
@@ -64,15 +58,6 @@ public class MonaLisaRouteService {
             return message;
         }
 
-        
-        /**
-         * @return the route
-         */
-        public Route getRoute() {
-            return route;
-        }
-
-        
         /**
          * @param message
          *            the message to set
@@ -105,56 +90,34 @@ public class MonaLisaRouteService {
             this.sendDate = sendDate;
         }
 
-        public MonaLisaRouteStatus getStatus() {
-            return status;
+        /**
+         * @return the name
+         */
+        public String getName() {
+            return name;
         }
 
-        public void setStatus(MonaLisaRouteStatus status) {
-            this.status = status;
-        }
-        
         /**
-         * @param route
-         *            the route to set
+         * @param name the name to set
          */
-        public void setRoute(Route route) {
-            this.route = route;
+        public void setName(String name) {
+            this.name = name;
         }
 
         
     }
-    
-    public static class MonaLisaRouteRequestMessage extends
-            ServiceMessage<MonaLisaRouteRequestReply> {
-        private Route route;
+
+    public static class MonaLisaChatAck extends ServiceMessage<MonaLisaChatAck> {
         private Date sent;
         private long mmsi;
-        private String message;
-        private long id;
-        
 
-        public MonaLisaRouteRequestMessage() {
+        public MonaLisaChatAck() {
         }
 
-        public MonaLisaRouteRequestMessage(long id, Route route, long mmsi, String message) {
-            this.route = requireNonNull(route);
+        public MonaLisaChatAck(long id, Route route, long mmsi, String message) {
             this.mmsi = requireNonNull(mmsi);
-            this.id = requireNonNull(id);
             this.sent = requireNonNull(new Date());
-            this.message = requireNonNull(message);
         }
-
-        public String getMessage() {
-            return message;
-        }
-
-        /**
-         * @return the route
-         */
-        public Route getRoute() {
-            return route;
-        }
-
 
         /**
          * @return the mmsi
@@ -164,7 +127,8 @@ public class MonaLisaRouteService {
         }
 
         /**
-         * @param mmsi the mmsi to set
+         * @param mmsi
+         *            the mmsi to set
          */
         public void setMmsi(long mmsi) {
             this.mmsi = mmsi;
@@ -174,35 +138,10 @@ public class MonaLisaRouteService {
             return sent;
         }
 
-        public void setMessage(String message) {
-            this.message = message;
-        }
-
-        /**
-         * @param route
-         *            the route to set
-         */
-        public void setRoute(Route route) {
-            this.route = route;
-        }
-
-
-
         public void setSent(Date sent) {
             this.sent = sent;
         }
 
-        public long getId() {
-            return id;
-        }
-
-        public void setId(long id) {
-            this.id = id;
-        }
-        
-        
     }
-
-
 
 }

@@ -41,7 +41,7 @@ import javax.swing.event.TableModelListener;
 import dk.dma.epd.common.prototype.model.route.Route;
 
 
-public class MonaLisaWPSelection extends JDialog implements ActionListener,
+public class MonaLisaSSPAWPSelection extends JDialog implements ActionListener,
         ListSelectionListener, TableModelListener, MouseListener {
 
     /**
@@ -50,7 +50,7 @@ public class MonaLisaWPSelection extends JDialog implements ActionListener,
     private static final long serialVersionUID = 1L;
     private final JPanel contentPanel = new JPanel();
     private JTable routeTable;
-    private MonaLisaSelectionTableModel routesTableModel;
+    private MonaLisaSSPASelectionTableModel routesTableModel;
     private ListSelectionModel routeSelectionModel;
     List<Boolean> selectedWp;
     Route route;
@@ -58,7 +58,7 @@ public class MonaLisaWPSelection extends JDialog implements ActionListener,
     JButton cancelButton;
     MonaLisaSSPAOptionsDialogCommon parent;
 
-    public MonaLisaWPSelection(MonaLisaSSPAOptionsDialogCommon parent, Route route, List<Boolean> selectedWp) {
+    public MonaLisaSSPAWPSelection(MonaLisaSSPAOptionsDialogCommon parent, Route route, List<Boolean> selectedWp) {
         super(parent, "Waypoint Selection", true);
         
         this.parent = parent;
@@ -76,7 +76,7 @@ public class MonaLisaWPSelection extends JDialog implements ActionListener,
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 
         routeTable = new JTable();
-        routesTableModel = new MonaLisaSelectionTableModel(route, selectedWp);
+        routesTableModel = new MonaLisaSSPASelectionTableModel(route, selectedWp);
         routesTableModel.addTableModelListener(this);
         routeTable.setShowHorizontalLines(false);
         routeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

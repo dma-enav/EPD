@@ -40,8 +40,8 @@ import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.service.EnavServiceHandler;
-import dk.dma.epd.shore.service.MonaLisaHandler;
-import dk.dma.epd.shore.service.MonaLisaRouteExchangeListener;
+import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
+import dk.dma.epd.shore.service.StrategicRouteExchangeListener;
 import dk.dma.epd.shore.service.RouteExchangeListener;
 
 /**
@@ -49,7 +49,7 @@ import dk.dma.epd.shore.service.RouteExchangeListener;
  */
 public class NotificationArea extends ComponentFrame implements
         IMsiUpdateListener, RouteExchangeListener,
-        MonaLisaRouteExchangeListener {
+        StrategicRouteExchangeListener {
 
     private static final long serialVersionUID = 1L;
     private Boolean locked = false;
@@ -70,7 +70,7 @@ public class NotificationArea extends ComponentFrame implements
     private MsiHandler msiHandler;
     // private AisServices aisService;
     private EnavServiceHandler enavServiceHandler;
-    private MonaLisaHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler strategicRouteExchangeHandler;
     
     Border paddingLeft = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(
             65, 65, 65));
@@ -152,7 +152,7 @@ public class NotificationArea extends ComponentFrame implements
         // Notification: RouteExchange
         final JPanel routeExchange = new JPanel();
         notifications.put("routeExchange", routeExchange);
-        services.put("routeExchange", "Route Exchange");
+        services.put("routeExchange", "Tactical Route");
 
         routeExchange.addMouseListener(new MouseAdapter() {
 
@@ -169,21 +169,21 @@ public class NotificationArea extends ComponentFrame implements
 
         });
 
-        // Notification: Mona Lisa Route
-        final JPanel monaLisarouteExchange = new JPanel();
-        notifications.put("monaLisaRouteExchange", monaLisarouteExchange);
-        services.put("monaLisaRouteExchange", "MonaLisa Route");
+        // Notification: Strategic Route Exchange
+        final JPanel strategicRouteExchange = new JPanel();
+        notifications.put("strategicRouteExchange", strategicRouteExchange);
+        services.put("strategicRouteExchange", "Strategic Route");
 
-        monaLisarouteExchange.addMouseListener(new MouseAdapter() {
+        strategicRouteExchange.addMouseListener(new MouseAdapter() {
 
             public void mousePressed(MouseEvent e) {
-                monaLisarouteExchange.setBorder(notificationPaddingPressed);
-                monaLisarouteExchange.setBackground(new Color(45, 45, 45));
+                strategicRouteExchange.setBorder(notificationPaddingPressed);
+                strategicRouteExchange.setBackground(new Color(45, 45, 45));
             }
 
             public void mouseReleased(MouseEvent e) {
-                monaLisarouteExchange.setBorder(notificationPadding);
-                monaLisarouteExchange.setBackground(new Color(65, 65, 65));
+                strategicRouteExchange.setBorder(notificationPadding);
+                strategicRouteExchange.setBackground(new Color(65, 65, 65));
                 mainFrame.toggleNotificationCenter(2);
             }
 
@@ -220,9 +220,9 @@ public class NotificationArea extends ComponentFrame implements
             enavServiceHandler.addRouteExchangeListener(this);
         }
         
-        if (obj instanceof MonaLisaHandler) {
-            monaLisaHandler = (MonaLisaHandler) obj;
-            monaLisaHandler.addMonaLisaRouteExchangeListener(this);
+        if (obj instanceof StrategicRouteExchangeHandler) {
+            strategicRouteExchangeHandler = (StrategicRouteExchangeHandler) obj;
+            strategicRouteExchangeHandler.addStrategicRouteExchangeListener(this);
         }
 
     }
@@ -477,9 +477,9 @@ public class NotificationArea extends ComponentFrame implements
     }
 
     @Override
-    public void monaLisaRouteUpdate() {
+    public void strategicRouteUpdate() {
         try {
-            setMessages("monaLisaRouteExchange", monaLisaHandler.getUnHandled());
+            setMessages("strategicRouteExchange", strategicRouteExchangeHandler.getUnHandled());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

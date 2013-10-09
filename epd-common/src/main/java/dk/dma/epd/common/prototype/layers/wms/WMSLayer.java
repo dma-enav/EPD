@@ -27,6 +27,8 @@ import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.Projection;
 
+import dk.dma.epd.common.prototype.event.WMSEvent;
+import dk.dma.epd.common.prototype.event.WMSEventListener;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 
 /**
@@ -35,7 +37,7 @@ import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
  * @author David A. Camre (davidcamre@gmail.com)
  * 
  */
-public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
+public class WMSLayer extends OMGraphicHandlerLayer implements Runnable, WMSEventListener {
     private static final long serialVersionUID = 1L;
     private OMGraphicList list = new OMGraphicList();
 //    private CommonChartPanel chartPanel;
@@ -47,7 +49,7 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     private float lastScale = -1F;
     private Logger LOG;
 
-    private CopyOnWriteArrayList<OMGraphic> testList = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<OMGraphic> internalCache = new CopyOnWriteArrayList<>();
 
     /**
      * Constructor that starts the WMS layer in a seperate thread
@@ -56,6 +58,7 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
         LOG = LoggerFactory.getLogger(WMSLayer.class);
         LOG.debug("WMS Layer inititated");
         wmsService = new StreamingTiledWmsService(query, 4);
+        wmsService.addWMSEventListener(this);
         new Thread(this).start();
 
     }
@@ -63,6 +66,7 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     public WMSLayer(String query,ConcurrentHashMap<String, OMGraphicList> sharedCache) {
         LOG = LoggerFactory.getLogger(WMSLayer.class);
         wmsService = new StreamingTiledWmsService(query, 4, sharedCache);
+        wmsService.addWMSEventListener(this);
         new Thread(this).start();
     }
 
@@ -77,9 +81,9 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
      *            of elements to be drawn
      */
     public void drawWMS(OMGraphicList tiles) {
-        this.testList.addAllAbsent(tiles);
+        this.internalCache.addAllAbsent(tiles);
         list.clear();
-        list.addAll(testList);
+        list.addAll(internalCache);
         list.addAll(tiles);
         doPrepare();            
     }
@@ -126,15 +130,16 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
     }
 
     public void clearWMS() {
-        this.testList.clear();
+        this.internalCache.clear();
         this.drawWMS(new OMGraphicList());
     }
 
+    //TODO: remove this since we now use WMSEvent and AbstractWMSService is observable.
     @Override
     public void run() {
         while (shouldRun) {
             try {
-                Thread.sleep(250);
+                Thread.sleep(25000);
                 final Projection proj = this.getProjection();
                 width = proj.getWidth();
                 height = proj.getHeight();
@@ -156,6 +161,16 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable {
      */
     public void stop() {
         shouldRun = false;
+    }
+
+    @Override
+    public void changeEventReceived(WMSEvent evt) {
+        final Projection proj = this.getProjection();
+        if (width > 0 && height > 0 && proj.getScale() <= 3428460) {
+            OMGraphicList result = wmsService.getWmsList(proj);
+            drawWMS(result);
+        }
+        
     }
     
 //    @Override

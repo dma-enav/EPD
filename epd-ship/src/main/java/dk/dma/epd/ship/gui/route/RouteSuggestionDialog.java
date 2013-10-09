@@ -46,8 +46,8 @@ import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.ComponentFrame;
 import dk.dma.epd.ship.gui.MainFrame;
-import dk.dma.epd.ship.monalisa.RecievedRoute;
 import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.ship.route.strategic.RecievedRoute;
 
 /**
  * Dialog shown when route suggestion is received

@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.monalisa;
+package dk.dma.epd.shore.gui.views.strategicRouteExchange;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -41,19 +41,19 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService;
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.gui.views.JMapFrame;
-import dk.dma.epd.shore.service.MonaLisaHandler;
+import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
-public class SendVoyageDialog extends ComponentFrame implements MouseListener,
+public class SendStrategicRouteDialog extends ComponentFrame implements MouseListener,
         ActionListener {
     /**
      *
@@ -72,13 +72,13 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
     private static int moveHandlerHeight = 18;
 
     private JPanel mainPanel;
-    private SendVoyageDialog sendRoute;
+    private SendStrategicRouteDialog sendRoute;
     private AisHandler aisHandler;
 
     // private EnavServiceHandler enavServiceHandler;
     // private VoyageManager voyageManager;
     private boolean renegotiate;
-    private MonaLisaHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler strategicRouteExchangeHandler;
 
     private JLabel lblRoutenamelbl;
     private JLabel lblShipnamecallsignlbl;
@@ -92,7 +92,7 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
     /**
      * Create the frame.
      */
-    public SendVoyageDialog() {
+    public SendStrategicRouteDialog() {
         super("Route Exchange", false, true, false, false);
 
         setResizable(false);
@@ -318,15 +318,15 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
         //
         if (arg0.getSource() == sendLbl && sendLbl.isEnabled()) {
 
-            MonaLisaRouteStatus replyStatus = null;
+            StrategicRouteStatus replyStatus = null;
 
             if (modifiedRoute) {
-                replyStatus = MonaLisaRouteService.MonaLisaRouteStatus.NEGOTIATING;
+                replyStatus = StrategicRouteService.StrategicRouteStatus.NEGOTIATING;
             } else {
-                replyStatus = MonaLisaRouteService.MonaLisaRouteStatus.AGREED;
+                replyStatus = StrategicRouteService.StrategicRouteStatus.AGREED;
             }
 
-            monaLisaHandler.sendReply(voyage.getId(), textArea.getText(),
+            strategicRouteExchangeHandler.sendReply(voyage.getId(), textArea.getText(),
                     System.currentTimeMillis(), replyStatus, voyage.getRoute()
                             .getFullRouteData(), this.renegotiate);
 
@@ -395,8 +395,8 @@ public class SendVoyageDialog extends ComponentFrame implements MouseListener,
             aisHandler = (AisHandler) obj;
 
         }
-        if (obj instanceof MonaLisaHandler) {
-            monaLisaHandler = (MonaLisaHandler) obj;
+        if (obj instanceof StrategicRouteExchangeHandler) {
+            strategicRouteExchangeHandler = (StrategicRouteExchangeHandler) obj;
         }
         if (obj instanceof VoyageManager) {
             // voyageManager = (VoyageManager) obj;

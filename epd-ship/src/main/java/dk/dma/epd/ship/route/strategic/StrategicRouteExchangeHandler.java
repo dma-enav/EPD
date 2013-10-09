@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.monalisa;
+package dk.dma.epd.ship.route.strategic;
 
 import java.awt.Point;
 import java.util.HashMap;
@@ -22,28 +22,28 @@ import javax.swing.JOptionPane;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService;
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestMessage;
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
-import dk.dma.epd.ship.gui.monalisa.MonaLisaSTCCDialog;
+import dk.dma.epd.ship.gui.route.strategic.RequestStrategicRouteDialog;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.EnavServiceHandler;
 
-public class MonaLisaHandler extends MapHandlerChild {
+public class StrategicRouteExchangeHandler extends MapHandlerChild {
 
     private AisHandler aisHandler;
     private EnavServiceHandler enavServiceHandler;
 
-    private HashMap<Long, MonaLisaRouteNegotiationData> monaLisaNegotiationData = new HashMap<Long, MonaLisaRouteNegotiationData>();
+    private HashMap<Long, StrategicRouteNegotiationData> monaLisaNegotiationData = new HashMap<Long, StrategicRouteNegotiationData>();
 
-    private MonaLisaSTCCDialog monaLisaSTCCDialog;
+    private RequestStrategicRouteDialog monaLisaSTCCDialog;
 
     private VoyageLayer voyageLayer;
     private RouteManager routeManager;
@@ -55,7 +55,7 @@ public class MonaLisaHandler extends MapHandlerChild {
     private boolean routeModified;
     private long currentTransaction;
 
-    public MonaLisaHandler() {
+    public StrategicRouteExchangeHandler() {
 
     }
 
@@ -114,10 +114,10 @@ public class MonaLisaHandler extends MapHandlerChild {
 
         long transactionID = System.currentTimeMillis();
 
-        MonaLisaRouteRequestMessage routeMessage = new MonaLisaRouteService.MonaLisaRouteRequestMessage(
+        StrategicRouteRequestMessage routeMessage = new StrategicRouteService.StrategicRouteRequestMessage(
                 transactionID, route.getFullRouteData(), sender, message);
 
-        MonaLisaRouteNegotiationData entry;
+        StrategicRouteNegotiationData entry;
 
         // Existing transaction already established
         if (monaLisaNegotiationData.containsKey(transactionID)) {
@@ -125,7 +125,7 @@ public class MonaLisaHandler extends MapHandlerChild {
             entry = monaLisaNegotiationData.get(transactionID);
         } else {
             // Create new entry for the transaction
-            entry = new MonaLisaRouteNegotiationData(transactionID);
+            entry = new StrategicRouteNegotiationData(transactionID);
         }
 
         entry.addMessage(routeMessage);
@@ -136,32 +136,32 @@ public class MonaLisaHandler extends MapHandlerChild {
         enavServiceHandler.sendMonaLisaRouteRequest(routeMessage);
 
         monaLisaNegotiationData.get(transactionID).setStatus(
-                MonaLisaRouteStatus.PENDING);
+                StrategicRouteStatus.PENDING);
 
         return transactionID;
     }
 
-    public void handleReply(MonaLisaRouteRequestReply reply) {
+    public void handleReply(StrategicRouteRequestReply reply) {
 
         currentTransaction = reply.getId();
 
-        MonaLisaRouteNegotiationData entry;
+        StrategicRouteNegotiationData entry;
         // Existing transaction already established
         if (monaLisaNegotiationData.containsKey(currentTransaction)) {
             entry = monaLisaNegotiationData.get(currentTransaction);
         } else {
             // Create new entry for the transaction - if ship disconnected, it
             // can still recover - maybe?
-            entry = new MonaLisaRouteNegotiationData(currentTransaction);
+            entry = new StrategicRouteNegotiationData(currentTransaction);
             monaLisaNegotiationData.put(currentTransaction, entry);
         }
 
-        if (entry.getStatus() != MonaLisaRouteStatus.REJECTED) {
+        if (entry.getStatus() != StrategicRouteStatus.REJECTED) {
 
             // Store the reply
             entry.addReply(reply);
             monaLisaNegotiationData.get(currentTransaction).setStatus(
-                    MonaLisaRouteStatus.NEGOTIATING);
+                    StrategicRouteStatus.NEGOTIATING);
 
             // System.out.println("Adding entry for " + currentTransaction);
 
@@ -196,35 +196,35 @@ public class MonaLisaHandler extends MapHandlerChild {
         }
     }
 
-    public void handleReNegotiation(MonaLisaRouteRequestMessage message) {
+    public void handleReNegotiation(StrategicRouteRequestMessage message) {
 
         // Shore wants to renegotiate it
         transaction = true;
 
         currentTransaction = message.getId();
 
-        MonaLisaRouteNegotiationData entry;
+        StrategicRouteNegotiationData entry;
         // Existing transaction already established
         if (monaLisaNegotiationData.containsKey(currentTransaction)) {
             entry = monaLisaNegotiationData.get(currentTransaction);
         } else {
             // Create new entry for the transaction - if ship disconnected, it
             // can still recover - maybe?
-            entry = new MonaLisaRouteNegotiationData(currentTransaction);
+            entry = new StrategicRouteNegotiationData(currentTransaction);
             monaLisaNegotiationData.put(currentTransaction, entry);
         }
 
-        entry.setStatus(MonaLisaRouteStatus.NEGOTIATING);
+        entry.setStatus(StrategicRouteStatus.NEGOTIATING);
 
-        MonaLisaRouteRequestReply newReply = new MonaLisaRouteService.MonaLisaRouteRequestReply(
+        StrategicRouteRequestReply newReply = new StrategicRouteService.StrategicRouteRequestReply(
                 message.getMessage(), message.getId(), message.getMmsi(),
-                message.getSent().getTime(), MonaLisaRouteStatus.NEGOTIATING,
+                message.getSent().getTime(), StrategicRouteStatus.NEGOTIATING,
                 message.getRoute());
 
         // Store the reply
         entry.addReply(newReply);
         monaLisaNegotiationData.get(currentTransaction).setStatus(
-                MonaLisaRouteStatus.NEGOTIATING);
+                StrategicRouteStatus.NEGOTIATING);
 
         // Find the old one and set not accepted, possibly hide it?
         for (int i = 0; i < routeManager.getRoutes().size(); i++) {
@@ -264,7 +264,7 @@ public class MonaLisaHandler extends MapHandlerChild {
         monaLisaSTCCDialog.handleReply(newReply);
         monaLisaSTCCDialog.setVisible(true);
 
-        MonaLisaRouteNegotiationData transactionData = monaLisaNegotiationData
+        StrategicRouteNegotiationData transactionData = monaLisaNegotiationData
                 .get(currentTransaction);
 
         Route lastRoute = new Route(transactionData.getLatestRoute());
@@ -321,7 +321,7 @@ public class MonaLisaHandler extends MapHandlerChild {
 
         if (monaLisaNegotiationData.containsKey(transactionID)) {
 
-            MonaLisaRouteNegotiationData transactionData = monaLisaNegotiationData
+            StrategicRouteNegotiationData transactionData = monaLisaNegotiationData
                     .get(transactionID);
 
             enavServiceHandler.sendMonaLisaAck(transactionData.getRouteReply()
@@ -329,7 +329,7 @@ public class MonaLisaHandler extends MapHandlerChild {
                     .getRouteMessage().get(0).getMmsi(), true, message);
 
             monaLisaNegotiationData.get(transactionID).setStatus(
-                    MonaLisaRouteStatus.AGREED);
+                    StrategicRouteStatus.AGREED);
         }
 
         Route route = voyageLayer.getModifiedSTCCRoute();
@@ -394,7 +394,7 @@ public class MonaLisaHandler extends MapHandlerChild {
 
         if (monaLisaNegotiationData.containsKey(transactionID)) {
 
-            MonaLisaRouteNegotiationData transactionData = monaLisaNegotiationData
+            StrategicRouteNegotiationData transactionData = monaLisaNegotiationData
                     .get(transactionID);
 
             if (enavServiceHandler.getStatus().getStatus() == ComponentStatus.Status.OK) {
@@ -405,7 +405,7 @@ public class MonaLisaHandler extends MapHandlerChild {
             }
 
             monaLisaNegotiationData.get(transactionID).setStatus(
-                    MonaLisaRouteStatus.REJECTED);
+                    StrategicRouteStatus.REJECTED);
         }
 
         transaction = false;
@@ -477,12 +477,12 @@ public class MonaLisaHandler extends MapHandlerChild {
 
         // System.out.println("Sending modified reply");
 
-        MonaLisaRouteRequestMessage routeMessage = new MonaLisaRouteService.MonaLisaRouteRequestMessage(
+        StrategicRouteRequestMessage routeMessage = new StrategicRouteService.StrategicRouteRequestMessage(
                 currentTransaction, route.getFullRouteData(),
                 monaLisaNegotiationData.get(currentTransaction)
                         .getRouteMessage().get(0).getMmsi(), message.trim());
 
-        MonaLisaRouteNegotiationData entry;
+        StrategicRouteNegotiationData entry;
 
         // Existing transaction already established
         if (monaLisaNegotiationData.containsKey(currentTransaction)) {
@@ -491,14 +491,14 @@ public class MonaLisaHandler extends MapHandlerChild {
             entry = monaLisaNegotiationData.get(currentTransaction);
         } else {
             // Create new entry for the transaction
-            entry = new MonaLisaRouteNegotiationData(currentTransaction);
+            entry = new StrategicRouteNegotiationData(currentTransaction);
         }
 
         entry.addMessage(routeMessage);
 
         monaLisaNegotiationData.put(currentTransaction, entry);
         monaLisaNegotiationData.get(currentTransaction).setStatus(
-                MonaLisaRouteStatus.NEGOTIATING);
+                StrategicRouteStatus.NEGOTIATING);
 
         // Send it off
         enavServiceHandler.sendMonaLisaRouteRequest(routeMessage);
@@ -518,7 +518,7 @@ public class MonaLisaHandler extends MapHandlerChild {
     /**
      * @return the monaLisaNegotiationData
      */
-    public HashMap<Long, MonaLisaRouteNegotiationData> getMonaLisaNegotiationData() {
+    public HashMap<Long, StrategicRouteNegotiationData> getMonaLisaNegotiationData() {
         return monaLisaNegotiationData;
     }
 

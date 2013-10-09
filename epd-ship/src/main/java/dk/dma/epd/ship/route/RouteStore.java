@@ -21,7 +21,7 @@ import java.util.List;
 
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.ship.monalisa.RecievedRoute;
+import dk.dma.epd.ship.route.strategic.RecievedRoute;
 
 /**
  * A serializable class for storing route information

@@ -36,8 +36,8 @@ import javax.swing.event.TableModelListener;
 
 import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion.Status;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.ship.monalisa.RecievedRoute;
 import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.ship.route.strategic.RecievedRoute;
 
 public class RouteExchangeManagerPanel extends JPanel implements
         ActionListener, ListSelectionListener, TableModelListener,

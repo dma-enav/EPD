@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.monalisa;
+package dk.dma.epd.shore.gui.views.strategicRouteExchange;
 
 import java.awt.Color;
 
@@ -25,11 +25,11 @@ import javax.swing.border.TitledBorder;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
-import dk.dma.epd.shore.service.MonaLisaRouteNegotiationData;
+import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 
-public class MonaLisaRouteExchangeNotificationInternalPanel extends JPanel {
+public class StrategicRouteExchangeNotificationInternalPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     JLabel transactionIDText;
@@ -49,7 +49,7 @@ public class MonaLisaRouteExchangeNotificationInternalPanel extends JPanel {
 
     JTabbedPane tabbedPane;
 
-    public MonaLisaRouteExchangeNotificationInternalPanel() {
+    public StrategicRouteExchangeNotificationInternalPanel() {
         setLayout(null);
 
         JLabel lblTransactionId = new JLabel("Transaction ID:");
@@ -220,7 +220,7 @@ public class MonaLisaRouteExchangeNotificationInternalPanel extends JPanel {
 
     }
 
-    public void updateLabels(MonaLisaRouteNegotiationData message,
+    public void updateLabels(StrategicRouteNegotiationData message,
             VesselTarget aisData) {
 
         if (aisData.getStaticData() != null) {
@@ -259,7 +259,7 @@ public class MonaLisaRouteExchangeNotificationInternalPanel extends JPanel {
         }
     }
 
-    private void setStatusColor(MonaLisaRouteStatus status) {
+    private void setStatusColor(StrategicRouteStatus status) {
         // PENDING, AGREED, REJECTED, NEGOTIATING, CANCELED
         switch (status) {
         case PENDING:
@@ -280,7 +280,7 @@ public class MonaLisaRouteExchangeNotificationInternalPanel extends JPanel {
         }
     }
 
-    public void updateLabels(MonaLisaRouteNegotiationData message) {
+    public void updateLabels(StrategicRouteNegotiationData message) {
 
         transactionIDText.setText(message.getId() + "");
 
@@ -304,7 +304,7 @@ public class MonaLisaRouteExchangeNotificationInternalPanel extends JPanel {
         setNegotiationTabs(message);
     }
 
-    private void setNegotiationTabs(MonaLisaRouteNegotiationData message) {
+    private void setNegotiationTabs(StrategicRouteNegotiationData message) {
         // tabbedPane.setVisible(true);
 
         tabbedPane.removeAll();
@@ -314,7 +314,7 @@ public class MonaLisaRouteExchangeNotificationInternalPanel extends JPanel {
 
             System.out.println("looking at message " + i);
 
-            MonaLisaNegotiationView negotiation = new MonaLisaNegotiationView(
+            StrategicNegotiationView negotiation = new StrategicNegotiationView(
                     message.getRouteMessage().get(i));
 
             System.out.println("Any replies to be found? "

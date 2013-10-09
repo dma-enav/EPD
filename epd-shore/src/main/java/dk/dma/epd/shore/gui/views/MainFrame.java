@@ -32,9 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ImageIcon;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
 import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
 
@@ -45,7 +43,7 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
-import dk.dma.epd.shore.gui.views.monalisa.SendVoyageDialog;
+import dk.dma.epd.shore.gui.views.strategicRouteExchange.SendStrategicRouteDialog;
 import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
 import dk.dma.epd.shore.settings.ESDGuiSettings;
 import dk.dma.epd.shore.settings.ESDMapSettings;
@@ -97,10 +95,8 @@ public class MainFrame extends JFrame implements WindowListener {
     private JSettingsWindow settingsWindow = new JSettingsWindow();
     private RouteManagerDialog routeManagerDialog = new RouteManagerDialog(this);
     private SendRouteDialog sendRouteDialog = new SendRouteDialog();
-    private SendVoyageDialog sendVoyageDialog = new SendVoyageDialog();
-    
     private SRUManagerDialog sruManagerDialog = new SRUManagerDialog(this);
-    
+    private SendStrategicRouteDialog sendVoyageDialog = new SendStrategicRouteDialog();
 
     private StatusArea statusArea = new StatusArea(this);
     private JMapFrame activeMapWindow;
@@ -148,6 +144,7 @@ public class MainFrame extends JFrame implements WindowListener {
         new ThreadedMapCreator(this).run();
     }
 
+
     /**
      * 
      */
@@ -163,7 +160,8 @@ public class MainFrame extends JFrame implements WindowListener {
         
     }
     
-    public void addMonaLisaHandlingWindow(Route originalRoute, String shipName,
+
+    public void addStrategicRouteExchangeHandlingWindow(Route originalRoute, String shipName,
             Voyage voyage, boolean renegotiate) {
         new ThreadedMapCreator(this, shipName, voyage, originalRoute,
                 renegotiate).run();
@@ -728,7 +726,7 @@ public class MainFrame extends JFrame implements WindowListener {
         return sendRouteDialog;
     }
 
-    public SendVoyageDialog getSendVoyageDialog() {
+    public SendStrategicRouteDialog getSendVoyageDialog() {
         return sendVoyageDialog;
     }
 

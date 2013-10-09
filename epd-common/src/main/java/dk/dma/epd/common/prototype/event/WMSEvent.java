@@ -13,38 +13,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.menuitems;
+package dk.dma.epd.common.prototype.event;
 
-import javax.swing.JMenuItem;
+import java.util.EventObject;
 
-import dk.dma.epd.shore.EPDShore;
+public class WMSEvent extends EventObject {
 
-
-public class VoyageShowTransaction extends JMenuItem implements IMapMenuAction {
-
+    public WMSEvent(Object arg0) {
+        super(arg0);
+        // TODO Auto-generated constructor stub
+    }
+    
     /**
-     *
+     * 
      */
     private static final long serialVersionUID = 1L;
-    private long transactionID;
 
-    public VoyageShowTransaction(String text) {
-        super();
-        setText(text);
-    }
-
-    @Override
-    public void doAction() {
-        EPDShore.getMainFrame().getNotificationCenter().showStrategicRouteExchangeMsg(2, transactionID);
-    }
-
-    /**
-     * @param transactionID the transactionID to set
-     */
-    public void setTransactionID(long transactionID) {
-        this.transactionID = transactionID;
-    }
-
-    
-    
 }

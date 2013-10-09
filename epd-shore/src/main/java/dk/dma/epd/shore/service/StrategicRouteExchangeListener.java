@@ -15,7 +15,7 @@
  */
 package dk.dma.epd.shore.service;
 
-public interface MonaLisaRouteExchangeListener {
+public interface StrategicRouteExchangeListener {
     
     public enum MonaLisaRouteEvent {
         ROUTE_PENDING, ROUTE_HANDLED;
@@ -24,6 +24,6 @@ public interface MonaLisaRouteExchangeListener {
     /**
      * Cloud messages has changed
      */
-    void monaLisaRouteUpdate();
+    void strategicRouteUpdate();
 
 }

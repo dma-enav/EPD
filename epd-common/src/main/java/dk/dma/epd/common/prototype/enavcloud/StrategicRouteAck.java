@@ -18,26 +18,26 @@ package dk.dma.epd.common.prototype.enavcloud;
 import dk.dma.enav.communication.service.spi.ServiceInitiationPoint;
 import dk.dma.enav.communication.service.spi.ServiceMessage;
 
-public class MonaLisaRouteAck {
+public class StrategicRouteAck {
 
     /** An initiation point */
-    public static final ServiceInitiationPoint<MonaLisaRouteAckMsg> INIT = new ServiceInitiationPoint<>(
-            MonaLisaRouteAckMsg.class);
+    public static final ServiceInitiationPoint<StrategicRouteAckMsg> INIT = new ServiceInitiationPoint<>(
+            StrategicRouteAckMsg.class);
 
-    public static class MonaLisaRouteAckMsg extends ServiceMessage<Void> {
+    public static class StrategicRouteAckMsg extends ServiceMessage<Void> {
 
         private boolean ack;
         private long id;
         private long mmsi;
         private String message;
         
-        public MonaLisaRouteAckMsg() {
+        public StrategicRouteAckMsg() {
         }
 
         /**
          * @param message
          */
-        public MonaLisaRouteAckMsg(boolean ack, long id, long mmsi, String message) {
+        public StrategicRouteAckMsg(boolean ack, long id, long mmsi, String message) {
             this.ack = ack;
             this.id = id;
             this.mmsi = mmsi;
