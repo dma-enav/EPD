@@ -54,18 +54,18 @@ import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.msi.MsiTableModel;
 import dk.dma.epd.shore.gui.route.RouteExchangeTableModel;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
-import dk.dma.epd.shore.gui.views.monalisa.MonaLisaRouteExchangeNotificationPanel;
-import dk.dma.epd.shore.gui.views.monalisa.MonaLisaRouteExchangeTableModel;
+import dk.dma.epd.shore.gui.views.strategicRouteExchange.StrategicRouteExchangeNotificationPanel;
+import dk.dma.epd.shore.gui.views.strategicRouteExchange.StrategicRouteExchangeTableModel;
 import dk.dma.epd.shore.service.EnavServiceHandler;
-import dk.dma.epd.shore.service.MonaLisaHandler;
-import dk.dma.epd.shore.service.MonaLisaRouteExchangeListener;
-import dk.dma.epd.shore.service.MonaLisaRouteNegotiationData;
+import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
+import dk.dma.epd.shore.service.StrategicRouteExchangeListener;
+import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.service.RouteExchangeListener;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
 public class NotificationCenter extends ComponentFrame implements
         ListSelectionListener, ActionListener, IMsiUpdateListener,
-        RouteExchangeListener, MonaLisaRouteExchangeListener {
+        RouteExchangeListener, StrategicRouteExchangeListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -91,17 +91,17 @@ public class NotificationCenter extends ComponentFrame implements
     private static int notificationWidth = 125;
     private JTable msiTable;
     private JTable routeTable;
-    private JTable monaLisaRouteTable;
+    private JTable strategicRouteTable;
 
     private MsiHandler msiHandler;
     private MsiTableModel msiTableModel;
 
     private RouteExchangeTableModel routeTableModel;
-    private MonaLisaRouteExchangeTableModel monaLisaRouteTableModel = new MonaLisaRouteExchangeTableModel();
+    private StrategicRouteExchangeTableModel strategicRouteTableModel = new StrategicRouteExchangeTableModel();
 
     private JPanel msiPanelLeft;
     private JPanel routePanelLeft;
-    private JPanel monaLisaRoutePanelLeft;
+    private JPanel strategicRoutePanelLeft;
 
     private Color leftButtonColor = Color.DARK_GRAY;
     private Color leftButtonColorClicked = new Color(45, 45, 45);
@@ -115,11 +115,11 @@ public class NotificationCenter extends ComponentFrame implements
 
     private MSINotificationPanel msiPanel;
     private RouteExchangeNotificationPanel routePanel;
-    private MonaLisaRouteExchangeNotificationPanel monaLisaRoutePanel;
+    private StrategicRouteExchangeNotificationPanel strategicRoutePanel;
 
     private EnavServiceHandler enavServiceHandler;
     
-    private MonaLisaHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler strategicRouteExchangeHandler;
     
     private AisHandler aisHandler;
     
@@ -190,9 +190,9 @@ public class NotificationCenter extends ComponentFrame implements
             messageCountRoute = 0;
         }
 
-        Integer messageCountMonaLisaRoute = unreadMessages.get("MonaLisaRoute");
-        if (messageCountMonaLisaRoute == null) {
-            messageCountMonaLisaRoute = 0;
+        Integer messageCountStrategicRoute = unreadMessages.get("StrategicRoute");
+        if (messageCountStrategicRoute == null) {
+            messageCountStrategicRoute = 0;
         }
 
         String[] colHeadings = { "ID", "Title" };
@@ -243,19 +243,19 @@ public class NotificationCenter extends ComponentFrame implements
         routePanelLeft.setSize(new Dimension(notificationWidth,
                 notificationHeight));
 
-        // Style the Mona Lisa Route notification panel
-        monaLisaRoutePanelLeft = new JPanel();
-        monaLisaRoutePanelLeft.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        monaLisaRoutePanelLeft.setBackground(new Color(65, 65, 65));
-        monaLisaRoutePanelLeft.setPreferredSize(new Dimension(
+        // Style the Stratic Route Exchange notification panel
+        strategicRoutePanelLeft = new JPanel();
+        strategicRoutePanelLeft.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        strategicRoutePanelLeft.setBackground(new Color(65, 65, 65));
+        strategicRoutePanelLeft.setPreferredSize(new Dimension(
                 notificationWidth, notificationHeight));
-        monaLisaRoutePanelLeft.setSize(new Dimension(notificationWidth,
+        strategicRoutePanelLeft.setSize(new Dimension(notificationWidth,
                 notificationHeight));
 
         // Create labels for each service
 
         // Route Exchange
-        JLabel notificationRoute = new JLabel("  Route Exchange");
+        JLabel notificationRoute = new JLabel("  Tactical Route");
         notificationRoute
                 .setPreferredSize(new Dimension(98, notificationHeight));
         notificationRoute.setSize(new Dimension(76, notificationHeight));
@@ -284,37 +284,37 @@ public class NotificationCenter extends ComponentFrame implements
 
         
         
-        // Mona LisaRoute Exchange
-        JLabel monaLisanotificationRoute = new JLabel("  Mona Lisa Route");
-        monaLisanotificationRoute.setPreferredSize(new Dimension(98,
+        // Stratic Route Exchange
+        JLabel strategicRouteExchangeLisanotificationRoute = new JLabel("  Strategic Route");
+        strategicRouteExchangeLisanotificationRoute.setPreferredSize(new Dimension(98,
                 notificationHeight));
-        monaLisanotificationRoute
+        strategicRouteExchangeLisanotificationRoute
                 .setSize(new Dimension(76, notificationHeight));
-        monaLisanotificationRoute.setFont(new Font("Arial", Font.PLAIN, 11));
-        monaLisanotificationRoute.setForeground(new Color(237, 237, 237));
-        monaLisaRoutePanelLeft.add(monaLisanotificationRoute);
+        strategicRouteExchangeLisanotificationRoute.setFont(new Font("Arial", Font.PLAIN, 11));
+        strategicRouteExchangeLisanotificationRoute.setForeground(new Color(237, 237, 237));
+        strategicRoutePanelLeft.add(strategicRouteExchangeLisanotificationRoute);
 
         // Unread messages
-        JLabel monaLisaRouteMessages = new JLabel(
-                messageCountMonaLisaRoute.toString(), SwingConstants.RIGHT);
-        monaLisaRouteMessages.setPreferredSize(new Dimension(20,
+        JLabel strategicRouteMessages = new JLabel(
+                messageCountStrategicRoute.toString(), SwingConstants.RIGHT);
+        strategicRouteMessages.setPreferredSize(new Dimension(20,
                 notificationHeight));
-        monaLisaRouteMessages.setSize(new Dimension(20, notificationHeight));
-        monaLisaRouteMessages.setFont(new Font("Arial", Font.PLAIN, 9));
-        monaLisaRouteMessages.setForeground(new Color(100, 100, 100));
-        monaLisaRouteMessages.setBorder(BorderFactory.createEmptyBorder(0, 0,
+        strategicRouteMessages.setSize(new Dimension(20, notificationHeight));
+        strategicRouteMessages.setFont(new Font("Arial", Font.PLAIN, 9));
+        strategicRouteMessages.setForeground(new Color(100, 100, 100));
+        strategicRouteMessages.setBorder(BorderFactory.createEmptyBorder(0, 0,
                 0, 5));
-        monaLisaRoutePanelLeft.add(monaLisaRouteMessages);
+        strategicRoutePanelLeft.add(strategicRouteMessages);
 
         // The unread indicator
-        JLabel monaLisaRouteUnreadIndicator = new JLabel();
-        monaLisaRouteUnreadIndicator.setPreferredSize(new Dimension(7,
+        JLabel strategicRouteUnreadIndicator = new JLabel();
+        strategicRouteUnreadIndicator.setPreferredSize(new Dimension(7,
                 notificationHeight));
-        monaLisaRouteUnreadIndicator.setSize(new Dimension(7,
+        strategicRouteUnreadIndicator.setSize(new Dimension(7,
                 notificationHeight));
-        monaLisaRoutePanelLeft.add(monaLisaRouteUnreadIndicator);
+        strategicRoutePanelLeft.add(strategicRouteUnreadIndicator);
 
-        labelContainer.add(monaLisaRoutePanelLeft);
+        labelContainer.add(strategicRoutePanelLeft);
 
         // MSI
         JLabel notification = new JLabel("  MSI");
@@ -351,8 +351,8 @@ public class NotificationCenter extends ComponentFrame implements
         unreadMessagesLabels.put("Route", routeMessages);
 
         // Make list of labels to use when updating service
-        indicatorLabels.put("MonaLisaRoute", monaLisaRouteUnreadIndicator);
-        unreadMessagesLabels.put("MonaLisaRoute", monaLisaRouteMessages);
+        indicatorLabels.put("StrategicRoute", strategicRouteUnreadIndicator);
+        unreadMessagesLabels.put("StrategicRoute", strategicRouteMessages);
 
         notificationContentPanel = new JPanel();
         outerPanel.add(notificationContentPanel, BorderLayout.EAST);
@@ -388,11 +388,11 @@ public class NotificationCenter extends ComponentFrame implements
         routePanel.setVisible(false);
 
         // Add notification panel
-        monaLisaRoutePanel = new MonaLisaRouteExchangeNotificationPanel(this);
-        monaLisaRouteTable = monaLisaRoutePanel.getRouteTable();
+        strategicRoutePanel = new StrategicRouteExchangeNotificationPanel(this);
+        strategicRouteTable = strategicRoutePanel.getRouteTable();
 
-        notificationContentPanel.add(monaLisaRoutePanel, gbc_panel);
-        monaLisaRoutePanel.setVisible(false);
+        notificationContentPanel.add(strategicRoutePanel, gbc_panel);
+        strategicRoutePanel.setVisible(false);
 
         addMouseListeners();
 
@@ -485,7 +485,7 @@ public class NotificationCenter extends ComponentFrame implements
     }
     
     
-    public void showMonaLisaMsg(int service, long msgId) {
+    public void showStrategicRouteExchangeMsg(int service, long msgId) {
         
         setNotificationView(service);
 
@@ -493,16 +493,16 @@ public class NotificationCenter extends ComponentFrame implements
 
         
         
-        List<MonaLisaRouteNegotiationData> messages = monaLisaRouteTableModel.getMessages();
+        List<StrategicRouteNegotiationData> messages = strategicRouteTableModel.getMessages();
         for (int i = 0; i < messages.size(); i++) {
-            MonaLisaRouteNegotiationData message = messages.get(i);
+            StrategicRouteNegotiationData message = messages.get(i);
             if (message.getId() == msgId) {
                 index = i;
                 break;
             }
         }
 
-        monaLisaRoutePanel.readMessage(index, index);
+        strategicRoutePanel.readMessage(index, index);
         
         this.setVisible(true);
         
@@ -522,8 +522,8 @@ public class NotificationCenter extends ComponentFrame implements
         } else
         if (obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
-            monaLisaRouteTableModel.setAisHandler(aisHandler);
-            monaLisaRoutePanel.setAisHandler(aisHandler);
+            strategicRouteTableModel.setAisHandler(aisHandler);
+            strategicRoutePanel.setAisHandler(aisHandler);
         } else
         if (obj instanceof MainFrame) {
             mainFrame = (MainFrame) obj;
@@ -546,20 +546,20 @@ public class NotificationCenter extends ComponentFrame implements
         }
         else
         if (obj instanceof VoyageManager){
-            monaLisaRoutePanel.setVoyageManager((VoyageManager) obj);
+            strategicRoutePanel.setVoyageManager((VoyageManager) obj);
         }
         
-        if (obj instanceof MonaLisaHandler){
-            monaLisaHandler = (MonaLisaHandler) obj;
-            monaLisaHandler.addMonaLisaRouteExchangeListener(this);
-            monaLisaRoutePanel.setMonaLisaHandler(monaLisaHandler);
+        if (obj instanceof StrategicRouteExchangeHandler){
+            strategicRouteExchangeHandler = (StrategicRouteExchangeHandler) obj;
+            strategicRouteExchangeHandler.addStrategicRouteExchangeListener(this);
+            strategicRoutePanel.setStrategicRouteExchangeHandler(strategicRouteExchangeHandler);
 //            monaLisaRoutePanel.setEnavServiceHandler(enavServiceHandler);
 //            monaLisaRouteTableModel.setEnavServiceHandler(enavServiceHandler);
             
             
-            monaLisaRouteTableModel.setMonaLisaHandler(monaLisaHandler);
-            monaLisaRouteTable.setModel(monaLisaRouteTableModel);
-            monaLisaRoutePanel.initTable();
+            strategicRouteTableModel.setStrategicRouteExchangeHandler(strategicRouteExchangeHandler);
+            strategicRouteTable.setModel(strategicRouteTableModel);
+            strategicRoutePanel.initTable();
             
         }
     }
@@ -608,7 +608,7 @@ public class NotificationCenter extends ComponentFrame implements
             public void mouseClicked(MouseEvent e) {
                 // Activate and update table
 
-                monaLisaRoutePanel.setVisible(false);
+                strategicRoutePanel.setVisible(false);
                 routePanel.setVisible(false);
                 msiPanel.setVisible(true);
 
@@ -625,25 +625,25 @@ public class NotificationCenter extends ComponentFrame implements
             }
 
             public void mouseClicked(MouseEvent e) {
-                monaLisaRoutePanel.setVisible(false);
+                strategicRoutePanel.setVisible(false);
                 msiPanel.setVisible(false);
                 routePanel.setVisible(true);
             }
         });
 
-        monaLisaRoutePanelLeft.addMouseListener(new MouseAdapter() {
+        strategicRoutePanelLeft.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                monaLisaRoutePanelLeft.setBackground(leftButtonColorClicked);
+                strategicRoutePanelLeft.setBackground(leftButtonColorClicked);
             }
 
             public void mouseReleased(MouseEvent e) {
-                monaLisaRoutePanelLeft.setBackground(leftButtonColor);
+                strategicRoutePanelLeft.setBackground(leftButtonColor);
             }
 
             public void mouseClicked(MouseEvent e) {
                 msiPanel.setVisible(false);
                 routePanel.setVisible(false);
-                monaLisaRoutePanel.setVisible(true);
+                strategicRoutePanel.setVisible(true);
             }
         });
     }
@@ -661,7 +661,7 @@ public class NotificationCenter extends ComponentFrame implements
         case 0:
             // Activate MSI
             routePanel.setVisible(false);
-            monaLisaRoutePanel.setVisible(false);
+            strategicRoutePanel.setVisible(false);
             msiPanel.setVisible(true);
             
             break;
@@ -670,16 +670,16 @@ public class NotificationCenter extends ComponentFrame implements
 
             // Activate route exchange
             msiPanel.setVisible(false);
-            monaLisaRoutePanel.setVisible(false);
+            strategicRoutePanel.setVisible(false);
             routePanel.setVisible(true);
 
             break;
 
         case 2:
-            // Activate Mona Lisa Route Exchange
+            // Activate Strategic Route Exchange
             msiPanel.setVisible(false);
             routePanel.setVisible(false);
-            monaLisaRoutePanel.setVisible(true);
+            strategicRoutePanel.setVisible(true);
 
             break;
 
@@ -712,14 +712,14 @@ public class NotificationCenter extends ComponentFrame implements
     }
 
     @Override
-    public void monaLisaRouteUpdate() {
-        monaLisaRoutePanel.updateTable();
+    public void strategicRouteUpdate() {
+        strategicRoutePanel.updateTable();
 
-        if (monaLisaRouteTable.getSelectedRow() != -1) {
-            monaLisaRoutePanel.readMessage(monaLisaRouteTable.getSelectedRow());
+        if (strategicRouteTable.getSelectedRow() != -1) {
+            strategicRoutePanel.readMessage(strategicRouteTable.getSelectedRow());
         }
         try {
-            setMessages("MonaLisaRoute", monaLisaHandler.getUnHandled());
+            setMessages("StrategicRoute", strategicRouteExchangeHandler.getUnHandled());
 
         } catch (InterruptedException e) {
             e.printStackTrace();

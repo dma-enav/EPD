@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.monalisa;
+package dk.dma.epd.shore.gui.views.strategicRouteExchange;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -50,12 +50,12 @@ import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.route.RoutePropertiesDialog;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.gui.views.NotificationCenter;
-import dk.dma.epd.shore.service.MonaLisaHandler;
-import dk.dma.epd.shore.service.MonaLisaRouteNegotiationData;
+import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
+import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
-public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
+public class StrategicRouteExchangeNotificationPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     Border paddingLeft = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(
@@ -78,7 +78,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
 
     private Color backgroundColor = new Color(83, 83, 83);
     // private JTextPane area = new JTextPane();
-    private MonaLisaRouteExchangeNotificationInternalPanel area = new MonaLisaRouteExchangeNotificationInternalPanel();
+    private StrategicRouteExchangeNotificationInternalPanel area = new StrategicRouteExchangeNotificationInternalPanel();
 
     private JLabel route_details;
     private JLabel optimize_btn;
@@ -91,7 +91,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
 
     private JScrollPane leftScrollPane;
 
-    private MonaLisaRouteExchangeTableModel routeTableModel;
+    private StrategicRouteExchangeTableModel routeTableModel;
 
     private int currentSelection = -1;
 
@@ -101,9 +101,9 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
     private AisHandler aisHandler;
     private VoyageManager voyageManager;
     private NotificationCenter notCenter;
-    private MonaLisaHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler strategicRouteExchangeHandler;
 
-    public MonaLisaRouteExchangeNotificationPanel(NotificationCenter notCenter) {
+    public StrategicRouteExchangeNotificationPanel(NotificationCenter notCenter) {
         this.notCenter = notCenter;
         GridBagConstraints gbc_scrollPane_2 = new GridBagConstraints();
         gbc_scrollPane_2.fill = GridBagConstraints.BOTH;
@@ -305,7 +305,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
     }
 
     public void initTable() {
-        routeTableModel = (MonaLisaRouteExchangeTableModel) routeTable
+        routeTableModel = (StrategicRouteExchangeTableModel) routeTable
                 .getModel();
         routeTable.getColumnModel().getColumn(0).setPreferredWidth(100);
         routeTable.getColumnModel().getColumn(1).setPreferredWidth(70);
@@ -380,7 +380,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
 //        System.out.println("Trying to get " + selectedRow + " out of " + monaLisaHandler
 //                .getMonaLisaNegotiationData().size() + " available");
         
-        MonaLisaRouteNegotiationData message = ((MonaLisaRouteExchangeTableModel) routeTable.getModel()).getMessages().get(selectedRow);
+        StrategicRouteNegotiationData message = ((StrategicRouteExchangeTableModel) routeTable.getModel()).getMessages().get(selectedRow);
 //                .getMonaLisaNegotiationData().get(selectedRow);
         
 //        System.out.println(message);
@@ -433,7 +433,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
             public void mouseReleased(MouseEvent e) {
 
                 if (route_details.isEnabled()) {
-                    MonaLisaRouteNegotiationData message = routeTableModel
+                    StrategicRouteNegotiationData message = routeTableModel
                             .getMessages().get(currentSelection);
 
                     RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
@@ -451,7 +451,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
         handle_request.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 if (handle_request.isEnabled()) {
-                    MonaLisaRouteNegotiationData message = routeTableModel
+                    StrategicRouteNegotiationData message = routeTableModel
                             .getMessages().get(currentSelection);
 
                     String shipName = "" + message.getMmsi();
@@ -473,7 +473,7 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
 
                     Route originalRoute = new Route(message.getRouteMessage().get(0).getRoute());
                     
-                    EPDShore.getMainFrame().addMonaLisaHandlingWindow(originalRoute,
+                    EPDShore.getMainFrame().addStrategicRouteExchangeHandlingWindow(originalRoute,
                             shipName, voyage, false);
 
                     // MonaLisaRouteService.MonaLisaRouteRequestReply reply =
@@ -554,12 +554,12 @@ public class MonaLisaRouteExchangeNotificationPanel extends JPanel {
         this.voyageManager = voyageManager;
     }
 
-    public MonaLisaHandler getMonaLisaHandler() {
-        return monaLisaHandler;
+    public StrategicRouteExchangeHandler getStrategicRouteExchangeHandler() {
+        return strategicRouteExchangeHandler;
     }
 
-    public void setMonaLisaHandler(MonaLisaHandler monaLisaHandler) {
-        this.monaLisaHandler = monaLisaHandler;
+    public void setStrategicRouteExchangeHandler(StrategicRouteExchangeHandler strategicRouteExchangeHandler) {
+        this.strategicRouteExchangeHandler = strategicRouteExchangeHandler;
     }
 
     private class RouteExchangeRowListener implements ListSelectionListener {

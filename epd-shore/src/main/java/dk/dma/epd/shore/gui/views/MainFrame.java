@@ -43,7 +43,7 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
-import dk.dma.epd.shore.gui.views.monalisa.SendVoyageDialog;
+import dk.dma.epd.shore.gui.views.strategicRouteExchange.SendStrategicRouteDialog;
 import dk.dma.epd.shore.settings.ESDGuiSettings;
 import dk.dma.epd.shore.settings.ESDMapSettings;
 import dk.dma.epd.shore.settings.Workspace;
@@ -94,7 +94,7 @@ public class MainFrame extends JFrame implements WindowListener {
     private JSettingsWindow settingsWindow = new JSettingsWindow();
     private RouteManagerDialog routeManagerDialog = new RouteManagerDialog(this);
     private SendRouteDialog sendRouteDialog = new SendRouteDialog();
-    private SendVoyageDialog sendVoyageDialog = new SendVoyageDialog();
+    private SendStrategicRouteDialog sendVoyageDialog = new SendStrategicRouteDialog();
 
     private StatusArea statusArea = new StatusArea(this);
     private JMapFrame activeMapWindow;
@@ -171,7 +171,7 @@ public class MainFrame extends JFrame implements WindowListener {
         // return window;
     }
 
-    public void addMonaLisaHandlingWindow(Route originalRoute, String shipName,
+    public void addStrategicRouteExchangeHandlingWindow(Route originalRoute, String shipName,
             Voyage voyage, boolean renegotiate) {
         new ThreadedMapCreator(this, shipName, voyage, originalRoute,
                 renegotiate).run();
@@ -793,7 +793,7 @@ public class MainFrame extends JFrame implements WindowListener {
         return sendRouteDialog;
     }
 
-    public SendVoyageDialog getSendVoyageDialog() {
+    public SendStrategicRouteDialog getSendVoyageDialog() {
         return sendVoyageDialog;
     }
 

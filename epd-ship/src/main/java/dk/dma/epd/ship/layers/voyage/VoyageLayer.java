@@ -34,8 +34,8 @@ import com.bbn.openmap.omGraphics.OMList;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.layers.route.RouteGraphic;
 import dk.dma.epd.common.prototype.layers.route.RouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.route.WaypointCircle;
@@ -47,7 +47,7 @@ import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.MapMenu;
-import dk.dma.epd.ship.monalisa.MonaLisaHandler;
+import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
 
 /**
  * Layer for showing routes
@@ -68,7 +68,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
     private Route primaryRoute;
     private Route stccRoute;
     private Route modifiedSTCCRoute;
-    private MonaLisaHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler monaLisaHandler;
 
     private boolean dragging;
 
@@ -187,8 +187,8 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
             mapBean = (MapBean) obj;
         } else if (obj instanceof MapMenu) {
             routeMenu = (MapMenu) obj;
-        } else if (obj instanceof MonaLisaHandler) {
-            monaLisaHandler = (MonaLisaHandler) obj;
+        } else if (obj instanceof StrategicRouteExchangeHandler) {
+            monaLisaHandler = (StrategicRouteExchangeHandler) obj;
         }
 
     }
@@ -451,7 +451,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     }
 
-    public void handleReNegotiation(MonaLisaRouteRequestReply reply,
+    public void handleReNegotiation(StrategicRouteRequestReply reply,
             Route previousAcceptedRoute) {
         modifiedSTCCRoute = new Route(reply.getRoute());
         stccRoute = modifiedSTCCRoute.copy();
@@ -461,7 +461,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         stopRouteAnimated();
 
         // Shore agrees
-        if (reply.getStatus() == MonaLisaRouteStatus.AGREED) {
+        if (reply.getStatus() == StrategicRouteStatus.AGREED) {
             // Display routeLayer with green
             graphics.clear();
             drawRoute(0, stccRoute, ECDISOrange, new Color(0.39f, 0.69f, 0.49f,
@@ -469,7 +469,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
             drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
                     false);
-        } else if (reply.getStatus() == MonaLisaRouteStatus.NEGOTIATING) {
+        } else if (reply.getStatus() == StrategicRouteStatus.NEGOTIATING) {
             // Draw old one in red and new one in green with lines
             // seperated on new Color(1f, 1f, 0, 0.7f)
             graphics.clear();
@@ -482,7 +482,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
             drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
                     false);
 
-        } else if (reply.getStatus() == MonaLisaRouteStatus.REJECTED) {
+        } else if (reply.getStatus() == StrategicRouteStatus.REJECTED) {
             // Display route with red - might not be relevant?
             graphics.clear();
             drawRoute(2, stccRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
@@ -490,7 +490,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         }
     }
 
-    public void handleReply(MonaLisaRouteRequestReply reply) {
+    public void handleReply(StrategicRouteRequestReply reply) {
 
         modifiedSTCCRoute = new Route(reply.getRoute());
         stccRoute = modifiedSTCCRoute.copy();
@@ -500,7 +500,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         stopRouteAnimated();
 
         // Shore agrees
-        if (reply.getStatus() == MonaLisaRouteStatus.AGREED) {
+        if (reply.getStatus() == StrategicRouteStatus.AGREED) {
             // Display routeLayer with green
             graphics.clear();
             drawRoute(0, stccRoute, ECDISOrange, new Color(0.39f, 0.69f, 0.49f,
@@ -508,7 +508,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
             drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
                     false);
-        } else if (reply.getStatus() == MonaLisaRouteStatus.NEGOTIATING) {
+        } else if (reply.getStatus() == StrategicRouteStatus.NEGOTIATING) {
             // Draw old one in red and new one in green with lines
             // seperated on new Color(1f, 1f, 0, 0.7f)
             graphics.clear();
@@ -521,7 +521,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
             drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
                     false);
 
-        } else if (reply.getStatus() == MonaLisaRouteStatus.REJECTED) {
+        } else if (reply.getStatus() == StrategicRouteStatus.REJECTED) {
             // Display route with red - might not be relevant?
             graphics.clear();
             drawRoute(2, stccRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),

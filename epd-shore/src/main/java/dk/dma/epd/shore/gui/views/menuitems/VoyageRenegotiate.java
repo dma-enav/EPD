@@ -20,8 +20,8 @@ import javax.swing.JMenuItem;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
-import dk.dma.epd.shore.service.MonaLisaHandler;
-import dk.dma.epd.shore.service.MonaLisaRouteNegotiationData;
+import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
+import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.voyage.Voyage;
 
 public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
@@ -29,7 +29,7 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
     private long transactionid;
     private AisHandler aisHandler;
     private static final long serialVersionUID = 1L;
-    private MonaLisaHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler monaLisaHandler;
 
     /**
      * @param transactionid
@@ -56,7 +56,7 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
     /**
      * @param monaLisaHandler the monaLisaHandler to set
      */
-    public void setMonaLisaHandler(MonaLisaHandler monaLisaHandler) {
+    public void setMonaLisaHandler(StrategicRouteExchangeHandler monaLisaHandler) {
         this.monaLisaHandler = monaLisaHandler;
     }
 
@@ -69,11 +69,11 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
     
     private void handleNegotiation(){
         
-        if (monaLisaHandler.getMonaLisaNegotiationData().containsKey(transactionid)){
+        if (monaLisaHandler.getStrategicNegotiationData().containsKey(transactionid)){
             
         System.out.println("Handling it!");
         
-        MonaLisaRouteNegotiationData message = monaLisaHandler.getMonaLisaNegotiationData().get(transactionid);
+        StrategicRouteNegotiationData message = monaLisaHandler.getStrategicNegotiationData().get(transactionid);
         
 
         String shipName = "" + message.getMmsi();
@@ -104,7 +104,7 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
 
         Route originalRoute = new Route(message.getRouteMessage().get(0).getRoute());
         
-        EPDShore.getMainFrame().addMonaLisaHandlingWindow(originalRoute,
+        EPDShore.getMainFrame().addStrategicRouteExchangeHandlingWindow(originalRoute,
                 shipName, voyage, true);
     }
     }

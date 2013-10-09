@@ -306,7 +306,7 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
         
         if (arg0.getSource() == OpenShipDetailstextBtn && OpenShipDetailstextBtn.isEnabled()) {
             
-            notificationCenter.showMonaLisaMsg(2, voyage.getId());
+            notificationCenter.showStrategicRouteExchangeMsg(2, voyage.getId());
             
             //Notification Center
             

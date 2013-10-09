@@ -28,17 +28,17 @@ import dk.dma.epd.common.text.Formatter;
 /**
  * Table model for RouteManagerDialog
  */
-public class MonaLisaSelectionTableModel extends AbstractTableModel {
+public class MonaLisaSSPASelectionTableModel extends AbstractTableModel {
     
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(MonaLisaSelectionTableModel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MonaLisaSSPASelectionTableModel.class);
     
     private static final String[] COLUMN_NAMES = {"Name", "Included"};
     
     private Route route;
     private List<Boolean> selectedWp;
     
-    public MonaLisaSelectionTableModel(Route route, List<Boolean> selectedWp) {
+    public MonaLisaSSPASelectionTableModel(Route route, List<Boolean> selectedWp) {
         super();
         this.route = route;
         this.selectedWp = selectedWp;

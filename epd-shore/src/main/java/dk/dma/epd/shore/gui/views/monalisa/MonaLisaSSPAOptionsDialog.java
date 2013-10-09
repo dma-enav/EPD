@@ -39,7 +39,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.text.NumberFormatter;
 
 import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.common.prototype.monalisa.MonaLisaWPSelection;
+import dk.dma.epd.common.prototype.monalisa.MonaLisaSSPAWPSelection;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
@@ -320,7 +320,7 @@ public class MonaLisaSSPAOptionsDialog extends
             this.dispose();
         }
         if (e.getSource() == selectWpBtn) {
-            MonaLisaWPSelection selectionDialog = new MonaLisaWPSelection(this,
+            MonaLisaSSPAWPSelection selectionDialog = new MonaLisaSSPAWPSelection(this,
                     route, selectedWp);
 
             selectionDialog.setVisible(true);

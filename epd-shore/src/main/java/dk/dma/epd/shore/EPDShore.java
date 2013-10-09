@@ -58,7 +58,7 @@ import dk.dma.epd.shore.gui.utils.StaticImages;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.service.EnavServiceHandler;
-import dk.dma.epd.shore.service.MonaLisaHandler;
+import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteOptimization;
 import dk.dma.epd.shore.service.ais.AisServices;
 import dk.dma.epd.shore.services.shore.ShoreServices;
@@ -84,7 +84,7 @@ public class EPDShore extends EPD {
     private static AisHandler aisHandler;
     private static GpsHandler gpsHandler;
     private static MsiHandler msiHandler;
-    private static MonaLisaHandler monaLisaHandler;
+    private static StrategicRouteExchangeHandler monaLisaHandler;
     private static AisServices aisServices;
     private static AisReader aisReader;
     private static ShoreServicesCommon shoreServicesCommon;
@@ -193,7 +193,7 @@ public class EPDShore extends EPD {
         enavServiceHandler.start();
 
         // Create Mona Lisa Handler;
-        monaLisaHandler = new MonaLisaHandler();
+        monaLisaHandler = new StrategicRouteExchangeHandler();
         beanHandler.add(monaLisaHandler);
 
         // Create MSI handler
@@ -246,7 +246,7 @@ public class EPDShore extends EPD {
         closeApp(false);
     }
 
-    public static MonaLisaHandler getMonaLisaHandler() {
+    public static StrategicRouteExchangeHandler getMonaLisaHandler() {
         return monaLisaHandler;
     }
 

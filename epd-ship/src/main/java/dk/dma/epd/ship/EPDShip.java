@@ -62,12 +62,12 @@ import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.route.RouteManagerDialog;
-import dk.dma.epd.ship.monalisa.MonaLisaHandler;
 import dk.dma.epd.ship.monalisa.MonaLisaRouteOptimization;
 import dk.dma.epd.ship.nogo.DynamicNogoHandler;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.risk.RiskHandler;
 import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
 import dk.dma.epd.ship.service.EnavServiceHandler;
 import dk.dma.epd.ship.service.communication.ais.AisServices;
 import dk.dma.epd.ship.settings.EPDSensorSettings;
@@ -93,7 +93,7 @@ public class EPDShip  extends EPD {
     private static RiskHandler riskHandler;
     private static RouteManager routeManager;
     private static ShoreServicesCommon shoreServices;
-    private static MonaLisaHandler monaLisaHandler;
+    private static StrategicRouteExchangeHandler strategicRouteExchangeHandler;
     private static MonaLisaRouteOptimization monaLisaRouteExchange;
     private static AisServices aisServices;
     private static MsiHandler msiHandler;
@@ -200,8 +200,8 @@ public class EPDShip  extends EPD {
         mapHandler.add(enavServiceHandler);
         enavServiceHandler.start();
 
-        monaLisaHandler = new MonaLisaHandler();
-        mapHandler.add(monaLisaHandler);
+        strategicRouteExchangeHandler = new StrategicRouteExchangeHandler();
+        mapHandler.add(strategicRouteExchangeHandler);
         // // Create enav cloud handler
         // enavCloudHandler = new EnavCloudHandler(settings.getEnavSettings());
         // mapHandler.add(enavCloudHandler);
@@ -614,8 +614,8 @@ public class EPDShip  extends EPD {
     /**
      * @return the monaLisaHandler
      */
-    public static MonaLisaHandler getMonaLisaHandler() {
-        return monaLisaHandler;
+    public static StrategicRouteExchangeHandler getStrategicRouteExchangeHandler() {
+        return strategicRouteExchangeHandler;
     }
 
     @Override

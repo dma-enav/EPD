@@ -92,7 +92,7 @@ import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.layers.voyage.VoyagePlanInfoPanel;
 import dk.dma.epd.shore.route.RouteManager;
-import dk.dma.epd.shore.service.MonaLisaHandler;
+import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
 import dk.dma.epd.shore.voyage.Voyage;
 
 /**
@@ -168,7 +168,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     // private NewRouteContainerLayer newRouteLayer;
     private AisLayer aisLayer;
     private AisHandler aisHandler;
-    private MonaLisaHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler monaLisaHandler;
 
     // private NogoHandler nogoHandler;
 
@@ -582,7 +582,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
             voyageZoomToShip.setEnabled(false);
         }
 
-        if (monaLisaHandler.getMonaLisaNegotiationData().containsKey(
+        if (monaLisaHandler.getStrategicNegotiationData().containsKey(
                 transactionID)) {
             voyageShowTransaction.setEnabled(true);
             voyageShowTransaction.setTransactionID(transactionID);
@@ -598,7 +598,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         voyageRenegotiate.setEnabled(EPDShore.getEnavServiceHandler()
                 .shipAvailableForMonaLisaTransaction(mmsi)
-                && monaLisaHandler.getMonaLisaNegotiationData().containsKey(
+                && monaLisaHandler.getStrategicNegotiationData().containsKey(
                         transactionID));
 
 //        System.out.println("Ship available: " + EPDShore.getEnavServiceHandler()
@@ -718,8 +718,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         if (obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
         }
-        if (obj instanceof MonaLisaHandler) {
-            monaLisaHandler = (MonaLisaHandler) obj;
+        if (obj instanceof StrategicRouteExchangeHandler) {
+            monaLisaHandler = (StrategicRouteExchangeHandler) obj;
         }
         if (obj instanceof VoyageLayer) {
             voyageLayer = (VoyageLayer) obj;

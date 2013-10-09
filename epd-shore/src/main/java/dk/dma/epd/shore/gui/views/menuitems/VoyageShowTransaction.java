@@ -35,7 +35,7 @@ public class VoyageShowTransaction extends JMenuItem implements IMapMenuAction {
 
     @Override
     public void doAction() {
-        EPDShore.getMainFrame().getNotificationCenter().showMonaLisaMsg(2, transactionID);
+        EPDShore.getMainFrame().getNotificationCenter().showStrategicRouteExchangeMsg(2, transactionID);
     }
 
     /**

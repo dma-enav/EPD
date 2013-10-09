@@ -47,11 +47,11 @@ import dk.dma.enav.util.function.Supplier;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteAck;
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteAck.MonaLisaRouteAckMsg;
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService;
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestMessage;
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck.StrategicRouteAckMsg;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
@@ -78,7 +78,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private GpsHandler gpsHandler;
     private AisHandler aisHandler;
 
-    private MonaLisaHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler monaLisaHandler;
 
     PersistentConnection connection;
     RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData> routeSuggestions = new RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData>();
@@ -86,9 +86,9 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     private List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> routeSuggestionList = new ArrayList<>();
 
-    HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>> contextSenders = new HashMap<Long, InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply>>();
+    HashMap<Long, InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply>> contextSenders = new HashMap<Long, InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply>>();
 
-    List<ServiceEndpoint<MonaLisaRouteRequestMessage, MonaLisaRouteRequestReply>> monaLisaShipList = new ArrayList<>();
+    List<ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply>> monaLisaShipList = new ArrayList<>();
     
     private long ownMMSI;
 
@@ -105,11 +105,11 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private void listenToAck() throws InterruptedException {
         connection
                 .serviceRegister(
-                        MonaLisaRouteAck.INIT,
-                        new InvocationCallback<MonaLisaRouteAck.MonaLisaRouteAckMsg, Void>() {
+                        StrategicRouteAck.INIT,
+                        new InvocationCallback<StrategicRouteAck.StrategicRouteAckMsg, Void>() {
                             @Override
                             public void process(
-                                    MonaLisaRouteAckMsg message,
+                                    StrategicRouteAckMsg message,
                                     dk.dma.enav.communication.service.InvocationCallback.Context<Void> context) {
 
                                 System.out.println("Recieved an ack from: "
@@ -335,8 +335,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
             this.gpsHandler.addListener(this);
         } else if (obj instanceof AisHandler) {
             this.aisHandler = (AisHandler) obj;
-        } else if (obj instanceof MonaLisaHandler) {
-            this.monaLisaHandler = (MonaLisaHandler) obj;
+        } else if (obj instanceof StrategicRouteExchangeHandler) {
+            this.monaLisaHandler = (StrategicRouteExchangeHandler) obj;
         }
     }
 
@@ -511,11 +511,11 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
         connection
                 .serviceRegister(
-                        MonaLisaRouteService.INIT,
-                        new InvocationCallback<MonaLisaRouteService.MonaLisaRouteRequestMessage, MonaLisaRouteService.MonaLisaRouteRequestReply>() {
+                        StrategicRouteService.INIT,
+                        new InvocationCallback<StrategicRouteService.StrategicRouteRequestMessage, StrategicRouteService.StrategicRouteRequestReply>() {
                             public void process(
-                                    MonaLisaRouteRequestMessage message,
-                                    InvocationCallback.Context<MonaLisaRouteService.MonaLisaRouteRequestReply> context) {
+                                    StrategicRouteRequestMessage message,
+                                    InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply> context) {
 
                                 // long mmsi = message.getMmsi();
                                 contextSenders.put(message.getId(), context);
@@ -562,7 +562,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                         }).awaitRegistered(4, TimeUnit.SECONDS);
     }
 
-    public void sendReply(MonaLisaRouteService.MonaLisaRouteRequestReply reply) {
+    public void sendReply(StrategicRouteService.StrategicRouteRequestReply reply) {
         try {
 
             if (contextSenders.containsKey(reply.getId())) {
@@ -576,10 +576,10 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     }
 
-    public void sendMonaLisaRouteRequest(long mmsiDestination,
-            MonaLisaRouteRequestMessage routeMessage) {
+    public void sendStrategicRouteRequest(long mmsiDestination,
+            StrategicRouteRequestMessage routeMessage) {
 
-        ServiceEndpoint<MonaLisaRouteService.MonaLisaRouteRequestMessage, MonaLisaRouteService.MonaLisaRouteRequestReply> end = null;
+        ServiceEndpoint<StrategicRouteService.StrategicRouteRequestMessage, StrategicRouteService.StrategicRouteRequestReply> end = null;
 
         // How to determine which to send to?
         for (int i = 0; i < monaLisaShipList.size(); i++) {
@@ -623,7 +623,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private void getMonaLisaShipList() {
         try {
             monaLisaShipList = connection
-                    .serviceFind(MonaLisaRouteService.INIT)
+                    .serviceFind(StrategicRouteService.INIT)
                     .nearest(Integer.MAX_VALUE).get();
 
             // for (int i = 0; i < monaLisaShipList.size(); i++) {

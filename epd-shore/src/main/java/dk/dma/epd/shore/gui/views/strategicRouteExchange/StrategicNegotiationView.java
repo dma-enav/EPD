@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.monalisa;
+package dk.dma.epd.shore.gui.views.strategicRouteExchange;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -26,13 +26,13 @@ import javax.swing.JTextArea;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestMessage;
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteRequestReply;
-import dk.dma.epd.common.prototype.enavcloud.MonaLisaRouteService.MonaLisaRouteStatus;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 
-public class MonaLisaNegotiationView extends JPanel {
+public class StrategicNegotiationView extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
@@ -42,10 +42,10 @@ public class MonaLisaNegotiationView extends JPanel {
     /**
      * Create the panel.
      * 
-     * @param monaLisaRouteRequestMessage
+     * @param strategicRouteRequestMessage
      */
-    public MonaLisaNegotiationView(
-            MonaLisaRouteRequestMessage monaLisaRouteRequestMessage) {
+    public StrategicNegotiationView(
+            StrategicRouteRequestMessage strategicRouteRequestMessage) {
 
         this.setBackground(GuiStyler.backgroundColor);
         setLayout(null);
@@ -79,7 +79,7 @@ public class MonaLisaNegotiationView extends JPanel {
         
         
         
-        JTextArea requestMessageTxt = new JTextArea(monaLisaRouteRequestMessage.getMessage());
+        JTextArea requestMessageTxt = new JTextArea(strategicRouteRequestMessage.getMessage());
         requestMessageTxt.setFont(new Font("Monospaced", Font.PLAIN, 12));
         requestMessageTxt.setBackground(Color.WHITE);
         requestMessageTxt.setLineWrap(true);
@@ -104,13 +104,13 @@ public class MonaLisaNegotiationView extends JPanel {
 //        requestPanel.add(requestMessageTxt);
 
         JLabel sentDateTxt = new JLabel(
-                Formatter.formatLongDateTime(monaLisaRouteRequestMessage
+                Formatter.formatLongDateTime(strategicRouteRequestMessage
                         .getSent()));
         sentDateTxt.setBounds(85, 80, 168, 14);
         GuiStyler.styleText(sentDateTxt);
         requestPanel.add(sentDateTxt);
 
-        JLabel routeName = new JLabel(monaLisaRouteRequestMessage.getRoute()
+        JLabel routeName = new JLabel(strategicRouteRequestMessage.getRoute()
                 .getName());
         routeName.setBounds(75, 100, 178, 14);
         GuiStyler.styleText(routeName);
@@ -137,7 +137,7 @@ public class MonaLisaNegotiationView extends JPanel {
         
     }
 
-    public void handleReply(MonaLisaRouteRequestReply monaLisaRouteRequestReply) {
+    public void handleReply(StrategicRouteRequestReply strategicRouteRequestReply) {
         lblNoReply.setVisible(false);
 
         JLabel lblReplied = new JLabel("Replied:");
@@ -156,13 +156,13 @@ public class MonaLisaNegotiationView extends JPanel {
         replyPanel.add(lblType);
 
         JLabel repliedTxt = new JLabel(Formatter.formatLongDateTime(new Date(
-                monaLisaRouteRequestReply.getSendDate())));
+                strategicRouteRequestReply.getSendDate())));
         repliedTxt.setBounds(65, 20, 188, 14);
         GuiStyler.styleText(repliedTxt);
         replyPanel.add(repliedTxt);
 
         
-        JTextArea messageTxt = new JTextArea(monaLisaRouteRequestReply.getMessage());
+        JTextArea messageTxt = new JTextArea(strategicRouteRequestReply.getMessage());
         messageTxt.setFont(new Font("Monospaced", Font.PLAIN, 12));
         messageTxt.setBackground(Color.WHITE);
         messageTxt.setLineWrap(true);
@@ -189,10 +189,10 @@ public class MonaLisaNegotiationView extends JPanel {
         GuiStyler.styleText(typeTxt);
         replyPanel.add(typeTxt);
 
-        if (monaLisaRouteRequestReply.getStatus() == MonaLisaRouteStatus.AGREED) {
+        if (strategicRouteRequestReply.getStatus() == StrategicRouteStatus.AGREED) {
             typeTxt.setText("Route Approved");
         }
-        if (monaLisaRouteRequestReply.getStatus() == MonaLisaRouteStatus.NEGOTIATING) {
+        if (strategicRouteRequestReply.getStatus() == StrategicRouteStatus.NEGOTIATING) {
             typeTxt.setText("Route modified and sent for negotiation");
         }
 

@@ -45,8 +45,8 @@ import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MapMenu;
 import dk.dma.epd.shore.layers.ais.AisLayer;
-import dk.dma.epd.shore.service.MonaLisaHandler;
-import dk.dma.epd.shore.service.MonaLisaRouteExchangeListener;
+import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
+import dk.dma.epd.shore.service.StrategicRouteExchangeListener;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
 import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
@@ -58,13 +58,13 @@ import dk.dma.epd.shore.voyage.VoyageUpdateListener;
  * Layer for showing routes
  */
 public class VoyageLayer extends OMGraphicHandlerLayer implements
-        VoyageUpdateListener, MapMouseListener, MonaLisaRouteExchangeListener,
+        VoyageUpdateListener, MapMouseListener, StrategicRouteExchangeListener,
         IAisTargetListener {
 
     private static final long serialVersionUID = 1L;
 
     private VoyageManager voyageManager;
-    private MonaLisaHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler monaLisaHandler;
 
     // private ShipIndicatorPanel shipIndicatorPanel;
     private VoyageInfoPanel voyageInfoPanel = new VoyageInfoPanel();
@@ -100,9 +100,9 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public void findAndInit(Object obj) {
-        if (obj instanceof MonaLisaHandler) {
-            monaLisaHandler = (MonaLisaHandler) obj;
-            monaLisaHandler.addMonaLisaRouteExchangeListener(this);
+        if (obj instanceof StrategicRouteExchangeHandler) {
+            monaLisaHandler = (StrategicRouteExchangeHandler) obj;
+            monaLisaHandler.addStrategicRouteExchangeListener(this);
             System.out.println("listener added");
         }
 
@@ -390,7 +390,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
                 for (int j = 0; j < unhandledTransactions.size(); j++) {
 
                     long mmsi = monaLisaHandler
-                            .getMonaLisaNegotiationData()
+                            .getStrategicNegotiationData()
                             .get(monaLisaHandler.getUnhandledTransactions()
                                     .get(j)).getRouteMessage().get(0).getMmsi();
 
@@ -431,7 +431,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
     }
 
     @Override
-    public void monaLisaRouteUpdate() {
+    public void strategicRouteUpdate() {
         updateDialogLocations();
     }
 
