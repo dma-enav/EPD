@@ -57,7 +57,7 @@ public class SetupDialog extends JDialog implements ActionListener {
     public SetupDialog(JFrame parent) {
         super(parent, "Setup", true);
         
-        setSize(462, 556);
+        setSize(462, 720);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(parent);
         

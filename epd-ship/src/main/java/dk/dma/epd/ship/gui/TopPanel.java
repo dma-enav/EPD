@@ -33,8 +33,10 @@ import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
+import dk.dma.epd.ship.event.RouteEditMouseMode;
 import dk.dma.epd.ship.gui.ais.AisDialog;
 import dk.dma.epd.ship.gui.msi.MsiDialog;
 import dk.dma.epd.ship.gui.route.RouteManagerDialog;
@@ -44,37 +46,56 @@ import dk.dma.epd.ship.layers.route.RouteLayer;
 /**
  * The top buttons panel
  */
-public class TopPanel extends OMComponentPanel implements ActionListener, MouseListener {
+public class TopPanel extends OMComponentPanel implements ActionListener,
+        MouseListener {
 
     private static final long serialVersionUID = 1L;
 
-    private final ButtonLabel zoomInBtn = new ButtonLabel(toolbarIcon("images/toolbar/magnifier-zoom-in.png"));
-    private final ButtonLabel zoomOutBtn = new ButtonLabel(toolbarIcon("images/toolbar/magnifier-zoom-out.png"));
-    private final ButtonLabel centreBtn = new ButtonLabel(toolbarIcon("images/toolbar/arrow-in.png"));
+    private final ButtonLabel zoomInBtn = new ButtonLabel(
+            toolbarIcon("images/toolbar/magnifier-zoom-in.png"));
+    private final ButtonLabel zoomOutBtn = new ButtonLabel(
+            toolbarIcon("images/toolbar/magnifier-zoom-out.png"));
+    private final ButtonLabel centreBtn = new ButtonLabel(
+            toolbarIcon("images/toolbar/arrow-in.png"));
     private final ToggleButtonLabel autoFollowBtn = new ToggleButtonLabel(
             toolbarIcon("images/toolbar/arrow-curve-000-double.png"));
-    private final ButtonLabel setupBtn = new ButtonLabel(toolbarIcon("images/toolbar/wrench.png"));
+    private final ButtonLabel setupBtn = new ButtonLabel(
+            toolbarIcon("images/toolbar/wrench.png"));
     // private ToggleButtonLabel routeBtn = new
     // ToggleButtonLabel(toolbarIcon("images/toolbar/marker--plus.png"));
-    private final ButtonLabel routeManagerBtn = new ButtonLabel(toolbarIcon("images/toolbar/marker.png"));
-    private final ButtonLabel msiButton = new ButtonLabel(toolbarIcon("images/toolbar/msi_symbol_16.png"));
-    private final ButtonLabel aisButton = new ButtonLabel(toolbarIcon("images/toolbar/radar.png"));
+    private final ButtonLabel routeManagerBtn = new ButtonLabel(
+            toolbarIcon("images/toolbar/marker.png"));
+    private final ButtonLabel msiButton = new ButtonLabel(
+            toolbarIcon("images/toolbar/msi_symbol_16.png"));
+    private final ButtonLabel aisButton = new ButtonLabel(
+            toolbarIcon("images/toolbar/radar.png"));
     private final ToggleButtonLabel aisToggleName = new ToggleButtonLabel(
             toolbarIcon("images/toolbar/edit-letter-spacing.png"));
     // private ToggleButtonLabel nogoButton = new
     // ToggleButtonLabel("Toggle NoGo");
-    private final ToggleButtonLabel aisBtn = new ToggleButtonLabel(toolbarIcon("images/toolbar/board-game.png"));
+    private final ToggleButtonLabel aisBtn = new ToggleButtonLabel(
+            toolbarIcon("images/toolbar/board-game.png"));
     // private ToggleButtonLabel riskBtn = new ToggleButtonLabel("Risk");
-    private final ToggleButtonLabel encBtn = new ToggleButtonLabel(toolbarIcon("images/toolbar/map-medium.png"));
-    private final ToggleButtonLabel wmsBtn = new ToggleButtonLabel(toolbarIcon("images/toolbar/map-medium.png"));
-    private final ToggleButtonLabel newRouteBtn = new ToggleButtonLabel(toolbarIcon("images/toolbar/marker--plus.png"));
+    private final ToggleButtonLabel encBtn = new ToggleButtonLabel(
+            toolbarIcon("images/toolbar/map-medium.png"));
+    private final ToggleButtonLabel wmsBtn = new ToggleButtonLabel(
+            toolbarIcon("images/toolbar/map-medium.png"));
+    private final ToggleButtonLabel newRouteBtn = new ToggleButtonLabel(
+            toolbarIcon("images/toolbar/marker--plus.png"));
     private final ToggleButtonLabel toggleSafeHaven = new ToggleButtonLabel(
             toolbarIcon("images/toolbar/document-resize-actual.png"));
 
-    
-    private final ToggleButtonLabel navigationMouseMode = new ToggleButtonLabel(toolbarIcon("images/toolbar/zoom.png"));
+    private final ToggleButtonLabel navigationMouseMode = new ToggleButtonLabel(
+            toolbarIcon("images/toolbar/zoom.png"));
     private final ToggleButtonLabel dragMouseMode = new ToggleButtonLabel(
             toolbarIcon("images/toolbar/drag.png"));
+
+    // TODO update to unique icon
+    /**
+     * Toggle button to enable distance circle mode.
+     */
+    private final ToggleButtonLabel toggleDistanceCircleMode = new ToggleButtonLabel(
+            toolbarIcon("images/toolbar/ruler-triangle.png"));
     // private final ToggleButtonLabel tglbtnMsiFilter = new ToggleButtonLabel(
     // "MSI filter");
 
@@ -109,7 +130,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         zoomInBtn.setToolTipText("Zoom in : Shortcut Numpad +");
         zoomOutBtn.setToolTipText("Zoom out : Shortcut Numpad -");
         centreBtn.setToolTipText("Centre on ship : Shortcut C");
-        
+
         navigationMouseMode.setToolTipText("Navigation Mouse Mode");
         dragMouseMode.setToolTipText("Drag mouse mode");
 
@@ -119,19 +140,23 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         // routeBtn.setVisible(false);
         newRouteBtn.setToolTipText("Add a new route : Shortcut Ctrl N");
         routeManagerBtn.setToolTipText("Routes Manager : Shortcut Ctrl R");
-        msiButton.setToolTipText("Maritime Safety Information : Shortcut Ctrl M");
+        msiButton
+                .setToolTipText("Maritime Safety Information : Shortcut Ctrl M");
         aisButton.setToolTipText("Show nearby vessels : Shortcut Ctrl A");
         // nogoButton.setToolTipText("Show/hide NoGo area");
         aisBtn.setToolTipText("Show/hide AIS targets");
         aisToggleName.setToolTipText("Show/hide AIS Name Labels");
         // riskBtn.setToolTipText("Show/hide risk info");
         encBtn.setToolTipText("Show/hide ENC");
-        
+
         wmsBtn.setToolTipText("Show/hide WMS seacharts");
         // tglbtnMsiFilter
         // .setToolTipText("Enable/disable MSI message filtering based on position and routes");
 
         toggleSafeHaven.setToolTipText("Show/hide SafeHaven guidelines");
+
+        this.toggleDistanceCircleMode
+                .setToolTipText("Enable range circles mode.");
 
         // Temporary
         // boolean showRiskAndNogo = !EeINS.getSettings().getGuiSettings()
@@ -141,6 +166,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         add(zoomOutBtn);
         add(navigationMouseMode);
         add(dragMouseMode);
+        // add the toggle button to the component
+        this.add(this.toggleDistanceCircleMode);
         add(centreBtn);
         add(autoFollowBtn);
         add(setupBtn);
@@ -155,6 +182,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         add(encBtn);
         add(wmsBtn);
         add(toggleSafeHaven);
+
         // add(tglbtnMsiFilter);
         // if (showRiskAndNogo)
         // add(riskBtn);
@@ -169,8 +197,11 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         horizontalStrut = Box.createHorizontalStrut(5);
 
         ImageIcon[] msiAnim = new ImageIcon[2];
-        msiAnim[0] = new ImageIcon(EPDShip.class.getResource("/images/toppanel/msi_symbol_64x20.png"));
-        msiAnim[1] = new ImageIcon(EPDShip.class.getResource("/images/toppanel/blank64x20.png"));
+        msiAnim[0] = new ImageIcon(
+                EPDShip.class
+                        .getResource("/images/toppanel/msi_symbol_64x20.png"));
+        msiAnim[1] = new ImageIcon(
+                EPDShip.class.getResource("/images/toppanel/blank64x20.png"));
         // msiIcon = new BlinkingLabel(400, msiAnim);
 
         add(horizontalStrut);
@@ -204,26 +235,32 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         // nogoButton.setSelected(true);
 
         toggleSafeHaven.addMouseListener(this);
-        
+
         navigationMouseMode.addMouseListener(this);
         dragMouseMode.addMouseListener(this);
 
-        
-        
-        
+        // Listen for mouse input on the range circle toggle button
+        this.toggleDistanceCircleMode.addMouseListener(this);
+
         updateButtons();
     }
 
     public void updateButtons() {
-        autoFollowBtn.setSelected(EPDShip.getSettings().getNavSettings().isAutoFollow());
+        autoFollowBtn.setSelected(EPDShip.getSettings().getNavSettings()
+                .isAutoFollow());
         aisBtn.setSelected(EPDShip.getSettings().getAisSettings().isVisible());
-        encBtn.setSelected(EPDShip.getSettings().getMapSettings().isEncVisible());
-        wmsBtn.setSelected(EPDShip.getSettings().getMapSettings().isWmsVisible());
+        encBtn.setSelected(EPDShip.getSettings().getMapSettings()
+                .isEncVisible());
+        wmsBtn.setSelected(EPDShip.getSettings().getMapSettings()
+                .isWmsVisible());
         // tglbtnMsiFilter.setSelected(EeINS.getSettings().getEnavSettings()
         // .isMsiFilter());
-        aisToggleName.setSelected(EPDShip.getSettings().getAisSettings().isShowNameLabels());
+        aisToggleName.setSelected(EPDShip.getSettings().getAisSettings()
+                .isShowNameLabels());
 
         navigationMouseMode.setSelected(true);
+        // range circles mode is disabled by default.
+        this.toggleDistanceCircleMode.setSelected(false);
     }
 
     public void disableAutoFollow() {
@@ -239,10 +276,13 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
     }
 
     public void newRoute() {
-        if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID)  {
-            mainFrame.getChartPanel().setMouseMode(0);
+        if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID
+                || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID) {
+            // mainFrame.getChartPanel().setMouseMode(0);
+            mainFrame.getChartPanel().setMouseMode(RouteEditMouseMode.MODE_ID);
         } else {
-            mainFrame.getChartPanel().setMouseMode(1);
+            // mainFrame.getChartPanel().setMouseMode(1);
+            mainFrame.getChartPanel().setMouseMode(NavigationMouseMode.MODE_ID);
         }
     }
 
@@ -290,8 +330,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         encBtn.setEnabled(false);
         encBtn.setSelected(false);
     }
-    
-    
+
     public void setWMSDisabled() {
         wmsBtn.setEnabled(false);
         wmsBtn.setSelected(false);
@@ -333,13 +372,15 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         // msiDialog.setVisible(true);
         // }
         // } else
-        
+
         if (e.getSource() == autoFollowBtn) {
-            EPDShip.getSettings().getNavSettings().setAutoFollow(autoFollowBtn.isSelected());
+            EPDShip.getSettings().getNavSettings()
+                    .setAutoFollow(autoFollowBtn.isSelected());
             if (autoFollowBtn.isSelected()) {
                 mainFrame.getChartPanel().autoFollow();
             }
-            menuBar.getAutoFollow().setSelected(EPDShip.getSettings().getNavSettings().isAutoFollow());
+            menuBar.getAutoFollow().setSelected(
+                    EPDShip.getSettings().getNavSettings().isAutoFollow());
 
         } else if (e.getSource() == centreBtn) {
             mainFrame.getChartPanel().centreOnShip();
@@ -348,24 +389,30 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         } else if (e.getSource() == zoomOutBtn) {
             mainFrame.getChartPanel().doZoom(2f);
         } else if (e.getSource() == aisBtn) {
-            EPDShip.getSettings().getAisSettings().setVisible(aisBtn.isSelected());
+            EPDShip.getSettings().getAisSettings()
+                    .setVisible(aisBtn.isSelected());
             mainFrame.getChartPanel().aisVisible(aisBtn.isSelected());
 
-            menuBar.getAisLayer().setSelected(EPDShip.getSettings().getAisSettings().isVisible());
+            menuBar.getAisLayer().setSelected(
+                    EPDShip.getSettings().getAisSettings().isVisible());
 
             // } else if (e.getSource() == riskBtn) {
             // EeINS.getRiskHandler().toggleRiskHandler(riskBtn.isSelected());
         } else if (e.getSource() == encBtn) {
-            EPDShip.getSettings().getMapSettings().setEncVisible(encBtn.isSelected());
+            EPDShip.getSettings().getMapSettings()
+                    .setEncVisible(encBtn.isSelected());
             mainFrame.getChartPanel().encVisible(encBtn.isSelected());
-            menuBar.getEncLayer().setSelected(EPDShip.getSettings().getMapSettings().isEncVisible());
-           
+            menuBar.getEncLayer().setSelected(
+                    EPDShip.getSettings().getMapSettings().isEncVisible());
+
         } else if (e.getSource() == wmsBtn) {
-            EPDShip.getSettings().getMapSettings().setWmsVisible(wmsBtn.isSelected());
+            EPDShip.getSettings().getMapSettings()
+                    .setWmsVisible(wmsBtn.isSelected());
             mainFrame.getChartPanel().wmsVisible(wmsBtn.isSelected());
-            //mainFrame.getChartPanel().getWmsDragLayer().setVisible(wmsBtn.isSelected());
+            // mainFrame.getChartPanel().getWmsDragLayer().setVisible(wmsBtn.isSelected());
         } else if (e.getSource() == routeManagerBtn) {
-            RouteManagerDialog routeManagerDialog = new RouteManagerDialog(mainFrame);
+            RouteManagerDialog routeManagerDialog = new RouteManagerDialog(
+                    mainFrame);
             routeManagerDialog.setVisible(true);
         } else if (e.getSource() == setupBtn) {
             SetupDialog setupDialog = new SetupDialog(mainFrame);
@@ -377,11 +424,17 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
             aisDialog.setVisible(true);
             aisDialog.setSelection(-1, true);
         } else if (e.getSource() == newRouteBtn) {
-            if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID) {
+            if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID
+                    || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID
+                    || mouseDelegator.getActiveMouseModeID() == DistanceCircleMouseMode.MODE_ID) {
                 menuBar.getNewRoute().setSelected(true);
-                mainFrame.getChartPanel().setMouseMode(0);
+                // mainFrame.getChartPanel().setMouseMode(0);
+                mainFrame.getChartPanel().setMouseMode(
+                        RouteEditMouseMode.MODE_ID);
             } else {
-                mainFrame.getChartPanel().setMouseMode(1);
+                // mainFrame.getChartPanel().setMouseMode(1);
+                mainFrame.getChartPanel().setMouseMode(
+                        NavigationMouseMode.MODE_ID);
                 menuBar.getNewRoute().setSelected(false);
             }
             // } else if (e.getSource() == nogoButton) {
@@ -394,10 +447,28 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
             routeLayer.toggleSafeHaven();
         } else if (e.getSource() == dragMouseMode) {
             System.out.println("Drag mouse mode!");
-            mainFrame.getChartPanel().setMouseMode(2);
+            // mainFrame.getChartPanel().setMouseMode(2);
+            mainFrame.getChartPanel().setMouseMode(DragMouseMode.MODE_ID);
         } else if (e.getSource() == navigationMouseMode) {
-            mainFrame.getChartPanel().setMouseMode(1);
+            // mainFrame.getChartPanel().setMouseMode(1);
+            mainFrame.getChartPanel().setMouseMode(NavigationMouseMode.MODE_ID);
             System.out.println("Nav mouse mode!");
+        }
+        // react on mouse click on "toggle distance circles mode"
+        else if (e.getSource() == this.toggleDistanceCircleMode) {
+            if (this.toggleDistanceCircleMode.isSelected()) {
+                // this.mainFrame.getChartPanel().setMouseMode(3);
+                this.mainFrame.getChartPanel().setMouseMode(
+                        DistanceCircleMouseMode.MODE_ID);
+            } else {
+                // go back to navigation mouse mode
+                // this.mainFrame.getChartPanel().setMouseMode(1);
+                // go back to previously active mouse mode
+                this.mainFrame.getChartPanel().setMouseMode(
+                        ((DistanceCircleMouseMode) this.mainFrame
+                                .getChartPanel().getMouseDelegator()
+                                .getActiveMouseMode()).getPreviousMouseMode());
+            }
         }
         // else if (e.getSource() == tglbtnMsiFilter) {
         // EeINS.getSettings().getEnavSettings()
@@ -410,14 +481,16 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
 
     }
 
-    
-    
     public ToggleButtonLabel getNavigationMouseMode() {
         return navigationMouseMode;
     }
 
     public ToggleButtonLabel getDragMouseMode() {
         return dragMouseMode;
+    }
+
+    public ToggleButtonLabel getToggleButtonDistanceCircleMouseMode() {
+        return this.toggleDistanceCircleMode;
     }
 
     public ButtonLabel getMsiButton() {
@@ -469,7 +542,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener, MouseL
         ImageIcon icon = new ImageIcon(url);
 
         Image img = icon.getImage();
-        Image newimg = img.getScaledInstance(iconWidth, iconHeight, java.awt.Image.SCALE_DEFAULT);
+        Image newimg = img.getScaledInstance(iconWidth, iconHeight,
+                java.awt.Image.SCALE_DEFAULT);
         ImageIcon newImage = new ImageIcon(newimg);
         return newImage;
     }

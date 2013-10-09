@@ -30,10 +30,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.BufferedLayerMapBean;
+import com.bbn.openmap.InformationDelegator;
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.MouseDelegator;
+import com.bbn.openmap.event.DistanceMouseMode;
+import com.bbn.openmap.proj.Length;
 import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
@@ -47,6 +50,7 @@ import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.MSIFilterMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
@@ -63,6 +67,7 @@ import dk.dma.epd.ship.layers.nogo.DynamicNogoLayer;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
 import dk.dma.epd.ship.layers.routeEdit.RouteEditLayer;
+import dk.dma.epd.ship.layers.ruler.RulerLayer;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.settings.EPDMapSettings;
 
@@ -93,11 +98,14 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
     public int maxScale = 5000;
     private MSIFilterMouseMode msiFilterMouseMode;
 
+    private DistanceCircleMouseMode rangeCirclesMouseMode;
+
     private boolean nogoMode;
 
     private ActiveWaypointComponentPanel activeWaypointPanel;
 
     private NogoDialog nogoDialog;
+    private RulerLayer rulerLayer;
 
     public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel) {
         super();
@@ -133,7 +141,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
             wmsLayer = new WMSLayer(mapSettings.getWmsQuery());
             mapHandler.add(wmsLayer);
         }
-        
+
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
         map.setDoubleBuffered(true);
@@ -153,17 +161,25 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         routeEditMouseMode = new RouteEditMouseMode();
         msiFilterMouseMode = new MSIFilterMouseMode();
         dragMouseMode = new DragMouseMode();
+        this.rangeCirclesMouseMode = new DistanceCircleMouseMode(false);
 
         mouseDelegator.addMouseMode(mapNavMouseMode);
         mouseDelegator.addMouseMode(routeEditMouseMode);
         mouseDelegator.addMouseMode(msiFilterMouseMode);
         mouseDelegator.addMouseMode(dragMouseMode);
+        this.mouseDelegator.addMouseMode(this.rangeCirclesMouseMode);
+
         mouseDelegator.setActive(mapNavMouseMode);
+        // Inform the distance circle mouse mode what mouse mode was initially
+        // the active one
+        this.rangeCirclesMouseMode
+                .setPreviousMouseModeModeID(NavigationMouseMode.MODE_ID);
 
         mapHandler.add(mapNavMouseMode);
         mapHandler.add(routeEditMouseMode);
         mapHandler.add(msiFilterMouseMode);
         mapHandler.add(activeWaypointPanel);
+        mapHandler.add(rangeCirclesMouseMode);
 
         // Use the LayerHandler to manage all layers, whether they are
         // on the map or not. You can add a layer to the map by
@@ -184,6 +200,11 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         routeLayer = new RouteLayer();
         routeLayer.setVisible(true);
         mapHandler.add(routeLayer);
+
+        // Create ruler layer
+        this.rulerLayer = new RulerLayer();
+        this.rulerLayer.setVisible(true);
+        mapHandler.add(rulerLayer);
 
         // Create voyage layer
         voyageLayer = new VoyageLayer();
@@ -251,21 +272,14 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         coastalOutlineLayerDrag.setVisible(true);
         // dragMapHandler.add(coastalOutlineLayerDrag);
 
-
-
-
-        
         if (encLayer != null) {
             mapHandler.add(encLayer);
         }
 
-        
-        
         // Add map to map handler
         mapHandler.add(map);
 
         encLayerFactory.setMapSettings();
-        
 
         // Set last postion
         map.setCenter(mapSettings.getCenter());
@@ -273,12 +287,9 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         // Get from settings
         map.setScale(mapSettings.getScale());
         // Set ENC map settings
-        
+
         add(map);
 
-        
-
-        
         // TODO: CLEANUP
         // dragMap
         dragMap = new BufferedLayerMapBean();
@@ -309,8 +320,6 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         // Add this class as GPS data listener
         EPDShip.getGpsHandler().addListener(this);
 
-
-        
         // encLayerFactory2.setMapSettings();
 
         // Hack to flush ENC layer
@@ -324,7 +333,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
 
         // Show WMS or not
         wmsVisible(EPDShip.getSettings().getMapSettings().isWmsVisible());
-        
+
         getMap().addMouseWheelListener(this);
 
     }
@@ -421,28 +430,33 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
     }
 
     /**
-     * Change the mouse mode
+     * Change the mouse mode.
      * 
      * @param mode
-     *            0 for NavMode, 1 for DragMode, 2 for SelectMode
+     *            The mode ID of the mouse mode to swap to (e.g.
+     *            DistanceCircleMouseMode.MODE_ID).
      */
-    public void setMouseMode(int mode) {
-        // Mode0 is routeEditMouseMode
-        if (mode == 0) {
+    public void setMouseMode(String modeID) {
+        // Switching to RouteEditMouseMode
+        if (modeID.equals(RouteEditMouseMode.MODE_ID)) {
             mouseDelegator.setActive(routeEditMouseMode);
             routeEditLayer.setVisible(true);
             routeEditLayer.setEnabled(true);
             newRouteContainerLayer.setVisible(true);
+
+            // make sure toggle button is toggled if this mouse mode is enabled
+            // by exiting DistanceCircleMouseMode
+            this.topPanel.getNewRouteBtn().setSelected(true);
 
             EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
                     .setSelected(false);
             EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
                     .setSelected(false);
         }
-
-        // Mode1 is NavMouseMode
-        // Mode2 is DragMouseMode
-        if (mode == 1 || mode == 2) {
+        if (modeID.equals(NavigationMouseMode.MODE_ID)
+                || modeID.equals(DragMouseMode.MODE_ID)
+                || modeID.equals(DistanceCircleMouseMode.MODE_ID)) {
+            // Clear new route graphics and toggle buttons
             routeEditLayer.setVisible(false);
             routeEditLayer.doPrepare();
             newRouteContainerLayer.setVisible(false);
@@ -453,8 +467,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
                     .setSelected(false);
             EPDShip.getMainFrame().getEeINSMenuBar().getNewRoute()
                     .setSelected(false);
-
-            if (mode == 1) {
+            if (modeID.equals(NavigationMouseMode.MODE_ID)) {
                 System.out.println("Setting nav mouse mode");
                 mouseDelegator.setActive(mapNavMouseMode);
                 EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
@@ -462,7 +475,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
                 EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
                         .setSelected(false);
             }
-            if (mode == 2) {
+            if (modeID.equals(DragMouseMode.MODE_ID)) {
                 mouseDelegator.setActive(dragMouseMode);
                 EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
                         .setSelected(false);
@@ -471,7 +484,30 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
                 System.out.println("Setting drag mouse mode");
             }
         }
-
+        if (modeID.equals(DistanceCircleMouseMode.MODE_ID)) {
+            // Disable the other mouse mode toggle buttons.
+            this.topPanel.getNavigationMouseMode().setSelected(false);
+            this.topPanel.getDragMouseMode().setSelected(false);
+            this.topPanel.getNewRouteBtn().setSelected(false);
+            String prevMouseModeId = this.mouseDelegator.getActiveMouseMode()
+                    .getID();
+            // Store previous mouse mode ID such that we can go back to that
+            // mouse mode
+            this.rangeCirclesMouseMode
+                    .setPreviousMouseModeModeID(prevMouseModeId);
+            System.out.println("Setting DistanceCircleMouseMode");
+            // Display the ruler layer.
+            this.rulerLayer.setVisible(true);
+            this.mouseDelegator.setActive(this.rangeCirclesMouseMode);
+        } else {
+            // When mouse mode is changed to something different than distance
+            // circle mode
+            // we untoggle the distance circle mode button
+            this.topPanel.getToggleButtonDistanceCircleMouseMode().setSelected(
+                    false);
+            // hide ruler layer when not in "distance circles mode"
+            this.rulerLayer.setVisible(false);
+        }
     }
 
     // public void editMode(boolean enable) {
