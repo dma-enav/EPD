@@ -13,13 +13,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.event;
+package dk.dma.epd.ship.event;
 
 import java.awt.event.MouseEvent;
 
-import com.bbn.openmap.event.AbstractMouseMode;
-
-public class DistanceCircleMouseMode extends AbstractMouseMode {
+public class DistanceCircleMouseMode extends AbstractCoordMouseMode {
 
     public static final transient String MODE_ID = "DistanceCircle";
 
@@ -31,7 +29,7 @@ public class DistanceCircleMouseMode extends AbstractMouseMode {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Creata distance circle mouse mode.
+     * Create a distance circle mouse mode.
      * 
      * @param shouldConsumeEvents
      *            If events should be consumed.
