@@ -42,7 +42,6 @@ import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.event.DistanceCircleMouseMode;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
@@ -51,6 +50,7 @@ import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.MSIFilterMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
