@@ -182,7 +182,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         add(encBtn);
         add(wmsBtn);
         add(toggleSafeHaven);
-        
+
         // add(tglbtnMsiFilter);
         // if (showRiskAndNogo)
         // add(riskBtn);
@@ -425,7 +425,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             aisDialog.setSelection(-1, true);
         } else if (e.getSource() == newRouteBtn) {
             if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID
-                    || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID) {
+                    || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID
+                    || mouseDelegator.getActiveMouseModeID() == DistanceCircleMouseMode.MODE_ID) {
                 menuBar.getNewRoute().setSelected(true);
                 // mainFrame.getChartPanel().setMouseMode(0);
                 mainFrame.getChartPanel().setMouseMode(
