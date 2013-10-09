@@ -430,25 +430,33 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
     }
 
     /**
-     * Change the mouse mode
+     * Change the mouse mode.
      * 
      * @param mode
-     *            0 for NavMode, 1 for DragMode, 2 for SelectMode
+     *            The mode ID of the mouse mode to swap to (e.g.
+     *            DistanceCircleMouseMode.MODE_ID).
      */
     public void setMouseMode(String modeID) {
         // Switching to RouteEditMouseMode
-        if(modeID.equals(RouteEditMouseMode.MODE_ID)) {
+        if (modeID.equals(RouteEditMouseMode.MODE_ID)) {
             mouseDelegator.setActive(routeEditMouseMode);
             routeEditLayer.setVisible(true);
             routeEditLayer.setEnabled(true);
             newRouteContainerLayer.setVisible(true);
 
+            // make sure toggle button is toggled if this mouse mode is enabled
+            // by exiting DistanceCircleMouseMode
+            this.topPanel.getNewRouteBtn().setSelected(true);
+
             EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
-            .setSelected(false);
+                    .setSelected(false);
             EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
-            .setSelected(false);
+                    .setSelected(false);
         }
-        if(modeID.equals(NavigationMouseMode.MODE_ID) || modeID.equals(DragMouseMode.MODE_ID)) {
+        if (modeID.equals(NavigationMouseMode.MODE_ID)
+                || modeID.equals(DragMouseMode.MODE_ID)
+                || modeID.equals(DistanceCircleMouseMode.MODE_ID)) {
+            // Clear new route graphics and toggle buttons
             routeEditLayer.setVisible(false);
             routeEditLayer.doPrepare();
             newRouteContainerLayer.setVisible(false);
@@ -456,39 +464,47 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
             newRouteContainerLayer.getRouteGraphics().clear();
             newRouteContainerLayer.doPrepare();
             EPDShip.getMainFrame().getTopPanel().getNewRouteBtn()
-            .setSelected(false);
+                    .setSelected(false);
             EPDShip.getMainFrame().getEeINSMenuBar().getNewRoute()
-            .setSelected(false);
-            if(modeID.equals(NavigationMouseMode.MODE_ID)) {
+                    .setSelected(false);
+            if (modeID.equals(NavigationMouseMode.MODE_ID)) {
                 System.out.println("Setting nav mouse mode");
                 mouseDelegator.setActive(mapNavMouseMode);
                 EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
-                .setSelected(true);
+                        .setSelected(true);
                 EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
-                .setSelected(false);
+                        .setSelected(false);
             }
-            if(modeID.equals(DragMouseMode.MODE_ID)) {
+            if (modeID.equals(DragMouseMode.MODE_ID)) {
                 mouseDelegator.setActive(dragMouseMode);
                 EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
-                .setSelected(false);
+                        .setSelected(false);
                 EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
-                .setSelected(true);
+                        .setSelected(true);
                 System.out.println("Setting drag mouse mode");
             }
         }
-        if(modeID.equals(DistanceCircleMouseMode.MODE_ID)) {
-            String prevMouseModeId = this.mouseDelegator.getActiveMouseMode().getID();
-            // Store previous mouse mode ID such that we can go back to that mouse mode
-            this.rangeCirclesMouseMode.setPreviousMouseModeModeID(prevMouseModeId);
+        if (modeID.equals(DistanceCircleMouseMode.MODE_ID)) {
+            // Disable the other mouse mode toggle buttons.
+            this.topPanel.getNavigationMouseMode().setSelected(false);
+            this.topPanel.getDragMouseMode().setSelected(false);
+            this.topPanel.getNewRouteBtn().setSelected(false);
+            String prevMouseModeId = this.mouseDelegator.getActiveMouseMode()
+                    .getID();
+            // Store previous mouse mode ID such that we can go back to that
+            // mouse mode
+            this.rangeCirclesMouseMode
+                    .setPreviousMouseModeModeID(prevMouseModeId);
             System.out.println("Setting DistanceCircleMouseMode");
             // Display the ruler layer.
             this.rulerLayer.setVisible(true);
             this.mouseDelegator.setActive(this.rangeCirclesMouseMode);
-        }
-        else {
-            // When mouse mode is changed to something different than distance circle mode
+        } else {
+            // When mouse mode is changed to something different than distance
+            // circle mode
             // we untoggle the distance circle mode button
-            this.topPanel.getToggleButtonDistanceCircleMouseMode().setSelected(false);
+            this.topPanel.getToggleButtonDistanceCircleMouseMode().setSelected(
+                    false);
             // hide ruler layer when not in "distance circles mode"
             this.rulerLayer.setVisible(false);
         }
