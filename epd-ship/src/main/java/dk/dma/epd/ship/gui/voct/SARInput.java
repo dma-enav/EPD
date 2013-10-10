@@ -233,18 +233,22 @@ public class SARInput extends JDialog implements ActionListener,
             case 0:
                 descriptiveImage.setIcon(rapidResponseIcon);
                 descriptiveText.setText(rapidresponseTxt);
+                nextButton.setEnabled(true);
                 break;
             case 1:
                 descriptiveImage.setIcon(datumPointIcon);
                 descriptiveText.setText(datumPointTxt);
+                nextButton.setEnabled(true);
                 break;
             case 2:
                 descriptiveImage.setIcon(datumLineIcon);
                 descriptiveText.setText(datumLineTxt);
+                nextButton.setEnabled(false);
                 break;
             case 3:
                 descriptiveImage.setIcon(backtrackIcon);
                 descriptiveText.setText(backtrackTxt);
+                nextButton.setEnabled(false);
                 break;
             }
 
@@ -420,6 +424,12 @@ public class SARInput extends JDialog implements ActionListener,
 
         // Get LKP values
         double rapidResponseLKPLat = rapidResponseDatumPointInputPanel.getRapidResponseDatumLKPLat();
+        
+        if (rapidResponseLKPLat == -9999){
+            return false;
+        }
+            
+        
         double rapidResponseLKPLon = rapidResponseDatumPointInputPanel.getRapidResponseDatumLKPLon();
 
         Position rapidResponsePosition;
