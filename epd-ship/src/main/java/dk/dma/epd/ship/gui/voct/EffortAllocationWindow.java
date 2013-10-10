@@ -143,7 +143,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             lblVesselName.setBounds(10, 22, 83, 14);
             panel_2.add(lblVesselName);
 
-            JLabel lblTopSpeed = new JLabel("Top Speed, knots:");
+            JLabel lblTopSpeed = new JLabel("Search Velocity, knots:");
             lblTopSpeed.setBounds(10, 69, 105, 14);
             panel_2.add(lblTopSpeed);
 

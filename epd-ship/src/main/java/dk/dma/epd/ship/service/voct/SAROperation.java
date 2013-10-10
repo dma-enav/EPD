@@ -332,15 +332,15 @@ public class SAROperation {
         data.setRdvSpeedMax(rdvSpeedMax);
 
         // Radius:
-        double radiusDownWind = (data.getX() + data.getY()) + 0.3
-                * rdvDistanceDownWind * data.getSF();
+        double radiusDownWind = ((data.getX() + data.getY()) + 0.3
+                * rdvDistanceDownWind) * data.getSF();
         data.setRadiusDownWind(radiusDownWind);
 
-        double radiusMin = (data.getX() + data.getY()) + 0.3 * rdvDistanceMin
+        double radiusMin = ((data.getX() + data.getY()) + 0.3 * rdvDistanceMin)
                 * data.getSF();
         data.setRadiusMin(radiusMin);
 
-        double radiusMax = (data.getX() + data.getY()) + 0.3 * rdvDistanceMax
+        double radiusMax = ((data.getX() + data.getY()) + 0.3 * rdvDistanceMax)
                 * data.getSF();
 
         data.setRadiusMax(radiusMax);
