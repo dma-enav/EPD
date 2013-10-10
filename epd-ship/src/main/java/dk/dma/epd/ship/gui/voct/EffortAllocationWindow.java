@@ -130,7 +130,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             panel_1.add(txtField);
             txtField.setBackground(UIManager.getColor("Button.background"));
             txtField.setEditable(false);
-            txtField.setText("Probability of Detection is a statistical measurement for determining the success rate for location an object lost at sea. Recommended PoD is 79%");
+            txtField.setText("Probability of Detection is a statistical measurement for determining the success rate for location an object lost at sea. Recommended PoD is 78%");
 
             JPanel panel_2 = new JPanel();
             panel_2.setBorder(new TitledBorder(null, "SRU Information",
@@ -144,15 +144,15 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             panel_2.add(lblVesselName);
 
             JLabel lblTopSpeed = new JLabel("Search Velocity, knots:");
-            lblTopSpeed.setBounds(10, 69, 105, 14);
+            lblTopSpeed.setBounds(10, 69, 121, 14);
             panel_2.add(lblTopSpeed);
 
             shipName = new JLabel("N/A");
-            shipName.setBounds(112, 22, 95, 14);
+            shipName.setBounds(129, 22, 95, 14);
             panel_2.add(shipName);
 
             topSpeed = new JTextField();
-            topSpeed.setBounds(109, 66, 34, 20);
+            topSpeed.setBounds(129, 66, 34, 20);
             panel_2.add(topSpeed);
             topSpeed.setColumns(10);
 
@@ -163,17 +163,17 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             sruType = new JComboBox<String>();
             sruType.setModel(new DefaultComboBoxModel<String>(new String[] {
                     "Smaller vessel (40 feet)", "Ship (90 feet)" }));
-            sruType.setBounds(109, 41, 148, 20);
+            sruType.setBounds(129, 41, 148, 20);
             panel_2.add(sruType);
 
             JLabel lblFatigue = new JLabel("Fatigue:");
-            lblFatigue.setBounds(273, 22, 46, 14);
+            lblFatigue.setBounds(290, 22, 46, 14);
             panel_2.add(lblFatigue);
 
             fatigueDropDown = new JComboBox<Double>();
             fatigueDropDown.setModel(new DefaultComboBoxModel<Double>(
                     new Double[] { 1.0, 0.9 }));
-            fatigueDropDown.setBounds(329, 19, 45, 20);
+            fatigueDropDown.setBounds(345, 19, 45, 20);
             panel_2.add(fatigueDropDown);
 
             JPanel panel_3 = new JPanel();
@@ -266,7 +266,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             probabilityOfDetectionVal = new JTextField();
             probabilityOfDetectionVal.setEnabled(false);
             probabilityOfDetectionVal.setEditable(false);
-            probabilityOfDetectionVal.setText("79%");
+            probabilityOfDetectionVal.setText("78%");
             probabilityOfDetectionVal.setBounds(193, 22, 41, 20);
             panel_5.add(probabilityOfDetectionVal);
             probabilityOfDetectionVal.setColumns(10);

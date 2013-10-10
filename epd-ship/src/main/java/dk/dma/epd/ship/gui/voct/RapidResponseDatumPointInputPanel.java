@@ -162,7 +162,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
 
         lkpFirstLat = new JTextField();
         lkpFirstLat.setHorizontalAlignment(SwingConstants.RIGHT);
-//        lkpFirstLat.setText("56");
+
         lkpFirstLat.setText("");
         lkpFirstLat.setBounds(170, 47, 30, 20);
         lkpPanel.add(lkpFirstLat);
@@ -176,14 +176,12 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
         timeZoneDropdown.addActionListener(this);
 
         lkpSecondLat = new JTextField();
-//        lkpSecondLat.setText("30");
         lkpSecondLat.setText("");
         lkpSecondLat.setColumns(10);
         lkpSecondLat.setBounds(200, 47, 20, 20);
         lkpPanel.add(lkpSecondLat);
 
         lkpThirdLat = new JTextField();
-//        lkpThirdLat.setText("290");
         lkpThirdLat.setText("");
         lkpThirdLat.setColumns(10);
         lkpThirdLat.setBounds(220, 47, 30, 20);
@@ -192,19 +190,17 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
         comboLKPLat = new JComboBox<String>();
         comboLKPLat.setModel(new DefaultComboBoxModel<String>(new String[] {
                 "N", "S" }));
-        comboLKPLat.setBounds(250, 47, 30, 20);
+        comboLKPLat.setBounds(250, 47, 37, 20);
         lkpPanel.add(comboLKPLat);
 
         lkpFirstLon = new JTextField();
         lkpFirstLon.setHorizontalAlignment(SwingConstants.RIGHT);
-//        lkpFirstLon.setText("11");
         lkpFirstLon.setText("");
         lkpFirstLon.setColumns(10);
         lkpFirstLon.setBounds(290, 47, 30, 20);
         lkpPanel.add(lkpFirstLon);
 
         lkpSecondLon = new JTextField();
-//        lkpSecondLon.setText("57");
         lkpSecondLon.setText("");
         lkpSecondLon.setColumns(10);
         lkpSecondLon.setBounds(320, 47, 20, 20);
@@ -213,11 +209,10 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
         comboLKPLon = new JComboBox<String>();
         comboLKPLon.setModel(new DefaultComboBoxModel<String>(new String[] {
                 "E", "W" }));
-        comboLKPLon.setBounds(370, 47, 30, 20);
+        comboLKPLon.setBounds(370, 47, 37, 20);
         lkpPanel.add(comboLKPLon);
 
         lkpThirdLon = new JTextField();
-//        lkpThirdLon.setText("840");
         lkpThirdLon.setText("");
         lkpThirdLon.setColumns(10);
         lkpThirdLon.setBounds(340, 47, 30, 20);
@@ -317,7 +312,6 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
         panel.add(lblInitialPositionError);
 
         xErrorField = new JTextField();
-//        xErrorField.setText("1.0");
         xErrorField.setText("");
         xErrorField.setBounds(184, 22, 86, 20);
         panel.add(xErrorField);
@@ -386,7 +380,21 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
             searchObjectDropDown.addItem(LeewayValues.getLeeWayTypes().get(i));
 
         }
+        
+        
+        initSetValues();
 
+    }
+    
+    
+    private void initSetValues(){
+      lkpFirstLat.setText("56");
+      lkpSecondLat.setText("30");
+      lkpThirdLat.setText("290");
+      lkpFirstLon.setText("11");
+      lkpSecondLon.setText("57");
+      lkpThirdLon.setText("840");
+      xErrorField.setText("1.0");
     }
 
     private JPanel addPoint(int number) {
