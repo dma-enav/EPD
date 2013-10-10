@@ -119,6 +119,18 @@ public class VOCTManager implements Runnable, Serializable {
         return SAR_TYPE.NONE;
     }
     
+    
+    public void inputDatumLineData(String sarID, DateTime TLKP, DateTime DSP2Date, DateTime DSP3Date, DateTime CSS,
+            Position LKP, Position DSP2, Position DSP3, double x, double y, double SF, int searchObject,
+            List<SARWeatherData> sarWeatherDataPoints){
+        
+        
+        
+        
+        
+        
+    }
+    
 
     public void inputRapidResponseDatumData(String sarID, DateTime TLKP, DateTime CSS,
             Position LKP, double x, double y, double SF, int searchObject,
