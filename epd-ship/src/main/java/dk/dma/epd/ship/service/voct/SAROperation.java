@@ -600,7 +600,7 @@ public class SAROperation {
         System.out.println("RDV Speed: " + rdvSpeed);
 
         // Radius:
-        double radius = (data.getX() + data.getY()) + 0.3 * rdvDistance
+        double radius = ((data.getX() + data.getY()) + 0.3 * rdvDistance)
                 * data.getSF();
 
         data.setRadius(radius);
@@ -624,23 +624,31 @@ public class SAROperation {
         // Search box
         // The box is square around the circle, with center point at datum
         // Radius is the calculated Radius
+//        data.getRdvDirection()
+        double verticalDirection = data.getRdvDirection();
+        double horizontalDirection = verticalDirection + 90;
+        
+        if (horizontalDirection > 360){
+            horizontalDirection = horizontalDirection - 360;
+        }
 
         // First top side of the box
-        Position topCenter = Calculator.findPosition(datum, 0,
+        Position topCenter = Calculator.findPosition(datum, verticalDirection,
                 Converter.nmToMeters(radius));
+        
 
         // Bottom side of the box
-        Position bottomCenter = Calculator.findPosition(datum, 180,
+        Position bottomCenter = Calculator.findPosition(datum, Calculator.reverseDirection(verticalDirection),
                 Converter.nmToMeters(radius));
 
         // Go left radius length
-        Position A = Calculator.findPosition(topCenter, 270,
+        Position A = Calculator.findPosition(topCenter, Calculator.reverseDirection(horizontalDirection),
                 Converter.nmToMeters(radius));
-        Position B = Calculator.findPosition(topCenter, 90,
+        Position B = Calculator.findPosition(topCenter, horizontalDirection,
                 Converter.nmToMeters(radius));
-        Position C = Calculator.findPosition(bottomCenter, 90,
+        Position C = Calculator.findPosition(bottomCenter, horizontalDirection,
                 Converter.nmToMeters(radius));
-        Position D = Calculator.findPosition(bottomCenter, 270,
+        Position D = Calculator.findPosition(bottomCenter, Calculator.reverseDirection(horizontalDirection),
                 Converter.nmToMeters(radius));
 
         System.out.println("Final box parameters:");

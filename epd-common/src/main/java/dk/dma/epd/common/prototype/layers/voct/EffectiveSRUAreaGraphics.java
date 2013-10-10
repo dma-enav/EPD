@@ -67,6 +67,11 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         if (sarData instanceof RapidResponseData) {
             RapidResponseData rapidResponseData = (RapidResponseData) data;
             centerPosition = rapidResponseData.getDatum();
+            
+            verticalBearing = Calculator.bearing(rapidResponseData.getA(),
+                    rapidResponseData.getD(), Heading.RL);
+            horizontalBearing = Calculator.bearing(rapidResponseData.getA(),
+                    rapidResponseData.getB(), Heading.RL);
         }
 
         if (sarData instanceof DatumPointData) {
