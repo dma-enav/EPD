@@ -115,7 +115,7 @@ public class SAROperation {
             datumPointData.setTimeElasped(difference);
             
             
-            datumPoint(datumPointData, true);
+            datumPoint(datumPointData, false);
         }
         
         
@@ -167,7 +167,7 @@ public class SAROperation {
 
         // System.out.println("Hours since started: " + difference);
 
-        datumPoint(data, false);
+        datumPoint(data, true);
     }
 
     /**
