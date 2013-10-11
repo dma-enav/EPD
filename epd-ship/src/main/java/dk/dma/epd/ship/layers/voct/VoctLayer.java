@@ -36,6 +36,7 @@ import dk.dma.epd.common.prototype.layers.voct.SearchPatternTemp;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
@@ -411,6 +412,9 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             if (voctManager.getSarType() == SAR_TYPE.DATUM_POINT) {
                 drawDatumPoint();
             }
+            if (voctManager.getSarType() == SAR_TYPE.DATUM_LINE) {
+                drawDatumLine();
+            }
 
             this.setVisible(true);
         }
@@ -420,6 +424,61 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             this.setVisible(true);
         }
 
+    }
+    
+    
+    private void drawDatumLine() {
+        
+        //Create as many data objects as is contained
+        
+        
+        //Clear all previous
+        graphics.clear();
+        
+        DatumLineData datumLineData = (DatumLineData) voctManager.getSarData();
+
+        
+        for (int i = 0; i < datumLineData.getDatumPointDataSets().size(); i++) {
+            
+            System.out.println("Creating area " + i);
+            DatumPointData data = datumLineData.getDatumPointDataSets().get(i);
+            
+            
+            Position A = data.getA();
+            Position B = data.getB();
+            Position C = data.getC();
+            Position D = data.getD();
+
+            Position datumDownWind = data.getDatumDownWind();
+            Position datumMin = data.getDatumMin();
+            Position datumMax = data.getDatumMax();
+
+            double radiusDownWind = data.getRadiusDownWind();
+            double radiusMin = data.getRadiusMin();
+            double radiusMax = data.getRadiusMax();
+
+            Position LKP = data.getLKP();
+            Position WTCPoint = data.getWtc();
+            
+            SarGraphics sarGraphics = new SarGraphics(datumDownWind, datumMin,
+                    datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint,
+                    A, B, C, D);
+
+            graphics.add(sarGraphics);
+        }
+        
+        
+    
+
+   
+
+        // public SarGraphics(Position datumDownWind, Position datumMin,
+        // Position datumMax, double radiusDownWind, double radiusMin, double
+        // radiusMax, Position LKP, Position current) {
+
+
+        doPrepare();
+        
     }
 
     private void drawDatumPoint() {

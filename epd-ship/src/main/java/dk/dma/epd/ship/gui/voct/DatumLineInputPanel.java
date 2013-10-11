@@ -137,7 +137,7 @@ public class DatumLineInputPanel extends JPanel implements ActionListener,
 
         format.setTimeZone(TimeZone.getTimeZone("CET"));
 
-        CSSDate = CSSDate.plusHours(2);
+        CSSDate = CSSDate.plusHours(3);
 
         DSP2Date = DSP2Date.plusHours(1);
         
@@ -789,6 +789,36 @@ public class DatumLineInputPanel extends JPanel implements ActionListener,
                             cal.get(Calendar.DAY_OF_MONTH));
             return;
         }
+        
+        if (arg0.getSource() == dsp2DatePicker) {
+
+            Date tempDate = dsp2DatePicker.getDate();
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(tempDate);
+
+            DSP2Date = DSP2Date
+                    .withDate(cal.get(Calendar.YEAR),
+                            cal.get(Calendar.MONTH) + 1,
+                            cal.get(Calendar.DAY_OF_MONTH));
+            return;
+        }
+        
+        if (arg0.getSource() == dsp3DatePicker) {
+
+            Date tempDate = dsp3DatePicker.getDate();
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(tempDate);
+
+            DSP3Date = DSP3Date
+                    .withDate(cal.get(Calendar.YEAR),
+                            cal.get(Calendar.MONTH) + 1,
+                            cal.get(Calendar.DAY_OF_MONTH));
+            return;
+        }
+        
+        
         if (arg0.getSource() == cssDatePicker) {
 
             Date tempDate = cssDatePicker.getDate();
@@ -839,7 +869,7 @@ public class DatumLineInputPanel extends JPanel implements ActionListener,
 
     }
 
-    public double getDatumLKPLat() {
+    public double getLKPLat() {
         String LKPLatitude = dsp1FirstLat.getText() + " "
                 + dsp1SecondLat.getText() + "." + dsp1ThirdLat.getText()
                 + comboDsp1Lat.getSelectedItem();
@@ -892,7 +922,7 @@ public class DatumLineInputPanel extends JPanel implements ActionListener,
     }
     
     
-    public double getDatumLKPLon() {
+    public double getLKPLon() {
         String LKPLongitude = dsp1FirstLon.getText() + " "
                 + dsp1SecondLon.getText() + "." + dsp1ThirdLon.getText()
                 + comboDsp1Lon.getSelectedItem();
@@ -982,11 +1012,11 @@ public class DatumLineInputPanel extends JPanel implements ActionListener,
     public boolean checkTime() {
 
         // Do we start the search AFTER the LKP
-        if (CSSDate.isAfter(LKPDate) && DSP2Date.isAfter(LKPDate) && DSP3Date.isAfter(DSP3Date)) {
+        if (CSSDate.isAfter(DSP3Date) && DSP2Date.isAfter(LKPDate) && DSP3Date.isAfter(DSP2Date)) {
             return true;
         }
 
-        displayMsgbox("Commence Search Start Must be after\nDSP1\nDSP2 and DSP3 must be after DSP1");
+        displayMsgbox("Commence Search Start Must be after\nDSP1, DSP2 and DSP3\nDSP3 must be after DSP2 and DSP2 must be after DSP1");
 
         return false;
     }

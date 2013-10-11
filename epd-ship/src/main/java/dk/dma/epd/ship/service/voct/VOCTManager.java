@@ -29,6 +29,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
@@ -65,7 +66,9 @@ public class VOCTManager implements Runnable, Serializable {
 
     private SARData sarData;
     
+        
     VoctLayer voctLayer;
+
 
     public VOCTManager() {
         EPDShip.startThread(this, "VOCTManager");
@@ -125,9 +128,23 @@ public class VOCTManager implements Runnable, Serializable {
             List<SARWeatherData> sarWeatherDataPoints){
         
         
+        DatumPointData dsp1 = new DatumPointData(sarID, TLKP, CSS, LKP, x, y, SF, searchObject );
+        DatumPointData dsp2= new DatumPointData(sarID, DSP2Date, CSS, DSP2, x, y, SF, searchObject );
+        DatumPointData dsp3= new DatumPointData(sarID, DSP3Date, CSS, DSP3, x, y, SF, searchObject );
+        
+        DatumLineData datumLineSar = new DatumLineData(sarID, TLKP, CSS, LKP, x, y, SF, searchObject );
+        datumLineSar.setWeatherPoints(sarWeatherDataPoints);
+        
+        dsp1.setWeatherPoints(sarWeatherDataPoints);
+        dsp2.setWeatherPoints(sarWeatherDataPoints);
+        dsp3.setWeatherPoints(sarWeatherDataPoints);
         
         
+        datumLineSar.addDatumData(dsp1);
+        datumLineSar.addDatumData(dsp2);
+        datumLineSar.addDatumData(dsp3);
         
+        sarOperation.startDatumLineCalculations(datumLineSar);
         
     }
     

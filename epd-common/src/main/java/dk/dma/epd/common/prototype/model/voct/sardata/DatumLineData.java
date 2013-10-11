@@ -15,55 +15,59 @@
  */
 package dk.dma.epd.common.prototype.model.voct.sardata;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.voct.LeewayValues;
-import dk.dma.epd.common.text.Formatter;
 
 public class DatumLineData extends SARData {
 
-    private Position wtc;
-
-    private Position datumDownWind;
-    private Position datumMin;
-    private Position datumMax;
-
     
     
-    double rdvDirectionDownWind;
-    double rdvDirectionMin;
-    double rdvDirectionMax;
-    
-    double rdvDistanceDownWind;
-    double rdvDistanceMin;
-    double rdvDistanceMax;
-    
-    double rdvSpeedDownWind;
-    double rdvSpeedMin;
-    double rdvSpeedMax;
-    
-    double radiusDownWind;
-    double radiusMin;
-    double radiusMax;
+    List<DatumPointData> datumPointDataSets = new ArrayList<DatumPointData>();
     
     
-    
-    
-    private double timeElasped;
-
     private Position A;
     private Position B;
     private Position C;
     private Position D;
 
+    
+    
+    
+    
     // Init data
     public DatumLineData(String sarID, DateTime TLKP, DateTime CSS,
             Position LKP, double x, double y, double SF, int searchObject) {
         super(sarID, TLKP, CSS, LKP, x, y, SF, searchObject);
     }
+    
+    
+    public void addDatumData(DatumPointData data){
+        datumPointDataSets.add(data);
+    }
+    
+
+    /**
+     * @return the datumPointDataSets
+     */
+    public List<DatumPointData> getDatumPointDataSets() {
+        return datumPointDataSets;
+    }
+
+
+    /**
+     * @param datumPointDataSets the datumPointDataSets to set
+     */
+    public void setDatumPointDataSets(List<DatumPointData> datumPointDataSets) {
+        this.datumPointDataSets = datumPointDataSets;
+    }
+
 
     public void setBox(Position A, Position B, Position C, Position D) {
         this.A = A;
@@ -72,240 +76,7 @@ public class DatumLineData extends SARData {
         this.D = D;
     }
     
-    
-    /**
-     * @return the rdvDirectionDownWind
-     */
-    public double getRdvDirectionDownWind() {
-        return rdvDirectionDownWind;
-    }
-
-    /**
-     * @param rdvDirectionDownWind the rdvDirectionDownWind to set
-     */
-    public void setRdvDirectionDownWind(double rdvDirectionDownWind) {
-        this.rdvDirectionDownWind = rdvDirectionDownWind;
-    }
-
-    /**
-     * @return the rdvDirectionMin
-     */
-    public double getRdvDirectionMin() {
-        return rdvDirectionMin;
-    }
-
-    /**
-     * @param rdvDirectionMin the rdvDirectionMin to set
-     */
-    public void setRdvDirectionMin(double rdvDirectionMin) {
-        this.rdvDirectionMin = rdvDirectionMin;
-    }
-
-    /**
-     * @return the rdvDirectionMax
-     */
-    public double getRdvDirectionMax() {
-        return rdvDirectionMax;
-    }
-
-    /**
-     * @param rdvDirectionMax the rdvDirectionMax to set
-     */
-    public void setRdvDirectionMax(double rdvDirectionMax) {
-        this.rdvDirectionMax = rdvDirectionMax;
-    }
-
-    /**
-     * @return the rdvDistanceDownWind
-     */
-    public double getRdvDistanceDownWind() {
-        return rdvDistanceDownWind;
-    }
-
-    /**
-     * @param rdvDistanceDownWind the rdvDistanceDownWind to set
-     */
-    public void setRdvDistanceDownWind(double rdvDistanceDownWind) {
-        this.rdvDistanceDownWind = rdvDistanceDownWind;
-    }
-
-    /**
-     * @return the rdvDistanceMin
-     */
-    public double getRdvDistanceMin() {
-        return rdvDistanceMin;
-    }
-
-    /**
-     * @param rdvDistanceMin the rdvDistanceMin to set
-     */
-    public void setRdvDistanceMin(double rdvDistanceMin) {
-        this.rdvDistanceMin = rdvDistanceMin;
-    }
-
-    /**
-     * @return the rdvDistanceMax
-     */
-    public double getRdvDistanceMax() {
-        return rdvDistanceMax;
-    }
-
-    /**
-     * @param rdvDistanceMax the rdvDistanceMax to set
-     */
-    public void setRdvDistanceMax(double rdvDistanceMax) {
-        this.rdvDistanceMax = rdvDistanceMax;
-    }
-
-    /**
-     * @return the rdvSpeedDownWind
-     */
-    public double getRdvSpeedDownWind() {
-        return rdvSpeedDownWind;
-    }
-
-    /**
-     * @param rdvSpeedDownWind the rdvSpeedDownWind to set
-     */
-    public void setRdvSpeedDownWind(double rdvSpeedDownWind) {
-        this.rdvSpeedDownWind = rdvSpeedDownWind;
-    }
-
-    /**
-     * @return the rdvSpeedMin
-     */
-    public double getRdvSpeedMin() {
-        return rdvSpeedMin;
-    }
-
-    /**
-     * @param rdvSpeedMin the rdvSpeedMin to set
-     */
-    public void setRdvSpeedMin(double rdvSpeedMin) {
-        this.rdvSpeedMin = rdvSpeedMin;
-    }
-
-    /**
-     * @return the rdvSpeedMax
-     */
-    public double getRdvSpeedMax() {
-        return rdvSpeedMax;
-    }
-
-    /**
-     * @param rdvSpeedMax the rdvSpeedMax to set
-     */
-    public void setRdvSpeedMax(double rdvSpeedMax) {
-        this.rdvSpeedMax = rdvSpeedMax;
-    }
-
-    /**
-     * @return the radiusDownWind
-     */
-    public double getRadiusDownWind() {
-        return radiusDownWind;
-    }
-
-    /**
-     * @param radiusDownWind the radiusDownWind to set
-     */
-    public void setRadiusDownWind(double radiusDownWind) {
-        this.radiusDownWind = radiusDownWind;
-    }
-
-    /**
-     * @return the radiusMin
-     */
-    public double getRadiusMin() {
-        return radiusMin;
-    }
-
-    /**
-     * @param radiusMin the radiusMin to set
-     */
-    public void setRadiusMin(double radiusMin) {
-        this.radiusMin = radiusMin;
-    }
-
-    /**
-     * @return the radiusMax
-     */
-    public double getRadiusMax() {
-        return radiusMax;
-    }
-
-    /**
-     * @param radiusMax the radiusMax to set
-     */
-    public void setRadiusMax(double radiusMax) {
-        this.radiusMax = radiusMax;
-    }
-
-    /**
-     * @return the datumDownWind
-     */
-    public Position getDatumDownWind() {
-        return datumDownWind;
-    }
-
-    /**
-     * @param datumDownWind the datumDownWind to set
-     */
-    public void setDatumDownWind(Position datumDownWind) {
-        this.datumDownWind = datumDownWind;
-    }
-
-    /**
-     * @return the datumMin
-     */
-    public Position getDatumMin() {
-        return datumMin;
-    }
-
-    /**
-     * @param datumMin the datumMin to set
-     */
-    public void setDatumMin(Position datumMin) {
-        this.datumMin = datumMin;
-    }
-
-    /**
-     * @return the datumMax
-     */
-    public Position getDatumMax() {
-        return datumMax;
-    }
-
-    /**
-     * @param datumMax the datumMax to set
-     */
-    public void setDatumMax(Position datumMax) {
-        this.datumMax = datumMax;
-    }
-
-    /**
-     * @return the timeElasped
-     */
-    public double getTimeElasped() {
-        return timeElasped;
-    }
-
-    /**
-     * @param timeElasped
-     *            the timeElasped to set
-     */
-    public void setTimeElasped(double timeElasped) {
-        this.timeElasped = timeElasped;
-    }
-
-    /**
-     * @param wtc
-     *            the wtc to set
-     */
-    public void setWtc(Position wtc) {
-        this.wtc = wtc;
-    }
-
+   
     /**
      * @param a
      *            the a to set
@@ -336,13 +107,6 @@ public class DatumLineData extends SARData {
      */
     public void setD(Position d) {
         D = d;
-    }
-
-    /**
-     * @return the wtc
-     */
-    public Position getWtc() {
-        return wtc;
     }
 
     /**
@@ -405,7 +169,7 @@ public class DatumLineData extends SARData {
                 + this.getX() + "");
         str.append("<br>SRU Navigational Error, Y in nautical miles: "
                 + this.getY() + "</br>");
-        str.append("<br>Safety Factor, Fs: " + this.getSF() + "</br>");
+        str.append("<br>Safety Factor, Fs: " + this.getSafetyFactor() + "</br>");
         str.append("<hr>");
         str.append("<font size=\"4\">");
         str.append("Search Object: "
@@ -416,7 +180,7 @@ public class DatumLineData extends SARData {
                 + "</br>");
         str.append("<hr>");
         str.append("<font size=\"4\">");
-        str.append("Time Elapsed: " + Formatter.formatHours(timeElasped) + "");
+//        str.append("Time Elapsed: " + Formatter.formatHours(timeElasped) + "");
 //        str.append("<br>Applying Leeway and TWC gives a datum of  "
 //                + datum.toString() + "</br>");
 //        str.append("<br>With the following Residual Drift Vector</br>");

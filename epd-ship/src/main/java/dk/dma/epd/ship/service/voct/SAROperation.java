@@ -15,11 +15,14 @@
  */
 package dk.dma.epd.ship.service.voct;
 
+import java.util.List;
+
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
@@ -88,6 +91,52 @@ public class SAROperation {
         this.voctManager = voctManager;
     }
 
+    
+    public void startDatumLineCalculations(DatumLineData data){
+        System.out.println("Datum line");
+        
+        
+        
+        //Create a  datumpoint for each
+        List<DatumPointData> datumPoints = data.getDatumPointDataSets();
+        
+        
+
+        
+        
+        
+        for (int i = 0; i < datumPoints.size(); i++) {
+            
+            DatumPointData datumPointData = datumPoints.get(i);
+            
+            double difference = (double) (datumPointData.getCSSDate().getMillis() - datumPointData
+                    .getLKPDate().getMillis()) / 60 / 60 / 1000;
+
+            datumPointData.setTimeElasped(difference);
+            
+            
+            datumPoint(datumPointData, true);
+        }
+        
+        
+        System.out.println("Did we get something calculated?");
+        
+        
+        System.out.println("Different: ");
+        for (int i = 0; i < datumPoints.size(); i++) {
+            System.out.println("Time elapsed " + datumPoints.get(i).getTimeElasped());
+        }
+        
+        
+//        System.out.println(datumPoints.get(0).getA());
+        
+        
+        //We have to find the box around all circles
+        
+        voctManager.setSarData(data);
+        
+    }
+    
     public void startRapidResponseCalculations(RapidResponseData data) {
 
         System.out
@@ -118,7 +167,7 @@ public class SAROperation {
 
         // System.out.println("Hours since started: " + difference);
 
-        datumPoint(data);
+        datumPoint(data, false);
     }
 
     /**
@@ -235,7 +284,7 @@ public class SAROperation {
         return -9999;
     }
 
-    public void datumPoint(DatumPointData data) {
+    public DatumPointData datumPoint(DatumPointData data, boolean single) {
 
         double timeElapsed = data.getTimeElasped();
 
@@ -333,21 +382,29 @@ public class SAROperation {
 
         // Radius:
         double radiusDownWind = ((data.getX() + data.getY()) + 0.3
-                * rdvDistanceDownWind) * data.getSF();
+                * rdvDistanceDownWind) * data.getSafetyFactor();
         data.setRadiusDownWind(radiusDownWind);
 
         double radiusMin = ((data.getX() + data.getY()) + 0.3 * rdvDistanceMin)
-                * data.getSF();
+                * data.getSafetyFactor();
         data.setRadiusMin(radiusMin);
 
         double radiusMax = ((data.getX() + data.getY()) + 0.3 * rdvDistanceMax)
-                * data.getSF();
+                * data.getSafetyFactor();
 
         data.setRadiusMax(radiusMax);
 
+        
         findSmallestSquare(data);
+        
+        //Are we using the calculations for a datum line or a single datum point
+        if (single){
+            voctManager.setSarData(data);    
 
-        voctManager.setSarData(data);
+        }
+        return data;
+        
+        
     }
 
     private void findSmallestSquare(DatumPointData data) {
@@ -601,7 +658,7 @@ public class SAROperation {
 
         // Radius:
         double radius = ((data.getX() + data.getY()) + 0.3 * rdvDistance)
-                * data.getSF();
+                * data.getSafetyFactor();
 
         data.setRadius(radius);
 

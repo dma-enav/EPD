@@ -405,7 +405,7 @@ public class DatumPointData extends SARData {
                 + this.getX() + "");
         str.append("<br>SRU Navigational Error, Y in nautical miles: "
                 + this.getY() + "</br>");
-        str.append("<br>Safety Factor, Fs: " + this.getSF() + "</br>");
+        str.append("<br>Safety Factor, Fs: " + this.getSafetyFactor() + "</br>");
         str.append("<hr>");
         str.append("<font size=\"4\">");
         str.append("Search Object: "

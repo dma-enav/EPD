@@ -35,7 +35,7 @@ public class SARData {
 
     private double x;
     private double y;
-    private double SF;
+    private double safetyFactor;
     
     private int searchObject;
 
@@ -45,7 +45,7 @@ public class SARData {
     
     
     public SARData(String sarID, DateTime TLKP, DateTime CSS, Position LKP,
-            double x, double y, double SF, int searchObject) {
+            double x, double y, double safetyFactor, int searchObject) {
 
         this.setSarID(sarID);
         this.setLKP(LKP);
@@ -54,7 +54,7 @@ public class SARData {
 
         this.setX(x);
         this.setY(y);
-        this.setSF(SF);
+        this.setSafetyFactor(safetyFactor);
         this.setSearchObject(searchObject);
     }
     
@@ -153,16 +153,16 @@ public class SARData {
     /**
      * @return the sF
      */
-    public double getSF() {
-        return SF;
+    public double getSafetyFactor() {
+        return safetyFactor;
     }
 
     /**
      * @param sF
      *            the sF to set
      */
-    public void setSF(double sF) {
-        SF = sF;
+    public void setSafetyFactor(double safetyFactor) {
+        this.safetyFactor = safetyFactor;
     }
 
     /**
