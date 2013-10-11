@@ -462,7 +462,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             
             SarGraphics sarGraphics = new SarGraphics(datumDownWind, datumMin,
                     datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint,
-                    A, B, C, D);
+                    A, B, C, D, i+1);
 
             graphics.add(sarGraphics);
         }
