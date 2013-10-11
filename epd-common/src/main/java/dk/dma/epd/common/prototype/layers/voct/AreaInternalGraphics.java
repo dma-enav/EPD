@@ -25,6 +25,8 @@ import java.awt.RenderingHints;
 import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
 
+import com.bbn.openmap.geo.Geo;
+import com.bbn.openmap.geo.Intersection;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
@@ -69,15 +71,14 @@ public class AreaInternalGraphics extends OMGraphicList {
 
     Position relativePosition;
 
-
     double verticalBearing = 180;
     double horizontalBearing = 90;
-    
-    
+
     // Initialize with
     public AreaInternalGraphics(Position A, Position B, Position C, Position D,
             Double width, Double height,
-            EffectiveSRUAreaGraphics effecticeSRUAreaGraphics, double verticalBearing, double horizontalBearing) {
+            EffectiveSRUAreaGraphics effecticeSRUAreaGraphics,
+            double verticalBearing, double horizontalBearing) {
         super();
 
         this.setVague(true);
@@ -92,10 +93,8 @@ public class AreaInternalGraphics extends OMGraphicList {
 
         this.effecticeSRUAreaGraphics = effecticeSRUAreaGraphics;
 
-        
         this.verticalBearing = verticalBearing;
         this.horizontalBearing = horizontalBearing;
-        
 
         // Draw the data
 
@@ -172,7 +171,6 @@ public class AreaInternalGraphics extends OMGraphicList {
 
     public void moveRelative(Position newPos, SARData data) {
 
-        
         // relativePosition is
 
         graphics.clear();
@@ -181,7 +179,8 @@ public class AreaInternalGraphics extends OMGraphicList {
         // distance from mouseOffset to
 
         // First top side of the box
-        Position topSide = Calculator.findPosition(newPos, Calculator.reverseDirection(verticalBearing),
+        Position topSide = Calculator.findPosition(newPos,
+                Calculator.reverseDirection(verticalBearing),
                 Converter.nmToMeters(distanceToTop));
 
         // Bottom side of the box
@@ -189,13 +188,15 @@ public class AreaInternalGraphics extends OMGraphicList {
                 Converter.nmToMeters(distanceToBottom));
 
         // Go left radius length
-        A = Calculator.findPosition(topSide, Calculator.reverseDirection(horizontalBearing),
+        A = Calculator.findPosition(topSide,
+                Calculator.reverseDirection(horizontalBearing),
                 Converter.nmToMeters(distanceToLeft));
 
         B = Calculator.findPosition(topSide, horizontalBearing,
                 Converter.nmToMeters(distanceToRight));
 
-        C = Calculator.findPosition(bottomSide, Calculator.reverseDirection(horizontalBearing),
+        C = Calculator.findPosition(bottomSide,
+                Calculator.reverseDirection(horizontalBearing),
                 Converter.nmToMeters(distanceToLeft));
 
         D = Calculator.findPosition(bottomSide, horizontalBearing,
@@ -204,26 +205,72 @@ public class AreaInternalGraphics extends OMGraphicList {
         drawPolygon();
 
         effecticeSRUAreaGraphics.updateLines(A, B, C, D);
-        
-//        data.getEffortAllocationData().setEffectiveAreaA(A);
-//        data.getEffortAllocationData().setEffectiveAreaB(B);
-//        data.getEffortAllocationData().setEffectiveAreaC(C);
-//        data.getEffortAllocationData().setEffectiveAreaD(D);
+
+        // data.getEffortAllocationData().setEffectiveAreaA(A);
+        // data.getEffortAllocationData().setEffectiveAreaB(B);
+        // data.getEffortAllocationData().setEffectiveAreaC(C);
+        // data.getEffortAllocationData().setEffectiveAreaD(D);
 
     }
 
     public void adjustInternalPosition(Position relativePosition) {
 
-        Position topPoint = Position.create(A.getLatitude(),
-                relativePosition.getLongitude());
-        
-        Position bottomPoint = Position.create(C.getLatitude(),
-                relativePosition.getLongitude());
+        // Find the top point from the current Position
 
-        Position leftPoint = Position.create(relativePosition.getLatitude(),
-                A.getLongitude());
-        Position rightPoint = Position.create(relativePosition.getLatitude(),
-                B.getLongitude());
+        // Create a line going from relativePosition and in reverse vertical
+        // bearing - find the intersection between this position and the line
+        // going from A to B
+        Position verticalEndPosition = Calculator.findPosition(
+                relativePosition, Calculator.reverseDirection(verticalBearing),
+                Converter.nmToMeters(height));
+
+        Geo a1 = new Geo(relativePosition.getLatitude(),
+                relativePosition.getLongitude());
+        Geo a2 = new Geo(verticalEndPosition.getLatitude(),
+                verticalEndPosition.getLongitude());
+
+        Geo b1 = new Geo(A.getLatitude(), A.getLongitude());
+        Geo b2 = new Geo(B.getLatitude(), B.getLongitude());
+
+
+        Geo intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
+
+        Position topPoint = Position.create(intersectionPoint.getLatitude(),
+                intersectionPoint.getLongitude());
+
+        Position bottomPoint = Calculator.findPosition(topPoint,
+                verticalBearing, Converter.nmToMeters(height));
+
+        
+        // Create a line going from relativePosition and in reverse horizontal
+        // bearing - find the intersection between this position and the line
+        // going from A to C
+        Position horizontalEndPosition = Calculator.findPosition(
+                relativePosition, Calculator.reverseDirection(horizontalBearing),
+                Converter.nmToMeters(width));
+
+        Geo c1 = new Geo(relativePosition.getLatitude(),
+                relativePosition.getLongitude());
+        Geo c2 = new Geo(horizontalEndPosition.getLatitude(),
+                horizontalEndPosition.getLongitude());
+
+        Geo d1 = new Geo(A.getLatitude(), A.getLongitude());
+        Geo d2 = new Geo(C.getLatitude(), C.getLongitude());
+        
+        Geo intersectionPointLeft = Intersection.segmentsIntersect(c1, c2, d1, d2);
+        
+
+        Position leftPoint = Position.create(intersectionPointLeft.getLatitude(),
+                intersectionPointLeft.getLongitude());
+        
+        Position rightPoint = Calculator.findPosition(
+                leftPoint, horizontalBearing,
+                Converter.nmToMeters(width));
+        
+//        Position leftPoint = Position.create(relativePosition.getLatitude(),
+//                A.getLongitude());
+//        Position rightPoint = Position.create(relativePosition.getLatitude(),
+//                B.getLongitude());
 
         distanceToTop = Math.abs(Calculator.range(relativePosition, topPoint,
                 Heading.RL));
@@ -245,7 +292,7 @@ public class AreaInternalGraphics extends OMGraphicList {
         //
         //
 
-//        System.out.println("Height is: " + height);
+        // System.out.println("Height is: " + height);
 
         // Fix for uncertainly accuracy issue introduced by pixel resolution
         Double newHeight = distanceToTop + distanceToBottom;
@@ -253,7 +300,6 @@ public class AreaInternalGraphics extends OMGraphicList {
 
         Double differenceHeight = height - newHeight;
         Double differenceWidth = width - newWidth;
-
 
         distanceToTop = distanceToTop + (differenceHeight / 2);
         distanceToBottom = distanceToBottom + (differenceHeight / 2);
@@ -267,14 +313,14 @@ public class AreaInternalGraphics extends OMGraphicList {
         // System.out.println("Difference height is: " + (height -
         // distanceToLeft+distanceToRight));
 
-//        Double h2 = distanceToTop + distanceToBottom;
-//        Double diffh2 = height - h2;
+        // Double h2 = distanceToTop + distanceToBottom;
+        // Double diffh2 = height - h2;
 
-//        double diff2 = width - distanceToLeft + distanceToRight;
+        // double diff2 = width - distanceToLeft + distanceToRight;
 
-//        System.out.println("Difference height is: " + diffh2);
+        // System.out.println("Difference height is: " + diffh2);
 
-//        System.out.println("Difference width is: " + diff2);
+        // System.out.println("Difference width is: " + diff2);
 
     }
 
