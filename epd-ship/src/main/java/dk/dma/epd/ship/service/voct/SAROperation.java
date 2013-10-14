@@ -503,9 +503,6 @@ public class SAROperation {
         double radiusMax = data.getRadiusMax();
         double radiusDownWind = data.getRadiusDownWind();
 
-        Ellipsoid reference = Ellipsoid.WGS84;
-        double[] endBearing = new double[1];
-
         // Start by calculating on the largest circle, will set the first
         // bounds.
         Position startPos = datumMax;
@@ -660,8 +657,9 @@ public class SAROperation {
             // Modify A and B
 
         } else {
-            // System.out.println("Modify in direction " +
-            // Calculator.reverseDirection(datumDownWind.rhumbLineBearingTo(downWindParallelMinus)));
+            System.out.println("Modify in direction "
+                    + Calculator.reverseDirection(datumDownWind
+                            .rhumbLineBearingTo(downWindParallelMinus)));
 
             double direction = Calculator.reverseDirection(datumDownWind
                     .rhumbLineBearingTo(downWindParallelMinus));
@@ -685,18 +683,23 @@ public class SAROperation {
                     ParseUtils.PositionToGeo(downWindLeft),
                     ParseUtils.PositionToGeo(internalC),
                     ParseUtils.PositionToGeo(CGrow));
+
             Geo newD = Intersection.segmentsIntersect(
                     ParseUtils.PositionToGeo(downWindGrowCenter),
                     ParseUtils.PositionToGeo(downWindRight),
                     ParseUtils.PositionToGeo(internalD),
                     ParseUtils.PositionToGeo(DGrow));
 
-            internalC = ParseUtils.GeoToPosition(newC);
-            internalD = ParseUtils.GeoToPosition(newD);
+            if (newC != null && newD != null) {
 
-            data.setD(internalC);
-            data.setC(internalD);
+                internalC = ParseUtils.GeoToPosition(newC);
+                internalD = ParseUtils.GeoToPosition(newD);
 
+                data.setD(internalC);
+                data.setC(internalD);
+            }else{
+                System.out.println("is already inside");
+            }
             // Modify C and D
         }
 
@@ -926,132 +929,105 @@ public class SAROperation {
     }
 
     private void rapidResponse(RapidResponseData data) {
-        
-        
-        
-        
 
         // We need to calculate for each weather point
 
         List<SARWeatherData> weatherPoints = data.getWeatherPoints();
 
         DateTime startTime = data.getLKPDate();
-        
-        List<Double> weatherPointsValidFor = new ArrayList<Double>();
-        
-        List<Position> datumPositions = new ArrayList<Position>();
-        
-        
-        
-        List<Position> currentPositions = new ArrayList<Position>();
-        
-        
-        for (int i = 0; i < weatherPoints.size(); i++) {
-            
-            //Do we have a next?
-            
-            
-                
-                //How long is the data point valid for?
-                
-                //Is it the last one?
-                
-                if (i == weatherPoints.size() - 1){
-                    //It's the last one - let it last the remainder
-                    double validFor = (double) (data.getCSSDate().getMillis() - startTime.getMillis()) / 60 / 60 / 1000;
-                    weatherPointsValidFor.add(validFor);
-                }else{
-                    
-                    DateTime current= weatherPoints.get(i).getDateTime();
-                    
-                    
-                    if (current.isBefore(data.getLKPDate())){
-                        current= data.getLKPDate();
-                    }
-                    
-                    
-                    startTime = weatherPoints.get(i+1).getDateTime();
-                    
-                    
-                    double validFor = (double) (startTime.getMillis() - current.getMillis()) / 60 / 60 / 1000;
-                    weatherPointsValidFor.add(validFor);  
-                }
-                
-                
-                
-                
 
-  
-            
-            //How long is this data point valid for
-         
-            
-            
+        List<Double> weatherPointsValidFor = new ArrayList<Double>();
+
+        List<Position> datumPositions = new ArrayList<Position>();
+
+        List<Position> currentPositions = new ArrayList<Position>();
+
+        for (int i = 0; i < weatherPoints.size(); i++) {
+
+            // Do we have a next?
+
+            // How long is the data point valid for?
+
+            // Is it the last one?
+
+            if (i == weatherPoints.size() - 1) {
+                // It's the last one - let it last the remainder
+                double validFor = (double) (data.getCSSDate().getMillis() - startTime
+                        .getMillis()) / 60 / 60 / 1000;
+                weatherPointsValidFor.add(validFor);
+            } else {
+
+                DateTime current = weatherPoints.get(i).getDateTime();
+
+                if (current.isBefore(data.getLKPDate())) {
+                    current = data.getLKPDate();
+                }
+
+                startTime = weatherPoints.get(i + 1).getDateTime();
+
+                double validFor = (double) (startTime.getMillis() - current
+                        .getMillis()) / 60 / 60 / 1000;
+                weatherPointsValidFor.add(validFor);
+            }
+
+            // How long is this data point valid for
+
         }
-        
-        
-//        for (int i = 0; i < weatherPointsValidFor.size(); i++) {
-//            System.out.println("Weather point " + i + " is valid for " + weatherPointsValidFor.get(i) + " hours");
-//        }
-        
-        
-        
+
+        // for (int i = 0; i < weatherPointsValidFor.size(); i++) {
+        // System.out.println("Weather point " + i + " is valid for " +
+        // weatherPointsValidFor.get(i) + " hours");
+        // }
+
         for (int i = 0; i < weatherPoints.size(); i++) {
             SARWeatherData weatherObject = weatherPoints.get(i);
             double validFor = weatherPointsValidFor.get(i);
-          
+
             System.out.println("Valid for : " + validFor);
-            
-            double currentTWC = weatherObject.getTWCknots()
-                    * validFor;
-            
-            
+
+            double currentTWC = weatherObject.getTWCknots() * validFor;
+
             System.out.println("Current TWC: " + currentTWC);
-            System.out.println("HEading TWC: "+ weatherObject.getLWHeading());
-            
-            double leewayspeed = searchObjectValue(data.getSearchObject(), weatherObject.getLWknots());
+            System.out.println("HEading TWC: " + weatherObject.getLWHeading());
+
+            double leewayspeed = searchObjectValue(data.getSearchObject(),
+                    weatherObject.getLWknots());
             double leeway = leewayspeed * validFor;
-            
-            
+
             Position startingLocation = null;
-            
-            if (i == 0){
+
+            if (i == 0) {
                 startingLocation = data.getLKP();
-            }else{
-                startingLocation = datumPositions.get(i-1);
+            } else {
+                startingLocation = datumPositions.get(i - 1);
             }
-            
-            Position currentPos = Calculator.findPosition(startingLocation, weatherObject.getTWCHeading(),  Converter.nmToMeters(currentTWC));
-            
-     
+
+            Position currentPos = Calculator.findPosition(startingLocation,
+                    weatherObject.getTWCHeading(),
+                    Converter.nmToMeters(currentTWC));
+
             currentPositions.add(currentPos);
-            
+
             System.out.println("Current is: " + currentPos.getLatitude());
             System.out.println("Current is: " + currentPos.getLongitude());
 
-            
+            Position windPos = Calculator.findPosition(currentPos,
+                    weatherObject.getDownWind(), Converter.nmToMeters(leeway));
 
-            Position windPos = Calculator.findPosition(currentPos, weatherObject.getDownWind(),  Converter.nmToMeters(leeway));
-      
             datumPositions.add(windPos);
-            
-            
+
             data.setDatum(windPos);
-            
-            
+
         }
-        
-//        datumPositions.remove(datumPositions.size()-1);
-        
+
+        // datumPositions.remove(datumPositions.size()-1);
+
         Position datumPosition = data.getDatum();
-        
-//        datumPositions.remove(datumPositions.size()-1);
-        
+
+        // datumPositions.remove(datumPositions.size()-1);
+
         data.setWindList(datumPositions);
         data.setCurrentList(currentPositions);
-        
-        
-
 
         // RDV Direction
         double rdvDirection = Calculator.bearing(data.getLKP(), datumPosition,
@@ -1080,7 +1056,6 @@ public class SAROperation {
         data.setRadius(radius);
 
         System.out.println("Radius is: " + radius);
-
 
         findRapidResponseBox(datumPosition, radius, data);
 
