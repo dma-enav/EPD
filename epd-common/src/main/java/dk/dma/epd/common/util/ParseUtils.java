@@ -22,6 +22,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.bbn.openmap.geo.Geo;
+
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.Heading;
 
@@ -213,5 +216,11 @@ public class ParseUtils {
         return res;
     }
     
+    public static Geo PositionToGeo(Position position){
+        return new Geo(position.getLatitude(), position.getLongitude());
+    }
     
+    public static Position GeoToPosition(Geo geo){
+        return Position.create(geo.getLatitude(), geo.getLongitude());
+    }
 }    

@@ -66,13 +66,12 @@ public class Calculator {
     }
 
     public static Position findPosition(Position startingLocation,
-            double bearing, double distanceTravelled) {
+            double bearing, double distance) {
         // Starting point
         // Bearing
         // Distance
         Ellipsoid reference = Ellipsoid.WGS84;
         double startBearing = bearing;
-        double distance = distanceTravelled;
         double[] endBearing = new double[1];
 
         Position dest = calculateEndingGlobalCoordinates(reference,
@@ -222,6 +221,37 @@ public class Calculator {
         }
         
         return newDirection;
+    }
+    
+    public static double turn90Plus(double direction){
+        double newDirection = direction + 90;
         
+        
+        if (newDirection > 360){
+            newDirection = newDirection - 360;
+        }
+        
+        if (newDirection == 360){
+            newDirection = 0;
+        }
+        
+        return newDirection;
+        
+    }
+    
+    public static double turn90Minus(double direction){
+        double newDirection = direction - 90;
+        
+        
+        if (newDirection < 0){
+            newDirection = newDirection + 360;
+        }
+        
+        if (newDirection == 360){
+            newDirection = 0;
+        }
+        
+        
+        return newDirection;
     }
 }

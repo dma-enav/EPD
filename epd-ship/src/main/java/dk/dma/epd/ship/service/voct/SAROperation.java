@@ -18,6 +18,10 @@ package dk.dma.epd.ship.service.voct;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bbn.openmap.dataAccess.iso8211.DDFSubfieldDefinition.DDFBinaryFormat;
+import com.bbn.openmap.geo.Geo;
+import com.bbn.openmap.geo.Intersection;
+
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
@@ -30,6 +34,7 @@ import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Ellipsoid;
+import dk.dma.epd.common.util.ParseUtils;
 
 /**
  * Where all SAR Calculations are performed
@@ -522,118 +527,365 @@ public class SAROperation {
         double radiusMax = data.getRadiusMax();
         double radiusDownWind = data.getRadiusDownWind();
 
-        // Bearing between the two points - this will be the direction of the
-        // box.
-        double lengthBearing = Calculator.bearing(datumMax, datumMin,
-                Heading.RL);
+
 
         Ellipsoid reference = Ellipsoid.WGS84;
         double[] endBearing = new double[1];
 
-        // Find A and D
-
-        // Find top Position from radius
-        Position TopPointMax = Calculator.calculateEndingGlobalCoordinates(
-                reference, datumMax, lengthBearing + 90,
-                Converter.nmToMeters(radiusMax), endBearing);
-
-        endBearing = new double[1];
-
-        Position BottomPointMax = Calculator.calculateEndingGlobalCoordinates(
-                reference, datumMax, lengthBearing - 90,
-                Converter.nmToMeters(radiusMax), endBearing);
-        endBearing = new double[1];
-
-        Position topPointMaxInnerBox = Calculator
-                .calculateEndingGlobalCoordinates(reference, TopPointMax,
-                        lengthBearing + 180, Converter.nmToMeters(radiusMax),
-                        endBearing);
-
-        data.setA(topPointMaxInnerBox);
-
-        Position bottomPointMaxInnerBox = Calculator
-                .calculateEndingGlobalCoordinates(reference, BottomPointMax,
-                        lengthBearing + 180, Converter.nmToMeters(radiusMax),
-                        endBearing);
-
-        data.setD(bottomPointMaxInnerBox);
-
-        // Find top Position from radius
-        Position TopPointMin = Calculator.calculateEndingGlobalCoordinates(
-                reference, datumMin, lengthBearing + 90,
-                Converter.nmToMeters(radiusMin), endBearing);
-
-        endBearing = new double[1];
-
-        Position BottomPointMin = Calculator.calculateEndingGlobalCoordinates(
-                reference, datumMin, lengthBearing - 90,
-                Converter.nmToMeters(radiusMin), endBearing);
-        endBearing = new double[1];
-
-        // Position top of min circle, turn 180 around and go radius distance to
-        // find a box point
-        Position topPointMinInnerBox = Calculator
-                .calculateEndingGlobalCoordinates(reference, TopPointMin,
-                        lengthBearing, Converter.nmToMeters(radiusMin),
-                        endBearing);
-
-        data.setB(topPointMinInnerBox);
-
-        endBearing = new double[1];
-
-        Position bottomPointMinInnerBox = Calculator
-                .calculateEndingGlobalCoordinates(reference, BottomPointMin,
-                        lengthBearing, Converter.nmToMeters(radiusMin),
-                        endBearing);
-        endBearing = new double[1];
-
-        data.setC(bottomPointMinInnerBox);
-
-        System.out.println("Bearing from datum to max is");
-        double bearingFromDownwindToMax = Calculator.bearing(datumDownWind,
-                datumMax, Heading.RL);
-        System.out.println(bearingFromDownwindToMax);
-
-        double growthBearing;
-
         
-        System.out.println("Length bearing of normal box is " + lengthBearing);
+        //Start by calculating on the largest circle, will set the first bounds.
+        Position startPos = datumMax;
+        Position endPos = datumMin;
+        double startRadius = radiusMax;
+        double endRadius = radiusMax;
         
-        if (bearingFromDownwindToMax > 90 && bearingFromDownwindToMax < 270) {
-            growthBearing = lengthBearing + 90;
+        
+        if (radiusMin > radiusMax){
+            System.out.println("Starting with min");
+            startPos = datumMin;
+            startRadius = radiusMin;
+            endPos = datumMax;
+            endRadius = radiusMax;
         }else{
-            growthBearing = -(lengthBearing + 90);
+            System.out.println("Starting with max");
+            startPos = datumMax;
+            startRadius  = radiusMax;
+            endPos  = datumMin;
+            endRadius = radiusMin;
         }
         
-            // Going down - replace D, C
-            growthBearing = lengthBearing + 90;
-            
-            
-            System.out.println("Growing in plus 90 " + growthBearing);
-            
-            double boxLength = topPointMaxInnerBox.distanceTo(
-                    topPointMinInnerBox, CoordinateSystem.GEODETIC);
+        
+        // Bearing between the two points - this will be the direction of the
+        // box.
+        double lengthBearing = Calculator.bearing(startPos, endPos,
+                Heading.RL);
+        
+        
+        
+        Position TopPointStart = Calculator.findPosition(startPos, Calculator.turn90Minus(lengthBearing),  Converter.nmToMeters(startRadius));
+        Position BottomPointStart = Calculator.findPosition(startPos, Calculator.turn90Plus(lengthBearing),  Converter.nmToMeters(startRadius));
+        
+        
+        
+        Position internalA = Calculator.findPosition(TopPointStart, Calculator.reverseDirection(lengthBearing),  Converter.nmToMeters(startRadius));
+        Position internalC = Calculator.findPosition(BottomPointStart, Calculator.reverseDirection(lengthBearing),  Converter.nmToMeters(startRadius));
+        
+        
+//        System.out.println("Length bearing is " + lengthBearing);
+//        System.out.println("Reversed its " + Calculator.reverseDirection(lengthBearing));
+        Position endDirectionPoint = Calculator.findPosition(endPos, lengthBearing, Converter.nmToMeters(endRadius));
+        
+        
+        Position endDirectionPointMinus90 = Calculator.findPosition(endDirectionPoint, Calculator.turn90Minus(lengthBearing), 500000);
+        Position endDirectionPointPlus90 = Calculator.findPosition(endDirectionPoint, Calculator.turn90Plus(lengthBearing), 5000);
+        
+        
+        
+        Geo a1 = new Geo(endDirectionPoint.getLatitude(), endDirectionPoint.getLongitude());
+        Geo a2 = new Geo(endDirectionPointMinus90.getLatitude(), endDirectionPointMinus90.getLongitude());
+        
+        Position directionFromA = Calculator.findPosition(internalA, lengthBearing, 500000);
+        Position directionFromC = Calculator.findPosition(internalC, lengthBearing, 500000);
+        
+        Geo b1 = new Geo(internalA.getLatitude(), internalA.getLongitude());
+        Geo b2 = new Geo(directionFromA.getLatitude(), directionFromA.getLongitude());
+        
+        Geo intersection = Intersection.segmentsIntersect(a1, a2, b1, b2);
+        
+//        System.out.println(a1);
+//        System.out.println(a2);
+//        System.out.println(b1);
+//        System.out.println(b2);
+//        
+//        System.out.println("Intersectin at : " + intersection);
+        
+        Position internalB = Position.create(intersection.getLatitude(), intersection.getLongitude());
+        
+        
+//        a1 = new Geo(endDirectionPoint.getLatitude(), endDirectionPoint.getLongitude());
+        a2 = new Geo(endDirectionPointPlus90.getLatitude(), endDirectionPointPlus90.getLongitude());
+        
+        b1 = new Geo(internalC.getLatitude(), internalC.getLongitude());
+        b2 = new Geo(directionFromC.getLatitude(), directionFromC.getLongitude());
+        
+        
+        intersection = Intersection.segmentsIntersect(a1, a2, b1, b2);
+//        System.out.println("Intersectin at : " + intersection);
+        
+        
+        Position internalD = Position.create(intersection.getLatitude(), intersection.getLongitude());
+        
+        
+        
+        //Now we must encompass the DW circle. 
+        
+        
+        //Which direction?
+        //Check for intersection
+        
+        
+        //Check one direction first
+        Position downWindParallelMinus = Calculator.findPosition(datumDownWind, Calculator.turn90Minus(lengthBearing), Converter.nmToMeters(radiusDownWind));
+        
+        
+        
+        //Which one intersects?
+        
+        a1 = ParseUtils.PositionToGeo(datumDownWind);
+        a2 = ParseUtils.PositionToGeo(downWindParallelMinus);
+        
+        
+        b1 =  ParseUtils.PositionToGeo(internalA);
+        b2 = ParseUtils.PositionToGeo(internalB);
+        
+        
+        if (Intersection.segIntersects(a1, a2, b1, b2)){
 
-                System.out.println("Length of Box: " + boxLength);
+//            System.out.println("Modify in direction " + datumDownWind.rhumbLineBearingTo(downWindParallelMinus));
             
-            Position growthCenterPosition = Calculator
-                    .calculateEndingGlobalCoordinates(reference, datumDownWind,
-                            growthBearing, Converter.nmToMeters(radiusDownWind),
-                            endBearing);
-            endBearing = new double[1];
-          
-            Position A = Calculator.calculateEndingGlobalCoordinates(reference,
-                    growthCenterPosition, lengthBearing - 180,
-                    boxLength/2, endBearing);
-            endBearing = new double[1];
-            data.setA(A);
-
-            Position B = Calculator.calculateEndingGlobalCoordinates(reference,
-                    growthCenterPosition, lengthBearing,
-                    boxLength/2, endBearing);
-            endBearing = new double[1];
+            double direction = datumDownWind.rhumbLineBearingTo(downWindParallelMinus);
             
-            data.setB(B);
+            
+            Position downWindGrowCenter = Calculator.findPosition(datumDownWind, direction, Converter.nmToMeters(radiusDownWind));
+            
+            
+            Position downWindLeft =  Calculator.findPosition(downWindGrowCenter, Calculator.reverseDirection(lengthBearing), 500000);
+            Position downWindRight =  Calculator.findPosition(downWindGrowCenter, lengthBearing, 500000);
+            
+            Position AGrow = Calculator.findPosition(internalA, direction, 500000);
+            Position BGrow = Calculator.findPosition(internalB, direction, 500000);
+            
+            Geo newA = Intersection.segmentsIntersect(ParseUtils.PositionToGeo(downWindGrowCenter), ParseUtils.PositionToGeo(downWindLeft), ParseUtils.PositionToGeo(internalA), ParseUtils.PositionToGeo(AGrow));
+            Geo newB = Intersection.segmentsIntersect(ParseUtils.PositionToGeo(downWindGrowCenter), ParseUtils.PositionToGeo(downWindRight), ParseUtils.PositionToGeo(internalB), ParseUtils.PositionToGeo(BGrow));
+            
+            internalA = ParseUtils.GeoToPosition(newA);
+            internalB = ParseUtils.GeoToPosition(newB);
+            
+            
+            
+            data.setA(internalA);
+            data.setB(internalB);
+            
+            
+            
+            
+            //Modify A - find intersection
+            
+            
+            //Modify A and B
+            
+        }else{
+//            System.out.println("Modify in direction " + Calculator.reverseDirection(datumDownWind.rhumbLineBearingTo(downWindParallelMinus)));
+            
+            double direction = Calculator.reverseDirection(datumDownWind.rhumbLineBearingTo(downWindParallelMinus));
+            
+            
+            
+            Position downWindGrowCenter = Calculator.findPosition(datumDownWind, direction, Converter.nmToMeters(radiusDownWind));
+            
+            
+            Position downWindLeft =  Calculator.findPosition(downWindGrowCenter, Calculator.reverseDirection(lengthBearing), 500000);
+            Position downWindRight =  Calculator.findPosition(downWindGrowCenter, lengthBearing, 500000);
+            
+            Position CGrow = Calculator.findPosition(internalC, direction, 500000);
+            Position DGrow = Calculator.findPosition(internalD, direction, 500000);
+            
+            Geo newC = Intersection.segmentsIntersect(ParseUtils.PositionToGeo(downWindGrowCenter), ParseUtils.PositionToGeo(downWindLeft), ParseUtils.PositionToGeo(internalC), ParseUtils.PositionToGeo(CGrow));
+            Geo newD = Intersection.segmentsIntersect(ParseUtils.PositionToGeo(downWindGrowCenter), ParseUtils.PositionToGeo(downWindRight), ParseUtils.PositionToGeo(internalD), ParseUtils.PositionToGeo(DGrow));
+            
+            internalC = ParseUtils.GeoToPosition(newC);
+            internalD = ParseUtils.GeoToPosition(newD);
+            
+            
+            
+            data.setD(internalC);
+            data.setC(internalD);
+            
+            
+            //Modify C and D
+        }
+        
+        
+        
+        
+        
+        
+//        
+//        System.out.println("Does downwind parallele minus intersect with A to B: " + Intersection.segIntersects(a1, a2, b1, b2));
+//        //if yes then we modify A and B
+//        
+//        b1 =  ParseUtils.PositionToGeo(internalC);
+//        b2 = ParseUtils.PositionToGeo(internalD);
+//        
+//        System.out.println("Does downwind parallele minus intersect with C to D: " + Intersection.segIntersects(a1, a2, b1, b2));
+        //if yes then we modify C and D
+        
+        
+        //A to B
+        //C to D
+        
+        
+        
+        
+//        //Bearing from largest circle ie. startPos to downwind will tell us which direction it should grow
+//        double startPosToDownwind = startPos.rhumbLineBearingTo(datumDownWind);
+//        System.out.println("downwind bearing to start " + startPosToDownwind);
+//        
+        
+//        if (startPosToDownwind < 180){
+//            //grow in direction from minus bearing
+//            double growDirection = Calculator.turn90Minus(lengthBearing);
+//            System.out.println("Grow in direction " + growDirection);
+//        }else{
+//            //grow in direction from plus bearing
+//            
+//            double growDirection = Calculator.turn90Plus(lengthBearing);
+//            System.out.println("Grow in direction " + growDirection);
+//        }
+        
+        
+        data.setA(internalA);
+        data.setD(internalC);
+        
+        
+        
+        data.setB(internalB);
+        data.setC(internalD);
+        
+        
+        
+//        
+//        // Find A and D
+//
+//        double direction = lengthBearing + 90;
+//        if (direction > 360){
+//            direction = direction - 360;
+//        }
+//        
+//        // Find top Position from radius
+//        Position TopPointMax = Calculator.calculateEndingGlobalCoordinates(
+//                reference, datumMax, direction,
+//                Converter.nmToMeters(radiusMax), endBearing);
+//
+//        endBearing = new double[1];
+//
+//        
+//        direction = lengthBearing - 90;
+//        if (direction < 0){
+//            direction = direction + 360;
+//        }
+//        
+//        Position BottomPointMax = Calculator.calculateEndingGlobalCoordinates(
+//                reference, datumMax, direction,
+//                Converter.nmToMeters(radiusMax), endBearing);
+//        endBearing = new double[1];
+//
+//        Position topPointMaxInnerBox = Calculator
+//                .calculateEndingGlobalCoordinates(reference, TopPointMax,
+//                        Calculator.reverseDirection(lengthBearing), Converter.nmToMeters(radiusMax),
+//                        endBearing);
+//
+//        
+//        
+//        
+////        data.setA(topPointMaxInnerBox);
+//
+//        Position bottomPointMaxInnerBox = Calculator
+//                .calculateEndingGlobalCoordinates(reference, BottomPointMax,
+//                        Calculator.reverseDirection(lengthBearing), Converter.nmToMeters(radiusMax),
+//                        endBearing);
+//
+////        data.setD(bottomPointMaxInnerBox);
+//
+//        
+//        direction = lengthBearing + 90;
+//        if (direction > 360){
+//            direction = direction - 360;
+//        }
+//        
+//        
+//        // Find top Position from radius
+//        Position TopPointMin = Calculator.calculateEndingGlobalCoordinates(
+//                reference, datumMin, direction,
+//                Converter.nmToMeters(radiusMin), endBearing);
+//
+//        endBearing = new double[1];
+//
+//        
+//        direction = lengthBearing - 90;
+//        if (direction < 0){
+//            direction = direction + 360;
+//        }
+//        
+//        Position BottomPointMin = Calculator.calculateEndingGlobalCoordinates(
+//                reference, datumMin, direction,
+//                Converter.nmToMeters(radiusMin), endBearing);
+//        endBearing = new double[1];
+//
+//        // Position top of min circle, turn 180 around and go radius distance to
+//        // find a box point
+//        Position topPointMinInnerBox = Calculator
+//                .calculateEndingGlobalCoordinates(reference, TopPointMin,
+//                        lengthBearing, Converter.nmToMeters(radiusMin),
+//                        endBearing);
+//
+////        data.setB(topPointMinInnerBox);
+//
+//        endBearing = new double[1];
+//
+//        Position bottomPointMinInnerBox = Calculator
+//                .calculateEndingGlobalCoordinates(reference, BottomPointMin,
+//                        lengthBearing, Converter.nmToMeters(radiusMin),
+//                        endBearing);
+//        endBearing = new double[1];
+//
+////        data.setC(bottomPointMinInnerBox);
+//
+//        System.out.println("Bearing from datum to max is");
+//        double bearingFromDownwindToMax = Calculator.bearing(datumDownWind,
+//                datumMax, Heading.RL);
+//        System.out.println(bearingFromDownwindToMax);
+//
+//        double growthBearing;
+//
+//        
+//        System.out.println("Length bearing of normal box is " + lengthBearing);
+//        
+//        if (bearingFromDownwindToMax > 90 && bearingFromDownwindToMax < 270) {
+//            growthBearing = lengthBearing + 90;
+//        }else{
+//            growthBearing = -(lengthBearing + 90);
+//        }
+//        
+//            // Going down - replace D, C
+//            growthBearing = lengthBearing + 90;
+//            
+//            
+//            System.out.println("Growing in plus 90 " + growthBearing);
+//            
+//            double boxLength = topPointMaxInnerBox.distanceTo(
+//                    topPointMinInnerBox, CoordinateSystem.GEODETIC);
+//
+//                System.out.println("Length of Box: " + boxLength);
+//            
+//            Position growthCenterPosition = Calculator
+//                    .calculateEndingGlobalCoordinates(reference, datumDownWind,
+//                            growthBearing, Converter.nmToMeters(radiusDownWind),
+//                            endBearing);
+//            endBearing = new double[1];
+//          
+//            Position A = Calculator.calculateEndingGlobalCoordinates(reference,
+//                    growthCenterPosition, Calculator.reverseDirection(lengthBearing),
+//                    boxLength/2, endBearing);
+//            endBearing = new double[1];
+////            data.setA(A);
+//
+//            Position B = Calculator.calculateEndingGlobalCoordinates(reference,
+//                    growthCenterPosition, lengthBearing,
+//                    boxLength/2, endBearing);
+//            endBearing = new double[1];
+            
+//            data.setB(B);
      
             
 //            Position An = data.getA();
