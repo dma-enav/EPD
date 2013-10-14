@@ -40,6 +40,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.joda.time.DateTime;
+
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
@@ -531,44 +533,54 @@ public class SARInput extends JDialog implements ActionListener,
 
         // Time and date will be automatically sorted
 
-        // Get weather
-        SurfaceDriftPanel firstPanel = datumLineInputPanel
-                .getSurfaceDriftPanelList().get(0);
-
-        double TWCKnots = firstPanel.getTWCKnots();
-
-        if (TWCKnots == -9999) {
-            // Error message is handled within function
-            return false;
-        }
-
-        double leewayKnots = firstPanel.getLeeway();
-
-        if (leewayKnots == -9999) {
-            // Error message is handled within function
-            return false;
-        }
-
-        double twcHeading = firstPanel.getTWCHeading();
-
-        if (twcHeading == -9999) {
-            // Error message is handled within function
-            return false;
-        }
-
-        double leewayHeading = firstPanel.getLeewayHeading();
-
-        if (leewayHeading == -9999) {
-            // Error message is handled within function
-            return false;
-        }
-
-        SARWeatherData sarWeatherData = new SARWeatherData(twcHeading,
-                TWCKnots, leewayKnots, leewayHeading);
-
+        List<SurfaceDriftPanel> weatherList = datumLineInputPanel
+        .getSurfaceDriftPanelList();
+        
+        
         List<SARWeatherData> sarWeatherDataPoints = new ArrayList<SARWeatherData>();
-        sarWeatherDataPoints.add(sarWeatherData);
+        
+        for (int i = 0; i < weatherList.size(); i++) {
+            // Get weather
+            SurfaceDriftPanel weatherPanel = weatherList.get(i);
 
+            double TWCKnots = weatherPanel.getTWCKnots();
+
+            if (TWCKnots == -9999) {
+                // Error message is handled within function
+                return false;
+            }
+
+            double leewayKnots = weatherPanel.getLeeway();
+
+            if (leewayKnots == -9999) {
+                // Error message is handled within function
+                return false;
+            }
+
+            double twcHeading = weatherPanel.getTWCHeading();
+
+            if (twcHeading == -9999) {
+                // Error message is handled within function
+                return false;
+            }
+
+            double leewayHeading = weatherPanel.getLeewayHeading();
+
+            if (leewayHeading == -9999) {
+                // Error message is handled within function
+                return false;
+            }
+
+            
+            DateTime dateTime = new DateTime(weatherPanel.getDateTime().getTime());
+            
+            SARWeatherData sarWeatherData = new SARWeatherData(twcHeading,
+                    TWCKnots, leewayKnots, leewayHeading, dateTime);
+
+
+            sarWeatherDataPoints.add(sarWeatherData);
+        }
+        
         double xError = datumLineInputPanel.getInitialPositionError();
 
         if (xError == -9999) {
@@ -664,43 +676,54 @@ public class SARInput extends JDialog implements ActionListener,
 
         // Time and date will be automatically sorted
 
-        // Get weather
-        SurfaceDriftPanel firstPanel = rapidResponseDatumPointInputPanel
-                .getSurfaceDriftPanelList().get(0);
-
-        double TWCKnots = firstPanel.getTWCKnots();
-
-        if (TWCKnots == -9999) {
-            // Error message is handled within function
-            return false;
-        }
-
-        double leewayKnots = firstPanel.getLeeway();
-
-        if (leewayKnots == -9999) {
-            // Error message is handled within function
-            return false;
-        }
-
-        double twcHeading = firstPanel.getTWCHeading();
-
-        if (twcHeading == -9999) {
-            // Error message is handled within function
-            return false;
-        }
-
-        double leewayHeading = firstPanel.getLeewayHeading();
-
-        if (leewayHeading == -9999) {
-            // Error message is handled within function
-            return false;
-        }
-
-        SARWeatherData sarWeatherData = new SARWeatherData(twcHeading,
-                TWCKnots, leewayKnots, leewayHeading);
-
+        List<SurfaceDriftPanel> weatherList = rapidResponseDatumPointInputPanel
+        .getSurfaceDriftPanelList();
+        
+        
         List<SARWeatherData> sarWeatherDataPoints = new ArrayList<SARWeatherData>();
-        sarWeatherDataPoints.add(sarWeatherData);
+        
+        for (int i = 0; i < weatherList.size(); i++) {
+            // Get weather
+            SurfaceDriftPanel weatherPanel = weatherList.get(i);
+
+            double TWCKnots = weatherPanel.getTWCKnots();
+
+            if (TWCKnots == -9999) {
+                // Error message is handled within function
+                return false;
+            }
+
+            double leewayKnots = weatherPanel.getLeeway();
+
+            if (leewayKnots == -9999) {
+                // Error message is handled within function
+                return false;
+            }
+
+            double twcHeading = weatherPanel.getTWCHeading();
+
+            if (twcHeading == -9999) {
+                // Error message is handled within function
+                return false;
+            }
+
+            double leewayHeading = weatherPanel.getLeewayHeading();
+
+            if (leewayHeading == -9999) {
+                // Error message is handled within function
+                return false;
+            }
+
+            
+            DateTime dateTime = new DateTime(weatherPanel.getDateTime().getTime());
+            
+            SARWeatherData sarWeatherData = new SARWeatherData(twcHeading,
+                    TWCKnots, leewayKnots, leewayHeading, dateTime);
+
+
+            sarWeatherDataPoints.add(sarWeatherData);
+        }
+      
 
         double xError = rapidResponseDatumPointInputPanel
                 .getInitialPositionError();

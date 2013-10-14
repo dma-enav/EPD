@@ -271,6 +271,11 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
         leewayHeadingField.setColumns(10);
         leewayHeadingField.setBounds(415, 75, 39, 20);
         add(leewayHeadingField);
+        
+        
+        
+        twcField.setText("1");
+        leewayField.setText("12");
 
     }
 

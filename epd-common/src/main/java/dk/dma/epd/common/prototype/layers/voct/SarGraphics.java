@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.common.prototype.layers.voct;
 
+import java.util.List;
+
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
@@ -26,7 +28,7 @@ public class SarGraphics extends OMGraphicList {
     
     //private MsiTextBox msiTextBox;
     
-    public SarGraphics(Position datum, double radius, Position A, Position B, Position C, Position D, Position LKP, Position current) {
+    public SarGraphics(Position datum, double radius, Position A, Position B, Position C, Position D, Position LKP, List<Position> currents, List<Position> winds) {
         super();
         
 //        this.polygon = polygon;
@@ -34,12 +36,51 @@ public class SarGraphics extends OMGraphicList {
         // Create location grahic
         SarAreaGraphic sarArea = new SarAreaGraphic(A, B, C, D);
         SarCircleGraphic sarCircle = new SarCircleGraphic(datum, radius);
-        SarLinesGraphics sarLines = new SarLinesGraphics(LKP, current, datum, true, "Datum");
+        
+        
+        //currents is first
+        //winds is the last
+        System.out.println(currents.size());
+        
+        if (winds.size() == 00){
+            SarLinesGraphics sarLines = new SarLinesGraphics(LKP, currents.get(0), datum, true, "Datum");
+            add(sarLines);
+        }else{
+            for (int i = 0; i < winds.size(); i++) {
+                
+                SarLinesGraphics sarLines = null;
+                
+                //First one, connect from LKP
+                if (i == 0){
+                    System.out.println("first");
+                    sarLines = new SarLinesGraphics(LKP, currents.get(i), winds.get(i));
+                                   
+                        
+                }else{
+                    System.out.println("next");
+                    sarLines = new SarLinesGraphics(winds.get(i-1), currents.get(i), winds.get(i));
+                }
+                
+                
+                add(sarLines); 
+                
+                
+            }
+            
+//            SarLinesGraphics sarLines = new SarLinesGraphics(winds.get(winds.size()-1), currents.get(currents.size()-1), datum, false, "Datum");
+//            add(sarLines);
+            
+            SarLinesGraphics sarLines2 = new SarLinesGraphics(LKP, datum, "Datum");
+            add(sarLines2);
+            
+        }
+        
+        
         
         
         add(sarArea);
         add(sarCircle);
-        add(sarLines);
+        
     }
 
 

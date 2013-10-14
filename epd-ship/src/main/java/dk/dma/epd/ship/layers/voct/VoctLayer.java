@@ -529,12 +529,12 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         double radius = data.getRadius();
 
         Position LKP = data.getLKP();
-        Position WTCPoint = data.getWtc();
+        
 
         graphics.clear();
 
         SarGraphics sarGraphics = new SarGraphics(datum, radius, A, B, C, D,
-                LKP, WTCPoint);
+                LKP, data.getCurrentList(), data.getWindList());
         graphics.add(sarGraphics);
 
         System.out.println("A is: " + A.getLongitude());

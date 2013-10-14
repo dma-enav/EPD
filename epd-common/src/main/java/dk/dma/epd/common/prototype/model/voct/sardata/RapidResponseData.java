@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.common.prototype.model.voct.sardata;
 
+import java.util.List;
+
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -25,8 +27,12 @@ import dk.dma.epd.common.text.Formatter;
 
 public class RapidResponseData extends SARData {
 
+    
+    private List<Position> currentList;
+    private List<Position> windList;
+    
     private Position datum;
-    private Position wtc;
+//    private Position wtc;
 
     private double radius;
 
@@ -54,6 +60,37 @@ public class RapidResponseData extends SARData {
         this.B = B;
         this.C = C;
         this.D = D;
+    }
+
+    
+    
+    
+    /**
+     * @return the currentList
+     */
+    public List<Position> getCurrentList() {
+        return currentList;
+    }
+
+    /**
+     * @param currentList the currentList to set
+     */
+    public void setCurrentList(List<Position> currentList) {
+        this.currentList = currentList;
+    }
+
+    /**
+     * @return the windList
+     */
+    public List<Position> getWindList() {
+        return windList;
+    }
+
+    /**
+     * @param windList the windList to set
+     */
+    public void setWindList(List<Position> windList) {
+        this.windList = windList;
     }
 
     /**
@@ -125,14 +162,6 @@ public class RapidResponseData extends SARData {
     }
 
     /**
-     * @param wtc
-     *            the wtc to set
-     */
-    public void setWtc(Position wtc) {
-        this.wtc = wtc;
-    }
-
-    /**
      * @param radius
      *            the radius to set
      */
@@ -179,12 +208,7 @@ public class RapidResponseData extends SARData {
         return datum;
     }
 
-    /**
-     * @return the wtc
-     */
-    public Position getWtc() {
-        return wtc;
-    }
+  
 
     /**
      * @return the radius

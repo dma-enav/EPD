@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.common.prototype.model.voct.sardata;
 
+import org.joda.time.DateTime;
+
 public class SARWeatherData {
 
     private double TWCHeading;
@@ -23,17 +25,39 @@ public class SARWeatherData {
     private double LWknots;
     private double LWHeading;
     private double downWind;
+    private DateTime dateTime;
 
     public SARWeatherData(double tWCHeading, double tWCknots, double lWknots,
-            double lWHeading) {
+            double lWHeading, DateTime dateTime) {
         TWCHeading = tWCHeading;
         TWCknots = tWCknots;
         LWknots = lWknots;
         LWHeading = lWHeading;
 
         downWind = lWHeading - 180;
+        this.dateTime = dateTime;
 
     }
+
+    
+    
+    /**
+     * @return the dateTime
+     */
+    public DateTime getDateTime() {
+        return dateTime;
+    }
+
+
+
+    /**
+     * @param dateTime the dateTime to set
+     */
+    public void setDateTime(DateTime dateTime) {
+        this.dateTime = dateTime;
+    }
+
+
 
     /**
      * @return the tWCHeading

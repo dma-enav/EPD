@@ -48,8 +48,84 @@ public class SarLinesGraphics extends OMGraphicList {
 
     float[] dash = { 0.1f };
 
+    public SarLinesGraphics(Position LKP, Position datum, String datumLabelTxt) {
+        super();
+
+        hatchFill = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D big = hatchFill.createGraphics();
+        Composite originalComposite = big.getComposite();
+        big.setComposite(makeComposite(0.2f));
+        big.setColor(Color.green);
+        big.drawLine(0, 0, 10, 10);
+
+        hatchFillRectangle = new Rectangle(0, 0, 10, 10);
+        big.setComposite(originalComposite);
+
+        lineType = LINETYPE_RHUMB;
+
+        // RDV
+        drawLine(LKP, datum);
+
+        Font font = new Font(Font.DIALOG, Font.PLAIN, 12);
+
+        OMText LKPlabel = new OMText(0, 0, 0, 0, "", font,
+                OMText.JUSTIFY_CENTER);
+        LKPlabel.setLat(LKP.getLatitude());
+        LKPlabel.setLon(LKP.getLongitude());
+        LKPlabel.setY(25);
+        LKPlabel.setLinePaint(Color.black);
+        LKPlabel.setTextMatteColor(Color.WHITE);
+        LKPlabel.setData("LKP");
+        add(LKPlabel);
+
+
+        OMText datumLabel = new OMText(0, 0, 0, 0, "", font,
+                OMText.JUSTIFY_CENTER);
+        datumLabel.setLat(datum.getLatitude());
+        datumLabel.setLon(datum.getLongitude());
+        datumLabel.setY(25);
+        datumLabel.setLinePaint(Color.black);
+        datumLabel.setTextMatteColor(Color.WHITE);
+        datumLabel.setData(datumLabelTxt);
+        add(datumLabel);
+
+    }
+
     
-    public SarLinesGraphics(Position LKP, Position current, Position datum, boolean downWind, String datumLabelTxt, int dsp) {
+    public SarLinesGraphics(Position LKP, Position current, Position wind) {
+        super();
+
+        hatchFill = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D big = hatchFill.createGraphics();
+        Composite originalComposite = big.getComposite();
+        big.setComposite(makeComposite(0.2f));
+        big.setColor(Color.green);
+        big.drawLine(0, 0, 10, 10);
+
+        hatchFillRectangle = new Rectangle(0, 0, 10, 10);
+        big.setComposite(originalComposite);
+
+        lineType = LINETYPE_RHUMB;
+
+        // RDV
+        drawLine(LKP, wind);
+        
+        
+        drawLine(LKP, current);
+        
+        drawLine(current, wind);
+
+
+
+    }
+    
+    
+    
+    
+    
+    
+    public SarLinesGraphics(Position LKP, Position current, Position datum,
+            boolean downWind, String datumLabelTxt, int dsp) {
         super();
 
         // this.nogoColor = color;
@@ -72,11 +148,11 @@ public class SarLinesGraphics extends OMGraphicList {
         drawLine(LKP, datum);
 
         Font font = new Font(Font.DIALOG, Font.PLAIN, 12);
-        
-        if (downWind){
+
+        if (downWind) {
             // TWC
             drawLine(LKP, current);
-            
+
             OMText LKPlabel = new OMText(0, 0, 0, 0, "", font,
                     OMText.JUSTIFY_CENTER);
             LKPlabel.setLat(LKP.getLatitude());
@@ -91,8 +167,6 @@ public class SarLinesGraphics extends OMGraphicList {
         // LW
         drawLine(current, datum);
 
-       
-
         OMText datumLabel = new OMText(0, 0, 0, 0, "", font,
                 OMText.JUSTIFY_CENTER);
         datumLabel.setLat(datum.getLatitude());
@@ -104,9 +178,9 @@ public class SarLinesGraphics extends OMGraphicList {
         add(datumLabel);
 
     }
-    
-    
-    public SarLinesGraphics(Position LKP, Position current, Position datum, boolean downWind, String datumLabelTxt) {
+
+    public SarLinesGraphics(Position LKP, Position current, Position datum,
+            boolean downWind, String datumLabelTxt) {
         super();
 
         // this.nogoColor = color;
@@ -129,11 +203,11 @@ public class SarLinesGraphics extends OMGraphicList {
         drawLine(LKP, datum);
 
         Font font = new Font(Font.DIALOG, Font.PLAIN, 12);
-        
-        if (downWind){
+
+        if (downWind) {
             // TWC
             drawLine(LKP, current);
-            
+
             OMText LKPlabel = new OMText(0, 0, 0, 0, "", font,
                     OMText.JUSTIFY_CENTER);
             LKPlabel.setLat(LKP.getLatitude());
@@ -147,8 +221,6 @@ public class SarLinesGraphics extends OMGraphicList {
 
         // LW
         drawLine(current, datum);
-
-       
 
         OMText datumLabel = new OMText(0, 0, 0, 0, "", font,
                 OMText.JUSTIFY_CENTER);
