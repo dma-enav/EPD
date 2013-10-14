@@ -31,15 +31,9 @@ public class DatumLineData extends SARData {
     
     List<DatumPointData> datumPointDataSets = new ArrayList<DatumPointData>();
     
+    List<Position> datumLinePolygon = new ArrayList<Position>();
     
-    private Position A;
-    private Position B;
-    private Position C;
-    private Position D;
 
-    
-    
-    
     
     // Init data
     public DatumLineData(String sarID, DateTime TLKP, DateTime CSS,
@@ -60,6 +54,23 @@ public class DatumLineData extends SARData {
         return datumPointDataSets;
     }
 
+    
+
+    /**
+     * @return the datumLinePolygon
+     */
+    public List<Position> getDatumLinePolygon() {
+        return datumLinePolygon;
+    }
+
+
+    /**
+     * @param datumLinePolygon the datumLinePolygon to set
+     */
+    public void setDatumLinePolygon(List<Position> datumLinePolygon) {
+        this.datumLinePolygon = datumLinePolygon;
+    }
+
 
     /**
      * @param datumPointDataSets the datumPointDataSets to set
@@ -70,73 +81,10 @@ public class DatumLineData extends SARData {
 
 
     public void setBox(Position A, Position B, Position C, Position D) {
-        this.A = A;
-        this.B = B;
-        this.C = C;
-        this.D = D;
+        
     }
     
-   
-    /**
-     * @param a
-     *            the a to set
-     */
-    public void setA(Position a) {
-        A = a;
-    }
-
-    /**
-     * @param b
-     *            the b to set
-     */
-    public void setB(Position b) {
-        B = b;
-    }
-
-    /**
-     * @param c
-     *            the c to set
-     */
-    public void setC(Position c) {
-        C = c;
-    }
-
-    /**
-     * @param d
-     *            the d to set
-     */
-    public void setD(Position d) {
-        D = d;
-    }
-
-    /**
-     * @return the a
-     */
-    public Position getA() {
-        return A;
-    }
-
-    /**
-     * @return the b
-     */
-    public Position getB() {
-        return B;
-    }
-
-    /**
-     * @return the c
-     */
-    public Position getC() {
-        return C;
-    }
-
-    /**
-     * @return the d
-     */
-    public Position getD() {
-        return D;
-    }
-
+  
     @Override
     public String generateHTML() {
 

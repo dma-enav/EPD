@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.ship.service.voct;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import dk.dma.enav.model.geometry.CoordinateSystem;
@@ -128,10 +129,8 @@ public class SAROperation {
         }
         
         
-//        System.out.println(datumPoints.get(0).getA());
-        
-        
         //We have to find the box around all circles
+        findDatumLineSquare(data);
         
         voctManager.setSarData(data);
         
@@ -407,6 +406,106 @@ public class SAROperation {
         
     }
 
+    
+    private void findDatumLineSquare(DatumLineData data){
+        
+        List<Position> datumPolygon = new ArrayList<Position>();
+        
+        DatumPointData dst1 = data.getDatumPointDataSets().get(0);
+        
+        DatumPointData dst2 = data.getDatumPointDataSets().get(1);
+        
+        DatumPointData dst3 = data.getDatumPointDataSets().get(2);
+
+        
+        datumPolygon.add(dst1.getA());
+//        datumPolygon.add(dst1.getB());
+        
+//        datumPolygon.add(dst2.getA());
+//        datumPolygon.add(dst2.getB());
+
+        datumPolygon.add(dst3.getA());
+        datumPolygon.add(dst3.getB());
+        
+        
+        datumPolygon.add(dst3.getC());
+//        datumPolygon.add(dst3.getD());        
+        
+        
+        datumPolygon.add(dst2.getC());
+//        datumPolygon.add(dst2.getD());
+        
+        datumPolygon.add(dst1.getC());
+        datumPolygon.add(dst1.getD());
+        
+//        datumPolygon.add(dst3.getA());
+//        datumPolygon.add(dst3.getB());
+//        datumPolygon.add(dst3.getC());
+//        datumPolygon.add(dst3.getD());
+//        
+//        
+//        
+//        
+//        datumPolygon.add(dst2.getC());
+//        
+//        
+//        datumPolygon.add(dst2.getD());
+//        
+//        
+//        
+//        datumPolygon.add(dst1.getC());
+//        datumPolygon.add(dst1.getD());
+//        
+//        
+        
+        
+//        datumPolygon.add(dst1.getA());
+//        datumPolygon.add(dst1.getB());
+//        
+//        datumPolygon.add(dst2.getA());
+//        datumPolygon.add(dst2.getB());
+//        
+//        datumPolygon.add(dst3.getA());
+//        datumPolygon.add(dst3.getB());
+//        datumPolygon.add(dst3.getC());
+//        datumPolygon.add(dst3.getD());
+//        
+//        
+//        
+//        
+//        datumPolygon.add(dst2.getC());
+//        
+//        
+//        datumPolygon.add(dst2.getD());
+//        
+//        
+//        
+//        datumPolygon.add(dst1.getC());
+//        datumPolygon.add(dst1.getD());
+//        
+        
+        
+        
+        
+        
+
+        
+        
+//        
+//        for (int i = 0; i < data.getDatumPointDataSets().size(); i++) {
+//            
+//            datumPolygon.add(data.getDatumPointDataSets().get(i).getA());
+//            datumPolygon.add(data.getDatumPointDataSets().get(i).getB());
+//            datumPolygon.add(data.getDatumPointDataSets().get(i).getC());
+//            datumPolygon.add(data.getDatumPointDataSets().get(i).getD());
+//            
+//        }
+        
+        data.setDatumLinePolygon(datumPolygon);
+        
+        
+    }
+    
     private void findSmallestSquare(DatumPointData data) {
 
         // Find circles furtest from each other - that will be the encompassing

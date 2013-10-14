@@ -30,6 +30,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.layers.voct.AreaInternalGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics.LineType;
+import dk.dma.epd.common.prototype.layers.voct.SarAreaGraphic;
 import dk.dma.epd.common.prototype.layers.voct.SarEffectiveAreaLines;
 import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
 import dk.dma.epd.common.prototype.layers.voct.SearchPatternTemp;
@@ -468,8 +469,8 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         }
         
         
-    
-
+        SarAreaGraphic sarArea = new SarAreaGraphic(datumLineData.getDatumLinePolygon());
+        graphics.add(sarArea);
    
 
         // public SarGraphics(Position datumDownWind, Position datumMin,

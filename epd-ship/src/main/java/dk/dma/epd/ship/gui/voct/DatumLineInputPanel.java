@@ -617,11 +617,11 @@ public class DatumLineInputPanel extends JPanel implements ActionListener,
         
         
         dsp3FirstLat.setText("56");
-        dsp3SecondLat.setText("18");
-        dsp3ThirdLat.setText("212");
+        dsp3SecondLat.setText("22");
+        dsp3ThirdLat.setText("727");
         dsp3FirstLon.setText("11");
-        dsp3SecondLon.setText("41");
-        dsp3ThirdLon.setText("913");
+        dsp3SecondLon.setText("42");
+        dsp3ThirdLon.setText("681");
         
         
         

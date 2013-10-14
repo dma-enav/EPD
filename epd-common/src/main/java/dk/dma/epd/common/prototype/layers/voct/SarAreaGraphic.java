@@ -22,15 +22,13 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
-import java.util.Date;
+import java.util.List;
 
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
-import com.bbn.openmap.omGraphics.OMPoint;
 import com.bbn.openmap.omGraphics.OMPoly;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
 
 /**
  * Graphic for MSI location/area
@@ -66,13 +64,61 @@ public class SarAreaGraphic extends OMGraphicList {
 
         drawPolygon(A, B, C, D);
     }
+    
+    
+    
+    public SarAreaGraphic(List<Position> polygon) {
+         super();
+
+//         this.nogoColor = color;
+
+         // Draw the data
+
+         hatchFill = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+         Graphics2D big = hatchFill.createGraphics();
+         Composite originalComposite = big.getComposite();
+         big.setComposite(makeComposite(0.2f));
+         big.setColor(nogoColor);
+         big.drawLine(0, 0, 10, 10);
+
+         hatchFillRectangle = new Rectangle(0, 0, 10, 10);
+         big.setComposite(originalComposite);
+
+         drawPolygon(polygon);
+     }
 
     private AlphaComposite makeComposite(float alpha) {
         int type = AlphaComposite.SRC_OVER;
         return AlphaComposite.getInstance(type, alpha);
     }
 
+    private void drawPolygon(List<Position> polygon) {
+        // space for lat-lon points plus first lat-lon pair to close the polygon
+        double[] polyPoints = new double[polygon.size() * 2];
+        int j = 0;
+        for (int i = 0; i < polygon.size(); i++) {
+            polyPoints[j] = polygon.get(i).getLatitude();
+            polyPoints[j + 1] = polygon.get(i).getLongitude();
+            j += 2;
+        }
 
+        OMPoly poly = new OMPoly(polyPoints,
+                OMGraphicConstants.DECIMAL_DEGREES,
+                OMGraphicConstants.LINETYPE_RHUMB, 1);
+        poly.setLinePaint(Color.black);
+        poly.setFillPaint(new Color(0, 0, 0, 1));
+        poly.setTextureMask(new TexturePaint(hatchFill, hatchFillRectangle));
+        poly.setIsPolygon(true);
+
+        
+        
+        
+        
+        add(poly);
+
+    }
+
+    
 
     private void drawPolygon(Position A, Position B, Position C, Position D) {
         // space for lat-lon points plus first lat-lon pair to close the polygon
@@ -96,19 +142,7 @@ public class SarAreaGraphic extends OMGraphicList {
         polyPoints[j] = D.getLatitude();
         polyPoints[j + 1] = D.getLongitude();
         j += 2;
-        
-        
-        
-        
-        
-        
-//        double[] polyPoints = new double[polygon.getPolygon().size() * 2 + 2];
-//        int j = 0;
-//        for (int i = 0; i < polygon.getPolygon().size(); i++) {
-//            polyPoints[j] = polygon.getPolygon().get(i).getLat();
-//            polyPoints[j + 1] = polygon.getPolygon().get(i).getLon();
-//            j += 2;
-//        }
+ 
         polyPoints[j] = polyPoints[0];
         polyPoints[j + 1] = polyPoints[1];
         OMPoly poly = new OMPoly(polyPoints,
@@ -118,6 +152,8 @@ public class SarAreaGraphic extends OMGraphicList {
         poly.setFillPaint(new Color(0, 0, 0, 1));
         poly.setTextureMask(new TexturePaint(hatchFill, hatchFillRectangle));
 
+        
+        poly.setIsPolygon(true);
         
         add(poly);
 
