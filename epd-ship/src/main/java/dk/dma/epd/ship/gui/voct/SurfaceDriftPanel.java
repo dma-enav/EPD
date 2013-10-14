@@ -114,6 +114,10 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
                 } else {
                     value = twcField;
                 }
+                
+                if (value.contains(",")) {
+                    value = value.replace(",", ".");
+                }
 
                 return Double.parseDouble(value);
             } catch (Exception e) {
@@ -140,7 +144,9 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
                 } else {
                     value = leewayField;
                 }
-
+                if (value.contains(",")) {
+                    value = value.replace(",", ".");
+                }
                 return Double.parseDouble(value);
             } catch (Exception e) {
                 displayMissingField("Leeway Heading");

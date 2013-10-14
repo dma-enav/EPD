@@ -339,6 +339,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
         safetyFactorField = new JTextField();
         safetyFactorField.setText("1.0");
         safetyFactorField.setBounds(184, 72, 86, 20);
+        safetyFactorField.setEnabled(false);
         panel.add(safetyFactorField);
         safetyFactorField.setColumns(10);
 
@@ -651,7 +652,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements ActionL
 
     public double getSafetyFactor() {
 
-        String sfField = yErrorField.getText();
+        String sfField = safetyFactorField.getText();
 
         if (sfField.equals("")) {
             displayMissingField("Safety Factor, FS");
