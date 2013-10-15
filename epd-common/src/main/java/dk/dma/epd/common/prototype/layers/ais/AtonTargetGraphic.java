@@ -43,13 +43,22 @@ public class AtonTargetGraphic extends TargetGraphic {
     
     @Override
     public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings) {
+        System.out.println("Aton target update received: " + atonMark);
         atonTarget = (AtoNTarget)aisTarget;
         Position pos = atonTarget.getPos();
+        if (pos == null) {
+            return;
+        }
         float lat = (float)pos.getLatitude();
         float lon = (float)pos.getLongitude();
-        
-        atonMark = new CenterRaster(lat, lon, atonImage.getIconWidth(), atonImage.getIconHeight(),atonImage);
-        add(atonMark);
+                
+        if (atonMark == null) {
+            atonMark = new CenterRaster(lat, lon, atonImage.getIconWidth(), atonImage.getIconHeight(),atonImage);
+            add(atonMark);
+        } else {
+            atonMark.setLat(lat);
+            atonMark.setLon(lon);
+        }
     }
 
     @Override

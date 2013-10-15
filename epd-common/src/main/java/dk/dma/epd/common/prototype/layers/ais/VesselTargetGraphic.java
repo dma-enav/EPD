@@ -149,27 +149,6 @@ public class VesselTargetGraphic extends TargetGraphic {
                 createGraphics();
             }
 
-            // Disable Risk for now
-
-            // Set color based on risk index
-
-            // Risk risk =
-            // EeINS.getRiskHandler().getRiskLevel(vesselTarget.getMmsi());
-
-            // if(risk==null){
-            // vessel.setLinePaint(new Color(74, 97, 205, 255));
-            // }
-            // else if( risk.getRiskNorm()< 0.002){
-            // vessel.setLinePaint(Color.GREEN);
-            // }else if( risk.getRiskNorm()> 0.01){
-            // vessel.setLinePaint(Color.RED);
-            // }else{
-            // System.out.println("risk :"+ risk);
-            // int green = (int)((0.01-risk.getRiskNorm())/0.01*255);
-            // System.out.println(green);
-            // vessel.setLinePaint(new Color(255,green<0?255:green,51));
-            // }
-
             double sog = vesselTarget.getPositionData().getSog();
             double cogR = Math.toRadians(vesselTarget.getPositionData()
                     .getCog());

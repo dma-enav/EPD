@@ -45,7 +45,7 @@ public class AisTargetInfoPanel extends InfoPanel implements Runnable {
     }
     
     public void showAtonInfo(AtoNTarget atonTarget){
-        String name = atonTarget.getName();
+        String name = AisMessage.trimText(atonTarget.getName());
         Status status = atonTarget.getStatus();
         StringBuilder str = new StringBuilder();
         str.append("<html>");
