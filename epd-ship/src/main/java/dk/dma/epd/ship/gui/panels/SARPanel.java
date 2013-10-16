@@ -892,10 +892,10 @@ public class SARPanel extends JPanel implements ActionListener {
         pointDlat.setText(data.getD().getLatitudeAsString());
         pointDlon.setText(data.getD().getLongitudeAsString());
 
-        double width = Converter.metersToNm(data.getA().distanceTo(data.getB(),
-                CoordinateSystem.GEODETIC));
-        double height = Converter.metersToNm(data.getA().distanceTo(data.getC(),
-                CoordinateSystem.GEODETIC));
+        double width = Converter.metersToNm(data.getA().distanceTo(data.getD(),
+                CoordinateSystem.CARTESIAN));
+        double height = Converter.metersToNm(data.getB().distanceTo(data.getC(),
+                CoordinateSystem.CARTESIAN));
         
         areaSize.setText(Formatter.formatDouble(width * height, 2) + " ");
     }

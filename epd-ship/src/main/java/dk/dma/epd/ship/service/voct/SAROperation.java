@@ -24,6 +24,7 @@ import com.bbn.openmap.geo.Geo;
 import com.bbn.openmap.geo.Intersection;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
@@ -279,58 +280,231 @@ public class SAROperation {
     }
 
     public DatumPointData datumPoint(DatumPointData data, boolean single) {
+        
+        // We need to calculate for each weather point
 
-        double timeElapsed = data.getTimeElasped();
-
-        double currentTWC = data.getWeatherPoints().get(0).getTWCknots()
-                * timeElapsed;
-
-        double leewayspeed = searchObjectValue(data.getSearchObject(), data
-                .getWeatherPoints().get(0).getLWknots());
-
-        double leeway = leewayspeed * timeElapsed;
+        List<SARWeatherData> weatherPoints = data.getWeatherPoints();
+        DateTime startTime = data.getLKPDate();
+        
         double leewayDivergence = searchObjectValue(data.getSearchObject());
+        
+        List<Double> weatherPointsValidFor = new ArrayList<Double>();
 
-        Ellipsoid reference = Ellipsoid.WGS84;
-        double[] endBearing = new double[1];
+        List<Position> datumPositionsDownWind = new ArrayList<Position>();
+        List<Position> datumPositionsMin = new ArrayList<Position>();
+        List<Position> datumPositionsMax = new ArrayList<Position>();
 
-        // Object starts at LKP, with TWCheading, drifting for currentWTC
-        // knots where will it end up
-        Position currentPos = Calculator.calculateEndingGlobalCoordinates(
-                reference, data.getLKP(), data.getWeatherPoints().get(0)
-                        .getTWCHeading(), Converter.nmToMeters(currentTWC),
-                endBearing);
+        List<Position> currentPositions = new ArrayList<Position>();
+        
+        for (int i = 0; i < weatherPoints.size(); i++) {
 
-        // This is the TWC point
-        data.setWtc(currentPos);
+            // Do we have a next?
 
-        // We now have 3 different datums to calculate, DW, min and max.
-        endBearing = new double[1];
+            // How long is the data point valid for?
 
-        Position datumDownWind = Calculator.calculateEndingGlobalCoordinates(
-                reference, currentPos, data.getWeatherPoints().get(0)
-                        .getDownWind(), Converter.nmToMeters(leeway),
-                endBearing);
+            // Is it the last one?
 
-        endBearing = new double[1];
+            if (i == weatherPoints.size() - 1) {
+                // It's the last one - let it last the remainder
+                double validFor = (double) (data.getCSSDate().getMillis() - startTime
+                        .getMillis()) / 60 / 60 / 1000;
+                weatherPointsValidFor.add(validFor);
+            } else {
 
-        Position datumMin = Calculator.calculateEndingGlobalCoordinates(
-                reference, currentPos, data.getWeatherPoints().get(0)
-                        .getDownWind()
-                        - leewayDivergence, Converter.nmToMeters(leeway),
-                endBearing);
+                DateTime current = weatherPoints.get(i).getDateTime();
 
-        endBearing = new double[1];
+                if (current.isBefore(data.getLKPDate())) {
+                    current = data.getLKPDate();
+                }
 
-        Position datumMax = Calculator.calculateEndingGlobalCoordinates(
-                reference, currentPos, data.getWeatherPoints().get(0)
-                        .getDownWind()
-                        + leewayDivergence, Converter.nmToMeters(leeway),
-                endBearing);
+                startTime = weatherPoints.get(i + 1).getDateTime();
 
+                double validFor = (double) (startTime.getMillis() - current
+                        .getMillis()) / 60 / 60 / 1000;
+                weatherPointsValidFor.add(validFor);
+            }
+
+            // How long is this data point valid for
+
+        }
+        
+        
+        
+        for (int i = 0; i < weatherPoints.size(); i++) {
+            SARWeatherData weatherObject = weatherPoints.get(i);
+            double validFor = weatherPointsValidFor.get(i);
+
+            System.out.println("Valid for : " + validFor);
+
+            double currentTWC = weatherObject.getTWCknots() * validFor;
+
+            System.out.println("Current TWC: " + currentTWC);
+            System.out.println("HEading TWC: " + weatherObject.getLWHeading());
+
+            double leewayspeed = searchObjectValue(data.getSearchObject(),
+                    weatherObject.getLWknots());
+            double leeway = leewayspeed * validFor;
+
+            Position startingLocation = null;
+
+            if (i == 0) {
+                startingLocation = data.getLKP();
+            } else {
+                startingLocation = datumPositionsDownWind.get(i - 1);
+            }
+
+            Position currentPos = Calculator.findPosition(startingLocation,
+                    weatherObject.getTWCHeading(),
+                    Converter.nmToMeters(currentTWC));
+
+            currentPositions.add(currentPos);
+
+            System.out.println("Current is: " + currentPos.getLatitude());
+            System.out.println("Current is: " + currentPos.getLongitude());
+
+            
+            
+            //Temp
+            data.setWtc(currentPos);
+            
+            
+            
+            Position windPosDownWind = Calculator.findPosition(currentPos,
+                    weatherObject.getDownWind(), Converter.nmToMeters(leeway));
+
+            datumPositionsDownWind.add(windPosDownWind);
+            
+//            data.setDatumDownWind(windPosDownWind);
+            
+            Position windPosMin = Calculator.findPosition(currentPos,
+                    weatherObject.getDownWind() - leewayDivergence, Converter.nmToMeters(leeway));
+
+            datumPositionsMin.add(windPosMin);
+            
+//            data.setDatumMin(windPosMin);
+
+            
+            Position windPosMax = Calculator.findPosition(currentPos,
+                    weatherObject.getDownWind() + leewayDivergence, Converter.nmToMeters(leeway));
+
+            datumPositionsMax.add(windPosMax);
+            
+//            data.setDatumMax(windPosMax);
+
+
+
+
+            
+//            Position datumDownWind = Calculator.calculateEndingGlobalCoordinates(
+//                    reference, currentPos, data.getWeatherPoints().get(0)
+//                            .getDownWind(), Converter.nmToMeters(leeway),
+//                    endBearing);
+//
+//            endBearing = new double[1];
+//
+//            Position datumMin = Calculator.calculateEndingGlobalCoordinates(
+//                    reference, currentPos, data.getWeatherPoints().get(0)
+//                            .getDownWind()
+//                            - leewayDivergence, Converter.nmToMeters(leeway),
+//                    endBearing);
+//
+//            endBearing = new double[1];
+//
+//            Position datumMax = Calculator.calculateEndingGlobalCoordinates(
+//                    reference, currentPos, data.getWeatherPoints().get(0)
+//                            .getDownWind()
+//                            + leewayDivergence, Converter.nmToMeters(leeway),
+//                    endBearing);
+            
+        }
+        
+      //Only apply divergence on last?
+        
+        Position datumDownWind = datumPositionsDownWind.get(datumPositionsDownWind.size()-1);
+        Position datumMin = datumPositionsMin.get(datumPositionsMin.size()-1);
+        Position datumMax = datumPositionsMax.get(datumPositionsMax.size()-1);
+//        
+//        
+//        
+//        Position lastCurrentPositon = currentPositions.get(currentPositions.size() - 1);
+//        SARWeatherData lastWeatherPoint = weatherPoints.get(weatherPoints.size() - 1);
+//        double leewayspeed = searchObjectValue(data.getSearchObject(),
+//                lastWeatherPoint.getLWknots());
+//        double validFor = weatherPointsValidFor.get(weatherPointsValidFor.size()-1);
+//        double leeway = leewayspeed * validFor;
+//        
+//        Position datumMin  = Calculator.findPosition(lastCurrentPositon,
+//                lastWeatherPoint.getDownWind() - leewayDivergence, Converter.nmToMeters(leeway));
+//        
+//        
+//        Position datumMax  = Calculator.findPosition(lastCurrentPositon,
+//                lastWeatherPoint.getDownWind() + leewayDivergence, Converter.nmToMeters(leeway));
+//        
+// data.setWtc(lastCurrentPositon);
+        
+//
         data.setDatumDownWind(datumDownWind);
         data.setDatumMin(datumMin);
         data.setDatumMax(datumMax);
+//        
+
+
+        
+        
+        
+        //Rapid Response
+        
+//        // datumPositions.remove(datumPositions.size()-1);
+//
+//        Position datumPosition = data.getDatum();
+//
+//        // datumPositions.remove(datumPositions.size()-1);
+//
+//        data.setWindList(datumPositions);
+//        data.setCurrentList(currentPositions);
+//
+//        // RDV Direction
+//        double rdvDirection = Calculator.bearing(data.getLKP(), datumPosition,
+//                Heading.RL);
+//
+//        data.setRdvDirection(rdvDirection);
+//        System.out.println("RDV Direction: " + rdvDirection);
+//
+//        // RDV Distance
+//        double rdvDistance = Calculator.range(data.getLKP(), datumPosition,
+//                Heading.RL);
+//
+//        data.setRdvDistance(rdvDistance);
+//        System.out.println("RDV Distance: " + rdvDistance);
+//
+//        // RDV Speed
+//        double rdvSpeed = rdvDistance / data.getTimeElasped();
+//
+//        data.setRdvSpeed(rdvSpeed);
+//        System.out.println("RDV Speed: " + rdvSpeed);
+//
+//        // Radius:
+//        double radius = ((data.getX() + data.getY()) + 0.3 * rdvDistance)
+//                * data.getSafetyFactor();
+//
+//        data.setRadius(radius);
+        
+        
+        
+        
+        
+//        double timeElapsed = data.getTimeElasped();
+//
+//        double currentTWC = data.getWeatherPoints().get(0).getTWCknots()
+//                * timeElapsed;
+//
+//        double leewayspeed = searchObjectValue(data.getSearchObject(), data
+//                .getWeatherPoints().get(0).getLWknots());
+//
+//        double leeway = leewayspeed * timeElapsed;
+//        
+
+
 
         // RDV Direction
         double rdvDirectionDownWind = Calculator.bearing(data.getLKP(),
@@ -736,12 +910,58 @@ public class SAROperation {
         // double growDirection = Calculator.turn90Plus(lengthBearing);
         // System.out.println("Grow in direction " + growDirection);
         // }
+        
+        
+//        56°33,5 N       12°01,1 E   
+//        56°33,5 N       11°54,5 E   
+//        56°30,3 N       11°54,5 E   
+//        56°30,3 N       12°01,1 E   
 
         data.setA(internalA);
         data.setD(internalC);
 
         data.setB(internalB);
         data.setC(internalD);
+        
+        
+        //Test values
+//        try {
+//            double lat1  = ParseUtils.parseLatitude("56 33.5 N");
+//            double lon1 = ParseUtils.parseLongitude("12 01.1 E");
+//            
+//            Position A = Position.create(lat1, lon1);
+//            
+//            double lat2  = ParseUtils.parseLatitude("56 33.5 N");
+//            double lon2 = ParseUtils.parseLongitude("11 54.5 E");
+//            
+//            Position B = Position.create(lat2, lon2);
+//            
+//            double lat3  = ParseUtils.parseLatitude("56 30.3 N");
+//            double lon3 = ParseUtils.parseLongitude("11 54.5 E");
+//            
+//            Position C = Position.create(lat3, lon3);
+//            
+//            double lat4  = ParseUtils.parseLatitude("56 30.3 N");
+//            double lon4 = ParseUtils.parseLongitude("12 01.1 E");
+//            
+//            Position D = Position.create(lat4, lon4);
+//            
+//            
+//            data.setA(A);
+//            data.setD(B);
+//
+//            data.setB(D);
+//            data.setC(C);
+//            
+//        } catch (FormatException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//
+
+        
+        
+        
 
         //
         // // Find A and D
@@ -988,7 +1208,7 @@ public class SAROperation {
             double currentTWC = weatherObject.getTWCknots() * validFor;
 
             System.out.println("Current TWC: " + currentTWC);
-            System.out.println("HEading TWC: " + weatherObject.getLWHeading());
+            System.out.println("Heading TWC: " + weatherObject.getLWHeading());
 
             double leewayspeed = searchObjectValue(data.getSearchObject(),
                     weatherObject.getLWknots());
@@ -1030,24 +1250,73 @@ public class SAROperation {
         data.setCurrentList(currentPositions);
 
         // RDV Direction
-        double rdvDirection = Calculator.bearing(data.getLKP(), datumPosition,
-                Heading.RL);
-
-        data.setRdvDirection(rdvDirection);
-        System.out.println("RDV Direction: " + rdvDirection);
-
+        
+        double rdvDirection;
+        
         // RDV Distance
-        double rdvDistance = Calculator.range(data.getLKP(), datumPosition,
-                Heading.RL);
-
-        data.setRdvDistance(rdvDistance);
-        System.out.println("RDV Distance: " + rdvDistance);
-
+        double rdvDistance;
+        
         // RDV Speed
-        double rdvSpeed = rdvDistance / data.getTimeElasped();
-
+        double rdvSpeed;
+        if (datumPositions.size() > 1){
+            rdvDirection = Calculator.bearing(datumPositions.get(datumPositions.size()-2), datumPosition,
+            Heading.RL);
+            
+            
+            rdvDistance = Calculator.range(datumPositions.get(datumPositions.size()-2), datumPosition,
+                    Heading.RL);
+        
+         // RDV Speed
+            rdvSpeed = rdvDistance / weatherPointsValidFor.get(weatherPointsValidFor.size()-1);
+            
+          }else{
+              rdvDirection = Calculator.bearing(data.getLKP(), datumPosition,
+                      Heading.RL);
+              
+              rdvDistance = Calculator.range(data.getLKP(), datumPosition,
+                      Heading.RL);
+              
+              // RDV Speed
+              rdvSpeed = rdvDistance / data.getTimeElasped();
+          }
+        
+        
+        
+        
+        data.setRdvDirection(rdvDirection);
+        data.setRdvDistance(rdvDistance);
         data.setRdvSpeed(rdvSpeed);
-        System.out.println("RDV Speed: " + rdvSpeed);
+        
+//        
+////        double rdvDirection = Calculator.bearing(data.getLKP(), datumPosition,
+////                Heading.RL);
+//
+//        data.setRdvDirection(rdvDirection);
+//        System.out.println("RDV Direction: " + rdvDirection);
+//        
+//        if (datumPositions.size() > 1){
+//          double rdvDirectionLast = Calculator.bearing(datumPositions.get(datumPositions.size()-2), datumPosition,
+//          Heading.RL);
+//          data.setRdvDirectionLast(rdvDirectionLast);
+//        }else{
+//            data.setRdvDirectionLast(rdvDirection);
+//        }
+//        
+//        
+//        
+//        
+//        // RDV Distance
+//        double rdvDistance = Calculator.range(data.getLKP(), datumPosition,
+//                Heading.RL);
+//
+//        data.setRdvDistance(rdvDistance);
+//        System.out.println("RDV Distance: " + rdvDistance);
+//
+//        // RDV Speed
+//        double rdvSpeed = rdvDistance / data.getTimeElasped();
+//
+//        data.setRdvSpeed(rdvSpeed);
+//        System.out.println("RDV Speed: " + rdvSpeed);
 
         // Radius:
         double radius = ((data.getX() + data.getY()) + 0.3 * rdvDistance)

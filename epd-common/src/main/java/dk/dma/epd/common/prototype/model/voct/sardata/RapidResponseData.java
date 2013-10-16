@@ -41,6 +41,9 @@ public class RapidResponseData extends SARData {
     private double rdvDirection;
     private double rdvDistance;
     private double rdvSpeed;
+    
+    private double rdvDirectionLast;
+    private double rdvSpeedLast;
 
     private Position A;
     private Position B;
@@ -62,9 +65,38 @@ public class RapidResponseData extends SARData {
         this.D = D;
     }
 
+
     
-    
-    
+  
+
+    /**
+     * @return the rdvDirectionLast
+     */
+    public double getRdvDirectionLast() {
+        return rdvDirectionLast;
+    }
+
+    /**
+     * @param rdvDirectionLast the rdvDirectionLast to set
+     */
+    public void setRdvDirectionLast(double rdvDirectionLast) {
+        this.rdvDirectionLast = rdvDirectionLast;
+    }
+
+    /**
+     * @return the rdvSpeedLast
+     */
+    public double getRdvSpeedLast() {
+        return rdvSpeedLast;
+    }
+
+    /**
+     * @param rdvSpeedLast the rdvSpeedLast to set
+     */
+    public void setRdvSpeedLast(double rdvSpeedLast) {
+        this.rdvSpeedLast = rdvSpeedLast;
+    }
+
     /**
      * @return the currentList
      */
