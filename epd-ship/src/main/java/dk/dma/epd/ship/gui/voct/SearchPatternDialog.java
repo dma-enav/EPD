@@ -36,9 +36,9 @@ import javax.swing.border.TitledBorder;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.FormatException;
+import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
 import dk.dma.epd.common.util.ParseUtils;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.service.voct.SearchPatternGenerator;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 import javax.swing.SwingConstants;
 

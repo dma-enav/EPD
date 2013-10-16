@@ -44,9 +44,9 @@ import org.joda.time.DateTime;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
-import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
-import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARWeatherData;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 

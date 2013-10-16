@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.service.voct;
+package dk.dma.epd.common.prototype.model.voct;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +24,7 @@ import com.bbn.openmap.geo.Geo;
 import com.bbn.openmap.geo.Intersection;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.model.voct.LeewayValues;
-import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
@@ -37,6 +34,7 @@ import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Ellipsoid;
 import dk.dma.epd.common.util.ParseUtils;
+
 
 /**
  * Where all SAR Calculations are performed
@@ -92,14 +90,14 @@ public class SAROperation {
     // // Safety Factor, FS
     // double SF;
 
-    VOCTManager voctManager;
+//    VOCTManager voctManager;
 
-    public SAROperation(SAR_TYPE operationType, VOCTManager voctManager) {
+    public SAROperation(SAR_TYPE operationType) {
         this.operationType = operationType;
-        this.voctManager = voctManager;
+//        this.voctManager = voctManager;
     }
 
-    public void startDatumLineCalculations(DatumLineData data) {
+    public DatumLineData startDatumLineCalculations(DatumLineData data) {
         System.out.println("Datum line");
 
         // Create a datumpoint for each
@@ -114,7 +112,7 @@ public class SAROperation {
 
             datumPointData.setTimeElasped(difference);
 
-            datumPoint(datumPointData, false);
+            datumPoint(datumPointData);
         }
 
         System.out.println("Did we get something calculated?");
@@ -126,13 +124,14 @@ public class SAROperation {
         }
 
         // We have to find the box around all circles
-        findDatumLineSquare(data);
+        data = findDatumLineSquare(data);
 
-        voctManager.setSarData(data);
+//        voctManager.setSarData(data);
+        return data;
 
     }
 
-    public void startRapidResponseCalculations(RapidResponseData data) {
+    public RapidResponseData startRapidResponseCalculations(RapidResponseData data) {
 
         System.out
                 .println("Starting Rapid Response with the following parameters");
@@ -146,10 +145,11 @@ public class SAROperation {
 
         // System.out.println("Hours since started: " + difference);
 
-        rapidResponse(data);
+        return rapidResponse(data);
+        
     }
 
-    public void startDatumPointCalculations(DatumPointData data) {
+    public DatumPointData startDatumPointCalculations(DatumPointData data) {
         System.out
                 .println("Starting Datum Point with the following parameters");
         System.out.println("Time of Last known position: " + data.getLKPDate());
@@ -162,22 +162,7 @@ public class SAROperation {
 
         // System.out.println("Hours since started: " + difference);
 
-        datumPoint(data, true);
-    }
-
-    /**
-     * @return the voctManager
-     */
-    public VOCTManager getVoctManager() {
-        return voctManager;
-    }
-
-    /**
-     * @param voctManager
-     *            the voctManager to set
-     */
-    public void setVoctManager(VOCTManager voctManager) {
-        this.voctManager = voctManager;
+        return datumPoint(data);
     }
 
     private double searchObjectValue(int searchObject, double LWKnots) {
@@ -279,7 +264,7 @@ public class SAROperation {
         return -9999;
     }
 
-    public DatumPointData datumPoint(DatumPointData data, boolean single) {
+    public DatumPointData datumPoint(DatumPointData data) {
         
         // We need to calculate for each weather point
 
@@ -564,17 +549,11 @@ public class SAROperation {
 
         findSmallestSquare(data);
 
-        // Are we using the calculations for a datum line or a single datum
-        // point
-        if (single) {
-            voctManager.setSarData(data);
-
-        }
         return data;
 
     }
 
-    private void findDatumLineSquare(DatumLineData data) {
+    private DatumLineData findDatumLineSquare(DatumLineData data) {
 
         List<Position> datumPolygon = new ArrayList<Position>();
 
@@ -658,6 +637,8 @@ public class SAROperation {
         // }
 
         data.setDatumLinePolygon(datumPolygon);
+        
+        return data;
 
     }
 
@@ -1148,7 +1129,7 @@ public class SAROperation {
         return datum;
     }
 
-    private void rapidResponse(RapidResponseData data) {
+    private RapidResponseData rapidResponse(RapidResponseData data) {
 
         // We need to calculate for each weather point
 
@@ -1328,7 +1309,8 @@ public class SAROperation {
 
         findRapidResponseBox(datumPosition, radius, data);
 
-        voctManager.setSarData(data);
+//        voctManager.setSarData(data);
+        return data;
     }
 
     public static void findRapidResponseBox(Position datum, double radius,

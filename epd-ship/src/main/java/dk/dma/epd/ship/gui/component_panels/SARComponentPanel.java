@@ -24,11 +24,11 @@ import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.gui.OMComponentPanel;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
-import dk.dma.epd.common.prototype.model.voct.VOCTUpdateEvent;
-import dk.dma.epd.common.prototype.model.voct.VOCTUpdateListener;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.ship.event.IMapCoordListener;
 import dk.dma.epd.ship.gui.panels.SARPanel;
 import dk.dma.epd.ship.service.voct.VOCTManager;

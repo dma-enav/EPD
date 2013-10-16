@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.model.voct;
+package dk.dma.epd.common.prototype.voct;
 
 import java.util.Arrays;
 import java.util.EnumSet;

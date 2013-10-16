@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.service.voct;
+package dk.dma.epd.common.prototype.model.voct;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,26 +31,30 @@ import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
+import dk.dma.epd.common.prototype.settings.NavSettings;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Ellipsoid;
-import dk.dma.epd.ship.EPDShip;
+
 
 public class SearchPatternGenerator {
 
+    private NavSettings settings;
+    
     public enum searchPattern {
         Parallel_Sweep_Search, Creeping_Line_Search, Track_Line_Search, Track_Line_Search_nonreturn, Expanding_Square_Search, unknown
     }
 
     private SAROperation sarOperation;
 
-    public SearchPatternGenerator(VOCTManager voctManager,
-            SAROperation sarOperation) {
+    public SearchPatternGenerator(            SAROperation sarOperation) {
         this.sarOperation = sarOperation;
     }
 
     public SearchPatternRoute generateSearchPattern(searchPattern pattern,
-            SARData data) {
+            SARData data, NavSettings settings) {
+        
+        this.settings = settings;
 
         switch (pattern) {
         case Parallel_Sweep_Search:
@@ -247,14 +251,14 @@ public class SearchPatternGenerator {
         for (RouteWaypoint routeWaypoint : waypoints) {
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg outLeg = routeWaypoint.getOutLeg();
-                double xtd = EPDShip.getSettings().getNavSettings()
+                double xtd = settings
                         .getDefaultXtd();
                 outLeg.setXtdPort(xtd);
                 outLeg.setXtdStarboard(xtd);
                 outLeg.setHeading(Heading.RL);
                 outLeg.setSpeed(effortAllocationData.getGroundSpeed());
             }
-            routeWaypoint.setTurnRad(EPDShip.getSettings().getNavSettings()
+            routeWaypoint.setTurnRad(settings
                     .getDefaultTurnRad());
 
         }
@@ -461,14 +465,14 @@ public class SearchPatternGenerator {
         for (RouteWaypoint routeWaypoint : waypoints) {
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg outLeg = routeWaypoint.getOutLeg();
-                double xtd = EPDShip.getSettings().getNavSettings()
+                double xtd = settings
                         .getDefaultXtd();
                 outLeg.setXtdPort(xtd);
                 outLeg.setXtdStarboard(xtd);
                 outLeg.setHeading(Heading.RL);
                 outLeg.setSpeed(effortAllocationData.getGroundSpeed());
             }
-            routeWaypoint.setTurnRad(EPDShip.getSettings().getNavSettings()
+            routeWaypoint.setTurnRad(settings
                     .getDefaultTurnRad());
 
         }
@@ -677,14 +681,14 @@ public class SearchPatternGenerator {
         for (RouteWaypoint routeWaypoint : waypoints) {
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg outLeg = routeWaypoint.getOutLeg();
-                double xtd = EPDShip.getSettings().getNavSettings()
+                double xtd = settings
                         .getDefaultXtd();
                 outLeg.setXtdPort(xtd);
                 outLeg.setXtdStarboard(xtd);
                 outLeg.setHeading(Heading.RL);
                 outLeg.setSpeed(effortAllocationData.getGroundSpeed());
             }
-            routeWaypoint.setTurnRad(EPDShip.getSettings().getNavSettings()
+            routeWaypoint.setTurnRad(settings
                     .getDefaultTurnRad());
 
         }

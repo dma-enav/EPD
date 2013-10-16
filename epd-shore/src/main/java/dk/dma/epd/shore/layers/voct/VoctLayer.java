@@ -27,9 +27,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.layers.voct.AreaInternalGraphics;
-import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics;
 import dk.dma.epd.common.prototype.layers.voct.SarEffectiveAreaLines;
-import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
@@ -82,9 +80,9 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
         graphics.clear();
 
-        SarGraphics sarGraphics = new SarGraphics(datum, radius, A, B, C, D,
-                LKP, WTCPoint);
-         graphics.add(sarGraphics);
+//        SarGraphics sarGraphics = new SarGraphics(datum, radius, A, B, C, D,
+//                LKP, WTCPoint);
+//         graphics.add(sarGraphics);
 
         // Probability of Detection Area - updateable
 
