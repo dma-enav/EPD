@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.voct;
+package dk.dma.epd.common.prototype.gui.voct;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -39,6 +39,7 @@ import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerDateModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
@@ -52,7 +53,6 @@ import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.util.ParseUtils;
-import javax.swing.SwingConstants;
 
 public class RapidResponseDatumPointInputPanel extends JPanel implements
         ActionListener, DocumentListener {

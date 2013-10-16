@@ -38,6 +38,8 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import dk.dma.enav.model.geometry.CoordinateSystem;
+import dk.dma.epd.common.prototype.gui.voct.EffortAllocationWindow;
+import dk.dma.epd.common.prototype.gui.voct.SearchPatternDialog;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
@@ -46,8 +48,6 @@ import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.gui.voct.EffortAllocationWindow;
-import dk.dma.epd.ship.gui.voct.SearchPatternDialog;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 import javax.swing.JCheckBox;
 

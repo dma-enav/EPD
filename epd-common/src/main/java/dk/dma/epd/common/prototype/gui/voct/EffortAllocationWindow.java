@@ -13,16 +13,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.voct;
+package dk.dma.epd.common.prototype.gui.voct;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -38,14 +36,10 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
-import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.model.voct.SweepWidthValues;
 import dk.dma.epd.common.prototype.model.voct.WeatherCorrectionFactors;
-import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
-import dk.dma.epd.common.util.Converter;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.service.voct.VOCTManager;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 
 public class EffortAllocationWindow extends JDialog implements ActionListener {
 
@@ -71,7 +65,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
     private JCheckBox editPoD;
     private JButton calculate;
     private JComboBox<Double> fatigueDropDown;
-    private VOCTManager voctManager;
+    private VOCTManagerCommon voctManager;
 
     /**
      * Create the dialog.
@@ -92,7 +86,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
         this.setVisible(false);
     }
     
-    public void setVoctManager(VOCTManager voctManager){
+    public void setVoctManager(VOCTManagerCommon voctManager){
         this.voctManager = voctManager;
     }
     
@@ -102,12 +96,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
         getContentPane().add(initPanel, BorderLayout.CENTER);
 
         initPanel.setLayout(null);
-        ImageIcon icon = new ImageIcon(
-                "C:\\Dropbox\\Master Thesis - SAR - A Look into the Future of Maritime Services\\Master Thesis\\images\\rdvexample.png");
-        Image img = icon.getImage();
-        Image newimg = img.getScaledInstance(282, 127,
-                java.awt.Image.SCALE_SMOOTH);
-        icon = new ImageIcon(newimg);
+   
         {
             JPanel panel = new JPanel();
             panel.setBorder(new TitledBorder(UIManager
@@ -281,26 +270,26 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
     }
 
     public void setValues() {
-        VesselTarget ownship = EPDShip.getAisHandler().getOwnShip();
-
-        if (ownship != null) {
-            if (ownship.getStaticData() != null) {
-                shipName.setText(ownship.getStaticData().getName());
-
-                double length = ownship.getStaticData().getDimBow()
-                        + ownship.getStaticData().getDimStern();
-                // String width = Integer.toString(ownship.getStaticData()
-                // .getDimPort()
-                // + ownship.getStaticData().getDimStarboard()) + " M";
-
-                // Is the lenght indicated by the AIS longer than 89 feet then
-                // it falls under Ship category
-                if (Converter.metersToFeet(length) > 89) {
-                    sruType.setSelectedIndex(1);
-                }
-
-            }
-        }
+//        VesselTarget ownship = EPDShip.getAisHandler().getOwnShip();
+//
+//        if (ownship != null) {
+//            if (ownship.getStaticData() != null) {
+//                shipName.setText(ownship.getStaticData().getName());
+//
+//                double length = ownship.getStaticData().getDimBow()
+//                        + ownship.getStaticData().getDimStern();
+//                // String width = Integer.toString(ownship.getStaticData()
+//                // .getDimPort()
+//                // + ownship.getStaticData().getDimStarboard()) + " M";
+//
+//                // Is the lenght indicated by the AIS longer than 89 feet then
+//                // it falls under Ship category
+//                if (Converter.metersToFeet(length) > 89) {
+//                    sruType.setSelectedIndex(1);
+//                }
+//
+//            }
+//        }
     }
 
     private void buttomBar() {

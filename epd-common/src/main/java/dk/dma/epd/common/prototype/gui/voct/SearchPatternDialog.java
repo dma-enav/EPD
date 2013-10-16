@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.voct;
+package dk.dma.epd.common.prototype.gui.voct;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -31,16 +31,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.util.ParseUtils;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.service.voct.VOCTManager;
-import javax.swing.SwingConstants;
 
 public class SearchPatternDialog extends JDialog implements ActionListener {
 
@@ -62,28 +61,28 @@ public class SearchPatternDialog extends JDialog implements ActionListener {
     private JLabel descriptiveImage;
     private JTextPane descriptiveText;
 
-    private VOCTManager voctManager;
+    private VOCTManagerCommon voctManager;
 
     private JButton generateButton;
     private JButton cancelButton;
 
-    ImageIcon parallelsweepsearchIcon = scaleImage(new ImageIcon(EPDShip.class
+    ImageIcon parallelsweepsearchIcon = scaleImage(new ImageIcon(SearchPatternDialog.class
             .getClassLoader()
             .getResource("images/voct/parallelsweepsearch.png")));
 
-    ImageIcon creepingLineSearchIcon = scaleImage(new ImageIcon(EPDShip.class
+    ImageIcon creepingLineSearchIcon = scaleImage(new ImageIcon(SearchPatternDialog.class
             .getClassLoader().getResource("images/voct/creepinglinesearch.png")));
 
     ImageIcon trackLineSearchReturnIcon = scaleImage(new ImageIcon(
-            EPDShip.class.getClassLoader().getResource(
+            SearchPatternDialog.class.getClassLoader().getResource(
                     "images/voct/tracklinesearchreturn.png")));
 
     ImageIcon trackLineSearchNonReturnIcon = scaleImage(new ImageIcon(
-            EPDShip.class.getClassLoader().getResource(
+            SearchPatternDialog.class.getClassLoader().getResource(
                     "images/voct/tracklinesearchnonreturn.png")));
 
     ImageIcon expandingSquareSearchIcon = scaleImage(new ImageIcon(
-            EPDShip.class.getClassLoader().getResource(
+            SearchPatternDialog.class.getClassLoader().getResource(
                     "images/voct/expandingsquaresearch.png")));
 
     String parallelSweepSearch = "Parallel Sweep Search is used when the search area is large, an even coverage is wanted, exact location of the object is unknown. eg. datum has low confidence";
@@ -357,7 +356,7 @@ public class SearchPatternDialog extends JDialog implements ActionListener {
         return newIcon;
     }
 
-    public void setVoctManager(VOCTManager voctManager) {
+    public void setVoctManager(VOCTManagerCommon voctManager) {
         this.voctManager = voctManager;
     }
 
