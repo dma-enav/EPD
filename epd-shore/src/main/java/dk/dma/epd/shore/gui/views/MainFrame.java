@@ -495,6 +495,13 @@ public class MainFrame extends JFrame implements WindowListener {
                 .setNotificationAreaPosition(notificationArea.getLocation());
         EPDShore.getSettings().getWorkspace()
                 .setStatusPosition(statusArea.getLocation());
+        
+        for (int i = 0; i < mapWindows.size(); i++) {
+            if (mapWindows.get(i).getType() != MapFrameType.standard){
+                mapWindows.remove(i);
+            }
+        }
+        
         EPDShore.getSettings().saveCurrentWorkspace(mapWindows, filename);
     }
 

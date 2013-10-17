@@ -133,7 +133,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
         JMenu sarMenu = new JMenu("Search and Rescue");
         this.add(sarMenu);
         
-        JMenuItem newSar = new JMenuItem("Inititate SAR Operation");
+        final JMenuItem newSar = new JMenuItem("Inititate SAR Operation");
         sarMenu.add(newSar);
         
         JMenuItem sruList = new JMenuItem("View Search Rescue Units");
@@ -255,7 +255,9 @@ public class JMenuWorkspaceBar extends JMenuBar {
         
         newSar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                mainFrame.addSARWindow();
+//                mainFrame.addSARWindow();
+                EPDShore.getVoctManager().showSarInput();
+                newSar.setEnabled(false);
             }
         });
 

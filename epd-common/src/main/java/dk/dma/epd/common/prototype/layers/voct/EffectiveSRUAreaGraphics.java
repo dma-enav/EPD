@@ -633,6 +633,12 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
     }
 
     public void updateEffectiveAreaSize(SARData sarData) {
+        
+        System.out.println("Is the sar data null? ");
+        System.out.println(sarData == null);
+        System.out.println("Is the effective area null? ");
+        System.out.println(sarData.getEffortAllocationData()==null);
+        
         sarData.getEffortAllocationData().setEffectiveAreaA(A);
         sarData.getEffortAllocationData().setEffectiveAreaB(B);
         sarData.getEffortAllocationData().setEffectiveAreaC(C);

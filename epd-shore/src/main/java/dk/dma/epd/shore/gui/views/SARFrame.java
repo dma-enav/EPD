@@ -43,7 +43,8 @@ public class SARFrame extends JMapFrame {
 
     private static final long serialVersionUID = 1L;
     
-    int sarPanelWidth = 245;
+    int sarPanelWidth = 285;
+    int resizeWidthHack = 20;
     
     private SARPanel sarPanel;
 
@@ -203,8 +204,8 @@ public class SARFrame extends JMapFrame {
         }
 
         // And finally set the size and repaint it
-        chartPanel.setSize(width-sarPanelWidth, innerHeight);
-        chartPanel.setPreferredSize(new Dimension(width-sarPanelWidth, innerHeight));
+        chartPanel.setSize(width-sarPanelWidth- resizeWidthHack, innerHeight);
+        chartPanel.setPreferredSize(new Dimension(width-sarPanelWidth-resizeWidthHack, innerHeight));
         
         
         sarPanel.setSize(sarPanelWidth, innerHeight);

@@ -13,7 +13,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.service.voct;
+package dk.dma.epd.shore.voct;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JDialog;
 
@@ -22,13 +25,15 @@ import org.slf4j.LoggerFactory;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.common.util.Util;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.gui.voct.SARInput;
-import dk.dma.epd.ship.layers.voct.VoctLayer;
+import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.gui.voct.SARInput;
+import dk.dma.epd.shore.layers.voct.VoctLayer;
 
 /**
  * The VOCTManager is responsible for maintaining current VOCT Status and all
@@ -44,15 +49,15 @@ public class VOCTManager extends VOCTManagerCommon {
 
     private static final long serialVersionUID = 1L;
     private SARInput sarInputDialog;
-    
+    private SARData sarData;
 
-    VoctLayer voctLayer;
+    List<VoctLayer> voctLayers = new ArrayList<VoctLayer>();
     
     private static final Logger LOG = LoggerFactory
             .getLogger(VOCTManagerCommon.class);
 
     public VOCTManager() {
-        EPDShip.startThread(this, "VOCTManager");
+        EPDShore.startThread(this, "VOCTManager");
         LOG.info("Started VOCT Manager");
     }
 
@@ -77,15 +82,25 @@ public class VOCTManager extends VOCTManagerCommon {
 
     }
 
-    /**
-     * @param voctLayer
-     *            the voctLayer to set
-     */
-    public void setVoctLayer(VoctLayer voctLayer) {
-        this.voctLayer = voctLayer;
+    
+    @Override
+    protected void updateLayers(){
+        
+        if (voctLayers.size() == 0){
+            EPDShore.getMainFrame().addSARWindow();
+        }
     }
-
-
+    
+    
+    @Override
+    public void addListener(VOCTUpdateListener listener) {
+        super.addListener(listener);
+        
+        if (listener instanceof VoctLayer){
+            voctLayers.add((VoctLayer) listener);
+        }
+    }
+    
     @Override
     public void run() {
 
@@ -115,27 +130,27 @@ public class VOCTManager extends VOCTManagerCommon {
                 sarOperation);
 
         SearchPatternRoute searchRoute = searchPatternGenerator
-                .generateSearchPattern(type, sarData, EPDShip.getSettings()
+                .generateSearchPattern(type, sarData, EPDShore.getSettings()
                         .getNavSettings());
 
         // Remove old and overwrite
         if (sarData.getSearchPatternRoute() != null) {
-            int routeIndex = EPDShip.getRouteManager().getRouteIndex(
+            int routeIndex = EPDShore.getRouteManager().getRouteIndex(
                     sarData.getSearchPatternRoute());
 
-            EPDShip.getRouteManager().removeRoute(routeIndex);
+            EPDShore.getRouteManager().removeRoute(routeIndex);
         }
 
         sarData.setSearchPatternRoute(searchRoute);
 
-        EPDShip.getRouteManager().addRoute(searchRoute);
+        EPDShore.getRouteManager().addRoute(searchRoute);
 
         notifyListeners(VOCTUpdateEvent.SEARCH_PATTERN_GENERATED);
     }
 
     @Override
     public void updateEffectiveAreaLocation() {
-        voctLayer.updateEffectiveAreaLocation(sarData);
+//        voctLayer.updateEffectiveAreaLocation(sarData);
     }
 
 }

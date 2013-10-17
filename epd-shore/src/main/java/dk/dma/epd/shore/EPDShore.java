@@ -58,13 +58,14 @@ import dk.dma.epd.shore.gui.utils.StaticImages;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.service.EnavServiceHandler;
-import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteOptimization;
+import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
 import dk.dma.epd.shore.service.ais.AisServices;
 import dk.dma.epd.shore.services.shore.ShoreServices;
 import dk.dma.epd.shore.settings.ESDSensorSettings;
 import dk.dma.epd.shore.settings.ESDSettings;
 import dk.dma.epd.shore.voct.SRUManager;
+import dk.dma.epd.shore.voct.VOCTManager;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
 /**
@@ -98,6 +99,7 @@ public class EPDShore extends EPD {
     private static VoyageManager voyageManager;
     private static EnavServiceHandler enavServiceHandler;
     private static SRUManager sruManager;
+    private static VOCTManager voctManager;
 
     /**
      * Starts the program by initializing the various threads and spawning the main GUI
@@ -175,6 +177,9 @@ public class EPDShore extends EPD {
         voyageManager = VoyageManager.loadVoyageManager();
         beanHandler.add(voyageManager);
         
+        voctManager = VOCTManager.loadVOCTManager();
+        beanHandler.add(voctManager);
+        
         sruManager = SRUManager.loadSRUManager();
         beanHandler.add(sruManager);
 
@@ -242,6 +247,16 @@ public class EPDShore extends EPD {
     
     public Path getSettingsPath() {
         return Paths.get(System.getProperty("user.home"), ".epd-shore");
+    }
+
+    
+    
+    
+    /**
+     * @return the voctManager
+     */
+    public static VOCTManager getVoctManager() {
+        return voctManager;
     }
 
     /**

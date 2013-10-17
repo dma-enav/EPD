@@ -337,6 +337,9 @@ public class SARInputCommon extends JDialog implements ActionListener,
 
                 
                 if (sarReady){
+                    
+                    this.setVisible(false);
+                    
                     // Set the dialog back to input screen for reentering
                     cl.show(masterPanel, currentCard);
 
@@ -349,7 +352,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
                 
 
 
-                this.setVisible(false);
+                
                 return;
             }
 

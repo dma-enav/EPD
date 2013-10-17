@@ -471,14 +471,13 @@ public class ChartPanel extends CommonChartPanel {
             voctLayer = new VoctLayer();
             voctLayer.setVisible(true);
             mapHandler.add(voctLayer);
+            mapHandler.add(EPDShore.getVoctManager());
         }
         
         // Add AIS Layer
         aisLayer = new AisLayer();
         aisLayer.setVisible(true);
         mapHandler.add(aisLayer);
-
-        
 
 
         // Create background layer

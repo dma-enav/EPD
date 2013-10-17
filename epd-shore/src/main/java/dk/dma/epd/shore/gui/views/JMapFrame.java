@@ -78,6 +78,8 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
     public int height;
     protected static int chartPanelOffset = 12;
     JInternalFrame mapFrame;
+    
+    MapFrameType type= MapFrameType.standard;
 
     /**
      * Constructor for setting up the map frame
@@ -89,6 +91,7 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
 
         this.mainFrame = mainFrame;
         this.id = id;
+        this.type = type;
 
         chartPanel = new ChartPanel(mainFrame, this);
         this.setContentPane(chartPanel);
@@ -303,6 +306,17 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
      */
     public boolean isInFront() {
         return alwaysInFront;
+    }
+
+    
+    
+    
+    
+    /**
+     * @return the type
+     */
+    public MapFrameType getType() {
+        return type;
     }
 
     /**

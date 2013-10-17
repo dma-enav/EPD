@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.panels;
+package dk.dma.epd.common.prototype.gui.voct;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;

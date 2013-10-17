@@ -51,8 +51,6 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         MapMouseListener, VOCTUpdateListener {
     private static final long serialVersionUID = 1L;
 
-    // private DynamicNogoHandler dynamicNogoHandler = null;
-
     private OMGraphicList graphics = new OMGraphicList();
     private OMGraphic selectedGraphic;
     private boolean dragging;

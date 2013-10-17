@@ -53,7 +53,7 @@ public class VOCTManagerCommon implements Runnable, Serializable {
 
     private CopyOnWriteArrayList<VOCTUpdateListener> listeners = new CopyOnWriteArrayList<>();
 
-    private SARData sarData;
+    protected SARData sarData;
 
 
     /**
@@ -79,6 +79,8 @@ public class VOCTManagerCommon implements Runnable, Serializable {
             DateTime DSP2Date, DateTime DSP3Date, DateTime CSS, Position LKP,
             Position DSP2, Position DSP3, double x, double y, double SF,
             int searchObject, List<SARWeatherData> sarWeatherDataPoints) {
+        
+        
 
         DatumPointData dsp1 = new DatumPointData(sarID, TLKP, CSS, LKP, x, y,
                 SF, searchObject);
@@ -106,6 +108,8 @@ public class VOCTManagerCommon implements Runnable, Serializable {
     public void inputRapidResponseDatumData(String sarID, DateTime TLKP,
             DateTime CSS, Position LKP, double x, double y, double SF,
             int searchObject, List<SARWeatherData> sarWeatherDataPoints) {
+        
+        
 
         if (getSarType() == SAR_TYPE.RAPID_RESPONSE) {
             RapidResponseData data = new RapidResponseData(sarID, TLKP, CSS,
@@ -127,6 +131,12 @@ public class VOCTManagerCommon implements Runnable, Serializable {
 
     }
 
+    
+    protected void updateLayers(){
+        //Used for EPDShore
+    }
+    
+    
     /**
      * User has clicked the Cancel button, abort operation and reset
      */
@@ -138,6 +148,7 @@ public class VOCTManagerCommon implements Runnable, Serializable {
     }
 
     public void displaySar() {
+        updateLayers();
         notifyListeners(VOCTUpdateEvent.SAR_DISPLAY);
     }
 
@@ -183,6 +194,10 @@ public class VOCTManagerCommon implements Runnable, Serializable {
      *            the sarData to set
      */
     public void setSarData(SARData sarData) {
+        
+        
+        System.out.println("SAR data is not null!");
+        System.out.println(sarData != null);
         this.sarData = sarData;
 
         notifyListeners(VOCTUpdateEvent.SAR_READY);
@@ -204,6 +219,10 @@ public class VOCTManagerCommon implements Runnable, Serializable {
 
     public void updateEffectiveAreaLocation() {
         
+    }
+
+    public void showSarInput() {
+ 
     }
 
 }
