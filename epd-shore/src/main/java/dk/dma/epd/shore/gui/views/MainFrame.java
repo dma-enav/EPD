@@ -402,8 +402,6 @@ public class MainFrame extends JFrame implements WindowListener {
 
         setWorkSpace(workspace);
         
-   
-        sruManagerDialog.setVisible(true);
 
     }
 

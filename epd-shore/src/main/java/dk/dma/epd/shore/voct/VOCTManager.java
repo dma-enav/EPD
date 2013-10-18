@@ -27,12 +27,15 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
+import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
+import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.voct.SARInput;
+import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
 import dk.dma.epd.shore.layers.voct.VoctLayer;
 
 /**
@@ -46,13 +49,17 @@ import dk.dma.epd.shore.layers.voct.VoctLayer;
 
 public class VOCTManager extends VOCTManagerCommon {
 
-
     private static final long serialVersionUID = 1L;
     private SARInput sarInputDialog;
+    private SRUManagerDialog sruManagerDialog;
+    
+    
     private SARData sarData;
 
+    private SRUManager sruManager;
+
     List<VoctLayer> voctLayers = new ArrayList<VoctLayer>();
-    
+
     private static final Logger LOG = LoggerFactory
             .getLogger(VOCTManagerCommon.class);
 
@@ -83,24 +90,32 @@ public class VOCTManager extends VOCTManagerCommon {
     }
 
     
-    @Override
-    protected void updateLayers(){
+    public void showSRUManagerDialog(){
         
-        if (voctLayers.size() == 0){
+        if (sruManagerDialog != null){
+            sruManagerDialog.setVisible(true);
+        }
+        
+    }
+    
+    
+    @Override
+    protected void updateLayers() {
+
+        if (voctLayers.size() == 0) {
             EPDShore.getMainFrame().addSARWindow();
         }
     }
-    
-    
+
     @Override
     public void addListener(VOCTUpdateListener listener) {
         super.addListener(listener);
-        
-        if (listener instanceof VoctLayer){
+
+        if (listener instanceof VoctLayer) {
             voctLayers.add((VoctLayer) listener);
         }
     }
-    
+
     @Override
     public void run() {
 
@@ -118,7 +133,6 @@ public class VOCTManager extends VOCTManagerCommon {
         return new VOCTManager();
 
     }
-
 
     @Override
     public void generateSearchPattern(
@@ -150,7 +164,30 @@ public class VOCTManager extends VOCTManagerCommon {
 
     @Override
     public void updateEffectiveAreaLocation() {
-//        voctLayer.updateEffectiveAreaLocation(sarData);
+        // voctLayer.updateEffectiveAreaLocation(sarData);
     }
 
+    @Override
+    public void findAndInit(Object obj) {
+        if (obj instanceof SRUManager) {
+
+            sruManager = (SRUManager) obj;
+
+        }
+        
+        if (obj instanceof SRUManagerDialog){
+            sruManagerDialog = (SRUManagerDialog) obj;
+        }
+        
+    }
+
+    /**
+     * @return the sruManager
+     */
+    public SRUManager getSruManager() {
+        return sruManager;
+    }
+
+    
+    
 }

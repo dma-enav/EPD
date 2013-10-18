@@ -68,9 +68,6 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
 
     private static final long serialVersionUID = 1L;
 
-    // private static final Logger LOG =
-    // Logger.getLogger(RouteManagerDialog.class);
-
     protected SRUManager sruManager;
 
     // private JButton propertiesBtn;
@@ -87,6 +84,9 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
     private JLabel closeBtn;
     private JLabel exportAllBtn;
     private JLabel copyBtn;
+    
+    
+    private JLabel addNewSRUBtn;
 
     private JScrollPane sruScrollPane;
     private JTable sruTable;
@@ -186,10 +186,14 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
         
         propertiesBtn = new JLabel("Properties");
         GuiStyler.styleButton(propertiesBtn);
-        // propertiesBtn.addActionListener(this);
+         propertiesBtn.addMouseListener(this);
+         
+         
         zoomToBtn = new JLabel("Zoom to");
         GuiStyler.styleButton(zoomToBtn);
-        // reverseCopyBtn.addActionListener(this);
+        zoomToBtn.setEnabled(false);
+        
+        
         deleteBtn = new JLabel("Remove Selected");
         GuiStyler.styleButton(deleteBtn);
         // exportBtn.addActionListener(this);
@@ -211,9 +215,9 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
         GuiStyler.styleButton(lblEffortAllocation);
         lblEffortAllocation.setEnabled(false);
         
-        JLabel lblAddNewSru = new JLabel("Add new SRU");
-        GuiStyler.styleButton(lblAddNewSru);
-        lblAddNewSru.setEnabled(false);
+        addNewSRUBtn = new JLabel("Add new SRU");
+        GuiStyler.styleButton(addNewSRUBtn);
+//        lblAddNewSru.setEnabled(false);
         
         
         DefaultTableModel model = new DefaultTableModel(30, 3);
@@ -315,7 +319,7 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
                                     .addComponent(deleteBtn, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(exportAllBtn, GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
                                     .addComponent(importBtn, GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE))
-                                .addComponent(lblAddNewSru, GroupLayout.PREFERRED_SIZE, 131, GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(addNewSRUBtn, GroupLayout.PREFERRED_SIZE, 131, GroupLayout.PREFERRED_SIZE)))
                         .addComponent(lblEffortAllocation, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 131, GroupLayout.PREFERRED_SIZE))
                     .addContainerGap())
         );
@@ -337,7 +341,7 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
                             .addPreferredGap(ComponentPlacement.RELATED)
                             .addComponent(importBtn)
                             .addPreferredGap(ComponentPlacement.RELATED, 89, Short.MAX_VALUE)
-                            .addComponent(lblAddNewSru)
+                            .addComponent(addNewSRUBtn)
                             .addGap(10))
                         .addComponent(sruScrollPane, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE))
                     .addGap(8)
@@ -422,9 +426,7 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
 //        }
     }
 
-    private void properties() {
 
-    }
 
     // private void metocProperties() {
     // int i = routeTable.getSelectedRow();
@@ -437,10 +439,15 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
     // }
 
     private void delete() {
-//        if (routeTable.getSelectedRow() >= 0) {
-//            routeManager.removeRoute(routeTable.getSelectedRow());
-//            updateTable();
-//        }
+
+        int i = sruTable.getSelectedRow();
+        
+        if (i >= 0){
+            sruManager.removeSRU(sruTable.getSelectedRow());    
+        }
+        
+        
+        
     }
 
     private void exportToFile(int routeId) {
@@ -571,9 +578,43 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
                 importFromFile();
             }
         });
-
+        
+        
+        addNewSRUBtn.addMouseListener(new MouseAdapter() {
+            public void mouseReleased(MouseEvent e) {
+                addNewSRU();
+            }
+        });
     }
 
+    
+    private void properties(){
+        
+        int i = sruTable.getSelectedRow();
+        
+        if (i >=0){
+            SRUAddEditDialog dialog = new SRUAddEditDialog(sruManager, i);
+            dialog.setVisible(true);
+        }
+        
+//        SRUAddEditDialog dialog = new SRUAddEditDialog(sruManager);
+        
+        
+        
+     // int i = routeTable.getSelectedRow();
+        // if (i >= 0) {
+        // RouteMetocDialog routeMetocDialog = new RouteMetocDialog((Window) parent,
+        // routeManager, i);
+        // routeMetocDialog.setVisible(true);
+        // routeManager.notifyListeners(RoutesUpdateEvent.METOC_SETTINGS_CHANGED);
+        
+    }
+    
+    private void addNewSRU(){
+        SRUAddEditDialog dialog = new SRUAddEditDialog(sruManager);
+        dialog.setVisible(true);
+    }
+    
     @Override
     public void actionPerformed(ActionEvent e) {
 

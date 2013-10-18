@@ -1387,24 +1387,40 @@ public class SAROperation {
     }
 
     public void calculateEffortAllocation(SARData data) {
-        double trackSpacing = findS(data.getEffortAllocationData().getW(), data
-                .getEffortAllocationData().getPod());
+        
 
-        data.getEffortAllocationData().setTrackSpacing(trackSpacing);
+            
+            for (int i = 0; i < data.getEffortAllocationData().size(); i++) {
+                
+                double trackSpacing = findS(data.getEffortAllocationData().get(i).getW(), data.getEffortAllocationData().get(i).getPod());
 
-        double groundSpeed = data.getEffortAllocationData().getGroundSpeed();
-        int timeSearching = data.getEffortAllocationData().getSearchTime();
+                data.getEffortAllocationData().get(i).setTrackSpacing(trackSpacing);
 
-        System.out.println("Track Spacing is: " + trackSpacing);
-        System.out.println("Ground speed is: " + groundSpeed);
-        System.out.println("Time searching is: " + timeSearching);
+                double groundSpeed = data.getEffortAllocationData().get(i).getGroundSpeed();
+                int timeSearching = data.getEffortAllocationData().get(i).getSearchTime();
 
-        double areaSize = trackSpacing * groundSpeed * timeSearching;
+                System.out.println("Track Spacing is: " + trackSpacing);
+                System.out.println("Ground speed is: " + groundSpeed);
+                System.out.println("Time searching is: " + timeSearching);
 
-        data.getEffortAllocationData().setEffectiveAreaSize(areaSize);
+                double areaSize = trackSpacing * groundSpeed * timeSearching;
 
-        System.out.println("Area size: " + areaSize);
+                data.getEffortAllocationData().get(i).setEffectiveAreaSize(areaSize);
 
+                System.out.println("Area size: " + areaSize);
+            
+            
+            
+       
+
+        }
+        
+        
+   
+
+        
+        
+        
     }
 
     private double findS(double W, double PoD) {

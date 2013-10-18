@@ -26,7 +26,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -60,9 +59,11 @@ public class SARPanelCommon extends JPanel implements ActionListener {
     private JPanel timeAndDatePanel;
     private JPanel weatherPanel;
     private JPanel searchAreaPanel;
-    private JPanel buttonPanel;
-    protected JButton btnReopenCalculations;
-    protected JButton btnEffortAllocation;
+    
+    protected ButtonsPanelCommon buttonsPanel;
+    
+    
+
     private JLabel lblTimeOfLast;
     private JLabel lkpDate;
     private JLabel lblNewLabel;
@@ -92,8 +93,6 @@ public class SARPanelCommon extends JPanel implements ActionListener {
     private Component horizontalStrut;
     
     
-    
-
 
     static final String SARPANEL = "SAR Panel";
     static final String NOSARPANEL = "No Sar panel";
@@ -113,8 +112,8 @@ public class SARPanelCommon extends JPanel implements ActionListener {
     
 
 
-    protected EffortAllocationWindow effortAllocationWindow = new EffortAllocationWindow();
-    protected SearchPatternDialog searchPatternDialog = new SearchPatternDialog();
+    protected EffortAllocationWindowCommon effortAllocationWindow = new EffortAllocationWindowCommon();
+    protected SearchPatternDialogCommon searchPatternDialog = new SearchPatternDialogCommon();
 
     protected SARData sarData;
     
@@ -499,22 +498,15 @@ public class SARPanelCommon extends JPanel implements ActionListener {
         gbc_areaSize.gridy = 6;
         searchAreaPanel.add(areaSize, gbc_areaSize);
 
-        buttonPanel = new JPanel();
+
         GridBagConstraints gbc_buttonPanel = new GridBagConstraints();
         gbc_buttonPanel.insets = new Insets(0, 0, 5, 0);
         gbc_buttonPanel.fill = GridBagConstraints.BOTH;
         gbc_buttonPanel.gridx = 0;
         gbc_buttonPanel.gridy = 6;
-        sarStartedPanel.add(buttonPanel, gbc_buttonPanel);
+        sarStartedPanel.add(createButtonPanel(), gbc_buttonPanel);
 
-        btnReopenCalculations = new JButton("Reopen Calculations");
-        btnReopenCalculations.addActionListener(this);
-        buttonPanel.add(btnReopenCalculations);
-
-        btnEffortAllocation = new JButton("Effort Allocation");
-        btnEffortAllocation.addActionListener(this);
-        buttonPanel.add(btnEffortAllocation);
-
+    
         GridBagConstraints gbc_effortAllocationPanel = new GridBagConstraints();
         gbc_effortAllocationPanel.insets = new Insets(0, 0, 5, 0);
         gbc_effortAllocationPanel.fill = GridBagConstraints.BOTH;
@@ -832,5 +824,10 @@ public class SARPanelCommon extends JPanel implements ActionListener {
     protected EffortAllocationPanelCommon createEffortAllocationPanel(){
         effortAllocationPanel = new EffortAllocationPanelCommon();
         return effortAllocationPanel;
+    }
+    
+    protected ButtonsPanelCommon createButtonPanel(){
+        buttonsPanel = new ButtonsPanelCommon();
+        return buttonsPanel;
     }
 }

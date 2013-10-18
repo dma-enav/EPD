@@ -558,7 +558,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         // unique ID
 
         double effectiveAreaSize = voctManager.getSarData()
-                .getEffortAllocationData().getEffectiveAreaSize();
+                .getFirstEffortAllocationData().getEffectiveAreaSize();
 
         System.out.println("EFFECTIVE AREA IS " + effectiveAreaSize);
 
@@ -572,7 +572,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         // startingPosition = ((RapidResponseData) data).getA();
         // }
 
-        effectiveArea = new EffectiveSRUAreaGraphics(width, height, data);
+        effectiveArea = new EffectiveSRUAreaGraphics(width, height, data, 0);
 
         graphics.add(effectiveArea);
 

@@ -13,18 +13,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.gui.voct;
+package dk.dma.epd.shore.gui.voct;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -36,36 +36,39 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
+import dk.dma.epd.common.prototype.gui.voct.EffortAllocationWindowCommon;
 import dk.dma.epd.common.prototype.model.voct.SweepWidthValues;
 import dk.dma.epd.common.prototype.model.voct.WeatherCorrectionFactors;
+import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
+import dk.dma.epd.shore.voct.SRU;
+import dk.dma.epd.shore.voct.SRU.SRU_TYPE;
+import dk.dma.epd.shore.voct.SRUManager;
+import dk.dma.epd.shore.voct.VOCTManager;
+import javax.swing.JList;
 
-public class EffortAllocationWindow extends JDialog implements ActionListener {
-
-    /**
-     * 
-     */
+public class EffortAllocationWindow extends EffortAllocationWindowCommon {
     private static final long serialVersionUID = 1L;
 
     private final JPanel initPanel = new JPanel();
-
-    private JLabel shipName;
-    private JTextField topSpeed;
     private JTextField windspeedField;
     private JTextField waterElevationField;
     private JTextField probabilityOfDetectionVal;
 
-
     JComboBox<String> targetTypeDropdown;
-    JSpinner hoursSearching;
-    private JComboBox<String> sruType;
     JComboBox<Integer> visibilityDropDown;
 
     private JCheckBox editPoD;
     private JButton calculate;
-    private JComboBox<Double> fatigueDropDown;
-    private VOCTManagerCommon voctManager;
+    private VOCTManager voctManager;
+    private SRUManager sruManager;
+
+    private JLabel noSRUs;
+
+    private JLabel lblAvailableSrus;
+    DefaultListModel<String> listModel = new DefaultListModel<String>();
+    JList<String> sruJList;
 
     /**
      * Create the dialog.
@@ -74,7 +77,7 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
         setTitle("Effort Allocation");
         this.setModal(true);
         this.setResizable(false);
-        
+
         // setBounds(100, 100, 559, 733);
         setBounds(100, 100, 559, 575);
         getContentPane().setLayout(new BorderLayout());
@@ -82,21 +85,64 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
         buttomBar();
 
         initPanel();
-        
+
         this.setVisible(false);
     }
-    
-    public void setVoctManager(VOCTManagerCommon voctManager){
-        this.voctManager = voctManager;
+
+    public void setVisible(boolean visible) {
+
+        if (visible) {
+
+            if (sruManager.getSRUCount() == 0) {
+                noSRUs.setVisible(true);
+                calculate.setEnabled(false);
+
+                lblAvailableSrus.setVisible(false);
+                sruJList.setVisible(false);
+            } else {
+                fillSruList();
+                lblAvailableSrus.setVisible(true);
+                sruJList.setVisible(true);
+
+                noSRUs.setVisible(false);
+                calculate.setEnabled(true);
+
+            }
+
+        }
+
+        super.setVisible(visible);
+
     }
-    
+
+    private void fillSruList() {
+        // sruJList.removeAll();
+        listModel.removeAllElements();
+        List<SRU> sruList = sruManager.getSRUs();
+
+        for (int i = 0; i < sruList.size(); i++) {
+            SRU currentSRU = sruList.get(i);
+            String sruTarget = currentSRU.getName() + " - "
+                    + currentSRU.getSearchSpeed() + " kn - "
+                    + currentSRU.getType();
+
+            listModel.addElement(sruTarget);
+
+        }
+
+    }
+
+    public void setVoctManager(VOCTManager voctManager) {
+        this.voctManager = voctManager;
+        sruManager = voctManager.getSruManager();
+    }
 
     private void initPanel() {
         initPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(initPanel, BorderLayout.CENTER);
 
         initPanel.setLayout(null);
-   
+
         {
             JPanel panel = new JPanel();
             panel.setBorder(new TitledBorder(UIManager
@@ -107,69 +153,35 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             initPanel.add(panel);
             panel.setLayout(null);
 
-            JPanel panel_1 = new JPanel();
-            panel_1.setBorder(new TitledBorder(null, "Description",
-                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
-            panel_1.setBounds(10, 20, 503, 77);
-            panel.add(panel_1);
-            panel_1.setLayout(null);
-
-            JTextPane txtField = new JTextPane();
-            txtField.setBounds(12, 20, 483, 44);
-            panel_1.add(txtField);
-            txtField.setBackground(UIManager.getColor("Button.background"));
-            txtField.setEditable(false);
-            txtField.setText("Probability of Detection is a statistical measurement for determining the success rate for location an object lost at sea. Recommended PoD is 78%");
-
             JPanel panel_2 = new JPanel();
             panel_2.setBorder(new TitledBorder(null, "SRU Information",
                     TitledBorder.LEADING, TitledBorder.TOP, null, null));
-            panel_2.setBounds(10, 98, 503, 99);
+            panel_2.setBounds(10, 32, 503, 165);
             panel.add(panel_2);
             panel_2.setLayout(null);
 
-            JLabel lblVesselName = new JLabel("Vessel Name:");
-            lblVesselName.setBounds(10, 22, 83, 14);
-            panel_2.add(lblVesselName);
+            lblAvailableSrus = new JLabel("Available SRUs:");
+            lblAvailableSrus.setBounds(10, 23, 137, 14);
+            panel_2.add(lblAvailableSrus);
 
-            JLabel lblTopSpeed = new JLabel("Search Velocity, knots:");
-            lblTopSpeed.setBounds(10, 69, 121, 14);
-            panel_2.add(lblTopSpeed);
+            sruJList = new JList<String>(listModel);
+            sruJList.setEnabled(false);
 
-            shipName = new JLabel("N/A");
-            shipName.setBounds(129, 22, 95, 14);
-            panel_2.add(shipName);
+            sruJList.setBounds(10, 50, 483, 104);
 
-            topSpeed = new JTextField();
-            topSpeed.setBounds(129, 66, 34, 20);
-            panel_2.add(topSpeed);
-            topSpeed.setColumns(10);
+            panel_2.add(sruJList);
 
-            JLabel lblNewLabel = new JLabel("Type:");
-            lblNewLabel.setBounds(10, 44, 34, 14);
-            panel_2.add(lblNewLabel);
-
-            sruType = new JComboBox<String>();
-            sruType.setModel(new DefaultComboBoxModel<String>(new String[] {
-                    "Smaller vessel (40 feet)", "Ship (90 feet)" }));
-            sruType.setBounds(129, 41, 148, 20);
-            panel_2.add(sruType);
-
-            JLabel lblFatigue = new JLabel("Fatigue:");
-            lblFatigue.setBounds(290, 22, 46, 14);
-            panel_2.add(lblFatigue);
-
-            fatigueDropDown = new JComboBox<Double>();
-            fatigueDropDown.setModel(new DefaultComboBoxModel<Double>(
-                    new Double[] { 1.0, 0.9 }));
-            fatigueDropDown.setBounds(345, 19, 45, 20);
-            panel_2.add(fatigueDropDown);
+            noSRUs = new JLabel(
+                    "There are no SRUs added. Please add a SRU before doing Effort Allocation");
+            noSRUs.setBounds(10, 23, 446, 14);
+            noSRUs.setVisible(false);
+            panel_2.add(noSRUs);
 
             JPanel panel_3 = new JPanel();
             panel_3.setBorder(new TitledBorder(UIManager
                     .getBorder("TitledBorder.border"), "SAR Information",
                     TitledBorder.LEADING, TitledBorder.TOP, null, null));
-            panel_3.setBounds(10, 208, 503, 72);
+            panel_3.setBounds(10, 208, 503, 55);
             panel.add(panel_3);
             panel_3.setLayout(null);
             {
@@ -189,20 +201,6 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
                 targetTypeDropdown.addItem(SweepWidthValues
                         .getSweepWidthTypes().get(i));
             }
-
-            JLabel lblTimeSpentSearching = new JLabel("Time spent searching:");
-            lblTimeSpentSearching.setBounds(10, 46, 124, 14);
-            panel_3.add(lblTimeSpentSearching);
-
-            hoursSearching = new JSpinner();
-            hoursSearching.setModel(new SpinnerNumberModel(new Integer(1),
-                    null, null, new Integer(1)));
-            hoursSearching.setBounds(139, 44, 54, 20);
-            panel_3.add(hoursSearching);
-
-            JLabel lblHours = new JLabel("hours");
-            lblHours.setBounds(205, 46, 46, 14);
-            panel_3.add(lblHours);
 
             JPanel panel_4 = new JPanel();
             panel_4.setBorder(new TitledBorder(null, "Weather information",
@@ -270,26 +268,26 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
     }
 
     public void setValues() {
-//        VesselTarget ownship = EPDShip.getAisHandler().getOwnShip();
-//
-//        if (ownship != null) {
-//            if (ownship.getStaticData() != null) {
-//                shipName.setText(ownship.getStaticData().getName());
-//
-//                double length = ownship.getStaticData().getDimBow()
-//                        + ownship.getStaticData().getDimStern();
-//                // String width = Integer.toString(ownship.getStaticData()
-//                // .getDimPort()
-//                // + ownship.getStaticData().getDimStarboard()) + " M";
-//
-//                // Is the lenght indicated by the AIS longer than 89 feet then
-//                // it falls under Ship category
-//                if (Converter.metersToFeet(length) > 89) {
-//                    sruType.setSelectedIndex(1);
-//                }
-//
-//            }
-//        }
+        // VesselTarget ownship = EPDShip.getAisHandler().getOwnShip();
+        //
+        // if (ownship != null) {
+        // if (ownship.getStaticData() != null) {
+        // shipName.setText(ownship.getStaticData().getName());
+        //
+        // double length = ownship.getStaticData().getDimBow()
+        // + ownship.getStaticData().getDimStern();
+        // // String width = Integer.toString(ownship.getStaticData()
+        // // .getDimPort()
+        // // + ownship.getStaticData().getDimStarboard()) + " M";
+        //
+        // // Is the lenght indicated by the AIS longer than 89 feet then
+        // // it falls under Ship category
+        // if (Converter.metersToFeet(length) > 89) {
+        // sruType.setSelectedIndex(1);
+        // }
+        //
+        // }
+        // }
     }
 
     private void buttomBar() {
@@ -329,98 +327,101 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
     private boolean checkValues() {
 
         SARData sarData = voctManager.getSarData();
-        
-        if (getMaxSpeed() == -9999) {
+        sarData.removeAllEffortAllocationData();
+
+        List<SRU> sruList = sruManager.getSRUs();
+
+        if (sruList.size() == 0) {
             return false;
         }
-
-        sarData.getEffortAllocationData().setGroundSpeed(getMaxSpeed());
-
-        // Wc = Wu x Fw x Fv x Ff
-
-        // Wu is done by table lookup
 
         int targetType = targetTypeDropdown.getSelectedIndex();
         int visibility = (int) visibilityDropDown.getSelectedItem();
 
-        double wu = 0.0;
-
-        if (sruType.getSelectedIndex() == 0) {
-            // Small type
-            wu = SweepWidthSmallShipLookup(targetType, visibility);
-        } else {
-            if (sruType.getSelectedIndex() == 1) {
-                wu = SweepWidthLargeShipLookup(targetType, visibility);
-            }
-        }
-
-        int windSpeed = getWindSpeed();
-
-        if (windSpeed == -9999) {
-            return false;
-        }
-
-        int waterLevel = getWaterElevation();
-        if (waterLevel == -9999) {
-            return false;
-        }
-
-        int fwRow = 0;
-
-        if (windSpeed >= 0 && windSpeed <= 15 || waterLevel >= 0
-                && waterLevel <= 3) {
-            fwRow = 0;
-        }
-
-        if (windSpeed > 15 && windSpeed <= 25 || waterLevel > 3
-                && waterLevel <= 5) {
-            fwRow = 1;
-        }
-
-        if (windSpeed > 25 || waterLevel > 5) {
-            fwRow = 2;
-        }
-
-        // Two types of search object for FW
-        // Person in Water, raft or boat less than 30 feet
-        // Or
-        // Other
-        double fw;
-
-        // PIW, raft or small boat
-        if (targetType >= 0 && targetType <= 10 || targetType >= 14
-                && targetType < 17) {
-            fw = WeatherCorrectionFactors.getPIWAndSmallBoats().get(fwRow);
-        } else {
-            // Other object
-            fw = WeatherCorrectionFactors.getOtherObjects().get(fwRow);
-        }
-
-        double ff = (double) fatigueDropDown.getSelectedItem();
-
-        double wc = wu * fw * ff;
-
-        sarData.getEffortAllocationData().setW(wc);
-
-        System.out.println("The following Sweep Width is calculated:");
-        System.out.println("Wc = Wu x Fw x Ff");
-        System.out.println(wc + " = " + wu + " * " + fw + " * " + ff);
-
         double probabilityOfDetection = getProbabilityOfDetection();
-        System.out.println(probabilityOfDetection);
+        // System.out.println(probabilityOfDetection);
         if (probabilityOfDetection == -9999) {
             return false;
         }
 
-        sarData.getEffortAllocationData().setPod(probabilityOfDetection);
+        for (int i = 0; i < sruList.size(); i++) {
 
-        int timeSearching = getSearchTimeHours();
-        
-        if (timeSearching == -9999) {
-            System.out.println("failed to get time searching spinner val");
-            return false;
+            SRU currentSRU = sruList.get(i);
+
+            EffortAllocationData data = new EffortAllocationData();
+
+            data.setGroundSpeed(currentSRU.getSearchSpeed());
+            data.setPod(probabilityOfDetection);
+            
+            // Wc = Wu x Fw x Fv x Ff
+
+            // Wu is done by table lookup
+
+            int windSpeed = getWindSpeed();
+
+            if (windSpeed == -9999) {
+                return false;
+            }
+
+            int waterLevel = getWaterElevation();
+            if (waterLevel == -9999) {
+                return false;
+            }
+
+            int fwRow = 0;
+
+            if (windSpeed >= 0 && windSpeed <= 15 || waterLevel >= 0
+                    && waterLevel <= 3) {
+                fwRow = 0;
+            }
+
+            if (windSpeed > 15 && windSpeed <= 25 || waterLevel > 3
+                    && waterLevel <= 5) {
+                fwRow = 1;
+            }
+
+            if (windSpeed > 25 || waterLevel > 5) {
+                fwRow = 2;
+            }
+
+            // Two types of search object for FW
+            // Person in Water, raft or boat less than 30 feet
+            // Or
+            // Other
+            double fw;
+
+            // PIW, raft or small boat
+            if (targetType >= 0 && targetType <= 10 || targetType >= 14
+                    && targetType < 17) {
+                fw = WeatherCorrectionFactors.getPIWAndSmallBoats().get(fwRow);
+            } else {
+                // Other object
+                fw = WeatherCorrectionFactors.getOtherObjects().get(fwRow);
+            }
+
+            double wu = 0.0;
+
+            if (currentSRU.getType() == SRU_TYPE.Smaller_Vessel) {
+                // Small type
+                wu = SweepWidthSmallShipLookup(targetType, visibility);
+            } else {
+                if (currentSRU.getType() == SRU_TYPE.Ship) {
+                    wu = SweepWidthLargeShipLookup(targetType, visibility);
+                }
+            }
+
+            double ff = currentSRU.getFatigue();
+
+            double wc = wu * fw * ff;
+
+            data.setW(wc);
+            
+            
+            data.setSearchTime(currentSRU.getSearchTime());
+
+            sarData.addEffortAllocationData(data);
+
         }
-        sarData.getEffortAllocationData().setSearchTime(timeSearching);
 
         return true;
     }
@@ -471,40 +472,6 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
 
     }
 
-    private int getSearchTimeHours() {
-
-        // String groundSpeed = (String) hoursSearching.getValue();
-
-        try {
-            return (int) hoursSearching.getValue();
-        } catch (Exception e) {
-            displayMissingField("Time Searching");
-            return -9999;
-        }
-
-    }
-
-    private double getMaxSpeed() {
-
-        String groundSpeed = topSpeed.getText();
-
-        if (groundSpeed.equals("")) {
-            displayMissingField("SRU Top Speed");
-            return -9999;
-        } else {
-            try {
-                if (groundSpeed.contains(",")){
-                    groundSpeed = groundSpeed.replace(",", ".");
-                }
-                return Double.parseDouble(groundSpeed);
-            } catch (Exception e) {
-                displayMissingField("SRU Top Speed");
-                return -9999;
-            }
-        }
-
-    }
-
     private double getProbabilityOfDetection() {
 
         String probabilityOfDetection = probabilityOfDetectionVal.getText();
@@ -522,10 +489,11 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
             return -9999;
         } else {
             try {
-                if (probabilityOfDetection.contains(",")){
-                    probabilityOfDetection = probabilityOfDetection.replace(",", ".");
+                if (probabilityOfDetection.contains(",")) {
+                    probabilityOfDetection = probabilityOfDetection.replace(
+                            ",", ".");
                 }
-                
+
                 return Double.parseDouble(probabilityOfDetection) / 100;
             } catch (Exception e) {
                 displayMissingField("Probability of Detection");
@@ -539,5 +507,4 @@ public class EffortAllocationWindow extends JDialog implements ActionListener {
         JOptionPane.showMessageDialog(this, "Missing or incorrect value in "
                 + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
     }
-
 }

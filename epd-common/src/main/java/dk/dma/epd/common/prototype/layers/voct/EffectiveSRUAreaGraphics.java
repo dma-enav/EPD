@@ -49,13 +49,17 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
     double deltaCorrection = 0.004;
 
     SARData sarData;
-
+    int id;
+    
+    
     public enum LineType {
         TOP, BOTTOM, LEFT, RIGHT
     }
 
-    public EffectiveSRUAreaGraphics(Double width, Double height, SARData data) {
+    public EffectiveSRUAreaGraphics(Double width, Double height, SARData data, int id) {
         super();
+        
+        this.id = id;
 
         this.sarData = data;
 
@@ -131,10 +135,10 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         D = Calculator.findPosition(C, horizontalBearing,
                 Converter.nmToMeters(width));
 
-        sarData.getEffortAllocationData().setEffectiveAreaA(A);
-        sarData.getEffortAllocationData().setEffectiveAreaB(B);
-        sarData.getEffortAllocationData().setEffectiveAreaC(C);
-        sarData.getEffortAllocationData().setEffectiveAreaD(D);
+        sarData.getEffortAllocationData().get(id).setEffectiveAreaA(A);
+        sarData.getEffortAllocationData().get(id).setEffectiveAreaB(B);
+        sarData.getEffortAllocationData().get(id).setEffectiveAreaC(C);
+        sarData.getEffortAllocationData().get(id).setEffectiveAreaD(D);
 
         effectiveArea = new AreaInternalGraphics(A, B, C, D, width, height,
                 this, verticalBearing, horizontalBearing);
@@ -637,12 +641,12 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         System.out.println("Is the sar data null? ");
         System.out.println(sarData == null);
         System.out.println("Is the effective area null? ");
-        System.out.println(sarData.getEffortAllocationData()==null);
+        System.out.println(sarData.getFirstEffortAllocationData()==null);
         
-        sarData.getEffortAllocationData().setEffectiveAreaA(A);
-        sarData.getEffortAllocationData().setEffectiveAreaB(B);
-        sarData.getEffortAllocationData().setEffectiveAreaC(C);
-        sarData.getEffortAllocationData().setEffectiveAreaD(D);
+        sarData.getEffortAllocationData().get(id).setEffectiveAreaA(A);
+        sarData.getEffortAllocationData().get(id).setEffectiveAreaB(B);
+        sarData.getEffortAllocationData().get(id).setEffectiveAreaC(C);
+        sarData.getEffortAllocationData().get(id).setEffectiveAreaD(D);
     }
 
 }

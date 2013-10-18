@@ -13,24 +13,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.layers.voct;
+package dk.dma.epd.shore.gui.voct;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
+import dk.dma.epd.common.prototype.gui.voct.ButtonsPanelCommon;
 import dk.dma.epd.common.prototype.gui.voct.EffortAllocationPanelCommon;
 import dk.dma.epd.common.prototype.gui.voct.SARPanelCommon;
 import dk.dma.epd.common.prototype.gui.voct.SearchPatternsPanelCommon;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.gui.voct.SearchPatternsPanel;
+import dk.dma.epd.shore.gui.voct.panels.ButtonsPanel;
+import dk.dma.epd.shore.gui.voct.panels.EffortAllocationPanel;
+import dk.dma.epd.shore.gui.voct.panels.SearchPatternsPanel;
+import dk.dma.epd.shore.voct.VOCTManager;
 
 public class SARPanel extends SARPanelCommon implements VOCTUpdateListener {
     
@@ -586,19 +588,40 @@ public class SARPanel extends SARPanelCommon implements VOCTUpdateListener {
 //    }
     
     
+    private JButton btnGenerateSearchPattern;
+    private JCheckBox chckbxShowDynamicPattern;
+    private JButton btnReopenCalculations;
+    private JButton btnEffortAllocation;
+    private JButton btnSruDialog;
+    
+    protected EffortAllocationWindow effortAllocationWindow = new EffortAllocationWindow();
     
     
-    
+    private VOCTManager voctManager;
     
    public SARPanel(){
        super();
        
        setVoctManager(EPDShore.getVoctManager());
+       
+       
+       
        voctManager.addListener(this);
        sarComplete(voctManager.getSarData());
    }
     
-    
+
+   /**
+    * @param voctManager
+    *            the voctManager to set
+    */
+   @Override
+   public void setVoctManager(VOCTManagerCommon voctManager) {
+       super.setVoctManager(voctManager);
+       this.voctManager = (VOCTManager) voctManager;
+       effortAllocationWindow.setVoctManager(this.voctManager);
+//       searchPatternDialog.setVoctManager(voctManager);
+   }
     
     
     @Override
@@ -623,7 +646,6 @@ public class SARPanel extends SARPanelCommon implements VOCTUpdateListener {
     
     
     
-    
     @Override
     public void actionPerformed(ActionEvent arg0) {
 
@@ -631,18 +653,28 @@ public class SARPanel extends SARPanelCommon implements VOCTUpdateListener {
                 || arg0.getSource() == btnReopenCalculations) {
 
             
-            System.out.println("Hello?");
-            
             if (voctManager != null) {
 
-                System.out.println("What?");
-                
                 voctManager.showSarInput();
 
             }
             return;
         }
 
+        
+        if (arg0.getSource() == btnSruDialog) {
+
+            
+            if (voctManager != null) {
+
+                voctManager.showSRUManagerDialog();
+
+            }
+            return;
+        }
+        
+        
+        
         if (arg0.getSource() == btnEffortAllocation) {
 
             // We have a SAR in progress
@@ -660,6 +692,11 @@ public class SARPanel extends SARPanelCommon implements VOCTUpdateListener {
             return;
         }
 
+        
+        
+        
+        
+        
 //        if (arg0.getSource() == btnGenerateSearchPattern) {
 //
 //            if (searchPatternDialog != null) {
@@ -697,21 +734,39 @@ public class SARPanel extends SARPanelCommon implements VOCTUpdateListener {
         searchPatternPanel = new SearchPatternsPanel();
         
         
-//        btnGenerateSearchPattern = searchPatternPanel
-//                .getBtnGenerateSearchPattern();
-//
-//        btnGenerateSearchPattern.addActionListener(this);
-//
-//        chckbxShowDynamicPattern = searchPatternPanel
-//                .getChckbxShowDynamicPattern();
-//
-//        chckbxShowDynamicPattern.addActionListener(this);
+        btnGenerateSearchPattern = searchPatternPanel
+                .getBtnGenerateSearchPattern();
+
+        btnGenerateSearchPattern.addActionListener(this);
+
+        chckbxShowDynamicPattern = searchPatternPanel
+                .getChckbxShowDynamicPattern();
+
+        chckbxShowDynamicPattern.addActionListener(this);
 
         return searchPatternPanel;
     }
 
     protected EffortAllocationPanelCommon createEffortAllocationPanel() {
-        effortAllocationPanel = new EffortAllocationPanelCommon();
+        effortAllocationPanel = new EffortAllocationPanel();
         return effortAllocationPanel;
+    }
+    
+    
+    
+    @Override
+    protected ButtonsPanelCommon createButtonPanel(){
+        buttonsPanel = new ButtonsPanel();
+        
+        btnReopenCalculations = buttonsPanel.getBtnReopenCalculations();
+        btnReopenCalculations.addActionListener(this);
+        
+        btnEffortAllocation = buttonsPanel.getBtnEffortAllocation();
+        btnEffortAllocation.addActionListener(this);
+    
+        btnSruDialog = buttonsPanel.getBtnSruDialog();
+        btnSruDialog.addActionListener(this);
+        
+        return buttonsPanel;
     }
 }

@@ -59,13 +59,13 @@ public class SearchPatternGenerator {
         switch (pattern) {
         case Parallel_Sweep_Search:
             return parallelSweepSearch(data.getCSP(),
-                    data.getEffortAllocationData(), data);
+                    data.getFirstEffortAllocationData(), data);
         case Creeping_Line_Search:
             return creepingLineSearch(data.getCSP(),
-                    data.getEffortAllocationData(), data);
+                    data.getFirstEffortAllocationData(), data);
         case Expanding_Square_Search:
             return expandingSquareSearch(data.getCSP(),
-                    data.getEffortAllocationData(), data);
+                    data.getFirstEffortAllocationData(), data);
         default:
             return null;
 

@@ -15,27 +15,32 @@
  */
 package dk.dma.epd.common.prototype.gui.voct;
 
-import javax.swing.JPanel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
+import javax.swing.JDialog;
 
-public class EffortAllocationPanelCommon extends JPanel {
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 
-    
-    private static final long serialVersionUID = 1L;
+public class EffortAllocationWindowCommon extends JDialog implements ActionListener {
 
-
-    public void resetValues(){
-
+    @Override
+    public void actionPerformed(ActionEvent arg0) {
+        // TODO Auto-generated method stub
+        
     }
-    
-    
-    public void effortAllocationComplete(SARData data) {
 
+    public void setVoctManager(VOCTManagerCommon voctManager) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public void setValues() {
+        // TODO Auto-generated method stub
+        
+    }
+
+   
   
 
-    }
-    
-    
 }
-

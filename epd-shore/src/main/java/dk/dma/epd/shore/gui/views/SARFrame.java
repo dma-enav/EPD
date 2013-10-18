@@ -37,7 +37,7 @@ import javax.swing.border.EtchedBorder;
 
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
-import dk.dma.epd.shore.layers.voct.SARPanel;
+import dk.dma.epd.shore.gui.voct.SARPanel;
 
 public class SARFrame extends JMapFrame {
 
@@ -55,6 +55,8 @@ public class SARFrame extends JMapFrame {
     @Override
     public void initGUI() {
 
+        
+        
         mapFrame = this;
 
         // Listen for resize

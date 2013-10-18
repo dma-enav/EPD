@@ -31,8 +31,11 @@ public class SARData {
 
     private Position LKP;
     private Position CSP;
-    EffortAllocationData effortAllocationData = new EffortAllocationData();
+//    EffortAllocationData effortAllocationData = new EffortAllocationData();
 
+    List<EffortAllocationData> effortAllocationData = new ArrayList<EffortAllocationData>();
+    
+    
     private double x;
     private double y;
     private double safetyFactor;
@@ -62,18 +65,50 @@ public class SARData {
     /**
      * @return the effortAllocationData
      */
-    public EffortAllocationData getEffortAllocationData() {
-        return effortAllocationData;
+    public EffortAllocationData getFirstEffortAllocationData() {
+        
+        if (effortAllocationData.size() == 0){
+            EffortAllocationData data = new EffortAllocationData();
+            effortAllocationData.add(data);
+        }
+        
+        return effortAllocationData.get(0);
     }
 
     /**
      * @param effortAllocationData the effortAllocationData to set
      */
-    public void setEffortAllocationData(EffortAllocationData effortAllocationData) {
-        this.effortAllocationData = effortAllocationData;
+    public void setFirstEffortAllocationData(EffortAllocationData effortAllocationData) {
+        this.effortAllocationData.add(0, effortAllocationData);
     }
     
     
+    public void addEffortAllocationData(EffortAllocationData data){
+        effortAllocationData.add(data);
+    }
+    
+    public void removeAllEffortAllocationData(){
+        effortAllocationData.clear();
+    }
+    
+    
+
+    /**
+     * @return the effortAllocationData
+     */
+    public List<EffortAllocationData> getEffortAllocationData() {
+        return effortAllocationData;
+    }
+
+
+    /**
+     * @param effortAllocationData the effortAllocationData to set
+     */
+    public void setEffortAllocationData(
+            List<EffortAllocationData> effortAllocationData) {
+        this.effortAllocationData = effortAllocationData;
+    }
+
 
     /**
      * @return the lKPDate

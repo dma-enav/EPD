@@ -21,6 +21,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.joda.time.DateTime;
 
+import com.bbn.openmap.MapHandlerChild;
+
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.voct.SAROperation;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
@@ -41,7 +43,7 @@ import dk.dma.epd.common.util.Util;
  * 
  */
 
-public class VOCTManagerCommon implements Runnable, Serializable {
+public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Serializable {
 
     private static final long serialVersionUID = 1L;
     protected SAROperation sarOperation;

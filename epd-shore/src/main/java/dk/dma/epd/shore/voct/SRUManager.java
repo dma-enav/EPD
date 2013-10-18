@@ -53,6 +53,19 @@ public class SRUManager implements Runnable {
     }
 
     
+    public void addSRU(SRU sru){
+        synchronized (srus) {
+            srus.add(sru);
+        }
+    }
+    
+    
+    public void removeSRU(int i){
+        synchronized (srus) {
+            srus.remove(i);
+        }
+    }
+    
     public SRU getSRUs(int index) {
         return getSRUs().get(index);
     }
@@ -82,15 +95,20 @@ public class SRUManager implements Runnable {
     }
     
     
+    
+    
+    
     public void addStaticData(){
         
-        SRU bopa = new SRU("MHV BOPA", 1, SRU.sru_type.SHIP, SRU.sru_status.UNKNOWN, true);
-        SRU plane = new SRU("Plane 001", 1, SRU.sru_type.PLANE, SRU.sru_status.UNKNOWN, true);
-        SRU helicopter = new SRU("Helicopter", 1, SRU.sru_type.HELICOPTER, SRU.sru_status.UNKNOWN, true);
+//        SRU bopa = new SRU("MHV BOPA", 1, SRU.sru_type.Ship, SRU.sru_status.UNKNOWN, true);
         
-        srus.add(bopa);
-        srus.add(plane);
-        srus.add(helicopter);
+        
+//        SRU plane = new SRU("Plane 001", 1, SRU.sru_type.PLANE, SRU.sru_status.UNKNOWN, true);
+//        SRU helicopter = new SRU("Helicopter", 1, SRU.sru_type.HELICOPTER, SRU.sru_status.UNKNOWN, true);
+        
+//        srus.add(bopa);
+//        srus.add(plane);
+//        srus.add(helicopter);
         
     }
 

@@ -266,7 +266,8 @@ public class ThreadedMapCreator implements Runnable {
 
         window.alwaysFront();
 
-        window.setSize(1280, 768);
+        window.setSize(1280, 868);
+        window.setLocation(10, 10);
 
         return window;
     }

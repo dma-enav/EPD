@@ -15,27 +15,24 @@
  */
 package dk.dma.epd.common.prototype.gui.voct;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
+public class ButtonsPanelCommon extends JPanel{
 
-public class EffortAllocationPanelCommon extends JPanel {
-
-    
     private static final long serialVersionUID = 1L;
 
-
-    public void resetValues(){
-
+    public JButton getBtnReopenCalculations() {
+        return null;
     }
-    
-    
-    public void effortAllocationComplete(SARData data) {
 
-  
-
+    public JButton getBtnEffortAllocation() {
+        return null;
     }
+
     
+    public JButton getBtnSruDialog(){
+        return null;
+    }
     
 }
-

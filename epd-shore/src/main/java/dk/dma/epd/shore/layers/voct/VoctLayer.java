@@ -17,6 +17,8 @@ package dk.dma.epd.shore.layers.voct;
 
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
@@ -62,6 +64,8 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     private VOCTManager voctManager;
     
     private JMapFrame jMapFrame;
+    
+    private List<EffectiveSRUAreaGraphics> effectiveSRUAreas = new ArrayList<EffectiveSRUAreaGraphics>();
     
 //    private SARPanel sarPanel = new SARPanel(this);
 
@@ -636,29 +640,40 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     private void createEffectiveArea() {
         // Probability of Detection Area - updateable
 
-//        if (graphics.contains(effectiveArea)) {
-//            graphics.remove(effectiveArea);
-//        }
+        
+        for (int i = 0; i < effectiveSRUAreas.size(); i++) {
+            graphics.remove(effectiveSRUAreas.get(i));
+        }
+        
 
         SARData data = voctManager.getSarData();
 
+        
+        for (int i = 0; i < data.getEffortAllocationData().size(); i++) {
+//            data.getEffortAllocationData().size()
+            
+            double effectiveAreaSize =  data.getEffortAllocationData().get(i).getEffectiveAreaSize();
+
+            System.out.println("EFFECTIVE AREA IS " + effectiveAreaSize);
+
+            // Effective Area: 10 nm2 Initialize by creating box
+            double width = Math.sqrt(effectiveAreaSize);
+            double height = Math.sqrt(effectiveAreaSize);
+
+     
+
+            EffectiveSRUAreaGraphics effectiveArea = new EffectiveSRUAreaGraphics(width, height, data, i);
+            
+            effectiveSRUAreas.add(effectiveArea);
+            
+            graphics.add(effectiveArea);
+            
+        }
+        
         // PoD for each SRU, initialized with an effective area? possibly a
         // unique ID
 
-        double effectiveAreaSize = voctManager.getSarData()
-                .getEffortAllocationData().getEffectiveAreaSize();
-
-        System.out.println("EFFECTIVE AREA IS " + effectiveAreaSize);
-
-        // Effective Area: 10 nm2 Initialize by creating box
-        double width = Math.sqrt(effectiveAreaSize);
-        double height = Math.sqrt(effectiveAreaSize);
-
- 
-
-//        effectiveArea = new EffectiveSRUAreaGraphics(width, height, data);
-
-//        graphics.add(effectiveArea);
+      
 
         doPrepare();
     }

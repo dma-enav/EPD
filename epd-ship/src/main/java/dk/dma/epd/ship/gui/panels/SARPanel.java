@@ -21,11 +21,20 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 
+import dk.dma.epd.common.prototype.gui.voct.ButtonsPanelCommon;
 import dk.dma.epd.common.prototype.gui.voct.EffortAllocationPanelCommon;
+import dk.dma.epd.common.prototype.gui.voct.EffortAllocationWindowCommon;
 import dk.dma.epd.common.prototype.gui.voct.SARPanelCommon;
+import dk.dma.epd.common.prototype.gui.voct.SearchPatternDialogCommon;
 import dk.dma.epd.common.prototype.gui.voct.SearchPatternsPanelCommon;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.gui.panels.VOCT.ButtonsPanel;
+import dk.dma.epd.ship.gui.panels.VOCT.EffortAllocationPanel;
+import dk.dma.epd.ship.gui.panels.VOCT.SearchPatternsPanel;
+import dk.dma.epd.ship.gui.voct.EffortAllocationWindow;
+import dk.dma.epd.ship.gui.voct.SearchPatternDialog;
 
 /**
  * Active waypoint panel in sensor panel
@@ -36,6 +45,12 @@ public class SARPanel extends SARPanelCommon {
 
     private JButton btnGenerateSearchPattern;
     private JCheckBox chckbxShowDynamicPattern;
+    private JButton btnReopenCalculations;
+    private JButton btnEffortAllocation;
+    
+    protected EffortAllocationWindow effortAllocationWindow = new EffortAllocationWindow();
+    protected SearchPatternDialog searchPatternDialog = new SearchPatternDialog();
+
 
     @Override
     public void actionPerformed(ActionEvent arg0) {
@@ -100,6 +115,17 @@ public class SARPanel extends SARPanelCommon {
 
     }
 
+    /**
+     * @param voctManager
+     *            the voctManager to set
+     */
+    @Override
+    public void setVoctManager(VOCTManagerCommon voctManager) {
+        this.voctManager = voctManager;
+        effortAllocationWindow.setVoctManager(voctManager);
+        searchPatternDialog.setVoctManager(voctManager);
+    }
+    
     @Override
     protected SearchPatternsPanelCommon createSearchPatternsPanel() {
         searchPatternPanel = new SearchPatternsPanel();
@@ -116,9 +142,22 @@ public class SARPanel extends SARPanelCommon {
         return searchPatternPanel;
     }
 
+    @Override
     protected EffortAllocationPanelCommon createEffortAllocationPanel() {
-        effortAllocationPanel = new EffortAllocationPanelCommon();
+        effortAllocationPanel = new EffortAllocationPanel();
         return effortAllocationPanel;
+    }
+    
+    @Override
+    protected ButtonsPanelCommon createButtonPanel(){
+        buttonsPanel = new ButtonsPanel();
+        
+        btnReopenCalculations = buttonsPanel.getBtnReopenCalculations();
+        btnReopenCalculations.addActionListener(this);
+        btnEffortAllocation = buttonsPanel.getBtnEffortAllocation();
+        btnEffortAllocation.addActionListener(this);
+        
+        return buttonsPanel;
     }
 
 }

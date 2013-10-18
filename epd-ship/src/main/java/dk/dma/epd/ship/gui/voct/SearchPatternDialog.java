@@ -13,19 +13,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.gui.voct;
+package dk.dma.epd.ship.gui.voct;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -37,13 +35,12 @@ import javax.swing.border.TitledBorder;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.FormatException;
+import dk.dma.epd.common.prototype.gui.voct.SearchPatternDialogCommon;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.util.ParseUtils;
 
-public class SearchPatternDialog extends JDialog implements ActionListener {
-
-    private static final long serialVersionUID = 1L;
+public class SearchPatternDialog extends SearchPatternDialogCommon{
     private final JPanel contentPanel = new JPanel();
     private JTextField cssFirstLat;
     private JTextField cssSecondLat;
@@ -66,23 +63,23 @@ public class SearchPatternDialog extends JDialog implements ActionListener {
     private JButton generateButton;
     private JButton cancelButton;
 
-    ImageIcon parallelsweepsearchIcon = scaleImage(new ImageIcon(SearchPatternDialog.class
+    ImageIcon parallelsweepsearchIcon = scaleImage(new ImageIcon(SearchPatternDialogCommon.class
             .getClassLoader()
             .getResource("images/voct/parallelsweepsearch.png")));
 
-    ImageIcon creepingLineSearchIcon = scaleImage(new ImageIcon(SearchPatternDialog.class
+    ImageIcon creepingLineSearchIcon = scaleImage(new ImageIcon(SearchPatternDialogCommon.class
             .getClassLoader().getResource("images/voct/creepinglinesearch.png")));
 
     ImageIcon trackLineSearchReturnIcon = scaleImage(new ImageIcon(
-            SearchPatternDialog.class.getClassLoader().getResource(
+            SearchPatternDialogCommon.class.getClassLoader().getResource(
                     "images/voct/tracklinesearchreturn.png")));
 
     ImageIcon trackLineSearchNonReturnIcon = scaleImage(new ImageIcon(
-            SearchPatternDialog.class.getClassLoader().getResource(
+            SearchPatternDialogCommon.class.getClassLoader().getResource(
                     "images/voct/tracklinesearchnonreturn.png")));
 
     ImageIcon expandingSquareSearchIcon = scaleImage(new ImageIcon(
-            SearchPatternDialog.class.getClassLoader().getResource(
+            SearchPatternDialogCommon.class.getClassLoader().getResource(
                     "images/voct/expandingsquaresearch.png")));
 
     String parallelSweepSearch = "Parallel Sweep Search is used when the search area is large, an even coverage is wanted, exact location of the object is unknown. eg. datum has low confidence";
@@ -91,6 +88,7 @@ public class SearchPatternDialog extends JDialog implements ActionListener {
     String trackLineSearchNonReturn = "Track Line Search, non-return is used when a vessel (or person) is reported as missing and the only track is the presumed route. It gives a relative fast and thorough coverage of the missing objects presumed route and its adjacent areas The route begins and ends in the opposite end of the route";
     String expandingSquareSearch = "Expanding Square Search is used when the search object is presumed to be located within a relatively small area. The search begins in the most likely position (Datum). This method requires accurate navigation.";
 
+    
     /**
      * Create the dialog.
      */
@@ -356,6 +354,7 @@ public class SearchPatternDialog extends JDialog implements ActionListener {
         return newIcon;
     }
 
+    @Override
     public void setVoctManager(VOCTManagerCommon voctManager) {
         this.voctManager = voctManager;
     }
@@ -464,19 +463,19 @@ public class SearchPatternDialog extends JDialog implements ActionListener {
             return;
         case 1:
             importedPosition = voctManager.getSarData()
-                    .getEffortAllocationData().getEffectiveAreaA();
+                    .getFirstEffortAllocationData().getEffectiveAreaA();
             break;
         case 2:
             importedPosition = voctManager.getSarData()
-                    .getEffortAllocationData().getEffectiveAreaB();
+                    .getFirstEffortAllocationData().getEffectiveAreaB();
             break;
         case 3:
             importedPosition = voctManager.getSarData()
-                    .getEffortAllocationData().getEffectiveAreaC();
+                    .getFirstEffortAllocationData().getEffectiveAreaC();
             break;
         case 4:
             importedPosition = voctManager.getSarData()
-                    .getEffortAllocationData().getEffectiveAreaD();
+                    .getFirstEffortAllocationData().getEffectiveAreaD();
             break;
         }
 
@@ -544,3 +543,4 @@ public class SearchPatternDialog extends JDialog implements ActionListener {
     }
 
 }
+
