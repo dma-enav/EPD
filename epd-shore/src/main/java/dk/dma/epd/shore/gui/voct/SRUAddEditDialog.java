@@ -60,6 +60,7 @@ public class SRUAddEditDialog extends JDialog implements ActionListener {
 
     /**
      * Create the dialog.
+     * @wbp.parser.constructor
      */
     public SRUAddEditDialog(SRUManager sruManager) {
         setTitle("Manage SRU");
@@ -139,7 +140,7 @@ public class SRUAddEditDialog extends JDialog implements ActionListener {
         {
             JPanel panel = new JPanel();
             panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Manage SRU", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-            panel.setBounds(10, 11, 445, 226);
+            panel.setBounds(10, 11, 445, 206);
             initPanel.add(panel);
             panel.setLayout(null);
 

@@ -49,30 +49,26 @@ import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.voct.VOCTManager;
 
-
-
-
 public class VoctLayer extends OMGraphicHandlerLayer implements
         MapMouseListener, VOCTUpdateListener {
     private static final long serialVersionUID = 1L;
-
 
     private OMGraphicList graphics = new OMGraphicList();
     private OMGraphic selectedGraphic;
     private boolean dragging;
     private MapBean mapBean;
     private VOCTManager voctManager;
-    
+
     private JMapFrame jMapFrame;
-    
+
     private List<EffectiveSRUAreaGraphics> effectiveSRUAreas = new ArrayList<EffectiveSRUAreaGraphics>();
-    
-//    private SARPanel sarPanel = new SARPanel(this);
+
+    // private SARPanel sarPanel = new SARPanel(this);
 
     public VoctLayer() {
-//        drawSAR();
-        
-//        sarPanel.setVisible(true);
+        // drawSAR();
+
+        // sarPanel.setVisible(true);
     }
 
     public void drawSAR() {
@@ -99,9 +95,9 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
         graphics.clear();
 
-//        SarGraphics sarGraphics = new SarGraphics(datum, radius, A, B, C, D,
-//                LKP, WTCPoint);
-//         graphics.add(sarGraphics);
+        // SarGraphics sarGraphics = new SarGraphics(datum, radius, A, B, C, D,
+        // LKP, WTCPoint);
+        // graphics.add(sarGraphics);
 
         // Probability of Detection Area - updateable
 
@@ -111,22 +107,20 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         // Effective Area: 10 nm2 Initialize by creating box
         double width = Math.sqrt(10.0);
         double height = Math.sqrt(10.0);
-        
-        
-        
-        
-//        AreaInternalGraphics effectiveArea = new AreaInternalGraphics(A,
-//                width, length);
-//        graphics.add(effectiveArea);
-//        EffectiveSRUAreaGraphics effectiveArea = new EffectiveSRUAreaGraphics(A,
-//                width, height, null);
-//        graphics.add(effectiveArea);
-//
-//        
-//        EffectiveSRUAreaGraphics effectiveArea2 = new EffectiveSRUAreaGraphics(A,
-//                width, height, null);
-//        graphics.add(effectiveArea2);
-        
+
+        // AreaInternalGraphics effectiveArea = new AreaInternalGraphics(A,
+        // width, length);
+        // graphics.add(effectiveArea);
+        // EffectiveSRUAreaGraphics effectiveArea = new
+        // EffectiveSRUAreaGraphics(A,
+        // width, height, null);
+        // graphics.add(effectiveArea);
+        //
+        //
+        // EffectiveSRUAreaGraphics effectiveArea2 = new
+        // EffectiveSRUAreaGraphics(A,
+        // width, height, null);
+        // graphics.add(effectiveArea2);
 
         System.out.println("A is: " + A.getLongitude());
         System.out.println("B is: " + B);
@@ -134,18 +128,16 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         System.out.println("D is: " + D);
 
         System.out.println("Datum is: " + datum);
-        
-        
-//        SomeGraphics routeLegGraphic = new SomeGraphics(A, B, C, D);
-//        graphics.add(routeLegGraphic);
-//        
-//        WaypointCircle wpCircle = new WaypointCircle(EPDShip.getRouteManager().getRoute(0), 0, 0);
-//        graphics.add(wpCircle);
 
-        
+        // SomeGraphics routeLegGraphic = new SomeGraphics(A, B, C, D);
+        // graphics.add(routeLegGraphic);
+        //
+        // WaypointCircle wpCircle = new
+        // WaypointCircle(EPDShip.getRouteManager().getRoute(0), 0, 0);
+        // graphics.add(wpCircle);
+
         doPrepare();
     }
-
 
     @Override
     public synchronized OMGraphicList prepare() {
@@ -156,10 +148,10 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     @Override
     public void findAndInit(Object obj) {
 
-        if (obj instanceof JMapFrame){
+        if (obj instanceof JMapFrame) {
             jMapFrame = (JMapFrame) obj;
         }
-        
+
         if (obj instanceof VOCTManager) {
             voctManager = (VOCTManager) obj;
             voctManager.addListener(this);
@@ -168,13 +160,11 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             mapBean = (MapBean) obj;
         }
     }
-    
 
     @Override
     public MapMouseListener getMapMouseListener() {
         return this;
     }
-
 
     @Override
     public String[] getMouseModeServiceList() {
@@ -190,12 +180,12 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         // TODO Auto-generated method stub
         return false;
     }
-    
+
     @Override
     public boolean mouseReleased(MouseEvent e) {
         if (dragging) {
             dragging = false;
-//            doPrepare();
+            // doPrepare();
             return true;
         }
         return false;
@@ -244,7 +234,6 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     public void mouseExited(MouseEvent paramMouseEvent) {
         // TODO Auto-generated method stub
 
-        
     }
 
     @Override
@@ -327,7 +316,6 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         return false;
     }
 
-
     @Override
     public boolean mouseMoved(MouseEvent e) {
         if (!dragging) {
@@ -354,139 +342,143 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         if (selectedGraphic instanceof SarEffectiveAreaLines) {
             // System.out.println("Selected line");
             SarEffectiveAreaLines selectedLine = (SarEffectiveAreaLines) selectedGraphic;
-            
-            double bearing = selectedLine.getA().rhumbLineBearingTo(selectedLine.getB());
+
+            double bearing = selectedLine.getA().rhumbLineBearingTo(
+                    selectedLine.getB());
             System.out.println(bearing);
-            
+
             LineType type = selectedLine.getType();
-            
+
             Cursor cursor = null;
-            
-            
-            
-            
-            if (type == LineType.BOTTOM){
+
+            if (type == LineType.BOTTOM) {
                 cursor = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
-                
-                //Straight line
-                if (bearing > 80 && bearing < 100  ||  bearing > 260 && bearing < 280){
-                    cursor = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);    
+
+                // Straight line
+                if (bearing > 80 && bearing < 100 || bearing > 260
+                        && bearing < 280) {
+                    cursor = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
                 }
-                
-                //SE line
-                if (bearing > 100 && bearing < 170  ||  bearing > 290 && bearing < 350){
-                    cursor = Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR);    
+
+                // SE line
+                if (bearing > 100 && bearing < 170 || bearing > 290
+                        && bearing < 350) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.SW_RESIZE_CURSOR);
                 }
-                
-                
-                //SW line
-                if (bearing > 0 && bearing < 80  ||  bearing > 190 && bearing < 270){
-                    cursor = Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR);    
+
+                // SW line
+                if (bearing > 0 && bearing < 80 || bearing > 190
+                        && bearing < 270) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.SE_RESIZE_CURSOR);
                 }
-                
-                
+
             }
-            
-            if (type == LineType.TOP){
+
+            if (type == LineType.TOP) {
                 cursor = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
-                
-                //Straight line
-                if (bearing > 80 && bearing < 100  ||  bearing > 260 && bearing < 280){
-                    cursor = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);    
+
+                // Straight line
+                if (bearing > 80 && bearing < 100 || bearing > 260
+                        && bearing < 280) {
+                    cursor = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
                 }
-                
-                //NE line
-                if (bearing > 100 && bearing < 170  ||  bearing > 290 && bearing < 350){
-                    cursor = Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);    
+
+                // NE line
+                if (bearing > 100 && bearing < 170 || bearing > 290
+                        && bearing < 350) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
                 }
-                
-                //NW line
-                if (bearing > 0 && bearing < 80  ||  bearing > 190 && bearing < 270){
-                    cursor = Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);    
+
+                // NW line
+                if (bearing > 0 && bearing < 80 || bearing > 190
+                        && bearing < 270) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
                 }
 
             }
-            
-            if (type == LineType.LEFT){
+
+            if (type == LineType.LEFT) {
                 cursor = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);
-                
-                //Straight line
-                if (bearing > 170 && bearing < 190  ||  bearing < 10 && bearing < 350){
-                    cursor = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);    
-                }
-                
-                //NE line
-                if (bearing > 130 && bearing < 160  ||  bearing > 210 && bearing < 240){
-                    cursor = Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);    
-                }
-                
-                //NW line
-                if (bearing > 130 && bearing < 160 ||  bearing > 300 && bearing < 330){
-                    cursor = Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);    
+
+                // Straight line
+                if (bearing > 170 && bearing < 190 || bearing < 10
+                        && bearing < 350) {
+                    cursor = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);
                 }
 
-                
-                
-                
+                // NE line
+                if (bearing > 130 && bearing < 160 || bearing > 210
+                        && bearing < 240) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
+                }
+
+                // NW line
+                if (bearing > 130 && bearing < 160 || bearing > 300
+                        && bearing < 330) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
+                }
+
             }
-            
-            if (type == LineType.RIGHT){
+
+            if (type == LineType.RIGHT) {
                 cursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
-                
-                //Straight line
-                if (bearing > 170 && bearing < 190  ||  bearing < 10 && bearing < 350){
-                    cursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR); 
+
+                // Straight line
+                if (bearing > 170 && bearing < 190 || bearing < 10
+                        && bearing < 350) {
+                    cursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
                 }
-                
-                //NE line
-                if (bearing > 130 && bearing < 160  ||  bearing > 210 && bearing < 240){
-                    cursor = Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);    
+
+                // NE line
+                if (bearing > 130 && bearing < 160 || bearing > 210
+                        && bearing < 240) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
                 }
-                
-                //NW line
-                if (bearing > 130 && bearing < 160 ||  bearing > 300 && bearing < 330){
-                    cursor = Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);    
+
+                // NW line
+                if (bearing > 130 && bearing < 160 || bearing > 300
+                        && bearing < 330) {
+                    cursor = Cursor
+                            .getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
                 }
-                
-                
+
             }
-            
-            
+
             jMapFrame.getGlassPane().setVisible(true);
-            jMapFrame.getGlassPane()
-                    .setCursor(cursor);
-            
+            jMapFrame.getGlassPane().setCursor(cursor);
+
             return true;
-            
+
         }
 
         if (selectedGraphic != null
                 && selectedGraphic instanceof AreaInternalGraphics) {
             jMapFrame.getGlassPane().setVisible(true);
-            jMapFrame.getGlassPane()
-                    .setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+            jMapFrame.getGlassPane().setCursor(
+                    Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
             return true;
 
         }
 
-        jMapFrame.getGlassPane()
-                .setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        jMapFrame.getGlassPane().setCursor(
+                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         jMapFrame.getGlassPane().setVisible(false);
 
         return false;
     }
-    
-    
 
     @Override
     public void mouseMoved() {
         graphics.deselect();
         repaint();
     }
-
-
-    
-    
 
     @Override
     public void voctUpdated(VOCTUpdateEvent e) {
@@ -516,25 +508,21 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         }
 
     }
-    
-    
+
     private void drawDatumLine() {
-        
-        //Create as many data objects as is contained
-        
-        
-        //Clear all previous
+
+        // Create as many data objects as is contained
+
+        // Clear all previous
         graphics.clear();
-        
+
         DatumLineData datumLineData = (DatumLineData) voctManager.getSarData();
 
-        
         for (int i = 0; i < datumLineData.getDatumPointDataSets().size(); i++) {
-            
+
             System.out.println("Creating area " + i);
             DatumPointData data = datumLineData.getDatumPointDataSets().get(i);
-            
-            
+
             Position A = data.getA();
             Position B = data.getB();
             Position C = data.getC();
@@ -550,26 +538,24 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
             Position LKP = data.getLKP();
             Position WTCPoint = data.getWtc();
-            
+
             SarGraphics sarGraphics = new SarGraphics(datumDownWind, datumMin,
-                    datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint,
-                    A, B, C, D, i+1);
+                    datumMax, radiusDownWind, radiusMin, radiusMax, LKP,
+                    WTCPoint, A, B, C, D, i + 1);
 
             graphics.add(sarGraphics);
         }
-        
-        
-        SarAreaGraphic sarArea = new SarAreaGraphic(datumLineData.getDatumLinePolygon());
+
+        SarAreaGraphic sarArea = new SarAreaGraphic(
+                datumLineData.getDatumLinePolygon());
         graphics.add(sarArea);
-   
 
         // public SarGraphics(Position datumDownWind, Position datumMin,
         // Position datumMax, double radiusDownWind, double radiusMin, double
         // radiusMax, Position LKP, Position current) {
 
-
         doPrepare();
-        
+
     }
 
     private void drawDatumPoint() {
@@ -619,7 +605,6 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         double radius = data.getRadius();
 
         Position LKP = data.getLKP();
-        
 
         graphics.clear();
 
@@ -640,19 +625,18 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     private void createEffectiveArea() {
         // Probability of Detection Area - updateable
 
-        
         for (int i = 0; i < effectiveSRUAreas.size(); i++) {
             graphics.remove(effectiveSRUAreas.get(i));
         }
-        
 
         SARData data = voctManager.getSarData();
-
         
+
         for (int i = 0; i < data.getEffortAllocationData().size(); i++) {
-//            data.getEffortAllocationData().size()
-            
-            double effectiveAreaSize =  data.getEffortAllocationData().get(i).getEffectiveAreaSize();
+            // data.getEffortAllocationData().size()
+
+            double effectiveAreaSize = data.getEffortAllocationData().get(i)
+                    .getEffectiveAreaSize();
 
             System.out.println("EFFECTIVE AREA IS " + effectiveAreaSize);
 
@@ -660,20 +644,20 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             double width = Math.sqrt(effectiveAreaSize);
             double height = Math.sqrt(effectiveAreaSize);
 
-     
+            EffectiveSRUAreaGraphics effectiveArea = new EffectiveSRUAreaGraphics(
+                    width, height, data, i);
 
-            EffectiveSRUAreaGraphics effectiveArea = new EffectiveSRUAreaGraphics(width, height, data, i);
+            effectiveArea.setVisible(voctManager.getSruManager().getSRUs().get(i).isVisible());
             
             effectiveSRUAreas.add(effectiveArea);
-            
+
             graphics.add(effectiveArea);
+
             
         }
-        
+
         // PoD for each SRU, initialized with an effective area? possibly a
         // unique ID
-
-      
 
         doPrepare();
     }
@@ -685,10 +669,17 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     }
 
     public void updateEffectiveAreaLocation(SARData sarData) {
-//        effectiveArea.updateEffectiveAreaSize(sarData);
+        // effectiveArea.updateEffectiveAreaSize(sarData);
     }
-    
-    
-    
-    
+
+    public void toggleEffectiveAreaVisibility(int i, boolean visible) {
+
+        if (effectiveSRUAreas.size() >= i+1) {
+
+            effectiveSRUAreas.get(i).setVisible(visible);
+
+            doPrepare();
+        }
+    }
+
 }

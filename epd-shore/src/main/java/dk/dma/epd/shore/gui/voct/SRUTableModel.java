@@ -76,13 +76,13 @@ public class SRUTableModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        System.out.println("Set value at, aValue: " + aValue + " rowIndex: "+ rowIndex + " columIndex: " + columnIndex);
         SRU sru = sruManager.getSRUs().get(rowIndex);
         switch (columnIndex) {
         case 3:
-            sru.setVisible((Boolean)aValue);
-//            if (rowIndex == routeManager.getActiveRouteIndex()) {
-//                routeManager.getActiveRoute().setVisible((Boolean)aValue);
-//            }
+            
+//            sru.setVisible((Boolean)aValue);
+            sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
             fireTableCellUpdated(rowIndex, columnIndex);
             break;
         default:
@@ -93,7 +93,7 @@ public class SRUTableModel extends AbstractTableModel {
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         //return (columnIndex == 2 && rowIndex != routeManager.getActiveRouteIndex());
-        return columnIndex == 2;
+        return columnIndex == 3;
     }
 
     @Override

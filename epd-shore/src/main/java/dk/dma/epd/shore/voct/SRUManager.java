@@ -18,11 +18,15 @@ package dk.dma.epd.shore.voct;
 import java.util.LinkedList;
 import java.util.List;
 
-import dk.dma.epd.shore.EPDShore;
+import com.bbn.openmap.MapHandlerChild;
 
-public class SRUManager implements Runnable {
+import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.layers.voct.VoctLayer;
+
+public class SRUManager extends MapHandlerChild implements Runnable {
 
     private List<SRU> srus = new LinkedList<SRU>();
+    private VOCTManager voctManager;
 
     public SRUManager() {
         EPDShore.startThread(this, "sruManager");
@@ -39,6 +43,19 @@ public class SRUManager implements Runnable {
 
     }
 
+    @Override
+    public void findAndInit(Object obj) {
+        if (obj instanceof VOCTManager) {
+            voctManager = (VOCTManager) obj;
+        }
+    }
+
+    public void toggleSRUVisiblity(int i, boolean visible) {
+        srus.get(i).setVisible(visible);
+        voctManager.toggleSRUVisibility(i, visible);
+
+    }
+
     public int getSRUCount() {
         synchronized (srus) {
             return srus.size();
@@ -52,24 +69,22 @@ public class SRUManager implements Runnable {
         return srus;
     }
 
-    
-    public void addSRU(SRU sru){
+    public void addSRU(SRU sru) {
         synchronized (srus) {
             srus.add(sru);
         }
     }
-    
-    
-    public void removeSRU(int i){
+
+    public void removeSRU(int i) {
         synchronized (srus) {
             srus.remove(i);
         }
     }
-    
+
     public SRU getSRUs(int index) {
         return getSRUs().get(index);
     }
-    
+
     public static SRUManager loadSRUManager() {
         SRUManager manager = new SRUManager();
 
@@ -88,28 +103,26 @@ public class SRUManager implements Runnable {
         // // Delete possible corrupted or old file
         // new File(VOYAGESFILE).delete();
         // }
-        
+
         manager.addStaticData();
 
         return manager;
     }
-    
-    
-    
-    
-    
-    public void addStaticData(){
-        
-//        SRU bopa = new SRU("MHV BOPA", 1, SRU.sru_type.Ship, SRU.sru_status.UNKNOWN, true);
-        
-        
-//        SRU plane = new SRU("Plane 001", 1, SRU.sru_type.PLANE, SRU.sru_status.UNKNOWN, true);
-//        SRU helicopter = new SRU("Helicopter", 1, SRU.sru_type.HELICOPTER, SRU.sru_status.UNKNOWN, true);
-        
-//        srus.add(bopa);
-//        srus.add(plane);
-//        srus.add(helicopter);
-        
+
+    public void addStaticData() {
+
+        // SRU bopa = new SRU("MHV BOPA", 1, SRU.sru_type.Ship,
+        // SRU.sru_status.UNKNOWN, true);
+
+        // SRU plane = new SRU("Plane 001", 1, SRU.sru_type.PLANE,
+        // SRU.sru_status.UNKNOWN, true);
+        // SRU helicopter = new SRU("Helicopter", 1, SRU.sru_type.HELICOPTER,
+        // SRU.sru_status.UNKNOWN, true);
+
+        // srus.add(bopa);
+        // srus.add(plane);
+        // srus.add(helicopter);
+
     }
 
 }

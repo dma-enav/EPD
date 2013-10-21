@@ -41,6 +41,7 @@ public class SRU {
     private int visibility;
     private double fatigue;
     private int searchTime;
+    
 
  
 

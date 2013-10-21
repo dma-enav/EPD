@@ -27,8 +27,6 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
-import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
-import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
@@ -188,6 +186,12 @@ public class VOCTManager extends VOCTManagerCommon {
         return sruManager;
     }
 
-    
+    public void toggleSRUVisibility(int id, boolean visible){
+        
+        for (int i = 0; i < voctLayers.size(); i++) {
+            voctLayers.get(i).toggleEffectiveAreaVisibility(id, visible);
+        }
+        
+    }
     
 }
