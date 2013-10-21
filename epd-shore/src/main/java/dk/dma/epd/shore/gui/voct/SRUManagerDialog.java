@@ -588,7 +588,7 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
     }
 
     
-    private void properties(){
+    public void properties(){
         
         int i = sruTable.getSelectedRow();
         

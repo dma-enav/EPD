@@ -673,9 +673,9 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     }
 
     public void toggleEffectiveAreaVisibility(int i, boolean visible) {
-
+System.out.println("Toggle visibiity " + effectiveSRUAreas.size() + " and i " + i);
         if (effectiveSRUAreas.size() >= i+1) {
-
+System.out.println("ello");
             effectiveSRUAreas.get(i).setVisible(visible);
 
             doPrepare();

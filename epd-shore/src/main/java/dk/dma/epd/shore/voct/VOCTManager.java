@@ -97,6 +97,15 @@ public class VOCTManager extends VOCTManagerCommon {
     }
     
     
+    
+    
+    /**
+     * @return the sruManagerDialog
+     */
+    public SRUManagerDialog getSruManagerDialog() {
+        return sruManagerDialog;
+    }
+
     @Override
     protected void updateLayers() {
 
@@ -187,7 +196,7 @@ public class VOCTManager extends VOCTManagerCommon {
     }
 
     public void toggleSRUVisibility(int id, boolean visible){
-        
+        System.out.println("Toggle visibility voctmanager");
         for (int i = 0; i < voctLayers.size(); i++) {
             voctLayers.get(i).toggleEffectiveAreaVisibility(id, visible);
         }

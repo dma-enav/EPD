@@ -15,160 +15,214 @@
  */
 package dk.dma.epd.shore.gui.voct.panels;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 import dk.dma.epd.common.prototype.gui.voct.EffortAllocationPanelCommon;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.gui.voct.SRUTableModel;
+import javax.swing.JPanel;
+import java.awt.FlowLayout;
 
-public class EffortAllocationPanel extends EffortAllocationPanelCommon{
+public class EffortAllocationPanel extends EffortAllocationPanelCommon
+        implements ActionListener, ListSelectionListener, TableModelListener,
+        MouseListener {
 
     private static final long serialVersionUID = 1L;
-    JLabel poDVal;
-    JLabel searchAreaSizeVal;
-    JLabel searchCraftGroundSpeedVal;
-    JLabel trackSpacingVal;
-    JSpinner timeSpentSearchingVal;
-    
-    public EffortAllocationPanel(){
+
+    private JScrollPane sruScrollPane;
+    private JTable sruTable;
+    private SRUTableModelPanel sruTableModel;
+    private ListSelectionModel sruSelectionModel;
+
+    public EffortAllocationPanel() {
         this.setBorder(new TitledBorder(null,
                 "Effort Allocation", TitledBorder.LEADING, TitledBorder.TOP,
                 null, null));
-//        
-//        GridBagConstraints gbc_effortAllocationPanel = new GridBagConstraints();
-//        gbc_effortAllocationPanel.insets = new Insets(0, 0, 5, 0);
-//        gbc_effortAllocationPanel.fill = GridBagConstraints.BOTH;
-//        gbc_effortAllocationPanel.gridx = 0;
-//        gbc_effortAllocationPanel.gridy = 7;
-//        sarStartedPanel.add(effortAllocationPanel, gbc_effortAllocationPanel);
+
         
-        GridBagLayout gbl_effortAllocationPanel = new GridBagLayout();
-        gbl_effortAllocationPanel.columnWidths = new int[] { 0, 0, 0 };
-        gbl_effortAllocationPanel.rowHeights = new int[] { 0, 0, 0, 0, 0, 0 };
-        gbl_effortAllocationPanel.columnWeights = new double[] { 1.0, 1.0,
+        
+        
+        DefaultTableModel model = new DefaultTableModel(30, 3);
+
+        sruTable = new JTable(model) {
+            private static final long serialVersionUID = 1L;
+
+            public Component prepareRenderer(TableCellRenderer renderer,
+                    int Index_row, int Index_col) {
+                Component comp = super.prepareRenderer(renderer, Index_row,
+                        Index_col);
+                if (Index_row % 2 == 0) {
+                    comp.setBackground(new Color(49, 49, 49));
+                } else {
+                    comp.setBackground(new Color(65, 65, 65));
+                }
+
+                if (isCellSelected(Index_row, Index_col)) {
+                    comp.setForeground(Color.white);
+                    comp.setBackground(new Color(85, 85, 85));
+                }
+
+                return comp;
+            }
+        };
+
+        // routeTable.setTableHeader(null);
+
+        sruTable.setBorder(new EmptyBorder(0, 0, 0, 0));
+        // routeTable.setIntercellSpacing(new Dimension(0, 0));
+        sruTable.setBackground(new Color(49, 49, 49));
+        sruTable.setShowVerticalLines(false);
+        sruTable.setShowHorizontalLines(false);
+        sruTable.setShowGrid(false);
+        sruTable.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 10));
+        sruTable.setForeground(Color.white);
+        sruTable.setSelectionForeground(Color.gray);
+        // routeTable.setRowHeight(20);
+        sruTable.setFocusable(false);
+        // routeTable.setAutoResizeMode(0);
+
+        sruTableModel = new SRUTableModelPanel(EPDShore.getVoctManager().getSruManager(), EPDShore.getVoctManager());
+        sruTableModel.addTableModelListener(this);
+
+        sruTable.setShowHorizontalLines(false);
+        sruTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        sruScrollPane = new JScrollPane(sruTable);
+        sruScrollPane
+                .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        sruScrollPane
+                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        sruTable.setFillsViewportHeight(true);
+
+        sruScrollPane.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1,
+                new Color(30, 30, 30)));
+
+        // TODO: Comment this line when using WindowBuilder
+        sruTable.setModel(sruTableModel);
+//        for (int i = 0; i < 2; i++) {
+//            
+//            if (i == 0){
+//                sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
+//            }
+//            if (i == 1){
+//                sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
+//            }
+//            if (i == 2){
+//                sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
+//            }
+//
+//            
+//        }
+        sruSelectionModel = sruTable.getSelectionModel();
+        sruSelectionModel.addListSelectionListener(this);
+        sruTable.setSelectionModel(sruSelectionModel);
+        sruTable.addMouseListener(this);
+
+        
+        
+        
+        GridBagLayout gbl_searchPatternsPanel = new GridBagLayout();
+        gbl_searchPatternsPanel.columnWidths = new int[] { 153, 0 };
+        gbl_searchPatternsPanel.rowHeights = new int[] { 75, 0 };
+        gbl_searchPatternsPanel.columnWeights = new double[] { 1.0,
                 Double.MIN_VALUE };
-        gbl_effortAllocationPanel.rowWeights = new double[] { 1.0, 1.0, 1.0,
-                1.0, 1.0, Double.MIN_VALUE };
-        setLayout(gbl_effortAllocationPanel);
+        gbl_searchPatternsPanel.rowWeights = new double[] { 1.0,
+                Double.MIN_VALUE };
+        setLayout(gbl_searchPatternsPanel);
+        
+        GridBagConstraints gbc_sruScrollPane = new GridBagConstraints();
+        gbc_sruScrollPane.fill = GridBagConstraints.BOTH;
+        gbc_sruScrollPane.gridx = 0;
+        gbc_sruScrollPane.gridy = 0;
+        add(sruScrollPane, gbc_sruScrollPane);
 
-        JLabel lblProbabilityOfDetection = new JLabel("Probability of Detection:");
-        GridBagConstraints gbc_lblProbabilityOfDetection = new GridBagConstraints();
-        gbc_lblProbabilityOfDetection.insets = new Insets(0, 0, 5, 5);
-        gbc_lblProbabilityOfDetection.gridx = 0;
-        gbc_lblProbabilityOfDetection.gridy = 0;
-        add(lblProbabilityOfDetection,
-                gbc_lblProbabilityOfDetection);
-
-        poDVal = new JLabel("N/A");
-        GridBagConstraints gbc_PoDVal = new GridBagConstraints();
-        gbc_PoDVal.insets = new Insets(0, 0, 5, 0);
-        gbc_PoDVal.gridx = 1;
-        gbc_PoDVal.gridy = 0;
-        add(poDVal, gbc_PoDVal);
-
-        JLabel lblEffectiveSearchArea = new JLabel("Effective Search Area:");
-        GridBagConstraints gbc_lblEffectiveSearchArea = new GridBagConstraints();
-        gbc_lblEffectiveSearchArea.insets = new Insets(0, 0, 5, 5);
-        gbc_lblEffectiveSearchArea.gridx = 0;
-        gbc_lblEffectiveSearchArea.gridy = 1;
-        add(lblEffectiveSearchArea,
-                gbc_lblEffectiveSearchArea)                ;
-
-        searchAreaSizeVal = new JLabel("N/A");
-        GridBagConstraints gbc_searchAreaSizeVal = new GridBagConstraints();
-        gbc_searchAreaSizeVal.insets = new Insets(0, 0, 5, 0);
-        gbc_searchAreaSizeVal.gridx = 1;
-        gbc_searchAreaSizeVal.gridy = 1;
-        add(searchAreaSizeVal, gbc_searchAreaSizeVal);
-
-        JLabel lblSearchCraftGround = new JLabel("Search Craft Ground Speed:");
-        GridBagConstraints gbc_lblSearchCraftGround = new GridBagConstraints();
-        gbc_lblSearchCraftGround.insets = new Insets(0, 0, 5, 5);
-        gbc_lblSearchCraftGround.gridx = 0;
-        gbc_lblSearchCraftGround.gridy = 2;
-        add(lblSearchCraftGround,
-                gbc_lblSearchCraftGround);
-
-        searchCraftGroundSpeedVal = new JLabel("N/A");
-        GridBagConstraints gbc_searchCraftGroundSpeedVal = new GridBagConstraints();
-        gbc_searchCraftGroundSpeedVal.insets = new Insets(0, 0, 5, 0);
-        gbc_searchCraftGroundSpeedVal.gridx = 1;
-        gbc_searchCraftGroundSpeedVal.gridy = 2;
-        add(searchCraftGroundSpeedVal,
-                gbc_searchCraftGroundSpeedVal);
-
-        JLabel lblTrackSpacing = new JLabel("Track Spacing:");
-        GridBagConstraints gbc_lblTrackSpacing = new GridBagConstraints();
-        gbc_lblTrackSpacing.insets = new Insets(0, 0, 5, 5);
-        gbc_lblTrackSpacing.gridx = 0;
-        gbc_lblTrackSpacing.gridy = 3;
-        add(lblTrackSpacing, gbc_lblTrackSpacing);
-
-        trackSpacingVal = new JLabel("N/A");
-        GridBagConstraints gbc_trackSpacingVal = new GridBagConstraints();
-        gbc_trackSpacingVal.insets = new Insets(0, 0, 5, 0);
-        gbc_trackSpacingVal.gridx = 1;
-        gbc_trackSpacingVal.gridy = 3;
-        add(trackSpacingVal, gbc_trackSpacingVal);
-
-        JLabel lblTimeSpentSearching = new JLabel("Time Spent Searching:");
-        GridBagConstraints gbc_lblTimeSpentSearching = new GridBagConstraints();
-        gbc_lblTimeSpentSearching.insets = new Insets(0, 0, 0, 5);
-        gbc_lblTimeSpentSearching.gridx = 0;
-        gbc_lblTimeSpentSearching.gridy = 4;
-        add(lblTimeSpentSearching,
-                gbc_lblTimeSpentSearching);
-
-        timeSpentSearchingVal = new JSpinner();
-        timeSpentSearchingVal.setEnabled(false);
-        GridBagConstraints gbc_timeSpentSearchingVal = new GridBagConstraints();
-        gbc_timeSpentSearchingVal.gridx = 1;
-        gbc_timeSpentSearchingVal.gridy = 4;
-        add(timeSpentSearchingVal,
-                gbc_timeSpentSearchingVal);
     }
-    
-    
+
     @Override
-    public void resetValues(){
-        poDVal.setText("N/A");
-        searchAreaSizeVal.setText("N/A");
-        searchCraftGroundSpeedVal.setText("N/A");
-        trackSpacingVal.setText("N/A");
-        timeSpentSearchingVal.setValue(0);
-        timeSpentSearchingVal.setEnabled(false);
+    public void resetValues() {
 
     }
-    
-    
+
     @Override
     public void effortAllocationComplete(SARData data) {
 
-        poDVal.setText(data.getFirstEffortAllocationData().getPod() * 100 + "%");
-        searchAreaSizeVal.setText(Formatter.formatDouble(data
-                .getFirstEffortAllocationData().getEffectiveAreaSize(), 2)
-                + " nm2");
-        searchCraftGroundSpeedVal.setText(Formatter.formatDouble(data
-                .getFirstEffortAllocationData().getGroundSpeed(), 0)
-                + " knots");
-        
-        
-        
-        
-        trackSpacingVal.setText(Formatter.formatDouble(data
-                .getFirstEffortAllocationData().getTrackSpacing(), 2)
-                + " nm");
-        
-        
-        timeSpentSearchingVal.setValue(data.getFirstEffortAllocationData()
-                .getSearchTime());
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
 
     }
-    
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2) {
+            
+             EPDShore.getVoctManager().getSruManagerDialog().properties();
+        }
+    }
+
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+        // updateButtons();
+    }
+
+    @Override
+    public void tableChanged(TableModelEvent e) {
+        if (e.getColumn() == 2) {
+            // Visibility has changed
+            // routeManager
+            // .notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+        }
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent arg0) {
+        // TODO Auto-generated method stub
+
+    }
 }
