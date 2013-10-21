@@ -628,6 +628,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         for (int i = 0; i < effectiveSRUAreas.size(); i++) {
             graphics.remove(effectiveSRUAreas.get(i));
         }
+        effectiveSRUAreas.clear();
 
         SARData data = voctManager.getSarData();
         
