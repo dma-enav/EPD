@@ -276,20 +276,21 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
                 VoyageLegGraphic wpLeg = (VoyageLegGraphic) newClosest;
                 voyageInfoPanel.setPos((int) containerPoint.getX(),
                         (int) containerPoint.getY() - 10);
-                
+
                 int voyageIndex = wpLeg.getVoyageIndex();
-                
+
                 Voyage currentVoyage = voyageManager.getVoyage(voyageIndex);
-                
-                VesselTarget ship = aisHandler.getVesselTargets().get(currentVoyage.getMmsi());
+
+                VesselTarget ship = aisHandler.getVesselTargets().get(
+                        currentVoyage.getMmsi());
                 String name = "" + currentVoyage.getMmsi();
-                
-                if (ship != null){
-                    if (ship.getStaticData() != null){
+
+                if (ship != null) {
+                    if (ship.getStaticData() != null) {
                         name = ship.getStaticData().getName();
                     }
                 }
-                
+
                 voyageInfoPanel.showVoyageInfo(currentVoyage, name);
             }
         }
