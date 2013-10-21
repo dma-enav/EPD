@@ -27,6 +27,8 @@ import javax.swing.SwingUtilities;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
+import com.bbn.openmap.event.ProjectionEvent;
+import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
@@ -47,6 +49,7 @@ import dk.dma.epd.shore.gui.views.MapMenu;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
 import dk.dma.epd.shore.service.StrategicRouteExchangeListener;
+import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
 import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
@@ -59,7 +62,7 @@ import dk.dma.epd.shore.voyage.VoyageUpdateListener;
  */
 public class VoyageLayer extends OMGraphicHandlerLayer implements
         VoyageUpdateListener, MapMouseListener, StrategicRouteExchangeListener,
-        IAisTargetListener {
+        IAisTargetListener, ProjectionListener {
 
     private static final long serialVersionUID = 1L;
 
