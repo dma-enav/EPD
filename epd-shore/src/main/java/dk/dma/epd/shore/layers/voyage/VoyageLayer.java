@@ -392,7 +392,8 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
             if (unhandledTransactions.size() > 0) {
 
                 for (int j = 0; j < unhandledTransactions.size(); j++) {
-
+                    // System.out.println("unhandled size: "
+                    // + unhandledTransactions.size());
                     long mmsi = monaLisaHandler
                             .getStrategicNegotiationData()
                             .get(monaLisaHandler.getUnhandledTransactions()
@@ -410,7 +411,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
                     VesselTarget ship = aisHandler.getVesselTargets().get(mmsi);
                     Position position = ship.getPositionData().getPos();
 
-                    Point2D resultPoint = aisLayer.getProjection().forward(
+                    Point2D resultPoint = this.getProjection().forward(
                             position.getLatitude(), position.getLongitude());
 
                     Point newPoint = new Point((int) resultPoint.getX(),
@@ -419,8 +420,13 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
                     shipIndicatorPanel.setLocation(newPoint);
 
                     shipIndicatorPanels.put(mmsi, shipIndicatorPanel);
+                    jMapFrame.getGlassPanel().remove(shipIndicatorPanel);
                     jMapFrame.getGlassPanel().add(shipIndicatorPanel);
+
+                    shipIndicatorPanel.paintAll(shipIndicatorPanel
+                            .getGraphics());
                     // ShipIndicatorPanels
+                    // shipIndicatorPanel.repaint();
 
                 }
             } else {
@@ -441,7 +447,21 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public void targetUpdated(AisTarget aisTarget) {
-        updateDialogLocations();
+        for (StrategicRouteNegotiationData data : monaLisaHandler
+                .getStrategicNegotiationData().values()) {
+            if (data.getMmsi() == aisTarget.getMmsi()) {
+                // only run update if this vessel has negotiation data
+                this.updateDialogLocations();
+                break;
+            }
+        }
+
+    }
+
+    @Override
+    public void projectionChanged(ProjectionEvent pe) {
+        super.projectionChanged(pe);
+        this.updateDialogLocations();
     }
 
 }
