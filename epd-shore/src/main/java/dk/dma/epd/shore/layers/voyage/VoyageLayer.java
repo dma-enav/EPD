@@ -382,7 +382,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         return graphics;
     }
 
-    private void updateDialogLocations() {
+    private synchronized void updateDialogLocations() {
 
         if (monaLisaHandler != null && !windowHandling) {
 
