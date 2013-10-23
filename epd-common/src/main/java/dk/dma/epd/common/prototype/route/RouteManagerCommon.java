@@ -19,6 +19,7 @@ import java.util.List;
 
 import com.bbn.openmap.MapHandlerChild;
 
+import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -71,4 +72,7 @@ public class RouteManagerCommon extends MapHandlerChild {
         
     }
     
+    public void requestRouteMetoc(Route route) throws ShoreServiceException {
+        
+    }
 }
