@@ -17,9 +17,9 @@ package dk.dma.epd.shore.gui.views.menuitems;
 
 import javax.swing.JMenuItem;
 
+import dk.dma.epd.common.prototype.gui.metoc.MetocRequestDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.gui.route.MetocRequestDialog;
 import dk.dma.epd.shore.route.RouteManager;
 
 
