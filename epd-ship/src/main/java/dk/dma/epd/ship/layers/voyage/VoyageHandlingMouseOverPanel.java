@@ -15,8 +15,7 @@
  */
 package dk.dma.epd.ship.layers.voyage;
 
-import dk.dma.epd.ship.gui.InfoPanel;
-
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 
 public class VoyageHandlingMouseOverPanel extends InfoPanel {
     private static final long serialVersionUID = 1L;
