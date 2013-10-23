@@ -35,6 +35,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.math.Vector2D;
+import dk.dma.epd.common.prototype.gui.metoc.MetocInfoPanel;
 import dk.dma.epd.common.prototype.layers.route.ActiveRouteGraphic;
 import dk.dma.epd.common.prototype.layers.route.MetocGraphic;
 import dk.dma.epd.common.prototype.layers.route.MetocPointGraphic;

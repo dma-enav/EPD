@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.layers.route;
+package dk.dma.epd.common.prototype.gui.metoc;
 
 import java.util.Date;
 
@@ -31,9 +31,9 @@ public class MetocInfoPanel extends InfoPanel {
     private static final long serialVersionUID = 1L;
 
     public MetocInfoPanel() {
-        super();
+        super();        
     }
-
+    
     public void showText(MetocForecastPoint pointForecast, RouteMetocSettings settings){
         Date date = pointForecast.getTime();
         Double meanWaveDirection = null;
@@ -47,7 +47,7 @@ public class MetocInfoPanel extends InfoPanel {
         Double meanWavePeriod = null;
         if (pointForecast.getMeanWavePeriod() != null) {
             meanWavePeriod = pointForecast.getMeanWavePeriod().getForecast();
-        }
+        }        
         Double currentDirection = null;
         if (pointForecast.getCurrentDirection() != null) {
             currentDirection = pointForecast.getCurrentDirection().getForecast();
@@ -59,7 +59,7 @@ public class MetocInfoPanel extends InfoPanel {
         Double windSpeed = null;
         if (pointForecast.getWindSpeed() != null) {
             windSpeed = pointForecast.getWindSpeed().getForecast();
-        }
+        }        
         Double windDirection = null;
         if (pointForecast.getWindDirection() != null) {
             windDirection = pointForecast.getWindDirection().getForecast();
@@ -75,7 +75,7 @@ public class MetocInfoPanel extends InfoPanel {
         StringBuilder buf = new StringBuilder();
         buf.append("<html>");
         buf.append("<b>METOC DATA for "+Formatter.formatLongDateTime(date)+"</b><br/>");
-        buf.append("<table cellpadding='0' cellspacing='2'>");
+        buf.append("<table cellpadding='0' cellspacing='2'>");        
         if (settings.getDataTypes().contains(MetocDataTypes.CU) || currentSpeed != null || currentDirection != null) {
             buf.append("<tr><td>Current:</td><td>"+Formatter.formatCurrentSpeed(currentSpeed, 1)+ " - " +Formatter.formatDegrees(currentDirection, 0)+"</td></tr>");
         }
@@ -91,5 +91,5 @@ public class MetocInfoPanel extends InfoPanel {
         buf.append("</table></html>");
         showText(buf.toString());
     }
-
+    
 }
