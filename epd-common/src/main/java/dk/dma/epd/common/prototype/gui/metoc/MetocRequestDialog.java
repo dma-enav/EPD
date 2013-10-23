@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.route;
+package dk.dma.epd.common.prototype.gui.metoc;
 
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -29,7 +29,7 @@ import javax.swing.WindowConstants;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
 
 /**
@@ -39,7 +39,7 @@ public class MetocRequestDialog extends JDialog implements Runnable, ActionListe
     
     private static final long serialVersionUID = 1L;
     
-    private RouteManager routeManager;
+    private RouteManagerCommon routeManager;
     private Route route;
     private Window parent;
     private JLabel statusLbl;
@@ -47,7 +47,7 @@ public class MetocRequestDialog extends JDialog implements Runnable, ActionListe
     private Boolean cancelReq = false;
     private Boolean rawMetoc = false;
     
-    public MetocRequestDialog(Window parent, RouteManager routeManager, Route route) {
+    public MetocRequestDialog(Window parent, RouteManagerCommon routeManager, Route route) {
         super(parent, "Request METOC");
         this.routeManager = routeManager;
         this.route = route;
@@ -56,7 +56,7 @@ public class MetocRequestDialog extends JDialog implements Runnable, ActionListe
         initGui();        
     }
     
-    public static void requestMetoc(Window parent, RouteManager routeManager, Route route) {
+    public static void requestMetoc(Window parent, RouteManagerCommon routeManager, Route route) {
         MetocRequestDialog metocRequestDialog = new MetocRequestDialog(parent, routeManager, route);
         metocRequestDialog.doRequestMetoc();
         metocRequestDialog = null;
