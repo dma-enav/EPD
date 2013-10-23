@@ -533,9 +533,9 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         if (!EPDShip.getSettings().getNavSettings().isAutoFollow()) {
             return;
         }
-
+        
         // Only do auto follow if not bad position
-        if (gpsData.isBadPosition()) {
+        if (gpsData == null || gpsData.isBadPosition()) {
             return;
         }
 
