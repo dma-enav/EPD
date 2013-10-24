@@ -43,19 +43,21 @@ public class AisTargetInfoPanel extends InfoPanel implements Runnable {
         super();
         new Thread(this).start();
     }
-    
-    public void showAtonInfo(AtoNTarget atonTarget){
+
+    public void showAtonInfo(AtoNTarget atonTarget) {
         String name = AisMessage.trimText(atonTarget.getName());
         Status status = atonTarget.getStatus();
         StringBuilder str = new StringBuilder();
         str.append("<html>");
-        
-        if(atonTarget.getVirtual() == 1)
+
+        if (atonTarget.getVirtual() == 1) {
             str.append("Virtual AtoN");
-        else
+        } else {
             str.append("Physical AtoN");
+        }
         str.append("<br>" + name + "</br>");
-        str.append("<br>Type: " + atonTarget.getAtonType().getPrettyName() + "</br>");
+        str.append("<br>Type: " + atonTarget.getAtonType().getPrettyName()
+                + "</br>");
         str.append("<br>Status: " + status + "</br>");
         str.append("</html>");
         showText(str.toString());
@@ -94,23 +96,29 @@ public class AisTargetInfoPanel extends InfoPanel implements Runnable {
         /*
          * Get the risk object
          */
-        RiskList riskList = EPDShip.getRiskHandler().getRiskList(vesselTarget.getMmsi());
-//        if( riskList!=null && !riskList.getRisks().isEmpty()){
-//            Risk risk = riskList.getRisks().iterator().next();
-//            str.append("length : " + risk.getLength() + " m " );
-//            
-//        }
-        
+        RiskList riskList = EPDShip.getRiskHandler().getRiskList(
+                vesselTarget.getMmsi());
+        // if( riskList!=null && !riskList.getRisks().isEmpty()){
+        // Risk risk = riskList.getRisks().iterator().next();
+        // str.append("length : " + risk.getLength() + " m " );
+        //
+        // }
 
         if (callsign != null) {
             str.append(callsign + "<br/>");
         }
         str.append("COG " + cog + "  SOG " + sog + "<br/>");
 
-        Risk riskIndex = EPDShip.getRiskHandler().getRiskLevel(vesselTarget.getMmsi());
+        Risk riskIndex = EPDShip.getRiskHandler().getRiskLevel(
+                vesselTarget.getMmsi());
         if (riskIndex != null) {
             DecimalFormat fmt = new DecimalFormat("#.####");
-            str.append("risk index : " + fmt.format(riskIndex.getRiskNorm()) + " (" +fmt.format(riskIndex.getProbability()* riskIndex.getConsequence() * 1000000) + "$) <br/>");
+            str.append("risk index : "
+                    + fmt.format(riskIndex.getRiskNorm())
+                    + " ("
+                    + fmt.format(riskIndex.getProbability()
+                            * riskIndex.getConsequence() * 1000000)
+                    + "$) <br/>");
         }
 
         if (riskList != null) {
@@ -125,7 +133,8 @@ public class AisTargetInfoPanel extends InfoPanel implements Runnable {
                 if (risk.getAccidentType().equals("MACHINERYFAILURE")) {
                     continue;
                 }
-                str.append(risk.getAccidentType() + " : " + (int) (risk.getRiskNorm() / total * 100) + " % <br/>");
+                str.append(risk.getAccidentType() + " : "
+                        + (int) (risk.getRiskNorm() / total * 100) + " % <br/>");
             }
         }
         str.append("</html>");
