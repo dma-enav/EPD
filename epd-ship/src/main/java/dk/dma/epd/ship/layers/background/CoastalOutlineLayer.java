@@ -20,13 +20,13 @@ import java.awt.Graphics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bbn.openmap.layer.shape.ShapeLayer;
+import com.bbn.openmap.layer.shape.MultiShapeLayer;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 /**
  * Layer for simple coastal outline background
  */
-public class CoastalOutlineLayer extends ShapeLayer {
+public class CoastalOutlineLayer extends MultiShapeLayer {
     
     private static final long serialVersionUID = 1L;
     @SuppressWarnings("unused")
