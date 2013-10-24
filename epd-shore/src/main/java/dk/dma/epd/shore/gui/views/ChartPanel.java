@@ -32,7 +32,7 @@ import com.bbn.openmap.LayerHandler;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.event.ProjectionSupport;
-import com.bbn.openmap.layer.shape.ShapeLayer;
+import com.bbn.openmap.layer.shape.MultiShapeLayer;
 import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
@@ -482,7 +482,7 @@ public class ChartPanel extends CommonChartPanel {
 
         // Create background layer
         String layerName = "background";
-        bgLayer = new ShapeLayer();
+        bgLayer = new MultiShapeLayer();
         bgLayer.setProperties(layerName, props);
         bgLayer.setAddAsBackground(true);
         bgLayer.setVisible(true);

@@ -27,6 +27,8 @@ import javax.swing.SwingUtilities;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
+import com.bbn.openmap.event.ProjectionEvent;
+import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
@@ -47,6 +49,7 @@ import dk.dma.epd.shore.gui.views.MapMenu;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
 import dk.dma.epd.shore.service.StrategicRouteExchangeListener;
+import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
 import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
@@ -59,7 +62,7 @@ import dk.dma.epd.shore.voyage.VoyageUpdateListener;
  */
 public class VoyageLayer extends OMGraphicHandlerLayer implements
         VoyageUpdateListener, MapMouseListener, StrategicRouteExchangeListener,
-        IAisTargetListener {
+        IAisTargetListener, ProjectionListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -273,20 +276,21 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
                 VoyageLegGraphic wpLeg = (VoyageLegGraphic) newClosest;
                 voyageInfoPanel.setPos((int) containerPoint.getX(),
                         (int) containerPoint.getY() - 10);
-                
+
                 int voyageIndex = wpLeg.getVoyageIndex();
-                
+
                 Voyage currentVoyage = voyageManager.getVoyage(voyageIndex);
-                
-                VesselTarget ship = aisHandler.getVesselTargets().get(currentVoyage.getMmsi());
+
+                VesselTarget ship = aisHandler.getVesselTargets().get(
+                        currentVoyage.getMmsi());
                 String name = "" + currentVoyage.getMmsi();
-                
-                if (ship != null){
-                    if (ship.getStaticData() != null){
+
+                if (ship != null) {
+                    if (ship.getStaticData() != null) {
                         name = ship.getStaticData().getName();
                     }
                 }
-                
+
                 voyageInfoPanel.showVoyageInfo(currentVoyage, name);
             }
         }
@@ -378,7 +382,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         return graphics;
     }
 
-    private void updateDialogLocations() {
+    private synchronized void updateDialogLocations() {
 
         if (monaLisaHandler != null && !windowHandling) {
 
@@ -388,7 +392,8 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
             if (unhandledTransactions.size() > 0) {
 
                 for (int j = 0; j < unhandledTransactions.size(); j++) {
-
+                    // System.out.println("unhandled size: "
+                    // + unhandledTransactions.size());
                     long mmsi = monaLisaHandler
                             .getStrategicNegotiationData()
                             .get(monaLisaHandler.getUnhandledTransactions()
@@ -406,7 +411,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
                     VesselTarget ship = aisHandler.getVesselTargets().get(mmsi);
                     Position position = ship.getPositionData().getPos();
 
-                    Point2D resultPoint = aisLayer.getProjection().forward(
+                    Point2D resultPoint = this.getProjection().forward(
                             position.getLatitude(), position.getLongitude());
 
                     Point newPoint = new Point((int) resultPoint.getX(),
@@ -415,8 +420,13 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
                     shipIndicatorPanel.setLocation(newPoint);
 
                     shipIndicatorPanels.put(mmsi, shipIndicatorPanel);
+                    jMapFrame.getGlassPanel().remove(shipIndicatorPanel);
                     jMapFrame.getGlassPanel().add(shipIndicatorPanel);
+
+                    shipIndicatorPanel.paintAll(shipIndicatorPanel
+                            .getGraphics());
                     // ShipIndicatorPanels
+                    // shipIndicatorPanel.repaint();
 
                 }
             } else {
@@ -437,7 +447,21 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public void targetUpdated(AisTarget aisTarget) {
-        updateDialogLocations();
+        for (StrategicRouteNegotiationData data : monaLisaHandler
+                .getStrategicNegotiationData().values()) {
+            if (data.getMmsi() == aisTarget.getMmsi()) {
+                // only run update if this vessel has negotiation data
+                this.updateDialogLocations();
+                break;
+            }
+        }
+
+    }
+
+    @Override
+    public void projectionChanged(ProjectionEvent pe) {
+        super.projectionChanged(pe);
+        this.updateDialogLocations();
     }
 
 }

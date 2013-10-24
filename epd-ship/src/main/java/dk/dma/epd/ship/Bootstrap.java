@@ -56,10 +56,24 @@ public class Bootstrap {
 
         // update location of shape files to user.home
         EPDShip.loadProperties();
-        String prev = EPDShip.properties.getProperty("background.shapeFile");
-        EPDShip.properties.put("background.shapeFile", home.resolve(prev).toString());
-        prev = EPDShip.properties.getProperty("background.spatialIndex");
-        EPDShip.properties.put("background.spatialIndex", home.resolve(prev).toString());
+        String prev = EPDShip.properties.getProperty("background.WorldOutLine.shapeFile");
+        EPDShip.properties.put("background.WorldOutLine.shapeFile", home.resolve(prev).toString());
+        
+        prev = EPDShip.properties.getProperty("background.InternalWaters.shapeFile");
+        EPDShip.properties.put("background.InternalWaters.shapeFile", home.resolve(prev).toString());
+        
+        prev = EPDShip.properties.getProperty("background.InternalArea.shapeFile");
+        EPDShip.properties.put("background.InternalArea.shapeFile", home.resolve(prev).toString());
+        
+        
+        prev = EPDShip.properties.getProperty("background.WorldOutLine.spatialIndex");
+        EPDShip.properties.put("background.WorldOutLine.spatialIndex", home.resolve(prev).toString());
+        
+        prev = EPDShip.properties.getProperty("background.InternalWaters.spatialIndex");
+        EPDShip.properties.put("background.InternalWaters.spatialIndex", home.resolve(prev).toString());
+        
+        prev = EPDShip.properties.getProperty("background.InternalArea.spatialIndex");
+        EPDShip.properties.put("background.InternalArea.spatialIndex", home.resolve(prev).toString());
 
     }
     protected void unpackFolderToAppHome(String folder) throws IOException {

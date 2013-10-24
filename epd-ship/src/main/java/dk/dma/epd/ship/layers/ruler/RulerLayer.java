@@ -65,7 +65,6 @@ public class RulerLayer extends OMGraphicHandlerLayer implements
         switch (e.getButton()) {
         case MouseEvent.BUTTON1:
             // Clear any old range circle from graphics.
-            System.out.println("### PAINTING CENTER");
             if (this.rulerGraphic != null) {
                 this.graphics.remove(this.rulerGraphic);
             }
@@ -110,13 +109,6 @@ public class RulerLayer extends OMGraphicHandlerLayer implements
         doPrepare();
         super.projectionChanged(e);
 
-    }
-
-    @Override
-    public void setVisible(boolean show) {
-        // TODO Auto-generated method stub
-        super.setVisible(show);
-        System.out.println("RulerLayer is now visible " + show);
     }
 
     @Override

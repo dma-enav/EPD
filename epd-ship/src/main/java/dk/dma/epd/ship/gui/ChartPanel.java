@@ -490,7 +490,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
             }
             if (modeID.equals(DragMouseMode.MODE_ID)) {
                 mouseDelegator.setActive(dragMouseMode);
-                EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
+                this.topPanel.getNavigationMouseMode()
                         .setSelected(false);
                 EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
                         .setSelected(true);
@@ -508,7 +508,6 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
             // mouse mode
             this.rangeCirclesMouseMode
                     .setPreviousMouseModeModeID(prevMouseModeId);
-            System.out.println("Setting DistanceCircleMouseMode");
             // Display the ruler layer.
             this.rulerLayer.setVisible(true);
             this.mouseDelegator.setActive(this.rangeCirclesMouseMode);
@@ -547,9 +546,9 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         if (!EPDShip.getSettings().getNavSettings().isAutoFollow()) {
             return;
         }
-
+        
         // Only do auto follow if not bad position
-        if (gpsData.isBadPosition()) {
+        if (gpsData == null || gpsData.isBadPosition()) {
             return;
         }
 
