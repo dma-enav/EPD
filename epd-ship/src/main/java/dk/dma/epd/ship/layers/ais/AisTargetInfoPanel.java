@@ -49,11 +49,15 @@ public class AisTargetInfoPanel extends InfoPanel implements Runnable {
         Status status = atonTarget.getStatus();
         StringBuilder str = new StringBuilder();
         str.append("<html>");
-        str.append("Virtual AtoN");
+        
+        if(atonTarget.getVirtual() == 1)
+            str.append("Virtual AtoN");
+        else
+            str.append("Physical AtoN");
         str.append("<br>" + name + "</br>");
+        str.append("<br>Type: " + atonTarget.getAtonType().getPrettyName() + "</br>");
         str.append("<br>Status: " + status + "</br>");
         str.append("</html>");
-
         showText(str.toString());
     }
 
