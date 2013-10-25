@@ -53,6 +53,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
@@ -69,7 +70,8 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
     private static final long serialVersionUID = 1L;
 
     protected SRUManager sruManager;
-
+    private AisHandler aisHandler;
+    
     // private JButton propertiesBtn;
     // private JButton zoomToBtn;
     // private JButton reverseCopyBtn;
@@ -593,7 +595,7 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
         int i = sruTable.getSelectedRow();
         
         if (i >=0){
-            SRUAddEditDialog dialog = new SRUAddEditDialog(sruManager, i);
+            SRUAddEditDialog dialog = new SRUAddEditDialog(sruManager, i, aisHandler);
             dialog.setVisible(true);
         }
         
@@ -611,7 +613,7 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
     }
     
     private void addNewSRU(){
-        SRUAddEditDialog dialog = new SRUAddEditDialog(sruManager);
+        SRUAddEditDialog dialog = new SRUAddEditDialog(sruManager, aisHandler);
         dialog.setVisible(true);
     }
     
@@ -669,6 +671,10 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
                     mainFrame);
             topBar.addMouseListener(mml);
             topBar.addMouseMotionListener(mml);
+        }
+        if (obj instanceof AisHandler) {
+            aisHandler = (AisHandler) obj;
+            System.out.println("aishandler found");
         }
     }
 

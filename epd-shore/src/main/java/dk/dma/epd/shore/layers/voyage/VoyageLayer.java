@@ -447,15 +447,18 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public void targetUpdated(AisTarget aisTarget) {
-        for (StrategicRouteNegotiationData data : monaLisaHandler
-                .getStrategicNegotiationData().values()) {
-            if (data.getMmsi() == aisTarget.getMmsi()) {
-                // only run update if this vessel has negotiation data
-                this.updateDialogLocations();
-                break;
+
+        if (monaLisaHandler != null) {
+
+            for (StrategicRouteNegotiationData data : monaLisaHandler
+                    .getStrategicNegotiationData().values()) {
+                if (data.getMmsi() == aisTarget.getMmsi()) {
+                    // only run update if this vessel has negotiation data
+                    this.updateDialogLocations();
+                    break;
+                }
             }
         }
-
     }
 
     @Override
