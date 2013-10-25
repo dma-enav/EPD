@@ -54,7 +54,7 @@ public class SARFrame extends JMapFrame {
 
     @Override
     public void initGUI() {
-
+        makeKeyBindings();
         
         
         mapFrame = this;

@@ -15,17 +15,12 @@
  */
 package dk.dma.epd.common.prototype.gui.voct;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 
 public class SearchPatternsPanelCommon extends JPanel {
 
-//    private JButton btnGenerateSearchPattern;
-//    private JCheckBox chckbxShowDynamicPattern;
-    
     private static final long serialVersionUID = 1L;
 
     
@@ -41,20 +36,6 @@ public class SearchPatternsPanelCommon extends JPanel {
     }
     
     public void searchPatternGenerated(SARData sarData) {
-    }
-
-
-    public JButton getBtnGenerateSearchPattern() {
-        return null;
-    }
-
-
-
-    /**
-     * @return the chckbxShowDynamicPattern
-     */
-    public JCheckBox getChckbxShowDynamicPattern() {
-        return null;
     }
 
     

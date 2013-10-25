@@ -734,15 +734,15 @@ public class SARPanel extends SARPanelCommon implements VOCTUpdateListener {
         searchPatternPanel = new SearchPatternsPanel();
         
         
-        btnGenerateSearchPattern = searchPatternPanel
-                .getBtnGenerateSearchPattern();
+//        btnGenerateSearchPattern = searchPatternPanel
+//                .getBtnGenerateSearchPattern();
 
-        btnGenerateSearchPattern.addActionListener(this);
+//        btnGenerateSearchPattern.addActionListener(this);
 
-        chckbxShowDynamicPattern = searchPatternPanel
-                .getChckbxShowDynamicPattern();
+//        chckbxShowDynamicPattern = searchPatternPanel
+//                .getChckbxShowDynamicPattern();
 
-        chckbxShowDynamicPattern.addActionListener(this);
+//        chckbxShowDynamicPattern.addActionListener(this);
 
         return searchPatternPanel;
     }

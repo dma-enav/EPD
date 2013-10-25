@@ -129,12 +129,12 @@ public class SARPanel extends SARPanelCommon {
     @Override
     protected SearchPatternsPanelCommon createSearchPatternsPanel() {
         searchPatternPanel = new SearchPatternsPanel();
-        btnGenerateSearchPattern = searchPatternPanel
+        btnGenerateSearchPattern = ((SearchPatternsPanel) searchPatternPanel)
                 .getBtnGenerateSearchPattern();
 
         btnGenerateSearchPattern.addActionListener(this);
 
-        chckbxShowDynamicPattern = searchPatternPanel
+        chckbxShowDynamicPattern = ((SearchPatternsPanel) searchPatternPanel)
                 .getChckbxShowDynamicPattern();
 
         chckbxShowDynamicPattern.addActionListener(this);

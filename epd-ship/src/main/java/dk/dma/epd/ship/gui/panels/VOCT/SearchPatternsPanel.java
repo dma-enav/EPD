@@ -75,7 +75,6 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon{
     /**
      * @return the btnGenerateSearchPattern
      */
-    @Override
     public JButton getBtnGenerateSearchPattern() {
         return btnGenerateSearchPattern;
     }
@@ -85,7 +84,6 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon{
     /**
      * @return the chckbxShowDynamicPattern
      */
-    @Override
     public JCheckBox getChckbxShowDynamicPattern() {
         return chckbxShowDynamicPattern;
     }

@@ -358,7 +358,7 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
     /**
      * Function for setting the key bindings for the map frame
      */
-    private void makeKeyBindings() {
+    protected void makeKeyBindings() {
 
         JPanel content = (JPanel) getContentPane();
         InputMap inputMap = content.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
