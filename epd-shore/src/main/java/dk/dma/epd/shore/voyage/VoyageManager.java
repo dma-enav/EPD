@@ -85,6 +85,25 @@ public class VoyageManager extends MapHandlerChild implements Runnable, Serializ
         notifyListeners(VoyageUpdateEvent.VOYAGE_ADDED);
     }
 
+    /**
+     * Delete a stored voyage with ID equal to voyageId.
+     * @param voyageId ID of the voyage to delete.
+     * @return True if the ID is a valid ID and the voyage was successfully deleted.
+     * False if ID is not a valid voyageId.
+     */
+    public boolean deleteVoyage(long voyageId) {
+        synchronized (this.voyages) {
+            for(int i = 0; i < this.voyages.size(); i++) {
+                Voyage v = this.voyages.get(i);
+                if(v.getId() == voyageId) {
+                    this.removeVoyage(i);
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+    
     public Voyage getVoyage(int index) {
         synchronized (voyages) {
  
