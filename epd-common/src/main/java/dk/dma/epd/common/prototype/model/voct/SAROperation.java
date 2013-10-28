@@ -643,7 +643,11 @@ public class SAROperation {
     }
 
     private void findSmallestSquare(DatumPointData data) {
-
+        
+        // Variable used to create intersection lines
+        int directionLength = 500000;
+        
+        
         // Find circles furtest from each other - that will be the encompassing
         // box - after this box has been decided grow the box so it encompasses
         // the last circle.
@@ -705,9 +709,9 @@ public class SAROperation {
 
         Position endDirectionPointMinus90 = Calculator.findPosition(
                 endDirectionPoint, Calculator.turn90Minus(lengthBearing),
-                500000);
+                directionLength);
         Position endDirectionPointPlus90 = Calculator.findPosition(
-                endDirectionPoint, Calculator.turn90Plus(lengthBearing), 5000);
+                endDirectionPoint, Calculator.turn90Plus(lengthBearing), directionLength);
 
         Geo a1 = new Geo(endDirectionPoint.getLatitude(),
                 endDirectionPoint.getLongitude());
@@ -715,9 +719,9 @@ public class SAROperation {
                 endDirectionPointMinus90.getLongitude());
 
         Position directionFromA = Calculator.findPosition(internalA,
-                lengthBearing, 500000);
+                lengthBearing, directionLength);
         Position directionFromC = Calculator.findPosition(internalC,
-                lengthBearing, 500000);
+                lengthBearing, directionLength);
 
         Geo b1 = new Geo(internalA.getLatitude(), internalA.getLongitude());
         Geo b2 = new Geo(directionFromA.getLatitude(),
@@ -735,8 +739,8 @@ public class SAROperation {
         Position internalB = Position.create(intersection.getLatitude(),
                 intersection.getLongitude());
 
-        // a1 = new Geo(endDirectionPoint.getLatitude(),
-        // endDirectionPoint.getLongitude());
+         a1 = new Geo(endDirectionPoint.getLatitude(),
+         endDirectionPoint.getLongitude());
         a2 = new Geo(endDirectionPointPlus90.getLatitude(),
                 endDirectionPointPlus90.getLongitude());
 
@@ -744,6 +748,18 @@ public class SAROperation {
         b2 = new Geo(directionFromC.getLatitude(),
                 directionFromC.getLongitude());
 
+        
+         System.out.println(a1);
+         System.out.println(a2);
+         System.out.println(b1);
+         System.out.println(b2);
+        
+         System.out.println("Internal A is: " + internalA);
+         System.out.println("Internal B is: " + internalB);
+         System.out.println("Internal C is: " + internalC);
+         
+        
+        
         intersection = Intersection.segmentsIntersect(a1, a2, b1, b2);
         // System.out.println("Intersectin at : " + intersection);
 
@@ -781,14 +797,14 @@ public class SAROperation {
                     Converter.nmToMeters(radiusDownWind));
 
             Position downWindLeft = Calculator.findPosition(downWindGrowCenter,
-                    Calculator.reverseDirection(lengthBearing), 500000);
+                    Calculator.reverseDirection(lengthBearing), directionLength);
             Position downWindRight = Calculator.findPosition(
-                    downWindGrowCenter, lengthBearing, 500000);
+                    downWindGrowCenter, lengthBearing, directionLength);
 
             Position AGrow = Calculator.findPosition(internalA, direction,
-                    500000);
+                    directionLength);
             Position BGrow = Calculator.findPosition(internalB, direction,
-                    500000);
+                    directionLength);
 
             Geo newA = Intersection.segmentsIntersect(
                     ParseUtils.PositionToGeo(downWindGrowCenter),
@@ -824,14 +840,14 @@ public class SAROperation {
                     Converter.nmToMeters(radiusDownWind));
 
             Position downWindLeft = Calculator.findPosition(downWindGrowCenter,
-                    Calculator.reverseDirection(lengthBearing), 500000);
+                    Calculator.reverseDirection(lengthBearing), directionLength);
             Position downWindRight = Calculator.findPosition(
-                    downWindGrowCenter, lengthBearing, 500000);
+                    downWindGrowCenter, lengthBearing, directionLength);
 
             Position CGrow = Calculator.findPosition(internalC, direction,
-                    500000);
+                    directionLength);
             Position DGrow = Calculator.findPosition(internalD, direction,
-                    500000);
+                    directionLength);
 
             Geo newC = Intersection.segmentsIntersect(
                     ParseUtils.PositionToGeo(downWindGrowCenter),
