@@ -32,26 +32,29 @@ import dk.dma.epd.shore.voct.SRU;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
 
-
-
 /**
  * Table model for SRUManagerDialog
  */
-public class SRUSearchRouteTable extends AbstractTableModel {
+public class SRUSearchRouteTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(SRUSearchRouteTable.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(SRUSearchRouteTableModel.class);
 
-    private static final String[] COLUMN_NAMES = {"Name", "Src Ptn", "Dynamic", "Visible"};
+    private static final String[] COLUMN_NAMES = { "Name", "Src Ptn",
+            "Dynamic", "Visible" };
 
     private SRUManager sruManager;
     private VOCTManager voctManager;
 
-    
     private Map<SRU, JButton> buttons = new HashMap<SRU, JButton>();
-    
-    public SRUSearchRouteTable(SRUManager sruManager, VOCTManager voctManager) {
+
+    private SRUSearchPAtternButtonHandler handler;
+
+    public SRUSearchRouteTableModel(SRUSearchPAtternButtonHandler handler,
+            SRUManager sruManager, VOCTManager voctManager) {
         super();
+        this.handler = handler;
         this.sruManager = sruManager;
         this.voctManager = voctManager;
     }
@@ -68,20 +71,25 @@ public class SRUSearchRouteTable extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-//        return sruManager.getSRUCount();
-//        return 0;
+        // return sruManager.getSRUCount();
+        // return 0;
         return voctManager.getSarData().getEffortAllocationData().size();
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         SRU sru = sruManager.getSRUs().get(rowIndex);
-        EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(rowIndex);
+        EffortAllocationData effortAllocationData = voctManager.getSarData()
+                .getEffortAllocationData().get(rowIndex);
         switch (columnIndex) {
-        case 0: return Formatter.formatString(sru.getName());
-        case 1: return getCellButton(sru);
-        case 2: return sru.isVisible();
-        case 3: return true;
+        case 0:
+            return Formatter.formatString(sru.getName());
+        case 1:
+            return getCellButton(sru);
+        case 2:
+            return sru.isVisible();
+        case 3:
+            return true;
         default:
             LOG.error("Unknown column " + columnIndex);
             return new String("");
@@ -90,23 +98,24 @@ public class SRUSearchRouteTable extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        System.out.println("Set value at, aValue: " + aValue + " rowIndex: "+ rowIndex + " columIndex: " + columnIndex);
+        System.out.println("Set value at, aValue: " + aValue + " rowIndex: "
+                + rowIndex + " columIndex: " + columnIndex);
         SRU sru = sruManager.getSRUs().get(rowIndex);
         switch (columnIndex) {
         case 2:
-            //toggle dynamic
-//            sru.setVisible((Boolean)aValue);
-//            sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
+            // toggle dynamic
+            // sru.setVisible((Boolean)aValue);
+            // sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
             fireTableCellUpdated(rowIndex, columnIndex);
             break;
         case 3:
-            //toggle visibility of route
-            
-//          sru.setVisible((Boolean)aValue);
-//          sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
-          fireTableCellUpdated(rowIndex, columnIndex);
-          break;
-                      
+            // toggle visibility of route
+
+            // sru.setVisible((Boolean)aValue);
+            // sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
+            fireTableCellUpdated(rowIndex, columnIndex);
+            break;
+
         default:
             break;
         }
@@ -114,37 +123,44 @@ public class SRUSearchRouteTable extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        //return (columnIndex == 2 && rowIndex != routeManager.getActiveRouteIndex());
-        return columnIndex == 2 || columnIndex == 3;
+        // return (columnIndex == 2 && rowIndex !=
+        // routeManager.getActiveRouteIndex());
+        return columnIndex == 1 || columnIndex == 2 || columnIndex == 3;
     }
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return getValueAt(0, columnIndex).getClass();
-    }
-
-    private JButton getCellButton(SRU sru)
-    {
-      JButton button = buttons.get(sru);
-      if (button == null)
-      {
-        button = createButton(sru);
-        buttons.put(sru, button);
-      }
-      return button;
-    }
-
-    private JButton createButton(final SRU sru)
-    {
-      final JButton button = new JButton("Create");
-
-      button.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e)
-        {
-//          handler.buttonClicked(employee);
+        if (columnIndex == 1) {
+            return JButton.class;
+        } else {
+            return getValueAt(0, columnIndex).getClass();
         }
-      });
 
-      return button;
+    }
+
+    private JButton getCellButton(SRU sru) {
+        JButton button = buttons.get(sru);
+        if (button == null) {
+            button = createButton(sru);
+            buttons.put(sru, button);
+        }
+        return button;
+    }
+
+    private JButton createButton(final SRU sru) {
+        final JButton button = new JButton("Create");
+
+        button.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Button Clicked Hello?");
+                handler.buttonClicked(sru);
+            }
+        });
+
+        return button;
+    }
+
+    public interface SRUSearchPAtternButtonHandler {
+        void buttonClicked(SRU e);
     }
 }

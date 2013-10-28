@@ -42,16 +42,18 @@ import javax.swing.table.TableCellRenderer;
 
 import dk.dma.epd.common.prototype.gui.voct.SearchPatternsPanelCommon;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.gui.voct.panels.SRUSearchRouteTableModel.SRUSearchPAtternButtonHandler;
+import dk.dma.epd.shore.voct.SRU;
 
 public class SearchPatternsPanel extends SearchPatternsPanelCommon
         implements ActionListener, ListSelectionListener, TableModelListener,
-        MouseListener {
+        MouseListener, SRUSearchPAtternButtonHandler {
 
     private static final long serialVersionUID = 1L;
 
     private JScrollPane sruScrollPane;
     private JTable sruTable;
-    private SRUSearchRouteTable sruTableModel;
+    private SRUSearchRouteTableModel sruTableModel;
     private ListSelectionModel sruSelectionModel;
 
     public SearchPatternsPanel() {
@@ -106,7 +108,7 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon
         sruTable.setFocusable(false);
         // routeTable.setAutoResizeMode(0);
 
-        sruTableModel = new SRUSearchRouteTable(EPDShore.getVoctManager().getSruManager(), EPDShore.getVoctManager());
+        sruTableModel = new SRUSearchRouteTableModel(this, EPDShore.getVoctManager().getSruManager(), EPDShore.getVoctManager());
         sruTableModel.addTableModelListener(this);
 
         sruTable.setShowHorizontalLines(false);
@@ -219,5 +221,14 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon
     public void mouseReleased(MouseEvent arg0) {
         // TODO Auto-generated method stub
 
+    }
+
+    
+    //SRU Button clicked
+    
+    @Override
+    public void buttonClicked(SRU e) {
+        // TODO Auto-generated method stub
+        System.out.println("Clicked SRU with name " + e.getName());
     }
 }
