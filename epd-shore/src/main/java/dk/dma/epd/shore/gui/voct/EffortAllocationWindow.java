@@ -57,7 +57,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
     private JTextField probabilityOfDetectionVal;
 
     JComboBox<String> targetTypeDropdown;
-    JComboBox<Integer> visibilityDropDown;
+//    JComboBox<Integer> visibilityDropDown;
 
     private JCheckBox editPoD;
     private JButton calculate;
@@ -227,15 +227,11 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
             waterElevationField.setBounds(159, 53, 33, 20);
             panel_4.add(waterElevationField);
 
-            JLabel lblVisibilityNm = new JLabel("Visibility, nm");
-            lblVisibilityNm.setBounds(212, 26, 68, 14);
-            panel_4.add(lblVisibilityNm);
-
-            visibilityDropDown = new JComboBox<Integer>();
-            visibilityDropDown.setModel(new DefaultComboBoxModel<Integer>(
-                    new Integer[] { 1, 3, 5, 10, 15, 20 }));
-            visibilityDropDown.setBounds(276, 23, 45, 20);
-            panel_4.add(visibilityDropDown);
+//            visibilityDropDown = new JComboBox<Integer>();
+//            visibilityDropDown.setModel(new DefaultComboBoxModel<Integer>(
+//                    new Integer[] { 1, 3, 5, 10, 15, 20 }));
+//            visibilityDropDown.setBounds(276, 23, 45, 20);
+//            panel_4.add(visibilityDropDown);
 
             JPanel panel_5 = new JPanel();
             panel_5.setBorder(new TitledBorder(UIManager
@@ -336,7 +332,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
         }
 
         int targetType = targetTypeDropdown.getSelectedIndex();
-        int visibility = (int) visibilityDropDown.getSelectedItem();
+//        int visibility = (int) visibilityDropDown.getSelectedItem();
 
         double probabilityOfDetection = getProbabilityOfDetection();
         // System.out.println(probabilityOfDetection);
@@ -346,6 +342,8 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
 
         for (int i = 0; i < sruList.size(); i++) {
 
+            System.out.println("Calculation for " + i);
+            
             SRU currentSRU = sruList.get(i);
 
             EffortAllocationData data = new EffortAllocationData();
@@ -403,10 +401,10 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
 
             if (currentSRU.getType() == SRU_TYPE.Smaller_Vessel) {
                 // Small type
-                wu = SweepWidthSmallShipLookup(targetType, visibility);
+                wu = SweepWidthSmallShipLookup(targetType, currentSRU.getVisibility());
             } else {
                 if (currentSRU.getType() == SRU_TYPE.Ship) {
-                    wu = SweepWidthLargeShipLookup(targetType, visibility);
+                    wu = SweepWidthLargeShipLookup(targetType, currentSRU.getVisibility());
                 }
             }
 
@@ -414,8 +412,13 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
 
             double wc = wu * fw * ff;
 
+            System.out.println("wu is " + wu + " fw " + fw + " ff " + ff);
+            
             data.setW(wc);
             
+            System.out.println("Calculating for ");
+            
+            System.out.println("Setting W to " + wc);
             
             data.setSearchTime(currentSRU.getSearchTime());
 

@@ -24,34 +24,31 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-public class TableButtonRenderer extends AbstractCellEditor
-  implements TableCellRenderer, TableCellEditor
-{
-  private Map<String, JButton> renderButtons = new WeakHashMap<String, JButton>();
+public class TableButtonRenderer extends AbstractCellEditor implements
+        TableCellRenderer, TableCellEditor {
 
-  public Component getTableCellRendererComponent(JTable table, Object value,
-    boolean isSelected, boolean hasFocus, int row, int column)
-  {
-    JButton button = (JButton)value;
-    JButton renderButton = renderButtons.get(button.getText());
+    private static final long serialVersionUID = 1L;
+    private Map<String, JButton> renderButtons = new WeakHashMap<String, JButton>();
 
-    if (renderButton == null)
-    {
-      renderButton = new JButton(button.getText());
-      renderButtons.put(button.getText(), renderButton);
+    public Component getTableCellRendererComponent(JTable table, Object value,
+            boolean isSelected, boolean hasFocus, int row, int column) {
+        JButton button = (JButton) value;
+        JButton renderButton = renderButtons.get(button.getText());
+
+        if (renderButton == null) {
+            renderButton = new JButton(button.getText());
+            renderButtons.put(button.getText(), renderButton);
+        }
+
+        return renderButton;
     }
-    
-    return renderButton;
-  }
 
-  public Object getCellEditorValue()
-  {
-    return null;
-  }
+    public Object getCellEditorValue() {
+        return null;
+    }
 
-  public Component getTableCellEditorComponent(JTable table, Object value,
-    boolean isSelected, int row, int column)
-  {
-    return (JButton)value;
-  }
+    public Component getTableCellEditorComponent(JTable table, Object value,
+            boolean isSelected, int row, int column) {
+        return (JButton) value;
+    }
 }

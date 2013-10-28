@@ -215,7 +215,7 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     }
 
     public void generateSearchPattern(
-            SearchPatternGenerator.searchPattern type, Position CSP) {
+            SearchPatternGenerator.searchPattern type, Position CSP, int id) {
 
     }
 

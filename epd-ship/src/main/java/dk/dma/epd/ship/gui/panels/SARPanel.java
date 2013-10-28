@@ -23,9 +23,7 @@ import javax.swing.JDialog;
 
 import dk.dma.epd.common.prototype.gui.voct.ButtonsPanelCommon;
 import dk.dma.epd.common.prototype.gui.voct.EffortAllocationPanelCommon;
-import dk.dma.epd.common.prototype.gui.voct.EffortAllocationWindowCommon;
 import dk.dma.epd.common.prototype.gui.voct.SARPanelCommon;
-import dk.dma.epd.common.prototype.gui.voct.SearchPatternDialogCommon;
 import dk.dma.epd.common.prototype.gui.voct.SearchPatternsPanelCommon;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
@@ -90,7 +88,7 @@ public class SARPanel extends SARPanelCommon {
                 // Semi hack for optimziation
                 voctManager.updateEffectiveAreaLocation();
 
-                searchPatternDialog.setValues();
+                searchPatternDialog.resetValues();
                 searchPatternDialog
                         .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
                 searchPatternDialog.setVisible(true);
@@ -102,9 +100,9 @@ public class SARPanel extends SARPanelCommon {
         if (arg0.getSource() == chckbxShowDynamicPattern) {
 
             if (chckbxShowDynamicPattern.isSelected()) {
-                sarData.getSearchPatternRoute().switchToDynamic();
+                sarData.getEffortAllocationData().get(0).getSearchPatternRoute().switchToDynamic();
             } else {
-                sarData.getSearchPatternRoute().switchToStatic();
+                sarData.getEffortAllocationData().get(0).getSearchPatternRoute().switchToStatic();
             }
 
             EPDShip.getRouteManager().notifyListeners(

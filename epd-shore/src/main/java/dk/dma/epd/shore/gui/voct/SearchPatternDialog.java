@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.voct;
+package dk.dma.epd.shore.gui.voct;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -88,6 +88,8 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
     String trackLineSearchNonReturn = "Track Line Search, non-return is used when a vessel (or person) is reported as missing and the only track is the presumed route. It gives a relative fast and thorough coverage of the missing objects presumed route and its adjacent areas The route begins and ends in the opposite end of the route";
     String expandingSquareSearch = "Expanding Square Search is used when the search object is presumed to be located within a relatively small area. The search begins in the most likely position (Datum). This method requires accurate navigation.";
 
+    
+    int currentID;
     
     /**
      * Create the dialog.
@@ -297,7 +299,7 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
 
         // Create the route
         voctManager.generateSearchPattern(searchPatternType,
-                commenceStartPosition, 0);
+                commenceStartPosition, currentID);
 
         return true;
 
@@ -359,7 +361,11 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
         this.voctManager = voctManager;
     }
 
-    public void resetValues() {
+    public void resetValues(int id) {
+        this.currentID = id;
+        
+        System.out.println("CURRENT ID: " + currentID);
+        
         cssFirstLat.setText("");
         cssSecondLat.setText("");
         cssThirdLat.setText("");
@@ -462,20 +468,17 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
         case 0:
             return;
         case 1:
-            importedPosition = voctManager.getSarData()
-                    .getFirstEffortAllocationData().getEffectiveAreaA();
+            importedPosition = voctManager.getSarData().getEffortAllocationData().get(currentID)
+                    .getEffectiveAreaA();
             break;
         case 2:
-            importedPosition = voctManager.getSarData()
-                    .getFirstEffortAllocationData().getEffectiveAreaB();
+            importedPosition = voctManager.getSarData().getEffortAllocationData().get(currentID).getEffectiveAreaB();
             break;
         case 3:
-            importedPosition = voctManager.getSarData()
-                    .getFirstEffortAllocationData().getEffectiveAreaC();
+            importedPosition = voctManager.getSarData().getEffortAllocationData().get(currentID).getEffectiveAreaC();
             break;
         case 4:
-            importedPosition = voctManager.getSarData()
-                    .getFirstEffortAllocationData().getEffectiveAreaD();
+            importedPosition =voctManager.getSarData().getEffortAllocationData().get(currentID).getEffectiveAreaD();
             break;
         }
 

@@ -113,7 +113,7 @@ public class SARPanelCommon extends JPanel implements ActionListener {
 
 
     protected EffortAllocationWindowCommon effortAllocationWindow = new EffortAllocationWindowCommon();
-    protected SearchPatternDialogCommon searchPatternDialog = new SearchPatternDialogCommon();
+//    protected SearchPatternDialogCommon searchPatternDialog = new SearchPatternDialogCommon();
 
     protected SARData sarData;
     
@@ -532,7 +532,7 @@ public class SARPanelCommon extends JPanel implements ActionListener {
     public void setVoctManager(VOCTManagerCommon voctManager) {
         this.voctManager = voctManager;
         effortAllocationWindow.setVoctManager(voctManager);
-        searchPatternDialog.setVoctManager(voctManager);
+//        searchPatternDialog.setVoctManager(voctManager);
     }
 
     @Override
@@ -642,7 +642,7 @@ public class SARPanelCommon extends JPanel implements ActionListener {
 
         // Hide if window is currently visible, could be from user clicking on
         // map in full screen mode
-        searchPatternDialog.setVisible(false);
+//        searchPatternDialog.setVisible(false);
 
         // Activate the relevant panel
         if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {

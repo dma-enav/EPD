@@ -107,7 +107,7 @@ public class VOCTManager extends VOCTManagerCommon {
 
     @Override
     public void generateSearchPattern(
-            SearchPatternGenerator.searchPattern type, Position CSP) {
+            SearchPatternGenerator.searchPattern type, Position CSP, int id) {
 
         sarData.setCSP(CSP);
 
@@ -116,17 +116,17 @@ public class VOCTManager extends VOCTManagerCommon {
 
         SearchPatternRoute searchRoute = searchPatternGenerator
                 .generateSearchPattern(type, sarData, EPDShip.getSettings()
-                        .getNavSettings());
+                        .getNavSettings(), id);
 
         // Remove old and overwrite
-        if (sarData.getSearchPatternRoute() != null) {
+        if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
             int routeIndex = EPDShip.getRouteManager().getRouteIndex(
-                    sarData.getSearchPatternRoute());
+                    sarData.getEffortAllocationData().get(id).getSearchPatternRoute());
 
             EPDShip.getRouteManager().removeRoute(routeIndex);
         }
 
-        sarData.setSearchPatternRoute(searchRoute);
+        sarData.getEffortAllocationData().get(id).setSearchPatternRoute(searchRoute);
 
         EPDShip.getRouteManager().addRoute(searchRoute);
 

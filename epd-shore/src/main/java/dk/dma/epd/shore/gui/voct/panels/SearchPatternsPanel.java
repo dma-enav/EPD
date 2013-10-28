@@ -27,6 +27,7 @@ import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -42,6 +43,7 @@ import javax.swing.table.TableCellRenderer;
 
 import dk.dma.epd.common.prototype.gui.voct.SearchPatternsPanelCommon;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.gui.voct.SearchPatternDialog;
 import dk.dma.epd.shore.gui.voct.panels.SRUSearchRouteTableModel.SRUSearchPAtternButtonHandler;
 import dk.dma.epd.shore.voct.SRU;
 
@@ -55,6 +57,8 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon
     private JTable sruTable;
     private SRUSearchRouteTableModel sruTableModel;
     private ListSelectionModel sruSelectionModel;
+    
+    private SearchPatternDialog searchPatternDialog = new SearchPatternDialog();
 
     public SearchPatternsPanel() {
         this.setBorder(new TitledBorder(null,
@@ -163,6 +167,9 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon
         gbc_sruScrollPane.gridy = 0;
         add(sruScrollPane, gbc_sruScrollPane);
 
+        
+        
+        searchPatternDialog.setVoctManager(EPDShore.getVoctManager());
     }
 
     @Override
@@ -227,8 +234,19 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon
     //SRU Button clicked
     
     @Override
-    public void buttonClicked(SRU e) {
+    public void buttonClicked(int sruID) {
+
+
+        
+        searchPatternDialog.resetValues(sruID);
+        searchPatternDialog
+                .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+        searchPatternDialog.setVisible(true);
+        
+        
+//        searchPatternDialog
         // TODO Auto-generated method stub
-        System.out.println("Clicked SRU with name " + e.getName());
+//        System.out.println("Clicked SRU with name " + e.getName());
+//        sruID
     }
 }

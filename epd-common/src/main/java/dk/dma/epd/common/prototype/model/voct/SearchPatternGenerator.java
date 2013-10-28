@@ -52,25 +52,23 @@ public class SearchPatternGenerator {
     }
 
     public SearchPatternRoute generateSearchPattern(searchPattern pattern,
-            SARData data, NavSettings settings) {
+            SARData data, NavSettings settings, int i) {
         
         this.settings = settings;
 
         switch (pattern) {
         case Parallel_Sweep_Search:
             return parallelSweepSearch(data.getCSP(),
-                    data.getFirstEffortAllocationData(), data);
+                    data.getEffortAllocationData().get(i), data);
         case Creeping_Line_Search:
             return creepingLineSearch(data.getCSP(),
-                    data.getFirstEffortAllocationData(), data);
+                    data.getEffortAllocationData().get(i), data);
         case Expanding_Square_Search:
             return expandingSquareSearch(data.getCSP(),
-                    data.getFirstEffortAllocationData(), data);
+                    data.getEffortAllocationData().get(i), data);
         default:
             return null;
-
         }
-
     }
 
     private SearchPatternRoute expandingSquareSearch(Position CSP,

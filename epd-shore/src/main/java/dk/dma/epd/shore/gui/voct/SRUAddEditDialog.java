@@ -97,7 +97,8 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
         }
     }
 
-    public SRUAddEditDialog(SRUManager sruManager, int sruID, AisHandler aisHandler) {
+    public SRUAddEditDialog(SRUManager sruManager, int sruID,
+            AisHandler aisHandler) {
         setTitle("Manage SRU");
         this.setModal(true);
         this.setResizable(false);
@@ -128,12 +129,11 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
         if (sru.getType() == SRU_TYPE.Ship) {
             sruType.setSelectedIndex(1);
         }
-        
-        
-        if (sru.getMmsi() == -1){
+
+        if (sru.getMmsi() == -1) {
             mmsiTxt.setText("N/A");
-        }else{
-            mmsiTxt.setText(sru.getMmsi()+"");
+        } else {
+            mmsiTxt.setText(sru.getMmsi() + "");
         }
 
         visibilityDropDown.setSelectedItem(sru.getVisibility());
@@ -281,10 +281,9 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
         //
         if (selectedSRU != null) {
             if (selectedSRU.getStaticData() != null) {
-                shipName.setText(AisMessage.trimText(selectedSRU.getStaticData().getName()));
+                shipName.setText(AisMessage.trimText(selectedSRU
+                        .getStaticData().getName()));
 
-                
-                
                 double length = selectedSRU.getStaticData().getDimBow()
                         + selectedSRU.getStaticData().getDimStern();
                 // String width = Integer.toString(ownship.getStaticData()
@@ -330,10 +329,9 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
                     // Small type
                     type = SRU_TYPE.Smaller_Vessel;
                 } else {
-                    if (sruType.getSelectedIndex() == 1) {
-                        type = SRU_TYPE.Ship;
-                    }
+                    type = SRU_TYPE.Ship;
                 }
+                System.out.println("Type is : " + type);
 
                 int visibility = (int) visibilityDropDown.getSelectedItem();
                 double fatigue = (double) fatigueDropDown.getSelectedItem();
@@ -357,6 +355,7 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
                     sruManager.getSRUs(sruSelection).setFatigue(fatigue);
                     sruManager.getSRUs(sruSelection).setSearchTime(
                             timeSearching);
+                    sruManager.getSRUs(sruSelection).setType(type);
                 }
 
                 this.dispose();
@@ -388,11 +387,11 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
             long mmsi = Long.valueOf(mmsiTxt.getText());
             return mmsi;
         } catch (Exception e) {
-            
-            if (mmsiTxt.getText().equals("N/A")){
+
+            if (mmsiTxt.getText().equals("N/A")) {
                 return -1;
             }
-            
+
             displayMissingField("MMSI");
             return -9999;
         }

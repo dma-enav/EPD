@@ -24,8 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
+import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
-import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
@@ -35,6 +36,7 @@ import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.voct.SARInput;
 import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
 import dk.dma.epd.shore.layers.voct.VoctLayer;
+import dk.dma.epd.shore.route.RouteManager;
 
 /**
  * The VOCTManager is responsible for maintaining current VOCT Status and all
@@ -45,14 +47,15 @@ import dk.dma.epd.shore.layers.voct.VoctLayer;
  * 
  */
 
-public class VOCTManager extends VOCTManagerCommon {
+public class VOCTManager extends VOCTManagerCommon implements
+        IRoutesUpdateListener {
 
     private static final long serialVersionUID = 1L;
     private SARInput sarInputDialog;
     private SRUManagerDialog sruManagerDialog;
-    
-    
-    private SARData sarData;
+    private RouteManager routeManager;
+
+    // private SARData sarData;
 
     private SRUManager sruManager;
 
@@ -87,18 +90,14 @@ public class VOCTManager extends VOCTManagerCommon {
 
     }
 
-    
-    public void showSRUManagerDialog(){
-        
-        if (sruManagerDialog != null){
+    public void showSRUManagerDialog() {
+
+        if (sruManagerDialog != null) {
             sruManagerDialog.setVisible(true);
         }
-        
+
     }
-    
-    
-    
-    
+
     /**
      * @return the sruManagerDialog
      */
@@ -143,7 +142,9 @@ public class VOCTManager extends VOCTManagerCommon {
 
     @Override
     public void generateSearchPattern(
-            SearchPatternGenerator.searchPattern type, Position CSP) {
+            SearchPatternGenerator.searchPattern type, Position CSP, int id) {
+
+        updateEffectiveAreaLocation();
 
         sarData.setCSP(CSP);
 
@@ -152,17 +153,19 @@ public class VOCTManager extends VOCTManagerCommon {
 
         SearchPatternRoute searchRoute = searchPatternGenerator
                 .generateSearchPattern(type, sarData, EPDShore.getSettings()
-                        .getNavSettings());
+                        .getNavSettings(), id);
 
         // Remove old and overwrite
-        if (sarData.getSearchPatternRoute() != null) {
+        if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
             int routeIndex = EPDShore.getRouteManager().getRouteIndex(
-                    sarData.getSearchPatternRoute());
+                    sarData.getEffortAllocationData().get(id)
+                            .getSearchPatternRoute());
 
             EPDShore.getRouteManager().removeRoute(routeIndex);
         }
 
-        sarData.setSearchPatternRoute(searchRoute);
+        sarData.getEffortAllocationData().get(id)
+                .setSearchPatternRoute(searchRoute);
 
         EPDShore.getRouteManager().addRoute(searchRoute);
 
@@ -172,6 +175,8 @@ public class VOCTManager extends VOCTManagerCommon {
     @Override
     public void updateEffectiveAreaLocation() {
         // voctLayer.updateEffectiveAreaLocation(sarData);
+
+        voctLayers.get(0).updateEffectiveAreaLocation(sarData);
     }
 
     @Override
@@ -181,11 +186,16 @@ public class VOCTManager extends VOCTManagerCommon {
             sruManager = (SRUManager) obj;
 
         }
-        
-        if (obj instanceof SRUManagerDialog){
+
+        if (obj instanceof SRUManagerDialog) {
             sruManagerDialog = (SRUManagerDialog) obj;
         }
-        
+
+        if (obj instanceof RouteManager) {
+            routeManager = (RouteManager) obj;
+            routeManager.addListener(this);
+        }
+
     }
 
     /**
@@ -195,12 +205,27 @@ public class VOCTManager extends VOCTManagerCommon {
         return sruManager;
     }
 
-    public void toggleSRUVisibility(int id, boolean visible){
+    public void toggleSRUVisibility(int id, boolean visible) {
         System.out.println("Toggle visibility voctmanager");
         for (int i = 0; i < voctLayers.size(); i++) {
             voctLayers.get(i).toggleEffectiveAreaVisibility(id, visible);
         }
-        
+
     }
-    
+
+    @Override
+    public void routesChanged(RoutesUpdateEvent e) {
+        if (e == RoutesUpdateEvent.ROUTE_REMOVED) {
+            
+            for (int i = 0; i < sarData.getEffortAllocationData().size(); i++) {
+                if (!routeManager.getRoutes().contains(sarData.getEffortAllocationData().get(i).getSearchPatternRoute())){
+                    System.out.println("Route removed");
+                    sarData.getEffortAllocationData().get(i).setSearchPatternRoute(null);
+                }
+            }
+            
+        }
+
+    }
+
 }

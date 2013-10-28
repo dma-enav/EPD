@@ -26,8 +26,10 @@ import javax.swing.table.AbstractTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.voct.SRU;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
@@ -41,13 +43,13 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
     private static final Logger LOG = LoggerFactory
             .getLogger(SRUSearchRouteTableModel.class);
 
-    private static final String[] COLUMN_NAMES = { "Name", "Src Ptn",
-            "Dynamic", "Visible" };
+    private static final String[] COLUMN_NAMES = { "Name", "SearchPtn",
+            "Visible", "Dynamic" };
 
     private SRUManager sruManager;
     private VOCTManager voctManager;
 
-    private Map<SRU, JButton> buttons = new HashMap<SRU, JButton>();
+    private Map<Integer, JButton> buttons = new HashMap<Integer, JButton>();
 
     private SRUSearchPAtternButtonHandler handler;
 
@@ -85,11 +87,23 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
         case 0:
             return Formatter.formatString(sru.getName());
         case 1:
-            return getCellButton(sru);
+            return getCellButton(rowIndex);
         case 2:
-            return sru.isVisible();
+            // return sru.isVisible();
+            // return effortAllocationData.getSearchPatternRoute() !=
+            if (effortAllocationData.getSearchPatternRoute() != null) {
+                return effortAllocationData.getSearchPatternRoute().isVisible();
+            } else {
+                return false;
+            }
         case 3:
-            return true;
+//            return false;
+            if (effortAllocationData.getSearchPatternRoute() != null) {
+                return effortAllocationData.getSearchPatternRoute().isDynamic();
+            } else {
+                return false;
+            }
+
         default:
             LOG.error("Unknown column " + columnIndex);
             return new String("");
@@ -100,22 +114,53 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         System.out.println("Set value at, aValue: " + aValue + " rowIndex: "
                 + rowIndex + " columIndex: " + columnIndex);
-        SRU sru = sruManager.getSRUs().get(rowIndex);
+        // SRU sru = sruManager.getSRUs().get(rowIndex);
+        EffortAllocationData effortAllocationData = voctManager.getSarData()
+                .getEffortAllocationData().get(rowIndex);
         switch (columnIndex) {
+
         case 2:
-            // toggle dynamic
-            // sru.setVisible((Boolean)aValue);
-            // sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
-            fireTableCellUpdated(rowIndex, columnIndex);
-            break;
-        case 3:
+
+            if (effortAllocationData.getSearchPatternRoute() != null) {
+                effortAllocationData.getSearchPatternRoute().setVisible(
+                        (Boolean) aValue);
+                EPDShore.getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+                fireTableCellUpdated(rowIndex, columnIndex);
+            } else {
+                break;
+            }
+
             // toggle visibility of route
 
             // sru.setVisible((Boolean)aValue);
             // sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
+            // fireTableCellUpdated(rowIndex, columnIndex);
+            break;
+        case 3:
+            // toggle dynamic
+
+            if (effortAllocationData.getSearchPatternRoute() != null) {
+
+                boolean switchDynamic = (boolean) aValue;
+
+                if (switchDynamic) {
+                    effortAllocationData.getSearchPatternRoute()
+                            .switchToDynamic();
+                } else {
+                    effortAllocationData.getSearchPatternRoute()
+                            .switchToStatic();
+                }
+
+                EPDShore.getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
+                fireTableCellUpdated(rowIndex, columnIndex);
+            } else {
+                break;
+            }
+
+            // sru.setVisible((Boolean)aValue);
+            // sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
             fireTableCellUpdated(rowIndex, columnIndex);
             break;
-
         default:
             break;
         }
@@ -123,9 +168,22 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        // return (columnIndex == 2 && rowIndex !=
-        // routeManager.getActiveRouteIndex());
-        return columnIndex == 1 || columnIndex == 2 || columnIndex == 3;
+
+        if (columnIndex == 1) {
+            return true;
+        }
+
+        if (columnIndex == 2 || columnIndex == 3) {
+            EffortAllocationData effortAllocationData = voctManager
+                    .getSarData().getEffortAllocationData().get(rowIndex);
+
+            if (effortAllocationData.getSearchPatternRoute() != null) {
+                return true;
+            }
+
+        }
+
+        return false;
     }
 
     @Override
@@ -138,22 +196,21 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
 
     }
 
-    private JButton getCellButton(SRU sru) {
-        JButton button = buttons.get(sru);
+    private JButton getCellButton(int sruID) {
+        JButton button = buttons.get(sruID);
         if (button == null) {
-            button = createButton(sru);
-            buttons.put(sru, button);
+            button = createButton(sruID);
+            buttons.put(sruID, button);
         }
         return button;
     }
 
-    private JButton createButton(final SRU sru) {
+    private JButton createButton(final int sruID) {
         final JButton button = new JButton("Create");
 
         button.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Button Clicked Hello?");
-                handler.buttonClicked(sru);
+                handler.buttonClicked(sruID);
             }
         });
 
@@ -161,6 +218,6 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
     }
 
     public interface SRUSearchPAtternButtonHandler {
-        void buttonClicked(SRU e);
+        void buttonClicked(int e);
     }
 }

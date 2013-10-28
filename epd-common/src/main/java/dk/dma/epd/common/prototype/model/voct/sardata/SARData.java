@@ -44,7 +44,7 @@ public class SARData {
 
     private List<SARWeatherData> weatherPoints = new ArrayList<SARWeatherData>();
     
-    SearchPatternRoute searchPatternRoute;
+    
     
     
     public SARData(String sarID, DateTime TLKP, DateTime CSS, Position LKP,
@@ -244,19 +244,7 @@ public class SARData {
         this.weatherPoints = weatherPoints;
     }
 
-    /**
-     * @return the searchPatternRoute
-     */
-    public SearchPatternRoute getSearchPatternRoute() {
-        return searchPatternRoute;
-    }
 
-    /**
-     * @param searchPatternRoute the searchPatternRoute to set
-     */
-    public void setSearchPatternRoute(SearchPatternRoute searchPatternRoute) {
-        this.searchPatternRoute = searchPatternRoute;
-    }
 
     /**
      * @return the sarID

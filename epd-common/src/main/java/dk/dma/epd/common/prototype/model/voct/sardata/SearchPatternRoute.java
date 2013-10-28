@@ -29,6 +29,8 @@ public class SearchPatternRoute extends Route {
     List<Position> staticPositions;
     List<Position> dynamicPositions;
 
+    private boolean dynamic;
+    
     public SearchPatternRoute(List<Position> positions) {
 
         this.staticPositions = positions;
@@ -71,6 +73,8 @@ public class SearchPatternRoute extends Route {
         for (int i = 0; i < waypoints.size(); i++) {
             waypoints.get(i).setPos(dynamicPositions.get(i));
         }
+        
+        dynamic = true;
     }
     
     
@@ -78,6 +82,18 @@ public class SearchPatternRoute extends Route {
         for (int i = 0; i < waypoints.size(); i++) {
             waypoints.get(i).setPos(staticPositions.get(i));
         }
+        
+        dynamic = false;
     }
+
+    /**
+     * @return the dynamic
+     */
+    public boolean isDynamic() {
+        return dynamic;
+    }
+    
+    
+    
 
 }

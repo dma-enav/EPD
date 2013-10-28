@@ -33,7 +33,21 @@ public class EffortAllocationData {
     private Position effectiveAreaC;
     private Position effectiveAreaD;
     
+    SearchPatternRoute searchPatternRoute;
     
+    /**
+     * @return the searchPatternRoute
+     */
+    public SearchPatternRoute getSearchPatternRoute() {
+        return searchPatternRoute;
+    }
+
+    /**
+     * @param searchPatternRoute the searchPatternRoute to set
+     */
+    public void setSearchPatternRoute(SearchPatternRoute searchPatternRoute) {
+        this.searchPatternRoute = searchPatternRoute;
+    }
     
     /**
      * @return the effectiveAreaSize
