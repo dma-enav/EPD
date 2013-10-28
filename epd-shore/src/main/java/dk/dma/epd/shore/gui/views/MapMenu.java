@@ -77,6 +77,7 @@ import dk.dma.epd.shore.gui.views.menuitems.SendRouteFromRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteToShip;
 import dk.dma.epd.shore.gui.views.menuitems.SendVoyage;
 import dk.dma.epd.shore.gui.views.menuitems.ShowVoyagePlanInfo;
+import dk.dma.epd.shore.gui.views.menuitems.VoyageDeleteMenuItem;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingAppendWaypoint;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingLegInsertWaypoint;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingOptimizeRoute;
@@ -144,7 +145,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private VoyageShowTransaction voyageShowTransaction;
     private VoyageZoomToShip voyageZoomToShip;
     private VoyageHideAll voyageHideAll;
-
+    private VoyageDeleteMenuItem voyageDelete;
 
     private ShowVoyagePlanInfo openVoyagePlan;
     private SendVoyage sendVoyage;
@@ -259,6 +260,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         sendVoyage.addActionListener(this);
         // sendVoyage.setText("Select and send Voyage");
 
+        this.voyageDelete = new VoyageDeleteMenuItem("Delete Voyage");
+        this.voyageDelete.addActionListener(this);
+        
         // voyage leg menu
         voyageHandlingLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint(
                 "Insert waypoint here");
@@ -611,7 +615,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         add(voyageProperties);
         add(voyageRenegotiate);
         
-
+        // Set ID of voyage to be deleted when this menu item is invoked.
+        this.voyageDelete.setVoyageId(transactionID);
+        this.add(this.voyageDelete);
         // Zoom to Ship
         // Show transaction
         // Show voyage plan
