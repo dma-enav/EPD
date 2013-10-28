@@ -20,10 +20,14 @@ import javax.swing.JMenuItem;
 import dk.dma.epd.shore.EPDShore;
 
 /**
+ * MenuItem that allows deletion of saved a Voyage (a Voyage that has been accepted by a ship).
  * @author Janus Varmarken
  */
 public class VoyageDeleteMenuItem extends JMenuItem implements IMapMenuAction {
 
+    /**
+     * ID of Voyage to delete.
+     */
     private long voyageId = -1L;
 
     /**
@@ -43,7 +47,7 @@ public class VoyageDeleteMenuItem extends JMenuItem implements IMapMenuAction {
 
     /**
      * Set the Voyage ID associated with this menu item (i.e. what Voyage will
-     * be deleted when this menu item's doAction is invoked).
+     * be deleted when this menuy item's doAction is invoked).
      * 
      * @param voyageId
      *            ID of the voyage that this menu item will delete when invoked.

@@ -730,8 +730,6 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         if (obj instanceof VoyageLayer) {
             voyageLayer = (VoyageLayer) obj;
         }
-
-
     }
 
     public void findAndInit(Iterator<?> it) {
