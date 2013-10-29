@@ -89,6 +89,8 @@ public class SARPanel extends SARPanelCommon implements VOCTUpdateListener {
             searchPatternGenerated(voctManager.getSarData());
         }
         
+        this.repaint();
+        
     }
     
     

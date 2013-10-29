@@ -20,6 +20,7 @@ import com.bbn.openmap.geo.Intersection;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
 
+import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
@@ -50,15 +51,110 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
 
     SARData sarData;
     int id;
-    
-    
+
     public enum LineType {
         TOP, BOTTOM, LEFT, RIGHT
     }
 
-    public EffectiveSRUAreaGraphics(Double width, Double height, SARData data, int id) {
+    public EffectiveSRUAreaGraphics(Position A, Position B, Position C,
+            Position D, SARData data, int id) {
         super();
         
+        this.A = A;
+        this.B = B;
+        this.C = C;
+        this.D = D;
+        
+        this.id = id;
+
+        this.sarData = data;
+        
+        if (sarData instanceof RapidResponseData) {
+            RapidResponseData rapidResponseData = (RapidResponseData) data;
+
+
+            verticalBearing = Calculator.bearing(rapidResponseData.getA(),
+                    rapidResponseData.getD(), Heading.RL);
+            horizontalBearing = Calculator.bearing(rapidResponseData.getA(),
+                    rapidResponseData.getB(), Heading.RL);
+        }
+
+        if (sarData instanceof DatumPointData) {
+            DatumPointData datumData = (DatumPointData) data;
+            verticalBearing = Calculator.bearing(datumData.getA(),
+                    datumData.getD(), Heading.RL);
+            horizontalBearing = Calculator.bearing(datumData.getA(),
+                    datumData.getB(), Heading.RL);
+
+
+            // Vertical and horizontal must be swapped since the direction has
+            // been set to very east or very west
+            if (verticalBearing < 280 && verticalBearing > 260
+                    || verticalBearing < 100 && verticalBearing > 70) {
+
+                double newVer = verticalBearing;
+                System.out.println("swapping");
+                verticalBearing = horizontalBearing;
+                horizontalBearing = newVer;
+
+            }
+
+            // Reversing if direction is opposite way of assumed, assumed to be
+            // headed in 90 direction ie. right
+            if (horizontalBearing > 180 || horizontalBearing < 0) {
+
+                horizontalBearing = Calculator
+                        .reverseDirection(horizontalBearing);
+            }
+
+            if (verticalBearing > 270 || verticalBearing < 90) {
+                verticalBearing = Calculator.reverseDirection(verticalBearing);
+            }
+
+            System.out.println("Vertical bearing is: " + verticalBearing);
+            System.out.println("Horizontal bearing is: " + horizontalBearing);
+        }
+        
+        
+
+
+
+
+        
+        
+        double width = A.distanceTo(B, CoordinateSystem.CARTESIAN);
+        double height = A.distanceTo(C, CoordinateSystem.CARTESIAN);
+        
+        totalSize = width * height;
+
+//        sarData.getEffortAllocationData().get(id).setEffectiveAreaA(A);
+//        sarData.getEffortAllocationData().get(id).setEffectiveAreaB(B);
+//        sarData.getEffortAllocationData().get(id).setEffectiveAreaC(C);
+//        sarData.getEffortAllocationData().get(id).setEffectiveAreaD(D);
+
+        effectiveArea = new AreaInternalGraphics(A, B, C, D, width, height,
+                this, verticalBearing, horizontalBearing);
+
+        topLine = new SarEffectiveAreaLines(A, B, LineType.TOP, this);
+        bottomLine = new SarEffectiveAreaLines(C, D, LineType.BOTTOM, this);
+
+        leftLine = new SarEffectiveAreaLines(A, C, LineType.LEFT, this);
+
+        rightLine = new SarEffectiveAreaLines(B, D, LineType.RIGHT, this);
+
+        add(effectiveArea);
+        add(bottomLine);
+        add(topLine);
+        add(leftLine);
+        add(rightLine);
+        
+    
+    }
+
+    public EffectiveSRUAreaGraphics(Double width, Double height, SARData data,
+            int id) {
+        super();
+
         this.id = id;
 
         this.sarData = data;
@@ -71,7 +167,7 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         if (sarData instanceof RapidResponseData) {
             RapidResponseData rapidResponseData = (RapidResponseData) data;
             centerPosition = rapidResponseData.getDatum();
-            
+
             verticalBearing = Calculator.bearing(rapidResponseData.getA(),
                     rapidResponseData.getD(), Heading.RL);
             horizontalBearing = Calculator.bearing(rapidResponseData.getA(),
@@ -86,18 +182,18 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
                     datumData.getB(), Heading.RL);
             centerPosition = datumData.getDatumDownWind();
 
-            
-            //Vertical and horizontal must be swapped since the direction has been set to very east or very west
-            if (verticalBearing < 280 && verticalBearing > 260 || verticalBearing <100 && verticalBearing > 70){
-                
+            // Vertical and horizontal must be swapped since the direction has
+            // been set to very east or very west
+            if (verticalBearing < 280 && verticalBearing > 260
+                    || verticalBearing < 100 && verticalBearing > 70) {
+
                 double newVer = verticalBearing;
                 System.out.println("swapping");
                 verticalBearing = horizontalBearing;
                 horizontalBearing = newVer;
-                
+
             }
-            
-            
+
             // Reversing if direction is opposite way of assumed, assumed to be
             // headed in 90 direction ie. right
             if (horizontalBearing > 180 || horizontalBearing < 0) {
@@ -109,10 +205,6 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
             if (verticalBearing > 270 || verticalBearing < 90) {
                 verticalBearing = Calculator.reverseDirection(verticalBearing);
             }
-            
-
-            
-            
 
             System.out.println("Vertical bearing is: " + verticalBearing);
             System.out.println("Horizontal bearing is: " + horizontalBearing);
@@ -260,7 +352,6 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         }
 
         if (type == LineType.LEFT) {
-     
 
             newPos = findIntersectionLeft(newPos);
 
@@ -272,8 +363,6 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
 
                 if (deltaValue > 0) {
 
-                    
-                    
                     // We update C point
                     A = newPos;
 
@@ -301,59 +390,60 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
 
         if (type == LineType.RIGHT) {
 
+            
             newPos = findIntersectionRight(newPos);
 
             if (newPos != null) {
-            
-            double deltaValue = newPos.getLongitude()
-                    - (A.getLongitude() + deltaCorrection);
 
-            // System.out.println(deltaValue);
+                double deltaValue = newPos.getLongitude()
+                        - (A.getLongitude() + deltaCorrection);
 
-            if (deltaValue > 0) {
+                // System.out.println(deltaValue);
 
-                // We update B point
-                B = newPos;
+                if (deltaValue > 0) {
 
-                // New width
+                    // We update B point
+                    B = newPos;
 
-                // New length
-                width = Calculator.range(A, B, Heading.RL);
+                    // New width
 
-                // Recalculate width
-                height = totalSize / width;
+                    // New length
+                    width = Calculator.range(A, B, Heading.RL);
 
-                // Recalculate C and D
-                C = Calculator.findPosition(A, verticalBearing,
-                        Converter.nmToMeters(height));
+                    // Recalculate width
+                    height = totalSize / width;
 
-                D = Calculator.findPosition(C, horizontalBearing,
-                        Converter.nmToMeters(width));
+                    // Recalculate C and D
+                    C = Calculator.findPosition(A, verticalBearing,
+                            Converter.nmToMeters(height));
 
-                effectiveArea.updatePosition(A, B, C, D, width, height);
+                    D = Calculator.findPosition(C, horizontalBearing,
+                            Converter.nmToMeters(width));
 
-                updateLines(A, B, C, D);
+                    effectiveArea.updatePosition(A, B, C, D, width, height);
+
+                    updateLines(A, B, C, D);
+                }
+            }else{
+                System.out.println("Its null");
             }
-        }
         }
     }
 
-    
-    
     private Position findIntersectionRight(Position newPos) {
         // The mouse can be in 4 different areas
         int lengthMax = 500000;
 
         double bearing = A.rhumbLineBearingTo(newPos);
 
-//        System.out.println("Vertical bearing " + verticalBearing);
-//        System.out.println("Horizontal bearing " + horizontalBearing);
+        // System.out.println("Vertical bearing " + verticalBearing);
+        // System.out.println("Horizontal bearing " + horizontalBearing);
 
         Geo intersectionPoint = null;
 
-        if (bearing > 180 && bearing <= 270 ) {
+        if (bearing > 180 && bearing <= 270) {
 
-            // Create a line going from newPos, in  vertical direction eg up
+            // Create a line going from newPos, in vertical direction eg up
             Position verticalEndPosition = Calculator.findPosition(newPos,
                     Calculator.reverseDirection(verticalBearing), lengthMax);
             Geo a1 = new Geo(newPos.getLatitude(), newPos.getLongitude());
@@ -372,12 +462,12 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
             intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
 
         }
-        
-        if (bearing > 270 || bearing  < 180) {
-            
+
+        if (bearing > 270 || bearing < 180) {
+
             // if (bearing > 90 && bearing < 180){
 
-            // Create a line going from newPos, in  vertical direction eg down
+            // Create a line going from newPos, in vertical direction eg down
             Position verticalEndPosition = Calculator.findPosition(newPos,
                     Calculator.reverseDirection(verticalBearing), lengthMax);
             Geo a1 = new Geo(newPos.getLatitude(), newPos.getLongitude());
@@ -397,8 +487,6 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
 
         }
 
-
-
         if (intersectionPoint != null) {
 
             newPos = Position.create(intersectionPoint.getLatitude(),
@@ -413,23 +501,21 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
             return null;
         }
     }
-    
+
     private Position findIntersectionLeft(Position newPos) {
         // The mouse can be in 4 different areas
         int lengthMax = 500000;
 
         double bearing = B.rhumbLineBearingTo(newPos);
 
-        
-        
-//        System.out.println("Vertical bearing " + verticalBearing);
-//        System.out.println("Horizontal bearing " + horizontalBearing);
+        // System.out.println("Vertical bearing " + verticalBearing);
+        // System.out.println("Horizontal bearing " + horizontalBearing);
 
         Geo intersectionPoint = null;
 
         if (bearing > 180) {
 
-            // Create a line going from newPos, in  vertical direction eg up
+            // Create a line going from newPos, in vertical direction eg up
             Position verticalEndPosition = Calculator.findPosition(newPos,
                     Calculator.reverseDirection(verticalBearing), lengthMax);
             Geo a1 = new Geo(newPos.getLatitude(), newPos.getLongitude());
@@ -447,20 +533,19 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
 
             intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
 
-            
             System.out.println(a1);
             System.out.println(a2);
             System.out.println(b1);
             System.out.println(b2);
             System.out.println(intersectionPoint);
-            
+
         }
-        
-        if (bearing > 0 && bearing  <= 180) {
-            
+
+        if (bearing > 0 && bearing <= 180) {
+
             // if (bearing > 90 && bearing < 180){
 
-            // Create a line going from newPos, in  vertical direction eg down
+            // Create a line going from newPos, in vertical direction eg down
             Position verticalEndPosition = Calculator.findPosition(newPos,
                     verticalBearing, lengthMax);
             Geo a1 = new Geo(newPos.getLatitude(), newPos.getLongitude());
@@ -480,8 +565,6 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
 
         }
 
-
-
         if (intersectionPoint != null) {
 
             newPos = Position.create(intersectionPoint.getLatitude(),
@@ -496,8 +579,7 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
             return null;
         }
     }
-    
-    
+
     private Position findIntersectionTop(Position newPos) {
         // The mouse can be in 4 different areas
         int lengthMax = 500000;
@@ -637,12 +719,12 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
     }
 
     public void updateEffectiveAreaSize(SARData sarData) {
-        
-//        System.out.println("Is the sar data null? ");
-//        System.out.println(sarData == null);
-//        System.out.println("Is the effective area null? ");
-//        System.out.println(sarData.getFirstEffortAllocationData()==null);
-//        
+
+        // System.out.println("Is the sar data null? ");
+        // System.out.println(sarData == null);
+        // System.out.println("Is the effective area null? ");
+        // System.out.println(sarData.getFirstEffortAllocationData()==null);
+        //
         sarData.getEffortAllocationData().get(id).setEffectiveAreaA(A);
         sarData.getEffortAllocationData().get(id).setEffectiveAreaB(B);
         sarData.getEffortAllocationData().get(id).setEffectiveAreaC(C);

@@ -213,19 +213,55 @@ public class VOCTManager extends VOCTManagerCommon implements
 
     }
 
-    @Override
-    public void routesChanged(RoutesUpdateEvent e) {
-        if (e == RoutesUpdateEvent.ROUTE_REMOVED) {
+    public void removeEffortAllocationData(int i) {
+
+        if (sarData.getEffortAllocationData().size() > i) {
             
-            for (int i = 0; i < sarData.getEffortAllocationData().size(); i++) {
-                if (!routeManager.getRoutes().contains(sarData.getEffortAllocationData().get(i).getSearchPatternRoute())){
-                    System.out.println("Route removed");
-                    sarData.getEffortAllocationData().get(i).setSearchPatternRoute(null);
-                }
+            if (sarData.getEffortAllocationData().get(i).getSearchPatternRoute() != null){
+                
+                routeManager.getRoutes().remove(sarData.getEffortAllocationData().get(i).getSearchPatternRoute());
+                routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);            }
+            
+
+            sarData.getEffortAllocationData().remove(i);
+
+            for (int j = 0; j < voctLayers.size(); j++) {
+                voctLayers.get(j).removeEffortAllocationArea(i);
             }
-            
         }
 
     }
 
+    @Override
+    public void routesChanged(RoutesUpdateEvent e) {
+        if (e == RoutesUpdateEvent.ROUTE_REMOVED) {
+
+            checkRoutes();
+        }
+
+    }
+
+    private void checkRoutes() {
+
+        if (sarData != null) {
+
+            for (int i = 0; i < sarData.getEffortAllocationData().size(); i++) {
+                if (!routeManager.getRoutes().contains(
+                        sarData.getEffortAllocationData().get(i)
+                                .getSearchPatternRoute())) {
+                    System.out.println("Route removed");
+                    sarData.getEffortAllocationData().get(i)
+                            .setSearchPatternRoute(null);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void EffortAllocationDataEntered() {
+        updateEffectiveAreaLocation();
+        super.EffortAllocationDataEntered();
+
+        checkRoutes();
+    }
 }

@@ -1425,9 +1425,6 @@ public class SAROperation {
 
                 System.out.println("Area size: " + areaSize);
             
-            
-            
-       
 
         }
         

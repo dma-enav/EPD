@@ -21,7 +21,6 @@ import java.util.List;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.layers.voct.VoctLayer;
 
 public class SRUManager extends MapHandlerChild implements Runnable {
 
@@ -78,6 +77,8 @@ public class SRUManager extends MapHandlerChild implements Runnable {
     public void removeSRU(int i) {
         synchronized (srus) {
             srus.remove(i);
+            voctManager.removeEffortAllocationData(i);
+
         }
     }
 

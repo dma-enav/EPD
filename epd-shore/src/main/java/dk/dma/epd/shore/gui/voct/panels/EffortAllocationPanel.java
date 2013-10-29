@@ -184,7 +184,7 @@ public class EffortAllocationPanel extends EffortAllocationPanelCommon
     public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() == 2) {
             
-             EPDShore.getVoctManager().getSruManagerDialog().properties();
+//             EPDShore.getVoctManager().getSruManagerDialog().properties();
         }
     }
 

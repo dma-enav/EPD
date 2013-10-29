@@ -83,8 +83,26 @@ public class SARData {
     }
     
     
-    public void addEffortAllocationData(EffortAllocationData data){
-        effortAllocationData.add(data);
+    public void addEffortAllocationData(EffortAllocationData data, int i){
+        
+        //Does it already have the element? then replace it
+        if (effortAllocationData.size() > i){
+            effortAllocationData.set(i, data);    
+        }else{
+            effortAllocationData.add(data);
+        }
+        
+        
+        
+//        for (int i = 0; i < effortAllocationData.size(); i++) {
+//            
+//            if (effortAllocationData.get(i) == data){
+//                return;
+//            }
+//            
+//        }
+//        
+//        
     }
     
     public void removeAllEffortAllocationData(){

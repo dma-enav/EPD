@@ -35,6 +35,27 @@ public class EffortAllocationData {
     
     SearchPatternRoute searchPatternRoute;
     
+    private boolean noReDraw;
+    
+    
+    
+    
+
+
+    /**
+     * @return the redraw
+     */
+    public boolean isNoRedraw() {
+        return noReDraw;
+    }
+
+    /**
+     * @param redraw the redraw to set
+     */
+    public void setNoRedraw(boolean noReDraw) {
+        this.noReDraw = noReDraw;
+    }
+
     /**
      * @return the searchPatternRoute
      */
@@ -166,7 +187,6 @@ public class EffortAllocationData {
      * @param effectiveAreaA the effectiveAreaA to set
      */
     public void setEffectiveAreaA(Position effectiveAreaA) {
-        System.out.println("Updatng new A");
         this.effectiveAreaA = effectiveAreaA;
     }
 

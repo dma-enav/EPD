@@ -625,35 +625,53 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     private void createEffectiveArea() {
         // Probability of Detection Area - updateable
 
+        // Remove all from graphics
         for (int i = 0; i < effectiveSRUAreas.size(); i++) {
+
+            // if
+            // (voctManager.getSarData().getEffortAllocationData().get(i).getEffectiveAreaA()
+            // == null){
             graphics.remove(effectiveSRUAreas.get(i));
+            // }
+
         }
-        effectiveSRUAreas.clear();
+
+        // effectiveSRUAreas.clear();
 
         SARData data = voctManager.getSarData();
 
         for (int i = 0; i < data.getEffortAllocationData().size(); i++) {
-            // data.getEffortAllocationData().size()
 
-            double effectiveAreaSize = data.getEffortAllocationData().get(i)
-                    .getEffectiveAreaSize();
+            EffectiveSRUAreaGraphics effectiveArea;
 
-            System.out.println("EFFECTIVE AREA IS " + effectiveAreaSize);
+            if (!data.getEffortAllocationData().get(i).isNoRedraw()) {
+                double effectiveAreaSize = data.getEffortAllocationData()
+                        .get(i).getEffectiveAreaSize();
 
-            // Effective Area: 10 nm2 Initialize by creating box
-            double width = Math.sqrt(effectiveAreaSize);
-            double height = Math.sqrt(effectiveAreaSize);
+                System.out.println("EFFECTIVE AREA IS " + effectiveAreaSize);
 
-            EffectiveSRUAreaGraphics effectiveArea = new EffectiveSRUAreaGraphics(
-                    width, height, data, i);
+                // Effective Area: 10 nm2 Initialize by creating box
+                double width = Math.sqrt(effectiveAreaSize);
+                double height = Math.sqrt(effectiveAreaSize);
 
-            effectiveArea.setVisible(voctManager.getSruManager().getSRUs()
-                    .get(i).isVisible());
+                effectiveArea = new EffectiveSRUAreaGraphics(width, height,
+                        data, i);
 
-            effectiveSRUAreas.add(effectiveArea);
+                effectiveArea.setVisible(voctManager.getSruManager().getSRUs()
+                        .get(i).isVisible());
 
-            graphics.add(effectiveArea);
+                if (effectiveSRUAreas.size() > i) {
+                    effectiveSRUAreas.set(i, effectiveArea);
+                } else {
+                    effectiveSRUAreas.add(effectiveArea);
+                }
 
+            }
+
+        }
+
+        for (int i = 0; i < effectiveSRUAreas.size(); i++) {
+            graphics.add(effectiveSRUAreas.get(i));
         }
 
         // PoD for each SRU, initialized with an effective area? possibly a
@@ -669,7 +687,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     }
 
     public void updateEffectiveAreaLocation(SARData sarData) {
-        
+
         for (int i = 0; i < effectiveSRUAreas.size(); i++) {
             effectiveSRUAreas.get(i).updateEffectiveAreaSize(sarData);
         }
@@ -681,6 +699,19 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         if (effectiveSRUAreas.size() >= i + 1) {
             System.out.println("ello");
             effectiveSRUAreas.get(i).setVisible(visible);
+
+            doPrepare();
+        }
+    }
+
+    public void removeEffortAllocationArea(int i) {
+
+        if (effectiveSRUAreas.size() > i) {
+
+            EffectiveSRUAreaGraphics area = effectiveSRUAreas.get(i);
+            effectiveSRUAreas.remove(i);
+
+            graphics.remove(area);
 
             doPrepare();
         }

@@ -16,10 +16,16 @@
 package dk.dma.epd.shore.gui.voct;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -28,27 +34,41 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 import dk.dma.epd.common.prototype.gui.voct.EffortAllocationWindowCommon;
+import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.SweepWidthValues;
 import dk.dma.epd.common.prototype.model.voct.WeatherCorrectionFactors;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
+import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.gui.voct.panels.SRUTableModelPanel;
 import dk.dma.epd.shore.voct.SRU;
 import dk.dma.epd.shore.voct.SRU.SRU_TYPE;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
 import javax.swing.JList;
 
-public class EffortAllocationWindow extends EffortAllocationWindowCommon {
+public class EffortAllocationWindow extends EffortAllocationWindowCommon
+        implements ListSelectionListener, MouseListener, TableModelListener {
     private static final long serialVersionUID = 1L;
 
     private final JPanel initPanel = new JPanel();
@@ -57,7 +77,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
     private JTextField probabilityOfDetectionVal;
 
     JComboBox<String> targetTypeDropdown;
-//    JComboBox<Integer> visibilityDropDown;
+    // JComboBox<Integer> visibilityDropDown;
 
     private JCheckBox editPoD;
     private JButton calculate;
@@ -67,8 +87,14 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
     private JLabel noSRUs;
 
     private JLabel lblAvailableSrus;
-    DefaultListModel<String> listModel = new DefaultListModel<String>();
-    JList<String> sruJList;
+
+    // DefaultListModel<String> listModel = new DefaultListModel<String>();
+    // JList<String> sruScrollPane;
+
+    private JScrollPane sruScrollPane;
+    private JTable sruTable;
+    private EffortAllocationWindowTabelModel sruTableModel;
+    private ListSelectionModel sruSelectionModel;
 
     /**
      * Create the dialog.
@@ -98,11 +124,14 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
                 calculate.setEnabled(false);
 
                 lblAvailableSrus.setVisible(false);
-                sruJList.setVisible(false);
+                sruScrollPane.setVisible(false);
             } else {
-                fillSruList();
+
+                // fillSruList();
+                sruTableModel.updateCalculateTable();
+
                 lblAvailableSrus.setVisible(true);
-                sruJList.setVisible(true);
+                sruScrollPane.setVisible(true);
 
                 noSRUs.setVisible(false);
                 calculate.setEnabled(true);
@@ -115,22 +144,22 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
 
     }
 
-    private void fillSruList() {
-        // sruJList.removeAll();
-        listModel.removeAllElements();
-        List<SRU> sruList = sruManager.getSRUs();
-
-        for (int i = 0; i < sruList.size(); i++) {
-            SRU currentSRU = sruList.get(i);
-            String sruTarget = currentSRU.getName() + " - "
-                    + currentSRU.getSearchSpeed() + " kn - "
-                    + currentSRU.getType();
-
-            listModel.addElement(sruTarget);
-
-        }
-
-    }
+    // private void fillSruList() {
+    // // sruJList.removeAll();
+    // listModel.removeAllElements();
+    // List<SRU> sruList = sruManager.getSRUs();
+    //
+    // for (int i = 0; i < sruList.size(); i++) {
+    // SRU currentSRU = sruList.get(i);
+    // String sruTarget = currentSRU.getName() + " - "
+    // + currentSRU.getSearchSpeed() + " kn - "
+    // + currentSRU.getType();
+    //
+    // listModel.addElement(sruTarget);
+    //
+    // }
+    //
+    // }
 
     public void setVoctManager(VOCTManager voctManager) {
         this.voctManager = voctManager;
@@ -164,12 +193,90 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
             lblAvailableSrus.setBounds(10, 23, 137, 14);
             panel_2.add(lblAvailableSrus);
 
-            sruJList = new JList<String>(listModel);
-            sruJList.setEnabled(false);
+            DefaultTableModel model = new DefaultTableModel(30, 3);
 
-            sruJList.setBounds(10, 50, 483, 104);
+            sruTable = new JTable(model) {
+                private static final long serialVersionUID = 1L;
 
-            panel_2.add(sruJList);
+                public Component prepareRenderer(TableCellRenderer renderer,
+                        int Index_row, int Index_col) {
+                    Component comp = super.prepareRenderer(renderer, Index_row,
+                            Index_col);
+                    if (Index_row % 2 == 0) {
+                        comp.setBackground(new Color(49, 49, 49));
+                    } else {
+                        comp.setBackground(new Color(65, 65, 65));
+                    }
+
+                    if (isCellSelected(Index_row, Index_col)) {
+                        comp.setForeground(Color.white);
+                        comp.setBackground(new Color(85, 85, 85));
+                    }
+
+                    return comp;
+                }
+            };
+
+            // routeTable.setTableHeader(null);
+
+            sruTable.setBorder(new EmptyBorder(0, 0, 0, 0));
+            // routeTable.setIntercellSpacing(new Dimension(0, 0));
+            sruTable.setBackground(new Color(49, 49, 49));
+            sruTable.setShowVerticalLines(false);
+            sruTable.setShowHorizontalLines(false);
+            sruTable.setShowGrid(false);
+            sruTable.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 10));
+            sruTable.setForeground(Color.white);
+            sruTable.setSelectionForeground(Color.gray);
+            // routeTable.setRowHeight(20);
+            sruTable.setFocusable(false);
+            // routeTable.setAutoResizeMode(0);
+
+            sruTableModel = new EffortAllocationWindowTabelModel(EPDShore
+                    .getVoctManager().getSruManager(),
+                    EPDShore.getVoctManager());
+            sruTableModel.addTableModelListener(this);
+
+            sruTable.setShowHorizontalLines(false);
+            sruTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+            // sruScrollPane = new JList<String>(listModel);
+            sruScrollPane = new JScrollPane(sruTable);
+            sruScrollPane.setEnabled(false);
+
+            sruScrollPane.setBounds(10, 50, 483, 104);
+
+            sruScrollPane
+                    .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+            sruScrollPane
+                    .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            sruTable.setFillsViewportHeight(true);
+
+            sruScrollPane.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1,
+                    new Color(30, 30, 30)));
+
+            // TODO: Comment this line when using WindowBuilder
+            sruTable.setModel(sruTableModel);
+            // for (int i = 0; i < 2; i++) {
+            //
+            // if (i == 0){
+            // sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
+            // }
+            // if (i == 1){
+            // sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
+            // }
+            // if (i == 2){
+            // sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
+            // }
+            //
+            //
+            // }
+            sruSelectionModel = sruTable.getSelectionModel();
+            sruSelectionModel.addListSelectionListener(this);
+            sruTable.setSelectionModel(sruSelectionModel);
+            sruTable.addMouseListener(this);
+
+            panel_2.add(sruScrollPane);
 
             noSRUs = new JLabel(
                     "There are no SRUs added. Please add a SRU before doing Effort Allocation");
@@ -227,11 +334,11 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
             waterElevationField.setBounds(159, 53, 33, 20);
             panel_4.add(waterElevationField);
 
-//            visibilityDropDown = new JComboBox<Integer>();
-//            visibilityDropDown.setModel(new DefaultComboBoxModel<Integer>(
-//                    new Integer[] { 1, 3, 5, 10, 15, 20 }));
-//            visibilityDropDown.setBounds(276, 23, 45, 20);
-//            panel_4.add(visibilityDropDown);
+            // visibilityDropDown = new JComboBox<Integer>();
+            // visibilityDropDown.setModel(new DefaultComboBoxModel<Integer>(
+            // new Integer[] { 1, 3, 5, 10, 15, 20 }));
+            // visibilityDropDown.setBounds(276, 23, 45, 20);
+            // panel_4.add(visibilityDropDown);
 
             JPanel panel_5 = new JPanel();
             panel_5.setBorder(new TitledBorder(UIManager
@@ -323,7 +430,8 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
     private boolean checkValues() {
 
         SARData sarData = voctManager.getSarData();
-        sarData.removeAllEffortAllocationData();
+
+        // sarData.removeAllEffortAllocationData();
 
         List<SRU> sruList = sruManager.getSRUs();
 
@@ -332,7 +440,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
         }
 
         int targetType = targetTypeDropdown.getSelectedIndex();
-//        int visibility = (int) visibilityDropDown.getSelectedItem();
+        // int visibility = (int) visibilityDropDown.getSelectedItem();
 
         double probabilityOfDetection = getProbabilityOfDetection();
         // System.out.println(probabilityOfDetection);
@@ -342,88 +450,116 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
 
         for (int i = 0; i < sruList.size(); i++) {
 
-            System.out.println("Calculation for " + i);
-            
-            SRU currentSRU = sruList.get(i);
+            System.out.println("Calculation for " + i + (boolean) sruTable.getValueAt(i, 2));
 
-            EffortAllocationData data = new EffortAllocationData();
+            if ((boolean) sruTable.getValueAt(i, 2)) {
 
-            data.setGroundSpeed(currentSRU.getSearchSpeed());
-            data.setPod(probabilityOfDetection);
-            
-            // Wc = Wu x Fw x Fv x Ff
+                SRU currentSRU = sruList.get(i);
 
-            // Wu is done by table lookup
+                EffortAllocationData data;
 
-            int windSpeed = getWindSpeed();
+                
+                
+                if (sarData.getEffortAllocationData().size() > i) {
+                    data = sarData.getEffortAllocationData().get(i);
 
-            if (windSpeed == -9999) {
-                return false;
-            }
+                    // Delete the old route
+                    if (data.getSearchPatternRoute() != null) {
+                        System.out
+                                .println("Removing routes from old sar effort allocation data");
+                        EPDShore.getRouteManager().getRoutes()
+                                .remove(data.getSearchPatternRoute());
+                        EPDShore.getRouteManager().notifyListeners(
+                                RoutesUpdateEvent.ROUTE_REMOVED);
+                        data.setSearchPatternRoute(null);
+                    }
 
-            int waterLevel = getWaterElevation();
-            if (waterLevel == -9999) {
-                return false;
-            }
+                } 
+                
+                data = new EffortAllocationData();
 
-            int fwRow = 0;
+                data.setGroundSpeed(currentSRU.getSearchSpeed());
+                data.setPod(probabilityOfDetection);
 
-            if (windSpeed >= 0 && windSpeed <= 15 || waterLevel >= 0
-                    && waterLevel <= 3) {
-                fwRow = 0;
-            }
+                // Wc = Wu x Fw x Fv x Ff
 
-            if (windSpeed > 15 && windSpeed <= 25 || waterLevel > 3
-                    && waterLevel <= 5) {
-                fwRow = 1;
-            }
+                // Wu is done by table lookup
 
-            if (windSpeed > 25 || waterLevel > 5) {
-                fwRow = 2;
-            }
+                int windSpeed = getWindSpeed();
 
-            // Two types of search object for FW
-            // Person in Water, raft or boat less than 30 feet
-            // Or
-            // Other
-            double fw;
-
-            // PIW, raft or small boat
-            if (targetType >= 0 && targetType <= 10 || targetType >= 14
-                    && targetType < 17) {
-                fw = WeatherCorrectionFactors.getPIWAndSmallBoats().get(fwRow);
-            } else {
-                // Other object
-                fw = WeatherCorrectionFactors.getOtherObjects().get(fwRow);
-            }
-
-            double wu = 0.0;
-
-            if (currentSRU.getType() == SRU_TYPE.Smaller_Vessel) {
-                // Small type
-                wu = SweepWidthSmallShipLookup(targetType, currentSRU.getVisibility());
-            } else {
-                if (currentSRU.getType() == SRU_TYPE.Ship) {
-                    wu = SweepWidthLargeShipLookup(targetType, currentSRU.getVisibility());
+                if (windSpeed == -9999) {
+                    return false;
                 }
+
+                int waterLevel = getWaterElevation();
+                if (waterLevel == -9999) {
+                    return false;
+                }
+
+                int fwRow = 0;
+
+                if (windSpeed >= 0 && windSpeed <= 15 || waterLevel >= 0
+                        && waterLevel <= 3) {
+                    fwRow = 0;
+                }
+
+                if (windSpeed > 15 && windSpeed <= 25 || waterLevel > 3
+                        && waterLevel <= 5) {
+                    fwRow = 1;
+                }
+
+                if (windSpeed > 25 || waterLevel > 5) {
+                    fwRow = 2;
+                }
+
+                // Two types of search object for FW
+                // Person in Water, raft or boat less than 30 feet
+                // Or
+                // Other
+                double fw;
+
+                // PIW, raft or small boat
+                if (targetType >= 0 && targetType <= 10 || targetType >= 14
+                        && targetType < 17) {
+                    fw = WeatherCorrectionFactors.getPIWAndSmallBoats().get(
+                            fwRow);
+                } else {
+                    // Other object
+                    fw = WeatherCorrectionFactors.getOtherObjects().get(fwRow);
+                }
+
+                double wu = 0.0;
+
+                if (currentSRU.getType() == SRU_TYPE.Smaller_Vessel) {
+                    // Small type
+                    wu = SweepWidthSmallShipLookup(targetType,
+                            currentSRU.getVisibility());
+                } else {
+                    if (currentSRU.getType() == SRU_TYPE.Ship) {
+                        wu = SweepWidthLargeShipLookup(targetType,
+                                currentSRU.getVisibility());
+                    }
+                }
+
+                double ff = currentSRU.getFatigue();
+
+                double wc = wu * fw * ff;
+
+                System.out.println("wu is " + wu + " fw " + fw + " ff " + ff);
+
+                data.setW(wc);
+
+                System.out.println("Calculating for ");
+
+                System.out.println("Setting W to " + wc);
+
+                data.setSearchTime(currentSRU.getSearchTime());
+
+                sarData.addEffortAllocationData(data, i);
+
+            }else{
+                sarData.getEffortAllocationData().get(i).setNoRedraw(true);
             }
-
-            double ff = currentSRU.getFatigue();
-
-            double wc = wu * fw * ff;
-
-            System.out.println("wu is " + wu + " fw " + fw + " ff " + ff);
-            
-            data.setW(wc);
-            
-            System.out.println("Calculating for ");
-            
-            System.out.println("Setting W to " + wc);
-            
-            data.setSearchTime(currentSRU.getSearchTime());
-
-            sarData.addEffortAllocationData(data);
-
         }
 
         return true;
@@ -509,5 +645,47 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon {
         // Missing or incorrect value in
         JOptionPane.showMessageDialog(this, "Missing or incorrect value in "
                 + fieldname, "Input Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void valueChanged(ListSelectionEvent arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void tableChanged(TableModelEvent arg0) {
+        // TODO Auto-generated method stub
+
     }
 }

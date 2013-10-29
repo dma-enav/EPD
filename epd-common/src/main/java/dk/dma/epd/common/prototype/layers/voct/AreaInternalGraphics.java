@@ -211,6 +211,8 @@ public class AreaInternalGraphics extends OMGraphicList {
         // data.getEffortAllocationData().setEffectiveAreaC(C);
         // data.getEffortAllocationData().setEffectiveAreaD(D);
 
+        System.out.println("Polygon created");
+        
     }
 
     public void adjustInternalPosition(Position relativePosition) {

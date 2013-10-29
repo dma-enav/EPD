@@ -97,7 +97,7 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
                 return false;
             }
         case 3:
-//            return false;
+            // return false;
             if (effortAllocationData.getSearchPatternRoute() != null) {
                 return effortAllocationData.getSearchPatternRoute().isDynamic();
             } else {
@@ -115,54 +115,61 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
         System.out.println("Set value at, aValue: " + aValue + " rowIndex: "
                 + rowIndex + " columIndex: " + columnIndex);
         // SRU sru = sruManager.getSRUs().get(rowIndex);
-        EffortAllocationData effortAllocationData = voctManager.getSarData()
-                .getEffortAllocationData().get(rowIndex);
-        switch (columnIndex) {
 
-        case 2:
+        if (voctManager.getSarData().getEffortAllocationData().size() > rowIndex) {
+            EffortAllocationData effortAllocationData = voctManager
+                    .getSarData().getEffortAllocationData().get(rowIndex);
 
-            if (effortAllocationData.getSearchPatternRoute() != null) {
-                effortAllocationData.getSearchPatternRoute().setVisible(
-                        (Boolean) aValue);
-                EPDShore.getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
-                fireTableCellUpdated(rowIndex, columnIndex);
-            } else {
-                break;
-            }
+            switch (columnIndex) {
 
-            // toggle visibility of route
+            case 2:
 
-            // sru.setVisible((Boolean)aValue);
-            // sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
-            // fireTableCellUpdated(rowIndex, columnIndex);
-            break;
-        case 3:
-            // toggle dynamic
-
-            if (effortAllocationData.getSearchPatternRoute() != null) {
-
-                boolean switchDynamic = (boolean) aValue;
-
-                if (switchDynamic) {
-                    effortAllocationData.getSearchPatternRoute()
-                            .switchToDynamic();
+                if (effortAllocationData.getSearchPatternRoute() != null) {
+                    effortAllocationData.getSearchPatternRoute().setVisible(
+                            (Boolean) aValue);
+                    EPDShore.getRouteManager().notifyListeners(
+                            RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+                    fireTableCellUpdated(rowIndex, columnIndex);
                 } else {
-                    effortAllocationData.getSearchPatternRoute()
-                            .switchToStatic();
+                    break;
                 }
 
-                EPDShore.getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
+                // toggle visibility of route
+
+                // sru.setVisible((Boolean)aValue);
+                // sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
+                // fireTableCellUpdated(rowIndex, columnIndex);
+                break;
+            case 3:
+                // toggle dynamic
+
+                if (effortAllocationData.getSearchPatternRoute() != null) {
+
+                    boolean switchDynamic = (boolean) aValue;
+
+                    if (switchDynamic) {
+                        effortAllocationData.getSearchPatternRoute()
+                                .switchToDynamic();
+                    } else {
+                        effortAllocationData.getSearchPatternRoute()
+                                .switchToStatic();
+                    }
+
+                    EPDShore.getRouteManager().notifyListeners(
+                            RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
+                    fireTableCellUpdated(rowIndex, columnIndex);
+                } else {
+                    break;
+                }
+
+                // sru.setVisible((Boolean)aValue);
+                // sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
                 fireTableCellUpdated(rowIndex, columnIndex);
-            } else {
+                break;
+            default:
                 break;
             }
 
-            // sru.setVisible((Boolean)aValue);
-            // sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
-            fireTableCellUpdated(rowIndex, columnIndex);
-            break;
-        default:
-            break;
         }
     }
 
