@@ -18,9 +18,7 @@ package dk.dma.epd.common.prototype.layers.voct;
 import com.bbn.openmap.geo.Geo;
 import com.bbn.openmap.geo.Intersection;
 import com.bbn.openmap.omGraphics.OMGraphicList;
-import com.bbn.openmap.omGraphics.OMLine;
 
-import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
@@ -54,101 +52,6 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
 
     public enum LineType {
         TOP, BOTTOM, LEFT, RIGHT
-    }
-
-    public EffectiveSRUAreaGraphics(Position A, Position B, Position C,
-            Position D, SARData data, int id) {
-        super();
-        
-        this.A = A;
-        this.B = B;
-        this.C = C;
-        this.D = D;
-        
-        this.id = id;
-
-        this.sarData = data;
-        
-        if (sarData instanceof RapidResponseData) {
-            RapidResponseData rapidResponseData = (RapidResponseData) data;
-
-
-            verticalBearing = Calculator.bearing(rapidResponseData.getA(),
-                    rapidResponseData.getD(), Heading.RL);
-            horizontalBearing = Calculator.bearing(rapidResponseData.getA(),
-                    rapidResponseData.getB(), Heading.RL);
-        }
-
-        if (sarData instanceof DatumPointData) {
-            DatumPointData datumData = (DatumPointData) data;
-            verticalBearing = Calculator.bearing(datumData.getA(),
-                    datumData.getD(), Heading.RL);
-            horizontalBearing = Calculator.bearing(datumData.getA(),
-                    datumData.getB(), Heading.RL);
-
-
-            // Vertical and horizontal must be swapped since the direction has
-            // been set to very east or very west
-            if (verticalBearing < 280 && verticalBearing > 260
-                    || verticalBearing < 100 && verticalBearing > 70) {
-
-                double newVer = verticalBearing;
-                System.out.println("swapping");
-                verticalBearing = horizontalBearing;
-                horizontalBearing = newVer;
-
-            }
-
-            // Reversing if direction is opposite way of assumed, assumed to be
-            // headed in 90 direction ie. right
-            if (horizontalBearing > 180 || horizontalBearing < 0) {
-
-                horizontalBearing = Calculator
-                        .reverseDirection(horizontalBearing);
-            }
-
-            if (verticalBearing > 270 || verticalBearing < 90) {
-                verticalBearing = Calculator.reverseDirection(verticalBearing);
-            }
-
-            System.out.println("Vertical bearing is: " + verticalBearing);
-            System.out.println("Horizontal bearing is: " + horizontalBearing);
-        }
-        
-        
-
-
-
-
-        
-        
-        double width = A.distanceTo(B, CoordinateSystem.CARTESIAN);
-        double height = A.distanceTo(C, CoordinateSystem.CARTESIAN);
-        
-        totalSize = width * height;
-
-//        sarData.getEffortAllocationData().get(id).setEffectiveAreaA(A);
-//        sarData.getEffortAllocationData().get(id).setEffectiveAreaB(B);
-//        sarData.getEffortAllocationData().get(id).setEffectiveAreaC(C);
-//        sarData.getEffortAllocationData().get(id).setEffectiveAreaD(D);
-
-        effectiveArea = new AreaInternalGraphics(A, B, C, D, width, height,
-                this, verticalBearing, horizontalBearing);
-
-        topLine = new SarEffectiveAreaLines(A, B, LineType.TOP, this);
-        bottomLine = new SarEffectiveAreaLines(C, D, LineType.BOTTOM, this);
-
-        leftLine = new SarEffectiveAreaLines(A, C, LineType.LEFT, this);
-
-        rightLine = new SarEffectiveAreaLines(B, D, LineType.RIGHT, this);
-
-        add(effectiveArea);
-        add(bottomLine);
-        add(topLine);
-        add(leftLine);
-        add(rightLine);
-        
-    
     }
 
     public EffectiveSRUAreaGraphics(Double width, Double height, SARData data,
