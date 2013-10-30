@@ -87,14 +87,14 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
     private boolean dragging;
     SafeHavenArea safeHavenArea = new SafeHavenArea();
     private boolean activeSafeHaven;
-    
+
     private float tolerance;
-    
 
     public RouteLayer() {
         new Thread(this).start();
         routeWidth = EPDShip.getSettings().getNavSettings().getRouteWidth();
-        tolerance =  EPDShip.getSettings().getGuiSettings().getMouseSelectTolerance();
+        tolerance = EPDShip.getSettings().getGuiSettings()
+                .getMouseSelectTolerance();
     }
 
     private void updateSafeHaven() {
@@ -474,7 +474,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseClicked(MouseEvent e) {
-//        System.out.println("Mouse Clicked");
+        // System.out.println("Mouse Clicked");
         if (e.getButton() != MouseEvent.BUTTON3) {
             return false;
         }
@@ -494,30 +494,30 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
         routeMenu.setRouteLocation(new Point(e.getX(), e.getY()));
 
         if (selectedGraphic instanceof SuggestedRouteGraphic) {
-//            mainFrame.getGlassPane().setVisible(false);
+            // mainFrame.getGlassPane().setVisible(false);
             waypointInfoPanel.setVisible(false);
             SuggestedRouteGraphic suggestedRoute = (SuggestedRouteGraphic) selectedGraphic;
             RecievedRoute aisSuggestedRoute = suggestedRoute
                     .getRouteSuggestion();
             routeMenu.suggestedRouteMenu(aisSuggestedRoute);
             routeMenu.setVisible(true);
-//            routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+            // routeMenu.show(this, e.getX() - 2, e.getY() - 2);
             routeMenu(e);
             return true;
         }
         if (selectedGraphic instanceof WaypointCircle) {
             WaypointCircle wpc = (WaypointCircle) selectedGraphic;
-//            mainFrame.getGlassPane().setVisible(false);
+            // mainFrame.getGlassPane().setVisible(false);
             waypointInfoPanel.setVisible(false);
             routeMenu.routeWaypointMenu(wpc.getRouteIndex(), wpc.getWpIndex());
             routeMenu.setVisible(true);
-//             routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+            // routeMenu.show(this, e.getX() - 2, e.getY() - 2);
             routeMenu(e);
             return true;
         }
         if (selectedGraphic instanceof RouteLegGraphic) {
             RouteLegGraphic rlg = (RouteLegGraphic) selectedGraphic;
-//            mainFrame.getGlassPane().setVisible(false);
+            // mainFrame.getGlassPane().setVisible(false);
             waypointInfoPanel.setVisible(false);
             routeMenu.routeLegMenu(rlg.getRouteIndex(), rlg.getRouteLeg(),
                     e.getPoint());
@@ -543,13 +543,13 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseDragged(MouseEvent e) {
-//        System.out.println("Mouse dragged!");
+        // System.out.println("Mouse dragged!");
         if (!javax.swing.SwingUtilities.isLeftMouseButton(e)) {
             return false;
         }
 
         if (!dragging) {
-//            mainFrame.getGlassPane().setVisible(false);
+            // mainFrame.getGlassPane().setVisible(false);
             selectedGraphic = null;
             OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(),
                     tolerance);
@@ -657,7 +657,7 @@ public class RouteLayer extends OMGraphicHandlerLayer implements
             if (newClosest != closest) {
                 if (newClosest == null) {
                     metocInfoPanel.setVisible(false);
-//                    mainFrame.getGlassPane().setVisible(false);
+                    // mainFrame.getGlassPane().setVisible(false);
                     waypointInfoPanel.setVisible(false);
                     closest = null;
                 } else {
