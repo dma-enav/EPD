@@ -158,9 +158,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private EnavServiceHandler enavServiceHandler;
     private Point windowLocation;
     private StrategicRouteExchangeHandler monaLisaHandler;
-    
-//    private RouteLayer routeLayer;
-//    private VoyageLayer voyageLayer;
+
+    // private RouteLayer routeLayer;
+    // private VoyageLayer voyageLayer;
 
     public MapMenu() {
         super();
@@ -330,13 +330,13 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         }
 
         addSeparator();
-//        JSeparator separator = new JSeparator(SwingConstants.VERTICAL);
-//        separator.setSize(new Dimension(50,50));
-//        separator.setVisible(true);
-        
-//        add(separator);
-//        addSeparator();
-        
+        // JSeparator separator = new JSeparator(SwingConstants.VERTICAL);
+        // separator.setSize(new Dimension(50,50));
+        // separator.setVisible(true);
+
+        // add(separator);
+        // addSeparator();
+
         add(clearMap);
         add(hideIntendedRoutes);
         add(scaleMenu);
@@ -507,26 +507,27 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         routeAppendWaypoint.setRouteIndex(routeIndex);
         add(routeAppendWaypoint);
 
-//        addSeparator();
+        // addSeparator();
         Separator seperator = new Separator();
         seperator.setVisible(true);
         this.add(seperator);
-        
 
         sendToSTCC.setRoute(route);
         sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
-                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() >0 && routeManager.getActiveRouteIndex() != routeIndex && enavServiceHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
-        
-        if (monaLisaHandler.isTransaction()){
+                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() > 0
+                        && routeManager.getActiveRouteIndex() != routeIndex
+                        && enavServiceHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
+
+        if (monaLisaHandler.isTransaction()) {
             sendToSTCC.setText("Show STCC info");
-        }else{
+        } else {
             sendToSTCC.setText("Send to STCC");
         }
-        
+
         add(sendToSTCC);
 
-//        addSeparator();
+        // addSeparator();
 
         routeActivateToggle.setRouteManager(routeManager);
         routeActivateToggle.setRouteIndex(routeIndex);
@@ -589,7 +590,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         routeProperties.setRouteIndex(routeIndex);
         add(routeProperties);
 
-//        generalMenu(false);
+        // generalMenu(false);
         this.repaint();
     }
 
@@ -616,7 +617,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
     public void routeWaypointMenu(int routeIndex, int routeWaypointIndex) {
         removeAll();
-        
+
         routeWaypointActivateToggle.setRouteWaypointIndex(routeWaypointIndex);
         routeWaypointActivateToggle.setRouteManager(routeManager);
 
@@ -706,11 +707,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         if (obj instanceof StrategicRouteExchangeHandler) {
             monaLisaHandler = (StrategicRouteExchangeHandler) obj;
         }
-//        if (obj instanceof VoyageLayer) {
-//            voyageLayer = (VoyageLayer) obj;
-//        }
-        
-        
+        // if (obj instanceof VoyageLayer) {
+        // voyageLayer = (VoyageLayer) obj;
+        // }
 
     }
 
@@ -773,34 +772,15 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         this.windowLocation = point;
     }
 
-//    @Override
-//    public void show(boolean show){
-//        
-//    }
-    
-//    @Override
-//    public void setVisible(boolean visible){
-//        System.out.println("Set visible: " + visible);
-//        super.setVisible(visible);
-//    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    // @Override
+    // public void show(boolean show){
+    //
+    // }
+
+    // @Override
+    // public void setVisible(boolean visible){
+    // System.out.println("Set visible: " + visible);
+    // super.setVisible(visible);
+    // }
+
 }
