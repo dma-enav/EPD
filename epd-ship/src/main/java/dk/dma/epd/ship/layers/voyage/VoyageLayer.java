@@ -235,8 +235,15 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
             if (selectedGraphic instanceof WaypointCircle) {
                 WaypointCircle wpc = (WaypointCircle) selectedGraphic;
+
                 // waypointInfoPanel.setVisible(false);
                 routeMenu.sendToSTCC(wpc.getRouteIndex());
+                if (wpc.getRouteIndex() == 2) {
+                    // routeMenu.whatevernwestuff(withshit)
+                    routeMenu.addAppendWaypointMenuItem(wpc.getRoute(), this);
+
+                }
+
                 routeMenu.setVisible(true);
                 routeMenu.show(this, e.getX() - 2, e.getY() - 2);
                 return true;
@@ -416,6 +423,14 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
         // draw modified stcc - id 2
 
+    }
+
+    /**
+     * Redraw a modified STCC route (e.g. when waypoint is appended).
+     */
+    public void redrawModifiedSTCCRoute() {
+        drawRoute(2, modifiedSTCCRoute, ECDISOrange,
+                new Color(1f, 1f, 0, 0.4f), true);
     }
 
     @Override
