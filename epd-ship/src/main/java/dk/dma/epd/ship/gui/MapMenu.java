@@ -161,6 +161,11 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private Point windowLocation;
     private StrategicRouteExchangeHandler monaLisaHandler;
 
+    /**
+     * The location on screen where this MapMenu was last displayed. 
+     */
+    private Point latestScreenLocation;
+    
     // private RouteLayer routeLayer;
     // private VoyageLayer voyageLayer;
 
@@ -792,10 +797,21 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     //
     // }
 
-    // @Override
-    // public void setVisible(boolean visible){
-    // System.out.println("Set visible: " + visible);
-    // super.setVisible(visible);
-    // }
+     @Override
+     public void setVisible(boolean visible){
+         if(this.isVisible()) {
+             // log latest location every time this MapMenu is made visible.
+             this.latestScreenLocation = this.getLocationOnScreen();
+         }
+         super.setVisible(visible);
+     }
 
+     /**
+      * Get the position on screen where this MapMenu was last shown.
+      * @return The latest position or null if this MapMenu was never shown.
+      */
+     public Point getLatestVisibleLocation() {
+         return this.latestScreenLocation;
+     }
+     
 }
