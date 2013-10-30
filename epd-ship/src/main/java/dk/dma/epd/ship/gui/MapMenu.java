@@ -227,7 +227,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         routeReverse = new RouteReverse("Reverse route");
         routeReverse.addActionListener(this);
 
-        routeDelete = new RouteDelete("Delete route");
+        routeDelete = new RouteDelete("Delete route", this);
         routeDelete.addActionListener(this);
 
         monaLisaRouteRequest = new MonaLisaRouteRequest(
