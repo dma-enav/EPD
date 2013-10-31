@@ -20,9 +20,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMList;
@@ -31,113 +29,33 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.layers.voct.AreaInternalGraphics;
 import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics;
+import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics.LineType;
 import dk.dma.epd.common.prototype.layers.voct.SarAreaGraphic;
 import dk.dma.epd.common.prototype.layers.voct.SarEffectiveAreaLines;
 import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
-import dk.dma.epd.common.prototype.layers.voct.SearchPatternTemp;
-import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics.LineType;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
-import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
-import dk.dma.epd.shore.event.DragMouseMode;
-import dk.dma.epd.shore.event.NavigationMouseMode;
-import dk.dma.epd.shore.event.SelectMouseMode;
-import dk.dma.epd.shore.gui.views.JMapFrame;
-import dk.dma.epd.shore.voct.VOCTManager;
 
-public class VoctLayer extends OMGraphicHandlerLayer implements
-        MapMouseListener, VOCTUpdateListener {
+public class VoctLayerPlanning extends VoctLayerCommon{
+
+    
     private static final long serialVersionUID = 1L;
 
     private OMGraphicList graphics = new OMGraphicList();
     private OMGraphic selectedGraphic;
+    
     private boolean dragging;
-    private MapBean mapBean;
-    private VOCTManager voctManager;
-
-    private JMapFrame jMapFrame;
 
     private List<EffectiveSRUAreaGraphics> effectiveSRUAreas = new ArrayList<EffectiveSRUAreaGraphics>();
 
-    // private SARPanel sarPanel = new SARPanel(this);
+    public VoctLayerPlanning() {
 
-    public VoctLayer() {
-        // drawSAR();
-
-        // sarPanel.setVisible(true);
     }
 
-    public void drawSAR() {
-        // Position A = Position.create(56.335, 7.885);
-        // Position B = Position.create(56.335, 8.034444);
-        // Position C = Position.create(56.252222, 8.034444);
-        // Position D = Position.create(56.252222, 7.885);
-        //
-        // Position datum = Position.create(56.300555555555555,
-        // 7.966666666666667);
-        // double radius = 2.42;
-        //
-
-        Position A = Position.create(56.3318597430453, 7.906002842313335);
-        Position B = Position.create(56.3318597430453, 8.062171759296268);
-        Position C = Position.create(56.24510270810811, 8.061995117339452);
-        Position D = Position.create(56.24510270810811, 7.906179484270152);
-
-        Position datum = Position.create(56.2885059390279, 7.984087300804801);
-        double radius = 2.6080318165935816;
-
-        Position LKP = Position.create(56.37167, 7.966667);
-        Position WTCPoint = Position.create(56.28850716421507, 7.966667);
-
-        graphics.clear();
-
-        // SarGraphics sarGraphics = new SarGraphics(datum, radius, A, B, C, D,
-        // LKP, WTCPoint);
-        // graphics.add(sarGraphics);
-
-        // Probability of Detection Area - updateable
-
-        // PoD for each SRU, initialized with an effective area? possibly a
-        // unique ID
-
-        // Effective Area: 10 nm2 Initialize by creating box
-        double width = Math.sqrt(10.0);
-        double height = Math.sqrt(10.0);
-
-        // AreaInternalGraphics effectiveArea = new AreaInternalGraphics(A,
-        // width, length);
-        // graphics.add(effectiveArea);
-        // EffectiveSRUAreaGraphics effectiveArea = new
-        // EffectiveSRUAreaGraphics(A,
-        // width, height, null);
-        // graphics.add(effectiveArea);
-        //
-        //
-        // EffectiveSRUAreaGraphics effectiveArea2 = new
-        // EffectiveSRUAreaGraphics(A,
-        // width, height, null);
-        // graphics.add(effectiveArea2);
-
-        System.out.println("A is: " + A.getLongitude());
-        System.out.println("B is: " + B);
-        System.out.println("C is: " + C);
-        System.out.println("D is: " + D);
-
-        System.out.println("Datum is: " + datum);
-
-        // SomeGraphics routeLegGraphic = new SomeGraphics(A, B, C, D);
-        // graphics.add(routeLegGraphic);
-        //
-        // WaypointCircle wpCircle = new
-        // WaypointCircle(EPDShip.getRouteManager().getRoute(0), 0, 0);
-        // graphics.add(wpCircle);
-
-        doPrepare();
-    }
 
     @Override
     public synchronized OMGraphicList prepare() {
@@ -145,35 +63,13 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         return graphics;
     }
 
-    @Override
-    public void findAndInit(Object obj) {
 
-        if (obj instanceof JMapFrame) {
-            jMapFrame = (JMapFrame) obj;
-        }
-
-        if (obj instanceof VOCTManager) {
-            voctManager = (VOCTManager) obj;
-            voctManager.addListener(this);
-        }
-        if (obj instanceof MapBean) {
-            mapBean = (MapBean) obj;
-        }
-    }
 
     @Override
     public MapMouseListener getMapMouseListener() {
         return this;
     }
 
-    @Override
-    public String[] getMouseModeServiceList() {
-        String[] ret = new String[3];
-        ret[0] = DragMouseMode.MODEID; // "DragMouseMode"
-        ret[1] = NavigationMouseMode.MODEID; // "ZoomMouseMoude"
-        ret[2] = SelectMouseMode.MODEID; // "SelectMouseMode"
-        return ret;
-    }
 
     @Override
     public boolean mousePressed(MouseEvent paramMouseEvent) {
@@ -482,7 +378,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public void voctUpdated(VOCTUpdateEvent e) {
-
+        
         if (e == VOCTUpdateEvent.SAR_CANCEL) {
             graphics.clear();
             this.setVisible(false);
@@ -509,6 +405,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
     }
 
+    
     private void drawDatumLine() {
 
         // Create as many data objects as is contained
@@ -680,12 +577,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         doPrepare();
     }
 
-    public void drawPoints(Position A, Position B) {
-        SearchPatternTemp testLine = new SearchPatternTemp(A, B);
-        graphics.add(testLine);
-        doPrepare();
-    }
-
+    @Override
     public void updateEffectiveAreaLocation(SARData sarData) {
 
         for (int i = 0; i < effectiveSRUAreas.size(); i++) {
@@ -693,17 +585,19 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         }
     }
 
+    @Override
     public void toggleEffectiveAreaVisibility(int i, boolean visible) {
         System.out.println("Toggle visibiity " + effectiveSRUAreas.size()
                 + " and i " + i);
         if (effectiveSRUAreas.size() >= i + 1) {
-            System.out.println("ello");
+
             effectiveSRUAreas.get(i).setVisible(visible);
 
             doPrepare();
         }
     }
 
+    @Override
     public void removeEffortAllocationArea(int i) {
 
         if (effectiveSRUAreas.size() > i) {
@@ -717,4 +611,5 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         }
     }
 
+    
 }

@@ -57,6 +57,7 @@ public class ThreadedMapCreator implements Runnable {
     private Route originalRoute;
     
     private boolean SAR;
+    MapFrameType type;
 
     public ThreadedMapCreator(MainFrame mainFrame, boolean workspace,
             boolean locked, boolean alwaysInFront, Point2D center, float scale,
@@ -84,11 +85,12 @@ public class ThreadedMapCreator implements Runnable {
         monaLisaHandling = false;
     }
 
-    public ThreadedMapCreator(MainFrame mainFrame, boolean SAR) {
+    public ThreadedMapCreator(MainFrame mainFrame, boolean SAR, MapFrameType type) {
         this.mainFrame = mainFrame;
         loadFromWorkspace = false;
         monaLisaHandling = false;
         this.SAR = true;
+        this.type = type;
     }
 
     public ThreadedMapCreator(MainFrame mainFrame, String shipName,
@@ -254,20 +256,35 @@ public class ThreadedMapCreator implements Runnable {
 //        mainFrame.increaseWindowCount();
 
         SARFrame window = new SARFrame(-1, mainFrame,
-                MapFrameType.SAR);
+                type);
 
         mainFrame.getDesktop().add(window);
+        
+        
+        Dimension mainFrameSize = mainFrame.getSize();
 
-        window.setTitle("Search and Rescue");
-
+        if (type == MapFrameType.SAR_Planning){
+            window.setTitle("Search and Rescue - Planning"); 
+            window.setLocation(0, 0);
+        }
+        if (type == MapFrameType.SAR_Tracking){
+            window.setTitle("Search and Rescue - Tracking");
+            window.setLocation((int) mainFrameSize.getWidth()/2 - 10, 0);
+        }
+        
+        
+        window.setSize((int) mainFrameSize.getWidth()/2 -10, (int) mainFrameSize.getHeight()-10);
         mainFrame.getMapWindows().add(window);
         
 //        mainFrame.getTopMenu().addMap(window, false, false);
 
         window.alwaysFront();
 
-        window.setSize(1280, 868);
-        window.setLocation(10, 10);
+        
+        window.getChartPanel().zoomToPoint(EPDShore.getVoctManager().getSarData().getLKP());
+        window.getChartPanel().getMap().setScale(100000);
+        
+
 
         return window;
     }

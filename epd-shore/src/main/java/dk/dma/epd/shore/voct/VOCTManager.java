@@ -33,9 +33,10 @@ import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.gui.views.MapFrameType;
 import dk.dma.epd.shore.gui.voct.SARInput;
 import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
-import dk.dma.epd.shore.layers.voct.VoctLayer;
+import dk.dma.epd.shore.layers.voct.VoctLayerCommon;
 import dk.dma.epd.shore.route.RouteManager;
 
 /**
@@ -59,7 +60,7 @@ public class VOCTManager extends VOCTManagerCommon implements
 
     private SRUManager sruManager;
 
-    List<VoctLayer> voctLayers = new ArrayList<VoctLayer>();
+    List<VoctLayerCommon> voctLayers = new ArrayList<VoctLayerCommon>();
 
     private static final Logger LOG = LoggerFactory
             .getLogger(VOCTManagerCommon.class);
@@ -79,6 +80,7 @@ public class VOCTManager extends VOCTManagerCommon implements
 
             // Voct specific test
             sarInputDialog = new SARInput(this);
+            
             sarInputDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             sarInputDialog.setVisible(true);
 
@@ -109,16 +111,20 @@ public class VOCTManager extends VOCTManagerCommon implements
     protected void updateLayers() {
 
         if (voctLayers.size() == 0) {
-            EPDShore.getMainFrame().addSARWindow();
+            
+            EPDShore.getMainFrame().addSARWindow(MapFrameType.SAR_Tracking);
+            EPDShore.getMainFrame().addSARWindow(MapFrameType.SAR_Planning);
         }
+        
+        notifyListeners(VOCTUpdateEvent.SAR_DISPLAY);
     }
 
     @Override
     public void addListener(VOCTUpdateListener listener) {
         super.addListener(listener);
 
-        if (listener instanceof VoctLayer) {
-            voctLayers.add((VoctLayer) listener);
+        if (listener instanceof VoctLayerCommon) {
+            voctLayers.add((VoctLayerCommon) listener);
         }
     }
 

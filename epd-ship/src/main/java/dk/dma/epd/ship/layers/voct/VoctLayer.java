@@ -63,6 +63,8 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
     public VoctLayer() {
         // drawSAR();
+        
+        
     }
 
     @Override

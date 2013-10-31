@@ -37,26 +37,30 @@ import javax.swing.border.EtchedBorder;
 
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
-import dk.dma.epd.shore.gui.voct.SARPanel;
+import dk.dma.epd.shore.gui.voct.SARPanelPlanning;
+import dk.dma.epd.shore.gui.voct.SARPanelTracking;
 
 public class SARFrame extends JMapFrame {
 
     private static final long serialVersionUID = 1L;
-    
+
     int sarPanelWidth = 285;
     int resizeWidthHack = 20;
+
+    private SARPanelPlanning sarPanelPlanning;
+    private SARPanelTracking sarPanelTracking;
     
-    private SARPanel sarPanel;
 
     public SARFrame(int id, MainFrame mainFrame, MapFrameType type) {
         super(id, mainFrame, type);
+
+        System.out.println("SAR Frame created with type : " + type);
     }
 
     @Override
     public void initGUI() {
         makeKeyBindings();
-        
-        
+
         mapFrame = this;
 
         // Listen for resize
@@ -148,34 +152,49 @@ public class SARFrame extends JMapFrame {
         maximize.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 3));
         mapToolsPanel.add(maximize);
 
-        JLabel close = new JLabel(new ImageIcon(EPDShore.class.getClassLoader()
-                .getResource("images/window/close.png")));
-        close.addMouseListener(new MouseAdapter() {
-
-            public void mouseReleased(MouseEvent e) {
-
-                try {
-                    mapFrame.setClosed(true);
-                } catch (PropertyVetoException e1) {
-                    e1.printStackTrace();
-                }
-            }
-
-        });
-        close.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 2));
-        mapToolsPanel.add(close);
+        // JLabel close = new JLabel(new
+        // ImageIcon(EPDShore.class.getClassLoader()
+        // .getResource("images/window/close.png")));
+        // close.addMouseListener(new MouseAdapter() {
+        //
+        // public void mouseReleased(MouseEvent e) {
+        //
+        // try {
+        // mapFrame.setClosed(true);
+        // } catch (PropertyVetoException e1) {
+        // e1.printStackTrace();
+        // }
+        // }
+        //
+        // });
+        // close.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 2));
+        // mapToolsPanel.add(close);
         mapPanel.add(mapToolsPanel);
 
         // Create the masterpanel for aligning
         masterPanel = new JPanel(new BorderLayout());
         masterPanel.add(mapPanel, BorderLayout.NORTH);
 
-        sarPanel = new SARPanel();
+        System.out.println("Init gui called");
+        
+        if (type == MapFrameType.SAR_Planning) {
+            System.out.println("SAR Planning panel created");
+            sarPanelPlanning = new SARPanelPlanning();
 
-        masterPanel.add(sarPanel, BorderLayout.EAST);
+            masterPanel.add(sarPanelPlanning, BorderLayout.EAST);
 
-        sarPanel.setSize(sarPanelWidth, 768);
-        sarPanel.setPreferredSize(new Dimension(sarPanelWidth, 768));
+            sarPanelPlanning.setSize(sarPanelWidth, 768);
+            sarPanelPlanning.setPreferredSize(new Dimension(sarPanelWidth, 768));
+        } else {
+            System.out.println("SAR Tracking panel created");
+            sarPanelTracking = new SARPanelTracking();
+
+            masterPanel.add(sarPanelTracking, BorderLayout.EAST);
+
+            sarPanelTracking.setSize(sarPanelWidth, 768);
+            sarPanelTracking
+                    .setPreferredSize(new Dimension(sarPanelWidth, 768));
+        }
 
         masterPanel.add(chartPanel, BorderLayout.WEST);
 
@@ -196,6 +215,8 @@ public class SARFrame extends JMapFrame {
     @Override
     public void repaintMapWindow() {
 
+        System.out.println("Repaint called");
+        
         width = mapFrame.getSize().width;
         int innerHeight = mapFrame.getSize().height - moveHandlerHeight
                 - chartPanelOffset;
@@ -206,12 +227,25 @@ public class SARFrame extends JMapFrame {
         }
 
         // And finally set the size and repaint it
-        chartPanel.setSize(width-sarPanelWidth- resizeWidthHack, innerHeight);
-        chartPanel.setPreferredSize(new Dimension(width-sarPanelWidth-resizeWidthHack, innerHeight));
-        
-        
-        sarPanel.setSize(sarPanelWidth, innerHeight);
-        sarPanel.setPreferredSize(new Dimension(sarPanelWidth, innerHeight));
+        chartPanel
+                .setSize(width - sarPanelWidth - resizeWidthHack, innerHeight);
+        chartPanel.setPreferredSize(new Dimension(width - sarPanelWidth
+                - resizeWidthHack, innerHeight));
+
+        if (type != null) {
+
+            if (type == MapFrameType.SAR_Planning) {
+                sarPanelPlanning.setSize(sarPanelWidth, innerHeight);
+                sarPanelPlanning.setPreferredSize(new Dimension(sarPanelWidth,
+                        innerHeight));
+            } else {
+                sarPanelTracking.setSize(sarPanelWidth, innerHeight);
+                sarPanelTracking.setPreferredSize(new Dimension(sarPanelWidth,
+                        innerHeight));
+            }
+
+        }
+
         this.setSize(width, height);
         this.revalidate();
         this.repaint();

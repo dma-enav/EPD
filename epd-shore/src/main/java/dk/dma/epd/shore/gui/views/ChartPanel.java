@@ -55,7 +55,9 @@ import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
 import dk.dma.epd.shore.layers.route.RouteLayer;
 import dk.dma.epd.shore.layers.routeEdit.RouteEditLayer;
-import dk.dma.epd.shore.layers.voct.VoctLayer;
+import dk.dma.epd.shore.layers.voct.VoctLayerCommon;
+import dk.dma.epd.shore.layers.voct.VoctLayerPlanning;
+import dk.dma.epd.shore.layers.voct.VoctLayerTracking;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
@@ -82,7 +84,7 @@ public class ChartPanel extends CommonChartPanel {
     private SelectMouseMode selectMouseMode;
 
     private RouteEditMouseMode routeEditMouseMode;
-    
+
     public int maxScale = 5000;
     private AisLayer aisLayer;
     private MsiLayer msiLayer;
@@ -91,8 +93,8 @@ public class ChartPanel extends CommonChartPanel {
     private RouteEditLayer routeEditLayer;
     private NewRouteContainerLayer newRouteContainerLayer;
     private VoyageHandlingLayer voyageHandlingLayer;
-    
-    private VoctLayer voctLayer;
+
+    private VoctLayerCommon voctLayer;
 
     private MainFrame mainFrame;
     private Color background = new Color(168, 228, 255);
@@ -126,8 +128,6 @@ public class ChartPanel extends CommonChartPanel {
         mapHandler.add(mainFrame);
         mapHandler.add(mainFrame.getStatusArea());
         mapHandler.add(jmapFrame);
-        
-
 
         // Set layout
         // setLayout(new BorderLayout());
@@ -225,7 +225,6 @@ public class ChartPanel extends CommonChartPanel {
         aisLayer.getAisThread().interrupt();
     }
 
-
     public Layer getBgLayer() {
         return bgLayer;
     }
@@ -238,8 +237,6 @@ public class ChartPanel extends CommonChartPanel {
     public Layer getEncLayer() {
         return encLayer;
     }
-
- 
 
     /**
      * Return the maxScale set for the map
@@ -297,7 +294,7 @@ public class ChartPanel extends CommonChartPanel {
         map.setScale(mapSettings.getScale());
 
         add(map);
-        
+
         initDragMap();
 
     }
@@ -325,21 +322,20 @@ public class ChartPanel extends CommonChartPanel {
 
         initDragMap();
 
-
     }
-    
+
     /**
      * Initiate dragmap with mapsettings
      */
     protected void initDragMap() {
         ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
-        //TODO: CLEANUP
-        //dragMap
+        // TODO: CLEANUP
+        // dragMap
         dragMap = new BufferedLayerMapBean();
         dragMap.setDoubleBuffered(true);
         dragMap.setCenter(mapSettings.getCenter());
         dragMap.setScale(mapSettings.getScale());
-        
+
         dragMapHandler.add(new LayerHandler());
         if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
             dragMapHandler.add(dragMap);
@@ -348,8 +344,8 @@ public class ChartPanel extends CommonChartPanel {
             dragMapHandler.add(wmsDragLayer);
             dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
         } else {
-            //create dummy map dragging
-            dragMapRenderer = new SimpleOffScreenMapRenderer(map,dragMap,true);
+            // create dummy map dragging
+            dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, true);
         }
         dragMapRenderer.start();
     }
@@ -362,7 +358,6 @@ public class ChartPanel extends CommonChartPanel {
     public void initChartDefault(MapFrameType type) {
         Properties props = EPDShore.getProperties();
         ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
-        
 
         if (EPDShore.getSettings().getMapSettings().isUseEnc()
                 && mainFrame.isUseEnc()) {
@@ -387,9 +382,10 @@ public class ChartPanel extends CommonChartPanel {
         mouseDelegator.addMouseMode(selectMouseMode);
         mouseDelegator.addMouseMode(routeEditMouseMode);
 
-        System.out.println("adding mouse modes");
+        if (type != MapFrameType.SAR_Planning || type != MapFrameType.SAR_Tracking){
+            setMouseMode(mainFrame.getMouseMode());    
+        }
         
-        setMouseMode(mainFrame.getMouseMode());
 
         mapHandler.add(dragMouseMode);
         mapHandler.add(mapNavMouseMode);
@@ -405,35 +401,30 @@ public class ChartPanel extends CommonChartPanel {
         // Add layer handler to map handler
         mapHandler.add(layerHandler);
 
-
         // Create the general layer
         generalLayer = new GeneralLayer();
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
-        
-        
-        
-        
-        wmsLayer = new WMSLayer(EPDShore.getSettings().getMapSettings().getWmsQuery());
-        //Add WMS Layer
+
+        wmsLayer = new WMSLayer(EPDShore.getSettings().getMapSettings()
+                .getWmsQuery());
+        // Add WMS Layer
         if (mapSettings.getWmsQuery().length() > 12 && mapSettings.isUseWms()) {
             wmsLayer.setVisible(true);
-            mapHandler.add(wmsLayer);    
+            mapHandler.add(wmsLayer);
         }
 
-        
-//        if (type != MapFrameType.SAR){
-            // Add MSI Layer
-            msiLayer = new MsiLayer();
-            msiLayer.setVisible(true);
-            mapHandler.add(msiLayer);
+        // if (type != MapFrameType.SAR){
+        // Add MSI Layer
+        msiLayer = new MsiLayer();
+        msiLayer.setVisible(true);
+        mapHandler.add(msiLayer);
 
-            // Add Route Layer
-            routeLayer = new RouteLayer();
-            routeLayer.setVisible(true);
-            mapHandler.add(routeLayer);
-//        }
-        
+        // Add Route Layer
+        routeLayer = new RouteLayer();
+        routeLayer.setVisible(true);
+        mapHandler.add(routeLayer);
+        // }
 
         if (type == MapFrameType.monaLisa) {
 
@@ -448,37 +439,40 @@ public class ChartPanel extends CommonChartPanel {
 
         }
 
-//        if (type == MapFrameType.standard) {
-            // Add Voyage Layer
-            voyageLayer = new VoyageLayer();
-            voyageLayer.setVisible(true);
-            mapHandler.add(voyageLayer);
-            
+        // if (type == MapFrameType.standard) {
+        // Add Voyage Layer
+        voyageLayer = new VoyageLayer();
+        voyageLayer.setVisible(true);
+        mapHandler.add(voyageLayer);
 
-            
-            // Create route editing layer
-            newRouteContainerLayer = new NewRouteContainerLayer();
-            newRouteContainerLayer.setVisible(true);
-            mapHandler.add(newRouteContainerLayer);
-            routeEditLayer = new RouteEditLayer();
-            routeEditLayer.setVisible(true);
-            mapHandler.add(routeEditLayer);
+        // Create route editing layer
+        newRouteContainerLayer = new NewRouteContainerLayer();
+        newRouteContainerLayer.setVisible(true);
+        mapHandler.add(newRouteContainerLayer);
+        routeEditLayer = new RouteEditLayer();
+        routeEditLayer.setVisible(true);
+        mapHandler.add(routeEditLayer);
 
-//        }
+        // }
 
-        
-        if (type == MapFrameType.SAR){
-            voctLayer = new VoctLayer();
+        if (type == MapFrameType.SAR_Planning) {
+            voctLayer = new VoctLayerPlanning();
             voctLayer.setVisible(true);
             mapHandler.add(voctLayer);
             mapHandler.add(EPDShore.getVoctManager());
         }
-        
+
+        if (type == MapFrameType.SAR_Tracking) {
+            voctLayer = new VoctLayerTracking();
+            voctLayer.setVisible(true);
+            mapHandler.add(voctLayer);
+            mapHandler.add(EPDShore.getVoctManager());
+        }
+
         // Add AIS Layer
         aisLayer = new AisLayer();
         aisLayer.setVisible(true);
         mapHandler.add(aisLayer);
-
 
         // Create background layer
         String layerName = "background";
@@ -495,36 +489,29 @@ public class ChartPanel extends CommonChartPanel {
         // Add map to map handler
         mapHandler.add(map);
 
+        if (type == MapFrameType.monaLisa || type == MapFrameType.standard) {
 
-
-        
-        if (type == MapFrameType.monaLisa || type == MapFrameType.standard){
-            
             // Create MSI handler
             msiHandler = EPDShore.getMsiHandler();
             mapHandler.add(msiHandler);
 
             monaLisaHandler = EPDShore.getMonaLisaHandler();
             mapHandler.add(monaLisaHandler);
-            
+
             // Force a MSI layer update
             msiLayer.doUpdate();
 
-            // Force a route layer update
-            routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
-            
             // Force a voyage layer update
             voyageLayer.voyagesChanged(VoyageUpdateEvent.VOYAGE_ADDED);
         }
-        
-        
 
+        // Force a route layer update
+        routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
 
         if (wmsLayer.isVisible()) {
             // System.out.println("wms is visible");
             bgLayer.setVisible(false);
         }
-
 
     }
 

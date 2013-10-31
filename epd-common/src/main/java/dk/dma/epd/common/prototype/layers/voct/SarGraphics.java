@@ -148,4 +148,10 @@ public class SarGraphics extends OMGraphicList {
         add(sarLinesMax);
     }
     
+    public SarGraphics(Position A, Position B, Position C, Position D){
+        
+        SarAreaGraphic sarArea = new SarAreaGraphic(A, B, C, D);
+        add(sarArea);
+    }
+    
 }

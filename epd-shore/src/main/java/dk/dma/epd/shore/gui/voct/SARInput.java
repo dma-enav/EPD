@@ -17,6 +17,7 @@ package dk.dma.epd.shore.gui.voct;
 
 import dk.dma.epd.common.prototype.gui.voct.SARInputCommon;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
+import dk.dma.epd.shore.EPDShore;
 
 public class SARInput extends SARInputCommon{
 
@@ -25,6 +26,7 @@ public class SARInput extends SARInputCommon{
     public SARInput(VOCTManagerCommon voctManager) {
         super(voctManager);
      
+        setLocationRelativeTo(EPDShore.getMainFrame());
     }
 
 

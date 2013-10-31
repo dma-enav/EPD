@@ -33,7 +33,7 @@ import dk.dma.epd.shore.gui.voct.panels.EffortAllocationPanel;
 import dk.dma.epd.shore.gui.voct.panels.SearchPatternsPanel;
 import dk.dma.epd.shore.voct.VOCTManager;
 
-public class SARPanel extends SARPanelCommon implements VOCTUpdateListener {
+public class SARPanelTracking extends SARPanelCommon implements VOCTUpdateListener {
     
     private static final long serialVersionUID = 1L;
     
@@ -46,7 +46,7 @@ public class SARPanel extends SARPanelCommon implements VOCTUpdateListener {
     
     private VOCTManager voctManager;
     
-   public SARPanel(){
+   public SARPanelTracking(){
        super();
        
        setVoctManager(EPDShore.getVoctManager());

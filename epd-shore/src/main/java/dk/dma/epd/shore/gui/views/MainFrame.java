@@ -34,6 +34,7 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 import org.slf4j.Logger;
@@ -148,12 +149,13 @@ public class MainFrame extends JFrame implements WindowListener {
     /**
      * 
      */
-    public void addSARWindow() {
+    public void addSARWindow(MapFrameType type) {
         
         if (sarCreated){
             //Warning message about one SAR operation being underway?
         }else{
-            new ThreadedMapCreator(this, sarCreated).run();
+            (new ThreadedMapCreator(this, sarCreated, type)).run();
+            
         }
         
         //When creating a SAR window it displays map but also input boxes for starting it.
@@ -494,13 +496,19 @@ public class MainFrame extends JFrame implements WindowListener {
         EPDShore.getSettings().getWorkspace()
                 .setStatusPosition(statusArea.getLocation());
         
+        List<JMapFrame> windowsToSave = new ArrayList<JMapFrame>();
+        
+        System.out.println("Saving " + mapWindows.size() + " map windows to workspace");
         for (int i = 0; i < mapWindows.size(); i++) {
-            if (mapWindows.get(i).getType() != MapFrameType.standard){
-                mapWindows.remove(i);
+            System.out.println(mapWindows.get(i).getType() + " id " + i);
+//            System.out.println("With type " + mapWindows.get(i).getType());
+            if (mapWindows.get(i).getType() == MapFrameType.standard){
+                windowsToSave.add(mapWindows.get(i));
             }
         }
         
-        EPDShore.getSettings().saveCurrentWorkspace(mapWindows, filename);
+       
+        EPDShore.getSettings().saveCurrentWorkspace(windowsToSave, filename);
     }
 
     /**
