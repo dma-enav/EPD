@@ -15,9 +15,14 @@
  */
 package dk.dma.epd.common.prototype.model.voct.sardata;
 
-import dk.dma.enav.model.geometry.Position;
+import java.io.Serializable;
 
-public class EffortAllocationData {
+import dk.dma.enav.model.geometry.Position;
+import dk.dma.enav.model.voct.EffortAllocationDTO;
+
+public class EffortAllocationData implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     private double w;
     private double groundSpeed;
     private double pod;
@@ -37,9 +42,26 @@ public class EffortAllocationData {
     
     private boolean noReDraw;
     
+    public EffortAllocationData(){
+        
+    }
     
-    
-    
+    public EffortAllocationData(EffortAllocationDTO effortAllocationDTO){
+        
+        this.w = effortAllocationDTO.getW();
+        this.groundSpeed = effortAllocationDTO.getGroundSpeed();
+        pod = effortAllocationDTO.getPod();
+        this.trackSpacing = effortAllocationDTO.getTrackSpacing();
+        this.effectiveAreaSize = effortAllocationDTO.getEffectiveAreaSize();
+        
+        this.effectiveAreaA = Position.create(effortAllocationDTO.getEffectiveAreaA().getLatitude(), effortAllocationDTO.getEffectiveAreaA().getLongitude());
+        this.effectiveAreaB = Position.create(effortAllocationDTO.getEffectiveAreaB().getLatitude(), effortAllocationDTO.getEffectiveAreaB().getLongitude());
+        this.effectiveAreaC = Position.create(effortAllocationDTO.getEffectiveAreaC().getLatitude(), effortAllocationDTO.getEffectiveAreaC().getLongitude());
+        this.effectiveAreaD = Position.create(effortAllocationDTO.getEffectiveAreaD().getLatitude(), effortAllocationDTO.getEffectiveAreaD().getLongitude());
+        
+        
+        
+    }
 
 
     /**
@@ -231,4 +253,13 @@ public class EffortAllocationData {
     public void setEffectiveAreaD(Position effectiveAreaD) {
         this.effectiveAreaD = effectiveAreaD;
     }
+    
+    
+    public EffortAllocationDTO getModelData() {
+        return new EffortAllocationDTO(w, groundSpeed, pod, trackSpacing,
+                searchTime, effectiveAreaSize, effectiveAreaA.getDTO(), effectiveAreaB.getDTO(),
+                effectiveAreaC.getDTO(), effectiveAreaD.getDTO());
+    }
+    
 }
+

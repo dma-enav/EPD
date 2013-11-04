@@ -41,6 +41,9 @@ import dk.dma.enav.communication.service.ServiceEndpoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.ship.ShipId;
+
+import dk.dma.enav.model.voct.EffortAllocationDTO;
+import dk.dma.enav.model.voct.RapidResponseDTO;
 import dk.dma.enav.model.voyage.Route;
 import dk.dma.enav.util.function.BiConsumer;
 import dk.dma.enav.util.function.Supplier;
@@ -52,10 +55,16 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck.StrategicRouteAck
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
+import dk.dma.epd.common.prototype.gui.voct.RapidResponseDatumPointInputPanel;
+import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
+import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
@@ -81,15 +90,17 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private StrategicRouteExchangeHandler monaLisaHandler;
 
     PersistentConnection connection;
+
     RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData> routeSuggestions = new RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData>();
     protected Set<RouteExchangeListener> routeExchangeListener = new HashSet<RouteExchangeListener>();
 
     private List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> routeSuggestionList = new ArrayList<>();
+    private List<ServiceEndpoint<VOCTCommunicationMessage, VOCTCommunicationReply>> voctMessageList = new ArrayList<>();
 
     HashMap<Long, InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply>> contextSenders = new HashMap<Long, InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply>>();
 
     List<ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply>> monaLisaShipList = new ArrayList<>();
-    
+
     private long ownMMSI;
 
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
@@ -169,6 +180,23 @@ public class EnavServiceHandler extends MapHandlerChild implements
         }
     }
 
+    private void getVOCTMessageList() {
+        System.out.println("Checking for VOCT message list");
+        try {
+            voctMessageList = connection
+                    .serviceFind(VOCTCommunicationService.INIT)
+                    .nearest(Integer.MAX_VALUE).get();
+
+            for (int i = 0; i < voctMessageList.size(); i++) {
+                System.out.println("VOCT Listener with ID: "
+                        + voctMessageList.get(i).getId());
+            }
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+
+        }
+    }
+
     public List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> getRouteSuggestionList() {
         return routeSuggestionList;
     }
@@ -183,6 +211,82 @@ public class EnavServiceHandler extends MapHandlerChild implements
         }
 
         return false;
+    }
+
+    public void sendVOCTMessage(long mmsi, SARData sarData, String sender,
+            String message, int id) throws InterruptedException,
+            ExecutionException, TimeoutException {
+
+        // System.out.println("Send to : " + mmsi);
+        String mmsiStr = "mmsi://" + mmsi;
+
+        ServiceEndpoint<VOCTCommunicationService.VOCTCommunicationMessage, VOCTCommunicationService.VOCTCommunicationReply> end = null;
+
+        for (int i = 0; i < voctMessageList.size(); i++) {
+            if (voctMessageList.get(i).getId().toString().equals(mmsiStr)) {
+                end = voctMessageList.get(i);
+
+                // break;
+            }
+        }
+        end = voctMessageList.get(voctMessageList.size() - 1);
+
+        VOCTCommunicationMessage voctMessage = null;
+
+        if (sarData instanceof RapidResponseData) {
+            RapidResponseDTO rapidResponseModelData = ((RapidResponseData) sarData)
+                    .getModelData();
+
+            EffortAllocationDTO effortAllocationData = null;
+            Route searchPattern = null;
+
+            if (sarData.getEffortAllocationData().size() > id) {
+                effortAllocationData = sarData.getEffortAllocationData()
+                        .get(id).getModelData();
+
+                if (sarData.getEffortAllocationData().get(id)
+                        .getSearchPatternRoute() != null) {
+                    searchPattern = sarData.getEffortAllocationData().get(id)
+                            .getSearchPatternRoute().getFullRouteData();
+                }
+            }
+
+            voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(
+                    rapidResponseModelData, effortAllocationData,
+                    searchPattern, sender, message);
+        }
+
+        System.out.println("Sending VOCT SAR to mmsi: " + mmsi);
+
+        // Internal tracking stuff
+        // RouteSuggestionData suggestionData = new RouteSuggestionData(
+        // routeMessage, null, routeMessage.getId(), mmsi, false,
+        // AIS_STATUS.RECIEVED_APP_ACK);
+        //
+        // RouteSuggestionKey routeSuggestionKey = new RouteSuggestionKey(mmsi,
+        // routeMessage.getId());
+        // routeSuggestions.put(routeSuggestionKey, suggestionData);
+        //
+
+        if (end != null) {
+            ConnectionFuture<VOCTCommunicationService.VOCTCommunicationReply> f = end
+                    .invoke(voctMessage);
+
+            f.handle(new BiConsumer<VOCTCommunicationService.VOCTCommunicationReply, Throwable>() {
+
+                @Override
+                public void accept(VOCTCommunicationReply l, Throwable r) {
+                    // TODO Auto-generated method stub
+                    System.out.println("Reply recieved SAR");
+                }
+            });
+
+        } else {
+            // notifyRouteExchangeListeners();
+            System.out.println("Failed to send");
+            // replyRecieved(f.get());
+        }
+
     }
 
     public void sendRouteSuggestion(long mmsi, Route route, String sender,
@@ -283,20 +387,19 @@ public class EnavServiceHandler extends MapHandlerChild implements
             }
         });
 
-        while (connection == null){
+        while (connection == null) {
             try {
                 enavCloudConnection.setHost(hostPort);
                 System.out.println(hostPort);
                 connection = enavCloudConnection.build();
                 break;
             } catch (Exception e) {
-//                e.printStackTrace();
+                // e.printStackTrace();
                 System.out.println("Failed to connect");
                 Util.sleep(10000);
             }
-            
+
         }
-        
 
         // ENavContainerConfiguration conf = new ENavContainerConfiguration();
         // conf.addDatasource(new JmsC2SMessageSource(hostPort, shipId));
@@ -379,13 +482,12 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
         while (true) {
             getRouteSuggestionServiceList();
+            getVOCTMessageList();
             Util.sleep(10000);
         }
 
     }
 
-    
-    
     /**
      * @return the ownMMSI
      */

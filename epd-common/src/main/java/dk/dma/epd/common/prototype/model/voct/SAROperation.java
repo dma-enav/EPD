@@ -92,6 +92,9 @@ public class SAROperation {
 
 //    VOCTManager voctManager;
 
+    
+    
+    
     public SAROperation(SAR_TYPE operationType) {
         this.operationType = operationType;
 //        this.voctManager = voctManager;

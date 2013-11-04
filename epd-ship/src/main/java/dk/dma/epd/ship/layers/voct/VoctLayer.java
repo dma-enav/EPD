@@ -37,6 +37,7 @@ import dk.dma.epd.common.prototype.layers.voct.SearchPatternTemp;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
+import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
@@ -60,6 +61,8 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
     EffectiveSRUAreaGraphics effectiveArea;
 
     private MainFrame mainFrame;
+    
+    boolean editLocked;
 
     public VoctLayer() {
         // drawSAR();
@@ -121,6 +124,11 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseClicked(MouseEvent e) {
+        
+        if (editLocked){
+            return false;
+        }
+        
         // System.out.println("Mouse Clicked");
         if (e.getButton() != MouseEvent.BUTTON3) {
             return false;
@@ -166,6 +174,10 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseDragged(MouseEvent e) {
+        if (editLocked){
+            return false;
+        }
+        
         // System.out.println("Mouse dragged!");
         if (!javax.swing.SwingUtilities.isLeftMouseButton(e)) {
             return false;
@@ -246,6 +258,11 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseMoved(MouseEvent e) {
+        
+        if (editLocked){
+            return false;
+        }
+        
         if (!dragging) {
             // mainFrame.getGlassPane().setVisible(false);
             selectedGraphic = null;
@@ -407,6 +424,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         }
 
         if (e == VOCTUpdateEvent.SAR_DISPLAY) {
+            
             if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
                 drawRapidResponse();
             }
@@ -422,6 +440,21 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
         if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY) {
             createEffectiveArea();
+            this.setVisible(true);
+        }
+        
+
+        if (e == VOCTUpdateEvent.SAR_RECEIVED_CLOUD) {
+            editLocked = true;
+            drawRapidResponse();
+            
+            EffortAllocationData effortAllocationArea = voctManager.getSarData().getEffortAllocationData().get(0);
+            
+            EffectiveSRUAreaGraphics effectiveArea = new EffectiveSRUAreaGraphics(effortAllocationArea.getEffectiveAreaA(), effortAllocationArea.getEffectiveAreaB(), effortAllocationArea.getEffectiveAreaC(), effortAllocationArea.getEffectiveAreaD(), 0);
+            graphics.add(effectiveArea);
+            
+            doPrepare();
+            
             this.setVisible(true);
         }
 

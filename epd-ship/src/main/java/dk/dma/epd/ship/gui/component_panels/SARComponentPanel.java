@@ -111,6 +111,15 @@ public class SARComponentPanel extends OMComponentPanel implements IGpsDataListe
             sarPanel.searchPatternGenerated(voctManager.getSarData());
         }
         
+        if (e == VOCTUpdateEvent.SAR_RECEIVED_CLOUD){
+            sarPanel.sarComplete(voctManager.getSarData());
+            
+            if (voctManager.getSarData().getEffortAllocationData().size() > 0){
+                sarPanel.effortAllocationComplete(voctManager.getSarData());
+                
+            }
+            
+        }
     }
     
 

@@ -34,6 +34,7 @@ import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.MapFrameType;
+import dk.dma.epd.shore.gui.views.SARFrame;
 import dk.dma.epd.shore.gui.voct.SARInput;
 import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
 import dk.dma.epd.shore.layers.voct.VoctLayerCommon;
@@ -61,6 +62,8 @@ public class VOCTManager extends VOCTManagerCommon implements
     private SRUManager sruManager;
 
     List<VoctLayerCommon> voctLayers = new ArrayList<VoctLayerCommon>();
+    
+
 
     private static final Logger LOG = LoggerFactory
             .getLogger(VOCTManagerCommon.class);
@@ -112,7 +115,7 @@ public class VOCTManager extends VOCTManagerCommon implements
 
         if (voctLayers.size() == 0) {
             
-            EPDShore.getMainFrame().addSARWindow(MapFrameType.SAR_Tracking);
+            
             EPDShore.getMainFrame().addSARWindow(MapFrameType.SAR_Planning);
         }
         

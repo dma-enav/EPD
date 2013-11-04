@@ -28,6 +28,7 @@ import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.gui.views.MapFrameType;
 import dk.dma.epd.shore.gui.voct.panels.ButtonsPanel;
 import dk.dma.epd.shore.gui.voct.panels.EffortAllocationPanel;
 import dk.dma.epd.shore.gui.voct.panels.SearchPatternsPanel;
@@ -42,6 +43,8 @@ public class SARPanelPlanning extends SARPanelCommon implements VOCTUpdateListen
     private JButton btnSruDialog;
     
     protected EffortAllocationWindow effortAllocationWindow = new EffortAllocationWindow();
+    
+    private JButton btnTrackingWindow;
     
     
     private VOCTManager voctManager;
@@ -98,6 +101,22 @@ public class SARPanelPlanning extends SARPanelCommon implements VOCTUpdateListen
     @Override
     public void actionPerformed(ActionEvent arg0) {
 
+        if (arg0.getSource() == btnTrackingWindow){
+            
+            for (int i = 0; i < EPDShore.getMainFrame().getMapWindows().size(); i++) {
+                
+                if (EPDShore.getMainFrame().getMapWindows().get(i).getType() == MapFrameType.SAR_Tracking){
+                    //Resize windows
+                    EPDShore.getMainFrame().getMapWindows().get(i).toFront();
+                    return;
+                }
+            }
+            
+            EPDShore.getMainFrame().addSARWindow(MapFrameType.SAR_Tracking);
+            
+            return;
+        }
+        
         if (arg0.getSource() == btnStartSar
                 || arg0.getSource() == btnReopenCalculations) {
 
@@ -206,6 +225,9 @@ public class SARPanelPlanning extends SARPanelCommon implements VOCTUpdateListen
     @Override
     protected ButtonsPanelCommon createButtonPanel(){
         buttonsPanel = new ButtonsPanel();
+        
+        btnTrackingWindow = ((ButtonsPanel) buttonsPanel).getBtnTrackingWindow();
+        btnTrackingWindow.addActionListener(this);
         
         btnReopenCalculations = buttonsPanel.getBtnReopenCalculations();
         btnReopenCalculations.addActionListener(this);

@@ -16,9 +16,13 @@
 package dk.dma.epd.shore.gui.voct;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JPanel;
 
 import dk.dma.epd.common.prototype.gui.voct.ButtonsPanelCommon;
 import dk.dma.epd.common.prototype.gui.voct.EffortAllocationPanelCommon;
@@ -33,13 +37,15 @@ import dk.dma.epd.shore.gui.voct.panels.EffortAllocationPanel;
 import dk.dma.epd.shore.gui.voct.panels.SearchPatternsPanel;
 import dk.dma.epd.shore.voct.VOCTManager;
 
-public class SARPanelTracking extends SARPanelCommon implements VOCTUpdateListener {
+public class SARPanelTracking extends JPanel implements VOCTUpdateListener, ActionListener {
     
     private static final long serialVersionUID = 1L;
     
     private JButton btnReopenCalculations;
     private JButton btnEffortAllocation;
     private JButton btnSruDialog;
+    
+    private JButton btnSendSar;
     
     protected EffortAllocationWindow effortAllocationWindow = new EffortAllocationWindow();
     
@@ -54,7 +60,11 @@ public class SARPanelTracking extends SARPanelCommon implements VOCTUpdateListen
        
        
        voctManager.addListener(this);
-       sarComplete(voctManager.getSarData());
+       
+       btnSendSar = new JButton("Send SAR");
+       add(btnSendSar);
+       btnSendSar.addActionListener(this);
+       
    }
     
 
@@ -62,11 +72,11 @@ public class SARPanelTracking extends SARPanelCommon implements VOCTUpdateListen
     * @param voctManager
     *            the voctManager to set
     */
-   @Override
-   public void setVoctManager(VOCTManagerCommon voctManager) {
-       super.setVoctManager(voctManager);
-       this.voctManager = (VOCTManager) voctManager;
-       effortAllocationWindow.setVoctManager(this.voctManager);
+
+   public void setVoctManager(VOCTManager voctManager) {
+       this.voctManager = voctManager;
+       
+//       effortAllocationWindow.setVoctManager(this.voctManager);
 //       searchPatternDialog.setVoctManager(voctManager);
    }
     
@@ -80,16 +90,16 @@ public class SARPanelTracking extends SARPanelCommon implements VOCTUpdateListen
         
         if (e == VOCTUpdateEvent.SAR_DISPLAY){
             System.out.println("SAR PANEL DISPLAY ?");
-            sarComplete(voctManager.getSarData());
+//            sarComplete(voctManager.getSarData());
         }
         if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY){
-            effortAllocationComplete(voctManager.getSarData());
+//            effortAllocationComplete(voctManager.getSarData());
         }
         if (e == VOCTUpdateEvent.SEARCH_PATTERN_GENERATED){
-            searchPatternGenerated(voctManager.getSarData());
+//            searchPatternGenerated(voctManager.getSarData());
         }
         
-        this.repaint();
+//        this.repaint();
         
     }
     
@@ -98,48 +108,67 @@ public class SARPanelTracking extends SARPanelCommon implements VOCTUpdateListen
     @Override
     public void actionPerformed(ActionEvent arg0) {
 
-        if (arg0.getSource() == btnStartSar
-                || arg0.getSource() == btnReopenCalculations) {
-
+        if (arg0.getSource() == btnSendSar){
+            voctManager.updateEffectiveAreaLocation();
             
-            if (voctManager != null) {
-
-                voctManager.showSarInput();
-
-            }
-            return;
-        }
-
-        
-        if (arg0.getSource() == btnSruDialog) {
-
             
-            if (voctManager != null) {
-
-                voctManager.showSRUManagerDialog();
-
+            try {
+                EPDShore.getEnavServiceHandler().sendVOCTMessage(0, voctManager.getSarData(), "OSC", "Please Join", 0);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
-            return;
+            
         }
         
-        
-        
-        if (arg0.getSource() == btnEffortAllocation) {
-
-            // We have a SAR in progress
-            if (voctManager != null && voctManager.isHasSar()) {
-
-                // Determine what type of SAR then retrieve the input data
-                if (effortAllocationWindow != null) {
-                    effortAllocationWindow.setValues();
-                    effortAllocationWindow
-                            .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-                    effortAllocationWindow.setVisible(true);
-                }
-
-            }
-            return;
-        }
+//        if (arg0.getSource() == btnStartSar
+//                || arg0.getSource() == btnReopenCalculations) {
+//
+//            
+//            if (voctManager != null) {
+//
+//                voctManager.showSarInput();
+//
+//            }
+//            return;
+//        }
+//
+//        
+//        if (arg0.getSource() == btnSruDialog) {
+//
+//            
+//            if (voctManager != null) {
+//
+//                voctManager.showSRUManagerDialog();
+//
+//            }
+//            return;
+//        }
+//        
+//        
+//        
+//        if (arg0.getSource() == btnEffortAllocation) {
+//
+//            // We have a SAR in progress
+//            if (voctManager != null && voctManager.isHasSar()) {
+//
+//                // Determine what type of SAR then retrieve the input data
+//                if (effortAllocationWindow != null) {
+//                    effortAllocationWindow.setValues();
+//                    effortAllocationWindow
+//                            .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+//                    effortAllocationWindow.setVisible(true);
+//                }
+//
+//            }
+//            return;
+//        }
 
         
         
@@ -178,44 +207,6 @@ public class SARPanelTracking extends SARPanelCommon implements VOCTUpdateListen
 
     }
 
-    @Override
-    protected SearchPatternsPanelCommon createSearchPatternsPanel() {
-        searchPatternPanel = new SearchPatternsPanel();
-        
-        
-//        btnGenerateSearchPattern = searchPatternPanel
-//                .getBtnGenerateSearchPattern();
-
-//        btnGenerateSearchPattern.addActionListener(this);
-
-//        chckbxShowDynamicPattern = searchPatternPanel
-//                .getChckbxShowDynamicPattern();
-
-//        chckbxShowDynamicPattern.addActionListener(this);
-
-        return searchPatternPanel;
-    }
-
-    protected EffortAllocationPanelCommon createEffortAllocationPanel() {
-        effortAllocationPanel = new EffortAllocationPanel();
-        return effortAllocationPanel;
-    }
     
-    
-    
-    @Override
-    protected ButtonsPanelCommon createButtonPanel(){
-        buttonsPanel = new ButtonsPanel();
-        
-        btnReopenCalculations = buttonsPanel.getBtnReopenCalculations();
-        btnReopenCalculations.addActionListener(this);
-        
-        btnEffortAllocation = buttonsPanel.getBtnEffortAllocation();
-        btnEffortAllocation.addActionListener(this);
-    
-        btnSruDialog = buttonsPanel.getBtnSruDialog();
-        btnSruDialog.addActionListener(this);
-        
-        return buttonsPanel;
-    }
+ 
 }

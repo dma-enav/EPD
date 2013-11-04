@@ -15,24 +15,26 @@
  */
 package dk.dma.epd.common.prototype.model.voct.sardata;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import dk.dma.enav.model.dto.PositionDTO;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.enav.model.voct.RapidResponseDTO;
 import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 import dk.dma.epd.common.text.Formatter;
 
 public class RapidResponseData extends SARData {
 
-    
     private List<Position> currentList;
     private List<Position> windList;
-    
+
     private Position datum;
-//    private Position wtc;
+    // private Position wtc;
 
     private double radius;
 
@@ -41,7 +43,7 @@ public class RapidResponseData extends SARData {
     private double rdvDirection;
     private double rdvDistance;
     private double rdvSpeed;
-    
+
     private double rdvDirectionLast;
     private double rdvSpeedLast;
 
@@ -50,12 +52,47 @@ public class RapidResponseData extends SARData {
     private Position C;
     private Position D;
 
-
     // Init data
-    public RapidResponseData(String sarID, DateTime TLKP, DateTime CSS, Position LKP,
-            double x, double y, double SF, int searchObject) {
+    public RapidResponseData(String sarID, DateTime TLKP, DateTime CSS,
+            Position LKP, double x, double y, double SF, int searchObject) {
 
         super(sarID, TLKP, CSS, LKP, x, y, SF, searchObject);
+    }
+
+    public RapidResponseData(RapidResponseDTO data) {
+        // super(data.getSarID(), new DateTime(data.getLKPDate()), new
+        // DateTime(data.getCSSDate()), LKP, x, y, safetyFactor, searchObject);
+        super(data.getSarID(), new DateTime(data.getLKPDate()), new DateTime(
+                data.getCSSDate()), Position.create(
+                data.getLKP().getLatitude(), data.getLKP().getLongitude()),
+                data.getX(), data.getY(), data.getSafetyFactor(), data
+                        .getSearchObject());
+
+        this.datum = Position.create(data.getDatum().getLatitude(), data.getDatum().getLongitude());        
+        this.radius = data.getRadius();
+        this.timeElasped = data.getTimeElasped();
+        this.rdvDirection = data.getRdvDirection();
+        this.rdvDistance = data.getRdvDistance();
+        this.rdvSpeed = data.getRdvSpeed();
+        this.rdvDirectionLast = data.getRdvSpeedLast();
+        this.A = Position.create(data.getA().getLatitude(), data.getA().getLongitude());
+        this.B = Position.create(data.getB().getLatitude(), data.getB().getLongitude());
+        this.C = Position.create(data.getC().getLatitude(), data.getC().getLongitude());
+        this.D = Position.create(data.getD().getLatitude(), data.getD().getLongitude());
+        
+        
+        
+        currentList = new ArrayList<Position>();
+        windList = new ArrayList<Position>();
+        
+        for (int i = 0; i < data.getCurrentList().size(); i++) {
+            currentList.add(Position.create(data.getCurrentList().get(i).getLatitude(), data.getCurrentList().get(i).getLongitude()));
+        }
+        
+        for (int i = 0; i < data.getWindList().size(); i++) {
+            windList.add(Position.create(data.getWindList().get(i).getLatitude(), data.getWindList().get(i).getLongitude()));
+        }
+        
     }
 
     public void setBox(Position A, Position B, Position C, Position D) {
@@ -65,10 +102,6 @@ public class RapidResponseData extends SARData {
         this.D = D;
     }
 
-
-    
-  
-
     /**
      * @return the rdvDirectionLast
      */
@@ -77,7 +110,8 @@ public class RapidResponseData extends SARData {
     }
 
     /**
-     * @param rdvDirectionLast the rdvDirectionLast to set
+     * @param rdvDirectionLast
+     *            the rdvDirectionLast to set
      */
     public void setRdvDirectionLast(double rdvDirectionLast) {
         this.rdvDirectionLast = rdvDirectionLast;
@@ -91,7 +125,8 @@ public class RapidResponseData extends SARData {
     }
 
     /**
-     * @param rdvSpeedLast the rdvSpeedLast to set
+     * @param rdvSpeedLast
+     *            the rdvSpeedLast to set
      */
     public void setRdvSpeedLast(double rdvSpeedLast) {
         this.rdvSpeedLast = rdvSpeedLast;
@@ -105,7 +140,8 @@ public class RapidResponseData extends SARData {
     }
 
     /**
-     * @param currentList the currentList to set
+     * @param currentList
+     *            the currentList to set
      */
     public void setCurrentList(List<Position> currentList) {
         this.currentList = currentList;
@@ -119,7 +155,8 @@ public class RapidResponseData extends SARData {
     }
 
     /**
-     * @param windList the windList to set
+     * @param windList
+     *            the windList to set
      */
     public void setWindList(List<Position> windList) {
         this.windList = windList;
@@ -240,8 +277,6 @@ public class RapidResponseData extends SARData {
         return datum;
     }
 
-  
-
     /**
      * @return the radius
      */
@@ -353,6 +388,37 @@ public class RapidResponseData extends SARData {
         //
 
         return str.toString();
+    }
+
+    public RapidResponseDTO getModelData() {
+
+        List<PositionDTO> windListDTO = new ArrayList<PositionDTO>();
+
+        for (int i = 0; i < windList.size(); i++) {
+            windListDTO.add(windList.get(i).getDTO());
+        }
+
+        List<PositionDTO> currentListDTO = new ArrayList<PositionDTO>();
+
+        for (int i = 0; i < currentList.size(); i++) {
+            currentListDTO.add(currentList.get(i).getDTO());
+        }
+        
+        PositionDTO cSPPos = null;
+        
+        if (getCSP() != null){
+            cSPPos = getCSP()            .getDTO();
+        }
+        
+
+        return new RapidResponseDTO(sarID, this.getLKPDate().toDate(), this
+                .getCSSDate().toDate(), this.getLKP().getDTO(), 
+                cSPPos
+                , this.getX(), this.getY(), this.getSafetyFactor(),
+                this.getSearchObject(), currentListDTO, windListDTO,
+                datum.getDTO(), radius, timeElasped, rdvDirection, rdvDistance,
+                rdvSpeed, rdvDirectionLast, rdvSpeedLast, A.getDTO(),
+                B.getDTO(), C.getDTO(), D.getDTO());
     }
 
 }

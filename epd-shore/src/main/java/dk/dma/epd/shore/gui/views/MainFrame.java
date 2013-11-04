@@ -28,6 +28,7 @@ import java.awt.event.WindowListener;
 import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
 import java.beans.beancontext.BeanContextServicesSupport;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -142,7 +143,9 @@ public class MainFrame extends JFrame implements WindowListener {
      */
     public void addMapWindow() {
 
-        new ThreadedMapCreator(this).run();
+        new Thread(new ThreadedMapCreator(this)).run();
+        
+
     }
 
 
@@ -155,6 +158,7 @@ public class MainFrame extends JFrame implements WindowListener {
             //Warning message about one SAR operation being underway?
         }else{
             (new ThreadedMapCreator(this, sarCreated, type)).run();
+//            SwingUtilities.invokeLater(new ThreadedMapCreator(this, sarCreated, type));
             
         }
         

@@ -367,6 +367,8 @@ public class ChartPanel extends CommonChartPanel {
             encLayer = encLayerFactory.getEncLayer();
         }
 
+        
+        
         map = new BufferedLayerMapBean();
 
         mouseDelegator = new MouseDelegator();

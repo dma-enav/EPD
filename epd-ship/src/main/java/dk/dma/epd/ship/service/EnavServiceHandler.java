@@ -16,6 +16,7 @@
 package dk.dma.epd.ship.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +36,7 @@ import dk.dma.enav.communication.service.ServiceEndpoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.ship.ShipId;
+import dk.dma.enav.model.voct.RapidResponseDTO;
 import dk.dma.enav.model.voyage.Route;
 import dk.dma.enav.util.function.BiConsumer;
 import dk.dma.enav.util.function.Supplier;
@@ -50,6 +52,10 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRout
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.CLOUD_STATUS;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
@@ -64,6 +70,7 @@ import dk.dma.epd.ship.route.strategic.RecievedRoute;
 import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
 import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
 import dk.dma.epd.ship.service.intendedroute.IntendedRouteService;
+import dk.dma.epd.ship.service.voct.VOCTManager;
 import dk.dma.epd.ship.settings.EPDEnavSettings;
 import dk.dma.navnet.client.MaritimeNetworkConnectionBuilder;
 
@@ -81,8 +88,14 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private GpsHandler gpsHandler;
     private AisHandler aisHandler;
     private StrategicRouteExchangeHandler monaLisaHandler;
+    private VOCTManager voctManager;
+
     private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context;
+
     InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply> monaLisaContext;
+
+    private InvocationCallback.Context<VOCTCommunicationService.VOCTCommunicationReply> voctContext;
+
     protected CloudStatus cloudStatus = new CloudStatus();
 
     // End point holders for Mona Lisa Route Exchange
@@ -154,6 +167,63 @@ public class EnavServiceHandler extends MapHandlerChild implements
                             }
                         }).awaitRegistered(4, TimeUnit.SECONDS);
     }
+
+    private void voctMessageListener() throws InterruptedException {
+        System.out.println("VOCT Listener");
+        connection
+                .serviceRegister(
+                        VOCTCommunicationService.INIT,
+                        new InvocationCallback<VOCTCommunicationService.VOCTCommunicationMessage, VOCTCommunicationService.VOCTCommunicationReply>() {
+                            public void process(
+                                    VOCTCommunicationMessage message,
+                                    InvocationCallback.Context<VOCTCommunicationService.VOCTCommunicationReply> context) {
+
+                                System.out.println("Received SAR Payload!");
+//                                SARModelData sarData = message.getSarData();
+
+//                                RapidResponseModelData rapidResponseModelData = (RapidResponseModelData) sarData;
+                                
+//                                RapidResponseDTO rapidResponseModelData = message.getSarData();
+                                
+                                cloudStatus.markCloudReception();
+
+                                voctContext = context;
+
+                                voctManager.handleSARDataPackage(message);
+                                
+                                
+//                                voctContext.complete(new VOCTCommunicationReply("Received", (long) 0, (long) -1, new Date().getTime(), CLOUD_STATUS.RECIEVED_APP_ACK));
+                                
+                                
+                                
+                                
+                                // RecievedRoute recievedRoute = new
+                                // RecievedRoute(
+                                // message);
+                                //
+                                // EPDShip.getRouteManager()
+                                // .recieveRouteSuggestion(recievedRoute);
+
+                            }
+
+                        }).awaitRegistered(4, TimeUnit.SECONDS);
+    }
+    
+    
+    public void sendVOCTReply(CLOUD_STATUS recievedAccepted, long id, String message) {
+        try {
+            voctContext.complete(new VOCTCommunicationService.VOCTCommunicationReply(
+                    message, id, aisHandler.getOwnShip().getMmsi(), System
+                            .currentTimeMillis(), recievedAccepted));
+            cloudStatus.markSuccesfullSend();
+        } catch (Exception e) {
+            cloudStatus.markFailedSend();
+            System.out.println("Failed to reply");
+        }
+
+    }
+    
+    
 
     public InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> getContext() {
         return context;
@@ -292,6 +362,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
             this.aisHandler = (AisHandler) obj;
         } else if (obj instanceof StrategicRouteExchangeHandler) {
             this.monaLisaHandler = (StrategicRouteExchangeHandler) obj;
+        }else if (obj instanceof VOCTManager){
+            voctManager = (VOCTManager) obj;
         }
     }
 
@@ -316,16 +388,19 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                 intendedRouteListener();
                                 routeExchangeListener();
                                 monaLisaRouteRequestListener();
+
+                                voctMessageListener();
+
                             } catch (Exception e) {
                                 // e.printStackTrace();
                                 System.out.println("Failed to setup listener");
                                 cloudStatus.markFailedSend();
                                 cloudStatus.markFailedReceive();
                             }
-                            
+
                             break;
                         }
-                        
+
                     }
                 }
             }

@@ -54,6 +54,29 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         TOP, BOTTOM, LEFT, RIGHT
     }
 
+    
+    public EffectiveSRUAreaGraphics(Position A, Position B, Position C, Position D, int id){
+        super();
+        
+        
+        effectiveArea = new AreaInternalGraphics(A, B, C, D, 0.0, 0.0,
+                this, verticalBearing, horizontalBearing);
+
+        topLine = new SarEffectiveAreaLines(A, B, LineType.TOP, this);
+        bottomLine = new SarEffectiveAreaLines(C, D, LineType.BOTTOM, this);
+
+        leftLine = new SarEffectiveAreaLines(A, C, LineType.LEFT, this);
+
+        rightLine = new SarEffectiveAreaLines(B, D, LineType.RIGHT, this);
+
+        add(effectiveArea);
+        add(bottomLine);
+        add(topLine);
+        add(leftLine);
+        add(rightLine);
+        
+    }
+    
     public EffectiveSRUAreaGraphics(Double width, Double height, SARData data,
             int id) {
         super();

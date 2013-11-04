@@ -25,6 +25,7 @@ public class ButtonsPanel extends ButtonsPanelCommon{
     private JButton btnReopenCalculations;
     private JButton btnEffortAllocation;
     private JButton btnSruDialog;
+    private JButton btnTrackingWindow;
     
     public ButtonsPanel(){
      
@@ -36,7 +37,9 @@ public class ButtonsPanel extends ButtonsPanelCommon{
 
         btnEffortAllocation = new JButton("Effort Allocation");
         add(btnEffortAllocation);
-        
+     
+        btnTrackingWindow = new JButton("Open Tracking Window");
+        add(btnTrackingWindow);
     }
 
     /**
@@ -63,6 +66,14 @@ public class ButtonsPanel extends ButtonsPanelCommon{
     public JButton getBtnSruDialog() {
         return btnSruDialog;
     }
+
+    /**
+     * @return the btnTrackingWindow
+     */
+    public JButton getBtnTrackingWindow() {
+        return btnTrackingWindow;
+    }
+    
     
     
 }

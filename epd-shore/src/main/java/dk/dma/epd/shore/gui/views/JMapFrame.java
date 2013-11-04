@@ -86,20 +86,48 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
      * @param id        id number for this map frame
      * @param mainFrame    reference to the mainframe
      */
-    public JMapFrame(int id, MainFrame mainFrame, MapFrameType type) {
+    public JMapFrame(int id, MainFrame mainFrame, final MapFrameType type) {
         super("New Window " + id, true, true, true, true);
 
+        
         this.mainFrame = mainFrame;
         this.id = id;
         this.type = type;
 
+        long startTime = System.currentTimeMillis();
+        
         chartPanel = new ChartPanel(mainFrame, this);
+        
+        System.out.println("Time elapsed 1: " + (System.currentTimeMillis() - startTime) );
+        
+        startTime = System.currentTimeMillis();
+        
+        
         this.setContentPane(chartPanel);
-        this.setVisible(true);
+        
 
         initGlassPane();
-        chartPanel.initChart(type);
+        
+        System.out.println("Time elapsed 2: " + (System.currentTimeMillis() - startTime) );
+        startTime = System.currentTimeMillis();
+        
+        new Thread(        new Runnable() {
+            
+            @Override
+            public void run() {
+                chartPanel.initChart(type);
+            }
+        }).run();
+        
+        System.out.println("Time elapsed 3: " + (System.currentTimeMillis() - startTime) );
+        startTime = System.currentTimeMillis();
+        
         initGUI();
+        
+        System.out.println("Time elapsed 4: " + (System.currentTimeMillis() - startTime) );
+        
+        this.setVisible(true);
+        
     }
 
     /**
@@ -115,14 +143,29 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
 
         this.mainFrame = mainFrame;
         this.id = id;
+        
+
+        
         chartPanel = new ChartPanel(mainFrame, this);
         this.setContentPane(chartPanel);
-        this.setVisible(true);
+        
 
+
+        
+        
+
+        
         initGlassPane();
-        chartPanel.initChart(center, scale);
-        initGUI();
 
+        
+        chartPanel.initChart(center, scale);
+        
+
+        
+        initGUI();
+        
+
+        this.setVisible(true);
     }
 
     /**

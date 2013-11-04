@@ -21,7 +21,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.enav.model.voct.RapidResponseDTO;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
+import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
+import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
+import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SearchPatternRoute;
 import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
@@ -41,13 +47,11 @@ import dk.dma.epd.ship.layers.voct.VoctLayer;
 
 public class VOCTManager extends VOCTManagerCommon {
 
-
     private static final long serialVersionUID = 1L;
     private SARInput sarInputDialog;
-    
 
     VoctLayer voctLayer;
-    
+
     private static final Logger LOG = LoggerFactory
             .getLogger(VOCTManagerCommon.class);
 
@@ -85,7 +89,6 @@ public class VOCTManager extends VOCTManagerCommon {
         this.voctLayer = voctLayer;
     }
 
-
     @Override
     public void run() {
 
@@ -104,7 +107,6 @@ public class VOCTManager extends VOCTManagerCommon {
 
     }
 
-
     @Override
     public void generateSearchPattern(
             SearchPatternGenerator.searchPattern type, Position CSP, int id) {
@@ -121,12 +123,14 @@ public class VOCTManager extends VOCTManagerCommon {
         // Remove old and overwrite
         if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
             int routeIndex = EPDShip.getRouteManager().getRouteIndex(
-                    sarData.getEffortAllocationData().get(id).getSearchPatternRoute());
+                    sarData.getEffortAllocationData().get(id)
+                            .getSearchPatternRoute());
 
             EPDShip.getRouteManager().removeRoute(routeIndex);
         }
 
-        sarData.getEffortAllocationData().get(id).setSearchPatternRoute(searchRoute);
+        sarData.getEffortAllocationData().get(id)
+                .setSearchPatternRoute(searchRoute);
 
         EPDShip.getRouteManager().addRoute(searchRoute);
 
@@ -136,6 +140,35 @@ public class VOCTManager extends VOCTManagerCommon {
     @Override
     public void updateEffectiveAreaLocation() {
         voctLayer.updateEffectiveAreaLocation(sarData);
+    }
+
+    public void handleSARDataPackage(VOCTCommunicationMessage message) {
+
+        RapidResponseData data = new RapidResponseData(message.getSarData());
+
+        if (message.getEffortAllocationData() != null) {
+
+            // message.getEffortAllocationData()
+            EffortAllocationData effortAllocationData = new EffortAllocationData(
+                    message.getEffortAllocationData());
+
+            if (message.getSearchPattern() != null) {
+                SearchPatternRoute searchPattern = (SearchPatternRoute) new Route(
+                        message.getSearchPattern());
+                effortAllocationData.setSearchPatternRoute(searchPattern);
+            }
+            
+            data.addEffortAllocationData(effortAllocationData, 0);
+
+        }
+
+        this.setSarData(data);
+        setSarType(SAR_TYPE.RAPID_RESPONSE);
+
+        hasSar = true;
+
+        notifyListeners(VOCTUpdateEvent.SAR_RECEIVED_CLOUD);
+
     }
 
 }

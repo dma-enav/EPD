@@ -23,6 +23,8 @@ import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.route.Route;
@@ -55,7 +57,7 @@ public class ThreadedMapCreator implements Runnable {
 
     private MainFrame mainFrame;
     private Route originalRoute;
-    
+
     private boolean SAR;
     MapFrameType type;
 
@@ -85,7 +87,8 @@ public class ThreadedMapCreator implements Runnable {
         monaLisaHandling = false;
     }
 
-    public ThreadedMapCreator(MainFrame mainFrame, boolean SAR, MapFrameType type) {
+    public ThreadedMapCreator(MainFrame mainFrame, boolean SAR,
+            MapFrameType type) {
         this.mainFrame = mainFrame;
         loadFromWorkspace = false;
         monaLisaHandling = false;
@@ -122,22 +125,19 @@ public class ThreadedMapCreator implements Runnable {
 
         window.getChartPanel().getVoyageHandlingLayer()
                 .handleVoyage(originalRoute, voyage, renegotiate);
-        
+
         int positionX = 200;
         int positionY = 200;
-        
-        
-        
+
         int width = (int) (mainFrame.getSize().getWidth() - positionX - 100);
         int height = (int) (mainFrame.getSize().getHeight() - positionY - 100);
-        
-        window.setSize(width, height);
-//        window.setSize(1280, 768);
 
-        
-        //100, 100
+        window.setSize(width, height);
+        // window.setSize(1280, 768);
+
+        // 100, 100
         window.setLocation(positionX, positionY);
-        
+
         // The two positions that must be shown
         Position pos1 = voyage.getRoute().getWaypoints().get(0).getPos();
         Position pos2 = voyage.getRoute().getWaypoints()
@@ -251,44 +251,55 @@ public class ThreadedMapCreator implements Runnable {
 
         return window;
     }
-    
-    private SARFrame addSARWindow() {
-//        mainFrame.increaseWindowCount();
 
-        SARFrame window = new SARFrame(-1, mainFrame,
-                type);
+    private SARFrame addSARWindow() {
+        // mainFrame.increaseWindowCount();
+
+        SARFrame window = new SARFrame(-1, mainFrame, type);
 
         mainFrame.getDesktop().add(window);
-        
-        
+
         Dimension mainFrameSize = mainFrame.getSize();
 
-        if (type == MapFrameType.SAR_Planning){
-            window.setTitle("Search and Rescue - Planning"); 
+        if (type == MapFrameType.SAR_Planning) {
+            window.setTitle("Search and Rescue - Planning");
             window.setLocation(0, 0);
+            window.setSize((int) mainFrameSize.getWidth() - 20,
+                    (int) mainFrameSize.getHeight() - 20);
+
         }
-        if (type == MapFrameType.SAR_Tracking){
+        if (type == MapFrameType.SAR_Tracking) {
             window.setTitle("Search and Rescue - Tracking");
-            window.setLocation((int) mainFrameSize.getWidth()/2 - 10, 0);
+
+            // Put Tracking on left side of screen
+            window.setLocation((int) mainFrameSize.getWidth() / 2 - 10, 0);
+            window.setSize((int) mainFrameSize.getWidth() / 2 - 10,
+                    (int) mainFrameSize.getHeight() - 10);
+            for (int i = 0; i < EPDShore.getMainFrame().getMapWindows().size(); i++) {
+                if (EPDShore.getMainFrame().getMapWindows().get(i).getType() == MapFrameType.SAR_Planning) {
+                    JMapFrame planningWindow = EPDShore.getMainFrame()
+                            .getMapWindows().get(i);
+                    planningWindow.setLocation(0, 0);
+                    planningWindow.setSize(
+                            (int) mainFrameSize.getWidth() / 2 - 20,
+                            (int) mainFrameSize.getHeight() - 10);
+                    break;
+                }
+            }
         }
-        
-        
-        window.setSize((int) mainFrameSize.getWidth()/2 -10, (int) mainFrameSize.getHeight()-10);
+
         mainFrame.getMapWindows().add(window);
-        
-//        mainFrame.getTopMenu().addMap(window, false, false);
+
+        // mainFrame.getTopMenu().addMap(window, false, false);
 
         window.alwaysFront();
 
-        
-        window.getChartPanel().zoomToPoint(EPDShore.getVoctManager().getSarData().getLKP());
+        window.getChartPanel().zoomToPoint(
+                EPDShore.getVoctManager().getSarData().getLKP());
         window.getChartPanel().getMap().setScale(100000);
-        
-
 
         return window;
     }
-    
 
     @Override
     public void run() {
@@ -307,15 +318,20 @@ public class ThreadedMapCreator implements Runnable {
             setupSharedLayers(mapFrame);
             return;
         }
-        
-        if (SAR){
+
+        if (SAR) {
+
             JMapFrame mapFrame = addSARWindow();
             setupSharedLayers(mapFrame);
+
             return;
         }
 
+//        long startTime = System.currentTimeMillis();
         JMapFrame mapFrame = addMapWindow();
         setupSharedLayers(mapFrame);
+        
+//        System.out.println("Time elapsed: " + (System.currentTimeMillis() - startTime)/1000 );
 
     }
 

@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.model.voct.sardata;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,9 +23,10 @@ import org.joda.time.DateTime;
 
 import dk.dma.enav.model.geometry.Position;
 
-public class SARData {
+public class SARData implements Serializable {
 
-    
+
+    private static final long serialVersionUID = 1L;
     String sarID;
     private DateTime LKPDate;
     private DateTime CSSDate;
