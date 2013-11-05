@@ -95,6 +95,7 @@ public class RapidResponseData extends SARData {
         }
         
         
+        
         List<SARWeatherData> weatherPoints = new ArrayList<SARWeatherData>();
         
         for (int i = 0; i < data.getWeatherData().size(); i++) {
