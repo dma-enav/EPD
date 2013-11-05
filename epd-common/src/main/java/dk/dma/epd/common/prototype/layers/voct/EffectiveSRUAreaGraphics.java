@@ -58,6 +58,10 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
     public EffectiveSRUAreaGraphics(Position A, Position B, Position C, Position D, int id){
         super();
         
+        this.A = A;
+        this.B = B;
+        this.C = C;
+        this.D = D;
         
         effectiveArea = new AreaInternalGraphics(A, B, C, D, 0.0, 0.0,
                 this, verticalBearing, horizontalBearing);
@@ -651,10 +655,13 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         // System.out.println("Is the effective area null? ");
         // System.out.println(sarData.getFirstEffortAllocationData()==null);
         //
-        sarData.getEffortAllocationData().get(id).setEffectiveAreaA(A);
-        sarData.getEffortAllocationData().get(id).setEffectiveAreaB(B);
-        sarData.getEffortAllocationData().get(id).setEffectiveAreaC(C);
-        sarData.getEffortAllocationData().get(id).setEffectiveAreaD(D);
+        if (sarData.getEffortAllocationData().size() > id){
+            sarData.getEffortAllocationData().get(id).setEffectiveAreaA(A);
+            sarData.getEffortAllocationData().get(id).setEffectiveAreaB(B);
+            sarData.getEffortAllocationData().get(id).setEffectiveAreaC(C);
+            sarData.getEffortAllocationData().get(id).setEffectiveAreaD(D);    
+        }
+        
     }
 
 }

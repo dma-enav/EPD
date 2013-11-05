@@ -61,6 +61,7 @@ public class EffortAllocationData implements Serializable {
         
         
         
+        
     }
 
 
@@ -260,6 +261,22 @@ public class EffortAllocationData implements Serializable {
                 searchTime, effectiveAreaSize, effectiveAreaA.getDTO(), effectiveAreaB.getDTO(),
                 effectiveAreaC.getDTO(), effectiveAreaD.getDTO());
     }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "EffortAllocationData [w=" + w + ", groundSpeed=" + groundSpeed
+                + ", pod=" + pod + ", trackSpacing=" + trackSpacing
+                + ", searchTime=" + searchTime + ", effectiveAreaSize="
+                + effectiveAreaSize + ", effectiveAreaA=" + effectiveAreaA
+                + ", effectiveAreaB=" + effectiveAreaB + ", effectiveAreaC="
+                + effectiveAreaC + ", effectiveAreaD=" + effectiveAreaD
+                + ", searchPatternRoute=" + searchPatternRoute + ", noReDraw="
+                + noReDraw + "]";
+    }
+    
     
 }
 

@@ -33,22 +33,24 @@ import dk.dma.epd.ship.event.IMapCoordListener;
 import dk.dma.epd.ship.gui.panels.SARPanel;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 
-public class SARComponentPanel extends OMComponentPanel implements IGpsDataListener, Runnable, ProjectionListener, IMapCoordListener, VOCTUpdateListener {
+public class SARComponentPanel extends OMComponentPanel implements
+        IGpsDataListener, Runnable, ProjectionListener, IMapCoordListener,
+        VOCTUpdateListener {
 
     private static final long serialVersionUID = 1L;
     private final SARPanel sarPanel;
     private VOCTManager voctManager;
-    
-    public SARComponentPanel(){
+
+    public SARComponentPanel() {
         super();
-        
-//        this.setMinimumSize(new Dimension(10, 165));
-        
+
+        // this.setMinimumSize(new Dimension(10, 165));
+
         sarPanel = new SARPanel();
-//        activeWaypointPanel.setVisible(false);
+        // activeWaypointPanel.setVisible(false);
         sarPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
         setBorder(null);
-        
+
         setLayout(new BorderLayout(0, 0));
         add(sarPanel, BorderLayout.NORTH);
         setVisible(false);
@@ -57,19 +59,19 @@ public class SARComponentPanel extends OMComponentPanel implements IGpsDataListe
     @Override
     public void recieveCoord(LatLonPoint llp) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void projectionChanged(ProjectionEvent e) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void run() {
         // TODO Auto-generated method stub
-        
+
     }
 
     /**
@@ -77,18 +79,18 @@ public class SARComponentPanel extends OMComponentPanel implements IGpsDataListe
      */
     @Override
     public void gpsDataUpdate(GpsData gpsData) {
-//        sarPanel.updateActiveNavData();
+        // sarPanel.updateActiveNavData();
     }
-    
+
     @Override
     public void findAndInit(Object obj) {
 
         if (obj instanceof GpsHandler) {
-            ((GpsHandler)obj).addListener(this);
+            ((GpsHandler) obj).addListener(this);
         }
-        
+
         if (obj instanceof VOCTManager) {
-            voctManager= (VOCTManager) obj;
+            voctManager = (VOCTManager) obj;
             voctManager.addListener(this);
             sarPanel.setVoctManager(voctManager);
         }
@@ -96,31 +98,41 @@ public class SARComponentPanel extends OMComponentPanel implements IGpsDataListe
 
     @Override
     public void voctUpdated(VOCTUpdateEvent e) {
-        
-        if (e == VOCTUpdateEvent.SAR_CANCEL){
+
+        if (e == VOCTUpdateEvent.SAR_CANCEL) {
             sarPanel.sarCancel();
         }
-        
-        if (e == VOCTUpdateEvent.SAR_DISPLAY){
+
+        if (e == VOCTUpdateEvent.SAR_DISPLAY) {
             sarPanel.sarComplete(voctManager.getSarData());
+            sarPanel.getBtnEffortAllocation().setEnabled(true);
+            sarPanel.getBtnGenerateSearchPattern().setEnabled(true);
         }
-        if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY){
+        if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY) {
             sarPanel.effortAllocationComplete(voctManager.getSarData());
         }
-        if (e == VOCTUpdateEvent.SEARCH_PATTERN_GENERATED){
+        if (e == VOCTUpdateEvent.SEARCH_PATTERN_GENERATED) {
             sarPanel.searchPatternGenerated(voctManager.getSarData());
         }
-        
-        if (e == VOCTUpdateEvent.SAR_RECEIVED_CLOUD){
+
+        if (e == VOCTUpdateEvent.SAR_RECEIVED_CLOUD) {
             sarPanel.sarComplete(voctManager.getSarData());
-            
-            if (voctManager.getSarData().getEffortAllocationData().size() > 0){
+            sarPanel.getBtnReopenCalculations().setEnabled(false);
+
+            if (voctManager.getSarData().getEffortAllocationData().size() > 0) {
                 sarPanel.effortAllocationComplete(voctManager.getSarData());
-                
+                sarPanel.getBtnEffortAllocation().setEnabled(false);
+
+                if (voctManager.getSarData().getEffortAllocationData().get(0)
+                        .getSearchPatternRoute() != null) {
+
+                    sarPanel.getChckbxShowDynamicPattern().setEnabled(false);
+                    sarPanel.getBtnGenerateSearchPattern().setEnabled(false);
+                }
+
             }
-            
+
         }
     }
-    
 
 }

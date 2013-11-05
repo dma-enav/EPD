@@ -31,6 +31,11 @@ public class SearchPatternRoute extends Route {
 
     private boolean dynamic;
     
+    
+    public SearchPatternRoute(Route route){
+        super(route);
+    }
+    
     public SearchPatternRoute(List<Position> positions) {
 
         this.staticPositions = positions;

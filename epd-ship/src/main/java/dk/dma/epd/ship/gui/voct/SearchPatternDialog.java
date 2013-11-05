@@ -458,6 +458,8 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
     private void setValues(int position) {
         Position importedPosition = null;
 
+        System.out.println("is the data null " + voctManager.getSarData()
+                    .getFirstEffortAllocationData());
         switch (position) {
         case 0:
             return;
@@ -479,6 +481,8 @@ public class SearchPatternDialog extends SearchPatternDialogCommon{
             break;
         }
 
+        System.out.println("Imported pos: " + importedPosition);
+        
         String lat = importedPosition.getLatitudeAsString();
 
         System.out.println("Lat is" + lat);

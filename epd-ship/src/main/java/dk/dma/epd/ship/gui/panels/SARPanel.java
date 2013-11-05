@@ -158,4 +158,35 @@ public class SARPanel extends SARPanelCommon {
         return buttonsPanel;
     }
 
+    /**
+     * @return the btnGenerateSearchPattern
+     */
+    public JButton getBtnGenerateSearchPattern() {
+        return btnGenerateSearchPattern;
+    }
+
+    /**
+     * @return the chckbxShowDynamicPattern
+     */
+    public JCheckBox getChckbxShowDynamicPattern() {
+        return chckbxShowDynamicPattern;
+    }
+
+    /**
+     * @return the btnReopenCalculations
+     */
+    public JButton getBtnReopenCalculations() {
+        return btnReopenCalculations;
+    }
+
+    /**
+     * @return the btnEffortAllocation
+     */
+    public JButton getBtnEffortAllocation() {
+        return btnEffortAllocation;
+    }
+
+    
+    
+    
 }

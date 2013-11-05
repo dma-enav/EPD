@@ -25,7 +25,6 @@ import dk.dma.enav.model.geometry.Position;
 
 public class SARData implements Serializable {
 
-
     private static final long serialVersionUID = 1L;
     String sarID;
     private DateTime LKPDate;
@@ -33,22 +32,18 @@ public class SARData implements Serializable {
 
     private Position LKP;
     private Position CSP;
-//    EffortAllocationData effortAllocationData = new EffortAllocationData();
+    // EffortAllocationData effortAllocationData = new EffortAllocationData();
 
     List<EffortAllocationData> effortAllocationData = new ArrayList<EffortAllocationData>();
-    
-    
+
     private double x;
     private double y;
     private double safetyFactor;
-    
+
     private int searchObject;
 
     private List<SARWeatherData> weatherPoints = new ArrayList<SARWeatherData>();
-    
-    
-    
-    
+
     public SARData(String sarID, DateTime TLKP, DateTime CSS, Position LKP,
             double x, double y, double safetyFactor, int searchObject) {
 
@@ -62,56 +57,52 @@ public class SARData implements Serializable {
         this.setSafetyFactor(safetyFactor);
         this.setSearchObject(searchObject);
     }
-    
-    
+
     /**
      * @return the effortAllocationData
      */
     public EffortAllocationData getFirstEffortAllocationData() {
-        
-        if (effortAllocationData.size() == 0){
+
+        if (effortAllocationData.size() == 0) {
             EffortAllocationData data = new EffortAllocationData();
             effortAllocationData.add(data);
         }
-        
+
         return effortAllocationData.get(0);
     }
 
     /**
-     * @param effortAllocationData the effortAllocationData to set
+     * @param effortAllocationData
+     *            the effortAllocationData to set
      */
-    public void setFirstEffortAllocationData(EffortAllocationData effortAllocationData) {
+    public void setFirstEffortAllocationData(
+            EffortAllocationData effortAllocationData) {
         this.effortAllocationData.add(0, effortAllocationData);
     }
-    
-    
-    public void addEffortAllocationData(EffortAllocationData data, int i){
-        
-        //Does it already have the element? then replace it
-        if (effortAllocationData.size() > i){
-            effortAllocationData.set(i, data);    
-        }else{
+
+    public void addEffortAllocationData(EffortAllocationData data, int i) {
+
+        // Does it already have the element? then replace it
+        if (effortAllocationData.size() > i) {
+            effortAllocationData.set(i, data);
+        } else {
             effortAllocationData.add(data);
         }
-        
-        
-        
-//        for (int i = 0; i < effortAllocationData.size(); i++) {
-//            
-//            if (effortAllocationData.get(i) == data){
-//                return;
-//            }
-//            
-//        }
-//        
-//        
+
+        // for (int i = 0; i < effortAllocationData.size(); i++) {
+        //
+        // if (effortAllocationData.get(i) == data){
+        // return;
+        // }
+        //
+        // }
+        //
+        //
     }
-    
-    public void removeAllEffortAllocationData(){
+
+    public void removeAllEffortAllocationData() {
         effortAllocationData.clear();
     }
-    
-    
 
     /**
      * @return the effortAllocationData
@@ -120,15 +111,14 @@ public class SARData implements Serializable {
         return effortAllocationData;
     }
 
-
     /**
-     * @param effortAllocationData the effortAllocationData to set
+     * @param effortAllocationData
+     *            the effortAllocationData to set
      */
     public void setEffortAllocationData(
             List<EffortAllocationData> effortAllocationData) {
         this.effortAllocationData = effortAllocationData;
     }
-
 
     /**
      * @return the lKPDate
@@ -226,7 +216,7 @@ public class SARData implements Serializable {
     public int getSearchObject() {
         return searchObject;
     }
-    
+
     /**
      * @param searchObject
      *            the searchObject to set
@@ -242,7 +232,7 @@ public class SARData implements Serializable {
     public void setLKP(Position lKP) {
         LKP = lKP;
     }
-    
+
     /**
      * @return the lKP
      */
@@ -258,13 +248,12 @@ public class SARData implements Serializable {
     }
 
     /**
-     * @param weatherPoints the weatherPoints to set
+     * @param weatherPoints
+     *            the weatherPoints to set
      */
     public void setWeatherPoints(List<SARWeatherData> weatherPoints) {
         this.weatherPoints = weatherPoints;
     }
-
-
 
     /**
      * @return the sarID
@@ -274,18 +263,15 @@ public class SARData implements Serializable {
     }
 
     /**
-     * @param sarID the sarID to set
+     * @param sarID
+     *            the sarID to set
      */
     public void setSarID(String sarID) {
         this.sarID = sarID;
     }
 
-
     public String generateHTML() {
         return "Invalid type";
     }
-
-    
-    
 
 }
