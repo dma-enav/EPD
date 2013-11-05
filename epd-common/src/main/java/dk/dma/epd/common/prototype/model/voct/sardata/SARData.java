@@ -26,7 +26,7 @@ import dk.dma.enav.model.geometry.Position;
 public class SARData implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    String sarID;
+    private String sarID;
     private DateTime LKPDate;
     private DateTime CSSDate;
 

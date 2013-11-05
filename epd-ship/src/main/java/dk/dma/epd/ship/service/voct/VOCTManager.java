@@ -145,6 +145,27 @@ public class VOCTManager extends VOCTManagerCommon {
 
     public void handleSARDataPackage(VOCTCommunicationMessage message) {
 
+        // Remove any old SAR data
+        if (sarData != null) {
+            if (sarData.getEffortAllocationData().size() > 0) {
+                if (sarData.getEffortAllocationData().get(0)
+                        .getSearchPatternRoute() != null) {
+                    System.out.println("Removing existing routes");
+                    
+                    int routeIndex = EPDShip.getRouteManager().getRouteIndex(
+                            sarData.getEffortAllocationData().get(0)
+                                    .getSearchPatternRoute());
+
+                    EPDShip.getRouteManager().removeRoute(routeIndex);
+                    
+                    
+                    EPDShip.getRouteManager().notifyListeners(
+                            RoutesUpdateEvent.ROUTE_REMOVED);
+                    
+                }
+            }
+        }
+
         RapidResponseData data = new RapidResponseData(message.getSarData());
 
         if (message.getEffortAllocationData() != null) {
@@ -154,14 +175,15 @@ public class VOCTManager extends VOCTManagerCommon {
                     message.getEffortAllocationData());
 
             if (message.getSearchPattern() != null) {
-                SearchPatternRoute searchPattern =new SearchPatternRoute( new Route(
-                        message.getSearchPattern()));
+                SearchPatternRoute searchPattern = new SearchPatternRoute(
+                        new Route(message.getSearchPattern()));
                 effortAllocationData.setSearchPatternRoute(searchPattern);
                 EPDShip.getRouteManager().addRoute(searchPattern);
-                EPDShip.getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
-                
+                EPDShip.getRouteManager().notifyListeners(
+                        RoutesUpdateEvent.ROUTE_ADDED);
+
             }
-            
+
             data.addEffortAllocationData(effortAllocationData, 0);
 
         }

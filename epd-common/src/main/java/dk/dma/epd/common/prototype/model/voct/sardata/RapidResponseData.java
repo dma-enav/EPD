@@ -25,6 +25,7 @@ import org.joda.time.format.DateTimeFormatter;
 import dk.dma.enav.model.dto.PositionDTO;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.voct.RapidResponseDTO;
+import dk.dma.enav.model.voct.WeatherDataDTO;
 import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 import dk.dma.epd.common.text.Formatter;
 
@@ -93,6 +94,14 @@ public class RapidResponseData extends SARData {
             windList.add(Position.create(data.getWindList().get(i).getLatitude(), data.getWindList().get(i).getLongitude()));
         }
         
+        
+        List<SARWeatherData> weatherPoints = new ArrayList<SARWeatherData>();
+        
+        for (int i = 0; i < data.getWeatherData().size(); i++) {
+            weatherPoints.add(new SARWeatherData(data.getWeatherData().get(i)));
+        }
+        
+        this.setWeatherPoints(weatherPoints);
     }
 
     public void setBox(Position A, Position B, Position C, Position D) {
@@ -411,14 +420,20 @@ public class RapidResponseData extends SARData {
         }
         
 
-        return new RapidResponseDTO(sarID, this.getLKPDate().toDate(), this
+        List<WeatherDataDTO> weatherList = new ArrayList<WeatherDataDTO>();
+        
+        for (int i = 0; i < getWeatherPoints().size(); i++) {
+            weatherList.add(getWeatherPoints().get(i).getDTO());
+        }
+        
+        return new RapidResponseDTO(getSarID(), this.getLKPDate().toDate(), this
                 .getCSSDate().toDate(), this.getLKP().getDTO(), 
                 cSPPos
                 , this.getX(), this.getY(), this.getSafetyFactor(),
                 this.getSearchObject(), currentListDTO, windListDTO,
                 datum.getDTO(), radius, timeElasped, rdvDirection, rdvDistance,
                 rdvSpeed, rdvDirectionLast, rdvSpeedLast, A.getDTO(),
-                B.getDTO(), C.getDTO(), D.getDTO());
+                B.getDTO(), C.getDTO(), D.getDTO(), weatherList);
     }
 
 }

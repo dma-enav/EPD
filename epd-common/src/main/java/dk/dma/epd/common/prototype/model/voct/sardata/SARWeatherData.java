@@ -17,6 +17,8 @@ package dk.dma.epd.common.prototype.model.voct.sardata;
 
 import org.joda.time.DateTime;
 
+import dk.dma.enav.model.voct.WeatherDataDTO;
+
 public class SARWeatherData {
 
     private double TWCHeading;
@@ -27,6 +29,16 @@ public class SARWeatherData {
     private double downWind;
     private DateTime dateTime;
 
+    
+    public SARWeatherData(WeatherDataDTO data){
+        this.TWCHeading = data.getTWCHeading();
+        this.TWCknots = data.getTWCknots();
+        this.LWknots = data.getLWknots();
+        this.LWHeading = data.getLWHeading();
+        this.downWind = data.getDownWind();
+        this.dateTime = new DateTime(data.getDate());
+    }
+    
     public SARWeatherData(double tWCHeading, double tWCknots, double lWknots,
             double lWHeading, DateTime dateTime) {
         TWCHeading = tWCHeading;
@@ -147,6 +159,11 @@ public class SARWeatherData {
                 + LWHeading + "°</br>");
         
         return str.toString();
+    }
+    
+    
+    public WeatherDataDTO getDTO(){
+        return new WeatherDataDTO(TWCHeading, TWCknots, LWknots, LWHeading, downWind, dateTime.toDate());
     }
     
 }
