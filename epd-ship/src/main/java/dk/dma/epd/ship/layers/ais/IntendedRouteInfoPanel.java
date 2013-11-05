@@ -25,7 +25,7 @@ import dk.dma.epd.common.prototype.layers.ais.IntendedRouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteWpCircle;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Calculator;
-import dk.dma.epd.ship.gui.InfoPanel;
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 
 public class IntendedRouteInfoPanel extends InfoPanel {
     private static final long serialVersionUID = 1L;

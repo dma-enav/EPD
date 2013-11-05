@@ -41,6 +41,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
+import dk.dma.epd.common.prototype.gui.metoc.MetocRequestDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteMetocSettings;
 import dk.dma.epd.common.text.Formatter;

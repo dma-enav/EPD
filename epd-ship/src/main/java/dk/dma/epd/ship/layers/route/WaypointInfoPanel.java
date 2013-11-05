@@ -17,12 +17,12 @@ package dk.dma.epd.ship.layers.route;
 
 import java.util.Date;
 
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.ship.gui.InfoPanel;
 
 /**
  * Mouse over info for waypoint. 

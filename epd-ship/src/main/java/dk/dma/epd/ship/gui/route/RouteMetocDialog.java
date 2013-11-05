@@ -46,6 +46,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
+import dk.dma.epd.common.prototype.gui.metoc.MetocRequestDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteMetocSettings;
 import dk.dma.epd.common.prototype.monalisa.XMLDialog;

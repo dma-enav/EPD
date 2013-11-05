@@ -85,9 +85,11 @@ import dk.dma.epd.ship.gui.menuitems.RouteWaypointDelete;
 import dk.dma.epd.ship.gui.menuitems.SarTargetDetails;
 import dk.dma.epd.ship.gui.menuitems.SendToSTCC;
 import dk.dma.epd.ship.gui.menuitems.SuggestedRouteDetails;
+import dk.dma.epd.ship.gui.menuitems.VoyageAppendWaypoint;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
+import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.route.strategic.RecievedRoute;
@@ -137,7 +139,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private SuggestedRouteDetails suggestedRouteDetails;
     private RouteEditEndRoute routeEditEndRoute;
     private SendToSTCC sendToSTCC;
-
+    private VoyageAppendWaypoint voyageAppendWaypoint;
     // bean context
     protected String propertyPrefix;
     protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(
@@ -158,9 +160,14 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private EnavServiceHandler enavServiceHandler;
     private Point windowLocation;
     private StrategicRouteExchangeHandler monaLisaHandler;
+
+    /**
+     * The location on screen where this MapMenu was last displayed. 
+     */
+    private Point latestScreenLocation;
     
-//    private RouteLayer routeLayer;
-//    private VoyageLayer voyageLayer;
+    // private RouteLayer routeLayer;
+    // private VoyageLayer voyageLayer;
 
     public MapMenu() {
         super();
@@ -220,7 +227,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         routeReverse = new RouteReverse("Reverse route");
         routeReverse.addActionListener(this);
 
-        routeDelete = new RouteDelete("Delete route");
+        routeDelete = new RouteDelete("Delete route", this);
         routeDelete.addActionListener(this);
 
         monaLisaRouteRequest = new MonaLisaRouteRequest(
@@ -258,6 +265,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         routeEditEndRoute = new RouteEditEndRoute("End route");
         routeEditEndRoute.addActionListener(this);
 
+        // Route negotiation items
+        this.voyageAppendWaypoint = new VoyageAppendWaypoint("Append waypoint");
+        this.voyageAppendWaypoint.addActionListener(this);
     }
 
     /**
@@ -330,13 +340,13 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         }
 
         addSeparator();
-//        JSeparator separator = new JSeparator(SwingConstants.VERTICAL);
-//        separator.setSize(new Dimension(50,50));
-//        separator.setVisible(true);
-        
-//        add(separator);
-//        addSeparator();
-        
+        // JSeparator separator = new JSeparator(SwingConstants.VERTICAL);
+        // separator.setSize(new Dimension(50,50));
+        // separator.setVisible(true);
+
+        // add(separator);
+        // addSeparator();
+
         add(clearMap);
         add(hideIntendedRoutes);
         add(scaleMenu);
@@ -468,28 +478,38 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         generalMenu(false);
     }
 
-    public void sendToSTCC(int routeIndex){
+    public void sendToSTCC(int routeIndex) {
         removeAll();
-        
-        System.out.println("Route index is: " + routeIndex + " Active route index is: " + routeManager.getActiveRouteIndex());
-        
+
+        System.out.println("Route index is: " + routeIndex
+                + " Active route index is: "
+                + routeManager.getActiveRouteIndex());
+
         sendToSTCC.setRoute(route);
         sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
-                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() >0 && routeManager.getActiveRouteIndex() != routeIndex && enavServiceHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
-        
-        if (monaLisaHandler.isTransaction()){
+                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() > 0
+                        && routeManager.getActiveRouteIndex() != routeIndex
+                        && enavServiceHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
+
+        if (monaLisaHandler.isTransaction()) {
             sendToSTCC.setText("Show STCC info");
-        }else{
+        } else {
             sendToSTCC.setText("Send to STCC");
         }
-        
+
         add(sendToSTCC);
-        
+
     }
-    
+
+    public void addAppendWaypointMenuItem(Route route, VoyageLayer vl) {
+        this.voyageAppendWaypoint.setVoyageLayer(vl);
+        this.voyageAppendWaypoint.setRoute(route);
+        this.add(this.voyageAppendWaypoint);
+    }
+
     public void generalRouteMenu(int routeIndex) {
-        
+
         if (routeManager.getActiveRouteIndex() == routeIndex) {
             routeActivateToggle.setText("Deactivate route");
             routeHide.setEnabled(false);
@@ -507,26 +527,27 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         routeAppendWaypoint.setRouteIndex(routeIndex);
         add(routeAppendWaypoint);
 
-//        addSeparator();
+        // addSeparator();
         Separator seperator = new Separator();
         seperator.setVisible(true);
         this.add(seperator);
-        
 
         sendToSTCC.setRoute(route);
         sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
-                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() >0 && routeManager.getActiveRouteIndex() != routeIndex && enavServiceHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
-        
-        if (monaLisaHandler.isTransaction()){
+                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() > 0
+                        && routeManager.getActiveRouteIndex() != routeIndex
+                        && enavServiceHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
+
+        if (monaLisaHandler.isTransaction()) {
             sendToSTCC.setText("Show STCC info");
-        }else{
+        } else {
             sendToSTCC.setText("Send to STCC");
         }
-        
+
         add(sendToSTCC);
 
-//        addSeparator();
+        // addSeparator();
 
         routeActivateToggle.setRouteManager(routeManager);
         routeActivateToggle.setRouteIndex(routeIndex);
@@ -589,7 +610,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         routeProperties.setRouteIndex(routeIndex);
         add(routeProperties);
 
-//        generalMenu(false);
+        // generalMenu(false);
         this.repaint();
     }
 
@@ -616,7 +637,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
     public void routeWaypointMenu(int routeIndex, int routeWaypointIndex) {
         removeAll();
-        
+
         routeWaypointActivateToggle.setRouteWaypointIndex(routeWaypointIndex);
         routeWaypointActivateToggle.setRouteManager(routeManager);
 
@@ -706,11 +727,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         if (obj instanceof StrategicRouteExchangeHandler) {
             monaLisaHandler = (StrategicRouteExchangeHandler) obj;
         }
-//        if (obj instanceof VoyageLayer) {
-//            voyageLayer = (VoyageLayer) obj;
-//        }
-        
-        
+        // if (obj instanceof VoyageLayer) {
+        // voyageLayer = (VoyageLayer) obj;
+        // }
 
     }
 
@@ -773,34 +792,26 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         this.windowLocation = point;
     }
 
-//    @Override
-//    public void show(boolean show){
-//        
-//    }
-    
-//    @Override
-//    public void setVisible(boolean visible){
-//        System.out.println("Set visible: " + visible);
-//        super.setVisible(visible);
-//    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    // @Override
+    // public void show(boolean show){
+    //
+    // }
+
+     @Override
+     public void setVisible(boolean visible){
+         if(this.isVisible()) {
+             // log latest location every time this MapMenu is made visible.
+             this.latestScreenLocation = this.getLocationOnScreen();
+         }
+         super.setVisible(visible);
+     }
+
+     /**
+      * Get the position on screen where this MapMenu was last shown.
+      * @return The latest position or null if this MapMenu was never shown.
+      */
+     public Point getLatestVisibleLocation() {
+         return this.latestScreenLocation;
+     }
+     
 }

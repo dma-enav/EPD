@@ -26,7 +26,7 @@ import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Util;
-import dk.dma.epd.ship.gui.InfoPanel;
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 
 /**
  * AIS SART mouse over info

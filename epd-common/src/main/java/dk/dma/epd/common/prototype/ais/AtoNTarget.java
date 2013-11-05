@@ -30,7 +30,7 @@ public class AtoNTarget extends AisTarget {
     private static final long serialVersionUID = 1L;
     
     private Position pos;
-    private int atonType;
+    private AtoNTargetType atonType;
     private String name;
     private int posAcc;
     private int dimBow;
@@ -81,7 +81,9 @@ public class AtoNTarget extends AisTarget {
      */
     public synchronized void update(AisMessage21 msg21) {
         pos = msg21.getPos().getGeoLocation();
-        atonType = msg21.getAtonType();
+        int atonTypeCode = msg21.getAtonType();
+        // TODO add null check or "crash and burn"? (if type code is invalid)
+        this.atonType = AtoNTargetType.getAtoNTargetTypeFromTypeCode(atonTypeCode);
         name = msg21.getName();
         posAcc = msg21.getPosAcc();
         dimBow = msg21.getDimBow();
@@ -112,11 +114,11 @@ public class AtoNTarget extends AisTarget {
         return pos;
     }
 
-    public synchronized int getAtonType() {
+    public synchronized AtoNTargetType getAtonType() {
         return atonType;
     }
 
-    public synchronized void setAtonType(int atonType) {
+    public synchronized void setAtonType(AtoNTargetType atonType) {
         this.atonType = atonType;
     }
 

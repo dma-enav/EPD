@@ -552,6 +552,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
      * @param route
      * @throws ShoreServiceException
      */
+    @Override
     public void requestRouteMetoc(Route route) throws ShoreServiceException {
         // Request METOC from shore
         MetocForecast metocForecast = shoreServices.routeMetoc(route);

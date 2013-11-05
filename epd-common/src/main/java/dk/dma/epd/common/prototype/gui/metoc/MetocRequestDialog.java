@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.route;
+package dk.dma.epd.common.prototype.gui.metoc;
 
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -29,46 +29,47 @@ import javax.swing.WindowConstants;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.route.RouteManager;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
-
 
 /**
  * Dialog shown when requesting METOC
  */
 public class MetocRequestDialog extends JDialog implements Runnable, ActionListener {
-
+    
     private static final long serialVersionUID = 1L;
-
-    private RouteManager routeManager;
+    
+    private RouteManagerCommon routeManager;
     private Route route;
+    private Window parent;
     private JLabel statusLbl;
     private JButton cancelBtn;
     private Boolean cancelReq = false;
-
-    public MetocRequestDialog(RouteManager routeManager, Route route) {
-        super(EPDShore.getMainFrame(), "Request METOC");
+    private Boolean rawMetoc = false;
+    
+    public MetocRequestDialog(Window parent, RouteManagerCommon routeManager, Route route) {
+        super(parent, "Request METOC");
         this.routeManager = routeManager;
         this.route = route;
-
-        initGui();
+        this.parent = parent;
+        
+        initGui();        
     }
-
-    public static void requestMetoc(Window parent, RouteManager routeManager, Route route) {
-        MetocRequestDialog metocRequestDialog = new MetocRequestDialog(routeManager, route);
+    
+    public static void requestMetoc(Window parent, RouteManagerCommon routeManager, Route route) {
+        MetocRequestDialog metocRequestDialog = new MetocRequestDialog(parent, routeManager, route);
         metocRequestDialog.doRequestMetoc();
         metocRequestDialog = null;
     }
-
+    
     private void doRequestMetoc() {
         // Start thread
         new Thread(this).start();
-
+        
         // Set dialog visible
         setVisible(true);
     }
-
+    
     @Override
     public void run() {
         ShoreServiceException error = null;
@@ -77,58 +78,60 @@ public class MetocRequestDialog extends JDialog implements Runnable, ActionListe
         } catch (ShoreServiceException e) {
             error = e;
         }
-
+        
         if (isCancelReq()) {
             route.removeMetoc();
             routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_METOC_CHANGED);
             return;
         }
-
+        
         if (error == null) {
             routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_METOC_CHANGED);
         }
-
-        // Close dialog
-        setVisible(false);
-
-        // Give response
+        
+        // Close dialog        
+        setVisible(false);        
+        
+        // Give response        
         if (error != null) {
             String text = error.getMessage();
             if (error.getExtraMessage() != null) {
                 text += ": " + error.getExtraMessage();
             }
-            JOptionPane.showMessageDialog(EPDShore.getMainFrame(), text, "Shore service error",
+            JOptionPane.showMessageDialog(parent, text, "Shore service error",
                     JOptionPane.ERROR_MESSAGE);
         } else {
             MetocForecast metocForecast = route.getMetocForecast();
-            JOptionPane.showMessageDialog(EPDShore.getMainFrame(), "Received " + metocForecast.getForecasts().size() + " METOC forecast points", "Shore service result",
+            JOptionPane.showMessageDialog(parent, "Received " + metocForecast.getForecasts().size() + " METOC forecast points", "Shore service result",
                     JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
 
+        }
+        
+    }
+    
     private void initGui() {
         setSize(280, 130);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(EPDShore.getMainFrame());
+        setLocationRelativeTo(parent);
         getContentPane().setLayout(null);
-
+        
         cancelBtn = new JButton("Cancel");
         cancelBtn.setBounds(96, 58, 80, 23);
         getContentPane().add(cancelBtn);
         cancelBtn.addActionListener(this);
-
+        
         statusLbl = new JLabel("Getting METOC from shore server ...");
         statusLbl.setHorizontalAlignment(SwingConstants.CENTER);
         statusLbl.setBounds(10, 23, 244, 14);
         getContentPane().add(statusLbl);
     }
-
+    
     private boolean isCancelReq() {
         synchronized (cancelReq) {
             return cancelReq.booleanValue();
         }
     }
-
+    
     private void setCancelReq(boolean cancel) {
         synchronized (cancelReq) {
             this.cancelReq = cancel;
@@ -143,6 +146,14 @@ public class MetocRequestDialog extends JDialog implements Runnable, ActionListe
             route.removeMetoc();
             routeManager.notifyListeners(RoutesUpdateEvent.METOC_SETTINGS_CHANGED);
         }
+    }
+
+    public Boolean getRawMetoc() {
+        return rawMetoc;
+    }
+
+    public void setRawMetoc(Boolean rawMetoc) {
+        this.rawMetoc = rawMetoc;
     }
 
 }
