@@ -17,9 +17,9 @@ package dk.dma.epd.ship.gui.menuitems;
 
 import javax.swing.JMenuItem;
 
+import dk.dma.epd.common.prototype.gui.metoc.MetocRequestDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.gui.route.MetocRequestDialog;
 import dk.dma.epd.ship.route.RouteManager;
 
 public class RouteRequestMetoc extends JMenuItem implements IMapMenuAction {

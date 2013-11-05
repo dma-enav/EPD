@@ -17,39 +17,42 @@ package dk.dma.epd.shore.gui.views.menuitems;
 
 import javax.swing.JMenuItem;
 
-import dk.dma.epd.common.prototype.gui.metoc.MetocRequestDialog;
-import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.route.RouteManager;
 
+/**
+ * MenuItem that allows deletion of saved a Voyage (a Voyage that has been accepted by a ship).
+ * @author Janus Varmarken
+ */
+public class VoyageDeleteMenuItem extends JMenuItem implements IMapMenuAction {
 
+    /**
+     * ID of Voyage to delete.
+     */
+    private long voyageId = -1L;
 
-public class RouteRequestMetoc extends JMenuItem implements IMapMenuAction {
-
+    /**
+     * 
+     */
     private static final long serialVersionUID = 1L;
-    private int routeIndex;
-    private RouteManager routeManager;
 
-    public RouteRequestMetoc(String text) {
-        super();
-        setText(text);
+    public VoyageDeleteMenuItem(String menuItemText) {
+        super(menuItemText);
     }
 
     @Override
     public void doAction() {
-        Route route = routeManager.getRoute(routeIndex);
-        if (routeManager.isRouteActive()) {
-            route = routeManager.getActiveRoute();
-        }
-        MetocRequestDialog.requestMetoc(EPDShore.getMainFrame(), routeManager, route);
+        // Delete voyage from VoyageManager.
+        EPDShore.getVoyageManager().deleteVoyage(this.voyageId);
     }
 
-    public void setRouteIndex(int routeIndex) {
-        this.routeIndex = routeIndex;
+    /**
+     * Set the Voyage ID associated with this menu item (i.e. what Voyage will
+     * be deleted when this menuy item's doAction is invoked).
+     * 
+     * @param voyageId
+     *            ID of the voyage that this menu item will delete when invoked.
+     */
+    public void setVoyageId(long voyageId) {
+        this.voyageId = voyageId;
     }
-
-    public void setRouteManager(RouteManager routeManager) {
-        this.routeManager = routeManager;
-    }
-
 }

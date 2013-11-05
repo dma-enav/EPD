@@ -80,6 +80,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
     private MainFrame mainFrame;
 
     private float tolerance;
+
     // private boolean modified;
 
     public VoyageLayer() {
@@ -89,8 +90,9 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
     public void startRouteNegotiation(Route route) {
 
         this.primaryRoute = route;
-        tolerance =  EPDShip.getSettings().getGuiSettings().getMouseSelectTolerance();
-        
+        tolerance = EPDShip.getSettings().getGuiSettings()
+                .getMouseSelectTolerance();
+
         // Added the route as green, original recieved one
         drawRoute(route, ECDISOrange);
 
@@ -233,8 +235,15 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
             if (selectedGraphic instanceof WaypointCircle) {
                 WaypointCircle wpc = (WaypointCircle) selectedGraphic;
+
                 // waypointInfoPanel.setVisible(false);
                 routeMenu.sendToSTCC(wpc.getRouteIndex());
+                if (wpc.getRouteIndex() == 2) {
+                    // routeMenu.whatevernwestuff(withshit)
+                    routeMenu.addAppendWaypointMenuItem(wpc.getRoute(), this);
+
+                }
+
                 routeMenu.setVisible(true);
                 routeMenu.show(this, e.getX() - 2, e.getY() - 2);
                 return true;
@@ -337,8 +346,8 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
                             (int) containerPoint.getX(),
                             (int) containerPoint.getY() - 10);
 
-//                    System.out.println("Waypoint Circle info: "
-//                            + waypointCircle.getRouteIndex());
+                    // System.out.println("Waypoint Circle info: "
+                    // + waypointCircle.getRouteIndex());
 
                     voyageHandlingMouseOverPanel.showType(waypointCircle
                             .getRouteIndex());
@@ -350,8 +359,8 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
                             (int) containerPoint.getX(),
                             (int) containerPoint.getY() - 10);
 
-//                    System.out.println("Waypoint Circle info: "
-//                            + waypointLeg.getRouteIndex());
+                    // System.out.println("Waypoint Circle info: "
+                    // + waypointLeg.getRouteIndex());
 
                     voyageHandlingMouseOverPanel.showType(waypointLeg
                             .getRouteIndex());
@@ -416,6 +425,14 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     }
 
+    /**
+     * Redraw a modified STCC route (e.g. when waypoint is appended).
+     */
+    public void redrawModifiedSTCCRoute() {
+        drawRoute(2, modifiedSTCCRoute, ECDISOrange,
+                new Color(1f, 1f, 0, 0.4f), true);
+    }
+
     @Override
     public synchronized OMGraphicList prepare() {
         graphics.project(getProjection());
@@ -442,12 +459,11 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         // New route in green
         drawRoute(3, modifiedSTCCRoute, ECDISOrange,
                 new Color(1f, 1f, 0, 0.4f), true);
-        
-        
-        //Do we need to show this?
+
+        // Do we need to show this?
         // Old route in red
-//        drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
-//                false);
+        // drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
+        // false);
 
     }
 
