@@ -79,6 +79,11 @@ public class EncLayerFactory {
             return;
         }
 
+      
+      ClassLoader loader = EPDShore.class.getClassLoader();      
+      if (loader.getResource("dk/navicon/s52/pure/presentation/S52Layer.class") == null){
+          
+     
         // Add external jars to runpath
         try {
             addSoftwareLibrary(new File(EPDShore.getHomePath() + "\\lib\\s52.jar"));
@@ -101,8 +106,7 @@ public class EncLayerFactory {
         // EeINS.getHomePath().toString()+"\\navicon\\data");
         // encProps.put("enc.certLocation", "file:\\\\" +
         // EeINS.getHomePath().toString()+"\\navicon\\data");
-        encProps.put("enc.certLocation",EPDShore.getHomePath().toString()+
-                "\\" + encProps.get("enc.certLocation"));
+     
 
         try {
             addToLibraryPath(EPDShore.getHomePath().toString()+ "\\navicon\\native");
@@ -110,6 +114,11 @@ public class EncLayerFactory {
             // TODO: handle exception
         }
 
+      }
+      encProps.put("enc.certLocation",EPDShore.getHomePath().toString()+
+              "\\" + encProps.get("enc.certLocation"));
+      
+        
         // Make layer instance
         String classProperty = "enc.class";
         String className = encProps.getProperty(classProperty);
