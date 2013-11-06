@@ -342,7 +342,7 @@ public class SRUAddEditDialog extends JDialog implements ActionListener,
                 // Create a new one
                 if (sruSelection == -1) {
                     SRU sru = new SRU(vesselName, mmsi, type,
-                            sru_status.PENDING, searchSpeed, visibility,
+                            sru_status.UNAVAILABLE, searchSpeed, visibility,
                             fatigue, timeSearching);
 
                     sruManager.addSRU(sru);

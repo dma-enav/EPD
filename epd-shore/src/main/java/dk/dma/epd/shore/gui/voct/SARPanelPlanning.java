@@ -58,6 +58,7 @@ public class SARPanelPlanning extends SARPanelCommon implements VOCTUpdateListen
        
        voctManager.addListener(this);
        sarComplete(voctManager.getSarData());
+       setTitle("Search And Rescue - Planning");
    }
     
 

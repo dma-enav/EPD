@@ -430,6 +430,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         if (e == VOCTUpdateEvent.SAR_CANCEL) {
             graphics.clear();
             this.setVisible(false);
+            editLocked = false;
         }
 
         if (e == VOCTUpdateEvent.SAR_DISPLAY) {
@@ -445,11 +446,13 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
             }
 
             this.setVisible(true);
+
         }
 
         if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY) {
             createEffectiveArea();
             this.setVisible(true);
+            editLocked = false;
         }
 
         if (e == VOCTUpdateEvent.SAR_RECEIVED_CLOUD) {

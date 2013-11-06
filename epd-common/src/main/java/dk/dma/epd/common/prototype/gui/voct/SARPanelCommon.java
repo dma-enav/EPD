@@ -91,6 +91,7 @@ public class SARPanelCommon extends JPanel implements ActionListener {
     private JLabel pointDlon;
     private JLabel areaSize;
     private Component horizontalStrut;
+    private JLabel lblSAR;
     
     
 
@@ -144,7 +145,7 @@ public class SARPanelCommon extends JPanel implements ActionListener {
                 1.0, 1.0, Double.MIN_VALUE };
         noSar.setLayout(gridBagLayout);
 
-        JLabel lblSAR = new JLabel("Search And Rescue");
+        lblSAR = new JLabel("Search And Rescue");
         lblSAR.setHorizontalAlignment(SwingConstants.CENTER);
         lblSAR.setFont(new Font("Segoe UI", Font.BOLD, 14));
         GridBagConstraints gbc_lblSAR = new GridBagConstraints();
@@ -187,7 +188,7 @@ public class SARPanelCommon extends JPanel implements ActionListener {
         gridBagLayout.rowWeights = new double[] { 0.0, 1.0, 1.0, 1.0, 1.0, 1.0,
                 1.0, 1.0, 1.0, Double.MIN_VALUE };
         sarStartedPanel.setLayout(gridBagLayout);
-        JLabel lblSAR = new JLabel("Search And Rescue");
+        lblSAR = new JLabel("Search And Rescue");
         lblSAR.setHorizontalAlignment(SwingConstants.CENTER);
         lblSAR.setFont(new Font("Segoe UI", Font.BOLD, 14));
         GridBagConstraints gbc_lblSAR = new GridBagConstraints();
@@ -829,5 +830,9 @@ public class SARPanelCommon extends JPanel implements ActionListener {
     protected ButtonsPanelCommon createButtonPanel(){
         buttonsPanel = new ButtonsPanelCommon();
         return buttonsPanel;
+    }
+    
+    protected void setTitle(String title){
+        lblSAR.setText(title);
     }
 }

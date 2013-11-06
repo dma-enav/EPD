@@ -29,7 +29,7 @@ public class SRU {
     }
 
     public enum sru_status {
-        INVITED, ACCEPTED, DECLINED, PENDING, UNKNOWN
+       AVAILABLE, UNAVAILABLE, INVITED, ACCEPTED, DECLINED, UNKNOWN, LOCALONLY
     }
 
     private String name;

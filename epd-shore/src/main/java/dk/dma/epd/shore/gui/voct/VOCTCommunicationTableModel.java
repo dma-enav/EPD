@@ -15,33 +15,38 @@
  */
 package dk.dma.epd.shore.gui.voct;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.table.AbstractTableModel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.voct.SRU;
 import dk.dma.epd.shore.voct.SRUManager;
-
-
+import dk.dma.epd.shore.voct.VOCTManager;
 
 /**
  * Table model for SRUManagerDialog
  */
-public class SRUTableModel extends AbstractTableModel {
+public class VOCTCommunicationTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(SRUTableModel.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(VOCTCommunicationTableModel.class);
 
-    private static final String[] COLUMN_NAMES = {"Name", "Type", "Search Speed", "Visible"};
+    private static final String[] COLUMN_NAMES = {"Send", "Name", "Status", "SAR Data", "OA", "Search Pattern"};
 
     private SRUManager sruManager;
+    private VOCTManager voctManager;
 
-    public SRUTableModel(SRUManager sruManager) {
+    public VOCTCommunicationTableModel(SRUManager sruManager, VOCTManager voctManager) {
         super();
         this.sruManager = sruManager;
+        this.voctManager = voctManager;
     }
 
     @Override
@@ -58,16 +63,20 @@ public class SRUTableModel extends AbstractTableModel {
     public int getRowCount() {
         return sruManager.getSRUCount();
 //        return 0;
+//        return voctManager.getSarData().getEffortAllocationData().size();
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         SRU sru = sruManager.getSRUs().get(rowIndex);
+//        EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(rowIndex);
         switch (columnIndex) {
-        case 0: return Formatter.formatString(sru.getName());
-        case 1: return sru.getType();
-        case 2: return Formatter.formatDouble(sru.getSearchSpeed(), 2) + " kns";
-        case 3: return sru.isVisible();
+        case 0: return false;
+        case 1: return Formatter.formatString(sru.getName());
+        case 2: return sru.getStatus();
+        case 3: return false;
+        case 4: return false;
+        case 5: return false;
         default:
             LOG.error("Unknown column " + columnIndex);
             return new String("");
@@ -82,7 +91,7 @@ public class SRUTableModel extends AbstractTableModel {
         case 3:
             
 //            sru.setVisible((Boolean)aValue);
-            sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
+//            sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
             fireTableCellUpdated(rowIndex, columnIndex);
             break;
         default:
@@ -93,7 +102,7 @@ public class SRUTableModel extends AbstractTableModel {
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         //return (columnIndex == 2 && rowIndex != routeManager.getActiveRouteIndex());
-        return columnIndex == 3;
+        return columnIndex == 2;
     }
 
     @Override
