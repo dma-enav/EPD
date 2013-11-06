@@ -86,6 +86,7 @@ import dk.dma.epd.ship.gui.menuitems.SarTargetDetails;
 import dk.dma.epd.ship.gui.menuitems.SendToSTCC;
 import dk.dma.epd.ship.gui.menuitems.SuggestedRouteDetails;
 import dk.dma.epd.ship.gui.menuitems.VoyageAppendWaypoint;
+import dk.dma.epd.ship.gui.menuitems.VoyageHandlingWaypointDelete;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
@@ -140,6 +141,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private RouteEditEndRoute routeEditEndRoute;
     private SendToSTCC sendToSTCC;
     private VoyageAppendWaypoint voyageAppendWaypoint;
+    private VoyageHandlingWaypointDelete voyageDeleteWaypoint;
     // bean context
     protected String propertyPrefix;
     protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(
@@ -268,6 +270,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         // Init STCC Route negotiation items
         this.voyageAppendWaypoint = new VoyageAppendWaypoint("Append waypoint");
         this.voyageAppendWaypoint.addActionListener(this);
+        this.voyageDeleteWaypoint = new VoyageHandlingWaypointDelete("Delete waypoint");
+        this.voyageDeleteWaypoint.addActionListener(this);
     }
 
     /**
@@ -507,6 +511,14 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         this.voyageAppendWaypoint.setRouteIndex(routeIndex);
         this.voyageAppendWaypoint.setRoute(route);
         this.add(this.voyageAppendWaypoint);
+    }
+    
+    public void addVoyageHandlingWaypointDeleteMenuItem(Route route, int routeIndex, int waypointIndex)
+    {
+        this.voyageDeleteWaypoint.setRouteIndex(routeIndex);
+        this.voyageDeleteWaypoint.setRoute(route);
+        this.voyageDeleteWaypoint.setVoyageWaypointIndex(waypointIndex);
+        this.add(this.voyageDeleteWaypoint);
     }
 
     public void generalRouteMenu(int routeIndex) {

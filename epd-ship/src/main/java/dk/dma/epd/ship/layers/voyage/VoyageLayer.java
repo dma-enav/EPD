@@ -243,8 +243,9 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
                 routeMenu.sendToSTCC(wpc.getRouteIndex());
                 if (wpc.getRouteIndex() == 2) {
                     // This is a route under modification: allow append waypoint
-                    routeMenu.addAppendWaypointMenuItem(wpc.getRoute(), wpc.getRouteIndex());
-
+                    this.routeMenu.addAppendWaypointMenuItem(wpc.getRoute(), wpc.getRouteIndex());
+                    // also allow Waypoint deletion
+                    this.routeMenu.addVoyageHandlingWaypointDeleteMenuItem(wpc.getRoute(), wpc.getRouteIndex(), wpc.getWpIndex());
                 }
 
                 routeMenu.setVisible(true);
@@ -436,7 +437,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
      *            Specifies if the graphic list should be traversed looking for
      *            and removing any old modified STCC route.
      */
-    public void drawModifiedSTCCRoute(boolean clearOld) {
+    private void drawModifiedSTCCRoute(boolean clearOld) {
         if (clearOld) {
             // attempt to find the old route in graphics list
             for (int i = 0; i < this.graphics.size(); i++) {
