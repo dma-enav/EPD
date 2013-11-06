@@ -42,6 +42,7 @@ import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.PersistentConnection.State;
 import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
@@ -97,6 +98,11 @@ public class EPDShore extends EPD {
     private static VoyageManager voyageManager;
     private static EnavServiceHandler enavServiceHandler;
 
+    /**
+     * Event dispatcher used to notify listeners of voyage changes.
+     */
+    private static VoyageEventDispatcher voyageEventDispatcher = new VoyageEventDispatcher();
+    
     /**
      * Starts the program by initializing the various threads and spawning the main GUI
      * 
@@ -595,6 +601,12 @@ public class EPDShore extends EPD {
         return monaLisaRouteExchange;
     }
     
-    
+    /**
+     * Get the application-wide voyage event dispatcher.
+     * @return The application-wide voyage event dispatcher.
+     */
+    public static VoyageEventDispatcher getVoyageEventDispatcher() {
+        return voyageEventDispatcher;
+    }
 
 }

@@ -20,5 +20,5 @@ package dk.dma.epd.common.prototype.model.voyage;
  * @author Janus Varmarken
  */
 public enum VoyageUpdateEvent {
-    WAYPOINT_APPENDED, WAYPOINT_DELETED
+    WAYPOINT_APPENDED, WAYPOINT_DELETED, WAYPOINT_INSERTED
 }

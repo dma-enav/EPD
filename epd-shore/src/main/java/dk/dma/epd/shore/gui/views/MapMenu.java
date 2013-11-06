@@ -265,7 +265,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         
         // voyage leg menu
         voyageHandlingLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint(
-                "Insert waypoint here");
+                "Insert waypoint here", EPDShore.getVoyageEventDispatcher());
         voyageHandlingLegInsertWaypoint.addActionListener(this);
 
         voyageHandlingWaypointDelete = new VoyageHandlingWaypointDelete(
@@ -660,8 +660,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         } else {
 
             voyageHandlingLegInsertWaypoint.setMapBean(mapBean);
-            voyageHandlingLegInsertWaypoint
-                    .setVoyageHandlingLayer(voyageHandlingLayer);
+//            voyageHandlingLegInsertWaypoint
+//                    .setVoyageHandlingLayer(voyageHandlingLayer);
             voyageHandlingLegInsertWaypoint.setRoute(route);
             voyageHandlingLegInsertWaypoint.setRouteLeg(routeLeg);
             voyageHandlingLegInsertWaypoint.setPoint(point);

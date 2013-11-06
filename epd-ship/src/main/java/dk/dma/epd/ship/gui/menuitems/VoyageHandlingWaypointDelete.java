@@ -91,7 +91,7 @@ public class VoyageHandlingWaypointDelete extends JMenuItem implements
 
     /**
      * Set the route index that specifies the "type" of the route associated
-     * with this menu item (e.g. if it is a modified STCC rotue)
+     * with this menu item (e.g. if it is a modified STCC route)
      * 
      * @param routeIndex
      *            The new route index.

@@ -28,9 +28,11 @@ import dk.dma.epd.common.math.Vector2D;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
-import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
+import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
+import dk.dma.epd.common.prototype.model.voyage.VoyageUpdateEvent;
 
-public class VoyageHandlingLegInsertWaypoint extends JMenuItem implements IMapMenuAction {
+public class VoyageHandlingLegInsertWaypoint extends JMenuItem implements
+        IMapMenuAction {
 
     /**
      *
@@ -40,11 +42,22 @@ public class VoyageHandlingLegInsertWaypoint extends JMenuItem implements IMapMe
     private Point point;
     private MapBean mapBean;
     private Route route;
-    private VoyageHandlingLayer voyageHandlingLayer;
-    
-    public VoyageHandlingLegInsertWaypoint(String text) {
-        super();
-        setText(text);
+    private int routeIndex;
+    private VoyageEventDispatcher voyageEventDispatcher;
+
+    /**
+     * Creates a VoyageHandlingLegInsertWaypoint menu item.
+     * 
+     * @param text
+     *            The text displayed by the menu item.
+     * @param voyageEventDispatcher
+     *            The event dispatcher used to notify listeners of voyage
+     *            updates.
+     */
+    public VoyageHandlingLegInsertWaypoint(String text,
+            VoyageEventDispatcher voyageEventDispatcher) {
+        super(text);
+        this.voyageEventDispatcher = voyageEventDispatcher;
     }
 
     @Override
@@ -55,23 +68,23 @@ public class VoyageHandlingLegInsertWaypoint extends JMenuItem implements IMapMe
         LatLonPoint newPoint = projection.inverse(point);
 
         Vector2D routeLegVector = new Vector2D(startWaypoint.getLongitude(),
-                startWaypoint.getLatitude(),
-                endWaypoint.getLongitude(),
+                startWaypoint.getLatitude(), endWaypoint.getLongitude(),
                 endWaypoint.getLatitude());
 
         Vector2D newVector = new Vector2D(startWaypoint.getLongitude(),
-                startWaypoint.getLatitude(),
-                newPoint.getLongitude(),
+                startWaypoint.getLatitude(), newPoint.getLongitude(),
                 newPoint.getLatitude());
 
         Vector2D projectedVector = routeLegVector.projection(newVector);
 
-        Position newGeoLocation = Position.create(projectedVector.getY2(), projectedVector.getX2());
+        Position newGeoLocation = Position.create(projectedVector.getY2(),
+                projectedVector.getX2());
 
         route.createWaypoint(routeLeg, newGeoLocation);
-//        routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_APPENDED);
-        
-        voyageHandlingLayer.updateVoyages();
+        // Notify listeners of new voyage waypoint
+        this.voyageEventDispatcher.notifyListenersOfVoyageUpdate(
+                VoyageUpdateEvent.WAYPOINT_INSERTED, this.route,
+                this.routeIndex);
     }
 
     public void setRouteLeg(RouteLeg routeLeg) {
@@ -87,19 +100,21 @@ public class VoyageHandlingLegInsertWaypoint extends JMenuItem implements IMapMe
     }
 
     /**
-     * @param route the route to set
+     * @param route
+     *            the route to set
      */
     public void setRoute(Route route) {
         this.route = route;
     }
 
     /**
-     * @param voyageHandlingLayer the voyageHandlingLayer to set
+     * Set the route index that specifies the "type" of the route associated
+     * with this menu item (e.g. if it is a modified STCC route)
+     * 
+     * @param routeIndex
+     *            The new route index.
      */
-    public void setVoyageHandlingLayer(VoyageHandlingLayer voyageHandlingLayer) {
-        this.voyageHandlingLayer = voyageHandlingLayer;
+    public void setRouteIndex(int routeIndex) {
+        this.routeIndex = routeIndex;
     }
-
-
-
 }
