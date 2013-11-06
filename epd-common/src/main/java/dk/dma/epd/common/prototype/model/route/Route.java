@@ -607,6 +607,8 @@ public class Route implements Serializable {
                 }
             }
             calcValues(true);
+            // Update waypoint names to reflect deleted waypoint
+            this.renameWayPoints();
         } else {
             // Do nothing
             // int result = JOptionPane.showConfirmDialog(EeINS.getMainFrame(),
