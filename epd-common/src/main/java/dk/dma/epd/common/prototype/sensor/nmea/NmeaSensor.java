@@ -271,7 +271,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         }
 
         // Check if simulated own ship
-        boolean ownMessage = packet.getVdm().isOwnMessage();;
+        boolean ownMessage = packet.getVdm().isOwnMessage();
         
         // Distribute GPS from own mesasge
         if (ownMessage) {
