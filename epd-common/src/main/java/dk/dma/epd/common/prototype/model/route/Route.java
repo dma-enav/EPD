@@ -749,7 +749,7 @@ public class Route implements Serializable {
             wp.calcRot();
 
         }
-
+        
         return wp;
     }
 
@@ -781,6 +781,10 @@ public class Route implements Serializable {
         RouteWaypoint newWaypoint = createWaypoint(lastWaypoint,
                 Position.create(newY, newX));
         waypoints.add(newWaypoint);
+        // Update waypoint names
+        newWaypoint.setName("WP_" + this.waypoints.size());
+        this.renameWayPoints();
+        
         calcValues(true);
     }
 
