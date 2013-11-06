@@ -19,6 +19,7 @@ import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTargetSettings;
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 
 

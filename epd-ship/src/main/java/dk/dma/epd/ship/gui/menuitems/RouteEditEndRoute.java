@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.Heading;
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;

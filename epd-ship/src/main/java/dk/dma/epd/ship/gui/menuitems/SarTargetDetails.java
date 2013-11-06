@@ -18,6 +18,7 @@ package dk.dma.epd.ship.gui.menuitems;
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.ais.SarTarget;
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.ais.SartDetailsDialog;

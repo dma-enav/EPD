@@ -19,6 +19,7 @@ import javax.swing.JMenuItem;
 
 import com.bbn.openmap.MouseDelegator;
 
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.event.RouteEditMouseMode;

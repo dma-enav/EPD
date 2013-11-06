@@ -17,6 +17,7 @@ package dk.dma.epd.shore.gui.views.menuitems;
 
 import javax.swing.JMenuItem;
 
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 
 public class VoyageHideAll extends JMenuItem implements IMapMenuAction {

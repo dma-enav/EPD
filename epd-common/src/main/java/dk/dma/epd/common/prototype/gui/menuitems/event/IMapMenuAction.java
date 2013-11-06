@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.menuitems;
+package dk.dma.epd.common.prototype.gui.menuitems.event;
 
 /**
  * Implement this interface in each JMenuItem/JCheckBox to allow the MapMenu easy access to each item's action

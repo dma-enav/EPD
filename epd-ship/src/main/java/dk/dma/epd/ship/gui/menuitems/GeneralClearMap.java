@@ -18,6 +18,8 @@ package dk.dma.epd.ship.gui.menuitems;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+
 public class GeneralClearMap extends JMenuItem implements IMapMenuAction {
     
     /**

@@ -44,6 +44,7 @@ import com.bbn.openmap.MouseDelegator;
 
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
@@ -62,7 +63,6 @@ import dk.dma.epd.ship.gui.menuitems.GeneralClearMap;
 import dk.dma.epd.ship.gui.menuitems.GeneralHideIntendedRoutes;
 import dk.dma.epd.ship.gui.menuitems.GeneralNewRoute;
 import dk.dma.epd.ship.gui.menuitems.GeneralShowIntendedRoutes;
-import dk.dma.epd.ship.gui.menuitems.IMapMenuAction;
 import dk.dma.epd.ship.gui.menuitems.MonaLisaRouteRequest;
 import dk.dma.epd.ship.gui.menuitems.MsiAcknowledge;
 import dk.dma.epd.ship.gui.menuitems.MsiDetails;
