@@ -48,6 +48,8 @@ import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.PersistentConnection.State;
 import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.model.voyage.VoyageUpdateEvent;
+import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
@@ -101,7 +103,7 @@ public class EPDShip  extends EPD {
     private static EnavServiceHandler enavServiceHandler;
     private static DynamicNogoHandler dynamicNoGoHandler;
     private static TransponderFrame transponderFrame;
-
+    private static VoyageEventDispatcher voyageEventDispatcher;
 
     public static void main(String[] args) throws IOException {
         
@@ -206,6 +208,9 @@ public class EPDShip  extends EPD {
         // enavCloudHandler = new EnavCloudHandler(settings.getEnavSettings());
         // mapHandler.add(enavCloudHandler);
 
+        // Create voyage event dispatcher
+        voyageEventDispatcher = new VoyageEventDispatcher();
+        
         // Create plugin components
         createPluginComponents();
         
@@ -616,6 +621,14 @@ public class EPDShip  extends EPD {
      */
     public static StrategicRouteExchangeHandler getStrategicRouteExchangeHandler() {
         return strategicRouteExchangeHandler;
+    }
+
+    /**
+     * Get the system wide voyage event dispatcher.
+     * @return the voyageEventDispatcher
+     */
+    public static VoyageEventDispatcher getVoyageEventDispatcher() {
+        return voyageEventDispatcher;
     }
 
     @Override

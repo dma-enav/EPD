@@ -188,4 +188,8 @@ public class RouteGraphic extends OMGraphicList {
             this.arrowsVisible = show;
         }
     }
+    
+    public int getRouteIndex() {
+        return this.routeIndex;
+    }
 }

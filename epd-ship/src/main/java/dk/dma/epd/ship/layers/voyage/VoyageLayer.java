@@ -41,6 +41,8 @@ import dk.dma.epd.common.prototype.layers.route.RouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.route.WaypointCircle;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
+import dk.dma.epd.common.prototype.model.voyage.IVoyageUpdateListener;
+import dk.dma.epd.common.prototype.model.voyage.VoyageUpdateEvent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DragMouseMode;
@@ -53,7 +55,7 @@ import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
  * Layer for showing routes
  */
 public class VoyageLayer extends OMGraphicHandlerLayer implements
-        MapMouseListener, Runnable {
+        MapMouseListener, Runnable, IVoyageUpdateListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -84,7 +86,8 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
     // private boolean modified;
 
     public VoyageLayer() {
-
+        // Register this layer as listener for voyage update events
+        EPDShip.getVoyageEventDispatcher().registerListener(this);
     }
 
     public void startRouteNegotiation(Route route) {
@@ -239,8 +242,8 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
                 // waypointInfoPanel.setVisible(false);
                 routeMenu.sendToSTCC(wpc.getRouteIndex());
                 if (wpc.getRouteIndex() == 2) {
-                    // routeMenu.whatevernwestuff(withshit)
-                    routeMenu.addAppendWaypointMenuItem(wpc.getRoute(), this);
+                    // This is a route under modification: allow append waypoint
+                    routeMenu.addAppendWaypointMenuItem(wpc.getRoute(), wpc.getRouteIndex());
 
                 }
 
@@ -406,8 +409,9 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         graphics.clear();
 
         // New route in yellow
-        drawRoute(2, modifiedSTCCRoute, ECDISOrange,
-                new Color(1f, 1f, 0, 0.4f), true);
+        // drawRoute(2, modifiedSTCCRoute, ECDISOrange,
+        // new Color(1f, 1f, 0, 0.4f), true);
+        this.drawModifiedSTCCRoute(false);
 
         // old STCC in green
         drawRoute(1, stccRoute, ECDISOrange, new Color(0.39f, 0.69f, 0.49f,
@@ -427,8 +431,26 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     /**
      * Redraw a modified STCC route (e.g. when waypoint is appended).
+     * 
+     * @param clearOld
+     *            Specifies if the graphic list should be traversed looking for
+     *            and removing any old modified STCC route.
      */
-    public void redrawModifiedSTCCRoute() {
+    public void drawModifiedSTCCRoute(boolean clearOld) {
+        if (clearOld) {
+            // attempt to find the old route in graphics list
+            for (int i = 0; i < this.graphics.size(); i++) {
+                OMGraphic omg = this.graphics.get(i);
+                if (omg instanceof RouteGraphic) {
+                    RouteGraphic rg = (RouteGraphic) omg;
+                    if (rg.getRouteIndex() == 2) {
+                        // remove modified STCC route
+                        this.graphics.remove(rg);
+                        break;
+                    }
+                }
+            }
+        }
         drawRoute(2, modifiedSTCCRoute, ECDISOrange,
                 new Color(1f, 1f, 0, 0.4f), true);
     }
@@ -554,6 +576,19 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     public Route getModifiedSTCCRoute() {
         return modifiedSTCCRoute;
+    }
+
+    @Override
+    public void voyageUpdated(VoyageUpdateEvent typeOfUpdate,
+            Route updatedVoyage, int routeIndex) {
+        if (routeIndex == 2) {
+            // This is a modified STCC route
+            // Redraw the route to reflect modifications
+            this.drawModifiedSTCCRoute(true);
+            // update dialog to "send modified"
+            this.monaLisaHandler.modifiedRequest();
+        }
+
     }
 
 }

@@ -264,8 +264,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         // route edit menu
         routeEditEndRoute = new RouteEditEndRoute("End route");
         routeEditEndRoute.addActionListener(this);
-
-        // Route negotiation items
+    
+        // Init STCC Route negotiation items
         this.voyageAppendWaypoint = new VoyageAppendWaypoint("Append waypoint");
         this.voyageAppendWaypoint.addActionListener(this);
     }
@@ -502,8 +502,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
     }
 
-    public void addAppendWaypointMenuItem(Route route, VoyageLayer vl) {
-        this.voyageAppendWaypoint.setVoyageLayer(vl);
+    public void addAppendWaypointMenuItem(Route route, int routeIndex) {
+        // Update associated route + route index
+        this.voyageAppendWaypoint.setRouteIndex(routeIndex);
         this.voyageAppendWaypoint.setRoute(route);
         this.add(this.voyageAppendWaypoint);
     }

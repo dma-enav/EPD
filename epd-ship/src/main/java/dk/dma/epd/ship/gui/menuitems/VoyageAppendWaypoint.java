@@ -18,6 +18,8 @@ package dk.dma.epd.ship.gui.menuitems;
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.voyage.VoyageUpdateEvent;
+import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 
 /**
@@ -35,7 +37,11 @@ public class VoyageAppendWaypoint extends JMenuItem implements IMapMenuAction {
      */
     private Route route;
 
-    private VoyageLayer vl;
+    /**
+     * Index that specifies the type of the voyage associated with this menu
+     * item (e.g. a modified STCC route).
+     */
+    private int routeIndex;
 
     public VoyageAppendWaypoint(String menuItemText) {
         super(menuItemText);
@@ -45,8 +51,10 @@ public class VoyageAppendWaypoint extends JMenuItem implements IMapMenuAction {
     public void doAction() {
         System.out.println("VoyageAppendWaypoint clicked!");
         this.route.appendWaypoint();
-        // Force repaint to display added waypoint.
-        this.vl.redrawModifiedSTCCRoute();
+        // Notify listeners of the new waypoint
+        EPDShip.getVoyageEventDispatcher().notifyListenersOfVoyageUpdate(
+                VoyageUpdateEvent.WAYPOINT_APPENDED, this.route,
+                this.routeIndex);
     }
 
     /**
@@ -60,12 +68,13 @@ public class VoyageAppendWaypoint extends JMenuItem implements IMapMenuAction {
     }
 
     /**
-     * Set the VoyageLayer at which the route is painted after modification.
+     * Set the route index that specifies the "type" of the route associated
+     * with this menu item (e.g. if it is a modified STCC rotue)
      * 
-     * @param vl
-     *            The VoyageLayer to paint the modified route on.
+     * @param routeIndex
+     *            The new route index.
      */
-    public void setVoyageLayer(VoyageLayer vl) {
-        this.vl = vl;
+    public void setRouteIndex(int routeIndex) {
+        this.routeIndex = routeIndex;
     }
 }
