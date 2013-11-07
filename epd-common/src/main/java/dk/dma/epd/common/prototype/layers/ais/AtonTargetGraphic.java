@@ -43,9 +43,7 @@ public class AtonTargetGraphic extends TargetGraphic {
     }
 
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings,
-            NavSettings navSettings) {
-        System.out.println("Aton target update received: " + atonMark);
+    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings) {
         atonTarget = (AtoNTarget) aisTarget;
         Position pos = atonTarget.getPos();
         if (pos == null) {
@@ -60,8 +58,7 @@ public class AtonTargetGraphic extends TargetGraphic {
         }
 
         if (atonMark == null) {
-            atonMark = new CenterRaster(lat, lon, atonImage.getIconWidth(),
-                    atonImage.getIconHeight(), atonImage);
+            atonMark = new CenterRaster(lat, lon, atonImage.getIconWidth(), atonImage.getIconHeight(), atonImage);
             add(atonMark);
         } else {
             atonMark.setLat(lat);
@@ -70,8 +67,7 @@ public class AtonTargetGraphic extends TargetGraphic {
     }
 
     @Override
-    public void setMarksVisible(Projection projection, AisSettings aisSettings,
-            NavSettings navSettings) {
+    public void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings) {
 
     }
 
@@ -157,16 +153,14 @@ public class AtonTargetGraphic extends TargetGraphic {
             break;
         default:
             // TODO how to handle unknown AtoN type?
-            System.err.println("###### INVALID ATON TYPE: "
-                    + atonTarget.getAtonType() + " VIRTUAL = "
-                    + atonTarget.getVirtual() + " ######");
-            //sb.append("aton-default.png");
+            System.err.println("###### INVALID ATON TYPE: " + atonTarget.getAtonType() + " VIRTUAL = " + atonTarget.getVirtual()
+                    + " ######");
+            // sb.append("aton-default.png");
             // Use old default aton image when we cannot decipher type+virtual/physical
             sb = new StringBuilder();
             sb.append("/images/aton/aton.png");
             break;
         }
-        this.atonImage = new ImageIcon(AtonTargetGraphic.class.getResource(sb
-                .toString()));
+        this.atonImage = new ImageIcon(AtonTargetGraphic.class.getResource(sb.toString()));
     }
 }

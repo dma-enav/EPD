@@ -120,7 +120,7 @@ public class EPDShore extends EPD {
         // Set default exception handler
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
 
-        LOG.info("Starting eNavigation Prototype Display Shore - version " + VersionInfo.getVersion());
+        LOG.info("Starting eNavigation Prototype Display Shore - version " + VersionInfo.getVersionAndBuild());
         LOG.info("Copyright (C) 2012 Danish Maritime Authority");
         LOG.info("This program comes with ABSOLUTELY NO WARRANTY.");
         LOG.info("This is free software, and you are welcome to redistribute it under certain conditions.");

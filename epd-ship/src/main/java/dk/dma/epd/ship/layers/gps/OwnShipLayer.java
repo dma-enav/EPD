@@ -40,7 +40,7 @@ import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 
-public class GpsLayer extends OMGraphicHandlerLayer implements IGpsDataListener {
+public class OwnShipLayer extends OMGraphicHandlerLayer implements IGpsDataListener {
     
     private static final long serialVersionUID = 1L;
     
@@ -72,7 +72,7 @@ public class GpsLayer extends OMGraphicHandlerLayer implements IGpsDataListener 
     private Position lastPos;
     private Position currentPos;
 
-    public GpsLayer() {
+    public OwnShipLayer() {
         graphics.setVague(true);
         Stroke stroke = new BasicStroke(STROKE_WIDTH);
         circle1 = new OMCircle(0, 0, 0, 0, 18, 18);
@@ -264,13 +264,5 @@ public class GpsLayer extends OMGraphicHandlerLayer implements IGpsDataListener 
         }
     }
     
-//    @Override
-//    public void paint(Graphics g) {
-//        System.out.println("Entering GpsLayer.paint)");
-//        long start = System.nanoTime();
-//        super.paint(g);
-//        System.out.println("Finished GpsLayer.paint() in " + EeINS.elapsed(start) + " ms\n---");
-//    }
-
     
 }

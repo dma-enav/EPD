@@ -30,13 +30,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.BufferedLayerMapBean;
-import com.bbn.openmap.InformationDelegator;
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.MouseDelegator;
-import com.bbn.openmap.event.DistanceMouseMode;
-import com.bbn.openmap.proj.Length;
 import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
@@ -61,7 +58,7 @@ import dk.dma.epd.ship.layers.EncLayerFactory;
 import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.background.CoastalOutlineLayer;
-import dk.dma.epd.ship.layers.gps.GpsLayer;
+import dk.dma.epd.ship.layers.gps.OwnShipLayer;
 import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
 import dk.dma.epd.ship.layers.nogo.DynamicNogoLayer;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
@@ -80,7 +77,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
 
-    private GpsLayer gpsLayer;
+    private OwnShipLayer ownShipLayer;
     private AisLayer aisLayer;
     private GeneralLayer generalLayer;
     private CoastalOutlineLayer coastalOutlineLayer;
@@ -241,9 +238,9 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         mapHandler.add(aisLayer);
 
         // Create GPS layer
-        gpsLayer = new GpsLayer();
-        gpsLayer.setVisible(true);
-        mapHandler.add(gpsLayer);
+        ownShipLayer = new OwnShipLayer();
+        ownShipLayer.setVisible(true);
+        mapHandler.add(ownShipLayer);
 
         // Create a esri shape layer
         // URL dbf = EeINS.class.getResource("/shape/urbanap020.dbf");
@@ -371,7 +368,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
     }
 
     public Layer getGpsLayer() {
-        return gpsLayer;
+        return ownShipLayer;
     }
 
     public Layer getEncLayer() {

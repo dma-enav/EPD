@@ -52,5 +52,21 @@ public final class VersionInfo {
     public static String getVersion() {
         return getInstance().props.getProperty("version", "<unknown version>");
     }
+    
+    public static String getBuildId() {
+        return getInstance().props.getProperty("git.commit.id.describe", "N/A");        
+    }
+    
+    public static String getBuildDate() {
+        return getInstance().props.getProperty("build.date", "N/A");        
+    }
+    
+    public static String getBuildUser() {
+        return getInstance().props.getProperty("git.build.user.email", "N/A");        
+    }
+    
+    public static String getVersionAndBuild() {
+        return getVersion() + " (" + getBuildId() + ")";
+    }
 
 }

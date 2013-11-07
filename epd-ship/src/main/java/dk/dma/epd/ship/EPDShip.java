@@ -117,7 +117,7 @@ public class EPDShip  extends EPD {
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
 
         // Determine version
-        LOG.info("Starting eNavigation Prototype Display Ship - version " + VersionInfo.getVersion());
+        LOG.info("Starting eNavigation Prototype Display Ship - version " + VersionInfo.getVersionAndBuild());
         LOG.info("Copyright (C) 2011 Danish Maritime Authority");
         LOG.info("This program comes with ABSOLUTELY NO WARRANTY.");
         LOG.info("This is free software, and you are welcome to redistribute it under certain conditions.");
