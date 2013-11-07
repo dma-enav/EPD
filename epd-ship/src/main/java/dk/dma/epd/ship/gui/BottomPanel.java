@@ -108,7 +108,7 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
         shoreServiceStatus = new StatusLabel("Shore services");
         addToolbarComponent(shoreServiceStatus);
         
-        cloudStatus = new StatusLabel("eNav Cloud");
+        cloudStatus = new StatusLabel("Maritime Cloud");
         addToolbarComponent(cloudStatus);
 
         new Thread(this).start();

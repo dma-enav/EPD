@@ -201,7 +201,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     }
 
     /**
-     * Send maritime message over enav cloud
+     * Send maritime message over cloud
      * 
      * @param message
      * @return
@@ -222,7 +222,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * Create the message bus
      */
     public void init() {
-        LOG.info("Connecting to enav cloud server: " + hostPort
+        LOG.info("Connecting to cloud server: " + hostPort
                 + " with shipId " + shipId.getId());
 
         // enavCloudConnection =
