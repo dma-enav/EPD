@@ -48,7 +48,6 @@ import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.PersistentConnection.State;
 import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.model.voyage.VoyageUpdateEvent;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
@@ -204,7 +203,7 @@ public class EPDShip  extends EPD {
 
         strategicRouteExchangeHandler = new StrategicRouteExchangeHandler();
         mapHandler.add(strategicRouteExchangeHandler);
-        // // Create enav cloud handler
+        // // Create cloud handler
         // enavCloudHandler = new EnavCloudHandler(settings.getEnavSettings());
         // mapHandler.add(enavCloudHandler);
 
