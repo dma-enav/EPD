@@ -160,7 +160,11 @@ public class AtonTargetGraphic extends TargetGraphic {
             System.err.println("###### INVALID ATON TYPE: "
                     + atonTarget.getAtonType() + " VIRTUAL = "
                     + atonTarget.getVirtual() + " ######");
-            sb.append("aton-default.png");
+            //sb.append("aton-default.png");
+            // Use old default aton image when we cannot decipher type+virtual/physical
+            sb = new StringBuilder();
+            sb.append("/images/aton/aton.png");
+            break;
         }
         this.atonImage = new ImageIcon(AtonTargetGraphic.class.getResource(sb
                 .toString()));
