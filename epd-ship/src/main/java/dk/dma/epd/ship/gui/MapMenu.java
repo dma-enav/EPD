@@ -44,6 +44,7 @@ import com.bbn.openmap.MouseDelegator;
 
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
@@ -142,6 +143,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private SendToSTCC sendToSTCC;
     private VoyageAppendWaypoint voyageAppendWaypoint;
     private VoyageHandlingWaypointDelete voyageDeleteWaypoint;
+    private VoyageHandlingLegInsertWaypoint voyageLegInsertWaypoint;
     // bean context
     protected String propertyPrefix;
     protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(
@@ -272,6 +274,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         this.voyageAppendWaypoint.addActionListener(this);
         this.voyageDeleteWaypoint = new VoyageHandlingWaypointDelete("Delete waypoint");
         this.voyageDeleteWaypoint.addActionListener(this);
+        this.voyageLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint("Insert waypoint here", EPDShip.getVoyageEventDispatcher());
+        this.voyageLegInsertWaypoint.addActionListener(this);
     }
 
     /**
@@ -506,7 +510,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
     }
 
-    public void addAppendWaypointMenuItem(Route route, int routeIndex) {
+    public void addVoyageHandlingWaypointAppendMenuItem(Route route, int routeIndex) {
         // Update associated route + route index
         this.voyageAppendWaypoint.setRouteIndex(routeIndex);
         this.voyageAppendWaypoint.setRoute(route);
@@ -519,6 +523,15 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         this.voyageDeleteWaypoint.setRoute(route);
         this.voyageDeleteWaypoint.setVoyageWaypointIndex(waypointIndex);
         this.add(this.voyageDeleteWaypoint);
+    }
+    
+    public void addVoyageHandlingLegInsertWaypointMenuItem(Route route, RouteLeg routeLeg, Point point, int routeIndex) {
+        this.voyageLegInsertWaypoint.setMapBean(this.mapBean);
+        this.voyageLegInsertWaypoint.setRoute(route);
+        this.voyageLegInsertWaypoint.setRouteLeg(routeLeg);
+        this.voyageLegInsertWaypoint.setPoint(point);
+        this.voyageLegInsertWaypoint.setRouteIndex(routeIndex);
+        this.add(this.voyageLegInsertWaypoint);
     }
 
     public void generalRouteMenu(int routeIndex) {

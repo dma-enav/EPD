@@ -243,7 +243,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
                 routeMenu.sendToSTCC(wpc.getRouteIndex());
                 if (wpc.getRouteIndex() == 2) {
                     // This is a route under modification: allow append waypoint
-                    this.routeMenu.addAppendWaypointMenuItem(wpc.getRoute(), wpc.getRouteIndex());
+                    this.routeMenu.addVoyageHandlingWaypointAppendMenuItem(wpc.getRoute(), wpc.getRouteIndex());
                     // also allow Waypoint deletion
                     this.routeMenu.addVoyageHandlingWaypointDeleteMenuItem(wpc.getRoute(), wpc.getRouteIndex(), wpc.getWpIndex());
                 }
@@ -256,6 +256,12 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
                 RouteLegGraphic rlg = (RouteLegGraphic) selectedGraphic;
                 // waypointInfoPanel.setVisible(false);
                 routeMenu.sendToSTCC(rlg.getRouteIndex());
+                if(rlg.getRouteIndex() == 2 && this.modifiedSTCCRoute != null) {
+                    // This is a route under modification: allow insert waypoint
+                    this.routeMenu.addVoyageHandlingLegInsertWaypointMenuItem(this.modifiedSTCCRoute,
+                            rlg.getRouteLeg(), e.getPoint(), rlg.getRouteIndex());
+                }
+                
                 routeMenu.setVisible(true);
                 routeMenu.show(this, e.getX() - 2, e.getY() - 2);
                 return true;
