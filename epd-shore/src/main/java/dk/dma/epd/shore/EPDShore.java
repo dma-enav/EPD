@@ -45,13 +45,11 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensorFactory;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
-import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -59,8 +57,8 @@ import dk.dma.epd.shore.gui.utils.StaticImages;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.service.EnavServiceHandler;
-import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteOptimization;
+import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
 import dk.dma.epd.shore.service.ais.AisServices;
 import dk.dma.epd.shore.services.shore.ShoreServices;
 import dk.dma.epd.shore.settings.ESDSensorSettings;
@@ -81,9 +79,7 @@ public class EPDShore extends EPD {
     private static ESDSettings settings;
     static Properties properties = new Properties();
     private static NmeaSensor aisSensor;
-    private static NmeaSensor gpsSensor;
     private static AisHandler aisHandler;
-    private static GpsHandler gpsHandler;
     private static MsiHandler msiHandler;
     private static StrategicRouteExchangeHandler monaLisaHandler;
     private static AisServices aisServices;
@@ -149,16 +145,9 @@ public class EPDShore extends EPD {
             System.exit(1);
         }
 
-        // Start sensors
-        startSensors();
-
         // Enable GPS timer by adding it to bean context
         GnssTime.init();
         beanHandler.add(GnssTime.getInstance());
-
-        // Start position handler and add to bean context
-        gpsHandler = new GpsHandler();
-        beanHandler.add(gpsHandler);
 
         // aisHandler = new AisHandlerCommon();
         aisHandler = new AisHandler(settings.getAisSettings());
@@ -178,8 +167,6 @@ public class EPDShore extends EPD {
         // voyageManager = new VoyageManager();
         voyageManager = VoyageManager.loadVoyageManager();
         beanHandler.add(voyageManager);
-
-
         
         // Create AIS services
         aisServices = new AisServices();
@@ -205,6 +192,9 @@ public class EPDShore extends EPD {
         // Create MSI handler
         msiHandler = new MsiHandler(getSettings().getEnavSettings());
         beanHandler.add(msiHandler);
+        
+        // Start sensors
+        startSensors();
 
         createPluginComponents();
 
@@ -518,50 +508,14 @@ public class EPDShore extends EPD {
         default:
             LOG.error("Unknown sensor connection type: " + sensorSettings.getAisConnectionType());
         }
-
+        
         if (aisSensor != null) {
-            aisSensor.addSensorType(SensorType.AIS);
-        }
-
-        switch (sensorSettings.getGpsConnectionType()) {
-        case NONE:
-            gpsSensor = new NmeaStdinSensor();
-            break;
-        case TCP:
-            gpsSensor = new NmeaTcpSensor(sensorSettings.getGpsHostOrSerialPort(), sensorSettings.getGpsTcpPort());
-            break;
-        case SERIAL:
-            gpsSensor = NmeaSerialSensorFactory.create(sensorSettings.getGpsHostOrSerialPort());
-            break;
-        case FILE:
-            gpsSensor = new NmeaFileSensor(sensorSettings.getGpsFilename(), sensorSettings);
-            break;
-        case AIS_SHARED:
-            gpsSensor = aisSensor;
-            break;
-        default:
-            LOG.error("Unknown sensor connection type: " + sensorSettings.getAisConnectionType());
-        }
-
-        if (gpsSensor != null) {
-            gpsSensor.addSensorType(SensorType.GPS);
-        }
-
-        if (aisSensor != null) {
+            aisSensor.addAisListener(aisHandler);
             aisSensor.start();
             // Add ais sensor to bean context
             beanHandler.add(aisSensor);
         }
-        if (gpsSensor != null && gpsSensor != aisSensor) {
-            gpsSensor.start();
-            // Add gps sensor to bean context
-            beanHandler.add(gpsSensor);
-        }
 
-    }
-
-    public static GpsHandler getGpsHandler() {
-        return gpsHandler;
     }
 
     public static StaticImages getStaticImages() {

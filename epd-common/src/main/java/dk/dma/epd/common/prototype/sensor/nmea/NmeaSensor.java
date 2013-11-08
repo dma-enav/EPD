@@ -20,10 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.jcip.annotations.GuardedBy;
@@ -90,7 +87,6 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     private final AisPacketParser packetReader = new AisPacketParser();
 
     protected final SendThreadPool sendThreadPool = new SendThreadPool();
-    protected final Set<SensorType> sensorTypes = Collections.newSetFromMap(new ConcurrentHashMap<SensorType, Boolean>());
     private final CopyOnWriteArrayList<IGpsListener> gpsListeners = new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<IAisListener> aisListeners = new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<IGnssTimeListener> gnssTimeListeners = new CopyOnWriteArrayList<>();
@@ -379,14 +375,6 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
 
     public void removeGnssTimeListener(IGnssTimeListener gnssTimeListener) {
         gnssTimeListeners.remove(gnssTimeListener);
-    }
-
-    public void addSensorType(SensorType type) {
-        sensorTypes.add(type);
-    }
-
-    public boolean isSensorType(SensorType type) {
-        return sensorTypes.contains(type);
     }
 
     public void start() {

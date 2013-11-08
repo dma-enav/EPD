@@ -26,20 +26,17 @@ import com.bbn.openmap.MapHandlerChild;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.sensor.nmea.GpsMessage;
 import dk.dma.epd.common.prototype.sensor.nmea.IGpsListener;
-import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
-import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
 import dk.dma.epd.common.prototype.status.GpsStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
 
 /**
- * Component class for handling received GPS messages. 
+ * Component class for handling received GPS messages.
  */
 @ThreadSafe
 public class GpsHandler extends MapHandlerChild implements IGpsListener, IStatusComponent, Runnable {
 
     private static final long GPS_TIMEOUT = 60 * 1000; // 1 min
-    private volatile NmeaSensor nmeaSensor;
     private CopyOnWriteArrayList<IGpsDataListener> listeners = new CopyOnWriteArrayList<>();
     @GuardedBy("this")
     private GpsData currentData = new GpsData();
@@ -47,7 +44,7 @@ public class GpsHandler extends MapHandlerChild implements IGpsListener, IStatus
     public GpsHandler() {
         EPD.startThread(this, "GpsHandler");
     }
-    
+
     @Override
     public GpsStatus getStatus() {
         return new GpsStatus(getCurrentData());
@@ -63,12 +60,12 @@ public class GpsHandler extends MapHandlerChild implements IGpsListener, IStatus
         if (elapsed < 900) {
             return;
         }
-        
+
         currentData.setLastUpdated(now);
         if (gpsMessage.getPos() == null || !gpsMessage.isValidPosition()) {
             currentData.setBadPosition(true);
         } else {
-            currentData.setPosition(gpsMessage.getPos());            
+            currentData.setPosition(gpsMessage.getPos());
             currentData.setBadPosition(false);
         }
         if (gpsMessage.getCog() != null) {
@@ -96,7 +93,7 @@ public class GpsHandler extends MapHandlerChild implements IGpsListener, IStatus
             listener.gpsDataUpdate(currentCopy);
         }
     }
-    
+
     /**
      * Return if the current data has timed out
      */
@@ -129,27 +126,6 @@ public class GpsHandler extends MapHandlerChild implements IGpsListener, IStatus
 
     public void removeListener(IGpsDataListener listener) {
         listeners.remove(listener);
-    }
-
-    @Override
-    public void findAndInit(Object obj) {
-        if (nmeaSensor != null) {
-            return;
-        }
-        if (obj instanceof NmeaSensor) {
-            NmeaSensor sensor = (NmeaSensor) obj;
-            if (sensor.isSensorType(SensorType.GPS)) {
-                nmeaSensor = sensor;
-                nmeaSensor.addGpsListener(this);
-            }
-        }
-    }
-
-    @Override
-    public void findAndUndo(Object obj) {
-        if (obj == nmeaSensor) {
-            nmeaSensor.removeGpsListener(this);
-        }
     }
 
 }

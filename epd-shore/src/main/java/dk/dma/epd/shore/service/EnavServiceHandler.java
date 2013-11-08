@@ -47,17 +47,16 @@ import dk.dma.enav.util.function.Supplier;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck.StrategicRouteAckMsg;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -67,15 +66,12 @@ import dk.dma.navnet.client.MaritimeNetworkConnectionBuilder;
 /**
  * Component offering e-Navigation services
  */
-public class EnavServiceHandler extends MapHandlerChild implements
-        IGpsDataListener, Runnable {
+public class EnavServiceHandler extends MapHandlerChild implements IGpsDataListener, Runnable {
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(EnavServiceHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EnavServiceHandler.class);
 
     private String hostPort;
     private ShipId shipId;
-    private GpsHandler gpsHandler;
     private AisHandler aisHandler;
 
     private StrategicRouteExchangeHandler monaLisaHandler;
@@ -89,13 +85,11 @@ public class EnavServiceHandler extends MapHandlerChild implements
     HashMap<Long, InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply>> contextSenders = new HashMap<Long, InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply>>();
 
     List<ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply>> monaLisaShipList = new ArrayList<>();
-    
+
     private long ownMMSI;
 
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
-        this.hostPort = String.format("%s:%d",
-                enavSettings.getCloudServerHost(),
-                enavSettings.getCloudServerPort());
+        this.hostPort = String.format("%s:%d", enavSettings.getCloudServerHost(), enavSettings.getCloudServerPort());
     }
 
     public PersistentConnection getConnection() {
@@ -103,34 +97,26 @@ public class EnavServiceHandler extends MapHandlerChild implements
     }
 
     private void listenToAck() throws InterruptedException {
-        connection
-                .serviceRegister(
-                        StrategicRouteAck.INIT,
-                        new InvocationCallback<StrategicRouteAck.StrategicRouteAckMsg, Void>() {
-                            @Override
-                            public void process(
-                                    StrategicRouteAckMsg message,
-                                    dk.dma.enav.communication.service.InvocationCallback.Context<Void> context) {
+        connection.serviceRegister(StrategicRouteAck.INIT, new InvocationCallback<StrategicRouteAck.StrategicRouteAckMsg, Void>() {
+            @Override
+            public void process(StrategicRouteAckMsg message,
+                    dk.dma.enav.communication.service.InvocationCallback.Context<Void> context) {
 
-                                System.out.println("Recieved an ack from: "
-                                        + message.getId());
+                System.out.println("Recieved an ack from: " + message.getId());
 
-                                monaLisaHandler.handleSingleAckMsg(message);
+                monaLisaHandler.handleSingleAckMsg(message);
 
-                            }
-                        }).awaitRegistered(4, TimeUnit.SECONDS);
+            }
+        }).awaitRegistered(4, TimeUnit.SECONDS);
     }
 
     private void listenToBroadcasts() throws InterruptedException {
-        connection.broadcastListen(EnavRouteBroadcast.class,
-                new BroadcastListener<EnavRouteBroadcast>() {
-                    public void onMessage(BroadcastMessageHeader l,
-                            EnavRouteBroadcast r) {
-                        int id = Integer.parseInt(l.getId().toString()
-                                .split("mmsi://")[1]);
-                        updateIntendedRoute(id, r.getIntendedRoute());
-                    }
-                });
+        connection.broadcastListen(EnavRouteBroadcast.class, new BroadcastListener<EnavRouteBroadcast>() {
+            public void onMessage(BroadcastMessageHeader l, EnavRouteBroadcast r) {
+                int id = Integer.parseInt(l.getId().toString().split("mmsi://")[1]);
+                updateIntendedRoute(id, r.getIntendedRoute());
+            }
+        });
     }
 
     /**
@@ -160,9 +146,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     private void getRouteSuggestionServiceList() {
         try {
-            routeSuggestionList = connection
-                    .serviceFind(RouteSuggestionService.INIT)
-                    .nearest(Integer.MAX_VALUE).get();
+            routeSuggestionList = connection.serviceFind(RouteSuggestionService.INIT).nearest(Integer.MAX_VALUE).get();
         } catch (Exception e) {
             LOG.error(e.getMessage());
 
@@ -175,8 +159,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     public boolean shipAvailableForRouteSuggestion(long mmsi) {
         for (int i = 0; i < routeSuggestionList.size(); i++) {
-            if (mmsi == Long.parseLong(routeSuggestionList.get(i).getId()
-                    .toString().split("//")[1])) {
+            if (mmsi == Long.parseLong(routeSuggestionList.get(i).getId().toString().split("//")[1])) {
                 return true;
             }
 
@@ -185,9 +168,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
         return false;
     }
 
-    public void sendRouteSuggestion(long mmsi, Route route, String sender,
-            String message) throws InterruptedException, ExecutionException,
-            TimeoutException {
+    public void sendRouteSuggestion(long mmsi, Route route, String sender, String message) throws InterruptedException,
+            ExecutionException, TimeoutException {
 
         // System.out.println("Send to : " + mmsi);
         String mmsiStr = "mmsi://" + mmsi;
@@ -206,22 +188,17 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
         // mmsi = 219230000;
 
-        RouteSuggestionMessage routeMessage = new RouteSuggestionService.RouteSuggestionMessage(
-                route, sender, message);
+        RouteSuggestionMessage routeMessage = new RouteSuggestionService.RouteSuggestionMessage(route, sender, message);
 
-        System.out.println("Sending to mmsi: " + mmsi + " with ID: "
-                + routeMessage.getId());
+        System.out.println("Sending to mmsi: " + mmsi + " with ID: " + routeMessage.getId());
 
-        RouteSuggestionData suggestionData = new RouteSuggestionData(
-                routeMessage, null, routeMessage.getId(), mmsi, false,
+        RouteSuggestionData suggestionData = new RouteSuggestionData(routeMessage, null, routeMessage.getId(), mmsi, false,
                 AIS_STATUS.RECIEVED_APP_ACK);
-        RouteSuggestionKey routeSuggestionKey = new RouteSuggestionKey(mmsi,
-                routeMessage.getId());
+        RouteSuggestionKey routeSuggestionKey = new RouteSuggestionKey(mmsi, routeMessage.getId());
         routeSuggestions.put(routeSuggestionKey, suggestionData);
 
         if (end != null) {
-            ConnectionFuture<RouteSuggestionService.RouteSuggestionReply> f = end
-                    .invoke(routeMessage);
+            ConnectionFuture<RouteSuggestionService.RouteSuggestionReply> f = end.invoke(routeMessage);
 
             // EPDShore.getMainFrame().getNotificationCenter().cloudUpdate();
             notifyRouteExchangeListeners();
@@ -261,49 +238,38 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * Create the message bus
      */
     public void init() {
-        LOG.info("Connecting to enav cloud server: " + hostPort
-                + " with shipId " + shipId.getId());
+        LOG.info("Connecting to enav cloud server: " + hostPort + " with shipId " + shipId.getId());
 
         // enavCloudConnection =
         // MaritimeNetworkConnectionBuilder.create("mmsi://"+shipId.getId());
-        MaritimeNetworkConnectionBuilder enavCloudConnection = MaritimeNetworkConnectionBuilder
-                .create("mmsi://" + shipId.getId());
+        MaritimeNetworkConnectionBuilder enavCloudConnection = MaritimeNetworkConnectionBuilder.create("mmsi://" + shipId.getId());
 
         enavCloudConnection.setPositionSupplier(new Supplier<PositionTime>() {
             public PositionTime get() {
-                Position position = gpsHandler.getCurrentData().getPosition();
-                if (position != null) {
-                    return PositionTime.create(position,
-                            System.currentTimeMillis());
-                } else {
-                    return PositionTime.create(Position.create(0.0, 0.0),
-                            System.currentTimeMillis());
-                }
+                return PositionTime.create(Position.create(0.0, 0.0), System.currentTimeMillis());
 
             }
         });
 
-        while (connection == null){
+        while (connection == null) {
             try {
                 enavCloudConnection.setHost(hostPort);
                 System.out.println(hostPort);
                 connection = enavCloudConnection.build();
                 break;
             } catch (Exception e) {
-//                e.printStackTrace();
+                // e.printStackTrace();
                 System.out.println("Failed to connect");
                 Util.sleep(10000);
             }
-            
+
         }
-        
 
         // ENavContainerConfiguration conf = new ENavContainerConfiguration();
         // conf.addDatasource(new JmsC2SMessageSource(hostPort, shipId));
         // ENavContainer client = conf.createAndStart();
         // messageBus = client.getService(MessageBus.class);
-        LOG.info("Started succesfull cloud server: " + hostPort
-                + " with shipId " + shipId.getId());
+        LOG.info("Started succesfull cloud server: " + hostPort + " with shipId " + shipId.getId());
 
     }
 
@@ -330,10 +296,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         // // enavCloudHandler = (EnavCloudHandler) obj;
         // // enavCloudHandler.start();
         // } else
-        if (obj instanceof GpsHandler) {
-            this.gpsHandler = (GpsHandler) obj;
-            this.gpsHandler.addListener(this);
-        } else if (obj instanceof AisHandler) {
+        if (obj instanceof AisHandler) {
             this.aisHandler = (AisHandler) obj;
         } else if (obj instanceof StrategicRouteExchangeHandler) {
             this.monaLisaHandler = (StrategicRouteExchangeHandler) obj;
@@ -367,8 +330,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
             listenToAck();
         } catch (Exception e) {
             // Exception for virtual net
-            System.out
-                    .println("An exception occured trying to listen to broadcasts, possibly connection issue");
+            System.out.println("An exception occured trying to listen to broadcasts, possibly connection issue");
         }
 
         // break;
@@ -384,8 +346,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     }
 
-    
-    
     /**
      * @return the ownMMSI
      */
@@ -402,8 +362,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * 
      * @param listener
      */
-    public synchronized void addRouteExchangeListener(
-            RouteExchangeListener listener) {
+    public synchronized void addRouteExchangeListener(RouteExchangeListener listener) {
         routeExchangeListener.add(listener);
     }
 
@@ -446,11 +405,9 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     public void replyRecieved(RouteSuggestionReply message) {
 
-        System.out.println("MSG Recieved from MMSI: " + message.getMmsi()
-                + " and ID " + message.getId());
+        System.out.println("MSG Recieved from MMSI: " + message.getMmsi() + " and ID " + message.getId());
 
-        if (routeSuggestions.containsKey(new RouteSuggestionKey(message
-                .getMmsi(), message.getId()))) {
+        if (routeSuggestions.containsKey(new RouteSuggestionKey(message.getMmsi(), message.getId()))) {
 
             // System.out.println("Reply recieved for " + mmsi + " " +
             // message.getRefMsgLinkId());
@@ -459,44 +416,33 @@ public class EnavServiceHandler extends MapHandlerChild implements
             long mmsi = message.getMmsi();
             long id = message.getId();
 
-            routeSuggestions.get(
-                    new RouteSuggestionKey(message.getMmsi(), message.getId()))
-                    .setReply(message);
+            routeSuggestions.get(new RouteSuggestionKey(message.getMmsi(), message.getId())).setReply(message);
 
             switch (response) {
             case RECIEVED_ACCEPTED:
-                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                        .getStatus() != AIS_STATUS.RECIEVED_ACCEPTED) {
+                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).getStatus() != AIS_STATUS.RECIEVED_ACCEPTED) {
                     // Accepted
-                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                            .setStatus(AIS_STATUS.RECIEVED_ACCEPTED);
-                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                            .setAcknowleged(false);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setStatus(AIS_STATUS.RECIEVED_ACCEPTED);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setAcknowleged(false);
                     notifyRouteExchangeListeners();
                 }
 
                 break;
             case RECIEVED_REJECTED:
                 // Rejected
-                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                        .getStatus() != AIS_STATUS.RECIEVED_REJECTED) {
+                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).getStatus() != AIS_STATUS.RECIEVED_REJECTED) {
                     // Accepted
-                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                            .setStatus(AIS_STATUS.RECIEVED_REJECTED);
-                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                            .setAcknowleged(false);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setStatus(AIS_STATUS.RECIEVED_REJECTED);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setAcknowleged(false);
                     notifyRouteExchangeListeners();
                 }
                 break;
             case RECIEVED_NOTED:
                 // Noted
-                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                        .getStatus() != AIS_STATUS.RECIEVED_NOTED) {
+                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).getStatus() != AIS_STATUS.RECIEVED_NOTED) {
                     // Accepted
-                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                            .setStatus(AIS_STATUS.RECIEVED_NOTED);
-                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                            .setAcknowleged(false);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setStatus(AIS_STATUS.RECIEVED_NOTED);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setAcknowleged(false);
                     notifyRouteExchangeListeners();
                 }
                 break;
@@ -513,8 +459,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                 .serviceRegister(
                         StrategicRouteService.INIT,
                         new InvocationCallback<StrategicRouteService.StrategicRouteRequestMessage, StrategicRouteService.StrategicRouteRequestReply>() {
-                            public void process(
-                                    StrategicRouteRequestMessage message,
+                            public void process(StrategicRouteRequestMessage message,
                                     InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply> context) {
 
                                 // long mmsi = message.getMmsi();
@@ -524,9 +469,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                 // (EPDShore.getAisHandler().getVesselTargets()
                                 // .containsKey(mmsi)) {
 
-                                System.out
-                                        .println("Recieved a message with id "
-                                                + message.getId());
+                                System.out.println("Recieved a message with id " + message.getId());
 
                                 monaLisaHandler.handleMessage(message);
 
@@ -576,16 +519,14 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     }
 
-    public void sendStrategicRouteRequest(long mmsiDestination,
-            StrategicRouteRequestMessage routeMessage) {
+    public void sendStrategicRouteRequest(long mmsiDestination, StrategicRouteRequestMessage routeMessage) {
 
         ServiceEndpoint<StrategicRouteService.StrategicRouteRequestMessage, StrategicRouteService.StrategicRouteRequestReply> end = null;
 
         // How to determine which to send to?
         for (int i = 0; i < monaLisaShipList.size(); i++) {
 
-            if (mmsiDestination == Long.parseLong(monaLisaShipList.get(i)
-                    .getId().toString().split("//")[1])) {
+            if (mmsiDestination == Long.parseLong(monaLisaShipList.get(i).getId().toString().split("//")[1])) {
 
                 System.out.println("We have a match on" + mmsiDestination);
                 end = monaLisaShipList.get(i);
@@ -622,9 +563,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     private void getMonaLisaShipList() {
         try {
-            monaLisaShipList = connection
-                    .serviceFind(StrategicRouteService.INIT)
-                    .nearest(Integer.MAX_VALUE).get();
+            monaLisaShipList = connection.serviceFind(StrategicRouteService.INIT).nearest(Integer.MAX_VALUE).get();
 
             // for (int i = 0; i < monaLisaShipList.size(); i++) {
             // System.out.println("We have the following IDs available " +
@@ -641,8 +580,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     public boolean shipAvailableForMonaLisaTransaction(long mmsi) {
         getMonaLisaShipList();
         for (int i = 0; i < monaLisaShipList.size(); i++) {
-            if (mmsi == Long.parseLong(monaLisaShipList.get(i).getId()
-                    .toString().split("//")[1])) {
+            if (mmsi == Long.parseLong(monaLisaShipList.get(i).getId().toString().split("//")[1])) {
                 return true;
             }
 

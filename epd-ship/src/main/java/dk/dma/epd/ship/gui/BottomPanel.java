@@ -41,8 +41,6 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Font;
 
-
-
 /**
  * Panel shown below the chart
  */
@@ -59,7 +57,7 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
     private StatusLabel aisStatus;
     private StatusLabel shoreServiceStatus;
     private StatusLabel cloudStatus;
-    
+
     private JToolBar toolBar;
     private List<IStatusComponent> statusComponents = new ArrayList<>();
     private JLabel lblDoNotUse;
@@ -69,47 +67,42 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
     public BottomPanel() {
         super();
         setLayout(new BorderLayout(0, 0));
-        
+
         navWarnings = new JPanel();
         FlowLayout flowLayout = (FlowLayout) navWarnings.getLayout();
         flowLayout.setHgap(10);
-//        navWarnings.add(navWarnings);
-        
+        // navWarnings.add(navWarnings);
+
         lblDoNotUse = new JLabel("Do not use this for navigational purposes");
         lblDoNotUse.setFont(new Font("Tahoma", Font.PLAIN, 12));
         lblDoNotUse.setForeground(Color.RED);
         navWarnings.add(lblDoNotUse);
         lblDoNotUse.setHorizontalAlignment(SwingConstants.LEFT);
-        
-        add(navWarnings, BorderLayout.WEST);
-        
-        statusIcons = new JPanel();
-        
-        
-        add(statusIcons, BorderLayout.EAST);
-        
-                toolBar = new JToolBar();
-                statusIcons.add(toolBar);
-                toolBar.setFloatable(false);
-                
-                        gpsStatus = new StatusLabel("GPS");
-                        addToolbarComponent(gpsStatus);
-                        Component horizontalStrut = Box.createHorizontalStrut(5);
-                        toolBar.add(horizontalStrut);
-                        JSeparator separator = new JSeparator();
-                        separator.setOrientation(SwingConstants.VERTICAL);
-                        toolBar.add(separator);
-                        horizontalStrut = Box.createHorizontalStrut(5);
-                        toolBar.add(horizontalStrut);
 
+        add(navWarnings, BorderLayout.WEST);
+
+        statusIcons = new JPanel();
+
+        add(statusIcons, BorderLayout.EAST);
+
+        toolBar = new JToolBar();
+        statusIcons.add(toolBar);
+        toolBar.setFloatable(false);
+
+        gpsStatus = new StatusLabel("GPS");
+        addToolbarComponent(gpsStatus);
+        addSeparator();
+        
         aisStatus = new StatusLabel("AIS");
         addToolbarComponent(aisStatus);
+        addSeparator();
 
         shoreServiceStatus = new StatusLabel("Shore services");
         addToolbarComponent(shoreServiceStatus);
-        
+        addSeparator();
+
         cloudStatus = new StatusLabel("Maritime Cloud");
-        addToolbarComponent(cloudStatus);
+        addToolbarComponent(cloudStatus);        
 
         new Thread(this).start();
     }
@@ -117,6 +110,15 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
     private void addToolbarComponent(Component component) {
         toolBar.add(component);
         component.addMouseListener(this);
+    }
+    
+    private void addSeparator() {
+        Component horizontalStrut = Box.createHorizontalStrut(5);
+        JSeparator separator = new JSeparator();
+        separator.setOrientation(SwingConstants.VERTICAL);        
+        toolBar.add(horizontalStrut);
+        toolBar.add(separator);
+        toolBar.add(horizontalStrut);
     }
 
     @Override
@@ -141,8 +143,7 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
     @Override
     public void mouseClicked(MouseEvent e) {
         /**
-         * if (e.getSource() == msiIcon) { if (notifyMsgId > 0) {
-         * msiDialog.showMessage(notifyMsgId); } else {
+         * if (e.getSource() == msiIcon) { if (notifyMsgId > 0) { msiDialog.showMessage(notifyMsgId); } else {
          * msiDialog.setVisible(true); } } else
          **/
         if (e.getSource() instanceof StatusLabel) {

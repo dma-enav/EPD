@@ -34,20 +34,20 @@ import dk.dma.epd.common.util.ParseUtils;
  */
 public class SensorSettings implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    private static final Logger LOG = LoggerFactory.getLogger(SensorSettings.class);
-    
-    private static final String PREFIX = "sensor.";
-       private static final TimeZone TZ_GMT = TimeZone.getTimeZone("GMT+0000");
 
-        public static String getISO8620(Date date) {
-            SimpleDateFormat iso8601gmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-            iso8601gmt.setTimeZone(TZ_GMT);
-            return iso8601gmt.format(date);
-        }
-        
+    private static final Logger LOG = LoggerFactory.getLogger(SensorSettings.class);
+
+    private static final String PREFIX = "sensor.";
+    private static final TimeZone TZ_GMT = TimeZone.getTimeZone("GMT+0000");
+
+    public static String getISO8620(Date date) {
+        SimpleDateFormat iso8601gmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        iso8601gmt.setTimeZone(TZ_GMT);
+        return iso8601gmt.format(date);
+    }
+
     public enum SensorConnectionType {
-        NONE, TCP, SERIAL, FILE, AIS_SHARED;
+        NONE, TCP, SERIAL, FILE;
         public static SensorConnectionType parseString(String type) {
             if (type.equalsIgnoreCase("TCP")) {
                 return TCP;
@@ -55,48 +55,75 @@ public class SensorSettings implements Serializable {
                 return SERIAL;
             } else if (type.equalsIgnoreCase("FILE")) {
                 return FILE;
-            } else if (type.equalsIgnoreCase("AIS_SHARED")) {
-                return AIS_SHARED;
             }
             return NONE;
         }
     }
-    
-    private SensorConnectionType aisConnectionType = SensorConnectionType.TCP; 
+
+    public enum PntSource {
+        AUTO, AIS, GPS, PNT, NONE;
+        public static PntSource parseString(String type) {
+            if (type.equalsIgnoreCase("AUTO")) {
+                return AUTO;
+            } else if (type.equalsIgnoreCase("AIS")) {
+                return AIS;
+            } else if (type.equalsIgnoreCase("GPS")) {
+                return GPS;
+            } else if (type.equalsIgnoreCase("PNT")) {
+                return PNT;
+            }
+            return NONE;
+        }
+    }
+
+    private SensorConnectionType aisConnectionType = SensorConnectionType.TCP;
     private String aisHostOrSerialPort = "localhost";
     private String aisFilename = "";
     private int aisTcpPort = 4001;
-    
-    private SensorConnectionType gpsConnectionType = SensorConnectionType.AIS_SHARED;
+
+    private SensorConnectionType gpsConnectionType = SensorConnectionType.NONE;
     private String gpsHostOrSerialPort = "COM3";
     private String gpsFilename = "";
     private int gpsTcpPort = 8888;
-    
+
+    private SensorConnectionType pntConnectionType = SensorConnectionType.NONE;
+    private String pntHostOrSerialPort = "COM4";
+    private String pntFilename = "";
+    private int pntTcpPort = 9999;
+
+    private PntSource pntSource = PntSource.AUTO;
+
     private boolean startTransponder = true;
     /**
-     * If farther away than this range, the messages are discarded
-     * In nautical miles (theoretical distance is about 40 miles)
-    */
+     * If farther away than this range, the messages are discarded In nautical miles (theoretical distance is about 40 miles)
+     */
     private double aisSensorRange;
-        
+
     private int replaySpeedup = 1;
     private Date replayStartDate;
 
     public SensorSettings() {
-        
+
     }
-    
+
     public void readProperties(Properties props) {
-        aisConnectionType = SensorConnectionType.parseString(props.getProperty(PREFIX + "aisConnectionType", aisConnectionType.name()));
+        aisConnectionType = SensorConnectionType.parseString(props.getProperty(PREFIX + "aisConnectionType",
+                aisConnectionType.name()));
         aisHostOrSerialPort = props.getProperty(PREFIX + "aisHostOrSerialPort", aisHostOrSerialPort);
         aisTcpPort = PropUtils.intFromProperties(props, PREFIX + "aisTcpPort", aisTcpPort);
-        gpsConnectionType = SensorConnectionType.parseString(props.getProperty(PREFIX + "gpsConnectionType", gpsConnectionType.name()));
+        gpsConnectionType = SensorConnectionType.parseString(props.getProperty(PREFIX + "gpsConnectionType",
+                gpsConnectionType.name()));
         gpsHostOrSerialPort = props.getProperty(PREFIX + "gpsHostOrSerialPort", gpsHostOrSerialPort);
         gpsTcpPort = PropUtils.intFromProperties(props, PREFIX + "gpsTcpPort", gpsTcpPort);
+        pntConnectionType = SensorConnectionType.parseString(props.getProperty(PREFIX + "pntConnectionType",
+                pntConnectionType.name()));
+        pntHostOrSerialPort = props.getProperty(PREFIX + "pntHostOrSerialPort", pntHostOrSerialPort);
+        pntTcpPort = PropUtils.intFromProperties(props, PREFIX + "pntTcpPort", pntTcpPort);
         startTransponder = PropUtils.booleanFromProperties(props, PREFIX + "startTransponder", startTransponder);
         aisSensorRange = PropUtils.doubleFromProperties(props, PREFIX + "aisSensorRange", aisSensorRange);
         aisFilename = props.getProperty(PREFIX + "aisFilename", aisFilename);
         gpsFilename = props.getProperty(PREFIX + "gpsFilename", gpsFilename);
+        pntFilename = props.getProperty(PREFIX + "pntFilename", pntFilename);
         replaySpeedup = PropUtils.intFromProperties(props, PREFIX + "replaySpeedup", replaySpeedup);
         String replayStartStr = props.getProperty(PREFIX + "replayStartDate", "");
         if (replayStartStr.length() > 0) {
@@ -107,8 +134,9 @@ public class SensorSettings implements Serializable {
                 LOG.error("Failed to parse replayStartDate");
             }
         }
+        pntSource = PntSource.parseString(props.getProperty(PREFIX + "pntSource", pntSource.name()));
     }
-    
+
     public void setProperties(Properties props) {
         props.put(PREFIX + "aisConnectionType", aisConnectionType.name());
         props.put(PREFIX + "aisHostOrSerialPort", aisHostOrSerialPort);
@@ -116,16 +144,53 @@ public class SensorSettings implements Serializable {
         props.put(PREFIX + "gpsConnectionType", gpsConnectionType.name());
         props.put(PREFIX + "gpsHostOrSerialPort", gpsHostOrSerialPort);
         props.put(PREFIX + "gpsTcpPort", Integer.toString(gpsTcpPort));
+        props.put(PREFIX + "pntConnectionType", pntConnectionType.name());
+        props.put(PREFIX + "pntHostOrSerialPort", pntHostOrSerialPort);
+        props.put(PREFIX + "pntTcpPort", Integer.toString(pntTcpPort));
         props.put(PREFIX + "startTransponder", Boolean.toString(startTransponder));
         props.put(PREFIX + "aisSensorRange", Double.toString(aisSensorRange));
         props.put(PREFIX + "aisFilename", aisFilename);
         props.put(PREFIX + "gpsFilename", gpsFilename);
+        props.put(PREFIX + "pntFilename", pntFilename);
         props.put(PREFIX + "replaySpeedup", Integer.toString(replaySpeedup));
         String replayStartStr = "";
-        if (replayStartDate != null) {            
+        if (replayStartDate != null) {
             replayStartStr = getISO8620(replayStartDate);
         }
         props.put(PREFIX + "replayStartDate", replayStartStr);
+        props.put(PREFIX + "pntSource", pntSource.name());
+    }
+
+    public SensorConnectionType getPntConnectionType() {
+        return pntConnectionType;
+    }
+
+    public void setPntConnectionType(SensorConnectionType pntConnectionType) {
+        this.pntConnectionType = pntConnectionType;
+    }
+
+    public String getPntHostOrSerialPort() {
+        return pntHostOrSerialPort;
+    }
+
+    public void setPntHostOrSerialPort(String pntHostOrSerialPort) {
+        this.pntHostOrSerialPort = pntHostOrSerialPort;
+    }
+
+    public String getPntFilename() {
+        return pntFilename;
+    }
+
+    public void setPntFilename(String pntFilename) {
+        this.pntFilename = pntFilename;
+    }
+
+    public int getPntTcpPort() {
+        return pntTcpPort;
+    }
+
+    public void setPntTcpPort(int pntTcpPort) {
+        this.pntTcpPort = pntTcpPort;
     }
 
     public SensorConnectionType getAisConnectionType() {
@@ -179,43 +244,43 @@ public class SensorSettings implements Serializable {
     public boolean isStartTransponder() {
         return startTransponder;
     }
-    
+
     public void setStartTransponder(boolean startTransponder) {
         this.startTransponder = startTransponder;
     }
-    
+
     public double getAisSensorRange() {
         return aisSensorRange;
     }
-    
+
     public void setAisSensorRange(double aisSensorRange) {
         this.aisSensorRange = aisSensorRange;
     }
-    
+
     public String getAisFilename() {
         return aisFilename;
     }
-    
+
     public void setAisFilename(String aisFilename) {
         this.aisFilename = aisFilename;
     }
-    
+
     public String getGpsFilename() {
         return gpsFilename;
     }
-    
+
     public void setGpsFilename(String gpsFilename) {
         this.gpsFilename = gpsFilename;
     }
-    
+
     public int getReplaySpeedup() {
         return replaySpeedup;
     }
-    
+
     public void setReplaySpeedup(int replaySpeedup) {
         this.replaySpeedup = replaySpeedup;
     }
-    
+
     public Date getReplayStartDate() {
         return replayStartDate;
     }
@@ -224,4 +289,12 @@ public class SensorSettings implements Serializable {
         this.replayStartDate = replayStartDate;
     }
     
+    public PntSource getPntSource() {
+        return pntSource;
+    }
+    
+    public void setPntSource(PntSource pntSource) {
+        this.pntSource = pntSource;
+    }
+
 }

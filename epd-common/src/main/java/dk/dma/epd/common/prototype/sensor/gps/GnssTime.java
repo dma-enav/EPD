@@ -25,76 +25,63 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
-import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
 
 /**
  * Singleton component class that maintains GNSS time as an offset from computer time
  */
 @ThreadSafe
 public final class GnssTime extends MapHandlerChild implements IGnssTimeListener {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(GnssTime.class);
-    
+
     private volatile long offset;
     private volatile NmeaSensor nmeaSensor;
-    
+
     private static GnssTime instance;
-    
+
     private GnssTime() {
-        
+
     }
 
     /**
      * Receive GNSS time update
      */
     @Override
-    public void receive(GnssTimeMessage gnssTimeMessage) {        
+    public void receive(GnssTimeMessage gnssTimeMessage) {
         if (gnssTimeMessage == null) {
             return;
         }
         offset = System.currentTimeMillis() - gnssTimeMessage.getTime().getTime();
-        LOG.debug("New GPS time offset: " + offset);        
+        LOG.debug("New GPS time offset: " + offset);
     }
-    
+
     /**
      * Get GNSS date
+     * 
      * @return date
      */
     public synchronized Date getDate() {
-        return new Date(new Date().getTime() - offset);         
+        return new Date(new Date().getTime() - offset);
     }
-    
+
     public static void init() {
         synchronized (GnssTime.class) {
             if (instance == null) {
                 instance = new GnssTime();
-            }            
+            }
         }
     }
-    
+
     public static GnssTime getInstance() {
         synchronized (GnssTime.class) {
             return instance;
         }
     }
-    
-    /**
-     * Hook up to an NMEA sensor
-     */
+
     @Override
     public void findAndInit(Object obj) {
-        if (nmeaSensor != null) {
-            return;
-        }
-        if (obj instanceof NmeaSensor) {
-            NmeaSensor sensor = (NmeaSensor)obj;
-            if (sensor.isSensorType(SensorType.GPS)) {
-                nmeaSensor = sensor;
-                nmeaSensor.addGnssTimeListener(this);
-            }
-        }
     }
-    
+
     @Override
     public void findAndUndo(Object obj) {
         if (obj == nmeaSensor) {

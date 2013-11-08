@@ -45,8 +45,6 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.nmea.IAisListener;
-import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
-import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.status.AisStatus;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
@@ -69,7 +67,6 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
     protected CopyOnWriteArrayList<IAisTargetListener> listeners = new CopyOnWriteArrayList<>();
     protected CopyOnWriteArrayList<IAisRouteSuggestionListener> suggestionListeners = new CopyOnWriteArrayList<>();
     
-    protected NmeaSensor nmeaSensor;    
     protected AisStatus aisStatus = new AisStatus();
     protected final boolean strictAisMode;
     protected final boolean showIntendedRouteDefault;
@@ -593,25 +590,6 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
         }
     }
 
-    @Override
-    public void findAndInit(Object obj) {
-        if (nmeaSensor == null && obj instanceof NmeaSensor) {
-            NmeaSensor sensor = (NmeaSensor) obj;
-            if (sensor.isSensorType(SensorType.AIS)) {
-                LOG.info("Found AIS sensor");
-                nmeaSensor = sensor;
-                nmeaSensor.addAisListener(this);
-            }
-        }
-    }
-    
-    @Override
-    public void findAndUndo(Object obj) {
-        if (obj == nmeaSensor) {
-            nmeaSensor.removeAisListener(this);
-        }
-    }
-    
     public final class AisMessageExtended {
         public String name;
         public long MMSI;
