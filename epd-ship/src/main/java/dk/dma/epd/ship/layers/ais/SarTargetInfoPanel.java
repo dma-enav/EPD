@@ -20,9 +20,9 @@ import java.util.Date;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.ais.SarTarget;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Util;
@@ -34,7 +34,7 @@ import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 public class SarTargetInfoPanel extends InfoPanel implements Runnable {
     private static final long serialVersionUID = 1L;
 
-    private GpsHandler gpsHandler;
+    private PntHandler gpsHandler;
     private SarTarget sarTarget;
 
     public SarTargetInfoPanel() {
@@ -45,7 +45,7 @@ public class SarTargetInfoPanel extends InfoPanel implements Runnable {
     public synchronized void showSarInfo(SarTarget sarTarget) {
         this.sarTarget = sarTarget;
         StringBuilder str = new StringBuilder();
-        Date now = GnssTime.getInstance().getDate();
+        Date now = PntTime.getInstance().getDate();
         Date lastReceived = sarTarget.getLastReceived();
         Date firstReceived = sarTarget.getFirstReceived();
         long elapsedLast = now.getTime() - lastReceived.getTime();
@@ -70,7 +70,7 @@ public class SarTargetInfoPanel extends InfoPanel implements Runnable {
         Long ttg = null;
         Date eta = null;
         if (gpsHandler != null) {
-            GpsData gpsData = gpsHandler.getCurrentData();
+            PntData gpsData = gpsHandler.getCurrentData();
             if (gpsData != null && !gpsData.isBadPosition()) {
                 Position pos = gpsData.getPosition();                
                 if (pos != null && sarPos != null) {
@@ -91,7 +91,7 @@ public class SarTargetInfoPanel extends InfoPanel implements Runnable {
         showText(str.toString());
     }
 
-    public synchronized void setGpsHandler(GpsHandler gpsHandler) {
+    public synchronized void setGpsHandler(PntHandler gpsHandler) {
         this.gpsHandler = gpsHandler;
     }
 

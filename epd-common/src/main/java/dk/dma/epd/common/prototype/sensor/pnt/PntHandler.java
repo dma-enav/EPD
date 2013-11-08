@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.sensor.gps;
+package dk.dma.epd.common.prototype.sensor.pnt;
 
 import java.util.Date;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -24,37 +24,37 @@ import net.jcip.annotations.ThreadSafe;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.sensor.nmea.GpsMessage;
-import dk.dma.epd.common.prototype.sensor.nmea.IGpsListener;
-import dk.dma.epd.common.prototype.status.GpsStatus;
+import dk.dma.epd.common.prototype.sensor.nmea.PntMessage;
+import dk.dma.epd.common.prototype.sensor.nmea.IPntListener;
+import dk.dma.epd.common.prototype.status.PntStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
 
 /**
- * Component class for handling received GPS messages.
+ * Component class for handling received PNT messages.
  */
 @ThreadSafe
-public class GpsHandler extends MapHandlerChild implements IGpsListener, IStatusComponent, Runnable {
+public class PntHandler extends MapHandlerChild implements IPntListener, IStatusComponent, Runnable {
 
-    private static final long GPS_TIMEOUT = 60 * 1000; // 1 min
-    private CopyOnWriteArrayList<IGpsDataListener> listeners = new CopyOnWriteArrayList<>();
+    private static final long PNT_TIMEOUT = 60 * 1000; // 1 min
+    private CopyOnWriteArrayList<IPntDataListener> listeners = new CopyOnWriteArrayList<>();
     @GuardedBy("this")
-    private GpsData currentData = new GpsData();
+    private PntData currentData = new PntData();
 
-    public GpsHandler() {
-        EPD.startThread(this, "GpsHandler");
+    public PntHandler() {
+        EPD.startThread(this, "PntHandler");
     }
 
     @Override
-    public GpsStatus getStatus() {
-        return new GpsStatus(getCurrentData());
+    public PntStatus getStatus() {
+        return new PntStatus(getCurrentData());
     }
 
     /**
      * Receive GPS message
      */
     @Override
-    public synchronized void receive(GpsMessage gpsMessage) {
+    public synchronized void receive(PntMessage gpsMessage) {
         Date now = new Date();
         long elapsed = now.getTime() - currentData.getLastUpdated().getTime();
         if (elapsed < 900) {
@@ -88,8 +88,8 @@ public class GpsHandler extends MapHandlerChild implements IGpsListener, IStatus
      * Distribute update to all listeners
      */
     private void distributeUpdate() {
-        for (IGpsDataListener listener : listeners) {
-            GpsData currentCopy = getCurrentData();
+        for (IPntDataListener listener : listeners) {
+            PntData currentCopy = getCurrentData();
             listener.gpsDataUpdate(currentCopy);
         }
     }
@@ -99,7 +99,7 @@ public class GpsHandler extends MapHandlerChild implements IGpsListener, IStatus
      */
     public synchronized boolean gpsTimedOut() {
         Date now = new Date();
-        return now.getTime() - currentData.getLastUpdated().getTime() > GPS_TIMEOUT;
+        return now.getTime() - currentData.getLastUpdated().getTime() > PNT_TIMEOUT;
     }
 
     /**
@@ -116,15 +116,15 @@ public class GpsHandler extends MapHandlerChild implements IGpsListener, IStatus
         }
     }
 
-    public synchronized GpsData getCurrentData() {
-        return new GpsData(currentData);
+    public synchronized PntData getCurrentData() {
+        return new PntData(currentData);
     }
 
-    public void addListener(IGpsDataListener listener) {
+    public void addListener(IPntDataListener listener) {
         listeners.addIfAbsent(listener);
     }
 
-    public void removeListener(IGpsDataListener listener) {
+    public void removeListener(IPntDataListener listener) {
         listeners.remove(listener);
     }
 

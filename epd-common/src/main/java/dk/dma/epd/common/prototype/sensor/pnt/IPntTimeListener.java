@@ -13,13 +13,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.sensor.nmea;
+package dk.dma.epd.common.prototype.sensor.pnt;
+
+import dk.dma.epd.common.prototype.sensor.nmea.PntMessage;
 
 /**
- * Interface to implement to receive GPS messages 
+ * Interface to implement for classes wanting to receive PNT time updates
  */
-public interface IGpsListener {
-    
-    void receive(GpsMessage gpsMessage);
+public interface IPntTimeListener {
+
+    /**
+     * Receive PNT message
+     * 
+     * @param pntMessage
+     */
+    void receive(PntMessage pntMessage);
 
 }

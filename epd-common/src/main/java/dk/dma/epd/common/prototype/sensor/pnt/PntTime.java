@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.sensor.gps;
+package dk.dma.epd.common.prototype.sensor.pnt;
 
 import java.util.Date;
 
@@ -24,22 +24,20 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
+import dk.dma.epd.common.prototype.sensor.nmea.PntMessage;
 
 /**
  * Singleton component class that maintains GNSS time as an offset from computer time
  */
 @ThreadSafe
-public final class GnssTime extends MapHandlerChild implements IGnssTimeListener {
+public final class PntTime extends MapHandlerChild implements IPntTimeListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GnssTime.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PntTime.class);
 
     private volatile long offset;
-    private volatile NmeaSensor nmeaSensor;
+    private static PntTime instance;
 
-    private static GnssTime instance;
-
-    private GnssTime() {
+    private PntTime() {
 
     }
 
@@ -47,12 +45,12 @@ public final class GnssTime extends MapHandlerChild implements IGnssTimeListener
      * Receive GNSS time update
      */
     @Override
-    public void receive(GnssTimeMessage gnssTimeMessage) {
-        if (gnssTimeMessage == null) {
+    public void receive(PntMessage pntMessage) {
+        if (pntMessage == null || pntMessage.getTime() == null) {
             return;
         }
-        offset = System.currentTimeMillis() - gnssTimeMessage.getTime().getTime();
-        LOG.debug("New GPS time offset: " + offset);
+        offset = System.currentTimeMillis() - pntMessage.getTime();
+        LOG.debug("New PNT time offset: " + offset);
     }
 
     /**
@@ -65,27 +63,16 @@ public final class GnssTime extends MapHandlerChild implements IGnssTimeListener
     }
 
     public static void init() {
-        synchronized (GnssTime.class) {
+        synchronized (PntTime.class) {
             if (instance == null) {
-                instance = new GnssTime();
+                instance = new PntTime();
             }
         }
     }
 
-    public static GnssTime getInstance() {
-        synchronized (GnssTime.class) {
+    public static PntTime getInstance() {
+        synchronized (PntTime.class) {
             return instance;
-        }
-    }
-
-    @Override
-    public void findAndInit(Object obj) {
-    }
-
-    @Override
-    public void findAndUndo(Object obj) {
-        if (obj == nmeaSensor) {
-            nmeaSensor.removeGnssTimeListener(this);
         }
     }
 

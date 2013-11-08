@@ -44,8 +44,8 @@ import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.event.DragMouseMode;
@@ -71,7 +71,7 @@ import dk.dma.epd.ship.settings.EPDMapSettings;
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
  */
-public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
+public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         MouseWheelListener {
 
     private static final long serialVersionUID = 1L;
@@ -315,7 +315,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         msiLayer.doUpdate();
 
         // Add this class as GPS data listener
-        EPDShip.getGpsHandler().addListener(this);
+        EPDShip.getPntHandler().addListener(this);
 
         // encLayerFactory2.setMapSettings();
 
@@ -381,7 +381,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
 
     public void centreOnShip() {
         // Get current position
-        GpsData gpsData = EPDShip.getGpsHandler().getCurrentData();
+        PntData gpsData = EPDShip.getPntHandler().getCurrentData();
         if (gpsData == null) {
             return;
         }
@@ -610,7 +610,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
      * Receive GPS update
      */
     @Override
-    public void gpsDataUpdate(GpsData gpsData) {
+    public void gpsDataUpdate(PntData gpsData) {
         this.gpsData = gpsData;
         autoFollow();
     }

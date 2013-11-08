@@ -35,9 +35,9 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
-import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Util;
@@ -52,7 +52,7 @@ import dk.frv.enav.common.xml.msi.response.MsiResponse;
  */
 @ThreadSafe
 public class MsiHandler extends MapHandlerChild implements Runnable,
-        IRoutesUpdateListener, IGpsDataListener {
+        IRoutesUpdateListener, IPntDataListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(MsiHandler.class);
 
@@ -71,7 +71,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     private transient Position currentPosition;
 
     private CopyOnWriteArrayList<IMsiUpdateListener> listeners = new CopyOnWriteArrayList<>();
-    private GpsHandler gpsHandler;
+    private PntHandler gpsHandler;
     private boolean gpsUpdate;
 
     public MsiHandler(EnavSettings enavSettings) {
@@ -414,7 +414,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
      * previous point
      */
     @Override
-    public void gpsDataUpdate(GpsData gpsData) {
+    public void gpsDataUpdate(PntData gpsData) {
         currentPosition = gpsData.getPosition();
 
         if (calculationPosition == null) {
@@ -445,8 +445,8 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         if (obj instanceof IMsiUpdateListener) {
             addListener((IMsiUpdateListener) obj);
         }
-        if (gpsHandler == null && obj instanceof GpsHandler) {
-            gpsHandler = (GpsHandler) obj;
+        if (gpsHandler == null && obj instanceof PntHandler) {
+            gpsHandler = (PntHandler) obj;
             gpsHandler.addListener(this);
         }
     }

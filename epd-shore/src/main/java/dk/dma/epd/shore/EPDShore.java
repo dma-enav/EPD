@@ -44,12 +44,12 @@ import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensorFactory;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -146,8 +146,8 @@ public class EPDShore extends EPD {
         }
 
         // Enable GPS timer by adding it to bean context
-        GnssTime.init();
-        beanHandler.add(GnssTime.getInstance());
+        PntTime.init();
+        beanHandler.add(PntTime.getInstance());
 
         // aisHandler = new AisHandlerCommon();
         aisHandler = new AisHandler(settings.getAisSettings());

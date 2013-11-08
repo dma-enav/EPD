@@ -18,10 +18,9 @@ package dk.dma.epd.common.prototype.ais;
 import java.util.Date;
 
 import net.jcip.annotations.ThreadSafe;
-
 import dk.dma.ais.message.binary.RouteInformation;
 import dk.dma.ais.message.binary.RouteSuggestion;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 
 /**
  * Class representing an addressed route suggestion
@@ -62,7 +61,7 @@ public class AisAdressedRouteSuggestion extends AisIntendedRoute {
         super(routeInformation);
         
         // Check if ETA in the past
-        Date now = GnssTime.getInstance().getDate();
+        Date now = PntTime.getInstance().getDate();
         if (etaFirst != null && etaFirst.before(now)) {
             etaFirst = null;
             speed = null;

@@ -45,8 +45,8 @@ import dk.dma.epd.common.prototype.monalisa.SSPAResponse;
 import dk.dma.epd.common.prototype.monalisa.XMLDialog;
 import dk.dma.epd.common.prototype.monalisa.sspa.RouterequestType;
 import dk.dma.epd.common.prototype.monalisa.sspa.RouteresponseType;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
@@ -74,7 +74,7 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
     private static final Logger LOG = LoggerFactory.getLogger(ShoreServicesCommon.class);
 
     private AisHandlerCommon aisHandler;
-    private GpsHandler gpsHandler;
+    private PntHandler gpsHandler;
     protected EnavSettings enavSettings;
     private ShoreServiceStatus status = new ShoreServiceStatus();
     private static final String ENCODING = "UTF-8";
@@ -216,7 +216,7 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
         // Get current position if active route
         Position pos = null;
         if (route instanceof ActiveRoute) {
-            GpsData gpsData = gpsHandler.getCurrentData();
+            PntData gpsData = gpsHandler.getCurrentData();
             if (gpsData.isBadPosition()) {
                 throw new ShoreServiceException(ShoreServiceErrorCode.NO_VALID_GPS_DATA);
             }
@@ -297,8 +297,8 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
         if (aisHandler == null && obj instanceof AisHandlerCommon) {
             aisHandler = (AisHandlerCommon) obj;
         }
-        if (gpsHandler == null && obj instanceof GpsHandler) {
-            gpsHandler = (GpsHandler) obj;
+        if (gpsHandler == null && obj instanceof PntHandler) {
+            gpsHandler = (PntHandler) obj;
         }
     }
 

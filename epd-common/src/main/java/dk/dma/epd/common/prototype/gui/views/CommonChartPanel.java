@@ -25,7 +25,7 @@ import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
@@ -42,7 +42,7 @@ public abstract class CommonChartPanel extends OMComponentPanel {
     protected Layer encLayer;
 //    protected Layer encDragLayer;
     protected Layer bgLayer;
-    protected GpsData gpsData;
+    protected PntData gpsData;
     protected MouseDelegator mouseDelegator;
     protected WMSLayer wmsLayer;
     protected WMSLayer wmsDragLayer;

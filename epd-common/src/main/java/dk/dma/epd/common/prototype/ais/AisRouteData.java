@@ -26,7 +26,7 @@ import net.jcip.annotations.ThreadSafe;
 import dk.dma.ais.message.binary.RouteInformation;
 import dk.dma.ais.message.binary.RouteMessage;
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 
 /**
  * Abstract base class for AIS route data
@@ -62,7 +62,7 @@ public abstract class AisRouteData implements Serializable {
     }
     
     public AisRouteData(RouteMessage routeMessage) {
-        received = GnssTime.getInstance().getDate();
+        received = PntTime.getInstance().getDate();
         
         for (int i=0; i < routeMessage.getWaypoints().size(); i++) {
             Position wp = routeMessage.getWaypoints().get(i).getGeoLocation();

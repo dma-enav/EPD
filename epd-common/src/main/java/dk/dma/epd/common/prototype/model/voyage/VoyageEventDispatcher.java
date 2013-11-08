@@ -17,8 +17,6 @@ package dk.dma.epd.common.prototype.model.voyage;
 
 import java.util.ArrayList;
 
-import com.bbn.openmap.MapHandlerChild;
-
 import dk.dma.epd.common.prototype.model.route.Route;
 
 /**

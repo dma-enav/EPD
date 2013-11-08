@@ -13,26 +13,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.sensor.gps;
-
-import java.util.Date;
-
-import net.jcip.annotations.Immutable;
+package dk.dma.epd.common.prototype.sensor.pnt;
 
 /**
- * Class to represent a GNSS time message. For now just a date.  
+ * Interface to implement for classes wanting to receive GPS updates 
  */
-@Immutable
-public class GnssTimeMessage {
+public interface IPntDataListener {
     
-    private final Date time;
-    
-    public GnssTimeMessage(Date time) {
-        this.time = time;
-    }
-    
-    public Date getTime() {
-        return time;
-    }
-    
+    /**
+     * Method called when the position of ship changes, or the known position is lost
+     * @param gpsData 
+     */
+    void gpsDataUpdate(PntData gpsData);
+
 }

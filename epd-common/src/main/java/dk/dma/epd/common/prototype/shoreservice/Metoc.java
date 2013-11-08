@@ -24,7 +24,7 @@ import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteMetocSettings;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.frv.enav.common.xml.metoc.MetocDataTypes;
 import dk.frv.enav.common.xml.metoc.request.MetocForecastRequest;
 import dk.frv.enav.common.xml.metoc.request.MetocForecastRequestWp;
@@ -66,7 +66,7 @@ public class Metoc {
 
             // Insert current location
             MetocForecastRequestWp reqWp = new MetocForecastRequestWp();
-            reqWp.setEta(GnssTime.getInstance().getDate());
+            reqWp.setEta(PntTime.getInstance().getDate());
             reqWp.setHeading(activeRoute.getCurrentLeg().getHeading().name());
             reqWp.setLat(pos.getLatitude());
             reqWp.setLon(pos.getLongitude());
@@ -79,7 +79,7 @@ public class Metoc {
             route.adjustStartTime();
         }
         
-        Date now = GnssTime.getInstance().getDate();
+        Date now = PntTime.getInstance().getDate();
 
         for (int i = startWpIndex; i < route.getWaypoints().size(); i++) {
             Date eta = route.getWpEta(i);

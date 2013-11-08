@@ -23,7 +23,7 @@ import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.gui.OMComponentPanel;
 
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.panels.MonaLisaCommunicationPanel;
 
@@ -34,7 +34,7 @@ public class MonaLisaCommunicationComponentPanel extends OMComponentPanel implem
      */
     private static final long serialVersionUID = 1L;
     private final MonaLisaCommunicationPanel commsPanel = new MonaLisaCommunicationPanel();
-    private GnssTime gnssTime;
+    private PntTime gnssTime;
     private ChartPanel chartPanel;
     
     public MonaLisaCommunicationComponentPanel(){
@@ -81,8 +81,8 @@ public class MonaLisaCommunicationComponentPanel extends OMComponentPanel implem
     
     @Override
     public void findAndInit(Object obj) {
-        if (gnssTime == null && obj instanceof GnssTime) {
-            gnssTime = (GnssTime)obj;
+        if (gnssTime == null && obj instanceof PntTime) {
+            gnssTime = (PntTime)obj;
         }
         if (obj instanceof ChartPanel) {
             chartPanel = (ChartPanel)obj;

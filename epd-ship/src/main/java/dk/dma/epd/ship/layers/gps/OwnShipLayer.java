@@ -34,25 +34,25 @@ import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.math.Vector2D;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
-import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 
-public class OwnShipLayer extends OMGraphicHandlerLayer implements IGpsDataListener {
+public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListener {
     
     private static final long serialVersionUID = 1L;
     
     private static final float STROKE_WIDTH = 1.5f;
     
-    private GpsHandler gpsHandler;
+    private PntHandler gpsHandler;
     private AisHandler aisHandler;
     
     private long minRedrawInterval = 5 * 1000; // 5 sec
     
     private Date lastRedraw;
-    private GpsData gpsData;
+    private PntData gpsData;
     private OMGraphicList graphics = new OMGraphicList();
     private OMCircle circle1; 
     private OMCircle circle2;
@@ -125,7 +125,7 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IGpsDataListe
     }
     
     @Override
-    public synchronized void gpsDataUpdate(GpsData gpsData) {
+    public synchronized void gpsDataUpdate(PntData gpsData) {
         if (gpsData == null || gpsData.getPosition() == null) {
             return;
         }
@@ -244,8 +244,8 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IGpsDataListe
     
     @Override
     public void findAndInit(Object obj) {
-        if (gpsHandler == null && obj instanceof GpsHandler) {
-            gpsHandler = (GpsHandler)obj;
+        if (gpsHandler == null && obj instanceof PntHandler) {
+            gpsHandler = (PntHandler)obj;
             gpsHandler.addListener(this);
         }
         if (aisHandler == null && obj instanceof AisHandler) {

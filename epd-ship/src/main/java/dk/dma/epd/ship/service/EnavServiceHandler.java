@@ -50,9 +50,9 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRout
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
-import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.status.CloudStatus;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
@@ -71,14 +71,14 @@ import dk.dma.navnet.client.MaritimeNetworkConnectionBuilder;
  * Component offering e-Navigation services
  */
 public class EnavServiceHandler extends MapHandlerChild implements
-        IGpsDataListener, Runnable, IStatusComponent {
+        IPntDataListener, Runnable, IStatusComponent {
 
     private static final Logger LOG = LoggerFactory
             .getLogger(EnavServiceHandler.class);
 
     private String hostPort;
     private ShipId shipId;
-    private GpsHandler gpsHandler;
+    private PntHandler gpsHandler;
     private AisHandler aisHandler;
     private StrategicRouteExchangeHandler monaLisaHandler;
     private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context;
@@ -274,7 +274,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * Receive position updates
      */
     @Override
-    public void gpsDataUpdate(GpsData gpsData) {
+    public void gpsDataUpdate(PntData gpsData) {
         // TODO give information to messageBus if valid position
     }
 
@@ -285,8 +285,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
                     (ActiveRouteProvider) obj);
             ((RouteManager) obj).addListener(intendedRouteService);
             ((RouteManager) obj).setIntendedRouteService(intendedRouteService);
-        } else if (obj instanceof GpsHandler) {
-            this.gpsHandler = (GpsHandler) obj;
+        } else if (obj instanceof PntHandler) {
+            this.gpsHandler = (PntHandler) obj;
             this.gpsHandler.addListener(this);
         } else if (obj instanceof AisHandler) {
             this.aisHandler = (AisHandler) obj;

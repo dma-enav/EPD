@@ -43,8 +43,8 @@ import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.AisPositionMessage;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.nmea.IAisListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.status.AisStatus;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
@@ -140,7 +140,7 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
         // Update target
         atonTarget.update(msg21);
         // Update last received
-        atonTarget.setLastReceived(GnssTime.getInstance().getDate());
+        atonTarget.setLastReceived(PntTime.getInstance().getDate());
         // Update status
         atonTarget.setStatus(AisTarget.Status.OK);
         publishUpdate(atonTarget);
@@ -245,7 +245,7 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
         // Update track
         // TODO
         // Update last received
-        vesselTarget.setLastReceived(GnssTime.getInstance().getDate());
+        vesselTarget.setLastReceived(PntTime.getInstance().getDate());
         // Update status
         vesselTarget.setStatus(AisTarget.Status.OK);
         // Publish update
@@ -259,7 +259,7 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
      * @param positionData
      */
     protected void updateSartPos(long mmsi, VesselPositionData positionData) {
-        Date now = GnssTime.getInstance().getDate();
+        Date now = PntTime.getInstance().getDate();
         // Try to find target
         SarTarget sarTarget = sarTargets.get(mmsi);
         // If not exists, create and insert
@@ -378,7 +378,7 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
      * Update status of all targets
      */
     protected final void updateStatus() {
-        Date now = GnssTime.getInstance().getDate();
+        Date now = PntTime.getInstance().getDate();
         List<Long> deadTargets = new ArrayList<>();
 
         // Go through all vessel targets

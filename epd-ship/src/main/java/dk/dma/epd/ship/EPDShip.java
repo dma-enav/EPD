@@ -50,13 +50,12 @@ import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensorFactory;
-import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -89,7 +88,7 @@ public class EPDShip extends EPD {
     private static NmeaSensor aisSensor;
     private static NmeaSensor gpsSensor;
     private static NmeaSensor pntSensor;
-    private static GpsHandler gpsHandler;
+    private static PntHandler pntHandler;
     private static AisHandler aisHandler;
     private static RiskHandler riskHandler;
     private static RouteManager routeManager;
@@ -148,13 +147,13 @@ public class EPDShip extends EPD {
         // start riskHandler
         startRiskHandler();
 
-        // Enable GPS timer by adding it to bean context
-        GnssTime.init();
-        mapHandler.add(GnssTime.getInstance());
+        // Enable PNT timer by adding it to bean context
+        PntTime.init();
+        mapHandler.add(PntTime.getInstance());
 
         // Start position handler and add to bean context
-        gpsHandler = new GpsHandler();
-        mapHandler.add(gpsHandler);
+        pntHandler = new PntHandler();
+        mapHandler.add(pntHandler);
 
         // Start AIS target monitoring
         aisHandler = new AisHandler(settings.getSensorSettings(), settings.getAisSettings());
@@ -294,7 +293,7 @@ public class EPDShip extends EPD {
         }
 
         if (aisSensor != null) {
-            aisSensor.addAisListener(aisHandler);
+            aisSensor.addAisListener(aisHandler);            
             aisSensor.start();
             mapHandler.add(aisSensor);
         }
@@ -308,27 +307,33 @@ public class EPDShip extends EPD {
         }
 
         // Hook pnt handler to sensor
+        NmeaSensor pntSource = null;
         switch (sensorSettings.getPntSource()) {
         case AIS:
-            aisSensor.addGpsListener(gpsHandler);
+            pntSource = aisSensor;            
             break;
         case GPS:
-            gpsSensor.addGpsListener(gpsHandler);
+            pntSource = gpsSensor;
             break;
         case PNT:
-            pntSensor.addGpsListener(gpsHandler);
+            pntSource = pntSensor;
             break;
         case AUTO:
             if (pntSensor != null) {
-                pntSensor.addGpsListener(gpsHandler);
+                pntSource = pntSensor;
             } else if (gpsSensor != null) {
-                gpsSensor.addGpsListener(gpsHandler);
+                pntSource = gpsSensor;
             } else if (aisSensor != null) {
-                aisSensor.addGpsListener(gpsHandler);
+                pntSource = aisSensor;
             }
             break;
         default:
             break;
+        }
+        
+        if (pntSource != null) {
+            pntSource.addPntListener(pntHandler);
+            pntSource.addPntTimeListener(PntTime.getInstance());
         }
 
     }
@@ -602,8 +607,8 @@ public class EPDShip extends EPD {
         return gpsSensor;
     }
 
-    public static GpsHandler getGpsHandler() {
-        return gpsHandler;
+    public static PntHandler getPntHandler() {
+        return pntHandler;
     }
 
     public static MainFrame getMainFrame() {

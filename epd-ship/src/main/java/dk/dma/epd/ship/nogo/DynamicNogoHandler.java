@@ -25,7 +25,7 @@ import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -57,7 +57,7 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
     boolean nogoFailed;
 
     private ShoreServicesCommon shoreServices;
-    private GpsHandler gpsHandler;
+    private PntHandler gpsHandler;
     private AisHandler aisHandler;
 
     // Create a seperate layer for the nogo information
@@ -362,8 +362,8 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
         if (obj instanceof DynamicNogoLayer) {
             nogoLayer = (DynamicNogoLayer) obj;
         }
-        if (gpsHandler == null && obj instanceof GpsHandler) {
-            gpsHandler = (GpsHandler) obj;
+        if (gpsHandler == null && obj instanceof PntHandler) {
+            gpsHandler = (PntHandler) obj;
         }
         if (aisHandler == null && obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;

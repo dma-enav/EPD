@@ -19,8 +19,8 @@ import java.util.Date;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
@@ -47,7 +47,7 @@ public class ActiveRoute extends Route {
     /**
      * The current GPS data
      */
-    protected GpsData currentGpsData;
+    protected PntData currentGpsData;
     /**
      * Average speed over an appropriate time period
      */
@@ -99,7 +99,7 @@ public class ActiveRoute extends Route {
 
     protected double safeHavenBearing;
 
-    public ActiveRoute(Route route, GpsData gpsData) {
+    public ActiveRoute(Route route, PntData gpsData) {
         super();
         this.waypoints = route.getWaypoints();
         this.name = route.getName();
@@ -107,7 +107,7 @@ public class ActiveRoute extends Route {
         this.departure = route.getDeparture();
         this.destination = route.getDestination();
         this.starttime = route.getStarttime();
-        this.origStarttime = GnssTime.getInstance().getDate();
+        this.origStarttime = PntTime.getInstance().getDate();
         this.routeMetocSettings = route.getRouteMetocSettings();
         this.metocForecast = route.getMetocForecast();
         this.originalRoute = route.copy();
@@ -136,7 +136,7 @@ public class ActiveRoute extends Route {
      * point 0, otherwise we take bearing and distance into account and select
      * the best match. It will never select a waypoint behind itself.
      */
-    private int getBestWaypoint(Route route, GpsData gpsData) {
+    private int getBestWaypoint(Route route, PntData gpsData) {
         // LinkedList<Double> weightedDistance = new LinkedList<Double>();
 
         if (gpsData != null) {
@@ -182,7 +182,7 @@ public class ActiveRoute extends Route {
 
     public Position getSafeHavenLocation() {
 
-        long currentTime = GnssTime.getInstance().getDate().getTime();
+        long currentTime = PntTime.getInstance().getDate().getTime();
 
 //        List<Date> directetas = originalRoute.getEtas();
 
@@ -322,7 +322,7 @@ public class ActiveRoute extends Route {
         // return safeHavenLocation;
     }
 
-    public synchronized void update(GpsData gpsData) {
+    public synchronized void update(PntData gpsData) {
 
         if (gpsData.isBadPosition()) {
             return;
@@ -426,7 +426,7 @@ public class ActiveRoute extends Route {
 
     public synchronized void changeActiveWaypoint(int index) {
         // Save actual ETA
-        etas.set(activeWaypointIndex, GnssTime.getInstance().getDate());
+        etas.set(activeWaypointIndex, PntTime.getInstance().getDate());
         // Change active waypoint
         activeWaypointIndex = index;
         // Set current leg
@@ -453,7 +453,7 @@ public class ActiveRoute extends Route {
         if (activeWpTtg == null) {
             return null;
         }
-        return new Date(GnssTime.getInstance().getDate().getTime() + remainTtg
+        return new Date(PntTime.getInstance().getDate().getTime() + remainTtg
                 + activeWpTtg);
     }
 
@@ -461,7 +461,7 @@ public class ActiveRoute extends Route {
         if (activeWpTtg == null) {
             return null;
         }
-        return new Date(GnssTime.getInstance().getDate().getTime()
+        return new Date(PntTime.getInstance().getDate().getTime()
                 + activeWpTtg);
     }
 
@@ -469,7 +469,7 @@ public class ActiveRoute extends Route {
         if (niceActiveWpTtg == null) {
             return null;
         }
-        return new Date(GnssTime.getInstance().getDate().getTime()
+        return new Date(PntTime.getInstance().getDate().getTime()
                 + niceActiveWpTtg);
     }
 

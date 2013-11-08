@@ -19,7 +19,7 @@ import java.util.Date;
 
 import net.jcip.annotations.ThreadSafe;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 
 /**
  * Class representing an AIS vessel target
@@ -141,7 +141,7 @@ public class VesselTarget extends AisTarget {
         if (aisIntendedRoute == null || aisIntendedRoute.getWaypoints().size() == 0 || aisIntendedRoute.getDuration() == 0) {
             return false;
         }
-        Date now = GnssTime.getInstance().getDate();
+        Date now = PntTime.getInstance().getDate();
         long elapsed = now.getTime() - aisIntendedRoute.getReceived().getTime();
         if (elapsed > ROUTE_TTL) {
             aisIntendedRoute = null;

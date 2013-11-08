@@ -21,7 +21,7 @@ import java.util.List;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
 import dk.frv.enav.common.xml.metoc.MetocForecastPoint;
@@ -49,7 +49,7 @@ public class MetocGraphic extends OMGraphicList {
         clear();
         MetocForecast metocForecast = route.getMetocForecast();
         List<MetocForecastPoint> forecasts = metocForecast.getForecasts();
-        Date now = GnssTime.getInstance().getDate();
+        Date now = PntTime.getInstance().getDate();
         for (int i = 0; i < forecasts.size(); i += step) {
             MetocForecastPoint metocPoint = forecasts.get(i);
 

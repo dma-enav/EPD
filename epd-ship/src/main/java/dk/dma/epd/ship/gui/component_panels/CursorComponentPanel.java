@@ -23,19 +23,19 @@ import com.bbn.openmap.gui.OMComponentPanel;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
-import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.event.IMapCoordListener;
 import dk.dma.epd.ship.gui.SensorPanel;
 import dk.dma.epd.ship.gui.panels.CursorPanel;
 
-public class CursorComponentPanel extends OMComponentPanel implements IGpsDataListener, IMapCoordListener {
+public class CursorComponentPanel extends OMComponentPanel implements IPntDataListener, IMapCoordListener {
 
     private static final long serialVersionUID = 1L;
     private final CursorPanel cursorPanel = new CursorPanel();
-    private GpsData gpsData;
+    private PntData gpsData;
     
     public CursorComponentPanel(){
         super();
@@ -56,7 +56,7 @@ public class CursorComponentPanel extends OMComponentPanel implements IGpsDataLi
     public void recieveCoord(LatLonPoint llp) {
         cursorPanel.getCurLatLabel().setText(Formatter.latToPrintable(llp.getLatitude()));
         cursorPanel.getCurLonLabel().setText(Formatter.lonToPrintable(llp.getLongitude()));
-        GpsData gpsData = this.getGpsData();
+        PntData gpsData = this.getGpsData();
         if(gpsData == null || gpsData.isBadPosition() || gpsData.getPosition() == null){
             cursorPanel.getCurCursLabel().setText("N/A");
             cursorPanel.getCurDistLabel().setText("N/A");
@@ -69,27 +69,27 @@ public class CursorComponentPanel extends OMComponentPanel implements IGpsDataLi
         }
     }
     
-    public GpsData getGpsData() {
+    public PntData getGpsData() {
         synchronized (SensorPanel.class) {
             return gpsData;
         }
     }
     
-    public void setGpsData(GpsData gpsData) {
+    public void setGpsData(PntData gpsData) {
         synchronized (SensorPanel.class) {
             this.gpsData = gpsData;
         }
     }
     
     @Override
-    public void gpsDataUpdate(GpsData gpsData) {
+    public void gpsDataUpdate(PntData gpsData) {
         this.setGpsData(gpsData);
     }
     
     @Override
     public void findAndInit(Object obj) {
-        if (obj instanceof GpsHandler) {
-            ((GpsHandler) obj).addListener(this);
+        if (obj instanceof PntHandler) {
+            ((PntHandler) obj).addListener(this);
         }
     }
 }

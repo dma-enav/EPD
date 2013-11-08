@@ -56,8 +56,8 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck.StrategicRouteAck
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.settings.ESDEnavSettings;
@@ -66,7 +66,7 @@ import dk.dma.navnet.client.MaritimeNetworkConnectionBuilder;
 /**
  * Component offering e-Navigation services
  */
-public class EnavServiceHandler extends MapHandlerChild implements IGpsDataListener, Runnable {
+public class EnavServiceHandler extends MapHandlerChild implements IPntDataListener, Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(EnavServiceHandler.class);
 
@@ -277,7 +277,7 @@ public class EnavServiceHandler extends MapHandlerChild implements IGpsDataListe
      * Receive position updates
      */
     @Override
-    public void gpsDataUpdate(GpsData gpsData) {
+    public void gpsDataUpdate(PntData gpsData) {
         // TODO give information to messageBus if valid position
     }
 

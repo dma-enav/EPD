@@ -24,7 +24,6 @@ import dk.dma.ais.sentence.SentenceException;
 import dk.dma.ais.sentence.SentenceLine;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.FormatException;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTimeMessage;
 import dk.dma.epd.common.util.ParseUtils;
 
 /**
@@ -32,8 +31,7 @@ import dk.dma.epd.common.util.ParseUtils;
  */
 public class GpRmcSentence extends Sentence {
 
-    private GpsMessage gpsMessage;
-    private GnssTimeMessage gnssTimeMessage;
+    private PntMessage pntData;
     private String status;
 
     public GpRmcSentence() {
@@ -81,17 +79,18 @@ public class GpRmcSentence extends Sentence {
             throw new SentenceException("GPS sentence not valid: " + sl.getLine());
         }
 
-        gpsMessage = new GpsMessage(pos, sog, cog);
-
         // Parse time
+        Long time = null;
         String dateTimeStr = sl.getFields().get(1) + " " + sl.getFields().get(9);
         SimpleDateFormat dateFormat = new SimpleDateFormat("HHmmss.SS ddMMyy");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0000"));
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0000"));        
         try {
-            gnssTimeMessage = new GnssTimeMessage(dateFormat.parse(dateTimeStr));
+            time = dateFormat.parse(dateTimeStr).getTime();
         } catch (ParseException e) {
             throw new SentenceException("GPS time " + dateTimeStr + " not valid ");
         }
+        
+        pntData = new PntMessage(pos, sog, cog, time);
 
         // Get status
         status = sl.getFields().get(2);
@@ -104,12 +103,8 @@ public class GpRmcSentence extends Sentence {
         return null;
     }
 
-    public GpsMessage getGpsMessage() {
-        return gpsMessage;
-    }
-
-    public GnssTimeMessage getGnssTimeMessage() {
-        return gnssTimeMessage;
+    public PntMessage getPntMessage() {
+        return pntData;
     }
 
     public String getStatus() {

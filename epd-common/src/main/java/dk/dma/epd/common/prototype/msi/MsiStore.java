@@ -41,7 +41,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.util.Calculator;
 import dk.frv.enav.common.xml.msi.MsiMessage;
@@ -76,7 +76,7 @@ public class MsiStore implements Serializable {
     }
 
     public synchronized boolean hasValidUnacknowledged() {
-        Date now = GnssTime.getInstance().getDate();
+        Date now = PntTime.getInstance().getDate();
         for (Integer msgId : messages.keySet()) {
             MsiMessage msg = messages.get(msgId);
             if (msg.getValidFrom() != null && msg.getValidFrom().after(now)) {
@@ -90,7 +90,7 @@ public class MsiStore implements Serializable {
     }
 
     public synchronized boolean hasValidVisibleUnacknowledged() {
-        Date now = GnssTime.getInstance().getDate();
+        Date now = PntTime.getInstance().getDate();
         for (Integer msgId : messages.keySet()) {
             MsiMessage msg = messages.get(msgId);
             if (msg.getValidFrom() != null && msg.getValidFrom().after(now)) {
@@ -260,7 +260,7 @@ public class MsiStore implements Serializable {
 
     public synchronized boolean cleanup() {
         List<Integer> doDelete = new ArrayList<>();
-        Date now = GnssTime.getInstance().getDate();
+        Date now = PntTime.getInstance().getDate();
         for (MsiMessage message : messages.values()) {
             // Check if validTo has been passed
             if (message.getValidTo() != null

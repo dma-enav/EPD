@@ -13,20 +13,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.sensor.gps;
+package dk.dma.epd.common.prototype.sensor.pnt;
 
 import java.io.Serializable;
 import java.util.Date;
 
 import net.jcip.annotations.NotThreadSafe;
-
 import dk.dma.enav.model.geometry.Position;
 
 /**
- * Class representing GPS data position, speed over ground and course over ground. 
+ * Class representing PNT data 
  */
 @NotThreadSafe
-public class GpsData implements Serializable {
+public class PntData implements Serializable {
         
     private static final long serialVersionUID = 1L;
     
@@ -34,25 +33,29 @@ public class GpsData implements Serializable {
     private Position position;
     private Double cog;
     private Double sog;
+    private Long time;
     private boolean badPosition = true;
     
-    public GpsData() {
+    public PntData() {
         
     }
     
     /**
      * Copy constructor
      */
-    public GpsData(GpsData gpsData) {
-        this.lastUpdated = new Date(gpsData.lastUpdated.getTime());
-        this.position = gpsData.position;
-        if (gpsData.cog != null) {
-            this.cog = new Double(gpsData.cog);
+    public PntData(PntData pntData) {
+        this.lastUpdated = new Date(pntData.lastUpdated.getTime());
+        this.position = pntData.position;
+        if (pntData.cog != null) {
+            this.cog = new Double(pntData.cog);
         }
-        if (gpsData.sog != null) {
-            this.sog = new Double(gpsData.sog);
+        if (pntData.sog != null) {
+            this.sog = new Double(pntData.sog);
         }
-        this.badPosition = gpsData.badPosition;        
+        if (pntData.time != null) {
+            this.time = new Long(pntData.time);
+        }
+        this.badPosition = pntData.badPosition;        
     }
 
     public Date getLastUpdated() {
@@ -87,6 +90,14 @@ public class GpsData implements Serializable {
         this.sog = sog;
     }
     
+    public Long getTime() {
+        return time;
+    }
+    
+    public void setTime(Long time) {
+        this.time = time;
+    }
+    
     /**
      * Is the current position valid
      * @return
@@ -112,6 +123,8 @@ public class GpsData implements Serializable {
         builder.append(position);
         builder.append(", sog=");
         builder.append(sog);
+        builder.append(", time=");
+        builder.append(time);
         builder.append("]");
         return builder.toString();
     }

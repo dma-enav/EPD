@@ -13,17 +13,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.sensor.gps;
+package dk.dma.epd.common.prototype.sensor.nmea;
 
 /**
- * Interface to implement for classes wanting to receive GNSS time updates
+ * Interface to implement to receive PNT messages 
  */
-public interface IGnssTimeListener {
+public interface IPntListener {
     
-    /**
-     * Receive GNSS time message
-     * @param gnssTimeMessage
-     */
-    void receive(GnssTimeMessage gnssTimeMessage);
+    void receive(PntMessage pntMessage);
 
 }

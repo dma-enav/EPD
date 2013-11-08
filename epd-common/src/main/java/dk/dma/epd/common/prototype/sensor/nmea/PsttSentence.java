@@ -21,9 +21,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import net.jcip.annotations.NotThreadSafe;
-
 import dk.dma.ais.sentence.SentenceException;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTimeMessage;
 
 /**
  * Proprietary PSTT sentence parser.
@@ -31,7 +29,7 @@ import dk.dma.epd.common.prototype.sensor.gps.GnssTimeMessage;
 @NotThreadSafe
 public class PsttSentence {
     
-    private GnssTimeMessage gnssTimeMessage;
+    private PntMessage pntMessage;
 
     public PsttSentence() {
         
@@ -53,15 +51,15 @@ public class PsttSentence {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd HHmmss");
             dateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0000"));
             Date d = dateFormat.parse(dateStr);
-            gnssTimeMessage = new GnssTimeMessage(d);
+            pntMessage = new PntMessage(null, null, null, d.getTime());
         } catch (ParseException e) {
             throw new SentenceException("Wrong date format in PSTT sentence: " + msg);
         }
         return true;        
     }
     
-    public GnssTimeMessage getGnssTimeMessage() {
-        return gnssTimeMessage;
+    public PntMessage getPntMessage() {
+        return pntMessage;
     }
 
 }

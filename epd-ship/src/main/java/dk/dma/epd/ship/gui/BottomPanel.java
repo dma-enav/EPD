@@ -30,14 +30,16 @@ import javax.swing.SwingConstants;
 
 import com.bbn.openmap.gui.OMComponentPanel;
 
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.service.EnavServiceHandler;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
 import java.awt.BorderLayout;
 import java.awt.Font;
 
@@ -51,9 +53,9 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
     // private MsiDialog msiDialog;
     private ShoreServicesCommon shoreServices;
     private AisHandler aisHandler;
-    private GpsHandler gpsHandler;
+    private PntHandler pntHandler;
     private EnavServiceHandler enavServiceHandler;
-    private StatusLabel gpsStatus;
+    private StatusLabel pntStatus;
     private StatusLabel aisStatus;
     private StatusLabel shoreServiceStatus;
     private StatusLabel cloudStatus;
@@ -89,8 +91,8 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
         statusIcons.add(toolBar);
         toolBar.setFloatable(false);
 
-        gpsStatus = new StatusLabel("GPS");
-        addToolbarComponent(gpsStatus);
+        pntStatus = new StatusLabel("PNT");
+        addToolbarComponent(pntStatus);
         addSeparator();
         
         aisStatus = new StatusLabel("AIS");
@@ -126,9 +128,9 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
         if (obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
             statusComponents.add(aisHandler);
-        } else if (obj instanceof GpsHandler) {
-            gpsHandler = (GpsHandler) obj;
-            statusComponents.add(gpsHandler);
+        } else if (obj instanceof PntHandler) {
+            pntHandler = (PntHandler) obj;
+            statusComponents.add(pntHandler);
         } else if (obj instanceof ShoreServicesCommon) {
             shoreServices = (ShoreServicesCommon) obj;
             statusComponents.add(shoreServices);
@@ -177,8 +179,8 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
     }
 
     private void updateStatus() {
-        if (gpsHandler != null) {
-            gpsStatus.updateStatus(gpsHandler);
+        if (pntHandler != null) {
+            pntStatus.updateStatus(pntHandler);
         }
         if (aisHandler != null) {
             aisStatus.updateStatus(aisHandler);

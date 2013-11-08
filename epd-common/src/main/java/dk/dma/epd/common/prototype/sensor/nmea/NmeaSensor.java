@@ -51,8 +51,7 @@ import dk.dma.ais.sentence.SentenceException;
 import dk.dma.ais.sentence.SentenceLine;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.util.function.Consumer;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTimeMessage;
-import dk.dma.epd.common.prototype.sensor.gps.IGnssTimeListener;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntTimeListener;
 import dk.dma.epd.common.util.Util;
 
 /**
@@ -87,9 +86,9 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     private final AisPacketParser packetReader = new AisPacketParser();
 
     protected final SendThreadPool sendThreadPool = new SendThreadPool();
-    private final CopyOnWriteArrayList<IGpsListener> gpsListeners = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<IPntListener> pntListeners = new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<IAisListener> aisListeners = new CopyOnWriteArrayList<>();
-    private final CopyOnWriteArrayList<IGnssTimeListener> gnssTimeListeners = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<IPntTimeListener> pntTimeListeners = new CopyOnWriteArrayList<>();
 
     public NmeaSensor() {
 
@@ -223,7 +222,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     }
 
     protected void handleSentence(String msg) {
-        if (gpsListeners.size() > 0 && msg.indexOf("$GPRMC") >= 0) {
+        if (pntListeners.size() > 0 && msg.indexOf("$GPRMC") >= 0) {
             handleGpRmc(msg);
         } else if (aisListeners.size() > 0 && isVdm(msg)) {
             handleAis(msg);
@@ -269,9 +268,9 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         // Check if simulated own ship
         boolean ownMessage = packet.getVdm().isOwnMessage();
         
-        // Distribute GPS from own mesasge
+        // Distribute PNT from own mesasge
         if (ownMessage) {
-            handleGpsFromOwnMessage(message);
+            handlePntFromOwnMessage(message);
         }
 
         // Distribute message
@@ -284,7 +283,10 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         }
     }
 
-    protected void handleGpsFromOwnMessage(AisMessage aisMessage) {
+    protected void handlePntFromOwnMessage(AisMessage aisMessage) {
+        if (pntListeners.size() == 0) {
+            return;
+        }
         boolean foundPos = false;
 
         Position pos = null;
@@ -303,23 +305,21 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
             pos = msg18.getPos().getGeoLocation();
             foundPos = true;
         }
-        
-        GpsMessage gpsMessage = new GpsMessage(pos, sog, cog);
-
+                
         if (!foundPos) {
             return;
         }
 
-
         if (isReplay()) {
-            GnssTimeMessage gnssTimeMessage = new GnssTimeMessage(getReplayTime());
-            for (IGnssTimeListener gnssTimeListener : gnssTimeListeners) {
-                gnssTimeListener.receive(gnssTimeMessage);
+            PntMessage pntMessage = new PntMessage(null, null, null, getReplayTime().getTime());
+            for (IPntTimeListener pntTimeListener : pntTimeListeners) {
+                pntTimeListener.receive(pntMessage);
             }
         }
 
-        for (IGpsListener gpsListener : gpsListeners) {
-            gpsListener.receive(gpsMessage);
+        PntMessage pntMessage = new PntMessage(pos, sog, cog);
+        for (IPntListener pntListener : pntListeners) {
+            pntListener.receive(pntMessage);
         }
     }
 
@@ -330,13 +330,12 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         } catch (Exception e) {
             LOG.error("Failed to parse GPRMC sentence: " + msg + " : " + e.getMessage());
             return;
+        }        
+        for (IPntListener pntListener : pntListeners) {
+            pntListener.receive(sentence.getPntMessage());
         }
-        // Only AIS own messages will be used for positioning
-        // for (IGpsListener gpsListener : gpsListeners) {
-        // gpsListener.receive(sentence.getGpsMessage());
-        // }
-        for (IGnssTimeListener gnssTimeListener : gnssTimeListeners) {
-            gnssTimeListener.receive(sentence.getGnssTimeMessage());
+        for (IPntTimeListener pntTimeListener : pntTimeListeners) {
+            pntTimeListener.receive(sentence.getPntMessage());
         }
     }
 
@@ -344,8 +343,8 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         PsttSentence psttSentence = new PsttSentence();
         try {
             if (psttSentence.parse(msg)) {
-                for (IGnssTimeListener gnssTimeListener : gnssTimeListeners) {
-                    gnssTimeListener.receive(psttSentence.getGnssTimeMessage());
+                for (IPntTimeListener pntTimeListener : pntTimeListeners) {
+                    pntTimeListener.receive(psttSentence.getPntMessage());
                 }
             }
         } catch (SentenceException e) {
@@ -353,12 +352,12 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         }
     }
 
-    public void addGpsListener(IGpsListener gpsListener) {
-        gpsListeners.add(gpsListener);
+    public void addPntListener(IPntListener pntListener) {
+        pntListeners.add(pntListener);
     }
 
-    public void removeGpsListener(IGpsListener gpsListener) {
-        gpsListeners.remove(gpsListener);
+    public void removePntListener(IPntListener pntListener) {
+        pntListeners.remove(pntListener);
     }
 
     public void addAisListener(IAisListener aisListener) {
@@ -369,12 +368,12 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         aisListeners.remove(aisListener);
     }
 
-    public void addGnssTimeListener(IGnssTimeListener gnssTimeListener) {
-        gnssTimeListeners.add(gnssTimeListener);
+    public void addPntTimeListener(IPntTimeListener pntTimeListener) {
+        pntTimeListeners.add(pntTimeListener);
     }
 
-    public void removeGnssTimeListener(IGnssTimeListener gnssTimeListener) {
-        gnssTimeListeners.remove(gnssTimeListener);
+    public void removePntTimeListener(IPntTimeListener pntTimeListener) {
+        pntTimeListeners.remove(pntTimeListener);
     }
 
     public void start() {

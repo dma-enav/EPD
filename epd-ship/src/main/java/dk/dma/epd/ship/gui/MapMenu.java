@@ -53,7 +53,7 @@ import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -91,7 +91,6 @@ import dk.dma.epd.ship.gui.menuitems.VoyageHandlingWaypointDelete;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
-import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.route.strategic.RecievedRoute;
@@ -151,7 +150,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     protected boolean isolated;
     private RouteManager routeManager;
     private MainFrame mainFrame;
-    private GpsHandler gpsHandler;
+    private PntHandler gpsHandler;
     private Route route;
     private RouteSuggestionDialog routeSuggestionDialog;
     MapBean mapBean;
@@ -734,8 +733,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         if (obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
         }
-        if (obj instanceof GpsHandler) {
-            gpsHandler = (GpsHandler) obj;
+        if (obj instanceof PntHandler) {
+            gpsHandler = (PntHandler) obj;
         }
         if (obj instanceof NogoHandler) {
             nogoHandler = (NogoHandler) obj;
