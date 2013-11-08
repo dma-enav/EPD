@@ -16,14 +16,10 @@
 package dk.dma.epd.common.prototype.sensor.pnt;
 
 /**
- * Interface to implement for classes wanting to receive PNT updates 
+ * Interface to implement for receivers of Multi-Source PNT data
  */
-public interface IPntDataListener {
+public interface IMultiSourcePntListener {
     
-    /**
-     * Method called when the position of ship changes, or the known position is lost
-     * @param pntData 
-     */
-    void gpsDataUpdate(PntData pntData);
+    // TODO receive methods
 
 }

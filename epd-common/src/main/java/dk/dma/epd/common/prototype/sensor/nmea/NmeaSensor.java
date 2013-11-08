@@ -51,6 +51,7 @@ import dk.dma.ais.sentence.SentenceException;
 import dk.dma.ais.sentence.SentenceLine;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.util.function.Consumer;
+import dk.dma.epd.common.prototype.sensor.pnt.IMultiSourcePntListener;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntTimeListener;
 import dk.dma.epd.common.util.Util;
 
@@ -87,6 +88,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
 
     protected final SendThreadPool sendThreadPool = new SendThreadPool();
     private final CopyOnWriteArrayList<IPntListener> pntListeners = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<IMultiSourcePntListener> msPntListeners = new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<IAisListener> aisListeners = new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<IPntTimeListener> pntTimeListeners = new CopyOnWriteArrayList<>();
 
@@ -267,7 +269,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
 
         // Check if simulated own ship
         boolean ownMessage = packet.getVdm().isOwnMessage();
-        
+
         // Distribute PNT from own mesasge
         if (ownMessage) {
             handlePntFromOwnMessage(message);
@@ -305,7 +307,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
             pos = msg18.getPos().getGeoLocation();
             foundPos = true;
         }
-                
+
         if (!foundPos) {
             return;
         }
@@ -330,7 +332,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         } catch (Exception e) {
             LOG.error("Failed to parse GPRMC sentence: " + msg + " : " + e.getMessage());
             return;
-        }        
+        }
         for (IPntListener pntListener : pntListeners) {
             pntListener.receive(sentence.getPntMessage());
         }
@@ -358,6 +360,14 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
 
     public void removePntListener(IPntListener pntListener) {
         pntListeners.remove(pntListener);
+    }
+
+    public void addMsPntListener(IMultiSourcePntListener msPntListener) {
+        msPntListeners.add(msPntListener);
+    }
+
+    public void removeMsPntListener(IMultiSourcePntListener msPntListener) {
+        msPntListeners.remove(msPntListener);
     }
 
     public void addAisListener(IAisListener aisListener) {

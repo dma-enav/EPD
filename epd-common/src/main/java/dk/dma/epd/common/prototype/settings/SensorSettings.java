@@ -61,7 +61,7 @@ public class SensorSettings implements Serializable {
     }
 
     public enum PntSource {
-        AUTO, AIS, GPS, PNT, NONE;
+        AUTO, AIS, GPS, MSPNT, NONE;
         public static PntSource parseString(String type) {
             if (type.equalsIgnoreCase("AUTO")) {
                 return AUTO;
@@ -69,8 +69,8 @@ public class SensorSettings implements Serializable {
                 return AIS;
             } else if (type.equalsIgnoreCase("GPS")) {
                 return GPS;
-            } else if (type.equalsIgnoreCase("PNT")) {
-                return PNT;
+            } else if (type.equalsIgnoreCase("MSPNT")) {
+                return MSPNT;
             }
             return NONE;
         }
@@ -86,10 +86,10 @@ public class SensorSettings implements Serializable {
     private String gpsFilename = "";
     private int gpsTcpPort = 8888;
 
-    private SensorConnectionType pntConnectionType = SensorConnectionType.NONE;
-    private String pntHostOrSerialPort = "COM4";
-    private String pntFilename = "";
-    private int pntTcpPort = 9999;
+    private SensorConnectionType msPntConnectionType = SensorConnectionType.NONE;
+    private String msPntHostOrSerialPort = "COM4";
+    private String msPntFilename = "";
+    private int msPntTcpPort = 9999;
 
     private PntSource pntSource = PntSource.AUTO;
 
@@ -115,15 +115,15 @@ public class SensorSettings implements Serializable {
                 gpsConnectionType.name()));
         gpsHostOrSerialPort = props.getProperty(PREFIX + "gpsHostOrSerialPort", gpsHostOrSerialPort);
         gpsTcpPort = PropUtils.intFromProperties(props, PREFIX + "gpsTcpPort", gpsTcpPort);
-        pntConnectionType = SensorConnectionType.parseString(props.getProperty(PREFIX + "pntConnectionType",
-                pntConnectionType.name()));
-        pntHostOrSerialPort = props.getProperty(PREFIX + "pntHostOrSerialPort", pntHostOrSerialPort);
-        pntTcpPort = PropUtils.intFromProperties(props, PREFIX + "pntTcpPort", pntTcpPort);
+        msPntConnectionType = SensorConnectionType.parseString(props.getProperty(PREFIX + "msPntConnectionType",
+                msPntConnectionType.name()));
+        msPntHostOrSerialPort = props.getProperty(PREFIX + "msPntHostOrSerialPort", msPntHostOrSerialPort);
+        msPntTcpPort = PropUtils.intFromProperties(props, PREFIX + "msPntTcpPort", msPntTcpPort);
         startTransponder = PropUtils.booleanFromProperties(props, PREFIX + "startTransponder", startTransponder);
         aisSensorRange = PropUtils.doubleFromProperties(props, PREFIX + "aisSensorRange", aisSensorRange);
         aisFilename = props.getProperty(PREFIX + "aisFilename", aisFilename);
         gpsFilename = props.getProperty(PREFIX + "gpsFilename", gpsFilename);
-        pntFilename = props.getProperty(PREFIX + "pntFilename", pntFilename);
+        msPntFilename = props.getProperty(PREFIX + "msPntFilename", msPntFilename);
         replaySpeedup = PropUtils.intFromProperties(props, PREFIX + "replaySpeedup", replaySpeedup);
         String replayStartStr = props.getProperty(PREFIX + "replayStartDate", "");
         if (replayStartStr.length() > 0) {
@@ -144,14 +144,14 @@ public class SensorSettings implements Serializable {
         props.put(PREFIX + "gpsConnectionType", gpsConnectionType.name());
         props.put(PREFIX + "gpsHostOrSerialPort", gpsHostOrSerialPort);
         props.put(PREFIX + "gpsTcpPort", Integer.toString(gpsTcpPort));
-        props.put(PREFIX + "pntConnectionType", pntConnectionType.name());
-        props.put(PREFIX + "pntHostOrSerialPort", pntHostOrSerialPort);
-        props.put(PREFIX + "pntTcpPort", Integer.toString(pntTcpPort));
+        props.put(PREFIX + "msPntConnectionType", msPntConnectionType.name());
+        props.put(PREFIX + "msPntHostOrSerialPort", msPntHostOrSerialPort);
+        props.put(PREFIX + "msPntTcpPort", Integer.toString(msPntTcpPort));
         props.put(PREFIX + "startTransponder", Boolean.toString(startTransponder));
         props.put(PREFIX + "aisSensorRange", Double.toString(aisSensorRange));
         props.put(PREFIX + "aisFilename", aisFilename);
         props.put(PREFIX + "gpsFilename", gpsFilename);
-        props.put(PREFIX + "pntFilename", pntFilename);
+        props.put(PREFIX + "msPntFilename", msPntFilename);
         props.put(PREFIX + "replaySpeedup", Integer.toString(replaySpeedup));
         String replayStartStr = "";
         if (replayStartDate != null) {
@@ -161,36 +161,36 @@ public class SensorSettings implements Serializable {
         props.put(PREFIX + "pntSource", pntSource.name());
     }
 
-    public SensorConnectionType getPntConnectionType() {
-        return pntConnectionType;
+    public SensorConnectionType getMsPntConnectionType() {
+        return msPntConnectionType;
     }
 
-    public void setPntConnectionType(SensorConnectionType pntConnectionType) {
-        this.pntConnectionType = pntConnectionType;
+    public void setMsPntConnectionType(SensorConnectionType msPntConnectionType) {
+        this.msPntConnectionType = msPntConnectionType;
     }
 
-    public String getPntHostOrSerialPort() {
-        return pntHostOrSerialPort;
+    public String getMsPntHostOrSerialPort() {
+        return msPntHostOrSerialPort;
     }
 
-    public void setPntHostOrSerialPort(String pntHostOrSerialPort) {
-        this.pntHostOrSerialPort = pntHostOrSerialPort;
+    public void setMsPntHostOrSerialPort(String msPntHostOrSerialPort) {
+        this.msPntHostOrSerialPort = msPntHostOrSerialPort;
     }
 
-    public String getPntFilename() {
-        return pntFilename;
+    public String getMsPntFilename() {
+        return msPntFilename;
     }
 
-    public void setPntFilename(String pntFilename) {
-        this.pntFilename = pntFilename;
+    public void setMsPntFilename(String msPntFilename) {
+        this.msPntFilename = msPntFilename;
     }
 
-    public int getPntTcpPort() {
-        return pntTcpPort;
+    public int getMsPntTcpPort() {
+        return msPntTcpPort;
     }
 
-    public void setPntTcpPort(int pntTcpPort) {
-        this.pntTcpPort = pntTcpPort;
+    public void setMsPntTcpPort(int msPntTcpPort) {
+        this.msPntTcpPort = msPntTcpPort;
     }
 
     public SensorConnectionType getAisConnectionType() {
@@ -288,11 +288,11 @@ public class SensorSettings implements Serializable {
     public void setReplayStartDate(Date replayStartDate) {
         this.replayStartDate = replayStartDate;
     }
-    
+
     public PntSource getPntSource() {
         return pntSource;
     }
-    
+
     public void setPntSource(PntSource pntSource) {
         this.pntSource = pntSource;
     }

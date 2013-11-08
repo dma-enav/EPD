@@ -27,7 +27,7 @@ import com.bbn.openmap.MapHandlerChild;
 import dk.dma.epd.common.prototype.sensor.nmea.PntMessage;
 
 /**
- * Singleton component class that maintains GNSS time as an offset from computer time
+ * Singleton component class that maintains PNT time as an offset from computer time
  */
 @ThreadSafe
 public final class PntTime extends MapHandlerChild implements IPntTimeListener {

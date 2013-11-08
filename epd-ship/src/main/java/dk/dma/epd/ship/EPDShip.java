@@ -54,8 +54,10 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensorFactory;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
+import dk.dma.epd.common.prototype.sensor.pnt.MultiSourcePntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.common.prototype.settings.SensorSettings.PntSource;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -87,8 +89,9 @@ public class EPDShip extends EPD {
     static Properties properties = new Properties();
     private static NmeaSensor aisSensor;
     private static NmeaSensor gpsSensor;
-    private static NmeaSensor pntSensor;
+    private static NmeaSensor msPntSensor;
     private static PntHandler pntHandler;
+    private static MultiSourcePntHandler msPntHandler;
     private static AisHandler aisHandler;
     private static RiskHandler riskHandler;
     private static RouteManager routeManager;
@@ -275,25 +278,25 @@ public class EPDShip extends EPD {
             LOG.error("Unknown sensor connection type: " + sensorSettings.getGpsConnectionType());
         }
 
-        switch (sensorSettings.getPntConnectionType()) {
+        switch (sensorSettings.getMsPntConnectionType()) {
         case NONE:
-            pntSensor = null;
+            msPntSensor = null;
             break;
         case TCP:
-            pntSensor = new NmeaTcpSensor(sensorSettings.getPntHostOrSerialPort(), sensorSettings.getPntTcpPort());
+            msPntSensor = new NmeaTcpSensor(sensorSettings.getMsPntHostOrSerialPort(), sensorSettings.getMsPntTcpPort());
             break;
         case SERIAL:
-            pntSensor = NmeaSerialSensorFactory.create(sensorSettings.getPntHostOrSerialPort());
+            msPntSensor = NmeaSerialSensorFactory.create(sensorSettings.getMsPntHostOrSerialPort());
             break;
         case FILE:
-            pntSensor = new NmeaFileSensor(sensorSettings.getPntFilename(), sensorSettings);
+            msPntSensor = new NmeaFileSensor(sensorSettings.getMsPntFilename(), sensorSettings);
             break;
         default:
-            LOG.error("Unknown sensor connection type: " + sensorSettings.getPntConnectionType());
+            LOG.error("Unknown sensor connection type: " + sensorSettings.getMsPntConnectionType());
         }
 
         if (aisSensor != null) {
-            aisSensor.addAisListener(aisHandler);            
+            aisSensor.addAisListener(aisHandler);
             aisSensor.start();
             mapHandler.add(aisSensor);
         }
@@ -301,39 +304,38 @@ public class EPDShip extends EPD {
             gpsSensor.start();
             mapHandler.add(gpsSensor);
         }
-        if (pntSensor != null) {
-            pntSensor.start();
-            mapHandler.add(pntSensor);
+        if (msPntSensor != null) {
+            msPntSensor.start();
+            mapHandler.add(msPntSensor);
         }
 
         // Hook pnt handler to sensor
-        NmeaSensor pntSource = null;
-        switch (sensorSettings.getPntSource()) {
+        PntSource pntSource = sensorSettings.getPntSource();
+        if (pntSource == PntSource.AUTO) {
+            if (msPntSensor != null) {
+                pntSource = PntSource.MSPNT;
+            } else if (gpsSensor != null) {
+                pntSource = PntSource.GPS;
+            } else if (aisSensor != null) {
+                pntSource = PntSource.AIS;
+            }
+        }
+
+        switch (pntSource) {
         case AIS:
-            pntSource = aisSensor;            
+            aisSensor.addPntListener(pntHandler);
+            aisSensor.addPntTimeListener(PntTime.getInstance());
             break;
         case GPS:
-            pntSource = gpsSensor;
+            gpsSensor.addPntListener(pntHandler);
+            gpsSensor.addPntTimeListener(PntTime.getInstance());
             break;
-        case PNT:
-            pntSource = pntSensor;
-            break;
-        case AUTO:
-            if (pntSensor != null) {
-                pntSource = pntSensor;
-            } else if (gpsSensor != null) {
-                pntSource = gpsSensor;
-            } else if (aisSensor != null) {
-                pntSource = aisSensor;
-            }
+        case MSPNT:
+            msPntHandler = new MultiSourcePntHandler(pntHandler);
+            msPntSensor.addMsPntListener(msPntHandler);
             break;
         default:
             break;
-        }
-        
-        if (pntSource != null) {
-            pntSource.addPntListener(pntHandler);
-            pntSource.addPntTimeListener(PntTime.getInstance());
         }
 
     }
