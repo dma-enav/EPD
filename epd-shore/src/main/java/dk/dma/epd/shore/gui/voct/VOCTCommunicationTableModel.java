@@ -23,7 +23,6 @@ import javax.swing.table.AbstractTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.voct.SRU;
 import dk.dma.epd.shore.voct.SRU.sru_status;
@@ -64,15 +63,15 @@ public class VOCTCommunicationTableModel extends AbstractTableModel {
             boolean isRoute = false;
 
             // Can we send it?
-            if (sruManager.getSRUs().get(i).getStatus() == sru_status.ACCEPTED
-                    || sruManager.getSRUs().get(i).getStatus() == sru_status.AVAILABLE
-                    || sruManager.getSRUs().get(i).getStatus() == sru_status.DECLINED
-                    || sruManager.getSRUs().get(i).getStatus() == sru_status.INVITED) {
+            if (sruManager.getSRUs().get(i).getStatus() == sru_status.AVAILABLE) {
+//                    || sruManager.getSRUs().get(i).getStatus() == sru_status.AVAILABLE
+//                    || sruManager.getSRUs().get(i).getStatus() == sru_status.DECLINED
+//                    || sruManager.getSRUs().get(i).getStatus() == sru_status.INVITED) {
                 isSend = true;
             }
 
             // If we are sending, what can we send
-            if (isSend) {
+//            if (isSend) {
 
                 isSar = true;
 
@@ -88,9 +87,9 @@ public class VOCTCommunicationTableModel extends AbstractTableModel {
 
                 }
 
-            } else {
-
-            }
+//            } else {
+//
+//            }
 
             // Add the entry
             tableContent.add(new VOCTCommunicationTableEntry(isSend, isSar,
@@ -119,6 +118,9 @@ public class VOCTCommunicationTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         SRU sru = sruManager.getSRUs().get(rowIndex);
+        
+        
+        System.out.println("updating table! " + sru.getStatus());
         // EffortAllocationData effortAllocationData =
         // voctManager.getSarData().getEffortAllocationData().get(rowIndex);
         switch (columnIndex) {

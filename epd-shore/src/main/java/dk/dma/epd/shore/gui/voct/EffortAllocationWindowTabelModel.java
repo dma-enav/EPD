@@ -23,7 +23,6 @@ import javax.swing.table.AbstractTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.voct.SRU;
 import dk.dma.epd.shore.voct.SRUManager;

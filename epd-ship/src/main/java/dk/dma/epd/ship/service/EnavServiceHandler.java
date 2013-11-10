@@ -192,7 +192,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                 voctManager.handleSARDataPackage(message);
                                 
                                 
-//                                voctContext.complete(new VOCTCommunicationReply("Received", (long) 0, (long) -1, new Date().getTime(), CLOUD_STATUS.RECIEVED_APP_ACK));
+                                voctContext.complete(new VOCTCommunicationReply("Received", (long) 0, aisHandler.getOwnShip().getMmsi(), new Date().getTime(), CLOUD_STATUS.RECIEVED_ACCEPTED));
                                 
                                 
                                 

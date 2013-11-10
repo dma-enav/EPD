@@ -58,7 +58,6 @@ import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.gui.views.MainFrame;
-import dk.dma.epd.shore.voct.SRU;
 import dk.dma.epd.shore.voct.SRUManager;
 
 /**
@@ -197,6 +196,9 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
         
         
         deleteBtn = new JLabel("Remove Selected");
+        deleteBtn.setEnabled(false);
+        
+        
         GuiStyler.styleButton(deleteBtn);
         // exportBtn.addActionListener(this);
         exportAllBtn = new JLabel("Export All");
@@ -378,6 +380,7 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
         // LOG.info("activeRoute: " + routeManager.getActiveRouteIndex());
         // LOG.info("\n\n");
 
+        deleteBtn.setEnabled(routeSelected);
         propertiesBtn.setEnabled(routeSelected);
         zoomToBtn.setEnabled(routeSelected);
         copyBtn.setEnabled(routeSelected);
@@ -400,7 +403,7 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
 
     private void zoomTo() {
 
-        SRU selectedroute = sruManager.getSRUs(sruTable.getSelectedRow());
+//        SRU selectedroute = sruManager.getSRUs(sruTable.getSelectedRow());
 
 //        if (EPDShore.getMainFrame().getActiveMapWindow() != null) {
 //            EPDShore.getMainFrame()
@@ -448,7 +451,7 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
             sruManager.removeSRU(sruTable.getSelectedRow());    
         }
         
-        
+        sruTableModel.fireTableDataChanged();
         
     }
 

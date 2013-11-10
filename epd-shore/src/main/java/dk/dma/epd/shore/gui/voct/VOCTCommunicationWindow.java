@@ -25,18 +25,17 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
@@ -49,20 +48,14 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
-import dk.dma.epd.common.prototype.gui.voct.EffortAllocationWindowCommon;
-import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.model.voct.SweepWidthValues;
-import dk.dma.epd.common.prototype.model.voct.WeatherCorrectionFactors;
-import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
-import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.voct.SRU;
-import dk.dma.epd.shore.voct.SRU.SRU_TYPE;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
 
-public class VOCTCommunicationWindow extends JDialog
-        implements ListSelectionListener, MouseListener, TableModelListener, ActionListener {
+public class VOCTCommunicationWindow extends JDialog implements
+        ListSelectionListener, MouseListener, TableModelListener,
+        ActionListener {
     private static final long serialVersionUID = 1L;
 
     private final JPanel initPanel = new JPanel();
@@ -156,13 +149,17 @@ public class VOCTCommunicationWindow extends JDialog
 
         {
             JPanel panel = new JPanel();
-            panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "SRU Tracking", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+            panel.setBorder(new TitledBorder(UIManager
+                    .getBorder("TitledBorder.border"), "SRU Tracking",
+                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
             panel.setBounds(10, 11, 595, 325);
             initPanel.add(panel);
             panel.setLayout(null);
 
             JPanel panel_2 = new JPanel();
-            panel_2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "All SRUs", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+            panel_2.setBorder(new TitledBorder(UIManager
+                    .getBorder("TitledBorder.border"), "All SRUs",
+                    TitledBorder.LEADING, TitledBorder.TOP, null, null));
             panel_2.setBounds(10, 32, 575, 282);
             panel.add(panel_2);
             panel_2.setLayout(null);
@@ -234,8 +231,7 @@ public class VOCTCommunicationWindow extends JDialog
             for (int i = 0; i < 6; i++) {
 
                 if (i == 0) {
-                    sruTable.getColumnModel().getColumn(i)
-                            .setPreferredWidth(5);
+                    sruTable.getColumnModel().getColumn(i).setPreferredWidth(5);
                 }
                 if (i == 1) {
                     sruTable.getColumnModel().getColumn(i)
@@ -251,8 +247,7 @@ public class VOCTCommunicationWindow extends JDialog
                             .setPreferredWidth(15);
                 }
                 if (i == 4) {
-                    sruTable.getColumnModel().getColumn(i)
-                            .setPreferredWidth(5);
+                    sruTable.getColumnModel().getColumn(i).setPreferredWidth(5);
                 }
                 if (i == 5) {
                     sruTable.getColumnModel().getColumn(i)
@@ -274,7 +269,6 @@ public class VOCTCommunicationWindow extends JDialog
             // targetTypeDropdown.setModel(new DefaultComboBoxModel<String>(
             // new String[] { "Person in Water, raft or boat < 30 ft",
             // "Other targets" }));
-
 
         }
 
@@ -318,13 +312,44 @@ public class VOCTCommunicationWindow extends JDialog
     @Override
     public void actionPerformed(ActionEvent arg0) {
 
+        // Send SAR
         if (arg0.getSource() == sendSAR) {
+
+            List<SRU> sruList = sruManager.getSRUs();
+
+            // Which are we sending
+            for (int i = 0; i < sruList.size(); i++) {
+
+                // Send
+                if ((boolean) sruTable.getValueAt(i, 0)) {
+
+                    try {
+                        EPDShore.getEnavServiceHandler().sendVOCTMessage(
+                                sruList.get(i).getMmsi(),
+                                voctManager.getSarData(), "OSC", "Please Join",
+                                0, (boolean) sruTable.getValueAt(i, 4),
+                                (boolean) sruTable.getValueAt(i, 5));
+
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (TimeoutException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+
+                }
+
+            }
+            
+            this.setVisible(false);
 
         }
 
     }
-
-
 
     private void displayMissingField(String fieldname) {
         // Missing or incorrect value in

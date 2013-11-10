@@ -287,7 +287,7 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
 
             try {
                 EPDShore.getEnavServiceHandler().sendVOCTMessage(0,
-                        voctManager.getSarData(), "OSC", "Please Join", 0);
+                        voctManager.getSarData(), "OSC", "Please Join", 0, true, true);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

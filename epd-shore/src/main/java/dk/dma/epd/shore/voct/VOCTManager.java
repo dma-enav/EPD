@@ -62,8 +62,6 @@ public class VOCTManager extends VOCTManagerCommon implements
     private SRUManager sruManager;
 
     List<VoctLayerCommon> voctLayers = new ArrayList<VoctLayerCommon>();
-    
-
 
     private static final Logger LOG = LoggerFactory
             .getLogger(VOCTManagerCommon.class);
@@ -83,7 +81,7 @@ public class VOCTManager extends VOCTManagerCommon implements
 
             // Voct specific test
             sarInputDialog = new SARInput(this);
-            
+
             sarInputDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             sarInputDialog.setVisible(true);
 
@@ -114,11 +112,10 @@ public class VOCTManager extends VOCTManagerCommon implements
     protected void updateLayers() {
 
         if (voctLayers.size() == 0) {
-            
-            
+
             EPDShore.getMainFrame().addSARWindow(MapFrameType.SAR_Planning);
         }
-        
+
         notifyListeners(VOCTUpdateEvent.SAR_DISPLAY);
     }
 
@@ -172,7 +169,7 @@ public class VOCTManager extends VOCTManagerCommon implements
                             .getSearchPatternRoute());
 
             System.out.println("Route index of old is " + routeIndex);
-            
+
             EPDShore.getRouteManager().removeRoute(routeIndex);
         }
 
@@ -227,18 +224,25 @@ public class VOCTManager extends VOCTManagerCommon implements
 
     public void removeEffortAllocationData(int i) {
 
-        if (sarData.getEffortAllocationData().size() > i) {
-            
-            if (sarData.getEffortAllocationData().get(i).getSearchPatternRoute() != null){
-                
-                routeManager.getRoutes().remove(sarData.getEffortAllocationData().get(i).getSearchPatternRoute());
-                routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);            }
-            
+        if (sarData != null) {
 
-            sarData.getEffortAllocationData().remove(i);
+            if (sarData.getEffortAllocationData().size() > i) {
 
-            for (int j = 0; j < voctLayers.size(); j++) {
-                voctLayers.get(j).removeEffortAllocationArea(i);
+                if (sarData.getEffortAllocationData().get(i)
+                        .getSearchPatternRoute() != null) {
+
+                    routeManager.getRoutes().remove(
+                            sarData.getEffortAllocationData().get(i)
+                                    .getSearchPatternRoute());
+                    routeManager
+                            .notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
+                }
+
+                sarData.getEffortAllocationData().remove(i);
+
+                for (int j = 0; j < voctLayers.size(); j++) {
+                    voctLayers.get(j).removeEffortAllocationArea(i);
+                }
             }
         }
 

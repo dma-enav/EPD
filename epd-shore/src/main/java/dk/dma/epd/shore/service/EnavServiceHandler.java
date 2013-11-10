@@ -41,7 +41,6 @@ import dk.dma.enav.communication.service.ServiceEndpoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.ship.ShipId;
-
 import dk.dma.enav.model.voct.EffortAllocationDTO;
 import dk.dma.enav.model.voct.RapidResponseDTO;
 import dk.dma.enav.model.voyage.Route;
@@ -50,6 +49,10 @@ import dk.dma.enav.util.function.Supplier;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck.StrategicRouteAckMsg;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
@@ -57,12 +60,7 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRout
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
-import dk.dma.epd.common.prototype.gui.voct.RapidResponseDatumPointInputPanel;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.sensor.gps.GpsData;
@@ -198,8 +196,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
         }
     }
-    
-    
 
     public List<ServiceEndpoint<VOCTCommunicationMessage, VOCTCommunicationReply>> getVoctMessageList() {
         return voctMessageList;
@@ -208,8 +204,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
     public List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> getRouteSuggestionList() {
         return routeSuggestionList;
     }
-    
-    
 
     public boolean shipAvailableForRouteSuggestion(long mmsi) {
         for (int i = 0; i < routeSuggestionList.size(); i++) {
@@ -224,8 +218,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
     }
 
     public void sendVOCTMessage(long mmsi, SARData sarData, String sender,
-            String message, int id) throws InterruptedException,
-            ExecutionException, TimeoutException {
+            String message, int id, boolean isAO, boolean isSearchPattern)
+            throws InterruptedException, ExecutionException, TimeoutException {
 
         // System.out.println("Send to : " + mmsi);
         String mmsiStr = "mmsi://" + mmsi;
@@ -236,10 +230,10 @@ public class EnavServiceHandler extends MapHandlerChild implements
             if (voctMessageList.get(i).getId().toString().equals(mmsiStr)) {
                 end = voctMessageList.get(i);
 
-                // break;
+                break;
             }
         }
-        end = voctMessageList.get(voctMessageList.size() - 1);
+        // end = voctMessageList.get(voctMessageList.size() - 1);
 
         VOCTCommunicationMessage voctMessage = null;
 
@@ -250,17 +244,23 @@ public class EnavServiceHandler extends MapHandlerChild implements
             EffortAllocationDTO effortAllocationData = null;
             Route searchPattern = null;
 
-            if (sarData.getEffortAllocationData().size() > id) {
-                effortAllocationData = sarData.getEffortAllocationData()
-                        .get(id).getModelData();
+            if (isAO) {
+                if (sarData.getEffortAllocationData().size() > id) {
+                    effortAllocationData = sarData.getEffortAllocationData()
+                            .get(id).getModelData();
 
-                if (sarData.getEffortAllocationData().get(id)
-                        .getSearchPatternRoute() != null) {
-                    searchPattern = sarData.getEffortAllocationData().get(id)
-                            .getSearchPatternRoute().getFullRouteData();
+                    if (isSearchPattern) {
+
+                        if (sarData.getEffortAllocationData().get(id)
+                                .getSearchPatternRoute() != null) {
+                            searchPattern = sarData.getEffortAllocationData()
+                                    .get(id).getSearchPatternRoute()
+                                    .getFullRouteData();
+                        }
+                    }
                 }
-            }
 
+            }
             voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(
                     rapidResponseModelData, effortAllocationData,
                     searchPattern, sender, message);
@@ -451,7 +451,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
             this.aisHandler = (AisHandler) obj;
         } else if (obj instanceof StrategicRouteExchangeHandler) {
             this.monaLisaHandler = (StrategicRouteExchangeHandler) obj;
-        } else if (obj instanceof SRUManager){
+        } else if (obj instanceof SRUManager) {
             this.sruManager = (SRUManager) obj;
         }
     }

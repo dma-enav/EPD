@@ -20,7 +20,6 @@ import javax.swing.table.AbstractTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.voct.SRU;
 import dk.dma.epd.shore.voct.SRUManager;
@@ -76,8 +75,8 @@ public class SRUTableModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        System.out.println("Set value at, aValue: " + aValue + " rowIndex: "+ rowIndex + " columIndex: " + columnIndex);
-        SRU sru = sruManager.getSRUs().get(rowIndex);
+//        System.out.println("Set value at, aValue: " + aValue + " rowIndex: "+ rowIndex + " columIndex: " + columnIndex);
+//        SRU sru = sruManager.getSRUs().get(rowIndex);
         switch (columnIndex) {
         case 3:
             

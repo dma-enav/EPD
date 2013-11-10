@@ -26,8 +26,6 @@ import java.awt.event.MouseListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -35,13 +33,10 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -58,14 +53,11 @@ import dk.dma.epd.common.prototype.model.voct.SweepWidthValues;
 import dk.dma.epd.common.prototype.model.voct.WeatherCorrectionFactors;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
-import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.gui.voct.panels.SRUTableModelPanel;
 import dk.dma.epd.shore.voct.SRU;
 import dk.dma.epd.shore.voct.SRU.SRU_TYPE;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
-import javax.swing.JList;
 
 public class EffortAllocationWindow extends EffortAllocationWindowCommon
         implements ListSelectionListener, MouseListener, TableModelListener {
@@ -450,7 +442,8 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
 
         for (int i = 0; i < sruList.size(); i++) {
 
-            System.out.println("Calculation for " + i + (boolean) sruTable.getValueAt(i, 2));
+            System.out.println("Calculation for " + i
+                    + (boolean) sruTable.getValueAt(i, 2));
 
             if ((boolean) sruTable.getValueAt(i, 2)) {
 
@@ -458,8 +451,6 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
 
                 EffortAllocationData data;
 
-                
-                
                 if (sarData.getEffortAllocationData().size() > i) {
                     data = sarData.getEffortAllocationData().get(i);
 
@@ -474,8 +465,8 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
                         data.setSearchPatternRoute(null);
                     }
 
-                } 
-                
+                }
+
                 data = new EffortAllocationData();
 
                 data.setGroundSpeed(currentSRU.getSearchSpeed());
@@ -557,7 +548,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
 
                 sarData.addEffortAllocationData(data, i);
 
-            }else{
+            } else {
                 sarData.getEffortAllocationData().get(i).setNoRedraw(true);
             }
         }

@@ -38,7 +38,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.ais.message.AisMessage;
-import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -46,7 +45,6 @@ import dk.dma.epd.shore.voct.SRU;
 import dk.dma.epd.shore.voct.SRU.SRU_TYPE;
 import dk.dma.epd.shore.voct.SRU.sru_status;
 import dk.dma.epd.shore.voct.SRUManager;
-import javax.swing.SwingConstants;
 
 public class SRUAddEditDialog extends JDialog implements ActionListener,
         FocusListener {

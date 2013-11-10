@@ -221,6 +221,16 @@ public class SRU {
         this.searchTime = searchTime;
     }
 
+
+
+    @Override
+    public String toString() {
+        return "SRU [name=" + name + ", mmsi=" + mmsi + ", type=" + type
+                + ", status=" + status + ", visible=" + visible
+                + ", searchSpeed=" + searchSpeed + ", visibility=" + visibility
+                + ", fatigue=" + fatigue + ", searchTime=" + searchTime + "]";
+    }
+
     
 
 }
