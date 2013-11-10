@@ -18,6 +18,7 @@ package dk.dma.epd.common.prototype.layers.voct;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -32,6 +33,7 @@ import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
 import com.bbn.openmap.omGraphics.OMPoly;
+import com.bbn.openmap.omGraphics.OMText;
 import com.bbn.openmap.proj.Length;
 
 import dk.dma.enav.model.geometry.Position;
@@ -74,11 +76,15 @@ public class AreaInternalGraphics extends OMGraphicList {
     double verticalBearing = 180;
     double horizontalBearing = 90;
 
+    private Font font = new Font(Font.DIALOG, Font.PLAIN, 12);
+    private OMText label = new OMText(0, 0, 0, 0, "", font,
+            OMText.JUSTIFY_CENTER);
+
     // Initialize with
     public AreaInternalGraphics(Position A, Position B, Position C, Position D,
             Double width, Double height,
             EffectiveSRUAreaGraphics effecticeSRUAreaGraphics,
-            double verticalBearing, double horizontalBearing) {
+            double verticalBearing, double horizontalBearing, String labelText) {
         super();
 
         this.setVague(true);
@@ -133,23 +139,27 @@ public class AreaInternalGraphics extends OMGraphicList {
 
         drawPolygon();
 
-        // drawAreaBox();
-        // drawPolyline();
-        // drawPolygon(A, B, C, D);
-        // drawPoints();
+        if (!labelText.equals("")) {
 
-        // Draw the message
-        // if (errorCode == -1 || errorCode == 1 || errorCode == 17) {
-        // OMPoint polyPoint = new OMPoint(0, 0);
-        //
-        // // Dummy point to make selection appear
-        // // polyPoint.setVisible(false);
-        // add(polyPoint);
-        // }
+            Position topCenter = Calculator.findPosition(A, horizontalBearing,
+                    Converter.nmToMeters(width) / 2);
 
-        // if (frame) {
-        // drawAreaBox();
-        // }
+            Position center = Calculator.findPosition(topCenter,
+                    verticalBearing, Converter.nmToMeters(height) / 2);
+
+            double lat = center.getLatitude();
+            double lon = center.getLongitude();
+
+            label.setLat(lat);
+            label.setLon(lon);
+//            label.setY(25);
+            label.setLinePaint(Color.black);
+            label.setTextMatteColor(Color.WHITE);
+            label.setData(labelText);
+            add(label);
+
+            // label.getData()
+        }
 
     }
 
@@ -167,6 +177,27 @@ public class AreaInternalGraphics extends OMGraphicList {
 
         drawPolygon();
 
+        checkLabel();
+
+    }
+
+    private void checkLabel() {
+        if (!label.getData().equals("")) {
+
+            Position topCenter = Calculator.findPosition(A, horizontalBearing,
+                    Converter.nmToMeters(width) / 2);
+
+            Position center = Calculator.findPosition(topCenter,
+                    verticalBearing, Converter.nmToMeters(height) / 2);
+
+            double lat = center.getLatitude();
+            double lon = center.getLongitude();
+
+            label.setLat(lat);
+            label.setLon(lon);
+
+            add(label);
+        }
     }
 
     public void moveRelative(Position newPos, SARData data) {
@@ -212,7 +243,8 @@ public class AreaInternalGraphics extends OMGraphicList {
         // data.getEffortAllocationData().setEffectiveAreaD(D);
 
         System.out.println("Polygon created");
-        
+
+        checkLabel();
     }
 
     public void adjustInternalPosition(Position relativePosition) {
@@ -234,7 +266,6 @@ public class AreaInternalGraphics extends OMGraphicList {
         Geo b1 = new Geo(A.getLatitude(), A.getLongitude());
         Geo b2 = new Geo(B.getLatitude(), B.getLongitude());
 
-
         Geo intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
 
         Position topPoint = Position.create(intersectionPoint.getLatitude(),
@@ -243,12 +274,12 @@ public class AreaInternalGraphics extends OMGraphicList {
         Position bottomPoint = Calculator.findPosition(topPoint,
                 verticalBearing, Converter.nmToMeters(height));
 
-        
         // Create a line going from relativePosition and in reverse horizontal
         // bearing - find the intersection between this position and the line
         // going from A to C
         Position horizontalEndPosition = Calculator.findPosition(
-                relativePosition, Calculator.reverseDirection(horizontalBearing),
+                relativePosition,
+                Calculator.reverseDirection(horizontalBearing),
                 Converter.nmToMeters(width));
 
         Geo c1 = new Geo(relativePosition.getLatitude(),
@@ -258,21 +289,21 @@ public class AreaInternalGraphics extends OMGraphicList {
 
         Geo d1 = new Geo(A.getLatitude(), A.getLongitude());
         Geo d2 = new Geo(C.getLatitude(), C.getLongitude());
-        
-        Geo intersectionPointLeft = Intersection.segmentsIntersect(c1, c2, d1, d2);
-        
 
-        Position leftPoint = Position.create(intersectionPointLeft.getLatitude(),
+        Geo intersectionPointLeft = Intersection.segmentsIntersect(c1, c2, d1,
+                d2);
+
+        Position leftPoint = Position.create(
+                intersectionPointLeft.getLatitude(),
                 intersectionPointLeft.getLongitude());
-        
-        Position rightPoint = Calculator.findPosition(
-                leftPoint, horizontalBearing,
-                Converter.nmToMeters(width));
-        
-//        Position leftPoint = Position.create(relativePosition.getLatitude(),
-//                A.getLongitude());
-//        Position rightPoint = Position.create(relativePosition.getLatitude(),
-//                B.getLongitude());
+
+        Position rightPoint = Calculator.findPosition(leftPoint,
+                horizontalBearing, Converter.nmToMeters(width));
+
+        // Position leftPoint = Position.create(relativePosition.getLatitude(),
+        // A.getLongitude());
+        // Position rightPoint = Position.create(relativePosition.getLatitude(),
+        // B.getLongitude());
 
         distanceToTop = Math.abs(Calculator.range(relativePosition, topPoint,
                 Heading.RL));

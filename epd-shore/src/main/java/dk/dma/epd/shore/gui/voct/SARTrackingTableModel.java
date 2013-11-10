@@ -24,8 +24,10 @@ import org.slf4j.LoggerFactory;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.voct.SRU;
+import dk.dma.epd.shore.voct.SRUCommunicationObject;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
+import dk.dma.epd.shore.voct.SRU.sru_status;
 
 
 
@@ -60,20 +62,21 @@ public class SARTrackingTableModel extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-        return sruManager.getSRUCount();
+        return sruManager.getAvailableSRUS();
 //        return 0;
 //        return voctManager.getSarData().getEffortAllocationData().size();
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        SRU sru = sruManager.getSRUs().get(rowIndex);
+//        SRU sru = sruManager.getsRUCommunication().get(rowIndex);
+        SRUCommunicationObject sruobject = sruManager.getSRUCommunicationList().get(rowIndex);
 //        EffortAllocationData effortAllocationData = voctManager.getSarData().getEffortAllocationData().get(rowIndex);
         switch (columnIndex) {
-        case 0: return Formatter.formatString(sru.getName());
-        case 1: return sru.getStatus();
+        case 0: return Formatter.formatString(sruobject.getSru().getName());
+        case 1: return sruobject.getSru().getStatus();
         case 2: return "N/A";
-        case 4: return false;
+        case 3: return false;
         default:
             LOG.error("Unknown column " + columnIndex);
             return new String("");

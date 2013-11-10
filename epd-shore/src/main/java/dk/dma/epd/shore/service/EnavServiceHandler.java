@@ -71,6 +71,7 @@ import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.settings.ESDEnavSettings;
+import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.navnet.client.MaritimeNetworkConnectionBuilder;
 
 /**
@@ -86,6 +87,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private ShipId shipId;
     private GpsHandler gpsHandler;
     private AisHandler aisHandler;
+    private SRUManager sruManager;
 
     private StrategicRouteExchangeHandler monaLisaHandler;
 
@@ -196,10 +198,18 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
         }
     }
+    
+    
+
+    public List<ServiceEndpoint<VOCTCommunicationMessage, VOCTCommunicationReply>> getVoctMessageList() {
+        return voctMessageList;
+    }
 
     public List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> getRouteSuggestionList() {
         return routeSuggestionList;
     }
+    
+    
 
     public boolean shipAvailableForRouteSuggestion(long mmsi) {
         for (int i = 0; i < routeSuggestionList.size(); i++) {
@@ -278,6 +288,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                 public void accept(VOCTCommunicationReply l, Throwable r) {
                     // TODO Auto-generated method stub
                     System.out.println("Reply recieved SAR");
+                    sruManager.handleSRUReply(l);
                 }
             });
 
@@ -440,6 +451,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
             this.aisHandler = (AisHandler) obj;
         } else if (obj instanceof StrategicRouteExchangeHandler) {
             this.monaLisaHandler = (StrategicRouteExchangeHandler) obj;
+        } else if (obj instanceof SRUManager){
+            this.sruManager = (SRUManager) obj;
         }
     }
 

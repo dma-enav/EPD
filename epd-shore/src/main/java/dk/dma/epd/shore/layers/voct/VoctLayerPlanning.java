@@ -39,6 +39,7 @@ import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
+import dk.dma.epd.shore.EPDShore;
 
 public class VoctLayerPlanning extends VoctLayerCommon{
 
@@ -552,7 +553,7 @@ public class VoctLayerPlanning extends VoctLayerCommon{
                 double height = Math.sqrt(effectiveAreaSize);
 
                 effectiveArea = new EffectiveSRUAreaGraphics(width, height,
-                        data, i);
+                        data, i, EPDShore.getSRUManager().getSRUs(i).getName());
 
                 effectiveArea.setVisible(voctManager.getSruManager().getSRUs()
                         .get(i).isVisible());

@@ -42,8 +42,7 @@ public class SRU {
     private double fatigue;
     private int searchTime;
     
-
- 
+     
 
     public SRU(String name, long mmsi, SRU_TYPE type, sru_status status,
             double searchSpeed, int visibility, double fatigue,

@@ -280,6 +280,18 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         }
     }
 
+    @Override
+    public int getRouteIndex(Route route) {
+        synchronized (this) {
+            for (int i = 0; i < routes.size(); i++) {
+                if (route == routes.get(i)) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+    
     public int getRouteCount() {
         synchronized (routes) {
             return routes.size();

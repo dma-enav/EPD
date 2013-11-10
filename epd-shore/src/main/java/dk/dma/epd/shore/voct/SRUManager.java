@@ -15,18 +15,29 @@
  */
 package dk.dma.epd.shore.voct;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.bbn.openmap.MapHandlerChild;
 
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.CLOUD_STATUS;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.voct.SRU.sru_status;
 
 public class SRUManager extends MapHandlerChild implements Runnable {
 
     private List<SRU> srus = new LinkedList<SRU>();
+    
     private VOCTManager voctManager;
+    private EnavServiceHandler enavServiceHandler;
 
+    private LinkedHashMap <Long, SRUCommunicationObject> sRUCommunication = new LinkedHashMap <Long, SRUCommunicationObject>();
+    
     public SRUManager() {
         EPDShore.startThread(this, "sruManager");
     }
@@ -36,16 +47,126 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
         // Maintanaince routines
         while (true) {
-            EPDShore.sleep(1000000);
+            EPDShore.sleep(1000);
+            updateSRUsStatus();
+//            maintainAvailableSRUs();
+            // Maintain list of available SRUs
+        }
+
+    }
+
+    private void updateSRUsStatus() {
+
+        for (int i = 0; i < enavServiceHandler.getVoctMessageList().size(); i++) {
+
+            long mmsi = Long.parseLong(enavServiceHandler.getVoctMessageList()
+                    .get(i).getId().toString().split("//")[1]);
+
+//            System.out.println("Is mmsi " + mmsi + " a SRU?");
+            for (int j = 0; j < srus.size(); j++) {
+//                System.out.println("Comparing " + srus.get(j).getMmsi() + " with " + mmsi);
+                if (srus.get(j).getMmsi() == mmsi) {
+//                    System.out.println("Yes " + srus.get(j).getMmsi() + " found");
+                    
+//                    System.out.println(srus.get(j).getStatus());
+                    
+                    //Change the status
+                    if (srus.get(j).getStatus() != sru_status.ACCEPTED
+                            || srus.get(j).getStatus() != sru_status.AVAILABLE) {
+                        srus.get(j).setStatus(sru_status.AVAILABLE);
+                    }
+
+                    // && (srus.get(i).getStatus() == sru_status.ACCEPTED
+                    // || srus.get(i).getStatus() == sru_status.AVAILABLE ||
+                    // srus
+                    // .get(i).getStatus() == sru_status.INVITED)) {
+
+                    // System.out.println("Adding SRU to list");
+                    // availableSRUs.add(srus.get(i));
+
+                }
+            }
 
         }
 
+    }
+
+    public void setSRUStatus(int i, sru_status status) {
+
+        // What if we remove a SRU
+
+    }
+
+//    private synchronized void maintainAvailableSRUs() {
+//        availableSRUs.clear();
+//        for (int i = 0; i < srus.size(); i++) {
+//            if (srus.get(i).getStatus() == sru_status.ACCEPTED
+//                    || srus.get(i).getStatus() == sru_status.AVAILABLE
+//                    || srus.get(i).getStatus() == sru_status.INVITED) {
+//
+//                availableSRUs.add(srus.get(i));
+//
+//            }
+//        }
+//    }
+    
+ 
+    public int getAvailableSRUS() {
+        return sRUCommunication.size();
+    }
+
+    public void handleSRUReply(VOCTCommunicationReply reply) {
+
+        SRU sru = null;
+        
+        for (int i = 0; i < srus.size(); i++) {
+            if (srus.get(i).getMmsi() == reply.getMmsi()){
+                //Select the SRU we got the message from
+                sru = srus.get(i);
+                break;
+            }
+        }
+        
+        //Make sure we got the message from a SRU on our list.
+        if (sru != null){
+            CLOUD_STATUS status = reply.getStatus();
+        
+            switch (status) {
+            //If its been accepted we create an entry in the hashmap, should we overwrite the old one?
+            //Remove old one, put new one
+            case RECIEVED_ACCEPTED: sru.setStatus(sru_status.ACCEPTED);
+                                    if (sRUCommunication.containsKey(reply.getMmsi())){
+                                        sRUCommunication.remove(reply.getMmsi());
+                                    }else{
+                                        sRUCommunication.put(reply.getMmsi(), new SRUCommunicationObject(sru));
+                                    }
+            
+            //If theres an old entry, remove it                        
+            case RECIEVED_REJECTED: sru.setStatus(sru_status.DECLINED);
+            if (sRUCommunication.containsKey(reply.getMmsi())){
+                sRUCommunication.remove(reply.getMmsi());
+            }
+            default: sru.setStatus(sru_status.UNKNOWN);
+                
+            }
+        
+            
+            
+            
+            
+        }
+        
+        
     }
 
     @Override
     public void findAndInit(Object obj) {
         if (obj instanceof VOCTManager) {
             voctManager = (VOCTManager) obj;
+        }
+
+        if (obj instanceof EnavServiceHandler) {
+            enavServiceHandler = (EnavServiceHandler) obj;
         }
     }
 
@@ -76,12 +197,27 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
     public void removeSRU(int i) {
         synchronized (srus) {
-            srus.remove(i);
+            SRU sru = srus.remove(i);
             voctManager.removeEffortAllocationData(i);
+            if (sRUCommunication.containsKey(sru.getMmsi())){
+                sRUCommunication.remove(sru.getMmsi());
+            }
+//            maintainAvailableSRUs();
 
         }
     }
 
+    
+    public HashMap<Long, SRUCommunicationObject> getsRUCommunication() {
+        return sRUCommunication;
+    }
+
+    
+    public ArrayList<SRUCommunicationObject> getSRUCommunicationList(){
+//        sRUCommunication.
+        return new ArrayList<SRUCommunicationObject>(sRUCommunication.values());
+    }
+    
     public SRU getSRUs(int index) {
         return getSRUs().get(index);
     }

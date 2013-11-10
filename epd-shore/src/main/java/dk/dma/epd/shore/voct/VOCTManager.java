@@ -166,10 +166,13 @@ public class VOCTManager extends VOCTManagerCommon implements
 
         // Remove old and overwrite
         if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
+            System.out.println("Previous route found");
             int routeIndex = EPDShore.getRouteManager().getRouteIndex(
                     sarData.getEffortAllocationData().get(id)
                             .getSearchPatternRoute());
 
+            System.out.println("Route index of old is " + routeIndex);
+            
             EPDShore.getRouteManager().removeRoute(routeIndex);
         }
 

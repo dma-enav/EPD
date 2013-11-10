@@ -468,7 +468,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
                         effortAllocationArea.getEffectiveAreaA(),
                         effortAllocationArea.getEffectiveAreaB(),
                         effortAllocationArea.getEffectiveAreaC(),
-                        effortAllocationArea.getEffectiveAreaD(), 0);
+                        effortAllocationArea.getEffectiveAreaD(), 0, "");
                 graphics.add(effectiveArea);
 
             }
@@ -620,7 +620,7 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         // startingPosition = ((RapidResponseData) data).getA();
         // }
 
-        effectiveArea = new EffectiveSRUAreaGraphics(width, height, data, 0);
+        effectiveArea = new EffectiveSRUAreaGraphics(width, height, data, 0, "");
 
         graphics.add(effectiveArea);
 

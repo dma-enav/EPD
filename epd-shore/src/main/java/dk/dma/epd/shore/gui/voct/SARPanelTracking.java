@@ -128,7 +128,7 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
         add(lblSAR, gbc_lblSAR);
 
         statusPanel = new JPanel();
-        statusPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Vessels being tracked", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        statusPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Vessels currently tracked", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         GridBagConstraints gbc_statusPanel = new GridBagConstraints();
         gbc_statusPanel.insets = new Insets(0, 0, 5, 0);
         gbc_statusPanel.fill = GridBagConstraints.BOTH;

@@ -55,7 +55,7 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
     }
 
     
-    public EffectiveSRUAreaGraphics(Position A, Position B, Position C, Position D, int id){
+    public EffectiveSRUAreaGraphics(Position A, Position B, Position C, Position D, int id, String labelName){
         super();
         
         this.A = A;
@@ -64,7 +64,7 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         this.D = D;
         
         effectiveArea = new AreaInternalGraphics(A, B, C, D, 0.0, 0.0,
-                this, verticalBearing, horizontalBearing);
+                this, verticalBearing, horizontalBearing, labelName);
 
         topLine = new SarEffectiveAreaLines(A, B, LineType.TOP, this);
         bottomLine = new SarEffectiveAreaLines(C, D, LineType.BOTTOM, this);
@@ -81,8 +81,10 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         
     }
     
+
+    
     public EffectiveSRUAreaGraphics(Double width, Double height, SARData data,
-            int id) {
+            int id, String labelName) {
         super();
 
         this.id = id;
@@ -163,7 +165,7 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
         sarData.getEffortAllocationData().get(id).setEffectiveAreaD(D);
 
         effectiveArea = new AreaInternalGraphics(A, B, C, D, width, height,
-                this, verticalBearing, horizontalBearing);
+                this, verticalBearing, horizontalBearing, labelName);
 
         topLine = new SarEffectiveAreaLines(A, B, LineType.TOP, this);
         bottomLine = new SarEffectiveAreaLines(C, D, LineType.BOTTOM, this);

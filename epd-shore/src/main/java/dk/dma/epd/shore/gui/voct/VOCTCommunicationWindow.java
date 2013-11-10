@@ -72,8 +72,6 @@ public class VOCTCommunicationWindow extends JDialog
 
     private JLabel noSRUs;
 
-    private JLabel lblAvailableSrus;
-
     // DefaultListModel<String> listModel = new DefaultListModel<String>();
     // JList<String> sruScrollPane;
 
@@ -91,7 +89,7 @@ public class VOCTCommunicationWindow extends JDialog
         this.setResizable(false);
 
         // setBounds(100, 100, 559, 733);
-        setBounds(100, 100, 559, 352);
+        setBounds(100, 100, 621, 408);
         getContentPane().setLayout(new BorderLayout());
 
         buttomBar();
@@ -109,14 +107,12 @@ public class VOCTCommunicationWindow extends JDialog
                 noSRUs.setVisible(true);
                 sendSAR.setEnabled(false);
 
-                lblAvailableSrus.setVisible(false);
                 sruScrollPane.setVisible(false);
             } else {
 
                 // fillSruList();
-//                sruTableModel.updateCalculateTable();
+                sruTableModel.updateCalculateTable();
 
-                lblAvailableSrus.setVisible(true);
                 sruScrollPane.setVisible(true);
 
                 noSRUs.setVisible(false);
@@ -161,19 +157,15 @@ public class VOCTCommunicationWindow extends JDialog
         {
             JPanel panel = new JPanel();
             panel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "SRU Tracking", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-            panel.setBounds(10, 11, 523, 269);
+            panel.setBounds(10, 11, 595, 325);
             initPanel.add(panel);
             panel.setLayout(null);
 
             JPanel panel_2 = new JPanel();
-            panel_2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Available SRUs", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-            panel_2.setBounds(10, 32, 503, 226);
+            panel_2.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "All SRUs", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+            panel_2.setBounds(10, 32, 575, 282);
             panel.add(panel_2);
             panel_2.setLayout(null);
-
-            lblAvailableSrus = new JLabel("Available SRUs:");
-            lblAvailableSrus.setBounds(10, 23, 137, 14);
-            panel_2.add(lblAvailableSrus);
 
             DefaultTableModel model = new DefaultTableModel(30, 3);
 
@@ -226,7 +218,7 @@ public class VOCTCommunicationWindow extends JDialog
             sruScrollPane = new JScrollPane(sruTable);
             sruScrollPane.setEnabled(false);
 
-            sruScrollPane.setBounds(10, 50, 483, 165);
+            sruScrollPane.setBounds(10, 23, 555, 248);
 
             sruScrollPane
                     .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -239,20 +231,34 @@ public class VOCTCommunicationWindow extends JDialog
 
             // TODO: Comment this line when using WindowBuilder
             sruTable.setModel(sruTableModel);
-            // for (int i = 0; i < 2; i++) {
-            //
-            // if (i == 0){
-            // sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
-            // }
-            // if (i == 1){
-            // sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
-            // }
-            // if (i == 2){
-            // sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
-            // }
-            //
-            //
-            // }
+            for (int i = 0; i < 6; i++) {
+
+                if (i == 0) {
+                    sruTable.getColumnModel().getColumn(i)
+                            .setPreferredWidth(5);
+                }
+                if (i == 1) {
+                    sruTable.getColumnModel().getColumn(i)
+                            .setPreferredWidth(75);
+                }
+                if (i == 2) {
+                    sruTable.getColumnModel().getColumn(i)
+                            .setPreferredWidth(50);
+                }
+
+                if (i == 3) {
+                    sruTable.getColumnModel().getColumn(i)
+                            .setPreferredWidth(15);
+                }
+                if (i == 4) {
+                    sruTable.getColumnModel().getColumn(i)
+                            .setPreferredWidth(5);
+                }
+                if (i == 5) {
+                    sruTable.getColumnModel().getColumn(i)
+                            .setPreferredWidth(25);
+                }
+            }
             sruSelectionModel = sruTable.getSelectionModel();
             sruSelectionModel.addListSelectionListener(this);
             sruTable.setSelectionModel(sruSelectionModel);

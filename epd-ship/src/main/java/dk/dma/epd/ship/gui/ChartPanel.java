@@ -490,8 +490,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
             }
             if (modeID.equals(DragMouseMode.MODE_ID)) {
                 mouseDelegator.setActive(dragMouseMode);
-                this.topPanel.getNavigationMouseMode()
-                        .setSelected(false);
+                this.topPanel.getNavigationMouseMode().setSelected(false);
                 EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
                         .setSelected(true);
                 System.out.println("Setting drag mouse mode");
@@ -546,7 +545,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         if (!EPDShip.getSettings().getNavSettings().isAutoFollow()) {
             return;
         }
-        
+
         // Only do auto follow if not bad position
         if (gpsData == null || gpsData.isBadPosition()) {
             return;
@@ -829,6 +828,33 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
 
     @Override
     public void voctUpdated(VOCTUpdateEvent e) {
+        if (e == VOCTUpdateEvent.SAR_RECEIVED_CLOUD) {
+            if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
+
+                RapidResponseData data = (RapidResponseData) voctManager
+                        .getSarData();
+
+                if (data.getEffortAllocationData().size() > 0) {
+                    List<Position> waypoints = new ArrayList<Position>();
+                    waypoints.add(data.getA());
+                    waypoints.add(data.getB());
+                    waypoints.add(data.getC());
+                    waypoints.add(data.getD());
+
+                    this.zoomTo(waypoints);
+                    return;
+
+                } else {
+                    List<Position> waypoints = new ArrayList<Position>();
+
+                    waypoints.add(data.getDatum());
+                    this.zoomTo(waypoints);
+                    return;
+
+                }
+
+            }
+        }
 
         if (e == VOCTUpdateEvent.SAR_DISPLAY) {
 
@@ -845,11 +871,9 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
                 this.zoomTo(waypoints);
                 return;
             }
-            
-            
+
             if (voctManager.getSarType() == SAR_TYPE.DATUM_POINT) {
-                DatumPointData data = (DatumPointData) voctManager
-                        .getSarData();
+                DatumPointData data = (DatumPointData) voctManager.getSarData();
 
                 List<Position> waypoints = new ArrayList<Position>();
                 waypoints.add(data.getA());
@@ -860,6 +884,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
                 this.zoomTo(waypoints);
                 return;
             }
+
         }
     }
 
