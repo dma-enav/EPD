@@ -15,19 +15,51 @@
  */
 package dk.dma.epd.shore.layers.voct;
 
+import java.util.HashMap;
+
+import com.bbn.openmap.MapBean;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics;
 import dk.dma.epd.common.prototype.layers.voct.SarGraphics;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumLineData;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
+import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
+import dk.dma.epd.shore.gui.views.JMapFrame;
+import dk.dma.epd.shore.voct.SRUManager;
+import dk.dma.epd.shore.voct.VOCTManager;
 
 public class VoctLayerTracking extends VoctLayerCommon {
     private static final long serialVersionUID = 1L;
     private OMGraphicList graphics = new OMGraphicList();
+
+    private HashMap<Long, EffectiveSRUAreaGraphics> effectiveAreas = new HashMap<>();
+    private SRUManager sruManager;
+
+    @Override
+    public void findAndInit(Object obj) {
+
+        if (obj instanceof JMapFrame) {
+            jMapFrame = (JMapFrame) obj;
+        }
+
+        if (obj instanceof VOCTManager) {
+            voctManager = (VOCTManager) obj;
+            voctManager.addListener(this);
+            this.voctUpdated(VOCTUpdateEvent.SAR_DISPLAY);
+        }
+        if (obj instanceof MapBean) {
+            mapBean = (MapBean) obj;
+        }
+        if (obj instanceof SRUManager) {
+            this.sruManager = (SRUManager) obj;
+            sruManager.setVoctTrackingLayer(this);
+        }
+    }
 
     @Override
     public void voctUpdated(VOCTUpdateEvent e) {
@@ -58,6 +90,52 @@ public class VoctLayerTracking extends VoctLayerCommon {
 
     }
 
+    public void removeEffectiveArea(long mmsi, int id) {
+
+    }
+
+    public void drawEffectiveArea(long mmsi, int id) {
+        System.out.println("Drawing effective Area on tracking layer");
+        // effectiveAreas
+
+        if (effectiveAreas.containsKey(mmsi)) {
+            System.out.println("Removing existing");
+            EffectiveSRUAreaGraphics area = effectiveAreas.get(mmsi);
+            graphics.remove(area);
+            effectiveAreas.remove(mmsi);
+        }
+
+        System.out.println("uhm hi id is " + id);
+        
+        if (voctManager.getSarData().getEffortAllocationData().size() > id){
+            System.out.println("yes");
+        }
+        
+        
+        EffortAllocationData effortAllocationData = voctManager.getSarData()
+                .getEffortAllocationData().get(id);
+
+        System.out.println("ehm okay");
+        
+        System.out.println("The effort allocation is : " + effortAllocationData);
+        System.out.println(sruManager
+                        .getSRUs(id).getName());
+        
+        EffectiveSRUAreaGraphics area = new EffectiveSRUAreaGraphics(
+                effortAllocationData.getEffectiveAreaA(),
+                effortAllocationData.getEffectiveAreaB(),
+                effortAllocationData.getEffectiveAreaC(),
+                effortAllocationData.getEffectiveAreaD(), id, sruManager
+                        .getSRUs(id).getName());
+
+        effectiveAreas.put(mmsi, area);
+        
+        graphics.add(area);
+
+        doPrepare();
+
+    }
+
     private void drawRapidResponse() {
 
         RapidResponseData data = (RapidResponseData) voctManager.getSarData();
@@ -66,7 +144,7 @@ public class VoctLayerTracking extends VoctLayerCommon {
         Position B = data.getB();
         Position C = data.getC();
         Position D = data.getD();
-      
+
         graphics.clear();
 
         SarGraphics sarGraphics = new SarGraphics(A, B, C, D);
@@ -74,7 +152,7 @@ public class VoctLayerTracking extends VoctLayerCommon {
 
         doPrepare();
     }
-    
+
     private void drawDatumPoint() {
 
         DatumPointData data = (DatumPointData) voctManager.getSarData();
@@ -91,7 +169,7 @@ public class VoctLayerTracking extends VoctLayerCommon {
 
         doPrepare();
     }
-    
+
     private void drawDatumLine() {
 
         // Create as many data objects as is contained
@@ -115,8 +193,6 @@ public class VoctLayerTracking extends VoctLayerCommon {
             graphics.add(sarGraphics);
         }
 
- 
-
         // public SarGraphics(Position datumDownWind, Position datumMin,
         // Position datumMax, double radiusDownWind, double radiusMin, double
         // radiusMax, Position LKP, Position current) {
@@ -124,7 +200,7 @@ public class VoctLayerTracking extends VoctLayerCommon {
         doPrepare();
 
     }
-    
+
     @Override
     public synchronized OMGraphicList prepare() {
         graphics.project(getProjection());

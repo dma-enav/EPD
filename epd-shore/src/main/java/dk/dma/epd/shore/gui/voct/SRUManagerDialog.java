@@ -59,12 +59,14 @@ import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.voct.SRUManager;
+import dk.dma.epd.shore.voct.SRUUpdateEvent;
+import dk.dma.epd.shore.voct.SRUUpdateListener;
 
 /**
  * Route manager dialog
  */
 public class SRUManagerDialog extends ComponentFrame implements ActionListener,
-        ListSelectionListener, TableModelListener, MouseListener {
+        ListSelectionListener, TableModelListener, MouseListener, SRUUpdateListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -121,7 +123,9 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
         super("SRU Manager", false, true, false, false);
         this.parent = parent;
         sruManager = EPDShore.getSRUManager();
-
+        sruManager.addListener(this);
+        
+        
         // Strip off window looks
         setRootPaneCheckingEnabled(false);
         ((javax.swing.plaf.basic.BasicInternalFrameUI) this.getUI())
@@ -686,5 +690,11 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
      */
     public void toggleVisibility() {
         setVisible(!this.isVisible());
+    }
+
+    @Override
+    public void sruUpdated(SRUUpdateEvent e, int id) {
+
+        sruTableModel.fireTableDataChanged();
     }
 }

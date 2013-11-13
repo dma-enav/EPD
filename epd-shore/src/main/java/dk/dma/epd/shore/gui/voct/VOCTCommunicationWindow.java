@@ -51,11 +51,13 @@ import javax.swing.table.TableCellRenderer;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.voct.SRU;
 import dk.dma.epd.shore.voct.SRUManager;
+import dk.dma.epd.shore.voct.SRUUpdateEvent;
+import dk.dma.epd.shore.voct.SRUUpdateListener;
 import dk.dma.epd.shore.voct.VOCTManager;
 
 public class VOCTCommunicationWindow extends JDialog implements
         ListSelectionListener, MouseListener, TableModelListener,
-        ActionListener {
+        ActionListener, SRUUpdateListener {
     private static final long serialVersionUID = 1L;
 
     private final JPanel initPanel = new JPanel();
@@ -139,6 +141,7 @@ public class VOCTCommunicationWindow extends JDialog implements
     public void setVoctManager(VOCTManager voctManager) {
         this.voctManager = voctManager;
         sruManager = voctManager.getSruManager();
+        sruManager.addListener(this);
     }
 
     private void initPanel() {
@@ -324,6 +327,7 @@ public class VOCTCommunicationWindow extends JDialog implements
                 if ((boolean) sruTable.getValueAt(i, 0)) {
 
                     try {
+                        voctManager.updateEffectiveAreaLocation();
                         EPDShore.getEnavServiceHandler().sendVOCTMessage(
                                 sruList.get(i).getMmsi(),
                                 voctManager.getSarData(), "OSC", "Please Join",
@@ -397,5 +401,11 @@ public class VOCTCommunicationWindow extends JDialog implements
     public void tableChanged(TableModelEvent arg0) {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public void sruUpdated(SRUUpdateEvent e, int id) {
+        // TODO Auto-generated method stub
+//        sruTableModel.updateCalculateTable();
     }
 }

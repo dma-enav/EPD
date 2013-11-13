@@ -20,12 +20,16 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.CLOUD_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.layers.voct.VoctLayerTracking;
 import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.voct.SRU.sru_status;
 
@@ -37,11 +41,43 @@ public class SRUManager extends MapHandlerChild implements Runnable {
     private EnavServiceHandler enavServiceHandler;
 
     private LinkedHashMap<Long, SRUCommunicationObject> sRUCommunication = new LinkedHashMap<Long, SRUCommunicationObject>();
+    private VoctLayerTracking voctLayerTracking;
+    
+    private CopyOnWriteArrayList<SRUUpdateListener> listeners = new CopyOnWriteArrayList<>();
 
+    
+    
     public SRUManager() {
         EPDShore.startThread(this, "sruManager");
     }
 
+    
+    public void setVoctTrackingLayer(VoctLayerTracking layer){
+        this.voctLayerTracking = layer;
+        System.out.println("We got a tracking layer for sru manager");
+    }
+    
+    public void notifyListeners(SRUUpdateEvent e, int id) {
+        for (SRUUpdateListener listener : listeners) {
+            listener.sruUpdated(e, id);
+        }
+
+        // Persist update VOCT info
+        // saveToFile();
+    }
+
+
+    public void addListener(SRUUpdateListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(SRUUpdateListener listener) {
+        listeners.remove(listener);
+    }
+
+
+    
+    
     @Override
     public void run() {
 
@@ -70,8 +106,8 @@ public class SRUManager extends MapHandlerChild implements Runnable {
                     // System.out.println("Yes " + srus.get(j).getMmsi() +
                     // " found");
 
-                    System.out.println("SRU Name: " + srus.get(j).getName()
-                            + " : " + srus.get(j).getStatus());
+//                    System.out.println("SRU Name: " + srus.get(j).getName()
+//                            + " : " + srus.get(j).getStatus());
 
                     // Change the status
                     if (srus.get(j).getStatus() != sru_status.ACCEPTED
@@ -124,10 +160,13 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
         SRU sru = null;
 
+        int sruID = -1;
+         
         for (int i = 0; i < srus.size(); i++) {
             if (srus.get(i).getMmsi() == reply.getMmsi()) {
                 // Select the SRU we got the message from
                 sru = srus.get(i);
+                sruID = i;
                 System.out.println("SRU SElected");
                 break;
             }
@@ -152,11 +191,20 @@ public class SRUManager extends MapHandlerChild implements Runnable {
                             new SRUCommunicationObject(sru));
                 }
 
-                System.out.println("SRU status set to acceptd");
-                System.out.println("Running through all SRUS");
-                for (int i = 0; i < srus.size(); i++) {
-                    System.out.println(srus.get(i).getStatus());
-                }
+                
+                //Notify voctmanager to paint efffort allocation area for SRU i
+                voctLayerTracking.drawEffectiveArea(sru.getMmsi(), sruID);                
+                
+                
+                
+                
+                
+                
+//                System.out.println("SRU status set to acceptd");
+//                System.out.println("Running through all SRUS");
+//                for (int i = 0; i < srus.size(); i++) {
+//                    System.out.println(srus.get(i).getStatus());
+//                }
                 break;
 
             // If theres an old entry, remove it
@@ -166,6 +214,9 @@ public class SRUManager extends MapHandlerChild implements Runnable {
                     sRUCommunication.remove(reply.getMmsi());
                 }
 
+                //Remove if we previously had one
+                voctLayerTracking.removeEffectiveArea(sru.getMmsi(), sruID);    
+                
                 break;
             default:
                 sru.setStatus(sru_status.UNKNOWN);
@@ -174,6 +225,8 @@ public class SRUManager extends MapHandlerChild implements Runnable {
             }
 
         }
+        
+        notifyListeners(SRUUpdateEvent.CLOUD_MESSAGE, sruID);
 
     }
 
@@ -191,6 +244,8 @@ public class SRUManager extends MapHandlerChild implements Runnable {
     public void toggleSRUVisiblity(int i, boolean visible) {
         srus.get(i).setVisible(visible);
         voctManager.toggleSRUVisibility(i, visible);
+        
+        notifyListeners(SRUUpdateEvent.SRU_VISIBILITY_CHANGED, i);
 
     }
 
@@ -210,7 +265,9 @@ public class SRUManager extends MapHandlerChild implements Runnable {
     public void addSRU(SRU sru) {
         synchronized (srus) {
             srus.add(sru);
+        notifyListeners(SRUUpdateEvent.SRU_ADDED, srus.size());
         }
+        
     }
 
     public void removeSRU(int i) {
@@ -223,6 +280,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
                     sRUCommunication.remove(sru.getMmsi());
                 }
                 // maintainAvailableSRUs();
+                notifyListeners(SRUUpdateEvent.SRU_REMOVED, i);
             }
         }
     }

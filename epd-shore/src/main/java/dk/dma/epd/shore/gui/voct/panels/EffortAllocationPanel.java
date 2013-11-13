@@ -47,12 +47,15 @@ import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.voct.SRUTableModel;
+import dk.dma.epd.shore.voct.SRUUpdateEvent;
+import dk.dma.epd.shore.voct.SRUUpdateListener;
+
 import javax.swing.JPanel;
 import java.awt.FlowLayout;
 
 public class EffortAllocationPanel extends EffortAllocationPanelCommon
         implements ActionListener, ListSelectionListener, TableModelListener,
-        MouseListener {
+        MouseListener, SRUUpdateListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -62,6 +65,9 @@ public class EffortAllocationPanel extends EffortAllocationPanelCommon
     private ListSelectionModel sruSelectionModel;
 
     public EffortAllocationPanel() {
+        
+        EPDShore.getVoctManager().getSruManager().addListener(this);
+        
         this.setBorder(new TitledBorder(null,
                 "Effort Allocation", TitledBorder.LEADING, TitledBorder.TOP,
                 null, null));
@@ -224,5 +230,13 @@ public class EffortAllocationPanel extends EffortAllocationPanelCommon
     public void mouseReleased(MouseEvent arg0) {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public void sruUpdated(SRUUpdateEvent e, int id) {
+     
+        if (e == SRUUpdateEvent.SRU_VISIBILITY_CHANGED){
+            sruTableModel.fireTableDataChanged();
+        }
     }
 }

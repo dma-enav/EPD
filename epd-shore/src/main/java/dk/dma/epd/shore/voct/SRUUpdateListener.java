@@ -13,18 +13,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.voct;
+package dk.dma.epd.shore.voct;
 
-import java.util.Arrays;
-import java.util.EnumSet;
 
 /**
- * Different events for VOCT events
+ * Classes interesed in routes updates should implement this interface
  */
-public enum VOCTUpdateEvent {
-    NEW_SAR, SAR_CANCEL, SAR_READY, SAR_DISPLAY, EFFORT_ALLOCATION_READY, EFFORT_ALLOCATION_DISPLAY, SEARCH_PATTERN_GENERATED, SAR_RECEIVED_CLOUD;
+public interface SRUUpdateListener {
     
-    public boolean is(VOCTUpdateEvent... events) {
-        return EnumSet.copyOf(Arrays.asList(events)).contains(this);
-    }
-};
+    void sruUpdated(SRUUpdateEvent e, int id);
+
+}

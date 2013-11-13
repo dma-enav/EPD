@@ -46,10 +46,12 @@ import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.voct.SearchPatternDialog;
 import dk.dma.epd.shore.gui.voct.panels.SRUSearchRouteTableModel.SRUSearchPAtternButtonHandler;
 import dk.dma.epd.shore.voct.SRU;
+import dk.dma.epd.shore.voct.SRUUpdateEvent;
+import dk.dma.epd.shore.voct.SRUUpdateListener;
 
-public class SearchPatternsPanel extends SearchPatternsPanelCommon
-        implements ActionListener, ListSelectionListener, TableModelListener,
-        MouseListener, SRUSearchPAtternButtonHandler {
+public class SearchPatternsPanel extends SearchPatternsPanelCommon implements
+        ActionListener, ListSelectionListener, TableModelListener,
+        MouseListener, SRUSearchPAtternButtonHandler, SRUUpdateListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -57,17 +59,16 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon
     private JTable sruTable;
     private SRUSearchRouteTableModel sruTableModel;
     private ListSelectionModel sruSelectionModel;
-    
+
     private SearchPatternDialog searchPatternDialog = new SearchPatternDialog();
 
     public SearchPatternsPanel() {
-        this.setBorder(new TitledBorder(null,
-                "Search Patterns", TitledBorder.LEADING, TitledBorder.TOP,
-                null, null));
 
-        
-        
-        
+        EPDShore.getVoctManager().getSruManager().addListener(this);
+
+        this.setBorder(new TitledBorder(null, "Search Patterns",
+                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+
         DefaultTableModel model = new DefaultTableModel(30, 3);
 
         sruTable = new JTable(model) {
@@ -91,8 +92,7 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon
                 return comp;
             }
         };
-        
-        
+
         TableButtonRenderer renderer = new TableButtonRenderer();
         sruTable.setDefaultEditor(JButton.class, renderer);
         sruTable.setDefaultRenderer(JButton.class, renderer);
@@ -112,7 +112,8 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon
         sruTable.setFocusable(false);
         // routeTable.setAutoResizeMode(0);
 
-        sruTableModel = new SRUSearchRouteTableModel(this, EPDShore.getVoctManager().getSruManager(), EPDShore.getVoctManager());
+        sruTableModel = new SRUSearchRouteTableModel(this, EPDShore
+                .getVoctManager().getSruManager(), EPDShore.getVoctManager());
         sruTableModel.addTableModelListener(this);
 
         sruTable.setShowHorizontalLines(false);
@@ -130,28 +131,25 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon
 
         // TODO: Comment this line when using WindowBuilder
         sruTable.setModel(sruTableModel);
-//        for (int i = 0; i < 2; i++) {
-//            
-//            if (i == 0){
-//                sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
-//            }
-//            if (i == 1){
-//                sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
-//            }
-//            if (i == 2){
-//                sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
-//            }
-//
-//            
-//        }
+        // for (int i = 0; i < 2; i++) {
+        //
+        // if (i == 0){
+        // sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
+        // }
+        // if (i == 1){
+        // sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
+        // }
+        // if (i == 2){
+        // sruTable.getColumnModel().getColumn(i).setPreferredWidth(25);
+        // }
+        //
+        //
+        // }
         sruSelectionModel = sruTable.getSelectionModel();
         sruSelectionModel.addListSelectionListener(this);
         sruTable.setSelectionModel(sruSelectionModel);
         sruTable.addMouseListener(this);
 
-        
-        
-        
         GridBagLayout gbl_searchPatternsPanel = new GridBagLayout();
         gbl_searchPatternsPanel.columnWidths = new int[] { 153, 0 };
         gbl_searchPatternsPanel.rowHeights = new int[] { 75, 0 };
@@ -160,15 +158,13 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon
         gbl_searchPatternsPanel.rowWeights = new double[] { 1.0,
                 Double.MIN_VALUE };
         setLayout(gbl_searchPatternsPanel);
-        
+
         GridBagConstraints gbc_sruScrollPane = new GridBagConstraints();
         gbc_sruScrollPane.fill = GridBagConstraints.BOTH;
         gbc_sruScrollPane.gridx = 0;
         gbc_sruScrollPane.gridy = 0;
         add(sruScrollPane, gbc_sruScrollPane);
 
-        
-        
         searchPatternDialog.setVoctManager(EPDShore.getVoctManager());
     }
 
@@ -176,8 +172,6 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon
     public void resetValues() {
 
     }
-
- 
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -187,8 +181,8 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon
     @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() == 2) {
-            
-             EPDShore.getVoctManager().getSruManagerDialog().properties();
+
+            EPDShore.getVoctManager().getSruManagerDialog().properties();
         }
     }
 
@@ -230,23 +224,24 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon
 
     }
 
-    
-    //SRU Button clicked
-    
+    // SRU Button clicked
+
     @Override
     public void buttonClicked(int sruID) {
 
-
-        
         searchPatternDialog.resetValues(sruID);
-        searchPatternDialog
-                .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+        searchPatternDialog.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
         searchPatternDialog.setVisible(true);
-        
-        
-//        searchPatternDialog
+
+        // searchPatternDialog
         // TODO Auto-generated method stub
-//        System.out.println("Clicked SRU with name " + e.getName());
-//        sruID
+        // System.out.println("Clicked SRU with name " + e.getName());
+        // sruID
+    }
+
+    @Override
+    public void sruUpdated(SRUUpdateEvent e, int id) {
+        sruTableModel.fireTableDataChanged();
+
     }
 }

@@ -13,18 +13,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.voct;
+package dk.dma.epd.shore.voct;
 
 import java.util.Arrays;
 import java.util.EnumSet;
 
 /**
- * Different events for VOCT events
+ * Different events for SRUs
  */
-public enum VOCTUpdateEvent {
-    NEW_SAR, SAR_CANCEL, SAR_READY, SAR_DISPLAY, EFFORT_ALLOCATION_READY, EFFORT_ALLOCATION_DISPLAY, SEARCH_PATTERN_GENERATED, SAR_RECEIVED_CLOUD;
+public enum SRUUpdateEvent {
+    SRU_ADDED, SRU_REMOVED, SRU_VISIBILITY_CHANGED, SRU_CHANGED, SRU_STATUS_CHANGED, CLOUD_MESSAGE;
     
-    public boolean is(VOCTUpdateEvent... events) {
+    public boolean is(SRUUpdateEvent... events) {
         return EnumSet.copyOf(Arrays.asList(events)).contains(this);
     }
 };

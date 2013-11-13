@@ -53,17 +53,20 @@ import dk.dma.epd.common.prototype.gui.voct.ButtonsPanelCommon;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.voct.SRUUpdateEvent;
+import dk.dma.epd.shore.voct.SRUUpdateListener;
 import dk.dma.epd.shore.voct.VOCTManager;
 
 public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
         ActionListener, ListSelectionListener, TableModelListener,
-        MouseListener {
+        MouseListener, SRUUpdateListener {
 
     private static final long serialVersionUID = 1L;
 
     private JButton btnSendSar;
 
-//    protected EffortAllocationWindow effortAllocationWindow = new EffortAllocationWindow();
+    // protected EffortAllocationWindow effortAllocationWindow = new
+    // EffortAllocationWindow();
 
     private VOCTManager voctManager;
 
@@ -78,10 +81,10 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
     private JScrollPane sruScrollPane;
     private JTable sruTable;
     private SARTrackingTableModel sruTableModel;
-    
+
     private ListSelectionModel sruSelectionModel;
     private JButton btnManageSarTracking;
-    
+
     private VOCTCommunicationWindow voctCommsWindow = new VOCTCommunicationWindow();
 
     public SARPanelTracking() {
@@ -102,8 +105,9 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
     public void setVoctManager(VOCTManager voctManager) {
         this.voctManager = voctManager;
 
-         voctCommsWindow.setVoctManager(this.voctManager);
+        voctCommsWindow.setVoctManager(this.voctManager);
         // searchPatternDialog.setVoctManager(voctManager);
+        EPDShore.getVoctManager().getSruManager().addListener(this);
     }
 
     private void initGUI() {
@@ -128,7 +132,9 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
         add(lblSAR, gbc_lblSAR);
 
         statusPanel = new JPanel();
-        statusPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Vessels currently tracked", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        statusPanel.setBorder(new TitledBorder(UIManager
+                .getBorder("TitledBorder.border"), "Vessels currently tracked",
+                TitledBorder.LEADING, TitledBorder.TOP, null, null));
         GridBagConstraints gbc_statusPanel = new GridBagConstraints();
         gbc_statusPanel.insets = new Insets(0, 0, 5, 0);
         gbc_statusPanel.fill = GridBagConstraints.BOTH;
@@ -138,32 +144,31 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
         GridBagLayout gbl_statusPanel = new GridBagLayout();
         gbl_statusPanel.columnWidths = new int[] { 32, 28, 0 };
         gbl_statusPanel.rowHeights = new int[] { 14, 0 };
-        gbl_statusPanel.columnWeights = new double[] { };
-        gbl_statusPanel.rowWeights = new double[] { };
+        gbl_statusPanel.columnWeights = new double[] {};
+        gbl_statusPanel.rowWeights = new double[] {};
         statusPanel.setLayout(gbl_statusPanel);
 
         buttonPanel = new JPanel();
-        buttonPanel.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        buttonPanel.setBorder(new TitledBorder(UIManager
+                .getBorder("TitledBorder.border"), "", TitledBorder.LEADING,
+                TitledBorder.TOP, null, null));
         GridBagConstraints gbc_buttonPanel = new GridBagConstraints();
         gbc_buttonPanel.insets = new Insets(0, 0, 5, 0);
         gbc_buttonPanel.fill = GridBagConstraints.BOTH;
         gbc_buttonPanel.gridx = 0;
         gbc_buttonPanel.gridy = 2;
         add(buttonPanel, gbc_buttonPanel);
-                buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-        
-                btnSendSar = new JButton("Send SAR");
-                buttonPanel.add(btnSendSar);
-                
-                btnManageSarTracking = new JButton("Manage SAR Tracking");
-                buttonPanel.add(btnManageSarTracking);
-                
-                btnSendSar.addActionListener(this);
-                btnManageSarTracking.addActionListener(this);
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
-        
+        btnSendSar = new JButton("Send SAR");
+        buttonPanel.add(btnSendSar);
 
-        
+        btnManageSarTracking = new JButton("Manage SAR Tracking");
+        buttonPanel.add(btnManageSarTracking);
+
+        btnSendSar.addActionListener(this);
+        btnManageSarTracking.addActionListener(this);
+
         DefaultTableModel model = new DefaultTableModel(30, 3);
 
         sruTable = new JTable(model) {
@@ -287,7 +292,8 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
 
             try {
                 EPDShore.getEnavServiceHandler().sendVOCTMessage(0,
-                        voctManager.getSarData(), "OSC", "Please Join", 0, true, true);
+                        voctManager.getSarData(), "OSC", "Please Join", 0,
+                        true, true);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -300,7 +306,7 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
             }
 
         }
-        
+
         if (arg0.getSource() == btnManageSarTracking) {
 
             // We have a SAR in progress
@@ -317,7 +323,6 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
             }
             return;
         }
-        
 
         // if (arg0.getSource() == btnStartSar
         // || arg0.getSource() == btnReopenCalculations) {
@@ -394,47 +399,54 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
 
     }
 
-
     @Override
     public void mouseClicked(MouseEvent arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void mouseEntered(MouseEvent arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void mouseExited(MouseEvent arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void mousePressed(MouseEvent arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void mouseReleased(MouseEvent arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void tableChanged(TableModelEvent arg0) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void valueChanged(ListSelectionEvent arg0) {
         // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void sruUpdated(SRUUpdateEvent e, int id) {
         
+        if (e == SRUUpdateEvent.CLOUD_MESSAGE){
+            sruTableModel.fireTableDataChanged();
+        }
     }
 
 }

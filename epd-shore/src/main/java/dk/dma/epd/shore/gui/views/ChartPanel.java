@@ -367,8 +367,6 @@ public class ChartPanel extends CommonChartPanel {
             encLayer = encLayerFactory.getEncLayer();
         }
 
-        
-        
         map = new BufferedLayerMapBean();
 
         mouseDelegator = new MouseDelegator();
@@ -384,10 +382,10 @@ public class ChartPanel extends CommonChartPanel {
         mouseDelegator.addMouseMode(selectMouseMode);
         mouseDelegator.addMouseMode(routeEditMouseMode);
 
-        if (type != MapFrameType.SAR_Planning || type != MapFrameType.SAR_Tracking){
-            setMouseMode(mainFrame.getMouseMode());    
+        if (type != MapFrameType.SAR_Planning
+                || type != MapFrameType.SAR_Tracking) {
+            setMouseMode(mainFrame.getMouseMode());
         }
-        
 
         mapHandler.add(dragMouseMode);
         mapHandler.add(mapNavMouseMode);
@@ -462,6 +460,7 @@ public class ChartPanel extends CommonChartPanel {
             voctLayer.setVisible(true);
             mapHandler.add(voctLayer);
             mapHandler.add(EPDShore.getVoctManager());
+            mapHandler.add(EPDShore.getSRUManager());
         }
 
         if (type == MapFrameType.SAR_Tracking) {
@@ -469,6 +468,7 @@ public class ChartPanel extends CommonChartPanel {
             voctLayer.setVisible(true);
             mapHandler.add(voctLayer);
             mapHandler.add(EPDShore.getVoctManager());
+            mapHandler.add(EPDShore.getSRUManager());
         }
 
         // Add AIS Layer

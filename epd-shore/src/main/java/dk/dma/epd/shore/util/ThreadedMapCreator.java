@@ -272,7 +272,7 @@ public class ThreadedMapCreator implements Runnable {
             window.setTitle("Search and Rescue - Tracking");
 
             // Put Tracking on left side of screen
-            window.setLocation((int) mainFrameSize.getWidth() / 2 - 10, 0);
+            window.setLocation((int) mainFrameSize.getWidth() / 2 -10 , 0);
             window.setSize((int) mainFrameSize.getWidth() / 2 - 10,
                     (int) mainFrameSize.getHeight() - 10);
             for (int i = 0; i < EPDShore.getMainFrame().getMapWindows().size(); i++) {
@@ -281,7 +281,7 @@ public class ThreadedMapCreator implements Runnable {
                             .getMapWindows().get(i);
                     planningWindow.setLocation(0, 0);
                     planningWindow.setSize(
-                            (int) mainFrameSize.getWidth() / 2 - 20,
+                            (int) mainFrameSize.getWidth() / 2 - 10,
                             (int) mainFrameSize.getHeight() - 10);
                     break;
                 }

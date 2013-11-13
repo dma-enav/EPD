@@ -19,6 +19,7 @@ import com.bbn.openmap.geo.Geo;
 import com.bbn.openmap.geo.Intersection;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
+import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
@@ -57,13 +58,29 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
     
     public EffectiveSRUAreaGraphics(Position A, Position B, Position C, Position D, int id, String labelName){
         super();
+
+        
+        verticalBearing = Calculator.bearing(A,
+                C, Heading.RL);
+        horizontalBearing = Calculator.bearing(A,
+                B, Heading.RL);        
+        
+        
+        
         
         this.A = A;
         this.B = B;
         this.C = C;
         this.D = D;
         
-        effectiveArea = new AreaInternalGraphics(A, B, C, D, 0.0, 0.0,
+        double width = Converter.metersToNm(A.distanceTo(B, CoordinateSystem.CARTESIAN));
+        
+        double height = Converter.metersToNm(A.distanceTo(C, CoordinateSystem.CARTESIAN));
+        
+        System.out.println("Width is " + width);
+        System.out.println("Height is : "+ height);
+        
+        effectiveArea = new AreaInternalGraphics(A, B, C, D, width, height,
                 this, verticalBearing, horizontalBearing, labelName);
 
         topLine = new SarEffectiveAreaLines(A, B, LineType.TOP, this);

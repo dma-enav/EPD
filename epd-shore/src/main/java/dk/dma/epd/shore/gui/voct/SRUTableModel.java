@@ -71,6 +71,8 @@ public class SRUTableModel extends AbstractTableModel {
             LOG.error("Unknown column " + columnIndex);
             return new String("");
         }
+        
+
     }
 
     @Override

@@ -57,10 +57,12 @@ import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.voct.SRU;
 import dk.dma.epd.shore.voct.SRU.SRU_TYPE;
 import dk.dma.epd.shore.voct.SRUManager;
+import dk.dma.epd.shore.voct.SRUUpdateEvent;
+import dk.dma.epd.shore.voct.SRUUpdateListener;
 import dk.dma.epd.shore.voct.VOCTManager;
 
 public class EffortAllocationWindow extends EffortAllocationWindowCommon
-        implements ListSelectionListener, MouseListener, TableModelListener {
+        implements ListSelectionListener, MouseListener, TableModelListener, SRUUpdateListener {
     private static final long serialVersionUID = 1L;
 
     private final JPanel initPanel = new JPanel();
@@ -156,6 +158,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
     public void setVoctManager(VOCTManager voctManager) {
         this.voctManager = voctManager;
         sruManager = voctManager.getSruManager();
+        sruManager.addListener(this);
     }
 
     private void initPanel() {
@@ -678,5 +681,11 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
     public void tableChanged(TableModelEvent arg0) {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public void sruUpdated(SRUUpdateEvent e, int id) {
+        sruTableModel.updateCalculateTable();
+        sruTableModel.fireTableDataChanged();
     }
 }
