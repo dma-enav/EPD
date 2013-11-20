@@ -55,7 +55,7 @@ import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
 import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetTriangle;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
 import dk.dma.epd.common.util.Util;
@@ -442,8 +442,8 @@ public class AisLayer extends OMGraphicHandlerLayer implements
             mainFrame.getGlassPanel().add(aisTargetInfoPanel);
             mainFrame.getGlassPanel().add(sarTargetInfoPanel);
         }
-        if (obj instanceof GpsHandler) {
-            sarTargetInfoPanel.setGpsHandler((GpsHandler) obj);
+        if (obj instanceof PntHandler) {
+            sarTargetInfoPanel.setGpsHandler((PntHandler) obj);
         }
         if (obj instanceof MapMenu) {
             aisTargetMenu = (MapMenu) obj;

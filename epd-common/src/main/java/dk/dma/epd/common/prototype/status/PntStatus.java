@@ -16,19 +16,19 @@
 package dk.dma.epd.common.prototype.status;
 
 import net.jcip.annotations.ThreadSafe;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.text.Formatter;
 
 /**
- * GPS status
+ * PNT status
  */
 @ThreadSafe
-public class GpsStatus extends ComponentStatus {
+public class PntStatus extends ComponentStatus {
     
-    private GpsData currentData;
+    private PntData currentData;
 
-    public GpsStatus(GpsData currentData) {
-        super("GPS");
+    public PntStatus(PntData currentData) {
+        super("PNT");
         this.currentData = currentData;
         if (!currentData.isBadPosition()) {
             setStatus(ComponentStatus.Status.OK);
@@ -38,7 +38,7 @@ public class GpsStatus extends ComponentStatus {
         long elapsed = System.currentTimeMillis() - currentData.getLastUpdated().getTime();
         if (elapsed > 10000) {
             setStatus(ComponentStatus.Status.ERROR);
-            setShortStatusText("No GPS data");
+            setShortStatusText("No PNT data");
             return;
         }
         setStatus(ComponentStatus.Status.PARTIAL);
@@ -49,7 +49,7 @@ public class GpsStatus extends ComponentStatus {
     public synchronized String getStatusHtml() {
         StringBuilder buf = new StringBuilder();
         buf.append("Position: " + status.name() + "<br/>");
-        buf.append("Last GPS data: " + Formatter.formatLongDateTime(currentData.getLastUpdated()));
+        buf.append("Last PNT data: " + Formatter.formatLongDateTime(currentData.getLastUpdated()));
         return buf.toString();
     }
 

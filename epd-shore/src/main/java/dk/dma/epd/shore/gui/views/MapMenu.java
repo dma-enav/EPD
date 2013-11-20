@@ -56,7 +56,8 @@ import dk.dma.epd.shore.gui.views.menuitems.AisIntendedRouteToggle;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralHideIntendedRoutes;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralNewRoute;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralShowIntendedRoutes;
-import dk.dma.epd.shore.gui.views.menuitems.IMapMenuAction;
+import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.shore.gui.views.menuitems.MsiAcknowledge;
 import dk.dma.epd.shore.gui.views.menuitems.MsiDetails;
 import dk.dma.epd.shore.gui.views.menuitems.MsiZoomTo;
@@ -79,7 +80,6 @@ import dk.dma.epd.shore.gui.views.menuitems.SendVoyage;
 import dk.dma.epd.shore.gui.views.menuitems.ShowVoyagePlanInfo;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageDeleteMenuItem;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingAppendWaypoint;
-import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingLegInsertWaypoint;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingOptimizeRoute;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingWaypointDelete;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHideAll;
@@ -265,7 +265,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         
         // voyage leg menu
         voyageHandlingLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint(
-                "Insert waypoint here");
+                "Insert waypoint here", EPDShore.getVoyageEventDispatcher());
         voyageHandlingLegInsertWaypoint.addActionListener(this);
 
         voyageHandlingWaypointDelete = new VoyageHandlingWaypointDelete(
@@ -660,8 +660,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         } else {
 
             voyageHandlingLegInsertWaypoint.setMapBean(mapBean);
-            voyageHandlingLegInsertWaypoint
-                    .setVoyageHandlingLayer(voyageHandlingLayer);
+//            voyageHandlingLegInsertWaypoint
+//                    .setVoyageHandlingLayer(voyageHandlingLayer);
             voyageHandlingLegInsertWaypoint.setRoute(route);
             voyageHandlingLegInsertWaypoint.setRouteLeg(routeLeg);
             voyageHandlingLegInsertWaypoint.setPoint(point);

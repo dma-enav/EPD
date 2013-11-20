@@ -48,15 +48,16 @@ import dk.dma.enav.communication.PersistentConnection;
 import dk.dma.enav.communication.PersistentConnection.State;
 import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensorFactory;
-import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
-import dk.dma.epd.common.prototype.sensor.nmea.SensorType;
+import dk.dma.epd.common.prototype.sensor.pnt.MultiSourcePntHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.common.prototype.settings.SensorSettings.PntSource;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -80,7 +81,7 @@ import dk.dma.epd.ship.settings.EPDSettings;
  * Starts up components, bean context and GUI.
  * 
  */
-public class EPDShip  extends EPD {
+public class EPDShip extends EPD {
 
     private static Logger LOG;
     static MainFrame mainFrame;
@@ -89,7 +90,9 @@ public class EPDShip  extends EPD {
     static Properties properties = new Properties();
     private static NmeaSensor aisSensor;
     private static NmeaSensor gpsSensor;
-    private static GpsHandler gpsHandler;
+    private static NmeaSensor msPntSensor;
+    private static PntHandler pntHandler;
+    private static MultiSourcePntHandler msPntHandler;
     private static AisHandler aisHandler;
     private static RiskHandler riskHandler;
     private static RouteManager routeManager;
@@ -102,11 +105,15 @@ public class EPDShip  extends EPD {
     private static EnavServiceHandler enavServiceHandler;
     private static DynamicNogoHandler dynamicNoGoHandler;
     private static TransponderFrame transponderFrame;
+
     private static VOCTManager voctManager;
 
 
+    private static VoyageEventDispatcher voyageEventDispatcher;
+
+
     public static void main(String[] args) throws IOException {
-        
+
         home = Paths.get(System.getProperty("user.home"), ".epd-ship");
 
         new Bootstrap().run();
@@ -118,7 +125,7 @@ public class EPDShip  extends EPD {
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
 
         // Determine version
-        LOG.info("Starting eNavigation Prototype Display Ship - version " + VersionInfo.getVersion());
+        LOG.info("Starting eNavigation Prototype Display Ship - version " + VersionInfo.getVersionAndBuild());
         LOG.info("Copyright (C) 2011 Danish Maritime Authority");
         LOG.info("This program comes with ABSOLUTELY NO WARRANTY.");
         LOG.info("This is free software, and you are welcome to redistribute it under certain conditions.");
@@ -146,21 +153,16 @@ public class EPDShip  extends EPD {
             System.exit(1);
         }
 
-        // Start sensors
-        startSensors();
-
         // start riskHandler
         startRiskHandler();
 
-        // Enable GPS timer by adding it to bean context
-        GnssTime.init();
-        mapHandler.add(GnssTime.getInstance());
+        // Enable PNT timer by adding it to bean context
+        PntTime.init();
+        mapHandler.add(PntTime.getInstance());
 
         // Start position handler and add to bean context
-        gpsHandler = new GpsHandler();
-        mapHandler.add(gpsHandler);
-
-
+        pntHandler = new PntHandler();
+        mapHandler.add(pntHandler);
 
         // Start AIS target monitoring
         aisHandler = new AisHandler(settings.getSensorSettings(), settings.getAisSettings());
@@ -208,13 +210,19 @@ public class EPDShip  extends EPD {
 
         strategicRouteExchangeHandler = new StrategicRouteExchangeHandler();
         mapHandler.add(strategicRouteExchangeHandler);
-        // // Create enav cloud handler
+        // // Create cloud handler
         // enavCloudHandler = new EnavCloudHandler(settings.getEnavSettings());
         // mapHandler.add(enavCloudHandler);
 
+        // Create voyage event dispatcher
+        voyageEventDispatcher = new VoyageEventDispatcher();
+
+        // Start sensors
+        startSensors();
+
         // Create plugin components
         createPluginComponents();
-        
+
         final CountDownLatch guiCreated = new CountDownLatch(1);
 
         // Create and show GUI
@@ -225,7 +233,7 @@ public class EPDShip  extends EPD {
                 guiCreated.countDown();
             }
         });
-        
+
         // Wait for gui to be created
         try {
             guiCreated.await();
@@ -236,11 +244,10 @@ public class EPDShip  extends EPD {
         // Create embedded transponder frame
         transponderFrame = new TransponderFrame(home.resolve("transponder.xml").toString(), true, mainFrame);
         mapHandler.add(transponderFrame);
-        
+
         if (settings.getSensorSettings().isStartTransponder()) {
             transponderFrame.startTransponder();
         }
-        
 
     }
 
@@ -248,13 +255,13 @@ public class EPDShip  extends EPD {
         EPDSensorSettings sensorSettings = settings.getSensorSettings();
         switch (sensorSettings.getAisConnectionType()) {
         case NONE:
-            aisSensor = new NmeaStdinSensor();
+            aisSensor = null;
             break;
         case TCP:
             aisSensor = new NmeaTcpSensor(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisTcpPort());
             break;
         case SERIAL:
-            //aisSensor = new NmeaSerialSensor(sensorSettings.getAisHostOrSerialPort());
+            // aisSensor = new NmeaSerialSensor(sensorSettings.getAisHostOrSerialPort());
             aisSensor = NmeaSerialSensorFactory.create(sensorSettings.getAisHostOrSerialPort());
             break;
         case FILE:
@@ -264,13 +271,9 @@ public class EPDShip  extends EPD {
             LOG.error("Unknown sensor connection type: " + sensorSettings.getAisConnectionType());
         }
 
-        if (aisSensor != null) {
-            aisSensor.addSensorType(SensorType.AIS);
-        }
-
         switch (sensorSettings.getGpsConnectionType()) {
         case NONE:
-            gpsSensor = new NmeaStdinSensor();
+            gpsSensor = null;
             break;
         case TCP:
             gpsSensor = new NmeaTcpSensor(sensorSettings.getGpsHostOrSerialPort(), sensorSettings.getGpsTcpPort());
@@ -281,26 +284,68 @@ public class EPDShip  extends EPD {
         case FILE:
             gpsSensor = new NmeaFileSensor(sensorSettings.getGpsFilename(), sensorSettings);
             break;
-        case AIS_SHARED:
-            gpsSensor = aisSensor;
-            break;
         default:
-            LOG.error("Unknown sensor connection type: " + sensorSettings.getAisConnectionType());
+            LOG.error("Unknown sensor connection type: " + sensorSettings.getGpsConnectionType());
         }
 
-        if (gpsSensor != null) {
-            gpsSensor.addSensorType(SensorType.GPS);
+        switch (sensorSettings.getMsPntConnectionType()) {
+        case NONE:
+            msPntSensor = null;
+            break;
+        case TCP:
+            msPntSensor = new NmeaTcpSensor(sensorSettings.getMsPntHostOrSerialPort(), sensorSettings.getMsPntTcpPort());
+            break;
+        case SERIAL:
+            msPntSensor = NmeaSerialSensorFactory.create(sensorSettings.getMsPntHostOrSerialPort());
+            break;
+        case FILE:
+            msPntSensor = new NmeaFileSensor(sensorSettings.getMsPntFilename(), sensorSettings);
+            break;
+        default:
+            LOG.error("Unknown sensor connection type: " + sensorSettings.getMsPntConnectionType());
         }
 
         if (aisSensor != null) {
+            aisSensor.addAisListener(aisHandler);
             aisSensor.start();
-            // Add ais sensor to bean context
             mapHandler.add(aisSensor);
         }
-        if (gpsSensor != null && gpsSensor != aisSensor) {
+        if (gpsSensor != null) {
             gpsSensor.start();
-            // Add gps sensor to bean context
             mapHandler.add(gpsSensor);
+        }
+        if (msPntSensor != null) {
+            msPntSensor.start();
+            mapHandler.add(msPntSensor);
+        }
+
+        // Hook pnt handler to sensor
+        PntSource pntSource = sensorSettings.getPntSource();
+        if (pntSource == PntSource.AUTO) {
+            if (msPntSensor != null) {
+                pntSource = PntSource.MSPNT;
+            } else if (gpsSensor != null) {
+                pntSource = PntSource.GPS;
+            } else if (aisSensor != null) {
+                pntSource = PntSource.AIS;
+            }
+        }
+
+        switch (pntSource) {
+        case AIS:
+            aisSensor.addPntListener(pntHandler);
+            aisSensor.addPntTimeListener(PntTime.getInstance());
+            break;
+        case GPS:
+            gpsSensor.addPntListener(pntHandler);
+            gpsSensor.addPntTimeListener(PntTime.getInstance());
+            break;
+        case MSPNT:
+            msPntHandler = new MultiSourcePntHandler(pntHandler);
+            msPntSensor.addMsPntListener(msPntHandler);
+            break;
+        default:
+            break;
         }
 
     }
@@ -462,35 +507,33 @@ public class EPDShip  extends EPD {
 
     private static void initLookAndFeel() {
         try {
-//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            
+            // UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
             Properties props = new Properties();
             props.put("logoString", "EPD-Ship");
             props.put("backgroundPattern", "false");
             props.put("textAntiAliasingMode", "TEXT_ANTIALIAS_VBGR");
-//            props.put("menuOpaque", "true");
-//            props.put("tooltipCastShadow", "true");
-            
-            //small font
+            // props.put("menuOpaque", "true");
+            // props.put("tooltipCastShadow", "true");
+
+            // small font
             props.setProperty("controlTextFont", "Dialog 10");
             props.setProperty("systemTextFont", "Dialog 10");
             props.setProperty("userTextFont", "Dialog 10");
             props.setProperty("menuTextFont", "Dialog 10");
             props.setProperty("windowTitleFont", "Dialog bold 10");
             props.setProperty("subTextFont", "Dialog 8");
-            
-            
-//            props.put("tooltipBorderSize", "15");
-//            props.put("tooltipShadowSize", "15");
 
-//          NoireLookAndFeel laf = new NoireLookAndFeel();
+            // props.put("tooltipBorderSize", "15");
+            // props.put("tooltipShadowSize", "15");
+
+            // NoireLookAndFeel laf = new NoireLookAndFeel();
             HiFiLookAndFeel laf = new HiFiLookAndFeel();
-//          NoireLookAndFeel.setCurrentTheme(props);
+            // NoireLookAndFeel.setCurrentTheme(props);
             HiFiLookAndFeel.setCurrentTheme(props);
-            
+
             UIManager.setLookAndFeel(laf);
-            
-            
+
         } catch (Exception e) {
             LOG.error("Failed to set look and feed: " + e.getMessage());
         }
@@ -515,7 +558,7 @@ public class EPDShip  extends EPD {
         routeManager.saveToFile();
         msiHandler.saveToFile();
         aisHandler.saveView();
-        transponderFrame.shutdown();        
+        transponderFrame.shutdown();
 
         if (connection != null) {
             try {
@@ -576,8 +619,8 @@ public class EPDShip  extends EPD {
         return gpsSensor;
     }
 
-    public static GpsHandler getGpsHandler() {
-        return gpsHandler;
+    public static PntHandler getPntHandler() {
+        return pntHandler;
     }
 
     public static MainFrame getMainFrame() {
@@ -622,6 +665,15 @@ public class EPDShip  extends EPD {
      */
     public static StrategicRouteExchangeHandler getStrategicRouteExchangeHandler() {
         return strategicRouteExchangeHandler;
+    }
+
+    /**
+     * Get the system wide voyage event dispatcher.
+     * 
+     * @return the voyageEventDispatcher
+     */
+    public static VoyageEventDispatcher getVoyageEventDispatcher() {
+        return voyageEventDispatcher;
     }
 
     @Override

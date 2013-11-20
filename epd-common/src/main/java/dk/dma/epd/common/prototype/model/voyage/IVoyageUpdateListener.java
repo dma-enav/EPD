@@ -13,13 +13,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.sensor.nmea;
+package dk.dma.epd.common.prototype.model.voyage;
+
+import dk.dma.epd.common.prototype.model.route.Route;
 
 /**
- * Interface to implement to receive GPS messages 
+ * @author Janus Varmarken
  */
-public interface IGpsListener {
-    
-    void receive(GpsMessage gpsMessage);
+public interface IVoyageUpdateListener {
+
+    /**
+     * Notify this listener of an update to a voyage.
+     * 
+     * @param typeOfUpdate
+     *            Specifies what kind of update this is.
+     * @param updatedVoyage
+     *            The voyage that was updated.
+     * @param routeIndex
+     *            Index used to define the voyage type (e.g. is it a STCC voyage
+     *            or a modified STCC voyage)
+     */
+    void voyageUpdated(VoyageUpdateEvent typeOfUpdate, Route updatedVoyage,
+            int routeIndex);
 
 }

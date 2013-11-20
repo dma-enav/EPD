@@ -13,17 +13,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.sensor.gps;
+package dk.dma.epd.common.prototype.sensor.pnt;
 
 /**
- * Interface to implement for classes wanting to receive GPS updates 
+ * Interface to implement for classes wanting to receive PNT updates 
  */
-public interface IGpsDataListener {
+public interface IPntDataListener {
     
     /**
      * Method called when the position of ship changes, or the known position is lost
-     * @param gpsData 
+     * @param pntData 
      */
-    void gpsDataUpdate(GpsData gpsData);
+    void gpsDataUpdate(PntData pntData);
 
 }

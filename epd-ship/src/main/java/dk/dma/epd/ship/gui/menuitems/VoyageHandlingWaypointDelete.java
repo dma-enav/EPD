@@ -16,17 +16,18 @@
 package dk.dma.epd.ship.gui.menuitems;
 
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.voyage.VoyageUpdateEvent;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 
 /**
  * @author Janus Varmarken
  */
-public class VoyageAppendWaypoint extends JMenuItem implements IMapMenuAction {
+public class VoyageHandlingWaypointDelete extends JMenuItem implements
+        IMapMenuAction {
 
     /**
      * 
@@ -34,43 +35,63 @@ public class VoyageAppendWaypoint extends JMenuItem implements IMapMenuAction {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Route to which waypoint is to be appended.
+     * The voyage that this menu item modifies.
      */
     private Route route;
-
+    
     /**
      * Index that specifies the type of the voyage associated with this menu
      * item (e.g. a modified STCC route).
      */
     private int routeIndex;
 
-    public VoyageAppendWaypoint(String menuItemText) {
+    /**
+     * The index of the waypoint that is to be deleted.
+     */
+    private int voyageWaypointIndex;
+
+    public VoyageHandlingWaypointDelete(String menuItemText) {
         super(menuItemText);
     }
 
     @Override
     public void doAction() {
-        System.out.println("VoyageAppendWaypoint clicked!");
-        this.route.appendWaypoint();
-        // Notify listeners of the new waypoint
-        EPDShip.getVoyageEventDispatcher().notifyListenersOfVoyageUpdate(
-                VoyageUpdateEvent.WAYPOINT_APPENDED, this.route,
-                this.routeIndex);
+        if (this.route.getWaypoints().size() < 3) {
+            JOptionPane.showMessageDialog(EPDShip.getMainFrame(),
+                    "You cannot delete the waypoint as this would "
+                            + "create a route with no travel distance.");
+        } else {
+            this.route.deleteWaypoint(this.voyageWaypointIndex);
+            EPDShip.getVoyageEventDispatcher().notifyListenersOfVoyageUpdate(
+                    VoyageUpdateEvent.WAYPOINT_DELETED, this.route, this.routeIndex);
+        }
     }
 
     /**
-     * Set the route that this menu item will append waypoint(s) to.
+     * Set the route that this menu item will modify (by deleting a waypoint)
+     * when its doAction is invoked.
      * 
-     * @param r
-     *            The route to which waypoints will be appended.
+     * @param routeToBeModified
+     *            The route that will have waypoint(s) deleted by invocations of
+     *            this menu item.
      */
-    public void setRoute(Route r) {
-        this.route = r;
+    public void setRoute(Route routeToBeModified) {
+        this.route = routeToBeModified;
+    }
+
+    /**
+     * Set the index of the waypoint that is to be deleted.
+     * 
+     * @param waypointIndex
+     *            The index of the waypoint that is to be deleted.
+     */
+    public void setVoyageWaypointIndex(int waypointIndex) {
+        this.voyageWaypointIndex = waypointIndex;
     }
 
     /**
      * Set the route index that specifies the "type" of the route associated
-     * with this menu item (e.g. if it is a modified STCC rotue)
+     * with this menu item (e.g. if it is a modified STCC route)
      * 
      * @param routeIndex
      *            The new route index.

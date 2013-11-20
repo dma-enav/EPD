@@ -44,6 +44,8 @@ import com.bbn.openmap.MouseDelegator;
 
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
@@ -51,7 +53,7 @@ import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -62,7 +64,6 @@ import dk.dma.epd.ship.gui.menuitems.GeneralClearMap;
 import dk.dma.epd.ship.gui.menuitems.GeneralHideIntendedRoutes;
 import dk.dma.epd.ship.gui.menuitems.GeneralNewRoute;
 import dk.dma.epd.ship.gui.menuitems.GeneralShowIntendedRoutes;
-import dk.dma.epd.ship.gui.menuitems.IMapMenuAction;
 import dk.dma.epd.ship.gui.menuitems.MonaLisaRouteRequest;
 import dk.dma.epd.ship.gui.menuitems.MsiAcknowledge;
 import dk.dma.epd.ship.gui.menuitems.MsiDetails;
@@ -86,10 +87,10 @@ import dk.dma.epd.ship.gui.menuitems.SarTargetDetails;
 import dk.dma.epd.ship.gui.menuitems.SendToSTCC;
 import dk.dma.epd.ship.gui.menuitems.SuggestedRouteDetails;
 import dk.dma.epd.ship.gui.menuitems.VoyageAppendWaypoint;
+import dk.dma.epd.ship.gui.menuitems.VoyageHandlingWaypointDelete;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
-import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.route.strategic.RecievedRoute;
@@ -140,6 +141,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private RouteEditEndRoute routeEditEndRoute;
     private SendToSTCC sendToSTCC;
     private VoyageAppendWaypoint voyageAppendWaypoint;
+    private VoyageHandlingWaypointDelete voyageDeleteWaypoint;
+    private VoyageHandlingLegInsertWaypoint voyageLegInsertWaypoint;
     // bean context
     protected String propertyPrefix;
     protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(
@@ -147,7 +150,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     protected boolean isolated;
     private RouteManager routeManager;
     private MainFrame mainFrame;
-    private GpsHandler gpsHandler;
+    private PntHandler gpsHandler;
     private Route route;
     private RouteSuggestionDialog routeSuggestionDialog;
     MapBean mapBean;
@@ -264,10 +267,14 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         // route edit menu
         routeEditEndRoute = new RouteEditEndRoute("End route");
         routeEditEndRoute.addActionListener(this);
-
-        // Route negotiation items
+    
+        // Init STCC Route negotiation items
         this.voyageAppendWaypoint = new VoyageAppendWaypoint("Append waypoint");
         this.voyageAppendWaypoint.addActionListener(this);
+        this.voyageDeleteWaypoint = new VoyageHandlingWaypointDelete("Delete waypoint");
+        this.voyageDeleteWaypoint.addActionListener(this);
+        this.voyageLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint("Insert waypoint here", EPDShip.getVoyageEventDispatcher());
+        this.voyageLegInsertWaypoint.addActionListener(this);
     }
 
     /**
@@ -502,10 +509,28 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
     }
 
-    public void addAppendWaypointMenuItem(Route route, VoyageLayer vl) {
-        this.voyageAppendWaypoint.setVoyageLayer(vl);
+    public void addVoyageHandlingWaypointAppendMenuItem(Route route, int routeIndex) {
+        // Update associated route + route index
+        this.voyageAppendWaypoint.setRouteIndex(routeIndex);
         this.voyageAppendWaypoint.setRoute(route);
         this.add(this.voyageAppendWaypoint);
+    }
+    
+    public void addVoyageHandlingWaypointDeleteMenuItem(Route route, int routeIndex, int waypointIndex)
+    {
+        this.voyageDeleteWaypoint.setRouteIndex(routeIndex);
+        this.voyageDeleteWaypoint.setRoute(route);
+        this.voyageDeleteWaypoint.setVoyageWaypointIndex(waypointIndex);
+        this.add(this.voyageDeleteWaypoint);
+    }
+    
+    public void addVoyageHandlingLegInsertWaypointMenuItem(Route route, RouteLeg routeLeg, Point point, int routeIndex) {
+        this.voyageLegInsertWaypoint.setMapBean(this.mapBean);
+        this.voyageLegInsertWaypoint.setRoute(route);
+        this.voyageLegInsertWaypoint.setRouteLeg(routeLeg);
+        this.voyageLegInsertWaypoint.setPoint(point);
+        this.voyageLegInsertWaypoint.setRouteIndex(routeIndex);
+        this.add(this.voyageLegInsertWaypoint);
     }
 
     public void generalRouteMenu(int routeIndex) {
@@ -708,8 +733,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         if (obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
         }
-        if (obj instanceof GpsHandler) {
-            gpsHandler = (GpsHandler) obj;
+        if (obj instanceof PntHandler) {
+            gpsHandler = (PntHandler) obj;
         }
         if (obj instanceof NogoHandler) {
             nogoHandler = (NogoHandler) obj;

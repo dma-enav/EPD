@@ -43,9 +43,7 @@ public class AtonTargetGraphic extends TargetGraphic {
     }
 
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings,
-            NavSettings navSettings) {
-        System.out.println("Aton target update received: " + atonMark);
+    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings) {
         atonTarget = (AtoNTarget) aisTarget;
         Position pos = atonTarget.getPos();
         if (pos == null) {
@@ -60,8 +58,7 @@ public class AtonTargetGraphic extends TargetGraphic {
         }
 
         if (atonMark == null) {
-            atonMark = new CenterRaster(lat, lon, atonImage.getIconWidth(),
-                    atonImage.getIconHeight(), atonImage);
+            atonMark = new CenterRaster(lat, lon, atonImage.getIconWidth(), atonImage.getIconHeight(), atonImage);
             add(atonMark);
         } else {
             atonMark.setLat(lat);
@@ -70,8 +67,7 @@ public class AtonTargetGraphic extends TargetGraphic {
     }
 
     @Override
-    public void setMarksVisible(Projection projection, AisSettings aisSettings,
-            NavSettings navSettings) {
+    public void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings) {
 
     }
 
@@ -106,62 +102,65 @@ public class AtonTargetGraphic extends TargetGraphic {
         case LEADING_LIGHT_FRONT:
         case LEADING_LIGHT_REAR:
         case LIGHT_VESSEL_OR_LANBY_OR_RIGS:
-            sb.append("aton-default.png");
+            sb.append("aton-default.PNG");
             break;
         // </Group using same icon>
         case RACON:
-            sb.append("aton-racon.png");
+            sb.append("aton-racon.PNG");
             break;
         case EMERGENCY_WRECK_MARK:
-            sb.append("aton-emergency-wreck-mark.png");
+            sb.append("aton-emergency-wreck-mark.PNG");
             break;
         case BEACON_CARDINAL_N:
         case FLOATING_CARDINAL_MARK_N:
-            sb.append("aton-north-cardinal-mark.png");
+            sb.append("aton-north-cardinal-mark.PNG");
             break;
         case BEACON_CARDINAL_E:
         case FLOATING_CARDINAL_MARK_E:
-            sb.append("aton-east-cardinal-mark.png");
+            sb.append("aton-east-cardinal-mark.PNG");
             break;
         case BEACON_CARDINAL_S:
         case FLOATING_CARDINAL_MARK_S:
-            sb.append("aton-south-cardinal-mark.png");
+            sb.append("aton-south-cardinal-mark.PNG");
             break;
         case BEACON_CARDINAL_W:
         case FLOATING_CARDINAL_MARK_W:
-            sb.append("aton-west-cardinal-mark.png");
+            sb.append("aton-west-cardinal-mark.PNG");
             break;
         case BEACON_PORT_HAND:
         case BEACON_PREFERRED_CHANNEL_PORT_HAND:
         case PORT_HAND_MARK:
         case PREFERRED_CHANNEL_PORT_HAND:
-            sb.append("aton-port-hand-mark.png");
+            sb.append("aton-port-hand-mark.PNG");
             break;
         case BEACON_STARBOARD_HAND:
         case BEACON_PREFERRED_CHANNEL_STARBOARD_HAND:
         case STARBOARD_HAND_MARK:
         case PREFERRED_CHANNEL_STARBOARD_HAND:
-            sb.append("aton-starboard-hand.png");
+            sb.append("aton-starboard-hand.PNG");
             break;
         case BEACON_ISOLATED_DANGER:
         case ISOLATED_DANGER:
-            sb.append("aton-isolated-danger.png");
+            sb.append("aton-isolated-danger.PNG");
             break;
         case BEACON_SAFE_WATER:
         case SAFE_WATER:
-            sb.append("aton-safe-water.png");
+            sb.append("aton-safe-water.PNG");
             break;
         case BEACON_SPECIAL_MARK:
         case SPECIAL_MARK:
-            sb.append("aton-special-mark.png");
+            sb.append("aton-special-mark.PNG");
             break;
         default:
             // TODO how to handle unknown AtoN type?
-            System.err.println("###### INVALID ATON TYPE: "
-                    + atonTarget.getAtonType() + " VIRTUAL = "
-                    + atonTarget.getVirtual() + " ######");
+            System.err.println("###### INVALID ATON TYPE: " + atonTarget.getAtonType() + " VIRTUAL = " + atonTarget.getVirtual()
+                    + " ######");
+            // sb.append("aton-default.png");
+            // Use old default aton image when we cannot decipher type+virtual/physical
+            sb = new StringBuilder();
+            sb.append("/images/aton/aton.png");
+            break;
         }
-        this.atonImage = new ImageIcon(AtonTargetGraphic.class.getResource(sb
-                .toString()));
+        this.atonImage = new ImageIcon(AtonTargetGraphic.class.getResource(sb.toString()));
     }
 }

@@ -46,9 +46,9 @@ import dk.dma.epd.common.prototype.model.route.RouteLoadException;
 import dk.dma.epd.common.prototype.model.route.RouteLoader;
 import dk.dma.epd.common.prototype.model.route.RouteMetocSettings;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.route.RouteSuggestionDialog;
@@ -59,7 +59,7 @@ import dk.dma.epd.shore.settings.ESDEnavSettings;
 /**
  * Manager for handling a collection of routes and active route
  */
-public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManagerCommon implements Runnable, Serializable, IGpsDataListener, IAisRouteSuggestionListener {
+public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManagerCommon implements Runnable, Serializable, IPntDataListener, IAisRouteSuggestionListener {
 
     private static final long serialVersionUID = 1L;
     private static final String ROUTESFILE = EPDShore.getHomePath().resolve(".routes").toString();
@@ -83,7 +83,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
     }
 
     @Override
-    public void gpsDataUpdate(GpsData gpsData) {
+    public void gpsDataUpdate(PntData gpsData) {
         if (!isRouteActive()) {
             return;
         }
@@ -425,7 +425,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         }
         ESDEnavSettings enavSettings = EPDShore.getSettings().getEnavSettings();
         long metocTtl = enavSettings.getMetocTtl() * 60 * 1000;
-        Date now = GnssTime.getInstance().getDate();
+        Date now = PntTime.getInstance().getDate();
         Date metocDate = route.getMetocForecast().getCreated();
         if (now.getTime() - metocDate.getTime() > metocTtl) {
             return true;
@@ -479,7 +479,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
             // Determine if METOC info is old
             ESDEnavSettings enavSettings = EPDShore.getSettings().getEnavSettings();
             long metocTtl = enavSettings.getMetocTtl() * 60 * 1000;
-            Date now = GnssTime.getInstance().getDate();
+            Date now = PntTime.getInstance().getDate();
             Date metocDate = route.getMetocForecast().getCreated();
             if (now.getTime() - metocDate.getTime() > metocTtl) {
                 return false;
@@ -597,7 +597,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         // Find the age of the current METOC
         long metocAge = Long.MAX_VALUE;
         if (getActiveRoute().getMetocForecast() != null) {
-            Date now = GnssTime.getInstance().getDate();
+            Date now = PntTime.getInstance().getDate();
             metocAge = now.getTime() - getActiveRoute().getMetocForecast().getCreated().getTime();
         }
         // Check if minimum time since last update has passed

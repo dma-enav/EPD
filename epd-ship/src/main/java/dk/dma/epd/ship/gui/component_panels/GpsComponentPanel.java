@@ -24,22 +24,22 @@ import com.bbn.openmap.gui.OMComponentPanel;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
-import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.SensorPanel;
 import dk.dma.epd.ship.gui.panels.GPSPanel;
 
 public class GpsComponentPanel extends OMComponentPanel implements
-        IGpsDataListener {
+        IPntDataListener {
 
     private static final long serialVersionUID = 1L;
-    private GpsHandler gpsHandler;
+    private PntHandler gpsHandler;
     private AisHandler aisHandler;
     
-    private GpsData gpsData;
+    private PntData gpsData;
     
     private final GPSPanel gpsPanel = new GPSPanel();
 
@@ -58,20 +58,20 @@ public class GpsComponentPanel extends OMComponentPanel implements
 
 
 
-    public void setGpsData(GpsData gpsData) {
+    public void setGpsData(PntData gpsData) {
         synchronized (SensorPanel.class) {
             this.gpsData = gpsData;
         }
     }
     
-    public GpsData getGpsData() {
+    public PntData getGpsData() {
         synchronized (SensorPanel.class) {
             return gpsData;
         }
     }
     
     @Override
-    public void gpsDataUpdate(GpsData gpsData) {
+    public void gpsDataUpdate(PntData gpsData) {
         this.setGpsData(gpsData);
         Position pos = gpsData.getPosition();
         if (gpsData.isBadPosition() || pos == null) {
@@ -118,8 +118,8 @@ public class GpsComponentPanel extends OMComponentPanel implements
     @Override
     public void findAndInit(Object obj) {
 
-        if (gpsHandler == null && obj instanceof GpsHandler) {
-            gpsHandler = (GpsHandler)obj;
+        if (gpsHandler == null && obj instanceof PntHandler) {
+            gpsHandler = (PntHandler)obj;
             gpsHandler.addListener(this);
         }
         if (aisHandler == null && obj instanceof AisHandler) {

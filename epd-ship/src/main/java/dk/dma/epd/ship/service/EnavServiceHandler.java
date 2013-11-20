@@ -36,7 +36,6 @@ import dk.dma.enav.communication.service.ServiceEndpoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.ship.ShipId;
-import dk.dma.enav.model.voct.RapidResponseDTO;
 import dk.dma.enav.model.voyage.Route;
 import dk.dma.enav.util.function.BiConsumer;
 import dk.dma.enav.util.function.Supplier;
@@ -44,21 +43,21 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.enavcloud.EnavCloudSendThread;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck.StrategicRouteAckMsg;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.CLOUD_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
-import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.status.CloudStatus;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
@@ -78,14 +77,14 @@ import dk.dma.navnet.client.MaritimeNetworkConnectionBuilder;
  * Component offering e-Navigation services
  */
 public class EnavServiceHandler extends MapHandlerChild implements
-        IGpsDataListener, Runnable, IStatusComponent {
+        IPntDataListener, Runnable, IStatusComponent {
 
     private static final Logger LOG = LoggerFactory
             .getLogger(EnavServiceHandler.class);
 
     private String hostPort;
     private ShipId shipId;
-    private GpsHandler gpsHandler;
+    private PntHandler gpsHandler;
     private AisHandler aisHandler;
     private StrategicRouteExchangeHandler monaLisaHandler;
     private VOCTManager voctManager;
@@ -179,24 +178,26 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                     InvocationCallback.Context<VOCTCommunicationService.VOCTCommunicationReply> context) {
 
                                 System.out.println("Received SAR Payload!");
-//                                SARModelData sarData = message.getSarData();
+                                // SARModelData sarData = message.getSarData();
 
-//                                RapidResponseModelData rapidResponseModelData = (RapidResponseModelData) sarData;
-                                
-//                                RapidResponseDTO rapidResponseModelData = message.getSarData();
-                                
+                                // RapidResponseModelData rapidResponseModelData
+                                // = (RapidResponseModelData) sarData;
+
+                                // RapidResponseDTO rapidResponseModelData =
+                                // message.getSarData();
+
                                 cloudStatus.markCloudReception();
 
                                 voctContext = context;
 
                                 voctManager.handleSARDataPackage(message);
-                                
-                                
-                                voctContext.complete(new VOCTCommunicationReply("Received", (long) 0, aisHandler.getOwnShip().getMmsi(), new Date().getTime(), CLOUD_STATUS.RECIEVED_ACCEPTED));
-                                
-                                
-                                
-                                
+
+                                voctContext.complete(new VOCTCommunicationReply(
+                                        "Received", (long) 0, aisHandler
+                                                .getOwnShip().getMmsi(),
+                                        new Date().getTime(),
+                                        CLOUD_STATUS.RECIEVED_ACCEPTED));
+
                                 // RecievedRoute recievedRoute = new
                                 // RecievedRoute(
                                 // message);
@@ -208,13 +209,14 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
                         }).awaitRegistered(4, TimeUnit.SECONDS);
     }
-    
-    
-    public void sendVOCTReply(CLOUD_STATUS recievedAccepted, long id, String message) {
+
+    public void sendVOCTReply(CLOUD_STATUS recievedAccepted, long id,
+            String message) {
         try {
-            voctContext.complete(new VOCTCommunicationService.VOCTCommunicationReply(
-                    message, id, aisHandler.getOwnShip().getMmsi(), System
-                            .currentTimeMillis(), recievedAccepted));
+            voctContext
+                    .complete(new VOCTCommunicationService.VOCTCommunicationReply(
+                            message, id, aisHandler.getOwnShip().getMmsi(),
+                            System.currentTimeMillis(), recievedAccepted));
             cloudStatus.markSuccesfullSend();
         } catch (Exception e) {
             cloudStatus.markFailedSend();
@@ -222,8 +224,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
         }
 
     }
-    
-    
 
     public InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> getContext() {
         return context;
@@ -271,7 +271,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     }
 
     /**
-     * Send maritime message over enav cloud
+     * Send maritime message over cloud
      * 
      * @param message
      * @return
@@ -292,8 +292,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * Create the message bus
      */
     public void init() {
-        LOG.info("Connecting to enav cloud server: " + hostPort
-                + " with shipId " + shipId.getId());
+        LOG.info("Connecting to cloud server: " + hostPort + " with shipId "
+                + shipId.getId());
 
         // enavCloudConnection =
         // MaritimeNetworkConnectionBuilder.create("mmsi://"+shipId.getId());
@@ -344,7 +344,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * Receive position updates
      */
     @Override
-    public void gpsDataUpdate(GpsData gpsData) {
+    public void gpsDataUpdate(PntData gpsData) {
         // TODO give information to messageBus if valid position
     }
 
@@ -355,14 +355,14 @@ public class EnavServiceHandler extends MapHandlerChild implements
                     (ActiveRouteProvider) obj);
             ((RouteManager) obj).addListener(intendedRouteService);
             ((RouteManager) obj).setIntendedRouteService(intendedRouteService);
-        } else if (obj instanceof GpsHandler) {
-            this.gpsHandler = (GpsHandler) obj;
+        } else if (obj instanceof PntHandler) {
+            this.gpsHandler = (PntHandler) obj;
             this.gpsHandler.addListener(this);
         } else if (obj instanceof AisHandler) {
             this.aisHandler = (AisHandler) obj;
         } else if (obj instanceof StrategicRouteExchangeHandler) {
             this.monaLisaHandler = (StrategicRouteExchangeHandler) obj;
-        }else if (obj instanceof VOCTManager){
+        } else if (obj instanceof VOCTManager) {
             voctManager = (VOCTManager) obj;
         }
     }

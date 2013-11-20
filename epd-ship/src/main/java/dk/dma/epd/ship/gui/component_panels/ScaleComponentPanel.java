@@ -25,7 +25,7 @@ import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.gui.OMComponentPanel;
 
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.panels.ScalePanel;
@@ -37,7 +37,7 @@ public class ScaleComponentPanel extends OMComponentPanel implements Runnable, P
      */
     private static final long serialVersionUID = 1L;
     private final ScalePanel scalePanel = new ScalePanel();
-    private GnssTime gnssTime;
+    private PntTime gnssTime;
     private ChartPanel chartPanel;
     
     public ScaleComponentPanel(){
@@ -83,8 +83,8 @@ public class ScaleComponentPanel extends OMComponentPanel implements Runnable, P
     
     @Override
     public void findAndInit(Object obj) {
-        if (gnssTime == null && obj instanceof GnssTime) {
-            gnssTime = (GnssTime)obj;
+        if (gnssTime == null && obj instanceof PntTime) {
+            gnssTime = (PntTime)obj;
         }
         if (obj instanceof ChartPanel) {
             chartPanel = (ChartPanel)obj;

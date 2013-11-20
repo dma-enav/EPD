@@ -27,9 +27,9 @@ import javax.swing.WindowConstants;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.ais.SarTarget;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Util;
@@ -44,9 +44,9 @@ public class SartDetailsDialog extends JDialog implements Runnable {
     private JLabel detailsLbl;
     private SarTarget sarTarget;
     private MainFrame mainFrame;
-    private GpsHandler gpsHandler;
+    private PntHandler gpsHandler;
 
-    public SartDetailsDialog(MainFrame mainFrame, SarTarget sarTarget, GpsHandler gpsHandler) {
+    public SartDetailsDialog(MainFrame mainFrame, SarTarget sarTarget, PntHandler gpsHandler) {
         super();
         this.mainFrame = mainFrame;
         this.sarTarget = sarTarget;
@@ -70,7 +70,7 @@ public class SartDetailsDialog extends JDialog implements Runnable {
 
     private void showDetails() {
         StringBuilder str = new StringBuilder();
-        Date now = GnssTime.getInstance().getDate();
+        Date now = PntTime.getInstance().getDate();
         Date lastReceived = sarTarget.getLastReceived();
         Date firstReceived = sarTarget.getFirstReceived();
         long elapsedLast = now.getTime() - lastReceived.getTime();
@@ -96,7 +96,7 @@ public class SartDetailsDialog extends JDialog implements Runnable {
         Long ttg = null;
         Date eta = null;
         if (gpsHandler != null) {
-            GpsData gpsData = gpsHandler.getCurrentData();
+            PntData gpsData = gpsHandler.getCurrentData();
             if (gpsData != null && !gpsData.isBadPosition()) {
                 Position pos = gpsData.getPosition();                
                 if (pos != null && sarPos != null) {

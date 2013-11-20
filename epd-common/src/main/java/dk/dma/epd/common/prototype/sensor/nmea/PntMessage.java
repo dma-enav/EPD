@@ -19,19 +19,25 @@ import net.jcip.annotations.Immutable;
 import dk.dma.enav.model.geometry.Position;
 
 /**
- * Class representing a GPS message
+ * Class representing PNT data
  */
 @Immutable
-public class GpsMessage {
+public class PntMessage {
 
     private final Position pos;
     private final Double sog;
     private final Double cog;
+    private final Long time;
 
-    public GpsMessage(Position pos, Double sog, Double cog) {
+    public PntMessage(Position pos, Double sog, Double cog, Long time) {
         this.pos = pos;
         this.sog = sog;
         this.cog = cog;
+        this.time = time;
+    }
+    
+    public PntMessage(Position pos, Double sog, Double cog) {
+        this(pos, sog, cog, null);
     }
 
     public Position getPos() {
@@ -57,7 +63,11 @@ public class GpsMessage {
     public Double getCog() {
         return isValidCog() ? cog : null;
     }
-
+    
+    public Long getTime() {
+        return time;
+    }
+    
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -68,6 +78,7 @@ public class GpsMessage {
         builder.append(", sog=");
         builder.append(sog);
         builder.append(", time=");
+        builder.append(time);
         builder.append("]");
         return builder.toString();
     }

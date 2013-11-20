@@ -48,8 +48,8 @@ import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.ship.EPDShip;
@@ -64,7 +64,7 @@ import dk.dma.epd.ship.layers.EncLayerFactory;
 import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.background.CoastalOutlineLayer;
-import dk.dma.epd.ship.layers.gps.GpsLayer;
+import dk.dma.epd.ship.layers.gps.OwnShipLayer;
 import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
 import dk.dma.epd.ship.layers.nogo.DynamicNogoLayer;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
@@ -79,13 +79,15 @@ import dk.dma.epd.ship.settings.EPDMapSettings;
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
  */
-public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
+
+public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         MouseWheelListener, VOCTUpdateListener {
+
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
 
-    private GpsLayer gpsLayer;
+    private OwnShipLayer ownShipLayer;
     private AisLayer aisLayer;
     private GeneralLayer generalLayer;
     private CoastalOutlineLayer coastalOutlineLayer;
@@ -254,9 +256,9 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         mapHandler.add(aisLayer);
 
         // Create GPS layer
-        gpsLayer = new GpsLayer();
-        gpsLayer.setVisible(true);
-        mapHandler.add(gpsLayer);
+        ownShipLayer = new OwnShipLayer();
+        ownShipLayer.setVisible(true);
+        mapHandler.add(ownShipLayer);
 
         // Create a esri shape layer
         // URL dbf = EeINS.class.getResource("/shape/urbanap020.dbf");
@@ -331,7 +333,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
         msiLayer.doUpdate();
 
         // Add this class as GPS data listener
-        EPDShip.getGpsHandler().addListener(this);
+        EPDShip.getPntHandler().addListener(this);
 
         // encLayerFactory2.setMapSettings();
 
@@ -384,7 +386,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
     }
 
     public Layer getGpsLayer() {
-        return gpsLayer;
+        return ownShipLayer;
     }
 
     public Layer getEncLayer() {
@@ -397,7 +399,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
 
     public void centreOnShip() {
         // Get current position
-        GpsData gpsData = EPDShip.getGpsHandler().getCurrentData();
+        PntData gpsData = EPDShip.getPntHandler().getCurrentData();
         if (gpsData == null) {
             return;
         }
@@ -625,7 +627,7 @@ public class ChartPanel extends CommonChartPanel implements IGpsDataListener,
      * Receive GPS update
      */
     @Override
-    public void gpsDataUpdate(GpsData gpsData) {
+    public void gpsDataUpdate(PntData gpsData) {
         this.gpsData = gpsData;
         autoFollow();
     }

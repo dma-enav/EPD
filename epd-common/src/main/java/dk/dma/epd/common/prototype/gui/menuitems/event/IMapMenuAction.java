@@ -13,17 +13,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.sensor.gps;
+package dk.dma.epd.common.prototype.gui.menuitems.event;
 
 /**
- * Interface to implement for classes wanting to receive GNSS time updates
+ * Implement this interface in each JMenuItem/JCheckBox to allow the MapMenu easy access to each item's action
  */
-public interface IGnssTimeListener {
+public interface IMapMenuAction {
     
-    /**
-     * Receive GNSS time message
-     * @param gnssTimeMessage
-     */
-    void receive(GnssTimeMessage gnssTimeMessage);
-
+    void doAction();
+    
 }

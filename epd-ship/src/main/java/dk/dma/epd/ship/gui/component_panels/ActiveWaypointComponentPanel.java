@@ -26,14 +26,14 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
-import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.ship.event.IMapCoordListener;
 import dk.dma.epd.ship.gui.panels.ActiveWaypointPanel;
 import dk.dma.epd.ship.route.RouteManager;
 
-public class ActiveWaypointComponentPanel extends OMComponentPanel implements IGpsDataListener, Runnable, ProjectionListener, IMapCoordListener, IRoutesUpdateListener {
+public class ActiveWaypointComponentPanel extends OMComponentPanel implements IPntDataListener, Runnable, ProjectionListener, IMapCoordListener, IRoutesUpdateListener {
 
     private static final long serialVersionUID = 1L;
     private final ActiveWaypointPanel activeWaypointPanel;
@@ -89,7 +89,7 @@ public class ActiveWaypointComponentPanel extends OMComponentPanel implements IG
      * Receive GPS update
      */
     @Override
-    public void gpsDataUpdate(GpsData gpsData) {
+    public void gpsDataUpdate(PntData gpsData) {
         activeWaypointPanel.updateActiveNavData();
     }
     
@@ -101,8 +101,8 @@ public class ActiveWaypointComponentPanel extends OMComponentPanel implements IG
             routeManager.addListener(this);
             return;
         }
-        if (obj instanceof GpsHandler) {
-            ((GpsHandler)obj).addListener(this);
+        if (obj instanceof PntHandler) {
+            ((PntHandler)obj).addListener(this);
         }
     }
     

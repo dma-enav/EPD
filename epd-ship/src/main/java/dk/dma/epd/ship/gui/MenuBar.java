@@ -51,12 +51,13 @@ import com.bbn.openmap.gui.WindowSupport;
 
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
+import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
 
-public class MenuBar extends JMenuBar implements PropertyConsumer,
-        BeanContextChild, BeanContextMembershipListener, LightMapHandlerChild {
+public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextChild, BeanContextMembershipListener,
+        LightMapHandlerChild {
 
     private static final long serialVersionUID = 1L;
 
@@ -66,8 +67,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
 
     protected boolean isolated;
 
-    protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(
-            this);
+    protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(this);
 
     MainFrame mainFrame;
     TopPanel topPanel;
@@ -79,8 +79,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
     private JCheckBoxMenuItem autoFollow;
     private JCheckBoxMenuItem aisLayer;
     private JCheckBoxMenuItem encLayer;
-    private final JCheckBoxMenuItem nogoLayer = new JCheckBoxMenuItem(
-            "NoGo Layer");;
+    private final JCheckBoxMenuItem nogoLayer = new JCheckBoxMenuItem("NoGo Layer");;
     private JCheckBoxMenuItem newRoute;
     private JMenu dockableMenu;
 
@@ -93,8 +92,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
     }
 
     private void initMenuBar() {
-        boolean showRiskAndNogo = !EPDShip.getSettings().getGuiSettings()
-                .isRiskNogoDisabled();
+        boolean showRiskAndNogo = !EPDShip.getSettings().getGuiSettings().isRiskNogoDisabled();
 
         JMenu file = new JMenu("File");
         this.add(file);
@@ -102,8 +100,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
         // Create a menu item
         JMenuItem fullscreen = new JMenuItem("Fullscreen");
         file.add(fullscreen);
-        fullscreen
-                .setIcon(toolbarIcon("images/toolbar/application-resize.png"));
+        fullscreen.setIcon(toolbarIcon("images/toolbar/application-resize.png"));
 
         fullscreen.addActionListener(new ActionListener() {
             @Override
@@ -132,11 +129,10 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
         });
 
         setup.setIcon(toolbarIcon("images/toolbar/wrench.png"));
-        
-        
+
         JMenuItem transponder = new JMenuItem("Transponder");
         file.add(transponder);
-        //transponder.setIcon(toolbarIcon("images/toolbar/transponder.png"));
+        // transponder.setIcon(toolbarIcon("images/toolbar/transponder.png"));
         transponder.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -145,7 +141,6 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
                 }
             }
         });
-        
 
         JMenuItem exit = new JMenuItem("Exit");
         file.add(exit);
@@ -183,8 +178,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
             }
         });
 
-        JCheckBoxMenuItem centerOnShip = new JCheckBoxMenuItem(
-                "Centre on ship : Shortcut C");
+        JCheckBoxMenuItem centerOnShip = new JCheckBoxMenuItem("Centre on ship : Shortcut C");
         interact.add(centerOnShip);
         centerOnShip.setIcon(toolbarIcon("images/toolbar/arrow-in.png"));
 
@@ -197,20 +191,15 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
 
         autoFollow = new JCheckBoxMenuItem("Auto follow own ship");
         interact.add(autoFollow);
-        autoFollow.setSelected(EPDShip.getSettings().getNavSettings()
-                .isAutoFollow());
-        autoFollow
-                .setIcon(toolbarIcon("images/toolbar/arrow-curve-000-double.png"));
+        autoFollow.setSelected(EPDShip.getSettings().getNavSettings().isAutoFollow());
+        autoFollow.setIcon(toolbarIcon("images/toolbar/arrow-curve-000-double.png"));
 
         autoFollow.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                topPanel.getAutoFollowBtn().setSelected(
-                        !topPanel.getAutoFollowBtn().isSelected());
+                topPanel.getAutoFollowBtn().setSelected(!topPanel.getAutoFollowBtn().isSelected());
 
-                EPDShip.getSettings()
-                        .getNavSettings()
-                        .setAutoFollow(topPanel.getAutoFollowBtn().isSelected());
+                EPDShip.getSettings().getNavSettings().setAutoFollow(topPanel.getAutoFollowBtn().isSelected());
 
                 if (topPanel.getAutoFollowBtn().isSelected()) {
                     mainFrame.getChartPanel().autoFollow();
@@ -228,29 +217,22 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
         aisLayer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                topPanel.getAisBtn().setSelected(
-                        !topPanel.getAisBtn().isSelected());
-                EPDShip.getSettings().getAisSettings()
-                        .setVisible(topPanel.getAisBtn().isSelected());
-                mainFrame.getChartPanel().aisVisible(
-                        topPanel.getAisBtn().isSelected());
+                topPanel.getAisBtn().setSelected(!topPanel.getAisBtn().isSelected());
+                EPDShip.getSettings().getAisSettings().setVisible(topPanel.getAisBtn().isSelected());
+                mainFrame.getChartPanel().aisVisible(topPanel.getAisBtn().isSelected());
             }
         });
 
         encLayer = new JCheckBoxMenuItem("ENC Layer");
         layers.add(encLayer);
-        encLayer.setSelected(EPDShip.getSettings().getMapSettings()
-                .isEncVisible());
+        encLayer.setSelected(EPDShip.getSettings().getMapSettings().isEncVisible());
 
         encLayer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                topPanel.getEncBtn().setSelected(
-                        !topPanel.getEncBtn().isSelected());
-                EPDShip.getSettings().getMapSettings()
-                        .setEncVisible(topPanel.getEncBtn().isSelected());
-                mainFrame.getChartPanel().encVisible(
-                        topPanel.getEncBtn().isSelected());
+                topPanel.getEncBtn().setSelected(!topPanel.getEncBtn().isSelected());
+                EPDShip.getSettings().getMapSettings().setEncVisible(topPanel.getEncBtn().isSelected());
+                mainFrame.getChartPanel().encVisible(topPanel.getEncBtn().isSelected());
             }
         });
 
@@ -289,8 +271,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
         riskLayer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                EPDShip.getRiskHandler().toggleRiskHandler(
-                        !EPDShip.getSettings().getAisSettings().isShowRisk());
+                EPDShip.getRiskHandler().toggleRiskHandler(!EPDShip.getSettings().getAisSettings().isShowRisk());
             }
         });
 
@@ -312,17 +293,12 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
         JCheckBoxMenuItem msiFilter = new JCheckBoxMenuItem("MSI Filtering");
         tools.add(msiFilter);
 
-        msiFilter.setSelected(EPDShip.getSettings().getEnavSettings()
-                .isMsiFilter());
+        msiFilter.setSelected(EPDShip.getSettings().getEnavSettings().isMsiFilter());
 
         msiFilter.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                EPDShip.getSettings()
-                        .getEnavSettings()
-                        .setMsiFilter(
-                                !EPDShip.getSettings().getEnavSettings()
-                                        .isMsiFilter());
+                EPDShip.getSettings().getEnavSettings().setMsiFilter(!EPDShip.getSettings().getEnavSettings().isMsiFilter());
                 msiHandler.notifyUpdate();
             }
         });
@@ -404,21 +380,16 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
                 String[] list = findNoneStaticLayouts();
                 String layout = null;
 
-                final String path = EPDShip.getHomePath().toString()
-                        + "/layout/";
+                final String path = EPDShip.getHomePath().toString() + "/layout/";
 
                 if (list.length == 0) {
-                    JOptionPane.showMessageDialog(mainFrame,
-                            "No custom layouts saved.", "No Layouts",
-                            JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(mainFrame, "No custom layouts saved.", "No Layouts", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    layout = (String) JOptionPane.showInputDialog(mainFrame,
-                            "Choose one", "Load layout",
+                    layout = (String) JOptionPane.showInputDialog(mainFrame, "Choose one", "Load layout",
                             JOptionPane.INFORMATION_MESSAGE, null, list, null);
                 }
                 if (layout != null) {
-                    mainFrame.getDockableComponents().loadLayout(
-                            path + layout + ".xml");
+                    mainFrame.getDockableComponents().loadLayout(path + layout + ".xml");
                     lock.setSelected(true);
                     lock.setText("Unlock");
                     lock.setIcon(toolbarIcon("images/toolbar/lock-unlock.png"));
@@ -441,8 +412,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
                 }
 
                 String name = null;
-                name = JOptionPane.showInputDialog(mainFrame,
-                        "Please input name of layout");
+                name = JOptionPane.showInputDialog(mainFrame, "Please input name of layout");
                 System.out.println(name);
 
                 if (name != null) {
@@ -455,15 +425,11 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
 
                     for (String element : list) {
                         if (element.equals(name)) {
-                            int n = JOptionPane
-                                    .showConfirmDialog(
-                                            mainFrame,
-                                            "A layout with that name already exists. \n Do you wish to overwrite it?",
-                                            "Layout already exists",
-                                            JOptionPane.YES_NO_OPTION);
+                            int n = JOptionPane.showConfirmDialog(mainFrame,
+                                    "A layout with that name already exists. \n Do you wish to overwrite it?",
+                                    "Layout already exists", JOptionPane.YES_NO_OPTION);
                             if (n == 1) {
-                                mainFrame.getDockableComponents().saveLayout(
-                                        name);
+                                mainFrame.getDockableComponents().saveLayout(name);
                             }
                         } else {
                             mainFrame.getDockableComponents().saveLayout(name);
@@ -485,6 +451,13 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
         aboutEpdShip.setIcon(toolbarIcon("images/appicon.png"));
 
         final ImageIcon icon = createImageIcon();
+        
+        final StringBuilder aboutText = new StringBuilder();
+        aboutText.append("The E-navigation Prototype Display Ship (EPD-ship) is developed by the Danish Maritime Authority (www.dma.dk).\n");
+        aboutText.append("The user manual is available from service.e-navigation.net\n\n");
+        aboutText.append("Version   : " + VersionInfo.getVersion() + "\n");
+        aboutText.append("Build ID  : " + VersionInfo.getBuildId() + "\n");
+        aboutText.append("Build date: " + VersionInfo.getBuildDate());
 
         aboutEpdShip.addActionListener(new ActionListener() {
             @Override
@@ -492,7 +465,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
                 JOptionPane
                         .showMessageDialog(
                                 mainFrame,
-                                "The E-navigation Prototype Display Ship (EPD-ship) is developed by the Danish Maritime Authority (www.dma.dk).\nThe user manual is available from service.e-navigation.net",
+                                aboutText.toString(),
                                 "About the EPD-ship", JOptionPane.OK_OPTION, icon);
             }
         });
@@ -505,8 +478,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
 
             ImageIcon icon = new ImageIcon(imgURL);
             Image img = icon.getImage();
-            Image newimg = img.getScaledInstance(45, 45,
-                    java.awt.Image.SCALE_SMOOTH);
+            Image newimg = img.getScaledInstance(45, 45, java.awt.Image.SCALE_SMOOTH);
             ImageIcon newImage = new ImageIcon(newimg);
             return newImage;
 
@@ -529,8 +501,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
                 files = listOfFile.getName();
                 if (files.endsWith(".xml") || files.endsWith(".XML")) {
 
-                    JMenuItem layout = new JMenuItem(files.substring(0,
-                            files.length() - 4));
+                    JMenuItem layout = new JMenuItem(files.substring(0, files.length() - 4));
                     layouts.add(layout);
                     final String p = listOfFile.getAbsolutePath();
                     layout.addActionListener(new ActionListener() {
@@ -716,21 +687,17 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
     }
 
     @Override
-    public void addVetoableChangeListener(String propertyName,
-            VetoableChangeListener in_vcl) {
+    public void addVetoableChangeListener(String propertyName, VetoableChangeListener in_vcl) {
         beanContextChildSupport.addVetoableChangeListener(propertyName, in_vcl);
     }
 
     @Override
-    public void removeVetoableChangeListener(String propertyName,
-            VetoableChangeListener in_vcl) {
-        beanContextChildSupport.removeVetoableChangeListener(propertyName,
-                in_vcl);
+    public void removeVetoableChangeListener(String propertyName, VetoableChangeListener in_vcl) {
+        beanContextChildSupport.removeVetoableChangeListener(propertyName, in_vcl);
     }
 
     @Override
-    public void fireVetoableChange(String name, Object oldValue, Object newValue)
-            throws PropertyVetoException {
+    public void fireVetoableChange(String name, Object oldValue, Object newValue) throws PropertyVetoException {
         beanContextChildSupport.fireVetoableChange(name, oldValue, newValue);
     }
 
@@ -762,8 +729,6 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
         return encLayer;
     }
 
-    
-    
     public JCheckBoxMenuItem getNogoLayer() {
         return nogoLayer;
     }
@@ -776,8 +741,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer,
         URL url = EPDShip.class.getClassLoader().getResource(imgpath);
         ImageIcon icon = new ImageIcon(url);
         Image img = icon.getImage();
-        Image newimg = img.getScaledInstance(16, 16,
-                java.awt.Image.SCALE_DEFAULT);
+        Image newimg = img.getScaledInstance(16, 16, java.awt.Image.SCALE_DEFAULT);
         ImageIcon newImage = new ImageIcon(newimg);
         return newImage;
     }

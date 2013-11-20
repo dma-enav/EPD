@@ -22,6 +22,7 @@ import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.dialogs.ISimpleConfirmDialogListener;
 import dk.dma.epd.common.prototype.gui.dialogs.SimpleConfirmDialog;
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.ship.gui.MapMenu;
 import dk.dma.epd.ship.route.RouteManager;
 

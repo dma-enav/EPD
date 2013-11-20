@@ -13,26 +13,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.sensor.gps;
-
-import java.util.Date;
-
-import net.jcip.annotations.Immutable;
+package dk.dma.epd.common.prototype.model.voyage;
 
 /**
- * Class to represent a GNSS time message. For now just a date.  
+ * Event used to specify what kind of update has happened to a voyage.
+ * @author Janus Varmarken
  */
-@Immutable
-public class GnssTimeMessage {
-    
-    private final Date time;
-    
-    public GnssTimeMessage(Date time) {
-        this.time = time;
-    }
-    
-    public Date getTime() {
-        return time;
-    }
-    
+public enum VoyageUpdateEvent {
+    WAYPOINT_APPENDED, WAYPOINT_DELETED, WAYPOINT_INSERTED
 }

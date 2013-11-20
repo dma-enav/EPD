@@ -39,7 +39,7 @@ import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DragMouseMode;
@@ -76,7 +76,7 @@ public class EpdMsiLayer extends MsiLayer implements MapMouseListener {
 
     public void doUpdate() {
         graphics.clear();
-        Date now = GnssTime.getInstance().getDate();
+        Date now = PntTime.getInstance().getDate();
         // Get messages
         List<MsiMessageExtended> messages = msiHandler.getMessageList();
         for (MsiMessageExtended message : messages) {

@@ -38,9 +38,9 @@ import javax.swing.border.TitledBorder;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion.Status;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.gui.ChartPanel;
@@ -58,7 +58,7 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
     private MainFrame mainFrame;
     private RouteManager routeManager;
     private ChartPanel chartPanel;
-    private GpsHandler gpsHandler;
+    private PntHandler gpsHandler;
 
     private RecievedRoute cloudRouteSuggestion;
 
@@ -153,7 +153,7 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
         // Get current position
         StringBuilder str = new StringBuilder();
         str.append("<html><b>DST/BRG/TTG/SPD</b><br/>");
-        GpsData gpsData = gpsHandler.getCurrentData();
+        PntData gpsData = gpsHandler.getCurrentData();
         if (gpsData != null && !gpsData.isBadPosition() && cloudRouteSuggestion.getRoute().getWaypoints().size() > 0) {
             double dst = cloudRouteSuggestion.getRoute().getWaypoints().get(0).getPos().rhumbLineDistanceTo(gpsData.getPosition()) / 1852;
             str.append(Formatter.formatDistNM(dst));
@@ -161,7 +161,7 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
             str.append(" / " + Formatter.formatDegrees(brg, 2));
             Long ttg = null;
             if (cloudRouteSuggestion.getRoute().getEtas().get(0) != null) {
-                ttg = cloudRouteSuggestion.getRoute().getEtas().get(0).getTime() - GnssTime.getInstance().getDate().getTime();
+                ttg = cloudRouteSuggestion.getRoute().getEtas().get(0).getTime() - PntTime.getInstance().getDate().getTime();
             }
             if (ttg != null && ttg < 0) {
                 ttg = null;
@@ -267,8 +267,8 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
         if (obj instanceof ChartPanel) {
             chartPanel = (ChartPanel)obj;
         }
-        if (obj instanceof GpsHandler) {
-            gpsHandler = (GpsHandler)obj;
+        if (obj instanceof PntHandler) {
+            gpsHandler = (PntHandler)obj;
         }
     }
     

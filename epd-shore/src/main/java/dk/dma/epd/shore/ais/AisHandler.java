@@ -25,7 +25,7 @@ import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 
 /**
@@ -74,7 +74,7 @@ public class AisHandler extends AisHandlerCommon {
         // Update track
         // TODO
         // Update last received
-        vesselTarget.setLastReceived(GnssTime.getInstance().getDate());
+        vesselTarget.setLastReceived(PntTime.getInstance().getDate());
         // Update status
         vesselTarget.setStatus(AisTarget.Status.OK);
 

@@ -20,6 +20,7 @@ import javax.swing.JMenuItem;
 import com.bbn.openmap.MapBean;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.shore.EPDShore;
 
 

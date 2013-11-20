@@ -13,13 +13,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.menuitems;
+package dk.dma.epd.common.prototype.sensor.pnt;
+
+import dk.dma.epd.common.prototype.sensor.nmea.PntMessage;
 
 /**
- * Implement this interface in each JMenuItem/JCheckBox to allow the MapMenu easy access to each item's action
+ * Interface to implement for classes wanting to receive PNT time updates
  */
-public interface IMapMenuAction {
-    
-    void doAction();
-    
+public interface IPntTimeListener {
+
+    /**
+     * Receive PNT message
+     * 
+     * @param pntMessage
+     */
+    void receive(PntMessage pntMessage);
+
 }

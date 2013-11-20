@@ -17,6 +17,7 @@ package dk.dma.epd.ship.gui.menuitems;
 
 import javax.swing.JMenuItem;
 
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.route.strategic.RecievedRoute;
 

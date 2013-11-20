@@ -28,9 +28,9 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
-import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.route.RouteManager;
 
@@ -38,14 +38,14 @@ import dk.dma.epd.ship.route.RouteManager;
  * Example layer that registers itself as listener for GPS, AIS and route updates
  * It paints small circles to make a simple track indication after vessel AIS targets
  */
-public class ExampleLayer extends OMGraphicHandlerLayer implements IGpsDataListener, IAisTargetListener, IRoutesUpdateListener {
+public class ExampleLayer extends OMGraphicHandlerLayer implements IPntDataListener, IAisTargetListener, IRoutesUpdateListener {
     
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(ExampleLayer.class);
     
     // A handler able to read and parse GPS messages
-    private GpsHandler gpsHandler;
+    private PntHandler gpsHandler;
     // An AIS target table
     private AisHandler aisHandler;
     // A manager doing the general route handling
@@ -58,7 +58,7 @@ public class ExampleLayer extends OMGraphicHandlerLayer implements IGpsDataListe
      * Receive GPS updates in the form of GpsData messages
      */
     @Override
-    public void gpsDataUpdate(GpsData gpsData) {
+    public void gpsDataUpdate(PntData gpsData) {
         LOG.info("New GPS data: " + gpsData);        
     }
 
@@ -115,8 +115,8 @@ public class ExampleLayer extends OMGraphicHandlerLayer implements IGpsDataListe
     @Override
     public void findAndInit(Object obj) {
         LOG.info("Hello from findAndInit obj.class: " + obj.getClass());
-        if (gpsHandler == null && obj instanceof GpsHandler) {
-            gpsHandler = (GpsHandler)obj;
+        if (gpsHandler == null && obj instanceof PntHandler) {
+            gpsHandler = (PntHandler)obj;
             gpsHandler.addListener(this);
         }
         if (aisHandler == null && obj instanceof AisHandler) {

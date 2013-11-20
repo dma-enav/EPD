@@ -13,13 +13,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.menuitems;
+package dk.dma.epd.common.prototype.sensor.pnt;
 
 /**
- * Implement this interface in each JMenuItem/JCheckBox to allow the MapMenu easy access to each item's action
+ * Interface to implement for receivers of Multi-Source PNT data
  */
-public interface IMapMenuAction {
-
-    void doAction();
+public interface IMultiSourcePntListener {
+    
+    // TODO receive methods
 
 }

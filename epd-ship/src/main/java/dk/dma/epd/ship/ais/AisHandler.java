@@ -27,9 +27,9 @@ import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
 import dk.dma.epd.common.prototype.sensor.nmea.IAisListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
@@ -77,7 +77,7 @@ public class AisHandler extends AisHandlerCommon implements IAisListener, IStatu
                 AisMessage5 msg5 = (AisMessage5) aisMessage;
                 ownShip.setStaticData(new VesselStaticData(msg5));
             }
-            ownShip.setLastReceived(GnssTime.getInstance().getDate());
+            ownShip.setLastReceived(PntTime.getInstance().getDate());
             ownShip.setMmsi(aisMessage.getUserId());
         }
 
@@ -95,7 +95,7 @@ public class AisHandler extends AisHandlerCommon implements IAisListener, IStatu
         if (getAisRange() <= 0) {
             return true;
         }
-        GpsData gpsData = EPDShip.getGpsHandler().getCurrentData();
+        PntData gpsData = EPDShip.getPntHandler().getCurrentData();
         if (gpsData == null) {
             return false;
         }
@@ -131,8 +131,8 @@ public class AisHandler extends AisHandlerCommon implements IAisListener, IStatu
         if (currentTarget.getStaticData() != null) {
             name = " " + AisMessage.trimText(currentTarget.getStaticData().getName());
         }
-        if (!EPDShip.getGpsHandler().getCurrentData().isBadPosition()) {
-            ownPosition = EPDShip.getGpsHandler().getCurrentData().getPosition();
+        if (!EPDShip.getPntHandler().getCurrentData().isBadPosition()) {
+            ownPosition = EPDShip.getPntHandler().getCurrentData().getPosition();
 
             if (currentTarget.getPositionData().getPos() != null) {
                 targetPosition = currentTarget.getPositionData().getPos();

@@ -27,7 +27,7 @@ import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 
 public class CloudIntendedRoute extends Route {
 
@@ -43,7 +43,7 @@ public class CloudIntendedRoute extends Route {
 
     public CloudIntendedRoute(dk.dma.enav.model.voyage.Route cloudRouteData) {
         super();
-        received = GnssTime.getInstance().getDate();
+        received = PntTime.getInstance().getDate();
         parseRoute(cloudRouteData);
     }
 

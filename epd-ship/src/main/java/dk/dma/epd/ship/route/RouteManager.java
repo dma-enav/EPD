@@ -50,10 +50,10 @@ import dk.dma.epd.common.prototype.model.route.RouteLoadException;
 import dk.dma.epd.common.prototype.model.route.RouteLoader;
 import dk.dma.epd.common.prototype.model.route.RouteMetocSettings;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
-import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
@@ -73,7 +73,7 @@ import dk.frv.enav.common.xml.metoc.MetocForecast;
  */
 @ThreadSafe
 public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManagerCommon implements Runnable,
-        Serializable, IGpsDataListener, IAisRouteSuggestionListener, ActiveRouteProvider {
+        Serializable, IPntDataListener, IAisRouteSuggestionListener, ActiveRouteProvider {
 
     private static final long serialVersionUID = 1L;
 //    private static final String routesFile = ".routes";
@@ -81,7 +81,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
     private static final Logger LOG = LoggerFactory.getLogger(RouteManager.class);
 
     private volatile EnavServiceHandler enavServiceHandler;
-    private volatile GpsHandler gpsHandler;
+    private volatile PntHandler gpsHandler;
     private volatile ShoreServicesCommon shoreServices;
     private volatile AisHandler aisHandler;
     private volatile IntendedRouteService intendedRouteService;
@@ -104,7 +104,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
     }
 
     @Override
-    public void gpsDataUpdate(GpsData gpsData) {
+    public void gpsDataUpdate(PntData gpsData) {
         if (!isRouteActive()) {
             return;
         }
@@ -169,7 +169,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
             // Inject the current position
             activeRoute.update(gpsHandler.getCurrentData());
             // Set start time to now
-            activeRoute.setStarttime(GnssTime.getInstance().getDate());
+            activeRoute.setStarttime(PntTime.getInstance().getDate());
         }
 
         // If the dock isn't visible should it show it?
@@ -590,7 +590,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         }
         EPDEnavSettings enavSettings = EPDShip.getSettings().getEnavSettings();
         long metocTtl = enavSettings.getMetocTtl() * 60 * 1000;
-        Date now = GnssTime.getInstance().getDate();
+        Date now = PntTime.getInstance().getDate();
         Date metocDate = route.getMetocForecast().getCreated();
         if (now.getTime() - metocDate.getTime() > metocTtl) {
             return true;
@@ -649,7 +649,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
             // Determine if METOC info is old
             EPDEnavSettings enavSettings = EPDShip.getSettings().getEnavSettings();
             long metocTtl = enavSettings.getMetocTtl() * 60 * 1000;
-            Date now = GnssTime.getInstance().getDate();
+            Date now = PntTime.getInstance().getDate();
             Date metocDate = route.getMetocForecast().getCreated();
             if (now.getTime() - metocDate.getTime() > metocTtl) {
                 return false;
@@ -728,8 +728,8 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         if (shoreServices == null && obj instanceof ShoreServicesCommon) {
             shoreServices = (ShoreServicesCommon) obj;
         }
-        if (gpsHandler == null && obj instanceof GpsHandler) {
-            gpsHandler = (GpsHandler) obj;
+        if (gpsHandler == null && obj instanceof PntHandler) {
+            gpsHandler = (PntHandler) obj;
             gpsHandler.addListener(this);
         }
         if (aisHandler == null && obj instanceof AisHandler) {
@@ -773,7 +773,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         // Find the age of the current METOC
         long metocAge = Long.MAX_VALUE;
         if (getActiveRoute().getMetocForecast() != null) {
-            Date now = GnssTime.getInstance().getDate();
+            Date now = PntTime.getInstance().getDate();
             metocAge = now.getTime()
                     - getActiveRoute().getMetocForecast().getCreated()
                             .getTime();

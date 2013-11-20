@@ -24,9 +24,6 @@ import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.gui.OMComponentPanel;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
-import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.ship.event.IMapCoordListener;
@@ -34,7 +31,7 @@ import dk.dma.epd.ship.gui.panels.SARPanel;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 
 public class SARComponentPanel extends OMComponentPanel implements
-        IGpsDataListener, Runnable, ProjectionListener, IMapCoordListener,
+ Runnable, ProjectionListener, IMapCoordListener,
         VOCTUpdateListener {
 
     private static final long serialVersionUID = 1L;
@@ -74,20 +71,12 @@ public class SARComponentPanel extends OMComponentPanel implements
 
     }
 
-    /**
-     * Receive GPS update
-     */
-    @Override
-    public void gpsDataUpdate(GpsData gpsData) {
-        // sarPanel.updateActiveNavData();
-    }
+
 
     @Override
     public void findAndInit(Object obj) {
 
-        if (obj instanceof GpsHandler) {
-            ((GpsHandler) obj).addListener(this);
-        }
+   
 
         if (obj instanceof VOCTManager) {
             voctManager = (VOCTManager) obj;

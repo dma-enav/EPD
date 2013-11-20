@@ -36,8 +36,8 @@ import dk.dma.ais.message.binary.RouteSuggestionReply;
 import dk.dma.ais.reader.SendRequest;
 import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.settings.EPDAisSettings;
 import dk.dma.epd.ship.settings.EPDSettings;
@@ -226,7 +226,7 @@ public class AisServices extends MapHandlerChild {
         
         // Use start as now
         Calendar cal = Calendar.getInstance();
-        cal.setTime(GnssTime.getInstance().getDate());
+        cal.setTime(PntTime.getInstance().getDate());
         cal.setTimeZone(TimeZone.getTimeZone("GMT+0000"));
         
         intendedRoute.setStartMonth(cal.get(Calendar.MONTH) + 1);
@@ -251,7 +251,7 @@ public class AisServices extends MapHandlerChild {
 
     public void setLastIntendedRouteBroadcast() {
         synchronized (lastIntendedRouteBroadcastLock) {
-            lastIntendedRouteBroadcast = GnssTime.getInstance().getDate();
+            lastIntendedRouteBroadcast = PntTime.getInstance().getDate();
         }
     }
     
@@ -265,7 +265,7 @@ public class AisServices extends MapHandlerChild {
         if (!doBroadcastIntented()) {
             return;
         }
-        long elapsed = GnssTime.getInstance().getDate().getTime() - getLastIntendedRouteBroadcast();
+        long elapsed = PntTime.getInstance().getDate().getTime() - getLastIntendedRouteBroadcast();
         if (elapsed >= INTENDED_ROUTE_BROADCAST_INTERVAL) {
             intendedRouteBroadcast(activeRoute);
         }        

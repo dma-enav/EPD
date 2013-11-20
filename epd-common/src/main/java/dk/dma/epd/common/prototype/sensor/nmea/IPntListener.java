@@ -16,6 +16,10 @@
 package dk.dma.epd.common.prototype.sensor.nmea;
 
 /**
- * Different sensor types
+ * Interface to implement to receive PNT messages 
  */
-public enum SensorType {GPS, AIS, UNKNOWN}
+public interface IPntListener {
+    
+    void receive(PntMessage pntMessage);
+
+}

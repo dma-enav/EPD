@@ -25,7 +25,7 @@ import java.util.List;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.voyage.Waypoint;
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
 
 /**
@@ -432,7 +432,7 @@ public class Route implements Serializable {
     }
 
     public void adjustStartTime() {
-        Date now = GnssTime.getInstance().getDate();
+        Date now = PntTime.getInstance().getDate();
         if (starttime == null || starttime.before(now)) {
             setStarttime(now);
         }
@@ -574,7 +574,7 @@ public class Route implements Serializable {
         etas = new ArrayList<>();
         Date etaStart = starttime;
         if (etaStart == null) {
-            etaStart = GnssTime.getInstance().getDate();
+            etaStart = PntTime.getInstance().getDate();
         }
         long eta = etaStart.getTime();
         etas.add(new Date(eta));
@@ -616,6 +616,8 @@ public class Route implements Serializable {
                 }
             }
             calcValues(true);
+            // Update waypoint names to reflect deleted waypoint
+            this.renameWayPoints();
         } else {
             // Do nothing
             // int result = JOptionPane.showConfirmDialog(EeINS.getMainFrame(),
@@ -758,7 +760,7 @@ public class Route implements Serializable {
             wp.calcRot();
 
         }
-
+        
         return wp;
     }
 
@@ -790,6 +792,10 @@ public class Route implements Serializable {
         RouteWaypoint newWaypoint = createWaypoint(lastWaypoint,
                 Position.create(newY, newX));
         waypoints.add(newWaypoint);
+        // Update waypoint names
+        newWaypoint.setName("WP_" + this.waypoints.size());
+        this.renameWayPoints();
+        
         calcValues(true);
     }
 

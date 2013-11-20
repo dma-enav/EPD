@@ -38,10 +38,10 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.sensor.gps.GnssTime;
-import dk.dma.epd.common.prototype.sensor.gps.GpsData;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
-import dk.dma.epd.common.prototype.sensor.gps.IGpsDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -56,16 +56,16 @@ import dk.dma.epd.ship.route.RouteManager;
 /**
  * Sensor panel right of map
  */
-public class SensorPanel extends OMComponentPanel implements IGpsDataListener, Runnable, ProjectionListener, IMapCoordListener, IRoutesUpdateListener {
+public class SensorPanel extends OMComponentPanel implements IPntDataListener, Runnable, ProjectionListener, IMapCoordListener, IRoutesUpdateListener {
     
     private static final long serialVersionUID = 1L;
     
-    private GpsHandler gpsHandler;
+    private PntHandler gpsHandler;
     private AisHandler aisHandler;
     private MsiHandler msiHandler;
     
-    private GpsData gpsData;
-    private GnssTime gnssTime;
+    private PntData gpsData;
+    private PntTime gnssTime;
     private ChartPanel chartPanel;
     private RouteManager routeManager;
     private final ScalePanel scalePanel = new ScalePanel();    
@@ -130,7 +130,7 @@ public class SensorPanel extends OMComponentPanel implements IGpsDataListener, R
      * Receive GPS update
      */
     @Override
-    public void gpsDataUpdate(GpsData gpsData) {
+    public void gpsDataUpdate(PntData gpsData) {
         this.setGpsData(gpsData);
         Position pos = gpsData.getPosition();
         if (gpsData.isBadPosition() || pos == null) {
@@ -205,7 +205,7 @@ public class SensorPanel extends OMComponentPanel implements IGpsDataListener, R
     
     public void initPanel(ChartPanel chartPanel) {
         // Add gps panel as position listener
-        EPDShip.getGpsHandler().addListener(this);
+        EPDShip.getPntHandler().addListener(this);
         
         // Start time panel thread
         this.chartPanel = chartPanel;
@@ -213,13 +213,13 @@ public class SensorPanel extends OMComponentPanel implements IGpsDataListener, R
         
     }
     
-    public GpsData getGpsData() {
+    public PntData getGpsData() {
         synchronized (SensorPanel.class) {
             return gpsData;
         }
     }
     
-    public void setGpsData(GpsData gpsData) {
+    public void setGpsData(PntData gpsData) {
         synchronized (SensorPanel.class) {
             this.gpsData = gpsData;
         }
@@ -241,7 +241,7 @@ public class SensorPanel extends OMComponentPanel implements IGpsDataListener, R
     public void recieveCoord(LatLonPoint llp) {
         cursorPanel.getCurLatLabel().setText(Formatter.latToPrintable(llp.getLatitude()));
         cursorPanel.getCurLonLabel().setText(Formatter.lonToPrintable(llp.getLongitude()));
-        GpsData gpsData = this.getGpsData();
+        PntData gpsData = this.getGpsData();
         if(gpsData == null || gpsData.isBadPosition() || gpsData.getPosition() == null){
             cursorPanel.getCurCursLabel().setText("N/A");
             cursorPanel.getCurDistLabel().setText("N/A");
@@ -270,8 +270,8 @@ public class SensorPanel extends OMComponentPanel implements IGpsDataListener, R
     
     @Override
     public void findAndInit(Object obj) {
-        if (gnssTime == null && obj instanceof GnssTime) {
-            gnssTime = (GnssTime)obj;
+        if (gnssTime == null && obj instanceof PntTime) {
+            gnssTime = (PntTime)obj;
         }
         if (obj instanceof ChartPanel) {
             chartPanel = (ChartPanel)obj;
@@ -284,8 +284,8 @@ public class SensorPanel extends OMComponentPanel implements IGpsDataListener, R
             routeManager.addListener(this);
             return;
         }
-        if (gpsHandler == null && obj instanceof GpsHandler) {
-            gpsHandler = (GpsHandler)obj;
+        if (gpsHandler == null && obj instanceof PntHandler) {
+            gpsHandler = (PntHandler)obj;
             gpsHandler.addListener(this);
         }
         if (aisHandler == null && obj instanceof AisHandler) {
@@ -298,7 +298,7 @@ public class SensorPanel extends OMComponentPanel implements IGpsDataListener, R
     
     @Override
     public void findAndUndo(Object obj) {
-        if (obj instanceof GnssTime) {
+        if (obj instanceof PntTime) {
             System.out.println("Removed GPS time");
             gnssTime = null;
             return;

@@ -36,7 +36,7 @@ public class CloudStatus extends ComponentStatus {
     private Status receiveStatus = Status.UNKNOWN;
     
     public CloudStatus() {
-        super("eNav Cloud");
+        super("Maritime Cloud");
     }
     
     public synchronized Status getSendStatus() {

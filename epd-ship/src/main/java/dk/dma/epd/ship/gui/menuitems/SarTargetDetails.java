@@ -18,7 +18,8 @@ package dk.dma.epd.ship.gui.menuitems;
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.ais.SarTarget;
-import dk.dma.epd.common.prototype.sensor.gps.GpsHandler;
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.ais.SartDetailsDialog;
 
@@ -26,7 +27,7 @@ public class SarTargetDetails extends JMenuItem implements IMapMenuAction {
     private static final long serialVersionUID = 1L;
     
     private MainFrame mainFrame;
-    private GpsHandler gpsHandler;
+    private PntHandler gpsHandler;
     private SarTarget sarTarget;
 
     public SarTargetDetails(String text) {
@@ -43,7 +44,7 @@ public class SarTargetDetails extends JMenuItem implements IMapMenuAction {
         this.mainFrame = mainFrame;
     }
     
-    public void setGpsHandler(GpsHandler gpsHandler) {
+    public void setGpsHandler(PntHandler gpsHandler) {
         this.gpsHandler = gpsHandler;
     }
     
