@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.model.voct.sardata;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import dk.dma.enav.model.geometry.Position;
@@ -34,6 +35,12 @@ public class SearchPatternRoute extends Route {
     
     public SearchPatternRoute(Route route){
         super(route);
+        
+        staticPositions = new ArrayList<Position>();
+        for (int i = 0; i < this.waypoints.size(); i++) {
+            staticPositions.add(waypoints.get(i).getPos());
+        }
+        
     }
     
     public SearchPatternRoute(List<Position> positions) {

@@ -42,21 +42,18 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
     private LinkedHashMap<Long, SRUCommunicationObject> sRUCommunication = new LinkedHashMap<Long, SRUCommunicationObject>();
     private VoctLayerTracking voctLayerTracking;
-    
+
     private CopyOnWriteArrayList<SRUUpdateListener> listeners = new CopyOnWriteArrayList<>();
 
-    
-    
     public SRUManager() {
         EPDShore.startThread(this, "sruManager");
     }
 
-    
-    public void setVoctTrackingLayer(VoctLayerTracking layer){
+    public void setVoctTrackingLayer(VoctLayerTracking layer) {
         this.voctLayerTracking = layer;
         System.out.println("We got a tracking layer for sru manager");
     }
-    
+
     public void notifyListeners(SRUUpdateEvent e, int id) {
         for (SRUUpdateListener listener : listeners) {
             listener.sruUpdated(e, id);
@@ -66,7 +63,6 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         // saveToFile();
     }
 
-
     public void addListener(SRUUpdateListener listener) {
         listeners.add(listener);
     }
@@ -75,9 +71,6 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         listeners.remove(listener);
     }
 
-
-    
-    
     @Override
     public void run() {
 
@@ -106,12 +99,12 @@ public class SRUManager extends MapHandlerChild implements Runnable {
                     // System.out.println("Yes " + srus.get(j).getMmsi() +
                     // " found");
 
-//                    System.out.println("SRU Name: " + srus.get(j).getName()
-//                            + " : " + srus.get(j).getStatus());
+                    // System.out.println("SRU Name: " + srus.get(j).getName()
+                    // + " : " + srus.get(j).getStatus());
 
                     // Change the status
                     if (srus.get(j).getStatus() != sru_status.ACCEPTED
-                            && srus.get(j).getStatus() != sru_status.AVAILABLE) {
+                            && srus.get(j).getStatus() != sru_status.AVAILABLE  && srus.get(j).getStatus() != sru_status.INVITED) {
                         System.out.println("Updating status WHY");
                         srus.get(j).setStatus(sru_status.AVAILABLE);
                     }
@@ -134,7 +127,9 @@ public class SRUManager extends MapHandlerChild implements Runnable {
     public void setSRUStatus(int i, sru_status status) {
 
         // What if we remove a SRU
-
+        srus.get(i).setStatus(status);
+        updateSRUsStatus();
+        notifyListeners(SRUUpdateEvent.SRU_STATUS_CHANGED, i);
     }
 
     // private synchronized void maintainAvailableSRUs() {
@@ -161,7 +156,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         SRU sru = null;
 
         int sruID = -1;
-         
+
         for (int i = 0; i < srus.size(); i++) {
             if (srus.get(i).getMmsi() == reply.getMmsi()) {
                 // Select the SRU we got the message from
@@ -186,25 +181,18 @@ public class SRUManager extends MapHandlerChild implements Runnable {
                 sru.setStatus(sru_status.ACCEPTED);
                 if (sRUCommunication.containsKey(reply.getMmsi())) {
                     sRUCommunication.remove(reply.getMmsi());
-                } else {
-                    sRUCommunication.put(reply.getMmsi(),
-                            new SRUCommunicationObject(sru));
                 }
+                sRUCommunication.put(reply.getMmsi(),
+                        new SRUCommunicationObject(sru));
 
-                
-                //Notify voctmanager to paint efffort allocation area for SRU i
-                voctLayerTracking.drawEffectiveArea(sru.getMmsi(), sruID);                
-                
-                
-                
-                
-                
-                
-//                System.out.println("SRU status set to acceptd");
-//                System.out.println("Running through all SRUS");
-//                for (int i = 0; i < srus.size(); i++) {
-//                    System.out.println(srus.get(i).getStatus());
-//                }
+                // Notify voctmanager to paint efffort allocation area for SRU i
+                voctLayerTracking.drawEffectiveArea(sru.getMmsi(), sruID);
+
+                // System.out.println("SRU status set to acceptd");
+                // System.out.println("Running through all SRUS");
+                // for (int i = 0; i < srus.size(); i++) {
+                // System.out.println(srus.get(i).getStatus());
+                // }
                 break;
 
             // If theres an old entry, remove it
@@ -214,9 +202,9 @@ public class SRUManager extends MapHandlerChild implements Runnable {
                     sRUCommunication.remove(reply.getMmsi());
                 }
 
-                //Remove if we previously had one
-                voctLayerTracking.removeEffectiveArea(sru.getMmsi(), sruID);    
-                
+                // Remove if we previously had one
+                voctLayerTracking.removeEffectiveArea(sru.getMmsi(), sruID);
+
                 break;
             default:
                 sru.setStatus(sru_status.UNKNOWN);
@@ -225,7 +213,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
             }
 
         }
-        
+
         notifyListeners(SRUUpdateEvent.CLOUD_MESSAGE, sruID);
 
     }
@@ -244,7 +232,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
     public void toggleSRUVisiblity(int i, boolean visible) {
         srus.get(i).setVisible(visible);
         voctManager.toggleSRUVisibility(i, visible);
-        
+
         notifyListeners(SRUUpdateEvent.SRU_VISIBILITY_CHANGED, i);
 
     }
@@ -265,13 +253,13 @@ public class SRUManager extends MapHandlerChild implements Runnable {
     public void addSRU(SRU sru) {
         synchronized (srus) {
             srus.add(sru);
-        notifyListeners(SRUUpdateEvent.SRU_ADDED, srus.size());
+            notifyListeners(SRUUpdateEvent.SRU_ADDED, srus.size());
         }
-        
+
     }
 
     public void removeSRU(int i) {
-        if (srus.size() >=i+1) {
+        if (srus.size() >= i + 1) {
 
             synchronized (srus) {
                 SRU sru = srus.remove(i);

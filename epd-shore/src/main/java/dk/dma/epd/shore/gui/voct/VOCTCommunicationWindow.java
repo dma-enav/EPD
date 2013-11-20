@@ -50,6 +50,7 @@ import javax.swing.table.TableCellRenderer;
 
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.voct.SRU;
+import dk.dma.epd.shore.voct.SRU.sru_status;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.SRUUpdateEvent;
 import dk.dma.epd.shore.voct.SRUUpdateListener;
@@ -328,10 +329,13 @@ public class VOCTCommunicationWindow extends JDialog implements
 
                     try {
                         voctManager.updateEffectiveAreaLocation();
+
+                        sruManager.setSRUStatus(i, sru_status.INVITED);
+
                         EPDShore.getEnavServiceHandler().sendVOCTMessage(
                                 sruList.get(i).getMmsi(),
                                 voctManager.getSarData(), "OSC", "Please Join",
-                                0, (boolean) sruTable.getValueAt(i, 4),
+                                i, (boolean) sruTable.getValueAt(i, 4),
                                 (boolean) sruTable.getValueAt(i, 5));
 
                     } catch (InterruptedException e) {
@@ -348,7 +352,7 @@ public class VOCTCommunicationWindow extends JDialog implements
                 }
 
             }
-            
+
             this.setVisible(false);
 
         }
@@ -406,6 +410,6 @@ public class VOCTCommunicationWindow extends JDialog implements
     @Override
     public void sruUpdated(SRUUpdateEvent e, int id) {
         // TODO Auto-generated method stub
-//        sruTableModel.updateCalculateTable();
+        // sruTableModel.updateCalculateTable();
     }
 }

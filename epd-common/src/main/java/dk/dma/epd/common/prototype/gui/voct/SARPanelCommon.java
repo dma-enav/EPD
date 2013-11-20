@@ -835,4 +835,8 @@ public class SARPanelCommon extends JPanel implements ActionListener {
     protected void setTitle(String title){
         lblSAR.setText(title);
     }
+    
+    public void resetData(){
+        
+    }
 }

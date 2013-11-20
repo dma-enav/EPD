@@ -105,9 +105,11 @@ public class SARComponentPanel extends OMComponentPanel implements
         }
 
         if (e == VOCTUpdateEvent.SAR_RECEIVED_CLOUD) {
+            
             sarPanel.sarComplete(voctManager.getSarData());
             sarPanel.getBtnReopenCalculations().setEnabled(false);
 
+            
             if (voctManager.getSarData().getEffortAllocationData().size() > 0) {
                 sarPanel.effortAllocationComplete(voctManager.getSarData());
                 sarPanel.getBtnEffortAllocation().setEnabled(false);
@@ -115,10 +117,17 @@ public class SARComponentPanel extends OMComponentPanel implements
                 if (voctManager.getSarData().getEffortAllocationData().get(0)
                         .getSearchPatternRoute() != null) {
 
-                    sarPanel.getChckbxShowDynamicPattern().setEnabled(false);
+                    sarPanel.getChckbxShowDynamicPattern().setEnabled(true);
                     sarPanel.getBtnGenerateSearchPattern().setEnabled(false);
+                }else{
+                    sarPanel.getChckbxShowDynamicPattern().setEnabled(true);
+                    sarPanel.getBtnGenerateSearchPattern().setEnabled(true);
                 }
 
+            }else{
+                sarPanel.getBtnEffortAllocation().setEnabled(true);
+                sarPanel.resetEffortAllocation();
+                
             }
 
         }

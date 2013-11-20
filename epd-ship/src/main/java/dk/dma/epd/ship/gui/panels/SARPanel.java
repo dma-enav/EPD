@@ -187,6 +187,8 @@ public class SARPanel extends SARPanelCommon {
     }
 
     
-    
+    public void resetEffortAllocation(){
+        effortAllocationPanel.resetValues();
+    }
     
 }

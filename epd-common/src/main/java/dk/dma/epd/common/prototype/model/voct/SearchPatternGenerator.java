@@ -529,7 +529,35 @@ public class SearchPatternGenerator {
     
     
     
-    
+    public void calculateDynamicWaypoints(SearchPatternRoute searchRoute, SARData sarData){
+        
+        // Dynamic waypoints
+        List<Position> waypointsAdjustedForWeather = new ArrayList<Position>();
+
+        // We must calculate from time 0 of our arrival as the effective area
+        // has been calculated from LKP
+        // Thus our time 0 is Commence Search Start
+        DateTime cssDate = sarData.getCSSDate();
+
+        for (int i = 0; i < searchRoute.getWaypoints().size(); i++) {
+            Date wpETA = searchRoute.getEtas().get(i);
+            Position wpPos = searchRoute.getWaypoints().get(i).getPos();
+
+            // How long has elapsed since time 0
+            double timeElapsed = ((double) (wpETA.getTime() - cssDate
+                    .getMillis())) / 60 / 60 / 1000;
+
+            // System.out.println("Elapsed is for " + i + " is " + timeElapsed);
+
+            Position newPos = sarOperation.applyDriftToPoint(sarData, wpPos,
+                    timeElapsed);
+
+            waypointsAdjustedForWeather.add(newPos);
+            // searchRoute.getWaypoints().get(i).setPos(newPos);
+        }
+
+        searchRoute.setDynamicPositions(waypointsAdjustedForWeather);
+    }
     
     
     

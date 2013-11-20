@@ -160,13 +160,13 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
         add(buttonPanel, gbc_buttonPanel);
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
-        btnSendSar = new JButton("Send SAR");
-        buttonPanel.add(btnSendSar);
+//        btnSendSar = new JButton("Send SAR");
+//        buttonPanel.add(btnSendSar);
 
         btnManageSarTracking = new JButton("Manage SAR Tracking");
         buttonPanel.add(btnManageSarTracking);
 
-        btnSendSar.addActionListener(this);
+//        btnSendSar.addActionListener(this);
         btnManageSarTracking.addActionListener(this);
 
         DefaultTableModel model = new DefaultTableModel(30, 3);
@@ -287,25 +287,25 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
     @Override
     public void actionPerformed(ActionEvent arg0) {
 
-        if (arg0.getSource() == btnSendSar) {
-            voctManager.updateEffectiveAreaLocation();
-
-            try {
-                EPDShore.getEnavServiceHandler().sendVOCTMessage(0,
-                        voctManager.getSarData(), "OSC", "Please Join", 0,
-                        true, true);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (TimeoutException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-        }
+//        if (arg0.getSource() == btnSendSar) {
+//            voctManager.updateEffectiveAreaLocation();
+//
+//            try {
+//                EPDShore.getEnavServiceHandler().sendVOCTMessage(0,
+//                        voctManager.getSarData(), "OSC", "Please Join", 0,
+//                        true, true);
+//            } catch (InterruptedException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            } catch (ExecutionException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            } catch (TimeoutException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+//
+//        }
 
         if (arg0.getSource() == btnManageSarTracking) {
 
@@ -444,7 +444,7 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
     @Override
     public void sruUpdated(SRUUpdateEvent e, int id) {
         
-        if (e == SRUUpdateEvent.CLOUD_MESSAGE){
+        if (e == SRUUpdateEvent.CLOUD_MESSAGE || e == SRUUpdateEvent.SRU_STATUS_CHANGED){
             sruTableModel.fireTableDataChanged();
         }
     }

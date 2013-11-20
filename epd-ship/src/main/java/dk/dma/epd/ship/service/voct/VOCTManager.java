@@ -25,6 +25,7 @@ import dk.dma.enav.model.voct.RapidResponseDTO;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.model.voct.SAROperation;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.model.voct.SearchPatternGenerator;
 import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
@@ -177,6 +178,15 @@ public class VOCTManager extends VOCTManagerCommon {
             if (message.getSearchPattern() != null) {
                 SearchPatternRoute searchPattern = new SearchPatternRoute(
                         new Route(message.getSearchPattern()));
+
+                sarOperation = new SAROperation(SAR_TYPE.RAPID_RESPONSE);
+                
+                
+                SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(
+                        sarOperation);
+                searchPatternGenerator.calculateDynamicWaypoints(searchPattern, data);
+                
+                
                 effortAllocationData.setSearchPatternRoute(searchPattern);
                 EPDShip.getRouteManager().addRoute(searchPattern);
                 EPDShip.getRouteManager().notifyListeners(
