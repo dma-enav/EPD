@@ -213,14 +213,14 @@ public class VOCTCommunicationTableModel extends AbstractTableModel {
             // If we have toggled to send SAR data and we have effort allocation
             // data for the target
         case 4:
-            return (tableContent.get(rowIndex).isSarData() && voctManager
-                    .getSarData().getEffortAllocationData().size() > rowIndex);
+            return tableContent.get(rowIndex).isSarData() && voctManager
+                    .getSarData().getEffortAllocationData().size() > rowIndex;
             // Can we toggle to send route? if previous is set and we have a
             // route
         case 5:
             if (tableContent.get(rowIndex).isAO()) {
-                return (voctManager.getSarData().getEffortAllocationData()
-                        .get(rowIndex).getSearchPatternRoute() != null);
+                return voctManager.getSarData().getEffortAllocationData()
+                        .get(rowIndex).getSearchPatternRoute() != null;
 
             }
         default:
