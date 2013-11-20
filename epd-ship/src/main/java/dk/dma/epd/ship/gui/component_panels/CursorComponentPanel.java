@@ -82,7 +82,7 @@ public class CursorComponentPanel extends OMComponentPanel implements IPntDataLi
     }
     
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
         this.setGpsData(gpsData);
     }
     

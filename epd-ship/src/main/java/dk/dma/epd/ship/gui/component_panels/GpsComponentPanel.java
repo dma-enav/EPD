@@ -71,7 +71,7 @@ public class GpsComponentPanel extends OMComponentPanel implements
     }
     
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
         this.setGpsData(gpsData);
         Position pos = gpsData.getPosition();
         if (gpsData.isBadPosition() || pos == null) {

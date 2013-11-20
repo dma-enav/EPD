@@ -125,8 +125,8 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
     }
     
     @Override
-    public synchronized void gpsDataUpdate(PntData gpsData) {
-        if (gpsData == null || gpsData.getPosition() == null) {
+    public synchronized void pntDataUpdate(PntData pntData) {
+        if (pntData == null || pntData.getPosition() == null) {
             return;
         }
         if (this.gpsData == null) {

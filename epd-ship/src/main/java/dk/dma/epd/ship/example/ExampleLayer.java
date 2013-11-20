@@ -58,7 +58,7 @@ public class ExampleLayer extends OMGraphicHandlerLayer implements IPntDataListe
      * Receive GPS updates in the form of GpsData messages
      */
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
         LOG.info("New GPS data: " + gpsData);        
     }
 

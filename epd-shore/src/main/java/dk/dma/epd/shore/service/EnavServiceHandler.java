@@ -277,7 +277,7 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
      * Receive position updates
      */
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
         // TODO give information to messageBus if valid position
     }
 

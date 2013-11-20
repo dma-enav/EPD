@@ -90,7 +90,7 @@ public class PntHandler extends MapHandlerChild implements IPntListener, IStatus
     private void distributeUpdate() {
         for (IPntDataListener listener : listeners) {
             PntData currentCopy = getCurrentData();
-            listener.gpsDataUpdate(currentCopy);
+            listener.pntDataUpdate(currentCopy);
         }
     }
 

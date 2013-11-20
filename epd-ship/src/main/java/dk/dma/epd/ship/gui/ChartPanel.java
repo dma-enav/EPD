@@ -610,7 +610,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
      * Receive GPS update
      */
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
         this.gpsData = gpsData;
         autoFollow();
     }

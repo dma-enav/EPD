@@ -414,7 +414,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
      * previous point
      */
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
         currentPosition = gpsData.getPosition();
 
         if (calculationPosition == null) {

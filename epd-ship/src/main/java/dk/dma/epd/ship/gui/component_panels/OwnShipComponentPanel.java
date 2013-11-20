@@ -58,7 +58,7 @@ public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataL
     
 
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
 
         String ownName = null;
         String ownCallsign = null;
