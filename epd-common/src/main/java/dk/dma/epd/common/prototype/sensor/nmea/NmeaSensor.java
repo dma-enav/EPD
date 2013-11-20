@@ -270,11 +270,6 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         // Check if simulated own ship
         boolean ownMessage = packet.getVdm().isOwnMessage();
 
-        // Distribute PNT from own mesasge
-        if (ownMessage) {
-            handlePntFromOwnMessage(message);
-        }
-
         // Distribute message
         for (IAisListener aisListener : aisListeners) {
             if (ownMessage) {
@@ -283,6 +278,13 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
                 aisListener.receive(message);
             }
         }
+        
+        // Distribute PNT from own mesasge
+        if (ownMessage) {
+            handlePntFromOwnMessage(message);
+        }
+
+        
     }
 
     protected void handlePntFromOwnMessage(AisMessage aisMessage) {

@@ -20,6 +20,8 @@ import java.awt.Stroke;
 import java.awt.geom.Point2D;
 import java.util.Date;
 
+import com.bbn.openmap.event.ProjectionEvent;
+import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
@@ -34,13 +36,14 @@ import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.math.Vector2D;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphic;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 
-public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListener {
+public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListener, ProjectionListener {
     
     private static final long serialVersionUID = 1L;
     
@@ -72,6 +75,14 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
     private Position lastPos;
     private Position currentPos;
 
+    private VesselOutlineGraphic vesselOutlineGraphic;
+    private boolean displayOutline = false;
+    
+    /**
+     * Max scale value at which ship outline is drawn
+     */
+    public static final float OUTLINE_MAX_SCALE = 5000.0f;
+    
     public OwnShipLayer() {
         graphics.setVague(true);
         Stroke stroke = new BasicStroke(STROKE_WIDTH);
@@ -102,6 +113,7 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         int[] backArrowX = {5,0,-5};
         int[] backArrowY = {20,10,20};
         backShipArrow = new RotationalPoly(backArrowX, backArrowY, stroke, null);
+        
     }
     
     private synchronized boolean doUpdate() {
@@ -129,7 +141,8 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         if (pntData == null || pntData.getPosition() == null) {
             return;
         }
-        if (this.gpsData == null) {
+//        if (this.gpsData == null) {
+        this.graphics.clear();
             graphics.add(circle1);
             graphics.add(circle2);
             graphics.add(speedVector);
@@ -138,13 +151,13 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
             graphics.add(frontShipArrow);
             graphics.add(angularVector);
             graphics.add(directionVector);
-        }
+//        }
         
-        this.gpsData = gpsData;
+        this.gpsData = pntData;
         
         double heading = 0;
-        if (gpsData.getCog() != null) {
-            heading = gpsData.getCog();
+        if (pntData.getCog() != null) {
+            heading = pntData.getCog();
         }
         
         VesselTarget ownShip = null;
@@ -152,7 +165,7 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         if (aisHandler != null) {
             ownShip = aisHandler.getOwnShip();
         }
-        
+                
         if (ownShip != null) {
             ownShipData = ownShip.getPositionData();
             if(ownShipData != null && ownShipData.getTrueHeading() <= 360){
@@ -163,17 +176,17 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         headingRadian = Math.toRadians(heading);
         
         // Set location of ship
-        currentPos = gpsData.getPosition();        
+        currentPos = pntData.getPosition();        
         circle1.setLatLon(currentPos.getLatitude(), currentPos.getLongitude());
         circle2.setLatLon(currentPos.getLatitude(), currentPos.getLongitude());
         
         // Calculate speed vector
-        if (gpsData.getCog() != null && gpsData.getSog() != null) {
+        if (pntData.getCog() != null && pntData.getSog() != null) {
             startPos = new LatLonPoint.Double(currentPos.getLatitude(), currentPos.getLongitude());
-            float length = (float) Length.NM.toRadians(EPDShip.getSettings().getNavSettings().getCogVectorLength() * (gpsData.getSog() / 60.0));
-            endPos = startPos.getPoint(length, (float) ProjMath.degToRad(gpsData.getCog()));
+            float length = (float) Length.NM.toRadians(EPDShip.getSettings().getNavSettings().getCogVectorLength() * (pntData.getSog() / 60.0));
+            endPos = startPos.getPoint(length, (float) ProjMath.degToRad(pntData.getCog()));
             double[] newLLPos = {startPos.getLatitude(), startPos.getLongitude(), endPos.getLatitude(), endPos.getLongitude()};
-            Double cogRadian = Math.toRadians(gpsData.getCog());
+            Double cogRadian = Math.toRadians(pntData.getCog());
             
             speedVector.setLL(newLLPos);
             angularVector.setLocation(startPos.getLatitude(), startPos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES,headingRadian);
@@ -183,7 +196,7 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
             
             marks.clear();
             for (int i = 0; i < 6; i++) {
-                float markLength = (float) Length.NM.toRadians(EPDShip.getSettings().getNavSettings().getCogVectorLength()/6 * i * (gpsData.getSog() / 60.0));
+                float markLength = (float) Length.NM.toRadians(EPDShip.getSettings().getNavSettings().getCogVectorLength()/6 * i * (pntData.getSog() / 60.0));
                 LatLonPoint marker = startPos.getPoint(markLength, cogRadian);
                 RotationalPoly polyMark = new RotationalPoly(markX, markY, new BasicStroke(STROKE_WIDTH), null);
                 polyMark.setLocation(marker.getLatitude(), marker.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, cogRadian);
@@ -191,6 +204,13 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
             }
             
         }
+        
+        // check if proper zoom level and if data is available for ship outline drawing
+        if(displayOutline && ownShip != null && ownShip.getStaticData() != null && ownShip.getPositionData() != null)
+        {
+            this.drawShipOutline(ownShip);
+        }
+        
         
         // Redraw    
         if (!doUpdate()) {
@@ -205,6 +225,16 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         doPrepare();
     }
 
+    private void drawShipOutline(VesselTarget ownShip) {
+        // clear any other data (from no-outline drawing)
+        this.graphics.clear();
+        if(this.vesselOutlineGraphic == null) {
+            this.vesselOutlineGraphic = new VesselOutlineGraphic();
+        }
+        this.vesselOutlineGraphic.setLocation(ownShip, this.getProjection());
+        this.graphics.add(this.vesselOutlineGraphic);
+    }
+    
     public double[] calculateMinuteMarker(LatLonPoint startPoint, int minute){
         float length = (float) Length.NM.toRadians(EPDShip.getSettings().getNavSettings().getCogVectorLength()/6 * minute * (gpsData.getSog() / 60.0));
         LatLonPoint marker = startPos.getPoint(length, (float) ProjMath.degToRad(gpsData.getCog()));
@@ -264,5 +294,15 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         }
     }
     
-    
+    @Override
+    public void projectionChanged(ProjectionEvent pe) {
+        boolean priorState = displayOutline;
+        displayOutline = pe.getProjection().getScale() <= OUTLINE_MAX_SCALE;
+        VesselTarget ownShip = aisHandler.getOwnShip();
+        if(ownShip != null && priorState != displayOutline) {
+            // update in projection caused new ship draw mode
+            this.pntDataUpdate(gpsHandler.getCurrentData());
+        }
+        super.projectionChanged(pe);
+    }
 }
