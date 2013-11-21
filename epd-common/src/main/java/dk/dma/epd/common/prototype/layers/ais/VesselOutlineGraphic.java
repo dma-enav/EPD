@@ -25,6 +25,7 @@ import com.bbn.openmap.omGraphics.OMPoly;
 import com.bbn.openmap.proj.Projection;
 
 import dk.dma.enav.model.geometry.CoordinateSystem;
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
@@ -85,12 +86,12 @@ public class VesselOutlineGraphic extends OMGraphicList {
         if(360 <= anglLowerLeft) {
             anglLowerLeft -= 360.0;
         }
-        
+        Position vessPos = vessel.getPositionData().getPos();
         double lat = vessel.getPositionData().getPos().getLatitude();
         double lon = vessel.getPositionData().getPos().getLongitude();
         
         // find latlon of lower left corner of ship
-        double[] leftSideBottomLL = this.getDestinationPoint(lat, lon,
+        Position leftSideBottomLL = CoordinateSystem.CARTESIAN.pointOnBearing(vessPos,
                 distLowerLeftCorner, anglLowerLeft);
 
         double shipFullLength = vsd.getDimBow() + vsd.getDimStern();
@@ -98,22 +99,21 @@ public class VesselOutlineGraphic extends OMGraphicList {
         double shipSternWidth = vsd.getDimPort() + vsd.getDimStarboard();
         
         // Not a point in the final polygon, simply used for finding polygon points in the bow.
-        double[] outerRectTopLeftLL = this.getDestinationPoint(leftSideBottomLL[0], leftSideBottomLL[1], shipFullLength, 0.0 + heading);
+        Position outerRectTopLeftLL = CoordinateSystem.CARTESIAN.pointOnBearing(leftSideBottomLL, shipFullLength, 0.0 + heading);
         
         // Point on port side of ship where the bow begins.
-        double[] leftSideTopLL = this.getDestinationPoint(leftSideBottomLL[0], leftSideBottomLL[1], shipSideLength, 0.0 + heading);
+        Position leftSideTopLL = CoordinateSystem.CARTESIAN.pointOnBearing(leftSideBottomLL, shipSideLength, 0.0 + heading);
         
         // Left point in ship's tip 
-        double[] bowLeftLL = this.getDestinationPoint(outerRectTopLeftLL[0], outerRectTopLeftLL[1], shipSternWidth / 4.0, 90.0 + heading);
+        Position bowLeftLL = CoordinateSystem.CARTESIAN.pointOnBearing(outerRectTopLeftLL, shipSternWidth / 4.0, 90.0 + heading);
         // right point in ship's tip
-        double[] bowRightLL = this.getDestinationPoint(bowLeftLL[0], bowLeftLL[1], shipSternWidth / 2.0, 90.0 + heading);
+        Position bowRightLL = CoordinateSystem.CARTESIAN.pointOnBearing(bowLeftLL, shipSternWidth / 2.0, 90.0 + heading);
         // find lat lon of lower right corner of ship
-        double[] rightSideBottomLL = this.getDestinationPoint(leftSideBottomLL[0], leftSideBottomLL[1], shipSternWidth, 90.0 + heading);
+        Position rightSideBottomLL = CoordinateSystem.CARTESIAN.pointOnBearing(leftSideBottomLL, shipSternWidth, 90.0 + heading);
         
         // Point on starboard side of ship where the bow begins.
-        double[] rightSideTopLL = this.getDestinationPoint(leftSideTopLL[0], leftSideTopLL[1], shipSternWidth, 90.0 + heading);
+        Position rightSideTopLL = CoordinateSystem.CARTESIAN.pointOnBearing(leftSideTopLL, shipSternWidth, 90.0 + heading);
 
-        
         int[] xs = {0,0};
         int[] ys = {0,-100};
         if(this.cogVector == null) {
@@ -129,18 +129,18 @@ public class VesselOutlineGraphic extends OMGraphicList {
         this.add(pntDevice);
         
         double[] shipCorners = new double[14];
-        shipCorners[0] = leftSideBottomLL[0];
-        shipCorners[1] = leftSideBottomLL[1];
-        shipCorners[2] = leftSideTopLL[0];
-        shipCorners[3] = leftSideTopLL[1];
-        shipCorners[4] = bowLeftLL[0];
-        shipCorners[5] = bowLeftLL[1];
-        shipCorners[6] = bowRightLL[0];
-        shipCorners[7] = bowRightLL[1];
-        shipCorners[8] = rightSideTopLL[0];
-        shipCorners[9] = rightSideTopLL[1];
-        shipCorners[10] = rightSideBottomLL[0];
-        shipCorners[11] = rightSideBottomLL[1];
+        shipCorners[0] = leftSideBottomLL.getLatitude();
+        shipCorners[1] = leftSideBottomLL.getLongitude();
+        shipCorners[2] = leftSideTopLL.getLatitude();
+        shipCorners[3] = leftSideTopLL.getLongitude();
+        shipCorners[4] = bowLeftLL.getLatitude();
+        shipCorners[5] = bowLeftLL.getLongitude();
+        shipCorners[6] = bowRightLL.getLatitude();
+        shipCorners[7] = bowRightLL.getLongitude();
+        shipCorners[8] = rightSideTopLL.getLatitude();
+        shipCorners[9] = rightSideTopLL.getLongitude();
+        shipCorners[10] = rightSideBottomLL.getLatitude();
+        shipCorners[11] = rightSideBottomLL.getLongitude();
         // end poly where it begun (to create a closed shape)
         shipCorners[12] = shipCorners[0];
         shipCorners[13] = shipCorners[1];
@@ -153,30 +153,6 @@ public class VesselOutlineGraphic extends OMGraphicList {
 
     public void setLocation(VesselTarget vessel, Projection proj) {
         this.producePolygon(vessel, proj);
-    }
-
-    private double[] getDestinationPoint(double startLatDegrees, double startLonDegrees,
-            double distanceMeters, double bearingDegrees) {
-        // Convert to radians
-        startLatDegrees = Math.toRadians(startLatDegrees);
-        startLonDegrees = Math.toRadians(startLonDegrees);
-        bearingDegrees = Math.toRadians(bearingDegrees);
-        // the earth's radius in meters
-        final double earthRadius = CoordinateSystem.EARTH_MEAN_RADIUS_KM * 1000.0;
-        double[] endLatLon = new double[2];
-
-        double endLat = Math.asin(Math.sin(startLatDegrees)
-                * Math.cos(distanceMeters / earthRadius) + Math.cos(startLatDegrees)
-                * Math.sin(distanceMeters / earthRadius) * Math.cos(bearingDegrees));
-        double endLon = startLonDegrees
-                + Math.atan2(
-                        Math.sin(bearingDegrees) * Math.sin(distanceMeters / earthRadius)
-                                * Math.cos(startLatDegrees),
-                        Math.cos(distanceMeters / earthRadius) - Math.sin(startLatDegrees)
-                                * Math.sin(endLat));
-        endLatLon[0] = Math.toDegrees(endLat);
-        endLatLon[1] = Math.toDegrees(endLon);
-        return endLatLon;
     }
 
     /**
