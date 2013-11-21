@@ -61,7 +61,7 @@ public class VesselOutlineGraphic extends OMGraphicList {
     /**
      * Ship COG stroke
      */
-    private Stroke cogStroke = new BasicStroke(STROKE_WIDTH * 2);
+    private Stroke cogStroke = new BasicStroke(STROKE_WIDTH);
     
     public VesselOutlineGraphic() {
         this.setVague(true);
@@ -115,11 +115,13 @@ public class VesselOutlineGraphic extends OMGraphicList {
 
         
         int[] xs = {0,0};
-        int[] ys = {0,-200};
+        int[] ys = {0,-100};
         if(this.cogVector == null) {
             this.cogVector = new RotationalPoly(xs, ys, cogStroke, null);
             this.add(this.cogVector);
         }
+        // don't show COG vector if vessel is docked
+        this.cogVector.setVisible(vessel.getPositionData().getSog() > 0.1);
         this.cogVector.setLocation(lat, lon, OMGraphic.DECIMAL_DEGREES, Math.toRadians(this.vessel.getPositionData().getCog()));
         // clear old PntDevice display
         this.remove(this.pntDevice);
@@ -164,13 +166,13 @@ public class VesselOutlineGraphic extends OMGraphicList {
         double[] endLatLon = new double[2];
 
         double endLat = Math.asin(Math.sin(startLatDegrees)
-                * Math.cos((distanceMeters / earthRadius)) + Math.cos(startLatDegrees)
-                * Math.sin((distanceMeters / earthRadius)) * Math.cos(bearingDegrees));
+                * Math.cos(distanceMeters / earthRadius) + Math.cos(startLatDegrees)
+                * Math.sin(distanceMeters / earthRadius) * Math.cos(bearingDegrees));
         double endLon = startLonDegrees
                 + Math.atan2(
-                        Math.sin(bearingDegrees) * Math.sin((distanceMeters / earthRadius))
+                        Math.sin(bearingDegrees) * Math.sin(distanceMeters / earthRadius)
                                 * Math.cos(startLatDegrees),
-                        Math.cos((distanceMeters / earthRadius)) - Math.sin(startLatDegrees)
+                        Math.cos(distanceMeters / earthRadius) - Math.sin(startLatDegrees)
                                 * Math.sin(endLat));
         endLatLon[0] = Math.toDegrees(endLat);
         endLatLon[1] = Math.toDegrees(endLon);
