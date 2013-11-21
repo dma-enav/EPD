@@ -15,6 +15,13 @@
  */
 package dk.dma.epd.ship.ais;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.NumberFormat;
 
 import net.jcip.annotations.ThreadSafe;
@@ -24,6 +31,7 @@ import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.AisPositionMessage;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
+import dk.dma.epd.common.prototype.ais.AisStore;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
@@ -151,5 +159,34 @@ public class AisHandler extends AisHandlerCommon implements IAisListener, IStatu
         return newEntry;
 
     }
-
+    
+    @Override
+    public void saveView() {
+        super.saveView();
+        
+        try (FileOutputStream fileOut = new FileOutputStream(".ownship");
+                ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
+            objectOut.writeObject(ownShip);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    @Override
+    public void loadView() {
+        super.loadView();
+        try (FileInputStream fileIn = new FileInputStream(".ownship");
+                ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
+            ownShip = (VesselTarget) objectIn.readObject();
+        } catch (FileNotFoundException e) {
+            // Not an error
+        } catch (Exception e) {
+//            LOG.error("Failed to load AIS view file: " + e.getMessage());
+            // Delete possible corrupted or old file
+            new File(".ownship").delete();
+        }
+        
+        if(ownShip == null) {
+            ownShip = new VesselTarget();
+        }
+    }
 }
