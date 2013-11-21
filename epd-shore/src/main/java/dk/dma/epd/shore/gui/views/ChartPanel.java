@@ -222,7 +222,10 @@ public class ChartPanel extends CommonChartPanel {
     }
 
     public void forceAisLayerUpdate() {
-        aisLayer.getAisThread().interrupt();
+        if (aisLayer != null) {
+            aisLayer.getAisThread().interrupt();
+        }
+
     }
 
     public Layer getBgLayer() {
@@ -420,10 +423,6 @@ public class ChartPanel extends CommonChartPanel {
         msiLayer.setVisible(true);
         mapHandler.add(msiLayer);
 
-        // Add Route Layer
-        routeLayer = new RouteLayer();
-        routeLayer.setVisible(true);
-        mapHandler.add(routeLayer);
         // }
 
         if (type == MapFrameType.monaLisa) {
@@ -439,7 +438,6 @@ public class ChartPanel extends CommonChartPanel {
 
         }
 
-        // if (type == MapFrameType.standard) {
         // Add Voyage Layer
         voyageLayer = new VoyageLayer();
         voyageLayer.setVisible(true);
@@ -453,14 +451,17 @@ public class ChartPanel extends CommonChartPanel {
         routeEditLayer.setVisible(true);
         mapHandler.add(routeEditLayer);
 
-        // }
-
         if (type == MapFrameType.SAR_Planning) {
             voctLayer = new VoctLayerPlanning();
             voctLayer.setVisible(true);
             mapHandler.add(voctLayer);
             mapHandler.add(EPDShore.getVoctManager());
             mapHandler.add(EPDShore.getSRUManager());
+
+            // Add Route Layer
+            routeLayer = new RouteLayer();
+            routeLayer.setVisible(true);
+            mapHandler.add(routeLayer);
         }
 
         if (type == MapFrameType.SAR_Tracking) {
@@ -470,11 +471,6 @@ public class ChartPanel extends CommonChartPanel {
             mapHandler.add(EPDShore.getVoctManager());
             mapHandler.add(EPDShore.getSRUManager());
         }
-
-        // Add AIS Layer
-        aisLayer = new AisLayer();
-        aisLayer.setVisible(true);
-        mapHandler.add(aisLayer);
 
         // Create background layer
         String layerName = "background";
@@ -493,6 +489,16 @@ public class ChartPanel extends CommonChartPanel {
 
         if (type == MapFrameType.monaLisa || type == MapFrameType.standard) {
 
+            // Add Route Layer
+            routeLayer = new RouteLayer();
+            routeLayer.setVisible(true);
+            mapHandler.add(routeLayer);
+
+            // Add AIS Layer
+            aisLayer = new AisLayer();
+            aisLayer.setVisible(true);
+            mapHandler.add(aisLayer);
+
             // Create MSI handler
             msiHandler = EPDShore.getMsiHandler();
             mapHandler.add(msiHandler);
@@ -507,8 +513,11 @@ public class ChartPanel extends CommonChartPanel {
             voyageLayer.voyagesChanged(VoyageUpdateEvent.VOYAGE_ADDED);
         }
 
-        // Force a route layer update
-        routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
+        if (routeLayer != null) {
+            // Force a route layer update
+            routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
+
+        }
 
         if (wmsLayer.isVisible()) {
             // System.out.println("wms is visible");

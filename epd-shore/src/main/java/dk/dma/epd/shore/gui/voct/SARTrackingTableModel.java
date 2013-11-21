@@ -75,8 +75,14 @@ public class SARTrackingTableModel extends AbstractTableModel {
         switch (columnIndex) {
         case 0: return Formatter.formatString(sruobject.getSru().getName());
         case 1: return sruobject.getSru().getStatus();
-        case 2: return "N/A";
-        case 3: return false;
+        case 2: if (sruobject.getLastMessageDate() == null){
+            return "N/A";
+        }else{
+            return Formatter.formatShortDateTime(sruobject.getLastMessageDate()); 
+        }
+            
+           
+        case 3: return sruobject.isVisible();
         default:
             LOG.error("Unknown column " + columnIndex);
             return new String("");
@@ -86,11 +92,12 @@ public class SARTrackingTableModel extends AbstractTableModel {
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         System.out.println("Set value at, aValue: " + aValue + " rowIndex: "+ rowIndex + " columIndex: " + columnIndex);
-        SRU sru = sruManager.getSRUs().get(rowIndex);
+//        SRU sru = sruManager.getSRUs().get(rowIndex);
+        SRUCommunicationObject sruobject = sruManager.getSRUCommunicationList().get(rowIndex);
         switch (columnIndex) {
         case 3:
             
-//            sru.setVisible((Boolean)aValue);
+            sruobject.setVisible((Boolean)aValue);
 //            sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
             fireTableCellUpdated(rowIndex, columnIndex);
             break;
@@ -102,7 +109,7 @@ public class SARTrackingTableModel extends AbstractTableModel {
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         //return (columnIndex == 2 && rowIndex != routeManager.getActiveRouteIndex());
-        return columnIndex == 2;
+        return columnIndex == 3;
     }
 
     @Override

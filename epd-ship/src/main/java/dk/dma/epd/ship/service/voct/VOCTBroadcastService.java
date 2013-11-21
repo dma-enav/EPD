@@ -18,12 +18,21 @@ package dk.dma.epd.ship.service.voct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.voyage.Route;
+import dk.dma.epd.common.prototype.ais.VesselPositionData;
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
+import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.nmea.IPntListener;
 import dk.dma.epd.common.prototype.sensor.nmea.PntMessage;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.ship.ais.AisHandler;
+import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.EnavService;
 import dk.dma.epd.ship.service.EnavServiceHandler;
 import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
@@ -32,7 +41,7 @@ import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
  * Intended route service implementation
  */
 public class VOCTBroadcastService extends EnavService implements
-        IRoutesUpdateListener, IPntListener {
+        IRoutesUpdateListener, IPntDataListener {
 
     private static final Logger LOG = LoggerFactory
             .getLogger(VOCTBroadcastService.class);
@@ -42,82 +51,129 @@ public class VOCTBroadcastService extends EnavService implements
      */
     private final ActiveRouteProvider provider;
     private final VOCTManager voctManager;
+    // private final PntHandler pntHandler;
+
+    PntData pntData;
 
     public VOCTBroadcastService(EnavServiceHandler enavServiceHandler,
-            ActiveRouteProvider provider, VOCTManager voctManager) {
+            RouteManager provider, PntHandler pntHandler,
+            VOCTManager voctManager) {
         super(enavServiceHandler);
+
+        provider.addListener(this);
+        pntHandler.addListener(this);
+
         this.provider = provider;
+
         this.voctManager = voctManager;
+
+        // this.pntHandler = pntHandler;
+
     }
 
-    
-    
     /**
      * Broadcast intended route
      */
     // @ScheduleWithFixedDelay(10000)
     public void broadcastVOCTMessage() {
-        System.out.println("BROADCAST INTENDED ROUTE");
+        System.out.println("BROADCAST SAR INFORMATION");
 
-        // Get active route from provider
-        LOG.info("Get active route");
+        VOCTSARBroadCast voctBroadCast = new VOCTSARBroadCast();
 
-        provider.getActiveRoute();
-        
-        LOG.info("Got active route");
-        
-     // Make intended route message
-        EnavRouteBroadcast message = new EnavRouteBroadcast();
-        
-        if (provider.getActiveRoute() != null){
-            
-            message.setIntendedRoute(provider.getActiveRoute().getFullRouteData());
-            
-        }else{
-            System.out.println("Active route is null!");
-            message.setIntendedRoute(new Route());
+        // Is there an active route?
+        if (provider.getActiveRoute() != null) {
+
+            // Do we have effort allocation data?
+            if (voctManager.getSarData().getEffortAllocationData().size() > 0) {
+
+                // Do we have a route to send?
+                if (voctManager.getSarData().getFirstEffortAllocationData()
+                        .getSearchPatternRoute() != null) {
+
+                    // Is the search pattern the same as the search
+                    // pattern route?
+                    if (voctManager.getSarData().getFirstEffortAllocationData()
+                            .getSearchPatternRoute()
+                            .isActiveRoute(provider.getActiveRoute())) {
+
+                        voctBroadCast.setIntendedSearchPattern(voctManager
+                                .getSarData().getFirstEffortAllocationData()
+                                .getSearchPatternRoute().getFullRouteData());
+
+                    } else {
+                        LOG.info("Not attaching search route");
+                    }
+                }
+
+            }
         }
-        
-        
-        
-        
+
+        if (pntData != null) {
+
+            double heading = -1.0;
+            if (pntData.getCog() != null) {
+                heading = pntData.getCog();
+            }
+
+            double headingRadian = Math.toRadians(heading);
+
+            // Set location of ship
+            Position currentPos = pntData.getPosition();
+
+            voctBroadCast.setHeading(headingRadian);
+            voctBroadCast.setLat(currentPos.getLatitude());
+            voctBroadCast.setLon(currentPos.getLongitude());
+
+        }else{
+            voctBroadCast.setHeading(-1);
+            voctBroadCast.setLat(-9999);
+            voctBroadCast.setLon(-9999);
+        }
+
         // send message
         LOG.info("Sending VOCT Broadcast");
-//        try {
-//            enavServiceHandler.sendMessage(message);
-//        } catch (Exception e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
 
-        
+        try {
+            enavServiceHandler.sendMessage(voctBroadCast);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
     }
 
-    
-    
     /**
      * Handle event of active route change
      */
     @Override
     public void routesChanged(RoutesUpdateEvent e) {
         if (e != null) {
-            if (e.is(RoutesUpdateEvent.ACTIVE_ROUTE_UPDATE,
-                    RoutesUpdateEvent.ACTIVE_ROUTE_FINISHED,
-                    RoutesUpdateEvent.ROUTE_ACTIVATED,
+            if (e.is(RoutesUpdateEvent.ROUTE_ACTIVATED,
                     RoutesUpdateEvent.ROUTE_DEACTIVATED)) {
-                
-                //Check if the active route is the same as the sar search pattern
-                
+
+                // Check if the active route is the same as the sar search
+                // pattern
+
                 broadcastVOCTMessage();
+
+                //
             }
         }
     }
 
-
-
     @Override
-    public void receive(PntMessage pntMessage) {
-        // TODO Auto-generated method stub
-        
+    public void gpsDataUpdate(PntData pntData) {
+        if (pntData == null || pntData.getPosition() == null) {
+            return;
+        }
+
+        if (pntData == this.pntData) {
+            return;
+        }
+
+        this.pntData = pntData;
+
+        broadcastVOCTMessage();
+
     }
 }

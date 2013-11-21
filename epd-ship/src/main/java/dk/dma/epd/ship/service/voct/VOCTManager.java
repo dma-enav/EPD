@@ -51,7 +51,8 @@ public class VOCTManager extends VOCTManagerCommon {
 
     private static final long serialVersionUID = 1L;
     private SARInput sarInputDialog;
-
+    private VOCTBroadcastService voctBroadcastService;
+        
     VoctLayer voctLayer;
 
     private static final Logger LOG = LoggerFactory
@@ -204,7 +205,18 @@ public class VOCTManager extends VOCTManagerCommon {
         hasSar = true;
 
         notifyListeners(VOCTUpdateEvent.SAR_RECEIVED_CLOUD);
+        
+        
+        //Force start
+        startVOCTBroadcast();
 
     }
 
+    
+    public void startVOCTBroadcast(){
+        voctBroadcastService = new VOCTBroadcastService(EPDShip.getEnavServiceHandler(), EPDShip.getRouteManager(), EPDShip.getPntHandler(), this);
+        
+        
+    }
+    
 }

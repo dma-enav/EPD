@@ -26,6 +26,7 @@ import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.CLOUD_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
+import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.shore.EPDShore;
@@ -51,7 +52,6 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
     public void setVoctTrackingLayer(VoctLayerTracking layer) {
         this.voctLayerTracking = layer;
-        System.out.println("We got a tracking layer for sru manager");
     }
 
     public void notifyListeners(SRUUpdateEvent e, int id) {
@@ -104,7 +104,8 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
                     // Change the status
                     if (srus.get(j).getStatus() != sru_status.ACCEPTED
-                            && srus.get(j).getStatus() != sru_status.AVAILABLE  && srus.get(j).getStatus() != sru_status.INVITED) {
+                            && srus.get(j).getStatus() != sru_status.AVAILABLE
+                            && srus.get(j).getStatus() != sru_status.INVITED) {
                         System.out.println("Updating status WHY");
                         srus.get(j).setStatus(sru_status.AVAILABLE);
                     }
@@ -216,6 +217,11 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
         notifyListeners(SRUUpdateEvent.CLOUD_MESSAGE, sruID);
 
+        if (!EPDShore.getEnavServiceHandler().isListeningToVoct()) {
+            System.out.println("Starting voct listening");
+            EPDShore.getEnavServiceHandler().listenToSAR();
+        }
+
     }
 
     @Override
@@ -305,25 +311,20 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         // new File(VOYAGESFILE).delete();
         // }
 
-        manager.addStaticData();
-
         return manager;
     }
 
-    public void addStaticData() {
-
-        // SRU bopa = new SRU("MHV BOPA", 1, SRU.sru_type.Ship,
-        // SRU.sru_status.UNKNOWN, true);
-
-        // SRU plane = new SRU("Plane 001", 1, SRU.sru_type.PLANE,
-        // SRU.sru_status.UNKNOWN, true);
-        // SRU helicopter = new SRU("Helicopter", 1, SRU.sru_type.HELICOPTER,
-        // SRU.sru_status.UNKNOWN, true);
-
-        // srus.add(bopa);
-        // srus.add(plane);
-        // srus.add(helicopter);
-
+    public void handleSRUBroadcast(long mmsi, VOCTSARBroadCast r) {
+        
+        System.out.println("Recieved Broadcast");
+        
+        //Only react to mmsi that we invited
+        if (sRUCommunication.containsKey(mmsi)) {
+            
+            sRUCommunication.get(mmsi).addBroadcastMessage(r);
+            
+            notifyListeners(SRUUpdateEvent.BROADCAST_MESSAGE, 0);
+        }
     }
 
 }

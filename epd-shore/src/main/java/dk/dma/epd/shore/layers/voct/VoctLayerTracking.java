@@ -31,9 +31,11 @@ import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.voct.SRUManager;
+import dk.dma.epd.shore.voct.SRUUpdateEvent;
+import dk.dma.epd.shore.voct.SRUUpdateListener;
 import dk.dma.epd.shore.voct.VOCTManager;
 
-public class VoctLayerTracking extends VoctLayerCommon {
+public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListener {
     private static final long serialVersionUID = 1L;
     private OMGraphicList graphics = new OMGraphicList();
 
@@ -58,6 +60,7 @@ public class VoctLayerTracking extends VoctLayerCommon {
         if (obj instanceof SRUManager) {
             this.sruManager = (SRUManager) obj;
             sruManager.setVoctTrackingLayer(this);
+            sruManager.addListener(this);
         }
     }
 
@@ -205,6 +208,16 @@ public class VoctLayerTracking extends VoctLayerCommon {
     public synchronized OMGraphicList prepare() {
         graphics.project(getProjection());
         return graphics;
+    }
+
+    @Override
+    public void sruUpdated(SRUUpdateEvent e, int id) {
+        
+        if (e == SRUUpdateEvent.CLOUD_MESSAGE){
+            
+            //A SRU has accepted
+            
+        }
     }
 
 }

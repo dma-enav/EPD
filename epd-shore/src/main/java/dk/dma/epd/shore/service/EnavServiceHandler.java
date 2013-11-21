@@ -61,6 +61,7 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRout
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
+import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
@@ -101,6 +102,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     private long ownMMSI;
 
+    private boolean listenToSAR;
+
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
         this.hostPort = String.format("%s:%d",
                 enavSettings.getCloudServerHost(),
@@ -138,6 +141,23 @@ public class EnavServiceHandler extends MapHandlerChild implements
                         int id = Integer.parseInt(l.getId().toString()
                                 .split("mmsi://")[1]);
                         updateIntendedRoute(id, r.getIntendedRoute());
+                    }
+                });
+    }
+
+    private void listenToVOCTBroadcasts() throws InterruptedException {
+        connection.broadcastListen(VOCTSARBroadCast.class,
+                new BroadcastListener<VOCTSARBroadCast>() {
+                    public void onMessage(BroadcastMessageHeader l,
+                            VOCTSARBroadCast r) {
+
+                        System.out.println("Broadcast recieved!");
+
+                        long id = Long.parseLong(l.getId().toString()
+                                .split("mmsi://")[1]);
+                        
+                        sruManager.handleSRUBroadcast(id, r);
+                        
                     }
                 });
     }
@@ -264,7 +284,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                 sarData.getEffortAllocationData().get(id)
                                         .getSearchPatternRoute()
                                         .switchToDynamic();
-                            }else{
+                            } else {
                                 searchPattern = sarData
                                         .getEffortAllocationData().get(id)
                                         .getSearchPatternRoute()
@@ -487,10 +507,11 @@ public class EnavServiceHandler extends MapHandlerChild implements
             listenToBroadcasts();
             monaLisaRouteRequestListener();
             listenToAck();
+
+
         } catch (Exception e) {
             // Exception for virtual net
-            System.out
-                    .println("An exception occured trying to listen to broadcasts, possibly connection issue");
+            LOG.error("An exception occured trying to listen to broadcasts, possibly connection issue");
         }
 
         // break;
@@ -770,5 +791,24 @@ public class EnavServiceHandler extends MapHandlerChild implements
         }
 
         return false;
+    }
+
+    public boolean isListeningToVoct() {
+        return listenToSAR;
+    }
+
+    public synchronized void listenToSAR() {
+        listenToSAR = true;
+        
+        try {
+            listenToVOCTBroadcasts();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
+    public void stopSARListen(){
+        listenToSAR = false;
     }
 }

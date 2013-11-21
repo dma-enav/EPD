@@ -20,6 +20,7 @@ import java.util.List;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
+import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
@@ -108,4 +109,23 @@ public class SearchPatternRoute extends Route {
     
     
 
+    public boolean isActiveRoute(ActiveRoute activeRoute){
+        //Compare waypoints
+        
+      if (waypoints.size() != activeRoute.getWaypoints().size()){
+          return false;
+      }
+      
+      
+      for (int i = 0; i < waypoints.size(); i++) {
+        
+          if (waypoints.get(i).getPos() != activeRoute.getWaypoints().get(i).getPos()){
+              return false;
+          }
+          
+    }
+        
+        return true;
+    }
+    
 }
