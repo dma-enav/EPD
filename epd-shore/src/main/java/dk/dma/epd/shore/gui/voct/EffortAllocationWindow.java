@@ -684,7 +684,7 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
     }
 
     @Override
-    public void sruUpdated(SRUUpdateEvent e, int id) {
+    public void sruUpdated(SRUUpdateEvent e, long mmsi) {
         sruTableModel.updateCalculateTable();
         sruTableModel.fireTableDataChanged();
     }

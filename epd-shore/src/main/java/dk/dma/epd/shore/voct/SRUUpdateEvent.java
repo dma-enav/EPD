@@ -22,7 +22,7 @@ import java.util.EnumSet;
  * Different events for SRUs
  */
 public enum SRUUpdateEvent {
-    SRU_ADDED, SRU_REMOVED, SRU_VISIBILITY_CHANGED, SRU_CHANGED, SRU_STATUS_CHANGED, CLOUD_MESSAGE, BROADCAST_MESSAGE;
+    SRU_ADDED, SRU_REMOVED, SRU_VISIBILITY_CHANGED, SRU_CHANGED, SRU_STATUS_CHANGED, BROADCAST_MESSAGE, SRU_ACCEPT, SRU_REJECT;
     
     public boolean is(SRUUpdateEvent... events) {
         return EnumSet.copyOf(Arrays.asList(events)).contains(this);

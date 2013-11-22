@@ -115,12 +115,12 @@ public class VOCTBroadcastService extends EnavService implements
                 heading = pntData.getCog();
             }
 
-            double headingRadian = Math.toRadians(heading);
+//            double headingRadian = Math.toRadians(heading);
 
             // Set location of ship
             Position currentPos = pntData.getPosition();
 
-            voctBroadCast.setHeading(headingRadian);
+            voctBroadCast.setHeading(heading);
             voctBroadCast.setLat(currentPos.getLatitude());
             voctBroadCast.setLon(currentPos.getLongitude());
 

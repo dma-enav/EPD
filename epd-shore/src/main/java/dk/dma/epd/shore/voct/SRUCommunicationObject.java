@@ -34,7 +34,7 @@ public class SRUCommunicationObject {
     List<Date> messageDates = new ArrayList<Date>();
 
     private double heading;
-    private boolean visible;
+    private boolean visible = true;
     private Route intendedSearchPattern;
 
     public SRUCommunicationObject(SRU sru) {
@@ -46,11 +46,15 @@ public class SRUCommunicationObject {
     }
 
     public synchronized void addBroadcastMessage(VOCTSARBroadCast message) {
-        
+
         positions.add(Position.create(message.getLat(), message.getLon()));
         this.heading = message.getHeading();
 
-        intendedSearchPattern = new Route(message.getIntendedSearchPattern());
+        if (message.getIntendedSearchPattern() != null) {
+
+            intendedSearchPattern = new Route(
+                    message.getIntendedSearchPattern());
+        }
         messageDates.add(new Date(message.getDate()));
 
         // sruCommunicationObjects.add(message);

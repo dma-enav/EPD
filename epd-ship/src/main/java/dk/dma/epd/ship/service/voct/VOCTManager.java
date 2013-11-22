@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.voct.RapidResponseDTO;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.CLOUD_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -36,6 +37,7 @@ import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.voct.SARInput;
+import dk.dma.epd.ship.gui.voct.SARInvitationRequest;
 import dk.dma.epd.ship.layers.voct.VoctLayer;
 
 /**
@@ -145,70 +147,89 @@ public class VOCTManager extends VOCTManagerCommon {
         voctLayer.updateEffectiveAreaLocation(sarData);
     }
 
-    public void handleSARDataPackage(VOCTCommunicationMessage message) {
+    
+    public void handleDialogAction(boolean accepted, VOCTCommunicationMessage message){
+        
+        
+        if (accepted){
+            EPDShip.getEnavServiceHandler().sendVOCTReply(CLOUD_STATUS.RECIEVED_ACCEPTED, 0, "Accepted");
+            
+            
+            // Remove any old SAR data
+            if (sarData != null) {
+                if (sarData.getEffortAllocationData().size() > 0) {
+                    if (sarData.getEffortAllocationData().get(0)
+                            .getSearchPatternRoute() != null) {
+                        System.out.println("Removing existing routes");
+                        
+                        int routeIndex = EPDShip.getRouteManager().getRouteIndex(
+                                sarData.getEffortAllocationData().get(0)
+                                        .getSearchPatternRoute());
 
-        // Remove any old SAR data
-        if (sarData != null) {
-            if (sarData.getEffortAllocationData().size() > 0) {
-                if (sarData.getEffortAllocationData().get(0)
-                        .getSearchPatternRoute() != null) {
-                    System.out.println("Removing existing routes");
-                    
-                    int routeIndex = EPDShip.getRouteManager().getRouteIndex(
-                            sarData.getEffortAllocationData().get(0)
-                                    .getSearchPatternRoute());
-
-                    EPDShip.getRouteManager().removeRoute(routeIndex);
-                    
-                    
-                    EPDShip.getRouteManager().notifyListeners(
-                            RoutesUpdateEvent.ROUTE_REMOVED);
-                    
+                        EPDShip.getRouteManager().removeRoute(routeIndex);
+                        
+                        
+                        EPDShip.getRouteManager().notifyListeners(
+                                RoutesUpdateEvent.ROUTE_REMOVED);
+                        
+                    }
                 }
             }
-        }
 
-        RapidResponseData data = new RapidResponseData(message.getSarData());
+            RapidResponseData data = new RapidResponseData(message.getSarData());
 
-        if (message.getEffortAllocationData() != null) {
+            if (message.getEffortAllocationData() != null) {
 
-            // message.getEffortAllocationData()
-            EffortAllocationData effortAllocationData = new EffortAllocationData(
-                    message.getEffortAllocationData());
+                // message.getEffortAllocationData()
+                EffortAllocationData effortAllocationData = new EffortAllocationData(
+                        message.getEffortAllocationData());
 
-            if (message.getSearchPattern() != null) {
-                SearchPatternRoute searchPattern = new SearchPatternRoute(
-                        new Route(message.getSearchPattern()));
+                if (message.getSearchPattern() != null) {
+                    SearchPatternRoute searchPattern = new SearchPatternRoute(
+                            new Route(message.getSearchPattern()));
 
-                sarOperation = new SAROperation(SAR_TYPE.RAPID_RESPONSE);
-                
-                
-                SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(
-                        sarOperation);
-                searchPatternGenerator.calculateDynamicWaypoints(searchPattern, data);
-                
-                
-                effortAllocationData.setSearchPatternRoute(searchPattern);
-                EPDShip.getRouteManager().addRoute(searchPattern);
-                EPDShip.getRouteManager().notifyListeners(
-                        RoutesUpdateEvent.ROUTE_ADDED);
+                    sarOperation = new SAROperation(SAR_TYPE.RAPID_RESPONSE);
+                    
+                    
+                    SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(
+                            sarOperation);
+                    searchPatternGenerator.calculateDynamicWaypoints(searchPattern, data);
+                    
+                    
+                    effortAllocationData.setSearchPatternRoute(searchPattern);
+                    EPDShip.getRouteManager().addRoute(searchPattern);
+                    EPDShip.getRouteManager().notifyListeners(
+                            RoutesUpdateEvent.ROUTE_ADDED);
+
+                }
+
+                data.addEffortAllocationData(effortAllocationData, 0);
 
             }
 
-            data.addEffortAllocationData(effortAllocationData, 0);
+            this.setSarData(data);
+            setSarType(SAR_TYPE.RAPID_RESPONSE);
 
+            hasSar = true;
+
+            notifyListeners(VOCTUpdateEvent.SAR_RECEIVED_CLOUD);
+            
+            
+            //Force start
+            startVOCTBroadcast();
+        }else{
+            EPDShip.getEnavServiceHandler().sendVOCTReply(CLOUD_STATUS.RECIEVED_REJECTED, 0, "Rejected");
         }
-
-        this.setSarData(data);
-        setSarType(SAR_TYPE.RAPID_RESPONSE);
-
-        hasSar = true;
-
-        notifyListeners(VOCTUpdateEvent.SAR_RECEIVED_CLOUD);
         
+    }
+    
+    public void handleSARDataPackage(VOCTCommunicationMessage message) {
+
         
-        //Force start
-        startVOCTBroadcast();
+        SARInvitationRequest sarInviteDialog = new SARInvitationRequest(this, message);
+        sarInviteDialog.setVisible(true);
+        
+      
 
     }
 

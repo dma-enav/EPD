@@ -240,7 +240,7 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon implements
     }
 
     @Override
-    public void sruUpdated(SRUUpdateEvent e, int id) {
+    public void sruUpdated(SRUUpdateEvent e, long mmsi) {
         sruTableModel.fireTableDataChanged();
 
     }

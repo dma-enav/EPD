@@ -19,9 +19,11 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.common.util.Converter;
 
 public class DatumPointData extends SARData {
 
@@ -417,26 +419,39 @@ public class DatumPointData extends SARData {
         str.append("<hr>");
         str.append("<font size=\"4\">");
         str.append("Time Elapsed: " + Formatter.formatHours(timeElasped) + "");
-//        str.append("<br>Applying Leeway and TWC gives a datum of  "
-//                + datum.toString() + "</br>");
-//        str.append("<br>With the following Residual Drift Vector</br>");
-//        str.append("<br>RDV Direction: " + rdvDirection + "°</br>");
-//        str.append("<br>RDV Distance: "
-//                + Formatter.formatDouble(rdvDistance, 2) + " nm</br>");
-//        str.append("<br>RDV Speed: " + Formatter.formatDouble(rdvSpeed, 2)
-//                + " kn/h</br>");
-//        str.append("<br>With radius: " + Formatter.formatDouble(radius, 2)
-//                + "nm </br>");
+        
+        str.append("<br>Applying Leeway and TWC gives a datum downwind of  "
+                + datumDownWind.toString() + "</br>");
+        str.append("<br>With the following Downwind Residual Drift Vector</br>");
+        str.append("<br>RDV Downwind Direction: " + rdvDirectionDownWind + "°</br>");
+        str.append("<br>RDV Downwind Distance: "
+                + Formatter.formatDouble(rdvDistanceDownWind, 2) + " nm</br>");
+        str.append("<br>RDV Speed: " + Formatter.formatDouble(rdvSpeedDownWind, 2)
+                + " kn/h</br>");
+        str.append("<br>With radius: " + Formatter.formatDouble(radiusDownWind, 2)
+                + "nm </br>");
+        
+        
+        
+        
         str.append("<hr>");
         str.append("<font size=\"4\">");
         str.append("Search Area:");
-//        str.append("<br>A: " + A.toString() + "</br>");
-//        str.append("<br>B: " + B.toString() + "</br>");
-//        str.append("<br>C: " + C.toString() + "</br>");
-//        str.append("<br>D: " + D.toString() + "</br>");
-//        str.append("<br>Total Size: "
-//                + Formatter.formatDouble(radius * 2 * radius * 2, 2)
-//                + " nm2</br>");
+        
+        str.append("<br>A: " + A.toString() + "</br>");
+        str.append("<br>B: " + B.toString() + "</br>");
+        str.append("<br>C: " + C.toString() + "</br>");
+        str.append("<br>D: " + D.toString() + "</br>");
+        
+        double width = Converter.metersToNm(getA().distanceTo(getD(),
+                CoordinateSystem.CARTESIAN));
+        double height = Converter.metersToNm(getB().distanceTo(getC(),
+                CoordinateSystem.CARTESIAN));
+        
+        
+        str.append("<br>Total Size: "
+                + Formatter.formatDouble(width * height, 2)
+                + " nm2</br>");
 
         str.append("</font>");
         str.append("</td>");

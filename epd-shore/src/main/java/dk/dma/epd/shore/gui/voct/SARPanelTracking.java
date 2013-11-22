@@ -442,9 +442,9 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
     }
 
     @Override
-    public void sruUpdated(SRUUpdateEvent e, int id) {
+    public void sruUpdated(SRUUpdateEvent e, long mmsi) {
         
-        if (e == SRUUpdateEvent.CLOUD_MESSAGE || e == SRUUpdateEvent.SRU_STATUS_CHANGED || e == SRUUpdateEvent.BROADCAST_MESSAGE){
+        if (e == SRUUpdateEvent.SRU_ACCEPT || e == SRUUpdateEvent.SRU_REJECT|| e == SRUUpdateEvent.SRU_STATUS_CHANGED || e == SRUUpdateEvent.BROADCAST_MESSAGE){
             sruTableModel.fireTableDataChanged();
         }
     }

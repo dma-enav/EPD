@@ -21,6 +21,8 @@ package dk.dma.epd.shore.voct;
  */
 public interface SRUUpdateListener {
     
-    void sruUpdated(SRUUpdateEvent e, int id);
+//    void sruUpdated(SRUUpdateEvent e, int id);
+
+    void sruUpdated(SRUUpdateEvent e, long mmsi);
 
 }

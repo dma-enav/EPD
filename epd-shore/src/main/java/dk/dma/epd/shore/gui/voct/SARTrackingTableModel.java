@@ -98,6 +98,7 @@ public class SARTrackingTableModel extends AbstractTableModel {
         case 3:
             
             sruobject.setVisible((Boolean)aValue);
+            sruManager.forceTrackingLayerRepaint();
 //            sruManager.toggleSRUVisiblity(rowIndex, (Boolean)aValue);
             fireTableCellUpdated(rowIndex, columnIndex);
             break;

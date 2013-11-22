@@ -35,11 +35,13 @@ import dk.dma.epd.shore.voct.SRUUpdateEvent;
 import dk.dma.epd.shore.voct.SRUUpdateListener;
 import dk.dma.epd.shore.voct.VOCTManager;
 
-public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListener {
+public class VoctLayerTracking extends VoctLayerCommon implements
+        SRUUpdateListener {
     private static final long serialVersionUID = 1L;
     private OMGraphicList graphics = new OMGraphicList();
 
     private HashMap<Long, EffectiveSRUAreaGraphics> effectiveAreas = new HashMap<>();
+    private HashMap<Long, SRUObject> sruVessels = new HashMap<>();
     private SRUManager sruManager;
 
     @Override
@@ -109,34 +111,32 @@ public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListe
         }
 
         System.out.println("uhm hi id is " + id);
-        
-        if (voctManager.getSarData().getEffortAllocationData().size() > id){
+
+        if (voctManager.getSarData().getEffortAllocationData().size() > id) {
             System.out.println("yes");
+
+            EffortAllocationData effortAllocationData = voctManager
+                    .getSarData().getEffortAllocationData().get(id);
+
+            System.out.println("ehm okay");
+
+            System.out.println("The effort allocation is : "
+                    + effortAllocationData);
+            System.out.println(sruManager.getSRUs(id).getName());
+
+            EffectiveSRUAreaGraphics area = new EffectiveSRUAreaGraphics(
+                    effortAllocationData.getEffectiveAreaA(),
+                    effortAllocationData.getEffectiveAreaB(),
+                    effortAllocationData.getEffectiveAreaC(),
+                    effortAllocationData.getEffectiveAreaD(), id, sruManager
+                            .getSRUs(id).getName());
+
+            effectiveAreas.put(mmsi, area);
+
+            graphics.add(area);
+
+            doPrepare();
         }
-        
-        
-        EffortAllocationData effortAllocationData = voctManager.getSarData()
-                .getEffortAllocationData().get(id);
-
-        System.out.println("ehm okay");
-        
-        System.out.println("The effort allocation is : " + effortAllocationData);
-        System.out.println(sruManager
-                        .getSRUs(id).getName());
-        
-        EffectiveSRUAreaGraphics area = new EffectiveSRUAreaGraphics(
-                effortAllocationData.getEffectiveAreaA(),
-                effortAllocationData.getEffectiveAreaB(),
-                effortAllocationData.getEffectiveAreaC(),
-                effortAllocationData.getEffectiveAreaD(), id, sruManager
-                        .getSRUs(id).getName());
-
-        effectiveAreas.put(mmsi, area);
-        
-        graphics.add(area);
-
-        doPrepare();
-
     }
 
     private void drawRapidResponse() {
@@ -211,12 +211,62 @@ public class VoctLayerTracking extends VoctLayerCommon implements SRUUpdateListe
     }
 
     @Override
-    public void sruUpdated(SRUUpdateEvent e, int id) {
-        
-        if (e == SRUUpdateEvent.CLOUD_MESSAGE){
-            
-            //A SRU has accepted
-            
+    public void sruUpdated(SRUUpdateEvent e, long mmsi) {
+
+        if (e == SRUUpdateEvent.SRU_ACCEPT) {
+            // A SRU has accepted - create the object - possibly overwrite
+            // existing
+
+            // Retrieve and remove the old
+            if (sruVessels.containsKey(mmsi)) {
+                graphics.remove(sruVessels.get(mmsi));
+                sruVessels.remove(mmsi);
+            }
+
+            SRUObject sruObject = new SRUObject(sruManager
+                    .getsRUCommunication().get(mmsi));
+            sruVessels.put(mmsi, sruObject);
+            graphics.add(sruObject);
+
+            doPrepare();
+
+        }
+
+        if (e == SRUUpdateEvent.SRU_REJECT) {
+            // A SRU has rejected - remove the object if it exist
+            // Retrieve and remove the old
+            if (sruVessels.containsKey(mmsi)) {
+                graphics.remove(sruVessels.get(mmsi));
+                sruVessels.remove(mmsi);
+
+                doPrepare();
+            }
+
+        }
+
+        if (e == SRUUpdateEvent.BROADCAST_MESSAGE) {
+            // SRU Broadcast - a new SRU broadcast message has been recieved,
+            // update stuff
+
+            if (sruVessels.containsKey(mmsi)) {
+
+                sruVessels.get(mmsi).updateSRU();
+
+                doPrepare();
+            }
+
+        }
+
+        if (e == SRUUpdateEvent.SRU_REMOVED) {
+            // SRU Broadcast - a new SRU broadcast message has been recieved,
+            // update stuff
+
+            if (sruVessels.containsKey(mmsi)) {
+                graphics.remove(sruVessels.get(mmsi));
+                sruVessels.remove(mmsi);
+                doPrepare();
+            }
+
         }
     }
 

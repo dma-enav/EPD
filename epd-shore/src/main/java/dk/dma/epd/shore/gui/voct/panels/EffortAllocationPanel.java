@@ -233,7 +233,7 @@ public class EffortAllocationPanel extends EffortAllocationPanelCommon
     }
 
     @Override
-    public void sruUpdated(SRUUpdateEvent e, int id) {
+    public void sruUpdated(SRUUpdateEvent e, long mmsi) {
      
         if (e == SRUUpdateEvent.SRU_VISIBILITY_CHANGED){
             sruTableModel.fireTableDataChanged();

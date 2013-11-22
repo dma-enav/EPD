@@ -408,7 +408,7 @@ public class VOCTCommunicationWindow extends JDialog implements
     }
 
     @Override
-    public void sruUpdated(SRUUpdateEvent e, int id) {
+    public void sruUpdated(SRUUpdateEvent e, long mmsi) {
         // TODO Auto-generated method stub
         // sruTableModel.updateCalculateTable();
     }

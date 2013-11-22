@@ -167,6 +167,24 @@ public class EnavServiceHandler extends MapHandlerChild implements
                         }).awaitRegistered(4, TimeUnit.SECONDS);
     }
 
+    
+    public void handleSARReply(boolean accepted){
+        
+        CLOUD_STATUS status;
+        
+        if (accepted){
+            status = CLOUD_STATUS.RECIEVED_ACCEPTED;
+        }else{
+            status = CLOUD_STATUS.RECIEVED_REJECTED;
+        }
+        
+        voctContext.complete(new VOCTCommunicationReply(
+                "Received", (long) 0, aisHandler
+                        .getOwnShip().getMmsi(),
+                new Date().getTime(),
+                status));
+    }
+    
     private void voctMessageListener() throws InterruptedException {
         System.out.println("VOCT Listener");
         connection
@@ -192,11 +210,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
                                 voctManager.handleSARDataPackage(message);
 
-                                voctContext.complete(new VOCTCommunicationReply(
-                                        "Received", (long) 0, aisHandler
-                                                .getOwnShip().getMmsi(),
-                                        new Date().getTime(),
-                                        CLOUD_STATUS.RECIEVED_ACCEPTED));
+
 
                                 // RecievedRoute recievedRoute = new
                                 // RecievedRoute(

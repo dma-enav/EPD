@@ -27,8 +27,6 @@ import com.bbn.openmap.MapHandlerChild;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.CLOUD_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
 import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
-import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
-import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.layers.voct.VoctLayerTracking;
 import dk.dma.epd.shore.service.EnavServiceHandler;
@@ -54,9 +52,9 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         this.voctLayerTracking = layer;
     }
 
-    public void notifyListeners(SRUUpdateEvent e, int id) {
+    public void notifyListeners(SRUUpdateEvent e, long mmsi) {
         for (SRUUpdateListener listener : listeners) {
-            listener.sruUpdated(e, id);
+            listener.sruUpdated(e, mmsi);
         }
 
         // Persist update VOCT info
@@ -194,6 +192,8 @@ public class SRUManager extends MapHandlerChild implements Runnable {
                 // for (int i = 0; i < srus.size(); i++) {
                 // System.out.println(srus.get(i).getStatus());
                 // }
+                
+                notifyListeners(SRUUpdateEvent.SRU_ACCEPT, reply.getMmsi());
                 break;
 
             // If theres an old entry, remove it
@@ -206,6 +206,8 @@ public class SRUManager extends MapHandlerChild implements Runnable {
                 // Remove if we previously had one
                 voctLayerTracking.removeEffectiveArea(sru.getMmsi(), sruID);
 
+                notifyListeners(SRUUpdateEvent.SRU_REJECT, reply.getMmsi());
+                
                 break;
             default:
                 sru.setStatus(sru_status.UNKNOWN);
@@ -215,7 +217,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
         }
 
-        notifyListeners(SRUUpdateEvent.CLOUD_MESSAGE, sruID);
+        
 
         if (!EPDShore.getEnavServiceHandler().isListeningToVoct()) {
             System.out.println("Starting voct listening");
@@ -323,8 +325,12 @@ public class SRUManager extends MapHandlerChild implements Runnable {
             
             sRUCommunication.get(mmsi).addBroadcastMessage(r);
             
-            notifyListeners(SRUUpdateEvent.BROADCAST_MESSAGE, 0);
+            notifyListeners(SRUUpdateEvent.BROADCAST_MESSAGE, mmsi);
         }
     }
 
+    public void forceTrackingLayerRepaint(){
+        voctLayerTracking.doPrepare();
+    }
+    
 }
