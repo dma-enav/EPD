@@ -436,7 +436,13 @@ public class SAROperation {
         data.setDatumMax(datumMax);
 //        
 
-
+        data.setWindListDownWind(datumPositionsDownWind);
+        data.setWindListMax(datumPositionsMax);
+        data.setWindListMin(datumPositionsMin);
+        
+        data.setCurrentListDownWind(currentPositions);
+        data.setCurrentListMax(currentPositions);
+        data.setCurrentListMin(currentPositions);
         
         
         

@@ -31,6 +31,7 @@ import dk.dma.epd.common.text.Formatter;
 
 public class RapidResponseData extends SARData {
 
+    private static final long serialVersionUID = 1L;
     private List<Position> currentList;
     private List<Position> windList;
 
