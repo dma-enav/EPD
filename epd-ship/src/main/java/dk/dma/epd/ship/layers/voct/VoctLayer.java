@@ -457,8 +457,16 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
 
         if (e == VOCTUpdateEvent.SAR_RECEIVED_CLOUD) {
             editLocked = true;
-            drawRapidResponse();
+            
+            if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE){
+                drawRapidResponse();
+            }
+            
 
+            if (voctManager.getSarType() == SAR_TYPE.DATUM_POINT){
+                drawDatumPoint();
+            }
+            
             if (voctManager.getSarData().getEffortAllocationData().size() > 0) {
 
                 EffortAllocationData effortAllocationArea = voctManager

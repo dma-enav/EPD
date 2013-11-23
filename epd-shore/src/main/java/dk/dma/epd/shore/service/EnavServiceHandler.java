@@ -43,6 +43,7 @@ import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.ship.ShipId;
 import dk.dma.enav.model.voct.EffortAllocationDTO;
 import dk.dma.enav.model.voct.RapidResponseDTO;
+import dk.dma.enav.model.voct.DatumPointDTO;
 import dk.dma.enav.model.voyage.Route;
 import dk.dma.enav.util.function.BiConsumer;
 import dk.dma.enav.util.function.Supplier;
@@ -58,10 +59,14 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck.StrategicRouteAck
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationMessageRapidResponse;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse;
 import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
 import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
@@ -94,7 +99,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
     protected Set<RouteExchangeListener> routeExchangeListener = new HashSet<RouteExchangeListener>();
 
     private List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> routeSuggestionList = new ArrayList<>();
-    private List<ServiceEndpoint<VOCTCommunicationMessage, VOCTCommunicationReply>> voctMessageList = new ArrayList<>();
 
     HashMap<Long, InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply>> contextSenders = new HashMap<Long, InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply>>();
 
@@ -103,6 +107,13 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private long ownMMSI;
 
     private boolean listenToSAR;
+
+    /**
+     * Network list for various SAR data objects
+     */
+
+    private List<ServiceEndpoint<VOCTCommunicationMessageRapidResponse, VOCTCommunicationReplyRapidResponse>> voctMessageListRapidResponse = new ArrayList<>();
+    private List<ServiceEndpoint<VOCTCommunicationMessageDatumPoint, VOCTCommunicationReplyDatumPoint>> voctMessageListDatumPoint = new ArrayList<>();
 
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
         this.hostPort = String.format("%s:%d",
@@ -155,9 +166,9 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
                         long id = Long.parseLong(l.getId().toString()
                                 .split("mmsi://")[1]);
-                        
+
                         sruManager.handleSRUBroadcast(id, r);
-                        
+
                     }
                 });
     }
@@ -201,13 +212,17 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private void getVOCTMessageList() {
         System.out.println("Checking for VOCT message list");
         try {
-            voctMessageList = connection
-                    .serviceFind(VOCTCommunicationService.INIT)
+            voctMessageListRapidResponse = connection
+                    .serviceFind(VOCTCommunicationServiceRapidResponse.INIT)
                     .nearest(Integer.MAX_VALUE).get();
 
-            for (int i = 0; i < voctMessageList.size(); i++) {
+            voctMessageListDatumPoint = connection
+                    .serviceFind(VOCTCommunicationServiceDatumPoint.INIT)
+                    .nearest(Integer.MAX_VALUE).get();
+
+            for (int i = 0; i < voctMessageListRapidResponse.size(); i++) {
                 System.out.println("VOCT Listener with ID: "
-                        + voctMessageList.get(i).getId());
+                        + voctMessageListRapidResponse.get(i).getId());
             }
         } catch (Exception e) {
             LOG.error(e.getMessage());
@@ -215,8 +230,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
         }
     }
 
-    public List<ServiceEndpoint<VOCTCommunicationMessage, VOCTCommunicationReply>> getVoctMessageList() {
-        return voctMessageList;
+    public List<ServiceEndpoint<VOCTCommunicationMessageRapidResponse, VOCTCommunicationReplyRapidResponse>> getVoctMessageList() {
+        return voctMessageListRapidResponse;
     }
 
     public List<ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply>> getRouteSuggestionList() {
@@ -242,97 +257,202 @@ public class EnavServiceHandler extends MapHandlerChild implements
         // System.out.println("Send to : " + mmsi);
         String mmsiStr = "mmsi://" + mmsi;
 
-        ServiceEndpoint<VOCTCommunicationService.VOCTCommunicationMessage, VOCTCommunicationService.VOCTCommunicationReply> end = null;
-
-        for (int i = 0; i < voctMessageList.size(); i++) {
-            if (voctMessageList.get(i).getId().toString().equals(mmsiStr)) {
-                end = voctMessageList.get(i);
-
-                break;
-            }
-        }
-        // end = voctMessageList.get(voctMessageList.size() - 1);
-
-        VOCTCommunicationMessage voctMessage = null;
-
         if (sarData instanceof RapidResponseData) {
-            RapidResponseDTO rapidResponseModelData = ((RapidResponseData) sarData)
-                    .getModelData();
+            ServiceEndpoint<VOCTCommunicationServiceRapidResponse.VOCTCommunicationMessageRapidResponse, VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse> end = null;
 
-            EffortAllocationDTO effortAllocationData = null;
-            Route searchPattern = null;
+            for (int i = 0; i < voctMessageListRapidResponse.size(); i++) {
+                if (voctMessageListRapidResponse.get(i).getId().toString()
+                        .equals(mmsiStr)) {
+                    end = voctMessageListRapidResponse.get(i);
 
-            if (isAO) {
-                if (sarData.getEffortAllocationData().size() > id) {
-                    effortAllocationData = sarData.getEffortAllocationData()
-                            .get(id).getModelData();
+                    break;
+                }
+            }
+            // end = voctMessageList.get(voctMessageList.size() - 1);
 
-                    if (isSearchPattern) {
+            VOCTCommunicationMessageRapidResponse voctMessage = null;
 
-                        if (sarData.getEffortAllocationData().get(id)
-                                .getSearchPatternRoute() != null) {
+            if (sarData instanceof RapidResponseData) {
+                RapidResponseDTO rapidResponseModelData = ((RapidResponseData) sarData)
+                        .getModelData();
+
+                EffortAllocationDTO effortAllocationData = null;
+                Route searchPattern = null;
+
+                if (isAO) {
+                    if (sarData.getEffortAllocationData().size() > id) {
+                        effortAllocationData = sarData.getEffortAllocationData()
+                                .get(id).getModelData();
+
+                        if (isSearchPattern) {
 
                             if (sarData.getEffortAllocationData().get(id)
-                                    .getSearchPatternRoute().isDynamic()) {
-                                sarData.getEffortAllocationData().get(id)
-                                        .getSearchPatternRoute()
-                                        .switchToStatic();
-                                searchPattern = sarData
-                                        .getEffortAllocationData().get(id)
-                                        .getSearchPatternRoute()
-                                        .getFullRouteData();
-                                sarData.getEffortAllocationData().get(id)
-                                        .getSearchPatternRoute()
-                                        .switchToDynamic();
-                            } else {
-                                searchPattern = sarData
-                                        .getEffortAllocationData().get(id)
-                                        .getSearchPatternRoute()
-                                        .getFullRouteData();
-                            }
+                                    .getSearchPatternRoute() != null) {
 
+                                if (sarData.getEffortAllocationData().get(id)
+                                        .getSearchPatternRoute().isDynamic()) {
+                                    sarData.getEffortAllocationData().get(id)
+                                            .getSearchPatternRoute()
+                                            .switchToStatic();
+                                    searchPattern = sarData
+                                            .getEffortAllocationData().get(id)
+                                            .getSearchPatternRoute()
+                                            .getFullRouteData();
+                                    sarData.getEffortAllocationData().get(id)
+                                            .getSearchPatternRoute()
+                                            .switchToDynamic();
+                                } else {
+                                    searchPattern = sarData
+                                            .getEffortAllocationData().get(id)
+                                            .getSearchPatternRoute()
+                                            .getFullRouteData();
+                                }
+
+                            }
                         }
                     }
-                }
 
+                }
+                voctMessage = new VOCTCommunicationServiceRapidResponse.VOCTCommunicationMessageRapidResponse(
+                        rapidResponseModelData, effortAllocationData,
+                        searchPattern, sender, message);
             }
-            voctMessage = new VOCTCommunicationService.VOCTCommunicationMessage(
-                    rapidResponseModelData, effortAllocationData,
-                    searchPattern, sender, message);
+
+            System.out.println("Sending VOCT SAR to mmsi: " + mmsi);
+
+            // Internal tracking stuff
+            // RouteSuggestionData suggestionData = new RouteSuggestionData(
+            // routeMessage, null, routeMessage.getId(), mmsi, false,
+            // AIS_STATUS.RECIEVED_APP_ACK);
+            //
+            // RouteSuggestionKey routeSuggestionKey = new RouteSuggestionKey(mmsi,
+            // routeMessage.getId());
+            // routeSuggestions.put(routeSuggestionKey, suggestionData);
+            //
+
+            if (end != null) {
+                ConnectionFuture<VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse> f = end
+                        .invoke(voctMessage);
+
+                f.handle(new BiConsumer<VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse, Throwable>() {
+
+                    @Override
+                    public void accept(VOCTCommunicationReplyRapidResponse l,
+                            Throwable r) {
+                        // TODO Auto-generated method stub
+                        System.out.println("Reply recieved SAR");
+                        sruManager.handleSRUReply(l.getMmsi(), l.getStatus());
+                    }
+                });
+
+            } else {
+                // notifyRouteExchangeListeners();
+                System.out.println("Failed to send");
+                // replyRecieved(f.get());
+            }
+
         }
 
-        System.out.println("Sending VOCT SAR to mmsi: " + mmsi);
+        if (sarData instanceof DatumPointData) {
+            ServiceEndpoint<VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint, VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint> end = null;
 
-        // Internal tracking stuff
-        // RouteSuggestionData suggestionData = new RouteSuggestionData(
-        // routeMessage, null, routeMessage.getId(), mmsi, false,
-        // AIS_STATUS.RECIEVED_APP_ACK);
-        //
-        // RouteSuggestionKey routeSuggestionKey = new RouteSuggestionKey(mmsi,
-        // routeMessage.getId());
-        // routeSuggestions.put(routeSuggestionKey, suggestionData);
-        //
+            for (int i = 0; i < voctMessageListDatumPoint.size(); i++) {
+                if (voctMessageListDatumPoint.get(i).getId().toString()
+                        .equals(mmsiStr)) {
+                    end = voctMessageListDatumPoint.get(i);
 
-        if (end != null) {
-            ConnectionFuture<VOCTCommunicationService.VOCTCommunicationReply> f = end
-                    .invoke(voctMessage);
-
-            f.handle(new BiConsumer<VOCTCommunicationService.VOCTCommunicationReply, Throwable>() {
-
-                @Override
-                public void accept(VOCTCommunicationReply l, Throwable r) {
-                    // TODO Auto-generated method stub
-                    System.out.println("Reply recieved SAR");
-                    sruManager.handleSRUReply(l);
+                    break;
                 }
-            });
+            }
+            // end = voctMessageList.get(voctMessageList.size() - 1);
 
-        } else {
-            // notifyRouteExchangeListeners();
-            System.out.println("Failed to send");
-            // replyRecieved(f.get());
+            VOCTCommunicationMessageDatumPoint voctMessage = null;
+
+            if (sarData instanceof DatumPointData) {
+                DatumPointDTO datumPointModelData = ((DatumPointData) sarData)
+                        .getModelData();
+
+                EffortAllocationDTO effortAllocationData = null;
+                Route searchPattern = null;
+
+                if (isAO) {
+                    if (sarData.getEffortAllocationData().size() > id) {
+                        effortAllocationData = sarData.getEffortAllocationData()
+                                .get(id).getModelData();
+
+                        if (isSearchPattern) {
+
+                            if (sarData.getEffortAllocationData().get(id)
+                                    .getSearchPatternRoute() != null) {
+
+                                if (sarData.getEffortAllocationData().get(id)
+                                        .getSearchPatternRoute().isDynamic()) {
+                                    sarData.getEffortAllocationData().get(id)
+                                            .getSearchPatternRoute()
+                                            .switchToStatic();
+                                    searchPattern = sarData
+                                            .getEffortAllocationData().get(id)
+                                            .getSearchPatternRoute()
+                                            .getFullRouteData();
+                                    sarData.getEffortAllocationData().get(id)
+                                            .getSearchPatternRoute()
+                                            .switchToDynamic();
+                                } else {
+                                    searchPattern = sarData
+                                            .getEffortAllocationData().get(id)
+                                            .getSearchPatternRoute()
+                                            .getFullRouteData();
+                                }
+
+                            }
+                        }
+                    }
+
+                }
+                voctMessage = new VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint(
+                        datumPointModelData, effortAllocationData,
+                        searchPattern, sender, message);
+            }
+
+            System.out.println("Sending VOCT SAR to mmsi: " + mmsi);
+
+            // Internal tracking stuff
+            // RouteSuggestionData suggestionData = new RouteSuggestionData(
+            // routeMessage, null, routeMessage.getId(), mmsi, false,
+            // AIS_STATUS.RECIEVED_APP_ACK);
+            //
+            // RouteSuggestionKey routeSuggestionKey = new RouteSuggestionKey(mmsi,
+            // routeMessage.getId());
+            // routeSuggestions.put(routeSuggestionKey, suggestionData);
+            //
+
+            if (end != null) {
+                ConnectionFuture<VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint> f = end
+                        .invoke(voctMessage);
+
+                f.handle(new BiConsumer<VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint, Throwable>() {
+
+                    @Override
+                    public void accept(VOCTCommunicationReplyDatumPoint l,
+                            Throwable r) {
+                        // TODO Auto-generated method stub
+                        System.out.println("Reply recieved SAR");
+                        sruManager.handleSRUReply(l.getMmsi(), l.getStatus());
+                        }
+                });
+
+            } else {
+                // notifyRouteExchangeListeners();
+                System.out.println("Failed to send");
+                // replyRecieved(f.get());
+            }
+
         }
 
+
+        
+        
+        
     }
 
     public void sendRouteSuggestion(long mmsi, Route route, String sender,
@@ -507,7 +627,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
             listenToBroadcasts();
             monaLisaRouteRequestListener();
             listenToAck();
-
 
         } catch (Exception e) {
             // Exception for virtual net
@@ -799,7 +918,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     public synchronized void listenToSAR() {
         listenToSAR = true;
-        
+
         try {
             listenToVOCTBroadcasts();
         } catch (InterruptedException e) {
@@ -807,8 +926,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
             e.printStackTrace();
         }
     }
-    
-    public void stopSARListen(){
+
+    public void stopSARListen() {
         listenToSAR = false;
     }
 }

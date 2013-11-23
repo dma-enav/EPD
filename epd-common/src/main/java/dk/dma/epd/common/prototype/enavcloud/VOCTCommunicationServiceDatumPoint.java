@@ -21,22 +21,18 @@ import java.util.Date;
 
 import dk.dma.enav.communication.service.spi.ServiceInitiationPoint;
 import dk.dma.enav.communication.service.spi.ServiceMessage;
+import dk.dma.enav.model.voct.DatumPointDTO;
 import dk.dma.enav.model.voct.EffortAllocationDTO;
-import dk.dma.enav.model.voct.RapidResponseDTO;
-import dk.dma.enav.model.voct.SARModelDTO;
 import dk.dma.enav.model.voyage.Route;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.CLOUD_STATUS;
 
-public class VOCTCommunicationService {
+public class VOCTCommunicationServiceDatumPoint {
     
     /** An initiation point */
-    public static final ServiceInitiationPoint<VOCTCommunicationMessage> INIT = new ServiceInitiationPoint<>(
-            VOCTCommunicationMessage.class);
-    
-    public enum CLOUD_STATUS {
-        NOT_SENT, FAILED, SENT_NOT_ACK, RECIEVED_APP_ACK, RECIEVED_ACCEPTED, RECIEVED_REJECTED, RECIEVED_NOTED
-    }
-    
-    public static class VOCTCommunicationReply extends ServiceMessage<Void> {
+    public static final ServiceInitiationPoint<VOCTCommunicationMessageDatumPoint> INIT = new ServiceInitiationPoint<>(
+            VOCTCommunicationMessageDatumPoint.class);
+
+    public static class VOCTCommunicationReplyDatumPoint extends ServiceMessage<Void> {
 
         private String message;
         private long id;
@@ -45,13 +41,13 @@ public class VOCTCommunicationService {
         private CLOUD_STATUS status;
   
 
-        public VOCTCommunicationReply() {
+        public VOCTCommunicationReplyDatumPoint() {
         }
 
         /**
          * @param message
          */
-        public VOCTCommunicationReply(String message, long id, long mmsi, long sendDate, CLOUD_STATUS status) {
+        public VOCTCommunicationReplyDatumPoint(String message, long id, long mmsi, long sendDate, CLOUD_STATUS status) {
             this.message = message;
             this.id = id;
             this.mmsi = mmsi;
@@ -113,10 +109,10 @@ public class VOCTCommunicationService {
     
     
 
-    public static class VOCTCommunicationMessage extends
-            ServiceMessage<VOCTCommunicationReply> {
+    public static class VOCTCommunicationMessageDatumPoint extends
+            ServiceMessage<VOCTCommunicationReplyDatumPoint> {
         
-        private RapidResponseDTO sarData;
+        private DatumPointDTO sarData;
         private EffortAllocationDTO effortAllocationData;
         private Route searchPattern;
         
@@ -125,11 +121,11 @@ public class VOCTCommunicationService {
         private String message;
         
 
-        public VOCTCommunicationMessage() {
+        public VOCTCommunicationMessageDatumPoint() {
         }
         
         
-        public VOCTCommunicationMessage(RapidResponseDTO sarData,
+        public VOCTCommunicationMessageDatumPoint(DatumPointDTO sarData,
                 EffortAllocationDTO effortAllocationData, Route searchPattern,
                 String sender, String message) {
             super();
@@ -146,7 +142,7 @@ public class VOCTCommunicationService {
         /**
          * @return the sarData
          */
-        public RapidResponseDTO getSarData() {
+        public DatumPointDTO getSarData() {
             return sarData;
         }
 
@@ -154,7 +150,7 @@ public class VOCTCommunicationService {
         /**
          * @param sarData the sarData to set
          */
-        public void setSarData(RapidResponseDTO sarData) {
+        public void setSarData(DatumPointDTO sarData) {
             this.sarData = sarData;
         }
 

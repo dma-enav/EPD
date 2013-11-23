@@ -24,8 +24,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.CLOUD_STATUS;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.CLOUD_STATUS;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse;
 import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.layers.voct.VoctLayerTracking;
@@ -148,7 +149,86 @@ public class SRUManager extends MapHandlerChild implements Runnable {
         return sRUCommunication.size();
     }
 
-    public void handleSRUReply(VOCTCommunicationReply reply) {
+    
+    public void handleSRUReply(long mmsi, CLOUD_STATUS msgStatus) {
+
+        System.out.println("Handling SRU Reply!");
+
+        SRU sru = null;
+
+        int sruID = -1;
+
+        for (int i = 0; i < srus.size(); i++) {
+            if (srus.get(i).getMmsi() == mmsi) {
+                // Select the SRU we got the message from
+                sru = srus.get(i);
+                sruID = i;
+                System.out.println("SRU SElected");
+                break;
+            }
+        }
+
+        System.out.println("SRU Choosen " + sru);
+
+        // Make sure we got the message from a SRU on our list.
+        if (sru != null) {
+            CLOUD_STATUS status = msgStatus;
+
+            switch (status) {
+            // If its been accepted we create an entry in the hashmap, should we
+            // overwrite the old one?
+            // Remove old one, put new one
+            case RECIEVED_ACCEPTED:
+                sru.setStatus(sru_status.ACCEPTED);
+                if (sRUCommunication.containsKey(mmsi)) {
+                    sRUCommunication.remove(mmsi);
+                }
+                sRUCommunication.put(mmsi,
+                        new SRUCommunicationObject(sru));
+
+                // Notify voctmanager to paint efffort allocation area for SRU i
+                voctLayerTracking.drawEffectiveArea(sru.getMmsi(), sruID);
+
+                // System.out.println("SRU status set to acceptd");
+                // System.out.println("Running through all SRUS");
+                // for (int i = 0; i < srus.size(); i++) {
+                // System.out.println(srus.get(i).getStatus());
+                // }
+                
+                notifyListeners(SRUUpdateEvent.SRU_ACCEPT, mmsi);
+                break;
+
+            // If theres an old entry, remove it
+            case RECIEVED_REJECTED:
+                sru.setStatus(sru_status.DECLINED);
+                if (sRUCommunication.containsKey(mmsi)) {
+                    sRUCommunication.remove(mmsi);
+                }
+
+                // Remove if we previously had one
+                voctLayerTracking.removeEffectiveArea(sru.getMmsi(), sruID);
+
+                notifyListeners(SRUUpdateEvent.SRU_REJECT, mmsi);
+                
+                break;
+            default:
+                sru.setStatus(sru_status.UNKNOWN);
+
+                break;
+            }
+
+        }
+
+        
+
+        if (!EPDShore.getEnavServiceHandler().isListeningToVoct()) {
+            System.out.println("Starting voct listening");
+            EPDShore.getEnavServiceHandler().listenToSAR();
+        }
+
+    }
+    
+    public void handleSRUReply(VOCTCommunicationReplyRapidResponse reply) {
 
         System.out.println("Handling SRU Reply!");
 
@@ -331,6 +411,11 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
     public void forceTrackingLayerRepaint(){
         voctLayerTracking.doPrepare();
+    }
+
+    public void handleSRUReply(VOCTCommunicationReplyDatumPoint l) {
+        // TODO Auto-generated method stub
+        
     }
     
 }

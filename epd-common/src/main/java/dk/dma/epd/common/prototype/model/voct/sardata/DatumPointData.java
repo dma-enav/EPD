@@ -110,7 +110,7 @@ public class DatumPointData extends SARData {
         this.rdvSpeedDownWind = data.getRadiusDownWind();
         this.rdvSpeedMax = data.getRadiusMax();
         this.rdvSpeedMin = data.getRadiusMin();
-
+        
         this.A = Position.create(data.getA().getLatitude(), data.getA()
                 .getLongitude());
         this.B = Position.create(data.getB().getLatitude(), data.getB()
@@ -172,6 +172,10 @@ public class DatumPointData extends SARData {
 
         this.setWeatherPoints(weatherPoints);
 
+        
+
+        this.wtc = currentListDownWind.get(currentListDownWind.size()-1);
+        
     }
 
     public void setBox(Position A, Position B, Position C, Position D) {

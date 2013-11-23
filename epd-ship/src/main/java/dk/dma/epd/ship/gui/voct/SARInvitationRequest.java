@@ -31,10 +31,11 @@ import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationMessageRapidResponse;
+import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.ComponentFrame;
-import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 
 /**
@@ -53,14 +54,41 @@ public class SARInvitationRequest extends ComponentFrame implements
     private JLabel lblSARID;
     private VOCTManager voctManager;
 
-    VOCTCommunicationMessage message;
     JLabel messageInfoLabel;
 
+    VOCTCommunicationMessageRapidResponse rapidResponseMessage;
+    VOCTCommunicationMessageDatumPoint datumPointMessage;
+
+    SAR_TYPE type;
+
+    /**
+     * @wbp.parser.constructor
+     */
     public SARInvitationRequest(VOCTManager voctManager,
-            VOCTCommunicationMessage message) {
+            VOCTCommunicationMessageRapidResponse message) {
         super();
+
+        this.rapidResponseMessage = message;
+
+        type = SAR_TYPE.RAPID_RESPONSE;
+
+        setupVariables(voctManager);
+    }
+
+    public SARInvitationRequest(VOCTManager voctManager,
+            VOCTCommunicationMessageDatumPoint message) {
+        super();
+
+        this.datumPointMessage = message;
+
+        type = SAR_TYPE.DATUM_POINT;
+
+        setupVariables(voctManager);
+    }
+
+    private void setupVariables(VOCTManager voctManager) {
+
         this.voctManager = voctManager;
-        this.message = message;
         setResizable(false);
         setTitle("Search and Rescue Request");
 
@@ -72,6 +100,7 @@ public class SARInvitationRequest extends ComponentFrame implements
         initGui();
         setLabels();
         new Thread(this).start();
+
     }
 
     private void initGui() {
@@ -122,80 +151,156 @@ public class SARInvitationRequest extends ComponentFrame implements
         lblSARType = new JLabel("N/A");
 
         lblSARID = new JLabel("N/A");
-        
+
         messageInfoLabel = new JLabel("N/A");
 
         GroupLayout gl_routePanel = new GroupLayout(routePanel);
-        gl_routePanel.setHorizontalGroup(
-            gl_routePanel.createParallelGroup(Alignment.TRAILING)
-                .addGroup(gl_routePanel.createSequentialGroup()
-                    .addGroup(gl_routePanel.createParallelGroup(Alignment.LEADING)
-                        .addGroup(gl_routePanel.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(acceptBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
-                            .addGap(18)
-                            .addComponent(rejectBtn, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
-                            .addGap(18)
-                            .addComponent(zoomBtn))
-                        .addGroup(gl_routePanel.createSequentialGroup()
-                            .addContainerGap()
-                            .addGroup(gl_routePanel.createParallelGroup(Alignment.LEADING)
-                                .addComponent(lblSarId)
-                                .addComponent(lblOperationName))
-                            .addGap(54)
-                            .addGroup(gl_routePanel.createParallelGroup(Alignment.TRAILING)
-                                .addComponent(lblSARID)
-                                .addComponent(lblSARType)))
-                        .addGroup(gl_routePanel.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(lblRequestYourVessel))
-                        .addGroup(gl_routePanel.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(messageInfoLabel)))
-                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        gl_routePanel.setVerticalGroup(
-            gl_routePanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_routePanel.createSequentialGroup()
-                    .addGroup(gl_routePanel.createParallelGroup(Alignment.BASELINE)
-                        .addComponent(lblSARID)
-                        .addComponent(lblSarId, GroupLayout.PREFERRED_SIZE, 14, GroupLayout.PREFERRED_SIZE))
-                    .addGap(6)
-                    .addGroup(gl_routePanel.createParallelGroup(Alignment.BASELINE)
-                        .addComponent(lblOperationName)
-                        .addComponent(lblSARType))
-                    .addGap(18)
-                    .addComponent(lblRequestYourVessel)
-                    .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(messageInfoLabel)
-                    .addPreferredGap(ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
-                    .addGroup(gl_routePanel.createParallelGroup(Alignment.BASELINE)
-                        .addComponent(acceptBtn)
-                        .addComponent(rejectBtn)
-                        .addComponent(zoomBtn)))
-        );
+        gl_routePanel
+                .setHorizontalGroup(gl_routePanel
+                        .createParallelGroup(Alignment.TRAILING)
+                        .addGroup(
+                                gl_routePanel
+                                        .createSequentialGroup()
+                                        .addGroup(
+                                                gl_routePanel
+                                                        .createParallelGroup(
+                                                                Alignment.LEADING)
+                                                        .addGroup(
+                                                                gl_routePanel
+                                                                        .createSequentialGroup()
+                                                                        .addContainerGap()
+                                                                        .addComponent(
+                                                                                acceptBtn,
+                                                                                GroupLayout.PREFERRED_SIZE,
+                                                                                87,
+                                                                                GroupLayout.PREFERRED_SIZE)
+                                                                        .addGap(18)
+                                                                        .addComponent(
+                                                                                rejectBtn,
+                                                                                GroupLayout.PREFERRED_SIZE,
+                                                                                87,
+                                                                                GroupLayout.PREFERRED_SIZE)
+                                                                        .addGap(18)
+                                                                        .addComponent(
+                                                                                zoomBtn))
+                                                        .addGroup(
+                                                                gl_routePanel
+                                                                        .createSequentialGroup()
+                                                                        .addContainerGap()
+                                                                        .addGroup(
+                                                                                gl_routePanel
+                                                                                        .createParallelGroup(
+                                                                                                Alignment.LEADING)
+                                                                                        .addComponent(
+                                                                                                lblSarId)
+                                                                                        .addComponent(
+                                                                                                lblOperationName))
+                                                                        .addGap(54)
+                                                                        .addGroup(
+                                                                                gl_routePanel
+                                                                                        .createParallelGroup(
+                                                                                                Alignment.TRAILING)
+                                                                                        .addComponent(
+                                                                                                lblSARID)
+                                                                                        .addComponent(
+                                                                                                lblSARType)))
+                                                        .addGroup(
+                                                                gl_routePanel
+                                                                        .createSequentialGroup()
+                                                                        .addContainerGap()
+                                                                        .addComponent(
+                                                                                lblRequestYourVessel))
+                                                        .addGroup(
+                                                                gl_routePanel
+                                                                        .createSequentialGroup()
+                                                                        .addContainerGap()
+                                                                        .addComponent(
+                                                                                messageInfoLabel)))
+                                        .addContainerGap(
+                                                GroupLayout.DEFAULT_SIZE,
+                                                Short.MAX_VALUE)));
+        gl_routePanel
+                .setVerticalGroup(gl_routePanel
+                        .createParallelGroup(Alignment.LEADING)
+                        .addGroup(
+                                gl_routePanel
+                                        .createSequentialGroup()
+                                        .addGroup(
+                                                gl_routePanel
+                                                        .createParallelGroup(
+                                                                Alignment.BASELINE)
+                                                        .addComponent(lblSARID)
+                                                        .addComponent(
+                                                                lblSarId,
+                                                                GroupLayout.PREFERRED_SIZE,
+                                                                14,
+                                                                GroupLayout.PREFERRED_SIZE))
+                                        .addGap(6)
+                                        .addGroup(
+                                                gl_routePanel
+                                                        .createParallelGroup(
+                                                                Alignment.BASELINE)
+                                                        .addComponent(
+                                                                lblOperationName)
+                                                        .addComponent(
+                                                                lblSARType))
+                                        .addGap(18)
+                                        .addComponent(lblRequestYourVessel)
+                                        .addPreferredGap(
+                                                ComponentPlacement.RELATED)
+                                        .addComponent(messageInfoLabel)
+                                        .addPreferredGap(
+                                                ComponentPlacement.RELATED, 48,
+                                                Short.MAX_VALUE)
+                                        .addGroup(
+                                                gl_routePanel
+                                                        .createParallelGroup(
+                                                                Alignment.BASELINE)
+                                                        .addComponent(acceptBtn)
+                                                        .addComponent(rejectBtn)
+                                                        .addComponent(zoomBtn))));
         routePanel.setLayout(gl_routePanel);
         getContentPane().setLayout(groupLayout);
 
     }
 
     private void setLabels() {
-        
+
         String dataContained = "SAR Search Area";
-        if (!message.getSarData().getSarID().equals("")) {
-            lblSARID.setText(message.getSarData().getSarID());
+        lblSARType.setText(type.toString());
+
+        if (type == SAR_TYPE.RAPID_RESPONSE) {
+            if (!rapidResponseMessage.getSarData().getSarID().equals("")) {
+                lblSARID.setText(rapidResponseMessage.getSarData().getSarID());
+            }
+
+            if (rapidResponseMessage.getEffortAllocationData() != null) {
+                dataContained = dataContained + ", designated operational area";
+            }
+
+            if (rapidResponseMessage.getSearchPattern() != null) {
+                dataContained = dataContained + ", search pattern";
+            }
+
         }
 
-        if (message.getEffortAllocationData() != null){
-            dataContained = dataContained+ ", designated operational area";
+        if (type == SAR_TYPE.DATUM_POINT) {
+            if (!datumPointMessage.getSarData().getSarID().equals("")) {
+                lblSARID.setText(datumPointMessage.getSarData().getSarID());
+            }
+
+            if (datumPointMessage.getEffortAllocationData() != null) {
+                dataContained = dataContained + ", designated operational area";
+            }
+
+            if (datumPointMessage.getSearchPattern() != null) {
+                dataContained = dataContained + ", search pattern";
+            }
+
         }
-        
-        if (message.getSearchPattern() != null) {
-            dataContained = dataContained+ ", search pattern";
-        }
-        
+
         messageInfoLabel.setText(dataContained);
-        
+
     }
 
     @Override
@@ -206,7 +311,15 @@ public class SARInvitationRequest extends ComponentFrame implements
 
     @Override
     public void dispose() {
-        voctManager.handleDialogAction(false, message);
+        
+        if (type == SAR_TYPE.RAPID_RESPONSE){
+            voctManager.handleDialogAction(false, rapidResponseMessage, type);    
+        }
+        
+        if (type == SAR_TYPE.DATUM_POINT){
+            voctManager.handleDialogAction(false, datumPointMessage, type);    
+        }
+        
         super.dispose();
 
     }
@@ -220,37 +333,77 @@ public class SARInvitationRequest extends ComponentFrame implements
 
         if (arg0.getSource() == acceptBtn) {
 
-            voctManager.handleDialogAction(true, message);
+            if (type == SAR_TYPE.RAPID_RESPONSE) {
+                voctManager
+                        .handleDialogAction(true, rapidResponseMessage, type);
+            }
+
+            if (type == SAR_TYPE.DATUM_POINT) {
+                voctManager
+                        .handleDialogAction(true, datumPointMessage, type);
+            }
+
+            
+            
             disposeInternal();
             return;
         }
 
         if (arg0.getSource() == rejectBtn) {
-            voctManager.handleDialogAction(false, message);
+
+            if (type == SAR_TYPE.RAPID_RESPONSE) {
+                voctManager.handleDialogAction(false, rapidResponseMessage,
+                        type);
+            }
+            
+            
+
+            if (type == SAR_TYPE.DATUM_POINT) {
+                voctManager
+                        .handleDialogAction(false, datumPointMessage, type);
+            }
+            
             disposeInternal();
             return;
         }
 
         if (arg0.getSource() == zoomBtn) {
-
             List<Position> positions = new ArrayList<Position>();
 
-            positions
-                    .add(Position.create(message.getSarData().getA()
-                            .getLatitude(), message.getSarData().getA()
-                            .getLongitude()));
-            positions
-                    .add(Position.create(message.getSarData().getB()
-                            .getLatitude(), message.getSarData().getB()
-                            .getLongitude()));
-            positions
-                    .add(Position.create(message.getSarData().getC()
-                            .getLatitude(), message.getSarData().getC()
-                            .getLongitude()));
-            positions
-                    .add(Position.create(message.getSarData().getD()
-                            .getLatitude(), message.getSarData().getD()
-                            .getLongitude()));
+            if (type == SAR_TYPE.RAPID_RESPONSE){
+                positions.add(Position.create(rapidResponseMessage.getSarData()
+                        .getA().getLatitude(), rapidResponseMessage.getSarData()
+                        .getA().getLongitude()));
+                positions.add(Position.create(rapidResponseMessage.getSarData()
+                        .getB().getLatitude(), rapidResponseMessage.getSarData()
+                        .getB().getLongitude()));
+                positions.add(Position.create(rapidResponseMessage.getSarData()
+                        .getC().getLatitude(), rapidResponseMessage.getSarData()
+                        .getC().getLongitude()));
+                positions.add(Position.create(rapidResponseMessage.getSarData()
+                        .getD().getLatitude(), rapidResponseMessage.getSarData()
+                        .getD().getLongitude()));
+                
+            }
+            
+
+            if (type == SAR_TYPE.DATUM_POINT){
+                positions.add(Position.create(datumPointMessage.getSarData()
+                        .getA().getLatitude(), datumPointMessage.getSarData()
+                        .getA().getLongitude()));
+                positions.add(Position.create(datumPointMessage.getSarData()
+                        .getB().getLatitude(), datumPointMessage.getSarData()
+                        .getB().getLongitude()));
+                positions.add(Position.create(datumPointMessage.getSarData()
+                        .getC().getLatitude(), datumPointMessage.getSarData()
+                        .getC().getLongitude()));
+                positions.add(Position.create(datumPointMessage.getSarData()
+                        .getD().getLatitude(), datumPointMessage.getSarData()
+                        .getD().getLongitude()));
+                
+            }
+
+            
 
             EPDShip.getMainFrame().getChartPanel().zoomTo(positions);
 

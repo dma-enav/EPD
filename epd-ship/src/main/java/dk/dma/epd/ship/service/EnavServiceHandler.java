@@ -51,10 +51,14 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck.StrategicRouteAck
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.CLOUD_STATUS;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationMessage;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationService.VOCTCommunicationReply;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.CLOUD_STATUS;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationMessageRapidResponse;
+import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse;
+import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
@@ -93,8 +97,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply> monaLisaContext;
 
-    private InvocationCallback.Context<VOCTCommunicationService.VOCTCommunicationReply> voctContext;
-
     protected CloudStatus cloudStatus = new CloudStatus();
 
     // End point holders for Mona Lisa Route Exchange
@@ -104,6 +106,13 @@ public class EnavServiceHandler extends MapHandlerChild implements
     PersistentConnection connection;
 
     private IntendedRouteService intendedRouteService;
+
+    /**
+     * Protocols needed for VOCT Communication - may be further split or
+     * combined in future
+     */
+    private InvocationCallback.Context<VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse> voctContextRapidResponse;
+    private InvocationCallback.Context<VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint> voctContextDatumPoint;
 
     public EnavServiceHandler(EPDEnavSettings enavSettings) {
         this.hostPort = String.format("%s:%d",
@@ -167,76 +176,97 @@ public class EnavServiceHandler extends MapHandlerChild implements
                         }).awaitRegistered(4, TimeUnit.SECONDS);
     }
 
-    
-    public void handleSARReply(boolean accepted){
-        
+    public void handleSARReply(boolean accepted) {
+
         CLOUD_STATUS status;
-        
-        if (accepted){
+
+        if (accepted) {
             status = CLOUD_STATUS.RECIEVED_ACCEPTED;
-        }else{
+        } else {
             status = CLOUD_STATUS.RECIEVED_REJECTED;
         }
-        
-        voctContext.complete(new VOCTCommunicationReply(
-                "Received", (long) 0, aisHandler
-                        .getOwnShip().getMmsi(),
-                new Date().getTime(),
-                status));
+
+        voctContextRapidResponse
+                .complete(new VOCTCommunicationReplyRapidResponse("Received",
+                        (long) 0, aisHandler.getOwnShip().getMmsi(), new Date()
+                                .getTime(), status));
     }
-    
+
     private void voctMessageListener() throws InterruptedException {
         System.out.println("VOCT Listener");
+
+        // Register for RapidResponse
         connection
                 .serviceRegister(
-                        VOCTCommunicationService.INIT,
-                        new InvocationCallback<VOCTCommunicationService.VOCTCommunicationMessage, VOCTCommunicationService.VOCTCommunicationReply>() {
+                        VOCTCommunicationServiceRapidResponse.INIT,
+                        new InvocationCallback<VOCTCommunicationServiceRapidResponse.VOCTCommunicationMessageRapidResponse, VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse>() {
                             public void process(
-                                    VOCTCommunicationMessage message,
-                                    InvocationCallback.Context<VOCTCommunicationService.VOCTCommunicationReply> context) {
+                                    VOCTCommunicationMessageRapidResponse message,
+                                    InvocationCallback.Context<VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse> context) {
 
                                 System.out.println("Received SAR Payload!");
-                                // SARModelData sarData = message.getSarData();
-
-                                // RapidResponseModelData rapidResponseModelData
-                                // = (RapidResponseModelData) sarData;
-
-                                // RapidResponseDTO rapidResponseModelData =
-                                // message.getSarData();
-
                                 cloudStatus.markCloudReception();
 
-                                voctContext = context;
+                                voctContextRapidResponse = context;
 
                                 voctManager.handleSARDataPackage(message);
-
-
-
-                                // RecievedRoute recievedRoute = new
-                                // RecievedRoute(
-                                // message);
-                                //
-                                // EPDShip.getRouteManager()
-                                // .recieveRouteSuggestion(recievedRoute);
 
                             }
 
                         }).awaitRegistered(4, TimeUnit.SECONDS);
+
+        // Register for DatumPoint
+        connection
+                .serviceRegister(
+                        VOCTCommunicationServiceDatumPoint.INIT,
+                        new InvocationCallback<VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint, VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint>() {
+                            public void process(
+                                    VOCTCommunicationMessageDatumPoint message,
+                                    InvocationCallback.Context<VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint> context) {
+
+                                System.out.println("Received SAR Payload!");
+                                cloudStatus.markCloudReception();
+
+                                voctContextDatumPoint = context;
+
+                                voctManager.handleSARDataPackage(message);
+
+                            }
+                        }).awaitRegistered(4, TimeUnit.SECONDS);
+
     }
 
     public void sendVOCTReply(CLOUD_STATUS recievedAccepted, long id,
-            String message) {
-        try {
-            voctContext
-                    .complete(new VOCTCommunicationService.VOCTCommunicationReply(
-                            message, id, aisHandler.getOwnShip().getMmsi(),
-                            System.currentTimeMillis(), recievedAccepted));
-            cloudStatus.markSuccesfullSend();
-        } catch (Exception e) {
-            cloudStatus.markFailedSend();
-            System.out.println("Failed to reply");
+            String message, SAR_TYPE type) {
+        
+        if (type == SAR_TYPE.RAPID_RESPONSE){
+            try {
+                voctContextRapidResponse
+                        .complete(new VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse(
+                                message, id, aisHandler.getOwnShip().getMmsi(),
+                                System.currentTimeMillis(), recievedAccepted));
+                cloudStatus.markSuccesfullSend();
+            } catch (Exception e) {
+                cloudStatus.markFailedSend();
+                System.out.println("Failed to reply");
+            }            
         }
+        
+        
 
+        if (type == SAR_TYPE.DATUM_POINT){
+            try {
+                voctContextDatumPoint
+                        .complete(new VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint(
+                                message, id, aisHandler.getOwnShip().getMmsi(),
+                                System.currentTimeMillis(), recievedAccepted));
+                cloudStatus.markSuccesfullSend();
+            } catch (Exception e) {
+                cloudStatus.markFailedSend();
+                System.out.println("Failed to reply");
+            }            
+        }
+        
     }
 
     public InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> getContext() {
