@@ -287,8 +287,11 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
         surfaceDriftPanelContainer.add(btnFetchMetocData);
 
         btnAddPoint = new JButton("Add point");
-        // btnAddPoint.setEnabled(false);
-        btnAddPoint.setBounds(265, 22, 89, 23);
+         
+        btnAddPoint.setEnabled(false);
+        
+         
+         btnAddPoint.setBounds(265, 22, 89, 23);
         surfaceDriftPanelContainer.add(btnAddPoint);
         btnAddPoint.addActionListener(this);
 
@@ -381,7 +384,7 @@ public class RapidResponseDatumPointInputPanel extends JPanel implements
 
         }
 
-        initSetValues();
+//        initSetValues();
 
     }
 

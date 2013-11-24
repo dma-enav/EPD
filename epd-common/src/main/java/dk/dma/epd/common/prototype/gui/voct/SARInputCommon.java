@@ -255,7 +255,7 @@ public class SARInputCommon extends JDialog implements ActionListener,
             case 2:
                 descriptiveImage.setIcon(datumLineIcon);
                 descriptiveText.setText(datumLineTxt);
-                nextButton.setEnabled(true);
+                nextButton.setEnabled(false);
                 break;
             case 3:
                 descriptiveImage.setIcon(backtrackIcon);
