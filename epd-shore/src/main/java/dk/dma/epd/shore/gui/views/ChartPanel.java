@@ -462,6 +462,11 @@ public class ChartPanel extends CommonChartPanel {
             routeLayer = new RouteLayer();
             routeLayer.setVisible(true);
             mapHandler.add(routeLayer);
+            
+            // Add AIS Layer
+            aisLayer = new AisLayer();
+            aisLayer.setVisible(true);
+            mapHandler.add(aisLayer);
         }
 
         if (type == MapFrameType.SAR_Tracking) {

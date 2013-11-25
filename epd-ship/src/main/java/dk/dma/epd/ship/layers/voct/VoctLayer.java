@@ -204,9 +204,13 @@ public class VoctLayer extends OMGraphicHandlerLayer implements
         }
 
         if (selectedGraphic instanceof SarEffectiveAreaLines) {
-            // System.out.println("Selected line");
+            
+             System.out.println("Selected line");
+             
             SarEffectiveAreaLines selectedLine = (SarEffectiveAreaLines) selectedGraphic;
 
+            System.out.println(selectedLine.getType());
+            
             // If bottom or top we can only adjust latitude
 
             // If sides we can adjust longitude
