@@ -6,5 +6,6 @@ target
 .project
 .settings
 .DS_Store
+.ownship
 /epd-ship/log
 /epd-shore/log
