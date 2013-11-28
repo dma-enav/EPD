@@ -45,6 +45,7 @@ public class VesselTargetGraphic extends TargetGraphic {
     // VesselOutlineGraphic
     private VesselOutlineGraphic vesselOutlineGraphic;
     // VesselDotGraphic
+    private VesselDotGraphic vesselDotGraphic;
     
     private IntendedRouteGraphic routeGraphic = new IntendedRouteGraphic();
 
@@ -53,12 +54,14 @@ public class VesselTargetGraphic extends TargetGraphic {
         this.vesselTriangleGraphic = new VesselTriangleGraphic(this);
         this.vesselTriangleGraphic.setShowNameLabel(showName);
         this.vesselOutlineGraphic = new VesselOutlineGraphic();
+        this.vesselDotGraphic = new VesselDotGraphic();
     }
 
     private void createGraphics() {
         this.add(this.routeGraphic);
         this.add(this.vesselTriangleGraphic);
         this.add(this.vesselOutlineGraphic);
+        this.add(this.vesselDotGraphic);
     }
 
     @Override
@@ -79,7 +82,9 @@ public class VesselTargetGraphic extends TargetGraphic {
             }
             // update sub graphic
             this.vesselTriangleGraphic.update(aisTarget, aisSettings, navSettings);
-            
+            if(pos != null) {
+                this.vesselDotGraphic.updateLocation(pos);
+            }
             // Determine name
             String name;
             if (staticData != null) {
@@ -106,6 +111,7 @@ public class VesselTargetGraphic extends TargetGraphic {
     private void drawOutline() {
         // hide other display modes
         this.vesselTriangleGraphic.setVisible(false);
+        this.vesselDotGraphic.setVisible(false);
         // update data
         this.vesselOutlineGraphic.setLocation(vesselTarget);
         // (re-)enable visibility for outline mode
@@ -116,14 +122,17 @@ public class VesselTargetGraphic extends TargetGraphic {
     private void drawTriangle() {
         // hide other display modes
         this.vesselOutlineGraphic.setVisible(false);
+        this.vesselDotGraphic.setVisible(false);
         // (re-)enable visibility for triangle mode
         this.vesselTriangleGraphic.setVisible(true);
     }
     
     private void drawDot() {
-        // TODO to be implemented
+        // hide other display modes
         this.vesselOutlineGraphic.setVisible(false);
         this.vesselTriangleGraphic.setVisible(false);
+        // (re-)enable visibility for dot mode
+        this.vesselDotGraphic.setVisible(true);
     }
     
     @Override
@@ -175,9 +184,7 @@ public class VesselTargetGraphic extends TargetGraphic {
             this.drawTriangle();
             break;
         case VESSEL_DOT:
-            // TODO update to actual graphic
-            this.drawTriangle();
-            //this.drawDot();
+            this.drawDot();
             break;
         }
     }

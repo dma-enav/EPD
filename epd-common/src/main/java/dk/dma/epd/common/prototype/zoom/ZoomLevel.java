@@ -69,9 +69,8 @@ public enum ZoomLevel {
      * Get the ZoomLevel that corresponds to a given scale value.
      * @param scale The scale value.
      * @return A ZoomLevel that contains this scale value or null if this scale value is not supported.
-     * @throws IllegalArgumentException if scale is less than 0.
      */
-    public static ZoomLevel getFromScale(float scale) throws IllegalArgumentException {
+    public static ZoomLevel getFromScale(float scale) {
         if(scale < 0.0f) {
             throw new IllegalArgumentException("Negative scale value not allowed.");
         }
