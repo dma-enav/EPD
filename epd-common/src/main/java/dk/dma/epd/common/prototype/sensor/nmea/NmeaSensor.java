@@ -104,16 +104,18 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
      */
     protected void readLoop(InputStream stream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        String msg;
+        String line;
 
-        while ((msg = reader.readLine()) != null) {
-            if (isReplay()) {
-                handleReplay(msg);
-            }
-
-            handleSentence(msg);
+        while ((line = reader.readLine()) != null) {
+            handleLine(line);
         }
-
+    }
+    
+    protected void handleLine(String line) {
+        if (isReplay()) {
+            handleReplay(line);
+        }
+        handleSentence(line);
     }
 
     /**
