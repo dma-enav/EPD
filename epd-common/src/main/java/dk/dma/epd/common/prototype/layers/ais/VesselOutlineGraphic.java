@@ -22,7 +22,6 @@ import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMPoly;
-import com.bbn.openmap.proj.Projection;
 
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
@@ -68,7 +67,7 @@ public class VesselOutlineGraphic extends OMGraphicList {
         this.setVague(true);
     }
 
-    private void producePolygon(VesselTarget vessel, Projection proj) {
+    private void producePolygon(VesselTarget vessel) {
         this.vessel = vessel;
         // TODO add null check on static data here or in client?
         VesselStaticData vsd = this.vessel.getStaticData();
@@ -151,8 +150,8 @@ public class VesselOutlineGraphic extends OMGraphicList {
         this.add(this.shipOutline);
     }
 
-    public void setLocation(VesselTarget vessel, Projection proj) {
-        this.producePolygon(vessel, proj);
+    public void setLocation(VesselTarget vessel) {
+        this.producePolygon(vessel);
     }
 
     /**

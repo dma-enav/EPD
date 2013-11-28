@@ -31,6 +31,7 @@ import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphic;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 
@@ -53,12 +54,7 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
 
     private OwnShipGraphic ownShipGraphic;
     private VesselOutlineGraphic vesselOutlineGraphic;
-    private boolean displayOutline;
-    
-    /**
-     * Max scale value at which ship outline is drawn
-     */
-    public static final float OUTLINE_MAX_SCALE = 5000.0f;
+    private ZoomLevel currentZoomLevel;
     
     public OwnShipLayer() {
         graphics.setVague(true);
@@ -99,11 +95,12 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         currentPos = pntData.getPosition();
         
         // check if proper zoom level and if data is available for ship outline drawing
-        if(displayOutline && ownShip != null && ownShip.getStaticData() != null && ownShip.getPositionData() != null)
+        if(this.currentZoomLevel == ZoomLevel.VESSEL_OUTLINE && ownShip != null && ownShip.getStaticData() != null && ownShip.getPositionData() != null)
         {
             this.drawOwnShipOutline(ownShip);
         }
         else if(ownShip != null) {
+            // draw standard version of own ship for all other zoom levels than VESSEL_OUTLINE
             this.drawOwnShipStandard(ownShip);
         }
         
@@ -134,7 +131,7 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         }
         // re-show outline graphic in case it was hidden by standard ownship graphic
         this.vesselOutlineGraphic.setVisible(true);
-        this.vesselOutlineGraphic.setLocation(ownShip, this.getProjection());
+        this.vesselOutlineGraphic.setLocation(ownShip);
     }
     
     /**
@@ -199,11 +196,16 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
     
     @Override
     public void projectionChanged(ProjectionEvent pe) {
-        boolean priorState = displayOutline;
-        displayOutline = pe.getProjection().getScale() <= OUTLINE_MAX_SCALE;
+        // the new zoom level
+        ZoomLevel updatedZoomLevel = ZoomLevel.getFromScale(pe.getProjection().getScale());
+        // did the zoom level change?
+        boolean changeInZoomLevel = this.currentZoomLevel != updatedZoomLevel;
+        // update zoom level
+        this.currentZoomLevel = updatedZoomLevel;
         VesselTarget ownShip = aisHandler.getOwnShip();
-        if(ownShip != null && priorState != displayOutline) {
-            // update in projection caused new ship draw mode
+        if(ownShip != null && changeInZoomLevel) {
+            // Zoom level was changed
+            // May imply new ship draw mode so do a fake pnt update to check for change in drawing mode.
             this.pntDataUpdate(gpsHandler.getCurrentData());
         }
         super.projectionChanged(pe);

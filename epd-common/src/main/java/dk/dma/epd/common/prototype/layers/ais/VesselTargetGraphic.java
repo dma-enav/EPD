@@ -27,6 +27,7 @@ import dk.dma.epd.common.prototype.ais.VesselTargetSettings;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
+import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 
 /**
  * Graphic for vessel target
@@ -42,6 +43,7 @@ public class VesselTargetGraphic extends TargetGraphic {
     // VesselTriangleGraphic
     private VesselTriangleGraphic vesselTriangleGraphic;
     // VesselOutlineGraphic
+    private VesselOutlineGraphic vesselOutlineGraphic;
     // VesselDotGraphic
     
     private IntendedRouteGraphic routeGraphic = new IntendedRouteGraphic();
@@ -50,18 +52,20 @@ public class VesselTargetGraphic extends TargetGraphic {
         super();
         this.vesselTriangleGraphic = new VesselTriangleGraphic(this);
         this.vesselTriangleGraphic.setShowNameLabel(showName);
+        this.vesselOutlineGraphic = new VesselOutlineGraphic();
     }
 
     private void createGraphics() {
         this.add(this.routeGraphic);
         this.add(this.vesselTriangleGraphic);
+        this.add(this.vesselOutlineGraphic);
     }
 
     @Override
     public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings) {
 
         if (aisTarget instanceof VesselTarget) {
-
+            
             vesselTarget = (VesselTarget) aisTarget;
             VesselPositionData posData = vesselTarget.getPositionData();
             VesselStaticData staticData = vesselTarget.getStaticData();
@@ -73,8 +77,9 @@ public class VesselTargetGraphic extends TargetGraphic {
             if (size() == 0) {
                 createGraphics();
             }
+            // update sub graphic
             this.vesselTriangleGraphic.update(aisTarget, aisSettings, navSettings);
-
+            
             // Determine name
             String name;
             if (staticData != null) {
@@ -92,6 +97,35 @@ public class VesselTargetGraphic extends TargetGraphic {
         }
     }
 
+    public void update(VesselTarget vesselTarget, AisSettings aisSettings, NavSettings navSettings, ZoomLevel zl) {
+        
+        this.update(vesselTarget, aisSettings, navSettings);
+        this.drawAccordingToScale(zl);
+    }
+    
+    private void drawOutline() {
+        // hide other display modes
+        this.vesselTriangleGraphic.setVisible(false);
+        // update data
+        this.vesselOutlineGraphic.setLocation(vesselTarget);
+        // (re-)enable visibility for outline mode
+        this.vesselOutlineGraphic.setVisible(true);
+        
+    }
+    
+    private void drawTriangle() {
+        // hide other display modes
+        this.vesselOutlineGraphic.setVisible(false);
+        // (re-)enable visibility for triangle mode
+        this.vesselTriangleGraphic.setVisible(true);
+    }
+    
+    private void drawDot() {
+        // TODO to be implemented
+        this.vesselOutlineGraphic.setVisible(false);
+        this.vesselTriangleGraphic.setVisible(false);
+    }
+    
     @Override
     public void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings) {
         if(this.vesselTriangleGraphic != null) {
@@ -119,5 +153,32 @@ public class VesselTargetGraphic extends TargetGraphic {
     public IntendedRouteGraphic getRouteGraphic() {
         return routeGraphic;
     }
-
+    
+    public void drawAccordingToScale(ZoomLevel zl) {
+        if(this.vesselTarget == null || this.vesselTarget.getPositionData() == null) {
+            // cannot draw when we have no vessel data
+            return;
+        }
+        switch(zl) {
+        case VESSEL_OUTLINE:
+            if(this.vesselTarget.getStaticData() != null) {
+                // can only draw outline if static data is available
+                this.drawOutline();
+            }
+            else {
+                // draw standard triangle if we do not have static data
+                System.out.println(this.vesselTarget.getMmsi() + " has static data = null");
+                this.drawTriangle();
+            }
+            break;
+        case VESSEL_TRIANGLE:
+            this.drawTriangle();
+            break;
+        case VESSEL_DOT:
+            // TODO update to actual graphic
+            this.drawTriangle();
+            //this.drawDot();
+            break;
+        }
+    }
 }
