@@ -176,7 +176,7 @@ public class VesselTargetGraphic extends TargetGraphic {
             }
             else {
                 // draw standard triangle if we do not have static data
-                System.out.println(this.vesselTarget.getMmsi() + " has static data = null");
+//                System.out.println(this.vesselTarget.getMmsi() + " has static data = null");
                 this.drawTriangle();
             }
             break;
