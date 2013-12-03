@@ -42,8 +42,7 @@ import dk.dma.epd.ship.gui.voct.SARInvitationRequest;
 import dk.dma.epd.ship.layers.voct.VoctLayer;
 
 /**
- * The VOCTManager is responsible for maintaining current VOCT Status and all
- * information relevant to the VOCT
+ * The VOCTManager is responsible for maintaining current VOCT Status and all information relevant to the VOCT
  * 
  * The VOCT Manager can be initiated through the cloud or manually by the user
  * 
@@ -54,12 +53,12 @@ public class VOCTManager extends VOCTManagerCommon {
 
     private static final long serialVersionUID = 1L;
     private SARInput sarInputDialog;
+    
     private VOCTBroadcastService voctBroadcastService;
-        
+
     VoctLayer voctLayer;
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(VOCTManagerCommon.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VOCTManagerCommon.class);
 
     public VOCTManager() {
         EPDShip.startThread(this, "VOCTManager");
@@ -114,29 +113,24 @@ public class VOCTManager extends VOCTManagerCommon {
     }
 
     @Override
-    public void generateSearchPattern(
-            SearchPatternGenerator.searchPattern type, Position CSP, int id) {
+    public void generateSearchPattern(SearchPatternGenerator.searchPattern type, Position CSP, int id) {
 
         sarData.setCSP(CSP);
 
-        SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(
-                sarOperation);
+        SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(sarOperation);
 
-        SearchPatternRoute searchRoute = searchPatternGenerator
-                .generateSearchPattern(type, sarData, EPDShip.getSettings()
-                        .getNavSettings(), id);
+        SearchPatternRoute searchRoute = searchPatternGenerator.generateSearchPattern(type, sarData, EPDShip.getSettings()
+                .getNavSettings(), id);
 
         // Remove old and overwrite
         if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
             int routeIndex = EPDShip.getRouteManager().getRouteIndex(
-                    sarData.getEffortAllocationData().get(id)
-                            .getSearchPatternRoute());
+                    sarData.getEffortAllocationData().get(id).getSearchPatternRoute());
 
             EPDShip.getRouteManager().removeRoute(routeIndex);
         }
 
-        sarData.getEffortAllocationData().get(id)
-                .setSearchPatternRoute(searchRoute);
+        sarData.getEffortAllocationData().get(id).setSearchPatternRoute(searchRoute);
 
         EPDShip.getRouteManager().addRoute(searchRoute);
 
@@ -148,62 +142,49 @@ public class VOCTManager extends VOCTManagerCommon {
         voctLayer.updateEffectiveAreaLocation(sarData);
     }
 
-    
-    private void removeOldSARData(){
+    private void removeOldSARData() {
         // Remove any old SAR data
         if (sarData != null) {
             if (sarData.getEffortAllocationData().size() > 0) {
-                if (sarData.getEffortAllocationData().get(0)
-                        .getSearchPatternRoute() != null) {
+                if (sarData.getEffortAllocationData().get(0).getSearchPatternRoute() != null) {
                     System.out.println("Removing existing routes");
-                    
+
                     int routeIndex = EPDShip.getRouteManager().getRouteIndex(
-                            sarData.getEffortAllocationData().get(0)
-                                    .getSearchPatternRoute());
+                            sarData.getEffortAllocationData().get(0).getSearchPatternRoute());
 
                     EPDShip.getRouteManager().removeRoute(routeIndex);
-                    
-                    
-                    EPDShip.getRouteManager().notifyListeners(
-                            RoutesUpdateEvent.ROUTE_REMOVED);
+
+                    EPDShip.getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
                 }
             }
         }
     }
-    
-    
-  public void handleDialogAction(boolean accepted, VOCTCommunicationMessageDatumPoint message, SAR_TYPE type){
-        
-        if (accepted){
+
+    public void handleDialogAction(boolean accepted, VOCTCommunicationMessageDatumPoint message, SAR_TYPE type) {
+
+        if (accepted) {
             EPDShip.getEnavServiceHandler().sendVOCTReply(CLOUD_STATUS.RECIEVED_ACCEPTED, 0, "Accepted", type);
-            
+
             removeOldSARData();
 
-            
             DatumPointData data = new DatumPointData(message.getSarData());
 
             if (message.getEffortAllocationData() != null) {
 
                 // message.getEffortAllocationData()
-                EffortAllocationData effortAllocationData = new EffortAllocationData(
-                        message.getEffortAllocationData());
+                EffortAllocationData effortAllocationData = new EffortAllocationData(message.getEffortAllocationData());
 
                 if (message.getSearchPattern() != null) {
-                    SearchPatternRoute searchPattern = new SearchPatternRoute(
-                            new Route(message.getSearchPattern()));
+                    SearchPatternRoute searchPattern = new SearchPatternRoute(new Route(message.getSearchPattern()));
 
                     sarOperation = new SAROperation(SAR_TYPE.DATUM_POINT);
-                    
-                    
-                    SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(
-                            sarOperation);
+
+                    SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(sarOperation);
                     searchPatternGenerator.calculateDynamicWaypoints(searchPattern, data);
-                    
-                    
+
                     effortAllocationData.setSearchPatternRoute(searchPattern);
                     EPDShip.getRouteManager().addRoute(searchPattern);
-                    EPDShip.getRouteManager().notifyListeners(
-                            RoutesUpdateEvent.ROUTE_ADDED);
+                    EPDShip.getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
 
                 }
 
@@ -217,51 +198,40 @@ public class VOCTManager extends VOCTManagerCommon {
             hasSar = true;
 
             notifyListeners(VOCTUpdateEvent.SAR_RECEIVED_CLOUD);
-            
-            
-            //Force start
+
+            // Force start
             startVOCTBroadcast();
-        }else{
+        } else {
             EPDShip.getEnavServiceHandler().sendVOCTReply(CLOUD_STATUS.RECIEVED_REJECTED, 0, "Rejected", type);
         }
-        
+
     }
-    
-    
-    
-    
-    public void handleDialogAction(boolean accepted, VOCTCommunicationMessageRapidResponse message, SAR_TYPE type){
-        
-        if (accepted){
+
+    public void handleDialogAction(boolean accepted, VOCTCommunicationMessageRapidResponse message, SAR_TYPE type) {
+
+        if (accepted) {
             EPDShip.getEnavServiceHandler().sendVOCTReply(CLOUD_STATUS.RECIEVED_ACCEPTED, 0, "Accepted", type);
-            
+
             removeOldSARData();
 
-            
             RapidResponseData data = new RapidResponseData(message.getSarData());
 
             if (message.getEffortAllocationData() != null) {
 
                 // message.getEffortAllocationData()
-                EffortAllocationData effortAllocationData = new EffortAllocationData(
-                        message.getEffortAllocationData());
+                EffortAllocationData effortAllocationData = new EffortAllocationData(message.getEffortAllocationData());
 
                 if (message.getSearchPattern() != null) {
-                    SearchPatternRoute searchPattern = new SearchPatternRoute(
-                            new Route(message.getSearchPattern()));
+                    SearchPatternRoute searchPattern = new SearchPatternRoute(new Route(message.getSearchPattern()));
 
                     sarOperation = new SAROperation(SAR_TYPE.RAPID_RESPONSE);
-                    
-                    
-                    SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(
-                            sarOperation);
+
+                    SearchPatternGenerator searchPatternGenerator = new SearchPatternGenerator(sarOperation);
                     searchPatternGenerator.calculateDynamicWaypoints(searchPattern, data);
-                    
-                    
+
                     effortAllocationData.setSearchPatternRoute(searchPattern);
                     EPDShip.getRouteManager().addRoute(searchPattern);
-                    EPDShip.getRouteManager().notifyListeners(
-                            RoutesUpdateEvent.ROUTE_ADDED);
+                    EPDShip.getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
 
                 }
 
@@ -269,41 +239,51 @@ public class VOCTManager extends VOCTManagerCommon {
 
             }
 
-            this.setSarData(data);
+            
             setSarType(SAR_TYPE.RAPID_RESPONSE);
-
+            
+            this.setSarData(data);
+            
             hasSar = true;
 
             notifyListeners(VOCTUpdateEvent.SAR_RECEIVED_CLOUD);
-            
-            
-            //Force start
+
+            // Force start
             startVOCTBroadcast();
-        }else{
+        } else {
             EPDShip.getEnavServiceHandler().sendVOCTReply(CLOUD_STATUS.RECIEVED_REJECTED, 0, "Rejected", type);
         }
-        
+
     }
-    
+
     public void handleSARDataPackage(VOCTCommunicationMessageRapidResponse message) {
-        
+
         SARInvitationRequest sarInviteDialog = new SARInvitationRequest(this, message);
         sarInviteDialog.setVisible(true);
 
     }
-
 
     public void handleSARDataPackage(VOCTCommunicationMessageDatumPoint message) {
         SARInvitationRequest sarInviteDialog = new SARInvitationRequest(this, message);
         sarInviteDialog.setVisible(true);
 
     }
-    
-    public void startVOCTBroadcast(){
-        voctBroadcastService = new VOCTBroadcastService(EPDShip.getEnavServiceHandler(), EPDShip.getRouteManager(), EPDShip.getPntHandler(), this);
-        
-        
+
+    public void startVOCTBroadcast() {
+        voctBroadcastService = new VOCTBroadcastService(EPDShip.getEnavServiceHandler(), EPDShip.getRouteManager(),
+                EPDShip.getPntHandler(), this);
+
     }
 
-    
+    @Override
+    public void showSARFuture(int i) {
+
+        if (i == 0) {
+            voctLayer.showFutureData(sarData);
+        } else {
+            voctLayer.showFutureData(sarFutureData.get((i / 30) - 1));
+        }
+
+    }
+
 }

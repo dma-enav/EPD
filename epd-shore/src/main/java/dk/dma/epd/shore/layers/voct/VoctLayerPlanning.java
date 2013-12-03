@@ -52,7 +52,9 @@ public class VoctLayerPlanning extends VoctLayerCommon{
     private boolean dragging;
 
     private List<EffectiveSRUAreaGraphics> effectiveSRUAreas = new ArrayList<EffectiveSRUAreaGraphics>();
-
+    private SarGraphics sarGraphics;
+    
+    
     public VoctLayerPlanning() {
 
     }
@@ -437,7 +439,7 @@ public class VoctLayerPlanning extends VoctLayerCommon{
             Position LKP = data.getLKP();
             Position WTCPoint = data.getWtc();
 
-            SarGraphics sarGraphics = new SarGraphics(datumDownWind, datumMin,
+            sarGraphics = new SarGraphics(datumDownWind, datumMin,
                     datumMax, radiusDownWind, radiusMin, radiusMax, LKP,
                     WTCPoint, A, B, C, D, i + 1);
 
@@ -481,7 +483,7 @@ public class VoctLayerPlanning extends VoctLayerCommon{
         // public SarGraphics(Position datumDownWind, Position datumMin,
         // Position datumMax, double radiusDownWind, double radiusMin, double
         // radiusMax, Position LKP, Position current) {
-        SarGraphics sarGraphics = new SarGraphics(datumDownWind, datumMin,
+        sarGraphics = new SarGraphics(datumDownWind, datumMin,
                 datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint,
                 A, B, C, D);
 
@@ -506,7 +508,7 @@ public class VoctLayerPlanning extends VoctLayerCommon{
 
         graphics.clear();
 
-        SarGraphics sarGraphics = new SarGraphics(datum, radius, A, B, C, D,
+        sarGraphics = new SarGraphics(datum, radius, A, B, C, D,
                 LKP, data.getCurrentList(), data.getWindList());
         graphics.add(sarGraphics);
 
@@ -612,5 +614,65 @@ public class VoctLayerPlanning extends VoctLayerCommon{
         }
     }
 
+    @Override
+    public void showFutureData(SARData sarData) {
+
+        if (sarData instanceof DatumPointData) {
+
+            DatumPointData data = (DatumPointData) sarData;
+            
+            
+            Position A = data.getA();
+            Position B = data.getB();
+            Position C = data.getC();
+            Position D = data.getD();
+
+            Position datumDownWind = data.getDatumDownWind();
+            Position datumMin = data.getDatumMin();
+            Position datumMax = data.getDatumMax();
+
+            double radiusDownWind = data.getRadiusDownWind();
+            double radiusMin = data.getRadiusMin();
+            double radiusMax = data.getRadiusMax();
+
+            Position LKP = data.getLKP();
+            Position WTCPoint = data.getWtc();
+
+            graphics.remove(sarGraphics);
+            
+
+            // public SarGraphics(Position datumDownWind, Position datumMin,
+            // Position datumMax, double radiusDownWind, double radiusMin, double
+            // radiusMax, Position LKP, Position current) {
+            sarGraphics = new SarGraphics(datumDownWind, datumMin, datumMax, radiusDownWind, radiusMin, radiusMax, LKP, WTCPoint,
+                    A, B, C, D);
+            
+            graphics.add(sarGraphics);
+
+        }
+        
+        
+        if (sarData instanceof RapidResponseData) {
+            
+            RapidResponseData data = (RapidResponseData) sarData;
+            
+            Position A = data.getA();
+            Position B = data.getB();
+            Position C = data.getC();
+            Position D = data.getD();
+
+            Position datum = data.getDatum();
+            double radius = data.getRadius();
+
+            Position LKP = data.getLKP();
+
+            graphics.remove(sarGraphics);
+
+            sarGraphics = new SarGraphics(datum, radius, A, B, C, D, LKP, data.getCurrentList(), data.getWindList());
+            graphics.add(sarGraphics);
+        }
+        
+        doPrepare();
+    }
     
 }

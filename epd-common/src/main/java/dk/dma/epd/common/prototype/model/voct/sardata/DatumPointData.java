@@ -31,7 +31,7 @@ import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Converter;
 
-public class DatumPointData extends SARData {
+public class DatumPointData extends SARData{
 
     private static final long serialVersionUID = 1L;
 
@@ -73,25 +73,64 @@ public class DatumPointData extends SARData {
     private Position C;
     private Position D;
 
+    /**
+     * Function used for cloning data object
+     * 
+     * @param data
+     */
+    public DatumPointData(DatumPointData data, int additionalTime) {
+        super(data.getSarID(), data.getLKPDate(), data.getCSSDate().plusMinutes(additionalTime), data.getLKP(), data.getX(), data.getY(), data
+                .getSafetyFactor(), data.getSearchObject());
+        this.wtc = data.getWtc();
+        this.datumDownWind = data.getDatumDownWind();
+        this.datumMin = data.getDatumMin();
+        this.datumMax = data.getDatumMax();
+
+        this.currentListDownWind = data.getCurrentListDownWind();
+        this.windListDownWind = data.getWindListDownWind();
+
+        this.currentListMax = data.getCurrentListMax();
+        this.windListMax = data.getCurrentListMax();
+
+        this.currentListMin = data.getCurrentListMin();
+        this.windListMin = data.getWindListMin();
+
+        rdvDirectionDownWind = data.getRdvDirectionDownWind();
+        rdvDirectionMin = data.getRdvDirectionMin();
+        rdvDirectionMax = data.getRdvDirectionMax();
+
+        rdvSpeedDownWind = data.getRdvSpeedDownWind();
+        rdvSpeedMin = data.getRdvSpeedMin();
+        rdvSpeedMax = data.getRdvSpeedMax();
+
+        radiusDownWind = data.getRadiusDownWind();
+        radiusMin = data.getRadiusMin();
+        radiusMax = data.getRadiusMax();
+
+        timeElasped = data.getTimeElasped() + additionalTime;
+
+        A = data.getA();
+        B = data.getB();
+        C = data.getC();
+        D = data.getD();
+        
+        this.setWeatherPoints(data.getWeatherPoints());
+
+    }
+
     // Init data
-    public DatumPointData(String sarID, DateTime TLKP, DateTime CSS,
-            Position LKP, double x, double y, double SF, int searchObject) {
+    public DatumPointData(String sarID, DateTime TLKP, DateTime CSS, Position LKP, double x, double y, double SF, int searchObject) {
         super(sarID, TLKP, CSS, LKP, x, y, SF, searchObject);
     }
 
     public DatumPointData(DatumPointDTO data) {
-        super(data.getSarID(), new DateTime(data.getLKPDate()), new DateTime(
-                data.getCSSDate()), Position.create(
-                data.getLKP().getLatitude(), data.getLKP().getLongitude()),
-                data.getX(), data.getY(), data.getSafetyFactor(), data
-                        .getSearchObject());
+        super(data.getSarID(), new DateTime(data.getLKPDate()), new DateTime(data.getCSSDate()), Position.create(data.getLKP()
+                .getLatitude(), data.getLKP().getLongitude()), data.getX(), data.getY(), data.getSafetyFactor(), data
+                .getSearchObject());
 
-        this.datumDownWind = Position.create(data.getDatumDownWind()
-                .getLatitude(), data.getDatumDownWind().getLongitude());
-        this.datumMax = Position.create(data.getDatumMax().getLatitude(), data
-                .getDatumMax().getLongitude());
-        this.datumMin = Position.create(data.getDatumMin().getLatitude(), data
-                .getDatumMin().getLongitude());
+        this.datumDownWind = Position.create(data.getDatumDownWind().getLatitude(), data.getDatumDownWind().getLongitude());
+        this.datumMax = Position.create(data.getDatumMax().getLatitude(), data.getDatumMax().getLongitude());
+        this.datumMin = Position.create(data.getDatumMin().getLatitude(), data.getDatumMin().getLongitude());
 
         this.radiusDownWind = data.getRadiusDownWind();
         this.radiusMin = data.getRadiusMin();
@@ -110,15 +149,11 @@ public class DatumPointData extends SARData {
         this.rdvSpeedDownWind = data.getRadiusDownWind();
         this.rdvSpeedMax = data.getRadiusMax();
         this.rdvSpeedMin = data.getRadiusMin();
-        
-        this.A = Position.create(data.getA().getLatitude(), data.getA()
-                .getLongitude());
-        this.B = Position.create(data.getB().getLatitude(), data.getB()
-                .getLongitude());
-        this.C = Position.create(data.getC().getLatitude(), data.getC()
-                .getLongitude());
-        this.D = Position.create(data.getD().getLatitude(), data.getD()
-                .getLongitude());
+
+        this.A = Position.create(data.getA().getLatitude(), data.getA().getLongitude());
+        this.B = Position.create(data.getB().getLatitude(), data.getB().getLongitude());
+        this.C = Position.create(data.getC().getLatitude(), data.getC().getLongitude());
+        this.D = Position.create(data.getD().getLatitude(), data.getD().getLongitude());
 
         currentListDownWind = new ArrayList<Position>();
         currentListMax = new ArrayList<Position>();
@@ -129,39 +164,33 @@ public class DatumPointData extends SARData {
         windListMin = new ArrayList<Position>();
 
         for (int i = 0; i < data.getCurrentListDownWind().size(); i++) {
-            currentListDownWind.add(Position.create(data
-                    .getCurrentListDownWind().get(i).getLatitude(), data
+            currentListDownWind.add(Position.create(data.getCurrentListDownWind().get(i).getLatitude(), data
                     .getCurrentListDownWind().get(i).getLongitude()));
         }
 
         for (int i = 0; i < data.getCurrentListMax().size(); i++) {
-            currentListMax.add(Position.create(data.getCurrentListMax().get(i)
-                    .getLatitude(), data.getCurrentListMax().get(i)
+            currentListMax.add(Position.create(data.getCurrentListMax().get(i).getLatitude(), data.getCurrentListMax().get(i)
                     .getLongitude()));
         }
 
         for (int i = 0; i < data.getCurrentListMin().size(); i++) {
-            currentListMin.add(Position.create(data.getCurrentListMin().get(i)
-                    .getLatitude(), data.getCurrentListMin().get(i)
+            currentListMin.add(Position.create(data.getCurrentListMin().get(i).getLatitude(), data.getCurrentListMin().get(i)
                     .getLongitude()));
         }
 
         for (int i = 0; i < data.getWindListDownWind().size(); i++) {
-            windListDownWind.add(Position.create(data.getWindListDownWind()
-                    .get(i).getLatitude(), data.getWindListDownWind().get(i)
+            windListDownWind.add(Position.create(data.getWindListDownWind().get(i).getLatitude(), data.getWindListDownWind().get(i)
                     .getLongitude()));
         }
 
         for (int i = 0; i < data.getWindListMax().size(); i++) {
             windListMax.add(Position
-                    .create(data.getWindListMax().get(i).getLatitude(), data
-                            .getWindListMax().get(i).getLongitude()));
+                    .create(data.getWindListMax().get(i).getLatitude(), data.getWindListMax().get(i).getLongitude()));
         }
 
         for (int i = 0; i < data.getWindListMin().size(); i++) {
             windListMin.add(Position
-                    .create(data.getWindListMin().get(i).getLatitude(), data
-                            .getWindListMin().get(i).getLongitude()));
+                    .create(data.getWindListMin().get(i).getLatitude(), data.getWindListMin().get(i).getLongitude()));
         }
 
         List<SARWeatherData> weatherPoints = new ArrayList<SARWeatherData>();
@@ -172,10 +201,8 @@ public class DatumPointData extends SARData {
 
         this.setWeatherPoints(weatherPoints);
 
-        
+        this.wtc = currentListDownWind.get(currentListDownWind.size() - 1);
 
-        this.wtc = currentListDownWind.get(currentListDownWind.size()-1);
-        
     }
 
     public void setBox(Position A, Position B, Position C, Position D) {
@@ -593,8 +620,7 @@ public class DatumPointData extends SARData {
     @Override
     public String generateHTML() {
 
-        DateTimeFormatter fmt = DateTimeFormat
-                .forPattern("dd MMMM, yyyy, 'at.' HH':'mm");
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMMM, yyyy, 'at.' HH':'mm");
 
         // // Generate a html sheet of rapid response calculations
         StringBuilder str = new StringBuilder();
@@ -607,45 +633,31 @@ public class DatumPointData extends SARData {
         str.append("<h1>Search and Rescue - Datum Point</h1>");
         str.append("<hr>");
         str.append("<font size=\"4\">");
-        str.append("Time of Last Known Position: "
-                + fmt.print(this.getLKPDate()) + "");
-        str.append("<br>Last Known Position: " + this.getLKP().toString()
-                + "</br>");
-        str.append("<br>Commence Search Start time: "
-                + fmt.print(this.getCSSDate()) + "</br>");
+        str.append("Time of Last Known Position: " + fmt.print(this.getLKPDate()) + "");
+        str.append("<br>Last Known Position: " + this.getLKP().toString() + "</br>");
+        str.append("<br>Commence Search Start time: " + fmt.print(this.getCSSDate()) + "</br>");
 
         str.append(this.getWeatherPoints().get(0).generateHTML());
 
         str.append("<hr>");
         str.append("<font size=\"4\">");
-        str.append("Initial Position Error, X in nautical miles: "
-                + this.getX() + "");
-        str.append("<br>SRU Navigational Error, Y in nautical miles: "
-                + this.getY() + "</br>");
+        str.append("Initial Position Error, X in nautical miles: " + this.getX() + "");
+        str.append("<br>SRU Navigational Error, Y in nautical miles: " + this.getY() + "</br>");
         str.append("<br>Safety Factor, Fs: " + this.getSafetyFactor() + "</br>");
         str.append("<hr>");
         str.append("<font size=\"4\">");
-        str.append("Search Object: "
-                + LeewayValues.getLeeWayTypes().get(this.getSearchObject())
-                + "");
-        str.append("<br>With value: "
-                + LeewayValues.getLeeWayContent().get(this.getSearchObject())
-                + "</br>");
+        str.append("Search Object: " + LeewayValues.getLeeWayTypes().get(this.getSearchObject()) + "");
+        str.append("<br>With value: " + LeewayValues.getLeeWayContent().get(this.getSearchObject()) + "</br>");
         str.append("<hr>");
         str.append("<font size=\"4\">");
         str.append("Time Elapsed: " + Formatter.formatHours(timeElasped) + "");
 
-        str.append("<br>Applying Leeway and TWC gives a datum downwind of  "
-                + datumDownWind.toString() + "</br>");
+        str.append("<br>Applying Leeway and TWC gives a datum downwind of  " + datumDownWind.toString() + "</br>");
         str.append("<br>With the following Downwind Residual Drift Vector</br>");
-        str.append("<br>RDV Downwind Direction: " + rdvDirectionDownWind
-                + "°</br>");
-        str.append("<br>RDV Downwind Distance: "
-                + Formatter.formatDouble(rdvDistanceDownWind, 2) + " nm</br>");
-        str.append("<br>RDV Speed: "
-                + Formatter.formatDouble(rdvSpeedDownWind, 2) + " kn/h</br>");
-        str.append("<br>With radius: "
-                + Formatter.formatDouble(radiusDownWind, 2) + "nm </br>");
+        str.append("<br>RDV Downwind Direction: " + rdvDirectionDownWind + "°</br>");
+        str.append("<br>RDV Downwind Distance: " + Formatter.formatDouble(rdvDistanceDownWind, 2) + " nm</br>");
+        str.append("<br>RDV Speed: " + Formatter.formatDouble(rdvSpeedDownWind, 2) + " kn/h</br>");
+        str.append("<br>With radius: " + Formatter.formatDouble(radiusDownWind, 2) + "nm </br>");
 
         str.append("<hr>");
         str.append("<font size=\"4\">");
@@ -656,13 +668,10 @@ public class DatumPointData extends SARData {
         str.append("<br>C: " + C.toString() + "</br>");
         str.append("<br>D: " + D.toString() + "</br>");
 
-        double width = Converter.metersToNm(getA().distanceTo(getD(),
-                CoordinateSystem.CARTESIAN));
-        double height = Converter.metersToNm(getB().distanceTo(getC(),
-                CoordinateSystem.CARTESIAN));
+        double width = Converter.metersToNm(getA().distanceTo(getD(), CoordinateSystem.CARTESIAN));
+        double height = Converter.metersToNm(getB().distanceTo(getC(), CoordinateSystem.CARTESIAN));
 
-        str.append("<br>Total Size: "
-                + Formatter.formatDouble(width * height, 2) + " nm2</br>");
+        str.append("<br>Total Size: " + Formatter.formatDouble(width * height, 2) + " nm2</br>");
 
         str.append("</font>");
         str.append("</td>");
@@ -745,18 +754,13 @@ public class DatumPointData extends SARData {
         // double rdvSpeedDownWind, double rdvSpeedMax, double rdvSpeedMin,
         // PositionDTO a, PositionDTO b, PositionDTO c, PositionDTO d) {
 
-        return new DatumPointDTO(getSarID(), this.getLKPDate().toDate(), this
-                .getCSSDate().toDate(), this.getLKP().getDTO(), cSPPos,
-                this.getX(), this.getY(), this.getSafetyFactor(),
-                this.getSearchObject(), weatherList, currentListDTODownWind,
-                currentListDTOMax, currentListDTOMin,
+        return new DatumPointDTO(getSarID(), this.getLKPDate().toDate(), this.getCSSDate().toDate(), this.getLKP().getDTO(),
+                cSPPos, this.getX(), this.getY(), this.getSafetyFactor(), this.getSearchObject(), weatherList,
+                currentListDTODownWind, currentListDTOMax, currentListDTOMin,
 
-                windListDTODownWind, windListDTOMax, windListDTOMin,
-                datumDownWind.getDTO(), datumMax.getDTO(), datumMin.getDTO(),
-                radiusDownWind, radiusMax, radiusMin, timeElasped,
-                rdvDirectionDownWind, rdvDirectionMax, rdvDirectionMin,
-                rdvDistanceDownWind, rdvDistanceMax, rdvDistanceMin,
-                rdvSpeedDownWind, rdvSpeedMax, rdvSpeedMin, A.getDTO(),
+                windListDTODownWind, windListDTOMax, windListDTOMin, datumDownWind.getDTO(), datumMax.getDTO(), datumMin.getDTO(),
+                radiusDownWind, radiusMax, radiusMin, timeElasped, rdvDirectionDownWind, rdvDirectionMax, rdvDirectionMin,
+                rdvDistanceDownWind, rdvDistanceMax, rdvDistanceMin, rdvSpeedDownWind, rdvSpeedMax, rdvSpeedMin, A.getDTO(),
                 B.getDTO(), C.getDTO(), D.getDTO());
     }
 }

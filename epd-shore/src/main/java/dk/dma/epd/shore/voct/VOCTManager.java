@@ -280,4 +280,15 @@ public class VOCTManager extends VOCTManagerCommon implements
 
         checkRoutes();
     }
+    
+    @Override
+    public void showSARFuture(int i) {
+
+        if (i == 0) {
+            voctLayers.get(0).showFutureData(sarData);
+        } else {
+            voctLayers.get(0).showFutureData(sarFutureData.get((i / 30) - 1));
+        }
+
+    }
 }

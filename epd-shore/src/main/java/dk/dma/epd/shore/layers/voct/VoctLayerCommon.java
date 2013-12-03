@@ -135,5 +135,10 @@ public class VoctLayerCommon extends OMGraphicHandlerLayer implements
             mapBean = (MapBean) obj;
         }
     }
+
+    public void showFutureData(SARData sarData) {
+        // TODO Auto-generated method stub
+        
+    }
     
 }

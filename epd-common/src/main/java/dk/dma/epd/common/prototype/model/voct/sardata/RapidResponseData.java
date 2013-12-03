@@ -53,6 +53,44 @@ public class RapidResponseData extends SARData {
     private Position B;
     private Position C;
     private Position D;
+    
+    
+    public RapidResponseData(RapidResponseData data, int additionalTime) {
+     
+        super(data.getSarID(), data.getLKPDate(), data.getCSSDate().plusMinutes(additionalTime), data.getLKP(), data.getX(), data.getY(), data
+                .getSafetyFactor(), data.getSearchObject());
+        
+        currentList = data.getCurrentList();
+        windList = data.getWindList();
+
+        datum = data.getDatum();
+
+        radius = data.getRadius();
+
+        
+
+        rdvDirection = data.getRdvDirection();
+        rdvDistance = data.getRdvDistance();
+        rdvSpeed = data.getRdvSpeed();
+
+        rdvDirectionLast = data.getRdvDirectionLast();
+        rdvSpeedLast = data.getRdvSpeedLast();
+        
+        
+        
+        
+        
+        timeElasped = data.getTimeElasped() + additionalTime;
+
+        A = data.getA();
+        B = data.getB();
+        C = data.getC();
+        D = data.getD();
+        
+        this.setWeatherPoints(data.getWeatherPoints());
+
+        
+    }
 
     // Init data
     public RapidResponseData(String sarID, DateTime TLKP, DateTime CSS,
@@ -105,6 +143,8 @@ public class RapidResponseData extends SARData {
         
         this.setWeatherPoints(weatherPoints);
     }
+
+
 
     public void setBox(Position A, Position B, Position C, Position D) {
         this.A = A;

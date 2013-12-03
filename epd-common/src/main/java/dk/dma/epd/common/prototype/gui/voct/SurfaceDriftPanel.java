@@ -274,8 +274,8 @@ public class SurfaceDriftPanel extends JPanel implements ActionListener {
         
         
         
-//        twcField.setText("1");
-//        leewayField.setText("12");
+        twcField.setText("1");
+        leewayField.setText("12");
 
     }
 

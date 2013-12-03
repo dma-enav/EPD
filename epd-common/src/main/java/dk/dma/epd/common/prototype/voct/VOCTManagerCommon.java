@@ -56,7 +56,9 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
     private CopyOnWriteArrayList<VOCTUpdateListener> listeners = new CopyOnWriteArrayList<>();
 
     protected SARData sarData;
-
+    protected List<SARData> sarFutureData;
+    
+    
 
     /**
      * @return the hasSar
@@ -129,10 +131,22 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
             data.setWeatherPoints(sarWeatherDataPoints);
 
             setSarData(sarOperation.startDatumPointCalculations(data));
+            
+            
         }
 
+        
+        
+        
+        
+        
     }
 
+    
+    public void showSARFuture(int i){
+        
+    }
+    
     
     protected void updateLayers(){
         //Used for EPDShore
@@ -201,6 +215,8 @@ public class VOCTManagerCommon extends MapHandlerChild implements Runnable, Seri
         System.out.println("SAR data is not null!");
         System.out.println(sarData != null);
         this.sarData = sarData;
+        
+        sarFutureData = sarOperation.sarFutureCalculations(sarData);
 
         notifyListeners(VOCTUpdateEvent.SAR_READY);
     }
