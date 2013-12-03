@@ -38,8 +38,8 @@ import dk.dma.epd.ship.gui.voct.SearchPatternDialog;
  * Active waypoint panel in sensor panel
  */
 public class SARPanel extends SARPanelCommon {
-	public SARPanel() {
-	}
+    public SARPanel() {
+    }
 
     private static final long serialVersionUID = 1L;
 
@@ -47,16 +47,14 @@ public class SARPanel extends SARPanelCommon {
     private JCheckBox chckbxShowDynamicPattern;
     private JButton btnReopenCalculations;
     private JButton btnEffortAllocation;
-    
+
     protected EffortAllocationWindow effortAllocationWindow = new EffortAllocationWindow();
     protected SearchPatternDialog searchPatternDialog = new SearchPatternDialog();
-
 
     @Override
     public void actionPerformed(ActionEvent arg0) {
 
-        if (arg0.getSource() == btnStartSar
-                || arg0.getSource() == btnReopenCalculations) {
+        if (arg0.getSource() == btnStartSar || arg0.getSource() == btnReopenCalculations) {
 
             if (voctManager != null) {
 
@@ -74,8 +72,7 @@ public class SARPanel extends SARPanelCommon {
                 // Determine what type of SAR then retrieve the input data
                 if (effortAllocationWindow != null) {
                     effortAllocationWindow.setValues();
-                    effortAllocationWindow
-                            .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+                    effortAllocationWindow.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
                     effortAllocationWindow.setVisible(true);
                 }
 
@@ -91,8 +88,7 @@ public class SARPanel extends SARPanelCommon {
                 voctManager.updateEffectiveAreaLocation();
 
                 searchPatternDialog.resetValues();
-                searchPatternDialog
-                        .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+                searchPatternDialog.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
                 searchPatternDialog.setVisible(true);
             }
 
@@ -107,8 +103,7 @@ public class SARPanel extends SARPanelCommon {
                 sarData.getEffortAllocationData().get(0).getSearchPatternRoute().switchToStatic();
             }
 
-            EPDShip.getRouteManager().notifyListeners(
-                    RoutesUpdateEvent.ROUTE_CHANGED);
+            EPDShip.getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_CHANGED);
 
             return;
         }
@@ -125,17 +120,15 @@ public class SARPanel extends SARPanelCommon {
         effortAllocationWindow.setVoctManager(voctManager);
         searchPatternDialog.setVoctManager(voctManager);
     }
-    
+
     @Override
     protected SearchPatternsPanelCommon createSearchPatternsPanel() {
         searchPatternPanel = new SearchPatternsPanel();
-        btnGenerateSearchPattern = ((SearchPatternsPanel) searchPatternPanel)
-                .getBtnGenerateSearchPattern();
+        btnGenerateSearchPattern = ((SearchPatternsPanel) searchPatternPanel).getBtnGenerateSearchPattern();
 
         btnGenerateSearchPattern.addActionListener(this);
 
-        chckbxShowDynamicPattern = ((SearchPatternsPanel) searchPatternPanel)
-                .getChckbxShowDynamicPattern();
+        chckbxShowDynamicPattern = ((SearchPatternsPanel) searchPatternPanel).getChckbxShowDynamicPattern();
 
         chckbxShowDynamicPattern.addActionListener(this);
 
@@ -147,16 +140,16 @@ public class SARPanel extends SARPanelCommon {
         effortAllocationPanel = new EffortAllocationPanel();
         return effortAllocationPanel;
     }
-    
+
     @Override
-    protected ButtonsPanelCommon createButtonPanel(){
+    protected ButtonsPanelCommon createButtonPanel() {
         buttonsPanel = new ButtonsPanel();
-        
+
         btnReopenCalculations = buttonsPanel.getBtnReopenCalculations();
         btnReopenCalculations.addActionListener(this);
         btnEffortAllocation = buttonsPanel.getBtnEffortAllocation();
         btnEffortAllocation.addActionListener(this);
-        
+
         return buttonsPanel;
     }
 
@@ -188,9 +181,8 @@ public class SARPanel extends SARPanelCommon {
         return btnEffortAllocation;
     }
 
-    
-    public void resetEffortAllocation(){
+    public void resetEffortAllocation() {
         effortAllocationPanel.resetValues();
     }
-    
+
 }
