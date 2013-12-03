@@ -96,9 +96,7 @@ public class VOCTBroadcastService extends EnavService implements
                             .getSearchPatternRoute()
                             .isActiveRoute(provider.getActiveRoute())) {
 
-                        voctBroadCast.setIntendedSearchPattern(voctManager
-                                .getSarData().getFirstEffortAllocationData()
-                                .getSearchPatternRoute().getFullRouteData());
+                        voctBroadCast.setIntendedSearchPattern(provider.getActiveRoute().getFullRouteData());
 
                     } else {
                         LOG.info("Not attaching search route");
