@@ -500,7 +500,7 @@ public class SARPanelCommon extends JPanel implements ActionListener, ChangeList
         gbl_timeSliderPanel.rowWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
         timeSliderPanel.setLayout(gbl_timeSliderPanel);
 
-        lblSearchAreaProgression = new JLabel("Search Area Progression in minutes");
+        lblSearchAreaProgression = new JLabel("Search Area Progression in minutes after CSS");
         GridBagConstraints gbc_lblSearchAreaProgression = new GridBagConstraints();
         gbc_lblSearchAreaProgression.fill = GridBagConstraints.VERTICAL;
         gbc_lblSearchAreaProgression.insets = new Insets(0, 0, 5, 0);
