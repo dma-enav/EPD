@@ -121,6 +121,39 @@ public class EffectiveSRUAreaGraphics extends OMGraphicList {
                     rapidResponseData.getD(), Heading.RL);
             horizontalBearing = Calculator.bearing(rapidResponseData.getA(),
                     rapidResponseData.getB(), Heading.RL);
+            
+            
+            
+            
+            // Vertical and horizontal must be swapped since the direction has
+            // been set to very east or very west
+            if (verticalBearing < 280 && verticalBearing > 260
+                    || verticalBearing < 100 && verticalBearing > 70) {
+
+                double newVer = verticalBearing;
+                System.out.println("swapping");
+                verticalBearing = horizontalBearing;
+                horizontalBearing = newVer;
+
+            }
+
+            // Reversing if direction is opposite way of assumed, assumed to be
+            // headed in 90 direction ie. right
+            if (horizontalBearing > 180 || horizontalBearing < 0) {
+
+                horizontalBearing = Calculator
+                        .reverseDirection(horizontalBearing);
+            }
+
+            if (verticalBearing > 270 || verticalBearing < 90) {
+                verticalBearing = Calculator.reverseDirection(verticalBearing);
+            }
+
+            System.out.println("Vertical bearing is: " + verticalBearing);
+            System.out.println("Horizontal bearing is: " + horizontalBearing);
+        
+            
+            
         }
 
         if (sarData instanceof DatumPointData) {
