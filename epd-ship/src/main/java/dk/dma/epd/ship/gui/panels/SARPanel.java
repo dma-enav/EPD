@@ -38,6 +38,8 @@ import dk.dma.epd.ship.gui.voct.SearchPatternDialog;
  * Active waypoint panel in sensor panel
  */
 public class SARPanel extends SARPanelCommon {
+	public SARPanel() {
+	}
 
     private static final long serialVersionUID = 1L;
 
