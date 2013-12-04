@@ -32,12 +32,13 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.enav.communication.ConnectionFuture;
-import dk.dma.enav.communication.PersistentConnection;
-import dk.dma.enav.communication.broadcast.BroadcastListener;
-import dk.dma.enav.communication.broadcast.BroadcastMessageHeader;
-import dk.dma.enav.communication.service.InvocationCallback;
-import dk.dma.enav.communication.service.ServiceEndpoint;
+import dk.dma.enav.maritimecloud.ConnectionFuture;
+import dk.dma.enav.maritimecloud.MaritimeCloudClient;
+import dk.dma.enav.maritimecloud.MaritimeCloudClientConfiguration;
+import dk.dma.enav.maritimecloud.broadcast.BroadcastListener;
+import dk.dma.enav.maritimecloud.broadcast.BroadcastMessageHeader;
+import dk.dma.enav.maritimecloud.service.ServiceEndpoint;
+import dk.dma.enav.maritimecloud.service.invocation.InvocationCallback;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.ship.ShipId;
@@ -56,12 +57,12 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck.StrategicRouteAck
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
-import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.settings.ESDEnavSettings;
-import dk.dma.navnet.client.MaritimeNetworkConnectionBuilder;
+
 
 /**
  * Component offering e-Navigation services
@@ -76,7 +77,7 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
 
     private StrategicRouteExchangeHandler monaLisaHandler;
 
-    PersistentConnection connection;
+    MaritimeCloudClient connection;
     RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData> routeSuggestions = new RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData>();
     protected Set<RouteExchangeListener> routeExchangeListener = new HashSet<RouteExchangeListener>();
 
@@ -92,7 +93,7 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
         this.hostPort = String.format("%s:%d", enavSettings.getCloudServerHost(), enavSettings.getCloudServerPort());
     }
 
-    public PersistentConnection getConnection() {
+    public MaritimeCloudClient getConnection() {
         return connection;
     }
 
@@ -100,7 +101,7 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
         connection.serviceRegister(StrategicRouteAck.INIT, new InvocationCallback<StrategicRouteAck.StrategicRouteAckMsg, Void>() {
             @Override
             public void process(StrategicRouteAckMsg message,
-                    dk.dma.enav.communication.service.InvocationCallback.Context<Void> context) {
+                    InvocationCallback.Context<Void> context) {
 
                 System.out.println("Recieved an ack from: " + message.getId());
 
@@ -146,7 +147,7 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
 
     private void getRouteSuggestionServiceList() {
         try {
-            routeSuggestionList = connection.serviceFind(RouteSuggestionService.INIT).nearest(Integer.MAX_VALUE).get();
+            routeSuggestionList = connection.serviceLocate(RouteSuggestionService.INIT).nearest(Integer.MAX_VALUE).get();
         } catch (Exception e) {
             LOG.error(e.getMessage());
 
@@ -242,7 +243,7 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
 
         // enavCloudConnection =
         // MaritimeNetworkConnectionBuilder.create("mmsi://"+shipId.getId());
-        MaritimeNetworkConnectionBuilder enavCloudConnection = MaritimeNetworkConnectionBuilder.create("mmsi://" + shipId.getId());
+        MaritimeCloudClientConfiguration enavCloudConnection = MaritimeCloudClientConfiguration.create("mmsi://" + shipId.getId());
 
         enavCloudConnection.setPositionSupplier(new Supplier<PositionTime>() {
             public PositionTime get() {
@@ -563,7 +564,7 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
 
     private void getMonaLisaShipList() {
         try {
-            monaLisaShipList = connection.serviceFind(StrategicRouteService.INIT).nearest(Integer.MAX_VALUE).get();
+            monaLisaShipList = connection.serviceLocate(StrategicRouteService.INIT).nearest(Integer.MAX_VALUE).get();
 
             // for (int i = 0; i < monaLisaShipList.size(); i++) {
             // System.out.println("We have the following IDs available " +

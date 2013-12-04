@@ -16,6 +16,7 @@
 package dk.dma.epd.shore.ais;
 
 import java.util.Collection;
+
 import dk.dma.enav.model.geometry.Position;
 
 /**

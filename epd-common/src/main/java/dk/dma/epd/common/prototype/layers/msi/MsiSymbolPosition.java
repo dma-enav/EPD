@@ -17,7 +17,6 @@ package dk.dma.epd.common.prototype.layers.msi;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
-
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.frv.enav.common.xml.msi.MsiLocation;

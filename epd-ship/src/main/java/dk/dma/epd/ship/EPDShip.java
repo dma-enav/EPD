@@ -44,8 +44,7 @@ import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
-import dk.dma.enav.communication.PersistentConnection;
-import dk.dma.enav.communication.PersistentConnection.State;
+import dk.dma.enav.maritimecloud.MaritimeCloudClient;
 import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
@@ -55,8 +54,8 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensorFactory;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.pnt.MultiSourcePntHandler;
-import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.settings.SensorSettings.PntSource;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
@@ -537,7 +536,7 @@ public class EPDShip extends EPD {
     public static void closeApp(boolean restart) {
         // Shutdown routine
 
-        PersistentConnection connection = enavServiceHandler.getConnection();
+        MaritimeCloudClient connection = enavServiceHandler.getConnection();
 
         if (connection != null) {
             connection.close();
@@ -552,7 +551,7 @@ public class EPDShip extends EPD {
 
         if (connection != null) {
             try {
-                enavServiceHandler.getConnection().awaitState(State.TERMINATED, 2, TimeUnit.SECONDS);
+                enavServiceHandler.getConnection().awaitTermination(2, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 LOG.info("Failed to close connection - Terminatnig");
             }

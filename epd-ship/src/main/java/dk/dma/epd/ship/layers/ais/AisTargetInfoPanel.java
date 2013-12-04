@@ -24,10 +24,10 @@ import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget.AisClass;
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.frv.enav.common.xml.risk.response.Risk;
 import dk.frv.enav.common.xml.risk.response.RiskList;
 

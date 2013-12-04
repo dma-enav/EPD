@@ -15,8 +15,9 @@
  */
 package dk.dma.epd.common.prototype.enavcloud;
 
-import dk.dma.enav.communication.PersistentConnection;
-import dk.dma.enav.communication.broadcast.BroadcastMessage;
+import dk.dma.enav.maritimecloud.MaritimeCloudClient;
+import dk.dma.enav.maritimecloud.broadcast.BroadcastMessage;
+
 
 /**
  * Thread for sending AIS messages
@@ -25,13 +26,13 @@ public class EnavCloudSendThread extends Thread {
 
     private BroadcastMessage message;
     // private EnavCloudHandler enavCloudHandler;
-    PersistentConnection connection;
+    MaritimeCloudClient connection;
 
     // private static final Logger LOG = Logger
     // .getLogger(EnavCloudSendThread.class);
 
     public EnavCloudSendThread(BroadcastMessage message,
-            PersistentConnection connection) {
+            MaritimeCloudClient connection) {
         this.message = message;
         this.connection = connection;
         // this.sendRequest = sendRequest;

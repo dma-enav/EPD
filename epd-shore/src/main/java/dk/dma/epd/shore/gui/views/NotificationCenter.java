@@ -57,10 +57,10 @@ import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.gui.views.strategicRouteExchange.StrategicRouteExchangeNotificationPanel;
 import dk.dma.epd.shore.gui.views.strategicRouteExchange.StrategicRouteExchangeTableModel;
 import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.service.RouteExchangeListener;
 import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
 import dk.dma.epd.shore.service.StrategicRouteExchangeListener;
 import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
-import dk.dma.epd.shore.service.RouteExchangeListener;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
 public class NotificationCenter extends ComponentFrame implements

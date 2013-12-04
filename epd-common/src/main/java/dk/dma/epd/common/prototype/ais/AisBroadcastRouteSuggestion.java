@@ -18,7 +18,6 @@ package dk.dma.epd.common.prototype.ais;
 import java.util.Date;
 
 import net.jcip.annotations.Immutable;
-
 import dk.dma.ais.message.binary.RouteInformation;
 
 /**

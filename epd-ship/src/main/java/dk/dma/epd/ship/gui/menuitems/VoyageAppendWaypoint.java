@@ -21,7 +21,6 @@ import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.voyage.VoyageUpdateEvent;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 
 /**
  * @author Janus Varmarken
