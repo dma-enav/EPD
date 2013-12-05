@@ -95,7 +95,7 @@ public class SARComponentPanel extends OMComponentPanel implements
         if (e == VOCTUpdateEvent.SAR_DISPLAY) {
             sarPanel.sarComplete(voctManager.getSarData());
             sarPanel.getBtnEffortAllocation().setEnabled(true);
-            sarPanel.getBtnGenerateSearchPattern().setEnabled(true);
+//            sarPanel.getBtnGenerateSearchPattern().setEnabled(true);
         }
         if (e == VOCTUpdateEvent.EFFORT_ALLOCATION_DISPLAY) {
             sarPanel.effortAllocationComplete(voctManager.getSarData());

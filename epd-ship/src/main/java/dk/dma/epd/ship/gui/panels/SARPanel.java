@@ -128,6 +128,8 @@ public class SARPanel extends SARPanelCommon {
 
         btnGenerateSearchPattern.addActionListener(this);
 
+        
+        
         chckbxShowDynamicPattern = ((SearchPatternsPanel) searchPatternPanel).getChckbxShowDynamicPattern();
 
         chckbxShowDynamicPattern.addActionListener(this);

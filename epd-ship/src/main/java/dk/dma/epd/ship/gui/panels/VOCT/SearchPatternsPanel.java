@@ -51,6 +51,9 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon{
 
         btnGenerateSearchPattern = new JButton("Generate Search Pattern");
         btnGenerateSearchPattern.setEnabled(false);
+        
+        System.out.println("Button is NOT enabled " + btnGenerateSearchPattern.isEnabled());
+        
         GridBagConstraints gbc_btnGenerateSearchPattern = new GridBagConstraints();
         gbc_btnGenerateSearchPattern.insets = new Insets(0, 0, 5, 0);
         gbc_btnGenerateSearchPattern.gridx = 0;
@@ -107,6 +110,7 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon{
 
     @Override
     public void effortAllocationGenerated(){
+        System.out.println("Enabling search pattern btn");
         btnGenerateSearchPattern.setEnabled(true);
     }
   
