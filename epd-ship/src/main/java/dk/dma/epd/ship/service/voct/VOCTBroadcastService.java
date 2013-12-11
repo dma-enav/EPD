@@ -19,19 +19,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.ais.VesselPositionData;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
 import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.sensor.nmea.IPntListener;
-import dk.dma.epd.common.prototype.sensor.nmea.PntMessage;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
-import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.EnavService;
 import dk.dma.epd.ship.service.EnavServiceHandler;
@@ -40,11 +33,9 @@ import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
 /**
  * Intended route service implementation
  */
-public class VOCTBroadcastService extends EnavService implements
-        IRoutesUpdateListener, IPntDataListener {
+public class VOCTBroadcastService extends EnavService implements IRoutesUpdateListener, IPntDataListener {
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(VOCTBroadcastService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VOCTBroadcastService.class);
 
     /**
      * The current active route provider
@@ -55,8 +46,7 @@ public class VOCTBroadcastService extends EnavService implements
 
     PntData pntData;
 
-    public VOCTBroadcastService(EnavServiceHandler enavServiceHandler,
-            RouteManager provider, PntHandler pntHandler,
+    public VOCTBroadcastService(EnavServiceHandler enavServiceHandler, RouteManager provider, PntHandler pntHandler,
             VOCTManager voctManager) {
         super(enavServiceHandler);
 
@@ -87,13 +77,11 @@ public class VOCTBroadcastService extends EnavService implements
             if (voctManager.getSarData().getEffortAllocationData().size() > 0) {
 
                 // Do we have a route to send?
-                if (voctManager.getSarData().getFirstEffortAllocationData()
-                        .getSearchPatternRoute() != null) {
+                if (voctManager.getSarData().getFirstEffortAllocationData().getSearchPatternRoute() != null) {
 
                     // Is the search pattern the same as the search
                     // pattern route?
-                    if (voctManager.getSarData().getFirstEffortAllocationData()
-                            .getSearchPatternRoute()
+                    if (voctManager.getSarData().getFirstEffortAllocationData().getSearchPatternRoute()
                             .isActiveRoute(provider.getActiveRoute())) {
 
                         voctBroadCast.setIntendedSearchPattern(provider.getActiveRoute().getFullRouteData());
@@ -113,7 +101,7 @@ public class VOCTBroadcastService extends EnavService implements
                 heading = pntData.getCog();
             }
 
-//            double headingRadian = Math.toRadians(heading);
+            // double headingRadian = Math.toRadians(heading);
 
             // Set location of ship
             Position currentPos = pntData.getPosition();
@@ -122,7 +110,7 @@ public class VOCTBroadcastService extends EnavService implements
             voctBroadCast.setLat(currentPos.getLatitude());
             voctBroadCast.setLon(currentPos.getLongitude());
 
-        }else{
+        } else {
             voctBroadCast.setHeading(-1);
             voctBroadCast.setLat(-9999);
             voctBroadCast.setLon(-9999);
@@ -146,8 +134,7 @@ public class VOCTBroadcastService extends EnavService implements
     @Override
     public void routesChanged(RoutesUpdateEvent e) {
         if (e != null) {
-            if (e.is(RoutesUpdateEvent.ROUTE_ACTIVATED,
-                    RoutesUpdateEvent.ROUTE_DEACTIVATED)) {
+            if (e.is(RoutesUpdateEvent.ROUTE_ACTIVATED, RoutesUpdateEvent.ROUTE_DEACTIVATED)) {
 
                 // Check if the active route is the same as the sar search
                 // pattern
@@ -160,7 +147,7 @@ public class VOCTBroadcastService extends EnavService implements
     }
 
     @Override
-    public void gpsDataUpdate(PntData pntData) {
+    public void pntDataUpdate(PntData pntData) {
         if (pntData == null || pntData.getPosition() == null) {
             return;
         }

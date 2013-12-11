@@ -104,16 +104,18 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
      */
     protected void readLoop(InputStream stream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        String msg;
+        String line;
 
-        while ((msg = reader.readLine()) != null) {
-            if (isReplay()) {
-                handleReplay(msg);
-            }
-
-            handleSentence(msg);
+        while ((line = reader.readLine()) != null) {
+            handleLine(line);
         }
-
+    }
+    
+    protected void handleLine(String line) {
+        if (isReplay()) {
+            handleReplay(line);
+        }
+        handleSentence(line);
     }
 
     /**
@@ -270,11 +272,6 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         // Check if simulated own ship
         boolean ownMessage = packet.getVdm().isOwnMessage();
 
-        // Distribute PNT from own mesasge
-        if (ownMessage) {
-            handlePntFromOwnMessage(message);
-        }
-
         // Distribute message
         for (IAisListener aisListener : aisListeners) {
             if (ownMessage) {
@@ -283,6 +280,13 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
                 aisListener.receive(message);
             }
         }
+        
+        // Distribute PNT from own mesasge
+        if (ownMessage) {
+            handlePntFromOwnMessage(message);
+        }
+
+        
     }
 
     protected void handlePntFromOwnMessage(AisMessage aisMessage) {

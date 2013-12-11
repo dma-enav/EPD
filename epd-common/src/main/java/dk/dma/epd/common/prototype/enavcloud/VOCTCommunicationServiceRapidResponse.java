@@ -19,11 +19,10 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Date;
 
-import dk.dma.enav.communication.service.spi.ServiceInitiationPoint;
-import dk.dma.enav.communication.service.spi.ServiceMessage;
+import dk.dma.enav.maritimecloud.service.spi.ServiceInitiationPoint;
+import dk.dma.enav.maritimecloud.service.spi.ServiceMessage;
 import dk.dma.enav.model.voct.EffortAllocationDTO;
 import dk.dma.enav.model.voct.RapidResponseDTO;
-import dk.dma.enav.model.voct.SARModelDTO;
 import dk.dma.enav.model.voyage.Route;
 
 public class VOCTCommunicationServiceRapidResponse {

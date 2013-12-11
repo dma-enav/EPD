@@ -24,10 +24,10 @@ import net.jcip.annotations.ThreadSafe;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.sensor.nmea.PntMessage;
 import dk.dma.epd.common.prototype.sensor.nmea.IPntListener;
-import dk.dma.epd.common.prototype.status.PntStatus;
+import dk.dma.epd.common.prototype.sensor.nmea.PntMessage;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
+import dk.dma.epd.common.prototype.status.PntStatus;
 import dk.dma.epd.common.util.Util;
 
 /**
@@ -90,7 +90,7 @@ public class PntHandler extends MapHandlerChild implements IPntListener, IStatus
     private void distributeUpdate() {
         for (IPntDataListener listener : listeners) {
             PntData currentCopy = getCurrentData();
-            listener.gpsDataUpdate(currentCopy);
+            listener.pntDataUpdate(currentCopy);
         }
     }
 

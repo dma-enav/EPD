@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
+import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
@@ -58,6 +59,7 @@ import dk.dma.epd.common.prototype.layers.ais.VesselTargetTriangle;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
+import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -120,6 +122,8 @@ public class AisLayer extends OMGraphicHandlerLayer implements
 
     private TopPanel topPanel;
 
+    private ZoomLevel currentZoomLevel;
+    
     public AisLayer() {
         graphics.add(aisTargetGraphic);
         // graphics.setVague(false);
@@ -335,8 +339,11 @@ public class AisLayer extends OMGraphicHandlerLayer implements
                 forceRedraw = true;
             }
 
-            targetGraphic.update(vesselTarget, aisSettings, navSettings);
-
+//            targetGraphic.update(vesselTarget, aisSettings, navSettings);
+            if(this.currentZoomLevel == null) {
+                this.currentZoomLevel = ZoomLevel.getFromScale(this.getProjection().getScale());
+            }
+            vesselTargetGraphic.update(vesselTarget, aisSettings, navSettings, this.currentZoomLevel);
             if (vesselTarget.getMmsi() == selectedMMSI) {
                 updateSelection(aisTarget, false);
             }
@@ -726,4 +733,23 @@ public class AisLayer extends OMGraphicHandlerLayer implements
 
     }
 
+    @Override
+    public void projectionChanged(ProjectionEvent pe) {
+        super.projectionChanged(pe);
+        // the new zoom level
+        ZoomLevel updatedZl = ZoomLevel.getFromScale(pe.getProjection().getScale());
+        // log if zoom level was changed
+        boolean zoomChanged = this.currentZoomLevel != updatedZl;
+        this.currentZoomLevel = updatedZl;
+        if(zoomChanged) {
+            // only need to redraw vessels if zoom level changed
+            for(TargetGraphic tg : this.targets.values()) {
+                if(tg instanceof VesselTargetGraphic) {
+                    ((VesselTargetGraphic)tg).drawAccordingToScale(this.currentZoomLevel);
+                }
+            }
+            // force redraw
+            this.updateLayer(true);
+        }
+    }
 }

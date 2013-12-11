@@ -24,9 +24,9 @@ import com.bbn.openmap.gui.OMComponentPanel;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
-import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.panels.OwnShipPanel;
@@ -58,7 +58,7 @@ public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataL
     
 
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
 
         String ownName = null;
         String ownCallsign = null;

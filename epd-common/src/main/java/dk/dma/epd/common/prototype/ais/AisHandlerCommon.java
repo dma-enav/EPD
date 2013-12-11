@@ -522,7 +522,7 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
     /**
      * Try to load AIS view from disk
      */
-    public final void loadView() {
+    public void loadView() {
         AisStore aisStore = null;
 
         try (FileInputStream fileIn = new FileInputStream(AIS_VIEW_FILE);
@@ -562,12 +562,12 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
     /**
      * Save AIS view to file
      */
-    public final void saveView() {
+    public void saveView() {
         AisStore aisStore = new AisStore();
         aisStore.setVesselTargets(vesselTargets);
         aisStore.setAtonTargets(atonTargets);
         aisStore.setSarTargets(sarTargets);
-
+        
         try (FileOutputStream fileOut = new FileOutputStream(AIS_VIEW_FILE);
                 ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
             objectOut.writeObject(aisStore);

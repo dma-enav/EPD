@@ -24,9 +24,9 @@ import org.slf4j.LoggerFactory;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.Projection;
 
-import dk.dma.epd.common.prototype.status.WMSStatus;
 import dk.dma.epd.common.prototype.event.WMSEvent;
 import dk.dma.epd.common.prototype.event.WMSEventListener;
+import dk.dma.epd.common.prototype.status.WMSStatus;
 
 public abstract class AbstractWMSService extends Observable {
     protected Logger LOG;

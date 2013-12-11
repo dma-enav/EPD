@@ -35,18 +35,17 @@ public class VesselTargetTriangle extends OMGraphicList {
     private Stroke stroke = new BasicStroke(2.0f);
     private VesselTargetGraphic vesselTarget;
 
-    public VesselTargetTriangle() {
+    public VesselTargetTriangle(VesselTargetGraphic parentGraphic) {
         int[] vesselX = { 0, 5, -5, 0 };
         int[] vesselY = { -10, 5, 5, -10 };
         vessel = new RotationalPoly(vesselX, vesselY, stroke, paint);
         add(vessel);
         this.setVague(true);
+        this.vesselTarget = parentGraphic;
     }
 
-    public void update(double lat, double lon, int units, double heading, VesselTargetGraphic vesselTarget) {
-        this.vesselTarget = vesselTarget;
+    public void update(double lat, double lon, int units, double heading) {
         vessel.setLocation(lat, lon, units, heading);
-        
     }
 
     public VesselTargetGraphic getVesselTargetGraphic() {

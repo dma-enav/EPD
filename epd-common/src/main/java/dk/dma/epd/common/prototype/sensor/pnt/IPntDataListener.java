@@ -24,6 +24,6 @@ public interface IPntDataListener {
      * Method called when the position of ship changes, or the known position is lost
      * @param pntData 
      */
-    void gpsDataUpdate(PntData pntData);
+    void pntDataUpdate(PntData pntData);
 
 }

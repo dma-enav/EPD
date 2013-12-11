@@ -89,13 +89,14 @@
 		<dependency>
 			<groupId>dk.dma.enav</groupId>
 			<artifactId>enav-common</artifactId>
-			<version>${project.version}</version>
+			<version>0.2-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>dk.dma.network</groupId>
-			<artifactId>dma-network-client</artifactId>
-			<version>${project.version}</version>
+		    <groupId>dk.dma.network</groupId>
+    <artifactId>dma-network-client</artifactId>
+    <version>0.2-SNAPSHOT</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>

@@ -26,13 +26,14 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.enav.communication.ConnectionFuture;
-import dk.dma.enav.communication.PersistentConnection;
-import dk.dma.enav.communication.broadcast.BroadcastListener;
-import dk.dma.enav.communication.broadcast.BroadcastMessage;
-import dk.dma.enav.communication.broadcast.BroadcastMessageHeader;
-import dk.dma.enav.communication.service.InvocationCallback;
-import dk.dma.enav.communication.service.ServiceEndpoint;
+import dk.dma.enav.maritimecloud.ConnectionFuture;
+import dk.dma.enav.maritimecloud.MaritimeCloudClient;
+import dk.dma.enav.maritimecloud.MaritimeCloudClientConfiguration;
+import dk.dma.enav.maritimecloud.broadcast.BroadcastListener;
+import dk.dma.enav.maritimecloud.broadcast.BroadcastMessage;
+import dk.dma.enav.maritimecloud.broadcast.BroadcastMessageHeader;
+import dk.dma.enav.maritimecloud.service.ServiceEndpoint;
+import dk.dma.enav.maritimecloud.service.invocation.InvocationCallback;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.ship.ShipId;
@@ -74,7 +75,7 @@ import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
 import dk.dma.epd.ship.service.intendedroute.IntendedRouteService;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 import dk.dma.epd.ship.settings.EPDEnavSettings;
-import dk.dma.navnet.client.MaritimeNetworkConnectionBuilder;
+
 
 /**
  * Component offering e-Navigation services
@@ -102,7 +103,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private List<ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply>> monaLisaSTCCList = new ArrayList<>();
     private List<ServiceEndpoint<StrategicRouteAckMsg, Void>> monaLisaRouteAckList = new ArrayList<>();
 
-    PersistentConnection connection;
+    MaritimeCloudClient connection;
 
     private IntendedRouteService intendedRouteService;
 
@@ -140,14 +141,14 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
         try {
             monaLisaRouteAckList = connection
-                    .serviceFind(StrategicRouteAck.INIT)
+                    .serviceLocate(StrategicRouteAck.INIT)
                     .nearest(Integer.MAX_VALUE).get();
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
     }
 
-    public PersistentConnection getConnection() {
+    public MaritimeCloudClient getConnection() {
         return connection;
     }
 
@@ -340,7 +341,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
         // enavCloudConnection =
         // MaritimeNetworkConnectionBuilder.create("mmsi://"+shipId.getId());
-        MaritimeNetworkConnectionBuilder enavCloudConnection = MaritimeNetworkConnectionBuilder
+        MaritimeCloudClientConfiguration enavCloudConnection = MaritimeCloudClientConfiguration
                 .create("mmsi://" + shipId.getId());
 
         enavCloudConnection.setPositionSupplier(new Supplier<PositionTime>() {
@@ -368,7 +369,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
             }
         } catch (Exception e) {
             // e.printStackTrace();
-            System.out.println("Failed to connect to server");
+            System.out.println("Failed to connect to server: " + e);
             cloudStatus.markFailedSend();
             cloudStatus.markFailedReceive();
         }
@@ -386,7 +387,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * Receive position updates
      */
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
         // TODO give information to messageBus if valid position
     }
 
@@ -463,7 +464,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private void getSTCCList() {
         try {
             monaLisaSTCCList = connection
-                    .serviceFind(StrategicRouteService.INIT)
+                    .serviceLocate(StrategicRouteService.INIT)
                     .nearest(Integer.MAX_VALUE).get();
 
         } catch (Exception e) {

@@ -38,10 +38,10 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
-import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -130,7 +130,7 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
      * Receive GPS update
      */
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
         this.setGpsData(gpsData);
         Position pos = gpsData.getPosition();
         if (gpsData.isBadPosition() || pos == null) {

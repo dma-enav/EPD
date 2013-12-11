@@ -33,17 +33,17 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
+import dk.dma.epd.common.prototype.layers.msi.MsiLayer;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
-import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
+import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Util;
-import dk.dma.epd.common.prototype.layers.msi.MsiLayer;
-import dk.dma.epd.common.prototype.route.RouteManagerCommon;
-import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 import dk.frv.enav.common.xml.msi.response.MsiResponse;
 
@@ -414,7 +414,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
      * previous point
      */
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
         currentPosition = gpsData.getPosition();
 
         if (calculationPosition == null) {

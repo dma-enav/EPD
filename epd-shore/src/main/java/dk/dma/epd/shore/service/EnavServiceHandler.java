@@ -32,18 +32,19 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.enav.communication.ConnectionFuture;
-import dk.dma.enav.communication.PersistentConnection;
-import dk.dma.enav.communication.broadcast.BroadcastListener;
-import dk.dma.enav.communication.broadcast.BroadcastMessageHeader;
-import dk.dma.enav.communication.service.InvocationCallback;
-import dk.dma.enav.communication.service.ServiceEndpoint;
+import dk.dma.enav.maritimecloud.ConnectionFuture;
+import dk.dma.enav.maritimecloud.MaritimeCloudClient;
+import dk.dma.enav.maritimecloud.MaritimeCloudClientConfiguration;
+import dk.dma.enav.maritimecloud.broadcast.BroadcastListener;
+import dk.dma.enav.maritimecloud.broadcast.BroadcastMessageHeader;
+import dk.dma.enav.maritimecloud.service.ServiceEndpoint;
+import dk.dma.enav.maritimecloud.service.invocation.InvocationCallback;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.ship.ShipId;
+import dk.dma.enav.model.voct.DatumPointDTO;
 import dk.dma.enav.model.voct.EffortAllocationDTO;
 import dk.dma.enav.model.voct.RapidResponseDTO;
-import dk.dma.enav.model.voct.DatumPointDTO;
 import dk.dma.enav.model.voyage.Route;
 import dk.dma.enav.util.function.BiConsumer;
 import dk.dma.enav.util.function.Supplier;
@@ -75,16 +76,13 @@ import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.settings.ESDEnavSettings;
 import dk.dma.epd.shore.voct.SRUManager;
-import dk.dma.navnet.client.MaritimeNetworkConnectionBuilder;
 
 /**
  * Component offering e-Navigation services
  */
-public class EnavServiceHandler extends MapHandlerChild implements
-        IPntDataListener, Runnable {
+public class EnavServiceHandler extends MapHandlerChild implements IPntDataListener, Runnable {
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(EnavServiceHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EnavServiceHandler.class);
 
     private String hostPort;
     private ShipId shipId;
@@ -93,7 +91,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     private StrategicRouteExchangeHandler monaLisaHandler;
 
-    PersistentConnection connection;
+    MaritimeCloudClient connection;
 
     RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData> routeSuggestions = new RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData>();
     protected Set<RouteExchangeListener> routeExchangeListener = new HashSet<RouteExchangeListener>();
@@ -116,61 +114,48 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private List<ServiceEndpoint<VOCTCommunicationMessageDatumPoint, VOCTCommunicationReplyDatumPoint>> voctMessageListDatumPoint = new ArrayList<>();
 
     public EnavServiceHandler(ESDEnavSettings enavSettings) {
-        this.hostPort = String.format("%s:%d",
-                enavSettings.getCloudServerHost(),
-                enavSettings.getCloudServerPort());
+        this.hostPort = String.format("%s:%d", enavSettings.getCloudServerHost(), enavSettings.getCloudServerPort());
     }
 
-    public PersistentConnection getConnection() {
+    public MaritimeCloudClient getConnection() {
         return connection;
     }
 
     private void listenToAck() throws InterruptedException {
-        connection
-                .serviceRegister(
-                        StrategicRouteAck.INIT,
-                        new InvocationCallback<StrategicRouteAck.StrategicRouteAckMsg, Void>() {
-                            @Override
-                            public void process(
-                                    StrategicRouteAckMsg message,
-                                    dk.dma.enav.communication.service.InvocationCallback.Context<Void> context) {
 
-                                System.out.println("Recieved an ack from: "
-                                        + message.getId());
+        connection.serviceRegister(StrategicRouteAck.INIT, new InvocationCallback<StrategicRouteAck.StrategicRouteAckMsg, Void>() {
+            @Override
+            public void process(StrategicRouteAckMsg message, InvocationCallback.Context<Void> context) {
 
-                                monaLisaHandler.handleSingleAckMsg(message);
+                System.out.println("Recieved an ack from: " + message.getId());
 
-                            }
-                        }).awaitRegistered(4, TimeUnit.SECONDS);
+                monaLisaHandler.handleSingleAckMsg(message);
+
+            }
+        }).awaitRegistered(4, TimeUnit.SECONDS);
     }
 
     private void listenToBroadcasts() throws InterruptedException {
-        connection.broadcastListen(EnavRouteBroadcast.class,
-                new BroadcastListener<EnavRouteBroadcast>() {
-                    public void onMessage(BroadcastMessageHeader l,
-                            EnavRouteBroadcast r) {
-                        int id = Integer.parseInt(l.getId().toString()
-                                .split("mmsi://")[1]);
-                        updateIntendedRoute(id, r.getIntendedRoute());
-                    }
-                });
+        connection.broadcastListen(EnavRouteBroadcast.class, new BroadcastListener<EnavRouteBroadcast>() {
+            public void onMessage(BroadcastMessageHeader l, EnavRouteBroadcast r) {
+                int id = Integer.parseInt(l.getId().toString().split("mmsi://")[1]);
+                updateIntendedRoute(id, r.getIntendedRoute());
+            }
+        });
     }
 
     private void listenToVOCTBroadcasts() throws InterruptedException {
-        connection.broadcastListen(VOCTSARBroadCast.class,
-                new BroadcastListener<VOCTSARBroadCast>() {
-                    public void onMessage(BroadcastMessageHeader l,
-                            VOCTSARBroadCast r) {
+        connection.broadcastListen(VOCTSARBroadCast.class, new BroadcastListener<VOCTSARBroadCast>() {
+            public void onMessage(BroadcastMessageHeader l, VOCTSARBroadCast r) {
 
-                        System.out.println("Broadcast recieved!");
+                System.out.println("Broadcast recieved!");
 
-                        long id = Long.parseLong(l.getId().toString()
-                                .split("mmsi://")[1]);
+                long id = Long.parseLong(l.getId().toString().split("mmsi://")[1]);
 
-                        sruManager.handleSRUBroadcast(id, r);
+                sruManager.handleSRUBroadcast(id, r);
 
-                    }
-                });
+            }
+        });
     }
 
     /**
@@ -200,9 +185,9 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     private void getRouteSuggestionServiceList() {
         try {
-            routeSuggestionList = connection
-                    .serviceFind(RouteSuggestionService.INIT)
-                    .nearest(Integer.MAX_VALUE).get();
+
+            routeSuggestionList = connection.serviceLocate(RouteSuggestionService.INIT).nearest(Integer.MAX_VALUE).get();
+
         } catch (Exception e) {
             LOG.error(e.getMessage());
 
@@ -212,17 +197,14 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private void getVOCTMessageList() {
         System.out.println("Checking for VOCT message list");
         try {
-            voctMessageListRapidResponse = connection
-                    .serviceFind(VOCTCommunicationServiceRapidResponse.INIT)
+            voctMessageListRapidResponse = connection.serviceLocate(VOCTCommunicationServiceRapidResponse.INIT)
                     .nearest(Integer.MAX_VALUE).get();
 
-            voctMessageListDatumPoint = connection
-                    .serviceFind(VOCTCommunicationServiceDatumPoint.INIT)
+            voctMessageListDatumPoint = connection.serviceLocate(VOCTCommunicationServiceDatumPoint.INIT)
                     .nearest(Integer.MAX_VALUE).get();
 
             for (int i = 0; i < voctMessageListRapidResponse.size(); i++) {
-                System.out.println("VOCT Listener with ID: "
-                        + voctMessageListRapidResponse.get(i).getId());
+                System.out.println("VOCT Listener with ID: " + voctMessageListRapidResponse.get(i).getId());
             }
         } catch (Exception e) {
             LOG.error(e.getMessage());
@@ -240,8 +222,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     public boolean shipAvailableForRouteSuggestion(long mmsi) {
         for (int i = 0; i < routeSuggestionList.size(); i++) {
-            if (mmsi == Long.parseLong(routeSuggestionList.get(i).getId()
-                    .toString().split("//")[1])) {
+            if (mmsi == Long.parseLong(routeSuggestionList.get(i).getId().toString().split("//")[1])) {
                 return true;
             }
 
@@ -250,9 +231,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
         return false;
     }
 
-    public void sendVOCTMessage(long mmsi, SARData sarData, String sender,
-            String message, int id, boolean isAO, boolean isSearchPattern)
-            throws InterruptedException, ExecutionException, TimeoutException {
+    public void sendVOCTMessage(long mmsi, SARData sarData, String sender, String message, int id, boolean isAO,
+            boolean isSearchPattern) throws InterruptedException, ExecutionException, TimeoutException {
 
         // System.out.println("Send to : " + mmsi);
         String mmsiStr = "mmsi://" + mmsi;
@@ -261,8 +241,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
             ServiceEndpoint<VOCTCommunicationServiceRapidResponse.VOCTCommunicationMessageRapidResponse, VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse> end = null;
 
             for (int i = 0; i < voctMessageListRapidResponse.size(); i++) {
-                if (voctMessageListRapidResponse.get(i).getId().toString()
-                        .equals(mmsiStr)) {
+                if (voctMessageListRapidResponse.get(i).getId().toString().equals(mmsiStr)) {
                     end = voctMessageListRapidResponse.get(i);
 
                     break;
@@ -273,38 +252,26 @@ public class EnavServiceHandler extends MapHandlerChild implements
             VOCTCommunicationMessageRapidResponse voctMessage = null;
 
             if (sarData instanceof RapidResponseData) {
-                RapidResponseDTO rapidResponseModelData = ((RapidResponseData) sarData)
-                        .getModelData();
+                RapidResponseDTO rapidResponseModelData = ((RapidResponseData) sarData).getModelData();
 
                 EffortAllocationDTO effortAllocationData = null;
                 Route searchPattern = null;
 
                 if (isAO) {
                     if (sarData.getEffortAllocationData().size() > id) {
-                        effortAllocationData = sarData.getEffortAllocationData()
-                                .get(id).getModelData();
+                        effortAllocationData = sarData.getEffortAllocationData().get(id).getModelData();
 
                         if (isSearchPattern) {
 
-                            if (sarData.getEffortAllocationData().get(id)
-                                    .getSearchPatternRoute() != null) {
+                            if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
 
-                                if (sarData.getEffortAllocationData().get(id)
-                                        .getSearchPatternRoute().isDynamic()) {
-                                    sarData.getEffortAllocationData().get(id)
-                                            .getSearchPatternRoute()
-                                            .switchToStatic();
-                                    searchPattern = sarData
-                                            .getEffortAllocationData().get(id)
-                                            .getSearchPatternRoute()
+                                if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute().isDynamic()) {
+                                    sarData.getEffortAllocationData().get(id).getSearchPatternRoute().switchToStatic();
+                                    searchPattern = sarData.getEffortAllocationData().get(id).getSearchPatternRoute()
                                             .getFullRouteData();
-                                    sarData.getEffortAllocationData().get(id)
-                                            .getSearchPatternRoute()
-                                            .switchToDynamic();
+                                    sarData.getEffortAllocationData().get(id).getSearchPatternRoute().switchToDynamic();
                                 } else {
-                                    searchPattern = sarData
-                                            .getEffortAllocationData().get(id)
-                                            .getSearchPatternRoute()
+                                    searchPattern = sarData.getEffortAllocationData().get(id).getSearchPatternRoute()
                                             .getFullRouteData();
                                 }
 
@@ -314,8 +281,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
                 }
                 voctMessage = new VOCTCommunicationServiceRapidResponse.VOCTCommunicationMessageRapidResponse(
-                        rapidResponseModelData, effortAllocationData,
-                        searchPattern, sender, message);
+                        rapidResponseModelData, effortAllocationData, searchPattern, sender, message);
             }
 
             System.out.println("Sending VOCT SAR to mmsi: " + mmsi);
@@ -337,8 +303,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                 f.handle(new BiConsumer<VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse, Throwable>() {
 
                     @Override
-                    public void accept(VOCTCommunicationReplyRapidResponse l,
-                            Throwable r) {
+                    public void accept(VOCTCommunicationReplyRapidResponse l, Throwable r) {
                         // TODO Auto-generated method stub
                         System.out.println("Reply recieved SAR");
                         sruManager.handleSRUReply(l.getMmsi(), l.getStatus());
@@ -357,8 +322,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
             ServiceEndpoint<VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint, VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint> end = null;
 
             for (int i = 0; i < voctMessageListDatumPoint.size(); i++) {
-                if (voctMessageListDatumPoint.get(i).getId().toString()
-                        .equals(mmsiStr)) {
+                if (voctMessageListDatumPoint.get(i).getId().toString().equals(mmsiStr)) {
                     end = voctMessageListDatumPoint.get(i);
 
                     break;
@@ -369,38 +333,26 @@ public class EnavServiceHandler extends MapHandlerChild implements
             VOCTCommunicationMessageDatumPoint voctMessage = null;
 
             if (sarData instanceof DatumPointData) {
-                DatumPointDTO datumPointModelData = ((DatumPointData) sarData)
-                        .getModelData();
+                DatumPointDTO datumPointModelData = ((DatumPointData) sarData).getModelData();
 
                 EffortAllocationDTO effortAllocationData = null;
                 Route searchPattern = null;
 
                 if (isAO) {
                     if (sarData.getEffortAllocationData().size() > id) {
-                        effortAllocationData = sarData.getEffortAllocationData()
-                                .get(id).getModelData();
+                        effortAllocationData = sarData.getEffortAllocationData().get(id).getModelData();
 
                         if (isSearchPattern) {
 
-                            if (sarData.getEffortAllocationData().get(id)
-                                    .getSearchPatternRoute() != null) {
+                            if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
 
-                                if (sarData.getEffortAllocationData().get(id)
-                                        .getSearchPatternRoute().isDynamic()) {
-                                    sarData.getEffortAllocationData().get(id)
-                                            .getSearchPatternRoute()
-                                            .switchToStatic();
-                                    searchPattern = sarData
-                                            .getEffortAllocationData().get(id)
-                                            .getSearchPatternRoute()
+                                if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute().isDynamic()) {
+                                    sarData.getEffortAllocationData().get(id).getSearchPatternRoute().switchToStatic();
+                                    searchPattern = sarData.getEffortAllocationData().get(id).getSearchPatternRoute()
                                             .getFullRouteData();
-                                    sarData.getEffortAllocationData().get(id)
-                                            .getSearchPatternRoute()
-                                            .switchToDynamic();
+                                    sarData.getEffortAllocationData().get(id).getSearchPatternRoute().switchToDynamic();
                                 } else {
-                                    searchPattern = sarData
-                                            .getEffortAllocationData().get(id)
-                                            .getSearchPatternRoute()
+                                    searchPattern = sarData.getEffortAllocationData().get(id).getSearchPatternRoute()
                                             .getFullRouteData();
                                 }
 
@@ -409,9 +361,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
                     }
 
                 }
-                voctMessage = new VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint(
-                        datumPointModelData, effortAllocationData,
-                        searchPattern, sender, message);
+                voctMessage = new VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint(datumPointModelData,
+                        effortAllocationData, searchPattern, sender, message);
             }
 
             System.out.println("Sending VOCT SAR to mmsi: " + mmsi);
@@ -427,18 +378,16 @@ public class EnavServiceHandler extends MapHandlerChild implements
             //
 
             if (end != null) {
-                ConnectionFuture<VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint> f = end
-                        .invoke(voctMessage);
+                ConnectionFuture<VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint> f = end.invoke(voctMessage);
 
                 f.handle(new BiConsumer<VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint, Throwable>() {
 
                     @Override
-                    public void accept(VOCTCommunicationReplyDatumPoint l,
-                            Throwable r) {
+                    public void accept(VOCTCommunicationReplyDatumPoint l, Throwable r) {
                         // TODO Auto-generated method stub
                         System.out.println("Reply recieved SAR");
                         sruManager.handleSRUReply(l.getMmsi(), l.getStatus());
-                        }
+                    }
                 });
 
             } else {
@@ -449,15 +398,10 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
         }
 
-
-        
-        
-        
     }
 
-    public void sendRouteSuggestion(long mmsi, Route route, String sender,
-            String message) throws InterruptedException, ExecutionException,
-            TimeoutException {
+    public void sendRouteSuggestion(long mmsi, Route route, String sender, String message) throws InterruptedException,
+            ExecutionException, TimeoutException {
 
         // System.out.println("Send to : " + mmsi);
         String mmsiStr = "mmsi://" + mmsi;
@@ -476,22 +420,17 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
         // mmsi = 219230000;
 
-        RouteSuggestionMessage routeMessage = new RouteSuggestionService.RouteSuggestionMessage(
-                route, sender, message);
+        RouteSuggestionMessage routeMessage = new RouteSuggestionService.RouteSuggestionMessage(route, sender, message);
 
-        System.out.println("Sending to mmsi: " + mmsi + " with ID: "
-                + routeMessage.getId());
+        System.out.println("Sending to mmsi: " + mmsi + " with ID: " + routeMessage.getId());
 
-        RouteSuggestionData suggestionData = new RouteSuggestionData(
-                routeMessage, null, routeMessage.getId(), mmsi, false,
+        RouteSuggestionData suggestionData = new RouteSuggestionData(routeMessage, null, routeMessage.getId(), mmsi, false,
                 AIS_STATUS.RECIEVED_APP_ACK);
-        RouteSuggestionKey routeSuggestionKey = new RouteSuggestionKey(mmsi,
-                routeMessage.getId());
+        RouteSuggestionKey routeSuggestionKey = new RouteSuggestionKey(mmsi, routeMessage.getId());
         routeSuggestions.put(routeSuggestionKey, suggestionData);
 
         if (end != null) {
-            ConnectionFuture<RouteSuggestionService.RouteSuggestionReply> f = end
-                    .invoke(routeMessage);
+            ConnectionFuture<RouteSuggestionService.RouteSuggestionReply> f = end.invoke(routeMessage);
 
             // EPDShore.getMainFrame().getNotificationCenter().cloudUpdate();
             notifyRouteExchangeListeners();
@@ -531,18 +470,16 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * Create the message bus
      */
     public void init() {
-        LOG.info("Connecting to enav cloud server: " + hostPort
-                + " with shipId " + shipId.getId());
+        LOG.info("Connecting to enav cloud server: " + hostPort + " with shipId " + shipId.getId());
 
         // enavCloudConnection =
         // MaritimeNetworkConnectionBuilder.create("mmsi://"+shipId.getId());
-        MaritimeNetworkConnectionBuilder enavCloudConnection = MaritimeNetworkConnectionBuilder
-                .create("mmsi://" + shipId.getId());
+
+        MaritimeCloudClientConfiguration enavCloudConnection = MaritimeCloudClientConfiguration.create("mmsi://" + shipId.getId());
 
         enavCloudConnection.setPositionSupplier(new Supplier<PositionTime>() {
             public PositionTime get() {
-                return PositionTime.create(Position.create(0.0, 0.0),
-                        System.currentTimeMillis());
+                return PositionTime.create(Position.create(0.0, 0.0), System.currentTimeMillis());
 
             }
         });
@@ -565,8 +502,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         // conf.addDatasource(new JmsC2SMessageSource(hostPort, shipId));
         // ENavContainer client = conf.createAndStart();
         // messageBus = client.getService(MessageBus.class);
-        LOG.info("Started succesfull cloud server: " + hostPort
-                + " with shipId " + shipId.getId());
+        LOG.info("Started succesfull cloud server: " + hostPort + " with shipId " + shipId.getId());
 
     }
 
@@ -574,7 +510,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * Receive position updates
      */
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
         // TODO give information to messageBus if valid position
     }
 
@@ -663,8 +599,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * 
      * @param listener
      */
-    public synchronized void addRouteExchangeListener(
-            RouteExchangeListener listener) {
+    public synchronized void addRouteExchangeListener(RouteExchangeListener listener) {
         routeExchangeListener.add(listener);
     }
 
@@ -707,11 +642,9 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     public void replyRecieved(RouteSuggestionReply message) {
 
-        System.out.println("MSG Recieved from MMSI: " + message.getMmsi()
-                + " and ID " + message.getId());
+        System.out.println("MSG Recieved from MMSI: " + message.getMmsi() + " and ID " + message.getId());
 
-        if (routeSuggestions.containsKey(new RouteSuggestionKey(message
-                .getMmsi(), message.getId()))) {
+        if (routeSuggestions.containsKey(new RouteSuggestionKey(message.getMmsi(), message.getId()))) {
 
             // System.out.println("Reply recieved for " + mmsi + " " +
             // message.getRefMsgLinkId());
@@ -720,44 +653,33 @@ public class EnavServiceHandler extends MapHandlerChild implements
             long mmsi = message.getMmsi();
             long id = message.getId();
 
-            routeSuggestions.get(
-                    new RouteSuggestionKey(message.getMmsi(), message.getId()))
-                    .setReply(message);
+            routeSuggestions.get(new RouteSuggestionKey(message.getMmsi(), message.getId())).setReply(message);
 
             switch (response) {
             case RECIEVED_ACCEPTED:
-                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                        .getStatus() != AIS_STATUS.RECIEVED_ACCEPTED) {
+                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).getStatus() != AIS_STATUS.RECIEVED_ACCEPTED) {
                     // Accepted
-                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                            .setStatus(AIS_STATUS.RECIEVED_ACCEPTED);
-                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                            .setAcknowleged(false);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setStatus(AIS_STATUS.RECIEVED_ACCEPTED);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setAcknowleged(false);
                     notifyRouteExchangeListeners();
                 }
 
                 break;
             case RECIEVED_REJECTED:
                 // Rejected
-                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                        .getStatus() != AIS_STATUS.RECIEVED_REJECTED) {
+                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).getStatus() != AIS_STATUS.RECIEVED_REJECTED) {
                     // Accepted
-                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                            .setStatus(AIS_STATUS.RECIEVED_REJECTED);
-                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                            .setAcknowleged(false);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setStatus(AIS_STATUS.RECIEVED_REJECTED);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setAcknowleged(false);
                     notifyRouteExchangeListeners();
                 }
                 break;
             case RECIEVED_NOTED:
                 // Noted
-                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                        .getStatus() != AIS_STATUS.RECIEVED_NOTED) {
+                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).getStatus() != AIS_STATUS.RECIEVED_NOTED) {
                     // Accepted
-                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                            .setStatus(AIS_STATUS.RECIEVED_NOTED);
-                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id))
-                            .setAcknowleged(false);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setStatus(AIS_STATUS.RECIEVED_NOTED);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setAcknowleged(false);
                     notifyRouteExchangeListeners();
                 }
                 break;
@@ -774,8 +696,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                 .serviceRegister(
                         StrategicRouteService.INIT,
                         new InvocationCallback<StrategicRouteService.StrategicRouteRequestMessage, StrategicRouteService.StrategicRouteRequestReply>() {
-                            public void process(
-                                    StrategicRouteRequestMessage message,
+                            public void process(StrategicRouteRequestMessage message,
                                     InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply> context) {
 
                                 // long mmsi = message.getMmsi();
@@ -785,9 +706,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                 // (EPDShore.getAisHandler().getVesselTargets()
                                 // .containsKey(mmsi)) {
 
-                                System.out
-                                        .println("Recieved a message with id "
-                                                + message.getId());
+                                System.out.println("Recieved a message with id " + message.getId());
 
                                 monaLisaHandler.handleMessage(message);
 
@@ -837,16 +756,14 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     }
 
-    public void sendStrategicRouteRequest(long mmsiDestination,
-            StrategicRouteRequestMessage routeMessage) {
+    public void sendStrategicRouteRequest(long mmsiDestination, StrategicRouteRequestMessage routeMessage) {
 
         ServiceEndpoint<StrategicRouteService.StrategicRouteRequestMessage, StrategicRouteService.StrategicRouteRequestReply> end = null;
 
         // How to determine which to send to?
         for (int i = 0; i < monaLisaShipList.size(); i++) {
 
-            if (mmsiDestination == Long.parseLong(monaLisaShipList.get(i)
-                    .getId().toString().split("//")[1])) {
+            if (mmsiDestination == Long.parseLong(monaLisaShipList.get(i).getId().toString().split("//")[1])) {
 
                 System.out.println("We have a match on" + mmsiDestination);
                 end = monaLisaShipList.get(i);
@@ -883,9 +800,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     private void getMonaLisaShipList() {
         try {
-            monaLisaShipList = connection
-                    .serviceFind(StrategicRouteService.INIT)
-                    .nearest(Integer.MAX_VALUE).get();
+
+            monaLisaShipList = connection.serviceLocate(StrategicRouteService.INIT).nearest(Integer.MAX_VALUE).get();
 
             // for (int i = 0; i < monaLisaShipList.size(); i++) {
             // System.out.println("We have the following IDs available " +
@@ -902,8 +818,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     public boolean shipAvailableForMonaLisaTransaction(long mmsi) {
         getMonaLisaShipList();
         for (int i = 0; i < monaLisaShipList.size(); i++) {
-            if (mmsi == Long.parseLong(monaLisaShipList.get(i).getId()
-                    .toString().split("//")[1])) {
+            if (mmsi == Long.parseLong(monaLisaShipList.get(i).getId().toString().split("//")[1])) {
                 return true;
             }
 

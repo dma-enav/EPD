@@ -40,9 +40,9 @@ import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.service.RouteExchangeListener;
 import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
 import dk.dma.epd.shore.service.StrategicRouteExchangeListener;
-import dk.dma.epd.shore.service.RouteExchangeListener;
 
 /**
  * Class for setting up the notification area of the application

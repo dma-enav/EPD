@@ -46,9 +46,9 @@ import dk.dma.epd.common.prototype.model.route.RouteLoadException;
 import dk.dma.epd.common.prototype.model.route.RouteLoader;
 import dk.dma.epd.common.prototype.model.route.RouteMetocSettings;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
-import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.route.RouteSuggestionDialog;
@@ -83,7 +83,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
     }
 
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
         if (!isRouteActive()) {
             return;
         }

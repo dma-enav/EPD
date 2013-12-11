@@ -190,7 +190,9 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         mapHandler.add(msiFilterMouseMode);
         mapHandler.add(activeWaypointPanel);
         mapHandler.add(rangeCirclesMouseMode);
-
+        // added this to fix bug where cursor panel was not updated when in drag mode
+        mapHandler.add(dragMouseMode);
+        
         // Use the LayerHandler to manage all layers, whether they are
         // on the map or not. You can add a layer to the map by
         // setting layer.setVisible(true).
@@ -627,7 +629,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
      * Receive GPS update
      */
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
         this.gpsData = gpsData;
         autoFollow();
     }

@@ -24,9 +24,9 @@ import com.bbn.openmap.gui.OMComponentPanel;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
-import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.SensorPanel;
@@ -71,7 +71,7 @@ public class GpsComponentPanel extends OMComponentPanel implements
     }
     
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
         this.setGpsData(gpsData);
         Position pos = gpsData.getPosition();
         if (gpsData.isBadPosition() || pos == null) {

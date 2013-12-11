@@ -28,9 +28,9 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
-import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.route.RouteManager;
 
@@ -58,7 +58,7 @@ public class ExampleLayer extends OMGraphicHandlerLayer implements IPntDataListe
      * Receive GPS updates in the form of GpsData messages
      */
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
         LOG.info("New GPS data: " + gpsData);        
     }
 

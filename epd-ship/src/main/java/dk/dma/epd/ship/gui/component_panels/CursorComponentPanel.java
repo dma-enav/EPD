@@ -23,9 +23,9 @@ import com.bbn.openmap.gui.OMComponentPanel;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
-import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.event.IMapCoordListener;
 import dk.dma.epd.ship.gui.SensorPanel;
@@ -82,7 +82,7 @@ public class CursorComponentPanel extends OMComponentPanel implements IPntDataLi
     }
     
     @Override
-    public void gpsDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData gpsData) {
         this.setGpsData(gpsData);
     }
     
