@@ -257,7 +257,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
             }
         } catch (Exception e) {
             // e.printStackTrace();
-            System.out.println("Failed to connect to server");
+            System.out.println("Failed to connect to server: " + e);
             cloudStatus.markFailedSend();
             cloudStatus.markFailedReceive();
         }
