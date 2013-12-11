@@ -41,6 +41,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayer;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -103,6 +104,8 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
 
     private NogoDialog nogoDialog;
     private RulerLayer rulerLayer;
+    
+    private IntendedRouteLayer intendedRouteLayer;
 
     public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel) {
         super();
@@ -244,6 +247,11 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         ownShipLayer.setVisible(true);
         mapHandler.add(ownShipLayer);
 
+        // Create Intended Route Layer
+        this.intendedRouteLayer = new IntendedRouteLayer();
+        this.intendedRouteLayer.setVisible(true);
+        this.mapHandler.add(this.intendedRouteLayer);
+        
         // Create a esri shape layer
         // URL dbf = EeINS.class.getResource("/shape/urbanap020.dbf");
         // URL shp = EeINS.class.getResource("/shape/urbanap020.shp");
