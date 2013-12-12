@@ -39,7 +39,7 @@ public class GpRmcSentence extends Sentence {
     }
 
     public int parse(String line) throws SentenceException {
-        return parse(new SentenceLine(line));
+        return parse(new SentenceLine(line.trim()));
     }
 
     @Override
@@ -48,7 +48,7 @@ public class GpRmcSentence extends Sentence {
         super.baseParse(sl);
 
         // Check RMC
-        if (!this.formatter.equals("RMC")) {
+        if (!sl.getFormatter().equals("RMC")) {
             throw new SentenceException("Not RMC sentence");
         }
 
@@ -81,15 +81,19 @@ public class GpRmcSentence extends Sentence {
 
         // Parse time
         Long time = null;
-        String dateTimeStr = sl.getFields().get(1) + " " + sl.getFields().get(9);
+        String utc = sl.getFields().get(1);
+        if (utc.length() <= 6) {
+            utc += ".00";
+        }
+        String dateTimeStr = utc + " " + sl.getFields().get(9);
         SimpleDateFormat dateFormat = new SimpleDateFormat("HHmmss.SS ddMMyy");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0000"));        
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0000"));
         try {
             time = dateFormat.parse(dateTimeStr).getTime();
         } catch (ParseException e) {
             throw new SentenceException("GPS time " + dateTimeStr + " not valid ");
         }
-        
+
         pntData = new PntMessage(pos, sog, cog, time);
 
         // Get status

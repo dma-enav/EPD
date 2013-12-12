@@ -47,10 +47,12 @@ public class SensorSettings implements Serializable {
     }
 
     public enum SensorConnectionType {
-        NONE, TCP, SERIAL, FILE;
+        NONE, TCP, UDP, SERIAL, FILE;
         public static SensorConnectionType parseString(String type) {
             if (type.equalsIgnoreCase("TCP")) {
                 return TCP;
+            } else if (type.equalsIgnoreCase("UDP")) {
+                return UDP;
             } else if (type.equalsIgnoreCase("SERIAL")) {
                 return SERIAL;
             } else if (type.equalsIgnoreCase("FILE")) {
