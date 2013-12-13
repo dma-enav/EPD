@@ -18,6 +18,9 @@ package dk.dma.epd.shore.layers.ais;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.util.Collection;
 
 import com.bbn.openmap.omGraphics.OMCircle;
@@ -344,5 +347,11 @@ public class Vessel extends OMGraphicList {
     }
 
 
+    @Override
+    public void render(Graphics gr) {
+        Graphics2D image = (Graphics2D) gr;
+        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        super.render(image);
+    }
 
 }
