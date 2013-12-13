@@ -25,6 +25,7 @@ import dk.dma.epd.common.util.Util;
  */
 public class MultiSourcePntHandler extends MapHandlerChild implements IMultiSourcePntListener, Runnable {
     
+    @SuppressWarnings("unused")
     private final PntHandler pntHandler;
     
     public MultiSourcePntHandler(PntHandler pntHandler) {
