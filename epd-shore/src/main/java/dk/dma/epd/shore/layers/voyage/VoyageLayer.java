@@ -46,7 +46,6 @@ import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MapMenu;
-import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
 import dk.dma.epd.shore.service.StrategicRouteExchangeListener;
 import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
@@ -84,7 +83,6 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
     private OMGraphic selectedGraphic;
     private JMapFrame jMapFrame;
 
-    private AisLayer aisLayer;
     private AisHandler aisHandler;
     private boolean windowHandling;
 
@@ -122,9 +120,6 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         }
         if (obj instanceof MapBean) {
             mapBean = (MapBean) obj;
-        }
-        if (obj instanceof AisLayer) {
-            aisLayer = (AisLayer) obj;
         }
 
         if (obj instanceof AisHandler) {
