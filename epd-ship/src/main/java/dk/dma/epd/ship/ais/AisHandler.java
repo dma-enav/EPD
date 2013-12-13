@@ -112,9 +112,7 @@ public class AisHandler extends AisHandlerCommon implements IAisListener, IStatu
 
     @Override
     public VesselTarget getOwnShip() {
-        synchronized (ownShip) {
-            return ownShip;
-        }
+        return ownShip;
     }
 
 

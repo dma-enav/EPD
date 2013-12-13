@@ -292,7 +292,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     protected void handlePntFromOwnMessage(AisMessage aisMessage) {
         if (pntListeners.size() == 0) {
             return;
-        }
+        }        
         boolean foundPos = false;
 
         Position pos = null;

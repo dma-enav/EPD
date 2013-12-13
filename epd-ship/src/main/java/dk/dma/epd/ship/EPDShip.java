@@ -53,6 +53,7 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensorFactory;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
+import dk.dma.epd.common.prototype.sensor.nmea.NmeaUdpSensor;
 import dk.dma.epd.common.prototype.sensor.pnt.MultiSourcePntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
@@ -249,6 +250,9 @@ public class EPDShip extends EPD {
         case TCP:
             aisSensor = new NmeaTcpSensor(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisTcpPort());
             break;
+        case UDP:
+            aisSensor = new NmeaUdpSensor(sensorSettings.getAisTcpPort());
+            break;
         case SERIAL:
             // aisSensor = new NmeaSerialSensor(sensorSettings.getAisHostOrSerialPort());
             aisSensor = NmeaSerialSensorFactory.create(sensorSettings.getAisHostOrSerialPort());
@@ -267,6 +271,9 @@ public class EPDShip extends EPD {
         case TCP:
             gpsSensor = new NmeaTcpSensor(sensorSettings.getGpsHostOrSerialPort(), sensorSettings.getGpsTcpPort());
             break;
+        case UDP:
+            gpsSensor = new NmeaUdpSensor(sensorSettings.getGpsTcpPort());
+            break;
         case SERIAL:
             gpsSensor = NmeaSerialSensorFactory.create(sensorSettings.getGpsHostOrSerialPort());
             break;
@@ -283,6 +290,9 @@ public class EPDShip extends EPD {
             break;
         case TCP:
             msPntSensor = new NmeaTcpSensor(sensorSettings.getMsPntHostOrSerialPort(), sensorSettings.getMsPntTcpPort());
+            break;
+        case UDP:
+            msPntSensor = new NmeaUdpSensor(sensorSettings.getMsPntTcpPort());
             break;
         case SERIAL:
             msPntSensor = NmeaSerialSensorFactory.create(sensorSettings.getMsPntHostOrSerialPort());
