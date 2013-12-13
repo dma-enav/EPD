@@ -41,6 +41,8 @@ public class AisSettings implements Serializable {
     private boolean showNameLabels = true;
     private int showMinuteMarksAISTarget = 200;
     private boolean showRisk;
+    private int pastTrackMaxTime = 24 * 60; // In minutes
+    private int pastTrackMinDist = 100; // In meters
     
     public AisSettings() {
         
@@ -67,6 +69,8 @@ public class AisSettings implements Serializable {
         sartPrefix = PropUtils.intFromProperties(props, PREFIX + "sartPrefix", sartPrefix);
         showNameLabels = PropUtils.booleanFromProperties(props, PREFIX + "showNameLabels", showNameLabels);
         showMinuteMarksAISTarget = PropUtils.intFromProperties(props, PREFIX + "showMinuteMarksAISTarget", showMinuteMarksAISTarget);
+        pastTrackMaxTime = PropUtils.intFromProperties(props, PREFIX + "pastTrackMaxTime", pastTrackMaxTime);
+        pastTrackMinDist = PropUtils.intFromProperties(props, PREFIX + "pastTrackMinDist", pastTrackMinDist);
     }
     
     public void setProperties(Properties props) {
@@ -82,6 +86,8 @@ public class AisSettings implements Serializable {
         props.put(PREFIX + "sartPrefix", Integer.toString(sartPrefix));
         props.put(PREFIX + "showNameLabels", Boolean.toString(showNameLabels));
         props.put(PREFIX + "showMinuteMarksAISTarget", Float.toString(showMinuteMarksAISTarget));
+        props.put(PREFIX + "pastTrackMaxTime", Integer.toString(pastTrackMaxTime));
+        props.put(PREFIX + "pastTrackMinDist", Integer.toString(pastTrackMinDist));
     }
 
     public boolean isVisible() {
@@ -188,5 +194,19 @@ public class AisSettings implements Serializable {
         this.showRisk = showRisk;
     }
     
-    
+    public int getPastTrackMaxTime() {
+        return pastTrackMaxTime;
+    }
+
+    public void setPastTrackMaxTime(int pastTrackMaxTime) {
+        this.pastTrackMaxTime = pastTrackMaxTime;
+    }
+
+    public int getPastTrackMinDist() { 
+        return pastTrackMinDist;
+    }
+
+    public void setPastTrackMinDist(int pastTrackMinDist) {
+        this.pastTrackMinDist = pastTrackMinDist;
+    }    
 }

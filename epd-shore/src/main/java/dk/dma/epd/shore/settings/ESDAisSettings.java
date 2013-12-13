@@ -36,6 +36,7 @@ public class ESDAisSettings extends AisSettings {
     }
 
     public void setProperties(Properties props) {
+        super.setProperties(props);
         props.put(PREFIX + "ownMMSI",  Long.toString(ownMMSI));
     }
 
@@ -46,7 +47,4 @@ public class ESDAisSettings extends AisSettings {
     public void setOwnMMSI(long ownMMSI) {
         this.ownMMSI = ownMMSI;
     }
-
-
-
 }

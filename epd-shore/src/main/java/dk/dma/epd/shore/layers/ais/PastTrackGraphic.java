@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
+import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.shore.ais.PastTrackPoint;
 
@@ -36,10 +37,12 @@ import dk.dma.epd.shore.ais.PastTrackPoint;
  */
 public class PastTrackGraphic extends OMGraphicList {
     private static final long serialVersionUID = 1L;
+    
+    private static Color LEG_COLOR = Color.black;
+    private static Color LOST_LEG_COLOR = Color.lightGray;
 
     private PastTrackLegGraphic activeWpLine;
     private double[] activeWpLineLL = new double[4];
-    private Color legColor = Color.black;
     private String name;
     private boolean arrowsVisible;
     private long mmsi = -1;
@@ -53,7 +56,7 @@ public class PastTrackGraphic extends OMGraphicList {
         super();
         Position nullGeoLocation = Position.create(0, 0);
         activeWpLine = new PastTrackLegGraphic(0, this, true,
-                nullGeoLocation, nullGeoLocation, legColor);
+                nullGeoLocation, nullGeoLocation, LEG_COLOR);
         setVisible(false);
     }
     
@@ -70,10 +73,44 @@ public class PastTrackGraphic extends OMGraphicList {
     }
 
 
+    /**
+     * Determines when a past track leg can be presumed "lost", caused by
+     * missing readings from the AIS transponder.
+     * 
+     * @param start start point of leg
+     * @param end end point of leg
+     * @return if the start and end point constitutes a lost leg
+     */
+    private boolean presumeLostLeg(PastTrackPoint start, PastTrackPoint end) {
+        double dist = end.getPosition().distanceTo(start.getPosition(), CoordinateSystem.CARTESIAN);
+        long time = (end.getDate().getTime() - start.getDate().getTime()) / 1000L; // seconds
+        
+        // The start and end points are actually from a filtered set of AIS readings, 
+        // with a minimum distance between them of at least AisSettings.pastTrackMinDist,
+        // so, we cannot merely look at the time between the readings.
+        // Instead, we check the speed between readings.
+        
+        return time > 60  &&        // More than 1 minute between readings
+               dist / time > 1.0;   // speed higher than 1 m/s
+    }
 
-    private void makeLegLine(int index, Position start, Position end) {
-        PastTrackLegGraphic leg = new PastTrackLegGraphic(index, this,
-                false, start, end, legColor);
+    /**
+     * Adds a new past track leg line
+     * @param index index of leg in list of past track records
+     * @param start start point of leg
+     * @param end end point of leg
+     */
+    private void makeLegLine(int index, PastTrackPoint start, PastTrackPoint end) {
+    
+        Color legColor = presumeLostLeg(start, end) ? LOST_LEG_COLOR : LEG_COLOR;
+        
+        PastTrackLegGraphic leg = new PastTrackLegGraphic(
+                index, 
+                this,
+                false, 
+                start.getPosition(), 
+                end.getPosition(), 
+                legColor);
         routeLegs.add(leg);
         add(leg);
     }
@@ -82,7 +119,7 @@ public class PastTrackGraphic extends OMGraphicList {
         PastTrackWpCircle wpCircle = new PastTrackWpCircle(this, index,
                 p.getPosition().getLatitude(), p.getPosition().getLongitude(), 0, 0, 2, 2, p.getDate());
         wpCircle.setStroke(new BasicStroke(3));
-        wpCircle.setLinePaint(legColor);
+        wpCircle.setLinePaint(LEG_COLOR);
         
         routeWps.add(wpCircle);
         add(wpCircle);
@@ -154,7 +191,7 @@ public class PastTrackGraphic extends OMGraphicList {
             
             count++;
             makeWpCircle(count, end);
-            makeLegLine(count, start.getPosition(),end.getPosition());
+            makeLegLine(count, start, end);
             
             start = end;
         }
@@ -166,54 +203,4 @@ public class PastTrackGraphic extends OMGraphicList {
         activeWpLineLL[3] = start.getPosition().getLongitude();
         activeWpLine.setLL(activeWpLineLL);
     }
-
-    /*public void update(List<PastTrackPoint> pastTrackPoints, Position pos) {
-        
-        // Set visible if not visible
-        if (!isVisible()) {
-            setVisible(true);
-        }
-
-        clear();
-        routeLegs.clear();
-        routeWps.clear();
-        
-        add(activeWpLine);
-        
-        
-        if (pastTrackPoints.isEmpty()) {
-            return;
-        }
-
-        List<Position> waypoints = new ArrayList<>();
-        
-
-        
-        for (int i = 0; i < pastTrackPoints.size(); i++) {
-            waypoints.add(pastTrackPoints.get(i).getPosition());
-        }
-        
-//            List<Position> waypoints = cloudIntendedRoute.getWaypoints();
-        // Make first WP circle
-        makeWpCircle(0, waypoints.get(0));
-        for (int i=0; i < waypoints.size() - 1; i++) {
-            Position start = waypoints.get(i);
-            Position end = waypoints.get(i + 1);
-            
-            // Make wp circle
-            makeWpCircle(i + 1, end);
-            
-            // Make leg line
-            makeLegLine(i + 1, start, end);
-        }
-        
-        // Update leg to first waypoint
-        Position activeWpPos = pastTrackPoints.get(pastTrackPoints.size()-1).getPosition();
-        activeWpLineLL[0] = pos.getLatitude();
-        activeWpLineLL[1] = pos.getLongitude();
-        activeWpLineLL[2] = activeWpPos.getLatitude();
-        activeWpLineLL[3] = activeWpPos.getLongitude();
-        activeWpLine.setLL(activeWpLineLL);
-
-    }*/
 }

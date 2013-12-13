@@ -37,11 +37,16 @@ public class AisHandler extends AisHandlerCommon {
 
     protected ConcurrentHashMap<Long, IPastTrackShore> pastTrack = new ConcurrentHashMap<>(100000);
 
+    protected int pastTrackMaxTime; // NB: In minutes
+    protected int pastTrackMinDist; // NB: In meters
+    
     /**
      * Empty constructor not used
      */
     public AisHandler(AisSettings aisSettings) {
         super(aisSettings);
+        this.pastTrackMaxTime = aisSettings.getPastTrackMaxTime();
+        this.pastTrackMinDist = aisSettings.getPastTrackMinDist();
     }
 
     /**
@@ -82,13 +87,11 @@ public class AisHandler extends AisHandlerCommon {
         if (pastTrack.containsKey(mmsi)) {
             IPastTrackShore ptps = pastTrack.get(mmsi);
 
-            //minDist 100m
-            //TODO: get minDist option from settings file.
-            ptps.addPosition(positionData.getPos(), 100);
+            ptps.addPosition(positionData.getPos(), pastTrackMinDist);
 
         } else {
             pastTrack.putIfAbsent(mmsi, new PastTrackSortedSet());
-            pastTrack.get(mmsi).addPosition(positionData.getPos(), 100);
+            pastTrack.get(mmsi).addPosition(positionData.getPos(), pastTrackMinDist);
 
         }
         
@@ -96,7 +99,7 @@ public class AisHandler extends AisHandlerCommon {
         
         long timeS = System.currentTimeMillis();
         for (IPastTrackShore t: pastTrack.values()) {
-            t.cleanup(60*60*24); //TODO: get ttl option in settings file
+            t.cleanup(60*pastTrackMaxTime); // Convert from minutes to seconds
         }
         long timeE = System.currentTimeMillis();
         
