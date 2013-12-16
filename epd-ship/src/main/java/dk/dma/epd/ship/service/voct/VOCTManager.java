@@ -210,6 +210,7 @@ public class VOCTManager extends VOCTManagerCommon {
     public void handleDialogAction(boolean accepted, VOCTCommunicationMessageRapidResponse message, SAR_TYPE type) {
 
         if (accepted) {
+            
             EPDShip.getEnavServiceHandler().sendVOCTReply(CLOUD_STATUS.RECIEVED_ACCEPTED, 0, "Accepted", type);
 
             removeOldSARData();

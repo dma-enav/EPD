@@ -16,7 +16,6 @@
 package dk.dma.epd.ship.service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -57,7 +56,6 @@ import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.CLOUD_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationMessageRapidResponse;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
@@ -176,22 +174,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
                         }).awaitRegistered(4, TimeUnit.SECONDS);
     }
 
-    public void handleSARReply(boolean accepted) {
-
-        CLOUD_STATUS status;
-
-        if (accepted) {
-            status = CLOUD_STATUS.RECIEVED_ACCEPTED;
-        } else {
-            status = CLOUD_STATUS.RECIEVED_REJECTED;
-        }
-
-        voctContextRapidResponse
-                .complete(new VOCTCommunicationReplyRapidResponse("Received",
-                        (long) 0, aisHandler.getOwnShip().getMmsi(), new Date()
-                                .getTime(), status));
-    }
-
     private void voctMessageListener() throws InterruptedException {
         System.out.println("VOCT Listener");
 
@@ -238,6 +220,9 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     public void sendVOCTReply(CLOUD_STATUS recievedAccepted, long id,
             String message, SAR_TYPE type) {
+        
+        
+        
         
         if (type == SAR_TYPE.RAPID_RESPONSE){
             try {

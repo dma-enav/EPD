@@ -305,7 +305,7 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
                     @Override
                     public void accept(VOCTCommunicationReplyRapidResponse l, Throwable r) {
                         // TODO Auto-generated method stub
-                        System.out.println("Reply recieved SAR");
+                        System.out.println("Reply recieved SAR with status: " + l.getStatus());
                         sruManager.handleSRUReply(l.getMmsi(), l.getStatus());
                     }
                 });
