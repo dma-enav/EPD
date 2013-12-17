@@ -81,8 +81,7 @@ public class PastTrackSortedSet extends ConcurrentSkipListSet<PastTrackPoint> im
         PastTrackPoint last = null;
         try {
             last = this.last();
-        } catch (NoSuchElementException e) {
-            
+        } catch (NoSuchElementException e) {            
         }
         
         if (last == null) {
@@ -104,6 +103,17 @@ public class PastTrackSortedSet extends ConcurrentSkipListSet<PastTrackPoint> im
         while (size() > 0 && first().isDead(ttl)) {
             pollFirst();
             updateLastChangeTime();
+        }
+    }
+    
+    /**
+     * Flags that the mobile target was gone.
+     * Updates the last past-track point with this state.
+     */
+    public synchronized void flagGone() {
+        try {
+            this.last().flagGone();
+        } catch (NoSuchElementException e) {            
         }
     }
 

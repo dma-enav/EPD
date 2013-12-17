@@ -31,6 +31,7 @@ public class PastTrackPoint implements Serializable, Comparable<PastTrackPoint>{
     
     private final Date date;
     private final Position position;
+    private boolean gone;
 
     /**
      * Constructor
@@ -41,6 +42,7 @@ public class PastTrackPoint implements Serializable, Comparable<PastTrackPoint>{
     public PastTrackPoint(Date date, Position position) {
         this.date = date;
         this.position = position;
+        this.gone = false;
     }
 
     /**
@@ -77,7 +79,24 @@ public class PastTrackPoint implements Serializable, Comparable<PastTrackPoint>{
         int elapsed = (int) ((System.currentTimeMillis() - getDate().getTime()) / 1000);
         return elapsed > ttl;
     }
-
+    
+    /**
+     * Flags that the mobile target was gone at some point of time
+     * while this was the active past track point
+     */
+    public void flagGone() {
+        this.gone = true;
+    }
+    
+    /**
+     * Returns if the mobile target was gone at some point of time
+     * while this was the active past track point
+     * @return if the mobile target was gone at some point of time
+     */
+    public boolean hasGone() {
+        return gone;
+    }
+    
     /**
      * Compares with the given past-track point
      * @param o the point to compare with

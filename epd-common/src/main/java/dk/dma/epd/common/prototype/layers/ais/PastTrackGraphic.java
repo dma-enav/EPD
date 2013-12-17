@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
-import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.MobileTarget;
 import dk.dma.epd.common.prototype.ais.PastTrackPoint;
@@ -45,7 +44,7 @@ public class PastTrackGraphic extends OMGraphicList {
     private static final long serialVersionUID = 1L;
     
     private static Color LEG_COLOR = Color.black;
-    private static Color LOST_LEG_COLOR = Color.lightGray;
+    private static Color GONE_LEG_COLOR = Color.lightGray;
 
     private MobileTarget mobileTarget;
     private long lastPastTrackChangeTime = -1L;
@@ -88,27 +87,6 @@ public class PastTrackGraphic extends OMGraphicList {
     }
 
     /**
-     * Determines when a past track leg can be presumed "lost", caused by
-     * missing readings from the AIS transponder.
-     * 
-     * @param start start point of leg
-     * @param end end point of leg
-     * @return if the start and end point constitutes a lost leg
-     */
-    private boolean presumeLostLeg(PastTrackPoint start, PastTrackPoint end) {
-        double dist = end.getPosition().distanceTo(start.getPosition(), CoordinateSystem.CARTESIAN);
-        long time = (end.getDate().getTime() - start.getDate().getTime()) / 1000L; // seconds
-        
-        // The start and end points are actually from a filtered set of AIS readings, 
-        // with a minimum distance between them of at least AisSettings.pastTrackMinDist,
-        // so, we cannot merely look at the time between the readings.
-        // Instead, we check the speed between readings.
-        
-        return time > 60  &&        // More than 1 minute between readings
-               dist / time > 1.0;   // speed higher than 1 m/s
-    }
-
-    /**
      * Adds a new past track leg line
      * @param index index of leg in list of past track records
      * @param start start point of leg
@@ -116,7 +94,7 @@ public class PastTrackGraphic extends OMGraphicList {
      */
     private void makeLegLine(int index, PastTrackPoint start, PastTrackPoint end) {
     
-        Color legColor = presumeLostLeg(start, end) ? LOST_LEG_COLOR : LEG_COLOR;
+        Color legColor = start.hasGone() ? GONE_LEG_COLOR : LEG_COLOR;
         
         PastTrackLegGraphic leg = new PastTrackLegGraphic(
                 index, 
@@ -165,7 +143,12 @@ public class PastTrackGraphic extends OMGraphicList {
         }
     }
     
-    private boolean mobileTargetVisible(MobileTarget mobileTarget) {
+    /**
+     * Utility method that returns if the past-tracks of the given mobile target is visible
+     * @param mobileTarget the mobileTarget to check
+     * @return if the past-tracks of the mobileTarget should be visible
+     */
+    private boolean pastTrackVisible(MobileTarget mobileTarget) {
         if (mobileTarget == null) {
             return false;
         } else if (!(mobileTarget instanceof VesselTarget)) {
@@ -182,7 +165,7 @@ public class PastTrackGraphic extends OMGraphicList {
      */
     public synchronized void update(MobileTarget mobileTarget) {
 
-        boolean pastTrackVisible = mobileTargetVisible(mobileTarget);
+        boolean pastTrackVisible = pastTrackVisible(mobileTarget);
         
         // Check if we need to update anything
         if (this.mobileTarget == mobileTarget && 

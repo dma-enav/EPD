@@ -86,4 +86,19 @@ public abstract class MobileTarget extends AisTarget {
     public synchronized void setPastTrackData(PastTrackSortedSet pastTrackData) {
         this.pastTrackData = pastTrackData;
     }
+    
+    /**
+     * Override implementation to flag the past-track point gone
+     * @status the new status of the AisTarget
+     */
+    @Override
+    public synchronized void setStatus(Status status) {
+        super.setStatus(status);
+        
+        if (status == AisTarget.Status.GONE) {
+            // Flag the last past-track point gone
+            getPastTrackData().flagGone();
+        }
+    }
+    
 }
