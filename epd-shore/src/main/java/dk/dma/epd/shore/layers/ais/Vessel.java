@@ -21,7 +21,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.util.Collection;
 
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
@@ -37,8 +36,8 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTargetSettings;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteGraphic;
+import dk.dma.epd.common.prototype.layers.ais.PastTrackGraphic;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.shore.ais.PastTrackPoint;
 
 /**
  * Vessel class that maintains all the components in a vessel
@@ -213,8 +212,11 @@ public class Vessel extends OMGraphicList {
             if (!targetSettings.isShowRoute()) {
                 routeGraphic.setVisible(false);
             }
-
         }
+        
+        
+        // Past track graphics
+        pastTrackGraphic.update(vesselTarget);
 
         // Scale for text-labels
         boolean b1 = mapScale < 750000;
@@ -228,16 +230,6 @@ public class Vessel extends OMGraphicList {
         showVesselCirc(!b2);
     }
     
-    public void updatePastTrack(Collection<PastTrackPoint> pastTrack) {
-        pastTrackGraphic.update(pastTrack,  this.getVesselTarget().getPositionData().getPos());
-    }
-    
-    
-
-    public PastTrackGraphic getPastTrackGraphic() {
-        return pastTrackGraphic;
-    }
-
     /**
      * Toggle visibility of vessel icon on map
      *

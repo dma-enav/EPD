@@ -44,6 +44,8 @@ import com.bbn.openmap.MouseDelegator;
 
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
+import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
@@ -113,9 +115,12 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private GeneralHideIntendedRoutes hideIntendedRoutes;
     private GeneralShowIntendedRoutes showIntendedRoutes;
     private GeneralNewRoute newRoute;
+    private SetShowPastTracks hidePastTracks;
+    private SetShowPastTracks showPastTracks;
     private JMenu scaleMenu;
     private AisIntendedRouteToggle aisIntendedRouteToggle;
     private AisTargetDetails aisTargetDetails;
+    private ToggleShowPastTrack aisTogglePastTrack;
 
     private SarTargetDetails sarTargetDetails;
     private AisTargetLabelToggle aisTargetLabelToggle;
@@ -190,6 +195,11 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         nogoRequest = new NogoRequest("Request NoGo area");
         nogoRequest.addActionListener(this);
 
+        showPastTracks = new SetShowPastTracks("Show all past-tracks", true);
+        showPastTracks.addActionListener(this);
+        hidePastTracks = new SetShowPastTracks("Hide all past-tracks", false);
+        hidePastTracks.addActionListener(this);
+        
         scaleMenu = new JMenu("Scale");
 
         // using treemap so scale levels are always sorted
@@ -202,6 +212,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         aisIntendedRouteToggle.addActionListener(this);
         aisTargetLabelToggle = new AisTargetLabelToggle();
         aisTargetLabelToggle.addActionListener(this);
+        aisTogglePastTrack = new ToggleShowPastTrack();
+        aisTogglePastTrack.addActionListener(this);
 
         // SART menu items
         sarTargetDetails = new SarTargetDetails("SART details");
@@ -333,15 +345,23 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         nogoRequest.setMainFrame(mainFrame);
         nogoRequest.setAisHandler(aisHandler);
 
+        showPastTracks.setAisHandler(aisHandler);
+        hidePastTracks.setAisHandler(aisHandler);
+        
         if (alone) {
             removeAll();
             add(clearMap);
             add(hideIntendedRoutes);
             add(showIntendedRoutes);
             add(newRoute);
+            addSeparator();
             if (!EPDShip.getSettings().getGuiSettings().isRiskNogoDisabled()) {
                 add(nogoRequest);
+                addSeparator();
             }
+            add(showPastTracks);
+            add(hidePastTracks);
+            addSeparator();
             add(scaleMenu);
             return;
         }
@@ -370,6 +390,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         aisTargetDetails.setMSSI(vesselTarget.getMmsi());
         add(aisTargetDetails);
 
+        // Toggle show intended route
         aisIntendedRouteToggle.setVesselTargetSettings(vesselTarget
                 .getSettings());
         aisIntendedRouteToggle.setAisLayer(aisLayer);
@@ -388,6 +409,13 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         }
         add(aisIntendedRouteToggle);
 
+        // Toggle show past-track
+        aisTogglePastTrack.setVesselTarget(vesselTarget);
+        aisTogglePastTrack.setAisLayer(aisLayer);
+        aisTogglePastTrack.setText((vesselTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
+        add(aisTogglePastTrack);
+        
+        // Toggle show label
         aisTargetLabelToggle.setVesselTargetGraphic(targetGraphic);
         aisTargetLabelToggle.setAisLayer(aisLayer);
         add(aisTargetLabelToggle);
@@ -424,6 +452,22 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         }
         add(aisIntendedRouteToggle);
 
+        generalMenu(false);
+    }
+    
+    /**
+     * Builds own-ship menu
+     */
+    public void ownShipMenu() {
+        removeAll();
+
+        // Toggle show past-track
+        VesselTarget ownShip = aisHandler.getOwnShip();
+        aisTogglePastTrack.setVesselTarget(ownShip);
+        aisTogglePastTrack.setAisLayer(aisLayer);
+        aisTogglePastTrack.setText((ownShip.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
+        add(aisTogglePastTrack);
+        
         generalMenu(false);
     }
 

@@ -41,7 +41,7 @@ public class AisSettings implements Serializable {
     private boolean showNameLabels = true;
     private int showMinuteMarksAISTarget = 200;
     private boolean showRisk;
-    private int pastTrackMaxTime = 24 * 60; // In minutes
+    private int pastTrackMaxTime = 2 * 60; // In minutes
     private int pastTrackMinDist = 100; // In meters
     
     public AisSettings() {

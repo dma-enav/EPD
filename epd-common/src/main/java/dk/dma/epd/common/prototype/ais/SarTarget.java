@@ -23,15 +23,13 @@ import net.jcip.annotations.ThreadSafe;
  * Class representing an AIS SART
  */
 @ThreadSafe
-public class SarTarget extends AisTarget {
+public class SarTarget extends MobileTarget {
     
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -7367277293793654525L;
     
     private static final long OLD_TTL = 720; // 12 min
     private static final long GONE_TTL = 1800; // 30 min
         
-    private VesselPositionData positionData;
-    private VesselStaticData staticData;
     private boolean old;
     private Date firstReceived;
 
@@ -41,12 +39,6 @@ public class SarTarget extends AisTarget {
      */
     public SarTarget(SarTarget sarTarget) {
         super(sarTarget);
-        if (sarTarget.positionData != null) {
-            this.positionData = new VesselPositionData(sarTarget.positionData);
-        }
-        if (sarTarget.staticData != null) {
-            this.staticData = new VesselStaticData(sarTarget.staticData);
-        }
     }
     
     /**
@@ -82,22 +74,6 @@ public class SarTarget extends AisTarget {
         return false;
     }
     
-    public synchronized VesselPositionData getPositionData() {
-        return positionData;
-    }
-
-    public synchronized void setPositionData(VesselPositionData positionData) {
-        this.positionData = positionData;
-    }
-
-    public synchronized VesselStaticData getStaticData() {
-        return staticData;
-    }
-
-    public synchronized void setStaticData(VesselStaticData staticData) {
-        this.staticData = staticData;
-    }
-
     public synchronized boolean isOld() {
         return old;
     }

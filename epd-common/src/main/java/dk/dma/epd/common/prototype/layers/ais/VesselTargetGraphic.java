@@ -49,6 +49,8 @@ public class VesselTargetGraphic extends TargetGraphic {
     
     private IntendedRouteGraphic routeGraphic = new IntendedRouteGraphic();
 
+    private PastTrackGraphic pastTrackGraphic = new PastTrackGraphic();
+    
     public VesselTargetGraphic(boolean showName) {
         super();
         this.vesselTriangleGraphic = new VesselTriangleGraphic(this);
@@ -58,6 +60,7 @@ public class VesselTargetGraphic extends TargetGraphic {
     }
 
     private void createGraphics() {
+        this.add(this.pastTrackGraphic);
         this.add(this.routeGraphic);
         this.add(this.vesselTriangleGraphic);
         this.add(this.vesselOutlineGraphic);
@@ -99,6 +102,9 @@ public class VesselTargetGraphic extends TargetGraphic {
             if (!targetSettings.isShowRoute()) {
                 routeGraphic.setVisible(false);
             }
+            
+            // Past-track graphics
+            pastTrackGraphic.update(vesselTarget);
         }
     }
 
@@ -161,6 +167,10 @@ public class VesselTargetGraphic extends TargetGraphic {
 
     public IntendedRouteGraphic getRouteGraphic() {
         return routeGraphic;
+    }
+    
+    public PastTrackGraphic getPastTrackGraphic() {
+        return pastTrackGraphic;
     }
     
     public void drawAccordingToScale(ZoomLevel zl) {

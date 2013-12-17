@@ -15,105 +15,32 @@
  */
 package dk.dma.epd.shore.ais;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
-import dk.dma.epd.common.prototype.ais.AisTarget;
-import dk.dma.epd.common.prototype.ais.VesselPositionData;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 
 /**
- * Class for handling incoming AIS messages on a vessel and maintainer of AIS target tables
+ * Class for handling incoming AIS messages on a vessel and maintainer of AIS target tables.
+ * <p>
+ * This specialization of the {@link AisHandlerCommon} class contains Shore specific functionality.
  */
 public class AisHandler extends AisHandlerCommon {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AisHandler.class);
-
-    protected ConcurrentHashMap<Long, IPastTrackShore> pastTrack = new ConcurrentHashMap<>(100000);
-
-    protected int pastTrackMaxTime; // NB: In minutes
-    protected int pastTrackMinDist; // NB: In meters
-    
     /**
      * Empty constructor not used
      */
     public AisHandler(AisSettings aisSettings) {
         super(aisSettings);
-        this.pastTrackMaxTime = aisSettings.getPastTrackMaxTime();
-        this.pastTrackMinDist = aisSettings.getPastTrackMinDist();
     }
 
     /**
-     * Update vessel target position data
+     * Should be implemented by specialized versions of the AisHandlerCommon class
      * 
-     * @param mmsi
-     * @param positionData
-     * @param aisClass
+     * @param pos the position to check
+     * @return if the position is within range
      */
     @Override
-    protected void updatePos(long mmsi, VesselPositionData positionData, VesselTarget.AisClass aisClass) {
-        // Determine if this is SART
-        if (isSarTarget(mmsi)) {
-            updateSartPos(mmsi, positionData);
-            return;
-        }
-
-        // Try to find exiting target
-        VesselTarget vesselTarget = vesselTargets.get(mmsi);
-        // If not exists, create and insert
-        if (vesselTarget == null) {
-            vesselTarget = new VesselTarget();
-            vesselTarget.getSettings().setShowRoute(showIntendedRouteDefault);
-            vesselTarget.setMmsi(mmsi);
-            vesselTargets.put(mmsi, vesselTarget);
-        }
-        // Update class and pos data
-        vesselTarget.setAisClass(aisClass);
-        vesselTarget.setPositionData(positionData);
-        // Update track
-        // TODO
-        // Update last received
-        vesselTarget.setLastReceived(PntTime.getInstance().getDate());
-        // Update status
-        vesselTarget.setStatus(AisTarget.Status.OK);
-
-        // Add past track
-        if (pastTrack.containsKey(mmsi)) {
-            IPastTrackShore ptps = pastTrack.get(mmsi);
-
-            ptps.addPosition(positionData.getPos(), pastTrackMinDist);
-
-        } else {
-            pastTrack.putIfAbsent(mmsi, new PastTrackSortedSet());
-            pastTrack.get(mmsi).addPosition(positionData.getPos(), pastTrackMinDist);
-
-        }
-        
-        //DEBUG on performance
-        
-        long timeS = System.currentTimeMillis();
-        for (IPastTrackShore t: pastTrack.values()) {
-            t.cleanup(60*pastTrackMaxTime); // Convert from minutes to seconds
-        }
-        long timeE = System.currentTimeMillis();
-        
-        if ((timeE-timeS)/1000 > 1) {
-            LOG.error("Time to clean pastTrack: "+(timeE-timeS)/1000);
-        }
-        
-
-        // Publish update
-        publishUpdate(vesselTarget);
+    protected boolean isWithinRange(Position pos) {
+        return true;
     }
-
-    public Map<Long, IPastTrackShore> getPastTrack() {
-        return pastTrack;
-    }
-
 }

@@ -13,12 +13,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.layers.ais;
+package dk.dma.epd.common.prototype.layers.ais;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
@@ -30,10 +32,14 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.shore.ais.PastTrackPoint;
+import dk.dma.epd.common.prototype.ais.MobileTarget;
+import dk.dma.epd.common.prototype.ais.PastTrackPoint;
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 
 /**
- * Graphic for intended route
+ * Graphic for past-track route
+ * <p>
+ * 16-12-2013: Class moved to epd-common from epd-shore
  */
 public class PastTrackGraphic extends OMGraphicList {
     private static final long serialVersionUID = 1L;
@@ -41,6 +47,9 @@ public class PastTrackGraphic extends OMGraphicList {
     private static Color LEG_COLOR = Color.black;
     private static Color LOST_LEG_COLOR = Color.lightGray;
 
+    private MobileTarget mobileTarget;
+    private long lastPastTrackChangeTime = -1L;
+    private boolean lastPastTrackVisibility;
     private PastTrackLegGraphic activeWpLine;
     private double[] activeWpLineLL = new double[4];
     private String name;
@@ -52,26 +61,31 @@ public class PastTrackGraphic extends OMGraphicList {
     
     private static final Logger LOG = LoggerFactory.getLogger(PastTrackGraphic.class);
 
+    /**
+     * No-arg constructor
+     */
     public PastTrackGraphic() {
         super();
         Position nullGeoLocation = Position.create(0, 0);
         activeWpLine = new PastTrackLegGraphic(0, this, true,
                 nullGeoLocation, nullGeoLocation, LEG_COLOR);
-        setVisible(false);
     }
     
-    
-
+    /**
+     * Returns the mmsi associated with this target
+     * @return the mmsi associated with this target
+     */
     public long getMmsi() {
         return mmsi;
     }
 
-
-
+    /**
+     * Sets the mmsi associated with this target
+     * @param mmsi the mmsi associated with this target
+     */
     public void setMmsi(long mmsi) {
         this.mmsi = mmsi;
     }
-
 
     /**
      * Determines when a past track leg can be presumed "lost", caused by
@@ -115,6 +129,11 @@ public class PastTrackGraphic extends OMGraphicList {
         add(leg);
     }
 
+    /**
+     * Adds a new past track circle
+     * @param index the index of the circle in list of past track records
+     * @param p the past track point
+     */
     private void makeWpCircle(int index, PastTrackPoint p) {
         PastTrackWpCircle wpCircle = new PastTrackWpCircle(this, index,
                 p.getPosition().getLatitude(), p.getPosition().getLongitude(), 0, 0, 2, 2, p.getDate());
@@ -125,12 +144,18 @@ public class PastTrackGraphic extends OMGraphicList {
         add(wpCircle);
     }
 
-
-
+    /**
+     * Returns the name associated with this target
+     * @return the name associated with this target
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Sets whether to show arrow heads or not
+     * @param show whether to show arrow heads or not
+     */
     public void showArrowHeads(boolean show) {
         if (this.arrowsVisible != show) {
             for (PastTrackLegGraphic routeLeg : routeLegs) {
@@ -140,34 +165,52 @@ public class PastTrackGraphic extends OMGraphicList {
         }
     }
     
-    @Override
-    public void setVisible(boolean visible){
-        super.setVisible(visible);
-        
-        if (!visible){
-            clear();
-            routeLegs.clear();
-            routeWps.clear();
+    private boolean mobileTargetVisible(MobileTarget mobileTarget) {
+        if (mobileTarget == null) {
+            return false;
+        } else if (!(mobileTarget instanceof VesselTarget)) {
+            // For now, SarTargets are visible
+            return true;
         }
+        return ((VesselTarget)mobileTarget).getSettings().isShowPastTrack();
     }
+    
     /**
-     * updates gui PastTrack using any sort of Collection for improved performance
-     * @param pastTrackPoints
-     * @param pos
+     * Updates gui PastTrack from the given mobile target
+     * 
+     * @param mobileTarget the mobile target, i.e. vessel or sar targets
      */
-    public void update(Collection<PastTrackPoint> pastTrackPoints, Position pos) {
-     // Set visible if not visible
-        if (!isVisible()) {
-            setVisible(true);
-        }
+    public synchronized void update(MobileTarget mobileTarget) {
 
+        boolean pastTrackVisible = mobileTargetVisible(mobileTarget);
+        
+        // Check if we need to update anything
+        if (this.mobileTarget == mobileTarget && 
+                mobileTarget != null &&
+                mobileTarget.getPastTrackData().getLastChangeTime() == lastPastTrackChangeTime &&
+                pastTrackVisible == lastPastTrackVisibility) {
+            return;
+        }
+        
+        // Update the graphics
+        this.mobileTarget = mobileTarget;
+        lastPastTrackChangeTime = this.mobileTarget.getPastTrackData().getLastChangeTime();
+        lastPastTrackVisibility = pastTrackVisible;
+        
+        // Clear old data
         clear();
         routeLegs.clear();
         routeWps.clear();
         
+        // If the past track is not visible, return
+        if (!pastTrackVisible) {
+            return;
+        }
+        
+        // Build the graphics
         add(activeWpLine);
 
-        Iterator<PastTrackPoint> it = pastTrackPoints.iterator();
+        Iterator<PastTrackPoint> it = mobileTarget.getPastTrackData().getPoints().iterator();
         
         if (!it.hasNext()) {
             return;
@@ -196,11 +239,22 @@ public class PastTrackGraphic extends OMGraphicList {
             start = end;
         }
         
-
+        Position pos = mobileTarget.getPositionData().getPos();
         activeWpLineLL[0] = pos.getLatitude();
         activeWpLineLL[1] = pos.getLongitude();
         activeWpLineLL[2] = start.getPosition().getLatitude();
         activeWpLineLL[3] = start.getPosition().getLongitude();
         activeWpLine.setLL(activeWpLineLL);
+    }
+
+    /**
+     * Render nicely anti-aliased
+     * @param gr the graphical context
+     */
+    @Override
+    public void render(Graphics gr) {
+        Graphics2D image = (Graphics2D) gr;
+        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        super.render(image);
     }
 }

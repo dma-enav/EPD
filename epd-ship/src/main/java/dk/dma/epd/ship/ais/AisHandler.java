@@ -53,11 +53,15 @@ public class AisHandler extends AisHandlerCommon implements IAisListener, IStatu
     
     private final double aisRange;
 
+    /**
+     * Constructor
+     * @param sensorSettings
+     * @param aisSettings
+     */
     public AisHandler(SensorSettings sensorSettings, AisSettings aisSettings) {
         super(aisSettings);
-        aisRange = sensorSettings.getAisSensorRange();                
+        aisRange = sensorSettings.getAisSensorRange();
     }
-
 
     /**
      * Method for receiving own ship AIS messages
@@ -90,7 +94,34 @@ public class AisHandler extends AisHandlerCommon implements IAisListener, IStatu
 
     }
 
+    /**
+     * Shows or hides past tracks for all vessel and sar targets
+     * <p>
+     * This method overrides super to set the past-track visibility of the own-ship
+     * 
+     * @param show whether to show or hide past tracks
+     */
+    @Override
+    public void setShowAllPastTracks(boolean show) {
+        super.setShowAllPastTracks(show);
+        
+        if (ownShip != null) {
+            ownShip.getSettings().setShowPastTrack(show);
+            publishUpdate(ownShip);
+        }
+    }
 
+    /**
+     * Sub-classes can override to perform periodic updates.
+     * Called every 10 seconds.
+     */
+    @Override
+    protected void updatePeriodic() {
+        if (ownShip != null) {
+            ownShip.getPastTrackData().cleanup(60*pastTrackMaxTime); 
+        }
+    }
+    
     /**
      * Determine if position is within range
      * 
@@ -110,12 +141,19 @@ public class AisHandler extends AisHandlerCommon implements IAisListener, IStatu
         return distance <= aisRange;
     }
 
+    /**
+     * Returns a reference to the current own-ship
+     * @return a reference to the current own-ship
+     */
     @Override
     public VesselTarget getOwnShip() {
         return ownShip;
     }
 
-
+    /**
+     * Returns the Ais range
+     * @return the Ais range
+     */
     public double getAisRange() {
         return aisRange;
     }
@@ -157,6 +195,11 @@ public class AisHandler extends AisHandlerCommon implements IAisListener, IStatu
 
     }
     
+    /**
+     * Saves the view.
+     * <p>
+     * Override super to save own-ship object
+     */
     @Override
     public void saveView() {
         super.saveView();
@@ -168,6 +211,12 @@ public class AisHandler extends AisHandlerCommon implements IAisListener, IStatu
             e.printStackTrace();
         }
     }
+    
+    /**
+     * Loads the view.
+     * <p>
+     * Override super to save own-ship object
+     */
     @Override
     public void loadView() {
         super.loadView();
