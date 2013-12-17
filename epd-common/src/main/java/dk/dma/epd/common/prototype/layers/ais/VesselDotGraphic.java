@@ -42,7 +42,7 @@ public class VesselDotGraphic extends OMGraphicList {
     /**
      * Diameter of the circle graphic (in pixels) that represents the Vessel's location on the map.
      */
-    public static final int CIRCLE_PIXEL_DIAMETER = 10;
+    public static final int CIRCLE_PIXEL_DIAMETER = 7;
     
     public void updateLocation(Position newLocation) {
         if(this.vesselMarker == null) {
