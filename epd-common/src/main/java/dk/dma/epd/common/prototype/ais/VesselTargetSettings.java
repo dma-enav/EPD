@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.ais;
 
 import java.io.Serializable;
 
+import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
 /**
@@ -24,16 +25,17 @@ import net.jcip.annotations.ThreadSafe;
  */
 @ThreadSafe
 public class VesselTargetSettings implements Serializable {
-    private static final long serialVersionUID = 1L;
     
-    private boolean hide;
-    private boolean showRoute;
+    private static final long serialVersionUID = -5528305798840723399L;
+    
+    @GuardedBy("this") private boolean hide;
+    @GuardedBy("this") private boolean showRoute;
+    @GuardedBy("this") private boolean showPastTrack;
     
     /**
      * Empty constructor
      */
-    public VesselTargetSettings() {
-        
+    public VesselTargetSettings() {   
     }
     
     /**
@@ -43,6 +45,7 @@ public class VesselTargetSettings implements Serializable {
     public VesselTargetSettings(VesselTargetSettings settings) {
         this.hide = settings.hide;
         this.showRoute = settings.showRoute;
+        this.showPastTrack = settings.showPastTrack;
     }
 
     /**
@@ -77,4 +80,19 @@ public class VesselTargetSettings implements Serializable {
         this.showRoute = showRoute;
     }
     
+    /**
+     * Will the past-track be shown for the target 
+     * @return
+     */
+    public synchronized boolean isShowPastTrack() {
+        return showPastTrack;
+    }
+
+    /**
+     * Set visibility of intended route
+     * @param showPastTrack
+     */
+    public synchronized void setShowPastTrack(boolean showPastTrack) {
+        this.showPastTrack = showPastTrack;
+    }    
 }

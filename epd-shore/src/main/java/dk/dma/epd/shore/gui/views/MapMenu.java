@@ -44,6 +44,8 @@ import com.bbn.openmap.MapBean;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
+import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
@@ -111,8 +113,11 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private GeneralHideIntendedRoutes hideIntendedRoutes;
     private GeneralShowIntendedRoutes showIntendedRoutes;
     private GeneralNewRoute newRoute;
+    private SetShowPastTracks hidePastTracks;
+    private SetShowPastTracks showPastTracks;
     private JMenu scaleMenu;
     private AisIntendedRouteToggle aisIntendedRouteToggle;
+    private ToggleShowPastTrack aisTogglePastTrack;
 
     // private NogoRequest nogoRequest;
     private MsiAcknowledge msiAcknowledge;
@@ -186,6 +191,11 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         newRoute = new GeneralNewRoute("Add new route");
         newRoute.addActionListener(this);
 
+        showPastTracks = new SetShowPastTracks("Show all past-tracks", true);
+        showPastTracks.addActionListener(this);
+        hidePastTracks = new SetShowPastTracks("Hide all past-tracks", false);
+        hidePastTracks.addActionListener(this);
+        
         scaleMenu = new JMenu("Scale");
 
         // using treemap so scale levels are always sorted
@@ -194,6 +204,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         // ais menu items
         aisIntendedRouteToggle = new AisIntendedRouteToggle();
         aisIntendedRouteToggle.addActionListener(this);
+        aisTogglePastTrack = new ToggleShowPastTrack();
+        aisTogglePastTrack.addActionListener(this);
 
         // msi menu items
         msiDetails = new MsiDetails("Show MSI details");
@@ -346,6 +358,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         newRoute.setToolBar(EPDShore.getMainFrame().getToolbar());
 
+        showPastTracks.setAisHandler(aisHandler);
+        hidePastTracks.setAisHandler(aisHandler);
+        
         // newRoute.setMouseDelegator(mouseDelegator);
         // newRoute.setMainFrame(mainFrame);
 
@@ -354,6 +369,10 @@ public class MapMenu extends JPopupMenu implements ActionListener,
             add(hideIntendedRoutes);
             add(showIntendedRoutes);
             add(newRoute);
+            addSeparator();
+            add(showPastTracks);
+            add(hidePastTracks);
+            addSeparator();
             add(scaleMenu);
             
             voyageHideAll.setVoyageLayer(voyageLayer);
@@ -398,6 +417,12 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         }
         add(aisIntendedRouteToggle);
 
+        // Toggle show past-track
+        aisTogglePastTrack.setVesselTarget(vesselTarget);
+        aisTogglePastTrack.setAisLayer(aisLayer);
+        aisTogglePastTrack.setText((vesselTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
+        add(aisTogglePastTrack);
+                
         generalMenu(false);
     }
 

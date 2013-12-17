@@ -354,6 +354,9 @@ public class AisLayer extends OMGraphicHandlerLayer implements
             targetGraphic.update(aisTarget, aisSettings, navSettings);
         }
 
+        // Handle past track
+        
+        
         targetGraphic.project(getProjection());
 
         // System.out.println("targets.size() : " + targets.size());
