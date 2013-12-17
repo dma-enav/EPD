@@ -15,14 +15,9 @@
  */
 package dk.dma.epd.common.prototype.layers.intendedroute;
 
-import java.awt.Color;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.bbn.openmap.corba.CSpecialist.GraphicPackage.RenderType;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
-import com.bbn.openmap.layer.policy.ProjectionChangePolicy;
-import com.bbn.openmap.omGraphics.OMCircle;
-import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.ais.message.AisMessage;
@@ -55,17 +50,17 @@ public class IntendedRouteLayer extends OMGraphicHandlerLayer implements IAisTar
     @Override
     public void targetUpdated(AisTarget aisTarget) {
         boolean redraw = false;
-        if(aisTarget.getMmsi() == 219230000) {
-            System.out.println("Tycho Brahe found");
-            System.out.println("hasIntendedRoute = " + ((VesselTarget)aisTarget).hasIntendedRoute());
-            System.out.println("inteded route == null? " + ((((VesselTarget)aisTarget).getIntendedRoute()) == null));
-        }
-        
-        if(aisTarget.getMmsi() == 219622000) {
-            System.out.println("Hamlet found");
-            System.out.println("hasIntendedRoute = " + ((VesselTarget)aisTarget).hasIntendedRoute());
-            System.out.println("inteded route == null? " + ((((VesselTarget)aisTarget).getIntendedRoute()) == null));
-        }
+//        if(aisTarget.getMmsi() == 219230000) {
+//            System.out.println("Tycho Brahe found");
+//            System.out.println("hasIntendedRoute = " + ((VesselTarget)aisTarget).hasIntendedRoute());
+//            System.out.println("inteded route == null? " + ((((VesselTarget)aisTarget).getIntendedRoute()) == null));
+//        }
+//        
+//        if(aisTarget.getMmsi() == 219622000) {
+//            System.out.println("Hamlet found");
+//            System.out.println("hasIntendedRoute = " + ((VesselTarget)aisTarget).hasIntendedRoute());
+//            System.out.println("inteded route == null? " + ((((VesselTarget)aisTarget).getIntendedRoute()) == null));
+//        }
         
         if(aisTarget.isGone() && this.iRoutes.containsKey(aisTarget.getMmsi())) {
             // This target should no longer be painted
@@ -119,40 +114,13 @@ public class IntendedRouteLayer extends OMGraphicHandlerLayer implements IAisTar
        OMGraphicList toDraw = new OMGraphicList();
        toDraw.addAll(this.iRoutes.values());
         
-       this.setList(null);
-
-        
-//        OMCircle test = new OMCircle();
-//        test.setX(300);
-//        test.setY(300);
-//        test.setWidth(250);
-//        test.setHeight(250);
-//        test.setFillPaint(Color.GREEN);
-//        test.setRenderType(RenderType._RT_XY);
-//        toDraw.add(test);
+        this.setList(null);
 
         toDraw.project(this.getProjection());
         
         this.setList(toDraw);
         
-        System.out.println("Count is " + this.getList().size());
-        for(OMGraphic omg : this.getList()) {
-            if(!omg.isVisible())
-                System.out.println(omg.getClass().getSimpleName() + " instance has VISIBLE FALSE");
-        }
-        
-        
         return this.getList();
-        
-//        OMGraphicList toDraw = new OMGraphicList();
-//        toDraw.add(test);
-//        toDraw.addAll(this.iRoutes.values());
-//        this.setList(toDraw);
-//        this.getList().generate(this.getProjection());
-//        this.getList().project(this.getProjection());
-        
-//        System.out.println("Count is " + this.getList().size());
-//        return this.getList();
     }
     
     public void findAndInit(Object obj) {
