@@ -370,9 +370,6 @@ public class AisLayer extends OMGraphicHandlerLayer implements
         
         targetGraphic.project(getProjection());
 
-        // System.out.println("targets.size() : " + targets.size());
-        // System.out.println("graphics.size(): " + graphics.size() + "\n---");
-
         setRedrawPending(true);
         updateLayer(forceRedraw);
     }
