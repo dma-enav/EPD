@@ -87,6 +87,14 @@ public class PastTrackGraphic extends OMGraphicList {
     }
 
     /**
+     * Returns a reference to the associated mobile target
+     * @return a reference to the associated mobile target
+     */
+    public MobileTarget getMobileTarget() {
+        return mobileTarget;
+    }
+    
+    /**
      * Adds a new past track leg line
      * @param index index of leg in list of past track records
      * @param start start point of leg

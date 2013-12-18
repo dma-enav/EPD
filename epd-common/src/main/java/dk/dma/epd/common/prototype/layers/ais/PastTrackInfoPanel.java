@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.common.prototype.layers.ais;
 
+import dk.dma.ais.message.AisMessage;
+import dk.dma.epd.common.prototype.ais.MobileTarget;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.text.Formatter;
 
@@ -42,10 +44,18 @@ public class PastTrackInfoPanel extends InfoPanel {
             return;
         }
         
+        String name = "N/A";
+        MobileTarget mobileTarget = wpCircle.getPastTrackGraphic().getMobileTarget();
+        if (mobileTarget != null && mobileTarget.getStaticData() != null) {
+            name = String.format("%s (%d)", 
+                    AisMessage.trimText(mobileTarget.getStaticData().getName()),
+                    mobileTarget.getMmsi());
+        }
+        
         try{
             StringBuilder str = new StringBuilder();
             str.append("<html>");
-            str.append("<b>Past Track Point</b><br/>");
+            str.append("<b>" + name + "</b><br/>");
             str.append("<table border='0' cellpadding='2'>");
             str.append("<tr><td>Time:</td><td>" + Formatter.formatShortDateTime(wpCircle.getDate()) + "</td></tr>");
             str.append("</table>");
