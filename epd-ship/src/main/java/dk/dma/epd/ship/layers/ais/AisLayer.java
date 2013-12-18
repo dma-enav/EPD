@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapBean;
+import com.bbn.openmap.event.MapEventUtils;
 import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
@@ -631,23 +632,16 @@ public class AisLayer extends OMGraphicHandlerLayer implements
             return false;
         }
 
-        OMGraphic newClosest = null;
-        OMList<OMGraphic> allClosest;
-        synchronized (graphics) {
-            allClosest = graphics.findAll(e.getX(), e.getY(), 3.0f);
-        }
-
-        for (OMGraphic omGraphic : allClosest) {
-            if (omGraphic instanceof IntendedRouteWpCircle
-                    || omGraphic instanceof IntendedRouteLegGraphic
-                    || omGraphic instanceof VesselTargetTriangle
-                    || omGraphic instanceof SartGraphic
-                    || omGraphic instanceof AtonTargetGraphic
-                    || omGraphic instanceof PastTrackWpCircle) {
-                newClosest = omGraphic;
-                break;
-            }
-        }
+        OMGraphic newClosest = MapEventUtils.getSelectedGraphic(
+                graphics, 
+                e, 
+                3.0f, 
+                IntendedRouteWpCircle.class, 
+                IntendedRouteLegGraphic.class, 
+                VesselTargetTriangle.class, 
+                SartGraphic.class, 
+                AtonTargetGraphic.class, 
+                PastTrackWpCircle.class);
 
         if (newClosest != closest) {
             Point containerPoint = SwingUtilities.convertPoint(mapBean,
