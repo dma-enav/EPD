@@ -42,6 +42,7 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.layers.ais.AisTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteWpCircle;
+import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.DragMouseMode;

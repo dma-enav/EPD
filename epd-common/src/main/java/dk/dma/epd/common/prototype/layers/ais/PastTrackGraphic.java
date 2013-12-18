@@ -190,6 +190,8 @@ public class PastTrackGraphic extends OMGraphicList {
             return;
         }
         
+        setMmsi(mobileTarget.getMmsi());
+        
         // Build the graphics
         add(activeWpLine);
 

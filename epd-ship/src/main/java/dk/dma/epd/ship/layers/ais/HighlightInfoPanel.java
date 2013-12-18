@@ -19,6 +19,7 @@ import java.net.URL;
 
 import javax.swing.ImageIcon;
 
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.ship.EPDShip;
 
 /**

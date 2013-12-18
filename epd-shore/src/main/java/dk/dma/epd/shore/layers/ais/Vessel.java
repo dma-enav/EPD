@@ -118,7 +118,6 @@ public class Vessel extends OMGraphicList {
 
         this.add(routeGraphic);
         this.add(pastTrackGraphic);
-        pastTrackGraphic.setMmsi(MMSI);
     }
 
     /**
