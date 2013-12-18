@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.ais;
+package dk.dma.epd.common.prototype.ais;
 
 import java.util.Collection;
 
@@ -25,8 +25,10 @@ import dk.dma.enav.model.geometry.Position;
  * This is halfway to commonalizing between the two, 
  * problems: SHORE/EPD make use of toString() which is a pain to update
  * AisHandler, AisLayer make use of non-collection interface like list.get(i) (assume arraylist)
+ * <p>
+ * 131213: Class moved from epd-shore to epd-common, so that it may be used in epd-ship
  */
-public interface IPastTrackShore{
+public interface IPastTrack{
 
     /**
      * Add position to past track if it is more than minimum distance from last position

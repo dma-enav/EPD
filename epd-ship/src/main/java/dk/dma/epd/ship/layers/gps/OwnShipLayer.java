@@ -15,11 +15,16 @@
  */
 package dk.dma.epd.ship.layers.gps;
 
+import java.awt.event.MouseEvent;
 import java.util.Date;
 
+import com.bbn.openmap.event.MapEventUtils;
+import com.bbn.openmap.event.MapMouseAdapter;
+import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
+import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.Length;
 import com.bbn.openmap.proj.ProjMath;
@@ -27,6 +32,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.layers.ais.PastTrackGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphic;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
@@ -34,10 +40,18 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
+import dk.dma.epd.ship.event.DragMouseMode;
+import dk.dma.epd.ship.event.NavigationMouseMode;
+import dk.dma.epd.ship.gui.MapMenu;
 
+/**
+ * Defines the own-ship layer
+ */
 public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListener, ProjectionListener {
     
     private static final long serialVersionUID = 1L;
+    
+    private MapMenu ownShipMenu;
     
     private PntHandler gpsHandler;
     private AisHandler aisHandler;
@@ -55,6 +69,8 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
     private OwnShipGraphic ownShipGraphic;
     private VesselOutlineGraphic vesselOutlineGraphic;
     private ZoomLevel currentZoomLevel;
+
+    private PastTrackGraphic pastTrackGraphic;
     
     public OwnShipLayer() {
         graphics.setVague(true);
@@ -102,6 +118,22 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         else if(ownShip != null) {
             // draw standard version of own ship for all other zoom levels than VESSEL_OUTLINE
             this.drawOwnShipStandard(ownShip);
+        }
+        
+        // Handle past-tracks
+        if (ownShip != null) {
+            // Update past-track
+            ownShip.getPastTrackData().addPosition(currentPos, 100); // TODO: PastTrackMinDist
+
+            
+            // Add the past-track graphics the first time around
+            if (pastTrackGraphic == null) {
+                pastTrackGraphic = new PastTrackGraphic();
+                this.graphics.add(pastTrackGraphic);
+            }
+            
+            // Update the past-track graphics
+            pastTrackGraphic.update(ownShip);
         }
         
         // Redraw    
@@ -181,6 +213,9 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         if (aisHandler == null && obj instanceof AisHandler) {
             aisHandler = (AisHandler)obj;
         }
+        if (obj instanceof MapMenu) {
+            ownShipMenu = (MapMenu) obj;
+        }
     }
     
     @Override
@@ -191,6 +226,9 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         }
         if (aisHandler == obj) {
             aisHandler = null;
+        }
+        if (ownShipMenu == obj) {
+            ownShipMenu = null;
         }
     }
     
@@ -209,5 +247,34 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
             this.pntDataUpdate(gpsHandler.getCurrentData());
         }
         super.projectionChanged(pe);
+    }
+
+    /**
+     * Returns the mouse listener for this layer
+     * @return the mouse listener for this layer
+     */
+    @Override
+    public MapMouseListener getMapMouseListener() {
+        return new MapMouseAdapter() {
+            @Override
+            public String[] getMouseModeServiceList() {
+                String[] ret = new String[2];
+                ret[0] = NavigationMouseMode.MODE_ID; // "Gestures"
+                ret[1] = DragMouseMode.MODE_ID;
+                return ret;
+            }
+
+            @Override
+            public boolean mouseClicked(MouseEvent evt) {
+                OMGraphic ownShipGraphics = MapEventUtils.getSelectedGraphic(graphics, evt, 5.0f, OMGraphicList.class);
+                if (ownShipGraphics == graphics && evt.getButton() == MouseEvent.BUTTON3) {
+                    ownShipMenu.ownShipMenu();
+                    ownShipMenu.setVisible(true);
+                    ownShipMenu.show(OwnShipLayer.this, evt.getX() - 2, evt.getY() - 2);
+                    return true;
+                }
+                return false;
+            }
+        };
     }
 }

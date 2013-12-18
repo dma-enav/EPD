@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.layers.ais;
+package dk.dma.epd.common.prototype.layers.ais;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -25,35 +25,52 @@ import dk.dma.enav.model.geometry.Position;
 
 /**
  * Graphic for intended route leg graphic
+ * <p>
+ * 16-12-2013: Class moved to epd-common from epd-shore
  */
 public class PastTrackLegGraphic extends OMLine {
     
     private static final long serialVersionUID = 1L;
     
-    private PastTrackGraphic intendedRouteGraphic;
+    private PastTrackGraphic pastTrackGraphic;
     private OMArrowHead arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, 5, 15);
     private int index;
 
-    public PastTrackLegGraphic(int index, PastTrackGraphic intendedRouteGraphic, boolean activeWaypoint, Position start,
+    /**
+     * Constructor
+     */
+    public PastTrackLegGraphic(int index, PastTrackGraphic pastTrackGraphic, boolean activeWaypoint, Position start,
             Position end, Color legColor) {
         
         super(start.getLatitude(), start.getLongitude(), end.getLatitude(), end.getLongitude(), LINETYPE_RHUMB);
         this.index = index;
-        this.intendedRouteGraphic = intendedRouteGraphic;
+        this.pastTrackGraphic = pastTrackGraphic;
  
-            setStroke(new BasicStroke()); // Dash phase)
-        
+        setStroke(new BasicStroke());        
         setLinePaint(legColor);        
     }
 
-    public PastTrackGraphic getIntendedRouteGraphic() {
-        return intendedRouteGraphic;
+    
+    /**
+     * Return the parent PastTrackGraphic object
+     * @return the parent PastTrackGraphic object
+     */
+    public PastTrackGraphic getPastTrackGraphic() {
+        return pastTrackGraphic;
     }
     
+    /**
+     * Returns the past-track point index of this element
+     * @return the past-track point index of this element
+     */
     public int getIndex() {
         return index;
     }
     
+    /**
+     * Sets whether to include arrows or not
+     * @param arrowsVisible whether to include arrows or not
+     */
     public void setArrows(boolean arrowsVisible){
         if(!arrowsVisible) {
             this.setArrowHead(null);

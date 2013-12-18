@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapBean;
+import com.bbn.openmap.event.MapEventUtils;
 import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
@@ -46,11 +47,14 @@ import dk.dma.epd.common.prototype.ais.AtoNTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.AisTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.AtonTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteWpCircle;
+import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
+import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SarTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
 import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
@@ -92,6 +96,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
     private IntendedRouteInfoPanel intendedRouteInfoPanel = new IntendedRouteInfoPanel();
     private AisTargetInfoPanel aisTargetInfoPanel = new AisTargetInfoPanel();
     private SarTargetInfoPanel sarTargetInfoPanel = new SarTargetInfoPanel();
+    private final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
     private MapMenu aisTargetMenu;
 
     private ConcurrentHashMap<Long, TargetGraphic> targets = new ConcurrentHashMap<>();
@@ -354,6 +359,9 @@ public class AisLayer extends OMGraphicHandlerLayer implements
             targetGraphic.update(aisTarget, aisSettings, navSettings);
         }
 
+        // Handle past track
+        
+        
         targetGraphic.project(getProjection());
 
         // System.out.println("targets.size() : " + targets.size());
@@ -448,6 +456,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
             mainFrame.getGlassPanel().add(intendedRouteInfoPanel);
             mainFrame.getGlassPanel().add(aisTargetInfoPanel);
             mainFrame.getGlassPanel().add(sarTargetInfoPanel);
+            mainFrame.getGlassPanel().add(pastTrackInfoPanel);
         }
         if (obj instanceof PntHandler) {
             sarTargetInfoPanel.setGpsHandler((PntHandler) obj);
@@ -596,108 +605,104 @@ public class AisLayer extends OMGraphicHandlerLayer implements
     }
 
     /**
+     * Sets the given {@code closest} graphics as the new closest.
+     * <p>
+     * Hides all {@linkplain InfoPanel} panels except the {@code visiblePanel} if this is specified.
+     * 
+     * @param visiblePanel the panel <i>not to hide</i>.
+     */
+    private void setActiveInfoPanel(OMGraphic closest, InfoPanel visiblePanel) {
+        this.closest = closest;
+        InfoPanel[] infoPanels = { intendedRouteInfoPanel, aisTargetInfoPanel, sarTargetInfoPanel, pastTrackInfoPanel };
+        for (InfoPanel infoPanel : infoPanels) {
+            if (infoPanel != visiblePanel) {
+                infoPanel.setVisible(false);
+            }
+        }
+        mainFrame.getGlassPane().setVisible(visiblePanel != null);
+    }
+    
+    /**
      * Handle mouse moved
      */
     @Override
     public boolean mouseMoved(MouseEvent e) {
         if (!this.isVisible()) {
-            intendedRouteInfoPanel.setVisible(false);
-            aisTargetInfoPanel.setVisible(false);
-            sarTargetInfoPanel.setVisible(false);
+            setActiveInfoPanel(null, null);
             return false;
         }
 
-        OMGraphic newClosest = null;
-        OMList<OMGraphic> allClosest;
-        synchronized (graphics) {
-            allClosest = graphics.findAll(e.getX(), e.getY(), 3.0f);
-        }
-
-        for (OMGraphic omGraphic : allClosest) {
-
-            if (omGraphic instanceof IntendedRouteWpCircle
-                    || omGraphic instanceof IntendedRouteLegGraphic
-                    || omGraphic instanceof VesselTargetTriangle
-                    || omGraphic instanceof SartGraphic
-                    || omGraphic instanceof AtonTargetGraphic) {
-                // System.out.println("omGraphic: " + omGraphic.getClass());
-                newClosest = omGraphic;
-                break;
-            }
-        }
+        OMGraphic newClosest = MapEventUtils.getSelectedGraphic(
+                graphics, 
+                e, 
+                3.0f, 
+                IntendedRouteWpCircle.class, 
+                IntendedRouteLegGraphic.class, 
+                VesselTargetTriangle.class, 
+                SartGraphic.class, 
+                AtonTargetGraphic.class, 
+                PastTrackWpCircle.class);
 
         if (newClosest != closest) {
             Point containerPoint = SwingUtilities.convertPoint(mapBean,
                     e.getPoint(), mainFrame);
 
             if (newClosest instanceof IntendedRouteWpCircle) {
-                closest = newClosest;
                 IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) newClosest;
                 intendedRouteInfoPanel.setPos((int) containerPoint.getX(),
                         (int) containerPoint.getY() - 10);
                 intendedRouteInfoPanel.showWpInfo(wpCircle);
-                mainFrame.getGlassPane().setVisible(true);
-                aisTargetInfoPanel.setVisible(false);
-                sarTargetInfoPanel.setVisible(false);
+                setActiveInfoPanel(newClosest, intendedRouteInfoPanel);
                 return true;
+                
+            } else if (newClosest instanceof PastTrackWpCircle) {
+                PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
+                pastTrackInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
+                pastTrackInfoPanel.showWpInfo(wpCircle);
+                setActiveInfoPanel(newClosest, pastTrackInfoPanel);
+                return true;
+                
             } else if (newClosest instanceof IntendedRouteLegGraphic) {
                 // lets user see ETA continually along route leg
-                closest = dummyCircle;
                 Point2D worldLocation = chartPanel.getMap().getProjection()
                         .inverse(e.getPoint());
                 IntendedRouteLegGraphic legGraphic = (IntendedRouteLegGraphic) newClosest;
                 intendedRouteInfoPanel.setPos((int) containerPoint.getX(),
                         (int) containerPoint.getY() - 10);
                 intendedRouteInfoPanel.showLegInfo(legGraphic, worldLocation);
-                mainFrame.getGlassPane().setVisible(true);
-                aisTargetInfoPanel.setVisible(false);
-                sarTargetInfoPanel.setVisible(false);
+                setActiveInfoPanel(dummyCircle, intendedRouteInfoPanel);
                 return true;
+                
             } else if (newClosest instanceof VesselTargetTriangle) {
-                closest = newClosest;
                 VesselTargetTriangle vesselTargetTriangle = (VesselTargetTriangle) newClosest;
                 VesselTarget vesselTarget = vesselTargetTriangle
                         .getVesselTargetGraphic().getVesselTarget();
                 aisTargetInfoPanel.setPos((int) containerPoint.getX(),
                         (int) containerPoint.getY() - 10);
                 aisTargetInfoPanel.showAisInfo(vesselTarget);
-                mainFrame.getGlassPane().setVisible(true);
-                intendedRouteInfoPanel.setVisible(false);
-                sarTargetInfoPanel.setVisible(false);
+                setActiveInfoPanel(newClosest, aisTargetInfoPanel);
                 return true;
+                
             } else if (newClosest instanceof SartGraphic) {
-                closest = newClosest;
                 SartGraphic sartGraphic = (SartGraphic) newClosest;
                 sarTargetInfoPanel.setPos((int) containerPoint.getX(),
                         (int) containerPoint.getY() - 10);
                 sarTargetInfoPanel.showSarInfo(sartGraphic
                         .getSarTargetGraphic().getSarTarget());
-                mainFrame.getGlassPane().setVisible(true);
-                intendedRouteInfoPanel.setVisible(false);
-                aisTargetInfoPanel.setVisible(false);
+                setActiveInfoPanel(newClosest, sarTargetInfoPanel);
                 return true;
+                
             } else if (newClosest instanceof AtonTargetGraphic) {
-                closest = newClosest;
                 AtonTargetGraphic aton = (AtonTargetGraphic) newClosest;
                 AtoNTarget atonTarget = aton.getAtonTarget();
                 aisTargetInfoPanel.setPos((int) containerPoint.getX(),
                         (int) containerPoint.getY() - 10);
                 aisTargetInfoPanel.showAtonInfo(atonTarget);
-                
-                mainFrame.getGlassPane().setVisible(true);
-                intendedRouteInfoPanel.setVisible(false);
-                sarTargetInfoPanel.setVisible(false);
-
+                setActiveInfoPanel(newClosest, aisTargetInfoPanel);
                 return true;
+                
             } else {
-                System.out.println("Hide all");
-                intendedRouteInfoPanel.setVisible(false);
-                aisTargetInfoPanel.setVisible(false);
-                sarTargetInfoPanel.setVisible(false);
-                mainFrame.getGlassPane().setVisible(false);
-                if (closest != null) {
-                    closest = null;
-                }
+                setActiveInfoPanel(null, null);
             }
         }
         return false;
