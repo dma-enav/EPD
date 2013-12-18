@@ -44,6 +44,7 @@ import com.bbn.openmap.MapBean;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
 import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
@@ -118,6 +119,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private JMenu scaleMenu;
     private AisIntendedRouteToggle aisIntendedRouteToggle;
     private ToggleShowPastTrack aisTogglePastTrack;
+    private ClearPastTrack aisClearPastTrack;
 
     // private NogoRequest nogoRequest;
     private MsiAcknowledge msiAcknowledge;
@@ -206,6 +208,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         aisIntendedRouteToggle.addActionListener(this);
         aisTogglePastTrack = new ToggleShowPastTrack();
         aisTogglePastTrack.addActionListener(this);
+        aisClearPastTrack = new ClearPastTrack();
+        aisClearPastTrack.addActionListener(this);
 
         // msi menu items
         msiDetails = new MsiDetails("Show MSI details");
@@ -422,6 +426,12 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         aisTogglePastTrack.setAisLayer(aisLayer);
         aisTogglePastTrack.setText((vesselTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
         add(aisTogglePastTrack);
+        
+        // Clear past-track
+        aisClearPastTrack.setMobileTarget(vesselTarget);
+        aisClearPastTrack.setAisLayer(aisLayer);
+        aisClearPastTrack.setText("Clear past-track");
+        add(aisClearPastTrack);
                 
         generalMenu(false);
     }
