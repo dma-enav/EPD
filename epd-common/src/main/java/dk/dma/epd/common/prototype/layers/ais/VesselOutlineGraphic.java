@@ -136,6 +136,7 @@ public class VesselOutlineGraphic extends OMGraphicList {
         // clear old PntDevice display
         this.remove(this.pntDevice);
         this.pntDevice = new OMCircle(lat, lon, 3, 3);
+        this.pntDevice.setFillPaint(this.lineColor);
         this.add(pntDevice);
         
         double[] shipCorners = new double[14];
