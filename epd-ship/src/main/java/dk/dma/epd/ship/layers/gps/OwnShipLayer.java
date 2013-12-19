@@ -33,6 +33,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackGraphic;
+import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphic;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
@@ -158,7 +159,7 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         }
         // init if this is the first time displaying ship outline
         if(this.vesselOutlineGraphic == null) {
-            this.vesselOutlineGraphic = new VesselOutlineGraphic();
+            this.vesselOutlineGraphic = new VesselOutlineGraphic(ColorConstants.EPD_SHIP_OWNSHIP_COLOR, 2.0f);
             this.graphics.add(this.vesselOutlineGraphic);
         }
         // re-show outline graphic in case it was hidden by standard ownship graphic

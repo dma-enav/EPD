@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.layers.ais;
 
+import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.proj.Projection;
 
 import dk.dma.ais.message.AisMessage;
@@ -25,6 +26,7 @@ import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTargetSettings;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
+import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
 import dk.dma.epd.common.prototype.zoom.ZoomLevel;
@@ -55,7 +57,7 @@ public class VesselTargetGraphic extends TargetGraphic {
         super();
         this.vesselTriangleGraphic = new VesselTriangleGraphic(this);
         this.vesselTriangleGraphic.setShowNameLabel(showName);
-        this.vesselOutlineGraphic = new VesselOutlineGraphic();
+        this.vesselOutlineGraphic = new VesselOutlineGraphic(ColorConstants.EPD_SHIP_VESSEL_COLOR, 2.0f);
         this.vesselDotGraphic = new VesselDotGraphic();
     }
 

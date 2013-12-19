@@ -16,6 +16,8 @@
 package dk.dma.epd.common.prototype.layers.ais;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Paint;
 import java.awt.Stroke;
 
 import com.bbn.openmap.omGraphics.OMCircle;
@@ -63,8 +65,17 @@ public class VesselOutlineGraphic extends OMGraphicList {
      */
     private Stroke cogStroke = new BasicStroke(STROKE_WIDTH);
     
-    public VesselOutlineGraphic() {
+    private Color lineColor;
+    
+    private float lineThickness = 1.0f;
+    
+    private BasicStroke lineStroke;
+    
+    public VesselOutlineGraphic(Color lineColor, float lineThickness) {
         this.setVague(true);
+        this.lineColor = lineColor;
+        this.lineThickness = lineThickness;
+        this.lineStroke = new BasicStroke(this.lineThickness);
     }
 
     private void producePolygon(VesselTarget vessel) {
@@ -148,6 +159,8 @@ public class VesselOutlineGraphic extends OMGraphicList {
         // create and add new shape
         this.shipOutline = new OMPoly(shipCorners, OMGraphic.DECIMAL_DEGREES, OMGraphic.LINETYPE_RHUMB);
         this.add(this.shipOutline);
+        this.setLinePaint(this.lineColor);
+        this.setStroke(this.lineStroke);
     }
 
     public void setLocation(VesselTarget vessel) {
