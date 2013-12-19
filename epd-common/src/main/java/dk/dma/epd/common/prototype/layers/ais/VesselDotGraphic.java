@@ -22,6 +22,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 
 /**
  * Class that draws a vessel as a circle.
@@ -48,7 +49,8 @@ public class VesselDotGraphic extends OMGraphicList {
         if(this.vesselMarker == null) {
             // lazy initialization
             this.vesselMarker = new OMCircle(newLocation.getLatitude(), newLocation.getLongitude(), CIRCLE_PIXEL_DIAMETER, CIRCLE_PIXEL_DIAMETER);
-            this.vesselMarker.setFillPaint(Color.GREEN);
+            this.vesselMarker.setLinePaint(ColorConstants.EPD_SHIP_VESSEL_COLOR);
+            this.vesselMarker.setFillPaint(ColorConstants.EPD_SHIP_VESSEL_COLOR);
             this.add(this.vesselMarker);
         }
         // update circle position
