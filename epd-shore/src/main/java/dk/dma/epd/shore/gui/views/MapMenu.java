@@ -43,8 +43,10 @@ import com.bbn.openmap.LightMapHandlerChild;
 import com.bbn.openmap.MapBean;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
+import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
 import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
 import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
@@ -121,6 +123,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private ToggleShowPastTrack aisTogglePastTrack;
     private ClearPastTrack aisClearPastTrack;
 
+    private SarTargetDetails sarTargetDetails;
     // private NogoRequest nogoRequest;
     private MsiAcknowledge msiAcknowledge;
     private MsiDetails msiDetails;
@@ -210,6 +213,10 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         aisTogglePastTrack.addActionListener(this);
         aisClearPastTrack = new ClearPastTrack();
         aisClearPastTrack.addActionListener(this);
+
+        // SART menu items
+        sarTargetDetails = new SarTargetDetails("SART details");
+        sarTargetDetails.addActionListener(this);
 
         // msi menu items
         msiDetails = new MsiDetails("Show MSI details");
@@ -422,7 +429,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         add(aisIntendedRouteToggle);
 
         // Toggle show past-track
-        aisTogglePastTrack.setVesselTarget(vesselTarget);
+        aisTogglePastTrack.setMobileTarget(vesselTarget);
         aisTogglePastTrack.setAisLayer(aisLayer);
         aisTogglePastTrack.setText((vesselTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
         add(aisTogglePastTrack);
@@ -459,6 +466,39 @@ public class MapMenu extends JPopupMenu implements ActionListener,
             aisIntendedRouteToggle.setText("Show intended route");
         }
         add(aisIntendedRouteToggle);
+
+        generalMenu(false);
+    }
+    
+    /**
+     * SART menu option
+     * 
+     * @param aisLayer
+     * @param sarTarget
+     */
+    public void sartMenu(AisLayer aisLayer, SarTarget sarTarget) {
+        removeAll();
+
+        sarTargetDetails.setSarTarget(sarTarget);
+        sarTargetDetails.setMainFrame(EPDShore.getMainFrame());
+        sarTargetDetails.setGpsHandler(null);
+
+        add(sarTargetDetails);
+
+        addSeparator();
+        
+        // Toggle show past-track
+        aisTogglePastTrack.setMobileTarget(sarTarget);
+        aisTogglePastTrack.setAisLayer(aisLayer);
+        aisTogglePastTrack.setText((sarTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
+        add(aisTogglePastTrack);
+        
+        // Clear past-track
+        aisClearPastTrack.setMobileTarget(sarTarget);
+        aisClearPastTrack.setAisLayer(aisLayer);
+        aisClearPastTrack.setText("Clear past-track");
+        add(aisClearPastTrack);
+        
 
         generalMenu(false);
     }

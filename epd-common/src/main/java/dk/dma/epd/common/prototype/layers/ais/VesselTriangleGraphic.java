@@ -115,7 +115,7 @@ public class VesselTriangleGraphic extends TargetGraphic {
     }
 
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings) {
+    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale) {
         if (aisTarget instanceof VesselTarget) {
 
             vesselTarget = (VesselTarget) aisTarget;

@@ -33,7 +33,7 @@ public abstract class TargetGraphic extends OMGraphicList {
         //setVague(true);
     }
         
-    public abstract void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings);
+    public abstract void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale);
 
     public abstract void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings);
     

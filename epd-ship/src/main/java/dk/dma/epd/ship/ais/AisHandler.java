@@ -49,7 +49,7 @@ import dk.dma.epd.ship.EPDShip;
 @ThreadSafe
 public class AisHandler extends AisHandlerCommon implements IAisListener, IStatusComponent {
 
-    private volatile VesselTarget ownShip = new VesselTarget();
+    private volatile VesselTarget ownShip;
     
     private final double aisRange;
 
@@ -61,8 +61,18 @@ public class AisHandler extends AisHandlerCommon implements IAisListener, IStatu
     public AisHandler(SensorSettings sensorSettings, AisSettings aisSettings) {
         super(aisSettings);
         aisRange = sensorSettings.getAisSensorRange();
+        initOwnShip();
     }
 
+    /**
+     * Initializes an ownShip vessel target
+     */
+    private void initOwnShip() {
+        ownShip = new VesselTarget();
+        ownShip.getSettings().setPastTrackDisplayTime(pastTrackDisplayTime);
+        ownShip.getSettings().setPastTrackMinDist(pastTrackMinDist);
+    }
+    
     /**
      * Method for receiving own ship AIS messages
      * 
@@ -72,7 +82,7 @@ public class AisHandler extends AisHandlerCommon implements IAisListener, IStatu
     public void receiveOwnMessage(AisMessage aisMessage) {
         // Determine if our vessel has changed. Clear if so.
         if (aisMessage.getUserId() != ownShip.getMmsi()) {
-            ownShip = new VesselTarget();
+            initOwnShip();
         }
 
         synchronized (ownShip) {
@@ -232,7 +242,7 @@ public class AisHandler extends AisHandlerCommon implements IAisListener, IStatu
         }
         
         if(ownShip == null) {
-            ownShip = new VesselTarget();
+            initOwnShip();
         }
     }
 }

@@ -16,6 +16,7 @@
 package dk.dma.epd.common.prototype.ais;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.NoSuchElementException;
@@ -125,4 +126,17 @@ public class PastTrackSortedSet extends ConcurrentSkipListSet<PastTrackPoint> im
         return this;
     }
 
+    /**
+     * Returns the points newer than the given {@code time}
+     * @param time the time
+     */
+    public synchronized Collection<PastTrackPoint> getPointsNewerThan(Date time) {
+        Collection<PastTrackPoint> result = new ArrayList<PastTrackPoint>(this.size() / 2);
+        for (PastTrackPoint point : this) {
+            if (point.getDate().after(time)) {
+                result.add(point);
+            }
+        }
+        return result;
+    }
 }

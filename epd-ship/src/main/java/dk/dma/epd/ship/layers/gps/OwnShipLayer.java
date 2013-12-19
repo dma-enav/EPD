@@ -122,8 +122,8 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         
         // Handle past-tracks
         if (ownShip != null) {
-            // Update past-track
-            ownShip.getPastTrackData().addPosition(currentPos, 100); // TODO: PastTrackMinDist
+            // Update past-track position data
+            ownShip.addPastTrackPosition(currentPos);
 
             
             // Add the past-track graphics the first time around

@@ -27,7 +27,7 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 @ThreadSafe
 public class VesselTarget extends MobileTarget {
     
-    private static final long serialVersionUID = -3538661408952518851L;
+    private static final long serialVersionUID = 8886828351333930646L;
     
     /**
      * Time an intended route is considered valid without update
@@ -41,7 +41,6 @@ public class VesselTarget extends MobileTarget {
     
     private AisIntendedRoute aisIntendedRoute;
     private AisClass aisClass; 
-    private VesselTargetSettings settings;
     private CloudIntendedRoute intendedRoute;
     
 
@@ -55,9 +54,6 @@ public class VesselTarget extends MobileTarget {
         if (vesselTarget.aisIntendedRoute != null) {
             this.aisIntendedRoute = new AisIntendedRoute(vesselTarget.aisIntendedRoute);
         }
-        if (vesselTarget.settings != null) {
-            this.settings = new VesselTargetSettings(vesselTarget.settings);
-        }
     }
 
     /**
@@ -65,7 +61,6 @@ public class VesselTarget extends MobileTarget {
      */
     public VesselTarget() {
         super();
-        settings = new VesselTargetSettings();
     }
     
     @Override
@@ -106,14 +101,6 @@ public class VesselTarget extends MobileTarget {
         this.aisClass = aisClass;
     }
     
-    public synchronized VesselTargetSettings getSettings() {
-        return settings;
-    }
-    
-    public synchronized void setSettings(VesselTargetSettings settings) {
-        this.settings = settings;
-    }
-    
     /**
      * Returns true if route information changes from valid to invalid
      * @return
@@ -131,6 +118,10 @@ public class VesselTarget extends MobileTarget {
         return false;        
     }
     
+    /**
+     * Returns if this target defines an intended route
+     * @return if this target defines an intended route
+     */
     public synchronized boolean hasIntendedRoute() {
         return intendedRoute != null;
     }
@@ -186,7 +177,10 @@ public class VesselTarget extends MobileTarget {
         return elapsed > tol;
     }
 
-
+    /**
+     * Returns a string representation of this target
+     * @return a string representation of this target
+     */
     @Override
     public synchronized String toString() {
         StringBuilder builder = new StringBuilder();

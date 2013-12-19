@@ -21,19 +21,14 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
-import java.util.Iterator;
+import java.util.Calendar;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.MobileTarget;
 import dk.dma.epd.common.prototype.ais.PastTrackPoint;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
 
 /**
  * Graphic for past-track route
@@ -57,8 +52,6 @@ public class PastTrackGraphic extends OMGraphicList {
 
     private List<PastTrackLegGraphic> routeLegs = new ArrayList<>();
     private List<PastTrackWpCircle> routeWps = new ArrayList<>();
-    
-    private static final Logger LOG = LoggerFactory.getLogger(PastTrackGraphic.class);
 
     /**
      * No-arg constructor
@@ -159,11 +152,8 @@ public class PastTrackGraphic extends OMGraphicList {
     private boolean pastTrackVisible(MobileTarget mobileTarget) {
         if (mobileTarget == null) {
             return false;
-        } else if (!(mobileTarget instanceof VesselTarget)) {
-            // For now, SarTargets are visible
-            return true;
         }
-        return ((VesselTarget)mobileTarget).getSettings().isShowPastTrack();
+        return mobileTarget.getSettings().isShowPastTrack();
     }
     
     /**
@@ -206,6 +196,7 @@ public class PastTrackGraphic extends OMGraphicList {
         lastPastTrackChangeTime = this.mobileTarget.getPastTrackData().getLastChangeTime();
         lastPastTrackVisibility = pastTrackVisible;
         lastPastTrackTargetPosition = mobileTarget.getPositionData().getPos();
+        setMmsi(mobileTarget.getMmsi());
         
         // Clear old data
         clear();
@@ -217,47 +208,35 @@ public class PastTrackGraphic extends OMGraphicList {
             return;
         }
         
-        setMmsi(mobileTarget.getMmsi());
-        
-        // Build the graphics
-        add(activePastTrackLine);
-
-        Iterator<PastTrackPoint> it = mobileTarget.getPastTrackData().getPoints().iterator();
-        
-        if (!it.hasNext()) {
-            return;
-        }
-        
-        PastTrackPoint start = it.next();
-        makeWpCircle(0, start);
-        int count = 0;            
-
-        while (it.hasNext()) {
-            PastTrackPoint end = null;
-            try {
-                end = it.next();
-            } catch (ConcurrentModificationException e) {
-                LOG.error("Tried to iterate over pastTrackPoints, but failed even though ConcurrentSkipListSet should never throw this exception");
-                LOG.error(e.getLocalizedMessage());
-                return;
-            }
+        // Compute how long back we want to display the past-track route
+        Calendar pastTrackDisplayTime = Calendar.getInstance();
+        pastTrackDisplayTime.add(Calendar.MINUTE, -mobileTarget.getSettings().getPastTrackDisplayTime());
                 
-            
-            
+        // Build the graphics
+        PastTrackPoint lastPoint = null;
+        int count = 0;            
+        for (PastTrackPoint point : mobileTarget.getPastTrackData().getPointsNewerThan(pastTrackDisplayTime.getTime())) {
+                
+            // Add the graphics
             count++;
-            makeWpCircle(count, end);
-            makeLegLine(count, start, end);
-            
-            start = end;
+            makeWpCircle(count, point);
+            if (lastPoint != null) {
+                makeLegLine(count, lastPoint, point);
+            }
+            lastPoint = point;
         }
-        
-        double[] activePastTrackLineLL = new double[] {
-                lastPastTrackTargetPosition.getLatitude(),
-                lastPastTrackTargetPosition.getLongitude(),
-                start.getPosition().getLatitude(),
-                start.getPosition().getLongitude(),
-        };
-        activePastTrackLine.setLL(activePastTrackLineLL);
+
+        // Create the line from the latest past-track point to the targets current position
+        if (lastPoint != null) {
+            double[] activePastTrackLineLL = new double[] {
+                    lastPastTrackTargetPosition.getLatitude(),
+                    lastPastTrackTargetPosition.getLongitude(),
+                    lastPoint.getPosition().getLatitude(),
+                    lastPoint.getPosition().getLongitude(),
+            };
+            activePastTrackLine.setLL(activePastTrackLineLL);
+            add(activePastTrackLine);
+        }
     }
 
     /**

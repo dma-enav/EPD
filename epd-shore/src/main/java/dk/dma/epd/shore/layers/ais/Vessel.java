@@ -24,19 +24,24 @@ import java.awt.RenderingHints;
 
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
-import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
 import com.bbn.openmap.omGraphics.OMText;
 import com.bbn.openmap.proj.Length;
+import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.ais.message.AisMessage;
+import dk.dma.epd.common.prototype.ais.AisTarget;
+import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTargetSettings;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteGraphic;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackGraphic;
+import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
+import dk.dma.epd.common.prototype.settings.AisSettings;
+import dk.dma.epd.common.prototype.settings.NavSettings;
 import dk.dma.epd.common.text.Formatter;
 
 /**
@@ -45,7 +50,7 @@ import dk.dma.epd.common.text.Formatter;
  * @author Claes N. Ladefoged, claesnl@gmail.com
  *
  */
-public class Vessel extends OMGraphicList {
+public class Vessel extends TargetGraphic {
     private static final long serialVersionUID = 1L;
     private VesselLayer vessel;
     private OMCircle vesCirc;
@@ -121,32 +126,30 @@ public class Vessel extends OMGraphicList {
     }
 
     /**
-     * Updates all the vessel layers with position, data and heading where
-     * needed. Shows them on the map depending on mapScale.
-     *
-     * @param trueHeading
-     *            Direction of vessel icon
-     * @param lat
-     *            Latitude position of vessel
-     * @param lon
-     *            Longitude position of vessel
-     * @param staticData
-     *            Static information of vessel
-     * @param sog
-     *            Speed over ground
-     * @param cogR
-     *            Course over ground in radians
+     * Updates the graphics according to the current target
+     * 
+     * @param aisTarget
+     * @param aisSettings
+     * @param navSettings
      * @param mapScale
-     *            Scale of the chartMap
-     * @param vesselTarget
      */
-    public void updateLayers(double trueHeading, double lat, double lon, VesselStaticData staticData, double sog,
-            double cogR, float mapScale, VesselTarget vesselTarget) {
-
+    @Override
+    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale) {
+        vesselTarget = (VesselTarget)aisTarget;
         VesselTargetSettings targetSettings = vesselTarget.getSettings();
-
-        this.vesselTarget = vesselTarget;
-
+        VesselPositionData location = vesselTarget.getPositionData();
+        VesselStaticData staticData = vesselTarget.getStaticData();
+        
+        double trueHeading = location.getTrueHeading();
+        if (trueHeading == 511) {
+            trueHeading = location.getCog();
+        }
+        
+        double lat = location.getPos().getLatitude();
+        double lon = location.getPos().getLongitude();
+        double sog = location.getSog();
+        double cogR = Math.toRadians(location.getCog());
+        
         vessel.setLocation(lat, lon);
         vessel.setHeading(trueHeading);
 
@@ -345,4 +348,7 @@ public class Vessel extends OMGraphicList {
         super.render(image);
     }
 
+    @Override
+    public void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings) {
+    }
 }

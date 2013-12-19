@@ -24,9 +24,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -71,8 +74,10 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
     protected final boolean strictAisMode;
     protected final boolean showIntendedRouteDefault;
     protected final String sartMmsiPrefix;
-    protected final int pastTrackMaxTime; // NB: In minutes
-    protected final int pastTrackMinDist; // NB: In meters
+    protected final Set<String> simulatedSartMmsi = new HashSet<String>();
+    protected final int pastTrackMaxTime;       // NB: In minutes
+    protected final int pastTrackDisplayTime;   // NB: In minutes
+    protected final int pastTrackMinDist;       // NB: In meters
     
 
     /**
@@ -81,9 +86,11 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
      */
     public AisHandlerCommon(AisSettings aisSettings) {
         sartMmsiPrefix = aisSettings.getSartPrefix();
+        Collections.addAll(simulatedSartMmsi, aisSettings.getSimulatedSartMmsi());
         strictAisMode = aisSettings.isStrict();
         showIntendedRouteDefault = aisSettings.isShowIntendedRouteByDefault();
         this.pastTrackMaxTime = aisSettings.getPastTrackMaxTime();
+        this.pastTrackDisplayTime = aisSettings.getPastTrackDisplayTime();
         this.pastTrackMinDist = aisSettings.getPastTrackMinDist();
     }
     
@@ -232,7 +239,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         mobileTarget.setPositionData(positionData);
         
         // Update past-track
-        mobileTarget.getPastTrackData().addPosition(positionData.getPos(), pastTrackMinDist);
+        mobileTarget.addPastTrackPosition(positionData.getPos());
         
         // Update last received
         mobileTarget.setLastReceived(PntTime.getInstance().getDate());
@@ -268,6 +275,8 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         if (vesselTarget == null) {
             vesselTarget = new VesselTarget();
             vesselTarget.getSettings().setShowRoute(showIntendedRouteDefault);
+            vesselTarget.getSettings().setPastTrackDisplayTime(pastTrackDisplayTime);
+            vesselTarget.getSettings().setPastTrackMinDist(pastTrackMinDist);
             vesselTarget.setMmsi(mmsi);
             vesselTargets.put(mmsi, vesselTarget);
         }
@@ -289,6 +298,8 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         if (sarTarget == null) {
             sarTarget = new SarTarget();
             sarTarget.setMmsi(mmsi);
+            sarTarget.getSettings().setPastTrackDisplayTime(pastTrackDisplayTime);
+            sarTarget.getSettings().setPastTrackMinDist(pastTrackMinDist);
             sarTarget.setFirstReceived(PntTime.getInstance().getDate());
             sarTargets.put(mmsi, sarTarget);
         }
@@ -345,7 +356,13 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
                 publishUpdate(vesselTarget);
             }
         }
-        // TODO: Support for sar targes...
+        for (SarTarget sarTarget : sarTargets.values()) {
+            VesselTargetSettings settings = sarTarget.getSettings();
+            if (show != settings.isShowPastTrack()) {
+                settings.setShowPastTrack(show);
+                publishUpdate(sarTarget);
+            }
+        }
     }
     
     /**
@@ -380,6 +397,27 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
             }
         }
         return list;
+    }
+    
+    /**
+     * Returns the list of mobile (vessel + sar) targets. Optionally specify a required status.
+     * @param status if not null, the targets must have this status
+     * @return the list of targets.
+     */
+    public final List<MobileTarget> getMobileTargets(AisTarget.Status status) {
+        
+        List<MobileTarget> mobileTargets = new ArrayList<>(vesselTargets.size() + sarTargets.size());
+        for (VesselTarget vesselTarget : vesselTargets.values()) {
+            if (status == null || status == vesselTarget.status) {
+                mobileTargets.add(vesselTarget);
+            }
+        }
+        for (SarTarget sarTarget : sarTargets.values()) {
+            if (status == null || status == sarTarget.status) {
+                mobileTargets.add(sarTarget);
+            }
+        }
+        return mobileTargets;
     }
 
     public VesselTarget getOwnShip() {
@@ -518,8 +556,16 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
      * @return
      */
     public final boolean isSarTarget(long mmsi) {
-        // AIS-SART transponder MMSI begins with 970
         String strMmsi = Long.toString(mmsi);
+        
+        // Check if we have simulated SarTargets.
+        // These are configured in the settings.properties file, by specifying
+        // a comma-separated list of vessel mmsi for the "ais.simulatedSartMmsi" property.
+        if (simulatedSartMmsi.contains(strMmsi)) {
+            return true;
+        }
+                    
+        // AIS-SART transponder MMSI begins with 970
         return strMmsi.startsWith(sartMmsiPrefix);
     }
    

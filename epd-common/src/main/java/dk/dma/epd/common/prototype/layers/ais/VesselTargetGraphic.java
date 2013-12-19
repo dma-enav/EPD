@@ -68,7 +68,7 @@ public class VesselTargetGraphic extends TargetGraphic {
     }
 
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings) {
+    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale) {
 
         if (aisTarget instanceof VesselTarget) {
             
@@ -84,7 +84,7 @@ public class VesselTargetGraphic extends TargetGraphic {
                 createGraphics();
             }
             // update sub graphic
-            this.vesselTriangleGraphic.update(aisTarget, aisSettings, navSettings);
+            this.vesselTriangleGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
             if(pos != null) {
                 this.vesselDotGraphic.updateLocation(pos);
             }
@@ -105,15 +105,12 @@ public class VesselTargetGraphic extends TargetGraphic {
             
             // Past-track graphics
             pastTrackGraphic.update(vesselTarget);
+            
+            ZoomLevel zl = ZoomLevel.getFromScale(mapScale);
+            this.drawAccordingToScale(zl);
         }
     }
 
-    public void update(VesselTarget vesselTarget, AisSettings aisSettings, NavSettings navSettings, ZoomLevel zl) {
-        
-        this.update(vesselTarget, aisSettings, navSettings);
-        this.drawAccordingToScale(zl);
-    }
-    
     private void drawOutline() {
         // hide other display modes
         this.vesselTriangleGraphic.setVisible(false);

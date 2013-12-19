@@ -13,13 +13,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.ais;
+package dk.dma.epd.common.prototype.gui.ais;
 
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.util.Date;
 
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -33,7 +34,6 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Util;
-import dk.dma.epd.ship.gui.MainFrame;
 
 /**
  * Dialog with SART details
@@ -43,10 +43,17 @@ public class SartDetailsDialog extends JDialog implements Runnable {
 
     private JLabel detailsLbl;
     private SarTarget sarTarget;
-    private MainFrame mainFrame;
+    private JFrame mainFrame;
     private PntHandler gpsHandler;
 
-    public SartDetailsDialog(MainFrame mainFrame, SarTarget sarTarget, PntHandler gpsHandler) {
+    /**
+     * Constructor
+     * 
+     * @param mainFrame the main frame
+     * @param sarTarget the sar target
+     * @param gpsHandler the gps handler
+     */
+    public SartDetailsDialog(JFrame mainFrame, SarTarget sarTarget, PntHandler gpsHandler) {
         super();
         this.mainFrame = mainFrame;
         this.sarTarget = sarTarget;
@@ -68,6 +75,9 @@ public class SartDetailsDialog extends JDialog implements Runnable {
         new Thread(this).start();
     }
 
+    /**
+     * Displays the details of the sar target
+     */
     private void showDetails() {
         StringBuilder str = new StringBuilder();
         Date now = PntTime.getInstance().getDate();
@@ -117,6 +127,9 @@ public class SartDetailsDialog extends JDialog implements Runnable {
         detailsLbl.setText(str.toString());
     }
 
+    /**
+     * Initializes the GUI
+     */
     private void initGui() {
         getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
         detailsLbl = new JLabel("");
@@ -125,6 +138,9 @@ public class SartDetailsDialog extends JDialog implements Runnable {
         getContentPane().add(detailsLbl);        
     }
     
+    /**
+     * Positions the dialog in the main frame
+     */
     private void position() {
         validate();
         Rectangle rect = mainFrame.getBounds();
@@ -134,6 +150,9 @@ public class SartDetailsDialog extends JDialog implements Runnable {
         setVisible(true);
     }
 
+    /**
+     * Periodically updates the details
+     */
     @Override
     public void run() {
         while (true) {

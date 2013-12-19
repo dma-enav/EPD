@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.ais;
 
+import dk.dma.enav.model.geometry.Position;
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
@@ -32,6 +33,7 @@ public abstract class MobileTarget extends AisTarget {
     
     @GuardedBy("this") VesselPositionData positionData;
     @GuardedBy("this") VesselStaticData staticData;
+    @GuardedBy("this") VesselTargetSettings settings;
     // NB: We do not want to persist past-track data
     @GuardedBy("this") transient PastTrackSortedSet pastTrackData = new PastTrackSortedSet();
    
@@ -40,6 +42,7 @@ public abstract class MobileTarget extends AisTarget {
      */
     public MobileTarget() {
         super();
+        settings = new VesselTargetSettings();
     }
     
     /**
@@ -58,24 +61,63 @@ public abstract class MobileTarget extends AisTarget {
         if (mobileTarget.pastTrackData != null) {
             this.pastTrackData = new PastTrackSortedSet(mobileTarget.pastTrackData);
         }
+        if (mobileTarget.settings != null) {
+            this.settings = new VesselTargetSettings(mobileTarget.settings);
+        }
     }
     
+    /**
+     * Returns the settings
+     * @return the settings
+     */
+    public synchronized VesselTargetSettings getSettings() {
+        return settings;
+    }
+    
+    /**
+     * Sets the settings
+     * @param settings the settings
+     */
+    public synchronized void setSettings(VesselTargetSettings settings) {
+        this.settings = settings;
+    }
+    
+    /**
+     * Returns the position data
+     * @return the position data
+     */
     public synchronized VesselPositionData getPositionData() {
         return positionData;
     }
 
+    /**
+     * Sets the position data
+     * @param positionData the position data
+     */
     public synchronized void setPositionData(VesselPositionData positionData) {
         this.positionData = positionData;
     }
 
+    /**
+     * Returns the static data
+     * @return the static data
+     */
     public synchronized VesselStaticData getStaticData() {
         return staticData;
     }
 
+    /**
+     * Sets the static data
+     * @param staticData the static data
+     */
     public synchronized void setStaticData(VesselStaticData staticData) {
         this.staticData = staticData;
     }
 
+    /**
+     * Returns the past-track data
+     * @return the past-track data
+     */
     public synchronized PastTrackSortedSet getPastTrackData() {
         if (pastTrackData == null) {
             this.pastTrackData = new PastTrackSortedSet();
@@ -83,8 +125,22 @@ public abstract class MobileTarget extends AisTarget {
         return pastTrackData;
     }
 
+    /**
+     * Sets the past-track data
+     * @param pastTrackData the past-track data
+     */
     public synchronized void setPastTrackData(PastTrackSortedSet pastTrackData) {
         this.pastTrackData = pastTrackData;
+    }
+    
+    /**
+     * Adds the given {@code pos} to the recorded list of past-track positions.<p>
+     * The positions are aggregated according to the past-track settings.
+     * 
+     * @param pos the position to add
+     */
+    public synchronized void addPastTrackPosition(Position pos) {
+        getPastTrackData().addPosition(pos, settings.getPastTrackMinDist());    
     }
     
     /**

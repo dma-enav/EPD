@@ -290,6 +290,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
         long mmsi = aisTarget.getMmsi();
 
         TargetGraphic targetGraphic = targets.get(mmsi);
+        float mapScale = this.getProjection().getScale();
 
         if (aisTarget.isGone()) {
 
@@ -344,19 +345,19 @@ public class AisLayer extends OMGraphicHandlerLayer implements
                 forceRedraw = true;
             }
 
-//            targetGraphic.update(vesselTarget, aisSettings, navSettings);
+
             if(this.currentZoomLevel == null) {
-                this.currentZoomLevel = ZoomLevel.getFromScale(this.getProjection().getScale());
+                this.currentZoomLevel = ZoomLevel.getFromScale(mapScale);
             }
-            vesselTargetGraphic.update(vesselTarget, aisSettings, navSettings, this.currentZoomLevel);
+            vesselTargetGraphic.update(vesselTarget, aisSettings, navSettings, mapScale);
             if (vesselTarget.getMmsi() == selectedMMSI) {
                 updateSelection(aisTarget, false);
             }
 
         } else if (aisTarget instanceof SarTarget) {
-            targetGraphic.update(aisTarget, aisSettings, navSettings);
+            targetGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
         } else if (aisTarget instanceof AtoNTarget) {
-            targetGraphic.update(aisTarget, aisSettings, navSettings);
+            targetGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
         }
 
         // Handle past track

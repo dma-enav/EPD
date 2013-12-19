@@ -18,6 +18,8 @@ package dk.dma.epd.common.prototype.settings;
 import java.io.Serializable;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.bbn.openmap.util.PropUtils;
 
 /**
@@ -38,24 +40,32 @@ public class AisSettings implements Serializable {
     private int intendedRouteMaxWps = 8;
     private int intendedRouteMaxTime; // In minutes 0 = inf
     private int sartPrefix = 970;
+    private String[] simulatedSartMmsi;     // Specify comma-separated mmsi list to simulate SarTarget's
     private boolean showNameLabels = true;
     private int showMinuteMarksAISTarget = 200;
     private boolean showRisk;
-    private int pastTrackMaxTime = 2 * 60; // In minutes
-    private int pastTrackMinDist = 100; // In meters
+    private int pastTrackMaxTime = 4 * 60;  // In minutes
+    private int pastTrackDisplayTime = 30;  // In minutes
+    private int pastTrackMinDist = 100;     // In meters
     
-    public AisSettings() {
-        
+    /**
+     * Constructor
+     */
+    public AisSettings() {   
     }
     
-    
-    
+    /**
+     * Returns the AisSettings prefix    
+     * @return the AisSettings prefix
+     */
     public static String getPrefix() {
         return PREFIX;
     }
 
-
-
+    /**
+     * Loads the AIS-specific properties from the given {@code props} properties
+     * @param props the properties to load the AIS properties from
+     */
     public void readProperties(Properties props) {
         visible = PropUtils.booleanFromProperties(props, PREFIX + "visible", visible);
         cogVectorLength = PropUtils.doubleFromProperties(props, PREFIX + "cogVectorLength", cogVectorLength);
@@ -67,12 +77,18 @@ public class AisSettings implements Serializable {
         intendedRouteMaxWps = PropUtils.intFromProperties(props, PREFIX + "intendedRouteMaxWps", intendedRouteMaxWps);
         intendedRouteMaxTime = PropUtils.intFromProperties(props, PREFIX + "intendedRouteMaxTime", intendedRouteMaxTime);
         sartPrefix = PropUtils.intFromProperties(props, PREFIX + "sartPrefix", sartPrefix);
+        simulatedSartMmsi = PropUtils.stringArrayFromProperties(props, PREFIX + "simulatedSartMmsi", ",");
         showNameLabels = PropUtils.booleanFromProperties(props, PREFIX + "showNameLabels", showNameLabels);
         showMinuteMarksAISTarget = PropUtils.intFromProperties(props, PREFIX + "showMinuteMarksAISTarget", showMinuteMarksAISTarget);
         pastTrackMaxTime = PropUtils.intFromProperties(props, PREFIX + "pastTrackMaxTime", pastTrackMaxTime);
+        pastTrackDisplayTime = PropUtils.intFromProperties(props, PREFIX + "pastTrackDisplayTime", pastTrackDisplayTime);
         pastTrackMinDist = PropUtils.intFromProperties(props, PREFIX + "pastTrackMinDist", pastTrackMinDist);
     }
     
+    /**
+     * Updates the the given {@code props} properties with the the AIS-specific settings
+     * @param props the properties to update
+     */
     public void setProperties(Properties props) {
         props.put(PREFIX + "visible", Boolean.toString(visible));
         props.put(PREFIX + "cogVectorLength", Double.toString(cogVectorLength));
@@ -84,11 +100,15 @@ public class AisSettings implements Serializable {
         props.put(PREFIX + "intendedRouteMaxWps", Integer.toString(intendedRouteMaxWps));
         props.put(PREFIX + "intendedRouteMaxTime", Integer.toString(intendedRouteMaxTime));
         props.put(PREFIX + "sartPrefix", Integer.toString(sartPrefix));
+        props.put(PREFIX + "simulatedSartMmsi", StringUtils.defaultString(StringUtils.join(simulatedSartMmsi, ",")));
         props.put(PREFIX + "showNameLabels", Boolean.toString(showNameLabels));
         props.put(PREFIX + "showMinuteMarksAISTarget", Float.toString(showMinuteMarksAISTarget));
         props.put(PREFIX + "pastTrackMaxTime", Integer.toString(pastTrackMaxTime));
+        props.put(PREFIX + "pastTrackDisplayTime", Integer.toString(pastTrackDisplayTime));
         props.put(PREFIX + "pastTrackMinDist", Integer.toString(pastTrackMinDist));
     }
+    
+    /** Getters and setters **/
 
     public boolean isVisible() {
         return visible;
@@ -170,6 +190,14 @@ public class AisSettings implements Serializable {
         this.sartPrefix = new Integer(sartPrefix);
     }
     
+    public String[] getSimulatedSartMmsi() {
+        return simulatedSartMmsi;
+    }
+    
+    public void setSimulatedSartMmsi(String[] simulatedSartMmsi) {
+        this.simulatedSartMmsi = simulatedSartMmsi;
+    }
+    
     public boolean isShowNameLabels() {
         return showNameLabels;
     }
@@ -200,6 +228,14 @@ public class AisSettings implements Serializable {
 
     public void setPastTrackMaxTime(int pastTrackMaxTime) {
         this.pastTrackMaxTime = pastTrackMaxTime;
+    }
+
+    public int getPastTrackDisplayTime() {
+        return pastTrackDisplayTime;
+    }
+
+    public void setPastTrackDisplayTime(int pastTrackDisplayTime) {
+        this.pastTrackDisplayTime = pastTrackDisplayTime;
     }
 
     public int getPastTrackMinDist() { 

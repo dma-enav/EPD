@@ -18,7 +18,7 @@ package dk.dma.epd.common.prototype.gui.menuitems;
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.ais.MobileTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 
 /**
@@ -28,7 +28,7 @@ public class ToggleShowPastTrack extends JMenuItem implements IMapMenuAction {
 
    private static final long serialVersionUID = 1L;
    
-   private VesselTarget vesselTarget;
+   private MobileTarget mobileTarget;
    private IAisTargetListener aisLayer;
 
    /**
@@ -44,16 +44,16 @@ public class ToggleShowPastTrack extends JMenuItem implements IMapMenuAction {
    @Override
    public void doAction() {
        // Toggle past-track visibility
-       vesselTarget.getSettings().setShowPastTrack(!vesselTarget.getSettings().isShowPastTrack());
-       aisLayer.targetUpdated(vesselTarget);
+       mobileTarget.getSettings().setShowPastTrack(!mobileTarget.getSettings().isShowPastTrack());
+       aisLayer.targetUpdated(mobileTarget);
    }
    
    /**
-    * Sets the vessel target
-    * @param vesselTarget the vessel target
+    * Sets the mobile target
+    * @param mobileTarget the mobile target
     */
-   public void setVesselTarget(VesselTarget vesselTarget) {
-       this.vesselTarget = vesselTarget;
+   public void setMobileTarget(MobileTarget mobileTarget) {
+       this.mobileTarget = mobileTarget;
    }
    
    /**

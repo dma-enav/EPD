@@ -45,6 +45,7 @@ import com.bbn.openmap.MouseDelegator;
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
+import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
 import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
 import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
@@ -86,7 +87,6 @@ import dk.dma.epd.ship.gui.menuitems.RouteReverse;
 import dk.dma.epd.ship.gui.menuitems.RouteShowMetocToggle;
 import dk.dma.epd.ship.gui.menuitems.RouteWaypointActivateToggle;
 import dk.dma.epd.ship.gui.menuitems.RouteWaypointDelete;
-import dk.dma.epd.ship.gui.menuitems.SarTargetDetails;
 import dk.dma.epd.ship.gui.menuitems.SendToSTCC;
 import dk.dma.epd.ship.gui.menuitems.SuggestedRouteDetails;
 import dk.dma.epd.ship.gui.menuitems.VoyageAppendWaypoint;
@@ -414,7 +414,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         add(aisIntendedRouteToggle);
 
         // Toggle show past-track
-        aisTogglePastTrack.setVesselTarget(vesselTarget);
+        aisTogglePastTrack.setMobileTarget(vesselTarget);
         aisTogglePastTrack.setAisLayer(aisLayer);
         aisTogglePastTrack.setText((vesselTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
         add(aisTogglePastTrack);
@@ -473,7 +473,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         // Toggle show past-track
         VesselTarget ownShip = aisHandler.getOwnShip();
-        aisTogglePastTrack.setVesselTarget(ownShip);
+        aisTogglePastTrack.setMobileTarget(ownShip);
         aisTogglePastTrack.setAisLayer(aisLayer);
         aisTogglePastTrack.setText((ownShip.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
         add(aisTogglePastTrack);
@@ -501,6 +501,21 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         sarTargetDetails.setGpsHandler(gpsHandler);
 
         add(sarTargetDetails);
+
+        addSeparator();
+        
+        // Toggle show past-track
+        aisTogglePastTrack.setMobileTarget(sarTarget);
+        aisTogglePastTrack.setAisLayer(aisLayer);
+        aisTogglePastTrack.setText((sarTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
+        add(aisTogglePastTrack);
+        
+        // Clear past-track
+        aisClearPastTrack.setMobileTarget(sarTarget);
+        aisClearPastTrack.setAisLayer(aisLayer);
+        aisClearPastTrack.setText("Clear past-track");
+        add(aisClearPastTrack);
+        
 
         generalMenu(false);
     }
