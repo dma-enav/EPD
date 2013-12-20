@@ -43,6 +43,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
@@ -401,12 +402,7 @@ public class StrategicRouteExchangeNotificationPanel extends JPanel {
 //        doc.append("</font>");
         // area.setText(doc.toString());
 
-        VesselTarget aisData = null;
-        
-        if (aisHandler.getVesselTargets().containsKey(message.getRouteMessage().get(0).getMmsi())){
-            aisData = aisHandler.getVesselTargets().get(message.getRouteMessage().get(0).getMmsi());
-        }
-        
+        VesselTarget aisData = aisHandler.getVesselTarget(message.getRouteMessage().get(0).getMmsi());        
         
         
         if (message != null) {
@@ -456,11 +452,9 @@ public class StrategicRouteExchangeNotificationPanel extends JPanel {
 
                     String shipName = "" + message.getMmsi();
 
-                    if (aisHandler.getVesselTargets().get(message.getMmsi())
-                            .getStaticData() != null) {
-                        shipName = aisHandler.getVesselTargets()
-                                .get(message.getMmsi()).getStaticData()
-                                .getName();
+                    VesselStaticData staticData = aisHandler.getVesselTarget(message.getMmsi()).getStaticData();
+                    if (staticData != null) {
+                        shipName = staticData.getName();
                     }
 
                     // Get latest route

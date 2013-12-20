@@ -22,14 +22,17 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.CenterRaster;
 
-public class AisTargetGraphic extends OMGraphicList {
+/**
+ * Defines the outline of the selected target
+ */
+public class AisTargetSelectionGraphic extends OMGraphicList {
     private static final long serialVersionUID = 1L;
     CenterRaster selectionGraphics;
     ImageIcon targetImage;
     int imageWidth;
     int imageHeight;
 
-    public AisTargetGraphic() {
+    public AisTargetSelectionGraphic() {
         super();
 
         createGraphics();
@@ -39,7 +42,7 @@ public class AisTargetGraphic extends OMGraphicList {
     private void createGraphics() {
 
         targetImage = new ImageIcon(
-                AisTargetGraphic.class.getResource("/images/ais/highlight.png"));
+                AisTargetSelectionGraphic.class.getResource("/images/ais/highlight.png"));
         imageWidth = targetImage.getIconWidth();
         imageHeight = targetImage.getIconHeight();
 

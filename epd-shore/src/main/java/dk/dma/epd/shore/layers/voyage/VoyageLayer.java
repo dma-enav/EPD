@@ -276,8 +276,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
                 Voyage currentVoyage = voyageManager.getVoyage(voyageIndex);
 
-                VesselTarget ship = aisHandler.getVesselTargets().get(
-                        currentVoyage.getMmsi());
+                VesselTarget ship = aisHandler.getVesselTarget(currentVoyage.getMmsi());
                 String name = "" + currentVoyage.getMmsi();
 
                 if (ship != null) {
@@ -403,7 +402,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
                                 unhandledTransactions.get(j));
                     }
 
-                    VesselTarget ship = aisHandler.getVesselTargets().get(mmsi);
+                    VesselTarget ship = aisHandler.getVesselTarget(mmsi);
                     Position position = ship.getPositionData().getPos();
 
                     Point2D resultPoint = this.getProjection().forward(

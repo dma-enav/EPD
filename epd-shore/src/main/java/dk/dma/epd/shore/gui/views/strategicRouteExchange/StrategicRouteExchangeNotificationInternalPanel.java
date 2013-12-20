@@ -223,7 +223,7 @@ public class StrategicRouteExchangeNotificationInternalPanel extends JPanel {
     public void updateLabels(StrategicRouteNegotiationData message,
             VesselTarget aisData) {
 
-        if (aisData.getStaticData() != null) {
+        if (aisData != null && aisData.getStaticData() != null) {
 
             transactionIDText.setText(message.getId() + "");
 

@@ -26,13 +26,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +74,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
     protected final boolean strictAisMode;
     protected final boolean showIntendedRouteDefault;
     protected final String sartMmsiPrefix;
-    protected final Set<String> simulatedSartMmsi = new HashSet<String>();
+    protected final Set<String> simulatedSartMmsi = new ConcurrentHashSet<>();
     protected final int pastTrackMaxTime;       // NB: In minutes
     protected final int pastTrackDisplayTime;   // NB: In minutes
     protected final int pastTrackMinDist;       // NB: In meters
@@ -280,8 +280,9 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
             vesselTarget.setMmsi(mmsi);
             vesselTargets.put(mmsi, vesselTarget);
         }
-        // Update class and pos data
+        // Update class 
         vesselTarget.setAisClass(aisClass);
+        // Update target from position data
         updateMobileTargetPos(vesselTarget, positionData);
     }
 
@@ -373,27 +374,25 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
     public final List<AisMessageExtended> getShipList() {
         List<AisMessageExtended> list = new ArrayList<AisMessageExtended>();
 
-        if (this.getVesselTargets() != null) {
-            double hdg = -1;
+        double hdg = -1;
 
-            for (Long key : vesselTargets.keySet()) {
-                String name = " N/A";
-                String dst = "N/A";
-                VesselTarget currentTarget = vesselTargets.get(key);
+        for (Long key : vesselTargets.keySet()) {
+            String name = " N/A";
+            String dst = "N/A";
+            VesselTarget currentTarget = vesselTargets.get(key);
 
-                if (currentTarget.getStaticData() != null) {
-                    name = " " + AisMessage.trimText(this.getVesselTargets().get(key).getStaticData().getName());
-                }
+            if (currentTarget.getStaticData() != null) {
+                name = " " + AisMessage.trimText(this.getVesselTarget(key).getStaticData().getName());
+            }
 
-                hdg = currentTarget.getPositionData().getCog();
+            hdg = currentTarget.getPositionData().getCog();
 
-                // System.out.println("Key: " + key + ", Value: " +
-                // this.getVesselTargets().get(key));
-                AisMessageExtended newEntry = new AisMessageExtended(name, key, hdg, dst);
+            // System.out.println("Key: " + key + ", Value: " +
+            // this.getVesselTargets().get(key));
+            AisMessageExtended newEntry = new AisMessageExtended(name, key, hdg, dst);
 
-                if (!vesselTargets.get(key).isGone()) {
-                    list.add(newEntry);
-                }
+            if (!vesselTargets.get(key).isGone()) {
+                list.add(newEntry);
             }
         }
         return list;
@@ -401,6 +400,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
     
     /**
      * Returns the list of mobile (vessel + sar) targets. Optionally specify a required status.
+     * 
      * @param status if not null, the targets must have this status
      * @return the list of targets.
      */
@@ -432,8 +432,8 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         return aisStatus;
     }
 
-    public final Map<Long, VesselTarget> getVesselTargets() {
-        return vesselTargets;
+    public final VesselTarget getVesselTarget(Long mmsi) {
+        return vesselTargets.get(mmsi);
     }
     
     /**

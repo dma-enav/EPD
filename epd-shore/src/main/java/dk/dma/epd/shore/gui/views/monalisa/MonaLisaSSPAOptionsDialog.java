@@ -241,8 +241,8 @@ public class MonaLisaSSPAOptionsDialog extends
         }
 
         if (aisHandler != null
-                && aisHandler.getVesselTargets().get(mmsi).getStaticData() != null) {
-            Integer draught = (int) (aisHandler.getVesselTargets().get(mmsi)
+                && aisHandler.getVesselTarget(mmsi).getStaticData() != null) {
+            Integer draught = (int) (aisHandler.getVesselTarget(mmsi)
                     .getStaticData().getDraught() / 10);
             spinnerDraught.setValue(draught);
         }

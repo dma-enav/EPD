@@ -159,18 +159,18 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
 
         // Is dynamic nogo activated and target not null?
         if (dynamicNoGoActive
-                && aisHandler.getVesselTargets().get(mmsiTarget) != null) {
+                && aisHandler.getVesselTarget(mmsiTarget) != null) {
 
             System.out.println("Really update");
 
             System.out
                     .println(aisHandler.getOwnShip().getPositionData() != null);
-            System.out.println(aisHandler.getVesselTargets().get(mmsiTarget)
+            System.out.println(aisHandler.getVesselTarget(mmsiTarget)
                     .getPositionData() != null);
 
             // Get own ship location and add box around it, + / - something
             if (aisHandler.getOwnShip().getPositionData() != null
-                    && aisHandler.getVesselTargets().get(mmsiTarget)
+                    && aisHandler.getVesselTarget(mmsiTarget)
                             .getPositionData() != null) {
 
                 System.out.println("Really really update");
@@ -184,7 +184,7 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
                         shipLocation.getLatitude() + 0.04,
                         shipLocation.getLongitude() - 0.08);
 
-                shipLocation = aisHandler.getVesselTargets().get(mmsiTarget)
+                shipLocation = aisHandler.getVesselTarget(mmsiTarget)
                         .getPositionData().getPos();
                 southEastPointTarget = Position.create(
                         shipLocation.getLatitude() - 0.04,
@@ -206,11 +206,10 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
                     draughtOwn = 5;
                 }
 
-                if (aisHandler.getVesselTargets().get(mmsiTarget)
+                if (aisHandler.getVesselTarget(mmsiTarget)
                         .getStaticData() != null) {
                     // System.out.println("Getting draught from static - target");
-                    draughtTarget = aisHandler.getVesselTargets()
-                            .get(mmsiTarget).getStaticData().getDraught() / 10;
+                    draughtTarget = aisHandler.getVesselTarget(mmsiTarget).getStaticData().getDraught() / 10;
 
                 } else {
                     // System.out.println("Setting draught to 5");
@@ -290,7 +289,7 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
         validToTarget = date;
 
         if (aisHandler.getOwnShip().getPositionData() != null
-                && aisHandler.getVesselTargets().get(mmsiTarget)
+                && aisHandler.getVesselTarget(mmsiTarget)
                         .getPositionData() != null) {
 
             System.out.println("Making a request to the server");

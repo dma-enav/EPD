@@ -651,10 +651,10 @@ public class MapMenu extends JPopupMenu implements ActionListener,
             MapBean mapBean) {
         removeAll();
 
-        if (aisHandler.getVesselTargets().containsKey(mmsi)) {
+        VesselTarget vesselTarget = aisHandler.getVesselTarget(mmsi);
+        if (vesselTarget != null) {
             voyageZoomToShip.setEnabled(true);
-            Position pos = aisHandler.getVesselTargets().get(mmsi)
-                    .getPositionData().getPos();
+            Position pos = vesselTarget.getPositionData().getPos();
             voyageZoomToShip.setMapBean(mapBean);
             voyageZoomToShip.setPosition(pos);
         } else {

@@ -309,10 +309,10 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
     
     private void updateDetails() {
         int selected = aisTable.getSelectedRow();
-        if (selected >= 0 && selected < aisTable.getRowCount() && aisHandler.getVesselTargets() != null){
-            Object mmsi = aisTable.getValueAt(selected, 1);
-            if (aisHandler.getVesselTargets().get(mmsi) != null) {
-            setDetails(aisHandler.getVesselTargets().get(mmsi));
+        if (selected >= 0 && selected < aisTable.getRowCount()){
+            Long mmsi = (Long)aisTable.getValueAt(selected, 1);
+            if (aisHandler.getVesselTarget(mmsi) != null) {
+            setDetails(aisHandler.getVesselTarget(mmsi));
             //setRiskDetails(EeINS.getRiskHandler().getRiskList((Long)mmsi));
             }
         }
@@ -468,7 +468,7 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         int selectedRow = aisTable.getSelectedRow();
         long selectedMMSI = (Long) aisTable.getValueAt(selectedRow, 1);
         
-        aisLayer.zoomTo(aisHandler.getVesselTargets().get(selectedMMSI).getPositionData().getPos());
+        aisLayer.zoomTo(aisHandler.getVesselTarget(selectedMMSI).getPositionData().getPos());
         } else if (e.getSource() == closeBtn) {
             setVisible(false);
         }        

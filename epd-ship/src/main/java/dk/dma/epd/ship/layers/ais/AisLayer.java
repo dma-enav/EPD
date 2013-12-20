@@ -21,6 +21,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.SwingUtilities;
@@ -48,7 +49,7 @@ import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
-import dk.dma.epd.common.prototype.layers.ais.AisTargetGraphic;
+import dk.dma.epd.common.prototype.layers.ais.AisTargetSelectionGraphic;
 import dk.dma.epd.common.prototype.layers.ais.AtonTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteLegGraphic;
@@ -99,7 +100,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
     private final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
     private MapMenu aisTargetMenu;
 
-    private ConcurrentHashMap<Long, TargetGraphic> targets = new ConcurrentHashMap<>();
+    private Map<Long, TargetGraphic> targets = new ConcurrentHashMap<>();
 
     @GuardedBy("graphics")
     private OMGraphicList graphics = new OMGraphicList();
@@ -115,7 +116,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
     private ChartPanel chartPanel;
     private OMCircle dummyCircle = new OMCircle();
     private AisComponentPanel aisPanel;
-    private AisTargetGraphic aisTargetGraphic = new AisTargetGraphic();
+    private AisTargetSelectionGraphic targetSelectionGraphic = new AisTargetSelectionGraphic();
 
     private volatile long selectedMMSI = -1;
     private volatile boolean showLabels;
@@ -130,7 +131,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
     private ZoomLevel currentZoomLevel;
     
     public AisLayer() {
-        graphics.add(aisTargetGraphic);
+        graphics.add(targetSelectionGraphic);
         // graphics.setVague(false);
         new Thread(this).start();
 
@@ -202,8 +203,8 @@ public class AisLayer extends OMGraphicHandlerLayer implements
 
         }
 
-        aisTargetGraphic.setVisible(true);
-        aisTargetGraphic.moveSymbol(((VesselTarget) aisTarget)
+        targetSelectionGraphic.setVisible(true);
+        targetSelectionGraphic.moveSymbol(((VesselTarget) aisTarget)
                 .getPositionData().getPos());
 
         // doPrepare();
@@ -279,7 +280,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
             });
             return;
         }
-        aisTargetGraphic.setVisible(false);
+        targetSelectionGraphic.setVisible(false);
         selectedMMSI = -1;
         aisPanel.resetHighLight();
         doPrepare();
@@ -433,11 +434,8 @@ public class AisLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public void paint(Graphics g) {
-        // long start = System.nanoTime();
         super.paint(g);
         setRedrawPending(false);
-        // System.out.println("Finished AisLayer.paint() in " +
-        // EeINS.elapsed(start) + " ms\n---");
     }
 
     @Override
@@ -583,22 +581,15 @@ public class AisLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public boolean mouseDragged(MouseEvent e) {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        // hackish?
-        if (e.getComponent() instanceof MapBean) {
-            // aisTargetMenu.setVisible(false);
-        }
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override

@@ -17,6 +17,7 @@ package dk.dma.epd.shore.gui.views.menuitems;
 
 import javax.swing.JMenuItem;
 
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
@@ -79,11 +80,9 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
 
         String shipName = "" + message.getMmsi();
         
-        if (aisHandler.getVesselTargets().get(message.getMmsi())
-                .getStaticData() != null) {
-            shipName = aisHandler.getVesselTargets()
-                    .get(message.getMmsi()).getStaticData()
-                    .getName();
+        VesselTarget vesselTarget = aisHandler.getVesselTarget(message.getMmsi());
+        if (vesselTarget.getStaticData() != null) {
+            shipName = vesselTarget.getStaticData().getName();
         }
 
         // Get latest route

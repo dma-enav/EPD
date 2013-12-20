@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -127,12 +126,11 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
      * @param routeData
      */
     private synchronized void updateIntendedRoute(long mmsi, Route routeData) {
-        Map<Long, VesselTarget> vesselTargets = aisHandler.getVesselTargets();
 
         System.out.println("Intended route recieved");
 
         // Try to find exiting target
-        VesselTarget vesselTarget = vesselTargets.get(mmsi);
+        VesselTarget vesselTarget = aisHandler.getVesselTarget(mmsi);
         // If not exists, wait for it to be created by position report
         if (vesselTarget == null) {
             return;

@@ -41,6 +41,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
+import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.shore.EPDShore;
@@ -508,9 +509,9 @@ public class SendStrategicRouteDialog extends ComponentFrame implements MouseLis
 
         lblRoutenamelbl.setText(voyage.getRoute().getName());
 
-        if (aisHandler.getVesselTargets().get(voyage.getMmsi()).getStaticData() != null) {
-            lblShipnamecallsignlbl.setText(aisHandler.getVesselTargets()
-                    .get(voyage.getMmsi()).getStaticData().getCallsign());
+        VesselStaticData staticData = aisHandler.getVesselTarget(voyage.getMmsi()).getStaticData();
+        if (staticData != null) {
+            lblShipnamecallsignlbl.setText(staticData.getCallsign());
         } else {
             lblShipnamecallsignlbl.setText("N/A");
         }

@@ -21,6 +21,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
@@ -140,10 +141,9 @@ public class StrategicRouteExchangeTableModel extends AbstractTableModel {
         switch (columnIndex) {
         case 0:
             if (aisHandler != null) {
-                if (aisHandler.getVesselTargets().get(message.getMmsi())
-                        .getStaticData() != null) {
-                    return aisHandler.getVesselTargets().get(message.getMmsi())
-                            .getStaticData().getName().trim();
+                VesselStaticData staticData = aisHandler.getVesselTarget(message.getMmsi()).getStaticData();
+                if (staticData != null) {
+                    return staticData.getName().trim();
                 } else {
                     return message.getMmsi();
                 }
@@ -152,10 +152,9 @@ public class StrategicRouteExchangeTableModel extends AbstractTableModel {
             }
         case 1:
             if (aisHandler != null) {
-                if (aisHandler.getVesselTargets().get(message.getMmsi())
-                        .getStaticData() != null) {
-                    return aisHandler.getVesselTargets().get(message.getMmsi())
-                            .getStaticData().getCallsign();
+                VesselStaticData staticData = aisHandler.getVesselTarget(message.getMmsi()).getStaticData();
+                if (staticData != null) {
+                    return staticData.getCallsign();
                 } else {
                     return "N/A";
                 }

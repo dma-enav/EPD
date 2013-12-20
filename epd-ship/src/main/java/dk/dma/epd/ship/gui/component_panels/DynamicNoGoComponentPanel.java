@@ -104,7 +104,7 @@ public class DynamicNoGoComponentPanel extends OMComponentPanel {
         statLabel3.setText("N/A");
         statLabel4.setText("N/A");
         
-        statLabel5.setText("Target Vessel: " + AisMessage.trimText(aisHandler.getVesselTargets().get(dynamicNogoHandler.getMmsiTarget()).getStaticData().getName()));
+        statLabel5.setText("Target Vessel: " + AisMessage.trimText(aisHandler.getVesselTarget(dynamicNogoHandler.getMmsiTarget()).getStaticData().getName()));
         statLabel6.setText("Requesting NoGo");
         statLabel7.setText("Please standby");
 

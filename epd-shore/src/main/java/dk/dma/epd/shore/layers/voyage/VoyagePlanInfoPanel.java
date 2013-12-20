@@ -29,6 +29,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
 
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -248,20 +249,16 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
     private void checkAisData() {
         if (aisHandler != null && voyage != null) {
 
-            if (aisHandler.getVesselTargets().get(voyage.getMmsi())
-                    .getStaticData() != null) {
-                VesselStaticData staticData = aisHandler.getVesselTargets()
-                        .get(voyage.getMmsi()).getStaticData();
+            VesselTarget vesselTarget = aisHandler.getVesselTarget(voyage.getMmsi());
+            if (vesselTarget.getStaticData() != null) {
+                VesselStaticData staticData = vesselTarget.getStaticData();
 
                 lblShipName.setText(staticData.getName());
                 lblCallSign.setText("(" + staticData.getCallsign().trim() + ")");
                 lblCogSog.setText("COG: "
-                        + aisHandler.getVesselTargets().get(voyage.getMmsi())
-                                .getPositionData().getCog()
+                        + vesselTarget.getPositionData().getCog()
                         + ", SOG: "
-                        + Formatter.formatCurrentSpeed((double) aisHandler
-                                .getVesselTargets().get(voyage.getMmsi())
-                                .getPositionData().getSog()));
+                        + Formatter.formatCurrentSpeed((double)vesselTarget.getPositionData().getSog()));
 
             }
 
@@ -299,8 +296,9 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
         }
 
         if (arg0.getSource() == ZoomToShipBtn && ZoomToShipBtn.isEnabled()) {
-            if (aisHandler.getVesselTargets().containsKey(voyage.getMmsi())){
-                chartPanel.zoomToPoint(aisHandler.getVesselTargets().get(voyage.getMmsi()).getPositionData().getPos());
+            VesselTarget vesselTarget = aisHandler.getVesselTarget(voyage.getMmsi());
+            if (vesselTarget != null){
+                chartPanel.zoomToPoint(vesselTarget.getPositionData().getPos());
             }
         }
         

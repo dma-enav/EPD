@@ -499,8 +499,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         nameComboBox.removeAllItems();
         for (int i = 0; i < mmsi.size(); i++) {
 
-            VesselTarget selectedShip = aisHandler.getVesselTargets().get(
-                    Long.parseLong(mmsi.get(i)));
+            VesselTarget selectedShip = aisHandler.getVesselTarget(Long.parseLong(mmsi.get(i)));
             if (selectedShip != null) {
 
                 if (selectedShip.getStaticData() != null) {
@@ -592,8 +591,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
                 }
 
                 // System.out.println("mmsi selected to set to " + mmsi);
-                VesselTarget selectedShip = aisHandler.getVesselTargets().get(
-                        mmsi);
+                VesselTarget selectedShip = aisHandler.getVesselTarget(mmsi);
 
                 if (selectedShip != null) {
 
@@ -680,7 +678,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
                     .parseLong(mmsiListComboBox.getSelectedItem().toString());
         }
 
-        VesselTarget selectedShip = aisHandler.getVesselTargets().get(mmsi);
+        VesselTarget selectedShip = aisHandler.getVesselTarget(mmsi);
 
         if (selectedShip != null) {
 

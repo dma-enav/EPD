@@ -20,6 +20,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.SwingUtilities;
 
@@ -42,7 +43,7 @@ import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.MobileTarget;
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.layers.ais.AisTargetGraphic;
+import dk.dma.epd.common.prototype.layers.ais.AisTargetSelectionGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
@@ -81,19 +82,16 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTar
     private final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
     private MapMenu aisTargetMenu;
 
-    // private HighlightInfoPanel highlightInfoPanel = null;
     @GuardedBy("targets")
-    private final Map<Long, TargetGraphic> targets = new HashMap<>();
+    private final Map<Long, TargetGraphic> targets = new ConcurrentHashMap<>();
 
     private volatile boolean shouldRun = true;
     private volatile float mapScale;
 
     private final Thread aisThread;
-    // private OMGraphic highlighted;
-    // private VesselLayer highlightedVessel;
 
     private volatile OMGraphic closest;
-    private final AisTargetGraphic aisTargetGraphic = new AisTargetGraphic();
+    private final AisTargetSelectionGraphic targetSelectionGraphic = new AisTargetSelectionGraphic();
 
     /**
      * Keeps the AisLayer thread alive
@@ -106,7 +104,6 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTar
                 drawTargets();
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                drawTargets();
             }
 
         }
@@ -115,7 +112,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTar
         }
         synchronized (graphics) {
             graphics.clear();
-            graphics.add(aisTargetGraphic);
+            graphics.add(targetSelectionGraphic);
         }
     }
 
@@ -124,7 +121,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTar
      */
     public AisLayer() {
         synchronized (graphics) {
-            graphics.add(aisTargetGraphic);
+            graphics.add(targetSelectionGraphic);
         }
         aisThread = new Thread(this);
         aisThread.start();
@@ -147,7 +144,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTar
     public void mapClearTargets() {
         synchronized (graphics) {
             graphics.clear();
-            graphics.add(aisTargetGraphic);
+            graphics.add(targetSelectionGraphic);
         }
         synchronized (targets) {
             targets.clear();
@@ -155,7 +152,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTar
     }
 
     public void removeSelection() {
-        aisTargetGraphic.setVisible(false);
+        targetSelectionGraphic.setVisible(false);
         
         mainFrame.setSelectedMMSI(-1);
 
@@ -233,7 +230,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTar
                     targetGraphic.update(mobileTarget, null, null, mapScale);
 
                     if (mobileTarget.getMmsi() == mainFrame.getSelectedMMSI()) {
-                        aisTargetGraphic.moveSymbol(mobileTarget.getPositionData().getPos());
+                        targetSelectionGraphic.moveSymbol(mobileTarget.getPositionData().getPos());
                         setStatusAreaTxt();
                     }                        
                 }
@@ -287,6 +284,13 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTar
     }
 
     @Override
+    public void findAndUndo(Object obj) {
+        if (obj == aisHandler) {
+            aisHandler.removeListener(this);
+        }
+    }
+
+    @Override
     public String[] getMouseModeServiceList() {
         String[] ret = new String[3];
         ret[0] = DragMouseMode.MODEID; // "DragMouseMode"
@@ -309,18 +313,16 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTar
 
         if (e.getButton() == MouseEvent.BUTTON1) {
 
-            if (newClosest != null) {
-                removeSelection();
-            }
+            removeSelection();
 
             if (newClosest != null && newClosest instanceof VesselLayer) {
                 synchronized (targets) {
                     long mmsi = ((VesselLayer) newClosest).getMMSI();
                     mainFrame.setSelectedMMSI(mmsi);
 
-                    aisTargetGraphic.setVisible(true);
+                    targetSelectionGraphic.setVisible(true);
 
-                    aisTargetGraphic.moveSymbol(Position.create(((VesselLayer) newClosest).getLat(),
+                    targetSelectionGraphic.moveSymbol(Position.create(((VesselLayer) newClosest).getLat(),
                             ((VesselLayer) newClosest).getLon()));
                 }
 

@@ -17,7 +17,6 @@ package dk.dma.epd.ship.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -185,10 +184,9 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * @param routeData
      */
     private synchronized void updateIntendedRoute(long mmsi, Route routeData) {
-        Map<Long, VesselTarget> vesselTargets = aisHandler.getVesselTargets();
 
         // Try to find exiting target
-        VesselTarget vesselTarget = vesselTargets.get(mmsi);
+        VesselTarget vesselTarget = aisHandler.getVesselTarget(mmsi);
         // If not exists, wait for it to be created by position report
         if (vesselTarget == null) {
             return;
