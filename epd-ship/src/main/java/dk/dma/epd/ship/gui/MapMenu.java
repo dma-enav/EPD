@@ -353,7 +353,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         hidePastTracks.setAisHandler(aisHandler);
         
         // Prep the clearMap action
-        clearMap.setMapMenuActions(hideIntendedRoutes, hidePastTracks, mainFrame.getTopPanel().getHideAisNamesAction());
+        routeHide.setRouteIndex(RouteHide.ALL_INACTIVE_ROUTES);
+        routeHide.setRouteManager(routeManager);
+        clearMap.setMapMenuActions(hideIntendedRoutes, routeHide, hidePastTracks, mainFrame.getTopPanel().getHideAisNamesAction());
         
         if (alone) {
             removeAll();

@@ -251,6 +251,38 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         // Persist routes on update
         saveToFile();
     }
+    
+    /**
+     * Hides the route with the given index
+     * @param routeIndex the route to hide
+     */
+    public void hideRoute(int routeIndex) {
+        Route route = getRoute(routeIndex);
+        if (route != null && route.isVisible()) {
+            route.setVisible(false);
+            notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+        }
+    }
+    
+    /**
+     * Hides all in-active routes
+     */
+    public void hideInactiveRoutes() {
+        boolean visibilityChanged = false;
+        int routeIndex = 0;
+        synchronized(this) {
+            for (Route route : routes) {
+                if (routeIndex != activeRouteIndex && route.isVisible()) {
+                    route.setVisible(false);
+                    visibilityChanged = true;
+                }
+                routeIndex++;
+            }
+        }
+        if (visibilityChanged) {
+            notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+        }
+    }
 
     @Override
     public void removeRoute(int index) {
