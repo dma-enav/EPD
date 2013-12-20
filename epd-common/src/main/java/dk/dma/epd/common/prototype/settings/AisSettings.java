@@ -40,7 +40,7 @@ public class AisSettings implements Serializable {
     private int intendedRouteMaxWps = 8;
     private int intendedRouteMaxTime; // In minutes 0 = inf
     private int sartPrefix = 970;
-    private String[] simulatedSartMmsi;     // Specify comma-separated mmsi list to simulate SarTarget's
+    private String[] simulatedSartMmsi = {};     // Specify comma-separated mmsi list to simulate SarTarget's
     private boolean showNameLabels = true;
     private int showMinuteMarksAISTarget = 200;
     private boolean showRisk;
@@ -83,6 +83,10 @@ public class AisSettings implements Serializable {
         pastTrackMaxTime = PropUtils.intFromProperties(props, PREFIX + "pastTrackMaxTime", pastTrackMaxTime);
         pastTrackDisplayTime = PropUtils.intFromProperties(props, PREFIX + "pastTrackDisplayTime", pastTrackDisplayTime);
         pastTrackMinDist = PropUtils.intFromProperties(props, PREFIX + "pastTrackMinDist", pastTrackMinDist);
+        
+        if (simulatedSartMmsi == null){
+            simulatedSartMmsi = new String[0];
+        }
     }
     
     /**
