@@ -32,6 +32,7 @@ import javax.swing.JSeparator;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.event.DragMouseMode;
@@ -110,6 +111,17 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     private RouteLayer routeLayer;
 
     private MouseDelegator mouseDelegator;
+    
+    /**
+     * A slightly hacked way of simulating a click on the aisToggleName label
+     */
+    private IMapMenuAction hideAisNamesAction = new IMapMenuAction() {
+        @Override public void doAction() {
+            if (aisToggleName.isSelected()) {
+                aisToggleName.setSelected(false);
+                mouseReleased(new MouseEvent(aisToggleName, 0, 0L, 0, 0, 0, 0, false));
+            }
+        }};
 
     // private MsiHandler msiHandler;
     // private NogoHandler nogoHandler;
@@ -441,8 +453,12 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             // nogoHandler.toggleLayer();
         } else if (e.getSource() == newRouteBtn) {
             newRoute();
+            
         } else if (e.getSource() == aisToggleName) {
-            aisLayer.toggleAllLabels();
+            boolean showNameLabels = aisToggleName.isSelected();
+            EPDShip.getSettings().getAisSettings().setShowNameLabels(showNameLabels);
+            aisLayer.setShowNameLabels(showNameLabels);
+            
         } else if (e.getSource() == toggleSafeHaven) {
             routeLayer.toggleSafeHaven();
         } else if (e.getSource() == dragMouseMode) {
@@ -528,6 +544,10 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
     public void zoomIn() {
         mainFrame.getChartPanel().doZoom(0.5f);
+    }
+    
+    public IMapMenuAction getHideAisNamesAction() {
+        return hideAisNamesAction;
     }
 
     /**

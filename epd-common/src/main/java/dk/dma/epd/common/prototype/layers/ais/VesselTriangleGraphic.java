@@ -110,8 +110,6 @@ public class VesselTriangleGraphic extends TargetGraphic {
         add(speedVector);
         add(heading);
         add(marks);
-
-        // add(routeGraphic);
     }
 
     @Override
@@ -121,8 +119,6 @@ public class VesselTriangleGraphic extends TargetGraphic {
             vesselTarget = (VesselTarget) aisTarget;
             VesselPositionData posData = vesselTarget.getPositionData();
             VesselStaticData staticData = vesselTarget.getStaticData();
-            // VesselTargetSettings targetSettings = vesselTarget.getSettings();
-            // CloudIntendedRoute cloudIntendedRoute = vesselTarget.getIntendedRoute();
 
             Position pos = posData.getPos();
             double trueHeading = posData.getTrueHeading();
@@ -161,9 +157,6 @@ public class VesselTriangleGraphic extends TargetGraphic {
             speedLL[3] = endPos.getLongitude();
             speedVector.setLL(speedLL);
 
-            // Do not show speed vector if moored
-            // speedVector.setVisible(posData.getNavStatus() != 5);
-
             // Add minute marks
             marks.clear();
             for (int i = 1; i < 6; i++) {
@@ -196,18 +189,7 @@ public class VesselTriangleGraphic extends TargetGraphic {
                 name = "ID:" + mmsi.toString();
             }
             label.setData(name);
-
-            if (showNameLabel) {
-                label.setVisible(true);
-            } else {
-                label.setVisible(false);
-            }
-            // // Intended route graphic
-            // routeGraphic.update(vesselTarget, name, cloudIntendedRoute, pos);
-            // if (!targetSettings.isShowRoute()) {
-            // routeGraphic.setVisible(false);
-            // }
-
+            label.setVisible(showNameLabel);
         }
     }
 

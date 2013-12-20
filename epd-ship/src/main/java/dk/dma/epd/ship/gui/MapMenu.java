@@ -352,6 +352,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         showPastTracks.setAisHandler(aisHandler);
         hidePastTracks.setAisHandler(aisHandler);
         
+        // Prep the clearMap action
+        clearMap.setMapMenuActions(hideIntendedRoutes, hidePastTracks, mainFrame.getTopPanel().getHideAisNamesAction());
+        
         if (alone) {
             removeAll();
             add(clearMap);
@@ -371,12 +374,6 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         }
 
         addSeparator();
-        // JSeparator separator = new JSeparator(SwingConstants.VERTICAL);
-        // separator.setSize(new Dimension(50,50));
-        // separator.setVisible(true);
-
-        // add(separator);
-        // addSeparator();
 
         add(clearMap);
         add(hideIntendedRoutes);

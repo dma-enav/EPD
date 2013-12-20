@@ -288,10 +288,14 @@ public class AisLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public void targetUpdated(AisTarget aisTarget) {
+        if (aisTarget == null) {
+            return;
+        }
+        
         long mmsi = aisTarget.getMmsi();
 
         TargetGraphic targetGraphic = targets.get(mmsi);
-        float mapScale = this.getProjection().getScale();
+        float mapScale = (this.getProjection() == null) ? 0 : this.getProjection().getScale();
 
         if (aisTarget.isGone()) {
 
@@ -715,10 +719,17 @@ public class AisLayer extends OMGraphicHandlerLayer implements
         // mapBean.setScale(EeINS.getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale());
     }
 
-    public void toggleAllLabels() {
-
-        showLabels = !showLabels;
-
+    /**
+     * Sets whether to show the vessel name labels or not
+     * 
+     * @param showLabels show the vessel name labels or not
+     */
+    public void setShowNameLabels(boolean showLabels) {
+        if (this.showLabels == showLabels) {
+            return;
+        }
+        
+        this.showLabels = showLabels;
         for (TargetGraphic value : targets.values()) {
 
             if (value instanceof VesselTargetGraphic) {
