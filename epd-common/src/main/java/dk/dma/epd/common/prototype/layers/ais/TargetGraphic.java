@@ -50,6 +50,11 @@ public abstract class TargetGraphic extends OMGraphicList {
         this.visible = visible;
     }
     
+    @Override
+    public boolean isVisible() {
+        return this.visible;
+    }
+    
     public abstract void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale);
 
     public abstract void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings);
