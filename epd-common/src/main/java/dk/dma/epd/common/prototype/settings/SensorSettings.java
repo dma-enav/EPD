@@ -40,14 +40,39 @@ public class SensorSettings implements Serializable {
     private static final String PREFIX = "sensor.";
     private static final TimeZone TZ_GMT = TimeZone.getTimeZone("GMT+0000");
 
-    public static String getISO8620(Date date) {
-        SimpleDateFormat iso8601gmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        iso8601gmt.setTimeZone(TZ_GMT);
-        return iso8601gmt.format(date);
-    }
-
+    /**
+     * Enumeration of sensor connection types
+     */
     public enum SensorConnectionType {
-        NONE, TCP, UDP, SERIAL, FILE;
+        NONE("None"), 
+        TCP("TCP"), 
+        UDP("UDP"), 
+        SERIAL("Serial"), 
+        FILE("File");
+        
+        String title;
+        
+        /**
+         * Constructor
+         * @param title the title of the enumeration
+         */
+        private SensorConnectionType(String title) {
+            this.title = title;
+        }
+        
+        /**
+         * Returns a string representation of this value
+         */
+        @Override
+        public String toString() {
+            return title;
+        }
+        
+        /**
+         * Parse the parameter as a SensorConnectionType
+         * @param type the String to parse
+         * @return the corresponding SensorConnectionType
+         */
         public static SensorConnectionType parseString(String type) {
             if (type.equalsIgnoreCase("TCP")) {
                 return TCP;
@@ -62,8 +87,39 @@ public class SensorSettings implements Serializable {
         }
     }
 
+    /**
+     * Enumeration of PNT sources
+     */
     public enum PntSource {
-        AUTO, AIS, GPS, MSPNT, NONE;
+        AUTO("Automatic selection"), 
+        AIS("AIS Connection"), 
+        GPS("GPS Connection"), 
+        MSPNT("Multi-source PNT connection"), 
+        NONE("None");
+        
+        String title;
+        
+        /**
+         * Constructor
+         * @param title the title of the enumeration
+         */
+        private PntSource(String title) {
+            this.title = title;
+        }
+        
+        /**
+         * Returns a string representation of this value
+         */
+        @Override
+        public String toString() {
+            return title;
+        }
+        
+        /**
+         * Parse the parameter as a PntSource
+         * @param type the String to parse
+         * @return the corresponding PntSource
+         */
         public static PntSource parseString(String type) {
             if (type.equalsIgnoreCase("AUTO")) {
                 return AUTO;
@@ -104,10 +160,16 @@ public class SensorSettings implements Serializable {
     private int replaySpeedup = 1;
     private Date replayStartDate;
 
+    /**
+     * Constructor
+     */
     public SensorSettings() {
-
     }
 
+    /**
+     * Reads and initializes the sensor settings from the properties object
+     * @param props the properties to initialize the sensor settings from
+     */
     public void readProperties(Properties props) {
         aisConnectionType = SensorConnectionType.parseString(props.getProperty(PREFIX + "aisConnectionType",
                 aisConnectionType.name()));
@@ -139,6 +201,10 @@ public class SensorSettings implements Serializable {
         pntSource = PntSource.parseString(props.getProperty(PREFIX + "pntSource", pntSource.name()));
     }
 
+    /**
+     * Updates the properties object with the current sensor settings
+     * @param props the properties to update with the current sensor settings
+     */
     public void setProperties(Properties props) {
         props.put(PREFIX + "aisConnectionType", aisConnectionType.name());
         props.put(PREFIX + "aisHostOrSerialPort", aisHostOrSerialPort);
@@ -162,7 +228,21 @@ public class SensorSettings implements Serializable {
         props.put(PREFIX + "replayStartDate", replayStartStr);
         props.put(PREFIX + "pntSource", pntSource.name());
     }
+    
+    /**
+     * Formats the given date in the ISO-8620 format
+     * @param date the date to format
+     * @return the formatted date
+     */
+    public static String getISO8620(Date date) {
+        SimpleDateFormat iso8601gmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        iso8601gmt.setTimeZone(TZ_GMT);
+        return iso8601gmt.format(date);
+    }
 
+    
+    /**** Getters and setters ****/
+    
     public SensorConnectionType getMsPntConnectionType() {
         return msPntConnectionType;
     }

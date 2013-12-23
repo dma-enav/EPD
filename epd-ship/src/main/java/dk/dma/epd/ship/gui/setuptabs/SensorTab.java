@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.ship.gui.setuptabs;
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -36,6 +38,10 @@ import dk.dma.epd.common.prototype.settings.SensorSettings.PntSource;
 import dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType;
 import dk.dma.epd.ship.settings.EPDSensorSettings;
 
+import static dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType.FILE;
+import static dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType.SERIAL;
+import static dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType.TCP;
+import static dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType.UDP;
 
 /**
  * Sensor tab panel in setup panel
@@ -93,7 +99,7 @@ public class SensorTab extends JPanel implements ActionListener {
                         .addComponent(label_1))
                     .addGap(14)
                     .addGroup(gl_PntSourcePanel.createParallelGroup(Alignment.LEADING, false)
-                        .addComponent(comboBoxPntSource, GroupLayout.PREFERRED_SIZE, 137, GroupLayout.PREFERRED_SIZE))
+                        .addComponent(comboBoxPntSource, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE))
                     .addGap(161))
         );
         gl_PntSourcePanel.setVerticalGroup(
@@ -453,15 +459,56 @@ public class SensorTab extends JPanel implements ActionListener {
      * Updates the enabled state of UI components based on the current selection
      */
     private void updateUIState() {
-        textFieldAisFilename.setEnabled(comboBoxAisConnectionType.getSelectedItem() == SensorConnectionType.FILE);
-        textFieldGpsFilename.setEnabled(comboBoxGpsConnectionType.getSelectedItem() == SensorConnectionType.FILE);
-        textFieldMsPntFilename.setEnabled(comboBoxMsPntConnectionType.getSelectedItem() == SensorConnectionType.FILE);
-
-        // Enabling/disabling the connection panels will not actually disabled the child components.
-        // But it will change the appearance of the panel title to indicate the current PNT source selection.
         PntSource pntSrc = (PntSource)comboBoxPntSource.getSelectedItem();
-        AisConnectionPanel.setEnabled(pntSrc == PntSource.AUTO || pntSrc == PntSource.AIS);
-        GpsConnectionPanel.setEnabled(pntSrc == PntSource.AUTO || pntSrc == PntSource.GPS);
-        MsPntConnectionPanel.setEnabled(pntSrc == PntSource.AUTO || pntSrc == PntSource.MSPNT);
-    }    
+                
+        // Set enabled state of AIS connection components
+        boolean aisEnabled = pntSrc == PntSource.AUTO || pntSrc == PntSource.AIS;
+        Object aisConType = comboBoxAisConnectionType.getSelectedItem();
+        AisConnectionPanel.setEnabled(aisEnabled);
+        setEnabled(AisConnectionPanel, aisEnabled, JLabel.class);
+        comboBoxAisConnectionType.setEnabled(aisEnabled);
+        textFieldAisHostOrSerialPort.setEnabled(aisEnabled && (aisConType == TCP || aisConType == SERIAL));
+        spinnerAisTcpPort.setEnabled(aisEnabled && (aisConType == TCP || aisConType == UDP));
+        textFieldAisFilename.setEnabled(aisEnabled && aisConType == FILE);
+        
+        // Set enabled state of GPS connection components
+        boolean gpsEnabled = pntSrc == PntSource.AUTO || pntSrc == PntSource.GPS;
+        Object gpsConType = comboBoxGpsConnectionType.getSelectedItem();
+        GpsConnectionPanel.setEnabled(gpsEnabled);
+        setEnabled(GpsConnectionPanel, gpsEnabled, JLabel.class);
+        comboBoxGpsConnectionType.setEnabled(gpsEnabled);
+        textFieldGpsHostOrSerialPort.setEnabled(gpsEnabled && (gpsConType == TCP || gpsConType == SERIAL));
+        spinnerGpsTcpPort.setEnabled(gpsEnabled && (gpsConType == TCP || gpsConType == UDP));
+        textFieldGpsFilename.setEnabled(gpsConType == FILE);
+        
+        // Set enabled state of Multi-source PNT connection components
+        boolean msPntEnabled = pntSrc == PntSource.AUTO || pntSrc == PntSource.MSPNT;
+        Object msPntConType = comboBoxMsPntConnectionType.getSelectedItem();
+        MsPntConnectionPanel.setEnabled(msPntEnabled);
+        setEnabled(MsPntConnectionPanel, msPntEnabled, JLabel.class);
+        comboBoxMsPntConnectionType.setEnabled(msPntEnabled);
+        textFieldMsPntHostOrSerialPort.setEnabled(msPntEnabled && (msPntConType == TCP || msPntConType == SERIAL));
+        spinnerMsPntTcpPort.setEnabled(msPntEnabled && (msPntConType == TCP || msPntConType == UDP));
+        textFieldMsPntFilename.setEnabled(msPntConType == FILE);
+    }
+    
+    /**
+     * Sets the enabled state of child components of the given types
+     * @param container the container whose child components to update
+     * @param enabled the enabled state of the child components
+     * @param types the types of child component to update
+     */
+    private void setEnabled(Container container, boolean enabled, Class<?>... types) {
+        for (Component c : container.getComponents()) {
+            if (types.length == 0) {
+                c.setEnabled(enabled);
+                continue;
+            }
+            for (Class<?> type : types) {
+                if (c.getClass().isAssignableFrom(type)) {
+                    c.setEnabled(enabled);
+                }
+            }
+        }
+    }
 }
