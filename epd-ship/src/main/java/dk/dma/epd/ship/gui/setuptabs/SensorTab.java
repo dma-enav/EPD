@@ -329,7 +329,7 @@ public class SensorTab extends JPanel implements ActionListener {
             gl_SimulationPanel.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_SimulationPanel.createSequentialGroup()
                     .addComponent(startTransponder)
-                    .addGap(40)
+                    .addGap(10)
                     .addGroup(gl_SimulationPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(spinnerAisSensorRange, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addComponent(label))
@@ -365,7 +365,7 @@ public class SensorTab extends JPanel implements ActionListener {
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(MsPntConnectionPanel, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(transponderPanel, GroupLayout.PREFERRED_SIZE, 113, GroupLayout.PREFERRED_SIZE)
+                    .addComponent(transponderPanel, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
                     .addGap(21))
         );
         setLayout(groupLayout);
