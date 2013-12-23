@@ -330,21 +330,15 @@ public class EPDShip extends EPD {
             }
         }
 
-        switch (pntSource) {
-        case AIS:
+        if (pntSource == PntSource.AIS && aisSensor != null) {
             aisSensor.addPntListener(pntHandler);
             aisSensor.addPntTimeListener(PntTime.getInstance());
-            break;
-        case GPS:
+        } else if (pntSource == PntSource.GPS && gpsSensor != null) {
             gpsSensor.addPntListener(pntHandler);
             gpsSensor.addPntTimeListener(PntTime.getInstance());
-            break;
-        case MSPNT:
+        } else if (pntSource == PntSource.MSPNT && msPntHandler != null) {
             msPntHandler = new MultiSourcePntHandler(pntHandler);
             msPntSensor.addMsPntListener(msPntHandler);
-            break;
-        default:
-            break;
         }
 
     }

@@ -32,6 +32,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 
+import dk.dma.epd.common.prototype.settings.SensorSettings.PntSource;
 import dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType;
 import dk.dma.epd.ship.settings.EPDSensorSettings;
 
@@ -42,16 +43,21 @@ import dk.dma.epd.ship.settings.EPDSensorSettings;
 public class SensorTab extends JPanel implements ActionListener {
     private static final long serialVersionUID = 1L;
     
+    private JComboBox<PntSource> comboBoxPntSource;
+    
+    private JPanel AisConnectionPanel = new JPanel();
     private JTextField textFieldAisHostOrSerialPort;
     private JSpinner spinnerAisTcpPort;
     private JTextField textFieldAisFilename;
     private JComboBox<SensorConnectionType> comboBoxAisConnectionType;
     
+    private JPanel GpsConnectionPanel = new JPanel();
     private JTextField textFieldGpsHostOrSerialPort;
     private JTextField textFieldGpsFilename;
     private JSpinner spinnerGpsTcpPort;
     private JComboBox<SensorConnectionType> comboBoxGpsConnectionType;
     
+    private JPanel MsPntConnectionPanel = new JPanel();
     private JTextField textFieldMsPntHostOrSerialPort;
     private JTextField textFieldMsPntFilename;
     private JSpinner spinnerMsPntTcpPort;
@@ -67,9 +73,43 @@ public class SensorTab extends JPanel implements ActionListener {
      */
     public SensorTab() {
         
+        /************** PNT Source ***************/
+        
+        JPanel PntSourcePanel = new JPanel();
+        // NB: TitledBorder seems superfluous for the PNT source panel
+        
+        JLabel label_1 = new JLabel("PNT Source");
+
+        comboBoxPntSource = new JComboBox<>();
+        comboBoxPntSource.addActionListener(this);
+        comboBoxPntSource.setModel(new DefaultComboBoxModel<>(PntSource.values()));
+        GroupLayout gl_PntSourcePanel = new GroupLayout(PntSourcePanel);
+        gl_PntSourcePanel.setHorizontalGroup(
+            gl_PntSourcePanel.createParallelGroup(Alignment.LEADING)
+                .addGap(0, 429, Short.MAX_VALUE)
+                .addGroup(gl_PntSourcePanel.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(gl_PntSourcePanel.createParallelGroup(Alignment.LEADING)
+                        .addComponent(label_1))
+                    .addGap(14)
+                    .addGroup(gl_PntSourcePanel.createParallelGroup(Alignment.LEADING, false)
+                        .addComponent(comboBoxPntSource, GroupLayout.PREFERRED_SIZE, 137, GroupLayout.PREFERRED_SIZE))
+                    .addGap(161))
+        );
+        gl_PntSourcePanel.setVerticalGroup(
+            gl_PntSourcePanel.createParallelGroup(Alignment.LEADING)
+                .addGap(0, 135, Short.MAX_VALUE)
+                .addGroup(gl_PntSourcePanel.createSequentialGroup()
+                    .addGroup(gl_PntSourcePanel.createParallelGroup(Alignment.BASELINE)
+                        .addComponent(label_1)
+                        .addComponent(comboBoxPntSource, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        PntSourcePanel.setLayout(gl_PntSourcePanel);
+        
+        
         /************** AIS Connection ***************/
         
-        JPanel AisConnectionPanel = new JPanel();
         AisConnectionPanel.setBorder(new TitledBorder(null, "AIS Connection", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
         JLabel label_2 = new JLabel("Connection type");
@@ -134,7 +174,6 @@ public class SensorTab extends JPanel implements ActionListener {
         
         /************** GPS Connection ***************/
         
-        JPanel GpsConnectionPanel = new JPanel();
         GpsConnectionPanel.setBorder(new TitledBorder(null, "GPS Connection", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
         JLabel label_6 = new JLabel("Connection type");
@@ -200,12 +239,11 @@ public class SensorTab extends JPanel implements ActionListener {
         
         /************** Multi-source PNT Connection ***************/
         
-        JPanel MsPntConnectionPanel = new JPanel();
         MsPntConnectionPanel.setBorder(new TitledBorder(null, "Multi-source PNT Connection", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
         JLabel label_10 = new JLabel("Connection type");
         JLabel label_11 = new JLabel("TCP-port");
-        JLabel label_12 = new JLabel("MS MNT-file name");
+        JLabel label_12 = new JLabel("MS PNT-file name");
         JLabel label_13 = new JLabel("Host or serial port");
         
         comboBoxMsPntConnectionType = new JComboBox<>();
@@ -311,13 +349,16 @@ public class SensorTab extends JPanel implements ActionListener {
                         .addComponent(transponderPanel, GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE)
                         .addComponent(MsPntConnectionPanel, GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE)
                         .addComponent(GpsConnectionPanel, GroupLayout.DEFAULT_SIZE, 313, Short.MAX_VALUE)
-                        .addComponent(AisConnectionPanel, GroupLayout.PREFERRED_SIZE, 313, Short.MAX_VALUE))
+                        .addComponent(AisConnectionPanel, GroupLayout.PREFERRED_SIZE, 313, Short.MAX_VALUE)
+                        .addComponent(PntSourcePanel, GroupLayout.PREFERRED_SIZE, 313, Short.MAX_VALUE))
                     .addContainerGap())
         );
         groupLayout.setVerticalGroup(
             groupLayout.createParallelGroup(Alignment.LEADING)
                 .addGroup(groupLayout.createSequentialGroup()
                     .addContainerGap()
+                    .addComponent(PntSourcePanel, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(AisConnectionPanel, GroupLayout.PREFERRED_SIZE, 142, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(GpsConnectionPanel, GroupLayout.PREFERRED_SIZE, 141, GroupLayout.PREFERRED_SIZE)
@@ -328,6 +369,9 @@ public class SensorTab extends JPanel implements ActionListener {
                     .addGap(21))
         );
         setLayout(groupLayout);
+        
+        // Update the UI state based on the current selection
+        updateUIState();
     }
     
     /**
@@ -337,29 +381,32 @@ public class SensorTab extends JPanel implements ActionListener {
         this.sensorSettings = sensorSettings;
         
         // Loads the AIS Connection settings
-        comboBoxAisConnectionType.getModel().setSelectedItem(sensorSettings.getAisConnectionType());
+        comboBoxAisConnectionType.setSelectedItem(sensorSettings.getAisConnectionType());
         textFieldAisHostOrSerialPort.setText(sensorSettings.getAisHostOrSerialPort());
         textFieldAisFilename.setText(sensorSettings.getAisFilename());
         spinnerAisTcpPort.setValue(sensorSettings.getAisTcpPort());
-        textFieldAisFilename.setEnabled(sensorSettings.getAisConnectionType() == SensorConnectionType.FILE);
         
         // Loads the GPS Connection settings
-        comboBoxGpsConnectionType.getModel().setSelectedItem(sensorSettings.getGpsConnectionType());
+        comboBoxGpsConnectionType.setSelectedItem(sensorSettings.getGpsConnectionType());
         textFieldGpsHostOrSerialPort.setText(sensorSettings.getGpsHostOrSerialPort());
         textFieldGpsFilename.setText(sensorSettings.getGpsFilename());
         spinnerGpsTcpPort.setValue(sensorSettings.getGpsTcpPort());
-        textFieldGpsFilename.setEnabled(sensorSettings.getAisConnectionType() == SensorConnectionType.FILE);
         
         // Loads the Multi-source PNT Connection settings
-        comboBoxMsPntConnectionType.getModel().setSelectedItem(sensorSettings.getMsPntConnectionType());
+        comboBoxMsPntConnectionType.setSelectedItem(sensorSettings.getMsPntConnectionType());
         textFieldMsPntHostOrSerialPort.setText(sensorSettings.getMsPntHostOrSerialPort());
         textFieldMsPntFilename.setText(sensorSettings.getMsPntFilename());
         spinnerMsPntTcpPort.setValue(sensorSettings.getMsPntTcpPort());
-        textFieldMsPntFilename.setEnabled(sensorSettings.getAisConnectionType() == SensorConnectionType.FILE);
+                
+        // Loads the PNT source settings
+        comboBoxPntSource.setSelectedItem(sensorSettings.getPntSource());
         
         // Loads the Transponder settings
         startTransponder.setSelected(sensorSettings.isStartTransponder());
         spinnerAisSensorRange.setValue(sensorSettings.getAisSensorRange());
+        
+        // Update the UI state based on the current selection
+        updateUIState();
     }
     
     /**
@@ -368,51 +415,53 @@ public class SensorTab extends JPanel implements ActionListener {
     public void saveSettings() {
         
         // Saves the AIS Connection settings
-        sensorSettings.setAisConnectionType((SensorConnectionType) comboBoxAisConnectionType.getModel().getSelectedItem());
+        sensorSettings.setAisConnectionType((SensorConnectionType) comboBoxAisConnectionType.getSelectedItem());
         sensorSettings.setAisHostOrSerialPort(textFieldAisHostOrSerialPort.getText());
         sensorSettings.setAisFilename(textFieldAisFilename.getText());
         sensorSettings.setAisTcpPort((Integer) spinnerAisTcpPort.getValue());
         
         // Saves the GPS Connection settings
-        sensorSettings.setGpsConnectionType((SensorConnectionType) comboBoxGpsConnectionType.getModel().getSelectedItem());
+        sensorSettings.setGpsConnectionType((SensorConnectionType) comboBoxGpsConnectionType.getSelectedItem());
         sensorSettings.setGpsHostOrSerialPort(textFieldGpsHostOrSerialPort.getText());
         sensorSettings.setGpsFilename(textFieldGpsFilename.getText());
         sensorSettings.setGpsTcpPort((Integer) spinnerGpsTcpPort.getValue());
         
         // Saves the Multi-source PNT Connection settings
-        sensorSettings.setMsPntConnectionType((SensorConnectionType) comboBoxMsPntConnectionType.getModel().getSelectedItem());
+        sensorSettings.setMsPntConnectionType((SensorConnectionType) comboBoxMsPntConnectionType.getSelectedItem());
         sensorSettings.setMsPntHostOrSerialPort(textFieldMsPntHostOrSerialPort.getText());
         sensorSettings.setMsPntFilename(textFieldMsPntFilename.getText());
         sensorSettings.setMsPntTcpPort((Integer) spinnerMsPntTcpPort.getValue());
+        
+        // Saves the PNT source settings
+        sensorSettings.setPntSource((PntSource) comboBoxPntSource.getSelectedItem());
         
         // Saves the Transponder settings
         sensorSettings.setStartTransponder(startTransponder.isSelected());        
         sensorSettings.setAisSensorRange((Double) spinnerAisSensorRange.getValue());
     }
 
+    /**
+     * Called when the selection of various combo-boxes changes
+     */
     @Override
-    public void actionPerformed(ActionEvent e) {        
-        if(e.getSource() == comboBoxAisConnectionType) {
-            if(comboBoxAisConnectionType.getModel().getSelectedItem() == SensorConnectionType.FILE) {
-                textFieldAisFilename.setEnabled(true);
-            } else {
-                textFieldAisFilename.setEnabled(false);
-            }
-            
-        } else if (e.getSource() == comboBoxGpsConnectionType) {
-            if(comboBoxGpsConnectionType.getModel().getSelectedItem() == SensorConnectionType.FILE) {
-                textFieldGpsFilename.setEnabled(true);
-            } else {
-                textFieldGpsFilename.setEnabled(false);
-            }
-            
-        } else if (e.getSource() == comboBoxMsPntConnectionType) {
-            if(comboBoxMsPntConnectionType.getModel().getSelectedItem() == SensorConnectionType.FILE) {
-                textFieldMsPntFilename.setEnabled(true);
-            } else {
-                textFieldMsPntFilename.setEnabled(false);
-            }
-        }
+    public void actionPerformed(ActionEvent e) {
+        // Update the UI state based on the current selection
+        updateUIState();
     }
     
+    /**
+     * Updates the enabled state of UI components based on the current selection
+     */
+    private void updateUIState() {
+        textFieldAisFilename.setEnabled(comboBoxAisConnectionType.getSelectedItem() == SensorConnectionType.FILE);
+        textFieldGpsFilename.setEnabled(comboBoxGpsConnectionType.getSelectedItem() == SensorConnectionType.FILE);
+        textFieldMsPntFilename.setEnabled(comboBoxMsPntConnectionType.getSelectedItem() == SensorConnectionType.FILE);
+
+        // Enabling/disabling the connection panels will not actually disabled the child components.
+        // But it will change the appearance of the panel title to indicate the current PNT source selection.
+        PntSource pntSrc = (PntSource)comboBoxPntSource.getSelectedItem();
+        AisConnectionPanel.setEnabled(pntSrc == PntSource.AUTO || pntSrc == PntSource.AIS);
+        GpsConnectionPanel.setEnabled(pntSrc == PntSource.AUTO || pntSrc == PntSource.GPS);
+        MsPntConnectionPanel.setEnabled(pntSrc == PntSource.AUTO || pntSrc == PntSource.MSPNT);
+    }    
 }
