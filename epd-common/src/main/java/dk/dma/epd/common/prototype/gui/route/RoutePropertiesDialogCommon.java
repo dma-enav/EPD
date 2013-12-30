@@ -63,11 +63,16 @@ import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.RouteTtgData;
+import dk.dma.epd.common.prototype.model.route.RouteTtgData.TtgCalculation;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.ParseUtils;
+
+import javax.swing.JComboBox;
+import javax.ws.rs.core.NewCookie;
 
 /**
  * Dialog with route properties
@@ -124,6 +129,9 @@ public class RoutePropertiesDialogCommon extends JDialog implements
     private RouteManagerCommon routeManager;
     protected ActiveRoute activeRoute;
 
+    /**
+     * @wbp.parser.constructor
+     */
     public RoutePropertiesDialogCommon(Window parent,
             RouteManagerCommon routeManager, int routeId) {
         super(parent, "Route Properties", Dialog.ModalityType.APPLICATION_MODAL);
@@ -451,7 +459,48 @@ public class RoutePropertiesDialogCommon extends JDialog implements
 
         AutoCompleteDecorator.decorate(originTxT, strings, false);
         AutoCompleteDecorator.decorate(destinationTxT, strings, false);
-
+        
+        JLabel label = new JLabel("Calculate TTG/ETA using:");
+        label.setBounds(227, 101, 146, 14);
+        RouteProperties.add(label);
+        
+        JComboBox<RouteTtgData.TtgCalculation> ddlTtgData = new JComboBox<RouteTtgData.TtgCalculation>();
+        ddlTtgData.setBounds(383, 98, 159, 20);
+        RouteProperties.add(ddlTtgData);
+        ddlTtgData.addItem(RouteTtgData.TtgCalculation.PLANNED_SPEED);
+        if(this.route instanceof ActiveRoute) {
+            ddlTtgData.addItem(RouteTtgData.TtgCalculation.DYNAMIC_SPEED);
+            ddlTtgData.addItem(RouteTtgData.TtgCalculation.HYBRID);
+        }
+        ddlTtgData.addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                @SuppressWarnings("unchecked")
+                JComboBox<RouteTtgData.TtgCalculation> source = (JComboBox<RouteTtgData.TtgCalculation>) e.getSource();
+                RouteTtgData.TtgCalculation item = (TtgCalculation) source.getSelectedItem();
+                if(RoutePropertiesDialogCommon.this.route instanceof ActiveRoute) {
+                    // update current calculation type
+                    RoutePropertiesDialogCommon.this.activeRoute.setTtgCalculationType(item);
+                    if(!RoutePropertiesDialogCommon.this.activeRoute.isTtgCalcDataAvailable() &&
+                            RouteTtgData.isCurrentSpeedRequired(item)) {
+                        source.hidePopup();
+                        JOptionPane.showMessageDialog(RoutePropertiesDialogCommon.this, "No speed data available.");
+                        // Go back to default TTG calculation.
+                        for(int i = 0; i < source.getItemCount(); i++) {
+                            if(source.getItemAt(i) == TtgCalculation.PLANNED_SPEED) {
+                                source.setSelectedIndex(i);
+                                // remember to update TTG calc type in route
+                                RoutePropertiesDialogCommon.this.activeRoute.setTtgCalculationType(TtgCalculation.PLANNED_SPEED);
+                                break;
+                            }
+                        }
+                    }
+                }
+                // always refresh data
+                RoutePropertiesDialogCommon.this.updateFields();
+            }
+        });
         JPanel interactionButtonPane = new JPanel();
         interactionButtonPane.setBounds(10, 354, 253, 32);
         getContentPane().add(interactionButtonPane);

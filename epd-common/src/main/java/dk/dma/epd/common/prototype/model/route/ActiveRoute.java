@@ -19,6 +19,7 @@ import java.util.Date;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
+import dk.dma.epd.common.prototype.model.route.RouteTtgData.TtgCalculation;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.util.Calculator;
@@ -98,7 +99,13 @@ public class ActiveRoute extends Route {
     private Route originalRoute;
 
     protected double safeHavenBearing;
-
+    
+    /**
+     * Wraps data used in TTG calculations.
+     * NB: Local access to this field should be done using field getter (due to lazy initialization).
+     */
+    private transient RouteTtgData routeTtgData;
+    
     public ActiveRoute(Route route, PntData gpsData) {
         super();
         this.waypoints = route.getWaypoints();
@@ -344,7 +351,8 @@ public class ActiveRoute extends Route {
         // Calculate nice TTG
         niceActiveWpTtg = Math.round(activeWpRng / currentLeg.getSpeed() * 60
                 * 60 * 1000);
-
+        this.getRouteTtgData().setCurrentSpeed(gpsData.getSog());
+        
         // Calculate TTG to active waypoint
         if (avgSpeed > 0.1) {
             activeWpTtg = Math.round(activeWpRng / avgSpeed * 60 * 60 * 1000);
@@ -499,7 +507,7 @@ public class ActiveRoute extends Route {
 
     public synchronized boolean reCalcRemainingWpEta() {
         int aw = getActiveWaypointIndex();
-        Date eta = getNiceActiveWaypointEta();
+        Date eta = getNiceActiveWaypointEta(); // TODO JVA: What exactly is the purpose of this call?
 
         if (eta == null) {
             return false;
@@ -602,6 +610,64 @@ public class ActiveRoute extends Route {
         }
 
         return voyageRoute;
+    }
+    
+    private RouteTtgData getRouteTtgData() {
+        if(this.routeTtgData == null) {
+            // Lazy init
+            this.routeTtgData = new RouteTtgData(RouteTtgData.TtgCalculation.PLANNED_SPEED);
+        }
+        return this.routeTtgData;
+    }
+    
+    public void setTtgCalculationType(TtgCalculation type) {
+        this.getRouteTtgData().setTtgCalculationType(type);
+    }
+    
+    public boolean isTtgCalcDataAvailable() {
+        return this.getRouteTtgData().isTtgCalcDataAvailable();
+    }
+    
+    @Override
+    public void calcValues(boolean force) {
+        super.calcValues(force);
+        
+        if (!force && ttgs != null && etas != null) {
+            return;
+        }
+        
+        if(waypoints.size() > 0) {
+            if(!this.getRouteTtgData().hasCurrentSpeed() &&
+                    (this.getRouteTtgData().getTtgCalculationType() == TtgCalculation.DYNAMIC_SPEED ||
+                    this.getRouteTtgData().getTtgCalculationType() == TtgCalculation.HYBRID)) {
+                // If no current speed is available, we cannot make
+                // dynamic TTG calculations
+                throw new IllegalStateException("Attempt to calculate Dynamic TTG with no speed data available.");
+            }
+            for(int i = this.activeWaypointIndex; i < this.waypoints.size() - 1; i++) {
+                switch(this.getRouteTtgData().getTtgCalculationType()) {
+                case PLANNED_SPEED:
+                    this.ttgs[i] = this.waypoints.get(i).getOutLeg().calcTtg();
+                    break;
+                case DYNAMIC_SPEED:
+                    // TODO what if speed was not set yet?
+                    assert this.getRouteTtgData().hasCurrentSpeed();
+                    this.ttgs[i] = this.waypoints.get(i).getOutLeg().calcTtg(this.getRouteTtgData().getCurrentSpeed());
+                    break;
+                case HYBRID:
+                    if(i == activeWaypointIndex) {
+                        // in hybrid mode, only TTG to active waypoint is calculated using current speed
+                        // TODO what if speed was not set yet?
+                        assert this.getRouteTtgData().hasCurrentSpeed();
+                        this.ttgs[i] = this.waypoints.get(i).getOutLeg().calcTtg(this.getRouteTtgData().getCurrentSpeed());
+                    }
+                    else {
+                        this.ttgs[i] = this.waypoints.get(i).getOutLeg().calcTtg();
+                    }
+                    break;
+                }
+            }
+        }
     }
 
 }
