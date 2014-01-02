@@ -71,8 +71,8 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     private transient Position currentPosition;
 
     private CopyOnWriteArrayList<IMsiUpdateListener> listeners = new CopyOnWriteArrayList<>();
-    private PntHandler gpsHandler;
-    private boolean gpsUpdate;
+    private PntHandler pntHandler;
+    private boolean pntUpdate;
 
     public MsiHandler(EnavSettings enavSettings) {
         this.enavSettings = enavSettings;
@@ -319,8 +319,8 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         
         boolean updated = false;
 
-        if (gpsUpdate) {
-            gpsUpdate = false;
+        if (pntUpdate) {
+            pntUpdate = false;
             if (calculationPosition != null) {
                 msiStore.setVisibility(calculationPosition);
             }
@@ -414,18 +414,18 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
      * previous point
      */
     @Override
-    public void pntDataUpdate(PntData gpsData) {
-        currentPosition = gpsData.getPosition();
+    public void pntDataUpdate(PntData pntData) {
+        currentPosition = pntData.getPosition();
 
         if (calculationPosition == null) {
             calculationPosition = currentPosition;
-            gpsUpdate = true;
+            pntUpdate = true;
             return;
         }
         Double range = Calculator.range(currentPosition, calculationPosition,
                 Heading.GC);
         if (range > enavSettings.getMsiRelevanceGpsUpdateRange()) {
-            gpsUpdate = true;
+            pntUpdate = true;
             calculationPosition = currentPosition;
         }
     }
@@ -445,17 +445,17 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         if (obj instanceof IMsiUpdateListener) {
             addListener((IMsiUpdateListener) obj);
         }
-        if (gpsHandler == null && obj instanceof PntHandler) {
-            gpsHandler = (PntHandler) obj;
-            gpsHandler.addListener(this);
+        if (pntHandler == null && obj instanceof PntHandler) {
+            pntHandler = (PntHandler) obj;
+            pntHandler.addListener(this);
         }
     }
 
     @Override
     public void findAndUndo(Object obj) {
-        if (gpsHandler == obj) {
-            gpsHandler.removeListener(this);
-            gpsHandler = null;
+        if (pntHandler == obj) {
+            pntHandler.removeListener(this);
+            pntHandler = null;
         }
     }
 

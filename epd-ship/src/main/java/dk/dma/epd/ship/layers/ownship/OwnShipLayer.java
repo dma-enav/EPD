@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.layers.gps;
+package dk.dma.epd.ship.layers.ownship;
 
 import java.awt.event.MouseEvent;
 import java.util.Date;
@@ -54,7 +54,7 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
     
     private MapMenu ownShipMenu;
     
-    private PntHandler gpsHandler;
+    private PntHandler pntHandler;
     private AisHandler aisHandler;
     
     private long minRedrawInterval = 5 * 1000; // 5 sec
@@ -207,9 +207,9 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
     
     @Override
     public void findAndInit(Object obj) {
-        if (gpsHandler == null && obj instanceof PntHandler) {
-            gpsHandler = (PntHandler)obj;
-            gpsHandler.addListener(this);
+        if (pntHandler == null && obj instanceof PntHandler) {
+            pntHandler = (PntHandler)obj;
+            pntHandler.addListener(this);
         }
         if (aisHandler == null && obj instanceof AisHandler) {
             aisHandler = (AisHandler)obj;
@@ -221,9 +221,9 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
     
     @Override
     public void findAndUndo(Object obj) {
-        if (gpsHandler == obj) {
-            gpsHandler.removeListener(this);
-            gpsHandler = null;
+        if (pntHandler == obj) {
+            pntHandler.removeListener(this);
+            pntHandler = null;
         }
         if (aisHandler == obj) {
             aisHandler = null;
@@ -245,7 +245,7 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         if(ownShip != null && changeInZoomLevel) {
             // Zoom level was changed
             // May imply new ship draw mode so do a fake pnt update to check for change in drawing mode.
-            this.pntDataUpdate(gpsHandler.getCurrentData());
+            this.pntDataUpdate(pntHandler.getCurrentData());
         }
         super.projectionChanged(pe);
     }

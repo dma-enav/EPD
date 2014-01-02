@@ -113,7 +113,7 @@ public class PntData implements Serializable {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("GpsData [badPosition=");
+        builder.append("PntData [badPosition=");
         builder.append(badPosition);
         builder.append(", cog=");
         builder.append(cog);

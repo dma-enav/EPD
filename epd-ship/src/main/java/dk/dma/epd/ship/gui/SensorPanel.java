@@ -48,7 +48,7 @@ import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.event.IMapCoordListener;
 import dk.dma.epd.ship.gui.panels.ActiveWaypointPanel;
 import dk.dma.epd.ship.gui.panels.CursorPanel;
-import dk.dma.epd.ship.gui.panels.GPSPanel;
+import dk.dma.epd.ship.gui.panels.PntPanel;
 import dk.dma.epd.ship.gui.panels.OwnShipPanel;
 import dk.dma.epd.ship.gui.panels.ScalePanel;
 import dk.dma.epd.ship.route.RouteManager;
@@ -70,7 +70,7 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
     private RouteManager routeManager;
     private final ScalePanel scalePanel = new ScalePanel();    
     private final OwnShipPanel ownShipPanel = new OwnShipPanel();
-    private final GPSPanel gpsPanel = new GPSPanel();
+    private final PntPanel gpsPanel = new PntPanel();
     private final CursorPanel cursorPanel = new CursorPanel();
     private final ActiveWaypointPanel activeWaypointPanel;
     private final JLabel euBalticLogo = new JLabel("");

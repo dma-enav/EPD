@@ -51,7 +51,7 @@ import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.CursorComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.GpsComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.PntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.MSIComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
@@ -70,7 +70,7 @@ public class DockableComponents {
 
     private ScaleComponentPanel scalePanel;
     private OwnShipComponentPanel ownShipPanel;
-    private GpsComponentPanel gpsPanel;
+    private PntComponentPanel gpsPanel;
     private CursorComponentPanel cursorPanel;
     private ActiveWaypointComponentPanel activeWaypointPanel;
     private MSIComponentPanel msiPanel;
@@ -461,7 +461,7 @@ public class DockableComponents {
         // TopPanel topPanel;
         ScaleComponentPanel scalePanel;
         OwnShipComponentPanel ownShipPanel;
-        GpsComponentPanel gpsPanel;
+        PntComponentPanel gpsPanel;
         CursorComponentPanel cursorPanel;
         ActiveWaypointComponentPanel activeWaypointPanel;
         MSIComponentPanel msiPanel;
@@ -472,7 +472,7 @@ public class DockableComponents {
 
         public DockableFactory(ChartPanel chartPanel,
                 ScaleComponentPanel scalePanel,
-                OwnShipComponentPanel ownShipPanel, GpsComponentPanel gpsPanel,
+                OwnShipComponentPanel ownShipPanel, PntComponentPanel gpsPanel,
                 CursorComponentPanel cursorPanel,
                 ActiveWaypointComponentPanel activeWaypointPanel,
                 MSIComponentPanel msiPanel,

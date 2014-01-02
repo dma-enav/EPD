@@ -481,7 +481,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         sarTargetDetails.setSarTarget(sarTarget);
         sarTargetDetails.setMainFrame(EPDShore.getMainFrame());
-        sarTargetDetails.setGpsHandler(null);
+        sarTargetDetails.setPntHandler(null);
 
         add(sarTargetDetails);
 

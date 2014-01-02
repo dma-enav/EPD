@@ -70,7 +70,6 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
     private ActiveRoute activeRoute;
     private int activeRouteIndex = -1;
 
-//    private GpsHandler gpsHandler = null;
 //    private AisServices aisServices = null;
     private ShoreServices shoreServices;
     private AisHandler aisHandler;
@@ -83,18 +82,18 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
     }
 
     @Override
-    public void pntDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData pntData) {
         if (!isRouteActive()) {
             return;
         }
-        if (gpsData.isBadPosition()) {
+        if (pntData.isBadPosition()) {
             return;
         }
 
         ActiveWpSelectionResult endRes;
         ActiveWpSelectionResult res;
         synchronized (routes) {
-            activeRoute.update(gpsData);
+            activeRoute.update(pntData);
             endRes = activeRoute.chooseActiveWp();
             res = endRes;
             // Keep chosing active waypoint until not changed any more
@@ -118,44 +117,6 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
             notifyListeners(RoutesUpdateEvent.ACTIVE_ROUTE_FINISHED);
         }
     }
-
-//    public void activateRoute(int index) {
-//        synchronized (routes) {
-//            if (index < 0 || index >= routes.size()) {
-//                LOG.error("Could not activate route with index: " + index);
-//                return;
-//            }
-//
-//            if (isRouteActive()) {
-//                // Deactivate route
-//                deactivateRoute();
-//            }
-//
-//            Route route = routes.get(index);
-//            route.setVisible(true);
-//            // Set active route index
-//            activeRouteIndex = index;
-//
-//
-//            // Create new
-//            activeRoute = new ActiveRoute(route, gpsHandler.getCurrentData());
-//
-//            // Set the minimum WP circle radius
-//            activeRoute.setWpCircleMin(ESD.getSettings().getNavSettings().getMinWpRadius());
-//            // Set relaxed WP change
-//            activeRoute.setRelaxedWpChange(ESD.getSettings().getNavSettings().isRelaxedWpChange());
-//            // Inject the current position
-//            activeRoute.update(gpsHandler.getCurrentData());
-//            // Set start time to now
-//            activeRoute.setStarttime(GnssTime.getInstance().getDate());
-//
-//        }
-//
-//        // Notify listeners
-//        notifyListeners(RoutesUpdateEvent.ROUTE_ACTIVATED);
-//    }
-
-
 
     public void routeCopy(int index) {
         Route selectedRoute = getRoute(index);
@@ -543,10 +504,6 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         if (shoreServices == null && obj instanceof ShoreServices) {
             shoreServices = (ShoreServices) obj;
         }
-//        if (gpsHandler == null && obj instanceof GpsHandler) {
-//            gpsHandler = (GpsHandler) obj;
-//            gpsHandler.addListener(this);
-//        }
         if (aisHandler == null && obj instanceof AisHandler) {
             aisHandler = (AisHandler)obj;
 //            aisHandler.addRouteSuggestionListener(this);
@@ -554,17 +511,10 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         if (obj instanceof RouteSuggestionDialog) {
             routeSuggestionDialog = (RouteSuggestionDialog)obj;
         }
-//        if (obj instanceof AisServices) {
-//            System.out.println("Ais Services set");
-//            aisServices = (AisServices)obj;
-//        }
     }
 
     @Override
     public void findAndUndo(Object obj) {
-//        if (gpsHandler == obj) {
-//            gpsHandler.removeListener(this);
-//        }
         if (shoreServices == obj) {
             shoreServices = null;
         }

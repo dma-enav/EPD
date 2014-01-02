@@ -57,7 +57,7 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
     boolean nogoFailed;
 
     private ShoreServicesCommon shoreServices;
-    private PntHandler gpsHandler;
+    private PntHandler pntHandler;
     private AisHandler aisHandler;
 
     // Create a seperate layer for the nogo information
@@ -361,8 +361,8 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
         if (obj instanceof DynamicNogoLayer) {
             nogoLayer = (DynamicNogoLayer) obj;
         }
-        if (gpsHandler == null && obj instanceof PntHandler) {
-            gpsHandler = (PntHandler) obj;
+        if (pntHandler == null && obj instanceof PntHandler) {
+            pntHandler = (PntHandler) obj;
         }
         if (aisHandler == null && obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;

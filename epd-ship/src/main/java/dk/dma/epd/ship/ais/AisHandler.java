@@ -143,11 +143,11 @@ public class AisHandler extends AisHandlerCommon implements IAisListener, IStatu
         if (getAisRange() <= 0) {
             return true;
         }
-        PntData gpsData = EPDShip.getPntHandler().getCurrentData();
-        if (gpsData == null) {
+        PntData pntData = EPDShip.getPntHandler().getCurrentData();
+        if (pntData == null) {
             return false;
         }
-        double distance = gpsData.getPosition().rhumbLineDistanceTo(pos) / 1852.0;
+        double distance = pntData.getPosition().rhumbLineDistanceTo(pos) / 1852.0;
         return distance <= aisRange;
     }
 

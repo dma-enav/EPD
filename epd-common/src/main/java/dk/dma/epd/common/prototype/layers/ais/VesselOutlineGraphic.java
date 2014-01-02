@@ -17,7 +17,6 @@ package dk.dma.epd.common.prototype.layers.ais;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Paint;
 import java.awt.Stroke;
 
 import com.bbn.openmap.omGraphics.OMCircle;
@@ -82,7 +81,7 @@ public class VesselOutlineGraphic extends OMGraphicList {
         this.vessel = vessel;
         // TODO add null check on static data here or in client?
         VesselStaticData vsd = this.vessel.getStaticData();
-        // Get angle from GPS to lower left corner of ship
+        // Get angle from PNT to lower left corner of ship
         double anglLowerLeft = this.calcAngleFromCenter(vsd.getDimStern(),
                 vsd.getDimPort());
         // calculate distance to lower left corner of vessel (Pythagoras)

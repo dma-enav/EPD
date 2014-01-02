@@ -39,7 +39,7 @@ import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.CursorComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.GpsComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.PntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.MSIComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
@@ -68,7 +68,7 @@ public class MainFrame extends JFrame implements WindowListener {
 
     private ScaleComponentPanel scalePanel;
     private OwnShipComponentPanel ownShipPanel;
-    private GpsComponentPanel gpsPanel;
+    private PntComponentPanel gpsPanel;
     private CursorComponentPanel cursorPanel;
     private ActiveWaypointComponentPanel activeWaypointPanel;
     private MSIComponentPanel msiComponentPanel;
@@ -118,7 +118,7 @@ public class MainFrame extends JFrame implements WindowListener {
         // Movable service panels
         scalePanel = new ScaleComponentPanel();
         ownShipPanel = new OwnShipComponentPanel();
-        gpsPanel = new GpsComponentPanel();
+        gpsPanel = new PntComponentPanel();
         cursorPanel = new CursorComponentPanel();
         activeWaypointPanel = new ActiveWaypointComponentPanel();
         chartPanel = new ChartPanel(activeWaypointPanel);
@@ -289,7 +289,7 @@ public class MainFrame extends JFrame implements WindowListener {
         return ownShipPanel;
     }
 
-    public GpsComponentPanel getGpsPanel() {
+    public PntComponentPanel getGpsPanel() {
         return gpsPanel;
     }
 

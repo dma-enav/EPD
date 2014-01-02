@@ -51,10 +51,10 @@ public class PntHandler extends MapHandlerChild implements IPntListener, IStatus
     }
 
     /**
-     * Receive GPS message
+     * Receive PNT message
      */
     @Override
-    public synchronized void receive(PntMessage gpsMessage) {
+    public synchronized void receive(PntMessage pntMessage) {
         Date now = new Date();
         long elapsed = now.getTime() - currentData.getLastUpdated().getTime();
         if (elapsed < 900) {
@@ -62,17 +62,17 @@ public class PntHandler extends MapHandlerChild implements IPntListener, IStatus
         }
 
         currentData.setLastUpdated(now);
-        if (gpsMessage.getPos() == null || !gpsMessage.isValidPosition()) {
+        if (pntMessage.getPos() == null || !pntMessage.isValidPosition()) {
             currentData.setBadPosition(true);
         } else {
-            currentData.setPosition(gpsMessage.getPos());
+            currentData.setPosition(pntMessage.getPos());
             currentData.setBadPosition(false);
         }
-        if (gpsMessage.getCog() != null) {
-            currentData.setCog(gpsMessage.getCog());
+        if (pntMessage.getCog() != null) {
+            currentData.setCog(pntMessage.getCog());
         }
-        if (gpsMessage.getSog() != null) {
-            currentData.setSog(gpsMessage.getSog());
+        if (pntMessage.getSog() != null) {
+            currentData.setSog(pntMessage.getSog());
         }
         distributeUpdate();
     }
@@ -96,7 +96,7 @@ public class PntHandler extends MapHandlerChild implements IPntListener, IStatus
     /**
      * Return if the current data has timed out
      */
-    public synchronized boolean gpsTimedOut() {
+    public synchronized boolean pntTimedOut() {
         Date now = new Date();
         return now.getTime() - currentData.getLastUpdated().getTime() > PNT_TIMEOUT;
     }
@@ -107,7 +107,7 @@ public class PntHandler extends MapHandlerChild implements IPntListener, IStatus
     @Override
     public void run() {
         while (true) {
-            if (gpsTimedOut()) {
+            if (pntTimedOut()) {
                 markBadPos();
                 distributeUpdate();
             }

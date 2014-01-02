@@ -78,7 +78,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     private String hostPort;
     private ShipId shipId;
-    private PntHandler gpsHandler;
+    private PntHandler pntHandler;
     private AisHandler aisHandler;
     private StrategicRouteExchangeHandler monaLisaHandler;
     private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context;
@@ -231,7 +231,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
         enavCloudConnection.setPositionSupplier(new Supplier<PositionTime>() {
             public PositionTime get() {
-                Position position = gpsHandler.getCurrentData().getPosition();
+                Position position = pntHandler.getCurrentData().getPosition();
                 if (position != null) {
                     return PositionTime.create(position,
                             System.currentTimeMillis());
@@ -273,7 +273,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * Receive position updates
      */
     @Override
-    public void pntDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData pntData) {
         // TODO give information to messageBus if valid position
     }
 
@@ -285,8 +285,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
             ((RouteManager) obj).addListener(intendedRouteService);
             ((RouteManager) obj).setIntendedRouteService(intendedRouteService);
         } else if (obj instanceof PntHandler) {
-            this.gpsHandler = (PntHandler) obj;
-            this.gpsHandler.addListener(this);
+            this.pntHandler = (PntHandler) obj;
+            this.pntHandler.addListener(this);
         } else if (obj instanceof AisHandler) {
             this.aisHandler = (AisHandler) obj;
         } else if (obj instanceof StrategicRouteExchangeHandler) {

@@ -42,7 +42,7 @@ public abstract class CommonChartPanel extends OMComponentPanel {
     protected Layer encLayer;
 //    protected Layer encDragLayer;
     protected Layer bgLayer;
-    protected PntData gpsData;
+    protected PntData pntData;
     protected MouseDelegator mouseDelegator;
     protected WMSLayer wmsLayer;
     protected WMSLayer wmsDragLayer;

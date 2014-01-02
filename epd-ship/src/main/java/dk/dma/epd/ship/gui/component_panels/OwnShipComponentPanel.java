@@ -41,7 +41,7 @@ public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataL
     private final OwnShipPanel ownShipPanel = new OwnShipPanel();
     
     private AisHandler aisHandler;
-    private PntHandler gpsHandler;
+    private PntHandler pntHandler;
     
     public OwnShipComponentPanel(){
         super();
@@ -58,7 +58,7 @@ public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataL
     
 
     @Override
-    public void pntDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData pntData) {
 
         String ownName = null;
         String ownCallsign = null;
@@ -88,9 +88,9 @@ public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataL
     
     @Override
     public void findAndInit(Object obj) {
-        if (gpsHandler == null && obj instanceof PntHandler) {
-            gpsHandler = (PntHandler)obj;
-            gpsHandler.addListener(this);
+        if (pntHandler == null && obj instanceof PntHandler) {
+            pntHandler = (PntHandler)obj;
+            pntHandler.addListener(this);
         }
         if (aisHandler == null && obj instanceof AisHandler) {
             aisHandler = (AisHandler)obj;

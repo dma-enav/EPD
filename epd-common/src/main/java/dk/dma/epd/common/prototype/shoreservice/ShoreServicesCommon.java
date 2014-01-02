@@ -74,7 +74,7 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
     private static final Logger LOG = LoggerFactory.getLogger(ShoreServicesCommon.class);
 
     private AisHandlerCommon aisHandler;
-    private PntHandler gpsHandler;
+    private PntHandler pntHandler;
     protected EnavSettings enavSettings;
     private ShoreServiceStatus status = new ShoreServiceStatus();
     private static final String ENCODING = "UTF-8";
@@ -216,11 +216,11 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
         // Get current position if active route
         Position pos = null;
         if (route instanceof ActiveRoute) {
-            PntData gpsData = gpsHandler.getCurrentData();
-            if (gpsData.isBadPosition()) {
+            PntData pntData = pntHandler.getCurrentData();
+            if (pntData.isBadPosition()) {
                 throw new ShoreServiceException(ShoreServiceErrorCode.NO_VALID_GPS_DATA);
             }
-            pos = gpsData.getPosition();
+            pos = pntData.getPosition();
         }
         // Create request
         MetocForecastRequest request = Metoc.generateMetocRequest(route, pos);
@@ -297,8 +297,8 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
         if (aisHandler == null && obj instanceof AisHandlerCommon) {
             aisHandler = (AisHandlerCommon) obj;
         }
-        if (gpsHandler == null && obj instanceof PntHandler) {
-            gpsHandler = (PntHandler) obj;
+        if (pntHandler == null && obj instanceof PntHandler) {
+            pntHandler = (PntHandler) obj;
         }
     }
 
@@ -306,8 +306,8 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
     public void findAndUndo(Object obj) {
         if (obj == aisHandler) {
             aisHandler = null;
-        } else if (obj == gpsHandler) {
-            gpsHandler = null;
+        } else if (obj == pntHandler) {
+            pntHandler = null;
         }
     }
 

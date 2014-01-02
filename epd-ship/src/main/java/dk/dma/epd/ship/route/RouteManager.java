@@ -81,7 +81,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
     private static final Logger LOG = LoggerFactory.getLogger(RouteManager.class);
 
     private volatile EnavServiceHandler enavServiceHandler;
-    private volatile PntHandler gpsHandler;
+    private volatile PntHandler pntHandler;
     private volatile ShoreServicesCommon shoreServices;
     private volatile AisHandler aisHandler;
     private volatile IntendedRouteService intendedRouteService;
@@ -104,18 +104,18 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
     }
 
     @Override
-    public void pntDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData pntData) {
         if (!isRouteActive()) {
             return;
         }
-        if (gpsData.isBadPosition()) {
+        if (pntData.isBadPosition()) {
             return;
         }
 
         ActiveWpSelectionResult endRes;
         ActiveWpSelectionResult res;
         synchronized (this) {
-            activeRoute.update(gpsData);
+            activeRoute.update(pntData);
             endRes = activeRoute.chooseActiveWp();
             res = endRes;
             // Keep chosing active waypoint until not changed any more
@@ -158,7 +158,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
             activeRouteIndex = index;
 
             // Create new
-            activeRoute = new ActiveRoute(route, gpsHandler.getCurrentData());
+            activeRoute = new ActiveRoute(route, pntHandler.getCurrentData());
 
             // Set the minimum WP circle radius
             activeRoute.setWpCircleMin(EPDShip.getSettings().getNavSettings()
@@ -167,7 +167,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
             activeRoute.setRelaxedWpChange(EPDShip.getSettings().getNavSettings()
                     .isRelaxedWpChange());
             // Inject the current position
-            activeRoute.update(gpsHandler.getCurrentData());
+            activeRoute.update(pntHandler.getCurrentData());
             // Set start time to now
             activeRoute.setStarttime(PntTime.getInstance().getDate());
         }
@@ -760,9 +760,9 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         if (shoreServices == null && obj instanceof ShoreServicesCommon) {
             shoreServices = (ShoreServicesCommon) obj;
         }
-        if (gpsHandler == null && obj instanceof PntHandler) {
-            gpsHandler = (PntHandler) obj;
-            gpsHandler.addListener(this);
+        if (pntHandler == null && obj instanceof PntHandler) {
+            pntHandler = (PntHandler) obj;
+            pntHandler.addListener(this);
         }
         if (aisHandler == null && obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
@@ -778,8 +778,8 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
 
     @Override
     public void findAndUndo(Object obj) {
-        if (gpsHandler == obj) {
-            gpsHandler.removeListener(this);
+        if (pntHandler == obj) {
+            pntHandler.removeListener(this);
         }
         if (shoreServices == obj) {
             shoreServices = null;

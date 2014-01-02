@@ -44,20 +44,20 @@ public class SartDetailsDialog extends JDialog implements Runnable {
     private JLabel detailsLbl;
     private SarTarget sarTarget;
     private JFrame mainFrame;
-    private PntHandler gpsHandler;
+    private PntHandler pntHandler;
 
     /**
      * Constructor
      * 
      * @param mainFrame the main frame
      * @param sarTarget the sar target
-     * @param gpsHandler the gps handler
+     * @param pntHandler the gps handler
      */
-    public SartDetailsDialog(JFrame mainFrame, SarTarget sarTarget, PntHandler gpsHandler) {
+    public SartDetailsDialog(JFrame mainFrame, SarTarget sarTarget, PntHandler pntHandler) {
         super();
         this.mainFrame = mainFrame;
         this.sarTarget = sarTarget;
-        this.gpsHandler = gpsHandler;
+        this.pntHandler = pntHandler;
         setResizable(false);
         setTitle("SART details");
         setSize(275, 130);
@@ -105,15 +105,15 @@ public class SartDetailsDialog extends JDialog implements Runnable {
         Double hdg = null;
         Long ttg = null;
         Date eta = null;
-        if (gpsHandler != null) {
-            PntData gpsData = gpsHandler.getCurrentData();
-            if (gpsData != null && !gpsData.isBadPosition()) {
-                Position pos = gpsData.getPosition();                
+        if (pntHandler != null) {
+            PntData pntData = pntHandler.getCurrentData();
+            if (pntData != null && !pntData.isBadPosition()) {
+                Position pos = pntData.getPosition();                
                 if (pos != null && sarPos != null) {
                     dst = Calculator.range(pos, sarPos, Heading.RL);
                     hdg = Calculator.bearing(pos, sarPos, Heading.RL);
-                    if (gpsData.getSog() != null && gpsData.getSog() > 1) {
-                        ttg = Math.round(dst / gpsData.getSog() * 60 * 60 * 1000);
+                    if (pntData.getSog() != null && pntData.getSog() > 1) {
+                        ttg = Math.round(dst / pntData.getSog() * 60 * 60 * 1000);
                         eta = new Date(now.getTime() + ttg);
                     }
                 }

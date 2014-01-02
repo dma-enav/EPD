@@ -46,9 +46,9 @@ public class ActiveRoute extends Route {
      */
     protected RouteLeg currentLeg;
     /**
-     * The current GPS data
+     * The current PNT data
      */
-    protected PntData currentGpsData;
+    protected PntData currentPntData;
     /**
      * Average speed over an appropriate time period
      */
@@ -106,7 +106,7 @@ public class ActiveRoute extends Route {
      */
     private transient RouteTtgData routeTtgData;
     
-    public ActiveRoute(Route route, PntData gpsData) {
+    public ActiveRoute(Route route, PntData pntData) {
         super();
         this.waypoints = route.getWaypoints();
         this.name = route.getName();
@@ -123,7 +123,7 @@ public class ActiveRoute extends Route {
 
         calcValues(true);
 
-        changeActiveWaypoint(getBestWaypoint(route, gpsData));
+        changeActiveWaypoint(getBestWaypoint(route, pntData));
 
         // for (int i = 0; i < route.getWaypoints().size(); i++) {
         //
@@ -143,28 +143,28 @@ public class ActiveRoute extends Route {
      * point 0, otherwise we take bearing and distance into account and select
      * the best match. It will never select a waypoint behind itself.
      */
-    private int getBestWaypoint(Route route, PntData gpsData) {
+    private int getBestWaypoint(Route route, PntData pntData) {
         // LinkedList<Double> weightedDistance = new LinkedList<Double>();
 
-        if (gpsData != null) {
+        if (pntData != null) {
 
-            if (gpsData.isBadPosition() || gpsData.getSog() < 3) {
+            if (pntData.isBadPosition() || pntData.getSog() < 3) {
                 return 0;
             } else {
                 double smallestDist = 99999999.0;
                 int index = 0;
                 for (int i = 0; i <= route.getWaypoints().size() - 1; i++) {
                     Position wpPos = route.getWaypoints().get(i).getPos();
-                    double distance = gpsData.getPosition()
+                    double distance = pntData.getPosition()
                             .rhumbLineDistanceTo(wpPos);
-                    double angleToWpDeg = gpsData.getPosition()
+                    double angleToWpDeg = pntData.getPosition()
                             .rhumbLineBearingTo(wpPos);
-                    double weight = 1 - (Math.toRadians(gpsData.getCog()) - Math
+                    double weight = 1 - (Math.toRadians(pntData.getCog()) - Math
                             .toRadians(angleToWpDeg));
                     double result = Math.abs(weight)
                             * (0.5 * Converter.metersToNm(distance));
-                    double upper = gpsData.getCog() + 90;
-                    double lower = gpsData.getCog() - 90;
+                    double upper = pntData.getCog() + 90;
+                    double lower = pntData.getCog() - 90;
 
                     if (result < smallestDist && angleToWpDeg < upper
                             && angleToWpDeg > lower) {
@@ -329,29 +329,29 @@ public class ActiveRoute extends Route {
         // return safeHavenLocation;
     }
 
-    public synchronized void update(PntData gpsData) {
+    public synchronized void update(PntData pntData) {
 
-        if (gpsData.isBadPosition()) {
+        if (pntData.isBadPosition()) {
             return;
         }
 
         // Get active waypoint
         RouteWaypoint activeWaypoint = waypoints.get(activeWaypointIndex);
-        // Set current GPS data
-        currentGpsData = gpsData;
+        // Set current PNT data
+        currentPntData = pntData;
         // TODO calculate avg speed
-        avgSpeed = gpsData.getSog();
+        avgSpeed = pntData.getSog();
 
         // Calculate brg and rng
-        activeWpRng = Calculator.range(gpsData.getPosition(),
+        activeWpRng = Calculator.range(pntData.getPosition(),
                 activeWaypoint.getPos(), currentLeg.getHeading());
-        activeWpBrg = Calculator.bearing(gpsData.getPosition(),
+        activeWpBrg = Calculator.bearing(pntData.getPosition(),
                 activeWaypoint.getPos(), currentLeg.getHeading());
 
         // Calculate nice TTG
         niceActiveWpTtg = Math.round(activeWpRng / currentLeg.getSpeed() * 60
                 * 60 * 1000);
-        this.getRouteTtgData().setCurrentSpeed(gpsData.getSog());
+        this.getRouteTtgData().setCurrentSpeed(pntData.getSog());
         
         // Calculate TTG to active waypoint
         if (avgSpeed > 0.1) {
@@ -410,7 +410,7 @@ public class ActiveRoute extends Route {
 
         // Calculate distance from ship to next waypoint
         RouteLeg nextLeg = getActiveWp().getOutLeg();
-        double nextWpRng = Calculator.range(currentGpsData.getPosition(),
+        double nextWpRng = Calculator.range(currentPntData.getPosition(),
                 nextLeg.getEndWp().getPos(), nextLeg.getHeading());
 
         if (inWpCircle) {

@@ -30,29 +30,29 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.SensorPanel;
-import dk.dma.epd.ship.gui.panels.GPSPanel;
+import dk.dma.epd.ship.gui.panels.PntPanel;
 
-public class GpsComponentPanel extends OMComponentPanel implements
+public class PntComponentPanel extends OMComponentPanel implements
         IPntDataListener {
 
     private static final long serialVersionUID = 1L;
-    private PntHandler gpsHandler;
+    private PntHandler pntHandler;
     private AisHandler aisHandler;
     
-    private PntData gpsData;
+    private PntData pntData;
     
-    private final GPSPanel gpsPanel = new GPSPanel();
+    private final PntPanel pntPanel = new PntPanel();
 
-    public GpsComponentPanel() {
+    public PntComponentPanel() {
         super();
         
 //        this.setMinimumSize(new Dimension(10, 115));
         
-        gpsPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+        pntPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
         setBorder(null);
         
         setLayout(new BorderLayout(0, 0));
-        add(gpsPanel, BorderLayout.NORTH);
+        add(pntPanel, BorderLayout.NORTH);
         setVisible(false);
     }
 
@@ -60,38 +60,38 @@ public class GpsComponentPanel extends OMComponentPanel implements
 
     public void setGpsData(PntData gpsData) {
         synchronized (SensorPanel.class) {
-            this.gpsData = gpsData;
+            this.pntData = gpsData;
         }
     }
     
-    public PntData getGpsData() {
+    public PntData getPntData() {
         synchronized (SensorPanel.class) {
-            return gpsData;
+            return pntData;
         }
     }
     
     @Override
-    public void pntDataUpdate(PntData gpsData) {
-        this.setGpsData(gpsData);
-        Position pos = gpsData.getPosition();
-        if (gpsData.isBadPosition() || pos == null) {
-            gpsPanel.getLatLabel().setText("N/A");
-            gpsPanel.getLonLabel().setText("N/A");
+    public void pntDataUpdate(PntData pntData) {
+        this.setGpsData(pntData);
+        Position pos = pntData.getPosition();
+        if (pntData.isBadPosition() || pos == null) {
+            pntPanel.getLatLabel().setText("N/A");
+            pntPanel.getLonLabel().setText("N/A");
         } else {
-            gpsPanel.getLatLabel().setText(Formatter.latToPrintable(pos.getLatitude()));
-            gpsPanel.getLonLabel().setText(Formatter.lonToPrintable(pos.getLongitude()));
+            pntPanel.getLatLabel().setText(Formatter.latToPrintable(pos.getLatitude()));
+            pntPanel.getLonLabel().setText(Formatter.lonToPrintable(pos.getLongitude()));
         }
         
-        if (gpsData.isBadPosition() || gpsData.getSog() == null) {
-            gpsPanel.getSogLabel().setText("N/A");
+        if (pntData.isBadPosition() || pntData.getSog() == null) {
+            pntPanel.getSogLabel().setText("N/A");
         } else {
-            gpsPanel.getSogLabel().setText(Formatter.formatSpeed(gpsData.getSog()));
+            pntPanel.getSogLabel().setText(Formatter.formatSpeed(pntData.getSog()));
         }
         
-        if (gpsData.isBadPosition() || gpsData.getCog() == null) {
-            gpsPanel.getCogLabel().setText("N/A");
+        if (pntData.isBadPosition() || pntData.getCog() == null) {
+            pntPanel.getCogLabel().setText("N/A");
         } else {
-            gpsPanel.getCogLabel().setText(Formatter.formatDegrees(gpsData.getCog(), 1));
+            pntPanel.getCogLabel().setText(Formatter.formatDegrees(pntData.getCog(), 1));
         }
         
         Double heading = null;
@@ -110,7 +110,7 @@ public class GpsComponentPanel extends OMComponentPanel implements
 
         }
         
-        gpsPanel.getHdgLabel().setText(Formatter.formatDegrees(heading, 1));
+        pntPanel.getHdgLabel().setText(Formatter.formatDegrees(heading, 1));
 
         
     }
@@ -118,9 +118,9 @@ public class GpsComponentPanel extends OMComponentPanel implements
     @Override
     public void findAndInit(Object obj) {
 
-        if (gpsHandler == null && obj instanceof PntHandler) {
-            gpsHandler = (PntHandler)obj;
-            gpsHandler.addListener(this);
+        if (pntHandler == null && obj instanceof PntHandler) {
+            pntHandler = (PntHandler)obj;
+            pntHandler.addListener(this);
         }
         if (aisHandler == null && obj instanceof AisHandler) {
             aisHandler = (AisHandler)obj;

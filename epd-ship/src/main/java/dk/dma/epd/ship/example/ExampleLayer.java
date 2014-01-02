@@ -44,8 +44,8 @@ public class ExampleLayer extends OMGraphicHandlerLayer implements IPntDataListe
 
     private static final Logger LOG = LoggerFactory.getLogger(ExampleLayer.class);
     
-    // A handler able to read and parse GPS messages
-    private PntHandler gpsHandler;
+    // A handler able to read and parse PNT messages
+    private PntHandler pntHandler;
     // An AIS target table
     private AisHandler aisHandler;
     // A manager doing the general route handling
@@ -55,11 +55,11 @@ public class ExampleLayer extends OMGraphicHandlerLayer implements IPntDataListe
     private OMGraphicList graphics = new OMGraphicList();
     
     /**
-     * Receive GPS updates in the form of GpsData messages
+     * Receive PNT updates in the form of PntData messages
      */
     @Override
-    public void pntDataUpdate(PntData gpsData) {
-        LOG.info("New GPS data: " + gpsData);        
+    public void pntDataUpdate(PntData pntData) {
+        LOG.info("New PNT data: " + pntData);        
     }
 
     /**
@@ -115,9 +115,9 @@ public class ExampleLayer extends OMGraphicHandlerLayer implements IPntDataListe
     @Override
     public void findAndInit(Object obj) {
         LOG.info("Hello from findAndInit obj.class: " + obj.getClass());
-        if (gpsHandler == null && obj instanceof PntHandler) {
-            gpsHandler = (PntHandler)obj;
-            gpsHandler.addListener(this);
+        if (pntHandler == null && obj instanceof PntHandler) {
+            pntHandler = (PntHandler)obj;
+            pntHandler.addListener(this);
         }
         if (aisHandler == null && obj instanceof AisHandler) {
             aisHandler = (AisHandler)obj;
@@ -134,9 +134,9 @@ public class ExampleLayer extends OMGraphicHandlerLayer implements IPntDataListe
      */
     @Override
     public void findAndUndo(Object obj) {
-        if (gpsHandler == obj) {
-            gpsHandler.removeListener(this);
-            gpsHandler = null;
+        if (pntHandler == obj) {
+            pntHandler.removeListener(this);
+            pntHandler = null;
         }
         if (aisHandler == obj) {
             aisHandler.removeListener(this);

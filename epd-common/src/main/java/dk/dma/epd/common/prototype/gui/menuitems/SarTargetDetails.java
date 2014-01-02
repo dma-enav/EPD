@@ -30,7 +30,7 @@ public class SarTargetDetails extends JMenuItem implements IMapMenuAction {
     private static final long serialVersionUID = 1L;
     
     private JFrame mainFrame;
-    private PntHandler gpsHandler;
+    private PntHandler pntHandler;
     private SarTarget sarTarget;
 
     /**
@@ -47,7 +47,7 @@ public class SarTargetDetails extends JMenuItem implements IMapMenuAction {
      */
     @Override
     public void doAction() {
-         new SartDetailsDialog(mainFrame, sarTarget, gpsHandler);
+         new SartDetailsDialog(mainFrame, sarTarget, pntHandler);
     }
     
     /**
@@ -59,11 +59,11 @@ public class SarTargetDetails extends JMenuItem implements IMapMenuAction {
     }
     
     /**
-     * Sets the GPS handler
-     * @param gpsHandler
+     * Sets the PNT handler
+     * @param pntHandler
      */
-    public void setGpsHandler(PntHandler gpsHandler) {
-        this.gpsHandler = gpsHandler;
+    public void setPntHandler(PntHandler pntHandler) {
+        this.pntHandler = pntHandler;
     }
     
     /**

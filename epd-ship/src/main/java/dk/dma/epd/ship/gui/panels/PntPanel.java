@@ -25,13 +25,13 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 /**
- * GPS panel in sensor panel
+ * PNT panel in sensor panel
  */
-public class GPSPanel extends JPanel {
+public class PntPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     
-    private JLabel gpsTitleLabel = new JLabel("GPS");
+    private JLabel pntTitleLabel = new JLabel("PNT");
     private JLabel latTitleLabel = new JLabel("LAT");
     private JLabel latLabel = new JLabel("N/A");
     private JLabel lonTitleLabel = new JLabel("LON");
@@ -43,7 +43,7 @@ public class GPSPanel extends JPanel {
     private JLabel hdgLabel = new JLabel("N/A");
     private JLabel hdgTitleLabel = new JLabel("HDG");
     
-    public GPSPanel() {
+    public PntPanel() {
         
         GridBagLayout gridBagLayout = new GridBagLayout();
         gridBagLayout.columnWidths = new int[] { 10, 10, 0 };
@@ -52,16 +52,16 @@ public class GPSPanel extends JPanel {
         gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,
                 Double.MIN_VALUE };
         setLayout(gridBagLayout);
-        gpsTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        gpsTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        GridBagConstraints gbc_gpsTitleLabel = new GridBagConstraints();
-        gbc_gpsTitleLabel.anchor = GridBagConstraints.NORTH;
-        gbc_gpsTitleLabel.fill = GridBagConstraints.HORIZONTAL;
-        gbc_gpsTitleLabel.insets = new Insets(0, 0, 5, 0);
-        gbc_gpsTitleLabel.gridwidth = 2;
-        gbc_gpsTitleLabel.gridx = 0;
-        gbc_gpsTitleLabel.gridy = 0;
-        add(gpsTitleLabel, gbc_gpsTitleLabel);
+        pntTitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        pntTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        GridBagConstraints gbc_pntTitleLabel = new GridBagConstraints();
+        gbc_pntTitleLabel.anchor = GridBagConstraints.NORTH;
+        gbc_pntTitleLabel.fill = GridBagConstraints.HORIZONTAL;
+        gbc_pntTitleLabel.insets = new Insets(0, 0, 5, 0);
+        gbc_pntTitleLabel.gridwidth = 2;
+        gbc_pntTitleLabel.gridx = 0;
+        gbc_pntTitleLabel.gridy = 0;
+        add(pntTitleLabel, gbc_pntTitleLabel);
 
         latTitleLabel.setHorizontalAlignment(SwingConstants.LEFT);
         latTitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));

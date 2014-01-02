@@ -15,8 +15,6 @@
  */
 package dk.dma.epd.common.prototype.layers.ais;
 
-import java.awt.Color;
-
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.coords.LatLonPoint;

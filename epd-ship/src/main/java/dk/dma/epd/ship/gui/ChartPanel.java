@@ -59,10 +59,10 @@ import dk.dma.epd.ship.layers.EncLayerFactory;
 import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.background.CoastalOutlineLayer;
-import dk.dma.epd.ship.layers.gps.OwnShipLayer;
 import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
 import dk.dma.epd.ship.layers.nogo.DynamicNogoLayer;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
+import dk.dma.epd.ship.layers.ownship.OwnShipLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
 import dk.dma.epd.ship.layers.routeEdit.RouteEditLayer;
 import dk.dma.epd.ship.layers.ruler.RulerLayer;
@@ -242,7 +242,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         aisLayer.setVisible(true);
         mapHandler.add(aisLayer);
 
-        // Create GPS layer
+        // Create own ship layer layer
         ownShipLayer = new OwnShipLayer();
         ownShipLayer.setVisible(true);
         mapHandler.add(ownShipLayer);
@@ -324,7 +324,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         // Force a MSI layer update
         msiLayer.doUpdate();
 
-        // Add this class as GPS data listener
+        // Add this class as PNT data listener
         EPDShip.getPntHandler().addListener(this);
 
         // encLayerFactory2.setMapSettings();
@@ -377,7 +377,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         return mapHandler;
     }
 
-    public Layer getGpsLayer() {
+    public Layer getOwnShipLayer() {
         return ownShipLayer;
     }
 
@@ -542,7 +542,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         }
         
         // Only do auto follow if not bad position
-        if (gpsData == null || gpsData.isBadPosition()) {
+        if (pntData == null || pntData.isBadPosition()) {
             return;
         }
 
@@ -563,17 +563,17 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
 
             // Calculate a factor [0;1] from speed
             double factor = 0;
-            if (gpsData.getSog() < lookAheadMinSpd) {
+            if (pntData.getSog() < lookAheadMinSpd) {
                 factor = 0;
-            } else if (gpsData.getSog() < lookAheadMaxSpd) {
-                factor = gpsData.getSog() / lookAheadMaxSpd;
+            } else if (pntData.getSog() < lookAheadMaxSpd) {
+                factor = pntData.getSog() / lookAheadMaxSpd;
             } else {
                 factor = 1.0;
             }
 
-            double phiX = Math.cos(Math.toRadians(gpsData.getCog()) - 3
+            double phiX = Math.cos(Math.toRadians(pntData.getCog()) - 3
                     * Math.PI / 2);
-            double phiY = Math.sin(Math.toRadians(gpsData.getCog()) - 3
+            double phiY = Math.sin(Math.toRadians(pntData.getCog()) - 3
                     * Math.PI / 2);
 
             double fx = factor * phiX;
@@ -586,8 +586,8 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
 
         // Get projected x,y of current position
         Point2D shipXY = map.getProjection().forward(
-                gpsData.getPosition().getLatitude(),
-                gpsData.getPosition().getLongitude());
+                pntData.getPosition().getLatitude(),
+                pntData.getPosition().getLongitude());
 
         // Calculate how many percent the position is off for x and y
         double pctOffX = Math.abs(desiredX - shipXY.getX()) / map.getWidth()
@@ -610,8 +610,8 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
             map.setCenter((float) forwardCenter.getY(),
                     (float) forwardCenter.getX());
         } else {
-            map.setCenter((float) gpsData.getPosition().getLatitude(),
-                    (float) gpsData.getPosition().getLongitude());
+            map.setCenter((float) pntData.getPosition().getLatitude(),
+                    (float) pntData.getPosition().getLongitude());
         }
 
     }
@@ -621,7 +621,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
      */
     @Override
     public void pntDataUpdate(PntData gpsData) {
-        this.gpsData = gpsData;
+        this.pntData = gpsData;
         autoFollow();
     }
 

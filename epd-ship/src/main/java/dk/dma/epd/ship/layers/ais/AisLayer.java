@@ -459,7 +459,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
             mainFrame.getGlassPanel().add(pastTrackInfoPanel);
         }
         if (obj instanceof PntHandler) {
-            sarTargetInfoPanel.setGpsHandler((PntHandler) obj);
+            sarTargetInfoPanel.setPntHandler((PntHandler) obj);
         }
         if (obj instanceof MapMenu) {
             aisTargetMenu = (MapMenu) obj;

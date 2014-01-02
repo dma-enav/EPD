@@ -71,7 +71,7 @@ public class PntMessage {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("GpsMessage [cog=");
+        builder.append("PntMessage [cog=");
         builder.append(cog);
         builder.append(", pos=");
         builder.append(pos);

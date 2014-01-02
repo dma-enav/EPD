@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -70,9 +71,6 @@ import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.ParseUtils;
-
-import javax.swing.JComboBox;
-import javax.ws.rs.core.NewCookie;
 
 /**
  * Dialog with route properties
