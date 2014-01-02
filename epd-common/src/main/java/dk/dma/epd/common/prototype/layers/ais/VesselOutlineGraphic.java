@@ -17,7 +17,6 @@ package dk.dma.epd.common.prototype.layers.ais;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Paint;
 import java.awt.Stroke;
 
 import com.bbn.openmap.omGraphics.OMCircle;

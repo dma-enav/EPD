@@ -72,7 +72,6 @@ import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.ParseUtils;
 
 import javax.swing.JComboBox;
-import javax.ws.rs.core.NewCookie;
 
 /**
  * Dialog with route properties

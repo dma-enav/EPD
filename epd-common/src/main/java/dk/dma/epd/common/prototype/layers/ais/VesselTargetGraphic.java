@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.common.prototype.layers.ais;
 
-import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.proj.Projection;
 
 import dk.dma.ais.message.AisMessage;
