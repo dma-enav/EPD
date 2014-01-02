@@ -119,7 +119,7 @@ public class SensorTab extends JPanel implements ActionListener {
         AisConnectionPanel.setBorder(new TitledBorder(null, "AIS Connection", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
         JLabel label_2 = new JLabel("Connection type");
-        JLabel label_3 = new JLabel("TCP-port");
+        JLabel label_3 = new JLabel("Port");
         JLabel label_4 = new JLabel("AIS-file name");
         JLabel label_5 = new JLabel("Host or serial port");
         
@@ -183,7 +183,7 @@ public class SensorTab extends JPanel implements ActionListener {
         GpsConnectionPanel.setBorder(new TitledBorder(null, "GPS Connection", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
         JLabel label_6 = new JLabel("Connection type");
-        JLabel label_7 = new JLabel("TCP-port");
+        JLabel label_7 = new JLabel("Port");
         JLabel label_8 = new JLabel("GPS-file name");
         JLabel label_9 = new JLabel("Host or serial port");
         
@@ -248,7 +248,7 @@ public class SensorTab extends JPanel implements ActionListener {
         MsPntConnectionPanel.setBorder(new TitledBorder(null, "Multi-source PNT Connection", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
         JLabel label_10 = new JLabel("Connection type");
-        JLabel label_11 = new JLabel("TCP-port");
+        JLabel label_11 = new JLabel("Port");
         JLabel label_12 = new JLabel("MS PNT-file name");
         JLabel label_13 = new JLabel("Host or serial port");
         
