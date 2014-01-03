@@ -197,7 +197,7 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IOwnShipListe
     
     public double[] calculateMinuteMarker(LatLonPoint startPoint, int minute) {
         VesselPositionData posData = ownShipHandler.getPositionData();
-        float length = (float) Length.NM.toRadians(EPDShip.getSettings().getNavSettings().getCogVectorLength()/6 * minute * (posData.getSog() / 60.0));
+        float length = (float) Length.NM.toRadians(EPDShip.getSettings().getNavSettings().getCogVectorLength() * (posData.getSog() / 60.0));
         LatLonPoint marker = startPos.getPoint(length, (float) ProjMath.degToRad(posData.getCog()));
         double[] newMarker = {marker.getLatitude(), marker.getLongitude(), 0, 0};
         return newMarker;
