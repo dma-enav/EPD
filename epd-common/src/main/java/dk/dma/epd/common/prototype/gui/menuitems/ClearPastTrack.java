@@ -52,7 +52,9 @@ public class ClearPastTrack extends JMenuItem implements IMapMenuAction {
                JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
            // Clear the past track data
            mobileTarget.setPastTrackData(new PastTrackSortedSet());
-           aisLayer.targetUpdated(mobileTarget);
+           if (aisLayer != null) {
+               aisLayer.targetUpdated(mobileTarget);
+           }
        }
    }
    

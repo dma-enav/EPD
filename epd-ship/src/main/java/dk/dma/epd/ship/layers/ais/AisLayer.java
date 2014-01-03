@@ -77,6 +77,7 @@ import dk.dma.epd.ship.gui.TopPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 /**
  * AIS layer. Showing AIS targets and intended routes.
@@ -91,6 +92,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
     private volatile long minRedrawInterval = 5 * 1000; // 5 sec
 
     private AisHandler aisHandler;
+    private OwnShipHandler ownShipHandler;
     private MapBean mapBean;
     private MainFrame mainFrame;
 
@@ -216,12 +218,11 @@ public class AisLayer extends OMGraphicHandlerLayer implements
 
         if (vessel.getStaticData() != null) {
 
-            if (aisHandler.getOwnShip() != null
-                    && aisHandler.getOwnShip().getPositionData() != null) {
-                rhumbLineDistance = aisHandler.getOwnShip().getPositionData()
+            if (ownShipHandler.getPositionData().getPos() != null) {
+                rhumbLineDistance = ownShipHandler.getPositionData()
                         .getPos()
                         .rhumbLineDistanceTo(vessel.getPositionData().getPos());
-                rhumbLineBearing = aisHandler.getOwnShip().getPositionData()
+                rhumbLineBearing = ownShipHandler.getPositionData()
                         .getPos()
                         .rhumbLineBearingTo(vessel.getPositionData().getPos()
 
@@ -238,12 +239,11 @@ public class AisLayer extends OMGraphicHandlerLayer implements
 
             // if (vessel.getStaticData() != null) {
 
-            if (aisHandler.getOwnShip() != null
-                    && aisHandler.getOwnShip().getPositionData() != null) {
-                rhumbLineDistance = aisHandler.getOwnShip().getPositionData()
+            if (ownShipHandler.getPositionData().getPos() != null) {
+                rhumbLineDistance = ownShipHandler.getPositionData()
                         .getPos()
                         .rhumbLineDistanceTo(vessel.getPositionData().getPos());
-                rhumbLineBearing = aisHandler.getOwnShip().getPositionData()
+                rhumbLineBearing = ownShipHandler.getPositionData()
                         .getPos()
                         .rhumbLineBearingTo(vessel.getPositionData().getPos()
 
@@ -255,8 +255,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
                     rhumbLineBearing, vessel.getPositionData().getSog());
             // }
         }
-        if (vessel.getStaticData() != null && aisHandler.getOwnShip() != null
-                && aisHandler.getOwnShip().getPositionData() != null) {
+        if (vessel.getStaticData() != null && ownShipHandler.getPositionData().getPos() != null) {
             aisPanel.dynamicNogoAvailable(true);
         } else {
             aisPanel.dynamicNogoAvailable(false);
@@ -447,6 +446,9 @@ public class AisLayer extends OMGraphicHandlerLayer implements
         if (obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
             aisHandler.addListener(this);
+        }
+        if (obj instanceof OwnShipHandler) {
+            ownShipHandler = (OwnShipHandler) obj;
         }
         if (obj instanceof MapBean) {
             mapBean = (MapBean) obj;

@@ -44,10 +44,10 @@ import javax.swing.text.NumberFormatter;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.nogo.NogoHandler;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 /**
  * The nogo dialog
@@ -74,7 +74,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
     Position southEastPoint;
 
     @SuppressWarnings("deprecation")
-    public NogoDialog(JFrame parent, NogoHandler nogoHandler, AisHandler aisHandler) {
+    public NogoDialog(JFrame parent, NogoHandler nogoHandler, OwnShipHandler ownShipHandler) {
         super(parent, "Request Nogo", true);
 
         mainFrame = (MainFrame) parent;
@@ -225,8 +225,8 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
             }
         }
 
-        if (aisHandler != null && aisHandler.getOwnShip().getStaticData() != null) {
-            Integer draught = (int)(aisHandler.getOwnShip().getStaticData().getDraught() / 10);
+        if (ownShipHandler != null && ownShipHandler.getStaticData() != null) {
+            Integer draught = (int)(ownShipHandler.getStaticData().getDraught() / 10);
             spinnerDraught.setValue(draught);
         }
 

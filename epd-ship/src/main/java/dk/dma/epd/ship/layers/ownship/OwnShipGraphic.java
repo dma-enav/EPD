@@ -29,7 +29,6 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.ship.EPDShip;
 
 /**
@@ -102,9 +101,8 @@ public class OwnShipGraphic extends OMGraphicList {
         this.add(this.directionVector);
     }
     
-    public boolean update(VesselTarget ownShip) {
-        VesselPositionData ownShipData = null;
-        if(ownShip == null || (ownShipData = ownShip.getPositionData()) == null || ownShipData.getPos() == null) {
+    public boolean update(VesselPositionData ownShipData) {
+        if(ownShipData.getPos() == null) {
             return false;
         }
         

@@ -161,16 +161,14 @@ public class PastTrackGraphic extends OMGraphicList {
      * <p>
      * Used to update the line from the last past-track point to the vessel.
      * 
-     * @param mobileTarget the mobileTarget to check
+     * @param targetPostion the target position to check
      * @return if the target position has changed
      */
-    private boolean targetPositionChanged(MobileTarget mobileTarget) {
-        if (mobileTarget == null) {
-            return false;
-        } else if (lastPastTrackTargetPosition == null) {
+    private boolean targetPositionChanged(Position targetPostion) {
+        if (lastPastTrackTargetPosition == null) {
             return true;
         }
-        return !lastPastTrackTargetPosition.equals(mobileTarget.getPositionData().getPos());
+        return !lastPastTrackTargetPosition.equals(targetPostion);
     }
     
     /**
@@ -179,6 +177,17 @@ public class PastTrackGraphic extends OMGraphicList {
      * @param mobileTarget the mobile target, i.e. vessel or sar targets
      */
     public synchronized void update(MobileTarget mobileTarget) {
+        Position targetPostion = (mobileTarget == null) ? null : mobileTarget.getPositionData().getPos();
+        update(mobileTarget, targetPostion);
+    }
+    
+    /**
+     * Updates gui PastTrack from the given mobile target
+     * 
+     * @param mobileTarget the mobile target, i.e. vessel or sar targets
+     * @param targetPosition the current target position
+     */
+    public synchronized void update(MobileTarget mobileTarget, Position targetPostion) {
 
         boolean pastTrackVisible = pastTrackVisible(mobileTarget);
         
@@ -187,7 +196,7 @@ public class PastTrackGraphic extends OMGraphicList {
                 mobileTarget != null &&
                 mobileTarget.getPastTrackData().getLastChangeTime() == lastPastTrackChangeTime &&
                 pastTrackVisible == lastPastTrackVisibility &&
-                !targetPositionChanged(mobileTarget)) {
+                !targetPositionChanged(targetPostion)) {
             return;
         }
         
@@ -195,7 +204,7 @@ public class PastTrackGraphic extends OMGraphicList {
         this.mobileTarget = mobileTarget;
         lastPastTrackChangeTime = this.mobileTarget.getPastTrackData().getLastChangeTime();
         lastPastTrackVisibility = pastTrackVisible;
-        lastPastTrackTargetPosition = mobileTarget.getPositionData().getPos();
+        lastPastTrackTargetPosition = targetPostion;
         setMmsi(mobileTarget.getMmsi());
         
         // Clear old data

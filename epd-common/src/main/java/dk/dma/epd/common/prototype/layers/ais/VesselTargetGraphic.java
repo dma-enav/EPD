@@ -117,7 +117,7 @@ public class VesselTargetGraphic extends TargetGraphic {
         this.vesselTriangleGraphic.setVisible(false);
         this.vesselDotGraphic.setVisible(false);
         // update data
-        this.vesselOutlineGraphic.setLocation(vesselTarget);
+        this.vesselOutlineGraphic.setLocation(vesselTarget.getPositionData(), vesselTarget.getStaticData());
         // (re-)enable visibility for outline mode
         this.vesselOutlineGraphic.setVisible(true);
         

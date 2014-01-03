@@ -66,11 +66,13 @@ import dk.dma.epd.ship.gui.route.RouteManagerDialog;
 import dk.dma.epd.ship.monalisa.MonaLisaRouteOptimization;
 import dk.dma.epd.ship.nogo.DynamicNogoHandler;
 import dk.dma.epd.ship.nogo.NogoHandler;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.risk.RiskHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
 import dk.dma.epd.ship.service.EnavServiceHandler;
 import dk.dma.epd.ship.service.communication.ais.AisServices;
+import dk.dma.epd.ship.service.shore.ShoreServices;
 import dk.dma.epd.ship.settings.EPDSensorSettings;
 import dk.dma.epd.ship.settings.EPDSettings;
 
@@ -93,6 +95,7 @@ public class EPDShip extends EPD {
     private static PntHandler pntHandler;
     private static MultiSourcePntHandler msPntHandler;
     private static AisHandler aisHandler;
+    private static OwnShipHandler ownShipHandler;
     private static RiskHandler riskHandler;
     private static RouteManager routeManager;
     private static ShoreServicesCommon shoreServices;
@@ -163,13 +166,18 @@ public class EPDShip extends EPD {
         aisHandler.loadView();
         EPD.startThread(aisHandler, "AisHandler");
         mapHandler.add(aisHandler);
+        
+        // Start own-ship handler
+        ownShipHandler = new OwnShipHandler(settings.getAisSettings());
+        ownShipHandler.loadView();
+        mapHandler.add(ownShipHandler);
 
         // Load routeManager and register as GPS data listener
         routeManager = RouteManager.loadRouteManager();
         mapHandler.add(routeManager);
 
         // Create shore services
-        shoreServices = new ShoreServicesCommon(getSettings().getEnavSettings());
+        shoreServices = new ShoreServices(getSettings().getEnavSettings());
         mapHandler.add(shoreServices);
 
         // Create mona lisa route exchange
@@ -306,6 +314,7 @@ public class EPDShip extends EPD {
 
         if (aisSensor != null) {
             aisSensor.addAisListener(aisHandler);
+            aisSensor.addAisListener(ownShipHandler);
             aisSensor.start();
             mapHandler.add(aisSensor);
         }
@@ -551,6 +560,7 @@ public class EPDShip extends EPD {
         routeManager.saveToFile();
         msiHandler.saveToFile();
         aisHandler.saveView();
+        ownShipHandler.saveView();
         transponderFrame.shutdown();
 
         if (connection != null) {
@@ -624,6 +634,10 @@ public class EPDShip extends EPD {
         return aisHandler;
     }
 
+    public OwnShipHandler getOwnShipHandler() {
+        return ownShipHandler;
+    }
+    
     public static RouteManager getRouteManager() {
         return routeManager;
     }

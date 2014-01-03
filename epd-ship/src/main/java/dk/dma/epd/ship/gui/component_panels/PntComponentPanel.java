@@ -23,21 +23,20 @@ import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.SensorPanel;
 import dk.dma.epd.ship.gui.panels.PntPanel;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 public class PntComponentPanel extends OMComponentPanel implements
         IPntDataListener {
 
     private static final long serialVersionUID = 1L;
     private PntHandler pntHandler;
-    private AisHandler aisHandler;
+    private OwnShipHandler ownShipHandler;
     
     private PntData pntData;
     
@@ -95,14 +94,9 @@ public class PntComponentPanel extends OMComponentPanel implements
         }
         
         Double heading = null;
-        VesselTarget ownShip = null;
         
-        if (aisHandler != null) {
-            ownShip = aisHandler.getOwnShip();
-        }
-        
-        if (ownShip != null) {
-            VesselPositionData posData = ownShip.getPositionData();
+        if (ownShipHandler != null) {
+            VesselPositionData posData = ownShipHandler.getPositionData();
 
             if (posData != null && posData.getTrueHeading() < 360) {
                 heading = (double) posData.getTrueHeading();
@@ -122,8 +116,8 @@ public class PntComponentPanel extends OMComponentPanel implements
             pntHandler = (PntHandler)obj;
             pntHandler.addListener(this);
         }
-        if (aisHandler == null && obj instanceof AisHandler) {
-            aisHandler = (AisHandler)obj;
+        if (ownShipHandler == null && obj instanceof OwnShipHandler) {
+            ownShipHandler = (OwnShipHandler)obj;
         }
 
     }

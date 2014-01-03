@@ -18,9 +18,9 @@ package dk.dma.epd.ship.gui.menuitems;
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.monalisa.MonaLisaSSPAOptionsDialog;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 
 public class MonaLisaRouteRequest extends JMenuItem implements IMapMenuAction {
@@ -31,7 +31,7 @@ public class MonaLisaRouteRequest extends JMenuItem implements IMapMenuAction {
     private int routeIndex;
     private RouteManager routeManager;
     private MainFrame mainFrame;
-    private AisHandler aisHandler;
+    private OwnShipHandler ownShipHandler;
 
     public MonaLisaRouteRequest(String text) {
         super();
@@ -57,8 +57,8 @@ public class MonaLisaRouteRequest extends JMenuItem implements IMapMenuAction {
         this.mainFrame = mainFrame;
     }
 
-    public void setAisHandler(AisHandler aisHandler) {
-        this.aisHandler = aisHandler;
+    public void setOwnShipHandler(OwnShipHandler ownShipHandler) {
+        this.ownShipHandler = ownShipHandler;
     }
 
     @Override
@@ -70,7 +70,7 @@ public class MonaLisaRouteRequest extends JMenuItem implements IMapMenuAction {
 //        }
         
         
-        MonaLisaSSPAOptionsDialog monaLisaDialog = new MonaLisaSSPAOptionsDialog(mainFrame, routeManager, aisHandler);
+        MonaLisaSSPAOptionsDialog monaLisaDialog = new MonaLisaSSPAOptionsDialog(mainFrame, routeManager, ownShipHandler);
         monaLisaDialog.showDialog(routeIndex);
         
 

@@ -23,13 +23,12 @@ import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.panels.OwnShipPanel;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataListener {
 
@@ -40,7 +39,7 @@ public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataL
     
     private final OwnShipPanel ownShipPanel = new OwnShipPanel();
     
-    private AisHandler aisHandler;
+    private OwnShipHandler ownShipHandler;
     private PntHandler pntHandler;
     
     public OwnShipComponentPanel(){
@@ -63,16 +62,11 @@ public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataL
         String ownName = null;
         String ownCallsign = null;
         Long ownMmsi = null;
-        VesselTarget ownShip = null;
         
-        if (aisHandler != null) {
-            ownShip = aisHandler.getOwnShip();
-        }
-        
-        if (ownShip != null) {
-            VesselStaticData staticData = ownShip.getStaticData();
+        if (ownShipHandler != null) {
+            VesselStaticData staticData = ownShipHandler.getStaticData();
 
-            ownMmsi = ownShip.getMmsi();
+            ownMmsi = ownShipHandler.getMmsi();
 
             if (staticData != null) {
                 ownName = AisMessage.trimText(staticData.getName());
@@ -92,8 +86,8 @@ public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataL
             pntHandler = (PntHandler)obj;
             pntHandler.addListener(this);
         }
-        if (aisHandler == null && obj instanceof AisHandler) {
-            aisHandler = (AisHandler)obj;
+        if (ownShipHandler == null && obj instanceof OwnShipHandler) {
+            ownShipHandler = (OwnShipHandler)obj;
         }
     }
 

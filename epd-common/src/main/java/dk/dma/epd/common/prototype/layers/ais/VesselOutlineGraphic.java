@@ -27,8 +27,8 @@ import com.bbn.openmap.omGraphics.OMPoly;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.RotationalPoly;
+import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
 
 /**
  * @author Janus Varmarken
@@ -48,11 +48,6 @@ public class VesselOutlineGraphic extends OMGraphicList {
      * Displays the position of the PNT device.
      */
     private OMCircle pntDevice;
-
-    /**
-     * The Vessel displayed by this VesselOutlineGrahpic
-     */
-    private VesselTarget vessel;
 
     /**
      * Displays a COG vector.
@@ -77,35 +72,39 @@ public class VesselOutlineGraphic extends OMGraphicList {
         this.lineStroke = new BasicStroke(this.lineThickness);
     }
 
-    private void producePolygon(VesselTarget vessel) {
-        this.vessel = vessel;
-        // TODO add null check on static data here or in client?
-        VesselStaticData vsd = this.vessel.getStaticData();
+    /**
+     * Produces the vessel outline polygon based on the given vessel position and static data
+     * 
+     * @param positionData the vessel position data
+     * @param staticData the vessel static data
+     */
+    private void producePolygon(VesselPositionData positionData, VesselStaticData staticData) {
+
         // Get angle from PNT to lower left corner of ship
-        double anglLowerLeft = this.calcAngleFromCenter(vsd.getDimStern(),
-                vsd.getDimPort());
+        double anglLowerLeft = this.calcAngleFromCenter(staticData.getDimStern(),
+                staticData.getDimPort());
         // calculate distance to lower left corner of vessel (Pythagoras)
-        double distLowerLeftCorner = Math.sqrt(Math.pow(vsd.getDimStern(), 2.0)
-                + Math.pow(vsd.getDimPort(), 2.0));
+        double distLowerLeftCorner = Math.sqrt(Math.pow(staticData.getDimStern(), 2.0)
+                + Math.pow(staticData.getDimPort(), 2.0));
         
-        float heading = vessel.getPositionData().getTrueHeading();
+        float heading = positionData.getTrueHeading();
 
         anglLowerLeft += heading + 180;
         
         if(360 <= anglLowerLeft) {
             anglLowerLeft -= 360.0;
         }
-        Position vessPos = vessel.getPositionData().getPos();
-        double lat = vessel.getPositionData().getPos().getLatitude();
-        double lon = vessel.getPositionData().getPos().getLongitude();
+        Position vessPos = positionData.getPos();
+        double lat = positionData.getPos().getLatitude();
+        double lon = positionData.getPos().getLongitude();
         
         // find latlon of lower left corner of ship
         Position leftSideBottomLL = CoordinateSystem.CARTESIAN.pointOnBearing(vessPos,
                 distLowerLeftCorner, anglLowerLeft);
 
-        double shipFullLength = vsd.getDimBow() + vsd.getDimStern();
+        double shipFullLength = staticData.getDimBow() + staticData.getDimStern();
         double shipSideLength = shipFullLength * 0.85;
-        double shipSternWidth = vsd.getDimPort() + vsd.getDimStarboard();
+        double shipSternWidth = staticData.getDimPort() + staticData.getDimStarboard();
         
         // Not a point in the final polygon, simply used for finding polygon points in the bow.
         Position outerRectTopLeftLL = CoordinateSystem.CARTESIAN.pointOnBearing(leftSideBottomLL, shipFullLength, 0.0 + heading);
@@ -130,8 +129,8 @@ public class VesselOutlineGraphic extends OMGraphicList {
             this.add(this.cogVector);
         }
         // don't show COG vector if vessel is docked
-        this.cogVector.setVisible(vessel.getPositionData().getSog() > 0.1);
-        this.cogVector.setLocation(lat, lon, OMGraphic.DECIMAL_DEGREES, Math.toRadians(this.vessel.getPositionData().getCog()));
+        this.cogVector.setVisible(positionData.getSog() > 0.1);
+        this.cogVector.setLocation(lat, lon, OMGraphic.DECIMAL_DEGREES, Math.toRadians(positionData.getCog()));
         // clear old PntDevice display
         this.remove(this.pntDevice);
         this.pntDevice = new OMCircle(lat, lon, 3, 3);
@@ -163,8 +162,14 @@ public class VesselOutlineGraphic extends OMGraphicList {
         this.setStroke(this.lineStroke);
     }
 
-    public void setLocation(VesselTarget vessel) {
-        this.producePolygon(vessel);
+    /**
+     * Produces the vessel outline polygon based on the given vessel position and static data
+     * 
+     * @param positionData the vessel position data
+     * @param staticData the vessel static data
+     */
+    public void setLocation(VesselPositionData positionData, VesselStaticData staticData) {
+        this.producePolygon(positionData, staticData);
     }
 
     /**

@@ -45,7 +45,9 @@ public class ToggleShowPastTrack extends JMenuItem implements IMapMenuAction {
    public void doAction() {
        // Toggle past-track visibility
        mobileTarget.getSettings().setShowPastTrack(!mobileTarget.getSettings().isShowPastTrack());
-       aisLayer.targetUpdated(mobileTarget);
+       if (aisLayer != null) {
+           aisLayer.targetUpdated(mobileTarget);
+       }
    }
    
    /**

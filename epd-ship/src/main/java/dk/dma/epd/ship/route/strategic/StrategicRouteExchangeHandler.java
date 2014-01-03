@@ -30,15 +30,15 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.route.strategic.RequestStrategicRouteDialog;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.EnavServiceHandler;
 
 public class StrategicRouteExchangeHandler extends MapHandlerChild {
 
-    private AisHandler aisHandler;
+    private OwnShipHandler ownShipHandler;
     private EnavServiceHandler enavServiceHandler;
 
     private HashMap<Long, StrategicRouteNegotiationData> monaLisaNegotiationData = new HashMap<Long, StrategicRouteNegotiationData>();
@@ -87,7 +87,7 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
             routeManager
                     .notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
 
-            long ownMMSI = aisHandler.getOwnShip().getMmsi();
+            long ownMMSI = (ownShipHandler.getMmsi() == null) ? -1L : ownShipHandler.getMmsi();
 
             // Sending route
             long transactionID = sendMonaLisaRouteRequest(route, ownMMSI,
@@ -424,8 +424,8 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
 
     @Override
     public void findAndInit(Object obj) {
-        if (obj instanceof AisHandler) {
-            aisHandler = (AisHandler) obj;
+        if (obj instanceof OwnShipHandler) {
+            ownShipHandler = (OwnShipHandler) obj;
         } else if (obj instanceof EnavServiceHandler) {
             enavServiceHandler = (EnavServiceHandler) obj;
         } else if (obj instanceof VoyageLayer) {

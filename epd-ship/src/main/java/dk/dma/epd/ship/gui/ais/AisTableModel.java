@@ -25,6 +25,7 @@ import javax.swing.table.AbstractTableModel;
 
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon.AisMessageExtended;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 
 /**
@@ -74,7 +75,7 @@ public class AisTableModel extends AbstractTableModel {
         List<AisMessageExtended> ships = getShips();
         for (AisMessageExtended ship : ships) {
             if (mmsi == ship.MMSI) {
-                AisMessageExtended s = aisHandler.getShip(aisTarget);
+                AisMessageExtended s = aisHandler.getShip(aisTarget, EPDShip.getPntHandler().getCurrentData());
                 ships.set(count, s);
                 fireTableRowsUpdated(count, count);
                 return;
@@ -88,7 +89,7 @@ public class AisTableModel extends AbstractTableModel {
     }
 
     private void addRow(VesselTarget aisTarget) {
-        AisMessageExtended s = aisHandler.getShip(aisTarget);
+        AisMessageExtended s = aisHandler.getShip(aisTarget, EPDShip.getPntHandler().getCurrentData());
         this.ships.add(s);
         fireTableRowsInserted(ships.size() - 1, ships.size() - 1);
 

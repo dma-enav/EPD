@@ -42,9 +42,9 @@ import javax.swing.text.NumberFormatter;
 
 import dk.dma.epd.common.prototype.monalisa.MonaLisaSSPAWPSelection;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.MainFrame;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 
 /**
@@ -72,7 +72,7 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
     ChartPanel chartPanel;
     RouteManager routeManager;
     MainFrame mainFrame;
-    AisHandler aisHandler;
+    OwnShipHandler ownShipHandler;
 
     JCheckBox showOutPutCheckBox;
     JCheckBox showInputCheckBox;
@@ -82,14 +82,14 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
     int routeid;
 
     public MonaLisaSSPAOptionsDialog(JFrame parent, RouteManager routeManager,
-            AisHandler aisHandler) {
+            OwnShipHandler ownShipHandler) {
         super(parent, "Request Mona Lisa Route Exchange", true);
 
         mainFrame = (MainFrame) parent;
 
         this.chartPanel = mainFrame.getChartPanel();
         this.routeManager = routeManager;
-        this.aisHandler = aisHandler;
+        this.ownShipHandler = ownShipHandler;
 
         setSize(366, 505);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -245,9 +245,9 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
             }
         }
 
-        if (aisHandler != null
-                && aisHandler.getOwnShip().getStaticData() != null) {
-            Integer draught = (int) (aisHandler.getOwnShip().getStaticData()
+        if (ownShipHandler != null
+                && ownShipHandler.getStaticData() != null) {
+            Integer draught = (int) (ownShipHandler.getStaticData()
                     .getDraught() / 10);
             spinnerDraught.setValue(draught);
         }

@@ -41,6 +41,12 @@ public class VesselPositionData implements Serializable {
     private float trueHeading;
     
     /**
+     * No-argument constructor
+     */
+    public VesselPositionData() {
+    }
+    
+    /**
      * Copy constructor
      * @param vesselPositionData
      */

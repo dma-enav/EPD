@@ -95,6 +95,7 @@ import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.route.strategic.RecievedRoute;
 import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
@@ -165,6 +166,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private NewRouteContainerLayer newRouteLayer;
     private AisLayer aisLayer;
     private AisHandler aisHandler;
+    private OwnShipHandler ownShipHandler;
     private NogoHandler nogoHandler;
     private MouseDelegator mouseDelegator;
     private EnavServiceHandler enavServiceHandler;
@@ -347,7 +349,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         nogoRequest.setNogoHandler(nogoHandler);
         nogoRequest.setMainFrame(mainFrame);
-        nogoRequest.setAisHandler(aisHandler);
+        nogoRequest.setOwnShipHandler(ownShipHandler);
 
         showPastTracks.setAisHandler(aisHandler);
         hidePastTracks.setAisHandler(aisHandler);
@@ -471,15 +473,15 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         removeAll();
 
         // Toggle show past-track
-        VesselTarget ownShip = aisHandler.getOwnShip();
+        VesselTarget ownShip = ownShipHandler.getAisTarget();
         aisTogglePastTrack.setMobileTarget(ownShip);
-        aisTogglePastTrack.setAisLayer(aisLayer);
+        aisTogglePastTrack.setAisLayer(null);
         aisTogglePastTrack.setText((ownShip.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
         add(aisTogglePastTrack);
         
         // Clear past-track
         aisClearPastTrack.setMobileTarget(ownShip);
-        aisClearPastTrack.setAisLayer(aisLayer);
+        aisClearPastTrack.setAisLayer(null);
         aisClearPastTrack.setText("Clear past-track");
         add(aisClearPastTrack);
         
@@ -677,7 +679,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         monaLisaRouteRequest.setRouteIndex(routeIndex);
         // monaLisaRouteRequest.setMonaLisaRouteExchange(EPDShip.getMonaLisaRouteExchange());
         monaLisaRouteRequest.setMainFrame(mainFrame);
-        monaLisaRouteRequest.setAisHandler(aisHandler);
+        monaLisaRouteRequest.setOwnShipHandler(ownShipHandler);
         add(monaLisaRouteRequest);
 
         routeRequestMetoc.setRouteManager(routeManager);
@@ -806,6 +808,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         }
         if (obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
+        }
+        if (obj instanceof OwnShipHandler) {
+            ownShipHandler = (OwnShipHandler) obj;
         }
         if (obj instanceof PntHandler) {
             gpsHandler = (PntHandler) obj;

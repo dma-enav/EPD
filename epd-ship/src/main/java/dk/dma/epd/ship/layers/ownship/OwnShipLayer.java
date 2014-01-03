@@ -31,36 +31,33 @@ import com.bbn.openmap.proj.ProjMath;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.ais.VesselPositionData;
+import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackGraphic;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphic;
-import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
-import dk.dma.epd.common.prototype.sensor.pnt.PntData;
-import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gui.MapMenu;
+import dk.dma.epd.ship.ownship.IOwnShipListener;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 /**
  * Defines the own-ship layer
  */
-public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListener, ProjectionListener {
+public class OwnShipLayer extends OMGraphicHandlerLayer implements IOwnShipListener, ProjectionListener {
     
     private static final long serialVersionUID = 1L;
     
     private MapMenu ownShipMenu;
     
-    private PntHandler pntHandler;
-    private AisHandler aisHandler;
+    private OwnShipHandler ownShipHandler;
     
     private long minRedrawInterval = 5 * 1000; // 5 sec
     
     private Date lastRedraw;
-    private PntData gpsData;
     private OMGraphicList graphics = new OMGraphicList();
     private LatLonPoint startPos;
 
@@ -78,7 +75,7 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
     }
     
     private synchronized boolean doUpdate() {
-        if (this.gpsData == null || lastRedraw == null || lastPos == null) {
+        if (lastRedraw == null || lastPos == null) {
             return true;
         }
         
@@ -97,45 +94,36 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         return false;
     }
     
+    /**
+     * Called when the own-ship has been updated
+     * @param ownShipHandler the {@code OwnShipHandler}
+     */
     @Override
-    public synchronized void pntDataUpdate(PntData pntData) {
-        if (pntData == null || pntData.getPosition() == null) {
+    public void ownShipUpdated(OwnShipHandler ownShipHandler) {
+        if (ownShipHandler == null || ownShipHandler.getPositionData().getPos() == null) {
             return;
         }
         
-        VesselTarget ownShip = null;
-        if (aisHandler != null) {
-            ownShip = aisHandler.getOwnShip();
-        }
-        
         // Set location of ship
-        currentPos = pntData.getPosition();
+        currentPos = ownShipHandler.getPositionData().getPos();
         
         // check if proper zoom level and if data is available for ship outline drawing
-        if(this.currentZoomLevel == ZoomLevel.VESSEL_OUTLINE && ownShip != null && ownShip.getStaticData() != null && ownShip.getPositionData() != null)
-        {
-            this.drawOwnShipOutline(ownShip);
-        }
-        else if(ownShip != null) {
+        if(this.currentZoomLevel == ZoomLevel.VESSEL_OUTLINE && 
+                ownShipHandler.getStaticData() != null) {
+            this.drawOwnShipOutline(ownShipHandler.getPositionData(), ownShipHandler.getStaticData());
+        } else {
             // draw standard version of own ship for all other zoom levels than VESSEL_OUTLINE
-            this.drawOwnShipStandard(ownShip);
+            this.drawOwnShipStandard(ownShipHandler.getPositionData());
         }
         
-        // Handle past-tracks
-        if (ownShip != null) {
-            // Update past-track position data
-            ownShip.addPastTrackPosition(currentPos);
-
-            
-            // Add the past-track graphics the first time around
-            if (pastTrackGraphic == null) {
-                pastTrackGraphic = new PastTrackGraphic();
-                this.graphics.add(pastTrackGraphic);
-            }
-            
-            // Update the past-track graphics
-            pastTrackGraphic.update(ownShip);
+        // Add the past-track graphics the first time around
+        if (pastTrackGraphic == null) {
+            pastTrackGraphic = new PastTrackGraphic();
+            this.graphics.add(pastTrackGraphic);
         }
+        
+        // Update the past-track graphics
+        pastTrackGraphic.update(ownShipHandler.getAisTarget(), ownShipHandler.getPositionData().getPos());
         
         // Redraw    
         if (!doUpdate()) {
@@ -150,9 +138,10 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
 
     /**
      * Draws/updates own ship in outline mode.
-     * @param ownShip The VesselTarget object that is currently selected as own ship.
+     * @param positionData the vessel position data
+     * @param staticData the vessel static data
      */
-    private void drawOwnShipOutline(VesselTarget ownShip) {
+    private void drawOwnShipOutline(VesselPositionData positionData, VesselStaticData staticData) {
         if(this.ownShipGraphic != null) {
             // hide standard display of own ship
             this.ownShipGraphic.setVisible(false);
@@ -164,16 +153,16 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         }
         // re-show outline graphic in case it was hidden by standard ownship graphic
         this.vesselOutlineGraphic.setVisible(true);
-        this.vesselOutlineGraphic.setLocation(ownShip);
+        this.vesselOutlineGraphic.setLocation(positionData, staticData);
     }
     
     /**
      * Draws/updates own ship in the standard manner.
-     * @param ownShip The VesselTarget object that is currently selected as own ship.
+     * @param positionData the vessel position data
      * @return true if ship was successfully drawn (graphics data updated),
      * false if ship could not be updated (due to insufficient data).
      */
-    private boolean drawOwnShipStandard(VesselTarget ownShip) {
+    private boolean drawOwnShipStandard(VesselPositionData positionData) {
         if(this.vesselOutlineGraphic != null) {
             // hide outline display of own ship
             this.vesselOutlineGraphic.setVisible(false);
@@ -185,12 +174,13 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         }
         // re-show standard ownship graphic in case it was hidden by outline graphic
         this.ownShipGraphic.setVisible(true);
-        return this.ownShipGraphic.update(ownShip);
+        return this.ownShipGraphic.update(positionData);
     }
     
-    public double[] calculateMinuteMarker(LatLonPoint startPoint, int minute){
-        float length = (float) Length.NM.toRadians(EPDShip.getSettings().getNavSettings().getCogVectorLength()/6 * minute * (gpsData.getSog() / 60.0));
-        LatLonPoint marker = startPos.getPoint(length, (float) ProjMath.degToRad(gpsData.getCog()));
+    public double[] calculateMinuteMarker(LatLonPoint startPoint, int minute) {
+        VesselPositionData posData = ownShipHandler.getPositionData();
+        float length = (float) Length.NM.toRadians(EPDShip.getSettings().getNavSettings().getCogVectorLength()/6 * minute * (posData.getSog() / 60.0));
+        LatLonPoint marker = startPos.getPoint(length, (float) ProjMath.degToRad(posData.getCog()));
         double[] newMarker = {marker.getLatitude(), marker.getLongitude(), 0, 0};
         return newMarker;
     }
@@ -207,12 +197,9 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
     
     @Override
     public void findAndInit(Object obj) {
-        if (pntHandler == null && obj instanceof PntHandler) {
-            pntHandler = (PntHandler)obj;
-            pntHandler.addListener(this);
-        }
-        if (aisHandler == null && obj instanceof AisHandler) {
-            aisHandler = (AisHandler)obj;
+        if (ownShipHandler == null && obj instanceof OwnShipHandler) {
+            ownShipHandler = (OwnShipHandler)obj;
+            ownShipHandler.addListener(this);
         }
         if (obj instanceof MapMenu) {
             ownShipMenu = (MapMenu) obj;
@@ -221,12 +208,9 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
     
     @Override
     public void findAndUndo(Object obj) {
-        if (pntHandler == obj) {
-            pntHandler.removeListener(this);
-            pntHandler = null;
-        }
-        if (aisHandler == obj) {
-            aisHandler = null;
+        if (ownShipHandler == obj) {
+            ownShipHandler.removeListener(this);
+            ownShipHandler = null;
         }
         if (ownShipMenu == obj) {
             ownShipMenu = null;
@@ -241,11 +225,10 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IPntDataListe
         boolean changeInZoomLevel = this.currentZoomLevel != updatedZoomLevel;
         // update zoom level
         this.currentZoomLevel = updatedZoomLevel;
-        VesselTarget ownShip = aisHandler.getOwnShip();
-        if(ownShip != null && changeInZoomLevel) {
+        if(changeInZoomLevel) {
             // Zoom level was changed
             // May imply new ship draw mode so do a fake pnt update to check for change in drawing mode.
-            this.pntDataUpdate(pntHandler.getCurrentData());
+            ownShipUpdated(ownShipHandler);
         }
         super.projectionChanged(pe);
     }

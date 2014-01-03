@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,11 +48,13 @@ import dk.dma.ais.message.AisPositionMessage;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.sensor.nmea.IAisListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.status.AisStatus;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
+import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Util;
 
 public abstract class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisListener, IStatusComponent {
@@ -420,10 +423,6 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         return mobileTargets;
     }
 
-    public VesselTarget getOwnShip() {
-        return null;
-    }
-    
     public final ComponentStatus getStatus() {
         return aisStatus;
     }
@@ -611,6 +610,39 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         suggestionListeners.remove(routeSuggestionListener);
     }
 
+    /**
+     * Get AisMessageExtended for a single VesselTarget
+     * 
+     * @param currentTarget
+     * @param currentData the current PntData
+     * @return
+     */
+    public AisMessageExtended getShip(VesselTarget currentTarget, PntData currentData) {
+        String name = " N/A";
+        String dst = "N/A";
+        Position ownPosition;
+        double hdg = -1;
+        Position targetPosition = null;
+
+        if (currentTarget.getStaticData() != null) {
+            name = " " + AisMessage.trimText(currentTarget.getStaticData().getName());
+        }
+        if (!currentData.isBadPosition()) {
+            ownPosition = currentData.getPosition();
+
+            if (currentTarget.getPositionData().getPos() != null) {
+                targetPosition = currentTarget.getPositionData().getPos();
+                NumberFormat nf = NumberFormat.getInstance();
+                nf.setMaximumFractionDigits(2);
+                dst = nf.format(Converter.metersToNm(ownPosition.rhumbLineDistanceTo(targetPosition))) + " NM";
+
+            }
+        }
+        hdg = currentTarget.getPositionData().getCog();
+
+        return new AisMessageExtended(name, currentTarget.getMmsi(), hdg, dst);
+    }
+        
     /**
      * Try to load AIS view from disk
      */

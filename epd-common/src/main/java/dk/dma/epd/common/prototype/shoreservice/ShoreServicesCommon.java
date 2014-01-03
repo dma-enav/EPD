@@ -34,7 +34,6 @@ import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
-import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreHttp;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceErrorCode;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
@@ -51,7 +50,6 @@ import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.prototype.status.ShoreServiceStatus;
-import dk.frv.enav.common.xml.PositionReport;
 import dk.frv.enav.common.xml.ShoreServiceRequest;
 import dk.frv.enav.common.xml.ShoreServiceResponse;
 import dk.frv.enav.common.xml.Waypoint;
@@ -142,22 +140,6 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
         return xmlRoute;
     }
 
-    public static PositionReport convertPositionReport(VesselPositionData position) {
-        PositionReport enavshorePos = new PositionReport();
-
-        if (position == null || position.getPos() == null) {
-            return null;
-        }
-
-        enavshorePos.setCog(floatToDouble(position.getCog()));
-        enavshorePos.setHeading(floatToDouble(position.getTrueHeading()));
-        enavshorePos.setLatitude(position.getPos().getLatitude());
-        enavshorePos.setLongitude(position.getPos().getLongitude());
-        enavshorePos.setRot(floatToDouble(position.getRot()));
-        enavshorePos.setSog(floatToDouble(position.getSog()));
-        return enavshorePos;
-    }
-
     public NogoResponse nogoPoll(double draught, Position northWestPoint, Position southEastPoint, Date startDate, Date endDate)
             throws ShoreServiceException {
         // Create request
@@ -235,17 +217,11 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
         return res.getMetocForecast();
     }
 
-    private void addRequestParameters(ShoreServiceRequest request) {
-        if (aisHandler != null && aisHandler.getOwnShip() != null) {
-            request.setMmsi(aisHandler.getOwnShip().getMmsi());
-            if (aisHandler.getOwnShip().getPositionData() != null) {
-                PositionReport posReport = convertPositionReport(aisHandler.getOwnShip().getPositionData());
-                if (posReport != null) {
-                    request.setPositionReport(posReport);
-                }
-            }
-        }
-
+    /**
+     * Allow subclasses to adjust the shore service request
+     * @param request the request to adjust
+     */
+    protected void addRequestParameters(ShoreServiceRequest request) {
     }
 
     private ShoreServiceResponse makeRequest(String uri, String reqContextPath, String resContextPath, Object request)

@@ -18,19 +18,19 @@ package dk.dma.epd.ship.gui.menuitems;
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.nogo.NogoDialog;
 import dk.dma.epd.ship.nogo.NogoHandler;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 public class NogoRequest extends JMenuItem implements IMapMenuAction {
     private static final long serialVersionUID = 1L;
     private NogoHandler nogoHandler;
     private MainFrame mainFrame;
-    private AisHandler aisHandler;
+    private OwnShipHandler ownShipHandler;
     
-    public void setAisHandler(AisHandler aisHandler){
-        this.aisHandler = aisHandler;
+    public void setOwnShipHandler(OwnShipHandler ownShipHandler){
+        this.ownShipHandler = ownShipHandler;
     }
 
     public void setMainFrame(MainFrame mainFrame) {
@@ -48,14 +48,8 @@ public class NogoRequest extends JMenuItem implements IMapMenuAction {
     
     @Override
     public void doAction() {
-        NogoDialog nogoDialog = new NogoDialog(mainFrame, nogoHandler, aisHandler);
+        NogoDialog nogoDialog = new NogoDialog(mainFrame, nogoHandler, ownShipHandler);
         nogoDialog.setVisible(true);
     }
-    
-
-    
-    
-
-    
 }
 

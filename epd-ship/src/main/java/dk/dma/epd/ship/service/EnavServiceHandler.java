@@ -59,6 +59,7 @@ import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.route.strategic.RecievedRoute;
 import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
@@ -80,6 +81,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private ShipId shipId;
     private PntHandler pntHandler;
     private AisHandler aisHandler;
+    private OwnShipHandler ownShipHandler;
     private StrategicRouteExchangeHandler monaLisaHandler;
     private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context;
     InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply> monaLisaContext;
@@ -166,9 +168,9 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     public void sendReply(AIS_STATUS recievedAccepted, long id, String message) {
         try {
+            long ownMmsi = ownShipHandler.getMmsi() == null ? -1L : ownShipHandler.getMmsi();
             context.complete(new RouteSuggestionService.RouteSuggestionReply(
-                    message, id, aisHandler.getOwnShip().getMmsi(), System
-                            .currentTimeMillis(), recievedAccepted));
+                    message, id, ownMmsi, System.currentTimeMillis(), recievedAccepted));
             cloudStatus.markSuccesfullSend();
         } catch (Exception e) {
             cloudStatus.markFailedSend();
@@ -289,6 +291,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
             this.pntHandler.addListener(this);
         } else if (obj instanceof AisHandler) {
             this.aisHandler = (AisHandler) obj;
+        } else if (obj instanceof OwnShipHandler) {
+            this.ownShipHandler = (OwnShipHandler) obj;
         } else if (obj instanceof StrategicRouteExchangeHandler) {
             this.monaLisaHandler = (StrategicRouteExchangeHandler) obj;
         }
@@ -302,30 +306,27 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
         while (true) {
             Util.sleep(10000);
-            if (this.aisHandler != null) {
-                VesselTarget ownShip = this.aisHandler.getOwnShip();
-                if (ownShip != null) {
-                    if (ownShip.getMmsi() > 0) {
-                        shipId = ShipId
-                                .create(Long.toString(ownShip.getMmsi()));
-                        init();
-                        if (connection != null) {
+            if (this.ownShipHandler != null) {
+                if (ownShipHandler.getMmsi() != null) {
+                    shipId = ShipId
+                            .create(Long.toString(ownShipHandler.getMmsi()));
+                    init();
+                    if (connection != null) {
 
-                            try {
-                                intendedRouteListener();
-                                routeExchangeListener();
-                                monaLisaRouteRequestListener();
-                            } catch (Exception e) {
-                                // e.printStackTrace();
-                                System.out.println("Failed to setup listener");
-                                cloudStatus.markFailedSend();
-                                cloudStatus.markFailedReceive();
-                            }
-                            
-                            break;
+                        try {
+                            intendedRouteListener();
+                            routeExchangeListener();
+                            monaLisaRouteRequestListener();
+                        } catch (Exception e) {
+                            // e.printStackTrace();
+                            System.out.println("Failed to setup listener");
+                            cloudStatus.markFailedSend();
+                            cloudStatus.markFailedReceive();
                         }
                         
+                        break;
                     }
+                    
                 }
             }
         }
