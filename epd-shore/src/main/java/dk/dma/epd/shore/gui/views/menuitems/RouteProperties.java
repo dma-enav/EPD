@@ -22,14 +22,10 @@ import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RoutePropertiesDialog;
 import dk.dma.epd.shore.route.RouteManager;
 
-
-
 public class RouteProperties extends JMenuItem implements IMapMenuAction {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
+    
     private int routeIndex;
     private RouteManager routeManager;
 

@@ -102,6 +102,8 @@ public class Route implements Serializable {
     protected boolean stccApproved;
 
     protected long monalisarouteid;
+    
+    protected EtaCalculationType etaCalculationType = EtaCalculationType.PLANNED_SPEED;
 
     public Route() {
 
@@ -144,6 +146,7 @@ public class Route implements Serializable {
     public Route copy() {
 
         Route newRoute = new Route();
+        newRoute.setEtaCalculationType(etaCalculationType);
         LinkedList<RouteWaypoint> waypoints = new LinkedList<>();
         for (RouteWaypoint routeWaypoint : this.waypoints) {
             RouteWaypoint newRouteWaypoint = routeWaypoint.copy();
@@ -436,7 +439,7 @@ public class Route implements Serializable {
     public void setMetocForecast(MetocForecast metocForecast) {
         this.metocForecast = metocForecast;
         this.metocStarttime = getStarttime();
-        this.metocEta = calculateEta();
+        this.metocEta = getEta();
     }
 
     /**
@@ -447,7 +450,7 @@ public class Route implements Serializable {
      * @return
      */
     public boolean isMetocValid(long tolerance) {
-        Date eta = calculateEta();
+        Date eta = getEta();
         return isMetocValid(eta, tolerance);
     }
 
@@ -496,14 +499,14 @@ public class Route implements Serializable {
         this.routeMetocSettings = routeMetocSettings;
     }
 
-    public Long calcTtg() {
+    public Long getRouteTtg() {
         calcValues();
         return totalTtg;
     }
 
     public Date getEta(Date starttime) {
         // Calculate ETA based on given starttime
-        Long ttg = calcTtg();
+        Long ttg = getRouteTtg();
         if (ttg == null) {
             return null;
         }
@@ -515,12 +518,12 @@ public class Route implements Serializable {
      * 
      * @return
      */
-    public Double calcDtg() {
+    public Double getRouteDtg() {
         calcValues();
         return totalDtg;
     }
 
-    public Date calculateEta() {
+    public Date getEta() {
         if (starttime == null) {
             return null;
         }
@@ -552,6 +555,7 @@ public class Route implements Serializable {
                 dtgs[i] = waypoints.get(i).getOutLeg().calcRng();
                 totalDtg += dtgs[i];
             }
+            // Calculate ETA for each waypoint
             calcAllWpEta();
 
         }
@@ -859,16 +863,12 @@ public class Route implements Serializable {
         this.dtgs = dtgs;
     }
 
-    public Long getTotalTtg() {
+    public Long geRouteTtg() {
         return totalTtg;
     }
 
     public void setTotalTtg(Long totalTtg) {
         this.totalTtg = totalTtg;
-    }
-
-    public Double getTotalDtg() {
-        return totalDtg;
     }
 
     public void setTotalDtg(Double totalDtg) {
@@ -1070,5 +1070,34 @@ public class Route implements Serializable {
 
         starttime = cloudRouteWaypoints.get(0).getEta();
 
+    }
+    
+    public EtaCalculationType getEtaCalculationType() {
+        return etaCalculationType;
+    }
+    
+    public void setEtaCalculationType(EtaCalculationType etaCalculationType) {
+        this.etaCalculationType = etaCalculationType;
+    }
+    
+    public enum EtaCalculationType {
+        PLANNED_SPEED {
+            @Override
+            public String toString() {
+                return "Planned speed"; 
+            }
+        },
+        DYNAMIC_SPEED {
+            @Override
+            public String toString() {
+                return "Current speed";
+            }  
+        },
+        HYBRID {
+            @Override
+            public String toString() {
+                return "Hybrid";
+            }
+        }
     }
 }

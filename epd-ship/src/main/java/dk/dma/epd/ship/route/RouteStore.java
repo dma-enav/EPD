@@ -28,9 +28,8 @@ import dk.dma.epd.ship.route.strategic.RecievedRoute;
  */
 public class RouteStore implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
     
-//    private Set<AisAdressedRouteSuggestion> addressedSuggestedRoutes = new HashSet<>();
     private List<RecievedRoute> suggestedRoutes = new LinkedList<>();
     private List<Route> routes = new LinkedList<>();
     private ActiveRoute activeRoute;
@@ -40,7 +39,6 @@ public class RouteStore implements Serializable {
         this.routes = routeManager.getRoutes();
         this.activeRoute = routeManager.getActiveRoute();
         this.activeRouteIndex = routeManager.getActiveRouteIndex();
-//        this.addressedSuggestedRoutes = routeManager.getAddressedSuggestedRoutes();
         this.suggestedRoutes = routeManager.getSuggestedRoutes();
     }
     

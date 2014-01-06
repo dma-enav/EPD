@@ -19,6 +19,7 @@ import java.awt.Window;
 
 import javax.swing.event.DocumentEvent;
 
+import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.route.RouteManager;
@@ -26,8 +27,7 @@ import dk.dma.epd.shore.route.RouteManager;
 /**
  * Dialog with route properties
  */
-public class RoutePropertiesDialog extends
-        dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon {
+public class RoutePropertiesDialog extends RoutePropertiesDialogCommon {
 
     private static final long serialVersionUID = 1L;
     VoyageHandlingLayer voyageHandlingLayer;

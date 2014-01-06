@@ -16,10 +16,13 @@
 package dk.dma.epd.common.prototype.layers.ais;
 
 import com.bbn.openmap.omGraphics.OMCircle;
+import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.graphics.RotationalPoly;
+import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 
 /**
@@ -37,21 +40,31 @@ public class VesselDotGraphic extends OMGraphicList {
      * The graphical representation of the vessel drawn by this VesselDotGraphic.
      */
     private OMCircle vesselMarker;
+    private RotationalPoly cogVec;
     
     /**
      * Diameter of the circle graphic (in pixels) that represents the Vessel's location on the map.
      */
     public static final int CIRCLE_PIXEL_DIAMETER = 7;
     
-    public void updateLocation(Position newLocation) {
+    public void updateLocation(VesselPositionData posData) {
+        Position newLocation = posData.getPos();
         if(this.vesselMarker == null) {
             // lazy initialization
             this.vesselMarker = new OMCircle(newLocation.getLatitude(), newLocation.getLongitude(), CIRCLE_PIXEL_DIAMETER, CIRCLE_PIXEL_DIAMETER);
             this.vesselMarker.setLinePaint(ColorConstants.EPD_SHIP_VESSEL_COLOR);
             this.vesselMarker.setFillPaint(ColorConstants.EPD_SHIP_VESSEL_COLOR);
             this.add(this.vesselMarker);
+            
+            int[] headingX = { 0, 0 };
+            int[] headingY = { 0, -15 };
+            cogVec = new RotationalPoly(headingX, headingY, null, ColorConstants.EPD_SHIP_VESSEL_COLOR);
+            this.add(cogVec);
+            
         }
         // update circle position
         this.vesselMarker.setCenter(new LatLonPoint.Double(newLocation.getLatitude(), newLocation.getLongitude()));
+        // Update cog vector
+        this.cogVec.setLocation(newLocation.getLatitude(), newLocation.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, Math.toRadians(posData.getCog()));
     }
 }

@@ -214,9 +214,9 @@ public class ActiveWaypointPanel extends JPanel {
         brgLabel.setText(Formatter.formatDegrees(activeRoute.getActiveWpBrg(), 1));
         rngLabel.setText(Formatter.formatDistNM(activeRoute.getActiveWpRng()));
         ttgLegLabel.setText(Formatter.formatTime(activeRoute.getActiveWpTtg()));
-        ttgRouteLabel.setText(Formatter.formatTime(activeRoute.calcTtg()));
+        ttgRouteLabel.setText(Formatter.formatTime(activeRoute.getRouteTtg()));
         etaNextLabel.setText(Formatter.formatShortDateTime(activeRoute.getActiveWaypointEta()));
-        etaRouteLabel.setText(Formatter.formatShortDateTime(activeRoute.calculateEta()));
+        etaRouteLabel.setText(Formatter.formatShortDateTime(activeRoute.getEta()));
         }
     }
     

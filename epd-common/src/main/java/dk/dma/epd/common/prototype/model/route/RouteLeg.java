@@ -200,7 +200,7 @@ public class RouteLeg implements Serializable {
      */
     public long calcTtg(double altSpeed) {
         if(altSpeed < 0.1) {
-            return -1L;
+            altSpeed = 0.1;
         }
         return Math.round(calcRng() * 3600.0 / altSpeed * 1000.0);
     }

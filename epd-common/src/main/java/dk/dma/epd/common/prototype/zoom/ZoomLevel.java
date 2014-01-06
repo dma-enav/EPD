@@ -25,11 +25,11 @@ public enum ZoomLevel {
         
     },
     
-    VESSEL_TRIANGLE(10000.0f, 50000.0f) {
+    VESSEL_TRIANGLE(10000.0f, 250000.0f) {
         
     },
     
-    VESSEL_DOT(50000.0f, Float.MAX_VALUE) {
+    VESSEL_DOT(250000.0f, Float.MAX_VALUE) {
         
     };
     

@@ -87,7 +87,7 @@ public class VesselTargetGraphic extends TargetGraphic {
             // update sub graphic
             this.vesselTriangleGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
             if(pos != null) {
-                this.vesselDotGraphic.updateLocation(pos);
+                this.vesselDotGraphic.updateLocation(posData);
             }
             // Determine name
             String name;
