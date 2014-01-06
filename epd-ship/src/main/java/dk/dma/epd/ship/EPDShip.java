@@ -256,10 +256,10 @@ public class EPDShip extends EPD {
             aisSensor = null;
             break;
         case TCP:
-            aisSensor = new NmeaTcpSensor(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisTcpPort());
+            aisSensor = new NmeaTcpSensor(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisTcpOrUdpPort());
             break;
         case UDP:
-            aisSensor = new NmeaUdpSensor(sensorSettings.getAisTcpPort());
+            aisSensor = new NmeaUdpSensor(sensorSettings.getAisTcpOrUdpPort());
             break;
         case SERIAL:
             // aisSensor = new NmeaSerialSensor(sensorSettings.getAisHostOrSerialPort());
@@ -277,10 +277,10 @@ public class EPDShip extends EPD {
             gpsSensor = null;
             break;
         case TCP:
-            gpsSensor = new NmeaTcpSensor(sensorSettings.getGpsHostOrSerialPort(), sensorSettings.getGpsTcpPort());
+            gpsSensor = new NmeaTcpSensor(sensorSettings.getGpsHostOrSerialPort(), sensorSettings.getGpsTcpOrUdpPort());
             break;
         case UDP:
-            gpsSensor = new NmeaUdpSensor(sensorSettings.getGpsTcpPort());
+            gpsSensor = new NmeaUdpSensor(sensorSettings.getGpsTcpOrUdpPort());
             break;
         case SERIAL:
             gpsSensor = NmeaSerialSensorFactory.create(sensorSettings.getGpsHostOrSerialPort());
@@ -297,10 +297,10 @@ public class EPDShip extends EPD {
             msPntSensor = null;
             break;
         case TCP:
-            msPntSensor = new NmeaTcpSensor(sensorSettings.getMsPntHostOrSerialPort(), sensorSettings.getMsPntTcpPort());
+            msPntSensor = new NmeaTcpSensor(sensorSettings.getMsPntHostOrSerialPort(), sensorSettings.getMsPntTcpOrUdpPort());
             break;
         case UDP:
-            msPntSensor = new NmeaUdpSensor(sensorSettings.getMsPntTcpPort());
+            msPntSensor = new NmeaUdpSensor(sensorSettings.getMsPntTcpOrUdpPort());
             break;
         case SERIAL:
             msPntSensor = NmeaSerialSensorFactory.create(sensorSettings.getMsPntHostOrSerialPort());

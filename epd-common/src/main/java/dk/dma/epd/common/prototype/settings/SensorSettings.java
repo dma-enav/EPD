@@ -137,17 +137,17 @@ public class SensorSettings implements Serializable {
     private SensorConnectionType aisConnectionType = SensorConnectionType.TCP;
     private String aisHostOrSerialPort = "localhost";
     private String aisFilename = "";
-    private int aisTcpPort = 4001;
+    private int aisTcpOrUdpPort = 4001;
 
     private SensorConnectionType gpsConnectionType = SensorConnectionType.NONE;
     private String gpsHostOrSerialPort = "COM3";
     private String gpsFilename = "";
-    private int gpsTcpPort = 8888;
+    private int gpsTcpOrUdpPort = 8888;
 
     private SensorConnectionType msPntConnectionType = SensorConnectionType.NONE;
     private String msPntHostOrSerialPort = "COM4";
     private String msPntFilename = "";
-    private int msPntTcpPort = 9999;
+    private int msPntTcpOrUdpPort = 9999;
 
     private PntSource pntSource = PntSource.AUTO;
 
@@ -174,15 +174,15 @@ public class SensorSettings implements Serializable {
         aisConnectionType = SensorConnectionType.parseString(props.getProperty(PREFIX + "aisConnectionType",
                 aisConnectionType.name()));
         aisHostOrSerialPort = props.getProperty(PREFIX + "aisHostOrSerialPort", aisHostOrSerialPort);
-        aisTcpPort = PropUtils.intFromProperties(props, PREFIX + "aisTcpPort", aisTcpPort);
+        aisTcpOrUdpPort = PropUtils.intFromProperties(props, PREFIX + "aisTcpOrUdpPort", aisTcpOrUdpPort);
         gpsConnectionType = SensorConnectionType.parseString(props.getProperty(PREFIX + "gpsConnectionType",
                 gpsConnectionType.name()));
         gpsHostOrSerialPort = props.getProperty(PREFIX + "gpsHostOrSerialPort", gpsHostOrSerialPort);
-        gpsTcpPort = PropUtils.intFromProperties(props, PREFIX + "gpsTcpPort", gpsTcpPort);
+        gpsTcpOrUdpPort = PropUtils.intFromProperties(props, PREFIX + "gpsTcpOrUdpPort", gpsTcpOrUdpPort);
         msPntConnectionType = SensorConnectionType.parseString(props.getProperty(PREFIX + "msPntConnectionType",
                 msPntConnectionType.name()));
         msPntHostOrSerialPort = props.getProperty(PREFIX + "msPntHostOrSerialPort", msPntHostOrSerialPort);
-        msPntTcpPort = PropUtils.intFromProperties(props, PREFIX + "msPntTcpPort", msPntTcpPort);
+        msPntTcpOrUdpPort = PropUtils.intFromProperties(props, PREFIX + "msPntTcpOrUdpPort", msPntTcpOrUdpPort);
         startTransponder = PropUtils.booleanFromProperties(props, PREFIX + "startTransponder", startTransponder);
         aisSensorRange = PropUtils.doubleFromProperties(props, PREFIX + "aisSensorRange", aisSensorRange);
         aisFilename = props.getProperty(PREFIX + "aisFilename", aisFilename);
@@ -208,13 +208,13 @@ public class SensorSettings implements Serializable {
     public void setProperties(Properties props) {
         props.put(PREFIX + "aisConnectionType", aisConnectionType.name());
         props.put(PREFIX + "aisHostOrSerialPort", aisHostOrSerialPort);
-        props.put(PREFIX + "aisTcpPort", Integer.toString(aisTcpPort));
+        props.put(PREFIX + "aisTcpOrUdpPort", Integer.toString(aisTcpOrUdpPort));
         props.put(PREFIX + "gpsConnectionType", gpsConnectionType.name());
         props.put(PREFIX + "gpsHostOrSerialPort", gpsHostOrSerialPort);
-        props.put(PREFIX + "gpsTcpPort", Integer.toString(gpsTcpPort));
+        props.put(PREFIX + "gpsTcpOrUdpPort", Integer.toString(gpsTcpOrUdpPort));
         props.put(PREFIX + "msPntConnectionType", msPntConnectionType.name());
         props.put(PREFIX + "msPntHostOrSerialPort", msPntHostOrSerialPort);
-        props.put(PREFIX + "msPntTcpPort", Integer.toString(msPntTcpPort));
+        props.put(PREFIX + "msPntTcpOrUdpPort", Integer.toString(msPntTcpOrUdpPort));
         props.put(PREFIX + "startTransponder", Boolean.toString(startTransponder));
         props.put(PREFIX + "aisSensorRange", Double.toString(aisSensorRange));
         props.put(PREFIX + "aisFilename", aisFilename);
@@ -267,12 +267,12 @@ public class SensorSettings implements Serializable {
         this.msPntFilename = msPntFilename;
     }
 
-    public int getMsPntTcpPort() {
-        return msPntTcpPort;
+    public int getMsPntTcpOrUdpPort() {
+        return msPntTcpOrUdpPort;
     }
 
-    public void setMsPntTcpPort(int msPntTcpPort) {
-        this.msPntTcpPort = msPntTcpPort;
+    public void setMsPntTcpOrUdpPort(int msPntTcpOrUdpPort) {
+        this.msPntTcpOrUdpPort = msPntTcpOrUdpPort;
     }
 
     public SensorConnectionType getAisConnectionType() {
@@ -291,12 +291,12 @@ public class SensorSettings implements Serializable {
         this.aisHostOrSerialPort = aisHostOrSerialPort;
     }
 
-    public int getAisTcpPort() {
-        return aisTcpPort;
+    public int getAisTcpOrUdpPort() {
+        return aisTcpOrUdpPort;
     }
 
-    public void setAisTcpPort(int aisTcpPort) {
-        this.aisTcpPort = aisTcpPort;
+    public void setAisTcpOrUdpPort(int aisTcpOrUdpPort) {
+        this.aisTcpOrUdpPort = aisTcpOrUdpPort;
     }
 
     public SensorConnectionType getGpsConnectionType() {
@@ -315,12 +315,12 @@ public class SensorSettings implements Serializable {
         this.gpsHostOrSerialPort = gpsHostOrSerialPort;
     }
 
-    public int getGpsTcpPort() {
-        return gpsTcpPort;
+    public int getGpsTcpOrUdpPort() {
+        return gpsTcpOrUdpPort;
     }
 
-    public void setGpsTcpPort(int gpsTcpPort) {
-        this.gpsTcpPort = gpsTcpPort;
+    public void setGpsTcpOrUdpPort(int gpsTcpOrUdpPort) {
+        this.gpsTcpOrUdpPort = gpsTcpOrUdpPort;
     }
 
     public boolean isStartTransponder() {

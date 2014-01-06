@@ -42,7 +42,7 @@ public class AisSettingsPanel extends JPanel{
     private ESDAisSettings aisSettings;
     @SuppressWarnings("rawtypes")
     private JComboBox comboBoxAisConnectionType;
-    private JSpinner spinnerAisTcpPort;
+    private JSpinner spinnerAisTcpOrUdpPort;
     private JCheckBox chckbxAllowSending;
     private JCheckBox chckbxStrictTimeout;
     private JTextField ownMMSITxt;
@@ -92,11 +92,11 @@ public class AisSettingsPanel extends JPanel{
         aisConnection.add(textFieldAisHostOrSerialPort);
         textFieldAisHostOrSerialPort.setColumns(10);
 
-        spinnerAisTcpPort = new JSpinner();
-        spinnerAisTcpPort.setEditor(new NumberEditor(spinnerAisTcpPort, "#"));
-        GuiStyler.styleSpinner(spinnerAisTcpPort);
-        spinnerAisTcpPort.setBounds(134, 65, 142, 20);
-        aisConnection.add(spinnerAisTcpPort);
+        spinnerAisTcpOrUdpPort = new JSpinner();
+        spinnerAisTcpOrUdpPort.setEditor(new NumberEditor(spinnerAisTcpOrUdpPort, "#"));
+        GuiStyler.styleSpinner(spinnerAisTcpOrUdpPort);
+        spinnerAisTcpOrUdpPort.setBounds(134, 65, 142, 20);
+        aisConnection.add(spinnerAisTcpOrUdpPort);
 
         JPanel transponderSettings = new JPanel();
 
@@ -147,7 +147,7 @@ public class AisSettingsPanel extends JPanel{
         this.sensorSettings = sensorSettings;
         comboBoxAisConnectionType.getModel().setSelectedItem(sensorSettings.getAisConnectionType());
         textFieldAisHostOrSerialPort.setText(sensorSettings.getAisHostOrSerialPort());
-        spinnerAisTcpPort.setValue(sensorSettings.getAisTcpPort());
+        spinnerAisTcpOrUdpPort.setValue(sensorSettings.getAisTcpOrUdpPort());
 
         chckbxAllowSending.setSelected(aisSettings.isAllowSending());
         chckbxStrictTimeout.setSelected(aisSettings.isStrict());
@@ -159,7 +159,7 @@ public class AisSettingsPanel extends JPanel{
     public void saveSettings() {
         sensorSettings.setAisConnectionType((SensorConnectionType) comboBoxAisConnectionType.getModel().getSelectedItem());
         sensorSettings.setAisHostOrSerialPort(textFieldAisHostOrSerialPort.getText());
-        sensorSettings.setAisTcpPort((Integer) spinnerAisTcpPort.getValue());
+        sensorSettings.setAisTcpOrUdpPort((Integer) spinnerAisTcpOrUdpPort.getValue());
 
         aisSettings.setAllowSending(chckbxAllowSending.isSelected());
         aisSettings.setStrict(chckbxStrictTimeout.isSelected());
