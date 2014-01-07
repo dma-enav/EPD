@@ -24,7 +24,7 @@ import net.jcip.annotations.ThreadSafe;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.sensor.nmea.IPntListener;
+import dk.dma.epd.common.prototype.sensor.nmea.IPntSensorListener;
 import dk.dma.epd.common.prototype.sensor.nmea.PntMessage;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.prototype.status.PntStatus;
@@ -34,7 +34,7 @@ import dk.dma.epd.common.util.Util;
  * Component class for handling received PNT messages.
  */
 @ThreadSafe
-public class PntHandler extends MapHandlerChild implements IPntListener, IStatusComponent, Runnable {
+public class PntHandler extends MapHandlerChild implements IPntSensorListener, IStatusComponent, Runnable {
 
     private static final long PNT_TIMEOUT = 60 * 1000; // 1 min
     private CopyOnWriteArrayList<IPntDataListener> listeners = new CopyOnWriteArrayList<>();
@@ -61,6 +61,7 @@ public class PntHandler extends MapHandlerChild implements IPntListener, IStatus
             return;
         }
 
+        currentData.setPntSource(pntMessage.getPntSource());
         currentData.setLastUpdated(now);
         if (pntMessage.getPos() == null || !pntMessage.isValidPosition()) {
             currentData.setBadPosition(true);

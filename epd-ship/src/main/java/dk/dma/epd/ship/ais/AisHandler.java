@@ -18,18 +18,16 @@ package dk.dma.epd.ship.ais;
 import net.jcip.annotations.ThreadSafe;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
-import dk.dma.epd.common.prototype.sensor.nmea.IAisListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
-import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.ship.EPDShip;
 
 /**
  * Class for handling incoming AIS messages and maintainer of AIS target tables
  */
 @ThreadSafe
-public class AisHandler extends AisHandlerCommon implements IAisListener, IStatusComponent {
+public class AisHandler extends AisHandlerCommon {
 
     private final double aisRange;
 

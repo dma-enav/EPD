@@ -38,7 +38,7 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.sensor.nmea.IAisListener;
+import dk.dma.epd.common.prototype.sensor.nmea.IAisSensorListener;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
@@ -51,7 +51,7 @@ import net.jcip.annotations.ThreadSafe;
  * Class for handling incoming own-ship related messages and status data
  */
 @ThreadSafe
-public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisListener, IPntDataListener {
+public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSensorListener, IPntDataListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(OwnShipHandler.class);
     private static final String OWN_SHIP_FILE = EPD.getHomePath().resolve(".ownship").toString();

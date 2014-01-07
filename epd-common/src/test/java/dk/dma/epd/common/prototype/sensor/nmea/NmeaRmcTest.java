@@ -20,12 +20,19 @@ import org.junit.Test;
 
 import dk.dma.ais.sentence.SentenceException;
 
-public class GpRmcTest {
+public class NmeaRmcTest {
    
     @Test
-    public void parseTest() throws SentenceException {
+    public void parseGpRmcTest() throws SentenceException {
         String line = "$GPRMC,101134,A,5153.5205,N,00125.2184,E,003.1,194.1,010313,0,E*68";
-        GpRmcSentence sentence = new GpRmcSentence();
+        RmcSentence sentence = new RmcSentence.GpRmcSentence();
+        Assert.assertEquals(sentence.parse(line), 0);
+    }
+
+    @Test
+    public void parseElRmcTest() throws SentenceException {
+        String line = "$ELRMC,095755,A,5154.9566,N,00125.8246,E,006.8,210.5,010313,0,E*72";
+        RmcSentence sentence = new RmcSentence.ElRmcSentence();
         Assert.assertEquals(sentence.parse(line), 0);
     }
 

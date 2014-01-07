@@ -54,9 +54,9 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensorFactory;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaUdpSensor;
-import dk.dma.epd.common.prototype.sensor.pnt.MultiSourcePntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.sensor.rpnt.MultiSourcePntHandler;
 import dk.dma.epd.common.prototype.settings.SensorSettings.PntSource;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
@@ -161,6 +161,11 @@ public class EPDShip extends EPD {
         pntHandler = new PntHandler();
         mapHandler.add(pntHandler);
 
+        // Start the multi-source PNT handler and add to bean context
+        msPntHandler = new MultiSourcePntHandler();
+        msPntHandler.addPntListener(pntHandler);
+        mapHandler.add(msPntHandler);
+        
         // Start AIS target monitoring
         aisHandler = new AisHandler(settings.getSensorSettings(), settings.getAisSettings());
         aisHandler.loadView();
@@ -346,8 +351,9 @@ public class EPDShip extends EPD {
             gpsSensor.addPntListener(pntHandler);
             gpsSensor.addPntTimeListener(PntTime.getInstance());
         } else if (pntSource == PntSource.MSPNT && msPntHandler != null) {
-            msPntHandler = new MultiSourcePntHandler(pntHandler);
             msPntSensor.addMsPntListener(msPntHandler);
+            msPntSensor.addPntListener(msPntHandler);
+            //msPntSensor.addPntTimeListener(msPntHandler);
         }
 
     }

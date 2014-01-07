@@ -47,7 +47,7 @@ import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.AisPositionMessage;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.sensor.nmea.IAisListener;
+import dk.dma.epd.common.prototype.sensor.nmea.IAisSensorListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.settings.AisSettings;
@@ -57,7 +57,7 @@ import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Util;
 
-public abstract class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisListener, IStatusComponent {
+public abstract class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisSensorListener, IStatusComponent {
     
     private static final Logger LOG = LoggerFactory.getLogger(AisHandlerCommon.class);
     

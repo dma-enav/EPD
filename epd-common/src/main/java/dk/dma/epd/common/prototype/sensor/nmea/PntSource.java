@@ -13,13 +13,39 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.sensor.pnt;
+package dk.dma.epd.common.prototype.sensor.nmea;
+
+import dk.dma.epd.common.util.EnumUtils;
 
 /**
- * Interface to implement for receivers of Multi-Source PNT data
+ * Enumerates the possible PNT sources.
+ * <p>
+ * The keys associated with the enumeration values correspond
+ * to the source mapping of the NMEA $PRPNT sentence
  */
-public interface IMultiSourcePntListener {
+public enum PntSource implements EnumUtils.KeyedEnum<Integer> {
+    NONE(0),
+    GPS(1),
+    ELORAN(2),
+    RADAR(3);
     
-    // TODO receive methods
-
+    private Integer key;
+    
+    /**
+     * Constructor
+     * @param key
+     */
+    private PntSource(Integer key) { 
+        this.key = key; 
+    }
+    
+    /**
+     * Returns the key associated with the enum value
+     * @return the key associated with the enum value
+     */
+    @Override 
+    public Integer getKey() { 
+        return key; 
+    }
 }
+

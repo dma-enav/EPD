@@ -15,11 +15,17 @@
  */
 package dk.dma.epd.common.prototype.sensor.nmea;
 
-/**
- * Interface to implement to receive PNT messages 
- */
-public interface IPntListener {
-    
-    void receive(PntMessage pntMessage);
+import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData;
 
+
+/**
+ * Interface to implement for receivers of resilient PNT data
+ */
+public interface IResilientPntSensorListener extends IPntSensorListener {
+    
+    /**
+     * Called upon receiving a new {@code ResilientPntData} update
+     * @param rpntData the updated {@code ResilientPntData} data
+     */
+    void receive(ResilientPntData rpntData);
 }

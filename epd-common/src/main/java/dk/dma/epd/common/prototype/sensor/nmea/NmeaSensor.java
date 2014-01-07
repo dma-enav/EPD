@@ -51,8 +51,8 @@ import dk.dma.ais.sentence.SentenceException;
 import dk.dma.ais.sentence.SentenceLine;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.util.function.Consumer;
-import dk.dma.epd.common.prototype.sensor.pnt.IMultiSourcePntListener;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntTimeListener;
+import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData;
 import dk.dma.epd.common.util.Util;
 
 /**
@@ -87,9 +87,9 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     private final AisPacketParser packetReader = new AisPacketParser();
 
     protected final SendThreadPool sendThreadPool = new SendThreadPool();
-    private final CopyOnWriteArrayList<IPntListener> pntListeners = new CopyOnWriteArrayList<>();
-    private final CopyOnWriteArrayList<IMultiSourcePntListener> msPntListeners = new CopyOnWriteArrayList<>();
-    private final CopyOnWriteArrayList<IAisListener> aisListeners = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<IPntSensorListener> pntListeners = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<IResilientPntSensorListener> msPntListeners = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<IAisSensorListener> aisListeners = new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<IPntTimeListener> pntTimeListeners = new CopyOnWriteArrayList<>();
 
     public NmeaSensor() {
@@ -185,7 +185,6 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         }
 
         Date timestamp = sourceTag.getTimestamp();
-        // TODO if timestamp before some starttime, then just return
 
         // Set replay time to current timestamp
         setReplayTime(timestamp);
@@ -221,13 +220,18 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     protected void handleProprietary(String msg) {
         if (msg.indexOf("$PSTT,10A") >= 0) {
             handlePstt(msg);
+        } else if (msg.indexOf("$PRPNT") >= 0) {
+            handlePrpnt(msg);
         }
-
     }
 
+    /**
+     * Handles the given sentence
+     * @param msg the sentence to handle
+     */
     protected void handleSentence(String msg) {
-        if (pntListeners.size() > 0 && msg.indexOf("$GPRMC") >= 0) {
-            handleGpRmc(msg);
+        if (pntListeners.size() > 0 && RmcSentence.getParser(msg) != null) {
+            handleRmc(msg);
         } else if (aisListeners.size() > 0 && isVdm(msg)) {
             handleAis(msg);
         } else if (Abk.isAbk(msg)) {
@@ -273,7 +277,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         boolean ownMessage = packet.getVdm().isOwnMessage();
 
         // Distribute message
-        for (IAisListener aisListener : aisListeners) {
+        for (IAisSensorListener aisListener : aisListeners) {
             if (ownMessage) {
                 aisListener.receiveOwnMessage(message);
             } else {
@@ -316,69 +320,119 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
             return;
         }
 
+        // TODO: We use PntSource.GPS as the PNT source. Should it be a new "AIS" value instead?
         if (isReplay()) {
-            PntMessage pntMessage = new PntMessage(null, null, null, getReplayTime().getTime());
-            for (IPntTimeListener pntTimeListener : pntTimeListeners) {
-                pntTimeListener.receive(pntMessage);
-            }
+            PntMessage pntMessage = new PntMessage(PntSource.GPS, getReplayTime().getTime());
+            publishPntTimeMessage(pntMessage);
         }
 
-        PntMessage pntMessage = new PntMessage(pos, sog, cog);
-        for (IPntListener pntListener : pntListeners) {
-            pntListener.receive(pntMessage);
-        }
+        // TODO: We use PntSource.GPS as the PNT source. Should it be a new "AIS" value instead?
+        PntMessage pntMessage = new PntMessage(PntSource.GPS, pos, sog, cog);
+        publishPntMessage(pntMessage);
     }
 
-    protected void handleGpRmc(String msg) {
-        GpRmcSentence sentence = new GpRmcSentence();
+    /**
+     * Handle NMEA RMC sentences such as $GPRMC and $ELRMC
+     * @param msg the message to handle
+     */
+    protected void handleRmc(String msg) {
+        RmcSentence sentence = RmcSentence.getParser(msg);
         try {
             sentence.parse(msg);
         } catch (Exception e) {
             LOG.error("Failed to parse GPRMC sentence: " + msg + " : " + e.getMessage());
             return;
         }
-        for (IPntListener pntListener : pntListeners) {
-            pntListener.receive(sentence.getPntMessage());
-        }
-        for (IPntTimeListener pntTimeListener : pntTimeListeners) {
-            pntTimeListener.receive(sentence.getPntMessage());
-        }
+        publishPntMessage(sentence.getPntMessage());
+        publishPntTimeMessage(sentence.getPntMessage());
     }
 
+    /**
+     * Handle $PSTT sentences
+     * @param msg the message to handle
+     */
     private void handlePstt(String msg) {
         PsttSentence psttSentence = new PsttSentence();
         try {
             if (psttSentence.parse(msg)) {
-                for (IPntTimeListener pntTimeListener : pntTimeListeners) {
-                    pntTimeListener.receive(psttSentence.getPntMessage());
-                }
+                publishPntMessage(psttSentence.getPntMessage());
             }
         } catch (SentenceException e) {
             LOG.error("Failed to handle $PSTT,10A: " + e.getMessage());
         }
     }
 
-    public void addPntListener(IPntListener pntListener) {
-        pntListeners.add(pntListener);
+    /**
+     * The $PRPNT is a proprietary sentence introduced to 
+     * flag which PNT source to use
+     * 
+     * @param msg the message to parse
+     */
+    private void handlePrpnt(String msg) {
+        try {
+            // Parse the $PRPNT message
+            PrpntSentence sentence = new PrpntSentence();
+            sentence.parse(msg);
+            
+            // Broadcast the parsed data to the listeners
+            publishRpntData(sentence.getRpntData());
+        } catch (SentenceException e) {
+            LOG.error("Failed to handle $PRPNT '" + msg + "': " + e.getMessage());
+        }
+    }
+    
+
+    /**
+     * Publishes the given PNT message to all listeners
+     * @param pntMessage the message to publish
+     */
+    private void publishPntMessage(PntMessage pntMessage) {
+        for (IPntSensorListener pntListener : pntListeners) {
+            pntListener.receive(pntMessage);
+        }
+    }
+    
+    /**
+     * Publishes the given PNT message to all PNT Time listeners
+     * @param pntMessage the message to publish
+     */
+    private void publishPntTimeMessage(PntMessage pntMessage) {
+        for (IPntTimeListener pntTimeListener : pntTimeListeners) {
+            pntTimeListener.receive(pntMessage);
+        }
     }
 
-    public void removePntListener(IPntListener pntListener) {
+    /**
+     * Publishes the given PNT message to all PNT Time listeners
+     * @param pntMessage the message to publish
+     */
+    private void publishRpntData(ResilientPntData rpntData) {
+        for (IResilientPntSensorListener msPntListener : msPntListeners) {
+            msPntListener.receive(rpntData);
+        }
+    }
+
+    public void addPntListener(IPntSensorListener pntListener) {
+        pntListeners.add(pntListener);
+    }
+    
+    public void removePntListener(IPntSensorListener pntListener) {
         pntListeners.remove(pntListener);
     }
 
-    public void addMsPntListener(IMultiSourcePntListener msPntListener) {
+    public void addMsPntListener(IResilientPntSensorListener msPntListener) {
         msPntListeners.add(msPntListener);
     }
 
-    public void removeMsPntListener(IMultiSourcePntListener msPntListener) {
+    public void removeMsPntListener(IResilientPntSensorListener msPntListener) {
         msPntListeners.remove(msPntListener);
     }
 
-    public void addAisListener(IAisListener aisListener) {
+    public void addAisListener(IAisSensorListener aisListener) {
         aisListeners.add(aisListener);
     }
 
-    public void removeAisListener(IAisListener aisListener) {
+    public void removeAisListener(IAisSensorListener aisListener) {
         aisListeners.remove(aisListener);
     }
 

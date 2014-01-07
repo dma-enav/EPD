@@ -27,15 +27,41 @@ import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.util.ParseUtils;
 
 /**
- * GPRMC sentence representation
+ * Used for parsing standard NMEA $*RMC sentences, i.e. 
+ * GPS and eLoran-based "Recommended minimum specific GPS/Transit data"
+ * <p>
+ * Consider using the {@code GpRmcSentence} and {@code ElRmcSentence}
+ * implementations instead of using {@code RmcSentence} directly.
  */
-public class GpRmcSentence extends Sentence {
+public class RmcSentence extends Sentence {
 
     private PntMessage pntData;
     private String status;
-
-    public GpRmcSentence() {
+    private RmcSource rmcSource;
+        
+    /**
+     * Constructor
+     * The {@code GeneralRmcSentence} must be initialized with the 
+     * expected RMC Source
+     * @param rmcSource the RMC source
+     */
+    public RmcSentence(RmcSource rmcSource) {
         super();
+        this.rmcSource = rmcSource;
+    }
+    
+    /**
+     * Returns a sentence parser for the known types
+     * @param line the line to parse
+     * @return the parser
+     */
+    public static RmcSentence getParser(String line) {
+        if (line != null && line.indexOf("$GPRMC") >= 0) {
+            return new GpRmcSentence();
+        } else if (line != null && line.indexOf("$ELRMC") >= 0) {
+            return new ElRmcSentence();
+        }
+        return null;
     }
 
     public int parse(String line) throws SentenceException {
@@ -46,6 +72,11 @@ public class GpRmcSentence extends Sentence {
     public int parse(SentenceLine sl) throws SentenceException {
         // Do common parsing
         super.baseParse(sl);
+
+        // Check talker
+        if (!sl.getTalker().equals(rmcSource.getTalker())) {
+            throw new SentenceException(String.format("Parsed talker '%s', expected '%s'", sl.getTalker(), rmcSource));
+        }
 
         // Check RMC
         if (!sl.getFormatter().equals("RMC")) {
@@ -94,7 +125,7 @@ public class GpRmcSentence extends Sentence {
             throw new SentenceException("GPS time " + dateTimeStr + " not valid ");
         }
 
-        pntData = new PntMessage(pos, sog, cog, time);
+        pntData = new PntMessage(rmcSource.getPntSource(), pos, sog, cog, time);
 
         // Get status
         status = sl.getFields().get(2);
@@ -115,4 +146,49 @@ public class GpRmcSentence extends Sentence {
         return status;
     }
 
+    /************ Concrete sub-classes ***********/
+
+    /**
+     * Used to parse $GPRMC sentences
+     */
+    public static class GpRmcSentence extends RmcSentence {
+        public GpRmcSentence() {
+            super(RmcSource.GPS);
+        }
+    }
+    
+    /**
+     * Used to parse $ELRMC (eLoran) sentences
+     */
+    public static class ElRmcSentence extends RmcSentence {
+        public ElRmcSentence() {
+            super(RmcSource.ELORAN);
+        }
+    }
+
+    /************ Enumerations ***********/
+    
+    /**
+     * Defines the possible resilient PNT sources
+     */
+    enum RmcSource {
+        GPS("GP", PntSource.GPS),
+        ELORAN("EL", PntSource.ELORAN);
+        
+        private String talker;
+        private PntSource pntSource;
+        
+        private RmcSource(String talker, PntSource pntSource) { 
+            this.talker = talker;
+            this.pntSource = pntSource;
+         }
+        
+        public String getTalker() { 
+            return talker; 
+        }
+        
+        public PntSource getPntSource() {
+            return pntSource;
+        }
+    }
 }

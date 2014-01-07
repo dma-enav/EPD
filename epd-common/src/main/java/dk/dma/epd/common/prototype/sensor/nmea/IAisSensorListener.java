@@ -20,7 +20,7 @@ import dk.dma.ais.message.AisMessage;
 /**
  * Interface to implement to allow reception of AIS messages 
  */
-public interface IAisListener {
+public interface IAisSensorListener {
     
     /**
      * Receive messages from others

@@ -24,22 +24,51 @@ import dk.dma.enav.model.geometry.Position;
 @Immutable
 public class PntMessage {
 
+    private PntSource pntSource;
     private final Position pos;
     private final Double sog;
     private final Double cog;
     private final Long time;
 
-    public PntMessage(Position pos, Double sog, Double cog, Long time) {
+    /**
+     * Designated constructor
+     * 
+     * @param pntSource the PNT source
+     * @param pos the GPS position
+     * @param sog the speed over ground value
+     * @param cog the course over ground
+     * @param time the time
+     */
+    public PntMessage(PntSource pntSource, Position pos, Double sog, Double cog, Long time) {
+        this.pntSource = pntSource;
         this.pos = pos;
         this.sog = sog;
         this.cog = cog;
         this.time = time;
     }
     
-    public PntMessage(Position pos, Double sog, Double cog) {
-        this(pos, sog, cog, null);
+    /**
+     * Constructor
+     * 
+     * @param pntSource the PNT source
+     * @param pos the GPS position
+     * @param sog the speed over ground value
+     * @param cog the course over ground
+     */
+    public PntMessage(PntSource pntSource, Position pos, Double sog, Double cog) {
+        this(pntSource, pos, sog, cog, null);
     }
 
+    /**
+     * Constructor
+     * 
+     * @param pntSource the PNT source
+     * @param cog the course over ground
+     */
+    public PntMessage(PntSource pntSource, Long time) {
+        this(pntSource, null, null, null, time);
+    }
+    
     public Position getPos() {
         return pos;
     }
@@ -68,6 +97,10 @@ public class PntMessage {
         return time;
     }
     
+    public PntSource getPntSource() {
+        return pntSource;
+    }
+    
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -79,6 +112,8 @@ public class PntMessage {
         builder.append(sog);
         builder.append(", time=");
         builder.append(time);
+        builder.append(", source=");
+        builder.append(pntSource);
         builder.append("]");
         return builder.toString();
     }
