@@ -16,19 +16,15 @@
 package dk.dma.epd.common.prototype.layers.ais;
 
 import java.awt.Font;
-import java.awt.geom.Point2D;
 
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMText;
-import com.bbn.openmap.proj.Length;
 import com.bbn.openmap.proj.Projection;
-import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.RotationalPoly;
-import dk.dma.epd.common.math.Vector2D;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
@@ -42,12 +38,7 @@ import dk.dma.epd.common.prototype.settings.NavSettings;
  */
 public class VesselTriangleGraphic extends TargetGraphic {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
-
-//    public static final float STROKE_WIDTH = 1.5f;
 
     private VesselTarget vesselTarget;
 
@@ -56,13 +47,8 @@ public class VesselTriangleGraphic extends TargetGraphic {
     private VesselTargetTriangle vessel;
     private RotationalPoly heading;
 
-    private LatLonPoint startPos;
-    private LatLonPoint endPos;
     private Font font;
     private OMText label;
-
-    private Vector2D pixelDist = new Vector2D();
-    private Boolean marksVisible = false;
 
     private boolean showNameLabel = true;
 
@@ -121,11 +107,8 @@ public class VesselTriangleGraphic extends TargetGraphic {
                 createGraphics();
             }
 
-            double sog = vesselTarget.getPositionData().getSog();
-            double cogR = Math.toRadians(vesselTarget.getPositionData().getCog());
             double hdgR = Math.toRadians(trueHeading);
 
-            // vessel.setLocation(lat, lon, OMGraphic.DECIMAL_DEGREES, hdgR);
             vessel.update(lat, lon, OMGraphicConstants.DECIMAL_DEGREES, hdgR);
             heading.setLocation(lat, lon, OMGraphicConstants.DECIMAL_DEGREES, hdgR);
             if (noHeading) {
@@ -134,16 +117,6 @@ public class VesselTriangleGraphic extends TargetGraphic {
             
             // update the speed vector with the new data
             this.speedVector.update(posData, this.parentLayer.getProjection().getScale());
-            
-            this.startPos = new LatLonPoint.Double(lat, lon);
-
-            float length = (float) Length.NM.toRadians(aisSettings.getCogVectorLength() * (sog / 60.0));
-
-            this.endPos = startPos.getPoint(length, cogR);
-
-            if (!marksVisible) {
-                this.speedVector.setMarksVisible(false);
-            }
 
             // Set label
             label.setLat(lat);
@@ -169,22 +142,7 @@ public class VesselTriangleGraphic extends TargetGraphic {
 
     @Override
     public void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings) {
-
-        if (this.isVisible()) {
-
-            if (startPos != null && endPos != null) {
-                Point2D start = projection.forward(startPos);
-                Point2D end = projection.forward(endPos);
-                pixelDist.setValues(start.getX(), start.getY(), end.getX(), end.getY());
-                if (pixelDist.norm() < aisSettings.getShowMinuteMarksAISTarget()) {
-                    marksVisible = false;
-                    this.speedVector.setMarksVisible(false);
-                } else {
-                    marksVisible = true;
-                    this.speedVector.setMarksVisible(true);
-                }
-            }
-        }
+        // TODO 08-01-2014: consider what to do with this method as number of marks are now extracted from ScaleDependantsValues.
     }
 
     public void setShowNameLabel(boolean showNameLabel) {
