@@ -133,7 +133,7 @@ public class VesselTriangleGraphic extends TargetGraphic {
             }
             
             // update the speed vector with the new data
-            this.speedVector.update(vesselTarget, this.parentLayer.getProjection().getScale());
+            this.speedVector.update(posData, this.parentLayer.getProjection().getScale());
             
             this.startPos = new LatLonPoint.Double(lat, lon);
 

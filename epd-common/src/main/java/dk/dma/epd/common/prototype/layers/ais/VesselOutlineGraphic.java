@@ -17,7 +17,6 @@ package dk.dma.epd.common.prototype.layers.ais;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Stroke;
 
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMCircle;
@@ -27,7 +26,6 @@ import com.bbn.openmap.omGraphics.OMPoly;
 
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 
@@ -49,12 +47,10 @@ public class VesselOutlineGraphic extends OMGraphicList {
      * Displays the position of the PNT device.
      */
     private OMCircle pntDevice;
-
-    /**
-     * The Vessel displayed by this VesselOutlineGrahpic
-     */
-    private VesselTarget vessel;
     
+    /**
+     * The COG/Speed vector
+     */
     private SpeedVectorGraphic speedVector;
     
     private Color lineColor;
@@ -133,8 +129,8 @@ public class VesselOutlineGraphic extends OMGraphicList {
             this.add(this.speedVector);
         }
         // don't show COG vector if vessel is docked
-        this.speedVector.setVisible(vessel.getPositionData().getSog() > 0.1);
-        this.speedVector.update(vessel, this.parentLayer.getProjection().getScale());
+        this.speedVector.setVisible(positionData.getSog() > 0.1);
+        this.speedVector.update(positionData, this.parentLayer.getProjection().getScale());
         
         // clear old PntDevice display
         this.remove(this.pntDevice);

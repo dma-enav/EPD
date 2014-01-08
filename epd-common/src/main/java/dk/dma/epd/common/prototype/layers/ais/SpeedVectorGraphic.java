@@ -27,7 +27,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.RotationalPoly;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 import dk.dma.epd.common.prototype.zoom.ScaleDependentValues;
 
@@ -62,7 +62,7 @@ public class SpeedVectorGraphic extends OMGraphicList {
     
     private Paint paintUsed;
     
-    private VesselTarget lastUpdate;
+    private VesselPositionData lastUpdate;
     
     public SpeedVectorGraphic(Paint lineColour) {
         this.paintUsed = lineColour;
@@ -74,21 +74,21 @@ public class SpeedVectorGraphic extends OMGraphicList {
      * @param vessel Vessel containing the position data used when drawing this graphic.
      * @param currentMapScale the current scale of the map in which this graphic is displayed.
      */
-    public void update(VesselTarget vessel, float currentMapScale) {
-        this.lastUpdate = vessel;
+    public void update(VesselPositionData posData, float currentMapScale) {
+        this.lastUpdate = posData;
         if(this.size() == 0) {
             this.init();
         }
-        Position newPos = vessel.getPositionData().getPos();
-        double cogR = Math.toRadians(vessel.getPositionData().getCog());
+        Position newPos = posData.getPos();
+        double cogR = Math.toRadians(posData.getCog());
         // the new starting point of the speed vector equals the PNT device position.
         this.speedLL[0] = (float) newPos.getLatitude();
         this.speedLL[1] = (float) newPos.getLongitude();
         this.startPos = new LatLonPoint.Double(newPos.getLatitude(), newPos.getLongitude());
         // Calculate the length of the speed vector
-        double sog = vessel.getPositionData().getSog();
+        double sog = posData.getSog();
         float cogVectorLength = ScaleDependentValues.getCogVectorLength(currentMapScale);
-        float length = (float) Length.NM.toRadians(cogVectorLength * (sog / 60.0)); // (x kn/h) / (60m/h) = y kn/m  
+        float length = (float) Length.NM.toRadians(cogVectorLength * (sog / 60.0));
         this.endPos = this.startPos.getPoint(length, cogR);
         this.speedLL[2] = endPos.getLatitude();
         this.speedLL[3] = endPos.getLongitude();
@@ -136,10 +136,8 @@ public class SpeedVectorGraphic extends OMGraphicList {
     
     @Override
     public boolean generate(Projection p, boolean forceProjectAll) {
-//        System.out.println(this.getClass().getSimpleName() + " generate invoked, forceProjectAll = " + forceProjectAll + "[1/2]");
         if(this.lastUpdate != null) {
-//            System.out.println(this.getClass().getSimpleName() + " generate invoked, forceProjectAll = " + forceProjectAll + "[2/2]");
-            // update to apply possible change to speed vector (according to new scale)
+            // force an update to apply possible change to speed vector (according to new scale)
             this.update(this.lastUpdate, p.getScale());
         }
         return super.generate(p, forceProjectAll);
