@@ -45,7 +45,7 @@ public class ResilientPntData implements Serializable {
      * @param hpl the horizontal protection level
      * @param errorEllipseMajorAxis the size of the error-ellipse major axis in meters
      * @param errorEllipseMinorAxis the size of the error-ellipse minor axis in meters
-     * @param errorEllipseBearinf the bearing of the error-ellipse major axis in degrees
+     * @param errorEllipseBearinf the bearing of the error-ellipse major axis from True North in degrees
      */
     public ResilientPntData(PntSource pntSource, JammingFlag jammingFlag, double hpl, 
             double errorEllipseMajorAxis, double errorEllipseMinorAxis, double errorEllipseBearing) {

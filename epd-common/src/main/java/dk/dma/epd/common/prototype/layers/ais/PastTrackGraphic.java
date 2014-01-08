@@ -38,7 +38,7 @@ import dk.dma.epd.common.prototype.ais.PastTrackPoint;
 public class PastTrackGraphic extends OMGraphicList {
     private static final long serialVersionUID = 1L;
     
-    private static Color LEG_COLOR = Color.black;
+    private static Color LEG_COLOR = Color.darkGray;
     private static Color GONE_LEG_COLOR = Color.lightGray;
 
     private MobileTarget mobileTarget;

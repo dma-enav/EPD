@@ -36,6 +36,7 @@ import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackGraphic;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphic;
+import dk.dma.epd.common.prototype.sensor.rpnt.MultiSourcePntHandler;
 import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DragMouseMode;
@@ -54,6 +55,7 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IOwnShipListe
     private MapMenu ownShipMenu;
     
     private OwnShipHandler ownShipHandler;
+    private MultiSourcePntHandler multiSourcePntHandler;
     
     private long minRedrawInterval = 5 * 1000; // 5 sec
     
@@ -66,6 +68,8 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IOwnShipListe
 
     private OwnShipGraphic ownShipGraphic;
     private VesselOutlineGraphic vesselOutlineGraphic;
+    private RpntErrorGraphic rpntErrorGraphic;
+    
     private ZoomLevel currentZoomLevel;
 
     private PastTrackGraphic pastTrackGraphic;
@@ -154,6 +158,14 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IOwnShipListe
         // re-show outline graphic in case it was hidden by standard ownship graphic
         this.vesselOutlineGraphic.setVisible(true);
         this.vesselOutlineGraphic.setLocation(positionData, staticData);
+        
+        // Handle resilient PNT error graphic
+        if (rpntErrorGraphic == null) {
+            rpntErrorGraphic = new RpntErrorGraphic();
+            graphics.add(rpntErrorGraphic);
+        }
+        rpntErrorGraphic.setVisible(true);
+        rpntErrorGraphic.update(positionData, multiSourcePntHandler.getRpntData());
     }
     
     /**
@@ -167,6 +179,12 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IOwnShipListe
             // hide outline display of own ship
             this.vesselOutlineGraphic.setVisible(false);
         }
+
+        // Handle resilient PNT error graphic
+        if (rpntErrorGraphic != null) {
+            rpntErrorGraphic.setVisible(false);
+        }
+        
         // init if this is the first time displaying own ship in standard format
         if(this.ownShipGraphic == null) {
             this.ownShipGraphic = new OwnShipGraphic();
@@ -201,6 +219,9 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IOwnShipListe
             ownShipHandler = (OwnShipHandler)obj;
             ownShipHandler.addListener(this);
         }
+        if (multiSourcePntHandler == null && obj instanceof MultiSourcePntHandler) {
+            multiSourcePntHandler = (MultiSourcePntHandler)obj;
+        }
         if (obj instanceof MapMenu) {
             ownShipMenu = (MapMenu) obj;
         }
@@ -211,6 +232,9 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IOwnShipListe
         if (ownShipHandler == obj) {
             ownShipHandler.removeListener(this);
             ownShipHandler = null;
+        }
+        if (multiSourcePntHandler == obj) {
+            multiSourcePntHandler = null;
         }
         if (ownShipMenu == obj) {
             ownShipMenu = null;
