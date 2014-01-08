@@ -19,6 +19,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Stroke;
 
+import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
@@ -50,14 +51,11 @@ public class VesselOutlineGraphic extends OMGraphicList {
     private OMCircle pntDevice;
 
     /**
-     * Displays a COG vector.
+     * The Vessel displayed by this VesselOutlineGrahpic
      */
-    private RotationalPoly cogVector;
+    private VesselTarget vessel;
     
-    /**
-     * Ship COG stroke
-     */
-    private Stroke cogStroke = new BasicStroke(STROKE_WIDTH);
+    private SpeedVectorGraphic speedVector;
     
     private Color lineColor;
     
@@ -65,11 +63,19 @@ public class VesselOutlineGraphic extends OMGraphicList {
     
     private BasicStroke lineStroke;
     
-    public VesselOutlineGraphic(Color lineColor, float lineThickness) {
+    /**
+     * The layer that displays this VesselOutlineGraphic.
+     * If this VesselOutlineGraphic is a subgraphic of another graphic,
+     * use the top level graphic's parent layer.
+     */
+    private OMGraphicHandlerLayer parentLayer;
+    
+    public VesselOutlineGraphic(Color lineColor, float lineThickness, OMGraphicHandlerLayer parentLayer) {
         this.setVague(true);
         this.lineColor = lineColor;
         this.lineThickness = lineThickness;
         this.lineStroke = new BasicStroke(this.lineThickness);
+        this.parentLayer = parentLayer;
     }
 
     /**
@@ -122,15 +128,14 @@ public class VesselOutlineGraphic extends OMGraphicList {
         // Point on starboard side of ship where the bow begins.
         Position rightSideTopLL = CoordinateSystem.CARTESIAN.pointOnBearing(leftSideTopLL, shipSternWidth, 90.0 + heading);
 
-        int[] xs = {0,0};
-        int[] ys = {0,-100};
-        if(this.cogVector == null) {
-            this.cogVector = new RotationalPoly(xs, ys, cogStroke, null);
-            this.add(this.cogVector);
+        if(this.speedVector == null) {
+            this.speedVector = new SpeedVectorGraphic(this.lineColor);
+            this.add(this.speedVector);
         }
         // don't show COG vector if vessel is docked
-        this.cogVector.setVisible(positionData.getSog() > 0.1);
-        this.cogVector.setLocation(lat, lon, OMGraphic.DECIMAL_DEGREES, Math.toRadians(positionData.getCog()));
+        this.speedVector.setVisible(vessel.getPositionData().getSog() > 0.1);
+        this.speedVector.update(vessel, this.parentLayer.getProjection().getScale());
+        
         // clear old PntDevice display
         this.remove(this.pntDevice);
         this.pntDevice = new OMCircle(lat, lon, 3, 3);
@@ -159,7 +164,8 @@ public class VesselOutlineGraphic extends OMGraphicList {
         this.shipOutline = new OMPoly(shipCorners, OMGraphic.DECIMAL_DEGREES, OMGraphic.LINETYPE_RHUMB);
         this.add(this.shipOutline);
         this.setLinePaint(this.lineColor);
-        this.setStroke(this.lineStroke);
+//        this.setStroke(this.lineStroke);
+        this.shipOutline.setStroke(this.lineStroke);
     }
 
     /**

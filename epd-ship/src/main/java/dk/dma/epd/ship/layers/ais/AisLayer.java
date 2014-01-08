@@ -318,7 +318,7 @@ public class AisLayer extends OMGraphicHandlerLayer implements
         // Create and insert
         if (targetGraphic == null) {
             if (aisTarget instanceof VesselTarget) {
-                targetGraphic = new VesselTargetGraphic(showLabels);
+                targetGraphic = new VesselTargetGraphic(showLabels, this);
             } else if (aisTarget instanceof SarTarget) {
                 targetGraphic = new SarTargetGraphic();
             } else if (aisTarget instanceof AtoNTarget) {

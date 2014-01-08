@@ -152,7 +152,7 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IOwnShipListe
         }
         // init if this is the first time displaying ship outline
         if(this.vesselOutlineGraphic == null) {
-            this.vesselOutlineGraphic = new VesselOutlineGraphic(ColorConstants.EPD_SHIP_OWNSHIP_COLOR, 2.0f);
+            this.vesselOutlineGraphic = new VesselOutlineGraphic(ColorConstants.EPD_SHIP_OWNSHIP_COLOR, 2.0f, this);
             this.graphics.add(this.vesselOutlineGraphic);
         }
         // re-show outline graphic in case it was hidden by standard ownship graphic

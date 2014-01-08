@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.layers.ais;
 
+import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.proj.Projection;
 
 import dk.dma.ais.message.AisMessage;
@@ -52,11 +53,11 @@ public class VesselTargetGraphic extends TargetGraphic {
 
     private PastTrackGraphic pastTrackGraphic = new PastTrackGraphic();
     
-    public VesselTargetGraphic(boolean showName) {
+    public VesselTargetGraphic(boolean showName, OMGraphicHandlerLayer parentLayer) {
         super();
-        this.vesselTriangleGraphic = new VesselTriangleGraphic(this);
+        this.vesselTriangleGraphic = new VesselTriangleGraphic(this, parentLayer);
         this.vesselTriangleGraphic.setShowNameLabel(showName);
-        this.vesselOutlineGraphic = new VesselOutlineGraphic(ColorConstants.EPD_SHIP_VESSEL_COLOR, 2.0f);
+        this.vesselOutlineGraphic = new VesselOutlineGraphic(ColorConstants.EPD_SHIP_VESSEL_COLOR, 2.0f, parentLayer);
         this.vesselDotGraphic = new VesselDotGraphic();
     }
 
