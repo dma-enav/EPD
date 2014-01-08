@@ -32,6 +32,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
+import dk.dma.epd.common.prototype.sensor.nmea.PntSource;
 import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData;
 import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData.JammingFlag;
 
@@ -45,11 +46,21 @@ import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData.JammingFlag;
 public class RpntErrorGraphic  extends OMGraphicList {
 
     private static final long serialVersionUID  = 298296212706297238L;
-    private static final float RADIUS_BOOST     = 5f;
-    private static final float STROKE_WIDTH     = 2.0f;
-    private static final Paint COLOR_NO_JAMMING = new Color(200, 100, 100, 0); // transparent
-    private static final Paint COLOR_JAMMING    = GraphicsUtil.generateTexturePaint(
-            "Jamming", new Font("Segoe UI", Font.BOLD, 11), new Color(200, 200, 200, 200), new Color(200, 100, 100, 120), 80, 50);
+    private static final float RADIUS_BOOST     = 1f;
+    private static final float STROKE_WIDTH     = 1.5f;
+    
+    private static final Color COLOR_ERROR_ELLIPSE  = new Color(100, 200, 100);
+    private static final Color COLOR_PNT_SRC_NONE   = new Color(200, 100, 100);
+    private static final Color COLOR_PNT_SRC_GPS    = new Color(100, 100, 200);
+    private static final Color COLOR_PNT_SRC_ELORAN = new Color(200, 200, 200);
+    private static final Paint PAINT_JAMMING        
+        = GraphicsUtil.generateTexturePaint(
+                        "Jamming", 
+                        new Font("Segoe UI", Font.PLAIN, 11), 
+                        new Color(255, 255, 255, 100), 
+                        new Color(0, 0, 0, 20), 
+                        80, 
+                        50);
 
     private OMCircle hplCicle = new OMCircle();
     private OMEllipse errorEllipse = new OMEllipse(new LatLonPoint.Double(0d, 0d), 0d, 0d, Length.METER, 0d);
@@ -61,7 +72,8 @@ public class RpntErrorGraphic  extends OMGraphicList {
         super();
 
         hplCicle.setRenderType(RENDERTYPE_LATLON);
-        hplCicle.setLinePaint(new Color(200, 100, 100, 255));
+        hplCicle.setLatLon(0, 0); // Avoid NPE's
+        hplCicle.setLinePaint(COLOR_PNT_SRC_GPS);
         hplCicle.setStroke(new BasicStroke(
                 STROKE_WIDTH,                   // Width
                 BasicStroke.CAP_SQUARE,         // End cap
@@ -71,7 +83,7 @@ public class RpntErrorGraphic  extends OMGraphicList {
                 0.0f));                         // Dash phase
         add(hplCicle);
 
-        errorEllipse.setLinePaint(new Color(100, 200, 100, 255));
+        errorEllipse.setLinePaint(COLOR_ERROR_ELLIPSE);
         errorEllipse.setStroke(new BasicStroke(
                 STROKE_WIDTH,                   // Width
                 BasicStroke.CAP_SQUARE,         // End cap
@@ -80,6 +92,23 @@ public class RpntErrorGraphic  extends OMGraphicList {
                 new float[] { 10.0f, 8.0f },    // Dash pattern
                 0.0f));                         // Dash phase
         add(errorEllipse);
+    }
+    
+    /**
+     * Returns the line color to use for the HPL circle
+     * which depends on the PNT source type
+     * 
+     * @param rpntData the resilient PNT data
+     * @return the color to use for the HPL circle
+     */
+    private Color getHplCircleColor(ResilientPntData rpntData) {
+        if (rpntData != null && rpntData.getPntSource() == PntSource.ELORAN) {
+            return COLOR_PNT_SRC_ELORAN;
+        } else if (rpntData != null && rpntData.getPntSource() == PntSource.NONE) {
+            return COLOR_PNT_SRC_NONE;
+        }
+        // Default
+        return COLOR_PNT_SRC_GPS;
     }
     
     /**
@@ -95,7 +124,8 @@ public class RpntErrorGraphic  extends OMGraphicList {
             return;
         }
         
-        hplCicle.setFillPaint(rpntData.getJammingFlag() != JammingFlag.OK ? COLOR_JAMMING : COLOR_NO_JAMMING);
+        hplCicle.setLinePaint(getHplCircleColor(rpntData));
+        hplCicle.setFillPaint(rpntData.getJammingFlag() != JammingFlag.OK ? PAINT_JAMMING : null);
         hplCicle.setRadius(
                 rpntData.getHpl() * RADIUS_BOOST, 
                 Length.METER);
@@ -108,7 +138,6 @@ public class RpntErrorGraphic  extends OMGraphicList {
         double radians = Math.toRadians(rpntData.getErrorEllipse().getBearing() - 90);
         errorEllipse.setRotationAngle(radians);
         errorEllipse.setLatLon(pos.getLatitude(), pos.getLongitude());
-        System.out.println("***** error ellipse " + rpntData.getErrorEllipse() + " -> " + radians);
     }
     
     /**
