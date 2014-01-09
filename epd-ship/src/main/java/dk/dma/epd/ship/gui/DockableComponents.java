@@ -51,6 +51,7 @@ import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.CursorComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.MultiSourcePntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.PntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.MSIComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
@@ -61,7 +62,7 @@ public class DockableComponents {
 
     private static final String[] PANEL_NAMES = { "Chart", "Scale", "Own Ship",
             "GPS", "Cursor", "Active Waypoint", "MSI", "AIS Target",
-            "Dynamic NoGo", "NoGo", "Mona Lisa Communication" };
+            "Dynamic NoGo", "NoGo", "Mona Lisa Communication", "Resilient PNT" };
     Map<String, PanelDockable> dmap;
     private CControl control;
     DockableFactory factory;
@@ -77,6 +78,7 @@ public class DockableComponents {
     private AisComponentPanel aisPanel;
     private DynamicNoGoComponentPanel dynamicNoGoPanel;
     private NoGoComponentPanel nogoPanel;
+    private MultiSourcePntComponentPanel msPntPanel;
 //    private MonaLisaCommunicationComponentPanel monaLisaPanel;
 
     
@@ -97,10 +99,11 @@ public class DockableComponents {
         aisPanel = mainFrame.getAisComponentPanel();
         dynamicNoGoPanel = mainFrame.getDynamicNoGoPanel();
         nogoPanel = mainFrame.getNogoPanel();
+        msPntPanel = mainFrame.getMsPntComponentPanel();
 //        monaLisaPanel = mainFrame.getMonaLisaPanel();
 
         factory = new DockableFactory(chartPanel, scalePanel, ownShipPanel, gpsPanel, cursorPanel, activeWaypointPanel, msiPanel,
-                aisPanel, dynamicNoGoPanel, nogoPanel);
+                aisPanel, dynamicNoGoPanel, nogoPanel, msPntPanel);
 
         CContentArea contentArea = control.getContentArea();
         mainFrame.getContentPane().add(contentArea);
@@ -347,6 +350,7 @@ public class DockableComponents {
         PanelDockable activeWaypointDock = new PanelDockable("Active Waypoint",
                 activeWaypointPanel);
         PanelDockable msiDock = new PanelDockable("MSI", msiPanel);
+        PanelDockable msPntDock = new PanelDockable("Resilient PNT", msPntPanel);
 
         // PanelDockable aisDock = new PanelDockable("AIS Target", aisPanel);
 
@@ -359,6 +363,7 @@ public class DockableComponents {
         grid.add(90, 33, 10, 10, cursorDock);
         grid.add(90, 43, 10, 10, activeWaypointDock);
         grid.add(90, 53, 10, 10, msiDock);
+        grid.add(90, 25, 10, 10, msPntDock);
         // grid.add(90, 63, 10, 10, aisDock);
 
         aControl.getContentArea().setMinimumAreaSize(new Dimension(0, 0));
@@ -468,7 +473,8 @@ public class DockableComponents {
         AisComponentPanel aisPanel;
         DynamicNoGoComponentPanel dynamicNoGoPanel;
         NoGoComponentPanel nogoPanel;
-//        MonaLisaCommunicationComponentPanel monaLisaPanel;
+        MultiSourcePntComponentPanel msPntPanel;
+        //        MonaLisaCommunicationComponentPanel monaLisaPanel;
 
         public DockableFactory(ChartPanel chartPanel,
                 ScaleComponentPanel scalePanel,
@@ -478,7 +484,8 @@ public class DockableComponents {
                 MSIComponentPanel msiPanel,
                 AisComponentPanel aisPanel,
                 DynamicNoGoComponentPanel dynamicNoGoPanel,
-                NoGoComponentPanel nogoPanel) {
+                NoGoComponentPanel nogoPanel,
+                MultiSourcePntComponentPanel msPntPanel) {
 
             super();
 
@@ -493,6 +500,7 @@ public class DockableComponents {
             this.aisPanel = aisPanel;
             this.dynamicNoGoPanel = dynamicNoGoPanel;
             this.nogoPanel = nogoPanel;
+            this.msPntPanel = msPntPanel;
 //            this.monaLisaPanel = monaLisaPanel;
 
         }
@@ -536,6 +544,9 @@ public class DockableComponents {
             }
             if (id.equals("NoGo")) {
                 return new PanelDockable(id, nogoPanel);
+            }
+            if (id.equals("Resilient PNT")) {
+                return new PanelDockable(id, msPntPanel);
             }
 //            if (id.equals("Mona Lisa Communication")) {
 //                return new PanelDockable(id, monaLisaPanel);

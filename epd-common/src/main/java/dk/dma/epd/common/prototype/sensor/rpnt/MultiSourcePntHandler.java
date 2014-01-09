@@ -48,7 +48,10 @@ public class MultiSourcePntHandler extends MapHandlerChild implements IResilient
 
     @GuardedBy("this")
     private final CopyOnWriteArrayList<IPntSensorListener> pntListeners = new CopyOnWriteArrayList<>();
-    
+
+    @GuardedBy("this")
+    private final CopyOnWriteArrayList<IResilientPntDataListener> rpntListeners = new CopyOnWriteArrayList<>();
+
     /**
      * Constructor
      * @param pntHandler
@@ -72,7 +75,8 @@ public class MultiSourcePntHandler extends MapHandlerChild implements IResilient
         }
         this.rpntData = rpntData;
         
-        // TODO invalidate data in pntHandler if indicated from messages
+        // Publish the update to all listeners
+        publishResilientPntDataUpdated();
     }
     
     /**
@@ -135,6 +139,15 @@ public class MultiSourcePntHandler extends MapHandlerChild implements IResilient
     }
     
     /**
+     * Publishes the current {@code ResilientPntData}  to all listeners.
+     */
+    private void publishResilientPntDataUpdated() {
+        for (IResilientPntDataListener rpntListener : rpntListeners) {
+            rpntListener.rpntDataUpdate(rpntData);
+         }
+    }
+    
+    /**
      * Adds a new {@code IPntSensorListener} listener if absent
      * @param pntListener the listener to add
      */
@@ -148,6 +161,22 @@ public class MultiSourcePntHandler extends MapHandlerChild implements IResilient
      */
     public synchronized void removePntListener(IPntSensorListener pntListener) {
         pntListeners.remove(pntListener);
+    }
+    
+    /**
+     * Adds a new {@code IResilientPntDataListener} listener if absent
+     * @param rpntListener the listener to add
+     */
+    public synchronized void addResilientPntDataListener(IResilientPntDataListener rpntListener) {
+        rpntListeners.addIfAbsent(rpntListener);
+    }
+    
+    /**
+     * Removes a {@code IResilientPntDataListener} listener if present
+     * @param rpntListener the listener to remove
+     */
+    public synchronized void removeResilientPntListener(IResilientPntDataListener rpntListener) {
+        rpntListeners.remove(rpntListener);
     }
     
     @Override

@@ -39,6 +39,7 @@ import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.CursorComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.MultiSourcePntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.PntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.MSIComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
@@ -75,6 +76,7 @@ public class MainFrame extends JFrame implements WindowListener {
     private AisComponentPanel aisComponentPanel;
     private DynamicNoGoComponentPanel dynamicNoGoPanel;
     private NoGoComponentPanel nogoPanel;
+    private MultiSourcePntComponentPanel msPntComponentPanel;
 //    private MonaLisaCommunicationComponentPanel monaLisaPanel;
     
     private JPanel glassPanel;
@@ -126,6 +128,7 @@ public class MainFrame extends JFrame implements WindowListener {
         aisComponentPanel = new AisComponentPanel();
         dynamicNoGoPanel = new DynamicNoGoComponentPanel();
         nogoPanel = new NoGoComponentPanel();
+        msPntComponentPanel = new MultiSourcePntComponentPanel();
 //        monaLisaPanel = new MonaLisaCommunicationComponentPanel();
         
         //Mona Lisa Dialog
@@ -168,6 +171,7 @@ public class MainFrame extends JFrame implements WindowListener {
         mapHandler.add(aisComponentPanel);
         mapHandler.add(dynamicNoGoPanel);
         mapHandler.add(nogoPanel);
+        mapHandler.add(msPntComponentPanel);
 //        mapHandler.add(monaLisaPanel);
         
         // Create top menubar
@@ -323,6 +327,10 @@ public class MainFrame extends JFrame implements WindowListener {
 
     public NoGoComponentPanel getNogoPanel() {
         return nogoPanel;
+    }
+    
+    public MultiSourcePntComponentPanel getMsPntComponentPanel() {
+        return msPntComponentPanel;
     }
 
 //    public MonaLisaCommunicationComponentPanel getMonaLisaPanel() {

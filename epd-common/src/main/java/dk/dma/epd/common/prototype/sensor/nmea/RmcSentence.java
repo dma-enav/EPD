@@ -28,9 +28,9 @@ import dk.dma.epd.common.util.ParseUtils;
 
 /**
  * Used for parsing standard NMEA $*RMC sentences, i.e. 
- * GPS and eLoran-based "Recommended minimum specific GPS/Transit data"
+ * GPS, eLoran-based and radar-based "Recommended minimum specific GPS/Transit data"
  * <p>
- * Consider using the {@code GpRmcSentence} and {@code ElRmcSentence}
+ * Consider using the {@code GpRmcSentence}, {@code ElRmcSentence} and {@code RdRmcSentence}
  * implementations instead of using {@code RmcSentence} directly.
  */
 public class RmcSentence extends Sentence {
@@ -60,6 +60,8 @@ public class RmcSentence extends Sentence {
             return new GpRmcSentence();
         } else if (line != null && line.indexOf("$ELRMC") >= 0) {
             return new ElRmcSentence();
+        } else if (line != null && line.indexOf("$RDRMC") >= 0) {
+            return new RdRmcSentence();
         }
         return null;
     }
@@ -165,6 +167,15 @@ public class RmcSentence extends Sentence {
             super(RmcSource.ELORAN);
         }
     }
+    
+    /**
+     * Used to parse $RDRMC (radar) sentences
+     */
+    public static class RdRmcSentence extends RmcSentence {
+        public RdRmcSentence() {
+            super(RmcSource.RADAR);
+        }
+    }
 
     /************ Enumerations ***********/
     
@@ -173,7 +184,8 @@ public class RmcSentence extends Sentence {
      */
     enum RmcSource {
         GPS("GP", PntSource.GPS),
-        ELORAN("EL", PntSource.ELORAN);
+        ELORAN("EL", PntSource.ELORAN),
+        RADAR("RD", PntSource.RADAR);
         
         private String talker;
         private PntSource pntSource;

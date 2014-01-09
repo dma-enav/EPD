@@ -53,6 +53,7 @@ public class RpntErrorGraphic  extends OMGraphicList {
     private static final Color COLOR_PNT_SRC_NONE   = new Color(200, 100, 100);
     private static final Color COLOR_PNT_SRC_GPS    = new Color(100, 100, 200);
     private static final Color COLOR_PNT_SRC_ELORAN = new Color(200, 200, 200);
+    private static final Color COLOR_PNT_SRC_RADAR  = new Color(200, 200, 200);
     private static final Paint PAINT_JAMMING        
         = GraphicsUtil.generateTexturePaint(
                         "Jamming", 
@@ -104,6 +105,8 @@ public class RpntErrorGraphic  extends OMGraphicList {
     private Color getHplCircleColor(ResilientPntData rpntData) {
         if (rpntData != null && rpntData.getPntSource() == PntSource.ELORAN) {
             return COLOR_PNT_SRC_ELORAN;
+        } else if (rpntData != null && rpntData.getPntSource() == PntSource.RADAR) {
+                return COLOR_PNT_SRC_RADAR;
         } else if (rpntData != null && rpntData.getPntSource() == PntSource.NONE) {
             return COLOR_PNT_SRC_NONE;
         }
@@ -127,7 +130,7 @@ public class RpntErrorGraphic  extends OMGraphicList {
         hplCicle.setLinePaint(getHplCircleColor(rpntData));
         hplCicle.setFillPaint(rpntData.getJammingFlag() != JammingFlag.OK ? PAINT_JAMMING : null);
         hplCicle.setRadius(
-                rpntData.getHpl() * RADIUS_BOOST, 
+                rpntData.getHpl() / 2.0 * RADIUS_BOOST, 
                 Length.METER);
         hplCicle.setLatLon(pos.getLatitude(), pos.getLongitude());
         
@@ -135,8 +138,7 @@ public class RpntErrorGraphic  extends OMGraphicList {
                 rpntData.getErrorEllipse().getMajorAxis() * RADIUS_BOOST, 
                 rpntData.getErrorEllipse().getMinorAxis() * RADIUS_BOOST, 
                 Length.METER);
-        double radians = Math.toRadians(rpntData.getErrorEllipse().getBearing() - 90);
-        errorEllipse.setRotationAngle(radians);
+        errorEllipse.setRotationAngle(rpntData.getErrorEllipse().getOMBearing());
         errorEllipse.setLatLon(pos.getLatitude(), pos.getLongitude());
     }
     

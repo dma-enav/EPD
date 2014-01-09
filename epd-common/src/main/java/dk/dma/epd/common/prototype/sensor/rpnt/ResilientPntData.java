@@ -147,6 +147,16 @@ public class ResilientPntData implements Serializable {
         public double getMinorAxis() { return minorAxis; }
         public double getBearing() { return bearing; }
 
+        /**
+         * Converts the bearing to OpenMap rotation angle in radians
+         * @return the bearing as an OpenMap rotation angle
+         */
+        public double getOMBearing() {
+            // the bearing is relative to true North.
+            // In OM, the ellipse major axis is horizontal at 0 radians. 
+            return Math.toRadians(getBearing() - 90);
+        }
+        
         @Override
         public String toString() {
             return new StringBuilder()
