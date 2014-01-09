@@ -15,19 +15,28 @@
  */
 package dk.dma.epd.ship.gui.panels;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.RenderingHints;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData;
+import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData.ErrorEllipse;
 import dk.dma.epd.common.text.Formatter;
-
 import static java.awt.GridBagConstraints.CENTER;
 import static java.awt.GridBagConstraints.WEST;
 import static java.awt.GridBagConstraints.NONE;
@@ -44,6 +53,7 @@ public class MultiSourcePntPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private static final String NA = "N/A";
+    private static final int HAL = 25;
 
     ResilientPntData rpntData;
     
@@ -53,6 +63,7 @@ public class MultiSourcePntPanel extends JPanel {
     JLabel lblErrorMajorAxis = new JLabel();
     JLabel lblErrorMinorAxis = new JLabel();
     JLabel lblErrorBearing = new JLabel();
+    RpntErrorMeter rpntErrorMeter = new RpntErrorMeter(100);
     
     /**
      * Constructor
@@ -60,6 +71,7 @@ public class MultiSourcePntPanel extends JPanel {
     public MultiSourcePntPanel() {
         super(new GridBagLayout());
         
+        Insets insets5      = new Insets(5, 5, 5, 5);
         Insets insetsB5     = new Insets(0, 0, 5, 0);
         Insets insetsBR5    = new Insets(0, 0, 5, 5);
         
@@ -110,6 +122,11 @@ public class MultiSourcePntPanel extends JPanel {
         add(adjust(lblErrorBearing, RIGHT), 
                 new GridBagConstraints(1, gridy, 1, 1, 0.0, 0.0, WEST, NONE, insetsBR5, 0, 0));
         
+        // RPNT error meter
+        gridy++;
+        add(rpntErrorMeter, 
+                new GridBagConstraints(0, gridy, 2, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));        
+        
         // Lastly, update the field values
         setRpntData(null);
     }
@@ -148,6 +165,8 @@ public class MultiSourcePntPanel extends JPanel {
             lblErrorMinorAxis.setText(Formatter.formatMeters(rpntData.getErrorEllipse().getMinorAxis(), 1));
             lblErrorBearing.setText(Formatter.formatDegrees(rpntData.getErrorEllipse().getBearing(), 0));
         }
+        
+        rpntErrorMeter.repaint();
     }
     
     /**
@@ -174,4 +193,79 @@ public class MultiSourcePntPanel extends JPanel {
     private <T extends JLabel> T adjust(T label, int alignment) {
         return adjust(label, alignment, 12, Font.PLAIN);
     }
+
+    /**
+     * Paints the HPL and error ellipse in a meter whose radius is defined by 
+     * the HAL
+     */
+    class RpntErrorMeter extends JComponent {
+
+        private static final long serialVersionUID = 1L;
+        
+        Color bgColor           = new Color(255, 255, 255, 10);
+        Color halColor          = new Color(255, 100, 100, 50);
+        Color hplColor          = new Color(100, 100, 255, 50);
+        Color errorColor        = new Color(100, 255, 100, 50);
+        Ellipse2D halCircle     = new Ellipse2D.Double();
+        Ellipse2D hplCircle     = new Ellipse2D.Double();
+        Ellipse2D errorEllipse  = new Ellipse2D.Double();
+        Point2D center          = new Point2D.Double();
+        double scale;
+        
+        /**
+         * Constructor
+         */
+        public RpntErrorMeter(int s) {
+            super();
+            setLayout(null);
+            setOpaque(false);
+            
+            Dimension size = new Dimension(s, s);
+            setPreferredSize(size);
+            setMinimumSize(size);
+            setMaximumSize(size);
+            setSize(size);
+            
+            double margin = 2d;
+            scale = HAL / (double)s - 2 * margin;
+            center.setLocation((double)s / 2d, (double)s / 2d);
+        }
+
+        /**
+         * Paints the component
+         */
+        @Override
+        public void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D)g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            g2.setColor(bgColor);
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            
+            // Set the affine transformation
+            g2.translate(center.getX(), center.getY());
+            g2.scale(scale, scale);
+            g2.setStroke(new BasicStroke(Math.max(0.5f, 2.0f * (float)scale)));
+
+            // Draw HAL circle
+            g2.setColor(halColor);
+            halCircle.setFrameFromCenter(0, 0, HAL / 2.0, HAL / 2.0);
+            g2.draw(halCircle);
+
+            if (rpntData != null) {
+                // Draw HPL circle
+                g2.setColor(hplColor);
+                hplCircle.setFrameFromCenter(0, 0, rpntData.getHpl() / 2.0, rpntData.getHpl() / 2.0);
+                g2.draw(hplCircle);
+                
+                // Draw error ellipse
+                ErrorEllipse el = rpntData.getErrorEllipse();
+                g2.rotate(el.getOMBearing());
+                g2.setColor(errorColor);
+                errorEllipse.setFrameFromCenter(0, 0, el.getMajorAxis() / 2.0, el.getMinorAxis() / 2.0);
+                g2.fill(errorEllipse);
+            }
+        }
+     }
 }
+
