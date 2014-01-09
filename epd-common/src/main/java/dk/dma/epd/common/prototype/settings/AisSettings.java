@@ -49,6 +49,27 @@ public class AisSettings implements Serializable {
     private int pastTrackMinDist = 100;     // In meters
     
     /**
+     * The minimum length of the COG vector in minutes.
+     */
+    private int cogVectorLengthMin = 1;
+
+    /**
+     * The maximum length of the COG vector in minutes.
+     */
+    private int cogVectorLengthMax = 8;
+    
+    /**
+     * The scale interval that separates two values for cogVectorLength.
+     * E.g.: if assigned a value of x, the valid map scale for a cogVectorLength
+     * of n minutes is in ](n-1) * x; n * x].
+     */
+    private float cogVectorLengthScaleInterval = 5000.0f;
+    
+    private final String varNameCogVectorLengthMin = "cogVectorLengthMin"; 
+    private final String varNameCogVectorLengthMax = "cogVectorLengthMax";
+    private final String varNameCogVectorLengthScaleInterval = "cogVectorLengthScaleInterval";
+    
+    /**
      * Constructor
      */
     public AisSettings() {   
@@ -84,6 +105,10 @@ public class AisSettings implements Serializable {
         pastTrackDisplayTime = PropUtils.intFromProperties(props, PREFIX + "pastTrackDisplayTime", pastTrackDisplayTime);
         pastTrackMinDist = PropUtils.intFromProperties(props, PREFIX + "pastTrackMinDist", pastTrackMinDist);
         
+        this.cogVectorLengthMin = PropUtils.intFromProperties(props, PREFIX + this.varNameCogVectorLengthMin, this.cogVectorLengthMin);
+        this.cogVectorLengthMax = PropUtils.intFromProperties(props, PREFIX + this.varNameCogVectorLengthMax, this.cogVectorLengthMax);
+        this.cogVectorLengthScaleInterval = PropUtils.floatFromProperties(props, PREFIX + this.varNameCogVectorLengthScaleInterval, this.cogVectorLengthScaleInterval);
+        
         if (simulatedSartMmsi == null){
             simulatedSartMmsi = new String[0];
         }
@@ -110,6 +135,10 @@ public class AisSettings implements Serializable {
         props.put(PREFIX + "pastTrackMaxTime", Integer.toString(pastTrackMaxTime));
         props.put(PREFIX + "pastTrackDisplayTime", Integer.toString(pastTrackDisplayTime));
         props.put(PREFIX + "pastTrackMinDist", Integer.toString(pastTrackMinDist));
+        
+        props.put(PREFIX + this.varNameCogVectorLengthMin, Integer.toString(this.cogVectorLengthMin));
+        props.put(PREFIX + this.varNameCogVectorLengthMax, Integer.toString(this.cogVectorLengthMax));
+        props.put(PREFIX + this.varNameCogVectorLengthScaleInterval, Float.toString(this.cogVectorLengthScaleInterval));
     }
     
     /** Getters and setters **/
@@ -248,5 +277,29 @@ public class AisSettings implements Serializable {
 
     public void setPastTrackMinDist(int pastTrackMinDist) {
         this.pastTrackMinDist = pastTrackMinDist;
-    }    
+    }
+    
+    public int getCogVectorLengthMin() {
+        return cogVectorLengthMin;
+    }
+
+    public void setCogVectorLengthMin(int cogVectorLengthMin) {
+        this.cogVectorLengthMin = cogVectorLengthMin;
+    }
+
+    public int getCogVectorLengthMax() {
+        return cogVectorLengthMax;
+    }
+
+    public void setCogVectorLengthMax(int cogVectorLengthMax) {
+        this.cogVectorLengthMax = cogVectorLengthMax;
+    }
+
+    public float getCogVectorLengthScaleInterval() {
+        return cogVectorLengthScaleInterval;
+    }
+
+    public void setCogVectorLengthScaleInterval(float cogVectorLengthScaleInterval) {
+        this.cogVectorLengthScaleInterval = cogVectorLengthScaleInterval;
+    }
 }

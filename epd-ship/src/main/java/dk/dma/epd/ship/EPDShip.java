@@ -59,6 +59,7 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.sensor.rpnt.MultiSourcePntHandler;
 import dk.dma.epd.common.prototype.settings.SensorSettings.PntSource;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
+import dk.dma.epd.common.prototype.zoom.ScaleDependentValues;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.MainFrame;
@@ -141,7 +142,10 @@ public class EPDShip extends EPD {
         LOG.info("Using settings file: " + settings.getSettingsFile());
         settings.loadFromFile();
         mapHandler.add(settings);
-
+        
+        // Inject the AisSettings
+        ScaleDependentValues.setAIS_SETTINGS(settings.getAisSettings());
+        
         // Determine if instance already running and if that is allowed
         OneInstanceGuard guard = new OneInstanceGuard(home.resolve("eeins.lock").toString());
         if (!settings.getGuiSettings().isMultipleInstancesAllowed() && guard.isAlreadyRunning()) {

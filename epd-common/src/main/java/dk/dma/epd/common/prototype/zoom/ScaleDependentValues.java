@@ -15,52 +15,50 @@
  */
 package dk.dma.epd.common.prototype.zoom;
 
+import dk.dma.epd.common.prototype.settings.AisSettings;
+
 /**
  * Class that provides access to values that depend on the map scale.
  * @author Janus Varmarken
  */
-public final class ScaleDependentValues {
-    
-    private static float ONE_MINUTE_MAX_SCALE = 5000.0f;
-    private static float TWO_MINUTE_MAX_SCALE = 10000.0f;
-    private static float THREE_MINUTE_MAX_SCALE = 15000.0f;
-    private static float FOUR_MINUTE_MAX_SCALE = 20000.0f;
-    private static float FIVE_MINUTE_MAX_SCALE = 25000.0f;
-    private static float SIX_MINUTE_MAX_SCALE = 30000.0f;
-    private static float SEVEN_MINUTE_MAX_SCALE = 35000.0f;
+public class ScaleDependentValues {
     
     /**
-     * Get the length of the COG & speed vector based on map scale.
+     * The AIS settings that hold information about the COG vector length and more.
+     */
+    private static AisSettings AIS_SETTINGS;
+    
+    /**
+     * Set the AisSettings that will be used to compute scale dependent values.
+     * @param aisSettings The AisSettings that holds the values to use in calculations of scale dependent values.
+     */
+    public static void setAIS_SETTINGS(AisSettings aisSettings) {
+        AIS_SETTINGS = aisSettings;
+    }
+    
+    /**
+     * Get the length (in minutes) of the COG & speed vector based on map scale.
      * @param mapScale The map scale to base the length of the COG & speed vector on.
      * @return The length of the COG & speed vector in minutes.
      */
     public static int getCogVectorLength(float mapScale) {
-        if(mapScale <= ONE_MINUTE_MAX_SCALE) {
-            return 1;
+        // 2nd version (in order to accommodate configurable values)
+        float iMaxScale = AIS_SETTINGS.getCogVectorLengthScaleInterval();
+        for(int i = AIS_SETTINGS.getCogVectorLengthMin(); i < AIS_SETTINGS.getCogVectorLengthMax(); i++) {
+            if(mapScale <= iMaxScale) {
+                // found the proper minute length
+                System.out.println("Returning CogVectorLength = " + i + " (iMaxScale = " + iMaxScale + ")");
+                return i;
+            }
+            else {
+                iMaxScale += AIS_SETTINGS.getCogVectorLengthScaleInterval();
+            }
         }
-        else if(mapScale <= TWO_MINUTE_MAX_SCALE) {
-            return 2;
-        }
-        else if(mapScale <= THREE_MINUTE_MAX_SCALE) {
-            return 3;
-        }
-        else if(mapScale <= FOUR_MINUTE_MAX_SCALE) {
-            return 4;
-        }
-        else if(mapScale <= FIVE_MINUTE_MAX_SCALE) {
-            return 5;
-        }
-        else if(mapScale <= SIX_MINUTE_MAX_SCALE) {
-            return 6;
-        }
-        else if(mapScale <= SEVEN_MINUTE_MAX_SCALE) {
-            return 7;
-        }
-        else {
-            return 8;
-        }
+        // no matching scale, use max value
+        // TODO consider adding extra check if we are to disable markers entirely if zoomed out to a given scale
+        return AIS_SETTINGS.getCogVectorLengthMax();
     }
-    
+
     /**
      * Constructor is private as this class should not be instantiated.
      */
