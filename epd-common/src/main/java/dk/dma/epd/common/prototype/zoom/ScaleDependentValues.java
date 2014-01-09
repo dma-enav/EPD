@@ -21,7 +21,7 @@ import dk.dma.epd.common.prototype.settings.AisSettings;
  * Class that provides access to values that depend on the map scale.
  * @author Janus Varmarken
  */
-public class ScaleDependentValues {
+public final class ScaleDependentValues {
     
     /**
      * The AIS settings that hold information about the COG vector length and more.
