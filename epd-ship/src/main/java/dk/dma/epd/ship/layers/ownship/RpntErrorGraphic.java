@@ -35,6 +35,7 @@ import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.sensor.nmea.PntSource;
 import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData;
 import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData.JammingFlag;
+import dk.dma.epd.ship.EPDShip;
 
 /**
  * Draws the resilient PNT indicators around the own-ship graphics:
@@ -95,6 +96,27 @@ public class RpntErrorGraphic  extends OMGraphicList {
         add(errorEllipse);
     }
     
+    
+    /**
+     * Returns if the "Resilient PNT Layer" is visible or not
+     * @return if the "Resilient PNT Layer" is visible or not
+     */
+    public boolean isResilientPntLayerVisible() {
+        return EPDShip.getSettings().getMapSettings().isMsPntVisible();
+    }
+    
+    /**
+     * Sets the visible state of the RPNT graphics,
+     * taking into account the "Resilient PNT Layer" setting
+     * 
+     * @param visible whether the graphics should be visible or not
+     */
+    public void setVisible(boolean visible) {
+        // Check if the "Resilient PNT Layer" layer is visible
+        visible = visible & isResilientPntLayerVisible();
+        super.setVisible(visible);
+    }
+    
     /**
      * Returns the line color to use for the HPL circle
      * which depends on the PNT source type
@@ -122,11 +144,18 @@ public class RpntErrorGraphic  extends OMGraphicList {
      * @param rpntData the resilient PNT data
      */
     public void update(VesselPositionData vesselPositionData, ResilientPntData rpntData) {
+        // Check if the "Resilient PNT layer is visible
+        if (!isResilientPntLayerVisible()) {
+            return;
+        }
+        
+        // Check that we have a well-defined position
         Position pos = vesselPositionData.getPos();
         if(pos == null || rpntData == null) {
             return;
         }
         
+        // Update the UI
         hplCicle.setLinePaint(getHplCircleColor(rpntData));
         hplCicle.setFillPaint(rpntData.getJammingFlag() != JammingFlag.OK ? PAINT_JAMMING : null);
         hplCicle.setRadius(

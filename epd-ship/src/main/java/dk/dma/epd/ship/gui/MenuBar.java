@@ -79,6 +79,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     private JCheckBoxMenuItem autoFollow;
     private JCheckBoxMenuItem aisLayer;
     private JCheckBoxMenuItem encLayer;
+    private JCheckBoxMenuItem msPntLayer;
     private final JCheckBoxMenuItem nogoLayer = new JCheckBoxMenuItem("NoGo Layer");;
     private JCheckBoxMenuItem newRoute;
     private JMenu dockableMenu;
@@ -94,6 +95,10 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     private void initMenuBar() {
         boolean showRiskAndNogo = !EPDShip.getSettings().getGuiSettings().isRiskNogoDisabled();
 
+        /*****************************************/
+        /** File menu                           **/
+        /*****************************************/
+        
         JMenu file = new JMenu("File");
         this.add(file);
 
@@ -153,6 +158,10 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
             }
         });
 
+        /*****************************************/
+        /** Interact menu                       **/
+        /*****************************************/
+        
         JMenu interact = new JMenu("Interact");
         this.add(interact);
 
@@ -207,6 +216,10 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
             }
         });
 
+        /*****************************************/
+        /** Layers menu                         **/
+        /*****************************************/
+        
         JMenu layers = new JMenu("Layers");
         this.add(layers);
 
@@ -236,19 +249,6 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
             }
         });
 
-        // JCheckBoxMenuItem msiLayer = new JCheckBoxMenuItem("MSI Layer");
-        // layers.add(msiLayer);
-        // msiLayer.setSelected(EeINS.getSettings().getMapSettings().);
-        //
-        // encLayer.addActionListener(new ActionListener() {
-        // @Override
-        // public void actionPerformed(ActionEvent e) {
-        // topPanel.getEncBtn().setSelected(!topPanel.getEncBtn().isSelected());
-        // EeINS.getSettings().getMapSettings().setEncVisible(topPanel.getEncBtn().isSelected());
-        // mainFrame.getChartPanel().encVisible(topPanel.getEncBtn().isSelected());
-        // }
-        // });
-        //
         if (showRiskAndNogo) {
             layers.add(nogoLayer);
         }
@@ -274,7 +274,25 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
                 EPDShip.getRiskHandler().toggleRiskHandler(!EPDShip.getSettings().getAisSettings().isShowRisk());
             }
         });
+        
 
+        // Multi-source PNT (a.k.a "Resilient PNT") layer.
+        // Please note, this later is actually a virtual layer;
+        // the RPNT graphics is handler by the OwnShipLayer.
+        msPntLayer = new JCheckBoxMenuItem("Resilient PNT Layer");
+        layers.add(msPntLayer);
+        msPntLayer.setSelected(EPDShip.getSettings().getMapSettings().isMsPntVisible());
+        msPntLayer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                EPDShip.getSettings().getMapSettings().setMsPntVisible(msPntLayer.isSelected());
+            }
+        });
+
+        /*****************************************/
+        /** Tools menu                          **/
+        /*****************************************/
+        
         JMenu tools = new JMenu("Tools");
         this.add(tools);
 
@@ -303,6 +321,10 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
             }
         });
 
+        /*****************************************/
+        /** Layouts menu                        **/
+        /*****************************************/
+        
         layouts = new JMenu("Layouts");
         this.add(layouts);
 
@@ -404,6 +426,10 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         dockableMenu = mainFrame.getDockableComponents().createDockableMenu();
         this.add(dockableMenu);
 
+        /*****************************************/
+        /** Help menu                           **/
+        /*****************************************/
+        
         JMenu help = new JMenu("Help");
         this.add(help);
 

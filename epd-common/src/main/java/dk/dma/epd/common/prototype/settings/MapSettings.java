@@ -34,20 +34,9 @@ public class MapSettings implements Serializable {
     private boolean useEnc = true;
     private boolean useWms; //default = false
     private boolean useWmsDragging;
-
-
-    public boolean isUseWmsDragging() {
-        return useWmsDragging;
-    }
-
-    public void setUseWmsDragging(boolean useWmsDragging) {
-        this.useWmsDragging = useWmsDragging;
-    }
-
     private boolean encVisible = true;
     private boolean wmsVisible;
     private int maxScale = 5000;
-    
     private boolean s52ShowText;
     private boolean s52ShallowPattern;
     private int s52ShallowContour = 6;
@@ -61,15 +50,11 @@ public class MapSettings implements Serializable {
     private String[] wmsProviders;
     private String wmsQuery = "";
     
-    public String[] getWmsProviders() {
-        return wmsProviders;
-    }
-
-    public void setWmsProviders(String[] wmsProviders) {
-        this.wmsProviders = wmsProviders;
-    }
-
     public MapSettings() {
+    }
+
+    public static String getPrefix() {
+        return PREFIX;
     }
 
     public void readProperties(Properties props) {
@@ -82,16 +67,10 @@ public class MapSettings implements Serializable {
         encVisible = PropUtils.booleanFromProperties(props, PREFIX + "encVisible", encVisible);
         wmsVisible = PropUtils.booleanFromProperties(props, PREFIX + "wmsVisible", wmsVisible);
         maxScale = PropUtils.intFromProperties(props, PREFIX + "maxScale", maxScale);
-
+        
         //settings for wms
         wmsProviders = props.getProperty(PREFIX + "wmsProviders", "").split(",", 128);
         wmsQuery = props.getProperty(PREFIX + "wmsQuery", "");
-//        
-//        for (int i=0;i<wmsProviders.length;i++) {
-//            System.out.println(wmsProviders[i]);
-//        }
-//        
-            
         
         // settings for S52 layer
         s52ShowText = PropUtils.booleanFromProperties(props, PREFIX + "s52ShowText", s52ShowText);
@@ -117,7 +96,6 @@ public class MapSettings implements Serializable {
         props.put(PREFIX + "wmsVisible", Boolean.toString(wmsVisible));
         props.put(PREFIX + "maxScale", Integer.toString(maxScale));
         
-        
         // settings for wms layer
         StringBuilder sb = new StringBuilder();
         for (int i=0; i<wmsProviders.length; i++) {
@@ -141,6 +119,7 @@ public class MapSettings implements Serializable {
         props.put(PREFIX + "color", color);
     }
     
+    /******************** Getters and setters **************************/
     
     public LatLonPoint getCenter() {
         return center;
@@ -170,6 +149,14 @@ public class MapSettings implements Serializable {
         return encVisible;
     }
     
+    public boolean isUseWmsDragging() {
+        return useWmsDragging;
+    }
+
+    public void setUseWmsDragging(boolean useWmsDragging) {
+        this.useWmsDragging = useWmsDragging;
+    }
+
     public boolean isUseWms() {
         return useWms;
     }
@@ -182,16 +169,10 @@ public class MapSettings implements Serializable {
         this.encVisible = encVisible;
     }
     
-    /**
-     * @return the wmsVisible
-     */
     public boolean isWmsVisible() {
         return wmsVisible;
     }
 
-    /**
-     * @param wmsVisible the wmsVisible to set
-     */
     public void setWmsVisible(boolean wmsVisible) {
         this.wmsVisible = wmsVisible;
     }
@@ -284,19 +265,19 @@ public class MapSettings implements Serializable {
         this.s52TwoShades = s52TwoShades;
     }
 
-    /**
-     * @return the color
-     */
     public String getColor() {
         return color;
     }
-
-    /**
-     * @param color the color to set
-     */
+    
     public void setColor(String color) {
         this.color = color;
     }
 
-    
+    public String[] getWmsProviders() {
+        return wmsProviders;
+    }
+
+    public void setWmsProviders(String[] wmsProviders) {
+        this.wmsProviders = wmsProviders;
+    }    
 }

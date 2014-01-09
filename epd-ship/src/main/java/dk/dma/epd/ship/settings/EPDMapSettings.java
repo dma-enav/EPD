@@ -15,13 +15,53 @@
  */
 package dk.dma.epd.ship.settings;
 
+import java.util.Properties;
+
+import com.bbn.openmap.util.PropUtils;
+
 import dk.dma.epd.common.prototype.settings.MapSettings;
 
 /**
- * Map/chart settings
+ * Map/chart settings specific for EPDShip
  */
 public class EPDMapSettings extends MapSettings {
 
     private static final long serialVersionUID = 1L;
+
+    private boolean msPntVisible; // Default is false
+
+    /**
+     * Reads the properties from the {@code Properties} parameter
+     * @param props the {@code Properties} to read from
+     */
+    @Override
+    public void readProperties(Properties props) {
+        super.readProperties(props);
+        
+        // Multi-source PNT layer settings
+        msPntVisible = PropUtils.booleanFromProperties(props, super.getPrefix() + "msPntVisible", msPntVisible);
+    }
+
+    /**
+     * Reads the properties from the {@code Properties} parameter
+     * @param props the {@code Properties} to read from
+     */
+    @Override
+    public void setProperties(Properties props) {
+        super.setProperties(props);
+        
+        // Multi-source PNT layer settings
+        props.put(super.getPrefix() + "msPntVisible", Boolean.toString(msPntVisible));        
+    }
+
+    /******************** Getters and setters **************************/
+    
+    public boolean isMsPntVisible() {
+        return msPntVisible;
+    }
+
+    public void setMsPntVisible(boolean msPntVisible) {
+        this.msPntVisible = msPntVisible;
+    }
 
 }
