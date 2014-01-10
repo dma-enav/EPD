@@ -187,7 +187,7 @@ public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, Proj
         
         // init if this is the first time displaying own ship in standard format
         if(this.ownShipGraphic == null) {
-            this.ownShipGraphic = new OwnShipGraphic();
+            this.ownShipGraphic = new OwnShipGraphic(this);
             this.graphics.add(this.ownShipGraphic);
         }
         // re-show standard ownship graphic in case it was hidden by outline graphic

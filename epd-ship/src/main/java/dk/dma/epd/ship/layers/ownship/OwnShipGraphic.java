@@ -16,20 +16,23 @@
 package dk.dma.epd.ship.layers.ownship;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Stroke;
 
+import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
-import com.bbn.openmap.omGraphics.OMLine;
 import com.bbn.openmap.proj.Length;
 import com.bbn.openmap.proj.ProjMath;
+import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
-import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.common.prototype.layers.ais.SpeedVectorGraphic;
+import dk.dma.epd.common.prototype.zoom.ScaleDependentValues;
 
 /**
  * @author Janus Varmarken
@@ -45,38 +48,55 @@ public class OwnShipGraphic extends OMGraphicList {
     
     private OMCircle circle1; 
     private OMCircle circle2;
-    private OMLine speedVector;
+    
+    /**
+     * Visualization of own ship COG and speed vector.
+     */
+    private SpeedVectorGraphic speedVector;
+    
+    /**
+     * Line parallel with the Vessel's stern (assuming the stern straight).
+     */
     private RotationalPoly angularVector;
+    
+    /**
+     * A line that visualizes the Vessel's true heading.
+     */
     private RotationalPoly directionVector;
+    
+    /**
+     * The layer where this graphic is drawn.
+     */
+    private OMGraphicHandlerLayer parentLayer;
+    
+    /**
+     * The most recent PNT update.
+     */
+    private VesselPositionData lastUpdate;
+    
+    // these are the two arrow heads at the end of the speed vector.
     private RotationalPoly frontShipArrow;
     private RotationalPoly backShipArrow;
-    private OMGraphicList marks;
+    
     private LatLonPoint endPos;
     private LatLonPoint startPos;
-    
-    private int[] markX = {-5,5};
-    private int[] markY = {0,0};
     
     private double headingRadian;
     private Position currentPos;
     
-    public OwnShipGraphic() {
+    /**
+     * Create an OwnShipGraphic.
+     * @param parentLayer The layer where this graphic is to be drawn.
+     */
+    public OwnShipGraphic(OMGraphicHandlerLayer parentLayer) {
+        this.parentLayer = parentLayer;
         this.setVague(true);
         Stroke stroke = new BasicStroke(STROKE_WIDTH);
         this.circle1 = new OMCircle(0, 0, 0, 0, 18, 18);
         this.circle2 = new OMCircle(0, 0, 0, 0, 8, 8);
         this.circle1.setStroke(stroke);
         this.circle2.setStroke(stroke);
-        this.speedVector = new OMLine(0d, 0d, 0d, 0d, OMGraphicConstants.LINETYPE_STRAIGHT);
-        this.speedVector.setStroke(new BasicStroke(
-                STROKE_WIDTH,                      // Width
-                BasicStroke.CAP_SQUARE,    // End cap
-                BasicStroke.JOIN_MITER,    // Join style
-                10.0f,                     // Miter limit
-                new float[] { 10.0f, 8.0f }, // Dash pattern
-                0.0f)                     // Dash phase
-        );
-        this.marks = new OMGraphicList();
+        this.speedVector = new SpeedVectorGraphic(Color.BLACK);
         
         int[] angularX = {-20,20};
         int[] angularY = {0,0};
@@ -94,7 +114,6 @@ public class OwnShipGraphic extends OMGraphicList {
         this.add(this.circle1);
         this.add(this.circle2);
         this.add(this.speedVector);
-        this.add(this.marks);
         this.add(this.backShipArrow);
         this.add(this.frontShipArrow);
         this.add(this.angularVector);
@@ -105,6 +124,7 @@ public class OwnShipGraphic extends OMGraphicList {
         if(ownShipData.getPos() == null) {
             return false;
         }
+        this.lastUpdate = ownShipData;
         
         double heading = 0.0;
         
@@ -127,25 +147,16 @@ public class OwnShipGraphic extends OMGraphicList {
         
         // Calculate speed vector
         this.startPos = new LatLonPoint.Double(this.currentPos.getLatitude(), this.currentPos.getLongitude());
-        float length = (float) Length.NM.toRadians(EPDShip.getSettings().getNavSettings().getCogVectorLength() * (ownShipData.getSog() / 60.0));
+        float mapScale = this.parentLayer.getProjection().getScale();
+        float length = (float) Length.NM.toRadians(ScaleDependentValues.getCogVectorLength(mapScale) * (ownShipData.getSog() / 60.0));
         this.endPos = this.startPos.getPoint(length, (float) ProjMath.degToRad(ownShipData.getCog()));
-        double[] newLLPos = {this.startPos.getLatitude(), this.startPos.getLongitude(), this.endPos.getLatitude(), this.endPos.getLongitude()};
         Double cogRadian = Math.toRadians(ownShipData.getCog());
         
-        this.speedVector.setLL(newLLPos);
+        this.speedVector.update(ownShipData, mapScale);
         this.angularVector.setLocation(this.startPos.getLatitude(), this.startPos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, this.headingRadian);
         this.directionVector.setLocation(this.startPos.getLatitude(), this.startPos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, this.headingRadian);
         this.frontShipArrow.setLocation(this.endPos.getLatitude(), this.endPos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, cogRadian);
         this.backShipArrow.setLocation(this.endPos.getLatitude(), this.endPos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, cogRadian);
-        
-        this.marks.clear();
-        for (int i = 0; i < 6; i++) {
-            float markLength = (float) Length.NM.toRadians(EPDShip.getSettings().getNavSettings().getCogVectorLength()/6 * i * (ownShipData.getSog() / 60.0));
-            LatLonPoint marker = this.startPos.getPoint(markLength, cogRadian);
-            RotationalPoly polyMark = new RotationalPoly(this.markX, this.markY, new BasicStroke(STROKE_WIDTH), null);
-            polyMark.setLocation(marker.getLatitude(), marker.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, cogRadian);
-            this.marks.add(polyMark);
-        }
         
         if(ownShipData.getSog() < 0.1){
             backShipArrow.setVisible(false);
@@ -158,4 +169,12 @@ public class OwnShipGraphic extends OMGraphicList {
         return true;
     }
     
+    @Override
+    public boolean generate(Projection p, boolean forceProjectAll) {
+        if(this.lastUpdate != null) {
+            // force an update to apply possible change to positions of arrow heads (in case a scale change has occurred)
+            this.update(this.lastUpdate);
+        }
+        return super.generate(p, forceProjectAll);
+    }
 }
