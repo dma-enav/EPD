@@ -24,14 +24,15 @@ import dk.dma.enav.model.geometry.Position;
 @Immutable
 public class PntMessage {
 
-    private PntSource pntSource;
+    private final PntSource pntSource;
     private final Position pos;
     private final Double sog;
     private final Double cog;
     private final Long time;
+    private MessageType messageType = MessageType.PNT;
 
     /**
-     * Designated constructor
+     * Constructor
      * 
      * @param pntSource the PNT source
      * @param pos the GPS position
@@ -49,24 +50,15 @@ public class PntMessage {
     
     /**
      * Constructor
-     * 
-     * @param pntSource the PNT source
-     * @param pos the GPS position
-     * @param sog the speed over ground value
-     * @param cog the course over ground
-     */
-    public PntMessage(PntSource pntSource, Position pos, Double sog, Double cog) {
-        this(pntSource, pos, sog, cog, null);
-    }
-
-    /**
-     * Constructor
+     * <p>
+     * This constructor should be used for time-onlye PNT messages.
      * 
      * @param pntSource the PNT source
      * @param cog the course over ground
      */
     public PntMessage(PntSource pntSource, Long time) {
         this(pntSource, null, null, null, time);
+        messageType = MessageType.TIME;
     }
     
     public Position getPos() {
@@ -101,6 +93,10 @@ public class PntMessage {
         return pntSource;
     }
     
+    public MessageType getMessageType() {
+        return messageType;
+    }
+    
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -118,4 +114,11 @@ public class PntMessage {
         return builder.toString();
     }
 
+    /**
+     * Defines the message type
+     */
+    public enum MessageType {
+        PNT,    // Message contains position, navigation and time information
+        TIME;   // Message contains only time information
+    }
 }

@@ -25,18 +25,16 @@ import net.jcip.annotations.ThreadSafe;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.sensor.nmea.IPntSensorListener;
 import dk.dma.epd.common.prototype.sensor.nmea.IResilientPntSensorListener;
 import dk.dma.epd.common.prototype.sensor.nmea.PntMessage;
 import dk.dma.epd.common.prototype.sensor.nmea.PntSource;
-import dk.dma.epd.common.util.Util;
 
 /**
  * Component to handle multi-source PNT messages
  */
 @ThreadSafe
-public class MultiSourcePntHandler extends MapHandlerChild implements IResilientPntSensorListener, Runnable {
+public class MultiSourcePntHandler extends MapHandlerChild implements IResilientPntSensorListener {
     
     private static final Logger LOG = LoggerFactory.getLogger(MultiSourcePntHandler.class);
     
@@ -57,7 +55,6 @@ public class MultiSourcePntHandler extends MapHandlerChild implements IResilient
      * @param pntHandler
      */
     public MultiSourcePntHandler() {
-        EPD.startThread(this, "MultiSourcePntHandler");        
     }
     
     /**
@@ -175,15 +172,7 @@ public class MultiSourcePntHandler extends MapHandlerChild implements IResilient
      * Removes a {@code IResilientPntDataListener} listener if present
      * @param rpntListener the listener to remove
      */
-    public synchronized void removeResilientPntListener(IResilientPntDataListener rpntListener) {
+    public synchronized void removeResilientPntDataListener(IResilientPntDataListener rpntListener) {
         rpntListeners.remove(rpntListener);
-    }
-    
-    @Override
-    public void run() {
-        while (true) {
-            // TODO: Validate if data is still fresh
-            Util.sleep(10000);
-        }
     }
 }

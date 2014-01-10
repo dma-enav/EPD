@@ -34,7 +34,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 
-import dk.dma.epd.common.prototype.settings.SensorSettings.PntSource;
+import dk.dma.epd.common.prototype.settings.SensorSettings.PntSourceSetting;
 import dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType;
 import dk.dma.epd.ship.settings.EPDSensorSettings;
 
@@ -49,7 +49,7 @@ import static dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnecti
 public class SensorTab extends JPanel implements ActionListener {
     private static final long serialVersionUID = 1L;
     
-    private JComboBox<PntSource> comboBoxPntSource;
+    private JComboBox<PntSourceSetting> comboBoxPntSource;
     
     private JPanel AisConnectionPanel = new JPanel();
     private JTextField textFieldAisHostOrSerialPort;
@@ -88,7 +88,7 @@ public class SensorTab extends JPanel implements ActionListener {
 
         comboBoxPntSource = new JComboBox<>();
         comboBoxPntSource.addActionListener(this);
-        comboBoxPntSource.setModel(new DefaultComboBoxModel<>(PntSource.values()));
+        comboBoxPntSource.setModel(new DefaultComboBoxModel<>(PntSourceSetting.values()));
         GroupLayout gl_PntSourcePanel = new GroupLayout(PntSourcePanel);
         gl_PntSourcePanel.setHorizontalGroup(
             gl_PntSourcePanel.createParallelGroup(Alignment.LEADING)
@@ -439,7 +439,7 @@ public class SensorTab extends JPanel implements ActionListener {
         sensorSettings.setMsPntTcpOrUdpPort((Integer) spinnerMsPntTcpOrUdpPort.getValue());
         
         // Saves the PNT source settings
-        sensorSettings.setPntSource((PntSource) comboBoxPntSource.getSelectedItem());
+        sensorSettings.setPntSource((PntSourceSetting) comboBoxPntSource.getSelectedItem());
         
         // Saves the Transponder settings
         sensorSettings.setStartTransponder(startTransponder.isSelected());        
@@ -459,10 +459,10 @@ public class SensorTab extends JPanel implements ActionListener {
      * Updates the enabled state of UI components based on the current selection
      */
     private void updateUIState() {
-        PntSource pntSrc = (PntSource)comboBoxPntSource.getSelectedItem();
+        PntSourceSetting pntSrc = (PntSourceSetting)comboBoxPntSource.getSelectedItem();
                 
         // Set enabled state of AIS connection components
-        boolean aisEnabled = pntSrc == PntSource.AUTO || pntSrc == PntSource.AIS;
+        boolean aisEnabled = pntSrc == PntSourceSetting.AUTO || pntSrc == PntSourceSetting.AIS;
         Object aisConType = comboBoxAisConnectionType.getSelectedItem();
         AisConnectionPanel.setEnabled(aisEnabled);
         setEnabled(AisConnectionPanel, aisEnabled, JLabel.class);
@@ -472,7 +472,7 @@ public class SensorTab extends JPanel implements ActionListener {
         textFieldAisFilename.setEnabled(aisEnabled && aisConType == FILE);
         
         // Set enabled state of GPS connection components
-        boolean gpsEnabled = pntSrc == PntSource.AUTO || pntSrc == PntSource.GPS;
+        boolean gpsEnabled = pntSrc == PntSourceSetting.AUTO || pntSrc == PntSourceSetting.GPS;
         Object gpsConType = comboBoxGpsConnectionType.getSelectedItem();
         GpsConnectionPanel.setEnabled(gpsEnabled);
         setEnabled(GpsConnectionPanel, gpsEnabled, JLabel.class);
@@ -482,7 +482,7 @@ public class SensorTab extends JPanel implements ActionListener {
         textFieldGpsFilename.setEnabled(gpsConType == FILE);
         
         // Set enabled state of Multi-source PNT connection components
-        boolean msPntEnabled = pntSrc == PntSource.AUTO || pntSrc == PntSource.MSPNT;
+        boolean msPntEnabled = pntSrc == PntSourceSetting.AUTO || pntSrc == PntSourceSetting.MSPNT;
         Object msPntConType = comboBoxMsPntConnectionType.getSelectedItem();
         MsPntConnectionPanel.setEnabled(msPntEnabled);
         setEnabled(MsPntConnectionPanel, msPntEnabled, JLabel.class);

@@ -26,6 +26,7 @@ import com.bbn.openmap.MapHandlerChild;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.sensor.nmea.IPntSensorListener;
 import dk.dma.epd.common.prototype.sensor.nmea.PntMessage;
+import dk.dma.epd.common.prototype.sensor.nmea.PntMessage.MessageType;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.prototype.status.PntStatus;
 import dk.dma.epd.common.util.Util;
@@ -55,6 +56,11 @@ public class PntHandler extends MapHandlerChild implements IPntSensorListener, I
      */
     @Override
     public synchronized void receive(PntMessage pntMessage) {
+        // The PntHandler is not interested in time-only PNT messages
+        if (pntMessage.getMessageType() == MessageType.TIME) {
+            return;
+        }
+        
         Date now = new Date();
         long elapsed = now.getTime() - currentData.getLastUpdated().getTime();
         if (elapsed < 900) {

@@ -27,7 +27,8 @@ public enum PntSource implements EnumUtils.KeyedEnum<Integer> {
     NONE(0),
     GPS(1),
     ELORAN(2),
-    RADAR(3);
+    RADAR(3),
+    AIS(-1);  // NB: AIS not defined by $PRPNT
     
     private Integer key;
     

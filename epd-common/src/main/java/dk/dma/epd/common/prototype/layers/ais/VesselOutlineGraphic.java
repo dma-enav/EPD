@@ -17,6 +17,9 @@ package dk.dma.epd.common.prototype.layers.ais;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMCircle;
@@ -195,5 +198,15 @@ public class VesselOutlineGraphic extends OMGraphicList {
         // find angle B
         double angleB = 180.0 - 90.0 - angleA;
         return angleB;
+    }
+
+    /**
+     * Turn on anti-aliasing
+     */
+    @Override
+    public void render(Graphics g) {
+        Graphics2D image = (Graphics2D) g;
+        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        super.render(image);
     }
 }

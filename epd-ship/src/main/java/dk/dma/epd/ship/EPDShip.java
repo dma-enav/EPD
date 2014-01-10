@@ -57,7 +57,7 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaUdpSensor;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.sensor.rpnt.MultiSourcePntHandler;
-import dk.dma.epd.common.prototype.settings.SensorSettings.PntSource;
+import dk.dma.epd.common.prototype.settings.SensorSettings.PntSourceSetting;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.prototype.zoom.ScaleDependentValues;
 import dk.dma.epd.common.util.VersionInfo;
@@ -337,27 +337,27 @@ public class EPDShip extends EPD {
         }
 
         // Hook pnt handler to sensor
-        PntSource pntSource = sensorSettings.getPntSource();
-        if (pntSource == PntSource.AUTO) {
+        PntSourceSetting pntSource = sensorSettings.getPntSource();
+        if (pntSource == PntSourceSetting.AUTO) {
             if (msPntSensor != null) {
-                pntSource = PntSource.MSPNT;
+                pntSource = PntSourceSetting.MSPNT;
             } else if (gpsSensor != null) {
-                pntSource = PntSource.GPS;
+                pntSource = PntSourceSetting.GPS;
             } else if (aisSensor != null) {
-                pntSource = PntSource.AIS;
+                pntSource = PntSourceSetting.AIS;
             }
         }
 
-        if (pntSource == PntSource.AIS && aisSensor != null) {
+        if (pntSource == PntSourceSetting.AIS && aisSensor != null) {
             aisSensor.addPntListener(pntHandler);
-            aisSensor.addPntTimeListener(PntTime.getInstance());
-        } else if (pntSource == PntSource.GPS && gpsSensor != null) {
+            aisSensor.addPntListener(PntTime.getInstance());
+        } else if (pntSource == PntSourceSetting.GPS && gpsSensor != null) {
             gpsSensor.addPntListener(pntHandler);
-            gpsSensor.addPntTimeListener(PntTime.getInstance());
-        } else if (pntSource == PntSource.MSPNT && msPntHandler != null) {
+            gpsSensor.addPntListener(PntTime.getInstance());
+        } else if (pntSource == PntSourceSetting.MSPNT && msPntHandler != null) {
             msPntSensor.addMsPntListener(msPntHandler);
             msPntSensor.addPntListener(msPntHandler);
-            //msPntSensor.addPntTimeListener(msPntHandler);
+            msPntSensor.addPntListener(PntTime.getInstance());
         }
 
     }

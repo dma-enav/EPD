@@ -80,7 +80,7 @@ public class MultiSourcePntComponentPanel extends OMComponentPanel implements IR
     @Override
     public void findAndUndo(Object obj) {
         if (obj == msPntHandler) {
-            msPntHandler.removeResilientPntListener(this);
+            msPntHandler.removeResilientPntDataListener(this);
             msPntHandler = null;
         }
         super.findAndUndo(obj);

@@ -90,7 +90,7 @@ public class SensorSettings implements Serializable {
     /**
      * Enumeration of PNT sources
      */
-    public enum PntSource {
+    public enum PntSourceSetting {
         AUTO("Automatic selection"), 
         AIS("AIS Connection"), 
         GPS("GPS Connection"), 
@@ -103,7 +103,7 @@ public class SensorSettings implements Serializable {
          * Constructor
          * @param title the title of the enumeration
          */
-        private PntSource(String title) {
+        private PntSourceSetting(String title) {
             this.title = title;
         }
         
@@ -120,7 +120,7 @@ public class SensorSettings implements Serializable {
          * @param type the String to parse
          * @return the corresponding PntSource
          */
-        public static PntSource parseString(String type) {
+        public static PntSourceSetting parseString(String type) {
             if (type.equalsIgnoreCase("AUTO")) {
                 return AUTO;
             } else if (type.equalsIgnoreCase("AIS")) {
@@ -149,7 +149,7 @@ public class SensorSettings implements Serializable {
     private String msPntFilename = "";
     private int msPntTcpOrUdpPort = 9999;
 
-    private PntSource pntSource = PntSource.AUTO;
+    private PntSourceSetting pntSource = PntSourceSetting.AUTO;
 
     private boolean startTransponder = true;
     /**
@@ -198,7 +198,7 @@ public class SensorSettings implements Serializable {
                 LOG.error("Failed to parse replayStartDate");
             }
         }
-        pntSource = PntSource.parseString(props.getProperty(PREFIX + "pntSource", pntSource.name()));
+        pntSource = PntSourceSetting.parseString(props.getProperty(PREFIX + "pntSource", pntSource.name()));
     }
 
     /**
@@ -371,11 +371,11 @@ public class SensorSettings implements Serializable {
         this.replayStartDate = replayStartDate;
     }
 
-    public PntSource getPntSource() {
+    public PntSourceSetting getPntSource() {
         return pntSource;
     }
 
-    public void setPntSource(PntSource pntSource) {
+    public void setPntSource(PntSourceSetting pntSource) {
         this.pntSource = pntSource;
     }
 

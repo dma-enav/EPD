@@ -51,7 +51,6 @@ import dk.dma.ais.sentence.SentenceException;
 import dk.dma.ais.sentence.SentenceLine;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.util.function.Consumer;
-import dk.dma.epd.common.prototype.sensor.pnt.IPntTimeListener;
 import dk.dma.epd.common.prototype.sensor.rpnt.ResilientPntData;
 import dk.dma.epd.common.util.Util;
 
@@ -90,7 +89,6 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     private final CopyOnWriteArrayList<IPntSensorListener> pntListeners = new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<IResilientPntSensorListener> msPntListeners = new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<IAisSensorListener> aisListeners = new CopyOnWriteArrayList<>();
-    private final CopyOnWriteArrayList<IPntTimeListener> pntTimeListeners = new CopyOnWriteArrayList<>();
 
     public NmeaSensor() {
 
@@ -320,19 +318,13 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
             return;
         }
 
-        // TODO: We use PntSource.GPS as the PNT source. Should it be a new "AIS" value instead?
-        if (isReplay()) {
-            PntMessage pntMessage = new PntMessage(PntSource.GPS, getReplayTime().getTime());
-            publishPntTimeMessage(pntMessage);
-        }
-
-        // TODO: We use PntSource.GPS as the PNT source. Should it be a new "AIS" value instead?
-        PntMessage pntMessage = new PntMessage(PntSource.GPS, pos, sog, cog);
+        Long time = (isReplay()) ? getReplayTime().getTime() : null;
+        PntMessage pntMessage = new PntMessage(PntSource.AIS, pos, sog, cog, time);
         publishPntMessage(pntMessage);
     }
 
     /**
-     * Handle NMEA RMC sentences such as $GPRMC and $ELRMC
+     * Handle NMEA RMC sentences such as $GPRMC (GPS), $ELRMC (eLoran) and $RDRMC (radar)
      * @param msg the message to handle
      */
     protected void handleRmc(String msg) {
@@ -344,7 +336,6 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
             return;
         }
         publishPntMessage(sentence.getPntMessage());
-        publishPntTimeMessage(sentence.getPntMessage());
     }
 
     /**
@@ -396,16 +387,6 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
      * Publishes the given PNT message to all PNT Time listeners
      * @param pntMessage the message to publish
      */
-    private void publishPntTimeMessage(PntMessage pntMessage) {
-        for (IPntTimeListener pntTimeListener : pntTimeListeners) {
-            pntTimeListener.receive(pntMessage);
-        }
-    }
-
-    /**
-     * Publishes the given PNT message to all PNT Time listeners
-     * @param pntMessage the message to publish
-     */
     private void publishRpntData(ResilientPntData rpntData) {
         for (IResilientPntSensorListener msPntListener : msPntListeners) {
             msPntListener.receive(rpntData);
@@ -434,14 +415,6 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
 
     public void removeAisListener(IAisSensorListener aisListener) {
         aisListeners.remove(aisListener);
-    }
-
-    public void addPntTimeListener(IPntTimeListener pntTimeListener) {
-        pntTimeListeners.add(pntTimeListener);
-    }
-
-    public void removePntTimeListener(IPntTimeListener pntTimeListener) {
-        pntTimeListeners.remove(pntTimeListener);
     }
 
     public void start() {

@@ -47,7 +47,7 @@ public final class ScaleDependentValues {
         for(int i = AIS_SETTINGS.getCogVectorLengthMin(); i < AIS_SETTINGS.getCogVectorLengthMax(); i++) {
             if(mapScale <= iMaxScale) {
                 // found the proper minute length
-                System.out.println("Returning CogVectorLength = " + i + " (iMaxScale = " + iMaxScale + ")");
+                // System.out.println("Returning CogVectorLength = " + i + " (iMaxScale = " + iMaxScale + ")");
                 return i;
             }
             else {
