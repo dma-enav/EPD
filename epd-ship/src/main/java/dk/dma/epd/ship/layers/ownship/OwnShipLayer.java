@@ -195,15 +195,6 @@ public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, Proj
         return this.ownShipGraphic.update(positionData);
     }
     
-    public double[] calculateMinuteMarker(LatLonPoint startPoint, int minute) {
-        VesselPositionData posData = ownShipHandler.getPositionData();
-        float length = (float) Length.NM.toRadians(EPDShip.getSettings().getNavSettings().getCogVectorLength() * (posData.getSog() / 60.0));
-        LatLonPoint marker = startPos.getPoint(length, (float) ProjMath.degToRad(posData.getCog()));
-        double[] newMarker = {marker.getLatitude(), marker.getLongitude(), 0, 0};
-        return newMarker;
-    }
-    
-    
     @Override
     public synchronized OMGraphicList prepare() {
         if (getProjection() == null) {
