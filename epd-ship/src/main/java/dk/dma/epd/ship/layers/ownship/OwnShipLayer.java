@@ -15,9 +15,13 @@
  */
 package dk.dma.epd.ship.layers.ownship;
 
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.Date;
 
+import javax.swing.SwingUtilities;
+
+import com.bbn.openmap.event.MapEventUtils;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.omGraphics.OMGraphic;
@@ -30,11 +34,14 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackGraphic;
+import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
+import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphic;
 import dk.dma.epd.common.prototype.sensor.rpnt.MultiSourcePntHandler;
 import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.ownship.IOwnShipListener;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
@@ -64,6 +71,8 @@ public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, Proj
     private ZoomLevel currentZoomLevel;
 
     private PastTrackGraphic pastTrackGraphic;
+    private PastTrackInfoPanel pastTrackInfoPanel;
+    private OMGraphic closest;
     
     public OwnShipLayer() {
         graphics.setVague(true);
@@ -215,6 +224,10 @@ public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, Proj
         if (multiSourcePntHandler == null && obj instanceof MultiSourcePntHandler) {
             multiSourcePntHandler = (MultiSourcePntHandler)obj;
         }
+        if (obj instanceof MainFrame && pastTrackInfoPanel == null) {
+            pastTrackInfoPanel = new PastTrackInfoPanel();
+            mainFrame.getGlassPanel().add(pastTrackInfoPanel);
+        }
     }
     
     @Override
@@ -249,11 +262,45 @@ public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, Proj
     @Override
     public boolean mouseClicked(MouseEvent evt) {
         OMGraphic ownShipGraphics = getSelectedGraphic(evt, OMGraphicList.class);
+        
+        if (ownShipGraphics != null) {
+            pastTrackInfoPanel.setVisible(false);
+        }
+        
         if (ownShipGraphics == graphics && evt.getButton() == MouseEvent.BUTTON3) {
             mapMenu.ownShipMenu();
             mapMenu.setVisible(true);
             mapMenu.show(OwnShipLayer.this, evt.getX() - 2, evt.getY() - 2);
             return true;
+        }
+        return false;
+    }
+
+    /**
+     * Handle mouse moved
+     */
+    @Override
+    public boolean mouseMoved(MouseEvent e) {
+
+        OMGraphic newClosest =  MapEventUtils.getSelectedGraphic(
+                pastTrackGraphic, 
+                e, 
+                getMouseSelectTolerance(), 
+                PastTrackWpCircle.class);
+        
+        if (newClosest != null && newClosest != closest) {
+            closest = newClosest;
+            Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), mainFrame);
+            
+            PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
+            pastTrackInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
+            pastTrackInfoPanel.showWpInfo(wpCircle);
+            pastTrackInfoPanel.setVisible(true);
+            mainFrame.getGlassPane().setVisible(true);
+            return true;
+        } else if (newClosest == null) {
+            closest = null;
+            pastTrackInfoPanel.setVisible(false);
         }
         return false;
     }
