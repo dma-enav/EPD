@@ -125,10 +125,6 @@ public class SpeedVectorGraphic extends OMGraphicList {
         this.add(this.marks);
     }
     
-    public void setMarksVisible(boolean value) {
-        this.marks.setVisible(value);
-    }
-    
     @Override
     public boolean generate(Projection p) {
         return this.generate(p, true);
