@@ -212,6 +212,16 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSen
     }
     
     /**
+     * Returns if the own-ship has an associated position
+     * @return if the own-ship has an associated position
+     */
+    public synchronized boolean isPositionDefined() {
+        // Same as asking if getPositionData.getPos() != null:
+        return (aisTarget.getPositionData() != null && aisTarget.getPositionData().getPos() != null)
+               || (pntData != null && pntData.getPosition() != null);
+    }
+    
+    /**
      * Shows or hides past tracks for the own-ship
      * 
      * @param show whether to show or hide past tracks

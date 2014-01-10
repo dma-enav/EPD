@@ -49,7 +49,7 @@ public class ShoreServices extends ShoreServicesCommon {
     protected void addRequestParameters(ShoreServiceRequest request) {
         if (ownShipHandler != null && ownShipHandler.getMmsi() != null) {
             request.setMmsi(ownShipHandler.getMmsi());
-            if (ownShipHandler.getPositionData().getPos() != null) {
+            if (ownShipHandler.isPositionDefined()) {
                 PositionReport posReport = convertPositionReport(ownShipHandler.getPositionData());
                 if (posReport != null) {
                     request.setPositionReport(posReport);

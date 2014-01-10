@@ -104,7 +104,7 @@ public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, Proj
      */
     @Override
     public void ownShipUpdated(OwnShipHandler ownShipHandler) {
-        if (ownShipHandler == null || ownShipHandler.getPositionData().getPos() == null) {
+        if (ownShipHandler == null || !ownShipHandler.isPositionDefined()) {
             return;
         }
         

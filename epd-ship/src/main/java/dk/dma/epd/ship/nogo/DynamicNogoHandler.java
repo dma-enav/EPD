@@ -164,7 +164,7 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
                 && aisHandler.getVesselTarget(mmsiTarget) != null) {
 
             // Get own ship location and add box around it, + / - something
-            if (ownShipHandler.getPositionData().getPos() != null
+            if (ownShipHandler.isPositionDefined()
                     && aisHandler.getVesselTarget(mmsiTarget)
                             .getPositionData() != null) {
 
@@ -282,7 +282,7 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
         validFromTarget = date;
         validToTarget = date;
 
-        if (ownShipHandler.getPositionData().getPos() != null
+        if (ownShipHandler.isPositionDefined()
                 && aisHandler.getVesselTarget(mmsiTarget)
                         .getPositionData() != null) {
 

@@ -206,7 +206,7 @@ public class AisLayer extends GeneralLayer implements
 
         if (vessel.getStaticData() != null) {
 
-            if (ownShipHandler.getPositionData().getPos() != null) {
+            if (ownShipHandler.isPositionDefined()) {
                 rhumbLineDistance = ownShipHandler.getPositionData()
                         .getPos()
                         .rhumbLineDistanceTo(vessel.getPositionData().getPos());
@@ -227,7 +227,7 @@ public class AisLayer extends GeneralLayer implements
 
             // if (vessel.getStaticData() != null) {
 
-            if (ownShipHandler.getPositionData().getPos() != null) {
+            if (ownShipHandler.isPositionDefined()) {
                 rhumbLineDistance = ownShipHandler.getPositionData()
                         .getPos()
                         .rhumbLineDistanceTo(vessel.getPositionData().getPos());
@@ -243,7 +243,7 @@ public class AisLayer extends GeneralLayer implements
                     rhumbLineBearing, vessel.getPositionData().getSog());
             // }
         }
-        if (vessel.getStaticData() != null && ownShipHandler.getPositionData().getPos() != null) {
+        if (vessel.getStaticData() != null && ownShipHandler.isPositionDefined()) {
             aisPanel.dynamicNogoAvailable(true);
         } else {
             aisPanel.dynamicNogoAvailable(false);
