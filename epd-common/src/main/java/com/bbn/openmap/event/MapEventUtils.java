@@ -38,6 +38,11 @@ public class MapEventUtils {
      */
     @SafeVarargs
     public static final OMGraphic getSelectedGraphic(OMGraphicList graphic, MouseEvent evt, float limit, Class<?>... types) {
+        // Sanity check
+        if (graphic == null) {
+            return null;
+        }
+        
         OMList<OMGraphic> allClosest;
         synchronized (graphic) {
             allClosest = graphic.findAll(evt.getX(), evt.getY(), limit);
