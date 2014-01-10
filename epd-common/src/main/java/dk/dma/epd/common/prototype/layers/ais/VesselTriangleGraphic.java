@@ -117,7 +117,13 @@ public class VesselTriangleGraphic extends TargetGraphic {
             
             // update the speed vector with the new data
             this.speedVector.update(posData, this.parentLayer.getProjection().getScale());
-
+            if(posData.getSog() < 0.1) {
+                this.speedVector.setVisible(false);
+            }
+            else {
+                this.speedVector.setVisible(true);
+            }
+            
             // Set label
             label.setLat(lat);
             label.setLon(lon);

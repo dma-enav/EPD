@@ -95,14 +95,15 @@ public class SpeedVectorGraphic extends OMGraphicList {
         this.speedVector.setLL(speedLL);
         // Add minute marks
         this.marks.clear();
-        for (int i = 1; i < cogVectorLength; i++) {
-//            float newMarker = (float) Length.NM.toRadians(navSettings.getCogVectorLength() / 6 * i * (sog / 60.0));
-//            float newMarker = (float) Length.NM.toRadians(ScaleDependentValues.getCogVectorLength(currentMapScale) / aisSettings.getCogVectorLength() * i * (sog / 60.0));
-            float newMarker = (float) Length.NM.toRadians(i * (sog / 60.0));
-            LatLonPoint marker = startPos.getPoint(newMarker, (float) cogR);
-            RotationalPoly vtm = new RotationalPoly(markX, markY, new BasicStroke(STROKE_WIDTH), this.paintUsed);
-            vtm.setLocation(marker.getLatitude(), marker.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, cogR);
-            this.marks.add(vtm);
+        if(this.isVisible()) {
+            // only add marks if this speed vector is currently displayed.
+            for (int i = 1; i < cogVectorLength; i++) {
+                float newMarker = (float) Length.NM.toRadians(i * (sog / 60.0));
+                LatLonPoint marker = startPos.getPoint(newMarker, (float) cogR);
+                RotationalPoly vtm = new RotationalPoly(markX, markY, new BasicStroke(STROKE_WIDTH), this.paintUsed);
+                vtm.setLocation(marker.getLatitude(), marker.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, cogR);
+                this.marks.add(vtm);
+            }
         }
     }
     
