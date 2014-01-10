@@ -44,9 +44,10 @@ public class AisSettings implements Serializable {
     private boolean showNameLabels = true;
     private int showMinuteMarksAISTarget = 200;
     private boolean showRisk;
-    private int pastTrackMaxTime = 4 * 60;  // In minutes
-    private int pastTrackDisplayTime = 30;  // In minutes
-    private int pastTrackMinDist = 100;     // In meters
+    private int pastTrackMaxTime        = 4 * 60;   // In minutes
+    private int pastTrackDisplayTime    = 30;       // In minutes
+    private int pastTrackMinDist        = 100;      // In meters
+    private int pastTrackOwnShipMinDist = 20;       // In meters
     
     /**
      * The minimum length of the COG vector in minutes.
@@ -104,6 +105,7 @@ public class AisSettings implements Serializable {
         pastTrackMaxTime = PropUtils.intFromProperties(props, PREFIX + "pastTrackMaxTime", pastTrackMaxTime);
         pastTrackDisplayTime = PropUtils.intFromProperties(props, PREFIX + "pastTrackDisplayTime", pastTrackDisplayTime);
         pastTrackMinDist = PropUtils.intFromProperties(props, PREFIX + "pastTrackMinDist", pastTrackMinDist);
+        pastTrackOwnShipMinDist = PropUtils.intFromProperties(props, PREFIX + "pastTrackOwnShipMinDist", pastTrackOwnShipMinDist);
         
         this.cogVectorLengthMin = PropUtils.intFromProperties(props, PREFIX + this.varNameCogVectorLengthMin, this.cogVectorLengthMin);
         this.cogVectorLengthMax = PropUtils.intFromProperties(props, PREFIX + this.varNameCogVectorLengthMax, this.cogVectorLengthMax);
@@ -135,6 +137,7 @@ public class AisSettings implements Serializable {
         props.put(PREFIX + "pastTrackMaxTime", Integer.toString(pastTrackMaxTime));
         props.put(PREFIX + "pastTrackDisplayTime", Integer.toString(pastTrackDisplayTime));
         props.put(PREFIX + "pastTrackMinDist", Integer.toString(pastTrackMinDist));
+        props.put(PREFIX + "pastTrackOwnShipMinDist", Integer.toString(pastTrackOwnShipMinDist));
         
         props.put(PREFIX + this.varNameCogVectorLengthMin, Integer.toString(this.cogVectorLengthMin));
         props.put(PREFIX + this.varNameCogVectorLengthMax, Integer.toString(this.cogVectorLengthMax));
@@ -279,6 +282,14 @@ public class AisSettings implements Serializable {
         this.pastTrackMinDist = pastTrackMinDist;
     }
     
+    public int getPastTrackOwnShipMinDist() {
+        return pastTrackOwnShipMinDist;
+    }
+
+    public void setPastTrackOwnShipMinDist(int pastTrackOwnShipMinDist) {
+        this.pastTrackOwnShipMinDist = pastTrackOwnShipMinDist;
+    }
+
     public int getCogVectorLengthMin() {
         return cogVectorLengthMin;
     }

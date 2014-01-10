@@ -81,7 +81,7 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSen
     private synchronized void initAisTarget() {
         aisTarget = new VesselTarget();
         aisTarget.getSettings().setPastTrackDisplayTime(aisSettings.getPastTrackDisplayTime());
-        aisTarget.getSettings().setPastTrackMinDist(aisSettings.getPastTrackMinDist());
+        aisTarget.getSettings().setPastTrackMinDist(aisSettings.getPastTrackOwnShipMinDist());
     }
     
     /**
