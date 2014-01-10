@@ -30,9 +30,6 @@ import org.slf4j.LoggerFactory;
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
-import com.bbn.openmap.event.MapEventUtils;
-import com.bbn.openmap.event.MapMouseListener;
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMList;
@@ -52,35 +49,25 @@ import dk.dma.epd.common.prototype.layers.ais.SarTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
 import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
 import dk.dma.epd.shore.ais.AisHandler;
-import dk.dma.epd.shore.event.DragMouseMode;
-import dk.dma.epd.shore.event.NavigationMouseMode;
-import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
-import dk.dma.epd.shore.gui.views.MainFrame;
-import dk.dma.epd.shore.gui.views.MapMenu;
 import dk.dma.epd.shore.gui.views.StatusArea;
+import dk.dma.epd.shore.layers.GeneralLayer;
 
 /**
  * The class AisLayer is the layer containing all AIS targets. The class handles the drawing of vessels on the chartPanel.
  */
 @ThreadSafe
-public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTargetListener, MapMouseListener {
+public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListener {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(AisLayer.class);
-
-    @GuardedBy("graphics")
-    private final OMGraphicList graphics = new OMGraphicList();
 
     private volatile AisHandler aisHandler;
     private AisInfoPanel aisInfoPanel;
     private StatusArea statusArea;
     private ChartPanel chartPanel;
-    private MainFrame mainFrame;
-    private JMapFrame jMapFrame;
     private final IntendedRouteInfoPanel intendedRouteInfoPanel = new IntendedRouteInfoPanel();
     private final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
-    private MapMenu aisTargetMenu;
 
     @GuardedBy("targets")
     private final Map<Long, TargetGraphic> targets = new ConcurrentHashMap<>();
@@ -249,12 +236,10 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTar
         return graphics;
     }
 
-    public MapMouseListener getMapMouseListener() {
-        return this;
-    }
-
     @Override
     public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+        
         if (obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
             aisHandler.addListener(this);
@@ -266,20 +251,11 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTar
             statusArea = (StatusArea) obj;
         }
         if (obj instanceof JMapFrame) {
-            jMapFrame = (JMapFrame) obj;
-            // highlightInfoPanel = new HighlightInfoPanel();
-            // jMapFrame.getGlassPanel().add(highlightInfoPanel);
             aisInfoPanel = new AisInfoPanel();
             jMapFrame.getGlassPanel().add(aisInfoPanel);
             jMapFrame.getGlassPanel().add(intendedRouteInfoPanel);
             jMapFrame.getGlassPanel().add(pastTrackInfoPanel);
             jMapFrame.getGlassPanel().setVisible(true);
-        }
-        if (obj instanceof MainFrame) {
-            mainFrame = (MainFrame) obj;
-        }
-        if (obj instanceof MapMenu) {
-            aisTargetMenu = (MapMenu) obj;
         }
     }
 
@@ -288,24 +264,14 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTar
         if (obj == aisHandler) {
             aisHandler.removeListener(this);
         }
-    }
-
-    @Override
-    public String[] getMouseModeServiceList() {
-        String[] ret = new String[3];
-        ret[0] = DragMouseMode.MODEID; // "DragMouseMode"
-        ret[1] = NavigationMouseMode.MODEID; // "ZoomMouseMode"
-        ret[2] = SelectMouseMode.MODEID; // "SelectMouseMode"
-        return ret;
+        super.findAndUndo(obj);
     }
 
     @Override
     public boolean mouseClicked(MouseEvent e) {
         
-        OMGraphic newClosest = MapEventUtils.getSelectedGraphic(
-                graphics, 
+        OMGraphic newClosest = getSelectedGraphic(
                 e, 
-                3.0f, 
                 VesselLayer.class,
                 IntendedRouteWpCircle.class,
                 IntendedRouteLegGraphic.class,
@@ -339,36 +305,36 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTar
             if (newClosest instanceof VesselLayer) {
 
                 VesselLayer vesselLayer = (VesselLayer) newClosest;
-                aisTargetMenu.aisMenu(vesselLayer.getVessel().getVesselTarget());
-                aisTargetMenu.setVisible(true);
-                aisTargetMenu.show(this, e.getX() - 2, e.getY() - 2);
+                mapMenu.aisMenu(vesselLayer.getVessel().getVesselTarget());
+                mapMenu.setVisible(true);
+                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
                 return true;
 
             } else if (newClosest instanceof IntendedRouteWpCircle) {
 
                 IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) newClosest;
                 VesselTarget vesselTarget = wpCircle.getIntendedRouteGraphic().getVesselTarget();
-                aisTargetMenu.aisSuggestedRouteMenu(vesselTarget);
-                aisTargetMenu.setVisible(true);
-                aisTargetMenu.show(this, e.getX() - 2, e.getY() - 2);
+                mapMenu.aisSuggestedRouteMenu(vesselTarget);
+                mapMenu.setVisible(true);
+                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
                 return true;
                 
             } else if (newClosest instanceof IntendedRouteLegGraphic) {
 
                 IntendedRouteLegGraphic wpCircle = (IntendedRouteLegGraphic) newClosest;
                 VesselTarget vesselTarget = wpCircle.getIntendedRouteGraphic().getVesselTarget();
-                aisTargetMenu.aisSuggestedRouteMenu(vesselTarget);
-                aisTargetMenu.setVisible(true);
-                aisTargetMenu.show(this, e.getX() - 2, e.getY() - 2);
+                mapMenu.aisSuggestedRouteMenu(vesselTarget);
+                mapMenu.setVisible(true);
+                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
                 return true;
                 
             } else if (newClosest instanceof SartGraphic) {
 
                 SartGraphic sartGraphic = (SartGraphic) newClosest;
                 SarTarget sarTarget = sartGraphic.getSarTargetGraphic().getSarTarget();
-                aisTargetMenu.sartMenu(this, sarTarget);
-                aisTargetMenu.setVisible(true);
-                aisTargetMenu.show(this, e.getX() - 2, e.getY() - 2);
+                mapMenu.sartMenu(this, sarTarget);
+                mapMenu.setVisible(true);
+                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
                 return true;
             }
 
@@ -470,33 +436,6 @@ public class AisLayer extends OMGraphicHandlerLayer implements Runnable, IAisTar
                 return true;
             }
         }
-        return false;
-    }
-
-    @Override
-    public boolean mouseReleased(MouseEvent e) {
-        return false;
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-    }
-
-    @Override
-    public boolean mouseDragged(MouseEvent e) {
-        return false;
-    }
-
-    @Override
-    public void mouseMoved() {
-    }
-
-    @Override
-    public boolean mousePressed(MouseEvent arg0) {
         return false;
     }
 

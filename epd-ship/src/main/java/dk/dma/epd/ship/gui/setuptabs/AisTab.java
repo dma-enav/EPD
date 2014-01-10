@@ -26,7 +26,6 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.ship.settings.EPDAisSettings;
-import dk.dma.epd.ship.settings.EPDNavSettings;
 
 /**
  * AIS tab panel in setup panel

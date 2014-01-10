@@ -17,24 +17,23 @@ package dk.dma.epd.ship.example;
 
 import java.awt.event.MouseEvent;
 
-import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.event.NavMouseMode;
 import com.bbn.openmap.event.SelectMouseMode;
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMList;
 
+import dk.dma.epd.ship.layers.GeneralLayer;
+
 /**
  * Simple example layer to show how to use mouse events  
  */
-public class SimpleExampleLayer extends OMGraphicHandlerLayer implements MapMouseListener {
+public class SimpleExampleLayer extends GeneralLayer {
 
     private static final long serialVersionUID = 1L;
 
     private OMCircle circle;
-    private OMGraphicList graphics = new OMGraphicList();
 
     public SimpleExampleLayer() {
         circle = new OMCircle(55f, 11f, 0, 0, 18, 18);
@@ -46,11 +45,6 @@ public class SimpleExampleLayer extends OMGraphicHandlerLayer implements MapMous
     public synchronized OMGraphicList prepare() {
         graphics.project(getProjection(), true);
         return graphics;
-    }
-
-    @Override
-    public MapMouseListener getMapMouseListener() {
-        return this;
     }
 
     @Override
@@ -75,29 +69,6 @@ public class SimpleExampleLayer extends OMGraphicHandlerLayer implements MapMous
     }
 
     @Override
-    public boolean mouseDragged(MouseEvent e) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mouseMoved() {
-
-    }
-
-    @Override
     public boolean mouseMoved(MouseEvent e) {
         OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 5.0f);
         for (OMGraphic omGraphic : allClosest) {
@@ -109,17 +80,4 @@ public class SimpleExampleLayer extends OMGraphicHandlerLayer implements MapMous
         }
         return false;
     }
-
-    @Override
-    public boolean mousePressed(MouseEvent e) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean mouseReleased(MouseEvent e) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
 }

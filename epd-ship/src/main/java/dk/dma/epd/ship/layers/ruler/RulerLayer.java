@@ -17,23 +17,21 @@ package dk.dma.epd.ship.layers.ruler;
 
 import java.awt.event.MouseEvent;
 
-import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.event.MapMouseMode;
 import com.bbn.openmap.event.ProjectionEvent;
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.gui.ChartPanel;
+import dk.dma.epd.ship.layers.GeneralLayer;
 
-public class RulerLayer extends OMGraphicHandlerLayer implements
-        MapMouseListener {
+public class RulerLayer extends GeneralLayer {
 
     // TODO update from defaulT?
     private static final long serialVersionUID = 1L;
-    private OMGraphicList graphics = new OMGraphicList();
+
     private ChartPanel chartPanel;
     private RulerGraphic rulerGraphic;
 
@@ -42,11 +40,6 @@ public class RulerLayer extends OMGraphicHandlerLayer implements
         if (obj instanceof ChartPanel) {
             this.chartPanel = (ChartPanel) obj;
         }
-    }
-
-    @Override
-    public MapMouseListener getMapMouseListener() {
-        return this;
     }
 
     @Override
@@ -118,28 +111,6 @@ public class RulerLayer extends OMGraphicHandlerLayer implements
     }
 
     @Override
-    public boolean mouseDragged(MouseEvent arg0) {
-        return false;
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mouseMoved() {
-
-    }
-
-    @Override
     public boolean mouseMoved(MouseEvent e) {
         if (this.rulerGraphic != null) {
             // if the user has provided a center location
@@ -159,19 +130,4 @@ public class RulerLayer extends OMGraphicHandlerLayer implements
         }
         return false;
     }
-
-    @Override
-    public boolean mousePressed(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean mouseReleased(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    
-
 }

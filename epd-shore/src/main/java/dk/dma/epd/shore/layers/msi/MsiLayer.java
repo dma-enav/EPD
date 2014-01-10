@@ -22,9 +22,6 @@ import java.util.List;
 
 import javax.swing.SwingUtilities;
 
-import com.bbn.openmap.MapBean;
-import com.bbn.openmap.event.MapMouseListener;
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMList;
@@ -38,11 +35,8 @@ import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.event.DragMouseMode;
-import dk.dma.epd.shore.event.NavigationMouseMode;
-import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.gui.views.JMapFrame;
-import dk.dma.epd.shore.gui.views.MapMenu;
+import dk.dma.epd.shore.layers.GeneralLayer;
 import dk.frv.enav.common.xml.msi.MsiLocation;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 
@@ -51,25 +45,19 @@ import dk.frv.enav.common.xml.msi.MsiMessage;
  * Layer handling all msi messages
  *
  */
-public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener, IMsiUpdateListener {
+public class MsiLayer extends GeneralLayer implements IMsiUpdateListener {
     private static final long serialVersionUID = 1L;
 
     private MsiHandler msiHandler;
 
-    private OMGraphicList graphics = new OMGraphicList();
-    private MapBean mapBean;
-    private JMapFrame jMapFrame;
-
     private OMGraphic closest;
     private MsiInfoPanel msiInfoPanel;
-    private MapMenu msiMenu;
     private OMGraphic selectedGraphic;
 
     /**
      * Constructor for the layer
      */
     public MsiLayer() {
-
     }
 
     /**
@@ -108,34 +96,16 @@ public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener,
 
     @Override
     public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+        
         if (obj instanceof MsiHandler) {
             msiHandler = (MsiHandler)obj;
             msiHandler.addListener(this);
         }
-        if (obj instanceof MapBean){
-            mapBean = (MapBean)obj;
-        }
         if (obj instanceof JMapFrame){
-            jMapFrame = (JMapFrame) obj;
             msiInfoPanel = new MsiInfoPanel();
             jMapFrame.getGlassPanel().add(msiInfoPanel);
         }
-        if (obj instanceof MapMenu){
-            msiMenu = (MapMenu) obj;
-        }
-    }
-
-    public MapMouseListener getMapMouseListener() {
-        return this;
-    }
-
-    @Override
-    public String[] getMouseModeServiceList() {
-        String[] ret = new String[3];
-        ret[0] = DragMouseMode.MODEID; // "DragMouseMode"
-        ret[1] = NavigationMouseMode.MODEID; // "ZoomMouseMoude"
-        ret[2] = SelectMouseMode.MODEID; // "SelectMouseMode"
-        return ret;
     }
 
     @Override
@@ -155,62 +125,28 @@ public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener,
 
         if(selectedGraphic instanceof MsiSymbolGraphic){
             MsiSymbolGraphic msi = (MsiSymbolGraphic) selectedGraphic;
-            msiMenu.msiMenu(msi);
-            msiMenu.setVisible(true);
-            msiMenu.show(this, e.getX()-2, e.getY()-2);
+            mapMenu.msiMenu(msi);
+            mapMenu.setVisible(true);
+            mapMenu.show(this, e.getX()-2, e.getY()-2);
             msiInfoPanel.setVisible(false);
             return true;
         }
         if(selectedGraphic instanceof MsiDirectionalIcon) {
             MsiDirectionalIcon direction = (MsiDirectionalIcon) selectedGraphic;
-            msiMenu.msiDirectionalMenu(direction, this);
-            msiMenu.setVisible(true);
-            msiMenu.show(this, e.getX()-10, e.getY()-10);
+            mapMenu.msiDirectionalMenu(direction, this);
+            mapMenu.setVisible(true);
+            mapMenu.show(this, e.getX()-10, e.getY()-10);
             msiInfoPanel.setVisible(false);
             return true;
         }
         return false;
-    }
-
-    @Override
-    public boolean mouseDragged(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent arg0) {
-//        if(mouseDelegator.getActiveMouseModeID() == RouteEditMouseMode.modeID) {
-//            mousePosition = null;
-//            doUpdate();
-//        }
-    }
-
-    @Override
-    public void mouseMoved() {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public boolean mouseMoved(MouseEvent e) {
 
         // Show description on hover
-        OMGraphic newClosest = null;
-        OMList<OMGraphic> allClosest = graphics.findAll(e.getX(), e.getY(), 3.0f);
-
-        for (OMGraphic omGraphic : allClosest) {
-            if (omGraphic instanceof MsiSymbolGraphic || omGraphic instanceof MsiDirectionalIcon) {
-                newClosest = omGraphic;
-                break;
-            }
-        }
+        OMGraphic newClosest = getSelectedGraphic(e, MsiSymbolGraphic.class, MsiDirectionalIcon.class);
 
         if (newClosest != closest && this.isVisible()) {
             Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), jMapFrame);
@@ -242,17 +178,6 @@ public class MsiLayer extends OMGraphicHandlerLayer implements MapMouseListener,
                 return false;
             }
         }
-        return false;
-    }
-
-    @Override
-    public boolean mousePressed(MouseEvent arg0) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseReleased(MouseEvent e) {
-
         return false;
     }
 

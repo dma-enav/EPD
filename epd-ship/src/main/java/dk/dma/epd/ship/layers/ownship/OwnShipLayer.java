@@ -18,12 +18,8 @@ package dk.dma.epd.ship.layers.ownship;
 import java.awt.event.MouseEvent;
 import java.util.Date;
 
-import com.bbn.openmap.event.MapEventUtils;
-import com.bbn.openmap.event.MapMouseAdapter;
-import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.Length;
@@ -39,20 +35,16 @@ import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphic;
 import dk.dma.epd.common.prototype.sensor.rpnt.MultiSourcePntHandler;
 import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.event.DragMouseMode;
-import dk.dma.epd.ship.event.NavigationMouseMode;
-import dk.dma.epd.ship.gui.MapMenu;
+import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.ownship.IOwnShipListener;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 /**
  * Defines the own-ship layer
  */
-public class OwnShipLayer extends OMGraphicHandlerLayer implements IOwnShipListener, ProjectionListener {
+public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, ProjectionListener {
     
     private static final long serialVersionUID = 1L;
-    
-    private MapMenu ownShipMenu;
     
     private OwnShipHandler ownShipHandler;
     private MultiSourcePntHandler multiSourcePntHandler;
@@ -60,7 +52,6 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IOwnShipListe
     private long minRedrawInterval = 5 * 1000; // 5 sec
     
     private Date lastRedraw;
-    private OMGraphicList graphics = new OMGraphicList();
     private LatLonPoint startPos;
 
     private Position lastPos;
@@ -215,15 +206,14 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IOwnShipListe
     
     @Override
     public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+        
         if (ownShipHandler == null && obj instanceof OwnShipHandler) {
             ownShipHandler = (OwnShipHandler)obj;
             ownShipHandler.addListener(this);
         }
         if (multiSourcePntHandler == null && obj instanceof MultiSourcePntHandler) {
             multiSourcePntHandler = (MultiSourcePntHandler)obj;
-        }
-        if (obj instanceof MapMenu) {
-            ownShipMenu = (MapMenu) obj;
         }
     }
     
@@ -236,9 +226,8 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IOwnShipListe
         if (multiSourcePntHandler == obj) {
             multiSourcePntHandler = null;
         }
-        if (ownShipMenu == obj) {
-            ownShipMenu = null;
-        }
+        
+        super.findAndUndo(obj);
     }
     
     @Override
@@ -257,32 +246,15 @@ public class OwnShipLayer extends OMGraphicHandlerLayer implements IOwnShipListe
         super.projectionChanged(pe);
     }
 
-    /**
-     * Returns the mouse listener for this layer
-     * @return the mouse listener for this layer
-     */
     @Override
-    public MapMouseListener getMapMouseListener() {
-        return new MapMouseAdapter() {
-            @Override
-            public String[] getMouseModeServiceList() {
-                String[] ret = new String[2];
-                ret[0] = NavigationMouseMode.MODE_ID; // "Gestures"
-                ret[1] = DragMouseMode.MODE_ID;
-                return ret;
-            }
-
-            @Override
-            public boolean mouseClicked(MouseEvent evt) {
-                OMGraphic ownShipGraphics = MapEventUtils.getSelectedGraphic(graphics, evt, 5.0f, OMGraphicList.class);
-                if (ownShipGraphics == graphics && evt.getButton() == MouseEvent.BUTTON3) {
-                    ownShipMenu.ownShipMenu();
-                    ownShipMenu.setVisible(true);
-                    ownShipMenu.show(OwnShipLayer.this, evt.getX() - 2, evt.getY() - 2);
-                    return true;
-                }
-                return false;
-            }
-        };
+    public boolean mouseClicked(MouseEvent evt) {
+        OMGraphic ownShipGraphics = getSelectedGraphic(evt, OMGraphicList.class);
+        if (ownShipGraphics == graphics && evt.getButton() == MouseEvent.BUTTON3) {
+            mapMenu.ownShipMenu();
+            mapMenu.setVisible(true);
+            mapMenu.show(OwnShipLayer.this, evt.getX() - 2, evt.getY() - 2);
+            return true;
+        }
+        return false;
     }
 }
