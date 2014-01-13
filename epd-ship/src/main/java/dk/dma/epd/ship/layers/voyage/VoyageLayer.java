@@ -77,13 +77,13 @@ public class VoyageLayer extends GeneralLayer implements
 
     public VoyageLayer() {
         // Register this layer as listener for voyage update events
-        EPDShip.getVoyageEventDispatcher().registerListener(this);
+        EPDShip.getInstance().getVoyageEventDispatcher().registerListener(this);
     }
 
     public void startRouteNegotiation(Route route) {
 
         this.primaryRoute = route;
-        tolerance = EPDShip.getSettings().getGuiSettings()
+        tolerance = EPDShip.getInstance().getSettings().getGuiSettings()
                 .getMouseSelectTolerance();
 
         // Added the route as green, original recieved one

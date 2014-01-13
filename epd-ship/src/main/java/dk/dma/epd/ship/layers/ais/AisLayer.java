@@ -111,9 +111,9 @@ public class AisLayer extends GeneralLayer implements
     private volatile long selectedMMSI = -1;
     private volatile boolean showLabels;
     // long selectedMMSI = 230994000;
-    private final AisSettings aisSettings = EPDShip.getSettings()
+    private final AisSettings aisSettings = EPDShip.getInstance().getSettings()
             .getAisSettings();
-    private final NavSettings navSettings = EPDShip.getSettings()
+    private final NavSettings navSettings = EPDShip.getInstance().getSettings()
             .getNavSettings();
 
     private TopPanel topPanel;
@@ -125,7 +125,7 @@ public class AisLayer extends GeneralLayer implements
         // graphics.setVague(false);
         new Thread(this).start();
 
-        showLabels = EPDShip.getSettings().getAisSettings().isShowNameLabels();
+        showLabels = EPDShip.getInstance().getSettings().getAisSettings().isShowNameLabels();
     }
 
     @Override
@@ -171,19 +171,19 @@ public class AisLayer extends GeneralLayer implements
         }
 
         // If the dock isn't visible should it show it?
-        if (!EPDShip.getMainFrame().getDockableComponents()
+        if (!EPDShip.getInstance().getMainFrame().getDockableComponents()
                 .isDockVisible("AIS Target")
                 && clicked) {
 
             // Show it display the message?
-            if (EPDShip.getSettings().getGuiSettings().isShowDockMessage()) {
-                new ShowDockableDialog(EPDShip.getMainFrame(), dock_type.AIS);
+            if (EPDShip.getInstance().getSettings().getGuiSettings().isShowDockMessage()) {
+                new ShowDockableDialog(EPDShip.getInstance().getMainFrame(), dock_type.AIS);
             } else {
 
-                if (EPDShip.getSettings().getGuiSettings().isAlwaysOpenDock()) {
-                    EPDShip.getMainFrame().getDockableComponents()
+                if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
+                    EPDShip.getInstance().getMainFrame().getDockableComponents()
                             .openDock("AIS Target");
-                    EPDShip.getMainFrame().getEeINSMenuBar()
+                    EPDShip.getInstance().getMainFrame().getEeINSMenuBar()
                             .refreshDockableMenu();
                 }
 
@@ -391,7 +391,7 @@ public class AisLayer extends GeneralLayer implements
             for (OMGraphic omgraphic : graphics) {
                 if (omgraphic instanceof IntendedRouteGraphic) {
                     ((IntendedRouteGraphic) omgraphic)
-                            .showArrowHeads(getProjection().getScale() < EPDShip
+                            .showArrowHeads(getProjection().getScale() < EPDShip.getInstance()
                                     .getSettings().getNavSettings()
                                     .getShowArrowScale());
                 }

@@ -211,7 +211,7 @@ public class ToolBar extends JInternalFrame {
         });
 
         layerToolItems.addToolItem(wms);
-        if (EPDShore.getSettings().getGuiSettings().useWMS()) {
+        if (EPDShore.getInstance().getSettings().getGuiSettings().useWMS()) {
             setActiveToolItem(wms, layerToolItems);
         }
 
@@ -243,7 +243,7 @@ public class ToolBar extends JInternalFrame {
 
         try {
 
-            if (EPDShore.getSettings().getMapSettings().isUseEnc()) {
+            if (EPDShore.getInstance().getSettings().getMapSettings().isUseEnc()) {
 
                 // Tool: ENC layer
 
@@ -286,7 +286,7 @@ public class ToolBar extends JInternalFrame {
                 // disable bg or wms or enc?
 
                 layerToolItems.addToolItem(enc);
-                if (EPDShore.getSettings().getMapSettings().isEncVisible()) {
+                if (EPDShore.getInstance().getSettings().getMapSettings().isEncVisible()) {
                     setActiveToolItem(enc, layerToolItems);
                 }
 
@@ -417,7 +417,7 @@ public class ToolBar extends JInternalFrame {
 
     public void endRoute() {
 
-        NewRouteContainerLayer newRouteLayer = EPDShore.getMainFrame()
+        NewRouteContainerLayer newRouteLayer = EPDShore.getInstance().getMainFrame()
                 .getActiveMapWindow().getChartPanel()
                 .getNewRouteContainerLayer();
 
@@ -431,35 +431,35 @@ public class ToolBar extends JInternalFrame {
                 if (routeWaypoint.getOutLeg() != null) {
                     RouteLeg outLeg = routeWaypoint.getOutLeg();
 
-                    double xtd = EPDShore.getSettings().getNavSettings()
+                    double xtd = EPDShore.getInstance().getSettings().getNavSettings()
                             .getDefaultXtd();
                     outLeg.setXtdPort(xtd);
                     outLeg.setXtdStarboard(xtd);
                     outLeg.setHeading(Heading.RL);
-                    outLeg.setSpeed(EPDShore.getSettings().getNavSettings()
+                    outLeg.setSpeed(EPDShore.getInstance().getSettings().getNavSettings()
                             .getDefaultSpeed());
                 }
-                routeWaypoint.setTurnRad(EPDShore.getSettings()
+                routeWaypoint.setTurnRad(EPDShore.getInstance().getSettings()
                         .getNavSettings().getDefaultTurnRad());
                 routeWaypoint.setName(String.format("WP_%03d", i));
                 i++;
             }
             route.calcValues(true);
 
-            EPDShore.getMainFrame().getRouteManagerDialog().getRouteManager()
+            EPDShore.getInstance().getMainFrame().getRouteManagerDialog().getRouteManager()
                     .addRoute(route);
-            EPDShore.getMainFrame().getRouteManagerDialog().getRouteManager()
+            EPDShore.getInstance().getMainFrame().getRouteManagerDialog().getRouteManager()
                     .notifyListeners(null);
         }
 
-        for (int i = 0; i < EPDShore.getMainFrame().getMapWindows().size(); i++) {
-            EPDShore.getMainFrame().getMapWindows().get(i).getChartPanel()
+        for (int i = 0; i < EPDShore.getInstance().getMainFrame().getMapWindows().size(); i++) {
+            EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getChartPanel()
                     .getRouteEditLayer().doPrepare();
-            EPDShore.getMainFrame().getMapWindows().get(i).getChartPanel()
+            EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getChartPanel()
                     .getNewRouteContainerLayer().getWaypoints().clear();
-            EPDShore.getMainFrame().getMapWindows().get(i).getChartPanel()
+            EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getChartPanel()
                     .getNewRouteContainerLayer().getRouteGraphics().clear();
-            EPDShore.getMainFrame().getMapWindows().get(i).getChartPanel()
+            EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getChartPanel()
                     .getNewRouteContainerLayer().doPrepare();
         }
 

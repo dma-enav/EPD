@@ -433,7 +433,7 @@ public class StrategicRouteExchangeNotificationPanel extends JPanel {
                             .getMessages().get(currentSelection);
 
                     RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
-                            EPDShore.getMainFrame(), new Route(message
+                            EPDShore.getInstance().getMainFrame(), new Route(message
                                     .getRouteMessage().get(message
                                             .getRouteMessage().size()-1).getRoute()));
                     
@@ -467,7 +467,7 @@ public class StrategicRouteExchangeNotificationPanel extends JPanel {
 
                     Route originalRoute = new Route(message.getRouteMessage().get(0).getRoute());
                     
-                    EPDShore.getMainFrame().addStrategicRouteExchangeHandlingWindow(originalRoute,
+                    EPDShore.getInstance().getMainFrame().addStrategicRouteExchangeHandlingWindow(originalRoute,
                             shipName, voyage, false);
 
                     // MonaLisaRouteService.MonaLisaRouteRequestReply reply =

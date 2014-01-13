@@ -40,7 +40,7 @@ public class VoyageProperties extends JMenuItem implements IMapMenuAction {
 
     @Override
     public void doAction() {
-        RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(EPDShore.getMainFrame(), routeManager, routeIndex);
+        RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(EPDShore.getInstance().getMainFrame(), routeManager, routeIndex);
         routePropertiesDialog.setVisible(true);
     }
 

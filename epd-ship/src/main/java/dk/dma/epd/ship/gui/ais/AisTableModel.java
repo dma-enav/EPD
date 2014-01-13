@@ -75,7 +75,7 @@ public class AisTableModel extends AbstractTableModel {
         List<AisMessageExtended> ships = getShips();
         for (AisMessageExtended ship : ships) {
             if (mmsi == ship.MMSI) {
-                AisMessageExtended s = aisHandler.getShip(aisTarget, EPDShip.getPntHandler().getCurrentData());
+                AisMessageExtended s = aisHandler.getShip(aisTarget, EPDShip.getInstance().getPntHandler().getCurrentData());
                 ships.set(count, s);
                 fireTableRowsUpdated(count, count);
                 return;
@@ -89,7 +89,7 @@ public class AisTableModel extends AbstractTableModel {
     }
 
     private void addRow(VesselTarget aisTarget) {
-        AisMessageExtended s = aisHandler.getShip(aisTarget, EPDShip.getPntHandler().getCurrentData());
+        AisMessageExtended s = aisHandler.getShip(aisTarget, EPDShip.getInstance().getPntHandler().getCurrentData());
         this.ships.add(s);
         fireTableRowsInserted(ships.size() - 1, ships.size() - 1);
 

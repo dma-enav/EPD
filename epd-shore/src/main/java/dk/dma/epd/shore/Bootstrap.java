@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Properties;
 
 import org.apache.log4j.xml.DOMConfigurator;
 import org.springframework.context.ApplicationContext;
@@ -28,14 +28,18 @@ import org.springframework.core.io.Resource;
 
 import com.google.common.io.Resources;
 
+import dk.dma.epd.common.prototype.EPD;
+
 /**
  * @author Kasper Nielsen, David Camre
  */
 class Bootstrap {
-    Path home = Paths.get(System.getProperty("user.home"), ".epd-shore");    
+    Path home;    
 
-    public void run() throws IOException {
+    public void run(EPD<?> epd) throws IOException {
 
+        home = epd.getHomePath();
+        
         Files.createDirectories(home);
 
         // Used from log4j to place log files
@@ -56,25 +60,25 @@ class Bootstrap {
         unpackFolderToAppHome("shape/GSHHS_shp");
 
         // update location of shape files to user.home
-        EPDShore.loadProperties();
-        String prev = EPDShore.properties.getProperty("background.WorldOutLine.shapeFile");
-        EPDShore.properties.put("background.WorldOutLine.shapeFile", home.resolve(prev).toString());
+        Properties properties = epd.loadProperties();
+        String prev = properties.getProperty("background.WorldOutLine.shapeFile");
+        properties.put("background.WorldOutLine.shapeFile", home.resolve(prev).toString());
         
-        prev = EPDShore.properties.getProperty("background.InternalWaters.shapeFile");
-        EPDShore.properties.put("background.InternalWaters.shapeFile", home.resolve(prev).toString());
+        prev = properties.getProperty("background.InternalWaters.shapeFile");
+        properties.put("background.InternalWaters.shapeFile", home.resolve(prev).toString());
         
-        prev = EPDShore.properties.getProperty("background.InternalArea.shapeFile");
-        EPDShore.properties.put("background.InternalArea.shapeFile", home.resolve(prev).toString());
+        prev = properties.getProperty("background.InternalArea.shapeFile");
+        properties.put("background.InternalArea.shapeFile", home.resolve(prev).toString());
         
         
-        prev = EPDShore.properties.getProperty("background.WorldOutLine.spatialIndex");
-        EPDShore.properties.put("background.WorldOutLine.spatialIndex", home.resolve(prev).toString());
+        prev = properties.getProperty("background.WorldOutLine.spatialIndex");
+        properties.put("background.WorldOutLine.spatialIndex", home.resolve(prev).toString());
         
-        prev = EPDShore.properties.getProperty("background.InternalWaters.spatialIndex");
-        EPDShore.properties.put("background.InternalWaters.spatialIndex", home.resolve(prev).toString());
+        prev = properties.getProperty("background.InternalWaters.spatialIndex");
+        properties.put("background.InternalWaters.spatialIndex", home.resolve(prev).toString());
         
-        prev = EPDShore.properties.getProperty("background.InternalArea.spatialIndex");
-        EPDShore.properties.put("background.InternalArea.spatialIndex", home.resolve(prev).toString());
+        prev = properties.getProperty("background.InternalArea.spatialIndex");
+        properties.put("background.InternalArea.spatialIndex", home.resolve(prev).toString());
     }
     
     

@@ -134,31 +134,31 @@ public class ShowDockableDialog extends JDialog implements ActionListener {
 
             //Add it
             if (this.type == dock_type.ROUTE){
-                EPDShip.getMainFrame().getDockableComponents().openDock("Active Waypoint");
-                EPDShip.getMainFrame().getEeINSMenuBar().refreshDockableMenu();
+                EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("Active Waypoint");
+                EPDShip.getInstance().getMainFrame().getEeINSMenuBar().refreshDockableMenu();
             }
             
             if (this.type == dock_type.DYN_NOGO){
-                EPDShip.getMainFrame().getDockableComponents().openDock("Dynamic NoGo");
-                EPDShip.getMainFrame().getEeINSMenuBar().refreshDockableMenu();
+                EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("Dynamic NoGo");
+                EPDShip.getInstance().getMainFrame().getEeINSMenuBar().refreshDockableMenu();
             }
             
             
             if (this.type == dock_type.NOGO){
-                EPDShip.getMainFrame().getDockableComponents().openDock("NoGo");
-                EPDShip.getMainFrame().getEeINSMenuBar().refreshDockableMenu();
+                EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("NoGo");
+                EPDShip.getInstance().getMainFrame().getEeINSMenuBar().refreshDockableMenu();
             }
             
             if (this.type == dock_type.AIS){
-                EPDShip.getMainFrame().getDockableComponents().openDock("AIS Target");
-                EPDShip.getMainFrame().getEeINSMenuBar().refreshDockableMenu();
+                EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("AIS Target");
+                EPDShip.getInstance().getMainFrame().getEeINSMenuBar().refreshDockableMenu();
             }
             
             
 
             if (chckbxNewCheckBox.isSelected()){
-                EPDShip.getSettings().getGuiSettings().setAlwaysOpenDock(true);
-                EPDShip.getSettings().getGuiSettings().setShowDockMessage(false);
+                EPDShip.getInstance().getSettings().getGuiSettings().setAlwaysOpenDock(true);
+                EPDShip.getInstance().getSettings().getGuiSettings().setShowDockMessage(false);
                 //Do not show again
             }
         }
@@ -166,8 +166,8 @@ public class ShowDockableDialog extends JDialog implements ActionListener {
         if(arg0.getSource() == noButton){
             //do nothing
             if (chckbxNewCheckBox.isSelected()){
-                EPDShip.getSettings().getGuiSettings().setAlwaysOpenDock(false);
-                EPDShip.getSettings().getGuiSettings().setShowDockMessage(false);
+                EPDShip.getInstance().getSettings().getGuiSettings().setAlwaysOpenDock(false);
+                EPDShip.getInstance().getSettings().getGuiSettings().setShowDockMessage(false);
             }
         }
     

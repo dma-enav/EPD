@@ -60,7 +60,7 @@ import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.ais.AisHandler;
-import dk.dma.epd.shore.settings.ESDEnavSettings;
+import dk.dma.epd.shore.settings.EPDEnavSettings;
 
 
 /**
@@ -88,7 +88,7 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
 
     private long ownMMSI;
 
-    public EnavServiceHandler(ESDEnavSettings enavSettings) {
+    public EnavServiceHandler(EPDEnavSettings enavSettings) {
         this.hostPort = String.format("%s:%d", enavSettings.getCloudServerHost(), enavSettings.getCloudServerPort());
     }
 

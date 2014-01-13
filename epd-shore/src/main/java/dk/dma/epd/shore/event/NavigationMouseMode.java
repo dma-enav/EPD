@@ -86,8 +86,8 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
     }
 
     private void setCursors(){
-        navCursor = EPDShore.getStaticImages().getNavCursor();
-        navCursorMouseClicked = EPDShore.getStaticImages().getNavCursorMouseClicked();
+        navCursor = EPDShore.getInstance().getStaticImages().getNavCursor();
+        navCursorMouseClicked = EPDShore.getInstance().getStaticImages().getNavCursorMouseClicked();
     }
 
     /**
@@ -98,7 +98,7 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
         this(true);
         this.chartPanel = chartPanel;
         clickTimer = ClickTimer.getClickTimer();
-        maxScale = EPDShore.getSettings().getMapSettings().getMaxScale();
+        maxScale = EPDShore.getInstance().getSettings().getMapSettings().getMaxScale();
     }
 
     /**

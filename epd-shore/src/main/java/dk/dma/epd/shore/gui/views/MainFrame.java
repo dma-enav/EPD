@@ -44,8 +44,8 @@ import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
 import dk.dma.epd.shore.gui.views.strategicRouteExchange.SendStrategicRouteDialog;
-import dk.dma.epd.shore.settings.ESDGuiSettings;
-import dk.dma.epd.shore.settings.ESDMapSettings;
+import dk.dma.epd.shore.settings.EPDGuiSettings;
+import dk.dma.epd.shore.settings.EPDMapSettings;
 import dk.dma.epd.shore.settings.Workspace;
 import dk.dma.epd.shore.util.ThreadedMapCreator;
 import dk.dma.epd.shore.voyage.Voyage;
@@ -392,20 +392,20 @@ public class MainFrame extends JFrame implements WindowListener {
      */
     private void initGUI() {
 
-        beanHandler = EPDShore.getBeanHandler();
+        beanHandler = EPDShore.getInstance().getBeanHandler();
         // Get settings
-        ESDGuiSettings guiSettings = EPDShore.getSettings().getGuiSettings();
-        ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
+        EPDGuiSettings guiSettings = EPDShore.getInstance().getSettings().getGuiSettings();
+        EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
 
         // System.out.println("Setting wmslayer enabled to:" +
         // guiSettings.useWMS());
         wmsLayerEnabled = mapSettings.isUseWms();
-        encLayerEnabled = EPDShore.getSettings().getMapSettings()
+        encLayerEnabled = EPDShore.getInstance().getSettings().getMapSettings()
                 .isEncVisible();
-        useEnc = EPDShore.getSettings().getMapSettings().isUseEnc();
+        useEnc = EPDShore.getInstance().getSettings().getMapSettings().isUseEnc();
         
         
-        Workspace workspace = EPDShore.getSettings().getWorkspace();
+        Workspace workspace = EPDShore.getInstance().getSettings().getWorkspace();
 
         setTitle(TITLE);
 
@@ -490,7 +490,7 @@ public class MainFrame extends JFrame implements WindowListener {
      * @param filename
      */
     public void loadNewWorkspace(String parent, String filename) {
-        Workspace workspace = EPDShore.getSettings().loadWorkspace(parent,
+        Workspace workspace = EPDShore.getInstance().getSettings().loadWorkspace(parent,
                 filename);
         setWorkSpace(workspace);
     }
@@ -539,7 +539,7 @@ public class MainFrame extends JFrame implements WindowListener {
      */
     public void saveSettings() {
         // Save gui settings
-        ESDGuiSettings guiSettings = EPDShore.getSettings().getGuiSettings();
+        EPDGuiSettings guiSettings = EPDShore.getInstance().getSettings().getGuiSettings();
         guiSettings.setFullscreen(fullscreen);
         guiSettings.setMaximized((getExtendedState() & MAXIMIZED_BOTH) > 0);
         guiSettings.setAppLocation(getLocation());
@@ -556,13 +556,13 @@ public class MainFrame extends JFrame implements WindowListener {
      * @param filename
      */
     public void saveWorkSpace(String filename) {
-        EPDShore.getSettings().getWorkspace()
+        EPDShore.getInstance().getSettings().getWorkspace()
                 .setToolbarPosition(toolbar.getLocation());
-        EPDShore.getSettings().getWorkspace()
+        EPDShore.getInstance().getSettings().getWorkspace()
                 .setNotificationAreaPosition(notificationArea.getLocation());
-        EPDShore.getSettings().getWorkspace()
+        EPDShore.getInstance().getSettings().getWorkspace()
                 .setStatusPosition(statusArea.getLocation());
-        EPDShore.getSettings().saveCurrentWorkspace(mapWindows, filename);
+        EPDShore.getInstance().getSettings().saveCurrentWorkspace(mapWindows, filename);
     }
 
     /**

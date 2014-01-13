@@ -150,7 +150,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                 RecievedRoute recievedRoute = new RecievedRoute(
                                         message);
 
-                                EPDShip.getRouteManager()
+                                EPDShip.getInstance().getRouteManager()
                                         .recieveRouteSuggestion(recievedRoute);
 
                             }

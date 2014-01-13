@@ -44,7 +44,7 @@ public class MsiTableModel extends AbstractTableModel {
     }
     
     public void updateMessages() {
-        if(EPDShip.getSettings().getEnavSettings().isMsiFilter()) {
+        if(EPDShip.getInstance().getSettings().getEnavSettings().isMsiFilter()) {
             messages = msiHandler.getFilteredMessageList();
         } else {
             messages = msiHandler.getMessageList();

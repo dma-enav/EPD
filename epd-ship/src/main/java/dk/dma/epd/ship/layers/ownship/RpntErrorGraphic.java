@@ -102,7 +102,7 @@ public class RpntErrorGraphic  extends OMGraphicList {
      * @return if the "Resilient PNT Layer" is visible or not
      */
     public boolean isResilientPntLayerVisible() {
-        return EPDShip.getSettings().getMapSettings().isMsPntVisible();
+        return EPDShip.getInstance().getSettings().getMapSettings().isMsPntVisible();
     }
     
     /**

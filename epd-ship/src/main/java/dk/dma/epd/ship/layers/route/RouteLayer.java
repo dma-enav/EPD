@@ -83,8 +83,8 @@ public class RouteLayer extends GeneralLayer implements
 
     public RouteLayer() {
         new Thread(this).start();
-        routeWidth = EPDShip.getSettings().getNavSettings().getRouteWidth();
-        tolerance = EPDShip.getSettings().getGuiSettings()
+        routeWidth = EPDShip.getInstance().getSettings().getNavSettings().getRouteWidth();
+        tolerance = EPDShip.getInstance().getSettings().getGuiSettings()
                 .getMouseSelectTolerance();
     }
 
@@ -250,7 +250,7 @@ public class RouteLayer extends GeneralLayer implements
             }
 
             if (routeManager.showMetocForRoute(route)) {
-                routeMetoc = new MetocGraphic(route, activeRoute, EPDShip
+                routeMetoc = new MetocGraphic(route, activeRoute, EPDShip.getInstance()
                         .getSettings().getEnavSettings());
                 metocGraphics.add(routeMetoc);
             }
@@ -374,7 +374,7 @@ public class RouteLayer extends GeneralLayer implements
         for (OMGraphic omgraphic : graphics) {
             if (omgraphic instanceof RouteGraphic) {
                 ((RouteGraphic) omgraphic).showArrowHeads(getProjection()
-                        .getScale() < EPDShip.getSettings().getNavSettings()
+                        .getScale() < EPDShip.getInstance().getSettings().getNavSettings()
                         .getShowArrowScale());
             }
         }
@@ -505,7 +505,7 @@ public class RouteLayer extends GeneralLayer implements
     }
 
     private void routeMenu(MouseEvent arg0) {
-        if (EPDShip.getMainFrame().getHeight() < arg0.getYOnScreen()
+        if (EPDShip.getInstance().getMainFrame().getHeight() < arg0.getYOnScreen()
                 + mapMenu.getHeight()) {
             mapMenu.show(this, arg0.getX() - 2,
                     arg0.getY() - mapMenu.getHeight());
@@ -566,7 +566,7 @@ public class RouteLayer extends GeneralLayer implements
 
                 int dialogresult = JOptionPane
                         .showConfirmDialog(
-                                EPDShip.getMainFrame(),
+                                EPDShip.getInstance().getMainFrame(),
                                 "You are trying to edit an active route \nDo you wish to make a copy to edit?",
                                 "Route Editing", JOptionPane.YES_OPTION);
                 if (dialogresult == JOptionPane.YES_OPTION) {

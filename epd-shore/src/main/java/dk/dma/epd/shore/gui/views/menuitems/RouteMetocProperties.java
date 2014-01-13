@@ -43,7 +43,7 @@ public class RouteMetocProperties extends JMenuItem implements IMapMenuAction {
     public void doAction() {
 
 
-        RouteMetocDialog routeMetocDialog = new RouteMetocDialog(EPDShore.getMainFrame(),routeManager, routeIndex);
+        RouteMetocDialog routeMetocDialog = new RouteMetocDialog(EPDShore.getInstance().getMainFrame(),routeManager, routeIndex);
         routeMetocDialog.setVisible(true);
         routeManager.notifyListeners(RoutesUpdateEvent.METOC_SETTINGS_CHANGED);
 

@@ -52,7 +52,7 @@ public class AisHandler extends AisHandlerCommon {
         if (getAisRange() <= 0) {
             return true;
         }
-        PntData pntData = EPDShip.getPntHandler().getCurrentData();
+        PntData pntData = EPDShip.getInstance().getPntHandler().getCurrentData();
         if (pntData == null) {
             return false;
         }

@@ -97,9 +97,9 @@ public class MainFrame extends JFrame implements WindowListener {
     }
 
     private void initGUI() {
-        MapHandler mapHandler = EPDShip.getMapHandler();
+        MapHandler mapHandler = EPDShip.getInstance().getMapHandler();
         // Get settings
-        EPDGuiSettings guiSettings = EPDShip.getSettings().getGuiSettings();
+        EPDGuiSettings guiSettings = EPDShip.getInstance().getSettings().getGuiSettings();
 
         setTitle(TITLE);
         // Set location and size
@@ -203,7 +203,7 @@ public class MainFrame extends JFrame implements WindowListener {
         mapMenu = new MapMenu();
         mapHandler.add(mapMenu);
         
-        if (EPDShip.getSettings().getGuiSettings().isFullscreen()){
+        if (EPDShip.getInstance().getSettings().getGuiSettings().isFullscreen()){
             doFullScreen();
         }else{
             doNormal();
@@ -249,7 +249,7 @@ public class MainFrame extends JFrame implements WindowListener {
 
     public void saveSettings() {
         // Save gui settings
-        EPDGuiSettings guiSettings = EPDShip.getSettings().getGuiSettings();
+        EPDGuiSettings guiSettings = EPDShip.getInstance().getSettings().getGuiSettings();
         guiSettings.setMaximized((getExtendedState() & MAXIMIZED_BOTH) > 0);
         guiSettings.setAppLocation(getLocation());
         guiSettings.setAppDimensions(getSize());
@@ -347,20 +347,20 @@ public class MainFrame extends JFrame implements WindowListener {
         // setVisible(true);
         setVisible(true);
 //        
-//        if (EPDShip.getSettings().getGuiSettings().isFullscreen()) {
+//        if (EPDShip.getInstance().getSettings().getGuiSettings().isFullscreen()) {
 //            setVisible(false);
 //            setExtendedState(JFrame.MAXIMIZED_BOTH);
 //            dispose();
 //            setUndecorated(true);
 //            // setVisible(true);
 //            setVisible(true);
-//            EPDShip.getSettings().getGuiSettings().setFullscreen(false);
+//            EPDShip.getInstance().getSettings().getGuiSettings().setFullscreen(false);
 //        } else {
 //
 //            setVisible(false);
 //            setExtendedState(JFrame.NORMAL);
 //
-            EPDShip.getSettings().getGuiSettings().setFullscreen(true);
+            EPDShip.getInstance().getSettings().getGuiSettings().setFullscreen(true);
 //            setSize(new Dimension(1000, 700));
 //
 //            dispose();
@@ -373,14 +373,14 @@ public class MainFrame extends JFrame implements WindowListener {
       setVisible(false);
       setExtendedState(JFrame.NORMAL);
 
-      EPDShip.getSettings().getGuiSettings().setFullscreen(true);
+      EPDShip.getInstance().getSettings().getGuiSettings().setFullscreen(true);
       setSize(new Dimension(1000, 700));
 
       dispose();
       setUndecorated(false);
       setVisible(true);
       
-      EPDShip.getSettings().getGuiSettings().setFullscreen(false);
+      EPDShip.getInstance().getSettings().getGuiSettings().setFullscreen(false);
     }
     
     

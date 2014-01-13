@@ -73,12 +73,12 @@ public class VoyageLayer extends GeneralLayer implements
     private boolean windowHandling;
 
     public VoyageLayer() {
-        voyageManager = EPDShore.getVoyageManager();
+        voyageManager = EPDShore.getInstance().getVoyageManager();
         voyageManager.addListener(this);
     }
 
     public VoyageLayer(boolean windowHandling) {
-        voyageManager = EPDShore.getVoyageManager();
+        voyageManager = EPDShore.getInstance().getVoyageManager();
         voyageManager.addListener(this);
         this.windowHandling = windowHandling;
     }

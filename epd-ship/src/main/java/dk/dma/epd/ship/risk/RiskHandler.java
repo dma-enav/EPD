@@ -48,11 +48,11 @@ public class RiskHandler implements Runnable {
     @Override
     public void run() {
 
-        while (EPDShip.getSettings().getAisSettings().isShowRisk()) {
+        while (EPDShip.getInstance().getSettings().getAisSettings().isShowRisk()) {
             //VesselTarget ownShip = EeINS.getAisHandler().getOwnShip();
             List<RiskList> riskLists = new ArrayList<>();
             try {
-                riskLists = EPDShip.getShoreServices().getRiskIndexes(54.75, 56.0, 10.65, 11.25);
+                riskLists = EPDShip.getInstance().getShoreServices().getRiskIndexes(54.75, 56.0, 10.65, 11.25);
             } catch (ShoreServiceException e) {
                 LOG.warn("cannot get risk indexes", e);
             }
@@ -69,11 +69,11 @@ public class RiskHandler implements Runnable {
 
     public void toggleRiskHandler(boolean onOff) {
 
-        EPDShip.getSettings().getAisSettings().setShowRisk(onOff);
+        EPDShip.getInstance().getSettings().getAisSettings().setShowRisk(onOff);
 
         if (onOff) {
             // start a new one
-            EPDShip.startRiskHandler();
+            EPDShip.getInstance().startRiskHandler();
         } else {
             // stopping, clear the index map as it wont be updated any longer.
             riskListMap.clear();

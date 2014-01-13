@@ -112,7 +112,7 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
 
         setResizable(false);
 
-        strategicRouteExchangeHandler = EPDShip.getStrategicRouteExchangeHandler();
+        strategicRouteExchangeHandler = EPDShip.getInstance().getStrategicRouteExchangeHandler();
 
         // enavServiceHandler = EPDShip.getEnavServiceHandler();
         // enavServiceHandler.setMonaLisaSTCCDialog(this);
@@ -409,7 +409,7 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
         if (e.getSource() == btnViewRoute) {
 
             RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(
-                    EPDShip.getMainFrame(), latestReceivedRoute, false);
+                    EPDShip.getInstance().getMainFrame(), latestReceivedRoute, false);
 
             routePropertiesDialog.setVisible(true);
 

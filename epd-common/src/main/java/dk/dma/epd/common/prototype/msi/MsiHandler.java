@@ -77,7 +77,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     public MsiHandler(EnavSettings enavSettings) {
         this.enavSettings = enavSettings;
         pollInterval = enavSettings.getMsiPollInterval();
-        msiStore = MsiStore.loadFromFile(EPD.getHomePath(), enavSettings);
+        msiStore = MsiStore.loadFromFile(EPD.getInstance().getHomePath(), enavSettings);
         EPD.startThread(this, "MsiHandler");
     }
 

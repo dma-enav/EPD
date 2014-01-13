@@ -114,7 +114,7 @@ public class DockableComponents {
         mainFrame.add(control.getContentArea());
 
         // Load a layout
-        Path home = EPDShip.getHomePath();
+        Path home = EPDShip.getInstance().getHomePath();
         File layoutFile = home.resolve(EPDShip.class.getSimpleName() + ".xml")
                 .toFile();
         if (layoutFile.exists()) {
@@ -228,7 +228,7 @@ public class DockableComponents {
     public void saveLayout() {
         try {
             try {
-                Path home = EPDShip.getHomePath();
+                Path home = EPDShip.getInstance().getHomePath();
                 File f = home.resolve(EPDShip.class.getSimpleName() + ".xml")
                         .toFile();
                 control.writeXML(f);
@@ -445,7 +445,7 @@ public class DockableComponents {
     public void saveLayout(String name) {
 
         try {
-            Path home = EPDShip.getHomePath();
+            Path home = EPDShip.getInstance().getHomePath();
             Path layoutFolder = home.resolve("layout");
             Files.createDirectories(layoutFolder);
             File f = layoutFolder.resolve(name + ".xml").toFile();

@@ -60,7 +60,7 @@ import dk.dma.epd.shore.gui.settingtabs.MapWindowSinglePanel;
 import dk.dma.epd.shore.gui.settingtabs.MapWindowsPanel;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.services.shore.ShoreServices;
-import dk.dma.epd.shore.settings.ESDSettings;
+import dk.dma.epd.shore.settings.EPDSettings;
 
 public class JSettingsWindow extends ComponentFrame implements MouseListener {
 
@@ -119,7 +119,7 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
     public int height;
     JInternalFrame settingsWindow;
     private MainFrame mainFrame;
-    private ESDSettings settings;
+    private EPDSettings settings;
     private List<IStatusComponent> statusComponents = new ArrayList<IStatusComponent>();
     private boolean reset;
 
@@ -131,7 +131,7 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
         setSize(800, 600);
         setLocation(10, 10);
 
-        settings = EPDShore.getSettings();
+        settings = EPDShore.getInstance().getSettings();
 
         setResizable(false);
         setTitle("Preferences");
@@ -583,7 +583,7 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
             if (restart && this.isVisible()) {
                 restart = false;
                 System.out.println("ais changed?");
-                int choice = JOptionPane.showOptionDialog(EPDShore.getMainFrame(),
+                int choice = JOptionPane.showOptionDialog(EPDShore.getInstance().getMainFrame(),
                         "The settings will take effect next time the application is started.\nStop now?",
                         "Restart required", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null,
                         JOptionPane.YES_OPTION);

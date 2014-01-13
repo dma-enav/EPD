@@ -58,7 +58,7 @@ import dk.dma.epd.shore.layers.routeEdit.RouteEditLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
-import dk.dma.epd.shore.settings.ESDMapSettings;
+import dk.dma.epd.shore.settings.EPDMapSettings;
 import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
 
 /**
@@ -117,8 +117,8 @@ public class ChartPanel extends CommonChartPanel {
         dragMapHandler = new MapHandler();
 
         // Add the aishandler to this bean
-        mapHandler.add(EPDShore.getAisHandler());
-        mapHandler.add(EPDShore.getShoreServices());
+        mapHandler.add(EPDShore.getInstance().getAisHandler());
+        mapHandler.add(EPDShore.getInstance().getShoreServices());
         mapHandler.add(this);
         mapHandler.add(mainFrame);
         mapHandler.add(mainFrame.getStatusArea());
@@ -132,7 +132,7 @@ public class ChartPanel extends CommonChartPanel {
         // Set border
         // setBorder(BorderFactory.createLineBorder(Color.GRAY));
         // Max scale
-        this.maxScale = EPDShore.getSettings().getMapSettings().getMaxScale();
+        this.maxScale = EPDShore.getInstance().getSettings().getMapSettings().getMaxScale();
 
     }
 
@@ -279,7 +279,7 @@ public class ChartPanel extends CommonChartPanel {
      */
     public void initChart(MapFrameType mapType) {
 
-        ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
+        EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
 
         // this.center = mapSettings.getCenter();
         // this.scale = mapSettings.getScale();
@@ -329,7 +329,7 @@ public class ChartPanel extends CommonChartPanel {
      * Initiate dragmap with mapsettings
      */
     protected void initDragMap() {
-        ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
+        EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
         //TODO: CLEANUP
         //dragMap
         dragMap = new BufferedLayerMapBean();
@@ -357,14 +357,14 @@ public class ChartPanel extends CommonChartPanel {
      * @param voyageLayer2
      */
     public void initChartDefault(MapFrameType type) {
-        Properties props = EPDShore.getProperties();
-        ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
+        Properties props = EPDShore.getInstance().getProperties();
+        EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
         
 
-        if (EPDShore.getSettings().getMapSettings().isUseEnc()
+        if (EPDShore.getInstance().getSettings().getMapSettings().isUseEnc()
                 && mainFrame.isUseEnc()) {
             // Try to create ENC layer
-            EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore
+            EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore.getInstance()
                     .getSettings().getMapSettings());
             encLayer = encLayerFactory.getEncLayer();
         }
@@ -435,7 +435,7 @@ public class ChartPanel extends CommonChartPanel {
         
         
         
-        wmsLayer = new WMSLayer(EPDShore.getSettings().getMapSettings().getWmsQuery());
+        wmsLayer = new WMSLayer(EPDShore.getInstance().getSettings().getMapSettings().getWmsQuery());
         //Add WMS Layer
         if (mapSettings.getWmsQuery().length() > 12 && mapSettings.isUseWms()) {
             wmsLayer.setVisible(true);
@@ -486,10 +486,10 @@ public class ChartPanel extends CommonChartPanel {
         mapHandler.add(routeEditLayer);
 
         // Create MSI handler
-        msiHandler = EPDShore.getMsiHandler();
+        msiHandler = EPDShore.getInstance().getMsiHandler();
         mapHandler.add(msiHandler);
 
-        monaLisaHandler = EPDShore.getMonaLisaHandler();
+        monaLisaHandler = EPDShore.getInstance().getMonaLisaHandler();
         mapHandler.add(monaLisaHandler);
 
         // Create background layer
@@ -560,7 +560,7 @@ public class ChartPanel extends CommonChartPanel {
      * Save chart settings for workspace
      */
     public void saveSettings() {
-        ESDMapSettings mapSettings = EPDShore.getSettings().getMapSettings();
+        EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
         mapSettings.setCenter((LatLonPoint) map.getCenter());
         mapSettings.setScale(map.getScale());
     }

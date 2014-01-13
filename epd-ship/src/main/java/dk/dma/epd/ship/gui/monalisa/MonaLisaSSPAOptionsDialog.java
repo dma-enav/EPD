@@ -195,7 +195,7 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
         serverTxtField.setBounds(95, 8, 217, 20);
         panel_2.add(serverTxtField);
         serverTxtField.setColumns(10);
-        serverTxtField.setText(EPDShip.getSettings().getEnavSettings().getMonaLisaServer());
+        serverTxtField.setText(EPDShip.getInstance().getSettings().getEnavSettings().getMonaLisaServer());
         serverTxtField.setEditable(false);
 
         JLabel lblPort = new JLabel("Port:");
@@ -206,7 +206,7 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
         portTxtField.setBounds(95, 33, 39, 20);
         panel_2.add(portTxtField);
         portTxtField.setColumns(10);
-        portTxtField.setText(String.valueOf(EPDShip.getSettings().getEnavSettings().getMonaLisaPort()));
+        portTxtField.setText(String.valueOf(EPDShip.getInstance().getSettings().getEnavSettings().getMonaLisaPort()));
         portTxtField.setEditable(false);
 
         JLabel lblTimeout = new JLabel("Timeout in ms:");
@@ -324,8 +324,8 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
                 this.dispose();
                 
                 // Send off the request
-              MonaLisaSSPARequestDialog.requestRoute(EPDShip.getMainFrame(), routeManager,
-                      routeManager.getRoute(routeid), EPDShip.getMonaLisaRouteExchange(),removeIntermediateETA , draft, ukc, timeout, selectedWp
+              MonaLisaSSPARequestDialog.requestRoute(EPDShip.getInstance().getMainFrame(), routeManager,
+                      routeManager.getRoute(routeid), EPDShip.getInstance().getMonaLisaRouteExchange(),removeIntermediateETA , draft, ukc, timeout, selectedWp
                       ,showInputCheckBox.isSelected(), showOutPutCheckBox.isSelected());
             } catch (Exception e2) {
                 JOptionPane.showMessageDialog(this,"Invalid integer input");

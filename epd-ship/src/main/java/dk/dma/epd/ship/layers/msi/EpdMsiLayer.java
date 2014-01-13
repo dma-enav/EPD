@@ -92,7 +92,7 @@ public class EpdMsiLayer extends MsiLayer implements MapMouseListener {
             }
             
             // Filtering begins here
-            if(EPDShip.getSettings().getEnavSettings().isMsiFilter()){
+            if(EPDShip.getInstance().getSettings().getEnavSettings().isMsiFilter()){
                 // It is set to be visible
                 if(!message.visible) {
                     if(mousePosition == null) {
@@ -107,12 +107,12 @@ public class EpdMsiLayer extends MsiLayer implements MapMouseListener {
                     boolean visibleToOther = false;
                     for (int i = 0; i < newRouteLayer.getRoute().getWaypoints().size(); i++) {
                         double distance2 = distanceToPoint(message, newRouteLayer.getRoute().getWaypoints().get(i).getPos());
-                        if(distance2 <= EPDShip.getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint()){
+                        if(distance2 <= EPDShip.getInstance().getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint()){
                             visibleToOther = true;
                         }
                     }
                     
-                    boolean visibleToSelf = distance <= EPDShip.getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint();
+                    boolean visibleToSelf = distance <= EPDShip.getInstance().getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint();
                     
                     if (!visibleToSelf && !visibleToOther){
                         continue;
@@ -217,7 +217,7 @@ public class EpdMsiLayer extends MsiLayer implements MapMouseListener {
         MsiLocation msiLocation = msiMessage.getLocation();
         Position center = msiLocation.getCenter();
         mapBean.setCenter(center.getLatitude(), center.getLongitude());
-        mapBean.setScale(EPDShip.getSettings().getEnavSettings()
+        mapBean.setScale(EPDShip.getInstance().getSettings().getEnavSettings()
                 .getMsiTextboxesVisibleAtScale());
     }
 

@@ -416,15 +416,15 @@ public class MSINotificationPanel extends JPanel {
         but_goto.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 if (but_goto.isEnabled()) {
-                    if (EPDShore.getMainFrame().getActiveMapWindow() != null) {
-                        EPDShore.getMainFrame()
+                    if (EPDShore.getInstance().getMainFrame().getActiveMapWindow() != null) {
+                        EPDShore.getInstance().getMainFrame()
                                 .getActiveMapWindow()
                                 .getChartPanel()
                                 .zoomToPoint(
                                         msiTableModel
                                                 .getMessageLatLon(currentSelection));
-                    } else if (EPDShore.getMainFrame().getMapWindows().size() > 0) {
-                        EPDShore.getMainFrame()
+                    } else if (EPDShore.getInstance().getMainFrame().getMapWindows().size() > 0) {
+                        EPDShore.getInstance().getMainFrame()
                                 .getMapWindows()
                                 .get(0)
                                 .getChartPanel()

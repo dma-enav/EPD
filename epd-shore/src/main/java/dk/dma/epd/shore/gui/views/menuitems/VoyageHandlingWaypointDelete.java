@@ -42,7 +42,7 @@ public class VoyageHandlingWaypointDelete extends JMenuItem implements IMapMenuA
     public void doAction() {
         if (route.getWaypoints().size() < 3) {
 
-            JOptionPane.showMessageDialog(EPDShore.getMainFrame(), "You cannot delete the waypoint");
+            JOptionPane.showMessageDialog(EPDShore.getInstance().getMainFrame(), "You cannot delete the waypoint");
 
         } else {
             route.deleteWaypoint(routeWaypointIndex);

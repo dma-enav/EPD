@@ -71,13 +71,13 @@ IMsiUpdateListener {
     @Override
     public void msiUpdate() {
         
-        if (EPDShip.getSettings().getEnavSettings().isMsiFilter()) {
+        if (EPDShip.getInstance().getSettings().getEnavSettings().isMsiFilter()) {
             msgLabel.setText(Integer.toString(msiHandler.getUnAcknowledgedFilteredMSI()));
         }else{
             msgLabel.setText(Integer.toString(msiHandler.getUnAcknowledgedMSI()));
         }
         
-        if (EPDShip.getSettings().getEnavSettings().isMsiFilter()) {
+        if (EPDShip.getInstance().getSettings().getEnavSettings().isMsiFilter()) {
             filterLabel.setText("On");
         }else{
             filterLabel.setText("Off");

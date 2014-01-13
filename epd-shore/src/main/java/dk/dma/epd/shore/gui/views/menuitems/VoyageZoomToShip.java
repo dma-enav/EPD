@@ -41,7 +41,7 @@ public class VoyageZoomToShip extends JMenuItem implements IMapMenuAction {
     @Override
     public void doAction() {
         mapBean.setCenter(position.getLatitude(), position.getLongitude());
-        mapBean.setScale(EPDShore.getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale());
+        mapBean.setScale(EPDShore.getInstance().getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale());
     }
 
     /**

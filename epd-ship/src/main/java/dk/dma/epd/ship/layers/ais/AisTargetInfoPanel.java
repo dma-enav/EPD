@@ -96,7 +96,7 @@ public class AisTargetInfoPanel extends InfoPanel implements Runnable {
         /*
          * Get the risk object
          */
-        RiskList riskList = EPDShip.getRiskHandler().getRiskList(
+        RiskList riskList = EPDShip.getInstance().getRiskHandler().getRiskList(
                 vesselTarget.getMmsi());
         // if( riskList!=null && !riskList.getRisks().isEmpty()){
         // Risk risk = riskList.getRisks().iterator().next();
@@ -109,7 +109,7 @@ public class AisTargetInfoPanel extends InfoPanel implements Runnable {
         }
         str.append("COG " + cog + "  SOG " + sog + "<br/>");
 
-        Risk riskIndex = EPDShip.getRiskHandler().getRiskLevel(
+        Risk riskIndex = EPDShip.getInstance().getRiskHandler().getRiskLevel(
                 vesselTarget.getMmsi());
         if (riskIndex != null) {
             DecimalFormat fmt = new DecimalFormat("#.####");

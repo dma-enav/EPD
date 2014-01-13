@@ -183,7 +183,7 @@ public class MapTab extends JPanel {
         
         JButton btnAdvancedOptions = new JButton("Advanced Options");
         
-        if (!EPDShip.getSettings().getMapSettings().isUseEnc()){
+        if (!EPDShip.getInstance().getSettings().getMapSettings().isUseEnc()){
             btnAdvancedOptions.setEnabled(false);
         }
         

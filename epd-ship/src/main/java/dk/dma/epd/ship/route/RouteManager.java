@@ -78,7 +78,7 @@ public class RouteManager extends RouteManagerCommon implements Runnable,
 
     private static final long serialVersionUID = 1L;
 //    private static final String routesFile = ".routes";
-    private static final String ROUTES_FILE = EPDShip.getHomePath().resolve(".routes").toString();
+    private static final String ROUTES_FILE = EPDShip.getInstance().getHomePath().resolve(".routes").toString();
     private static final Logger LOG = LoggerFactory.getLogger(RouteManager.class);
 
     private volatile EnavServiceHandler enavServiceHandler;
@@ -162,10 +162,10 @@ public class RouteManager extends RouteManagerCommon implements Runnable,
             activeRoute = new ActiveRoute(route, pntHandler.getCurrentData());
 
             // Set the minimum WP circle radius
-            activeRoute.setWpCircleMin(EPDShip.getSettings().getNavSettings()
+            activeRoute.setWpCircleMin(EPDShip.getInstance().getSettings().getNavSettings()
                     .getMinWpRadius());
             // Set relaxed WP change
-            activeRoute.setRelaxedWpChange(EPDShip.getSettings().getNavSettings()
+            activeRoute.setRelaxedWpChange(EPDShip.getInstance().getSettings().getNavSettings()
                     .isRelaxedWpChange());
             // Inject the current position
             activeRoute.update(pntHandler.getCurrentData());
@@ -174,18 +174,18 @@ public class RouteManager extends RouteManagerCommon implements Runnable,
         }
 
         // If the dock isn't visible should it show it?
-        if (!EPDShip.getMainFrame().getDockableComponents()
+        if (!EPDShip.getInstance().getMainFrame().getDockableComponents()
                 .isDockVisible("Active Waypoint")) {
 
             // Show it display the message?
-            if (EPDShip.getSettings().getGuiSettings().isShowDockMessage()) {
-                new ShowDockableDialog(EPDShip.getMainFrame(), dock_type.ROUTE);
+            if (EPDShip.getInstance().getSettings().getGuiSettings().isShowDockMessage()) {
+                new ShowDockableDialog(EPDShip.getInstance().getMainFrame(), dock_type.ROUTE);
             } else {
 
-                if (EPDShip.getSettings().getGuiSettings().isAlwaysOpenDock()) {
-                    EPDShip.getMainFrame().getDockableComponents()
+                if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
+                    EPDShip.getInstance().getMainFrame().getDockableComponents()
                             .openDock("Active Waypoint");
-                    EPDShip.getMainFrame().getEeINSMenuBar()
+                    EPDShip.getInstance().getMainFrame().getEeINSMenuBar()
                             .refreshDockableMenu();
                 }
 
@@ -555,12 +555,12 @@ public class RouteManager extends RouteManagerCommon implements Runnable,
             route = RouteLoader.loadSimple(file);
         } else if (ext.equals("ROU")) {
             // Load ECDIS900 V3 route
-            route = RouteLoader.loadRou(file, EPDShip.getSettings().getNavSettings());
+            route = RouteLoader.loadRou(file, EPDShip.getInstance().getSettings().getNavSettings());
         } else if (ext.equals("RT3")) {
             // Load Navisailor 3000 route
-            route = RouteLoader.loadRt3(file, EPDShip.getSettings().getNavSettings());
+            route = RouteLoader.loadRt3(file, EPDShip.getInstance().getSettings().getNavSettings());
         } else {
-            route = RouteLoader.pertinaciousLoad(file, EPDShip.getSettings().getNavSettings());
+            route = RouteLoader.pertinaciousLoad(file, EPDShip.getInstance().getSettings().getNavSettings());
         }
 
         // Add route to list
@@ -621,7 +621,7 @@ public class RouteManager extends RouteManagerCommon implements Runnable,
                 || route.getMetocForecast().getCreated() == null) {
             return true;
         }
-        EPDEnavSettings enavSettings = EPDShip.getSettings().getEnavSettings();
+        EPDEnavSettings enavSettings = EPDShip.getInstance().getSettings().getEnavSettings();
         long metocTtl = enavSettings.getMetocTtl() * 60 * 1000;
         Date now = PntTime.getInstance().getDate();
         Date metocDate = route.getMetocForecast().getCreated();
@@ -640,7 +640,7 @@ public class RouteManager extends RouteManagerCommon implements Runnable,
                     continue;
                 }
                 if (isMetocOld(route)
-                        || !route.isMetocValid(EPDShip.getSettings()
+                        || !route.isMetocValid(EPDShip.getInstance().getSettings()
                                 .getEnavSettings().getMetocTimeDiffTolerance())) {
                     if (route.isVisible()
                             && route.getRouteMetocSettings().isShowRouteMetoc()) {
@@ -666,7 +666,7 @@ public class RouteManager extends RouteManagerCommon implements Runnable,
             return false;
         }
         if (!showMetocForRoute(route)
-                || !route.isMetocValid(EPDShip.getSettings().getEnavSettings()
+                || !route.isMetocValid(EPDShip.getInstance().getSettings().getEnavSettings()
                         .getMetocTimeDiffTolerance())) {
             if (route.getMetocForecast() != null) {
                 route.removeMetoc();
@@ -680,7 +680,7 @@ public class RouteManager extends RouteManagerCommon implements Runnable,
     public boolean hasMetoc(Route route) {
         if (route.getMetocForecast() != null) {
             // Determine if METOC info is old
-            EPDEnavSettings enavSettings = EPDShip.getSettings().getEnavSettings();
+            EPDEnavSettings enavSettings = EPDShip.getInstance().getSettings().getEnavSettings();
             long metocTtl = enavSettings.getMetocTtl() * 60 * 1000;
             Date now = PntTime.getInstance().getDate();
             Date metocDate = route.getMetocForecast().getCreated();
@@ -745,7 +745,7 @@ public class RouteManager extends RouteManagerCommon implements Runnable,
     }
 
     public RouteMetocSettings getDefaultRouteMetocSettings() {
-        EPDEnavSettings enavSettings = EPDShip.getSettings().getEnavSettings();
+        EPDEnavSettings enavSettings = EPDShip.getInstance().getSettings().getEnavSettings();
         RouteMetocSettings routeMetocSettings = new RouteMetocSettings();
         routeMetocSettings.setWindWarnLimit(enavSettings
                 .getDefaultWindWarnLimit());
@@ -797,7 +797,7 @@ public class RouteManager extends RouteManagerCommon implements Runnable,
                 return;
             }
         }
-        long activeRouteMetocPollInterval = EPDShip.getSettings()
+        long activeRouteMetocPollInterval = EPDShip.getInstance().getSettings()
                 .getEnavSettings().getActiveRouteMetocPollInterval() * 60 * 1000;
         // Maybe we never want to refresh metoc
         if (activeRouteMetocPollInterval <= 0) {
@@ -818,7 +818,7 @@ public class RouteManager extends RouteManagerCommon implements Runnable,
         // Check if not old and still valid
         synchronized (this) {
             if (!isMetocOld(activeRoute)
-                    && activeRoute.isMetocValid(EPDShip.getSettings().getEnavSettings().getMetocTimeDiffTolerance())) {
+                    && activeRoute.isMetocValid(EPDShip.getInstance().getSettings().getEnavSettings().getMetocTimeDiffTolerance())) {
                 return;
             }
         }

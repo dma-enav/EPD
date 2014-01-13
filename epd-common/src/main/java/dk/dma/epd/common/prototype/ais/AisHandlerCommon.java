@@ -61,7 +61,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
     
     private static final Logger LOG = LoggerFactory.getLogger(AisHandlerCommon.class);
     
-    protected static final String AIS_VIEW_FILE = EPD.getHomePath().resolve(".aisview").toString();
+    protected static final String AIS_VIEW_FILE = EPD.getInstance().getHomePath().resolve(".aisview").toString();
 
     // How long targets are saved without reports
     protected static final long TARGET_TTL = 60 * 60 * 1000; // One hour

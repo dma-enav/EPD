@@ -53,7 +53,7 @@ import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.shore.services.shore.ShoreServices;
-import dk.dma.epd.shore.settings.ESDEnavSettings;
+import dk.dma.epd.shore.settings.EPDEnavSettings;
 
 
 /**
@@ -62,7 +62,7 @@ import dk.dma.epd.shore.settings.ESDEnavSettings;
 public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManagerCommon implements Runnable, Serializable, IPntDataListener, IAisRouteSuggestionListener {
 
     private static final long serialVersionUID = 1L;
-    private static final String ROUTESFILE = EPDShore.getHomePath().resolve(".routes").toString();
+    private static final String ROUTESFILE = EPDShore.getInstance().getHomePath().resolve(".routes").toString();
     private static final Logger LOG = LoggerFactory.getLogger(RouteManager.class);
 
     private List<Route> routes = new LinkedList<Route>();
@@ -308,12 +308,12 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
             route = RouteLoader.loadSimple(file);
         } else if (ext.equals("ROU")) {
             // Load ECDIS900 V3 route
-            route = RouteLoader.loadRou(file, EPDShore.getSettings().getNavSettings());
+            route = RouteLoader.loadRou(file, EPDShore.getInstance().getSettings().getNavSettings());
         } else if (ext.equals("RT3")) {
             // Load Navisailor 3000 route
-            route = RouteLoader.loadRt3(file, EPDShore.getSettings().getNavSettings());
+            route = RouteLoader.loadRt3(file, EPDShore.getInstance().getSettings().getNavSettings());
         } else {
-            route = RouteLoader.pertinaciousLoad(file, EPDShore.getSettings().getNavSettings());
+            route = RouteLoader.pertinaciousLoad(file, EPDShore.getInstance().getSettings().getNavSettings());
         }
 
         // Add route to list
@@ -372,7 +372,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         if (route.getMetocForecast() == null || route.getMetocForecast().getCreated() == null) {
             return true;
         }
-        ESDEnavSettings enavSettings = EPDShore.getSettings().getEnavSettings();
+        EPDEnavSettings enavSettings = EPDShore.getInstance().getSettings().getEnavSettings();
         long metocTtl = enavSettings.getMetocTtl() * 60 * 1000;
         Date now = PntTime.getInstance().getDate();
         Date metocDate = route.getMetocForecast().getCreated();
@@ -390,7 +390,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
                 if (route.getMetocForecast() == null) {
                     continue;
                 }
-                if (isMetocOld(route) || !route.isMetocValid(EPDShore.getSettings().getEnavSettings().getMetocTimeDiffTolerance())) {
+                if (isMetocOld(route) || !route.isMetocValid(EPDShore.getInstance().getSettings().getEnavSettings().getMetocTimeDiffTolerance())) {
                     if (route.isVisible() && route.getRouteMetocSettings().isShowRouteMetoc()) {
                         visualUpdate = true;
                     }
@@ -413,7 +413,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         if (route instanceof ActiveRoute) {
             return false;
         }
-        if (!showMetocForRoute(route) || !route.isMetocValid(EPDShore.getSettings().getEnavSettings().getMetocTimeDiffTolerance())) {
+        if (!showMetocForRoute(route) || !route.isMetocValid(EPDShore.getInstance().getSettings().getEnavSettings().getMetocTimeDiffTolerance())) {
             if (route.getMetocForecast() != null) {
                 route.removeMetoc();
                 notifyListeners(RoutesUpdateEvent.METOC_SETTINGS_CHANGED);
@@ -426,7 +426,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
     public boolean hasMetoc(Route route){
         if(route.getMetocForecast() != null){
             // Determine if METOC info is old
-            ESDEnavSettings enavSettings = EPDShore.getSettings().getEnavSettings();
+            EPDEnavSettings enavSettings = EPDShore.getInstance().getSettings().getEnavSettings();
             long metocTtl = enavSettings.getMetocTtl() * 60 * 1000;
             Date now = PntTime.getInstance().getDate();
             Date metocDate = route.getMetocForecast().getCreated();
@@ -490,7 +490,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
     }
 
     public RouteMetocSettings getDefaultRouteMetocSettings() {
-        ESDEnavSettings enavSettings = EPDShore.getSettings().getEnavSettings();
+        EPDEnavSettings enavSettings = EPDShore.getInstance().getSettings().getEnavSettings();
         RouteMetocSettings routeMetocSettings = new RouteMetocSettings();
         routeMetocSettings.setWindWarnLimit(enavSettings.getDefaultWindWarnLimit());
         routeMetocSettings.setCurrentWarnLimit(enavSettings.getDefaultCurrentWarnLimit());
@@ -527,7 +527,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         if (activeRoute.getRouteMetocSettings() == null || !activeRoute.getRouteMetocSettings().isShowRouteMetoc()) {
             return;
         }
-        long activeRouteMetocPollInterval = EPDShore.getSettings().getEnavSettings().getActiveRouteMetocPollInterval() * 60 * 1000;
+        long activeRouteMetocPollInterval = EPDShore.getInstance().getSettings().getEnavSettings().getActiveRouteMetocPollInterval() * 60 * 1000;
         // Maybe we never want to refresh metoc
         if (activeRouteMetocPollInterval <= 0) {
             return;
@@ -543,7 +543,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
             return;
         }
         // Check if not old and still valid
-        if (!isMetocOld(activeRoute) && activeRoute.isMetocValid(EPDShore.getSettings().getEnavSettings().getMetocTimeDiffTolerance())) {
+        if (!isMetocOld(activeRoute) && activeRoute.isMetocValid(EPDShore.getInstance().getSettings().getEnavSettings().getMetocTimeDiffTolerance())) {
             return;
         }
 

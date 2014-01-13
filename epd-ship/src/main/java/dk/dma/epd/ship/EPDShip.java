@@ -83,38 +83,51 @@ import dk.dma.epd.ship.settings.EPDSettings;
  * Starts up components, bean context and GUI.
  * 
  */
-public class EPDShip extends EPD {
+public class EPDShip extends EPD<EPDSettings> {
 
     private static Logger LOG;
-    static MainFrame mainFrame;
-    private static MapHandler mapHandler;
-    private static EPDSettings settings;
-    static Properties properties = new Properties();
-    private static NmeaSensor aisSensor;
-    private static NmeaSensor gpsSensor;
-    private static NmeaSensor msPntSensor;
-    private static PntHandler pntHandler;
-    private static MultiSourcePntHandler msPntHandler;
-    private static AisHandler aisHandler;
-    private static OwnShipHandler ownShipHandler;
-    private static RiskHandler riskHandler;
-    private static RouteManager routeManager;
-    private static ShoreServicesCommon shoreServices;
-    private static StrategicRouteExchangeHandler strategicRouteExchangeHandler;
-    private static MonaLisaRouteOptimization monaLisaRouteExchange;
-    private static AisServices aisServices;
-    private static MsiHandler msiHandler;
-    private static NogoHandler nogoHandler;
-    private static EnavServiceHandler enavServiceHandler;
-    private static DynamicNogoHandler dynamicNoGoHandler;
-    private static TransponderFrame transponderFrame;
-    private static VoyageEventDispatcher voyageEventDispatcher;
+    MainFrame mainFrame;
+    private MapHandler mapHandler;
+    private NmeaSensor aisSensor;
+    private NmeaSensor gpsSensor;
+    private NmeaSensor msPntSensor;
+    private PntHandler pntHandler;
+    private MultiSourcePntHandler msPntHandler;
+    private AisHandler aisHandler;
+    private OwnShipHandler ownShipHandler;
+    private RiskHandler riskHandler;
+    private RouteManager routeManager;
+    private ShoreServicesCommon shoreServices;
+    private StrategicRouteExchangeHandler strategicRouteExchangeHandler;
+    private MonaLisaRouteOptimization monaLisaRouteExchange;
+    private AisServices aisServices;
+    private MsiHandler msiHandler;
+    private NogoHandler nogoHandler;
+    private EnavServiceHandler enavServiceHandler;
+    private DynamicNogoHandler dynamicNoGoHandler;
+    private TransponderFrame transponderFrame;
+    private VoyageEventDispatcher voyageEventDispatcher;
 
+    /**
+     * Starts the program by initializing the various threads and spawning the main GUI
+     * 
+     * @param args
+     */
     public static void main(String[] args) throws IOException {
+        String settingsFile = (args.length > 0) ? args[0] : null;
+        
+        new EPDShip(settingsFile);
+    }
 
-        home = Paths.get(System.getProperty("user.home"), ".epd-ship");
 
-        new Bootstrap().run();
+    /**
+     * Constructor
+     * @throws IOException 
+     */
+    private EPDShip(String settingsFile) throws IOException {
+        super();
+
+        new Bootstrap().run(this);
 
         // Set up log4j logging
         LOG = LoggerFactory.getLogger(EPDShip.class);
@@ -133,11 +146,11 @@ public class EPDShip extends EPD {
         mapHandler = new MapHandler();
 
         // Load settings or get defaults and add to bean context
-        if (args.length > 0) {
-            settings = new EPDSettings(args[0]);
+        if (settingsFile != null) {
+            settings = new EPDSettings(settingsFile);
         } else {
 
-            settings = new EPDSettings(home.resolve("settings.properties").toString());
+            settings = new EPDSettings(getHomePath().resolve("settings.properties").toString());
         }
         LOG.info("Using settings file: " + settings.getSettingsFile());
         settings.loadFromFile();
@@ -147,7 +160,7 @@ public class EPDShip extends EPD {
         ScaleDependentValues.setAIS_SETTINGS(settings.getAisSettings());
         
         // Determine if instance already running and if that is allowed
-        OneInstanceGuard guard = new OneInstanceGuard(home.resolve("eeins.lock").toString());
+        OneInstanceGuard guard = new OneInstanceGuard(getHomePath().resolve("eeins.lock").toString());
         if (!settings.getGuiSettings().isMultipleInstancesAllowed() && guard.isAlreadyRunning()) {
             JOptionPane.showMessageDialog(null, "One application instance already running. Stop instance or restart computer.",
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -249,7 +262,7 @@ public class EPDShip extends EPD {
         }
 
         // Create embedded transponder frame
-        transponderFrame = new TransponderFrame(home.resolve("transponder.xml").toString(), true, mainFrame);
+        transponderFrame = new TransponderFrame(getHomePath().resolve("transponder.xml").toString(), true, mainFrame);
         mapHandler.add(transponderFrame);
 
         if (settings.getSensorSettings().isStartTransponder()) {
@@ -258,7 +271,16 @@ public class EPDShip extends EPD {
 
     }
 
-    private static void startSensors() {
+    /**
+     * Returns the current {@code EPDShore} instance
+     * @return the current {@code EPDShore} instance
+     */
+    public static EPDShip getInstance() {
+        return (EPDShip)instance;
+    }
+    
+
+    private void startSensors() {
         EPDSensorSettings sensorSettings = settings.getSensorSettings();
         switch (sensorSettings.getAisConnectionType()) {
         case NONE:
@@ -362,11 +384,12 @@ public class EPDShip extends EPD {
 
     }
 
-    public static void startRiskHandler() {
+    public void startRiskHandler() {
         riskHandler = new RiskHandler();
     }
 
-    static void loadProperties() {
+    @Override
+    public Properties loadProperties() {
         InputStream in = EPDShip.class.getResourceAsStream("/epd-ship.properties");
         try {
             if (in == null) {
@@ -377,9 +400,10 @@ public class EPDShip extends EPD {
         } catch (IOException e) {
             LOG.error("Failed to load resources: " + e.getMessage());
         }
+        return properties;
     }
 
-    static void createAndShowGUI() {
+    void createAndShowGUI() {
         // Set the look and feel.
         initLookAndFeel();
 
@@ -395,7 +419,7 @@ public class EPDShip extends EPD {
 
     }
 
-    private static void makeKeyBindings() {
+    private void makeKeyBindings() {
         JPanel content = (JPanel) mainFrame.getContentPane();
         InputMap inputMap = content.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
 
@@ -517,7 +541,7 @@ public class EPDShip extends EPD {
 
     }
 
-    private static void initLookAndFeel() {
+    private void initLookAndFeel() {
         try {
             // UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
@@ -553,10 +577,10 @@ public class EPDShip extends EPD {
     }
 
     public static void closeApp() {
-        closeApp(false);
+        getInstance().closeApp(false);
     }
 
-    public static void closeApp(boolean restart) {
+    public void closeApp(boolean restart) {
         // Shutdown routine
 
         MaritimeCloudClient connection = enavServiceHandler.getConnection();
@@ -586,7 +610,7 @@ public class EPDShip extends EPD {
 
     }
 
-    private static void createPluginComponents() {
+    private void createPluginComponents() {
         Properties props = getProperties();
         String componentsValue = props.getProperty("eeins.plugin_components");
         if (componentsValue == null) {
@@ -616,31 +640,23 @@ public class EPDShip extends EPD {
         }
     }
 
-    public static Properties getProperties() {
-        return properties;
-    }
-
-    public static EPDSettings getSettings() {
-        return settings;
-    }
-
-    public static NmeaSensor getAisSensor() {
+    public NmeaSensor getAisSensor() {
         return aisSensor;
     }
 
-    public static NmeaSensor getGpsSensor() {
+    public NmeaSensor getGpsSensor() {
         return gpsSensor;
     }
 
-    public static PntHandler getPntHandler() {
+    public PntHandler getPntHandler() {
         return pntHandler;
     }
 
-    public static MainFrame getMainFrame() {
+    public MainFrame getMainFrame() {
         return mainFrame;
     }
 
-    public static AisHandler getAisHandler() {
+    public AisHandler getAisHandler() {
         return aisHandler;
     }
 
@@ -648,39 +664,39 @@ public class EPDShip extends EPD {
         return ownShipHandler;
     }
     
-    public static RouteManager getRouteManager() {
+    public RouteManager getRouteManager() {
         return routeManager;
     }
 
-    public static MapHandler getMapHandler() {
+    public MapHandler getMapHandler() {
         return mapHandler;
     }
 
-    public static ShoreServicesCommon getShoreServices() {
+    public ShoreServicesCommon getShoreServices() {
         return shoreServices;
     }
 
-    public static MonaLisaRouteOptimization getMonaLisaRouteExchange() {
+    public MonaLisaRouteOptimization getMonaLisaRouteExchange() {
         return monaLisaRouteExchange;
     }
 
-    public static EnavServiceHandler getEnavServiceHandler() {
+    public EnavServiceHandler getEnavServiceHandler() {
         return enavServiceHandler;
     }
 
-    public static double elapsed(long start) {
+    public double elapsed(long start) {
         double elapsed = System.nanoTime() - start;
         return elapsed / 1000000.0;
     }
 
-    public static RiskHandler getRiskHandler() {
+    public RiskHandler getRiskHandler() {
         return riskHandler;
     }
 
     /**
      * @return the monaLisaHandler
      */
-    public static StrategicRouteExchangeHandler getStrategicRouteExchangeHandler() {
+    public StrategicRouteExchangeHandler getStrategicRouteExchangeHandler() {
         return strategicRouteExchangeHandler;
     }
 
@@ -689,12 +705,12 @@ public class EPDShip extends EPD {
      * 
      * @return the voyageEventDispatcher
      */
-    public static VoyageEventDispatcher getVoyageEventDispatcher() {
+    public VoyageEventDispatcher getVoyageEventDispatcher() {
         return voyageEventDispatcher;
     }
 
     @Override
-    public Path getSettingsPath() {
+    public Path getHomePath() {
         return Paths.get(System.getProperty("user.home"), ".epd-ship");
     }
 

@@ -291,7 +291,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         this.voyageAppendWaypoint.addActionListener(this);
         this.voyageDeleteWaypoint = new VoyageHandlingWaypointDelete("Delete waypoint");
         this.voyageDeleteWaypoint.addActionListener(this);
-        this.voyageLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint("Insert waypoint here", EPDShip.getVoyageEventDispatcher());
+        this.voyageLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint("Insert waypoint here", EPDShip.getInstance().getVoyageEventDispatcher());
         this.voyageLegInsertWaypoint.addActionListener(this);
     }
 
@@ -366,7 +366,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
             add(showIntendedRoutes);
             add(newRoute);
             addSeparator();
-            if (!EPDShip.getSettings().getGuiSettings().isRiskNogoDisabled()) {
+            if (!EPDShip.getInstance().getSettings().getGuiSettings().isRiskNogoDisabled()) {
                 add(nogoRequest);
                 addSeparator();
             }
@@ -677,7 +677,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         monaLisaRouteRequest.setRouteManager(routeManager);
         monaLisaRouteRequest.setRouteIndex(routeIndex);
-        // monaLisaRouteRequest.setMonaLisaRouteExchange(EPDShip.getMonaLisaRouteExchange());
+        // monaLisaRouteRequest.setMonaLisaRouteExchange(EPDShip.getInstance().getMonaLisaRouteExchange());
         monaLisaRouteRequest.setMainFrame(mainFrame);
         monaLisaRouteRequest.setOwnShipHandler(ownShipHandler);
         add(monaLisaRouteRequest);

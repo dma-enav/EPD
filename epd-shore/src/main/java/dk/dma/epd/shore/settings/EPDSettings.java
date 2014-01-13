@@ -31,37 +31,39 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.util.PropUtils;
 
+import dk.dma.epd.common.prototype.settings.S57LayerSettings;
+import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 
 /**
  * Settings class
  */
-public class ESDSettings implements Serializable {
+public class EPDSettings extends Settings implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory
-            .getLogger(ESDSettings.class);
+            .getLogger(EPDSettings.class);
 
     private String settingsFile = Paths.get("settings.properties").toString();
     private String defaultWorkSpace = Paths.get("workspaces/default.workspace").toString();
     private String workspaceFile = "";
 
-    private ESDGuiSettings guiSettings = new ESDGuiSettings();
+    private EPDGuiSettings guiSettings = new EPDGuiSettings();
 
-    private ESDMapSettings mapSettings = new ESDMapSettings();
-    private ESDSensorSettings sensorSettings = new ESDSensorSettings();
-    private ESDNavSettings navSettings = new ESDNavSettings();
+    private EPDMapSettings mapSettings = new EPDMapSettings();
+    private EPDSensorSettings sensorSettings = new EPDSensorSettings();
+    private EPDNavSettings navSettings = new EPDNavSettings();
 
-    private ESDAisSettings aisSettings = new ESDAisSettings();
-    private ESDEnavSettings enavSettings = new ESDEnavSettings();
+    private EPDAisSettings aisSettings = new EPDAisSettings();
+    private EPDEnavSettings enavSettings = new EPDEnavSettings();
     private Workspace workspace = new Workspace();
 
-    public ESDSettings() {
+    public EPDSettings() {
 
     }
 
-    public ESDSettings(String settingsFile) {
+    public EPDSettings(String settingsFile) {
         this.settingsFile = settingsFile;
     }
 
@@ -72,10 +74,10 @@ public class ESDSettings implements Serializable {
         // Open properties file
         Properties props = new Properties();
 
-        Path loadPathSettingsFile = Paths.get(EPDShore.getHomePath().toString() + "/"
+        Path loadPathSettingsFile = Paths.get(EPDShore.getInstance().getHomePath().toString() + "/"
                 + settingsFile); 
         LOG.info("Trying to load " + loadPathSettingsFile.toString());
-        if (!PropUtils.loadProperties(props, Paths.get(EPDShore.getHomePath().toString()
+        if (!PropUtils.loadProperties(props, Paths.get(EPDShore.getInstance().getHomePath().toString()
                 + "/").toString(), settingsFile)) {
             LOG.info("No settings file found");
             return;
@@ -93,12 +95,12 @@ public class ESDSettings implements Serializable {
 
             // Load default workspace - will ALWAYS load from workspaces folder
             Properties workspaceProp = new Properties();
-            if (!PropUtils.loadProperties(workspaceProp, EPDShore.getHomePath()
+            if (!PropUtils.loadProperties(workspaceProp, EPDShore.getInstance().getHomePath()
                     .toString(), workspaceFile)) {
                 // LOG.info("No workspace file found - reverting to default");
                 LOG.error("No workspace file found - reverting to default - "
                         + workspaceFile + " was invalid");
-                PropUtils.loadProperties(workspaceProp, EPDShore.getHomePath()
+                PropUtils.loadProperties(workspaceProp, EPDShore.getInstance().getHomePath()
                         .toString(), defaultWorkSpace);
                 guiSettings.setWorkspace(defaultWorkSpace);
             }
@@ -120,7 +122,7 @@ public class ESDSettings implements Serializable {
             System.out
                     .println("No workspace file found - reverting to default - "
                             + parent + filename + " was invalid");
-            PropUtils.loadProperties(workspaceProp, EPDShore.getHomePath()
+            PropUtils.loadProperties(workspaceProp, EPDShore.getInstance().getHomePath()
                     .toString(), defaultWorkSpace);
         }
         guiSettings.setWorkspace("workspaces/" + filename);
@@ -145,7 +147,7 @@ public class ESDSettings implements Serializable {
         // navSettings.setProperties(props);
 
         try {
-            FileWriter outFile = new FileWriter(Paths.get(EPDShore.getHomePath()
+            FileWriter outFile = new FileWriter(Paths.get(EPDShore.getInstance().getHomePath()
                     .toString() + "/" + settingsFile).toString());
             PrintWriter out = new PrintWriter(outFile);
             out.println("# esd settings saved: " + new Date());
@@ -172,7 +174,7 @@ public class ESDSettings implements Serializable {
         Properties props = new Properties();
         workspace.setProperties(props, mapWindows);
         try {
-            String filepath = Paths.get(EPDShore.getHomePath().toString() + "/workspaces/"
+            String filepath = Paths.get(EPDShore.getInstance().getHomePath().toString() + "/workspaces/"
                     + filename).toString();
             
             filename = "workspaces/"
@@ -197,36 +199,46 @@ public class ESDSettings implements Serializable {
         }
     }
 
-    public ESDGuiSettings getGuiSettings() {
+    @Override
+    public EPDGuiSettings getGuiSettings() {
         return guiSettings;
     }
 
-    public ESDMapSettings getMapSettings() {
+    @Override
+    public EPDMapSettings getMapSettings() {
         return mapSettings;
+    }
+
+    @Override
+    public EPDAisSettings getAisSettings() {
+        return aisSettings;
+    }
+
+    @Override
+    public EPDEnavSettings getEnavSettings() {
+        return enavSettings;
+    }
+
+    @Override
+    public EPDNavSettings getNavSettings() {
+        return navSettings;
+    }
+
+    @Override
+    public EPDSensorSettings getSensorSettings() {
+        return sensorSettings;
+    }
+
+    @Override
+    public S57LayerSettings getS57Settings() {
+        return null;
+    }
+    
+    public Workspace getWorkspace() {
+        return workspace;
     }
 
     public String getSettingsFile() {
         return settingsFile;
     }
-
-    public ESDAisSettings getAisSettings() {
-        return aisSettings;
-    }
-
-    public Workspace getWorkspace() {
-        return workspace;
-    }
-
-    public ESDEnavSettings getEnavSettings() {
-        return enavSettings;
-    }
-
-    public ESDNavSettings getNavSettings() {
-        return navSettings;
-    }
-
-    public ESDSensorSettings getSensorSettings() {
-        return sensorSettings;
-    }
-
 }

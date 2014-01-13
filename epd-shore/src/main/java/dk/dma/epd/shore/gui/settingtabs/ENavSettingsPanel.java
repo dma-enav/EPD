@@ -27,7 +27,7 @@ import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.util.ParseUtils;
-import dk.dma.epd.shore.settings.ESDEnavSettings;
+import dk.dma.epd.shore.settings.EPDEnavSettings;
 
 
 public class ENavSettingsPanel  extends JPanel{
@@ -45,7 +45,7 @@ public class ENavSettingsPanel  extends JPanel{
     private JSpinner spinnerMsiRelevanceGpsUpdateRange;
     private JSpinner spinnerMsiVisibilityFromOwnShipRange;
     private JSpinner spinnerMsiVisibilityFromNewWaypoint;
-    private ESDEnavSettings enavSettings;
+    private EPDEnavSettings enavSettings;
 
 
     public ENavSettingsPanel(){
@@ -204,7 +204,7 @@ public class ENavSettingsPanel  extends JPanel{
         add(HttpPanel);
     }
 
-    public void loadSettings(ESDEnavSettings enavSettings) {
+    public void loadSettings(EPDEnavSettings enavSettings) {
         this.enavSettings = enavSettings;
         spinnerMetocTtl.setValue(enavSettings.getMetocTtl());
         spinnerActiveRouteMetocPoll.setValue(enavSettings.getActiveRouteMetocPollInterval());

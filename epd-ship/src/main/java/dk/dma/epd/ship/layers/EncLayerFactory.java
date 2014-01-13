@@ -71,7 +71,7 @@ public class EncLayerFactory {
         // // Try to load ENC props
         // if (!PropUtils.loadProperties(encProps, "..\\..\\.epd-ship",
         // "enc.properties")) {
-        if (!PropUtils.loadProperties(encProps, EPDShip.getHomePath()
+        if (!PropUtils.loadProperties(encProps, EPDShip.getInstance().getHomePath()
                 .toString(), "enc.properties")) {
 
             LOG.error("No enc.properties file found");
@@ -80,17 +80,17 @@ public class EncLayerFactory {
 
         // Add external jars to runpath
         try {
-            addSoftwareLibrary(new File(EPDShip.getHomePath()
+            addSoftwareLibrary(new File(EPDShip.getInstance().getHomePath()
                     + "\\lib\\s52.jar"));
-            addSoftwareLibrary(new File(EPDShip.getHomePath()
+            addSoftwareLibrary(new File(EPDShip.getInstance().getHomePath()
                     + "\\lib\\s57csv.jar"));
-            addSoftwareLibrary(new File(EPDShip.getHomePath()
+            addSoftwareLibrary(new File(EPDShip.getInstance().getHomePath()
                     + "\\lib\\jts-1.8.jar"));
-            addSoftwareLibrary(new File(EPDShip.getHomePath()
+            addSoftwareLibrary(new File(EPDShip.getInstance().getHomePath()
                     + "\\lib\\dongle-1.10-SNAPSHOT.jar"));
-            addSoftwareLibrary(new File(EPDShip.getHomePath()
+            addSoftwareLibrary(new File(EPDShip.getInstance().getHomePath()
                     + "\\lib\\forms-1.2.1.jar"));
-            addSoftwareLibrary(new File(EPDShip.getHomePath()
+            addSoftwareLibrary(new File(EPDShip.getInstance().getHomePath()
                     + "\\lib\\binding-2.0.1.jar"));
         } catch (Exception e1) {
             e1.printStackTrace();
@@ -101,11 +101,11 @@ public class EncLayerFactory {
         // EeINS.getHomePath().toString()+"\\navicon\\data");
         // encProps.put("enc.certLocation", "file:\\\\" +
         // EeINS.getHomePath().toString()+"\\navicon\\data");
-        encProps.put("enc.certLocation", EPDShip.getHomePath().toString()
+        encProps.put("enc.certLocation", EPDShip.getInstance().getHomePath().toString()
                 + "\\" + encProps.get("enc.certLocation"));
 
         try {
-            addToLibraryPath(EPDShip.getHomePath().toString()
+            addToLibraryPath(EPDShip.getInstance().getHomePath().toString()
                     + "\\navicon\\native");
         } catch (Exception e) {
             // TODO: handle exception
@@ -220,7 +220,7 @@ public class EncLayerFactory {
             
             // Set s57 settings
             Properties s57Props = new Properties();
-            s57Props.setProperty("enc.viewGroupSettings", EPDShip.getSettings()
+            s57Props.setProperty("enc.viewGroupSettings", EPDShip.getInstance().getSettings()
                     .getS57Settings().getS52mapSettings());
 
             encLayer.setProperties(s57Props);

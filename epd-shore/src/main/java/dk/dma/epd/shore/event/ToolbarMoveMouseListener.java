@@ -94,8 +94,8 @@ public class ToolbarMoveMouseListener implements MouseListener, MouseMotionListe
             Point new_location = new Point(newX, newY);
             frame.setLocation(new_location);
 
-            if (EPDShore.getMainFrame() != null){
-            EPDShore.getMainFrame().getDesktop().getManager().resizeDesktop();
+            if (EPDShore.getInstance().getMainFrame() != null){
+            EPDShore.getInstance().getMainFrame().getDesktop().getManager().resizeDesktop();
             }
         }
 

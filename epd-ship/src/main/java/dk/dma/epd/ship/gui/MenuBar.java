@@ -93,7 +93,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     }
 
     private void initMenuBar() {
-        boolean showRiskAndNogo = !EPDShip.getSettings().getGuiSettings().isRiskNogoDisabled();
+        boolean showRiskAndNogo = !EPDShip.getInstance().getSettings().getGuiSettings().isRiskNogoDisabled();
 
         /*****************************************/
         /** File menu                           **/
@@ -111,7 +111,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                if (EPDShip.getSettings().getGuiSettings().isFullscreen()) {
+                if (EPDShip.getInstance().getSettings().getGuiSettings().isFullscreen()) {
                     mainFrame.doNormal();
                 } else {
                     mainFrame.doFullScreen();
@@ -128,7 +128,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
             @Override
             public void actionPerformed(ActionEvent e) {
                 SetupDialog setupDialog = new SetupDialog(mainFrame);
-                setupDialog.loadSettings(EPDShip.getSettings());
+                setupDialog.loadSettings(EPDShip.getInstance().getSettings());
                 setupDialog.setVisible(true);
             }
         });
@@ -200,7 +200,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
 
         autoFollow = new JCheckBoxMenuItem("Auto follow own ship");
         interact.add(autoFollow);
-        autoFollow.setSelected(EPDShip.getSettings().getNavSettings().isAutoFollow());
+        autoFollow.setSelected(EPDShip.getInstance().getSettings().getNavSettings().isAutoFollow());
         autoFollow.setIcon(toolbarIcon("images/toolbar/arrow-curve-000-double.png"));
 
         autoFollow.addActionListener(new ActionListener() {
@@ -208,7 +208,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
             public void actionPerformed(ActionEvent e) {
                 topPanel.getAutoFollowBtn().setSelected(!topPanel.getAutoFollowBtn().isSelected());
 
-                EPDShip.getSettings().getNavSettings().setAutoFollow(topPanel.getAutoFollowBtn().isSelected());
+                EPDShip.getInstance().getSettings().getNavSettings().setAutoFollow(topPanel.getAutoFollowBtn().isSelected());
 
                 if (topPanel.getAutoFollowBtn().isSelected()) {
                     mainFrame.getChartPanel().autoFollow();
@@ -225,26 +225,26 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
 
         aisLayer = new JCheckBoxMenuItem("AIS Layer");
         layers.add(aisLayer);
-        aisLayer.setSelected(EPDShip.getSettings().getAisSettings().isVisible());
+        aisLayer.setSelected(EPDShip.getInstance().getSettings().getAisSettings().isVisible());
 
         aisLayer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 topPanel.getAisBtn().setSelected(!topPanel.getAisBtn().isSelected());
-                EPDShip.getSettings().getAisSettings().setVisible(topPanel.getAisBtn().isSelected());
+                EPDShip.getInstance().getSettings().getAisSettings().setVisible(topPanel.getAisBtn().isSelected());
                 mainFrame.getChartPanel().aisVisible(topPanel.getAisBtn().isSelected());
             }
         });
 
         encLayer = new JCheckBoxMenuItem("ENC Layer");
         layers.add(encLayer);
-        encLayer.setSelected(EPDShip.getSettings().getMapSettings().isEncVisible());
+        encLayer.setSelected(EPDShip.getInstance().getSettings().getMapSettings().isEncVisible());
 
         encLayer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 topPanel.getEncBtn().setSelected(!topPanel.getEncBtn().isSelected());
-                EPDShip.getSettings().getMapSettings().setEncVisible(topPanel.getEncBtn().isSelected());
+                EPDShip.getInstance().getSettings().getMapSettings().setEncVisible(topPanel.getEncBtn().isSelected());
                 mainFrame.getChartPanel().encVisible(topPanel.getEncBtn().isSelected());
             }
         });
@@ -266,12 +266,12 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
             layers.add(riskLayer);
         }
 
-        aisLayer.setSelected(EPDShip.getSettings().getAisSettings().isStrict());
+        aisLayer.setSelected(EPDShip.getInstance().getSettings().getAisSettings().isStrict());
 
         riskLayer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                EPDShip.getRiskHandler().toggleRiskHandler(!EPDShip.getSettings().getAisSettings().isShowRisk());
+                EPDShip.getInstance().getRiskHandler().toggleRiskHandler(!EPDShip.getInstance().getSettings().getAisSettings().isShowRisk());
             }
         });
         
@@ -281,11 +281,11 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         // the RPNT graphics is handler by the OwnShipLayer.
         msPntLayer = new JCheckBoxMenuItem("Resilient PNT Layer");
         layers.add(msPntLayer);
-        msPntLayer.setSelected(EPDShip.getSettings().getMapSettings().isMsPntVisible());
+        msPntLayer.setSelected(EPDShip.getInstance().getSettings().getMapSettings().isMsPntVisible());
         msPntLayer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                EPDShip.getSettings().getMapSettings().setMsPntVisible(msPntLayer.isSelected());
+                EPDShip.getInstance().getSettings().getMapSettings().setMsPntVisible(msPntLayer.isSelected());
             }
         });
 
@@ -311,12 +311,12 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         JCheckBoxMenuItem msiFilter = new JCheckBoxMenuItem("MSI Filtering");
         tools.add(msiFilter);
 
-        msiFilter.setSelected(EPDShip.getSettings().getEnavSettings().isMsiFilter());
+        msiFilter.setSelected(EPDShip.getInstance().getSettings().getEnavSettings().isMsiFilter());
 
         msiFilter.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                EPDShip.getSettings().getEnavSettings().setMsiFilter(!EPDShip.getSettings().getEnavSettings().isMsiFilter());
+                EPDShip.getInstance().getSettings().getEnavSettings().setMsiFilter(!EPDShip.getInstance().getSettings().getEnavSettings().isMsiFilter());
                 msiHandler.notifyUpdate();
             }
         });
@@ -363,7 +363,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
                 String[] list = findNoneStaticLayouts();
                 String layout = null;
 
-                final String path = EPDShip.getHomePath().toString() + "/layout/";
+                final String path = EPDShip.getInstance().getHomePath().toString() + "/layout/";
 
                 if (list.length == 0) {
                     JOptionPane.showMessageDialog(mainFrame, "No custom layouts saved.", "No Layouts", JOptionPane.ERROR_MESSAGE);
@@ -476,7 +476,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     }
 
     public void generateStaticLayouts() {
-        Path home = EPDShip.getHomePath();
+        Path home = EPDShip.getInstance().getHomePath();
 
         String files;
         File folder = home.resolve("layout/static").toFile();
@@ -519,7 +519,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     }
 
     public String[] findNoneStaticLayouts() {
-        final String path = EPDShip.getHomePath().toString() + "/layout/";
+        final String path = EPDShip.getInstance().getHomePath().toString() + "/layout/";
 
         List<String> list = new ArrayList<>();
 

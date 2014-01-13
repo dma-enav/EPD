@@ -44,8 +44,8 @@ public class VesselLayer extends CenterRaster {
      * @param vessel
      */
     public VesselLayer(long MMSI, Vessel vessel) {
-        super(0, 0, 24, 24, EPDShore.getStaticImages().getVesselWhite());
-        this.staticImages = EPDShore.getStaticImages();
+        super(0, 0, 24, 24, EPDShore.getInstance().getStaticImages().getVesselWhite());
+        this.staticImages = EPDShore.getInstance().getStaticImages();
         this.MMSI = MMSI;
 
         this.vessel = vessel;

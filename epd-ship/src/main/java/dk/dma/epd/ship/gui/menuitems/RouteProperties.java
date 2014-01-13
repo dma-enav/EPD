@@ -38,7 +38,7 @@ public class RouteProperties extends JMenuItem implements IMapMenuAction {
     
     @Override
     public void doAction() {
-        RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(EPDShip.getMainFrame(), routeManager, routeIndex);
+        RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(EPDShip.getInstance().getMainFrame(), routeManager, routeIndex);
         routePropertiesDialog.setVisible(true);
     }
     

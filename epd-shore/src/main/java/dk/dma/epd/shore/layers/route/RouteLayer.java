@@ -73,7 +73,7 @@ public class RouteLayer extends GeneralLayer implements IRoutesUpdateListener {
 
 
     public RouteLayer() {
-        routeManager = EPDShore.getRouteManager();
+        routeManager = EPDShore.getInstance().getRouteManager();
         routeManager.addListener(this);
     }
 
@@ -130,7 +130,7 @@ public class RouteLayer extends GeneralLayer implements IRoutesUpdateListener {
             }
 
             if (routeManager.showMetocForRoute(route)) {
-                routeMetoc = new MetocGraphic(route, activeRoute, EPDShore.getSettings().getEnavSettings());
+                routeMetoc = new MetocGraphic(route, activeRoute, EPDShore.getInstance().getSettings().getEnavSettings());
                 metocGraphics.add(routeMetoc);
             }
         }
@@ -234,7 +234,7 @@ public class RouteLayer extends GeneralLayer implements IRoutesUpdateListener {
 //        long start = System.nanoTime();
         for (OMGraphic omgraphic : graphics) {
             if(omgraphic instanceof RouteGraphic){
-                ((RouteGraphic) omgraphic).showArrowHeads(getProjection().getScale() < EPDShore.getSettings().getNavSettings().getShowArrowScale());
+                ((RouteGraphic) omgraphic).showArrowHeads(getProjection().getScale() < EPDShore.getInstance().getSettings().getNavSettings().getShowArrowScale());
             }
         }
 

@@ -448,19 +448,19 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
 
         if (dynamicNoGoActive) {
             // If the dock isn't visible should it show it?
-            if (!EPDShip.getMainFrame().getDockableComponents()
+            if (!EPDShip.getInstance().getMainFrame().getDockableComponents()
                     .isDockVisible("Dynamic NoGo")) {
 
                 // Show it display the message?
-                if (EPDShip.getSettings().getGuiSettings().isShowDockMessage()) {
-                    new ShowDockableDialog(EPDShip.getMainFrame(),
+                if (EPDShip.getInstance().getSettings().getGuiSettings().isShowDockMessage()) {
+                    new ShowDockableDialog(EPDShip.getInstance().getMainFrame(),
                             dock_type.DYN_NOGO);
                 } else {
 
-                    if (EPDShip.getSettings().getGuiSettings().isAlwaysOpenDock()) {
-                        EPDShip.getMainFrame().getDockableComponents()
+                    if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
+                        EPDShip.getInstance().getMainFrame().getDockableComponents()
                                 .openDock("Dynamic NoGo");
-                        EPDShip.getMainFrame().getEeINSMenuBar()
+                        EPDShip.getInstance().getMainFrame().getEeINSMenuBar()
                                 .refreshDockableMenu();
                     }
 

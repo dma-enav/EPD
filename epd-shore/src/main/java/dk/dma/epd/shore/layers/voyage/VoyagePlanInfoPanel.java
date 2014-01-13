@@ -81,7 +81,7 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
         super();
 
         this.voyageHandlingLayer = voyageHandlingLayer;
-        this.notificationCenter = EPDShore.getMainFrame().getNotificationCenter();
+        this.notificationCenter = EPDShore.getInstance().getMainFrame().getNotificationCenter();
         
         // setBorder(BorderFactory.createLineBorder(Color.BLACK));
         setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED,
@@ -319,7 +319,7 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
             System.out.println(voyage.getId());
             
             RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
-                    EPDShore.getMainFrame(), voyage.getRoute(), voyageHandlingLayer);
+                    EPDShore.getInstance().getMainFrame(), voyage.getRoute(), voyageHandlingLayer);
             routePropertiesDialog.setVisible(true);
             
         }

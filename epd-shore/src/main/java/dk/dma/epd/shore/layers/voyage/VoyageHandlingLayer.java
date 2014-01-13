@@ -81,7 +81,7 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
     public VoyageHandlingLayer() {
         voyagePlanInfoPanel.setVisible(true);
         // register self as listener for voyage changes
-        EPDShore.getVoyageEventDispatcher().registerListener(this);
+        EPDShore.getInstance().getVoyageEventDispatcher().registerListener(this);
     }
 
     @Override

@@ -54,7 +54,7 @@ import net.jcip.annotations.ThreadSafe;
 public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSensorListener, IPntDataListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(OwnShipHandler.class);
-    private static final String OWN_SHIP_FILE = EPD.getHomePath().resolve(".ownship").toString();
+    private static final String OWN_SHIP_FILE = EPD.getInstance().getHomePath().resolve(".ownship").toString();
     
     private final AisSettings aisSettings;
     private PntHandler pntHandler;

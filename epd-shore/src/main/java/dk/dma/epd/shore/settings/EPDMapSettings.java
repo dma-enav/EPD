@@ -15,12 +15,13 @@
  */
 package dk.dma.epd.shore.settings;
 
-import dk.dma.epd.common.prototype.settings.SensorSettings;
+import dk.dma.epd.common.prototype.settings.MapSettings;
 
 /**
- * Sensor settings
+ * Map/chart settings
  */
-public class ESDSensorSettings extends SensorSettings{
+public class EPDMapSettings extends MapSettings {
+
     private static final long serialVersionUID = 1L;
 
 

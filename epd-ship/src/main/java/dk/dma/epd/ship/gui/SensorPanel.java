@@ -199,7 +199,7 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
     
     public void initPanel(ChartPanel chartPanel) {
         // Add gps panel as position listener
-        EPDShip.getPntHandler().addListener(this);
+        EPDShip.getInstance().getPntHandler().addListener(this);
         
         // Start time panel thread
         this.chartPanel = chartPanel;

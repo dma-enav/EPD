@@ -110,7 +110,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
     public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel) {
         super();
         // Set map handler
-        mapHandler = EPDShip.getMapHandler();
+        mapHandler = EPDShip.getInstance().getMapHandler();
         dragMapHandler = new MapHandler();
         // Set layout
         setLayout(new BorderLayout());
@@ -118,7 +118,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         setBorder(BorderFactory.createLineBorder(Color.GRAY));
         this.activeWaypointPanel = activeWaypointPanel;
         // Max scale
-        this.maxScale = EPDShip.getSettings().getMapSettings().getMaxScale();
+        this.maxScale = EPDShip.getInstance().getSettings().getMapSettings().getMaxScale();
 
         setBackground(new Color(0.1f, 0.1f, 0.1f, 0.1f));
     }
@@ -128,11 +128,11 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
      */
     public void initChart() {
 
-        EPDMapSettings mapSettings = EPDShip.getSettings().getMapSettings();
-        Properties props = EPDShip.getProperties();
+        EPDMapSettings mapSettings = EPDShip.getInstance().getSettings().getMapSettings();
+        Properties props = EPDShip.getInstance().getProperties();
 
         // Try to create ENC layer
-        EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShip
+        EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShip.getInstance()
                 .getSettings().getMapSettings());
         encLayer = encLayerFactory.getEncLayer();
 
@@ -237,7 +237,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
 
         // Create AIS layer
         aisLayer = new AisLayer();
-        aisLayer.setMinRedrawInterval(EPDShip.getSettings().getAisSettings()
+        aisLayer.setMinRedrawInterval(EPDShip.getInstance().getSettings().getAisSettings()
                 .getMinRedrawInterval() * 1000);
         aisLayer.setVisible(true);
         mapHandler.add(aisLayer);
@@ -325,7 +325,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         msiLayer.doUpdate();
 
         // Add this class as PNT data listener
-        EPDShip.getPntHandler().addListener(this);
+        EPDShip.getInstance().getPntHandler().addListener(this);
 
         // encLayerFactory2.setMapSettings();
 
@@ -334,19 +334,19 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         // encLayerFactory2.reapplySettings();
 
         // Show AIS or not
-        aisVisible(EPDShip.getSettings().getAisSettings().isVisible());
+        aisVisible(EPDShip.getInstance().getSettings().getAisSettings().isVisible());
         // Show ENC or not
-        encVisible(EPDShip.getSettings().getMapSettings().isEncVisible());
+        encVisible(EPDShip.getInstance().getSettings().getMapSettings().isEncVisible());
 
         // Show WMS or not
-        wmsVisible(EPDShip.getSettings().getMapSettings().isWmsVisible());
+        wmsVisible(EPDShip.getInstance().getSettings().getMapSettings().isWmsVisible());
 
         getMap().addMouseWheelListener(this);
 
     }
 
     protected void initDragMap() {
-        EPDMapSettings mapSettings = EPDShip.getSettings().getMapSettings();
+        EPDMapSettings mapSettings = EPDShip.getInstance().getSettings().getMapSettings();
         // TODO: CLEANUP
         // dragMap
         dragMap = new BufferedLayerMapBean();
@@ -368,7 +368,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
     }
 
     public void saveSettings() {
-        EPDMapSettings mapSettings = EPDShip.getSettings().getMapSettings();
+        EPDMapSettings mapSettings = EPDShip.getInstance().getSettings().getMapSettings();
         mapSettings.setCenter((LatLonPoint) map.getCenter());
         mapSettings.setScale(map.getScale());
     }
@@ -391,7 +391,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
 
     public void centreOnShip() {
         // Get current position
-        PntData gpsData = EPDShip.getPntHandler().getCurrentData();
+        PntData gpsData = EPDShip.getInstance().getPntHandler().getCurrentData();
         if (gpsData == null) {
             return;
         }
@@ -455,9 +455,9 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
             // by exiting DistanceCircleMouseMode
             this.topPanel.getNewRouteBtn().setSelected(true);
 
-            EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
+            EPDShip.getInstance().getMainFrame().getTopPanel().getNavigationMouseMode()
                     .setSelected(false);
-            EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
+            EPDShip.getInstance().getMainFrame().getTopPanel().getDragMouseMode()
                     .setSelected(false);
         }
         if (modeID.equals(NavigationMouseMode.MODE_ID)
@@ -470,23 +470,23 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
             newRouteContainerLayer.getWaypoints().clear();
             newRouteContainerLayer.getRouteGraphics().clear();
             newRouteContainerLayer.doPrepare();
-            EPDShip.getMainFrame().getTopPanel().getNewRouteBtn()
+            EPDShip.getInstance().getMainFrame().getTopPanel().getNewRouteBtn()
                     .setSelected(false);
-            EPDShip.getMainFrame().getEeINSMenuBar().getNewRoute()
+            EPDShip.getInstance().getMainFrame().getEeINSMenuBar().getNewRoute()
                     .setSelected(false);
             if (modeID.equals(NavigationMouseMode.MODE_ID)) {
                 System.out.println("Setting nav mouse mode");
                 mouseDelegator.setActive(mapNavMouseMode);
-                EPDShip.getMainFrame().getTopPanel().getNavigationMouseMode()
+                EPDShip.getInstance().getMainFrame().getTopPanel().getNavigationMouseMode()
                         .setSelected(true);
-                EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
+                EPDShip.getInstance().getMainFrame().getTopPanel().getDragMouseMode()
                         .setSelected(false);
             }
             if (modeID.equals(DragMouseMode.MODE_ID)) {
                 mouseDelegator.setActive(dragMouseMode);
                 this.topPanel.getNavigationMouseMode()
                         .setSelected(false);
-                EPDShip.getMainFrame().getTopPanel().getDragMouseMode()
+                EPDShip.getInstance().getMainFrame().getTopPanel().getDragMouseMode()
                         .setSelected(true);
                 System.out.println("Setting drag mouse mode");
             }
@@ -530,14 +530,14 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
     // newRouteContainerLayer.getWaypoints().clear();
     // newRouteContainerLayer.getRouteGraphics().clear();
     // newRouteContainerLayer.doPrepare();
-    // EPDShip.getMainFrame().getTopPanel().getNewRouteBtn().setSelected(false);
-    // EPDShip.getMainFrame().getEeINSMenuBar().getNewRoute().setSelected(false);
+    // EPDShip.getInstance().getMainFrame().getTopPanel().getNewRouteBtn().setSelected(false);
+    // EPDShip.getInstance().getMainFrame().getEeINSMenuBar().getNewRoute().setSelected(false);
     // }
     // }
 
     public void autoFollow() {
         // Do auto follow
-        if (!EPDShip.getSettings().getNavSettings().isAutoFollow()) {
+        if (!EPDShip.getInstance().getSettings().getNavSettings().isAutoFollow()) {
             return;
         }
         
@@ -546,7 +546,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
             return;
         }
 
-        boolean lookahead = EPDShip.getSettings().getNavSettings()
+        boolean lookahead = EPDShip.getInstance().getSettings().getNavSettings()
                 .isLookAhead();
 
         // Find desired location (depends on look-ahead or not)
@@ -597,7 +597,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
 
         // LOG.info("pctOffX: " + pctOffX + " pctOffY: " + pctOffY);
 
-        int tollerated = EPDShip.getSettings().getNavSettings()
+        int tollerated = EPDShip.getInstance().getSettings().getNavSettings()
                 .getAutoFollowPctOffTollerance();
         if (pctOffX < tollerated && pctOffY < tollerated) {
             return;
@@ -637,7 +637,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         }
 
         // Disable auto follow
-        EPDShip.getSettings().getNavSettings().setAutoFollow(false);
+        EPDShip.getInstance().getSettings().getNavSettings().setAutoFollow(false);
         topPanel.updateButtons();
 
         if (waypoints.size() == 1) {

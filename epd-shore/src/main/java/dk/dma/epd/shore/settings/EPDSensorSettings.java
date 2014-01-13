@@ -15,36 +15,13 @@
  */
 package dk.dma.epd.shore.settings;
 
-import java.util.Properties;
-
-import com.bbn.openmap.util.PropUtils;
-
-import dk.dma.epd.common.prototype.settings.AisSettings;
+import dk.dma.epd.common.prototype.settings.SensorSettings;
 
 /**
  * Sensor settings
  */
-public class ESDAisSettings extends AisSettings {
+public class EPDSensorSettings extends SensorSettings{
     private static final long serialVersionUID = 1L;
-    private String PREFIX = super.getPrefix();
 
-    private long ownMMSI = -1;
 
-    public void readProperties(Properties props) {
-        super.readProperties(props);
-        ownMMSI = PropUtils.longFromProperties(props, PREFIX + "ownMMSI", ownMMSI);
-    }
-
-    public void setProperties(Properties props) {
-        super.setProperties(props);
-        props.put(PREFIX + "ownMMSI",  Long.toString(ownMMSI));
-    }
-
-    public long getOwnMMSI() {
-        return ownMMSI;
-    }
-
-    public void setOwnMMSI(long ownMMSI) {
-        this.ownMMSI = ownMMSI;
-    }
 }

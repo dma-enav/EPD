@@ -123,7 +123,7 @@ public class GeneralLayer extends OMGraphicHandlerLayer implements MapMouseListe
      * @return the mouse selection tolerance
      */
     public float getMouseSelectTolerance() {
-        return EPDShore.getSettings().getGuiSettings().getMouseSelectTolerance();
+        return EPDShore.getInstance().getSettings().getGuiSettings().getMouseSelectTolerance();
     }
     
     /**

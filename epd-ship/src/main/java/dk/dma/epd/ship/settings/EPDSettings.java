@@ -28,13 +28,14 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.ship.EPDShip;
 
 
 /**
  * Settings class
  */
-public class EPDSettings implements Serializable {
+public class EPDSettings extends Settings implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(EPDSettings.class);
@@ -79,7 +80,7 @@ public class EPDSettings implements Serializable {
         navSettings.readProperties(props);
         sensorSettings.readProperties(props);
         
-        s57Settings.readSettings(EPDShip.getHomePath().resolve("s57Props.properties").toString());
+        s57Settings.readSettings(EPDShip.getInstance().getHomePath().resolve("s57Props.properties").toString());
     }
 
     public void saveToFile() {
@@ -108,44 +109,45 @@ public class EPDSettings implements Serializable {
         
         
         
-        s57Settings.saveSettings(EPDShip.getHomePath().resolve("s57Props.properties").toString());
+        s57Settings.saveSettings(EPDShip.getInstance().getHomePath().resolve("s57Props.properties").toString());
     }
 
+    @Override
     public EPDGuiSettings getGuiSettings() {
         return guiSettings;
     }
 
+    @Override
     public EPDMapSettings getMapSettings() {
         return mapSettings;
     }
 
+    @Override
     public EPDSensorSettings getSensorSettings() {
         return sensorSettings;
     }
 
+    @Override
     public EPDNavSettings getNavSettings() {
         return navSettings;
     }
 
+    @Override
     public EPDAisSettings getAisSettings() {
         return aisSettings;
     }
 
+    @Override
     public EPDEnavSettings getEnavSettings() {
         return enavSettings;
+    }
+
+    @Override
+    public EPDS57LayerSettings getS57Settings() {
+        return s57Settings;
     }
 
     public String getSettingsFile() {
         return settingsFile;
     }
-
-    /**
-     * @return the s57Settings
-     */
-    public EPDS57LayerSettings getS57Settings() {
-        return s57Settings;
-    }
-
-    
-    
 }

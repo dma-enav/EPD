@@ -150,7 +150,7 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
         //show raw xml
         if (chckbxShowRawRequest.isSelected()) {
             try {
-                MetocForecastRequest req = Metoc.generateMetocRequest(route, EPDShip.getPntHandler().getCurrentData().getPosition());
+                MetocForecastRequest req = Metoc.generateMetocRequest(route, EPDShip.getInstance().getPntHandler().getCurrentData().getPosition());
                 
                 JAXBContext context = JAXBContext.newInstance(MetocForecastRequest.class);
                 Marshaller m = context.createMarshaller();

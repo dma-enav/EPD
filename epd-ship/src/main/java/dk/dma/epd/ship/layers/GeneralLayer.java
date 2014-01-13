@@ -77,7 +77,7 @@ public class GeneralLayer extends OMGraphicHandlerLayer implements MapMouseListe
             mapMenu.generalMenu(true);
             mapMenu.setVisible(true);
 
-            if (EPDShip.getMainFrame().getHeight() < evt.getYOnScreen()
+            if (EPDShip.getInstance().getMainFrame().getHeight() < evt.getYOnScreen()
                     + mapMenu.getHeight()) {
                 mapMenu.show(this, evt.getX() - 2,
                         evt.getY() - mapMenu.getHeight());
@@ -128,7 +128,7 @@ public class GeneralLayer extends OMGraphicHandlerLayer implements MapMouseListe
      * @return the mouse selection tolerance
      */
     public float getMouseSelectTolerance() {
-        return EPDShip.getSettings().getGuiSettings().getMouseSelectTolerance();
+        return EPDShip.getInstance().getSettings().getGuiSettings().getMouseSelectTolerance();
     }
     
     /**

@@ -57,13 +57,13 @@ public class RouteEditEndRoute extends JMenuItem implements IMapMenuAction {
             for (RouteWaypoint routeWaypoint : waypoints) {
                 if (routeWaypoint.getOutLeg() != null) {
                     RouteLeg outLeg = routeWaypoint.getOutLeg();
-                    double xtd = EPDShip.getSettings().getNavSettings().getDefaultXtd();
+                    double xtd = EPDShip.getInstance().getSettings().getNavSettings().getDefaultXtd();
                     outLeg.setXtdPort(xtd);
                     outLeg.setXtdStarboard(xtd);
                     outLeg.setHeading(Heading.RL);
-                    outLeg.setSpeed(EPDShip.getSettings().getNavSettings().getDefaultSpeed());
+                    outLeg.setSpeed(EPDShip.getInstance().getSettings().getNavSettings().getDefaultSpeed());
                 }
-                routeWaypoint.setTurnRad(EPDShip.getSettings().getNavSettings().getDefaultTurnRad());
+                routeWaypoint.setTurnRad(EPDShip.getInstance().getSettings().getNavSettings().getDefaultTurnRad());
                 routeWaypoint.setName(String.format("WP_%03d", i));
                 i++;
             }
@@ -77,8 +77,8 @@ public class RouteEditEndRoute extends JMenuItem implements IMapMenuAction {
         newRouteLayer.getWaypoints().clear();
         newRouteLayer.getRouteGraphics().clear();
         newRouteLayer.doPrepare();
-        //EPDShip.getMainFrame().getChartPanel().setMouseMode(1);
-        EPDShip.getMainFrame().getChartPanel().setMouseMode(NavigationMouseMode.MODE_ID);
+        //EPDShip.getInstance().getMainFrame().getChartPanel().setMouseMode(1);
+        EPDShip.getInstance().getMainFrame().getChartPanel().setMouseMode(NavigationMouseMode.MODE_ID);
     }
 
     public void setNewRouteLayer(NewRouteContainerLayer newRouteLayer) {

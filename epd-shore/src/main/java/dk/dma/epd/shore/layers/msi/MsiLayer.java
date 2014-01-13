@@ -202,7 +202,7 @@ public class MsiLayer extends GeneralLayer implements IMsiUpdateListener {
         MsiLocation msiLocation = msiMessage.getLocation();
         Position center = msiLocation.getCenter();
         mapBean.setCenter(center.getLatitude(), center.getLongitude());
-        mapBean.setScale(EPDShore.getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale());
+        mapBean.setScale(EPDShore.getInstance().getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale());
 
     }
 

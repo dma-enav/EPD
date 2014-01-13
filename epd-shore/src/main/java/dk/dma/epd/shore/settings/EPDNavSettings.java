@@ -15,12 +15,12 @@
  */
 package dk.dma.epd.shore.settings;
 
-import dk.dma.epd.common.prototype.settings.EnavSettings;
+import dk.dma.epd.common.prototype.settings.NavSettings;
 
 /**
- * Specific e-Navigation settings
+ * Navigational settings
  */
-public class ESDEnavSettings extends EnavSettings {
+public class EPDNavSettings extends NavSettings {
 
     private static final long serialVersionUID = 1L;
 

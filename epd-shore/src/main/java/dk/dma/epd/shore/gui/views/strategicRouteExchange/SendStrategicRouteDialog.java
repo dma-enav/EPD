@@ -120,7 +120,7 @@ public class SendStrategicRouteDialog extends ComponentFrame implements MouseLis
                 new Color(30, 30, 30)));
 
         ToolbarMoveMouseListener mml = new ToolbarMoveMouseListener(this,
-                EPDShore.getMainFrame());
+                EPDShore.getInstance().getMainFrame());
         mapPanel.addMouseListener(mml);
         mapPanel.addMouseMotionListener(mml);
         GridBagLayout gbl_mapPanel = new GridBagLayout();

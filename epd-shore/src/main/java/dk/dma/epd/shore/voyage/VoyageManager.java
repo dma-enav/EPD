@@ -44,7 +44,7 @@ import dk.dma.epd.shore.services.shore.ShoreServices;
 public class VoyageManager extends MapHandlerChild implements Runnable, Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final String VOYAGESFILE = EPDShore.getHomePath().resolve(".voyages").toString();
+    private static final String VOYAGESFILE = EPDShore.getInstance().getHomePath().resolve(".voyages").toString();
     private static final Logger LOG = LoggerFactory.getLogger(VoyageManager.class);
 
     private List<Voyage> voyages = new LinkedList<Voyage>();

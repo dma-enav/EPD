@@ -125,7 +125,7 @@ public class RouteManagerDialog extends ComponentFrame implements ActionListener
     public RouteManagerDialog(JFrame parent) {
         super("Route Manager", false, true, false, false);
         this.parent = parent;
-        routeManager = EPDShore.getRouteManager();
+        routeManager = EPDShore.getInstance().getRouteManager();
 
 
 
@@ -417,11 +417,11 @@ public class RouteManagerDialog extends ComponentFrame implements ActionListener
 
         Route selectedroute = routeManager.getRoute(routeTable.getSelectedRow());
 
-        if (EPDShore.getMainFrame().getActiveMapWindow() != null) {
-            EPDShore.getMainFrame().getActiveMapWindow().getChartPanel()
+        if (EPDShore.getInstance().getMainFrame().getActiveMapWindow() != null) {
+            EPDShore.getInstance().getMainFrame().getActiveMapWindow().getChartPanel()
                     .zoomToPoint(selectedroute.getWaypoints().getFirst().getPos());
-        } else if (EPDShore.getMainFrame().getMapWindows().size() > 0) {
-            EPDShore.getMainFrame().getMapWindows().get(0).getChartPanel()
+        } else if (EPDShore.getInstance().getMainFrame().getMapWindows().size() > 0) {
+            EPDShore.getInstance().getMainFrame().getMapWindows().get(0).getChartPanel()
                     .zoomToPoint(selectedroute.getWaypoints().getFirst().getPos());
         }
         // TODO ChartPanel should implement a method that given a route does the
@@ -507,7 +507,7 @@ public class RouteManagerDialog extends ComponentFrame implements ActionListener
         }
 
         if (!RouteLoader.saveSimple(route, file)) {
-            JOptionPane.showMessageDialog(EPDShore.getMainFrame(), "Route save error", "Route not saved",
+            JOptionPane.showMessageDialog(EPDShore.getInstance().getMainFrame(), "Route save error", "Route not saved",
                     JOptionPane.ERROR_MESSAGE);
         }
 

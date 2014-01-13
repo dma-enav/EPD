@@ -36,15 +36,15 @@ public class AdvancedSettingsWindow extends JDialog {
      * Create the frame.
      */
     public AdvancedSettingsWindow() {
-        super(EPDShip.getMainFrame(), "Advanced Settings", true);
+        super(EPDShip.getInstance().getMainFrame(), "Advanced Settings", true);
 
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         this.setBounds(100, 100, 500, 750);
 
-        this.setLocationRelativeTo(EPDShip.getMainFrame());
+        this.setLocationRelativeTo(EPDShip.getInstance().getMainFrame());
 
-        JTabbedPane gui = (JTabbedPane) EPDShip.getMainFrame().getChartPanel()
+        JTabbedPane gui = (JTabbedPane) EPDShip.getInstance().getMainFrame().getChartPanel()
                 .getEncLayer().getGUI();
         gui.setVisible(true);
         //
@@ -88,7 +88,7 @@ public class AdvancedSettingsWindow extends JDialog {
             Method m = c.getMethod("viewGrpSettingsAsString");
             String result = (String) m.invoke(null);
 
-            EPDShip.getSettings().getS57Settings().setS52mapSettings(result);
+            EPDShip.getInstance().getSettings().getS57Settings().setS52mapSettings(result);
 
         } catch (Exception e) {
             // TODO Auto-generated catch block

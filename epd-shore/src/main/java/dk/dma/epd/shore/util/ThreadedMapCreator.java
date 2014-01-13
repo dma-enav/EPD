@@ -296,7 +296,7 @@ public class ThreadedMapCreator implements Runnable {
         }
 
         if (mainFrame.getWindowCount() == 1) {
-            EPDShore.getBeanHandler().add(
+            EPDShore.getInstance().getBeanHandler().add(
                     window.getChartPanel().getWmsLayer().getWmsService());
         }
 

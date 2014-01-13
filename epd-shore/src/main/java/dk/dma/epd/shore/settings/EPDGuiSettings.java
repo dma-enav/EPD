@@ -24,7 +24,7 @@ import dk.dma.epd.common.prototype.settings.GuiSettings;
 /**
  * General GUI settings
  */
-public class ESDGuiSettings extends GuiSettings {
+public class EPDGuiSettings extends GuiSettings {
 
     private static final long serialVersionUID = 1L;
 
@@ -37,7 +37,7 @@ public class ESDGuiSettings extends GuiSettings {
     /**
      * Constructor
      */
-    public ESDGuiSettings() {
+    public EPDGuiSettings() {
 
     }
 

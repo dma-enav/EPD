@@ -64,7 +64,7 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
         this.route = route;
 
         if (monaLisaSTCCDialog == null) {
-            monaLisaSTCCDialog = EPDShip.getMainFrame().getMonaLisaSTCCDialog();
+            monaLisaSTCCDialog = EPDShip.getInstance().getMainFrame().getMonaLisaSTCCDialog();
         }
 
         // Is there already a transaction in progress
@@ -96,7 +96,7 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
             // Display and initialize the GUI
             monaLisaSTCCDialog.initializeNew();
             monaLisaSTCCDialog.setLocation(50, 50);
-            // monaLisaSTCCDialog.setLocationRelativeTo(EPDShip.getMainFrame());
+            // monaLisaSTCCDialog.setLocationRelativeTo(EPDShip.getInstance().getMainFrame());
             monaLisaSTCCDialog.setVisible(true);
             monaLisaSTCCDialog.setRouteName(route, transactionID);
 
@@ -346,7 +346,7 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
         if (routeManager.getActiveRouteIndex() != -1) {
             int dialogresult = JOptionPane
                     .showConfirmDialog(
-                            EPDShip.getMainFrame(),
+                            EPDShip.getInstance().getMainFrame(),
                             "Do you wish to deactivate and hide your old route\nAnd activate the new route?",
                             "Route Activation", JOptionPane.YES_OPTION);
             if (dialogresult == JOptionPane.YES_OPTION) {
@@ -361,7 +361,7 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
 
         } else {
             int dialogresult = JOptionPane.showConfirmDialog(
-                    EPDShip.getMainFrame(),
+                    EPDShip.getInstance().getMainFrame(),
                     "Do you wish to activate the new route?",
                     "Route Activation", JOptionPane.YES_OPTION);
             if (dialogresult == JOptionPane.YES_OPTION) {
@@ -506,7 +506,7 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
         // Display and initialize the GUI
         monaLisaSTCCDialog.initializeNew();
         // monaLisaSTCCDialog.setLocation(windowLocation);
-        monaLisaSTCCDialog.setLocationRelativeTo(EPDShip.getMainFrame());
+        monaLisaSTCCDialog.setLocationRelativeTo(EPDShip.getInstance().getMainFrame());
         monaLisaSTCCDialog.setVisible(true);
         monaLisaSTCCDialog.setRouteName(route, routeMessage.getId());
 
