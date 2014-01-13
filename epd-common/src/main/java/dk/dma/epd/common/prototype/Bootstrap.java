@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore;
+package dk.dma.epd.common.prototype;
 
 import java.io.IOException;
 import java.net.URL;
@@ -28,36 +28,31 @@ import org.springframework.core.io.Resource;
 
 import com.google.common.io.Resources;
 
-import dk.dma.epd.common.prototype.EPD;
 
-/**
- * @author Kasper Nielsen, David Camre
- */
-class Bootstrap {
-    Path home;    
+public class Bootstrap {
+    Path home;
 
-    public void run(EPD<?> epd) throws IOException {
-
-        home = epd.getHomePath();
+    public void run(EPD<?> epd, String[] appHomeFiles, String[] appHomeFolders) throws IOException {
         
+        home = epd.getHomePath();
+
         Files.createDirectories(home);
 
         // Used from log4j to place log files
         System.setProperty("dma.app.home", home.toString());
-        
+
         // Log4j
         unpackToAppHome("log4j.xml");
         // actually use the definitions
         DOMConfigurator.configure(home.resolve("log4j.xml").toUri().toURL());
 
         // Properties
-        unpackToAppHome("epd-shore.properties");
-        unpackToAppHome("settings.properties");
-        unpackToAppHome("transponder.xml");
-
-        unpackFolderToAppHome("workspaces");
-        unpackFolderToAppHome("routes");
-        unpackFolderToAppHome("shape/GSHHS_shp");
+        for (String appHomeFile : appHomeFiles) {
+            unpackToAppHome(appHomeFile);
+        }
+        for (String appHomeFolder : appHomeFolders) {
+            unpackFolderToAppHome(appHomeFolder);
+        }
 
         // update location of shape files to user.home
         Properties properties = epd.loadProperties();
@@ -79,9 +74,8 @@ class Bootstrap {
         
         prev = properties.getProperty("background.InternalArea.spatialIndex");
         properties.put("background.InternalArea.spatialIndex", home.resolve(prev).toString());
+
     }
-    
-    
     protected void unpackFolderToAppHome(String folder) throws IOException {
         ApplicationContext context = new ClassPathXmlApplicationContext();
         // we do not support recursive folders

@@ -40,6 +40,7 @@ import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
 import dk.dma.enav.maritimecloud.MaritimeCloudClient;
 import dk.dma.epd.common.ExceptionHandler;
+import dk.dma.epd.common.prototype.Bootstrap;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
@@ -71,12 +72,11 @@ import dk.dma.epd.shore.voyage.VoyageManager;
  * Starts up components, bean context and GUI.
  * 
  */
-public class EPDShore extends EPD<EPDSettings> {
+public final class EPDShore extends EPD<EPDSettings> {
 
     private static Logger LOG;
     private MainFrame mainFrame;
     private BeanContextServicesSupport beanHandler;
-    static Properties properties = new Properties();
     private NmeaSensor aisSensor;
     private AisHandler aisHandler;
     private MsiHandler msiHandler;
@@ -117,7 +117,10 @@ public class EPDShore extends EPD<EPDSettings> {
     private EPDShore(String settingsFile) throws IOException {
         super();
         
-        new Bootstrap().run(this);
+        new Bootstrap().run(
+                this, 
+                new String[] { "epd-shore.properties", "settings.properties", "transponder.xml" },
+                new String[] { "workspaces", "routes", "shape/GSHHS_shp" });
 
         // Set up log4j logging
         LOG = LoggerFactory.getLogger(EPDShore.class);
