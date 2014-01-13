@@ -18,6 +18,8 @@ package dk.dma.epd.common.prototype;
 import java.nio.file.Path;
 import java.util.Properties;
 
+import javax.swing.JFrame;
+
 import dk.dma.epd.common.prototype.settings.Settings;
 
 
@@ -76,7 +78,7 @@ public abstract class EPD<S extends Settings> {
         return thread;
     }
 
-    public Object getMainFrame() {
+    public JFrame getMainFrame() {
         return null;
     }
 }

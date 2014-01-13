@@ -18,13 +18,8 @@ package dk.dma.epd.shore.layers;
 import java.awt.event.MouseEvent;
 
 import com.bbn.openmap.MapBean;
-import com.bbn.openmap.event.MapEventUtils;
-import com.bbn.openmap.event.MapMouseListener;
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
-import com.bbn.openmap.omGraphics.OMGraphic;
-import com.bbn.openmap.omGraphics.OMGraphicList;
 
-import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.common.prototype.layers.GeneralLayerCommon;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
@@ -38,7 +33,7 @@ import dk.dma.epd.shore.gui.views.MapMenu;
  * <p>
  * Contains default functionality for handling mouse right click
  */
-public class GeneralLayer extends OMGraphicHandlerLayer implements MapMouseListener {
+public class GeneralLayer extends GeneralLayerCommon {
 
     private static final long serialVersionUID = 1L;
 
@@ -47,16 +42,6 @@ public class GeneralLayer extends OMGraphicHandlerLayer implements MapMouseListe
     protected MapMenu mapMenu;
     protected MapBean mapBean;
     
-    protected OMGraphicList graphics = new OMGraphicList();
-
-    /**
-     * Returns {@code this} as the {@linkplain MapMouseListener}
-     * @return this
-     */
-    public MapMouseListener getMapMouseListener() {
-        return this;
-    }
-
     /**
      * Returns the mouse mode service list
      * @return the mouse mode service list
@@ -84,58 +69,6 @@ public class GeneralLayer extends OMGraphicHandlerLayer implements MapMouseListe
             return true;
         }
         return false;
-    }
-
-    @Override
-    public boolean mouseDragged(MouseEvent arg0) {
-        return false;
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent arg0) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent arg0) {
-    }
-
-    @Override
-    public void mouseMoved() {
-    }
-
-    @Override
-    public boolean mouseMoved(MouseEvent arg0) {
-        return false;
-    }
-
-    @Override
-    public boolean mousePressed(MouseEvent arg0) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseReleased(MouseEvent arg0) {
-        return false;
-    }
-
-    /**
-     * Returns the mouse selection tolerance
-     * @return the mouse selection tolerance
-     */
-    public float getMouseSelectTolerance() {
-        return EPDShore.getInstance().getSettings().getGuiSettings().getMouseSelectTolerance();
-    }
-    
-    /**
-     * Returns the first graphics element placed at the mouse event location
-     * that matches any of the types passed along. 
-     * 
-     * @param evt the mouse event
-     * @param types the possible types
-     * @return the first matching graphics element
-     */
-    public final OMGraphic getSelectedGraphic(MouseEvent evt, Class<?>... types) {
-        return MapEventUtils.getSelectedGraphic(graphics, evt, getMouseSelectTolerance(), types);
     }
     
     /**
