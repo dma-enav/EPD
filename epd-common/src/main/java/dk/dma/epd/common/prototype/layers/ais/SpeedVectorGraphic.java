@@ -105,6 +105,8 @@ public class SpeedVectorGraphic extends OMGraphicList {
                 this.marks.add(vtm);
             }
         }
+        
+        
     }
     
     private void init() {

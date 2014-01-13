@@ -21,9 +21,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.SpinnerModel;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeListener;
 
 import dk.dma.epd.ship.settings.EPDAisSettings;
 
@@ -44,6 +46,7 @@ public class AisTab extends JPanel {
     private JSpinner spinnerCogVectorLengthMax;
     private JSpinner spinnerCogVectorLengthMin;
     private JSpinner spinnerCogVectorLengthScaleStepSize;
+    private JSpinner spinnerCogVectorHideBelow;
 
     public AisTab() {
         
@@ -70,49 +73,58 @@ public class AisTab extends JPanel {
         spinnerCogVectorLengthScaleStepSize.setModel(new SpinnerNumberModel(new Float(5000), new Float(2000), null, new Float(1000)));
         
         JLabel lblScaleStepSize = new JLabel("Scale step size for each increment of the COG vector length");
+        
+        spinnerCogVectorHideBelow = new JSpinner(new SpinnerNumberModel(new Float(0.1), new Float(0.1), new Float(100), new Float(0.1)));
+        
+        JLabel lblHideCogVector = new JLabel("Hide COG vector when below");
         GroupLayout gl_appearancePanel = new GroupLayout(appearancePanel);
         gl_appearancePanel.setHorizontalGroup(
-            gl_appearancePanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_appearancePanel.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(gl_appearancePanel.createParallelGroup(Alignment.LEADING)
-                        .addComponent(checkBoxShowNameLabels)
-                        .addGroup(gl_appearancePanel.createSequentialGroup()
-                            .addGroup(gl_appearancePanel.createParallelGroup(Alignment.TRAILING)
-                                .addComponent(spinnerCogVectorLengthMin, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 63, Short.MAX_VALUE)
-                                .addGroup(Alignment.LEADING, gl_appearancePanel.createParallelGroup(Alignment.TRAILING, false)
-                                    .addComponent(spinnerCogVectorLengthMax)
-                                    .addComponent(spinnerCogVectorLengthScaleStepSize))
-                                .addComponent(spinnerMinRedrawInterval, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 63, Short.MAX_VALUE))
-                            .addPreferredGap(ComponentPlacement.RELATED)
-                            .addGroup(gl_appearancePanel.createParallelGroup(Alignment.LEADING)
-                                .addComponent(label_2)
-                                .addComponent(lblScaleStepSize)
-                                .addComponent(lblCogVectorLengthMax)
-                                .addComponent(lblCogVectorLengthMin))))
-                    .addGap(85))
+        	gl_appearancePanel.createParallelGroup(Alignment.LEADING)
+        		.addGroup(gl_appearancePanel.createSequentialGroup()
+        			.addContainerGap()
+        			.addGroup(gl_appearancePanel.createParallelGroup(Alignment.LEADING)
+        				.addComponent(checkBoxShowNameLabels)
+        				.addGroup(gl_appearancePanel.createSequentialGroup()
+        					.addGroup(gl_appearancePanel.createParallelGroup(Alignment.LEADING)
+        						.addComponent(spinnerCogVectorLengthMin, GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE)
+        						.addComponent(spinnerCogVectorLengthScaleStepSize)
+        						.addComponent(spinnerCogVectorHideBelow, GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE)
+        						.addComponent(spinnerMinRedrawInterval, GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE)
+        						.addComponent(spinnerCogVectorLengthMax, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE))
+        					.addPreferredGap(ComponentPlacement.RELATED)
+        					.addGroup(gl_appearancePanel.createParallelGroup(Alignment.LEADING)
+        						.addComponent(label_2)
+        						.addComponent(lblHideCogVector)
+        						.addComponent(lblScaleStepSize)
+        						.addComponent(lblCogVectorLengthMax)
+        						.addComponent(lblCogVectorLengthMin))))
+        			.addGap(231))
         );
         gl_appearancePanel.setVerticalGroup(
-            gl_appearancePanel.createParallelGroup(Alignment.LEADING)
-                .addGroup(gl_appearancePanel.createSequentialGroup()
-                    .addComponent(checkBoxShowNameLabels)
-                    .addPreferredGap(ComponentPlacement.RELATED)
-                    .addGroup(gl_appearancePanel.createParallelGroup(Alignment.BASELINE)
-                        .addComponent(spinnerCogVectorLengthMin, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(lblCogVectorLengthMin))
-                    .addPreferredGap(ComponentPlacement.RELATED)
-                    .addGroup(gl_appearancePanel.createParallelGroup(Alignment.BASELINE)
-                        .addComponent(spinnerCogVectorLengthMax, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(lblCogVectorLengthMax))
-                    .addPreferredGap(ComponentPlacement.RELATED)
-                    .addGroup(gl_appearancePanel.createParallelGroup(Alignment.BASELINE)
-                        .addComponent(spinnerCogVectorLengthScaleStepSize, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(lblScaleStepSize))
-                    .addPreferredGap(ComponentPlacement.RELATED)
-                    .addGroup(gl_appearancePanel.createParallelGroup(Alignment.BASELINE)
-                        .addComponent(spinnerMinRedrawInterval, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(label_2))
-                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        	gl_appearancePanel.createParallelGroup(Alignment.LEADING)
+        		.addGroup(Alignment.TRAILING, gl_appearancePanel.createSequentialGroup()
+        			.addComponent(checkBoxShowNameLabels)
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addGroup(gl_appearancePanel.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(spinnerCogVectorLengthMin, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(lblCogVectorLengthMin))
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addGroup(gl_appearancePanel.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(spinnerCogVectorLengthMax, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(lblCogVectorLengthMax))
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addGroup(gl_appearancePanel.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(spinnerCogVectorLengthScaleStepSize, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(lblScaleStepSize))
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addGroup(gl_appearancePanel.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(spinnerCogVectorHideBelow, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(lblHideCogVector))
+        			.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        			.addGroup(gl_appearancePanel.createParallelGroup(Alignment.BASELINE)
+        				.addComponent(spinnerMinRedrawInterval, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        				.addComponent(label_2))
+        			.addGap(19))
         );
         appearancePanel.setLayout(gl_appearancePanel);
         
@@ -193,25 +205,25 @@ public class AisTab extends JPanel {
         intendedRoutePanel.setLayout(gl_intendedRoutePanel);
         GroupLayout groupLayout = new GroupLayout(this);
         groupLayout.setHorizontalGroup(
-            groupLayout.createParallelGroup(Alignment.TRAILING)
-                .addGroup(groupLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-                        .addComponent(appearancePanel, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(transponderPanel, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
-                        .addComponent(intendedRoutePanel, GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE))
-                    .addContainerGap())
+        	groupLayout.createParallelGroup(Alignment.TRAILING)
+        		.addGroup(groupLayout.createSequentialGroup()
+        			.addContainerGap()
+        			.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+        				.addComponent(appearancePanel, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 721, Short.MAX_VALUE)
+        				.addComponent(transponderPanel, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 721, Short.MAX_VALUE)
+        				.addComponent(intendedRoutePanel, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 721, Short.MAX_VALUE))
+        			.addContainerGap())
         );
         groupLayout.setVerticalGroup(
-            groupLayout.createParallelGroup(Alignment.LEADING)
-                .addGroup(groupLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(transponderPanel, GroupLayout.PREFERRED_SIZE, 85, GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(ComponentPlacement.RELATED)
-                    .addComponent(appearancePanel, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(ComponentPlacement.UNRELATED)
-                    .addComponent(intendedRoutePanel, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        	groupLayout.createParallelGroup(Alignment.LEADING)
+        		.addGroup(groupLayout.createSequentialGroup()
+        			.addContainerGap()
+        			.addComponent(transponderPanel, GroupLayout.PREFERRED_SIZE, 85, GroupLayout.PREFERRED_SIZE)
+        			.addPreferredGap(ComponentPlacement.RELATED)
+        			.addComponent(appearancePanel, GroupLayout.PREFERRED_SIZE, 232, GroupLayout.PREFERRED_SIZE)
+        			.addPreferredGap(ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
+        			.addComponent(intendedRoutePanel, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
+        			.addGap(54))
         );
         setLayout(groupLayout);
     }
@@ -225,6 +237,7 @@ public class AisTab extends JPanel {
         this.spinnerCogVectorLengthMin.setValue(aisSettings.getCogVectorLengthMin());
         this.spinnerCogVectorLengthMax.setValue(aisSettings.getCogVectorLengthMax());
         this.spinnerCogVectorLengthScaleStepSize.setValue(aisSettings.getCogVectorLengthScaleInterval());
+        this.spinnerCogVectorHideBelow.setValue(aisSettings.getCogVectorHideBelow());
         spinnerMinRedrawInterval.setValue(aisSettings.getMinRedrawInterval());
         
         checkBoxBroadcastIntendedRoute.setSelected(aisSettings.isBroadcastIntendedRoute());
@@ -241,6 +254,7 @@ public class AisTab extends JPanel {
         this.aisSettings.setCogVectorLengthMin((Integer) this.spinnerCogVectorLengthMin.getValue());
         this.aisSettings.setCogVectorLengthMax((Integer) this.spinnerCogVectorLengthMax.getValue());
         this.aisSettings.setCogVectorLengthScaleInterval((Float) this.spinnerCogVectorLengthScaleStepSize.getValue());
+        this.aisSettings.setCogVectorHideBelow((Float)this.spinnerCogVectorHideBelow.getValue());
         aisSettings.setMinRedrawInterval((Integer) spinnerMinRedrawInterval.getValue());
         
         aisSettings.setBroadcastIntendedRoute(checkBoxBroadcastIntendedRoute.isSelected());
