@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.zoom;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 
 /**
@@ -24,38 +25,25 @@ import dk.dma.epd.common.prototype.settings.AisSettings;
 public final class ScaleDependentValues {
     
     /**
-     * The AIS settings that hold information about the COG vector length and more.
-     */
-    private static AisSettings AIS_SETTINGS;
-    
-    /**
-     * Set the AisSettings that will be used to compute scale dependent values.
-     * @param aisSettings The AisSettings that holds the values to use in calculations of scale dependent values.
-     */
-    public static void setAIS_SETTINGS(AisSettings aisSettings) {
-        AIS_SETTINGS = aisSettings;
-    }
-    
-    /**
      * Get the length (in minutes) of the COG & speed vector based on map scale.
      * @param mapScale The map scale to base the length of the COG & speed vector on.
      * @return The length of the COG & speed vector in minutes.
      */
     public static int getCogVectorLength(float mapScale) {
-        // 2nd version (in order to accommodate configurable values)
-        float iMaxScale = AIS_SETTINGS.getCogVectorLengthScaleInterval();
-        for(int i = AIS_SETTINGS.getCogVectorLengthMin(); i < AIS_SETTINGS.getCogVectorLengthMax(); i++) {
+        AisSettings aisSettings = EPD.getInstance().getSettings().getAisSettings();
+        float iMaxScale = aisSettings.getCogVectorLengthScaleInterval();
+        for(int i = aisSettings.getCogVectorLengthMin(); i < aisSettings.getCogVectorLengthMax(); i++) {
             if(mapScale <= iMaxScale) {
                 // found the proper minute length
                 return i;
             }
             else {
-                iMaxScale += AIS_SETTINGS.getCogVectorLengthScaleInterval();
+                iMaxScale += aisSettings.getCogVectorLengthScaleInterval();
             }
         }
         // no matching scale, use max value
         // TODO consider adding extra check if we are to disable markers entirely if zoomed out to a given scale
-        return AIS_SETTINGS.getCogVectorLengthMax();
+        return aisSettings.getCogVectorLengthMax();
     }
 
     /**
