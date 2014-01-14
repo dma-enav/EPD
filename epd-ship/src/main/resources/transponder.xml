@@ -6,6 +6,6 @@
     <password>anon</password>
     <port>4001</port>
     <receiveRadius>0</receiveRadius>
-    <serverHost>service.e-navigation.net</serverHost>
-    <serverPort>10001</serverPort>
+    <serverHost>ais.e-navigation.net</serverHost>
+    <serverPort>8001</serverPort>
 </transponderConfiguration>
