@@ -51,7 +51,6 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
-import dk.dma.epd.common.prototype.zoom.ScaleDependentValues;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.utils.StaticImages;
@@ -147,9 +146,6 @@ public final class EPDShore extends EPD<EPDSettings> {
         LOG.info("Using settings file: " + settings.getSettingsFile());
         settings.loadFromFile();
         beanHandler.add(settings);
-        
-        // Inject AisSettings into ScaleDependantValues
-        ScaleDependentValues.setAIS_SETTINGS(settings.getAisSettings());
         
         // Determine if instance already running and if that is allowed
 
