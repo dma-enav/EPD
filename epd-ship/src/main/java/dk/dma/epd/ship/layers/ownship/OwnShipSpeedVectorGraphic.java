@@ -4,6 +4,7 @@ import java.awt.Paint;
 
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.layers.ais.SpeedVectorGraphic;
