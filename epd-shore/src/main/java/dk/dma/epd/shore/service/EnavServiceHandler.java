@@ -31,19 +31,18 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.enav.maritimecloud.ConnectionFuture;
-import dk.dma.enav.maritimecloud.MaritimeCloudClient;
-import dk.dma.enav.maritimecloud.MaritimeCloudClientConfiguration;
-import dk.dma.enav.maritimecloud.broadcast.BroadcastListener;
-import dk.dma.enav.maritimecloud.broadcast.BroadcastMessageHeader;
-import dk.dma.enav.maritimecloud.service.ServiceEndpoint;
-import dk.dma.enav.maritimecloud.service.invocation.InvocationCallback;
-import dk.dma.enav.model.geometry.Position;
-import dk.dma.enav.model.geometry.PositionTime;
+import net.maritimecloud.net.ConnectionFuture;
+import net.maritimecloud.net.MaritimeCloudClient;
+import net.maritimecloud.net.MaritimeCloudClientConfiguration;
+import net.maritimecloud.net.broadcast.BroadcastListener;
+import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
+import net.maritimecloud.net.service.ServiceEndpoint;
+import net.maritimecloud.net.service.invocation.InvocationCallback;
+import net.maritimecloud.util.function.BiConsumer;
+import net.maritimecloud.util.geometry.PositionReader;
+import net.maritimecloud.util.geometry.PositionTime;
 import dk.dma.enav.model.ship.ShipId;
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.enav.util.function.BiConsumer;
-import dk.dma.enav.util.function.Supplier;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
@@ -243,10 +242,10 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
         // MaritimeNetworkConnectionBuilder.create("mmsi://"+shipId.getId());
         MaritimeCloudClientConfiguration enavCloudConnection = MaritimeCloudClientConfiguration.create("mmsi://" + shipId.getId());
 
-        enavCloudConnection.setPositionSupplier(new Supplier<PositionTime>() {
-            public PositionTime get() {
-                return PositionTime.create(Position.create(0.0, 0.0), System.currentTimeMillis());
-
+        enavCloudConnection.setPositionReader(new PositionReader() {
+            @Override
+            public PositionTime getCurrentPosition() {
+                return PositionTime.create(0.0, 0.0, System.currentTimeMillis());
             }
         });
 

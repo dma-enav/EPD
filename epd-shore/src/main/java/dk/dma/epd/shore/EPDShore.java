@@ -38,7 +38,7 @@ import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
-import dk.dma.enav.maritimecloud.MaritimeCloudClient;
+import net.maritimecloud.net.MaritimeCloudClient;
 import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.prototype.Bootstrap;
 import dk.dma.epd.common.prototype.EPD;

@@ -24,20 +24,20 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.enav.maritimecloud.ConnectionFuture;
-import dk.dma.enav.maritimecloud.MaritimeCloudClient;
-import dk.dma.enav.maritimecloud.MaritimeCloudClientConfiguration;
-import dk.dma.enav.maritimecloud.broadcast.BroadcastListener;
-import dk.dma.enav.maritimecloud.broadcast.BroadcastMessage;
-import dk.dma.enav.maritimecloud.broadcast.BroadcastMessageHeader;
-import dk.dma.enav.maritimecloud.service.ServiceEndpoint;
-import dk.dma.enav.maritimecloud.service.invocation.InvocationCallback;
+import net.maritimecloud.net.ConnectionFuture;
+import net.maritimecloud.net.MaritimeCloudClient;
+import net.maritimecloud.net.MaritimeCloudClientConfiguration;
+import net.maritimecloud.net.broadcast.BroadcastListener;
+import net.maritimecloud.net.broadcast.BroadcastMessage;
+import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
+import net.maritimecloud.net.service.ServiceEndpoint;
+import net.maritimecloud.net.service.invocation.InvocationCallback;
+import net.maritimecloud.util.function.BiConsumer;
+import net.maritimecloud.util.geometry.PositionReader;
+import net.maritimecloud.util.geometry.PositionTime;
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.ship.ShipId;
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.enav.util.function.BiConsumer;
-import dk.dma.enav.util.function.Supplier;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.enavcloud.EnavCloudSendThread;
@@ -231,20 +231,19 @@ public class EnavServiceHandler extends MapHandlerChild implements
         MaritimeCloudClientConfiguration enavCloudConnection = MaritimeCloudClientConfiguration
                 .create("mmsi://" + shipId.getId());
 
-        enavCloudConnection.setPositionSupplier(new Supplier<PositionTime>() {
-            public PositionTime get() {
-                Position position = pntHandler.getCurrentData().getPosition();
-                if (position != null) {
-                    return PositionTime.create(position,
+        enavCloudConnection.setPositionReader(new PositionReader() {
+            @Override
+            public PositionTime getCurrentPosition() {
+                Position pos = pntHandler.getCurrentData().getPosition();
+                if (pos != null) {
+                    return PositionTime.create(pos.getLatitude(), pos.getLongitude(),
                             System.currentTimeMillis());
                 } else {
-                    return PositionTime.create(Position.create(0.0, 0.0),
+                    return PositionTime.create(0.0, 0.0,
                             System.currentTimeMillis());
                 }
-
-            }
-        });
-
+            }});
+        
         try {
             enavCloudConnection.setHost(hostPort);
             // System.out.println(hostPort);
