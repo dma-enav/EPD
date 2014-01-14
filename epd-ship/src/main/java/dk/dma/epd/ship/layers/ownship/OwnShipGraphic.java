@@ -52,7 +52,7 @@ public class OwnShipGraphic extends OMGraphicList {
     /**
      * Visualization of own ship COG and speed vector.
      */
-    private SpeedVectorGraphic speedVector;
+    private OwnShipSpeedVectorGraphic speedVector;
     
     /**
      * Line parallel with the Vessel's stern (assuming the stern straight).
@@ -75,10 +75,7 @@ public class OwnShipGraphic extends OMGraphicList {
     private VesselPositionData lastUpdate;
     
     // these are the two arrow heads at the end of the speed vector.
-    private RotationalPoly frontShipArrow;
-    private RotationalPoly backShipArrow;
     
-    private LatLonPoint endPos;
     private LatLonPoint startPos;
     
     private double headingRadian;
@@ -96,7 +93,7 @@ public class OwnShipGraphic extends OMGraphicList {
         this.circle2 = new OMCircle(0, 0, 0, 0, 8, 8);
         this.circle1.setStroke(stroke);
         this.circle2.setStroke(stroke);
-        this.speedVector = new SpeedVectorGraphic(Color.BLACK);
+        this.speedVector = new OwnShipSpeedVectorGraphic(Color.BLACK);
         
         int[] angularX = {-20,20};
         int[] angularY = {0,0};
@@ -104,18 +101,10 @@ public class OwnShipGraphic extends OMGraphicList {
         int[] directionX = {0,0};
         int[] directionY = {0,-200};
         directionVector = new RotationalPoly(directionX, directionY, stroke, null);
-        int[] frontArrowX = {5,0,-5};
-        int[] frontArrowY = {10,0,10};
-        frontShipArrow = new RotationalPoly(frontArrowX, frontArrowY, stroke, null);
-        int[] backArrowX = {5,0,-5};
-        int[] backArrowY = {20,10,20};
-        backShipArrow = new RotationalPoly(backArrowX, backArrowY, stroke, null);
         
         this.add(this.circle1);
         this.add(this.circle2);
         this.add(this.speedVector);
-        this.add(this.backShipArrow);
-        this.add(this.frontShipArrow);
         this.add(this.angularVector);
         this.add(this.directionVector);
     }
@@ -145,27 +134,13 @@ public class OwnShipGraphic extends OMGraphicList {
         this.circle1.setLatLon(this.currentPos.getLatitude(), this.currentPos.getLongitude());
         this.circle2.setLatLon(this.currentPos.getLatitude(), this.currentPos.getLongitude());
         
-        // Calculate speed vector
         this.startPos = new LatLonPoint.Double(this.currentPos.getLatitude(), this.currentPos.getLongitude());
         float mapScale = this.parentLayer.getProjection().getScale();
-        float length = (float) Length.NM.toRadians(ScaleDependentValues.getCogVectorLength(mapScale) * (ownShipData.getSog() / 60.0));
-        this.endPos = this.startPos.getPoint(length, (float) ProjMath.degToRad(ownShipData.getCog()));
-        Double cogRadian = Math.toRadians(ownShipData.getCog());
         
         this.speedVector.update(ownShipData, mapScale);
         this.angularVector.setLocation(this.startPos.getLatitude(), this.startPos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, this.headingRadian);
         this.directionVector.setLocation(this.startPos.getLatitude(), this.startPos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, this.headingRadian);
-        this.frontShipArrow.setLocation(this.endPos.getLatitude(), this.endPos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, cogRadian);
-        this.backShipArrow.setLocation(this.endPos.getLatitude(), this.endPos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, cogRadian);
-        
-        if(ownShipData.getSog() < 0.1){
-            backShipArrow.setVisible(false);
-            frontShipArrow.setVisible(false);
-        } else {
-            backShipArrow.setVisible(true);
-            frontShipArrow.setVisible(true);
-        }
-        
+
         return true;
     }
     

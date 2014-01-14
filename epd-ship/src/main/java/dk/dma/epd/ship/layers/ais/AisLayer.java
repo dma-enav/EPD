@@ -620,8 +620,10 @@ public class AisLayer extends GeneralLayer implements
                 setActiveInfoPanel(dummyCircle, intendedRouteInfoPanel);
                 return true;
                 
-            } else if (newClosest instanceof VesselTargetTriangle) {
-                VesselTargetTriangle vesselTargetTriangle = (VesselTargetTriangle) newClosest;
+            } else if (	newClosest instanceof VesselTargetTriangle && 
+            			newClosest.isVisible()) {
+                
+            	VesselTargetTriangle vesselTargetTriangle = (VesselTargetTriangle) newClosest;
                 VesselTarget vesselTarget = vesselTargetTriangle
                         .getVesselTargetGraphic().getVesselTarget();
                 aisTargetInfoPanel.setPos((int) containerPoint.getX(),

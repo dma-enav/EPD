@@ -27,6 +27,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.RotationalPoly;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 import dk.dma.epd.common.prototype.zoom.ScaleDependentValues;
@@ -55,7 +56,7 @@ public class SpeedVectorGraphic extends OMGraphicList {
     private double[] speedLL = new double[4];
     
     private LatLonPoint startPos;
-    private LatLonPoint endPos;
+    protected LatLonPoint endPos;
     
     private int[] markX = { -5, 5 };
     private int[] markY = { 0, 0 };
@@ -106,10 +107,16 @@ public class SpeedVectorGraphic extends OMGraphicList {
             }
         }
         
-        
+       if (EPD.getInstance().getSettings().getAisSettings().getCogVectorHideBelow() < posData.getSog()) {
+    	   this.setVisible(true);
+       }
+       
+       else {
+    	   this.setVisible(false);
+       }
     }
     
-    private void init() {
+    protected void init() {
         this.speedVector = new OMLine(0, 0, 0, 0, OMGraphicConstants.LINETYPE_STRAIGHT);
         this.speedVector.setStroke(new BasicStroke(STROKE_WIDTH, // Width
                 BasicStroke.CAP_SQUARE, // End cap

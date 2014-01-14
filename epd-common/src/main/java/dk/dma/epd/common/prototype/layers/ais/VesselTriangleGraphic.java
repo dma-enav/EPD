@@ -117,12 +117,6 @@ public class VesselTriangleGraphic extends TargetGraphic {
             
             // update the speed vector with the new data
             this.speedVector.update(posData, this.parentLayer.getProjection().getScale());
-            if(posData.getSog() < aisSettings.getCogVectorHideBelow()) {
-                this.speedVector.setVisible(false);
-            }
-            else {
-                this.speedVector.setVisible(true);
-            }
             
             // Set label
             label.setLat(lat);

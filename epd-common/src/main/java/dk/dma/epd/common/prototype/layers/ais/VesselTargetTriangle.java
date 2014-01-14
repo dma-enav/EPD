@@ -56,5 +56,4 @@ public class VesselTargetTriangle extends OMGraphicList {
     public void setLinePaint(Paint paint) {
         vessel.setLinePaint(paint);
     }
-    
 }
