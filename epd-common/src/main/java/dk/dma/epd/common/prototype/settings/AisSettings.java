@@ -65,10 +65,12 @@ public class AisSettings implements Serializable {
      * of n minutes is in ](n-1) * x; n * x].
      */
     private float cogVectorLengthScaleInterval = 5000.0f;
+	private float cogVectorHideBelow = 0.1f;
     
     private final String varNameCogVectorLengthMin = "cogVectorLengthMin"; 
     private final String varNameCogVectorLengthMax = "cogVectorLengthMax";
     private final String varNameCogVectorLengthScaleInterval = "cogVectorLengthScaleInterval";
+	private final String varNameCogVectorHideBelow = "cogVectorHideBelow";
     
     /**
      * Constructor
@@ -110,6 +112,7 @@ public class AisSettings implements Serializable {
         this.cogVectorLengthMin = PropUtils.intFromProperties(props, PREFIX + this.varNameCogVectorLengthMin, this.cogVectorLengthMin);
         this.cogVectorLengthMax = PropUtils.intFromProperties(props, PREFIX + this.varNameCogVectorLengthMax, this.cogVectorLengthMax);
         this.cogVectorLengthScaleInterval = PropUtils.floatFromProperties(props, PREFIX + this.varNameCogVectorLengthScaleInterval, this.cogVectorLengthScaleInterval);
+        this.cogVectorHideBelow = PropUtils.floatFromProperties(props, PREFIX + this.varNameCogVectorHideBelow, this.cogVectorHideBelow);
         
         if (simulatedSartMmsi == null){
             simulatedSartMmsi = new String[0];
@@ -142,6 +145,7 @@ public class AisSettings implements Serializable {
         props.put(PREFIX + this.varNameCogVectorLengthMin, Integer.toString(this.cogVectorLengthMin));
         props.put(PREFIX + this.varNameCogVectorLengthMax, Integer.toString(this.cogVectorLengthMax));
         props.put(PREFIX + this.varNameCogVectorLengthScaleInterval, Float.toString(this.cogVectorLengthScaleInterval));
+        props.put(PREFIX + this.varNameCogVectorHideBelow, Float.toString(this.cogVectorHideBelow));
     }
     
     /** Getters and setters **/
@@ -312,5 +316,12 @@ public class AisSettings implements Serializable {
 
     public void setCogVectorLengthScaleInterval(float cogVectorLengthScaleInterval) {
         this.cogVectorLengthScaleInterval = cogVectorLengthScaleInterval;
+    }
+    public float getCogVectorHideBelow() {
+    	return cogVectorHideBelow;
+    }
+    
+    public void setCogVectorHideBelow(float cogVectorHideBelow) {
+    	this.cogVectorHideBelow = cogVectorHideBelow;
     }
 }
