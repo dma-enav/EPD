@@ -41,43 +41,45 @@ public class SpeedVectorGraphic extends OMGraphicList {
      * Default.
      */
     private static final long serialVersionUID = 1L;
-    
+
     private OMLine speedVector;
-    
+
     private static final float STROKE_WIDTH = 1.5f;
-    
+
     private OMGraphicList marks;
-    
+
     /**
-     * Start and end lat-lon points for the speed vector.
-     * Formatted lat1, lon1, lat2, lon2.
-     * Used internally by OMLine to draw a line between two geographical points.
+     * Start and end lat-lon points for the speed vector. Formatted lat1, lon1, lat2, lon2. Used internally by OMLine to draw a line
+     * between two geographical points.
      */
     private double[] speedLL = new double[4];
-    
+
     private LatLonPoint startPos;
     protected LatLonPoint endPos;
-    
+
     private int[] markX = { -5, 5 };
     private int[] markY = { 0, 0 };
-    
+
     private Paint paintUsed;
-    
+
     private VesselPositionData lastUpdate;
-    
+
     public SpeedVectorGraphic(Paint lineColour) {
         this.paintUsed = lineColour;
         this.init();
     }
-    
+
     /**
      * Call to update this graphic when new PNT data is received.
-     * @param vessel Vessel containing the position data used when drawing this graphic.
-     * @param currentMapScale the current scale of the map in which this graphic is displayed.
+     * 
+     * @param vessel
+     *            Vessel containing the position data used when drawing this graphic.
+     * @param currentMapScale
+     *            the current scale of the map in which this graphic is displayed.
      */
     public void update(VesselPositionData posData, float currentMapScale) {
         this.lastUpdate = posData;
-        if(this.size() == 0) {
+        if (this.size() == 0) {
             this.init();
         }
         Position newPos = posData.getPos();
@@ -96,7 +98,7 @@ public class SpeedVectorGraphic extends OMGraphicList {
         this.speedVector.setLL(speedLL);
         // Add minute marks
         this.marks.clear();
-        if(this.isVisible()) {
+        if (this.isVisible()) {
             // only add marks if this speed vector is currently displayed.
             for (int i = 1; i < cogVectorLength; i++) {
                 float newMarker = (float) Length.NM.toRadians(i * (sog / 60.0));
@@ -106,16 +108,16 @@ public class SpeedVectorGraphic extends OMGraphicList {
                 this.marks.add(vtm);
             }
         }
-        
-       if (EPD.getInstance().getSettings().getAisSettings().getCogVectorHideBelow() < posData.getSog()) {
-    	   this.setVisible(true);
-       }
-       
-       else {
-    	   this.setVisible(false);
-       }
+
+        if (EPD.getInstance().getSettings().getAisSettings().getCogVectorHideBelow() < posData.getSog()) {
+            this.setVisible(true);
+        }
+
+        else {
+            this.setVisible(false);
+        }
     }
-    
+
     protected void init() {
         this.speedVector = new OMLine(0, 0, 0, 0, OMGraphicConstants.LINETYPE_STRAIGHT);
         this.speedVector.setStroke(new BasicStroke(STROKE_WIDTH, // Width
@@ -125,7 +127,7 @@ public class SpeedVectorGraphic extends OMGraphicList {
                 new float[] { 10.0f, 8.0f }, // Dash pattern
                 0.0f) // Dash phase
                 );
-        if(this.paintUsed == null) {
+        if (this.paintUsed == null) {
             // Use default color if none specified
             this.paintUsed = ColorConstants.EPD_SHIP_VESSEL_COLOR;
         }
@@ -134,15 +136,15 @@ public class SpeedVectorGraphic extends OMGraphicList {
         this.marks = new OMGraphicList();
         this.add(this.marks);
     }
-    
+
     @Override
     public boolean generate(Projection p) {
         return this.generate(p, true);
     }
-    
+
     @Override
     public boolean generate(Projection p, boolean forceProjectAll) {
-        if(this.lastUpdate != null) {
+        if (this.lastUpdate != null) {
             // force an update to apply possible change to speed vector (according to new scale)
             this.update(this.lastUpdate, p.getScale());
         }
