@@ -135,7 +135,8 @@ public class MapSettingsPanel extends JPanel{
         wmsCheckBox.setFont(GuiStyler.defaultFont);
         wmsCheckBox.setBackground(GuiStyler.backgroundColor);
         wmsCheckBox.setForeground(GuiStyler.textColor);
-        wmsCheckBox.setBounds(6, 24, 174, 23);
+        wmsCheckBox.setBounds(6, 24, 200, 23);
+        GuiStyler.styleCheckbox(wmsCheckBox);
         wmsSettingsPanel.add(wmsCheckBox);
 
         wmsTextField = new JTextField();
@@ -156,6 +157,7 @@ public class MapSettingsPanel extends JPanel{
         
         chckbxWmsDrag = new JCheckBox("WMS is used when dragging (disable for performance)");
         chckbxWmsDrag.setBounds(6, 50, 364, 23);
+        GuiStyler.styleCheckbox(chckbxWmsDrag);
         wmsSettingsPanel.add(chckbxWmsDrag);
 
 

@@ -70,7 +70,7 @@ public class MapWindowSinglePanel extends JPanel{
         panel_1.add(chckbxLocked);
 
         chckbxAlwaysOnTop = new JCheckBox("Always on top");
-        chckbxAlwaysOnTop.setBounds(4, 80, 97, 23);
+        chckbxAlwaysOnTop.setBounds(4, 80, 120, 23);
         GuiStyler.styleCheckbox(chckbxAlwaysOnTop);
         panel_1.add(chckbxAlwaysOnTop);
 

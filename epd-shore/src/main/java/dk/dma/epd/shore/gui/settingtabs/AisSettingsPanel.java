@@ -114,7 +114,7 @@ public class AisSettingsPanel extends JPanel{
 
         chckbxStrictTimeout = new JCheckBox("Strict timeout");
         GuiStyler.styleCheckbox(chckbxStrictTimeout);
-        chckbxStrictTimeout.setBounds(6, 53, 97, 23);
+        chckbxStrictTimeout.setBounds(6, 53, 120, 23);
         transponderSettings.add(chckbxStrictTimeout);
 
 
