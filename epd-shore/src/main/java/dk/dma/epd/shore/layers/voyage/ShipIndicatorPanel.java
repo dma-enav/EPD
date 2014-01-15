@@ -110,7 +110,7 @@ public class ShipIndicatorPanel extends JPanel implements MouseListener {
     public void mouseReleased(MouseEvent arg0) {
 //        if (arg0.getSource() == lblRouteRequestPending && lblRouteRequestPending.isEnabled()) {
         setBackground(new Color(83, 83, 83));
-            EPDShore.getMainFrame().getNotificationCenter().showStrategicRouteExchangeMsg(2, id);
+            EPDShore.getInstance().getMainFrame().getNotificationCenter().showStrategicRouteExchangeMsg(2, id);
             
 //        }
         

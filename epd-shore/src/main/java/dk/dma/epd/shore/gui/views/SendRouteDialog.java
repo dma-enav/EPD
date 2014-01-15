@@ -124,7 +124,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
                 new Color(30, 30, 30)));
 
         ToolbarMoveMouseListener mml = new ToolbarMoveMouseListener(this,
-                EPDShore.getMainFrame());
+                EPDShore.getInstance().getMainFrame());
         mapPanel.addMouseListener(mml);
         mapPanel.addMouseMotionListener(mml);
 
@@ -397,11 +397,11 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
 
         if (arg0.getSource() == zoomLbl && route.getWaypoints() != null) {
 
-            if (EPDShore.getMainFrame().getActiveMapWindow() != null) {
-                EPDShore.getMainFrame().getActiveMapWindow().getChartPanel()
+            if (EPDShore.getInstance().getMainFrame().getActiveMapWindow() != null) {
+                EPDShore.getInstance().getMainFrame().getActiveMapWindow().getChartPanel()
                         .zoomToPoint(route.getWaypoints().getFirst().getPos());
-            } else if (EPDShore.getMainFrame().getMapWindows().size() > 0) {
-                EPDShore.getMainFrame().getMapWindows().get(0).getChartPanel()
+            } else if (EPDShore.getInstance().getMainFrame().getMapWindows().size() > 0) {
+                EPDShore.getInstance().getMainFrame().getMapWindows().get(0).getChartPanel()
                         .zoomToPoint(route.getWaypoints().getFirst().getPos());
             }
         }
@@ -499,8 +499,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         nameComboBox.removeAllItems();
         for (int i = 0; i < mmsi.size(); i++) {
 
-            VesselTarget selectedShip = aisHandler.getVesselTargets().get(
-                    Long.parseLong(mmsi.get(i)));
+            VesselTarget selectedShip = aisHandler.getVesselTarget(Long.parseLong(mmsi.get(i)));
             if (selectedShip != null) {
 
                 if (selectedShip.getStaticData() != null) {
@@ -592,8 +591,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
                 }
 
                 // System.out.println("mmsi selected to set to " + mmsi);
-                VesselTarget selectedShip = aisHandler.getVesselTargets().get(
-                        mmsi);
+                VesselTarget selectedShip = aisHandler.getVesselTarget(mmsi);
 
                 if (selectedShip != null) {
 
@@ -663,12 +661,12 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         nameComboBox.setSelectedIndex(mmsiListComboBox.getSelectedIndex());
 
         if (route != null
-                && EPDShore.getMainFrame().getRouteManagerDialog()
+                && EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
                         .getRouteManager().getRoutes().size() > 0) {
             routeListComboBox.setEnabled(true);
-            for (int i = 0; i < EPDShore.getMainFrame().getRouteManagerDialog()
+            for (int i = 0; i < EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
                     .getRouteManager().getRoutes().size(); i++) {
-                if (EPDShore.getMainFrame().getRouteManagerDialog()
+                if (EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
                         .getRouteManager().getRoutes().get(i) == route) {
                     routeListComboBox.setSelectedIndex(i);
                 }
@@ -680,7 +678,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
                     .parseLong(mmsiListComboBox.getSelectedItem().toString());
         }
 
-        VesselTarget selectedShip = aisHandler.getVesselTargets().get(mmsi);
+        VesselTarget selectedShip = aisHandler.getVesselTarget(mmsi);
 
         if (selectedShip != null) {
 

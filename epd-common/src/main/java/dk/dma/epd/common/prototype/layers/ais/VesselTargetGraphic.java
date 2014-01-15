@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.layers.ais;
 
+import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.proj.Projection;
 
 import dk.dma.ais.message.AisMessage;
@@ -25,6 +26,7 @@ import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTargetSettings;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
+import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
 import dk.dma.epd.common.prototype.zoom.ZoomLevel;
@@ -49,15 +51,18 @@ public class VesselTargetGraphic extends TargetGraphic {
     
     private IntendedRouteGraphic routeGraphic = new IntendedRouteGraphic();
 
-    public VesselTargetGraphic(boolean showName) {
+    private PastTrackGraphic pastTrackGraphic = new PastTrackGraphic();
+    
+    public VesselTargetGraphic(boolean showName, OMGraphicHandlerLayer parentLayer) {
         super();
-        this.vesselTriangleGraphic = new VesselTriangleGraphic(this);
+        this.vesselTriangleGraphic = new VesselTriangleGraphic(this, parentLayer);
         this.vesselTriangleGraphic.setShowNameLabel(showName);
-        this.vesselOutlineGraphic = new VesselOutlineGraphic();
+        this.vesselOutlineGraphic = new VesselOutlineGraphic(ColorConstants.EPD_SHIP_VESSEL_COLOR, 2.0f, parentLayer);
         this.vesselDotGraphic = new VesselDotGraphic();
     }
 
     private void createGraphics() {
+        this.add(this.pastTrackGraphic);
         this.add(this.routeGraphic);
         this.add(this.vesselTriangleGraphic);
         this.add(this.vesselOutlineGraphic);
@@ -65,7 +70,7 @@ public class VesselTargetGraphic extends TargetGraphic {
     }
 
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings) {
+    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale) {
 
         if (aisTarget instanceof VesselTarget) {
             
@@ -81,9 +86,9 @@ public class VesselTargetGraphic extends TargetGraphic {
                 createGraphics();
             }
             // update sub graphic
-            this.vesselTriangleGraphic.update(aisTarget, aisSettings, navSettings);
+            this.vesselTriangleGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
             if(pos != null) {
-                this.vesselDotGraphic.updateLocation(pos);
+                this.vesselDotGraphic.updateLocation(posData);
             }
             // Determine name
             String name;
@@ -99,21 +104,21 @@ public class VesselTargetGraphic extends TargetGraphic {
             if (!targetSettings.isShowRoute()) {
                 routeGraphic.setVisible(false);
             }
+            
+            // Past-track graphics
+            pastTrackGraphic.update(vesselTarget);
+            
+            ZoomLevel zl = ZoomLevel.getFromScale(mapScale);
+            this.drawAccordingToScale(zl);
         }
     }
 
-    public void update(VesselTarget vesselTarget, AisSettings aisSettings, NavSettings navSettings, ZoomLevel zl) {
-        
-        this.update(vesselTarget, aisSettings, navSettings);
-        this.drawAccordingToScale(zl);
-    }
-    
     private void drawOutline() {
         // hide other display modes
         this.vesselTriangleGraphic.setVisible(false);
         this.vesselDotGraphic.setVisible(false);
         // update data
-        this.vesselOutlineGraphic.setLocation(vesselTarget);
+        this.vesselOutlineGraphic.setLocation(vesselTarget.getPositionData(), vesselTarget.getStaticData());
         // (re-)enable visibility for outline mode
         this.vesselOutlineGraphic.setVisible(true);
         
@@ -161,6 +166,10 @@ public class VesselTargetGraphic extends TargetGraphic {
 
     public IntendedRouteGraphic getRouteGraphic() {
         return routeGraphic;
+    }
+    
+    public PastTrackGraphic getPastTrackGraphic() {
+        return pastTrackGraphic;
     }
     
     public void drawAccordingToScale(ZoomLevel zl) {

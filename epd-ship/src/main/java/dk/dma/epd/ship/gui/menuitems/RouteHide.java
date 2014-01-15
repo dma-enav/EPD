@@ -18,15 +18,19 @@ package dk.dma.epd.ship.gui.menuitems;
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.ship.route.RouteManager;
 
+/**
+ * Used to hide routes.
+ * <p>
+ * If the {@code routeIndex} equals {@code ALL_INACTIVE_ROUTES} then all inactive routes
+ * are hidden. Otherwise, the route with the given index is hidden.
+ */
 public class RouteHide extends JMenuItem implements IMapMenuAction {
     
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
+    public static final int ALL_INACTIVE_ROUTES = -1;
+    
     private int routeIndex;
     private RouteManager routeManager;
     
@@ -37,8 +41,11 @@ public class RouteHide extends JMenuItem implements IMapMenuAction {
     
     @Override
     public void doAction() {
-        routeManager.getRoute(routeIndex).setVisible(false);
-        routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+        if (routeIndex == ALL_INACTIVE_ROUTES) {
+            routeManager.hideInactiveRoutes();
+        } else {
+            routeManager.hideRoute(routeIndex);
+        }
     }
     
     public void setRouteIndex(int routeIndex) {

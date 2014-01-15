@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.ais;
 
 import java.io.Serializable;
 
+import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
 /**
@@ -24,16 +25,19 @@ import net.jcip.annotations.ThreadSafe;
  */
 @ThreadSafe
 public class VesselTargetSettings implements Serializable {
-    private static final long serialVersionUID = 1L;
     
-    private boolean hide;
-    private boolean showRoute;
+    private static final long serialVersionUID = 2382827951614735277L;
+    
+    @GuardedBy("this") private boolean hide;
+    @GuardedBy("this") private boolean showRoute;
+    @GuardedBy("this") private boolean showPastTrack;
+    @GuardedBy("this") private int pastTrackDisplayTime;
+    @GuardedBy("this") private int pastTrackMinDist;
     
     /**
      * Empty constructor
      */
-    public VesselTargetSettings() {
-        
+    public VesselTargetSettings() {   
     }
     
     /**
@@ -43,6 +47,9 @@ public class VesselTargetSettings implements Serializable {
     public VesselTargetSettings(VesselTargetSettings settings) {
         this.hide = settings.hide;
         this.showRoute = settings.showRoute;
+        this.showPastTrack = settings.showPastTrack;
+        this.pastTrackDisplayTime = settings.pastTrackDisplayTime;
+        this.pastTrackMinDist = settings.pastTrackMinDist;
     }
 
     /**
@@ -77,4 +84,51 @@ public class VesselTargetSettings implements Serializable {
         this.showRoute = showRoute;
     }
     
+    /**
+     * Will the past-track be shown for the target 
+     * @return
+     */
+    public synchronized boolean isShowPastTrack() {
+        return showPastTrack;
+    }
+
+    /**
+     * Set visibility of intended route
+     * @param showPastTrack
+     */
+    public synchronized void setShowPastTrack(boolean showPastTrack) {
+        this.showPastTrack = showPastTrack;
+    }    
+
+    /**
+     * Returns the number of minutes of the past-tack to display
+     * @return the number of minutes of the past-tack to display
+     */
+    public synchronized int getPastTrackDisplayTime() {
+        return pastTrackDisplayTime;
+    }
+
+    /**
+     * Sets the number of minutes of the past-tack to display
+     * @param pastTrackDisplayTime the number of minutes of the past-tack to display
+     */
+    public synchronized void setPastTrackDisplayTime(int pastTrackDisplayTime) {
+        this.pastTrackDisplayTime = pastTrackDisplayTime;
+    }
+
+    /**
+     * Returns the minimum distance in meters between two past-track points
+     * @return the minimum distance in meters between two past-track points
+     */
+    public synchronized int getPastTrackMinDist() {
+        return pastTrackMinDist;
+    }
+
+    /**
+     * Sets the minimum distance in meters between two past-track points
+     * @param pastTrackMinDist the minimum distance in meters between two past-track points
+     */
+    public synchronized void setPastTrackMinDist(int pastTrackMinDist) {
+        this.pastTrackMinDist = pastTrackMinDist;
+    }
 }

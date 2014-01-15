@@ -221,9 +221,9 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
         
 
-        if (!EPDShore.getEnavServiceHandler().isListeningToVoct()) {
+        if (!EPDShore.getInstance().getEnavServiceHandler().isListeningToVoct()) {
             System.out.println("Starting voct listening");
-            EPDShore.getEnavServiceHandler().listenToSAR();
+            EPDShore.getInstance().getEnavServiceHandler().listenToSAR();
         }
 
     }
@@ -299,9 +299,9 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
         
 
-        if (!EPDShore.getEnavServiceHandler().isListeningToVoct()) {
+        if (!EPDShore.getInstance().getEnavServiceHandler().isListeningToVoct()) {
             System.out.println("Starting voct listening");
-            EPDShore.getEnavServiceHandler().listenToSAR();
+            EPDShore.getInstance().getEnavServiceHandler().listenToSAR();
         }
 
     }

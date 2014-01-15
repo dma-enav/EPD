@@ -22,14 +22,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,19 +47,21 @@ import dk.dma.ais.message.AisMessage5;
 import dk.dma.ais.message.AisPositionMessage;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.sensor.nmea.IAisListener;
+import dk.dma.epd.common.prototype.sensor.nmea.IAisSensorListener;
+import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.status.AisStatus;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
+import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Util;
 
-public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisListener, IStatusComponent {
+public abstract class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisSensorListener, IStatusComponent {
     
     private static final Logger LOG = LoggerFactory.getLogger(AisHandlerCommon.class);
     
-    protected static final String AIS_VIEW_FILE = EPD.getHomePath().resolve(".aisview").toString();
+    protected static final String AIS_VIEW_FILE = EPD.getInstance().getHomePath().resolve(".aisview").toString();
 
     // How long targets are saved without reports
     protected static final long TARGET_TTL = 60 * 60 * 1000; // One hour
@@ -71,11 +77,24 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
     protected final boolean strictAisMode;
     protected final boolean showIntendedRouteDefault;
     protected final String sartMmsiPrefix;
+    protected final Set<String> simulatedSartMmsi = new ConcurrentHashSet<>();
+    protected final int pastTrackMaxTime;       // NB: In minutes
+    protected final int pastTrackDisplayTime;   // NB: In minutes
+    protected final int pastTrackMinDist;       // NB: In meters
+    
 
+    /**
+     * Constructor
+     * @param aisSettings
+     */
     public AisHandlerCommon(AisSettings aisSettings) {
         sartMmsiPrefix = aisSettings.getSartPrefix();
+        Collections.addAll(simulatedSartMmsi, aisSettings.getSimulatedSartMmsi());
         strictAisMode = aisSettings.isStrict();
         showIntendedRouteDefault = aisSettings.isShowIntendedRouteByDefault();
+        this.pastTrackMaxTime = aisSettings.getPastTrackMaxTime();
+        this.pastTrackDisplayTime = aisSettings.getPastTrackDisplayTime();
+        this.pastTrackMinDist = aisSettings.getPastTrackMinDist();
     }
     
     /**
@@ -213,6 +232,29 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
 
 
     /**
+     * Update the vessel or SAR target with position data
+     * @param mobileTarget the target to update
+     * @param positionData the position data
+     */
+    protected void updateMobileTargetPos(MobileTarget mobileTarget, VesselPositionData positionData) {
+
+        // Update class pos data
+        mobileTarget.setPositionData(positionData);
+        
+        // Update past-track
+        mobileTarget.addPastTrackPosition(positionData.getPos());
+        
+        // Update last received
+        mobileTarget.setLastReceived(PntTime.getInstance().getDate());
+        
+        // Update status
+        mobileTarget.setStatus(AisTarget.Status.OK);
+        
+        // Publish update
+        publishUpdate(mobileTarget);
+    }
+    
+    /**
      * Update vessel target position data
      * 
      * @param mmsi
@@ -236,20 +278,15 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
         if (vesselTarget == null) {
             vesselTarget = new VesselTarget();
             vesselTarget.getSettings().setShowRoute(showIntendedRouteDefault);
+            vesselTarget.getSettings().setPastTrackDisplayTime(pastTrackDisplayTime);
+            vesselTarget.getSettings().setPastTrackMinDist(pastTrackMinDist);
             vesselTarget.setMmsi(mmsi);
             vesselTargets.put(mmsi, vesselTarget);
         }
-        // Update class and pos data
+        // Update class 
         vesselTarget.setAisClass(aisClass);
-        vesselTarget.setPositionData(positionData);
-        // Update track
-        // TODO
-        // Update last received
-        vesselTarget.setLastReceived(PntTime.getInstance().getDate());
-        // Update status
-        vesselTarget.setStatus(AisTarget.Status.OK);
-        // Publish update
-        publishUpdate(vesselTarget);
+        // Update target from position data
+        updateMobileTargetPos(vesselTarget, positionData);
     }
 
     /**
@@ -259,33 +296,35 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
      * @param positionData
      */
     protected void updateSartPos(long mmsi, VesselPositionData positionData) {
-        Date now = PntTime.getInstance().getDate();
         // Try to find target
         SarTarget sarTarget = sarTargets.get(mmsi);
         // If not exists, create and insert
         if (sarTarget == null) {
             sarTarget = new SarTarget();
             sarTarget.setMmsi(mmsi);
-            sarTarget.setFirstReceived(now);
+            sarTarget.getSettings().setPastTrackDisplayTime(pastTrackDisplayTime);
+            sarTarget.getSettings().setPastTrackMinDist(pastTrackMinDist);
+            sarTarget.setFirstReceived(PntTime.getInstance().getDate());
             sarTargets.put(mmsi, sarTarget);
         }
-        // Update pos data
-        sarTarget.setPositionData(positionData);
-        // Update last received
-        sarTarget.setLastReceived(now);
-        // Update status
-        sarTarget.setStatus(AisTarget.Status.OK);
         // Update old
         sarTarget.setOld(false);
-        // Publish update
-        publishUpdate(sarTarget);
+        // Update target from position data
+        updateMobileTargetPos(sarTarget, positionData);
     }
 
     
-    protected boolean isWithinRange(Position pos) {
-        return true;
-    }
-
+    /**
+     * Should be implemented by specialized versions of the AisHandlerCommon class
+     * 
+     * @param pos the position to check
+     * @return if the position is within range
+     */
+    protected abstract boolean isWithinRange(Position pos);
+    
+    /**
+     * Hides intended routes for all vessel targets
+     */
     public final void hideAllIntendedRoutes() {
         for (VesselTarget vesselTarget : vesselTargets.values()) {
             VesselTargetSettings settings = vesselTarget.getSettings();
@@ -296,12 +335,36 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
         }
     }
 
+    /**
+     * Show intended routes for all vessel targets
+     */
     public final void showAllIntendedRoutes() {
         for (VesselTarget vesselTarget : vesselTargets.values()) {
             VesselTargetSettings settings = vesselTarget.getSettings();
             if (!settings.isShowRoute() && vesselTarget.hasIntendedRoute()) {
                 settings.setShowRoute(true);
                 publishUpdate(vesselTarget);
+            }
+        }
+    }
+    
+    /**
+     * Shows or hides past tracks for all vessel and sar targets
+     * @param show whether to show or hide past tracks
+     */
+    public void setShowAllPastTracks(boolean show) {
+        for (VesselTarget vesselTarget : vesselTargets.values()) {
+            VesselTargetSettings settings = vesselTarget.getSettings();
+            if (show != settings.isShowPastTrack()) {
+                settings.setShowPastTrack(show);
+                publishUpdate(vesselTarget);
+            }
+        }
+        for (SarTarget sarTarget : sarTargets.values()) {
+            VesselTargetSettings settings = sarTarget.getSettings();
+            if (show != settings.isShowPastTrack()) {
+                settings.setShowPastTrack(show);
+                publishUpdate(sarTarget);
             }
         }
     }
@@ -314,36 +377,52 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
     public final List<AisMessageExtended> getShipList() {
         List<AisMessageExtended> list = new ArrayList<AisMessageExtended>();
 
-        if (this.getVesselTargets() != null) {
-            double hdg = -1;
+        double hdg = -1;
 
-            for (Long key : vesselTargets.keySet()) {
-                String name = " N/A";
-                String dst = "N/A";
-                VesselTarget currentTarget = vesselTargets.get(key);
+        for (Long key : vesselTargets.keySet()) {
+            String name = " N/A";
+            String dst = "N/A";
+            VesselTarget currentTarget = vesselTargets.get(key);
 
-                if (currentTarget.getStaticData() != null) {
-                    name = " " + AisMessage.trimText(this.getVesselTargets().get(key).getStaticData().getName());
-                }
+            if (currentTarget.getStaticData() != null) {
+                name = " " + AisMessage.trimText(this.getVesselTarget(key).getStaticData().getName());
+            }
 
-                hdg = currentTarget.getPositionData().getCog();
+            hdg = currentTarget.getPositionData().getCog();
 
-                // System.out.println("Key: " + key + ", Value: " +
-                // this.getVesselTargets().get(key));
-                AisMessageExtended newEntry = new AisMessageExtended(name, key, hdg, dst);
+            // System.out.println("Key: " + key + ", Value: " +
+            // this.getVesselTargets().get(key));
+            AisMessageExtended newEntry = new AisMessageExtended(name, key, hdg, dst);
 
-                if (!vesselTargets.get(key).isGone()) {
-                    list.add(newEntry);
-                }
+            if (!vesselTargets.get(key).isGone()) {
+                list.add(newEntry);
             }
         }
         return list;
     }
-
-    public VesselTarget getOwnShip() {
-        return null;
-    }
     
+    /**
+     * Returns the list of mobile (vessel + sar) targets. Optionally specify a required status.
+     * 
+     * @param status if not null, the targets must have this status
+     * @return the list of targets.
+     */
+    public final List<MobileTarget> getMobileTargets(AisTarget.Status status) {
+        
+        List<MobileTarget> mobileTargets = new ArrayList<>(vesselTargets.size() + sarTargets.size());
+        for (VesselTarget vesselTarget : vesselTargets.values()) {
+            if (status == null || status == vesselTarget.status) {
+                mobileTargets.add(vesselTarget);
+            }
+        }
+        for (SarTarget sarTarget : sarTargets.values()) {
+            if (status == null || status == sarTarget.status) {
+                mobileTargets.add(sarTarget);
+            }
+        }
+        return mobileTargets;
+    }
+
     public final ComponentStatus getStatus() {
         return aisStatus;
     }
@@ -352,8 +431,8 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
         return aisStatus;
     }
 
-    public final Map<Long, VesselTarget> getVesselTargets() {
-        return vesselTargets;
+    public final VesselTarget getVesselTarget(Long mmsi) {
+        return vesselTargets.get(mmsi);
     }
     
     /**
@@ -373,7 +452,6 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
         return null;
     }
 
-
     /**
      * Update status of all targets
      */
@@ -382,50 +460,48 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
         List<Long> deadTargets = new ArrayList<>();
 
         // Go through all vessel targets
-        for (VesselTarget vesselTarget : vesselTargets.values()) {
-            if (updateTarget(vesselTarget, now)) {
-                deadTargets.add(vesselTarget.getMmsi());
-            }
-        }
-
-        // Remove dead targets
-        for (Long mmsi : deadTargets) {
-            LOG.debug("Dead target " + mmsi);
-            vesselTargets.remove(mmsi);
-        }
-
-        deadTargets.clear();
+        updateStatus(vesselTargets, deadTargets, now, false);
 
         // Go through all aton targets
-        for (AtoNTarget atonTarget : atonTargets.values()) {
-            if (updateTarget(atonTarget, now)) {
-                deadTargets.add(atonTarget.getMmsi());
-            }
-        }
-
-        // Remove dead targets
-        for (Long mmsi : deadTargets) {
-            LOG.debug("Dead AtoN target " + mmsi);
-            atonTargets.remove( mmsi.intValue());
-        }
-
-        deadTargets.clear();
+        updateStatus(atonTargets, deadTargets, now, true);
 
         // Go through all sart targets
-        for (SarTarget sarTarget : sarTargets.values()) {
-            if (updateTarget(sarTarget, now)) {
-                deadTargets.add(sarTarget.getMmsi());
+        updateStatus(sarTargets, deadTargets, now, false);
+        
+        // Allow sub-classes to perform a periodic update
+        updatePeriodic();
+    }
+    
+    /**
+     * Sub-classes can override to perform periodic updates.
+     * Called every 10 seconds.
+     */
+    protected void updatePeriodic() {
+    }
+    
+    /**
+     * Update the list of AIS targets and purge the dead targets
+     * @param aisTargets the list of AIS targets to update
+     * @param deadTargets use for collecting dead targets
+     * @param now the current time
+     * @param intKey cater with atonTargets, which use Integer as a key
+     */
+    protected final <T extends AisTarget, N extends Number> void updateStatus(Map<N, T> aisTargets, List<Long> deadTargets, Date now, boolean intKey) {
+        // Go through the list of AIS targets
+        for (T aisTarget : aisTargets.values()) {
+            if (updateTarget(aisTarget, now)) {
+                deadTargets.add(aisTarget.getMmsi());
             }
         }
 
         // Remove dead targets
         for (Long mmsi : deadTargets) {
             LOG.debug("Dead target " + mmsi);
-            sarTargets.remove(mmsi);
+            // cater with atonTargets, which use Integer as a key
+            aisTargets.remove(intKey ? Integer.valueOf((int)mmsi.longValue()) : mmsi);
         }
 
         deadTargets.clear();
-
     }
     
     /**
@@ -436,6 +512,12 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
      * @return
      */
     protected final boolean updateTarget(AisTarget aisTarget, Date now) {
+        // Clean up old past-track points of the mobile targets
+        if (aisTarget instanceof MobileTarget) {
+            // Convert from minutes to seconds
+            ((MobileTarget)aisTarget).getPastTrackData().cleanup(60*pastTrackMaxTime); 
+        }
+        
         if (aisTarget.isGone()) {
             // Maybe too old and needs to be deleted
             if (aisTarget.isDeadTarget(TARGET_TTL, now)) {
@@ -450,6 +532,7 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
         }
         // Check if route information is invalid
         if (aisTarget instanceof VesselTarget) {
+            
             if (((VesselTarget) aisTarget).checkAisRouteData()) {
                 publishUpdate(aisTarget);
                 return false;
@@ -472,8 +555,16 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
      * @return
      */
     public final boolean isSarTarget(long mmsi) {
-        // AIS-SART transponder MMSI begins with 970
         String strMmsi = Long.toString(mmsi);
+        
+        // Check if we have simulated SarTargets.
+        // These are configured in the settings.properties file, by specifying
+        // a comma-separated list of vessel mmsi for the "ais.simulatedSartMmsi" property.
+        if (simulatedSartMmsi.contains(strMmsi)) {
+            return true;
+        }
+                    
+        // AIS-SART transponder MMSI begins with 970
         return strMmsi.startsWith(sartMmsiPrefix);
     }
    
@@ -519,6 +610,39 @@ public class AisHandlerCommon extends MapHandlerChild implements Runnable, IAisL
         suggestionListeners.remove(routeSuggestionListener);
     }
 
+    /**
+     * Get AisMessageExtended for a single VesselTarget
+     * 
+     * @param currentTarget
+     * @param currentData the current PntData
+     * @return
+     */
+    public AisMessageExtended getShip(VesselTarget currentTarget, PntData currentData) {
+        String name = " N/A";
+        String dst = "N/A";
+        Position ownPosition;
+        double hdg = -1;
+        Position targetPosition = null;
+
+        if (currentTarget.getStaticData() != null) {
+            name = " " + AisMessage.trimText(currentTarget.getStaticData().getName());
+        }
+        if (!currentData.isBadPosition()) {
+            ownPosition = currentData.getPosition();
+
+            if (currentTarget.getPositionData().getPos() != null) {
+                targetPosition = currentTarget.getPositionData().getPos();
+                NumberFormat nf = NumberFormat.getInstance();
+                nf.setMaximumFractionDigits(2);
+                dst = nf.format(Converter.metersToNm(ownPosition.rhumbLineDistanceTo(targetPosition))) + " NM";
+
+            }
+        }
+        hdg = currentTarget.getPositionData().getCog();
+
+        return new AisMessageExtended(name, currentTarget.getMmsi(), hdg, dst);
+    }
+        
     /**
      * Try to load AIS view from disk
      */

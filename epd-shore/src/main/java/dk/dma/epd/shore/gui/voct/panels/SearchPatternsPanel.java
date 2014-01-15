@@ -45,7 +45,6 @@ import dk.dma.epd.common.prototype.gui.voct.SearchPatternsPanelCommon;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.voct.SearchPatternDialog;
 import dk.dma.epd.shore.gui.voct.panels.SRUSearchRouteTableModel.SRUSearchPAtternButtonHandler;
-import dk.dma.epd.shore.voct.SRU;
 import dk.dma.epd.shore.voct.SRUUpdateEvent;
 import dk.dma.epd.shore.voct.SRUUpdateListener;
 
@@ -64,7 +63,7 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon implements
 
     public SearchPatternsPanel() {
 
-        EPDShore.getVoctManager().getSruManager().addListener(this);
+        EPDShore.getInstance().getVoctManager().getSruManager().addListener(this);
 
         this.setBorder(new TitledBorder(null, "Search Patterns",
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -112,8 +111,8 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon implements
         sruTable.setFocusable(false);
         // routeTable.setAutoResizeMode(0);
 
-        sruTableModel = new SRUSearchRouteTableModel(this, EPDShore
-                .getVoctManager().getSruManager(), EPDShore.getVoctManager());
+        sruTableModel = new SRUSearchRouteTableModel(this, EPDShore.getInstance()
+                .getVoctManager().getSruManager(), EPDShore.getInstance().getVoctManager());
         sruTableModel.addTableModelListener(this);
 
         sruTable.setShowHorizontalLines(false);
@@ -165,7 +164,7 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon implements
         gbc_sruScrollPane.gridy = 0;
         add(sruScrollPane, gbc_sruScrollPane);
 
-        searchPatternDialog.setVoctManager(EPDShore.getVoctManager());
+        searchPatternDialog.setVoctManager(EPDShore.getInstance().getVoctManager());
     }
 
     @Override
@@ -182,7 +181,7 @@ public class SearchPatternsPanel extends SearchPatternsPanelCommon implements
     public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() == 2) {
 
-            EPDShore.getVoctManager().getSruManagerDialog().properties();
+            EPDShore.getInstance().getVoctManager().getSruManagerDialog().properties();
         }
     }
 

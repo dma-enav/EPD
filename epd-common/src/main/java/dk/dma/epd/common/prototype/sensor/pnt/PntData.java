@@ -20,6 +20,7 @@ import java.util.Date;
 
 import net.jcip.annotations.NotThreadSafe;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.sensor.nmea.PntSource;
 
 /**
  * Class representing PNT data 
@@ -28,7 +29,8 @@ import dk.dma.enav.model.geometry.Position;
 public class PntData implements Serializable {
         
     private static final long serialVersionUID = 1L;
-    
+
+    private PntSource pntSource;
     private Date lastUpdated = new Date(0);
     private Position position;
     private Double cog;
@@ -44,6 +46,7 @@ public class PntData implements Serializable {
      * Copy constructor
      */
     public PntData(PntData pntData) {
+        this.pntSource = pntData.pntSource;
         this.lastUpdated = new Date(pntData.lastUpdated.getTime());
         this.position = pntData.position;
         if (pntData.cog != null) {
@@ -58,6 +61,14 @@ public class PntData implements Serializable {
         this.badPosition = pntData.badPosition;        
     }
 
+    public PntSource getPntSource() {
+        return pntSource;
+    }
+    
+    public void setPntSource(PntSource pntSource) {
+        this.pntSource = pntSource;
+    }
+    
     public Date getLastUpdated() {
         return lastUpdated;
     }
@@ -113,7 +124,7 @@ public class PntData implements Serializable {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("GpsData [badPosition=");
+        builder.append("PntData [badPosition=");
         builder.append(badPosition);
         builder.append(", cog=");
         builder.append(cog);
@@ -125,6 +136,8 @@ public class PntData implements Serializable {
         builder.append(sog);
         builder.append(", time=");
         builder.append(time);
+        builder.append(", pntSource=");
+        builder.append(pntSource);
         builder.append("]");
         return builder.toString();
     }

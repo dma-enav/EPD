@@ -57,12 +57,12 @@ public class VoyageHandlingWaypointDelete extends JMenuItem implements
     @Override
     public void doAction() {
         if (this.route.getWaypoints().size() < 3) {
-            JOptionPane.showMessageDialog(EPDShip.getMainFrame(),
+            JOptionPane.showMessageDialog(EPDShip.getInstance().getMainFrame(),
                     "You cannot delete the waypoint as this would "
                             + "create a route with no travel distance.");
         } else {
             this.route.deleteWaypoint(this.voyageWaypointIndex);
-            EPDShip.getVoyageEventDispatcher().notifyListenersOfVoyageUpdate(
+            EPDShip.getInstance().getVoyageEventDispatcher().notifyListenersOfVoyageUpdate(
                     VoyageUpdateEvent.WAYPOINT_DELETED, this.route, this.routeIndex);
         }
     }

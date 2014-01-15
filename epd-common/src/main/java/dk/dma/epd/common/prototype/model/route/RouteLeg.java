@@ -191,6 +191,19 @@ public class RouteLeg implements Serializable {
         }
         return Math.round(calcRng() * 3600.0 / speed * 1000.0);
     }
+    
+    /**
+     * Calculate TTG with an alternative speed value instead of
+     * the default speed value (which is the planned speed).
+     * @param altSpeed The alternative speed to be used in the TTG calculation.
+     * @return The calculated TTG in milliseconds.
+     */
+    public long calcTtg(double altSpeed) {
+        if(altSpeed < 0.1) {
+            altSpeed = 0.1;
+        }
+        return Math.round(calcRng() * 3600.0 / altSpeed * 1000.0);
+    }
 
     @Override
     public String toString() {

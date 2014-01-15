@@ -436,11 +436,11 @@ public class RouteExchangeNotificationPanel extends JPanel {
                             .getLatitude(), message.getOutgoingMsg().getRoute()
                             .getWaypoints().get(0).getLongitude());
 
-                    if (EPDShore.getMainFrame().getActiveMapWindow() != null) {
-                        EPDShore.getMainFrame().getActiveMapWindow()
+                    if (EPDShore.getInstance().getMainFrame().getActiveMapWindow() != null) {
+                        EPDShore.getInstance().getMainFrame().getActiveMapWindow()
                                 .getChartPanel().zoomToPoint(routeLocation);
-                    } else if (EPDShore.getMainFrame().getMapWindows().size() > 0) {
-                        EPDShore.getMainFrame().getMapWindows().get(0)
+                    } else if (EPDShore.getInstance().getMainFrame().getMapWindows().size() > 0) {
+                        EPDShore.getInstance().getMainFrame().getMapWindows().get(0)
                                 .getChartPanel().zoomToPoint(routeLocation);
                     }
 

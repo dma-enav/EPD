@@ -23,13 +23,13 @@ import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.panels.OwnShipPanel;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
+import javax.swing.JScrollPane;
 
 public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataListener {
 
@@ -40,8 +40,8 @@ public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataL
     
     private final OwnShipPanel ownShipPanel = new OwnShipPanel();
     
-    private AisHandler aisHandler;
-    private PntHandler gpsHandler;
+    private OwnShipHandler ownShipHandler;
+    private PntHandler pntHandler;
     
     public OwnShipComponentPanel(){
         super();
@@ -52,27 +52,25 @@ public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataL
         setBorder(null);
         
         setLayout(new BorderLayout(0, 0));
+        
+        JScrollPane scrollPane = new JScrollPane();
+        add(scrollPane, BorderLayout.SOUTH);
         add(ownShipPanel, BorderLayout.NORTH);
         setVisible(false);
     }
     
 
     @Override
-    public void pntDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData pntData) {
 
         String ownName = null;
         String ownCallsign = null;
         Long ownMmsi = null;
-        VesselTarget ownShip = null;
         
-        if (aisHandler != null) {
-            ownShip = aisHandler.getOwnShip();
-        }
-        
-        if (ownShip != null) {
-            VesselStaticData staticData = ownShip.getStaticData();
+        if (ownShipHandler != null) {
+            VesselStaticData staticData = ownShipHandler.getStaticData();
 
-            ownMmsi = ownShip.getMmsi();
+            ownMmsi = ownShipHandler.getMmsi();
 
             if (staticData != null) {
                 ownName = AisMessage.trimText(staticData.getName());
@@ -88,12 +86,12 @@ public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataL
     
     @Override
     public void findAndInit(Object obj) {
-        if (gpsHandler == null && obj instanceof PntHandler) {
-            gpsHandler = (PntHandler)obj;
-            gpsHandler.addListener(this);
+        if (pntHandler == null && obj instanceof PntHandler) {
+            pntHandler = (PntHandler)obj;
+            pntHandler.addListener(this);
         }
-        if (aisHandler == null && obj instanceof AisHandler) {
-            aisHandler = (AisHandler)obj;
+        if (ownShipHandler == null && obj instanceof OwnShipHandler) {
+            ownShipHandler = (OwnShipHandler)obj;
         }
     }
 

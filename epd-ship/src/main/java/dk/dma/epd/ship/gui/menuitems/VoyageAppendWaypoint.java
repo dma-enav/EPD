@@ -52,7 +52,7 @@ public class VoyageAppendWaypoint extends JMenuItem implements IMapMenuAction {
         System.out.println("VoyageAppendWaypoint clicked!");
         this.route.appendWaypoint();
         // Notify listeners of the new waypoint
-        EPDShip.getVoyageEventDispatcher().notifyListenersOfVoyageUpdate(
+        EPDShip.getInstance().getVoyageEventDispatcher().notifyListenersOfVoyageUpdate(
                 VoyageUpdateEvent.WAYPOINT_APPENDED, this.route,
                 this.routeIndex);
     }

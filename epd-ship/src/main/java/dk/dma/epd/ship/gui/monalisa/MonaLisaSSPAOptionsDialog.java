@@ -42,9 +42,9 @@ import javax.swing.text.NumberFormatter;
 
 import dk.dma.epd.common.prototype.monalisa.MonaLisaSSPAWPSelection;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.MainFrame;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 
 /**
@@ -72,7 +72,7 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
     ChartPanel chartPanel;
     RouteManager routeManager;
     MainFrame mainFrame;
-    AisHandler aisHandler;
+    OwnShipHandler ownShipHandler;
 
     JCheckBox showOutPutCheckBox;
     JCheckBox showInputCheckBox;
@@ -82,14 +82,14 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
     int routeid;
 
     public MonaLisaSSPAOptionsDialog(JFrame parent, RouteManager routeManager,
-            AisHandler aisHandler) {
+            OwnShipHandler ownShipHandler) {
         super(parent, "Request Mona Lisa Route Exchange", true);
 
         mainFrame = (MainFrame) parent;
 
         this.chartPanel = mainFrame.getChartPanel();
         this.routeManager = routeManager;
-        this.aisHandler = aisHandler;
+        this.ownShipHandler = ownShipHandler;
 
         setSize(366, 505);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -195,7 +195,7 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
         serverTxtField.setBounds(95, 8, 217, 20);
         panel_2.add(serverTxtField);
         serverTxtField.setColumns(10);
-        serverTxtField.setText(EPDShip.getSettings().getEnavSettings().getMonaLisaServer());
+        serverTxtField.setText(EPDShip.getInstance().getSettings().getEnavSettings().getMonaLisaServer());
         serverTxtField.setEditable(false);
 
         JLabel lblPort = new JLabel("Port:");
@@ -206,7 +206,7 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
         portTxtField.setBounds(95, 33, 39, 20);
         panel_2.add(portTxtField);
         portTxtField.setColumns(10);
-        portTxtField.setText(String.valueOf(EPDShip.getSettings().getEnavSettings().getMonaLisaPort()));
+        portTxtField.setText(String.valueOf(EPDShip.getInstance().getSettings().getEnavSettings().getMonaLisaPort()));
         portTxtField.setEditable(false);
 
         JLabel lblTimeout = new JLabel("Timeout in ms:");
@@ -245,9 +245,9 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
             }
         }
 
-        if (aisHandler != null
-                && aisHandler.getOwnShip().getStaticData() != null) {
-            Integer draught = (int) (aisHandler.getOwnShip().getStaticData()
+        if (ownShipHandler != null
+                && ownShipHandler.getStaticData() != null) {
+            Integer draught = (int) (ownShipHandler.getStaticData()
                     .getDraught() / 10);
             spinnerDraught.setValue(draught);
         }
@@ -324,8 +324,8 @@ public class MonaLisaSSPAOptionsDialog extends dk.dma.epd.common.prototype.monal
                 this.dispose();
                 
                 // Send off the request
-              MonaLisaSSPARequestDialog.requestRoute(EPDShip.getMainFrame(), routeManager,
-                      routeManager.getRoute(routeid), EPDShip.getMonaLisaRouteExchange(),removeIntermediateETA , draft, ukc, timeout, selectedWp
+              MonaLisaSSPARequestDialog.requestRoute(EPDShip.getInstance().getMainFrame(), routeManager,
+                      routeManager.getRoute(routeid), EPDShip.getInstance().getMonaLisaRouteExchange(),removeIntermediateETA , draft, ukc, timeout, selectedWp
                       ,showInputCheckBox.isSelected(), showOutPutCheckBox.isSelected());
             } catch (Exception e2) {
                 JOptionPane.showMessageDialog(this,"Invalid integer input");

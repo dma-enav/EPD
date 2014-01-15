@@ -46,9 +46,10 @@ import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gui.MainFrame;
+import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 
-public class VoctLayer extends OMGraphicHandlerLayer implements MapMouseListener, VOCTUpdateListener {
+public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpdateListener {
     private static final long serialVersionUID = 1L;
 
     private OMGraphicList graphics = new OMGraphicList();
@@ -386,8 +387,8 @@ public class VoctLayer extends OMGraphicHandlerLayer implements MapMouseListener
 
         }
 
-        EPDShip.getMainFrame().getGlassPane().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        EPDShip.getMainFrame().getGlassPane().setVisible(false);
+        EPDShip.getInstance().getMainFrame().getGlassPane().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        EPDShip.getInstance().getMainFrame().getGlassPane().setVisible(false);
 
         return false;
     }

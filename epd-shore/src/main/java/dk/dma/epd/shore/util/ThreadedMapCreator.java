@@ -23,8 +23,6 @@ import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.SwingUtilities;
-
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.route.Route;
@@ -272,13 +270,15 @@ public class ThreadedMapCreator implements Runnable {
             window.setTitle("Search and Rescue - Tracking");
 
             // Put Tracking on left side of screen
-            window.setLocation((int) mainFrameSize.getWidth() / 2 -10 , 0);
+            window.setLocation((int) mainFrameSize.getWidth() / 2 - 10, 0);
             window.setSize((int) mainFrameSize.getWidth() / 2 - 10,
                     (int) mainFrameSize.getHeight() - 10);
-            for (int i = 0; i < EPDShore.getMainFrame().getMapWindows().size(); i++) {
-                if (EPDShore.getMainFrame().getMapWindows().get(i).getType() == MapFrameType.SAR_Planning) {
-                    JMapFrame planningWindow = EPDShore.getMainFrame()
-                            .getMapWindows().get(i);
+            for (int i = 0; i < EPDShore.getInstance().getMainFrame()
+                    .getMapWindows().size(); i++) {
+                if (EPDShore.getInstance().getMainFrame().getMapWindows()
+                        .get(i).getType() == MapFrameType.SAR_Planning) {
+                    JMapFrame planningWindow = EPDShore.getInstance()
+                            .getMainFrame().getMapWindows().get(i);
                     planningWindow.setLocation(0, 0);
                     planningWindow.setSize(
                             (int) mainFrameSize.getWidth() / 2 - 10,
@@ -295,7 +295,7 @@ public class ThreadedMapCreator implements Runnable {
         window.alwaysFront();
 
         window.getChartPanel().zoomToPoint(
-                EPDShore.getVoctManager().getSarData().getLKP());
+                EPDShore.getInstance().getVoctManager().getSarData().getLKP());
         window.getChartPanel().getMap().setScale(100000);
 
         return window;
@@ -327,11 +327,12 @@ public class ThreadedMapCreator implements Runnable {
             return;
         }
 
-//        long startTime = System.currentTimeMillis();
+        // long startTime = System.currentTimeMillis();
         JMapFrame mapFrame = addMapWindow();
         setupSharedLayers(mapFrame);
-        
-//        System.out.println("Time elapsed: " + (System.currentTimeMillis() - startTime)/1000 );
+
+        // System.out.println("Time elapsed: " + (System.currentTimeMillis() -
+        // startTime)/1000 );
 
     }
 
@@ -364,8 +365,8 @@ public class ThreadedMapCreator implements Runnable {
         }
 
         if (mainFrame.getWindowCount() == 1) {
-            EPDShore.getBeanHandler().add(
-                    window.getChartPanel().getWmsLayer().getWmsService());
+            EPDShore.getInstance().getBeanHandler()
+                    .add(window.getChartPanel().getWmsLayer().getWmsService());
         }
 
         return window;

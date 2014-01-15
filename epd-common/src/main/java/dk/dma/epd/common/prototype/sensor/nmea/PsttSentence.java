@@ -51,7 +51,7 @@ public class PsttSentence {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd HHmmss");
             dateFormat.setTimeZone(TimeZone.getTimeZone("GMT+0000"));
             Date d = dateFormat.parse(dateStr);
-            pntMessage = new PntMessage(null, null, null, d.getTime());
+            pntMessage = new PntMessage(PntSource.GPS, d.getTime());
         } catch (ParseException e) {
             throw new SentenceException("Wrong date format in PSTT sentence: " + msg);
         }

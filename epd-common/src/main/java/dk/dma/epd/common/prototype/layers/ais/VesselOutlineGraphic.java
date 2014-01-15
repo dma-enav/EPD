@@ -16,8 +16,12 @@
 package dk.dma.epd.common.prototype.layers.ais;
 
 import java.awt.BasicStroke;
-import java.awt.Stroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
+import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
@@ -25,9 +29,8 @@ import com.bbn.openmap.omGraphics.OMPoly;
 
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.graphics.RotationalPoly;
+import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
 
 /**
  * @author Janus Varmarken
@@ -47,55 +50,66 @@ public class VesselOutlineGraphic extends OMGraphicList {
      * Displays the position of the PNT device.
      */
     private OMCircle pntDevice;
-
-    /**
-     * The Vessel displayed by this VesselOutlineGrahpic
-     */
-    private VesselTarget vessel;
-
-    /**
-     * Displays a COG vector.
-     */
-    private RotationalPoly cogVector;
     
     /**
-     * Ship COG stroke
+     * The COG/Speed vector
      */
-    private Stroke cogStroke = new BasicStroke(STROKE_WIDTH);
+    private SpeedVectorGraphic speedVector;
     
-    public VesselOutlineGraphic() {
+    private Color lineColor;
+    
+    private float lineThickness = 1.0f;
+    
+    private BasicStroke lineStroke;
+    
+    /**
+     * The layer that displays this VesselOutlineGraphic.
+     * If this VesselOutlineGraphic is a subgraphic of another graphic,
+     * use the top level graphic's parent layer.
+     */
+    private OMGraphicHandlerLayer parentLayer;
+    
+    public VesselOutlineGraphic(Color lineColor, float lineThickness, OMGraphicHandlerLayer parentLayer) {
         this.setVague(true);
+        this.lineColor = lineColor;
+        this.lineThickness = lineThickness;
+        this.lineStroke = new BasicStroke(this.lineThickness);
+        this.parentLayer = parentLayer;
     }
 
-    private void producePolygon(VesselTarget vessel) {
-        this.vessel = vessel;
-        // TODO add null check on static data here or in client?
-        VesselStaticData vsd = this.vessel.getStaticData();
-        // Get angle from GPS to lower left corner of ship
-        double anglLowerLeft = this.calcAngleFromCenter(vsd.getDimStern(),
-                vsd.getDimPort());
+    /**
+     * Produces the vessel outline polygon based on the given vessel position and static data
+     * 
+     * @param positionData the vessel position data
+     * @param staticData the vessel static data
+     */
+    private void producePolygon(VesselPositionData positionData, VesselStaticData staticData) {
+
+        // Get angle from PNT to lower left corner of ship
+        double anglLowerLeft = this.calcAngleFromCenter(staticData.getDimStern(),
+                staticData.getDimPort());
         // calculate distance to lower left corner of vessel (Pythagoras)
-        double distLowerLeftCorner = Math.sqrt(Math.pow(vsd.getDimStern(), 2.0)
-                + Math.pow(vsd.getDimPort(), 2.0));
+        double distLowerLeftCorner = Math.sqrt(Math.pow(staticData.getDimStern(), 2.0)
+                + Math.pow(staticData.getDimPort(), 2.0));
         
-        float heading = vessel.getPositionData().getTrueHeading();
+        float heading = positionData.getTrueHeading();
 
         anglLowerLeft += heading + 180;
         
         if(360 <= anglLowerLeft) {
             anglLowerLeft -= 360.0;
         }
-        Position vessPos = vessel.getPositionData().getPos();
-        double lat = vessel.getPositionData().getPos().getLatitude();
-        double lon = vessel.getPositionData().getPos().getLongitude();
+        Position vessPos = positionData.getPos();
+        double lat = positionData.getPos().getLatitude();
+        double lon = positionData.getPos().getLongitude();
         
         // find latlon of lower left corner of ship
         Position leftSideBottomLL = CoordinateSystem.CARTESIAN.pointOnBearing(vessPos,
                 distLowerLeftCorner, anglLowerLeft);
 
-        double shipFullLength = vsd.getDimBow() + vsd.getDimStern();
+        double shipFullLength = staticData.getDimBow() + staticData.getDimStern();
         double shipSideLength = shipFullLength * 0.85;
-        double shipSternWidth = vsd.getDimPort() + vsd.getDimStarboard();
+        double shipSternWidth = staticData.getDimPort() + staticData.getDimStarboard();
         
         // Not a point in the final polygon, simply used for finding polygon points in the bow.
         Position outerRectTopLeftLL = CoordinateSystem.CARTESIAN.pointOnBearing(leftSideBottomLL, shipFullLength, 0.0 + heading);
@@ -113,18 +127,18 @@ public class VesselOutlineGraphic extends OMGraphicList {
         // Point on starboard side of ship where the bow begins.
         Position rightSideTopLL = CoordinateSystem.CARTESIAN.pointOnBearing(leftSideTopLL, shipSternWidth, 90.0 + heading);
 
-        int[] xs = {0,0};
-        int[] ys = {0,-100};
-        if(this.cogVector == null) {
-            this.cogVector = new RotationalPoly(xs, ys, cogStroke, null);
-            this.add(this.cogVector);
+        if(this.speedVector == null) {
+            this.speedVector = new SpeedVectorGraphic(this.lineColor);
+            this.add(this.speedVector);
         }
         // don't show COG vector if vessel is docked
-        this.cogVector.setVisible(vessel.getPositionData().getSog() > 0.1);
-        this.cogVector.setLocation(lat, lon, OMGraphic.DECIMAL_DEGREES, Math.toRadians(this.vessel.getPositionData().getCog()));
+        this.speedVector.setVisible(positionData.getSog() > 0.1);
+        this.speedVector.update(positionData, this.parentLayer.getProjection().getScale());
+        
         // clear old PntDevice display
         this.remove(this.pntDevice);
         this.pntDevice = new OMCircle(lat, lon, 3, 3);
+        this.pntDevice.setFillPaint(this.lineColor);
         this.add(pntDevice);
         
         double[] shipCorners = new double[14];
@@ -148,10 +162,19 @@ public class VesselOutlineGraphic extends OMGraphicList {
         // create and add new shape
         this.shipOutline = new OMPoly(shipCorners, OMGraphic.DECIMAL_DEGREES, OMGraphic.LINETYPE_RHUMB);
         this.add(this.shipOutline);
+        this.setLinePaint(this.lineColor);
+//        this.setStroke(this.lineStroke);
+        this.shipOutline.setStroke(this.lineStroke);
     }
 
-    public void setLocation(VesselTarget vessel) {
-        this.producePolygon(vessel);
+    /**
+     * Produces the vessel outline polygon based on the given vessel position and static data
+     * 
+     * @param positionData the vessel position data
+     * @param staticData the vessel static data
+     */
+    public void setLocation(VesselPositionData positionData, VesselStaticData staticData) {
+        this.producePolygon(positionData, staticData);
     }
 
     /**
@@ -175,5 +198,15 @@ public class VesselOutlineGraphic extends OMGraphicList {
         // find angle B
         double angleB = 180.0 - 90.0 - angleA;
         return angleB;
+    }
+
+    /**
+     * Turn on anti-aliasing
+     */
+    @Override
+    public void render(Graphics g) {
+        Graphics2D image = (Graphics2D) g;
+        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        super.render(image);
     }
 }

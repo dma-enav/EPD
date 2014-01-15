@@ -26,7 +26,7 @@ public class SARInput extends SARInputCommon{
     public SARInput(VOCTManagerCommon voctManager) {
         super(voctManager);
      
-        setLocationRelativeTo(EPDShore.getMainFrame());
+        setLocationRelativeTo(EPDShore.getInstance().getMainFrame());
     }
 
 

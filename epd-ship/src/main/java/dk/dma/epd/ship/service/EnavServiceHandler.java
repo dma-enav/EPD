@@ -17,7 +17,6 @@ package dk.dma.epd.ship.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -25,20 +24,20 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
-import dk.dma.enav.maritimecloud.ConnectionFuture;
-import dk.dma.enav.maritimecloud.MaritimeCloudClient;
-import dk.dma.enav.maritimecloud.MaritimeCloudClientConfiguration;
-import dk.dma.enav.maritimecloud.broadcast.BroadcastListener;
-import dk.dma.enav.maritimecloud.broadcast.BroadcastMessage;
-import dk.dma.enav.maritimecloud.broadcast.BroadcastMessageHeader;
-import dk.dma.enav.maritimecloud.service.ServiceEndpoint;
-import dk.dma.enav.maritimecloud.service.invocation.InvocationCallback;
+import net.maritimecloud.net.ConnectionFuture;
+import net.maritimecloud.net.MaritimeCloudClient;
+import net.maritimecloud.net.MaritimeCloudClientConfiguration;
+import net.maritimecloud.net.broadcast.BroadcastListener;
+import net.maritimecloud.net.broadcast.BroadcastMessage;
+import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
+import net.maritimecloud.net.service.ServiceEndpoint;
+import net.maritimecloud.net.service.invocation.InvocationCallback;
+import net.maritimecloud.util.function.BiConsumer;
+import net.maritimecloud.util.geometry.PositionReader;
+import net.maritimecloud.util.geometry.PositionTime;
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.enav.model.geometry.PositionTime;
 import dk.dma.enav.model.ship.ShipId;
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.enav.util.function.BiConsumer;
-import dk.dma.enav.util.function.Supplier;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.enavcloud.EnavCloudSendThread;
@@ -66,6 +65,7 @@ import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.route.strategic.RecievedRoute;
 import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
@@ -73,7 +73,6 @@ import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
 import dk.dma.epd.ship.service.intendedroute.IntendedRouteService;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 import dk.dma.epd.ship.settings.EPDEnavSettings;
-
 
 /**
  * Component offering e-Navigation services
@@ -86,8 +85,9 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     private String hostPort;
     private ShipId shipId;
-    private PntHandler gpsHandler;
+    private PntHandler pntHandler;
     private AisHandler aisHandler;
+    private OwnShipHandler ownShipHandler;
     private StrategicRouteExchangeHandler monaLisaHandler;
     private VOCTManager voctManager;
 
@@ -167,7 +167,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                                 RecievedRoute recievedRoute = new RecievedRoute(
                                         message);
 
-                                EPDShip.getRouteManager()
+                                EPDShip.getInstance().getRouteManager()
                                         .recieveRouteSuggestion(recievedRoute);
 
                             }
@@ -220,38 +220,33 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     public void sendVOCTReply(CLOUD_STATUS recievedAccepted, long id,
             String message, SAR_TYPE type) {
-        
-        
-        
-        
-        if (type == SAR_TYPE.RAPID_RESPONSE){
+
+        if (type == SAR_TYPE.RAPID_RESPONSE) {
             try {
                 voctContextRapidResponse
                         .complete(new VOCTCommunicationServiceRapidResponse.VOCTCommunicationReplyRapidResponse(
-                                message, id, aisHandler.getOwnShip().getMmsi(),
-                                System.currentTimeMillis(), recievedAccepted));
+                                message, id, ownShipHandler.getMmsi(), System
+                                        .currentTimeMillis(), recievedAccepted));
                 cloudStatus.markSuccesfullSend();
             } catch (Exception e) {
                 cloudStatus.markFailedSend();
                 System.out.println("Failed to reply");
-            }            
+            }
         }
-        
-        
 
-        if (type == SAR_TYPE.DATUM_POINT){
+        if (type == SAR_TYPE.DATUM_POINT) {
             try {
                 voctContextDatumPoint
                         .complete(new VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint(
-                                message, id, aisHandler.getOwnShip().getMmsi(),
-                                System.currentTimeMillis(), recievedAccepted));
+                                message, id, ownShipHandler.getMmsi(), System
+                                        .currentTimeMillis(), recievedAccepted));
                 cloudStatus.markSuccesfullSend();
             } catch (Exception e) {
                 cloudStatus.markFailedSend();
                 System.out.println("Failed to reply");
-            }            
+            }
         }
-        
+
     }
 
     public InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> getContext() {
@@ -265,9 +260,11 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     public void sendReply(AIS_STATUS recievedAccepted, long id, String message) {
         try {
+            long ownMmsi = ownShipHandler.getMmsi() == null ? -1L
+                    : ownShipHandler.getMmsi();
             context.complete(new RouteSuggestionService.RouteSuggestionReply(
-                    message, id, aisHandler.getOwnShip().getMmsi(), System
-                            .currentTimeMillis(), recievedAccepted));
+                    message, id, ownMmsi, System.currentTimeMillis(),
+                    recievedAccepted));
             cloudStatus.markSuccesfullSend();
         } catch (Exception e) {
             cloudStatus.markFailedSend();
@@ -283,10 +280,9 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * @param routeData
      */
     private synchronized void updateIntendedRoute(long mmsi, Route routeData) {
-        Map<Long, VesselTarget> vesselTargets = aisHandler.getVesselTargets();
 
         // Try to find exiting target
-        VesselTarget vesselTarget = vesselTargets.get(mmsi);
+        VesselTarget vesselTarget = aisHandler.getVesselTarget(mmsi);
         // If not exists, wait for it to be created by position report
         if (vesselTarget == null) {
             return;
@@ -329,17 +325,17 @@ public class EnavServiceHandler extends MapHandlerChild implements
         MaritimeCloudClientConfiguration enavCloudConnection = MaritimeCloudClientConfiguration
                 .create("mmsi://" + shipId.getId());
 
-        enavCloudConnection.setPositionSupplier(new Supplier<PositionTime>() {
-            public PositionTime get() {
-                Position position = gpsHandler.getCurrentData().getPosition();
-                if (position != null) {
-                    return PositionTime.create(position,
-                            System.currentTimeMillis());
+        enavCloudConnection.setPositionReader(new PositionReader() {
+            @Override
+            public PositionTime getCurrentPosition() {
+                Position pos = pntHandler.getCurrentData().getPosition();
+                if (pos != null) {
+                    return PositionTime.create(pos.getLatitude(),
+                            pos.getLongitude(), System.currentTimeMillis());
                 } else {
-                    return PositionTime.create(Position.create(0.0, 0.0),
+                    return PositionTime.create(0.0, 0.0,
                             System.currentTimeMillis());
                 }
-
             }
         });
 
@@ -372,7 +368,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * Receive position updates
      */
     @Override
-    public void pntDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData pntData) {
         // TODO give information to messageBus if valid position
     }
 
@@ -384,10 +380,12 @@ public class EnavServiceHandler extends MapHandlerChild implements
             ((RouteManager) obj).addListener(intendedRouteService);
             ((RouteManager) obj).setIntendedRouteService(intendedRouteService);
         } else if (obj instanceof PntHandler) {
-            this.gpsHandler = (PntHandler) obj;
-            this.gpsHandler.addListener(this);
+            this.pntHandler = (PntHandler) obj;
+            this.pntHandler.addListener(this);
         } else if (obj instanceof AisHandler) {
             this.aisHandler = (AisHandler) obj;
+        } else if (obj instanceof OwnShipHandler) {
+            this.ownShipHandler = (OwnShipHandler) obj;
         } else if (obj instanceof StrategicRouteExchangeHandler) {
             this.monaLisaHandler = (StrategicRouteExchangeHandler) obj;
         } else if (obj instanceof VOCTManager) {
@@ -403,33 +401,30 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
         while (true) {
             Util.sleep(10000);
-            if (this.aisHandler != null) {
-                VesselTarget ownShip = this.aisHandler.getOwnShip();
-                if (ownShip != null) {
-                    if (ownShip.getMmsi() > 0) {
-                        shipId = ShipId
-                                .create(Long.toString(ownShip.getMmsi()));
-                        init();
-                        if (connection != null) {
 
-                            try {
-                                intendedRouteListener();
-                                routeExchangeListener();
-                                monaLisaRouteRequestListener();
+            if (this.ownShipHandler != null) {
+                if (ownShipHandler.getMmsi() != null) {
+                    shipId = ShipId.create(Long.toString(ownShipHandler
+                            .getMmsi()));
+                    init();
+                    if (connection != null) {
 
-                                voctMessageListener();
-
-                            } catch (Exception e) {
-                                // e.printStackTrace();
-                                System.out.println("Failed to setup listener");
-                                cloudStatus.markFailedSend();
-                                cloudStatus.markFailedReceive();
-                            }
-
-                            break;
+                        try {
+                            intendedRouteListener();
+                            routeExchangeListener();
+                            monaLisaRouteRequestListener();
+                            voctMessageListener();
+                        } catch (Exception e) {
+                            // e.printStackTrace();
+                            System.out.println("Failed to setup listener");
+                            cloudStatus.markFailedSend();
+                            cloudStatus.markFailedReceive();
                         }
 
+                        break;
+
                     }
+
                 }
             }
         }

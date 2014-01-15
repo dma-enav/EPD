@@ -29,7 +29,7 @@ public class HighlightInfoPanel extends InfoPanel {
      * Constructor for creating an WMSInfoPanel that uses the loadingIMG
      */
     public HighlightInfoPanel() {
-        super(EPDShore.getStaticImages().getHighlightIcon());
+        super(EPDShore.getInstance().getStaticImages().getHighlightIcon());
     }
 
     /**

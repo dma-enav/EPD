@@ -233,14 +233,14 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                     isPanning = true;
                     
                     
-                    EPDShip.getMainFrame().getChartPanel().getDragMapRenderer().updateFinalBuffer();
+                    EPDShip.getInstance().getMainFrame().getChartPanel().getDragMapRenderer().updateFinalBuffer();
 
                     onScreenMap = new BufferedImage(mb.getWidth(), mb.getHeight(),BufferedImage.TYPE_INT_RGB);
                     mb.paint(onScreenMap.getGraphics());
                     oX = x;
                     oY = y;
                     
-                    EPDShip.getMainFrame().getChartPanel().getMap().setVisible(false);
+                    EPDShip.getInstance().getMainFrame().getChartPanel().getMap().setVisible(false);
 
                 } else {
 
@@ -252,7 +252,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
 
                     try {
                         //LOG.debug("Time to get offScreenMap: ")
-                        final BufferedImage offScreenMap = EPDShip.getMainFrame()
+                        final BufferedImage offScreenMap = EPDShip.getInstance().getMainFrame()
                                 .getChartPanel().getDragMapRenderer().getFinalBuffer().getSubimage(posX,
                                 posY, mb.getWidth(), mb.getHeight());
                         
@@ -261,7 +261,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
                         renderImage.getGraphics().drawImage(onScreenMap,x-oX,y-oY,null);
 
 
-                        EPDShip.getMainFrame().getChartPanel().getGraphics().drawImage(
+                        EPDShip.getInstance().getMainFrame().getChartPanel().getGraphics().drawImage(
                                 renderImage, 0, 0, null);
                     } catch (RasterFormatException e) {
                         //was out of bounds, sorry
@@ -295,7 +295,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
             mb.setCenter(proj.inverse(center));
 
             isPanning = false;
-            EPDShip.getMainFrame().getChartPanel().getMap().setVisible(true);
+            EPDShip.getInstance().getMainFrame().getChartPanel().getMap().setVisible(true);
             mouseDragged = false;
 
         }

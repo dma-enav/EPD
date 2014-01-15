@@ -86,10 +86,10 @@ public class ActiveWaypointComponentPanel extends OMComponentPanel implements IP
     }
 
     /**
-     * Receive GPS update
+     * Receive PNT update
      */
     @Override
-    public void pntDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData pntData) {
         activeWaypointPanel.updateActiveNavData();
     }
     

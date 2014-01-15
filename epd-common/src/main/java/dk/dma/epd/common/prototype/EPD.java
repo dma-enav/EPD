@@ -16,19 +16,53 @@
 package dk.dma.epd.common.prototype;
 
 import java.nio.file.Path;
+import java.util.Properties;
+
+import javax.swing.JFrame;
+
+import dk.dma.epd.common.prototype.settings.Settings;
 
 
-public abstract class EPD {
+public abstract class EPD<S extends Settings> {
     
-    protected static Path home;
+    protected static EPD<?> instance;    
+    protected S settings;
+    protected Properties properties = new Properties();
     
-    public static Path getHomePath() {
-        return home;
+    /**
+     * Constructor
+     */
+    protected EPD() {
+        instance = this;
     }
     
-    public abstract Path getSettingsPath();
+    public static EPD<?> getInstance() {
+        return instance;
+    }
     
+    public abstract Path getHomePath();
     
+    /**
+     * Returns the settings associated with the EPD system
+     * @return the settings associated with the EPD system
+     */
+    public S getSettings() {
+        return settings;
+    }
+    
+    /**
+     * Returns the properties
+     * @return - properties
+     */
+    public Properties getProperties() {
+        return properties;
+    }
+
+    /**
+     * Load the properties file
+     */
+    public abstract Properties loadProperties();
+
     /**
      * Function used to create a thread
      * 
@@ -44,9 +78,7 @@ public abstract class EPD {
         return thread;
     }
 
-    public static Object getMainFrame() {
-        // TODO Auto-generated method stub
+    public JFrame getMainFrame() {
         return null;
     }
-
 }

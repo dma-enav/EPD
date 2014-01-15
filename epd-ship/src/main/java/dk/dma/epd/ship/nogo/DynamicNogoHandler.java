@@ -33,6 +33,7 @@ import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
 import dk.dma.epd.ship.layers.nogo.DynamicNogoLayer;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.settings.EPDEnavSettings;
 import dk.frv.enav.common.xml.nogo.response.NogoResponse;
 import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
@@ -57,8 +58,9 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
     boolean nogoFailed;
 
     private ShoreServicesCommon shoreServices;
-    private PntHandler gpsHandler;
+    private PntHandler pntHandler;
     private AisHandler aisHandler;
+    private OwnShipHandler ownShipHandler;
 
     // Create a seperate layer for the nogo information
     private DynamicNogoLayer nogoLayer;
@@ -159,24 +161,16 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
 
         // Is dynamic nogo activated and target not null?
         if (dynamicNoGoActive
-                && aisHandler.getVesselTargets().get(mmsiTarget) != null) {
-
-            System.out.println("Really update");
-
-            System.out
-                    .println(aisHandler.getOwnShip().getPositionData() != null);
-            System.out.println(aisHandler.getVesselTargets().get(mmsiTarget)
-                    .getPositionData() != null);
+                && aisHandler.getVesselTarget(mmsiTarget) != null) {
 
             // Get own ship location and add box around it, + / - something
-            if (aisHandler.getOwnShip().getPositionData() != null
-                    && aisHandler.getVesselTargets().get(mmsiTarget)
+            if (ownShipHandler.isPositionDefined()
+                    && aisHandler.getVesselTarget(mmsiTarget)
                             .getPositionData() != null) {
 
                 System.out.println("Really really update");
 
-                Position shipLocation = aisHandler.getOwnShip()
-                        .getPositionData().getPos();
+                Position shipLocation = ownShipHandler.getPositionData().getPos();
                 southEastPointOwn = Position.create(
                         shipLocation.getLatitude() - 0.04,
                         shipLocation.getLongitude() + 0.08);
@@ -184,7 +178,7 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
                         shipLocation.getLatitude() + 0.04,
                         shipLocation.getLongitude() - 0.08);
 
-                shipLocation = aisHandler.getVesselTargets().get(mmsiTarget)
+                shipLocation = aisHandler.getVesselTarget(mmsiTarget)
                         .getPositionData().getPos();
                 southEastPointTarget = Position.create(
                         shipLocation.getLatitude() - 0.04,
@@ -197,20 +191,19 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
                 nogoPanel.newRequest();
 
                 // Set depth for own ship
-                if (aisHandler.getOwnShip().getStaticData() != null) {
+                if (ownShipHandler.getStaticData() != null) {
                     // System.out.println("Getting draught from static - own");
-                    draughtOwn = aisHandler.getOwnShip().getStaticData()
+                    draughtOwn = ownShipHandler.getStaticData()
                             .getDraught() / 10;
                 } else {
                     System.out.println("Setting draught to 5");
                     draughtOwn = 5;
                 }
 
-                if (aisHandler.getVesselTargets().get(mmsiTarget)
+                if (aisHandler.getVesselTarget(mmsiTarget)
                         .getStaticData() != null) {
                     // System.out.println("Getting draught from static - target");
-                    draughtTarget = aisHandler.getVesselTargets()
-                            .get(mmsiTarget).getStaticData().getDraught() / 10;
+                    draughtTarget = aisHandler.getVesselTarget(mmsiTarget).getStaticData().getDraught() / 10;
 
                 } else {
                     // System.out.println("Setting draught to 5");
@@ -289,8 +282,8 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
         validFromTarget = date;
         validToTarget = date;
 
-        if (aisHandler.getOwnShip().getPositionData() != null
-                && aisHandler.getVesselTargets().get(mmsiTarget)
+        if (ownShipHandler.isPositionDefined()
+                && aisHandler.getVesselTarget(mmsiTarget)
                         .getPositionData() != null) {
 
             System.out.println("Making a request to the server");
@@ -362,11 +355,14 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
         if (obj instanceof DynamicNogoLayer) {
             nogoLayer = (DynamicNogoLayer) obj;
         }
-        if (gpsHandler == null && obj instanceof PntHandler) {
-            gpsHandler = (PntHandler) obj;
+        if (pntHandler == null && obj instanceof PntHandler) {
+            pntHandler = (PntHandler) obj;
         }
         if (aisHandler == null && obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
+        }
+        if (ownShipHandler == null && obj instanceof OwnShipHandler) {
+            ownShipHandler = (OwnShipHandler) obj;
         }
         if (obj instanceof DynamicNoGoComponentPanel) {
             nogoPanel = (DynamicNoGoComponentPanel) obj;
@@ -452,19 +448,19 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
 
         if (dynamicNoGoActive) {
             // If the dock isn't visible should it show it?
-            if (!EPDShip.getMainFrame().getDockableComponents()
+            if (!EPDShip.getInstance().getMainFrame().getDockableComponents()
                     .isDockVisible("Dynamic NoGo")) {
 
                 // Show it display the message?
-                if (EPDShip.getSettings().getGuiSettings().isShowDockMessage()) {
-                    new ShowDockableDialog(EPDShip.getMainFrame(),
+                if (EPDShip.getInstance().getSettings().getGuiSettings().isShowDockMessage()) {
+                    new ShowDockableDialog(EPDShip.getInstance().getMainFrame(),
                             dock_type.DYN_NOGO);
                 } else {
 
-                    if (EPDShip.getSettings().getGuiSettings().isAlwaysOpenDock()) {
-                        EPDShip.getMainFrame().getDockableComponents()
+                    if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
+                        EPDShip.getInstance().getMainFrame().getDockableComponents()
                                 .openDock("Dynamic NoGo");
-                        EPDShip.getMainFrame().getEeINSMenuBar()
+                        EPDShip.getInstance().getMainFrame().getEeINSMenuBar()
                                 .refreshDockableMenu();
                     }
 

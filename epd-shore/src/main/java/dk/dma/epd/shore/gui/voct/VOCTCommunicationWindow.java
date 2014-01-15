@@ -207,9 +207,9 @@ public class VOCTCommunicationWindow extends JDialog implements
             sruTable.setFocusable(false);
             // routeTable.setAutoResizeMode(0);
 
-            sruTableModel = new VOCTCommunicationTableModel(EPDShore
+            sruTableModel = new VOCTCommunicationTableModel(EPDShore.getInstance()
                     .getVoctManager().getSruManager(),
-                    EPDShore.getVoctManager());
+                    EPDShore.getInstance().getVoctManager());
             sruTableModel.addTableModelListener(this);
 
             sruTable.setShowHorizontalLines(false);
@@ -332,7 +332,7 @@ public class VOCTCommunicationWindow extends JDialog implements
 
                         sruManager.setSRUStatus(i, sru_status.INVITED);
 
-                        EPDShore.getEnavServiceHandler().sendVOCTMessage(
+                        EPDShore.getInstance().getEnavServiceHandler().sendVOCTMessage(
                                 sruList.get(i).getMmsi(),
                                 voctManager.getSarData(), "OSC", "Please Join",
                                 i, (boolean) sruTable.getValueAt(i, 4),

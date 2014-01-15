@@ -54,7 +54,8 @@ public class SARPanel extends SARPanelCommon {
     @Override
     public void actionPerformed(ActionEvent arg0) {
 
-        if (arg0.getSource() == btnStartSar || arg0.getSource() == btnReopenCalculations) {
+        if (arg0.getSource() == btnStartSar
+                || arg0.getSource() == btnReopenCalculations) {
 
             if (voctManager != null) {
 
@@ -72,7 +73,8 @@ public class SARPanel extends SARPanelCommon {
                 // Determine what type of SAR then retrieve the input data
                 if (effortAllocationWindow != null) {
                     effortAllocationWindow.setValues();
-                    effortAllocationWindow.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+                    effortAllocationWindow
+                            .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
                     effortAllocationWindow.setVisible(true);
                 }
 
@@ -88,7 +90,8 @@ public class SARPanel extends SARPanelCommon {
                 voctManager.updateEffectiveAreaLocation();
 
                 searchPatternDialog.resetValues();
-                searchPatternDialog.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+                searchPatternDialog
+                        .setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
                 searchPatternDialog.setVisible(true);
             }
 
@@ -98,12 +101,15 @@ public class SARPanel extends SARPanelCommon {
         if (arg0.getSource() == chckbxShowDynamicPattern) {
 
             if (chckbxShowDynamicPattern.isSelected()) {
-                sarData.getEffortAllocationData().get(0).getSearchPatternRoute().switchToDynamic();
+                sarData.getEffortAllocationData().get(0)
+                        .getSearchPatternRoute().switchToDynamic();
             } else {
-                sarData.getEffortAllocationData().get(0).getSearchPatternRoute().switchToStatic();
+                sarData.getEffortAllocationData().get(0)
+                        .getSearchPatternRoute().switchToStatic();
             }
 
-            EPDShip.getRouteManager().notifyListeners(RoutesUpdateEvent.ROUTE_CHANGED);
+            EPDShip.getInstance().getRouteManager()
+                    .notifyListeners(RoutesUpdateEvent.ROUTE_CHANGED);
 
             return;
         }
@@ -124,13 +130,13 @@ public class SARPanel extends SARPanelCommon {
     @Override
     protected SearchPatternsPanelCommon createSearchPatternsPanel() {
         searchPatternPanel = new SearchPatternsPanel();
-        btnGenerateSearchPattern = ((SearchPatternsPanel) searchPatternPanel).getBtnGenerateSearchPattern();
+        btnGenerateSearchPattern = ((SearchPatternsPanel) searchPatternPanel)
+                .getBtnGenerateSearchPattern();
 
         btnGenerateSearchPattern.addActionListener(this);
 
-        
-        
-        chckbxShowDynamicPattern = ((SearchPatternsPanel) searchPatternPanel).getChckbxShowDynamicPattern();
+        chckbxShowDynamicPattern = ((SearchPatternsPanel) searchPatternPanel)
+                .getChckbxShowDynamicPattern();
 
         chckbxShowDynamicPattern.addActionListener(this);
 

@@ -20,16 +20,13 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
 import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.ScrollPaneConstants;
@@ -44,14 +41,9 @@ import javax.swing.table.TableCellRenderer;
 
 import dk.dma.epd.common.prototype.gui.voct.EffortAllocationPanelCommon;
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
-import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.gui.voct.SRUTableModel;
 import dk.dma.epd.shore.voct.SRUUpdateEvent;
 import dk.dma.epd.shore.voct.SRUUpdateListener;
-
-import javax.swing.JPanel;
-import java.awt.FlowLayout;
 
 public class EffortAllocationPanel extends EffortAllocationPanelCommon
         implements ActionListener, ListSelectionListener, TableModelListener,
@@ -66,7 +58,7 @@ public class EffortAllocationPanel extends EffortAllocationPanelCommon
 
     public EffortAllocationPanel() {
         
-        EPDShore.getVoctManager().getSruManager().addListener(this);
+        EPDShore.getInstance().getVoctManager().getSruManager().addListener(this);
         
         this.setBorder(new TitledBorder(null,
                 "Effort Allocation", TitledBorder.LEADING, TitledBorder.TOP,
@@ -114,7 +106,7 @@ public class EffortAllocationPanel extends EffortAllocationPanelCommon
         sruTable.setFocusable(false);
         // routeTable.setAutoResizeMode(0);
 
-        sruTableModel = new SRUTableModelPanel(EPDShore.getVoctManager().getSruManager(), EPDShore.getVoctManager());
+        sruTableModel = new SRUTableModelPanel(EPDShore.getInstance().getVoctManager().getSruManager(), EPDShore.getInstance().getVoctManager());
         sruTableModel.addTableModelListener(this);
 
         sruTable.setShowHorizontalLines(false);

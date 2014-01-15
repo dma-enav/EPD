@@ -306,7 +306,7 @@ public class MsiDialog extends ComponentFrame implements ListSelectionListener, 
         if (e.getSource() == ackButton) {
             int selected;
             msiHandler.setAcknowledged(getMessage(msiTable.getSelectedRow()).msiMessage);
-            if (EPDShip.getSettings().getEnavSettings().isMsiFilter()){
+            if (EPDShip.getInstance().getSettings().getEnavSettings().isMsiFilter()){
                 selected = msiHandler.getFirstNonAcknowledgedFiltered();
             }else{
                 selected = msiHandler.getFirstNonAcknowledged();

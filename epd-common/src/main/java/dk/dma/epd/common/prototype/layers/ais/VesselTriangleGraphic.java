@@ -15,29 +15,21 @@
  */
 package dk.dma.epd.common.prototype.layers.ais;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Font;
-import java.awt.Paint;
-import java.awt.Stroke;
-import java.awt.geom.Point2D;
 
+import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
-import com.bbn.openmap.omGraphics.OMGraphicList;
-import com.bbn.openmap.omGraphics.OMLine;
 import com.bbn.openmap.omGraphics.OMText;
-import com.bbn.openmap.proj.Length;
 import com.bbn.openmap.proj.Projection;
-import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.RotationalPoly;
-import dk.dma.epd.common.math.Vector2D;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
 
@@ -45,84 +37,60 @@ import dk.dma.epd.common.prototype.settings.NavSettings;
  * @author Janus Varmarken
  */
 public class VesselTriangleGraphic extends TargetGraphic {
-    
-    /**
-     * 
-     */
+
     private static final long serialVersionUID = 1L;
 
-    public static final float STROKE_WIDTH = 1.5f;
-    
     private VesselTarget vesselTarget;
-    
+
     private VesselTargetGraphic parentGraphic;
-    
+
     private VesselTargetTriangle vessel;
     private RotationalPoly heading;
-    private OMGraphicList marks = new OMGraphicList();
-    
-    private OMLine speedVector;
-    private double[] speedLL = new double[4];
-    private LatLonPoint startPos;
-    private LatLonPoint endPos;
+
     private Font font;
     private OMText label;
-    
-    private Vector2D pixelDist = new Vector2D();
-    private Boolean marksVisible = false;
-    
-    private Paint paint;
-    private Stroke stroke;
-    private boolean showNameLabel = true;
-    
-    private int[] markX = { -5, 5 };
-    private int[] markY = { 0, 0 };
-    
-    public VesselTriangleGraphic(VesselTargetGraphic parentGraphic) {
-        this.parentGraphic = parentGraphic;
-    }
-    
-    private void createGraphics() {
-        speedVector = new OMLine(0, 0, 0, 0,
-                OMGraphicConstants.LINETYPE_STRAIGHT);
-        speedVector.setStroke(new BasicStroke(STROKE_WIDTH, // Width
-                BasicStroke.CAP_SQUARE, // End cap
-                BasicStroke.JOIN_MITER, // Join style
-                10.0f, // Miter limit
-                new float[] { 10.0f, 8.0f }, // Dash pattern
-                0.0f) // Dash phase
-                );
 
-        speedVector.setLinePaint(new Color(74, 97, 205, 255));
-        stroke = new BasicStroke(STROKE_WIDTH);
-        paint = new Color(74, 97, 205, 255);
-        
+    private boolean showNameLabel = true;
+
+    private SpeedVectorGraphic speedVector;
+    
+    /**
+     * The layer that displays this graphic object.
+     * If this graphic is a subgraphic of another graphic,
+     * use the top level graphic's parent layer.
+     */
+    private OMGraphicHandlerLayer parentLayer;
+    
+    public VesselTriangleGraphic(VesselTargetGraphic parentGraphic, OMGraphicHandlerLayer parentLayer) {
+        this.parentGraphic = parentGraphic;
+        this.parentLayer = parentLayer;
+    }
+
+    private void createGraphics() {
         vessel = new VesselTargetTriangle(this.parentGraphic);
 
         int[] headingX = { 0, 0 };
         int[] headingY = { 0, -100 };
-        heading = new RotationalPoly(headingX, headingY, null, paint);
-        
+        heading = new RotationalPoly(headingX, headingY, null, ColorConstants.EPD_SHIP_VESSEL_COLOR);
+
         font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
         label = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);
+
+        this.speedVector = new SpeedVectorGraphic(ColorConstants.EPD_SHIP_VESSEL_COLOR);
         
         add(label);
         add(0, vessel);
-        add(speedVector);
+        this.add(this.speedVector);
         add(heading);
-        add(marks);
-//        add(routeGraphic);
     }
-    
+
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings) {
+    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale) {
         if (aisTarget instanceof VesselTarget) {
 
             vesselTarget = (VesselTarget) aisTarget;
             VesselPositionData posData = vesselTarget.getPositionData();
             VesselStaticData staticData = vesselTarget.getStaticData();
-//            VesselTargetSettings targetSettings = vesselTarget.getSettings();
-//            CloudIntendedRoute cloudIntendedRoute = vesselTarget.getIntendedRoute();
 
             Position pos = posData.getPos();
             double trueHeading = posData.getTrueHeading();
@@ -139,51 +107,17 @@ public class VesselTriangleGraphic extends TargetGraphic {
                 createGraphics();
             }
 
-            double sog = vesselTarget.getPositionData().getSog();
-            double cogR = Math.toRadians(vesselTarget.getPositionData()
-                    .getCog());
             double hdgR = Math.toRadians(trueHeading);
 
-            // vessel.setLocation(lat, lon, OMGraphic.DECIMAL_DEGREES, hdgR);
             vessel.update(lat, lon, OMGraphicConstants.DECIMAL_DEGREES, hdgR);
-            heading.setLocation(lat, lon, OMGraphicConstants.DECIMAL_DEGREES,
-                    hdgR);
+            heading.setLocation(lat, lon, OMGraphicConstants.DECIMAL_DEGREES, hdgR);
             if (noHeading) {
                 heading.setVisible(false);
             }
-
-            speedLL[0] = (float) pos.getLatitude();
-            speedLL[1] = (float) pos.getLongitude();
-            this.startPos = new LatLonPoint.Double(lat, lon);
-
-            float length = (float) Length.NM.toRadians(aisSettings
-                    .getCogVectorLength() * (sog / 60.0));
-
-            this.endPos = startPos.getPoint(length, cogR);
-            speedLL[2] = endPos.getLatitude();
-            speedLL[3] = endPos.getLongitude();
-            speedVector.setLL(speedLL);
-
-            // Do not show speed vector if moored
-            // speedVector.setVisible(posData.getNavStatus() != 5);
-
-            // Add minute marks
-            marks.clear();
-            for (int i = 1; i < 6; i++) {
-                float newMarker = (float) Length.NM.toRadians(navSettings
-                        .getCogVectorLength() / 6 * i * (sog / 60.0));
-                LatLonPoint marker = startPos.getPoint(newMarker, (float) cogR);
-                RotationalPoly vtm = new RotationalPoly(markX, markY, stroke,
-                        paint);
-                vtm.setLocation(marker.getLatitude(), marker.getLongitude(),
-                        OMGraphicConstants.DECIMAL_DEGREES, cogR);
-                marks.add(vtm);
-            }
-
-            if (!marksVisible) {
-                marks.setVisible(false);
-            }
-
+            
+            // update the speed vector with the new data
+            this.speedVector.update(posData, this.parentLayer.getProjection().getScale());
+            
             // Set label
             label.setLat(lat);
             label.setLon(lon);
@@ -202,39 +136,15 @@ public class VesselTriangleGraphic extends TargetGraphic {
                 name = "ID:" + mmsi.toString();
             }
             label.setData(name);
-
-            if (showNameLabel) {
-                label.setVisible(true);
-            } else {
-                label.setVisible(false);
-            }
-//            // Intended route graphic
-//            routeGraphic.update(vesselTarget, name, cloudIntendedRoute, pos);
-//            if (!targetSettings.isShowRoute()) {
-//                routeGraphic.setVisible(false);
-//            }
-
+            label.setVisible(showNameLabel);
         }
     }
 
     @Override
-    public void setMarksVisible(Projection projection, AisSettings aisSettings,
-            NavSettings navSettings) {
-        if (startPos != null && endPos != null) {
-            Point2D start = projection.forward(startPos);
-            Point2D end = projection.forward(endPos);
-            pixelDist.setValues(start.getX(), start.getY(), end.getX(),
-                    end.getY());
-            if (pixelDist.norm() < aisSettings.getShowMinuteMarksAISTarget()) {
-                marksVisible = false;
-                marks.setVisible(false);
-            } else {
-                marksVisible = true;
-                marks.setVisible(true);
-            }
-        }
+    public void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings) {
+        // TODO 08-01-2014: consider what to do with this method as number of marks are now extracted from ScaleDependantsValues.
     }
-    
+
     public void setShowNameLabel(boolean showNameLabel) {
         this.showNameLabel = showNameLabel;
     }

@@ -29,8 +29,8 @@ import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType;
-import dk.dma.epd.shore.settings.ESDAisSettings;
-import dk.dma.epd.shore.settings.ESDSensorSettings;
+import dk.dma.epd.shore.settings.EPDAisSettings;
+import dk.dma.epd.shore.settings.EPDSensorSettings;
 
 public class AisSettingsPanel extends JPanel{
 
@@ -39,14 +39,14 @@ public class AisSettingsPanel extends JPanel{
      */
     private static final long serialVersionUID = 1L;
     private JTextField textFieldAisHostOrSerialPort;
-    private ESDAisSettings aisSettings;
+    private EPDAisSettings aisSettings;
     @SuppressWarnings("rawtypes")
     private JComboBox comboBoxAisConnectionType;
-    private JSpinner spinnerAisTcpPort;
+    private JSpinner spinnerAisTcpOrUdpPort;
     private JCheckBox chckbxAllowSending;
     private JCheckBox chckbxStrictTimeout;
     private JTextField ownMMSITxt;
-    private ESDSensorSettings sensorSettings;
+    private EPDSensorSettings sensorSettings;
 
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -82,7 +82,7 @@ public class AisSettingsPanel extends JPanel{
 
         comboBoxAisConnectionType = new JComboBox();
         GuiStyler.styleDropDown(comboBoxAisConnectionType);
-        comboBoxAisConnectionType.setModel(new DefaultComboBoxModel(ESDSensorSettings.SensorConnectionType.values()));
+        comboBoxAisConnectionType.setModel(new DefaultComboBoxModel(EPDSensorSettings.SensorConnectionType.values()));
         comboBoxAisConnectionType.setBounds(134, 19, 142, 20);
         aisConnection.add(comboBoxAisConnectionType);
 
@@ -92,11 +92,11 @@ public class AisSettingsPanel extends JPanel{
         aisConnection.add(textFieldAisHostOrSerialPort);
         textFieldAisHostOrSerialPort.setColumns(10);
 
-        spinnerAisTcpPort = new JSpinner();
-        spinnerAisTcpPort.setEditor(new NumberEditor(spinnerAisTcpPort, "#"));
-        GuiStyler.styleSpinner(spinnerAisTcpPort);
-        spinnerAisTcpPort.setBounds(134, 65, 142, 20);
-        aisConnection.add(spinnerAisTcpPort);
+        spinnerAisTcpOrUdpPort = new JSpinner();
+        spinnerAisTcpOrUdpPort.setEditor(new NumberEditor(spinnerAisTcpOrUdpPort, "#"));
+        GuiStyler.styleSpinner(spinnerAisTcpOrUdpPort);
+        spinnerAisTcpOrUdpPort.setBounds(134, 65, 142, 20);
+        aisConnection.add(spinnerAisTcpOrUdpPort);
 
         JPanel transponderSettings = new JPanel();
 
@@ -142,12 +142,12 @@ public class AisSettingsPanel extends JPanel{
     }
 
 
-    public void loadSettings(ESDAisSettings aisSettings, ESDSensorSettings sensorSettings) {
+    public void loadSettings(EPDAisSettings aisSettings, EPDSensorSettings sensorSettings) {
         this.aisSettings = aisSettings;
         this.sensorSettings = sensorSettings;
         comboBoxAisConnectionType.getModel().setSelectedItem(sensorSettings.getAisConnectionType());
         textFieldAisHostOrSerialPort.setText(sensorSettings.getAisHostOrSerialPort());
-        spinnerAisTcpPort.setValue(sensorSettings.getAisTcpPort());
+        spinnerAisTcpOrUdpPort.setValue(sensorSettings.getAisTcpOrUdpPort());
 
         chckbxAllowSending.setSelected(aisSettings.isAllowSending());
         chckbxStrictTimeout.setSelected(aisSettings.isStrict());
@@ -159,7 +159,7 @@ public class AisSettingsPanel extends JPanel{
     public void saveSettings() {
         sensorSettings.setAisConnectionType((SensorConnectionType) comboBoxAisConnectionType.getModel().getSelectedItem());
         sensorSettings.setAisHostOrSerialPort(textFieldAisHostOrSerialPort.getText());
-        sensorSettings.setAisTcpPort((Integer) spinnerAisTcpPort.getValue());
+        sensorSettings.setAisTcpOrUdpPort((Integer) spinnerAisTcpOrUdpPort.getValue());
 
         aisSettings.setAllowSending(chckbxAllowSending.isSelected());
         aisSettings.setStrict(chckbxStrictTimeout.isSelected());

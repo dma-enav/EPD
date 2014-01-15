@@ -15,8 +15,8 @@
  */
 package dk.dma.epd.common.prototype.enavcloud;
 
-import dk.dma.enav.maritimecloud.service.spi.ServiceInitiationPoint;
-import dk.dma.enav.maritimecloud.service.spi.ServiceMessage;
+import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
+import net.maritimecloud.net.service.spi.ServiceMessage;
 
 public class StrategicRouteAck {
 

@@ -30,7 +30,7 @@ import com.bbn.openmap.Layer;
 import com.bbn.openmap.util.PropUtils;
 
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.settings.ESDMapSettings;
+import dk.dma.epd.shore.settings.EPDMapSettings;
 
 /**
  * Factory class for creating ENC layer. If ENC is enabled is uses the file
@@ -42,7 +42,7 @@ public class EncLayerFactory {
     private static final Logger LOG = LoggerFactory
             .getLogger(EncLayerFactory.class);
     private Properties encProps = new Properties();
-    private ESDMapSettings mapSettings;
+    private EPDMapSettings mapSettings;
     private Layer encLayer;
 
     private static void addSoftwareLibrary(File file) throws Exception {
@@ -62,7 +62,7 @@ public class EncLayerFactory {
         fieldSysPath.set(null, null);
     }
 
-    public EncLayerFactory(ESDMapSettings mapSettings) {
+    public EncLayerFactory(EPDMapSettings mapSettings) {
         this.mapSettings = mapSettings;
         // Use ENC?
         if (!mapSettings.isUseEnc()) {
@@ -72,7 +72,7 @@ public class EncLayerFactory {
         // // Try to load ENC props
 //        if (!PropUtils.loadProperties(encProps, "..\\..\\.epd-ship",
 //                "enc.properties")) {
-      if (!PropUtils.loadProperties(encProps, EPDShore.getHomePath().toString(),
+      if (!PropUtils.loadProperties(encProps, EPDShore.getInstance().getHomePath().toString(),
       "enc.properties")) {
             
             LOG.error("No enc.properties file found");
@@ -86,16 +86,16 @@ public class EncLayerFactory {
      
         // Add external jars to runpath
         try {
-            addSoftwareLibrary(new File(EPDShore.getHomePath() + "\\lib\\s52.jar"));
-            addSoftwareLibrary(new File(EPDShore.getHomePath()
+            addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath() + "\\lib\\s52.jar"));
+            addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath()
                     + "\\lib\\s57csv.jar"));
-            addSoftwareLibrary(new File(EPDShore.getHomePath()
+            addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath()
                     + "\\lib\\jts-1.8.jar"));
-            addSoftwareLibrary(new File(EPDShore.getHomePath()
+            addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath()
                     + "\\lib\\dongle-1.10-SNAPSHOT.jar"));
-            addSoftwareLibrary(new File(EPDShore.getHomePath()
+            addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath()
                     + "\\lib\\forms-1.2.1.jar"));
-            addSoftwareLibrary(new File(EPDShore.getHomePath()
+            addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath()
                     + "\\lib\\binding-2.0.1.jar"));
         } catch (Exception e1) {
             e1.printStackTrace();
@@ -109,13 +109,13 @@ public class EncLayerFactory {
      
 
         try {
-            addToLibraryPath(EPDShore.getHomePath().toString()+ "\\navicon\\native");
+            addToLibraryPath(EPDShore.getInstance().getHomePath().toString()+ "\\navicon\\native");
         } catch (Exception e) {
             // TODO: handle exception
         }
 
       }
-      encProps.put("enc.certLocation",EPDShore.getHomePath().toString()+
+      encProps.put("enc.certLocation",EPDShore.getInstance().getHomePath().toString()+
               "\\" + encProps.get("enc.certLocation"));
       
         

@@ -19,7 +19,6 @@ import java.awt.event.MouseEvent;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 
 import dk.dma.epd.common.prototype.model.voct.sardata.SARData;
 import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
@@ -28,9 +27,10 @@ import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.gui.views.JMapFrame;
+import dk.dma.epd.shore.layers.GeneralLayer;
 import dk.dma.epd.shore.voct.VOCTManager;
 
-public class VoctLayerCommon extends OMGraphicHandlerLayer implements
+public class VoctLayerCommon extends GeneralLayer implements
         MapMouseListener, VOCTUpdateListener {
 
     private static final long serialVersionUID = 1L;

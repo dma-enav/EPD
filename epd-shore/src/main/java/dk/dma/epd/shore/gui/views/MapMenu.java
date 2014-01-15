@@ -43,7 +43,12 @@ import com.bbn.openmap.LightMapHandlerChild;
 import com.bbn.openmap.MapBean;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
+import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
+import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
+import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
@@ -111,9 +116,14 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private GeneralHideIntendedRoutes hideIntendedRoutes;
     private GeneralShowIntendedRoutes showIntendedRoutes;
     private GeneralNewRoute newRoute;
+    private SetShowPastTracks hidePastTracks;
+    private SetShowPastTracks showPastTracks;
     private JMenu scaleMenu;
     private AisIntendedRouteToggle aisIntendedRouteToggle;
+    private ToggleShowPastTrack aisTogglePastTrack;
+    private ClearPastTrack aisClearPastTrack;
 
+    private SarTargetDetails sarTargetDetails;
     // private NogoRequest nogoRequest;
     private MsiAcknowledge msiAcknowledge;
     private MsiDetails msiDetails;
@@ -186,6 +196,11 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         newRoute = new GeneralNewRoute("Add new route");
         newRoute.addActionListener(this);
 
+        showPastTracks = new SetShowPastTracks("Show all past-tracks", true);
+        showPastTracks.addActionListener(this);
+        hidePastTracks = new SetShowPastTracks("Hide all past-tracks", false);
+        hidePastTracks.addActionListener(this);
+        
         scaleMenu = new JMenu("Scale");
 
         // using treemap so scale levels are always sorted
@@ -194,6 +209,14 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         // ais menu items
         aisIntendedRouteToggle = new AisIntendedRouteToggle();
         aisIntendedRouteToggle.addActionListener(this);
+        aisTogglePastTrack = new ToggleShowPastTrack();
+        aisTogglePastTrack.addActionListener(this);
+        aisClearPastTrack = new ClearPastTrack();
+        aisClearPastTrack.addActionListener(this);
+
+        // SART menu items
+        sarTargetDetails = new SarTargetDetails("SART details");
+        sarTargetDetails.addActionListener(this);
 
         // msi menu items
         msiDetails = new MsiDetails("Show MSI details");
@@ -265,7 +288,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         
         // voyage leg menu
         voyageHandlingLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint(
-                "Insert waypoint here", EPDShore.getVoyageEventDispatcher());
+                "Insert waypoint here", EPDShore.getInstance().getVoyageEventDispatcher());
         voyageHandlingLegInsertWaypoint.addActionListener(this);
 
         voyageHandlingWaypointDelete = new VoyageHandlingWaypointDelete(
@@ -344,8 +367,11 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         hideIntendedRoutes.setAisHandler(aisHandler);
         showIntendedRoutes.setAisHandler(aisHandler);
 
-        newRoute.setToolBar(EPDShore.getMainFrame().getToolbar());
+        newRoute.setToolBar(EPDShore.getInstance().getMainFrame().getToolbar());
 
+        showPastTracks.setAisHandler(aisHandler);
+        hidePastTracks.setAisHandler(aisHandler);
+        
         // newRoute.setMouseDelegator(mouseDelegator);
         // newRoute.setMainFrame(mainFrame);
 
@@ -354,6 +380,10 @@ public class MapMenu extends JPopupMenu implements ActionListener,
             add(hideIntendedRoutes);
             add(showIntendedRoutes);
             add(newRoute);
+            addSeparator();
+            add(showPastTracks);
+            add(hidePastTracks);
+            addSeparator();
             add(scaleMenu);
             
             voyageHideAll.setVoyageLayer(voyageLayer);
@@ -373,9 +403,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         removeAll();
 
         sendRouteToShip.setMSSI(vesselTarget.getMmsi());
-        sendRouteToShip.setSendRouteDialog(EPDShore.getMainFrame()
+        sendRouteToShip.setSendRouteDialog(EPDShore.getInstance().getMainFrame()
                 .getSendRouteDialog());
-        sendRouteToShip.setEnabled(EPDShore.getEnavServiceHandler()
+        sendRouteToShip.setEnabled(EPDShore.getInstance().getEnavServiceHandler()
                 .shipAvailableForRouteSuggestion(vesselTarget.getMmsi()));
 
         add(sendRouteToShip);
@@ -398,6 +428,18 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         }
         add(aisIntendedRouteToggle);
 
+        // Toggle show past-track
+        aisTogglePastTrack.setMobileTarget(vesselTarget);
+        aisTogglePastTrack.setAisLayer(aisLayer);
+        aisTogglePastTrack.setText((vesselTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
+        add(aisTogglePastTrack);
+        
+        // Clear past-track
+        aisClearPastTrack.setMobileTarget(vesselTarget);
+        aisClearPastTrack.setAisLayer(aisLayer);
+        aisClearPastTrack.setText("Clear past-track");
+        add(aisClearPastTrack);
+                
         generalMenu(false);
     }
 
@@ -427,6 +469,39 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         generalMenu(false);
     }
+    
+    /**
+     * SART menu option
+     * 
+     * @param aisLayer
+     * @param sarTarget
+     */
+    public void sartMenu(AisLayer aisLayer, SarTarget sarTarget) {
+        removeAll();
+
+        sarTargetDetails.setSarTarget(sarTarget);
+        sarTargetDetails.setMainFrame(EPDShore.getInstance().getMainFrame());
+        sarTargetDetails.setPntHandler(null);
+
+        add(sarTargetDetails);
+
+        addSeparator();
+        
+        // Toggle show past-track
+        aisTogglePastTrack.setMobileTarget(sarTarget);
+        aisTogglePastTrack.setAisLayer(aisLayer);
+        aisTogglePastTrack.setText((sarTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
+        add(aisTogglePastTrack);
+        
+        // Clear past-track
+        aisClearPastTrack.setMobileTarget(sarTarget);
+        aisClearPastTrack.setAisLayer(aisLayer);
+        aisClearPastTrack.setText("Clear past-track");
+        add(aisClearPastTrack);
+        
+
+        generalMenu(false);
+    }
 
     /**
      * Builds the maritime safety information menu
@@ -439,7 +514,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         msiDetails.setMsiMessage(selectedGraphic.getMsiMessage());
         msiDetails
-                .setNotCenter(EPDShore.getMainFrame().getNotificationCenter());
+                .setNotCenter(EPDShore.getInstance().getMainFrame().getNotificationCenter());
 
         add(msiDetails);
 
@@ -469,7 +544,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
     public void generalRouteMenu(int routeIndex) {
 
-        routeManager = EPDShore.getMainFrame().getRouteManagerDialog()
+        routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
                 .getRouteManager();
         route = routeManager.getRoute(routeIndex);
 
@@ -480,7 +555,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         addSeparator();
 
         setRouteExchangeRoute.setRoute(route);
-        setRouteExchangeRoute.setSendRouteDialog(EPDShore.getMainFrame()
+        setRouteExchangeRoute.setSendRouteDialog(EPDShore.getInstance().getMainFrame()
                 .getSendRouteDialog());
         add(setRouteExchangeRoute);
 
@@ -533,7 +608,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     }
 
     public void routeLegMenu(int routeIndex, RouteLeg routeLeg, Point point) {
-        routeManager = EPDShore.getMainFrame().getRouteManagerDialog()
+        routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
                 .getRouteManager();
 
         removeAll();
@@ -557,7 +632,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     }
 
     public void routeWaypointMenu(int routeIndex, int routeWaypointIndex) {
-        routeManager = EPDShore.getMainFrame().getRouteManagerDialog()
+        routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
                 .getRouteManager();
 
         removeAll();
@@ -576,10 +651,10 @@ public class MapMenu extends JPopupMenu implements ActionListener,
             MapBean mapBean) {
         removeAll();
 
-        if (aisHandler.getVesselTargets().containsKey(mmsi)) {
+        VesselTarget vesselTarget = aisHandler.getVesselTarget(mmsi);
+        if (vesselTarget != null) {
             voyageZoomToShip.setEnabled(true);
-            Position pos = aisHandler.getVesselTargets().get(mmsi)
-                    .getPositionData().getPos();
+            Position pos = vesselTarget.getPositionData().getPos();
             voyageZoomToShip.setMapBean(mapBean);
             voyageZoomToShip.setPosition(pos);
         } else {
@@ -600,7 +675,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         voyageRenegotiate.setAisHandler(aisHandler);
         voyageRenegotiate.setMonaLisaHandler(monaLisaHandler);
 
-        voyageRenegotiate.setEnabled(EPDShore.getEnavServiceHandler()
+        voyageRenegotiate.setEnabled(EPDShore.getInstance().getEnavServiceHandler()
                 .shipAvailableForMonaLisaTransaction(mmsi)
                 && monaLisaHandler.getStrategicNegotiationData().containsKey(
                         transactionID));
@@ -636,7 +711,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         sendVoyage.setRenegotiate(renegotiate);
         sendVoyage.setVoyage(voyage);
         sendVoyage.setModifiedRoute(modified);
-        sendVoyage.setSendVoyageDialog(EPDShore.getMainFrame()
+        sendVoyage.setSendVoyageDialog(EPDShore.getInstance().getMainFrame()
                 .getSendVoyageDialog());
         sendVoyage.setParent(parent);
 
@@ -690,10 +765,10 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
     public void routeEditMenu() {
         removeAll();
-        routeManager = EPDShore.getMainFrame().getRouteManagerDialog()
+        routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
                 .getRouteManager();
 
-        routeEditEndRoute.setToolBar(EPDShore.getMainFrame().getToolbar());
+        routeEditEndRoute.setToolBar(EPDShore.getInstance().getMainFrame().getToolbar());
 
         add(routeEditEndRoute);
 

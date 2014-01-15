@@ -37,11 +37,10 @@ public class RouteLegGraphic extends OMGraphicList {
 
     private static final long serialVersionUID = 1L;
 
-    private RouteLeg routeLeg;
+    protected RouteLeg routeLeg;
     private OMLine line;
-    private OMArrowHead arrow = new OMArrowHead(
-            OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, 5, 15);
-    private Color color;
+    private OMArrowHead arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, 5, 15);
+    protected Color color;
 
     private OMLine animationLine;
     private OMLine broadLine;
@@ -63,8 +62,7 @@ public class RouteLegGraphic extends OMGraphicList {
      * @param stroke
      *            Stroke type of the route leg
      */
-    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color,
-            Stroke stroke) {
+    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke) {
         super();
         this.routeIndex = routeIndex;
         this.routeLeg = routeLeg;
@@ -86,8 +84,8 @@ public class RouteLegGraphic extends OMGraphicList {
      * @param stroke
      *            Stroke type of the route leg
      */
-    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color,
-            Stroke stroke, Color broadLineColor, float[] broadLineDash) {
+    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor,
+            float[] broadLineDash) {
         super();
         this.routeIndex = routeIndex;
         this.routeLeg = routeLeg;
@@ -98,8 +96,7 @@ public class RouteLegGraphic extends OMGraphicList {
         addBroadLine(broadLineColor, broadLineDash);
     }
 
-    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color,
-            Stroke stroke, Color broadLineColor) {
+    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor) {
         super();
         this.routeIndex = routeIndex;
         this.routeLeg = routeLeg;
@@ -124,8 +121,7 @@ public class RouteLegGraphic extends OMGraphicList {
 
             broadLine = new OMLine(startLat, startLon, endLat, endLon, lineType);
             broadLine.setLinePaint(color);
-            broadLine.setStroke(new BasicStroke(12.0f, BasicStroke.CAP_BUTT,
-                    BasicStroke.JOIN_MITER, 10.0f, broadLineDash, 0.0f));
+            broadLine.setStroke(new BasicStroke(12.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, broadLineDash, 0.0f));
 
             add(broadLine);
         }
@@ -168,12 +164,9 @@ public class RouteLegGraphic extends OMGraphicList {
             double endLat = legEnd.getPos().getLatitude();
             double endLon = legEnd.getPos().getLongitude();
 
-            animationLine = new OMLine(startLat, startLon, endLat, endLon,
-                    lineType);
+            animationLine = new OMLine(startLat, startLon, endLat, endLon, lineType);
             animationLine.setLinePaint(new Color(1f, 1f, 0, 0.6f));
-            animationLine.setStroke(new BasicStroke(10.0f,
-                    BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash,
-                    dashPhase));
+            animationLine.setStroke(new BasicStroke(10.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, dashPhase));
 
             add(animationLine);
         }
@@ -194,9 +187,7 @@ public class RouteLegGraphic extends OMGraphicList {
 
         if (animationLine != null) {
 
-            animationLine.setStroke(new BasicStroke(10.0f,
-                    BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash,
-                    dashPhase));
+            animationLine.setStroke(new BasicStroke(10.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, dashPhase));
 
         }
         // System.out.println("Changing stroke! " + dashPhase);
@@ -217,8 +208,7 @@ public class RouteLegGraphic extends OMGraphicList {
     @Override
     public void render(Graphics gr) {
         Graphics2D image = (Graphics2D) gr;
-        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         super.render(image);
     }
 

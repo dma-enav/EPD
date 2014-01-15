@@ -29,6 +29,8 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import net.maritimecloud.net.MaritimeCloudClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +40,8 @@ import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
-import dk.dma.enav.maritimecloud.MaritimeCloudClient;
 import dk.dma.epd.common.ExceptionHandler;
+import dk.dma.epd.common.prototype.Bootstrap;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
@@ -60,8 +62,8 @@ import dk.dma.epd.shore.service.MonaLisaRouteOptimization;
 import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
 import dk.dma.epd.shore.service.ais.AisServices;
 import dk.dma.epd.shore.services.shore.ShoreServices;
-import dk.dma.epd.shore.settings.ESDSensorSettings;
-import dk.dma.epd.shore.settings.ESDSettings;
+import dk.dma.epd.shore.settings.EPDSensorSettings;
+import dk.dma.epd.shore.settings.EPDSettings;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
 import dk.dma.epd.shore.voyage.VoyageManager;
@@ -72,35 +74,34 @@ import dk.dma.epd.shore.voyage.VoyageManager;
  * Starts up components, bean context and GUI.
  * 
  */
-public class EPDShore extends EPD {
+public final class EPDShore extends EPD<EPDSettings> {
 
     private static Logger LOG;
-    private static MainFrame mainFrame;
-    private static BeanContextServicesSupport beanHandler;
-    private static ESDSettings settings;
-    static Properties properties = new Properties();
-    private static NmeaSensor aisSensor;
-    private static AisHandler aisHandler;
-    private static MsiHandler msiHandler;
-    private static StrategicRouteExchangeHandler monaLisaHandler;
-    private static AisServices aisServices;
-    private static AisReader aisReader;
-    private static ShoreServicesCommon shoreServicesCommon;
-    private static StaticImages staticImages;
-    private static TransponderFrame transponderFrame;
-    private static MonaLisaRouteOptimization monaLisaRouteExchange;
+    private MainFrame mainFrame;
+    private BeanContextServicesSupport beanHandler;
+    private NmeaSensor aisSensor;
+    private AisHandler aisHandler;
+    private MsiHandler msiHandler;
+    private StrategicRouteExchangeHandler monaLisaHandler;
+    private AisServices aisServices;
+    private AisReader aisReader;
+    private ShoreServicesCommon shoreServicesCommon;
+    private StaticImages staticImages;
+    private TransponderFrame transponderFrame;
+    private MonaLisaRouteOptimization monaLisaRouteExchange;
     
-    
-    private static RouteManager routeManager;
-    private static VoyageManager voyageManager;
-    private static EnavServiceHandler enavServiceHandler;
-    private static SRUManager sruManager;
-    private static VOCTManager voctManager;
+    private SRUManager sruManager;
+    private VOCTManager voctManager;
+
+    private RouteManager routeManager;
+    private VoyageManager voyageManager;
+    private EnavServiceHandler enavServiceHandler;
+
 
     /**
      * Event dispatcher used to notify listeners of voyage changes.
      */
-    private static VoyageEventDispatcher voyageEventDispatcher = new VoyageEventDispatcher();
+    private VoyageEventDispatcher voyageEventDispatcher = new VoyageEventDispatcher();
     
     /**
      * Starts the program by initializing the various threads and spawning the main GUI
@@ -108,10 +109,23 @@ public class EPDShore extends EPD {
      * @param args
      */
     public static void main(String[] args) throws IOException {
+        String settingsFile = (args.length > 0) ? args[0] : null;
         
-        home = Paths.get(System.getProperty("user.home"), ".epd-shore");
+        new EPDShore(settingsFile);
+    }
 
-        new Bootstrap().run();
+
+    /**
+     * Constructor
+     * @throws IOException 
+     */
+    private EPDShore(String settingsFile) throws IOException {
+        super();
+        
+        new Bootstrap().run(
+                this, 
+                new String[] { "epd-shore.properties", "settings.properties", "transponder.xml" },
+                new String[] { "workspaces", "routes", "shape/GSHHS_shp" });
 
         // Set up log4j logging
         LOG = LoggerFactory.getLogger(EPDShore.class);
@@ -130,18 +144,18 @@ public class EPDShore extends EPD {
         beanHandler = new BeanContextServicesSupport();
 
         // Load settings or get defaults and add to bean context
-        if (args.length > 0) {
-            settings = new ESDSettings(args[0]);
+        if (settingsFile != null) {
+            settings = new EPDSettings(settingsFile);
         } else {
-            settings = new ESDSettings();
+            settings = new EPDSettings();
         }
         LOG.info("Using settings file: " + settings.getSettingsFile());
         settings.loadFromFile();
         beanHandler.add(settings);
-
+        
         // Determine if instance already running and if that is allowed
 
-        OneInstanceGuard guard = new OneInstanceGuard(home.resolve("esd.lock").toString());
+        OneInstanceGuard guard = new OneInstanceGuard(getHomePath().resolve("esd.lock").toString());
         if (guard.isAlreadyRunning()) {
             JOptionPane.showMessageDialog(null, "One application instance already running. Stop instance or restart computer.",
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -229,21 +243,25 @@ public class EPDShore extends EPD {
         }
 
         // Create embedded transponder frame
-        transponderFrame = new TransponderFrame(home.resolve("transponder.xml").toString(), true, mainFrame);
+        transponderFrame = new TransponderFrame(getHomePath().resolve("transponder.xml").toString(), true, mainFrame);
         mainFrame.getTopMenu().setTransponderFrame(transponderFrame);
         beanHandler.add(transponderFrame);
 
         if (settings.getSensorSettings().isStartTransponder()) {
             transponderFrame.startTransponder();
         }
-
-    }
-
-    public static EnavServiceHandler getEnavServiceHandler() {
-        return enavServiceHandler;
     }
     
-    public Path getSettingsPath() {
+    /**
+     * Returns the current {@code EPDShore} instance
+     * @return the current {@code EPDShore} instance
+     */
+    public static EPDShore getInstance() {
+        return (EPDShore)instance;
+    }
+    
+    @Override
+    public Path getHomePath() {
         return Paths.get(System.getProperty("user.home"), ".epd-shore");
     }
 
@@ -253,7 +271,7 @@ public class EPDShore extends EPD {
     /**
      * @return the voctManager
      */
-    public static VOCTManager getVoctManager() {
+    public VOCTManager getVoctManager() {
         return voctManager;
     }
 
@@ -261,10 +279,14 @@ public class EPDShore extends EPD {
      * Function called on shutdown
      */
     public static void closeApp() {
-        closeApp(false);
+        getInstance().closeApp(false);
     }
 
-    public static StrategicRouteExchangeHandler getMonaLisaHandler() {
+    public EnavServiceHandler getEnavServiceHandler() {
+        return enavServiceHandler;
+    }
+    
+    public StrategicRouteExchangeHandler getMonaLisaHandler() {
         return monaLisaHandler;
     }
 
@@ -274,7 +296,7 @@ public class EPDShore extends EPD {
      * @param restart
      *            - boolean value for program restart
      */
-    public static void closeApp(boolean restart) {
+    public void closeApp(boolean restart) {
         // Shutdown routine
 
         // Chart panels
@@ -323,7 +345,7 @@ public class EPDShore extends EPD {
     /**
      * Creates and shows the GUI
      */
-    private static void createAndShowGUI() {
+    private void createAndShowGUI() {
         // Set the look and feel.
         initLookAndFeel();
 
@@ -339,7 +361,7 @@ public class EPDShore extends EPD {
     /**
      * Create the plugin components and initialize the beanhandler
      */
-    private static void createPluginComponents() {
+    private void createPluginComponents() {
         Properties props = getProperties();
         String componentsValue = props.getProperty("esd.plugin_components");
         if (componentsValue == null) {
@@ -376,7 +398,7 @@ public class EPDShore extends EPD {
      *            - Startime
      * @return - Elapsed time
      */
-    public static double elapsed(long start) {
+    public double elapsed(long start) {
         double elapsed = System.nanoTime() - start;
         return elapsed / 1000000.0;
     }
@@ -386,7 +408,7 @@ public class EPDShore extends EPD {
      * 
      * @return - aisHandler
      */
-    public static AisHandler getAisHandler() {
+    public AisHandler getAisHandler() {
         return aisHandler;
     }
 
@@ -395,7 +417,7 @@ public class EPDShore extends EPD {
      * 
      * @return - beanHandler
      */
-    public static BeanContextServicesSupport getBeanHandler() {
+    public BeanContextServicesSupport getBeanHandler() {
         return beanHandler;
     }
 
@@ -412,15 +434,15 @@ public class EPDShore extends EPD {
      * 
      * @return - mainframe gui
      */
-    public static MainFrame getMainFrame() {
+    public MainFrame getMainFrame() {
         return mainFrame;
     }
 
-    public static RouteManager getRouteManager() {
+    public RouteManager getRouteManager() {
         return routeManager;
     }
     
-    public static SRUManager getSRUManager() {
+    public SRUManager getSRUManager() {
         return sruManager;
     }
 
@@ -429,26 +451,8 @@ public class EPDShore extends EPD {
      * 
      * @return - MsiHandler
      */
-    public static MsiHandler getMsiHandler() {
+    public MsiHandler getMsiHandler() {
         return msiHandler;
-    }
-
-    /**
-     * Returns the properties
-     * 
-     * @return - properties
-     */
-    public static Properties getProperties() {
-        return properties;
-    }
-
-    /**
-     * Return the settings
-     * 
-     * @return - settings
-     */
-    public static ESDSettings getSettings() {
-        return settings;
     }
 
     /**
@@ -456,14 +460,14 @@ public class EPDShore extends EPD {
      * 
      * @return - shoreServicesCommon
      */
-    public static ShoreServicesCommon getShoreServices() {
+    public ShoreServicesCommon getShoreServices() {
         return shoreServicesCommon;
     }
 
     /**
      * Set the used theme using lookAndFeel
      */
-    private static void initLookAndFeel() {
+    private void initLookAndFeel() {
         try {
 //            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             
@@ -503,7 +507,8 @@ public class EPDShore extends EPD {
     /**
      * Load the properties file
      */
-    static void loadProperties() {
+    @Override
+    public Properties loadProperties() {
         InputStream in = EPDShore.class.getResourceAsStream("/epd-shore.properties");
         try {
             if (in == null) {
@@ -514,16 +519,17 @@ public class EPDShore extends EPD {
         } catch (IOException e) {
             LOG.error("Failed to load resources: " + e.getMessage());
         }
+        return properties;
     }
 
-    private static void startSensors() {
-        ESDSensorSettings sensorSettings = settings.getSensorSettings();
+    private void startSensors() {
+        EPDSensorSettings sensorSettings = settings.getSensorSettings();
         switch (sensorSettings.getAisConnectionType()) {
         case NONE:
             aisSensor = new NmeaStdinSensor();
             break;
         case TCP:
-            aisSensor = new NmeaTcpSensor(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisTcpPort());
+            aisSensor = new NmeaTcpSensor(sensorSettings.getAisHostOrSerialPort(), sensorSettings.getAisTcpOrUdpPort());
             break;
         case SERIAL:
             aisSensor = NmeaSerialSensorFactory.create(sensorSettings.getAisHostOrSerialPort());
@@ -544,7 +550,7 @@ public class EPDShore extends EPD {
 
     }
 
-    public static StaticImages getStaticImages() {
+    public StaticImages getStaticImages() {
         return staticImages;
     }
 
@@ -562,22 +568,22 @@ public class EPDShore extends EPD {
         }
     }
 
-    public static AisReader getAisReader() {
+    public AisReader getAisReader() {
         return aisReader;
     }
 
-    public static AisServices getAisServices() {
+    public AisServices getAisServices() {
         return aisServices;
     }
 
-    public static VoyageManager getVoyageManager() {
+    public VoyageManager getVoyageManager() {
         return voyageManager;
     }
 
     /**
      * @return the monaLisaRouteExchange
      */
-    public static MonaLisaRouteOptimization getMonaLisaRouteExchange() {
+    public MonaLisaRouteOptimization getMonaLisaRouteExchange() {
         return monaLisaRouteExchange;
     }
     
@@ -585,8 +591,7 @@ public class EPDShore extends EPD {
      * Get the application-wide voyage event dispatcher.
      * @return The application-wide voyage event dispatcher.
      */
-    public static VoyageEventDispatcher getVoyageEventDispatcher() {
+    public VoyageEventDispatcher getVoyageEventDispatcher() {
         return voyageEventDispatcher;
     }
-
 }

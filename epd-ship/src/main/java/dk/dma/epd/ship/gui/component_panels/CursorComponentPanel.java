@@ -35,7 +35,7 @@ public class CursorComponentPanel extends OMComponentPanel implements IPntDataLi
 
     private static final long serialVersionUID = 1L;
     private final CursorPanel cursorPanel = new CursorPanel();
-    private PntData gpsData;
+    private PntData pntData;
     
     public CursorComponentPanel(){
         super();
@@ -56,12 +56,12 @@ public class CursorComponentPanel extends OMComponentPanel implements IPntDataLi
     public void recieveCoord(LatLonPoint llp) {
         cursorPanel.getCurLatLabel().setText(Formatter.latToPrintable(llp.getLatitude()));
         cursorPanel.getCurLonLabel().setText(Formatter.lonToPrintable(llp.getLongitude()));
-        PntData gpsData = this.getGpsData();
-        if(gpsData == null || gpsData.isBadPosition() || gpsData.getPosition() == null){
+        PntData pntData = this.getPntData();
+        if(pntData == null || pntData.isBadPosition() || pntData.getPosition() == null){
             cursorPanel.getCurCursLabel().setText("N/A");
             cursorPanel.getCurDistLabel().setText("N/A");
         } else {
-            Position pos = gpsData.getPosition();
+            Position pos = pntData.getPosition();
             Position curPos = Position.create(llp.getLatitude(), llp.getLongitude()); 
             cursorPanel.getCurCursLabel().setText(Formatter.formatDegrees(pos.rhumbLineBearingTo(curPos), 1));
             double distance = pos.rhumbLineDistanceTo(curPos)/1852;
@@ -69,15 +69,15 @@ public class CursorComponentPanel extends OMComponentPanel implements IPntDataLi
         }
     }
     
-    public PntData getGpsData() {
+    public PntData getPntData() {
         synchronized (SensorPanel.class) {
-            return gpsData;
+            return pntData;
         }
     }
     
     public void setGpsData(PntData gpsData) {
         synchronized (SensorPanel.class) {
-            this.gpsData = gpsData;
+            this.pntData = gpsData;
         }
     }
     

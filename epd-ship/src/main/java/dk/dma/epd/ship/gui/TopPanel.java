@@ -32,6 +32,7 @@ import javax.swing.JSeparator;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.event.DragMouseMode;
@@ -110,6 +111,17 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     private RouteLayer routeLayer;
 
     private MouseDelegator mouseDelegator;
+    
+    /**
+     * A slightly hacked way of simulating a click on the aisToggleName label
+     */
+    private IMapMenuAction hideAisNamesAction = new IMapMenuAction() {
+        @Override public void doAction() {
+            if (aisToggleName.isSelected()) {
+                aisToggleName.setSelected(false);
+                mouseReleased(new MouseEvent(aisToggleName, 0, 0L, 0, 0, 0, 0, false));
+            }
+        }};
 
     // private MsiHandler msiHandler;
     // private NogoHandler nogoHandler;
@@ -246,16 +258,16 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     }
 
     public void updateButtons() {
-        autoFollowBtn.setSelected(EPDShip.getSettings().getNavSettings()
+        autoFollowBtn.setSelected(EPDShip.getInstance().getSettings().getNavSettings()
                 .isAutoFollow());
-        aisBtn.setSelected(EPDShip.getSettings().getAisSettings().isVisible());
-        encBtn.setSelected(EPDShip.getSettings().getMapSettings()
+        aisBtn.setSelected(EPDShip.getInstance().getSettings().getAisSettings().isVisible());
+        encBtn.setSelected(EPDShip.getInstance().getSettings().getMapSettings()
                 .isEncVisible());
-        wmsBtn.setSelected(EPDShip.getSettings().getMapSettings()
+        wmsBtn.setSelected(EPDShip.getInstance().getSettings().getMapSettings()
                 .isWmsVisible());
         // tglbtnMsiFilter.setSelected(EeINS.getSettings().getEnavSettings()
         // .isMsiFilter());
-        aisToggleName.setSelected(EPDShip.getSettings().getAisSettings()
+        aisToggleName.setSelected(EPDShip.getInstance().getSettings().getAisSettings()
                 .isShowNameLabels());
 
         navigationMouseMode.setSelected(true);
@@ -264,7 +276,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     }
 
     public void disableAutoFollow() {
-        EPDShip.getSettings().getNavSettings().setAutoFollow(false);
+        EPDShip.getInstance().getSettings().getNavSettings().setAutoFollow(false);
         if (autoFollowBtn.isSelected()) {
             autoFollowBtn.setSelected(false);
         }
@@ -374,13 +386,13 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         // } else
 
         if (e.getSource() == autoFollowBtn) {
-            EPDShip.getSettings().getNavSettings()
+            EPDShip.getInstance().getSettings().getNavSettings()
                     .setAutoFollow(autoFollowBtn.isSelected());
             if (autoFollowBtn.isSelected()) {
                 mainFrame.getChartPanel().autoFollow();
             }
             menuBar.getAutoFollow().setSelected(
-                    EPDShip.getSettings().getNavSettings().isAutoFollow());
+                    EPDShip.getInstance().getSettings().getNavSettings().isAutoFollow());
 
         } else if (e.getSource() == centreBtn) {
             mainFrame.getChartPanel().centreOnShip();
@@ -389,24 +401,24 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         } else if (e.getSource() == zoomOutBtn) {
             mainFrame.getChartPanel().doZoom(2f);
         } else if (e.getSource() == aisBtn) {
-            EPDShip.getSettings().getAisSettings()
+            EPDShip.getInstance().getSettings().getAisSettings()
                     .setVisible(aisBtn.isSelected());
             mainFrame.getChartPanel().aisVisible(aisBtn.isSelected());
 
             menuBar.getAisLayer().setSelected(
-                    EPDShip.getSettings().getAisSettings().isVisible());
+                    EPDShip.getInstance().getSettings().getAisSettings().isVisible());
 
             // } else if (e.getSource() == riskBtn) {
             // EeINS.getRiskHandler().toggleRiskHandler(riskBtn.isSelected());
         } else if (e.getSource() == encBtn) {
-            EPDShip.getSettings().getMapSettings()
+            EPDShip.getInstance().getSettings().getMapSettings()
                     .setEncVisible(encBtn.isSelected());
             mainFrame.getChartPanel().encVisible(encBtn.isSelected());
             menuBar.getEncLayer().setSelected(
-                    EPDShip.getSettings().getMapSettings().isEncVisible());
+                    EPDShip.getInstance().getSettings().getMapSettings().isEncVisible());
 
         } else if (e.getSource() == wmsBtn) {
-            EPDShip.getSettings().getMapSettings()
+            EPDShip.getInstance().getSettings().getMapSettings()
                     .setWmsVisible(wmsBtn.isSelected());
             mainFrame.getChartPanel().wmsVisible(wmsBtn.isSelected());
             // mainFrame.getChartPanel().getWmsDragLayer().setVisible(wmsBtn.isSelected());
@@ -416,7 +428,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             routeManagerDialog.setVisible(true);
         } else if (e.getSource() == setupBtn) {
             SetupDialog setupDialog = new SetupDialog(mainFrame);
-            setupDialog.loadSettings(EPDShip.getSettings());
+            setupDialog.loadSettings(EPDShip.getInstance().getSettings());
             setupDialog.setVisible(true);
         } else if (e.getSource() == msiButton) {
             msiDialog.setVisible(true);
@@ -441,8 +453,12 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             // nogoHandler.toggleLayer();
         } else if (e.getSource() == newRouteBtn) {
             newRoute();
+            
         } else if (e.getSource() == aisToggleName) {
-            aisLayer.toggleAllLabels();
+            boolean showNameLabels = aisToggleName.isSelected();
+            EPDShip.getInstance().getSettings().getAisSettings().setShowNameLabels(showNameLabels);
+            aisLayer.setShowNameLabels(showNameLabels);
+            
         } else if (e.getSource() == toggleSafeHaven) {
             routeLayer.toggleSafeHaven();
         } else if (e.getSource() == dragMouseMode) {
@@ -528,6 +544,10 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
     public void zoomIn() {
         mainFrame.getChartPanel().doZoom(0.5f);
+    }
+    
+    public IMapMenuAction getHideAisNamesAction() {
+        return hideAisNamesAction;
     }
 
     /**

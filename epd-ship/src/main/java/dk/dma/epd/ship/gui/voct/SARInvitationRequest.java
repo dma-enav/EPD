@@ -92,7 +92,7 @@ public class SARInvitationRequest extends ComponentFrame implements ActionListen
         setSize(337, 228);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setAlwaysOnTop(true);
-        setLocationRelativeTo(EPDShip.getMainFrame());
+        setLocationRelativeTo(EPDShip.getInstance().getMainFrame());
 
         initGui();
         setLabels();
@@ -274,9 +274,9 @@ public class SARInvitationRequest extends ComponentFrame implements ActionListen
             }
 
             // Is the SAR Panel active? If not show it
-            if (!EPDShip.getMainFrame().getDockableComponents().isDockVisible("SAR")) {
-                EPDShip.getMainFrame().getDockableComponents().openDock("SAR");
-                EPDShip.getMainFrame().getEeINSMenuBar().refreshDockableMenu();
+            if (!EPDShip.getInstance().getMainFrame().getDockableComponents().isDockVisible("SAR")) {
+                EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("SAR");
+                EPDShip.getInstance().getMainFrame().getEeINSMenuBar().refreshDockableMenu();
             }
 
             disposeInternal();
@@ -324,7 +324,7 @@ public class SARInvitationRequest extends ComponentFrame implements ActionListen
 
             }
 
-            EPDShip.getMainFrame().getChartPanel().zoomTo(positions);
+            EPDShip.getInstance().getMainFrame().getChartPanel().zoomTo(positions);
 
             return;
         }

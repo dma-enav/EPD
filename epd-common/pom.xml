@@ -86,16 +86,13 @@
 			<artifactId>commons-httpclient</artifactId>
 			<version>3.1</version>
 		</dependency>
-		<dependency>
-			<groupId>dk.dma.enav</groupId>
-			<artifactId>enav-common</artifactId>
-			<version>0.2-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-		    <groupId>dk.dma.network</groupId>
-    <artifactId>dma-network-client</artifactId>
-    <version>0.2-SNAPSHOT</version>
-		</dependency>
+        <dependency>
+            <groupId>net.maritimecloud</groupId>
+            <artifactId>maritimecloud-client</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+        
+        
 		
 		<dependency>
 			<groupId>org.slf4j</groupId>

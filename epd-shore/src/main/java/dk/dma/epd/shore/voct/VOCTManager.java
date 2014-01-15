@@ -34,7 +34,6 @@ import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.MapFrameType;
-import dk.dma.epd.shore.gui.views.SARFrame;
 import dk.dma.epd.shore.gui.voct.SARInput;
 import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
 import dk.dma.epd.shore.layers.voct.VoctLayerCommon;
@@ -113,7 +112,7 @@ public class VOCTManager extends VOCTManagerCommon implements
 
         if (voctLayers.size() == 0) {
 
-            EPDShore.getMainFrame().addSARWindow(MapFrameType.SAR_Planning);
+            EPDShore.getInstance().getMainFrame().addSARWindow(MapFrameType.SAR_Planning);
         }
 
         notifyListeners(VOCTUpdateEvent.SAR_DISPLAY);
@@ -158,25 +157,25 @@ public class VOCTManager extends VOCTManagerCommon implements
                 sarOperation);
 
         SearchPatternRoute searchRoute = searchPatternGenerator
-                .generateSearchPattern(type, sarData, EPDShore.getSettings()
+                .generateSearchPattern(type, sarData, EPDShore.getInstance().getSettings()
                         .getNavSettings(), id);
 
         // Remove old and overwrite
         if (sarData.getEffortAllocationData().get(id).getSearchPatternRoute() != null) {
             System.out.println("Previous route found");
-            int routeIndex = EPDShore.getRouteManager().getRouteIndex(
+            int routeIndex = EPDShore.getInstance().getRouteManager().getRouteIndex(
                     sarData.getEffortAllocationData().get(id)
                             .getSearchPatternRoute());
 
             System.out.println("Route index of old is " + routeIndex);
 
-            EPDShore.getRouteManager().removeRoute(routeIndex);
+            EPDShore.getInstance().getRouteManager().removeRoute(routeIndex);
         }
 
         sarData.getEffortAllocationData().get(id)
                 .setSearchPatternRoute(searchRoute);
 
-        EPDShore.getRouteManager().addRoute(searchRoute);
+        EPDShore.getInstance().getRouteManager().addRoute(searchRoute);
 
         notifyListeners(VOCTUpdateEvent.SEARCH_PATTERN_GENERATED);
     }

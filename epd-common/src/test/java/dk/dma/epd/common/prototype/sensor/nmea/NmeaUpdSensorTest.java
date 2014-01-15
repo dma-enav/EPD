@@ -33,11 +33,12 @@ public class NmeaUpdSensorTest {
                 final DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                 serverSocket.receive(receivePacket);
                 final String sentence = new String(receivePacket.getData(), Charsets.US_ASCII);
-                if (sentence.contains("RMC")) {
-                    System.out.println(sentence);
-                } else if (sentence.contains("PRPNT")) {
-                    System.out.println(sentence);                    
-                }
+//                if (sentence.contains("RMC")) {
+//                    System.out.println(sentence);
+//                } else if (sentence.contains("PRPNT")) {
+//                    System.out.println(sentence);                    
+//                }
+                System.out.println("Sentence: " + sentence);
             }
         } finally {
             serverSocket.close();

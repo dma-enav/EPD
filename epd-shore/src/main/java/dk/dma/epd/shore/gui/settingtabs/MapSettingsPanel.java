@@ -28,14 +28,14 @@ import javax.swing.border.TitledBorder;
 
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
-import dk.dma.epd.shore.settings.ESDGuiSettings;
-import dk.dma.epd.shore.settings.ESDMapSettings;
-import dk.dma.epd.shore.settings.ESDSettings;
+import dk.dma.epd.shore.settings.EPDGuiSettings;
+import dk.dma.epd.shore.settings.EPDMapSettings;
+import dk.dma.epd.shore.settings.EPDSettings;
 
 public class MapSettingsPanel extends JPanel{
 
     private static final long serialVersionUID = 1L;
-    ESDSettings settings;
+    EPDSettings settings;
     JSpinner defaultMapScaleSpinner;
     JSpinner maximumMapScaleSpinner;
     JSpinner latitudeSpinner;
@@ -44,7 +44,7 @@ public class MapSettingsPanel extends JPanel{
     JCheckBox wmsCheckBox;
     private JCheckBox chckbxWmsDrag;
 
-    public MapSettingsPanel(ESDSettings settings){
+    public MapSettingsPanel(EPDSettings settings){
         super();
         this.settings = settings;
 //        JPanel panel = new JPanel();
@@ -163,7 +163,7 @@ public class MapSettingsPanel extends JPanel{
     }
 
     private void loadSettings(){
-        ESDMapSettings mapSettings = settings.getMapSettings();
+        EPDMapSettings mapSettings = settings.getMapSettings();
 
         defaultMapScaleSpinner.setValue(mapSettings.getScale());
 //        System.out.println(mapScale);
@@ -181,8 +181,8 @@ public class MapSettingsPanel extends JPanel{
     }
 
     public void saveSettings(){
-        ESDMapSettings mapSettings = settings.getMapSettings();
-        ESDGuiSettings guiSettings = settings.getGuiSettings();
+        EPDMapSettings mapSettings = settings.getMapSettings();
+        EPDGuiSettings guiSettings = settings.getGuiSettings();
 
         mapSettings.setScale((Float) defaultMapScaleSpinner.getValue());
         mapSettings.setMaxScale((Integer) maximumMapScaleSpinner.getValue());

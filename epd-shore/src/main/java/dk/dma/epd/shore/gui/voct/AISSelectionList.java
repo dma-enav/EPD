@@ -76,7 +76,9 @@ public class AISSelectionList extends JDialog implements ActionListener {
 
         getContentPane().add(scrollPane, BorderLayout.CENTER);
 
+        
         Map<Long, VesselTarget> vesselMap = aisHandler.getVesselTargets();
+
         targetList = new ArrayList<String>();
 
         for (Entry<Long, VesselTarget> entry : vesselMap.entrySet()) {

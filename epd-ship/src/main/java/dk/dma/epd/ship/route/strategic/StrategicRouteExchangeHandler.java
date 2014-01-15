@@ -30,15 +30,15 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.route.strategic.RequestStrategicRouteDialog;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.EnavServiceHandler;
 
 public class StrategicRouteExchangeHandler extends MapHandlerChild {
 
-    private AisHandler aisHandler;
+    private OwnShipHandler ownShipHandler;
     private EnavServiceHandler enavServiceHandler;
 
     private HashMap<Long, StrategicRouteNegotiationData> monaLisaNegotiationData = new HashMap<Long, StrategicRouteNegotiationData>();
@@ -64,7 +64,7 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
         this.route = route;
 
         if (monaLisaSTCCDialog == null) {
-            monaLisaSTCCDialog = EPDShip.getMainFrame().getMonaLisaSTCCDialog();
+            monaLisaSTCCDialog = EPDShip.getInstance().getMainFrame().getMonaLisaSTCCDialog();
         }
 
         // Is there already a transaction in progress
@@ -87,7 +87,7 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
             routeManager
                     .notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
 
-            long ownMMSI = aisHandler.getOwnShip().getMmsi();
+            long ownMMSI = (ownShipHandler.getMmsi() == null) ? -1L : ownShipHandler.getMmsi();
 
             // Sending route
             long transactionID = sendMonaLisaRouteRequest(route, ownMMSI,
@@ -96,7 +96,7 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
             // Display and initialize the GUI
             monaLisaSTCCDialog.initializeNew();
             monaLisaSTCCDialog.setLocation(50, 50);
-            // monaLisaSTCCDialog.setLocationRelativeTo(EPDShip.getMainFrame());
+            // monaLisaSTCCDialog.setLocationRelativeTo(EPDShip.getInstance().getMainFrame());
             monaLisaSTCCDialog.setVisible(true);
             monaLisaSTCCDialog.setRouteName(route, transactionID);
 
@@ -346,7 +346,7 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
         if (routeManager.getActiveRouteIndex() != -1) {
             int dialogresult = JOptionPane
                     .showConfirmDialog(
-                            EPDShip.getMainFrame(),
+                            EPDShip.getInstance().getMainFrame(),
                             "Do you wish to deactivate and hide your old route\nAnd activate the new route?",
                             "Route Activation", JOptionPane.YES_OPTION);
             if (dialogresult == JOptionPane.YES_OPTION) {
@@ -361,7 +361,7 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
 
         } else {
             int dialogresult = JOptionPane.showConfirmDialog(
-                    EPDShip.getMainFrame(),
+                    EPDShip.getInstance().getMainFrame(),
                     "Do you wish to activate the new route?",
                     "Route Activation", JOptionPane.YES_OPTION);
             if (dialogresult == JOptionPane.YES_OPTION) {
@@ -424,8 +424,8 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
 
     @Override
     public void findAndInit(Object obj) {
-        if (obj instanceof AisHandler) {
-            aisHandler = (AisHandler) obj;
+        if (obj instanceof OwnShipHandler) {
+            ownShipHandler = (OwnShipHandler) obj;
         } else if (obj instanceof EnavServiceHandler) {
             enavServiceHandler = (EnavServiceHandler) obj;
         } else if (obj instanceof VoyageLayer) {
@@ -506,7 +506,7 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
         // Display and initialize the GUI
         monaLisaSTCCDialog.initializeNew();
         // monaLisaSTCCDialog.setLocation(windowLocation);
-        monaLisaSTCCDialog.setLocationRelativeTo(EPDShip.getMainFrame());
+        monaLisaSTCCDialog.setLocationRelativeTo(EPDShip.getInstance().getMainFrame());
         monaLisaSTCCDialog.setVisible(true);
         monaLisaSTCCDialog.setRouteName(route, routeMessage.getId());
 

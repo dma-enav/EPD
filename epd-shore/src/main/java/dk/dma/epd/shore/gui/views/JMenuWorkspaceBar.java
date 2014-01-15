@@ -256,7 +256,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
         newSar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 //                mainFrame.addSARWindow();
-                EPDShore.getVoctManager().showSarInput();
+                EPDShore.getInstance().getVoctManager().showSarInput();
                 newSar.setEnabled(false);
             }
         });
@@ -405,7 +405,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
      * @throws IOException
      */
     public void saveWorkspace() throws IOException{
-        final JFileChooser fc = new JFileChooser(EPDShore.getHomePath().toString() + "\\workspaces");
+        final JFileChooser fc = new JFileChooser(EPDShore.getInstance().getHomePath().toString() + "\\workspaces");
         fc.setFileFilter(new WorkspaceFileFilter());
 
         int returnVal = fc.showSaveDialog(mainFrame);
@@ -426,7 +426,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
      * @throws IOException
      */
     public void selectWorkspace() throws IOException{
-        final JFileChooser fc = new JFileChooser(EPDShore.getHomePath().toString() + "\\workspaces");
+        final JFileChooser fc = new JFileChooser(EPDShore.getInstance().getHomePath().toString() + "\\workspaces");
         fc.setFileFilter(new WorkspaceFileFilter());
 
         int returnVal = fc.showOpenDialog(mainFrame);

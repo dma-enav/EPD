@@ -57,7 +57,6 @@ public class JMainDesktopManager extends DefaultDesktopManager {
     private SRUManagerDialog sruManagerDialog;
     private SendStrategicRouteDialog sendVoyageDialog;
 
-    
     /**
      * Constructor for desktopmanager
      * 
@@ -75,8 +74,10 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
         if (f instanceof JMapFrame) {
 
-            if (EPDShore.getMainFrame() != null) {
-                EPDShore.getMainFrame().setActiveMapWindow((JMapFrame) f);
+            if (EPDShore.getInstance().getMainFrame() != null) {
+                EPDShore.getInstance().getMainFrame()
+                        .setActiveMapWindow((JMapFrame) f);
+
             }
 
             if (toFront.size() == 0) {

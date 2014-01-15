@@ -44,6 +44,10 @@ import com.bbn.openmap.MouseDelegator;
 
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
+import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
+import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
+import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
@@ -83,7 +87,6 @@ import dk.dma.epd.ship.gui.menuitems.RouteReverse;
 import dk.dma.epd.ship.gui.menuitems.RouteShowMetocToggle;
 import dk.dma.epd.ship.gui.menuitems.RouteWaypointActivateToggle;
 import dk.dma.epd.ship.gui.menuitems.RouteWaypointDelete;
-import dk.dma.epd.ship.gui.menuitems.SarTargetDetails;
 import dk.dma.epd.ship.gui.menuitems.SendToSTCC;
 import dk.dma.epd.ship.gui.menuitems.SuggestedRouteDetails;
 import dk.dma.epd.ship.gui.menuitems.VoyageAppendWaypoint;
@@ -92,6 +95,7 @@ import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.route.strategic.RecievedRoute;
 import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
@@ -113,9 +117,13 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private GeneralHideIntendedRoutes hideIntendedRoutes;
     private GeneralShowIntendedRoutes showIntendedRoutes;
     private GeneralNewRoute newRoute;
+    private SetShowPastTracks hidePastTracks;
+    private SetShowPastTracks showPastTracks;
     private JMenu scaleMenu;
     private AisIntendedRouteToggle aisIntendedRouteToggle;
     private AisTargetDetails aisTargetDetails;
+    private ToggleShowPastTrack aisTogglePastTrack;
+    private ClearPastTrack aisClearPastTrack;
 
     private SarTargetDetails sarTargetDetails;
     private AisTargetLabelToggle aisTargetLabelToggle;
@@ -158,6 +166,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private NewRouteContainerLayer newRouteLayer;
     private AisLayer aisLayer;
     private AisHandler aisHandler;
+    private OwnShipHandler ownShipHandler;
     private NogoHandler nogoHandler;
     private MouseDelegator mouseDelegator;
     private EnavServiceHandler enavServiceHandler;
@@ -190,6 +199,11 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         nogoRequest = new NogoRequest("Request NoGo area");
         nogoRequest.addActionListener(this);
 
+        showPastTracks = new SetShowPastTracks("Show all past-tracks", true);
+        showPastTracks.addActionListener(this);
+        hidePastTracks = new SetShowPastTracks("Hide all past-tracks", false);
+        hidePastTracks.addActionListener(this);
+        
         scaleMenu = new JMenu("Scale");
 
         // using treemap so scale levels are always sorted
@@ -202,6 +216,10 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         aisIntendedRouteToggle.addActionListener(this);
         aisTargetLabelToggle = new AisTargetLabelToggle();
         aisTargetLabelToggle.addActionListener(this);
+        aisTogglePastTrack = new ToggleShowPastTrack();
+        aisTogglePastTrack.addActionListener(this);
+        aisClearPastTrack = new ClearPastTrack();
+        aisClearPastTrack.addActionListener(this);
 
         // SART menu items
         sarTargetDetails = new SarTargetDetails("SART details");
@@ -273,7 +291,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         this.voyageAppendWaypoint.addActionListener(this);
         this.voyageDeleteWaypoint = new VoyageHandlingWaypointDelete("Delete waypoint");
         this.voyageDeleteWaypoint.addActionListener(this);
-        this.voyageLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint("Insert waypoint here", EPDShip.getVoyageEventDispatcher());
+        this.voyageLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint("Insert waypoint here", EPDShip.getInstance().getVoyageEventDispatcher());
         this.voyageLegInsertWaypoint.addActionListener(this);
     }
 
@@ -331,28 +349,35 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         nogoRequest.setNogoHandler(nogoHandler);
         nogoRequest.setMainFrame(mainFrame);
-        nogoRequest.setAisHandler(aisHandler);
+        nogoRequest.setOwnShipHandler(ownShipHandler);
 
+        showPastTracks.setAisHandler(aisHandler);
+        hidePastTracks.setAisHandler(aisHandler);
+        
+        // Prep the clearMap action
+        routeHide.setRouteIndex(RouteHide.ALL_INACTIVE_ROUTES);
+        routeHide.setRouteManager(routeManager);
+        clearMap.setMapMenuActions(hideIntendedRoutes, routeHide, hidePastTracks, mainFrame.getTopPanel().getHideAisNamesAction());
+        
         if (alone) {
             removeAll();
             add(clearMap);
             add(hideIntendedRoutes);
             add(showIntendedRoutes);
             add(newRoute);
-            if (!EPDShip.getSettings().getGuiSettings().isRiskNogoDisabled()) {
+            addSeparator();
+            if (!EPDShip.getInstance().getSettings().getGuiSettings().isRiskNogoDisabled()) {
                 add(nogoRequest);
+                addSeparator();
             }
+            add(showPastTracks);
+            add(hidePastTracks);
+            addSeparator();
             add(scaleMenu);
             return;
         }
 
         addSeparator();
-        // JSeparator separator = new JSeparator(SwingConstants.VERTICAL);
-        // separator.setSize(new Dimension(50,50));
-        // separator.setVisible(true);
-
-        // add(separator);
-        // addSeparator();
 
         add(clearMap);
         add(hideIntendedRoutes);
@@ -370,6 +395,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         aisTargetDetails.setMSSI(vesselTarget.getMmsi());
         add(aisTargetDetails);
 
+        // Toggle show intended route
         aisIntendedRouteToggle.setVesselTargetSettings(vesselTarget
                 .getSettings());
         aisIntendedRouteToggle.setAisLayer(aisLayer);
@@ -388,6 +414,19 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         }
         add(aisIntendedRouteToggle);
 
+        // Toggle show past-track
+        aisTogglePastTrack.setMobileTarget(vesselTarget);
+        aisTogglePastTrack.setAisLayer(aisLayer);
+        aisTogglePastTrack.setText((vesselTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
+        add(aisTogglePastTrack);
+        
+        // Clear past-track
+        aisClearPastTrack.setMobileTarget(vesselTarget);
+        aisClearPastTrack.setText("Clear past-track");
+        aisClearPastTrack.setAisLayer(aisLayer);
+        add(aisClearPastTrack);
+        
+        // Toggle show label
         aisTargetLabelToggle.setVesselTargetGraphic(targetGraphic);
         aisTargetLabelToggle.setAisLayer(aisLayer);
         add(aisTargetLabelToggle);
@@ -426,6 +465,28 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         generalMenu(false);
     }
+    
+    /**
+     * Builds own-ship menu
+     */
+    public void ownShipMenu() {
+        removeAll();
+
+        // Toggle show past-track
+        VesselTarget ownShip = ownShipHandler.getAisTarget();
+        aisTogglePastTrack.setMobileTarget(ownShip);
+        aisTogglePastTrack.setAisLayer(null);
+        aisTogglePastTrack.setText((ownShip.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
+        add(aisTogglePastTrack);
+        
+        // Clear past-track
+        aisClearPastTrack.setMobileTarget(ownShip);
+        aisClearPastTrack.setAisLayer(null);
+        aisClearPastTrack.setText("Clear past-track");
+        add(aisClearPastTrack);
+        
+        generalMenu(false);
+    }
 
     /**
      * SART menu option
@@ -438,9 +499,24 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         sarTargetDetails.setSarTarget(sarTarget);
         sarTargetDetails.setMainFrame(mainFrame);
-        sarTargetDetails.setGpsHandler(gpsHandler);
+        sarTargetDetails.setPntHandler(gpsHandler);
 
         add(sarTargetDetails);
+
+        addSeparator();
+        
+        // Toggle show past-track
+        aisTogglePastTrack.setMobileTarget(sarTarget);
+        aisTogglePastTrack.setAisLayer(aisLayer);
+        aisTogglePastTrack.setText((sarTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
+        add(aisTogglePastTrack);
+        
+        // Clear past-track
+        aisClearPastTrack.setMobileTarget(sarTarget);
+        aisClearPastTrack.setAisLayer(aisLayer);
+        aisClearPastTrack.setText("Clear past-track");
+        add(aisClearPastTrack);
+        
 
         generalMenu(false);
     }
@@ -601,9 +677,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         monaLisaRouteRequest.setRouteManager(routeManager);
         monaLisaRouteRequest.setRouteIndex(routeIndex);
-        // monaLisaRouteRequest.setMonaLisaRouteExchange(EPDShip.getMonaLisaRouteExchange());
+        // monaLisaRouteRequest.setMonaLisaRouteExchange(EPDShip.getInstance().getMonaLisaRouteExchange());
         monaLisaRouteRequest.setMainFrame(mainFrame);
-        monaLisaRouteRequest.setAisHandler(aisHandler);
+        monaLisaRouteRequest.setOwnShipHandler(ownShipHandler);
         add(monaLisaRouteRequest);
 
         routeRequestMetoc.setRouteManager(routeManager);
@@ -732,6 +808,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         }
         if (obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
+        }
+        if (obj instanceof OwnShipHandler) {
+            ownShipHandler = (OwnShipHandler) obj;
         }
         if (obj instanceof PntHandler) {
             gpsHandler = (PntHandler) obj;

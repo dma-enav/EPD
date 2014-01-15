@@ -111,8 +111,8 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
         // Get current position
         StringBuilder str = new StringBuilder();
         str.append("<html><b>DST/BRG/TTG/SPD</b><br/>");
-//        GpsData gpsData = gpsHandler.getCurrentData();
-//        if (gpsData != null && !gpsData.isBadPosition() && routeSuggestion.getWaypoints().size() > 0) {
+//        GpsData pntData = gpsHandler.getCurrentData();
+//        if (pntData != null && !pntData.isBadPosition() && routeSuggestion.getWaypoints().size() > 0) {
 
 
             str.append("N/A");

@@ -49,6 +49,7 @@ public class PntStatus extends ComponentStatus {
     public synchronized String getStatusHtml() {
         StringBuilder buf = new StringBuilder();
         buf.append("Position: " + status.name() + "<br/>");
+        buf.append("Source: " + currentData.getPntSource() + "<br/>");
         buf.append("Last PNT data: " + Formatter.formatLongDateTime(currentData.getLastUpdated()));
         return buf.toString();
     }

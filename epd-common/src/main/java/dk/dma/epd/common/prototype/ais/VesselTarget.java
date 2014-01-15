@@ -25,10 +25,10 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
  * Class representing an AIS vessel target
  */
 @ThreadSafe
-public class VesselTarget extends AisTarget {
+public class VesselTarget extends MobileTarget {
     
-    private static final long serialVersionUID = 1L;
-
+    private static final long serialVersionUID = 8886828351333930646L;
+    
     /**
      * Time an intended route is considered valid without update
      */
@@ -39,11 +39,8 @@ public class VesselTarget extends AisTarget {
      */
     public enum AisClass {A, B};
     
-    private VesselPositionData positionData;    
-    private VesselStaticData staticData;
     private AisIntendedRoute aisIntendedRoute;
     private AisClass aisClass; 
-    private VesselTargetSettings settings;
     private CloudIntendedRoute intendedRoute;
     
 
@@ -54,17 +51,8 @@ public class VesselTarget extends AisTarget {
     public VesselTarget(VesselTarget vesselTarget) {
         super(vesselTarget);
         this.aisClass = vesselTarget.aisClass;
-        if (vesselTarget.positionData != null) {
-            this.positionData = new VesselPositionData(vesselTarget.positionData);
-        }
-        if (vesselTarget.staticData != null) {
-            this.staticData = new VesselStaticData(vesselTarget.staticData);
-        }
         if (vesselTarget.aisIntendedRoute != null) {
             this.aisIntendedRoute = new AisIntendedRoute(vesselTarget.aisIntendedRoute);
-        }
-        if (vesselTarget.settings != null) {
-            this.settings = new VesselTargetSettings(vesselTarget.settings);
         }
     }
 
@@ -73,28 +61,16 @@ public class VesselTarget extends AisTarget {
      */
     public VesselTarget() {
         super();
-        settings = new VesselTargetSettings();
     }
     
-    public synchronized VesselPositionData getPositionData() {
-        return positionData;
-    }
-
+    @Override
     public synchronized void setPositionData(VesselPositionData positionData) {
-        this.positionData = positionData;
+        super.setPositionData(positionData);
         if (aisIntendedRoute != null) {
             aisIntendedRoute.update(positionData);
         }
     }
 
-    public synchronized VesselStaticData getStaticData() {
-        return staticData;
-    }
-
-    public synchronized void setStaticData(VesselStaticData staticData) {
-        this.staticData = staticData;
-    }
-    
     public synchronized AisIntendedRoute getAisRouteData() {
         return aisIntendedRoute;
     }
@@ -125,14 +101,6 @@ public class VesselTarget extends AisTarget {
         this.aisClass = aisClass;
     }
     
-    public synchronized VesselTargetSettings getSettings() {
-        return settings;
-    }
-    
-    public synchronized void setSettings(VesselTargetSettings settings) {
-        this.settings = settings;
-    }
-    
     /**
      * Returns true if route information changes from valid to invalid
      * @return
@@ -150,6 +118,10 @@ public class VesselTarget extends AisTarget {
         return false;        
     }
     
+    /**
+     * Returns if this target defines an intended route
+     * @return if this target defines an intended route
+     */
     public synchronized boolean hasIntendedRoute() {
         return intendedRoute != null;
     }
@@ -205,7 +177,10 @@ public class VesselTarget extends AisTarget {
         return elapsed > tol;
     }
 
-
+    /**
+     * Returns a string representation of this target
+     * @return a string representation of this target
+     */
     @Override
     public synchronized String toString() {
         StringBuilder builder = new StringBuilder();

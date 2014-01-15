@@ -51,10 +51,10 @@ import dk.frv.enav.common.xml.msi.MsiPoint;
  * Serializable class to store MSI information
  */
 public class MsiStore implements Serializable {
-    // TODO: If class changed, generate a new serial version ID
-    private static final long serialVersionUID = -5653288769636767014L;
+    private static final long serialVersionUID = 2;
+    
     private static final Logger LOG = LoggerFactory.getLogger(MsiStore.class);
-    // private static final String msiFile = ".msi";
+    
     private static String msiFile;
 
     //nonblocking
@@ -63,7 +63,7 @@ public class MsiStore implements Serializable {
     
     private int lastMessage;
     private Set<Integer> acknowledged = new HashSet<>();
-    private Set<Integer> visibleGPS = new HashSet<>();
+    private Set<Integer> visiblePNT = new HashSet<>();
     private Set<Integer> visibleRoute = new HashSet<>();
     private Set<Integer> relevant = new HashSet<>();
     private Set<Integer> allVisible = new HashSet<>();
@@ -74,7 +74,7 @@ public class MsiStore implements Serializable {
         msiFile = homePath.resolve(".msi").toString();
         this.eNavSettings = eNavSettings;
     }
-
+    
     public synchronized boolean hasValidUnacknowledged() {
         Date now = PntTime.getInstance().getDate();
         for (Integer msgId : messages.keySet()) {
@@ -98,7 +98,7 @@ public class MsiStore implements Serializable {
             }
 
             if (!acknowledged.contains(msgId)
-                    && (visibleGPS.contains(msgId) || visibleRoute
+                    && (visiblePNT.contains(msgId) || visibleRoute
                             .contains(msgId))) {
                 return true;
             }
@@ -123,7 +123,7 @@ public class MsiStore implements Serializable {
                 messages.put(newMessage.getMessageId(), newMessage);
             }
         }
-        visibleGPS.clear();
+        visiblePNT.clear();
         if (calculationPosition != null) {
             setVisibility(calculationPosition);
         }
@@ -141,7 +141,7 @@ public class MsiStore implements Serializable {
      *            Current location of own ship
      */
     public synchronized void setVisibility(Position calculationPosition) {
-        visibleGPS.clear();
+        visiblePNT.clear();
         Iterator<Map.Entry<Integer, MsiMessage>> it = messages.entrySet()
                 .iterator();
         while (it.hasNext()) {
@@ -150,7 +150,7 @@ public class MsiStore implements Serializable {
 
             // TODO Handle general area. For now they are show in list
             if (!msiMessage.hasLocation()) {
-                visibleGPS.add(msiMessage.getMessageId());
+                visiblePNT.add(msiMessage.getMessageId());
                 continue;
             }
 
@@ -164,13 +164,13 @@ public class MsiStore implements Serializable {
                 distance = Math.min(currentDistance, distance);
             }
             if (distance <= eNavSettings.getMsiRelevanceFromOwnShipRange()) {
-                visibleGPS.add(msiMessage.getMessageId());
+                visiblePNT.add(msiMessage.getMessageId());
             }
         }
         LOG.debug("Relevance calculation performed at:"
                 + calculationPosition.getLatitude() + ", "
                 + calculationPosition.getLongitude() + " yielded "
-                + visibleGPS.size() + " visible warnings");
+                + visiblePNT.size() + " visible warnings");
     }
 
     /**
@@ -300,7 +300,7 @@ public class MsiStore implements Serializable {
 
         try (FileInputStream fileIn = new FileInputStream(msiFile);
                 ObjectInputStream objectIn = new ObjectInputStream(fileIn);) {
-            MsiStore msiStore = (MsiStore) objectIn.readObject();
+            MsiStore msiStore = (MsiStore) objectIn.readObject();            
             return msiStore;
         } catch (FileNotFoundException e) {
             // Not an error
@@ -311,14 +311,14 @@ public class MsiStore implements Serializable {
         }
         return new MsiStore(homePath, eNavSettings);
     }
-
+    
     public synchronized Set<Integer> getAcknowledged() {
         return acknowledged;
     }
 
     public synchronized Set<Integer> getVisible() {
         allVisible.clear();
-        allVisible.addAll(visibleGPS);
+        allVisible.addAll(visiblePNT);
         allVisible.addAll(visibleRoute);
         return allVisible;
     }

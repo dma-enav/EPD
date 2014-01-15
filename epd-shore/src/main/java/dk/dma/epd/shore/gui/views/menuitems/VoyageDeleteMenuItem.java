@@ -43,7 +43,7 @@ public class VoyageDeleteMenuItem extends JMenuItem implements IMapMenuAction {
     @Override
     public void doAction() {
         // Delete voyage from VoyageManager.
-        EPDShore.getVoyageManager().deleteVoyage(this.voyageId);
+        EPDShore.getInstance().getVoyageManager().deleteVoyage(this.voyageId);
     }
 
     /**

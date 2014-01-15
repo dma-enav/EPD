@@ -474,7 +474,7 @@ ListSelectionListener, TableModelListener, MouseListener {
         }
 
         if (!RouteLoader.saveSimple(route, file)) {
-            JOptionPane.showMessageDialog(EPDShip.getMainFrame(),
+            JOptionPane.showMessageDialog(EPDShip.getInstance().getMainFrame(),
                     "Route save error", "Route not saved",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -483,7 +483,7 @@ ListSelectionListener, TableModelListener, MouseListener {
 
     private void importFromFile() {
         // Get filename from dialog
-        JFileChooser fc = new JFileChooser(EPDShip.getHomePath()
+        JFileChooser fc = new JFileChooser(EPDShip.getInstance().getHomePath()
                 .resolve("routes").toString());
 
         // private static final String aisViewFile =

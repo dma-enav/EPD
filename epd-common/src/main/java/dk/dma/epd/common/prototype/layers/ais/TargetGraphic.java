@@ -30,10 +30,32 @@ public abstract class TargetGraphic extends OMGraphicList {
     private static final long serialVersionUID = 1L;
     
     public TargetGraphic() {
-        //setVague(true);
+        super();
     }
-        
-    public abstract void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings);
+
+    /**
+     * Oh dear, this is truly messed up!
+     * <p>
+     * The {@code setVisible()} of {@linkplain OMGraphicList} will set 
+     * the visibility attribute of it's child elements unless the {@code vague}
+     * property is set. This is not possible, however, since this will cause 
+     * selection to stop working.
+     * <p>
+     * So, we override the {@code setVisible()} instead.
+     * 
+     * @param visible whether to set the target visible or not
+     */
+    @Override
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+    
+    @Override
+    public boolean isVisible() {
+        return this.visible;
+    }
+    
+    public abstract void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale);
 
     public abstract void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings);
     

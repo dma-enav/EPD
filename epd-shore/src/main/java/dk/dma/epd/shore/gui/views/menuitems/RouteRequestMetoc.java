@@ -42,7 +42,7 @@ public class RouteRequestMetoc extends JMenuItem implements IMapMenuAction {
         if (routeManager.isRouteActive()) {
             route = routeManager.getActiveRoute();
         }
-        MetocRequestDialog.requestMetoc(EPDShore.getMainFrame(), routeManager, route);
+        MetocRequestDialog.requestMetoc(EPDShore.getInstance().getMainFrame(), routeManager, route);
     }
 
     public void setRouteIndex(int routeIndex) {

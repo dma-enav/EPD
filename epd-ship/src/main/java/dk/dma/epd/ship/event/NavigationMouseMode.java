@@ -57,7 +57,7 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
         this(true);
         this.chartPanel = chartPanel;
         clickTimer = ClickTimer.getClickTimer();
-        maxScale = EPDShip.getSettings().getMapSettings().getMaxScale();
+        maxScale = EPDShip.getInstance().getSettings().getMapSettings().getMaxScale();
     }
 
     /**

@@ -122,8 +122,8 @@ public class DragMouseMode extends AbstractCoordMouseMode {
     }
 
     private void setCursors(){
-        dragCursor = EPDShore.getStaticImages().getDragCursor();
-        dragCursorMouseClicked = EPDShore.getStaticImages().getDragCursorMouseClicked();
+        dragCursor = EPDShore.getInstance().getStaticImages().getDragCursor();
+        dragCursorMouseClicked = EPDShore.getInstance().getStaticImages().getDragCursorMouseClicked();
     }
 
     /**

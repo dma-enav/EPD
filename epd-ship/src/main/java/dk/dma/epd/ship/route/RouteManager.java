@@ -50,6 +50,7 @@ import dk.dma.epd.common.prototype.model.route.RouteLoadException;
 import dk.dma.epd.common.prototype.model.route.RouteLoader;
 import dk.dma.epd.common.prototype.model.route.RouteMetocSettings;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
@@ -72,16 +73,16 @@ import dk.frv.enav.common.xml.metoc.MetocForecast;
  * Manager for handling a collection of routes and active route
  */
 @ThreadSafe
-public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManagerCommon implements Runnable,
+public class RouteManager extends RouteManagerCommon implements Runnable,
         Serializable, IPntDataListener, IAisRouteSuggestionListener, ActiveRouteProvider {
 
     private static final long serialVersionUID = 1L;
 //    private static final String routesFile = ".routes";
-    private static final String ROUTES_FILE = EPDShip.getHomePath().resolve(".routes").toString();
+    private static final String ROUTES_FILE = EPDShip.getInstance().getHomePath().resolve(".routes").toString();
     private static final Logger LOG = LoggerFactory.getLogger(RouteManager.class);
 
     private volatile EnavServiceHandler enavServiceHandler;
-    private volatile PntHandler gpsHandler;
+    private volatile PntHandler pntHandler;
     private volatile ShoreServicesCommon shoreServices;
     private volatile AisHandler aisHandler;
     private volatile IntendedRouteService intendedRouteService;
@@ -104,18 +105,18 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
     }
 
     @Override
-    public void pntDataUpdate(PntData gpsData) {
+    public void pntDataUpdate(PntData pntData) {
         if (!isRouteActive()) {
             return;
         }
-        if (gpsData.isBadPosition()) {
+        if (pntData.isBadPosition()) {
             return;
         }
 
         ActiveWpSelectionResult endRes;
         ActiveWpSelectionResult res;
         synchronized (this) {
-            activeRoute.update(gpsData);
+            activeRoute.update(pntData);
             endRes = activeRoute.chooseActiveWp();
             res = endRes;
             // Keep chosing active waypoint until not changed any more
@@ -158,33 +159,33 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
             activeRouteIndex = index;
 
             // Create new
-            activeRoute = new ActiveRoute(route, gpsHandler.getCurrentData());
+            activeRoute = new ActiveRoute(route, pntHandler.getCurrentData());
 
             // Set the minimum WP circle radius
-            activeRoute.setWpCircleMin(EPDShip.getSettings().getNavSettings()
+            activeRoute.setWpCircleMin(EPDShip.getInstance().getSettings().getNavSettings()
                     .getMinWpRadius());
             // Set relaxed WP change
-            activeRoute.setRelaxedWpChange(EPDShip.getSettings().getNavSettings()
+            activeRoute.setRelaxedWpChange(EPDShip.getInstance().getSettings().getNavSettings()
                     .isRelaxedWpChange());
             // Inject the current position
-            activeRoute.update(gpsHandler.getCurrentData());
+            activeRoute.update(pntHandler.getCurrentData());
             // Set start time to now
             activeRoute.setStarttime(PntTime.getInstance().getDate());
         }
 
         // If the dock isn't visible should it show it?
-        if (!EPDShip.getMainFrame().getDockableComponents()
+        if (!EPDShip.getInstance().getMainFrame().getDockableComponents()
                 .isDockVisible("Active Waypoint")) {
 
             // Show it display the message?
-            if (EPDShip.getSettings().getGuiSettings().isShowDockMessage()) {
-                new ShowDockableDialog(EPDShip.getMainFrame(), dock_type.ROUTE);
+            if (EPDShip.getInstance().getSettings().getGuiSettings().isShowDockMessage()) {
+                new ShowDockableDialog(EPDShip.getInstance().getMainFrame(), dock_type.ROUTE);
             } else {
 
-                if (EPDShip.getSettings().getGuiSettings().isAlwaysOpenDock()) {
-                    EPDShip.getMainFrame().getDockableComponents()
+                if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
+                    EPDShip.getInstance().getMainFrame().getDockableComponents()
                             .openDock("Active Waypoint");
-                    EPDShip.getMainFrame().getEeINSMenuBar()
+                    EPDShip.getInstance().getMainFrame().getEeINSMenuBar()
                             .refreshDockableMenu();
                 }
 
@@ -250,6 +251,38 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         }
         // Persist routes on update
         saveToFile();
+    }
+    
+    /**
+     * Hides the route with the given index
+     * @param routeIndex the route to hide
+     */
+    public void hideRoute(int routeIndex) {
+        Route route = getRoute(routeIndex);
+        if (route != null && route.isVisible()) {
+            route.setVisible(false);
+            notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+        }
+    }
+    
+    /**
+     * Hides all in-active routes
+     */
+    public void hideInactiveRoutes() {
+        boolean visibilityChanged = false;
+        int routeIndex = 0;
+        synchronized(this) {
+            for (Route route : routes) {
+                if (routeIndex != activeRouteIndex && route.isVisible()) {
+                    route.setVisible(false);
+                    visibilityChanged = true;
+                }
+                routeIndex++;
+            }
+        }
+        if (visibilityChanged) {
+            notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
+        }
     }
 
     @Override
@@ -522,12 +555,12 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
             route = RouteLoader.loadSimple(file);
         } else if (ext.equals("ROU")) {
             // Load ECDIS900 V3 route
-            route = RouteLoader.loadRou(file, EPDShip.getSettings().getNavSettings());
+            route = RouteLoader.loadRou(file, EPDShip.getInstance().getSettings().getNavSettings());
         } else if (ext.equals("RT3")) {
             // Load Navisailor 3000 route
-            route = RouteLoader.loadRt3(file, EPDShip.getSettings().getNavSettings());
+            route = RouteLoader.loadRt3(file, EPDShip.getInstance().getSettings().getNavSettings());
         } else {
-            route = RouteLoader.pertinaciousLoad(file, EPDShip.getSettings().getNavSettings());
+            route = RouteLoader.pertinaciousLoad(file, EPDShip.getInstance().getSettings().getNavSettings());
         }
 
         // Add route to list
@@ -588,7 +621,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
                 || route.getMetocForecast().getCreated() == null) {
             return true;
         }
-        EPDEnavSettings enavSettings = EPDShip.getSettings().getEnavSettings();
+        EPDEnavSettings enavSettings = EPDShip.getInstance().getSettings().getEnavSettings();
         long metocTtl = enavSettings.getMetocTtl() * 60 * 1000;
         Date now = PntTime.getInstance().getDate();
         Date metocDate = route.getMetocForecast().getCreated();
@@ -607,7 +640,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
                     continue;
                 }
                 if (isMetocOld(route)
-                        || !route.isMetocValid(EPDShip.getSettings()
+                        || !route.isMetocValid(EPDShip.getInstance().getSettings()
                                 .getEnavSettings().getMetocTimeDiffTolerance())) {
                     if (route.isVisible()
                             && route.getRouteMetocSettings().isShowRouteMetoc()) {
@@ -633,7 +666,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
             return false;
         }
         if (!showMetocForRoute(route)
-                || !route.isMetocValid(EPDShip.getSettings().getEnavSettings()
+                || !route.isMetocValid(EPDShip.getInstance().getSettings().getEnavSettings()
                         .getMetocTimeDiffTolerance())) {
             if (route.getMetocForecast() != null) {
                 route.removeMetoc();
@@ -647,7 +680,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
     public boolean hasMetoc(Route route) {
         if (route.getMetocForecast() != null) {
             // Determine if METOC info is old
-            EPDEnavSettings enavSettings = EPDShip.getSettings().getEnavSettings();
+            EPDEnavSettings enavSettings = EPDShip.getInstance().getSettings().getEnavSettings();
             long metocTtl = enavSettings.getMetocTtl() * 60 * 1000;
             Date now = PntTime.getInstance().getDate();
             Date metocDate = route.getMetocForecast().getCreated();
@@ -712,7 +745,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
     }
 
     public RouteMetocSettings getDefaultRouteMetocSettings() {
-        EPDEnavSettings enavSettings = EPDShip.getSettings().getEnavSettings();
+        EPDEnavSettings enavSettings = EPDShip.getInstance().getSettings().getEnavSettings();
         RouteMetocSettings routeMetocSettings = new RouteMetocSettings();
         routeMetocSettings.setWindWarnLimit(enavSettings
                 .getDefaultWindWarnLimit());
@@ -728,9 +761,9 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         if (shoreServices == null && obj instanceof ShoreServicesCommon) {
             shoreServices = (ShoreServicesCommon) obj;
         }
-        if (gpsHandler == null && obj instanceof PntHandler) {
-            gpsHandler = (PntHandler) obj;
-            gpsHandler.addListener(this);
+        if (pntHandler == null && obj instanceof PntHandler) {
+            pntHandler = (PntHandler) obj;
+            pntHandler.addListener(this);
         }
         if (aisHandler == null && obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
@@ -746,8 +779,8 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
 
     @Override
     public void findAndUndo(Object obj) {
-        if (gpsHandler == obj) {
-            gpsHandler.removeListener(this);
+        if (pntHandler == obj) {
+            pntHandler.removeListener(this);
         }
         if (shoreServices == obj) {
             shoreServices = null;
@@ -764,7 +797,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
                 return;
             }
         }
-        long activeRouteMetocPollInterval = EPDShip.getSettings()
+        long activeRouteMetocPollInterval = EPDShip.getInstance().getSettings()
                 .getEnavSettings().getActiveRouteMetocPollInterval() * 60 * 1000;
         // Maybe we never want to refresh metoc
         if (activeRouteMetocPollInterval <= 0) {
@@ -785,7 +818,7 @@ public class RouteManager extends dk.dma.epd.common.prototype.route.RouteManager
         // Check if not old and still valid
         synchronized (this) {
             if (!isMetocOld(activeRoute)
-                    && activeRoute.isMetocValid(EPDShip.getSettings().getEnavSettings().getMetocTimeDiffTolerance())) {
+                    && activeRoute.isMetocValid(EPDShip.getInstance().getSettings().getEnavSettings().getMetocTimeDiffTolerance())) {
                 return;
             }
         }

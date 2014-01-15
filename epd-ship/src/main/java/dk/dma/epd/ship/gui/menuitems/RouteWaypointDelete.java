@@ -46,7 +46,7 @@ public class RouteWaypointDelete extends JMenuItem implements IMapMenuAction {
 
             int result = JOptionPane
                     .showConfirmDialog(
-                            EPDShip.getMainFrame(),
+                            EPDShip.getInstance().getMainFrame(),
                             "A route must have at least two waypoints.\nDo you want to delete the route?",
                             "Delete Route?", JOptionPane.YES_NO_OPTION,
                             JOptionPane.QUESTION_MESSAGE);

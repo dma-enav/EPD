@@ -18,10 +18,10 @@ package dk.dma.epd.shore.layers.voct;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.ais.PastTrackSortedSet;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteGraphic;
-import dk.dma.epd.shore.ais.PastTrackSortedSet;
-import dk.dma.epd.shore.layers.ais.PastTrackGraphic;
+import dk.dma.epd.common.prototype.layers.ais.PastTrackGraphic;
 import dk.dma.epd.shore.voct.SRUCommunicationObject;
 
 public class SRUObject extends OMGraphicList {
@@ -76,7 +76,7 @@ public class SRUObject extends OMGraphicList {
             sruVesselGraphic.setLocation(latestPosition.getLatitude(),
                     latestPosition.getLongitude());
 
-            pastTrackGraphic.update(pastTrack, latestPosition);
+//            pastTrackGraphic.update(pastTrack, latestPosition);
         }
 
         if (sruVesselGraphic.getTrueHeading() != sruCommunicationObject

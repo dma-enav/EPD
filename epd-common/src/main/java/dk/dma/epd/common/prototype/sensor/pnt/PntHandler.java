@@ -24,8 +24,9 @@ import net.jcip.annotations.ThreadSafe;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.sensor.nmea.IPntListener;
+import dk.dma.epd.common.prototype.sensor.nmea.IPntSensorListener;
 import dk.dma.epd.common.prototype.sensor.nmea.PntMessage;
+import dk.dma.epd.common.prototype.sensor.nmea.PntMessage.MessageType;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.prototype.status.PntStatus;
 import dk.dma.epd.common.util.Util;
@@ -34,7 +35,7 @@ import dk.dma.epd.common.util.Util;
  * Component class for handling received PNT messages.
  */
 @ThreadSafe
-public class PntHandler extends MapHandlerChild implements IPntListener, IStatusComponent, Runnable {
+public class PntHandler extends MapHandlerChild implements IPntSensorListener, IStatusComponent, Runnable {
 
     private static final long PNT_TIMEOUT = 60 * 1000; // 1 min
     private CopyOnWriteArrayList<IPntDataListener> listeners = new CopyOnWriteArrayList<>();
@@ -51,28 +52,34 @@ public class PntHandler extends MapHandlerChild implements IPntListener, IStatus
     }
 
     /**
-     * Receive GPS message
+     * Receive PNT message
      */
     @Override
-    public synchronized void receive(PntMessage gpsMessage) {
+    public synchronized void receive(PntMessage pntMessage) {
+        // The PntHandler is not interested in time-only PNT messages
+        if (pntMessage.getMessageType() == MessageType.TIME) {
+            return;
+        }
+        
         Date now = new Date();
         long elapsed = now.getTime() - currentData.getLastUpdated().getTime();
         if (elapsed < 900) {
             return;
         }
 
+        currentData.setPntSource(pntMessage.getPntSource());
         currentData.setLastUpdated(now);
-        if (gpsMessage.getPos() == null || !gpsMessage.isValidPosition()) {
+        if (pntMessage.getPos() == null || !pntMessage.isValidPosition()) {
             currentData.setBadPosition(true);
         } else {
-            currentData.setPosition(gpsMessage.getPos());
+            currentData.setPosition(pntMessage.getPos());
             currentData.setBadPosition(false);
         }
-        if (gpsMessage.getCog() != null) {
-            currentData.setCog(gpsMessage.getCog());
+        if (pntMessage.getCog() != null) {
+            currentData.setCog(pntMessage.getCog());
         }
-        if (gpsMessage.getSog() != null) {
-            currentData.setSog(gpsMessage.getSog());
+        if (pntMessage.getSog() != null) {
+            currentData.setSog(pntMessage.getSog());
         }
         distributeUpdate();
     }
@@ -89,15 +96,14 @@ public class PntHandler extends MapHandlerChild implements IPntListener, IStatus
      */
     private void distributeUpdate() {
         for (IPntDataListener listener : listeners) {
-            PntData currentCopy = getCurrentData();
-            listener.pntDataUpdate(currentCopy);
+            listener.pntDataUpdate(getCurrentData());
         }
     }
 
     /**
      * Return if the current data has timed out
      */
-    public synchronized boolean gpsTimedOut() {
+    public synchronized boolean pntTimedOut() {
         Date now = new Date();
         return now.getTime() - currentData.getLastUpdated().getTime() > PNT_TIMEOUT;
     }
@@ -108,7 +114,7 @@ public class PntHandler extends MapHandlerChild implements IPntListener, IStatus
     @Override
     public void run() {
         while (true) {
-            if (gpsTimedOut()) {
+            if (pntTimedOut()) {
                 markBadPos();
                 distributeUpdate();
             }

@@ -15,8 +15,8 @@
  */
 package dk.dma.epd.common.prototype.enavcloud;
 
-import dk.dma.enav.maritimecloud.MaritimeCloudClient;
-import dk.dma.enav.maritimecloud.broadcast.BroadcastMessage;
+import net.maritimecloud.net.MaritimeCloudClient;
+import net.maritimecloud.net.broadcast.BroadcastMessage;
 
 
 /**

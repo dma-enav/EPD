@@ -20,10 +20,8 @@ import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 
-import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.event.PanListener;
 import com.bbn.openmap.event.PanSupport;
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
@@ -37,25 +35,24 @@ import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.shore.event.RouteEditMouseMode;
 import dk.dma.epd.shore.gui.views.ChartPanel;
-import dk.dma.epd.shore.gui.views.MapMenu;
+import dk.dma.epd.shore.layers.GeneralLayer;
 
 
 
 /**
  * Layer for drawing new route. When active it will use a panning mouse mode.
  */
-public class RouteEditLayer extends OMGraphicHandlerLayer implements MapMouseListener {
+public class RouteEditLayer extends GeneralLayer {
 
     private static final long serialVersionUID = 1L;
+    
     private ChartPanel chartPanel;
     private LinkedList<RouteWaypoint> waypoints;
-    private OMGraphicList graphics = new OMGraphicList();
     private WpCircle wpCircle;
     private OMLine wpLeg;
     protected PanSupport panDelegate;
     boolean panning;
     private NewRouteContainerLayer routeContainerLayer;
-    private MapMenu mapMenu;
 
     public RouteEditLayer() {
         panDelegate = new PanSupport(this);
@@ -89,6 +86,8 @@ public class RouteEditLayer extends OMGraphicHandlerLayer implements MapMouseLis
 
     @Override
     public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+        
         if (obj instanceof NewRouteContainerLayer){
             routeContainerLayer = (NewRouteContainerLayer) obj;
             waypoints = routeContainerLayer.getWaypoints();
@@ -99,19 +98,11 @@ public class RouteEditLayer extends OMGraphicHandlerLayer implements MapMouseLis
         if (obj instanceof PanListener) {
             addPanListener((PanListener) obj);
         }
-        if (obj instanceof MapMenu) {
-            mapMenu = (MapMenu) obj;
-        }
-        super.findAndInit(obj);
     }
 
     @Override
     public void findAndUndo(Object obj) {
         super.findAndUndo(obj);
-    }
-
-    public MapMouseListener getMapMouseListener() {
-        return this;
     }
 
     @Override
@@ -153,11 +144,6 @@ public class RouteEditLayer extends OMGraphicHandlerLayer implements MapMouseLis
     }
 
     @Override
-    public boolean mouseDragged(MouseEvent e) {
-        return false;
-    }
-
-    @Override
     public void mouseEntered(MouseEvent e) {
         wpCircle.setVisible(true);
         doPrepare();
@@ -167,10 +153,6 @@ public class RouteEditLayer extends OMGraphicHandlerLayer implements MapMouseLis
     public void mouseExited(MouseEvent e) {
         wpCircle.setVisible(false);
         doPrepare();
-    }
-
-    @Override
-    public void mouseMoved() {
     }
 
     @Override
@@ -202,15 +184,5 @@ public class RouteEditLayer extends OMGraphicHandlerLayer implements MapMouseLis
         }
         doPrepare();
         return true;
-    }
-
-    @Override
-    public boolean mousePressed(MouseEvent e) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseReleased(MouseEvent e) {
-        return false;
     }
 }

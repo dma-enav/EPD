@@ -555,7 +555,7 @@ public class VoctLayerPlanning extends VoctLayerCommon{
                 double height = Math.sqrt(effectiveAreaSize);
 
                 effectiveArea = new EffectiveSRUAreaGraphics(width, height,
-                        data, i, EPDShore.getSRUManager().getSRUs(i).getName());
+                        data, i, EPDShore.getInstance().getSRUManager().getSRUs(i).getName());
 
                 effectiveArea.setVisible(voctManager.getSruManager().getSRUs()
                         .get(i).isVisible());

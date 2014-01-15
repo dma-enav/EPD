@@ -25,9 +25,6 @@ import java.util.TimerTask;
 
 import javax.swing.SwingUtilities;
 
-import com.bbn.openmap.MapBean;
-import com.bbn.openmap.event.MapMouseListener;
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMList;
@@ -45,27 +42,21 @@ import dk.dma.epd.common.prototype.model.voyage.IVoyageUpdateListener;
 import dk.dma.epd.common.prototype.model.voyage.VoyageUpdateEvent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.event.DragMouseMode;
-import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gui.MainFrame;
-import dk.dma.epd.ship.gui.MapMenu;
+import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
 
 /**
  * Layer for showing routes
  */
-public class VoyageLayer extends OMGraphicHandlerLayer implements
-        MapMouseListener, Runnable, IVoyageUpdateListener {
+public class VoyageLayer extends GeneralLayer implements
+        Runnable, IVoyageUpdateListener {
 
     private static final long serialVersionUID = 1L;
 
-    private OMGraphicList graphics = new OMGraphicList();
     private float routeWidth = 2.0f;
     private Timer routeAnimatorTimer;
     Color ECDISOrange = new Color(213, 103, 45, 255);
-
-    private MapBean mapBean;
-    private MapMenu routeMenu;
 
     private Route primaryRoute;
     private Route stccRoute;
@@ -79,7 +70,6 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     private OMGraphic closest;
     private OMGraphic selectedGraphic;
-    private MainFrame mainFrame;
 
     private float tolerance;
 
@@ -87,13 +77,13 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     public VoyageLayer() {
         // Register this layer as listener for voyage update events
-        EPDShip.getVoyageEventDispatcher().registerListener(this);
+        EPDShip.getInstance().getVoyageEventDispatcher().registerListener(this);
     }
 
     public void startRouteNegotiation(Route route) {
 
         this.primaryRoute = route;
-        tolerance = EPDShip.getSettings().getGuiSettings()
+        tolerance = EPDShip.getInstance().getSettings().getGuiSettings()
                 .getMouseSelectTolerance();
 
         // Added the route as green, original recieved one
@@ -179,19 +169,10 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public void findAndInit(Object obj) {
-        // if (obj instanceof VoyageManager) {
-        // voyageManager = (VoyageManager)obj;
-        // voyageManager.addListener(this);
-        // }
-
+        super.findAndInit(obj);
+        
         if (obj instanceof MainFrame) {
-            mainFrame = (MainFrame) obj;
             mainFrame.getGlassPanel().add(voyageHandlingMouseOverPanel);
-        }
-        if (obj instanceof MapBean) {
-            mapBean = (MapBean) obj;
-        } else if (obj instanceof MapMenu) {
-            routeMenu = (MapMenu) obj;
         } else if (obj instanceof StrategicRouteExchangeHandler) {
             monaLisaHandler = (StrategicRouteExchangeHandler) obj;
         }
@@ -200,19 +181,7 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
 
     @Override
     public void findAndUndo(Object obj) {
-
-    }
-
-    public MapMouseListener getMapMouseListener() {
-        return this;
-    }
-
-    @Override
-    public String[] getMouseModeServiceList() {
-        String[] ret = new String[2];
-        ret[0] = NavigationMouseMode.MODE_ID; // "Gestures"
-        ret[1] = DragMouseMode.MODE_ID;
-        return ret;
+        super.findAndUndo(obj);
     }
 
     @Override
@@ -240,30 +209,30 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
                 WaypointCircle wpc = (WaypointCircle) selectedGraphic;
 
                 // waypointInfoPanel.setVisible(false);
-                routeMenu.sendToSTCC(wpc.getRouteIndex());
+                mapMenu.sendToSTCC(wpc.getRouteIndex());
                 if (wpc.getRouteIndex() == 2) {
                     // This is a route under modification: allow append waypoint
-                    this.routeMenu.addVoyageHandlingWaypointAppendMenuItem(wpc.getRoute(), wpc.getRouteIndex());
+                    this.mapMenu.addVoyageHandlingWaypointAppendMenuItem(wpc.getRoute(), wpc.getRouteIndex());
                     // also allow Waypoint deletion
-                    this.routeMenu.addVoyageHandlingWaypointDeleteMenuItem(wpc.getRoute(), wpc.getRouteIndex(), wpc.getWpIndex());
+                    this.mapMenu.addVoyageHandlingWaypointDeleteMenuItem(wpc.getRoute(), wpc.getRouteIndex(), wpc.getWpIndex());
                 }
 
-                routeMenu.setVisible(true);
-                routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+                mapMenu.setVisible(true);
+                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
                 return true;
             }
             if (selectedGraphic instanceof RouteLegGraphic) {
                 RouteLegGraphic rlg = (RouteLegGraphic) selectedGraphic;
                 // waypointInfoPanel.setVisible(false);
-                routeMenu.sendToSTCC(rlg.getRouteIndex());
+                mapMenu.sendToSTCC(rlg.getRouteIndex());
                 if(rlg.getRouteIndex() == 2 && this.modifiedSTCCRoute != null) {
                     // This is a route under modification: allow insert waypoint
-                    this.routeMenu.addVoyageHandlingLegInsertWaypointMenuItem(this.modifiedSTCCRoute,
+                    this.mapMenu.addVoyageHandlingLegInsertWaypointMenuItem(this.modifiedSTCCRoute,
                             rlg.getRouteLeg(), e.getPoint(), rlg.getRouteIndex());
                 }
                 
-                routeMenu.setVisible(true);
-                routeMenu.show(this, e.getX() - 2, e.getY() - 2);
+                mapMenu.setVisible(true);
+                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
                 return true;
             }
         }
@@ -309,18 +278,6 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
         }
 
         return false;
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mouseExited(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -384,11 +341,6 @@ public class VoyageLayer extends OMGraphicHandlerLayer implements
                 return true;
             }
         }
-        return false;
-    }
-
-    @Override
-    public boolean mousePressed(MouseEvent e) {
         return false;
     }
 

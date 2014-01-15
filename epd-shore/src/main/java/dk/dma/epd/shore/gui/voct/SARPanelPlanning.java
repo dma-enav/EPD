@@ -52,7 +52,7 @@ public class SARPanelPlanning extends SARPanelCommon implements VOCTUpdateListen
    public SARPanelPlanning(){
        super();
        
-       setVoctManager(EPDShore.getVoctManager());
+       setVoctManager(EPDShore.getInstance().getVoctManager());
        
        
        
@@ -104,16 +104,16 @@ public class SARPanelPlanning extends SARPanelCommon implements VOCTUpdateListen
 
         if (arg0.getSource() == btnTrackingWindow){
             
-            for (int i = 0; i < EPDShore.getMainFrame().getMapWindows().size(); i++) {
+            for (int i = 0; i < EPDShore.getInstance().getMainFrame().getMapWindows().size(); i++) {
                 
-                if (EPDShore.getMainFrame().getMapWindows().get(i).getType() == MapFrameType.SAR_Tracking){
+                if (EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getType() == MapFrameType.SAR_Tracking){
                     //Resize windows
-                    EPDShore.getMainFrame().getMapWindows().get(i).toFront();
+                    EPDShore.getInstance().getMainFrame().getMapWindows().get(i).toFront();
                     return;
                 }
             }
             
-            EPDShore.getMainFrame().addSARWindow(MapFrameType.SAR_Tracking);
+            EPDShore.getInstance().getMainFrame().addSARWindow(MapFrameType.SAR_Tracking);
             
             return;
         }

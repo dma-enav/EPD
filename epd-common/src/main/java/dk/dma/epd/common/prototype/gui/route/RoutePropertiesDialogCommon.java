@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -72,8 +73,7 @@ import dk.dma.epd.common.util.ParseUtils;
 /**
  * Dialog with route properties
  */
-public class RoutePropertiesDialogCommon extends JDialog implements
-        ActionListener, Runnable, FocusListener, WindowListener,
+public class RoutePropertiesDialogCommon extends JDialog implements ActionListener, Runnable, FocusListener, WindowListener,
         DocumentListener {
 
     private static final long serialVersionUID = 1L;
@@ -94,10 +94,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements
     protected JSpinner departureSpinner;
     protected JSpinner arrivalSpinner;
 
-    private Border fieldBorder = new MatteBorder(1, 1, 1, 1, new Color(65, 65,
-        65));
-    private Border columnBorder = new MatteBorder(1, 1, 0, 0, new Color(65, 65,
-            65));
+    private Border fieldBorder = new MatteBorder(1, 1, 1, 1, new Color(65, 65, 65));
+    private Border columnBorder = new MatteBorder(1, 1, 0, 0, new Color(65, 65, 65));
 
     int selectedWp = -1;
     int lastSelectedWp = -1;
@@ -109,7 +107,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
     List<RoutePropertiesRow> waypointTable = new ArrayList<>();
     volatile boolean internalOperation;
 
-    Route route;
+    protected Route route;
     private JButton closeBtn;
 
     private Window parent;
@@ -124,8 +122,10 @@ public class RoutePropertiesDialogCommon extends JDialog implements
     private RouteManagerCommon routeManager;
     protected ActiveRoute activeRoute;
 
-    public RoutePropertiesDialogCommon(Window parent,
-            RouteManagerCommon routeManager, int routeId) {
+    /**
+     * @wbp.parser.constructor
+     */
+    public RoutePropertiesDialogCommon(Window parent, RouteManagerCommon routeManager, int routeId) {
         super(parent, "Route Properties", Dialog.ModalityType.APPLICATION_MODAL);
 
         this.setResizable(false);
@@ -161,8 +161,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
         parseRoute();
     }
 
-    public RoutePropertiesDialogCommon(Window parent, Route route,
-            boolean editable) {
+    public RoutePropertiesDialogCommon(Window parent, Route route, boolean editable) {
         super(parent, "Route Properties", Dialog.ModalityType.APPLICATION_MODAL);
 
         if (!editable) {
@@ -199,8 +198,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
     private void initGui() {
 
         JPanel RouteProperties = new JPanel();
-        RouteProperties.setBorder(new TitledBorder(new LineBorder(new Color(0,
-                0, 0)), "Route Properties", TitledBorder.LEADING,
+        RouteProperties.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "Route Properties", TitledBorder.LEADING,
                 TitledBorder.TOP, null, null));
         RouteProperties.setBounds(0, 0, 865, 126);
         contentPanel.add(RouteProperties);
@@ -267,14 +265,11 @@ public class RoutePropertiesDialogCommon extends JDialog implements
         RouteProperties.add(distanceTxT);
 
         WaypointPanel = new JScrollPane();
-        WaypointPanel
-                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        WaypointPanel
-                .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        WaypointPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        WaypointPanel.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         WaypointPanel.setBounds(0, 137, 865, 195);
-        WaypointPanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0,
-                0)), "Route Details", TitledBorder.LEADING, TitledBorder.TOP,
-                null, null));
+        WaypointPanel.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0)), "Route Details", TitledBorder.LEADING,
+                TitledBorder.TOP, null, null));
         contentPanel.add(WaypointPanel);
 
         waypointList = new JPanel();
@@ -416,19 +411,16 @@ public class RoutePropertiesDialogCommon extends JDialog implements
         RouteProperties.add(arrivalPicker);
 
         Date date = new Date();
-        SpinnerDateModel departureSm = new SpinnerDateModel(date, null, null,
-                Calendar.HOUR_OF_DAY);
+        SpinnerDateModel departureSm = new SpinnerDateModel(date, null, null, Calendar.HOUR_OF_DAY);
 
-        SpinnerDateModel arrivalSm = new SpinnerDateModel(date, null, null,
-                Calendar.HOUR_OF_DAY);
+        SpinnerDateModel arrivalSm = new SpinnerDateModel(date, null, null, Calendar.HOUR_OF_DAY);
 
         departureSpinner = new JSpinner(departureSm);
 
         departureSpinner.setLocation(488, 20);
         departureSpinner.setSize(54, 20);
         departureSpinner.setBorder(fieldBorder);
-        JSpinner.DateEditor de_departureSpinner = new JSpinner.DateEditor(
-                departureSpinner, "HH:mm");
+        JSpinner.DateEditor de_departureSpinner = new JSpinner.DateEditor(departureSpinner, "HH:mm");
         departureSpinner.setEditor(de_departureSpinner);
 
         RouteProperties.add(departureSpinner);
@@ -438,8 +430,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
         arrivalSpinner.setSize(54, 20);
         arrivalSpinner.setBorder(fieldBorder);
 
-        JSpinner.DateEditor de_arrivalSpinner = new JSpinner.DateEditor(
-                arrivalSpinner, "HH:mm");
+        JSpinner.DateEditor de_arrivalSpinner = new JSpinner.DateEditor(arrivalSpinner, "HH:mm");
 
         arrivalSpinner.setEditor(de_arrivalSpinner);
 
@@ -452,6 +443,29 @@ public class RoutePropertiesDialogCommon extends JDialog implements
         AutoCompleteDecorator.decorate(originTxT, strings, false);
         AutoCompleteDecorator.decorate(destinationTxT, strings, false);
 
+        JLabel label = new JLabel("Calculate TTG/ETA using:");
+        label.setBounds(227, 101, 146, 14);
+        RouteProperties.add(label);
+
+        JComboBox<Route.EtaCalculationType> ddlTtgData = new JComboBox<Route.EtaCalculationType>();
+        ddlTtgData.setBounds(383, 98, 159, 20);
+        RouteProperties.add(ddlTtgData);
+        ddlTtgData.addItem(Route.EtaCalculationType.PLANNED_SPEED);
+        ddlTtgData.addItem(Route.EtaCalculationType.DYNAMIC_SPEED);
+        ddlTtgData.addItem(Route.EtaCalculationType.HYBRID);
+        ddlTtgData.setSelectedItem(this.route.getEtaCalculationType());        
+        
+        ddlTtgData.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                @SuppressWarnings("unchecked")
+                JComboBox<Route.EtaCalculationType> source = (JComboBox<Route.EtaCalculationType>) e.getSource();
+                Route.EtaCalculationType item = (Route.EtaCalculationType) source.getSelectedItem();
+                RoutePropertiesDialogCommon.this.route.setEtaCalculationType(item);
+                // always refresh data
+                RoutePropertiesDialogCommon.this.updateFields();
+            }
+        });
         JPanel interactionButtonPane = new JPanel();
         interactionButtonPane.setBounds(10, 354, 253, 32);
         getContentPane().add(interactionButtonPane);
@@ -495,10 +509,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements
                 // generateWaypoints(-5 + ( (i+1) * 19));
 
                 String name = Formatter.formatString(currentWaypoint.getName());
-                String latitude = currentWaypoint.getPos()
-                        .getLatitudeAsString();
-                String longitude = currentWaypoint.getPos()
-                        .getLongitudeAsString();
+                String latitude = currentWaypoint.getPos().getLatitudeAsString();
+                String longitude = currentWaypoint.getPos().getLongitudeAsString();
                 String rad = "N/A";
                 if (currentWaypoint.getTurnRad() != null) {
                     rad = Formatter.formatDistNM(currentWaypoint.getTurnRad());
@@ -526,45 +538,34 @@ public class RoutePropertiesDialogCommon extends JDialog implements
                 eta = Formatter.formatShortDateTimeNoTz(route.getWpEta(i));
                 ttg = Formatter.formatTime(route.getWpTtg(i));
 
-                if (currentWaypoint.getOutLeg() != null
-                        && currentWaypoint != null) {
+                if (currentWaypoint.getOutLeg() != null && currentWaypoint != null) {
 
                     // ttg =
                     // Long.toString(currentWaypoint.getOutLeg().calcTtg());
                     rng = Formatter.formatDistNM(route.getWpRng(i));
                     // brg =
                     // Double.toString(currentWaypoint.getOutLeg().calcBrg());
-                    brg = Formatter.formatDegrees(
-                            route.getWpBrg(currentWaypoint), 2);
+                    brg = Formatter.formatDegrees(route.getWpBrg(currentWaypoint), 2);
                     // heading =
                     // (currentWaypoint.getOutLeg().getHeading().name());
-                    heading = Formatter.formatHeading(currentWaypoint
-                            .getHeading());
+                    heading = Formatter.formatHeading(currentWaypoint.getHeading());
 
-                    speed = Formatter.formatSpeed(currentWaypoint.getOutLeg()
-                            .getSpeed());
-                    xtds = Formatter.formatMeters(currentWaypoint.getOutLeg()
-                            .getXtdStarboardMeters());
-                    xtdp = Formatter.formatMeters(currentWaypoint.getOutLeg()
-                            .getXtdPortMeters());
-                    sfwidth = Formatter.formatMeters(currentWaypoint
-                            .getOutLeg().getSFWidth());
-                    sflen = Formatter.formatMeters(currentWaypoint.getOutLeg()
-                            .getSFLen());
+                    speed = Formatter.formatSpeed(currentWaypoint.getOutLeg().getSpeed());
+                    xtds = Formatter.formatMeters(currentWaypoint.getOutLeg().getXtdStarboardMeters());
+                    xtdp = Formatter.formatMeters(currentWaypoint.getOutLeg().getXtdPortMeters());
+                    sfwidth = Formatter.formatMeters(currentWaypoint.getOutLeg().getSFWidth());
+                    sflen = Formatter.formatMeters(currentWaypoint.getOutLeg().getSFLen());
 
                 }
 
-                RoutePropertiesRow currentRow = generateWaypoint(-5 + (i + 1)
-                        * 19, name, latitude, longitude, rad, rot, ttg, eta,
-                        rng, brg, heading, speed, xtds, xtdp, sfwidth, sflen,
-                        i, route.getWaypoints().size());
+                RoutePropertiesRow currentRow = generateWaypoint(-5 + (i + 1) * 19, name, latitude, longitude, rad, rot, ttg, eta,
+                        rng, brg, heading, speed, xtds, xtdp, sfwidth, sflen, i, route.getWaypoints().size());
 
                 waypointTable.add(currentRow);
             }
         }
 
-        waypointList.setPreferredSize(new Dimension(195, -5
-                + (route.getWaypoints().size() + 1) * 19));
+        waypointList.setPreferredSize(new Dimension(195, -5 + (route.getWaypoints().size() + 1) * 19));
 
         // WaypointList.sets
 
@@ -589,10 +590,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements
         destinationTxT.addFocusListener(this);
 
         // Departure listeners
-        ((DefaultEditor) departureSpinner.getEditor()).getTextField()
-                .getDocument().addDocumentListener(this);
-        ((DefaultEditor) departureSpinner.getEditor()).getTextField()
-                .getDocument().putProperty("name", "departureSpinner");
+        ((DefaultEditor) departureSpinner.getEditor()).getTextField().getDocument().addDocumentListener(this);
+        ((DefaultEditor) departureSpinner.getEditor()).getTextField().getDocument().putProperty("name", "departureSpinner");
 
         JFormattedTextField departureEditor = departurePicker.getEditor();
         departureEditor.getDocument().addDocumentListener(this);
@@ -600,10 +599,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements
         departurePicker.addActionListener(this);
 
         // Arrival listeners
-        ((DefaultEditor) arrivalSpinner.getEditor()).getTextField()
-                .getDocument().addDocumentListener(this);
-        ((DefaultEditor) arrivalSpinner.getEditor()).getTextField()
-                .getDocument().putProperty("name", "arrivalSpinner");
+        ((DefaultEditor) arrivalSpinner.getEditor()).getTextField().getDocument().addDocumentListener(this);
+        ((DefaultEditor) arrivalSpinner.getEditor()).getTextField().getDocument().putProperty("name", "arrivalSpinner");
 
         JFormattedTextField arrivalEditor = arrivalPicker.getEditor();
         arrivalEditor.getDocument().addDocumentListener(this);
@@ -646,8 +643,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements
             arrivalSpinner.setEnabled(false);
         }
 
-        inrouteTxT.setText(Formatter.formatTime(route.calcTtg()));
-        distanceTxT.setText(Formatter.formatDistNM(route.calcDtg()));
+        inrouteTxT.setText(Formatter.formatTime(route.getRouteTtg()));
+        distanceTxT.setText(Formatter.formatDistNM(route.getRouteDtg()));
     }
 
     private void updateButtons() {
@@ -692,12 +689,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        waypointTable
-                                .get(id)
-                                .getLatitude()
-                                .setText(
-                                        route.getWaypoints().get(id).getPos()
-                                                .getLatitudeAsString());
+                        waypointTable.get(id).getLatitude().setText(route.getWaypoints().get(id).getPos().getLatitudeAsString());
                         checkTimeDiff();
                     }
                 });
@@ -711,12 +703,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
                         // + route.getWaypoints().get(id).getPos()
                         // .getLongitudeAsString());
 
-                        waypointTable
-                                .get(id)
-                                .getLongitude()
-                                .setText(
-                                        route.getWaypoints().get(id).getPos()
-                                                .getLongitudeAsString());
+                        waypointTable.get(id).getLongitude().setText(route.getWaypoints().get(id).getPos().getLongitudeAsString());
                         checkTimeDiff();
                     }
                 });
@@ -726,13 +713,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
                     @Override
                     public void run() {
 
-                        waypointTable
-                                .get(id)
-                                .getRad()
-                                .setText(
-                                        Formatter.formatDistNM(route
-                                                .getWaypoints().get(id)
-                                                .getTurnRad()));
+                        waypointTable.get(id).getRad().setText(Formatter.formatDistNM(route.getWaypoints().get(id).getTurnRad()));
                     }
                 });
                 break;
@@ -741,13 +722,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements
                     @Override
                     public void run() {
 
-                        waypointTable
-                                .get(id)
-                                .getHeading()
-                                .setText(
-                                        Formatter.formatHeading(route
-                                                .getWaypoints().get(id)
-                                                .getHeading()));
+                        waypointTable.get(id).getHeading()
+                                .setText(Formatter.formatHeading(route.getWaypoints().get(id).getHeading()));
                     }
                 });
                 break;
@@ -756,13 +732,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements
                     @Override
                     public void run() {
 
-                        waypointTable
-                                .get(id)
-                                .getSog()
-                                .setText(
-                                        Formatter.formatSpeed(route
-                                                .getWaypoints().get(id)
-                                                .getOutLeg().getSpeed()));
+                        waypointTable.get(id).getSog()
+                                .setText(Formatter.formatSpeed(route.getWaypoints().get(id).getOutLeg().getSpeed()));
                     }
                 });
                 break;
@@ -772,14 +743,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements
                     @Override
                     public void run() {
 
-                        waypointTable
-                                .get(id)
-                                .getXtds()
-                                .setText(
-                                        Formatter.formatMeters(route
-                                                .getWaypoints().get(id)
-                                                .getOutLeg()
-                                                .getXtdStarboardMeters()));
+                        waypointTable.get(id).getXtds()
+                                .setText(Formatter.formatMeters(route.getWaypoints().get(id).getOutLeg().getXtdStarboardMeters()));
                     }
                 });
                 break;
@@ -788,15 +753,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        waypointTable
-                                .get(id)
-                                .getXtdp()
-                                .setText(
-                                        Formatter
-                                                .formatMeters(route
-                                                        .getWaypoints().get(id)
-                                                        .getOutLeg()
-                                                        .getXtdPortMeters()));
+                        waypointTable.get(id).getXtdp()
+                                .setText(Formatter.formatMeters(route.getWaypoints().get(id).getOutLeg().getXtdPortMeters()));
                     }
                 });
                 break;
@@ -805,13 +763,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        waypointTable
-                                .get(id)
-                                .getSfwidth()
-                                .setText(
-                                        Formatter.formatMeters(route
-                                                .getWaypoints().get(id)
-                                                .getOutLeg().getSFWidth()));
+                        waypointTable.get(id).getSfwidth()
+                                .setText(Formatter.formatMeters(route.getWaypoints().get(id).getOutLeg().getSFWidth()));
                     }
                 });
                 break;
@@ -820,13 +773,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        waypointTable
-                                .get(id)
-                                .getSflen()
-                                .setText(
-                                        Formatter.formatMeters(route
-                                                .getWaypoints().get(id)
-                                                .getOutLeg().getSFLen()));
+                        waypointTable.get(id).getSflen()
+                                .setText(Formatter.formatMeters(route.getWaypoints().get(id).getOutLeg().getSFLen()));
                     }
                 });
                 break;
@@ -922,21 +870,16 @@ public class RoutePropertiesDialogCommon extends JDialog implements
             }
 
             if (route.getWaypoints().size() < 3) {
-                int result = JOptionPane
-                        .showConfirmDialog(
-                                parent,
-                                "A route must have at least two waypoints.\nDo you want to delete the route?",
-                                "Delete Route?", JOptionPane.YES_NO_OPTION,
-                                JOptionPane.QUESTION_MESSAGE);
+                int result = JOptionPane.showConfirmDialog(parent,
+                        "A route must have at least two waypoints.\nDo you want to delete the route?", "Delete Route?",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                 if (result == JOptionPane.YES_OPTION) {
                     route.deleteWaypoint(lastSelectedWp);
 
                     if (routeManager != null) {
 
-                        routeManager.removeRoute(routeManager
-                                .getRouteIndex(route));
-                        routeManager
-                                .notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
+                        routeManager.removeRoute(routeManager.getRouteIndex(route));
+                        routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_REMOVED);
                         close();
                     }
                 }
@@ -946,8 +889,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
                 route.deleteWaypoint(lastSelectedWp);
 
                 if (routeManager != null) {
-                    routeManager
-                            .notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
+                    routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
                     removeAndMoveWaypoints(lastSelectedWp);
                 }
             }
@@ -965,8 +907,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
 
         int moveLocation = 0;
         for (int i = waypointId + 1; i < waypointTable.size(); i++) {
-            waypointTable.get(i).moveRow(
-                    toBeDeleted.getName().getLocation().y + moveLocation * 19);
+            waypointTable.get(i).moveRow(toBeDeleted.getName().getLocation().y + moveLocation * 19);
             waypointTable.get(i).updateId();
             moveLocation++;
         }
@@ -1016,15 +957,12 @@ public class RoutePropertiesDialogCommon extends JDialog implements
 
         }
 
-        if (locked == waypointTable.size() - 1
-                && !waypointTable.get(waypointTable.size() - 1).isLocked()) {
-            waypointTable.get(waypointTable.size() - 1).getLockLbl()
-                    .lockButton();
+        if (locked == waypointTable.size() - 1 && !waypointTable.get(waypointTable.size() - 1).isLocked()) {
+            waypointTable.get(waypointTable.size() - 1).getLockLbl().lockButton();
             arrivalPicker.setEnabled(false);
             arrivalSpinner.setEnabled(false);
         } else {
-            waypointTable.get(waypointTable.size() - 1).getLockLbl()
-                    .unlockButton();
+            waypointTable.get(waypointTable.size() - 1).getLockLbl().unlockButton();
             arrivalPicker.setEnabled(true);
             arrivalSpinner.setEnabled(true);
         }
@@ -1071,10 +1009,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements
     public void windowOpened(WindowEvent e) {
     }
 
-    private RoutePropertiesRow generateWaypoint(int y, String name,
-            String latitude, String longitude, String rad, String rot,
-            String ttg, String eta, String rng, String brg, String heading,
-            String speed, String xtds, String xtdp, String sfwidth,
+    private RoutePropertiesRow generateWaypoint(int y, String name, String latitude, String longitude, String rad, String rot,
+            String ttg, String eta, String rng, String brg, String heading, String speed, String xtds, String xtdp, String sfwidth,
             String sflen, int id, int total) {
 
         LockLabel lockLbl = new LockLabel(this);
@@ -1177,8 +1113,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
 
         WaypointJTextField headingTxT = new WaypointJTextField(id, "heading");
         headingTxT.setColumns(10);
-        headingTxT
-                .setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65, 65)));
+        headingTxT.setBorder(new MatteBorder(1, 1, 1, 0, new Color(65, 65, 65)));
         headingTxT.setBounds(546, y + offset, 48, 20);
         waypointList.add(headingTxT);
         headingTxT.setText(heading);
@@ -1262,14 +1197,12 @@ public class RoutePropertiesDialogCommon extends JDialog implements
             rngTxT.setVisible(false);
             brgTxT.setVisible(false);
 
-            routeRow = new RoutePropertiesRow(nameTxT, latTxT, lonTxT, radTxT,
-                    rotTxT, ttgTxT, etaTxT, rngTxT, brgTxT, headingTxT, sogTxT,
-                    xtdsTxT, xtdPTxT, sfwTxT, sflTxT, id, true, lockLbl);
+            routeRow = new RoutePropertiesRow(nameTxT, latTxT, lonTxT, radTxT, rotTxT, ttgTxT, etaTxT, rngTxT, brgTxT, headingTxT,
+                    sogTxT, xtdsTxT, xtdPTxT, sfwTxT, sflTxT, id, true, lockLbl);
 
         } else {
-            routeRow = new RoutePropertiesRow(nameTxT, latTxT, lonTxT, radTxT,
-                    rotTxT, ttgTxT, etaTxT, rngTxT, brgTxT, headingTxT, sogTxT,
-                    xtdsTxT, xtdPTxT, sfwTxT, sflTxT, id, false, lockLbl);
+            routeRow = new RoutePropertiesRow(nameTxT, latTxT, lonTxT, radTxT, rotTxT, ttgTxT, etaTxT, rngTxT, brgTxT, headingTxT,
+                    sogTxT, xtdsTxT, xtdPTxT, sfwTxT, sflTxT, id, false, lockLbl);
         }
 
         lockLbl.setOwnRow(routeRow);
@@ -1305,8 +1238,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
 
         // Departure
         if ("departureSpinner".equals(name)) {
-            JSpinner.DateEditor editor = (JSpinner.DateEditor) departureSpinner
-                    .getEditor();
+            JSpinner.DateEditor editor = (JSpinner.DateEditor) departureSpinner.getEditor();
             // System.out.println("DepartureTime was changed to "
             // + departureSpinner.getValue());
             SimpleDateFormat df = new SimpleDateFormat("HH:mm");
@@ -1354,8 +1286,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
             // Generate the current arrival date
             Date currentArrivalDate = arrivalPicker.getDate();
 
-            JSpinner.DateEditor editor = (JSpinner.DateEditor) arrivalSpinner
-                    .getEditor();
+            JSpinner.DateEditor editor = (JSpinner.DateEditor) arrivalSpinner.getEditor();
             // System.out.println("DepartureTime was changed to "
             // + departureSpinner.getValue());
             SimpleDateFormat df = new SimpleDateFormat("HH:mm");
@@ -1367,8 +1298,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
                 currentArrivalDate.setMinutes(testDate.getMinutes());
                 currentArrivalDate.setSeconds(testDate.getSeconds());
 
-                if (route.getStarttime().getTime() >= currentArrivalDate
-                        .getTime()) {
+                if (route.getStarttime().getTime() >= currentArrivalDate.getTime()) {
 
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
@@ -1376,8 +1306,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
                             // departurePicker.setDate(starttime);
                             long startTimeVal = route.getStarttime().getTime() + 3600000;
                             Date eta = new Date(startTimeVal);
-                            ((SpinnerDateModel) arrivalSpinner.getModel())
-                                    .setValue(eta);
+                            ((SpinnerDateModel) arrivalSpinner.getModel()).setValue(eta);
                         }
                     });
 
@@ -1403,19 +1332,17 @@ public class RoutePropertiesDialogCommon extends JDialog implements
             SimpleDateFormat format = new SimpleDateFormat("E dd/MM/yyyy");
             Date currentArrivalDate = null;
             try {
-                currentArrivalDate = format.parse(arrivalPicker.getEditor()
-                        .getText());
+                currentArrivalDate = format.parse(arrivalPicker.getEditor().getText());
                 currentArrivalDate.setHours(time.getHours());
                 currentArrivalDate.setMinutes(time.getMinutes());
                 currentArrivalDate.setSeconds(time.getSeconds());
 
-                if (route.getStarttime().getTime() >= currentArrivalDate
-                        .getTime()) {
+                if (route.getStarttime().getTime() >= currentArrivalDate.getTime()) {
 
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            arrivalPicker.setDate(route.calculateEta());
+                            arrivalPicker.setDate(route.getEta());
                             // ((SpinnerDateModel)
                             // arrivalSpinner.getModel()).setValue(route
                             // .getEta(route.getStarttime()));
@@ -1453,7 +1380,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
         // System.out.println("Recalculating speeds?");
 
         // Total distance
-        double distanceToTravel = route.calcDtg();
+        double distanceToTravel = route.getRouteDtg();
 
         for (int i = 0; i < waypointTable.size(); i++) {
 
@@ -1503,8 +1430,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
         // System.out.println("New total distance: " + distanceToTravel);
 
         // And we want to get there in miliseconds:
-        long timeToTravel = currentArrivalDate.getTime()
-                - route.getStarttime().getTime();
+        long timeToTravel = currentArrivalDate.getTime() - route.getStarttime().getTime();
 
         // System.out.println("We want to travel " + distanceToTravel +
         // " nm");
@@ -1538,8 +1464,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
     void refreshSoGList() {
         for (int i = 0; i < route.getWaypoints().size() - 1; i++) {
             RouteWaypoint currentWaypoint = route.getWaypoints().get(i);
-            String speed = Formatter.formatSpeed(currentWaypoint.getOutLeg()
-                    .getSpeed());
+            String speed = Formatter.formatSpeed(currentWaypoint.getOutLeg().getSpeed());
 
             waypointTable.get(i).getSog().setText(speed);
         }
@@ -1608,19 +1533,14 @@ public class RoutePropertiesDialogCommon extends JDialog implements
     private void modifyName(String name) {
         int id = Integer.parseInt(name.split(":")[1]);
 
-        route.getWaypoints().get(id)
-                .setName(waypointTable.get(id).getName().getText());
+        route.getWaypoints().get(id).setName(waypointTable.get(id).getName().getText());
     }
 
     private void modifyLat(String name) {
         final int id = Integer.parseInt(name.split(":")[1]);
         RouteWaypoint wpt = route.getWaypoints().get(id);
         try {
-            route.getWaypoints()
-                    .get(id)
-                    .setPos(wpt.getPos().withLatitude(
-                            parseLat(waypointTable.get(id).getLatitude()
-                                    .getText())));
+            route.getWaypoints().get(id).setPos(wpt.getPos().withLatitude(parseLat(waypointTable.get(id).getLatitude().getText())));
 
             // System.out.println("Latitude was updated on " + id);
             // System.out.println("New value is " +
@@ -1638,8 +1558,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
         int id = Integer.parseInt(name.split(":")[1]);
         RouteWaypoint wpt = route.getWaypoints().get(id);
         try {
-            wpt.setPos(wpt.getPos().withLongitude(
-                    parseLon(waypointTable.get(id).getLongitude().getText())));
+            wpt.setPos(wpt.getPos().withLongitude(parseLon(waypointTable.get(id).getLongitude().getText())));
         } catch (Exception e1) {
             // Invalid lon, we do nothing, focus lost will handle it
         }
@@ -1674,8 +1593,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
         try {
 
             if (!waypointTable.get(id).getSog().getText().equals("")) {
-                wpt.getOutLeg().setSpeed(
-                        parseDouble(waypointTable.get(id).getSog().getText()));
+                wpt.getOutLeg().setSpeed(parseDouble(waypointTable.get(id).getSog().getText()));
                 checkTimeDiff();
             }
 
@@ -1689,10 +1607,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
         RouteWaypoint wpt = route.getWaypoints().get(id);
 
         try {
-            wpt.getOutLeg()
-                    .setXtdPort(
-                            parseDouble(waypointTable.get(id).getXtdp()
-                                    .getText()) / 1852.0);
+            wpt.getOutLeg().setXtdPort(parseDouble(waypointTable.get(id).getXtdp().getText()) / 1852.0);
         } catch (Exception e) {
             //
         }
@@ -1703,10 +1618,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
         RouteWaypoint wpt = route.getWaypoints().get(id);
 
         try {
-            wpt.getOutLeg()
-                    .setXtdStarboard(
-                            parseDouble(waypointTable.get(id).getXtds()
-                                    .getText()) / 1852.0);
+            wpt.getOutLeg().setXtdStarboard(parseDouble(waypointTable.get(id).getXtds().getText()) / 1852.0);
         } catch (Exception e) {
             //
         }
@@ -1717,8 +1629,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
         RouteWaypoint wpt = route.getWaypoints().get(id);
 
         try {
-            wpt.getOutLeg().setSFWidth(
-                    parseDouble(waypointTable.get(id).getSfwidth().getText()));
+            wpt.getOutLeg().setSFWidth(parseDouble(waypointTable.get(id).getSfwidth().getText()));
         } catch (Exception e) {
             //
         }
@@ -1729,8 +1640,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
         RouteWaypoint wpt = route.getWaypoints().get(id);
 
         try {
-            wpt.getOutLeg().setSFLen(
-                    parseDouble(waypointTable.get(id).getSflen().getText()));
+            wpt.getOutLeg().setSFLen(parseDouble(waypointTable.get(id).getSflen().getText()));
         } catch (Exception e) {
             //
         }
@@ -1750,8 +1660,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
 
             // Is the date the same?
             if (starttime.getDate() != departurePicker.getDate().getDate()
-                    || starttime.getMonth() != departurePicker.getDate()
-                            .getMonth()) {
+                    || starttime.getMonth() != departurePicker.getDate().getMonth()) {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
@@ -1761,8 +1670,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
 
             }
 
-            JSpinner.DateEditor editor = (JSpinner.DateEditor) departureSpinner
-                    .getEditor();
+            JSpinner.DateEditor editor = (JSpinner.DateEditor) departureSpinner.getEditor();
             SimpleDateFormat df = new SimpleDateFormat("HH:mm");
             Date testDate = null;
             try {
@@ -1772,14 +1680,12 @@ public class RoutePropertiesDialogCommon extends JDialog implements
             }
 
             // Is the time the same?
-            if (starttime.getHours() != testDate.getHours()
-                    || starttime.getMinutes() != testDate.getMinutes()) {
+            if (starttime.getHours() != testDate.getHours() || starttime.getMinutes() != testDate.getMinutes()) {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
                         // departurePicker.setDate(starttime);
-                        ((SpinnerDateModel) departureSpinner.getModel())
-                                .setValue(starttime);
+                        ((SpinnerDateModel) departureSpinner.getModel()).setValue(starttime);
                     }
                 });
 
@@ -1787,8 +1693,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
 
             arrivalPicker.setDate(route.getEta(starttime));
 
-            ((SpinnerDateModel) arrivalSpinner.getModel()).setValue(route
-                    .getEta(starttime));
+            ((SpinnerDateModel) arrivalSpinner.getModel()).setValue(route.getEta(starttime));
 
             // route.calcAllWpEta();
 
@@ -1817,7 +1722,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements
         route.calcValues(true);
         route.calcAllWpEta();
 
-        inrouteTxT.setText(Formatter.formatTime(route.calcTtg()));
+        inrouteTxT.setText(Formatter.formatTime(route.getRouteTtg()));
 
         for (int i = 0; i < route.getWaypoints().size(); i++) {
             String eta = Formatter.formatShortDateTimeNoTz(route.getWpEta(i));

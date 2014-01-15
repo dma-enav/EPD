@@ -41,10 +41,11 @@ public class SarTargetGraphic extends TargetGraphic {
     private SartGraphic oldSartMark;
     private Font font = new Font(Font.SANS_SERIF, Font.BOLD, 11);
     private OMText label = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);
-//    private boolean warningIssued;
+
+    private PastTrackGraphic pastTrackGraphic = new PastTrackGraphic();
 
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings) {
+    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale) {
         sarTarget = (SarTarget) aisTarget;
         VesselPositionData posData = sarTarget.getPositionData();
         // VesselStaticData staticData = sarTarget.getStaticData();
@@ -74,19 +75,8 @@ public class SarTargetGraphic extends TargetGraphic {
         label.setY(30);
         label.setData("AIS SART");
 
-        //Sar msgbox disabled, change to listener type relationship?
-        
-//        int result = 1;
-        
-//        if (!warningIssued) {
-//            result = JOptionPane.showOptionDialog(EeINS.getMainFrame(), "AIS SART transponder active! Zoom to location?",
-//                    "AIS SART Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, null, null);
-//        }
-//        if (result == JOptionPane.YES_OPTION) {
-//            EeINS.getMainFrame().getChartPanel().getMap().setCenter(lat, lon);
-//        }
-//        warningIssued = true;
-
+        // Past track graphics
+        pastTrackGraphic.update(sarTarget);
     }
 
     private void createGraphics() {
@@ -101,6 +91,8 @@ public class SarTargetGraphic extends TargetGraphic {
         oldSartMark.setVisible(false);
         
         add(label);
+        
+        add(pastTrackGraphic);
     }
 
     @Override

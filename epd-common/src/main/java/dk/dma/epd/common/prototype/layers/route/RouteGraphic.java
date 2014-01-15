@@ -38,7 +38,7 @@ public class RouteGraphic extends OMGraphicList {
     private Route route;
     private boolean arrowsVisible;
     private LinkedList<RouteWaypoint> routeWaypoints;
-    private List<RouteLegGraphic> routeLegs = new ArrayList<>();
+    protected List<RouteLegGraphic> routeLegs = new ArrayList<>();
 
     protected Stroke routeStroke;
     protected Color color;
@@ -50,8 +50,7 @@ public class RouteGraphic extends OMGraphicList {
 
     boolean animation;
 
-    public RouteGraphic(Route route, int routeIndex, boolean arrowsVisible,
-            Stroke stroke, Color color) {
+    public RouteGraphic(Route route, int routeIndex, boolean arrowsVisible, Stroke stroke, Color color) {
         super();
         this.route = route;
         this.routeIndex = routeIndex;
@@ -61,8 +60,7 @@ public class RouteGraphic extends OMGraphicList {
         initGraphics();
     }
 
-    public RouteGraphic(Route route, int routeIndex, boolean arrowsVisible,
-            Stroke stroke, Color color, Color broadLineColor,
+    public RouteGraphic(Route route, int routeIndex, boolean arrowsVisible, Stroke stroke, Color color, Color broadLineColor,
             boolean circleDash, boolean lineDash) {
         super();
         this.lineDash = lineDash;
@@ -96,10 +94,9 @@ public class RouteGraphic extends OMGraphicList {
         routeWaypoints = route.getWaypoints();
         int i = 0;
         for (RouteWaypoint routeWaypoint : routeWaypoints) {
-            if (route instanceof ActiveRoute
-                    && ((ActiveRoute) route).getActiveWaypointIndex() == i) {
-                RouteWaypointGraphic routeWaypointGraphicActive = new RouteWaypointGraphic(
-                        route, routeIndex, i, routeWaypoint, Color.RED, 30, 30);
+            if (route instanceof ActiveRoute && ((ActiveRoute) route).getActiveWaypointIndex() == i) {
+                RouteWaypointGraphic routeWaypointGraphicActive = new RouteWaypointGraphic(route, routeIndex, i, routeWaypoint,
+                        Color.RED, 30, 30);
                 add(0, routeWaypointGraphicActive);
             }
 
@@ -110,13 +107,11 @@ public class RouteGraphic extends OMGraphicList {
                 RouteLegGraphic routeLegGraphic = null;
 
                 if (lineDash) {
-                    routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex,
-                            this.color, this.routeStroke, broadLineColor);
+                    routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke, broadLineColor);
                 } else {
                     float[] dash = { 1000000.0f };
 
-                    routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex,
-                            this.color, this.routeStroke, broadLineColor, dash);
+                    routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke, broadLineColor, dash);
                 }
 
                 add(routeLegGraphic);
@@ -124,9 +119,8 @@ public class RouteGraphic extends OMGraphicList {
             }
 
             // Dashed circles
-            RouteWaypointGraphic routeWaypointGraphic = new RouteWaypointGraphic(
-                    route, routeIndex, i, routeWaypoint, this.color, 18, 18,
-                    circleDash);
+            RouteWaypointGraphic routeWaypointGraphic = new RouteWaypointGraphic(route, routeIndex, i, routeWaypoint, this.color,
+                    18, 18, circleDash);
 
             add(0, routeWaypointGraphic);
             i++;
@@ -138,21 +132,27 @@ public class RouteGraphic extends OMGraphicList {
         routeWaypoints = route.getWaypoints();
         int i = 0;
         for (RouteWaypoint routeWaypoint : routeWaypoints) {
-            if (route instanceof ActiveRoute
-                    && ((ActiveRoute) route).getActiveWaypointIndex() == i) {
-                RouteWaypointGraphic routeWaypointGraphicActive = new RouteWaypointGraphic(
-                        route, routeIndex, i, routeWaypoint, Color.RED, 30, 30);
+            if (route instanceof ActiveRoute && ((ActiveRoute) route).getActiveWaypointIndex() == i) {
+                RouteWaypointGraphic routeWaypointGraphicActive = new RouteWaypointGraphic(route, routeIndex, i, routeWaypoint,
+                        Color.RED, 30, 30);
                 add(0, routeWaypointGraphicActive);
             }
             if (routeWaypoint.getOutLeg() != null) {
                 RouteLeg routeLeg = routeWaypoint.getOutLeg();
-                RouteLegGraphic routeLegGraphic = new RouteLegGraphic(routeLeg,
-                        routeIndex, this.color, this.routeStroke);
+                
+                RouteLegGraphic routeLegGraphic;
+                if (route instanceof ActiveRoute){
+                    routeLegGraphic = new ActiveRouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke);     
+                }else{
+                    routeLegGraphic = new RouteLegGraphic(routeLeg, routeIndex, this.color, this.routeStroke);
+                }
+                
+                
                 add(routeLegGraphic);
                 routeLegs.add(0, routeLegGraphic);
             }
-            RouteWaypointGraphic routeWaypointGraphic = new RouteWaypointGraphic(
-                    route, routeIndex, i, routeWaypoint, this.color, 18, 18);
+            RouteWaypointGraphic routeWaypointGraphic = new RouteWaypointGraphic(route, routeIndex, i, routeWaypoint, this.color,
+                    18, 18);
             add(0, routeWaypointGraphic);
             i++;
         }
@@ -188,7 +188,7 @@ public class RouteGraphic extends OMGraphicList {
             this.arrowsVisible = show;
         }
     }
-    
+
     public int getRouteIndex() {
         return this.routeIndex;
     }

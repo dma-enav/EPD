@@ -27,14 +27,14 @@ public class ActiveRouteGraphic extends RouteGraphic {
 
     private static final long serialVersionUID = 1L;
 
+//    protected List<RouteLegGraphic> routeLegs = new ArrayList<>();
+
     public ActiveRouteGraphic(Route route, int routeIndex, boolean arrowsVisible, Stroke stroke, Color color) {
         super(route, routeIndex, arrowsVisible, stroke, color);
     }
 
     public ActiveRouteGraphic(Route route, int routeIndex, boolean arrowsVisible, Stroke stroke, Color color, Color backgroundColor) {
-        super(route, routeIndex, arrowsVisible,
-                stroke, color, backgroundColor, false, false);
+        super(route, routeIndex, arrowsVisible, stroke, color, backgroundColor, false, false);
     }
 
-    
 }

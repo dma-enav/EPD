@@ -51,7 +51,8 @@ import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.CursorComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.GpsComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.MultiSourcePntComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.PntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.MSIComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
@@ -62,10 +63,8 @@ public class DockableComponents {
 
     private static final String[] PANEL_NAMES = { "Chart", "Scale", "Own Ship",
             "GPS", "Cursor", "Active Waypoint", "MSI", "AIS Target",
-            "Dynamic NoGo", "NoGo", "SAR" };
-    
-//    "Mona Lisa Communication", 
-    
+            "Dynamic NoGo", "NoGo", "SAR", "Resilient PNT" };
+
     Map<String, PanelDockable> dmap;
     private CControl control;
     DockableFactory factory;
@@ -74,7 +73,7 @@ public class DockableComponents {
 
     private ScaleComponentPanel scalePanel;
     private OwnShipComponentPanel ownShipPanel;
-    private GpsComponentPanel gpsPanel;
+    private PntComponentPanel gpsPanel;
     private CursorComponentPanel cursorPanel;
     private ActiveWaypointComponentPanel activeWaypointPanel;
     private MSIComponentPanel msiPanel;
@@ -82,9 +81,9 @@ public class DockableComponents {
     private DynamicNoGoComponentPanel dynamicNoGoPanel;
     private NoGoComponentPanel nogoPanel;
     private SARComponentPanel sarPanel;
+    private MultiSourcePntComponentPanel msPntPanel;
+    // private MonaLisaCommunicationComponentPanel monaLisaPanel;
 
-
-    
     private boolean locked;
 
     public DockableComponents(MainFrame mainFrame) {
@@ -103,9 +102,12 @@ public class DockableComponents {
         dynamicNoGoPanel = mainFrame.getDynamicNoGoPanel();
         nogoPanel = mainFrame.getNogoPanel();
         sarPanel = mainFrame.getSarPanel();
+        msPntPanel = mainFrame.getMsPntComponentPanel();
+        // monaLisaPanel = mainFrame.getMonaLisaPanel();
 
-        factory = new DockableFactory(chartPanel, scalePanel, ownShipPanel, gpsPanel, cursorPanel, activeWaypointPanel, msiPanel,
-                aisPanel, dynamicNoGoPanel, nogoPanel, sarPanel);
+        factory = new DockableFactory(chartPanel, scalePanel, ownShipPanel,
+                gpsPanel, cursorPanel, activeWaypointPanel, msiPanel, aisPanel,
+                dynamicNoGoPanel, nogoPanel, msPntPanel, sarPanel);
 
         CContentArea contentArea = control.getContentArea();
         mainFrame.getContentPane().add(contentArea);
@@ -116,7 +118,7 @@ public class DockableComponents {
         mainFrame.add(control.getContentArea());
 
         // Load a layout
-        Path home = EPDShip.getHomePath();
+        Path home = EPDShip.getInstance().getHomePath();
         File layoutFile = home.resolve(EPDShip.class.getSimpleName() + ".xml")
                 .toFile();
         if (layoutFile.exists()) {
@@ -133,10 +135,10 @@ public class DockableComponents {
         }
 
         control.intern().getController().getRelocator().setDragOnlyTitel(true);
-//
+        //
         List<SingleCDockable> mdlist = control.getRegister()
                 .getSingleDockables();
-//
+        //
         for (int i = 0; i < mdlist.size(); i++) {
             PanelDockable dockable = (PanelDockable) mdlist.get(i);
             dockable.setStackable(false);
@@ -150,9 +152,9 @@ public class DockableComponents {
             // dockable.putAction(CDockable.ACTION_KEY_CLOSE, CBlank.BLANK);
             dockable.getContentPane().getComponent(0).setVisible(true);
         }
-//
+        //
         control.getContentArea().setMinimumAreaSize(new Dimension(0, 0));
-        control.setTheme( ThemeMap.KEY_FLAT_THEME );
+        control.setTheme(ThemeMap.KEY_FLAT_THEME);
     }
 
     public JMenu createDockableMenu() {
@@ -230,7 +232,7 @@ public class DockableComponents {
     public void saveLayout() {
         try {
             try {
-                Path home = EPDShip.getHomePath();
+                Path home = EPDShip.getInstance().getHomePath();
                 File f = home.resolve(EPDShip.class.getSimpleName() + ".xml")
                         .toFile();
                 control.writeXML(f);
@@ -325,14 +327,14 @@ public class DockableComponents {
                 .normalEast(0.5));
 
         dockable.setVisible(true);
-        
+
         dockable.getContentPane().getComponent(0).setVisible(true);
     }
 
     void doClose(PanelDockable dockable) {
-//        System.out.println(
-                dockable.getContentPane().getComponent(0).setVisible(false);
-        
+        // System.out.println(
+        dockable.getContentPane().getComponent(0).setVisible(false);
+
         dockable.setVisible(false);
         control.removeDockable(dockable);
     }
@@ -352,6 +354,7 @@ public class DockableComponents {
         PanelDockable activeWaypointDock = new PanelDockable("Active Waypoint",
                 activeWaypointPanel);
         PanelDockable msiDock = new PanelDockable("MSI", msiPanel);
+        PanelDockable msPntDock = new PanelDockable("Resilient PNT", msPntPanel);
 
         // PanelDockable aisDock = new PanelDockable("AIS Target", aisPanel);
 
@@ -364,6 +367,7 @@ public class DockableComponents {
         grid.add(90, 33, 10, 10, cursorDock);
         grid.add(90, 43, 10, 10, activeWaypointDock);
         grid.add(90, 53, 10, 10, msiDock);
+        grid.add(90, 25, 10, 10, msPntDock);
         // grid.add(90, 63, 10, 10, aisDock);
 
         aControl.getContentArea().setMinimumAreaSize(new Dimension(0, 0));
@@ -394,49 +398,48 @@ public class DockableComponents {
         // System.out.println(locked);
         // toggleFrameLock();
 
-//        control.intern().getController().getRelocator().setDragOnlyTitel(true);
-//
-//        List<SingleCDockable> mdlist = control.getRegister()
-//                .getSingleDockables();
-//
-//        for (int i = 0; i < mdlist.size(); i++) {
-//            PanelDockable dockable = (PanelDockable) mdlist.get(i);
-//            dockable.setStackable(false);
-//            dockable.setMinimizable(false);
-//            dockable.setMaximizable(false);
-//        }
-//
-//        control.getContentArea().setMinimumAreaSize(new Dimension(0, 0));
+        // control.intern().getController().getRelocator().setDragOnlyTitel(true);
+        //
+        // List<SingleCDockable> mdlist = control.getRegister()
+        // .getSingleDockables();
+        //
+        // for (int i = 0; i < mdlist.size(); i++) {
+        // PanelDockable dockable = (PanelDockable) mdlist.get(i);
+        // dockable.setStackable(false);
+        // dockable.setMinimizable(false);
+        // dockable.setMaximizable(false);
+        // }
+        //
+        // control.getContentArea().setMinimumAreaSize(new Dimension(0, 0));
 
         // Frames
-//        BorderMod bridge = new BorderMod();
-//        control.getController()
-//                .getThemeManager()
-//                .publish(Priority.CLIENT, DisplayerDockBorder.KIND,
-//                        ThemeManager.BORDER_MODIFIER_TYPE, bridge);
-        
-        
+        // BorderMod bridge = new BorderMod();
+        // control.getController()
+        // .getThemeManager()
+        // .publish(Priority.CLIENT, DisplayerDockBorder.KIND,
+        // ThemeManager.BORDER_MODIFIER_TYPE, bridge);
+
         control.intern().getController().getRelocator().setDragOnlyTitel(true);
         //
-                List<SingleCDockable> mdlist = control.getRegister()
-                        .getSingleDockables();
-        
-                for (int i = 0; i < mdlist.size(); i++) {
-                    PanelDockable dockable = (PanelDockable) mdlist.get(i);
-                    dockable.setStackable(false);
-                    dockable.setMinimizable(false);
-                    dockable.setMaximizable(false);
-                    dockable.setTitleIcon(new ImageIcon());
-                    dockable.setExternalizable(false);
-                    // dockable.putAction(CDockable.ACTION_KEY_MAXIMIZE, CBlank.BLANK);
-                    // dockable.putAction(CDockable.ACTION_KEY_MINIMIZE, CBlank.BLANK);
-                    dockable.putAction(CDockable.ACTION_KEY_EXTERNALIZE, CBlank.BLANK);
-                    // dockable.putAction(CDockable.ACTION_KEY_CLOSE, CBlank.BLANK);
-                    dockable.getContentPane().getComponent(0).setVisible(true);
-                }
-        
-                control.getContentArea().setMinimumAreaSize(new Dimension(0, 0));
-                control.setTheme( ThemeMap.KEY_FLAT_THEME );
+        List<SingleCDockable> mdlist = control.getRegister()
+                .getSingleDockables();
+
+        for (int i = 0; i < mdlist.size(); i++) {
+            PanelDockable dockable = (PanelDockable) mdlist.get(i);
+            dockable.setStackable(false);
+            dockable.setMinimizable(false);
+            dockable.setMaximizable(false);
+            dockable.setTitleIcon(new ImageIcon());
+            dockable.setExternalizable(false);
+            // dockable.putAction(CDockable.ACTION_KEY_MAXIMIZE, CBlank.BLANK);
+            // dockable.putAction(CDockable.ACTION_KEY_MINIMIZE, CBlank.BLANK);
+            dockable.putAction(CDockable.ACTION_KEY_EXTERNALIZE, CBlank.BLANK);
+            // dockable.putAction(CDockable.ACTION_KEY_CLOSE, CBlank.BLANK);
+            dockable.getContentPane().getComponent(0).setVisible(true);
+        }
+
+        control.getContentArea().setMinimumAreaSize(new Dimension(0, 0));
+        control.setTheme(ThemeMap.KEY_FLAT_THEME);
 
         lock();
         // System.out.println(locked);
@@ -445,7 +448,7 @@ public class DockableComponents {
     public void saveLayout(String name) {
 
         try {
-            Path home = EPDShip.getHomePath();
+            Path home = EPDShip.getInstance().getHomePath();
             Path layoutFolder = home.resolve("layout");
             Files.createDirectories(layoutFolder);
             File f = layoutFolder.resolve(name + ".xml").toFile();
@@ -466,7 +469,7 @@ public class DockableComponents {
         // TopPanel topPanel;
         ScaleComponentPanel scalePanel;
         OwnShipComponentPanel ownShipPanel;
-        GpsComponentPanel gpsPanel;
+        PntComponentPanel gpsPanel;
         CursorComponentPanel cursorPanel;
         ActiveWaypointComponentPanel activeWaypointPanel;
         MSIComponentPanel msiPanel;
@@ -474,18 +477,20 @@ public class DockableComponents {
         DynamicNoGoComponentPanel dynamicNoGoPanel;
         NoGoComponentPanel nogoPanel;
         SARComponentPanel sarPanel;
+        MultiSourcePntComponentPanel msPntPanel;
 
+        // MonaLisaCommunicationComponentPanel monaLisaPanel;
 
         public DockableFactory(ChartPanel chartPanel,
                 ScaleComponentPanel scalePanel,
-                OwnShipComponentPanel ownShipPanel, GpsComponentPanel gpsPanel,
+                OwnShipComponentPanel ownShipPanel, PntComponentPanel gpsPanel,
                 CursorComponentPanel cursorPanel,
                 ActiveWaypointComponentPanel activeWaypointPanel,
-                MSIComponentPanel msiPanel,
-                AisComponentPanel aisPanel,
+                MSIComponentPanel msiPanel, AisComponentPanel aisPanel,
                 DynamicNoGoComponentPanel dynamicNoGoPanel,
-                NoGoComponentPanel nogoPanel,  SARComponentPanel sarPanel) {
-
+                NoGoComponentPanel nogoPanel,
+                MultiSourcePntComponentPanel msPntPanel,
+                SARComponentPanel sarPanel) {
 
             super();
 
@@ -501,6 +506,8 @@ public class DockableComponents {
             this.dynamicNoGoPanel = dynamicNoGoPanel;
             this.nogoPanel = nogoPanel;
             this.sarPanel = sarPanel;
+            this.msPntPanel = msPntPanel;
+            // this.monaLisaPanel = monaLisaPanel;
 
         }
 
@@ -549,11 +556,13 @@ public class DockableComponents {
                 return new PanelDockable(id, sarPanel);
             }
 
+            if (id.equals("Resilient PNT")) {
+                return new PanelDockable(id, msPntPanel);
+            }
 
-//            if (id.equals("Mona Lisa Communication")) {
-//                return new PanelDockable(id, monaLisaPanel);
-//            }
-
+            // if (id.equals("Mona Lisa Communication")) {
+            // return new PanelDockable(id, monaLisaPanel);
+            // }
 
             return new PanelDockable(id, new JPanel());
 

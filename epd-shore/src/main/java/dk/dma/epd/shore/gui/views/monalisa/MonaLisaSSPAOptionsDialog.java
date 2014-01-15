@@ -82,7 +82,7 @@ public class MonaLisaSSPAOptionsDialog extends
             VoyageHandlingLayer voyageHandlingLayer, AisHandler aisHandler,
             long mmsi) {
 
-        super(EPDShore.getMainFrame(), "Request Mona Lisa Route Exchange", true);
+        super(EPDShore.getInstance().getMainFrame(), "Request Mona Lisa Route Exchange", true);
 
         this.route = route;
         this.aisHandler = aisHandler;
@@ -91,7 +91,7 @@ public class MonaLisaSSPAOptionsDialog extends
 
         setSize(366, 449);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(EPDShore.getMainFrame());
+        setLocationRelativeTo(EPDShore.getInstance().getMainFrame());
         setResizable(false);
 
         JPanel contentPanel = new JPanel();
@@ -196,7 +196,7 @@ public class MonaLisaSSPAOptionsDialog extends
         serverTxtField.setBounds(95, 8, 217, 20);
         panel_2.add(serverTxtField);
         serverTxtField.setColumns(10);
-        serverTxtField.setText(EPDShore.getSettings().getEnavSettings()
+        serverTxtField.setText(EPDShore.getInstance().getSettings().getEnavSettings()
                 .getMonaLisaServer());
         serverTxtField.setEditable(false);
 
@@ -208,7 +208,7 @@ public class MonaLisaSSPAOptionsDialog extends
         portTxtField.setBounds(95, 33, 39, 20);
         panel_2.add(portTxtField);
         portTxtField.setColumns(10);
-        portTxtField.setText(String.valueOf(EPDShore.getSettings()
+        portTxtField.setText(String.valueOf(EPDShore.getInstance().getSettings()
                 .getEnavSettings().getMonaLisaPort()));
         portTxtField.setEditable(false);
 
@@ -241,8 +241,8 @@ public class MonaLisaSSPAOptionsDialog extends
         }
 
         if (aisHandler != null
-                && aisHandler.getVesselTargets().get(mmsi).getStaticData() != null) {
-            Integer draught = (int) (aisHandler.getVesselTargets().get(mmsi)
+                && aisHandler.getVesselTarget(mmsi).getStaticData() != null) {
+            Integer draught = (int) (aisHandler.getVesselTarget(mmsi)
                     .getStaticData().getDraught() / 10);
             spinnerDraught.setValue(draught);
         }
@@ -305,8 +305,8 @@ public class MonaLisaSSPAOptionsDialog extends
                 
                 
                 // Send off the request
-                MonaLisaSSPARequestDialog.requestRoute(EPDShore.getMainFrame(),
-                        route, EPDShore.getMonaLisaRouteExchange(),
+                MonaLisaSSPARequestDialog.requestRoute(EPDShore.getInstance().getMainFrame(),
+                        route, EPDShore.getInstance().getMonaLisaRouteExchange(),
                         removeIntermediateETA, draft, ukc, timeout, selectedWp,
                         false, false, voyageHandlingLayer);
 

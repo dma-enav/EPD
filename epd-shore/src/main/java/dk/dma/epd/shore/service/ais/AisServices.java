@@ -32,7 +32,7 @@ import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.shore.ais.AisHandler;
-import dk.dma.epd.shore.settings.ESDSettings;
+import dk.dma.epd.shore.settings.EPDSettings;
 
 /**
  * AIS service component providing an AIS link interface.
@@ -45,7 +45,7 @@ public class AisServices extends MapHandlerChild {
 
     private Integer sequence = 0;
     private NmeaSensor nmeaSensor;
-    private ESDSettings settings;
+    private EPDSettings settings;
     private AisHandler aisHandler;
 
     private Date lastIntendedRouteBroadcast = new Date(0);
@@ -192,8 +192,8 @@ public class AisServices extends MapHandlerChild {
         if (nmeaSensor == null && obj instanceof NmeaSensor) {
             nmeaSensor = (NmeaSensor)obj;
         }
-        else if (settings == null && obj instanceof ESDSettings) {
-            settings = (ESDSettings)obj;
+        else if (settings == null && obj instanceof EPDSettings) {
+            settings = (EPDSettings)obj;
         }
         else if (aisHandler == null && obj instanceof AisHandler) {
             aisHandler = (AisHandler)obj;

@@ -227,9 +227,9 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
             sruTable.setFocusable(false);
             // routeTable.setAutoResizeMode(0);
 
-            sruTableModel = new EffortAllocationWindowTabelModel(EPDShore
+            sruTableModel = new EffortAllocationWindowTabelModel(EPDShore.getInstance()
                     .getVoctManager().getSruManager(),
-                    EPDShore.getVoctManager());
+                    EPDShore.getInstance().getVoctManager());
             sruTableModel.addTableModelListener(this);
 
             sruTable.setShowHorizontalLines(false);
@@ -461,9 +461,9 @@ public class EffortAllocationWindow extends EffortAllocationWindowCommon
                     if (data.getSearchPatternRoute() != null) {
                         System.out
                                 .println("Removing routes from old sar effort allocation data");
-                        EPDShore.getRouteManager().getRoutes()
+                        EPDShore.getInstance().getRouteManager().getRoutes()
                                 .remove(data.getSearchPatternRoute());
-                        EPDShore.getRouteManager().notifyListeners(
+                        EPDShore.getInstance().getRouteManager().notifyListeners(
                                 RoutesUpdateEvent.ROUTE_REMOVED);
                         data.setSearchPatternRoute(null);
                     }

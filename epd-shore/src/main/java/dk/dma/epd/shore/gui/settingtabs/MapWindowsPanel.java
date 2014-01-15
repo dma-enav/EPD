@@ -23,7 +23,7 @@ import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.shore.gui.views.MainFrame;
-import dk.dma.epd.shore.settings.ESDSettings;
+import dk.dma.epd.shore.settings.EPDSettings;
 
 public class MapWindowsPanel extends JPanel{
 
@@ -32,11 +32,11 @@ public class MapWindowsPanel extends JPanel{
      */
     private static final long serialVersionUID = 1L;
     private MainFrame mainFrame;
-    private ESDSettings settings;
+    private EPDSettings settings;
     private JLabel lblTheresCurrently;
     private JLabel lblTheCurrentWorkspace;
 
-    public MapWindowsPanel(MainFrame mainFrame, ESDSettings settings){
+    public MapWindowsPanel(MainFrame mainFrame, EPDSettings settings){
         super();
 
         this.mainFrame = mainFrame;

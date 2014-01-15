@@ -34,7 +34,7 @@ import dk.dma.epd.common.util.Util;
 public class SarTargetInfoPanel extends InfoPanel implements Runnable {
     private static final long serialVersionUID = 1L;
 
-    private PntHandler gpsHandler;
+    private PntHandler pntHandler;
     private SarTarget sarTarget;
 
     public SarTargetInfoPanel() {
@@ -69,15 +69,15 @@ public class SarTargetInfoPanel extends InfoPanel implements Runnable {
         Double hdg = null;
         Long ttg = null;
         Date eta = null;
-        if (gpsHandler != null) {
-            PntData gpsData = gpsHandler.getCurrentData();
-            if (gpsData != null && !gpsData.isBadPosition()) {
-                Position pos = gpsData.getPosition();                
+        if (pntHandler != null) {
+            PntData pntData = pntHandler.getCurrentData();
+            if (pntData != null && !pntData.isBadPosition()) {
+                Position pos = pntData.getPosition();                
                 if (pos != null && sarPos != null) {
                     dst = Calculator.range(pos, sarPos, Heading.RL);
                     hdg = Calculator.bearing(pos, sarPos, Heading.RL);
-                    if (gpsData.getSog() != null && gpsData.getSog() > 1) {
-                        ttg = Math.round(dst / gpsData.getSog() * 60 * 60 * 1000);
+                    if (pntData.getSog() != null && pntData.getSog() > 1) {
+                        ttg = Math.round(dst / pntData.getSog() * 60 * 60 * 1000);
                         eta = new Date(now.getTime() + ttg);
                     }
                 }
@@ -91,8 +91,8 @@ public class SarTargetInfoPanel extends InfoPanel implements Runnable {
         showText(str.toString());
     }
 
-    public synchronized void setGpsHandler(PntHandler gpsHandler) {
-        this.gpsHandler = gpsHandler;
+    public synchronized void setPntHandler(PntHandler pntHandler) {
+        this.pntHandler = pntHandler;
     }
 
     @Override

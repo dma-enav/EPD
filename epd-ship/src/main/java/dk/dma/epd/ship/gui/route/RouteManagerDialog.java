@@ -42,7 +42,7 @@ public class RouteManagerDialog extends JDialog implements IRoutesUpdateListener
 
     public RouteManagerDialog(JFrame parent) {
         super(parent, "Route Manager", false);
-        routeManager = EPDShip.getRouteManager();
+        routeManager = EPDShip.getInstance().getRouteManager();
 
         setSize(600, 430);
 //        this.setResizable(false);

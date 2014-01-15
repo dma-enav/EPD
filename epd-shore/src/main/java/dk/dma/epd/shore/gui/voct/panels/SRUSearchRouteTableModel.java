@@ -127,7 +127,7 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
                 if (effortAllocationData.getSearchPatternRoute() != null) {
                     effortAllocationData.getSearchPatternRoute().setVisible(
                             (Boolean) aValue);
-                    EPDShore.getRouteManager().notifyListeners(
+                    EPDShore.getInstance().getRouteManager().notifyListeners(
                             RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
                     fireTableCellUpdated(rowIndex, columnIndex);
                 } else {
@@ -155,7 +155,7 @@ public class SRUSearchRouteTableModel extends AbstractTableModel {
                                 .switchToStatic();
                     }
 
-                    EPDShore.getRouteManager().notifyListeners(
+                    EPDShore.getInstance().getRouteManager().notifyListeners(
                             RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
                     fireTableCellUpdated(rowIndex, columnIndex);
                 } else {

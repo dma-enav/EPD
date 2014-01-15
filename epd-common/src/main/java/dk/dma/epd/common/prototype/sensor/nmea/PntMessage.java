@@ -24,22 +24,43 @@ import dk.dma.enav.model.geometry.Position;
 @Immutable
 public class PntMessage {
 
+    private final PntSource pntSource;
     private final Position pos;
     private final Double sog;
     private final Double cog;
     private final Long time;
+    private MessageType messageType = MessageType.PNT;
 
-    public PntMessage(Position pos, Double sog, Double cog, Long time) {
+    /**
+     * Constructor
+     * 
+     * @param pntSource the PNT source
+     * @param pos the GPS position
+     * @param sog the speed over ground value
+     * @param cog the course over ground
+     * @param time the time
+     */
+    public PntMessage(PntSource pntSource, Position pos, Double sog, Double cog, Long time) {
+        this.pntSource = pntSource;
         this.pos = pos;
         this.sog = sog;
         this.cog = cog;
         this.time = time;
     }
     
-    public PntMessage(Position pos, Double sog, Double cog) {
-        this(pos, sog, cog, null);
+    /**
+     * Constructor
+     * <p>
+     * This constructor should be used for time-onlye PNT messages.
+     * 
+     * @param pntSource the PNT source
+     * @param cog the course over ground
+     */
+    public PntMessage(PntSource pntSource, Long time) {
+        this(pntSource, null, null, null, time);
+        messageType = MessageType.TIME;
     }
-
+    
     public Position getPos() {
         return pos;
     }
@@ -68,10 +89,18 @@ public class PntMessage {
         return time;
     }
     
+    public PntSource getPntSource() {
+        return pntSource;
+    }
+    
+    public MessageType getMessageType() {
+        return messageType;
+    }
+    
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("GpsMessage [cog=");
+        builder.append("PntMessage [cog=");
         builder.append(cog);
         builder.append(", pos=");
         builder.append(pos);
@@ -79,8 +108,17 @@ public class PntMessage {
         builder.append(sog);
         builder.append(", time=");
         builder.append(time);
+        builder.append(", source=");
+        builder.append(pntSource);
         builder.append("]");
         return builder.toString();
     }
 
+    /**
+     * Defines the message type
+     */
+    public enum MessageType {
+        PNT,    // Message contains position, navigation and time information
+        TIME;   // Message contains only time information
+    }
 }

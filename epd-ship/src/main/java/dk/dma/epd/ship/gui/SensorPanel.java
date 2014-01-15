@@ -34,7 +34,6 @@ import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
@@ -44,13 +43,13 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.event.IMapCoordListener;
 import dk.dma.epd.ship.gui.panels.ActiveWaypointPanel;
 import dk.dma.epd.ship.gui.panels.CursorPanel;
-import dk.dma.epd.ship.gui.panels.GPSPanel;
+import dk.dma.epd.ship.gui.panels.PntPanel;
 import dk.dma.epd.ship.gui.panels.OwnShipPanel;
 import dk.dma.epd.ship.gui.panels.ScalePanel;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 
 /**
@@ -61,7 +60,7 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
     private static final long serialVersionUID = 1L;
     
     private PntHandler gpsHandler;
-    private AisHandler aisHandler;
+    private OwnShipHandler ownShipHandler;
     private MsiHandler msiHandler;
     
     private PntData gpsData;
@@ -70,7 +69,7 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
     private RouteManager routeManager;
     private final ScalePanel scalePanel = new ScalePanel();    
     private final OwnShipPanel ownShipPanel = new OwnShipPanel();
-    private final GPSPanel gpsPanel = new GPSPanel();
+    private final PntPanel gpsPanel = new PntPanel();
     private final CursorPanel cursorPanel = new CursorPanel();
     private final ActiveWaypointPanel activeWaypointPanel;
     private final JLabel euBalticLogo = new JLabel("");
@@ -157,17 +156,12 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
         String ownName = null;
         String ownCallsign = null;
         Long ownMmsi = null;
-        VesselTarget ownShip = null;
         
-        if (aisHandler != null) {
-            ownShip = aisHandler.getOwnShip();
-        }
-        
-        if (ownShip != null) {
-            VesselPositionData posData = ownShip.getPositionData();
-            VesselStaticData staticData = ownShip.getStaticData();
+        if (ownShipHandler != null) {
+            VesselPositionData posData = ownShipHandler.getPositionData();
+            VesselStaticData staticData = ownShipHandler.getStaticData();
 
-            ownMmsi = ownShip.getMmsi();
+            ownMmsi = ownShipHandler.getMmsi();
             if (posData != null && posData.getTrueHeading() < 360) {
                 heading = (double) posData.getTrueHeading();
             }
@@ -205,7 +199,7 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
     
     public void initPanel(ChartPanel chartPanel) {
         // Add gps panel as position listener
-        EPDShip.getPntHandler().addListener(this);
+        EPDShip.getInstance().getPntHandler().addListener(this);
         
         // Start time panel thread
         this.chartPanel = chartPanel;
@@ -288,8 +282,8 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
             gpsHandler = (PntHandler)obj;
             gpsHandler.addListener(this);
         }
-        if (aisHandler == null && obj instanceof AisHandler) {
-            aisHandler = (AisHandler)obj;
+        if (ownShipHandler == null && obj instanceof OwnShipHandler) {
+            ownShipHandler = (OwnShipHandler)obj;
         }
         if (msiHandler == null && obj instanceof MsiHandler) {
             msiHandler = (MsiHandler)obj;
@@ -303,8 +297,8 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
             gnssTime = null;
             return;
         }
-        if (aisHandler == obj) {
-            aisHandler = null;
+        if (ownShipHandler == obj) {
+            ownShipHandler = null;
         }
     }
 }

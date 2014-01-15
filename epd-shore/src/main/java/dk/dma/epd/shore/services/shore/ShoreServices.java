@@ -26,7 +26,7 @@ import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.prototype.status.ShoreServiceStatus;
 import dk.dma.epd.shore.ais.AisHandler;
-import dk.dma.epd.shore.settings.ESDEnavSettings;
+import dk.dma.epd.shore.settings.EPDEnavSettings;
 import dk.frv.enav.common.xml.ShoreServiceResponse;
 import dk.frv.enav.common.xml.msi.request.MsiPollRequest;
 import dk.frv.enav.common.xml.msi.response.MsiResponse;
@@ -42,7 +42,7 @@ public class ShoreServices extends ShoreServicesCommon implements IStatusCompone
     // private GpsHandler gpsHandler;
     private ShoreServiceStatus status = new ShoreServiceStatus();
 
-    public ShoreServices(ESDEnavSettings enavSettings) {
+    public ShoreServices(EPDEnavSettings enavSettings) {
         super(enavSettings);
     }
 

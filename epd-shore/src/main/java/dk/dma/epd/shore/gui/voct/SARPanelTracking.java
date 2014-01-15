@@ -90,7 +90,7 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
     public SARPanelTracking() {
         super();
 
-        setVoctManager(EPDShore.getVoctManager());
+        setVoctManager(EPDShore.getInstance().getVoctManager());
 
         voctManager.addListener(this);
 
@@ -107,7 +107,7 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
 
         voctCommsWindow.setVoctManager(this.voctManager);
         // searchPatternDialog.setVoctManager(voctManager);
-        EPDShore.getVoctManager().getSruManager().addListener(this);
+        EPDShore.getInstance().getVoctManager().getSruManager().addListener(this);
     }
 
     private void initGUI() {
@@ -208,8 +208,8 @@ public class SARPanelTracking extends JPanel implements VOCTUpdateListener,
         sruTable.setFocusable(false);
         // routeTable.setAutoResizeMode(0);
 
-        sruTableModel = new SARTrackingTableModel(EPDShore.getVoctManager()
-                .getSruManager(), EPDShore.getVoctManager());
+        sruTableModel = new SARTrackingTableModel(EPDShore.getInstance().getVoctManager()
+                .getSruManager(), EPDShore.getInstance().getVoctManager());
         sruTableModel.addTableModelListener(this);
 
         sruTable.setShowHorizontalLines(false);

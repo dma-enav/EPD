@@ -122,7 +122,7 @@ public class SRUManagerDialog extends ComponentFrame implements ActionListener,
     public SRUManagerDialog(JFrame parent) {
         super("SRU Manager", false, true, false, false);
         this.parent = parent;
-        sruManager = EPDShore.getSRUManager();
+        sruManager = EPDShore.getInstance().getSRUManager();
         sruManager.addListener(this);
         
         

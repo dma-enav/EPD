@@ -48,7 +48,7 @@ public class MsiTableCellRenderer extends DefaultTableCellRenderer {
             boolean acked = false;
             if (row >= 0) {
                 MsiMessageExtended msg;
-                if(EPDShip.getSettings().getEnavSettings().isMsiFilter()) {
+                if(EPDShip.getInstance().getSettings().getEnavSettings().isMsiFilter()) {
                     msg = msiHandler.getFilteredMessageList().get(row);
                 } else {
                     msg = msiHandler.getMessageList().get(row);

@@ -45,13 +45,13 @@ public class ActiveRoute extends Route {
      */
     protected RouteLeg currentLeg;
     /**
-     * The current GPS data
+     * The current PNT data
      */
-    protected PntData currentGpsData;
+    protected PntData currentPntData;
     /**
-     * Average speed over an appropriate time period
+     * Current speed
      */
-    protected double avgSpeed;
+    protected double speed;
     /**
      * Range to active waypoint
      */
@@ -61,27 +61,18 @@ public class ActiveRoute extends Route {
      */
     protected Double activeWpBrg;
     /**
-     * TTG to active waypoint
+     * TTG to active waypoint based on current speed
      */
-    protected Long activeWpTtg;
+    protected Long speedActiveWpTtg;
     /**
      * A special TTG that cannot be null Assumes that intended speed will be
      * reached soon
      */
-    protected Long niceActiveWpTtg;
+    protected Long plannedActiveWpTtg;
     /**
      * Time of original activation
      */
     protected Date origStarttime;
-    /**
-     * TTG from the active waypoint
-     */
-    protected long remainTtg;
-    /**
-     * DTG from the active waypoint
-     */
-    protected double remainDtg;
-
     /**
      * The minimum radius of wp you have to be inside to change active waypoint
      */
@@ -98,8 +89,8 @@ public class ActiveRoute extends Route {
     private Route originalRoute;
 
     protected double safeHavenBearing;
-
-    public ActiveRoute(Route route, PntData gpsData) {
+        
+    public ActiveRoute(Route route, PntData pntData) {
         super();
         this.waypoints = route.getWaypoints();
         this.name = route.getName();
@@ -111,12 +102,15 @@ public class ActiveRoute extends Route {
         this.routeMetocSettings = route.getRouteMetocSettings();
         this.metocForecast = route.getMetocForecast();
         this.originalRoute = route.copy();
+        this.etaCalculationType = route.etaCalculationType;
 
         this.safeHavenLocation = waypoints.get(0).getPos();
 
+        super.calcValues(true);
+        super.calcAllWpEta();
         calcValues(true);
 
-        changeActiveWaypoint(getBestWaypoint(route, gpsData));
+        changeActiveWaypoint(getBestWaypoint(route, pntData));
 
         // for (int i = 0; i < route.getWaypoints().size(); i++) {
         //
@@ -136,28 +130,28 @@ public class ActiveRoute extends Route {
      * point 0, otherwise we take bearing and distance into account and select
      * the best match. It will never select a waypoint behind itself.
      */
-    private int getBestWaypoint(Route route, PntData gpsData) {
+    private int getBestWaypoint(Route route, PntData pntData) {
         // LinkedList<Double> weightedDistance = new LinkedList<Double>();
 
-        if (gpsData != null) {
+        if (pntData != null) {
 
-            if (gpsData.isBadPosition() || gpsData.getSog() < 3) {
+            if (pntData.isBadPosition() || pntData.getSog() < 3) {
                 return 0;
             } else {
                 double smallestDist = 99999999.0;
                 int index = 0;
                 for (int i = 0; i <= route.getWaypoints().size() - 1; i++) {
                     Position wpPos = route.getWaypoints().get(i).getPos();
-                    double distance = gpsData.getPosition()
+                    double distance = pntData.getPosition()
                             .rhumbLineDistanceTo(wpPos);
-                    double angleToWpDeg = gpsData.getPosition()
+                    double angleToWpDeg = pntData.getPosition()
                             .rhumbLineBearingTo(wpPos);
-                    double weight = 1 - (Math.toRadians(gpsData.getCog()) - Math
+                    double weight = 1 - (Math.toRadians(pntData.getCog()) - Math
                             .toRadians(angleToWpDeg));
                     double result = Math.abs(weight)
                             * (0.5 * Converter.metersToNm(distance));
-                    double upper = gpsData.getCog() + 90;
-                    double lower = gpsData.getCog() - 90;
+                    double upper = pntData.getCog() + 90;
+                    double lower = pntData.getCog() - 90;
 
                     if (result < smallestDist && angleToWpDeg < upper
                             && angleToWpDeg > lower) {
@@ -322,57 +316,85 @@ public class ActiveRoute extends Route {
         // return safeHavenLocation;
     }
 
-    public synchronized void update(PntData gpsData) {
-
-        if (gpsData.isBadPosition()) {
+    public synchronized void update(PntData pntData) {
+        if (pntData.isBadPosition() || pntData.getSog() == null) {
             return;
         }
-
+        
         // Get active waypoint
         RouteWaypoint activeWaypoint = waypoints.get(activeWaypointIndex);
-        // Set current GPS data
-        currentGpsData = gpsData;
-        // TODO calculate avg speed
-        avgSpeed = gpsData.getSog();
+        // Set current PNT data
+        currentPntData = pntData;
+        // Get speed
+        speed = pntData.getSog();
 
-        // Calculate brg and rng
-        activeWpRng = Calculator.range(gpsData.getPosition(),
-                activeWaypoint.getPos(), currentLeg.getHeading());
-        activeWpBrg = Calculator.bearing(gpsData.getPosition(),
-                activeWaypoint.getPos(), currentLeg.getHeading());
-
-        // Calculate nice TTG
-        niceActiveWpTtg = Math.round(activeWpRng / currentLeg.getSpeed() * 60
-                * 60 * 1000);
-
-        // Calculate TTG to active waypoint
-        if (avgSpeed > 0.1) {
-            activeWpTtg = Math.round(activeWpRng / avgSpeed * 60 * 60 * 1000);
-            if (activeWpTtg < niceActiveWpTtg) {
-                niceActiveWpTtg = activeWpTtg;
+        // Calculate brg and rng to active waypoint
+        activeWpRng = Calculator.range(pntData.getPosition(), activeWaypoint.getPos(), currentLeg.getHeading());
+        activeWpBrg = Calculator.bearing(pntData.getPosition(), activeWaypoint.getPos(), currentLeg.getHeading());
+        
+        // Calculate planned TTG to active waypoint
+        plannedActiveWpTtg = Math.round(activeWpRng / currentLeg.getSpeed() * 60 * 60 * 1000);
+        
+        // Calculate TTG to active waypoint based on current speed
+        // We use a sensible min speed
+        if (speed < 0.1) {
+            speed = 0.1;
+        }
+        speedActiveWpTtg = Math.round(activeWpRng / speed * 60 * 60 * 1000);
+              
+        // Update ttg, dtg and eta 
+        calcValues(true);
+        
+    }
+    
+    @Override
+    public void calcAllWpEta() {
+        // Do not recalculate eta for an active route
+    }
+    
+    @Override
+    public void calcValues(boolean force) {        
+        if (!force && ttgs != null && etas != null) {
+            return;
+        }
+        
+        if (plannedActiveWpTtg == null || speedActiveWpTtg == null) {
+            return;            
+        }
+        
+        // Determine TTG to active waypoint 
+        long ttg = (this.etaCalculationType == EtaCalculationType.PLANNED_SPEED) ? plannedActiveWpTtg : speedActiveWpTtg;
+        
+        totalTtg = ttg;
+        totalDtg = activeWpRng;
+        
+        for(int i = this.activeWaypointIndex; i < this.waypoints.size() - 1; i++) {
+            // Dynamic speed
+            if (this.etaCalculationType == EtaCalculationType.DYNAMIC_SPEED
+                    || ((this.etaCalculationType == EtaCalculationType.HYBRID) && i == this.activeWaypointIndex)) {
+                this.ttgs[i] = this.waypoints.get(i).getOutLeg().calcTtg(this.speed);
             } else {
-                double pctOff = (niceActiveWpTtg - activeWpTtg)
-                        / niceActiveWpTtg * 100.0;
-                if (pctOff < 50.0) {
-                    niceActiveWpTtg = activeWpTtg;
-                }
+                // Planned speed
+                this.ttgs[i] = this.waypoints.get(i).getOutLeg().calcTtg();
             }
-        } else {
-            activeWpTtg = null;
+            totalDtg += dtgs[i];
+            totalTtg += ttgs[i];
         }
 
+        reCalcRemainingWpEta();
     }
+
 
     @Override
     public void setMetocForecast(MetocForecast metocForecast) {
         this.metocForecast = metocForecast;
         this.metocStarttime = getStarttime();
-        this.metocEta = getNiceEta();
+        this.metocEta = getEta();
     }
 
     @Override
     public boolean isMetocValid(long tolerance) {
-        return super.isMetocValid(getNiceEta(), tolerance);
+        return super.isMetocValid(getEta(), tolerance);
     }
 
     public synchronized ActiveWpSelectionResult chooseActiveWp() {
@@ -402,7 +424,7 @@ public class ActiveRoute extends Route {
 
         // Calculate distance from ship to next waypoint
         RouteLeg nextLeg = getActiveWp().getOutLeg();
-        double nextWpRng = Calculator.range(currentGpsData.getPosition(),
+        double nextWpRng = Calculator.range(currentPntData.getPosition(),
                 nextLeg.getEndWp().getPos(), nextLeg.getHeading());
 
         if (inWpCircle) {
@@ -437,56 +459,24 @@ public class ActiveRoute extends Route {
         } else {
             this.currentLeg = waypoints.get(index).getInLeg();
         }
-        // Calculate remaining DTG, TTG and ETA
-        remainDtg = 0;
-        remainTtg = 0;
-        for (int i = index; i < waypoints.size() - 1; i++) {
-            remainDtg += dtgs[i];
-            remainTtg += ttgs[i];
-        }
-
-        reCalcRemainingWpEta();
-    }
-
-    @Override
-    public synchronized Date calculateEta() {
-        if (activeWpTtg == null) {
-            return null;
-        }
-        return new Date(PntTime.getInstance().getDate().getTime() + remainTtg
-                + activeWpTtg);
     }
 
     public synchronized Date getActiveWaypointEta() {
-        if (activeWpTtg == null) {
+        Long ttg = (this.etaCalculationType == EtaCalculationType.PLANNED_SPEED) ? plannedActiveWpTtg : speedActiveWpTtg;
+        if (ttg == null) {
             return null;
         }
-        return new Date(PntTime.getInstance().getDate().getTime()
-                + activeWpTtg);
-    }
-
-    public synchronized Date getNiceActiveWaypointEta() {
-        if (niceActiveWpTtg == null) {
-            return null;
-        }
-        return new Date(PntTime.getInstance().getDate().getTime()
-                + niceActiveWpTtg);
+        return new Date(PntTime.getInstance().getDate().getTime() + ttg);
     }
 
     @Override
-    public synchronized Long calcTtg() {
-        if (activeWpTtg == null) {
-            return null;
-        }
-        return activeWpTtg + remainTtg;
+    public synchronized Long getRouteTtg() {        
+        return totalTtg;
     }
 
     @Override
-    public synchronized Double calcDtg() {
-        if (activeWpRng == null) {
-            return null;
-        }
-        return activeWpRng + remainDtg;
+    public synchronized Double getRouteDtg() {
+        return totalDtg;
     }
 
     public synchronized int getActiveWaypointIndex() {
@@ -499,7 +489,7 @@ public class ActiveRoute extends Route {
 
     public synchronized boolean reCalcRemainingWpEta() {
         int aw = getActiveWaypointIndex();
-        Date eta = getNiceActiveWaypointEta();
+        Date eta = getActiveWaypointEta();
 
         if (eta == null) {
             return false;
@@ -515,7 +505,8 @@ public class ActiveRoute extends Route {
         return true;
     }
 
-    public synchronized Date getNiceEta() {
+    @Override
+    public synchronized Date getEta() {
         if (!reCalcRemainingWpEta()) {
             return null;
         }
@@ -545,11 +536,7 @@ public class ActiveRoute extends Route {
     }
 
     public synchronized Long getActiveWpTtg() {
-        return activeWpTtg;
-    }
-
-    public synchronized Long getNiceActiveWpTtg() {
-        return niceActiveWpTtg;
+        return (this.etaCalculationType == EtaCalculationType.PLANNED_SPEED) ? plannedActiveWpTtg : speedActiveWpTtg;
     }
 
     public synchronized RouteLeg getCurrentLeg() {
@@ -603,5 +590,5 @@ public class ActiveRoute extends Route {
 
         return voyageRoute;
     }
-
+    
 }
