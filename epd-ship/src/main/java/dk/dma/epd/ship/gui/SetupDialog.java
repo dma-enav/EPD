@@ -29,9 +29,9 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
+import dk.dma.epd.common.prototype.gui.settings.CloudSettingsTab;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.setuptabs.AisTab;
-import dk.dma.epd.ship.gui.setuptabs.CloudTab;
 import dk.dma.epd.ship.gui.setuptabs.ENavTab;
 import dk.dma.epd.ship.gui.setuptabs.MapTab;
 import dk.dma.epd.ship.gui.setuptabs.NavigationTab;
@@ -52,7 +52,7 @@ public class SetupDialog extends JDialog implements ActionListener {
     private MapTab mapTab;
     private EPDSettings settings;
     
-    private CloudTab cloudTab;
+    private CloudSettingsTab cloudTab;
     
     public SetupDialog(JFrame parent) {
         super(parent, "Setup", true);
@@ -82,7 +82,7 @@ public class SetupDialog extends JDialog implements ActionListener {
         mapTab = new MapTab();
         tabbedPane.addTab("Map", null, mapTab, null);
         
-        this.cloudTab = new CloudTab();
+        this.cloudTab = new CloudSettingsTab();
         tabbedPane.addTab("Cloud", null, cloudTab, null);
         
         JPanel panel = new JPanel();

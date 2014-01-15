@@ -46,6 +46,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
+import dk.dma.epd.common.prototype.gui.settings.CloudSettingsTab;
 import dk.dma.epd.common.prototype.layers.wms.SingleWMSService;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.shore.EPDShore;
@@ -84,14 +85,15 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
     private JLabel connections;
     private JLabel aisSettings;
     private JLabel eNavServices;
+    private JLabel cloudSettings;
     private JLabel mapWindows;
     private JLabel routeSettings;
 
     private boolean mapSettingsChanged = true;
     private boolean aisSettingsChanged;
     private boolean eNavServicesChanged;
+    private boolean cloudSettingsChanged;
     private boolean mapWindowsChanged;
-    // private boolean routeSettingsChanged = false;
 
     private List<JLabel> mapWindowsList;
     private List<MapWindowSinglePanel> mapWindowsListPanels;
@@ -101,6 +103,7 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
     private ConnectionStatus connectionsPanel;
     private AisSettingsPanel aisSettingsPanel;
     private ENavSettingsPanel eNavSettingsPanel;
+    private CloudSettingsTab cloudSettingsPanel;
     private JPanel routeSettingsPanel;
 
     private JPanel contentPane;
@@ -269,6 +272,27 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
 
         });
 
+        cloudSettings.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                cloudSettings.setBackground(new Color(45, 45, 45));
+                hideAllPanels();
+                cloudSettingsPanel.loadSettings(settings.getEnavSettings());
+                cloudSettingsPanel.setVisible(true);
+                hideMapTabs();
+
+                resetTabs();
+                cloudSettings.setBackground(new Color(55, 55, 55));
+                breadCrumps.setText("Preferences > Cloud Settings");
+
+                cloudSettingsChanged = true;
+
+            }
+
+            public void mouseReleased(MouseEvent e) {
+            }
+
+        });
+
         routeSettings.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 routeSettings.setBackground(new Color(45, 45, 45));
@@ -323,6 +347,7 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
         connections.setBackground(new Color(65, 65, 65));
         aisSettings.setBackground(new Color(65, 65, 65));
         eNavServices.setBackground(new Color(65, 65, 65));
+        cloudSettings.setBackground(new Color(65, 65, 65));
         mapWindows.setBackground(new Color(65, 65, 65));
         routeSettings.setBackground(new Color(65, 65, 65));
 
@@ -346,6 +371,7 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
         connectionsPanel.setVisible(false);
         aisSettingsPanel.setVisible(false);
         eNavSettingsPanel.setVisible(false);
+        cloudSettingsPanel.setVisible(false);
         routeSettingsPanel.setVisible(false);
 
         for (int i = 0; i < mapWindowsListPanels.size(); i++) {
@@ -411,9 +437,14 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
 
         aisSettingsPanel = new AisSettingsPanel();
         aisSettingsPanel.setVisible(false);
-
+        
         eNavSettingsPanel = new ENavSettingsPanel();
         eNavSettingsPanel.setVisible(false);
+
+        cloudSettingsPanel = new CloudSettingsTab();
+        cloudSettingsPanel.setBounds(10, 11, 500, 300);
+        GuiStyler.styleSettingsTab(cloudSettingsPanel);
+        cloudSettingsPanel.setVisible(false);
 
         routeSettingsPanel = createConnectionsPanel();
         routeSettingsPanel.setVisible(false);
@@ -427,6 +458,8 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
         contentPane.add(aisSettingsPanel);
 
         contentPane.add(eNavSettingsPanel);
+
+        contentPane.add(cloudSettingsPanel);
 
         // contentPane.add(routeSettingsPanel);
 
@@ -525,20 +558,15 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
 
     @Override
     public void mouseEntered(MouseEvent arg0) {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void mouseExited(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mousePressed(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -570,6 +598,10 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
 
             if (eNavServicesChanged) {
                 eNavSettingsPanel.saveSettings();
+            }
+            
+            if (cloudSettingsChanged) {
+                cloudSettingsPanel.saveSettings();
             }
 
             if (mapWindowsChanged) {
@@ -710,6 +742,9 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
         eNavServices = new JLabel("e-Nav Services", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/settings/servers-network.png")), SwingConstants.LEFT);
         GuiStyler.styleTabButton(eNavServices);
 
+        cloudSettings = new JLabel("Cloud", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/settings/cloud.png")), SwingConstants.LEFT);
+        GuiStyler.styleTabButton(cloudSettings);
+
         routeSettings = new JLabel("Route Settings", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/settings/routes.png")), SwingConstants.LEFT);
         GuiStyler.styleTabButton(routeSettings);
 
@@ -719,7 +754,6 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
         // Create labels for map windows
         createMapLabels();
         for (int i = 0; i < mapWindowsList.size(); i++) {
-            // System.out.println("ello this is dog");
             labelContainer.add(mapWindowsList.get(i));
             mapWindowsList.get(i).setVisible(false);
         }
@@ -727,7 +761,7 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
         labelContainer.add(connections);
         labelContainer.add(aisSettings);
         labelContainer.add(eNavServices);
-        // labelContainer.add(routeSettings);
+        labelContainer.add(cloudSettings);
 
         addMouseListeners();
     }

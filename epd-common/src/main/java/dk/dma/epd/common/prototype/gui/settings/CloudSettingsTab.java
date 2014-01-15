@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.setuptabs;
+package dk.dma.epd.common.prototype.gui.settings;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -24,22 +24,22 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.FormatException;
+import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.util.ParseUtils;
-import dk.dma.epd.ship.settings.EPDEnavSettings;
 
 /**
  * e-Nav tab panel in setup panel
  */
-public class CloudTab extends JPanel {
+public class CloudSettingsTab extends JPanel {
     private static final long serialVersionUID = 1L;
     private JTextField textFieldServerPort;
     private JTextField textFieldServerName;
-    private EPDEnavSettings enavSettings;
+    private EnavSettings enavSettings;
 
-    public CloudTab() {
-
-        JPanel CloudPanel = new JPanel();
-        CloudPanel.setBorder(new TitledBorder(null, "HTTP Settings",
+    public CloudSettingsTab() {
+        
+        JPanel cloudPanel = new JPanel();
+        cloudPanel.setBorder(new TitledBorder(null, "HTTP Settings",
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
         JLabel label_3 = new JLabel("Server name:");
@@ -50,7 +50,7 @@ public class CloudTab extends JPanel {
 
         textFieldServerName = new JTextField();
         textFieldServerName.setColumns(10);
-        GroupLayout gl_CloudPanel = new GroupLayout(CloudPanel);
+        GroupLayout gl_CloudPanel = new GroupLayout(cloudPanel);
         gl_CloudPanel
                 .setHorizontalGroup(gl_CloudPanel
                         .createParallelGroup(Alignment.LEADING)
@@ -110,27 +110,27 @@ public class CloudTab extends JPanel {
                                                                 GroupLayout.PREFERRED_SIZE)
                                                         .addComponent(label_4))
                                         .addContainerGap(34, Short.MAX_VALUE)));
-        CloudPanel.setLayout(gl_CloudPanel);
+        cloudPanel.setLayout(gl_CloudPanel);
         GroupLayout groupLayout = new GroupLayout(this);
         groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(
                 Alignment.LEADING).addGroup(
                 groupLayout
                         .createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(CloudPanel, GroupLayout.PREFERRED_SIZE,
+                        .addComponent(cloudPanel, GroupLayout.PREFERRED_SIZE,
                                 434, Short.MAX_VALUE).addGap(6)));
         groupLayout.setVerticalGroup(groupLayout.createParallelGroup(
                 Alignment.LEADING).addGroup(
                 groupLayout
                         .createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(CloudPanel, GroupLayout.PREFERRED_SIZE,
+                        .addComponent(cloudPanel, GroupLayout.PREFERRED_SIZE,
                                 72, GroupLayout.PREFERRED_SIZE)
                         .addContainerGap(217, Short.MAX_VALUE)));
         setLayout(groupLayout);
     }
 
-    public void loadSettings(EPDEnavSettings enavSettings) {
+    public void loadSettings(EnavSettings enavSettings) {
         this.enavSettings = enavSettings;
         textFieldServerName.setText(enavSettings.getCloudServerHost());
         textFieldServerPort.setText(Integer.toString(enavSettings

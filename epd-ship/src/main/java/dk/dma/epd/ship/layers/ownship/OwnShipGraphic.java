@@ -131,9 +131,10 @@ public class OwnShipGraphic extends OMGraphicList {
         this.circle2.setLatLon(this.currentPos.getLatitude(), this.currentPos.getLongitude());
         
         this.startPos = new LatLonPoint.Double(this.currentPos.getLatitude(), this.currentPos.getLongitude());
-        float mapScale = this.parentLayer.getProjection().getScale();
         
-        this.speedVector.update(ownShipData, mapScale);
+        if (parentLayer != null && parentLayer.getProjection() != null) {
+            this.speedVector.update(ownShipData, parentLayer.getProjection().getScale());
+        }
         this.angularVector.setLocation(this.startPos.getLatitude(), this.startPos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, this.headingRadian);
         this.directionVector.setLocation(this.startPos.getLatitude(), this.startPos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, this.headingRadian);
 
