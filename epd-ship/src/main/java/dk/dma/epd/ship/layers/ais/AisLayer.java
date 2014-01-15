@@ -55,6 +55,7 @@ import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SarTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
 import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
+import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetTriangle;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
@@ -550,7 +551,8 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
         }
 
         OMGraphic newClosest = getSelectedGraphic(e, IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class,
-                VesselTargetTriangle.class, SartGraphic.class, AtonTargetGraphic.class, PastTrackWpCircle.class);
+                VesselTargetTriangle.class, SartGraphic.class, AtonTargetGraphic.class, PastTrackWpCircle.class,
+                VesselOutlineGraphic.class);
 
         if (newClosest != closest) {
             Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), mainFrame);
@@ -578,12 +580,24 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
                 setActiveInfoPanel(dummyCircle, intendedRouteInfoPanel);
                 return true;
 
-            } else if (newClosest instanceof VesselTargetTriangle && newClosest.isVisible()) {
-
+            } else if (newClosest instanceof VesselTargetTriangle) {
                 VesselTargetTriangle vesselTargetTriangle = (VesselTargetTriangle) newClosest;
-                VesselTarget vesselTarget = vesselTargetTriangle.getVesselTargetGraphic().getVesselTarget();
-                aisTargetInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-                aisTargetInfoPanel.showAisInfo(vesselTarget);
+                // Only show infopanel if the triangle is visible.
+                if (vesselTargetTriangle.getVesselTargetGraphic().getVesselTriangleVisibility()) {
+                    VesselTarget vesselTarget = vesselTargetTriangle.getVesselTargetGraphic().getVesselTarget();
+                    aisTargetInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
+                    aisTargetInfoPanel.showAisInfo(vesselTarget);
+                    setActiveInfoPanel(newClosest, aisTargetInfoPanel);
+                }
+                return true;
+
+            } else if (newClosest instanceof VesselOutlineGraphic) { // Infopanel at mouseover of outline of vessel
+                // Obtain outline graphic object from closest object.
+                VesselOutlineGraphic vesselOutlineGraphic = (VesselOutlineGraphic) newClosest;
+                // Obtain the target vessel which the outline graphics was created from.
+                VesselTarget vesselTarget = vesselOutlineGraphic.getVesselTargetGraphic().getVesselTarget();
+                this.aisTargetInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
+                this.aisTargetInfoPanel.showAisInfo(vesselTarget);
                 setActiveInfoPanel(newClosest, aisTargetInfoPanel);
                 return true;
 
