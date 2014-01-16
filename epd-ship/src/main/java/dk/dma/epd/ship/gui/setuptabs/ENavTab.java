@@ -26,13 +26,15 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.FormatException;
+import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.util.ParseUtils;
+import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.settings.EPDEnavSettings;
 
 /**
  * e-Nav tab panel in setup panel
  */
-public class ENavTab extends JPanel {
+public class ENavTab extends BaseSettingsPanel {
     private static final long serialVersionUID = 1L;
     private JTextField textFieldServerPort;
     private JTextField textFieldServerName;
@@ -50,6 +52,7 @@ public class ENavTab extends JPanel {
     
     
     public ENavTab() {
+        super("E-Nav Services");
         
         JPanel MetocPanel = new JPanel();
         MetocPanel.setBorder(new TitledBorder(null, "METOC Settings", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -264,8 +267,14 @@ public class ENavTab extends JPanel {
         setLayout(groupLayout);
     }
 
-    public void loadSettings(EPDEnavSettings enavSettings) {
-        this.enavSettings = enavSettings;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadSettings() {
+        super.loadSettings();
+        
+        this.enavSettings = EPDShip.getInstance().getSettings().getEnavSettings();
         spinnerMetocTtl.setValue(enavSettings.getMetocTtl());
         spinnerActiveRouteMetocPoll.setValue(enavSettings.getActiveRouteMetocPollInterval());
         spinnerMetocTimeDiffTolerance.setValue(enavSettings.getMetocTimeDiffTolerance());
@@ -283,6 +292,10 @@ public class ENavTab extends JPanel {
         spinnerMsiVisibilityFromNewWaypoint.setValue(enavSettings.getMsiVisibilityFromNewWaypoint());
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void saveSettings() {
         enavSettings.setMetocTtl((Integer) spinnerMetocTtl.getValue());
         enavSettings.setActiveRouteMetocPollInterval((Integer) spinnerActiveRouteMetocPoll.getValue());
@@ -299,6 +312,8 @@ public class ENavTab extends JPanel {
         enavSettings.setMsiRelevanceGpsUpdateRange((Double) spinnerMsiRelevanceGpsUpdateRange.getValue());
         enavSettings.setMsiRelevanceFromOwnShipRange((Double) spinnerMsiVisibilityFromOwnShipRange.getValue());
         enavSettings.setMsiVisibilityFromNewWaypoint((Double) spinnerMsiVisibilityFromNewWaypoint.getValue());
+        
+        super.saveSettings();
     }
     
     private static int getIntVal(String fieldVal, int defaultValue) {

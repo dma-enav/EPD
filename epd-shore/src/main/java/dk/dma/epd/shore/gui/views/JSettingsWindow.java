@@ -41,18 +41,21 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.MatteBorder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
-import dk.dma.epd.common.prototype.gui.settings.CloudSettingsTab;
 import dk.dma.epd.common.prototype.layers.wms.SingleWMSService;
-import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.settingtabs.AisSettingsPanel;
+import dk.dma.epd.shore.gui.settingtabs.BaseShoreSettings;
+import dk.dma.epd.shore.gui.settingtabs.CloudShoreSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.ConnectionStatus;
 import dk.dma.epd.shore.gui.settingtabs.ENavSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
@@ -63,9 +66,13 @@ import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.services.shore.ShoreServices;
 import dk.dma.epd.shore.settings.EPDSettings;
 
+/**
+ * The main {@code EPDShore} settings frame
+ */
 public class JSettingsWindow extends ComponentFrame implements MouseListener {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger LOG = LoggerFactory.getLogger(JSettingsWindow.class);
 
     private JPanel backgroundPane;
 
@@ -81,31 +88,18 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
 
     private JLabel breadCrumps;
 
-    private JLabel mapSettings;
-    private JLabel connections;
-    private JLabel aisSettings;
-    private JLabel eNavServices;
-    private JLabel cloudSettings;
-    private JLabel mapWindows;
-    private JLabel routeSettings;
-
-    private boolean mapSettingsChanged = true;
-    private boolean aisSettingsChanged;
-    private boolean eNavServicesChanged;
-    private boolean cloudSettingsChanged;
-    private boolean mapWindowsChanged;
-
-    private List<JLabel> mapWindowsList;
     private List<MapWindowSinglePanel> mapWindowsListPanels;
 
-    private MapSettingsPanel mapSettingsPanel;
-    private MapWindowsPanel mapWindowsPanel;
-    private ConnectionStatus connectionsPanel;
-    private AisSettingsPanel aisSettingsPanel;
-    private ENavSettingsPanel eNavSettingsPanel;
-    private CloudSettingsTab cloudSettingsPanel;
-    private JPanel routeSettingsPanel;
-
+    private MapSettingsPanel mapSettingsPanel = new MapSettingsPanel();
+    private MapWindowsPanel mapWindowsPanel = new MapWindowsPanel();
+    private ConnectionStatus connectionsPanel = new ConnectionStatus();
+    private AisSettingsPanel aisSettingsPanel = new AisSettingsPanel();
+    private ENavSettingsPanel eNavSettingsPanel = new ENavSettingsPanel();
+    private CloudShoreSettingsPanel cloudSettingsPanel = new CloudShoreSettingsPanel();
+    
+    private BaseShoreSettings[] settingsPanels = { 
+            mapSettingsPanel, mapWindowsPanel, connectionsPanel, aisSettingsPanel, eNavSettingsPanel, cloudSettingsPanel };
+    
     private JPanel contentPane;
 
     private JPanel labelContainer;
@@ -123,10 +117,10 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
     JInternalFrame settingsWindow;
     private MainFrame mainFrame;
     private EPDSettings settings;
-    private List<IStatusComponent> statusComponents = new ArrayList<IStatusComponent>();
     private boolean reset;
 
     /**
+     * Constructor.
      * Create the frame.
      */
     public JSettingsWindow() {
@@ -138,11 +132,8 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
 
         setResizable(false);
         setTitle("Preferences");
-        // setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 661, 481);
         backgroundPane = new JPanel();
-        // backgroundPane.setBorder(new LineBorder(new Color(0, 0, 0)));
-        // backgroundPane.setBackground(new Color(83, 83, 83));
 
         backgroundPane.setLayout(new FormLayout(new ColumnSpec[] { ColumnSpec.decode("653px:grow"), }, new RowSpec[] {
                 FormFactory.NARROW_LINE_GAP_ROWSPEC, RowSpec.decode("23px:grow"), RowSpec.decode("428px:grow"), }));
@@ -162,222 +153,57 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
         breadCrumps.setHorizontalAlignment(SwingConstants.LEFT);
         topPanel.add(breadCrumps);
 
+        // NB: The rest of the GUI is postponed until the mainFrame
+        //     has been set via findAndInit...
     }
 
-    public void addMouseListeners() {
-        mapSettings.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                mapSettings.setBackground(new Color(45, 45, 45));
-                hideAllPanels();
-                mapSettingsPanel.setVisible(true);
-                hideMapTabs();
+    /**
+     * Activates the given panel 
+     * @param settingsPanel the panel to activate
+     */
+    private void activateSettingsPanel(final BaseShoreSettings settingsPanel) {
+        LOG.info("Activating panel: " + settingsPanel.getName());
 
-                resetTabs();
-                mapSettings.setBackground(new Color(55, 55, 55));
-                breadCrumps.setText("Preferences > Map Settings");
-                mapSettingsChanged = true;
+        settingsPanel.getLabel().setBackground(new Color(45, 45, 45));
+        hideAllPanels();
+        settingsPanel.loadSettings();
+        if (settingsPanel == mapWindowsPanel) {
+            for (MapWindowSinglePanel mapPanel : mapWindowsListPanels) {
+                mapPanel.getLabel().setVisible(true);
             }
+        } else {
+            hideMapTabs();
+        }
 
-            public void mouseReleased(MouseEvent e) {
-
-            }
-
-        });
-
-        mapWindows.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                mapWindows.setBackground(new Color(45, 45, 45));
-                hideAllPanels();
-                mapWindowsPanel.loadSettings();
-                mapWindowsPanel.setVisible(true);
-                updateLabels();
-
-                resetTabs();
-                mapWindows.setBackground(new Color(55, 55, 55));
-                breadCrumps.setText("Preferences > Map Windows");
-
-                for (int i = 0; i < mapWindowsList.size(); i++) {
-                    mapWindowsList.get(i).setVisible(true);
-                }
-
-                mapWindowsChanged = true;
-            }
-
-            public void mouseReleased(MouseEvent e) {
-
-            }
-
-        });
-
-        connections.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                connections.setBackground(new Color(45, 45, 45));
-                hideAllPanels();
-                connectionsPanel.setVisible(true);
-                connectionsPanel.showStatus(statusComponents);
-                hideMapTabs();
-
-                resetTabs();
-                connections.setBackground(new Color(55, 55, 55));
-                breadCrumps.setText("Preferences > Connections");
-
-            }
-
-            public void mouseReleased(MouseEvent e) {
-            }
-
-        });
-
-        aisSettings.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                aisSettings.setBackground(new Color(45, 45, 45));
-                hideAllPanels();
-                aisSettingsPanel.loadSettings(settings.getAisSettings(), settings.getSensorSettings());
-                aisSettingsPanel.setVisible(true);
-                hideMapTabs();
-
-                resetTabs();
-                aisSettings.setBackground(new Color(55, 55, 55));
-                breadCrumps.setText("Preferences > AIS Settings");
-
-                aisSettingsChanged = true;
-
-            }
-
-            public void mouseReleased(MouseEvent e) {
-            }
-
-        });
-
-        eNavServices.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                eNavServices.setBackground(new Color(45, 45, 45));
-                hideAllPanels();
-                // eNavSettingsPanel.
-                // TO DO
-                eNavSettingsPanel.loadSettings(settings.getEnavSettings());
-                eNavSettingsPanel.setVisible(true);
-                hideMapTabs();
-
-                resetTabs();
-                eNavServices.setBackground(new Color(55, 55, 55));
-                breadCrumps.setText("Preferences > e-Nav Services");
-
-                eNavServicesChanged = true;
-
-            }
-
-            public void mouseReleased(MouseEvent e) {
-            }
-
-        });
-
-        cloudSettings.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                cloudSettings.setBackground(new Color(45, 45, 45));
-                hideAllPanels();
-                cloudSettingsPanel.loadSettings(settings.getEnavSettings());
-                cloudSettingsPanel.setVisible(true);
-                hideMapTabs();
-
-                resetTabs();
-                cloudSettings.setBackground(new Color(55, 55, 55));
-                breadCrumps.setText("Preferences > Cloud Settings");
-
-                cloudSettingsChanged = true;
-
-            }
-
-            public void mouseReleased(MouseEvent e) {
-            }
-
-        });
-
-        routeSettings.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                routeSettings.setBackground(new Color(45, 45, 45));
-                hideAllPanels();
-                routeSettingsPanel.setVisible(true);
-                hideMapTabs();
-
-                resetTabs();
-                routeSettings.setBackground(new Color(55, 55, 55));
-                breadCrumps.setText("Preferences > Routes Settings");
-                // routeSettingsChanged = true;
-
-            }
-
-            public void mouseReleased(MouseEvent e) {
-            }
-
-        });
-
-        ok.addMouseListener(this);
-        cancel.addMouseListener(this);
-
-        // ok.addMouseListener(new MouseAdapter() {
-        // public void mousePressed(MouseEvent e) {
-        // ok.setBackground(new Color(45, 45, 45));
-        //
-        // System.out.println("OK PRESSED");
-        // }
-        //
-        // public void mouseReleased(MouseEvent e) {
-        // ok.setBackground(new Color(65, 65, 65));
-        // }
-        //
-        // });
-        //
-        // cancel.addMouseListener(new MouseAdapter() {
-        // public void mousePressed(MouseEvent e) {
-        // cancel.setBackground(new Color(45, 45, 45));
-        // System.out.println("Cancel pressed");
-        // }
-        //
-        // public void mouseReleased(MouseEvent e) {
-        // cancel.setBackground(new Color(65, 65, 65));
-        // }
-        //
-        // });
-
+        resetTabs();
+        settingsPanel.getLabel().setBackground(new Color(55, 55, 55));
+        breadCrumps.setText("Preferences > " + settingsPanel.getName());
     }
-
-    public void resetTabs() {
-        mapSettings.setBackground(new Color(65, 65, 65));
-        connections.setBackground(new Color(65, 65, 65));
-        aisSettings.setBackground(new Color(65, 65, 65));
-        eNavServices.setBackground(new Color(65, 65, 65));
-        cloudSettings.setBackground(new Color(65, 65, 65));
-        mapWindows.setBackground(new Color(65, 65, 65));
-        routeSettings.setBackground(new Color(65, 65, 65));
-
-        for (int i = 0; i < mapWindowsList.size(); i++) {
-            mapWindowsList.get(i).setBackground(new Color(75, 75, 75));
+    
+    /**
+     * Resets the tabs by setting the background color of their labels
+     */
+    private void resetTabs() {
+        for (BaseShoreSettings settings : settingsPanels) {
+            settings.getLabel().setBackground(new Color(65, 65, 65));
+        }
+        
+        for (MapWindowSinglePanel mapPanel : mapWindowsListPanels) {
+            mapPanel.getLabel().setBackground(new Color(75, 75, 75));
         }
     }
 
-    public JPanel createConnectionsPanel() {
-        JPanel panel = new JPanel();
-        panel.setBackground(GuiStyler.backgroundColor);
-        panel.setBounds(10, 11, 493, 406);
-        panel.setLayout(null);
-
-        return panel;
-    }
-
+    /**
+     * Hides all tabs
+     */
     private void hideAllPanels() {
-        mapSettingsPanel.setVisible(false);
-        mapWindowsPanel.setVisible(false);
-        connectionsPanel.setVisible(false);
-        aisSettingsPanel.setVisible(false);
-        eNavSettingsPanel.setVisible(false);
-        cloudSettingsPanel.setVisible(false);
-        routeSettingsPanel.setVisible(false);
-
-        for (int i = 0; i < mapWindowsListPanels.size(); i++) {
-            mapWindowsListPanels.get(i).setVisible(false);
+        for (BaseShoreSettings settings : settingsPanels) {
+            settings.getPanel().setVisible(false);
         }
-
+        
+        for (MapWindowSinglePanel mapPanel : mapWindowsListPanels) {
+            mapPanel.setVisible(false);
+        }
     }
 
     /**
@@ -427,41 +253,15 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
         contentPane.add(cancel);
 
         // Content panels
-        mapSettingsPanel = new MapSettingsPanel(settings);
+        mapSettingsPanel.loadSettings();
+        mapSettingsPanel.getLabel().setBackground(new Color(45, 45, 45));
 
-        mapWindowsPanel = new MapWindowsPanel(mainFrame, settings);
-        mapWindowsPanel.setVisible(false);
-
-        connectionsPanel = new ConnectionStatus(mainFrame);
-        connectionsPanel.setVisible(false);
-
-        aisSettingsPanel = new AisSettingsPanel();
-        aisSettingsPanel.setVisible(false);
-        
-        eNavSettingsPanel = new ENavSettingsPanel();
-        eNavSettingsPanel.setVisible(false);
-
-        cloudSettingsPanel = new CloudSettingsTab();
         cloudSettingsPanel.setBounds(10, 11, 500, 300);
         GuiStyler.styleSettingsTab(cloudSettingsPanel);
-        cloudSettingsPanel.setVisible(false);
 
-        routeSettingsPanel = createConnectionsPanel();
-        routeSettingsPanel.setVisible(false);
-
-        contentPane.add(mapSettingsPanel);
-
-        contentPane.add(mapWindowsPanel);
-
-        contentPane.add(connectionsPanel);
-
-        contentPane.add(aisSettingsPanel);
-
-        contentPane.add(eNavSettingsPanel);
-
-        contentPane.add(cloudSettingsPanel);
-
-        // contentPane.add(routeSettingsPanel);
+        for (BaseShoreSettings settings : settingsPanels) {
+            contentPane.add(settings.getPanel());
+        }
 
         generateTabs();
 
@@ -522,15 +322,25 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
 
         this.setContentPane(masterPanel);
 
+        // Hook up listeners
+        for (BaseShoreSettings settings : settingsPanels) {
+            final BaseShoreSettings panel = settings;
+            settings.getLabel().addMouseListener(new MouseAdapter() {
+                public void mousePressed(MouseEvent e) {
+                    activateSettingsPanel(panel);
+                }
+            });
+        }
+        
+        ok.addMouseListener(this);
+        cancel.addMouseListener(this);
+        
         reset = true;
-
     }
 
-    @Override
-    public void mouseClicked(MouseEvent arg0) {
-
-    }
-
+    /**
+     * Override {@code setVisible()} to handle panel selection when the window is closed
+     */
     @Override
     public void setVisible(boolean visible) {
         super.setVisible(visible);
@@ -542,18 +352,14 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
             }
         }
 
-        // Reset view
+        // Reset view and make the map settings panel the active one
         if (reset) {
-            mapSettings.setBackground(new Color(45, 45, 45));
-            hideAllPanels();
-            mapSettingsPanel.setVisible(true);
-            hideMapTabs();
-
-            resetTabs();
-            mapSettings.setBackground(new Color(55, 55, 55));
-            breadCrumps.setText("Preferences > Map Settings");
+            activateSettingsPanel(mapSettingsPanel);
         }
+    }
 
+    @Override
+    public void mouseClicked(MouseEvent arg0) {
     }
 
     @Override
@@ -569,47 +375,43 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
     public void mousePressed(MouseEvent arg0) {
     }
 
+    /**
+     * Called when various sources have been clicked
+     * @param evt the mouse event
+     */
     @Override
-    public void mouseReleased(MouseEvent arg0) {
+    public void mouseReleased(MouseEvent evt) {
 
-        if (arg0.getSource() == ok) {
+        // OK button clicked
+        if (evt.getSource() == ok) {
             boolean restart = false;
 
-            System.out.println("ok pressed");
-
-
-
-            // Map settings check if changed
-            if (mapSettingsChanged) {
-                mapSettingsPanel.saveSettings();
-
-                // Set the new WMS Query
-                for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                    mainFrame.getMapWindows().get(i).getChartPanel().getWmsLayer().getWmsService()
-                            .setWMSString(settings.getGuiSettings().getWmsQuery());
+            for (BaseShoreSettings settings : settingsPanels) {
+                if (!settings.wasChanged()) {
+                    LOG.info("Panel " + settings.getName() + " is unchanged and will not be saved");
+                    continue;
                 }
-            }
-
-            if (aisSettingsChanged) {
-                aisSettingsPanel.saveSettings();
-                restart = true;
-
-            }
-
-            if (eNavServicesChanged) {
-                eNavSettingsPanel.saveSettings();
+                
+                LOG.info("Panel " + settings.getName() + " is changed and will be saved");
+                settings.saveSettings();
+                if (settings == aisSettingsPanel || settings == cloudSettingsPanel) {
+                    restart = true;
+                }
+                if (settings == mapSettingsPanel) {
+                    
+                    // Set the new WMS Query
+                    for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
+                        mainFrame.getMapWindows().get(i).getChartPanel().getWmsLayer().getWmsService()
+                                .setWMSString(EPDShore.getInstance().getSettings().getGuiSettings().getWmsQuery());
+                    }
+                }
+                if (settings == mapWindowsPanel) {
+                    for (MapWindowSinglePanel mapPanel : mapWindowsListPanels) {
+                        mapPanel.saveSettings();
+                    }                    
+                }
             }
             
-            if (cloudSettingsChanged) {
-                cloudSettingsPanel.saveSettings();
-            }
-
-            if (mapWindowsChanged) {
-                for (int i = 0; i < mapWindowsListPanels.size(); i++) {
-                    mapWindowsListPanels.get(i).saveSettings();
-                }
-            }
-
             settings.saveToFile();
 
             if (restart && this.isVisible()) {
@@ -619,7 +421,6 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
                         "The settings will take effect next time the application is started.\nStop now?",
                         "Restart required", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null,
                         JOptionPane.YES_OPTION);
-                System.out.println(choice);
                 if (choice == JOptionPane.YES_OPTION) {
                     EPDShore.closeApp();
                 }
@@ -628,79 +429,35 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
             this.setVisible(false);
 
         }
-        if (arg0.getSource() == cancel) {
-
+        
+        // Cancel button clicked
+        else if (evt.getSource() == cancel) {
+            LOG.info("Closing settings panel");
             this.setVisible(false);
         }
-
-
     }
 
+    /**
+     * Called when a new bean is set at the context
+     */
     @Override
     public void findAndInit(Object obj) {
         if (obj instanceof MainFrame) {
-            mainFrame = (MainFrame) obj;
+            mainFrame = (MainFrame)obj;
             initGUI();
-        }
-
-        if (obj instanceof AisHandler) {
+            
+        } else if (obj instanceof AisHandler) {
             // aisHandler = (AisHandlerCommon) obj;
-            statusComponents.add((AisHandler) obj);
-        }
-        if (obj instanceof ShoreServices) {
+            connectionsPanel.addStatusComponent((AisHandler) obj);
+            
+        } else if (obj instanceof ShoreServices) {
             // shoreServices = (ShoreServicesCommon) obj;
-            statusComponents.add((ShoreServices) obj);
-        }
-        if (obj instanceof SingleWMSService) {
+            connectionsPanel.addStatusComponent((ShoreServices) obj);
+            
+        } else if (obj instanceof SingleWMSService) {
             // System.out.println("wmsService");
             // shoreServices = (ShoreServicesCommon) obj;
-            statusComponents.add((SingleWMSService) obj);
-        }
-    }
-
-    public void createMapLabels() {
-        mapWindowsList = new ArrayList<JLabel>();
-        mapWindowsListPanels = new ArrayList<MapWindowSinglePanel>();
-
-        List<JMapFrame> mainWindows = mainFrame.getMapWindows();
-
-        for (int i = 0; i < mainWindows.size(); i++) {
-            JLabel mapLabel = new JLabel("      " + mainWindows.get(i).getTitle());
-            MapWindowSinglePanel panel = new MapWindowSinglePanel(mainFrame, i);
-            panel.loadSettings();
-            panel.setVisible(false);
-            contentPane.add(panel);
-            mapWindowsListPanels.add(panel);
-
-            mapLabel.setName(Integer.toString(i));
-            GuiStyler.styleSubTab(mapLabel);
-            mapWindowsList.add(mapLabel);
-
-            mapLabel.addMouseListener(new MouseAdapter() {
-                public void mousePressed(MouseEvent e) {
-                    updateLabels();
-                    int id = Integer.parseInt(((JLabel) e.getSource()).getName());
-                    ((JLabel) e.getSource()).setBackground(new Color(45, 45, 45));
-                    hideAllPanels();
-                    mapWindowsListPanels.get(id).setVisible(true);
-                }
-
-                public void mouseReleased(MouseEvent e) {
-                    resetTabs();
-
-                    int id = Integer.parseInt(((JLabel) e.getSource()).getName());
-                    ((JLabel) e.getSource()).setBackground(new Color(55, 55, 55));
-                    breadCrumps.setText("Preferences > Map Windows > " + mainFrame.getMapWindows().get(id).getTitle());
-                }
-
-            });
-
-        }
-    }
-
-    public void updateLabels() {
-        for (int i = 0; i < mapWindowsList.size(); i++) {
-            mapWindowsList.get(i).setText(mapWindowsListPanels.get(i).getMapTitle());
+            connectionsPanel.addStatusComponent((SingleWMSService) obj);
         }
     }
 
@@ -712,7 +469,6 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
 
         // Regenerate Tabs
         if (this.isVisible()) {
-            // System.out.println("ello visible toggle?");
             generateTabs();
         } else {
             // System.out.println("removing panels");
@@ -723,52 +479,67 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
 
     }
 
-    public void generateTabs() {
+    /**
+     * Called when the window is (re-)opened. Updates the list of settings 
+     * and create a new map panel for each open map window
+     */
+    private void generateTabs() {
 
         labelContainer.removeAll();
 
-        mapSettings = new JLabel("Map Settings", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/settings/map.png")), SwingConstants.LEFT);
-        GuiStyler.styleActiveTabButton(mapSettings);
-
-        mapWindows = new JLabel("Map Windows", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/settings/window.png")), SwingConstants.LEFT);
-        GuiStyler.styleTabButton(mapWindows);
-
-        connections = new JLabel("Connections", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/settings/connections.png")), SwingConstants.LEFT);
-        GuiStyler.styleTabButton(connections);
-
-        aisSettings = new JLabel("AIS Settings", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/settings/binocular.png")), SwingConstants.LEFT);
-        GuiStyler.styleTabButton(aisSettings);
-
-        eNavServices = new JLabel("e-Nav Services", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/settings/servers-network.png")), SwingConstants.LEFT);
-        GuiStyler.styleTabButton(eNavServices);
-
-        cloudSettings = new JLabel("Cloud", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/settings/cloud.png")), SwingConstants.LEFT);
-        GuiStyler.styleTabButton(cloudSettings);
-
-        routeSettings = new JLabel("Route Settings", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/settings/routes.png")), SwingConstants.LEFT);
-        GuiStyler.styleTabButton(routeSettings);
-
-        labelContainer.add(mapSettings);
-        labelContainer.add(mapWindows);
+        labelContainer.add(mapSettingsPanel.getLabel());
+        labelContainer.add(mapWindowsPanel.getLabel());
 
         // Create labels for map windows
         createMapLabels();
-        for (int i = 0; i < mapWindowsList.size(); i++) {
-            labelContainer.add(mapWindowsList.get(i));
-            mapWindowsList.get(i).setVisible(false);
+        for (MapWindowSinglePanel mapPanel : mapWindowsListPanels) {
+            labelContainer.add(mapPanel.getLabel());
+            mapPanel.getLabel().setVisible(false);
         }
 
-        labelContainer.add(connections);
-        labelContainer.add(aisSettings);
-        labelContainer.add(eNavServices);
-        labelContainer.add(cloudSettings);
+        labelContainer.add(connectionsPanel.getLabel());
+        labelContainer.add(aisSettingsPanel.getLabel());
+        labelContainer.add(eNavSettingsPanel.getLabel());
+        labelContainer.add(cloudSettingsPanel.getLabel());
 
-        addMouseListeners();
     }
 
-    public void hideMapTabs() {
-        for (int i = 0; i < mapWindowsList.size(); i++) {
-            mapWindowsList.get(i).setVisible(false);
+    /**
+     * Create new map panels for each open map window
+     */
+    private void createMapLabels() {
+        mapWindowsListPanels = new ArrayList<MapWindowSinglePanel>();
+
+        List<JMapFrame> mainWindows = mainFrame.getMapWindows();
+
+        for (int i = 0; i < mainWindows.size(); i++) {
+            final MapWindowSinglePanel panel = new MapWindowSinglePanel(mainWindows.get(i).getTitle(), i);
+            contentPane.add(panel);
+            mapWindowsListPanels.add(panel);
+
+            GuiStyler.styleSubTab(panel.getLabel());
+
+            panel.getLabel().addMouseListener(new MouseAdapter() {
+                public void mousePressed(MouseEvent e) {
+                    panel.getLabel().setBackground(new Color(45, 45, 45));
+                    hideAllPanels();
+                    panel.loadSettings();
+
+                    resetTabs();
+                    panel.getLabel().setBackground(new Color(55, 55, 55));
+                    breadCrumps.setText("Preferences > Map Windows > " + panel.getName());
+                }
+            });
+
+        }
+    }
+
+    /**
+     * Hide all map tabs
+     */
+    private void hideMapTabs() {
+        for (MapWindowSinglePanel mapPanel : mapWindowsListPanels) {
+            mapPanel.getLabel().setVisible(false);
         }
     }
 

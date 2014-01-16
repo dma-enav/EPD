@@ -25,12 +25,14 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 
+import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
+import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.settings.EPDNavSettings;
 
 /**
  * Navigation tab panel in setup panel
  */
-public class NavigationTab extends JPanel {
+public class NavigationTab extends BaseSettingsPanel {
     private static final long serialVersionUID = 1L;
     private JCheckBox checkBoxLookAhead;
     private JSpinner spinnerAutoFollowPctOffTolerance;
@@ -42,6 +44,7 @@ public class NavigationTab extends JPanel {
     private EPDNavSettings navSettings;
 
     public NavigationTab() {
+        super("Navigation");
         
         JPanel panel = new JPanel();
         panel.setBorder(new TitledBorder(null, "Own Ship", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -177,12 +180,16 @@ public class NavigationTab extends JPanel {
         setLayout(groupLayout);
     }
 
-    public void loadSettings(EPDNavSettings navSettings) {
-        this.navSettings = navSettings;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadSettings() {
+        super.loadSettings();
+        
+        this.navSettings = EPDShip.getInstance().getSettings().getNavSettings();
         checkBoxLookAhead.setSelected(navSettings.isLookAhead());
         spinnerAutoFollowPctOffTolerance.setValue(navSettings.getAutoFollowPctOffTollerance());
-//         replaced by setting on the AisTab, common for both ais-targets and own ship.
-//        spinnerCogVectorLength.setValue(navSettings.getCogVectorLength());
         spinnerShowMinuteMarksSelf.setValue(navSettings.getShowMinuteMarksSelf());
         
         spinnerShowArrowScale.setValue(navSettings.getShowArrowScale());
@@ -191,17 +198,21 @@ public class NavigationTab extends JPanel {
         spinnerDefaultXtd.setValue(navSettings.getDefaultXtd());
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void saveSettings() {
         navSettings.setLookAhead(checkBoxLookAhead.isSelected());
         navSettings.setAutoFollowPctOffTollerance((Integer) spinnerAutoFollowPctOffTolerance.getValue());
-//         replaced by setting on the AisTab, common for both ais-targets and own ship.                
-//        navSettings.setCogVectorLength((Double) spinnerCogVectorLength.getValue());
         navSettings.setShowMinuteMarksSelf((Integer) spinnerShowMinuteMarksSelf.getValue());
         
         navSettings.setShowArrowScale((Float) spinnerShowArrowScale.getValue());
         navSettings.setDefaultSpeed((Double) spinnerDefaultSpeed.getValue());
         navSettings.setDefaultTurnRad((Double) spinnerDefaultTurnRad.getValue());
         navSettings.setDefaultXtd((Double) spinnerDefaultXtd.getValue());
+        
+        super.saveSettings();
     }
     
 }

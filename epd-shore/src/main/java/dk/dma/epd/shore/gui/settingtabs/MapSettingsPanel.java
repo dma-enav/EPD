@@ -28,14 +28,13 @@ import javax.swing.border.TitledBorder;
 
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
+import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.settings.EPDGuiSettings;
 import dk.dma.epd.shore.settings.EPDMapSettings;
-import dk.dma.epd.shore.settings.EPDSettings;
 
-public class MapSettingsPanel extends JPanel{
+public class MapSettingsPanel extends BaseShoreSettingsPanel {
 
     private static final long serialVersionUID = 1L;
-    EPDSettings settings;
     JSpinner defaultMapScaleSpinner;
     JSpinner maximumMapScaleSpinner;
     JSpinner latitudeSpinner;
@@ -43,11 +42,10 @@ public class MapSettingsPanel extends JPanel{
     JTextField wmsTextField;
     JCheckBox wmsCheckBox;
     private JCheckBox chckbxWmsDrag;
-
-    public MapSettingsPanel(EPDSettings settings){
-        super();
-        this.settings = settings;
-//        JPanel panel = new JPanel();
+    
+    public MapSettingsPanel(){
+        super("Map Settings", "map.png");
+        
         setBackground(GuiStyler.backgroundColor);
         setBounds(10, 11, 493, 381);
         setLayout(null);
@@ -164,8 +162,14 @@ public class MapSettingsPanel extends JPanel{
         loadSettings();
     }
 
-    private void loadSettings(){
-        EPDMapSettings mapSettings = settings.getMapSettings();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadSettings() {
+        super.loadSettings();
+        
+        EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
 
         defaultMapScaleSpinner.setValue(mapSettings.getScale());
 //        System.out.println(mapScale);
@@ -182,9 +186,13 @@ public class MapSettingsPanel extends JPanel{
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void saveSettings(){
-        EPDMapSettings mapSettings = settings.getMapSettings();
-        EPDGuiSettings guiSettings = settings.getGuiSettings();
+        EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
+        EPDGuiSettings guiSettings = EPDShore.getInstance().getSettings().getGuiSettings();
 
         mapSettings.setScale((Float) defaultMapScaleSpinner.getValue());
         mapSettings.setMaxScale((Integer) maximumMapScaleSpinner.getValue());
@@ -197,5 +205,7 @@ public class MapSettingsPanel extends JPanel{
         mapSettings.setUseWms(wmsCheckBox.isSelected());
         mapSettings.setWmsQuery(wmsTextField.getText());
         mapSettings.setUseWmsDragging(chckbxWmsDrag.isSelected());
+        
+        super.saveSettings();
     }
 }

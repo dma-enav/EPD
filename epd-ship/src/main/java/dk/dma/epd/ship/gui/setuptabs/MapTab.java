@@ -36,13 +36,14 @@ import javax.swing.border.TitledBorder;
 
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
+import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.settings.EPDMapSettings;
 
 /**
  * Map tab panel in setup panel
  */
-public class MapTab extends JPanel {
+public class MapTab extends BaseSettingsPanel {
     
     private static final long serialVersionUID = 1L;
     private JSpinner spinnerDefaultMapScale;
@@ -59,7 +60,7 @@ public class MapTab extends JPanel {
     private JCheckBox chckbxSimplePointSymbols;
     private JCheckBox chckbxPlainAreas;
     private JCheckBox chckbxTwoShades;
-    private JComboBox<String[]> comboBoxColorProfile;
+    private JComboBox<String> comboBoxColorProfile;
     private EPDMapSettings mapSettings;
     private JCheckBox checkBoxUseWms;
     private JPanel panel_2;
@@ -72,8 +73,8 @@ public class MapTab extends JPanel {
     /**
      * Create the panel.
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public MapTab() {
+        super("Map");
         
         JPanel panel = new JPanel();
         panel.setBorder(new TitledBorder(null, "S52 Layer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -176,7 +177,7 @@ public class MapTab extends JPanel {
         
         String[] colorModes = { "Day", "Dusk", "Night"};
         
-        comboBoxColorProfile = new JComboBox(colorModes);
+        comboBoxColorProfile = new JComboBox<>(colorModes);
 //        comboBoxColorProfile.setModel(new DefaultComboBoxModel(new String[] {"Day", "Dusk", "Night"}));
         
         JLabel lblColorProfile = new JLabel("Color profile");
@@ -368,8 +369,14 @@ public class MapTab extends JPanel {
         setLayout(groupLayout);
     }
     
-    public void loadSettings(EPDMapSettings mapSettings) {
-        this.mapSettings = mapSettings;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadSettings() {
+        super.loadSettings();
+        
+        this.mapSettings = EPDShip.getInstance().getSettings().getMapSettings();
         spinnerDefaultMapScale.setValue(mapSettings.getScale());
         spinnerMaximumScale.setValue(mapSettings.getMaxScale());
         Float latitude = mapSettings.getCenter().getLatitude();
@@ -402,6 +409,10 @@ public class MapTab extends JPanel {
         
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void saveSettings() {
         mapSettings.setScale((Float) spinnerDefaultMapScale.getValue());
         mapSettings.setMaxScale((Integer) spinnerMaximumScale.getValue());
@@ -431,5 +442,6 @@ public class MapTab extends JPanel {
         }
         mapSettings.setWmsProviders(arr);
         
+        super.saveSettings();
     }
 }

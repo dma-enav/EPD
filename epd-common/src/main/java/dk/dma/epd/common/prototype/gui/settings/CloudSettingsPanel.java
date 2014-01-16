@@ -24,19 +24,21 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.FormatException;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.util.ParseUtils;
 
 /**
- * e-Nav tab panel in setup panel
+ * Maritime cloud tab panel
  */
-public class CloudSettingsTab extends JPanel {
+public class CloudSettingsPanel extends BaseSettingsPanel {
     private static final long serialVersionUID = 1L;
     private JTextField textFieldServerPort;
     private JTextField textFieldServerName;
     private EnavSettings enavSettings;
 
-    public CloudSettingsTab() {
+    public CloudSettingsPanel() {
+        super("Cloud");
         
         JPanel cloudPanel = new JPanel();
         cloudPanel.setBorder(new TitledBorder(null, "HTTP Settings",
@@ -130,17 +132,35 @@ public class CloudSettingsTab extends JPanel {
         setLayout(groupLayout);
     }
 
-    public void loadSettings(EnavSettings enavSettings) {
-        this.enavSettings = enavSettings;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName() {
+        return "Cloud Settings";
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadSettings() {
+        super.loadSettings();
+        this.enavSettings = EPD.getInstance().getSettings().getEnavSettings();
         textFieldServerName.setText(enavSettings.getCloudServerHost());
         textFieldServerPort.setText(Integer.toString(enavSettings
                 .getCloudServerPort()));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void saveSettings() {
         enavSettings.setCloudServerHost(textFieldServerName.getText());
         enavSettings.setCloudServerPort(getIntVal(
                 textFieldServerPort.getText(), enavSettings.getHttpPort()));
+        super.saveSettings();
     }
 
     private static int getIntVal(String fieldVal, int defaultValue) {

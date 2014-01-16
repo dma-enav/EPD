@@ -24,10 +24,11 @@ import javax.swing.JTextField;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
+import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MainFrame;
 
-public class MapWindowSinglePanel extends JPanel{
+public class MapWindowSinglePanel extends BaseShoreSettingsPanel {
 
     /**
      *
@@ -39,10 +40,10 @@ public class MapWindowSinglePanel extends JPanel{
     private JCheckBox chckbxAlwaysOnTop;
     private int id;
 
-    public MapWindowSinglePanel(MainFrame mainFrame, int id){
-        super();
+    public MapWindowSinglePanel(String name, int id){
+        super(name, "window.png");
 
-        this.mainFrame = mainFrame;
+        this.mainFrame = EPDShore.getInstance().getMainFrame();
         this.id = id;
 
 
@@ -90,7 +91,13 @@ public class MapWindowSinglePanel extends JPanel{
         panel_2.setLayout(null);
     }
 
-    public void loadSettings(){
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadSettings() {
+        super.loadSettings();
+        
         JMapFrame mapWindow = mainFrame.getMapWindows().get(id);
 
         textField.setText(mapWindow.getTitle());
@@ -101,7 +108,11 @@ public class MapWindowSinglePanel extends JPanel{
         chckbxAlwaysOnTop.setSelected(mapWindow.isInFront());
     }
 
-    public void saveSettings(){
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveSettings() {
         JMapFrame mapWindow = mainFrame.getMapWindows().get(id);
 
         mapWindow.setTitle(textField.getText());
@@ -118,7 +129,7 @@ public class MapWindowSinglePanel extends JPanel{
 
         }
 
-
+        super.saveSettings();
     }
 
 

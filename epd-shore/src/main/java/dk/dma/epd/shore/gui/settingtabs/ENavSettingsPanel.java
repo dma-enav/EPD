@@ -27,10 +27,11 @@ import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.util.ParseUtils;
+import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.settings.EPDEnavSettings;
 
 
-public class ENavSettingsPanel  extends JPanel{
+public class ENavSettingsPanel  extends BaseShoreSettingsPanel {
 
     private static final long serialVersionUID = 1L;
     private JTextField textFieldServerPort;
@@ -49,7 +50,7 @@ public class ENavSettingsPanel  extends JPanel{
 
 
     public ENavSettingsPanel(){
-//        super();
+        super("e-Nav Services", "servers-network.png");
 
         setBackground(GuiStyler.backgroundColor);
         setBounds(10, 11, 493, 600);
@@ -204,8 +205,14 @@ public class ENavSettingsPanel  extends JPanel{
         add(HttpPanel);
     }
 
-    public void loadSettings(EPDEnavSettings enavSettings) {
-        this.enavSettings = enavSettings;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadSettings() {
+        super.loadSettings();
+        
+        this.enavSettings = EPDShore.getInstance().getSettings().getEnavSettings();
         spinnerMetocTtl.setValue(enavSettings.getMetocTtl());
         spinnerActiveRouteMetocPoll.setValue(enavSettings.getActiveRouteMetocPollInterval());
         spinnerMetocTimeDiffTolerance.setValue(enavSettings.getMetocTimeDiffTolerance());
@@ -223,6 +230,10 @@ public class ENavSettingsPanel  extends JPanel{
         spinnerMsiVisibilityFromNewWaypoint.setValue(enavSettings.getMsiVisibilityFromNewWaypoint());
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void saveSettings() {
         enavSettings.setMetocTtl((Integer) spinnerMetocTtl.getValue());
         enavSettings.setActiveRouteMetocPollInterval((Integer) spinnerActiveRouteMetocPoll.getValue());
@@ -239,6 +250,8 @@ public class ENavSettingsPanel  extends JPanel{
         enavSettings.setMsiRelevanceGpsUpdateRange((Double) spinnerMsiRelevanceGpsUpdateRange.getValue());
         enavSettings.setMsiRelevanceFromOwnShipRange((Double) spinnerMsiVisibilityFromOwnShipRange.getValue());
         enavSettings.setMsiVisibilityFromNewWaypoint((Double) spinnerMsiVisibilityFromNewWaypoint.getValue());
+        
+        super.saveSettings();
     }
 
     private static int getIntVal(String fieldVal, int defaultValue) {

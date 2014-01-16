@@ -29,15 +29,14 @@ import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType;
+import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.settings.EPDAisSettings;
 import dk.dma.epd.shore.settings.EPDSensorSettings;
 
-public class AisSettingsPanel extends JPanel{
+public class AisSettingsPanel extends BaseShoreSettingsPanel {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
+    
     private JTextField textFieldAisHostOrSerialPort;
     private EPDAisSettings aisSettings;
     @SuppressWarnings("rawtypes")
@@ -51,7 +50,7 @@ public class AisSettingsPanel extends JPanel{
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public AisSettingsPanel(){
-        super();
+        super("AIS Settings", "binocular.png");
 
         setBackground(GuiStyler.backgroundColor);
         setBounds(10, 11, 493, 600);
@@ -142,9 +141,15 @@ public class AisSettingsPanel extends JPanel{
     }
 
 
-    public void loadSettings(EPDAisSettings aisSettings, EPDSensorSettings sensorSettings) {
-        this.aisSettings = aisSettings;
-        this.sensorSettings = sensorSettings;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadSettings() {
+        super.loadSettings();
+        
+        this.aisSettings = EPDShore.getInstance().getSettings().getAisSettings();
+        this.sensorSettings = EPDShore.getInstance().getSettings().getSensorSettings();
         comboBoxAisConnectionType.getModel().setSelectedItem(sensorSettings.getAisConnectionType());
         textFieldAisHostOrSerialPort.setText(sensorSettings.getAisHostOrSerialPort());
         spinnerAisTcpOrUdpPort.setValue(sensorSettings.getAisTcpOrUdpPort());
@@ -156,6 +161,10 @@ public class AisSettingsPanel extends JPanel{
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void saveSettings() {
         sensorSettings.setAisConnectionType((SensorConnectionType) comboBoxAisConnectionType.getModel().getSelectedItem());
         sensorSettings.setAisHostOrSerialPort(textFieldAisHostOrSerialPort.getText());
@@ -166,6 +175,7 @@ public class AisSettingsPanel extends JPanel{
 
         aisSettings.setOwnMMSI(Long.parseLong(ownMMSITxt.getText()));
 
+        super.saveSettings();
     }
 
 }

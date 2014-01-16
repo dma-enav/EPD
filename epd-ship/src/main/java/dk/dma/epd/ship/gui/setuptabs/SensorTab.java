@@ -34,10 +34,11 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 
+import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.settings.SensorSettings.PntSourceSetting;
 import dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType;
+import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.settings.EPDSensorSettings;
-
 import static dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType.FILE;
 import static dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType.SERIAL;
 import static dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType.TCP;
@@ -46,7 +47,7 @@ import static dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnecti
 /**
  * Sensor tab panel in setup panel
  */
-public class SensorTab extends JPanel implements ActionListener {
+public class SensorTab extends BaseSettingsPanel implements ActionListener {
     private static final long serialVersionUID = 1L;
     
     private JComboBox<PntSourceSetting> comboBoxPntSource;
@@ -78,6 +79,7 @@ public class SensorTab extends JPanel implements ActionListener {
      * Creates the GUI of the Sensor settings tab
      */
     public SensorTab() {
+        super("Sensor");
         
         /************** PNT Source ***************/
         
@@ -381,10 +383,13 @@ public class SensorTab extends JPanel implements ActionListener {
     }
     
     /**
-     * Loads the current settings
+     * {@inheritDoc}
      */
-    public void loadSettings(EPDSensorSettings sensorSettings) {
-        this.sensorSettings = sensorSettings;
+    @Override
+    public void loadSettings() {
+        super.loadSettings();
+        
+        this.sensorSettings = EPDShip.getInstance().getSettings().getSensorSettings();
         
         // Loads the AIS Connection settings
         comboBoxAisConnectionType.setSelectedItem(sensorSettings.getAisConnectionType());
@@ -416,8 +421,9 @@ public class SensorTab extends JPanel implements ActionListener {
     }
     
     /**
-     * Saves the current settings
+     * {@inheritDoc}
      */
+    @Override
     public void saveSettings() {
         
         // Saves the AIS Connection settings
@@ -444,6 +450,8 @@ public class SensorTab extends JPanel implements ActionListener {
         // Saves the Transponder settings
         sensorSettings.setStartTransponder(startTransponder.isSelected());        
         sensorSettings.setAisSensorRange((Double) spinnerAisSensorRange.getValue());
+        
+        super.saveSettings();
     }
 
     /**

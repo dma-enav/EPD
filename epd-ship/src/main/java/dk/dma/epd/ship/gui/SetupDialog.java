@@ -29,7 +29,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
-import dk.dma.epd.common.prototype.gui.settings.CloudSettingsTab;
+import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
+import dk.dma.epd.common.prototype.gui.settings.CloudSettingsPanel;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.setuptabs.AisTab;
 import dk.dma.epd.ship.gui.setuptabs.ENavTab;
@@ -43,17 +44,27 @@ import dk.dma.epd.ship.settings.EPDSettings;
  */
 public class SetupDialog extends JDialog implements ActionListener {
     private static final long serialVersionUID = 1L;
-    private JButton btnOk;
-    private JButton btnCancel;
-    private AisTab aisTab;
-    private ENavTab enavTab;
-    private NavigationTab navTab;
-    private SensorTab sensorTab;
-    private MapTab mapTab;
+
     private EPDSettings settings;
     
-    private CloudSettingsTab cloudTab;
+    private JButton btnOk;
+    private JButton btnCancel;
     
+    // Settings tabs
+    private AisTab aisTab               = new AisTab();
+    private ENavTab enavTab             = new ENavTab();
+    private NavigationTab navTab        = new NavigationTab();
+    private SensorTab sensorTab         = new SensorTab();
+    private MapTab mapTab               = new MapTab();
+    private CloudSettingsPanel cloudTab = new CloudSettingsPanel();
+    private BaseSettingsPanel[] settingsPanels = { 
+            aisTab, enavTab, navTab, sensorTab, mapTab, cloudTab };
+    
+    /**
+     * Constructor
+     * 
+     * @param parent the parent frame
+     */
     public SetupDialog(JFrame parent) {
         super(parent, "Setup", true);
         
@@ -61,29 +72,12 @@ public class SetupDialog extends JDialog implements ActionListener {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(parent);
         
-//        Component comp = EeINS.getMainFrame().getChartPanel().getS52Layer().getGUI();
-//        getContentPane().add(comp);
-        
         JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
         getContentPane().add(tabbedPane, BorderLayout.CENTER);
         
-        aisTab = new AisTab();
-        tabbedPane.addTab("AIS", null, aisTab, null);
-        
-        enavTab = new ENavTab();
-        tabbedPane.addTab("E-Nav Services", null, enavTab, null);
-        
-        navTab = new NavigationTab();
-        tabbedPane.addTab("Navigation", null, navTab, null);
-        
-        sensorTab = new SensorTab();
-        tabbedPane.addTab("Sensor", null, sensorTab, null);
-        
-        mapTab = new MapTab();
-        tabbedPane.addTab("Map", null, mapTab, null);
-        
-        this.cloudTab = new CloudSettingsTab();
-        tabbedPane.addTab("Cloud", null, cloudTab, null);
+        for (BaseSettingsPanel tab : settingsPanels) {
+            tabbedPane.addTab(tab.getName(), null, tab, null);            
+        }
         
         JPanel panel = new JPanel();
         getContentPane().add(panel, BorderLayout.SOUTH);
@@ -96,29 +90,34 @@ public class SetupDialog extends JDialog implements ActionListener {
         btnCancel = new JButton("Cancel");
         btnCancel.addActionListener(this);
         panel.add(btnCancel);
-//        comp.setVisible(true);
     }
     
+    /**
+     * Initializes the tabs with the settings
+     * @param settings the settings
+     */
     public void loadSettings(EPDSettings settings) {
         this.settings = settings;
-        aisTab.loadSettings(settings.getAisSettings());
-        enavTab.loadSettings(settings.getEnavSettings());
-        navTab.loadSettings(settings.getNavSettings());
-        sensorTab.loadSettings(settings.getSensorSettings());
-        mapTab.loadSettings(settings.getMapSettings());
-        this.cloudTab.loadSettings(settings.getEnavSettings());
+        for (BaseSettingsPanel tab : settingsPanels) {
+            tab.loadSettings();            
+        }
     }
     
+    /**
+     * Updates the global settings with the
+     * tab settings
+     */
     public void saveSettings() {
-        aisTab.saveSettings();
-        enavTab.saveSettings();
-        navTab.saveSettings();
-        sensorTab.saveSettings();
-        mapTab.saveSettings();
-        this.cloudTab.saveSettings();
+        for (BaseSettingsPanel tab : settingsPanels) {
+            tab.saveSettings();            
+        }
         settings.saveToFile();
     }
 
+    /**
+     * Called when OK or Cancel is clicked
+     * @param e the action event
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == btnOk){

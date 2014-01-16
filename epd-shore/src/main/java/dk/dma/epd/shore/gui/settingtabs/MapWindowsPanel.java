@@ -22,25 +22,17 @@ import javax.swing.JPanel;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
-import dk.dma.epd.shore.gui.views.MainFrame;
-import dk.dma.epd.shore.settings.EPDSettings;
+import dk.dma.epd.shore.EPDShore;
 
-public class MapWindowsPanel extends JPanel{
+public class MapWindowsPanel extends BaseShoreSettingsPanel {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
-    private MainFrame mainFrame;
-    private EPDSettings settings;
+    
     private JLabel lblTheresCurrently;
     private JLabel lblTheCurrentWorkspace;
 
-    public MapWindowsPanel(MainFrame mainFrame, EPDSettings settings){
-        super();
-
-        this.mainFrame = mainFrame;
-        this.settings = settings;
+    public MapWindowsPanel() {
+        super("Map Windows", "window.png");
 
 
         setBackground(GuiStyler.backgroundColor);
@@ -71,8 +63,25 @@ public class MapWindowsPanel extends JPanel{
         panel_1.add(lblClickOnThe);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void loadSettings(){
-        lblTheresCurrently.setText("There's currently " +  mainFrame.getMapWindows().size() + " active Map Windows");
-        lblTheCurrentWorkspace.setText("The current workspace is " + settings.getGuiSettings().getWorkspace());
+        super.loadSettings();
+        
+        lblTheresCurrently.setText("There's currently " + 
+                EPDShore.getInstance().getMainFrame().getMapWindows().size() + 
+                " active Map Windows");
+        lblTheCurrentWorkspace.setText("The current workspace is " + 
+                EPDShore.getInstance().getSettings().getGuiSettings().getWorkspace());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveSettings() {        
+        super.saveSettings();
     }
 }

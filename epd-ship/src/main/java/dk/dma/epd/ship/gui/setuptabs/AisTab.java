@@ -24,12 +24,15 @@ import javax.swing.JSpinner;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
+
+import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
+import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.settings.EPDAisSettings;
 
 /**
  * AIS tab panel in setup panel
  */
-public class AisTab extends JPanel {
+public class AisTab extends BaseSettingsPanel {
     private static final long serialVersionUID = 1L;
     private JCheckBox checkBoxAllowSending;
     private JCheckBox checkBoxStrict;
@@ -46,6 +49,7 @@ public class AisTab extends JPanel {
     private JSpinner spinnerCogVectorHideBelow;
 
     public AisTab() {
+        super("AIS");
 
         JPanel appearancePanel = new JPanel();
         appearancePanel.setBorder(new TitledBorder(null, "Appearance", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -276,8 +280,14 @@ public class AisTab extends JPanel {
         setLayout(groupLayout);
     }
 
-    public void loadSettings(EPDAisSettings aisSettings) {
-        this.aisSettings = aisSettings;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadSettings() {
+        super.loadSettings();
+        
+        this.aisSettings = EPDShip.getInstance().getSettings().getAisSettings();
         checkBoxAllowSending.setSelected(aisSettings.isAllowSending());
         checkBoxStrict.setSelected(aisSettings.isStrict());
 
@@ -294,6 +304,10 @@ public class AisTab extends JPanel {
         spinnerIntendedRouteMaxTime.setValue(aisSettings.getIntendedRouteMaxTime());
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void saveSettings() {
         aisSettings.setAllowSending(checkBoxAllowSending.isSelected());
         aisSettings.setStrict(checkBoxStrict.isSelected());
@@ -309,5 +323,7 @@ public class AisTab extends JPanel {
         aisSettings.setShowIntendedRouteByDefault(checkBoxShowIntendedRoutesByDefault.isSelected());
         aisSettings.setIntendedRouteMaxWps((Integer) spinnerIntendedRouteMaxWps.getValue());
         aisSettings.setIntendedRouteMaxTime((Integer) spinnerIntendedRouteMaxTime.getValue());
+        
+        super.saveSettings();
     }
 }

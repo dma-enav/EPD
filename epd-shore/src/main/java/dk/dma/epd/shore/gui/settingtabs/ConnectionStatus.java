@@ -16,6 +16,7 @@
 package dk.dma.epd.shore.gui.settingtabs;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JLabel;
@@ -29,14 +30,13 @@ import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.prototype.status.ShoreServiceStatus;
 import dk.dma.epd.common.prototype.status.WMSStatus;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.shore.gui.views.MainFrame;
 
-public class ConnectionStatus extends JPanel{
+public class ConnectionStatus extends BaseShoreSettingsPanel {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
+    
+    private List<IStatusComponent> statusComponents = new ArrayList<IStatusComponent>();
+
     private JLabel shoreServicesOK;
     private JLabel shoreServicesLastDate;
     private JLabel aisReceptionOK;
@@ -47,8 +47,8 @@ public class ConnectionStatus extends JPanel{
     private JLabel wmsLastContactDate;
 
 
-    public ConnectionStatus(MainFrame mainFrame){
-        super();
+    public ConnectionStatus() {
+        super("Connections", "connections.png");
 
         setBackground(GuiStyler.backgroundColor);
         setBounds(10, 11, 493, 600);
@@ -163,7 +163,15 @@ public class ConnectionStatus extends JPanel{
         wmsPanel.add(wmsLastContactDate);
     }
 
-    public void showStatus(List<IStatusComponent> statusComponents) {
+    /**
+     * Adds a status component to the list held by the panel
+     * @param statusComponent the status component to add
+     */
+    public void addStatusComponent(IStatusComponent statusComponent) {
+        statusComponents.add(statusComponent);
+    }
+    
+    private void showStatus() {
         for (IStatusComponent statusComponent : statusComponents) {
             ComponentStatus componentStatus = statusComponent.getStatus();
 
@@ -250,5 +258,22 @@ public class ConnectionStatus extends JPanel{
 
         }
         setVisible(true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void loadSettings(){
+        super.loadSettings();
+        showStatus();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveSettings() {        
+        super.saveSettings();
     }
 }
