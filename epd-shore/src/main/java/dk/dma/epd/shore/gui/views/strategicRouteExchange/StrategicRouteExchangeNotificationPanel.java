@@ -27,7 +27,6 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListSelectionModel;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -43,6 +42,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.model.route.Route;
@@ -255,27 +255,22 @@ public class StrategicRouteExchangeNotificationPanel extends JPanel {
         pane_3.setLayout(new FlowLayout());
         pane_3.setVisible(true);
 
-        route_details = new JLabel("Route Details", new ImageIcon(
-                EPDShore.class.getClassLoader().getResource(
-                        "images/notificationcenter/routes.png")),
+        Resources res = EPDShore.res().folder("images/notificationcenter");
+        route_details = new JLabel("Route Details", res.getCachedImageIcon("routes.png"),
                 SwingConstants.CENTER);
         GuiStyler.styleButton(route_details);
         route_details.setPreferredSize(new Dimension(110, 20));
         pane_3.add(route_details);
         route_details.setEnabled(false);
 
-        handle_request = new JLabel("Handle Request", new ImageIcon(
-                EPDShore.class.getClassLoader().getResource(
-                        "images/notificationcenter/arrow-circle-315.png")),
+        handle_request = new JLabel("Handle Request", res.getCachedImageIcon("arrow-circle-315.png"),
                 SwingConstants.CENTER);
         GuiStyler.styleButton(handle_request);
         handle_request.setPreferredSize(new Dimension(110, 20));
         pane_3.add(handle_request);
         handle_request.setEnabled(false);
 
-        optimize_btn = new JLabel("Optimize", new ImageIcon(EPDShore.class
-                .getClassLoader().getResource(
-                        "images/notificationcenter/gear--arrow.png")),
+        optimize_btn = new JLabel("Optimize", res.getCachedImageIcon("gear--arrow.png"),
                 SwingConstants.CENTER);
         optimize_btn.setEnabled(false);
         GuiStyler.styleButton(optimize_btn);

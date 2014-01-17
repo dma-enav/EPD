@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -157,8 +156,7 @@ public class NotificationCenter extends ComponentFrame implements
         windowToolsPanel.setOpaque(false);
         windowToolsPanel.setPreferredSize(new Dimension(60, 50));
 
-        JLabel close = new JLabel(new ImageIcon(EPDShore.class.getClassLoader()
-                .getResource("images/window/close.png")));
+        JLabel close = new JLabel(EPDShore.res().getCachedImageIcon("images/window/close.png"));
         close.addMouseListener(new MouseAdapter() {
 
             public void mouseReleased(MouseEvent e) {

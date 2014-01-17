@@ -20,7 +20,6 @@ import java.util.Locale;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.EtchedBorder;
@@ -86,8 +85,8 @@ public class SensorPanel extends OMComponentPanel implements IPntDataListener, R
         ownShipPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
         setBorder(null);
         
-        efficienseaLogo.setIcon(new ImageIcon(EPDShip.class.getResource("/images/sensorPanel/efficiensea.png")));
-        euBalticLogo.setIcon(new ImageIcon(EPDShip.class.getResource("/images/sensorPanel/euBaltic.png")));
+        efficienseaLogo.setIcon(EPDShip.res().getCachedImageIcon("/images/sensorPanel/efficiensea.png"));
+        euBalticLogo.setIcon(EPDShip.res().getCachedImageIcon("/images/sensorPanel/euBaltic.png"));
         GroupLayout groupLayout = new GroupLayout(this);
         groupLayout.setHorizontalGroup(
             groupLayout.createParallelGroup(Alignment.LEADING)

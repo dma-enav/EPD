@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -242,12 +241,12 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
         contentPane.setBackground(GuiStyler.backgroundColor);
         contentPane.setLayout(null);
 
-        ok = new JLabel("OK", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/buttons/ok.png")), SwingConstants.CENTER);
+        ok = new JLabel("OK", EPDShore.res().getCachedImageIcon("images/buttons/ok.png"), SwingConstants.CENTER);
         ok.setBounds(335, 390, 75, 20);
         GuiStyler.styleButton(ok);
         contentPane.add(ok);
 
-        cancel = new JLabel("CANCEL", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/buttons/cancel.png")), SwingConstants.CENTER);
+        cancel = new JLabel("CANCEL", EPDShore.res().getCachedImageIcon("images/buttons/cancel.png"), SwingConstants.CENTER);
         GuiStyler.styleButton(cancel);
         cancel.setBounds(417, 390, 75, 20);
         contentPane.add(cancel);
@@ -301,7 +300,7 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
         mapToolsPanel.setOpaque(false);
         mapToolsPanel.setPreferredSize(new Dimension(60, 50));
 
-        JLabel close = new JLabel(new ImageIcon(EPDShore.class.getClassLoader().getResource("images/window/close.png")));
+        JLabel close = new JLabel(EPDShore.res().getCachedImageIcon("images/window/close.png"));
         close.addMouseListener(new MouseAdapter() {
 
             public void mouseReleased(MouseEvent e) {

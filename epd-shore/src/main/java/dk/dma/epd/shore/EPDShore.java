@@ -40,6 +40,7 @@ import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
 import net.maritimecloud.net.MaritimeCloudClient;
 import dk.dma.epd.common.ExceptionHandler;
+import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.Bootstrap;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
@@ -564,5 +565,15 @@ public final class EPDShore extends EPD<EPDSettings> {
      */
     public VoyageEventDispatcher getVoyageEventDispatcher() {
         return voyageEventDispatcher;
+    }
+
+    /**
+     * Returns a {@linkplain Resource} instance which loads resource from
+     * the same class-loader/jar-file as the {@code EPDShore} class.
+     * 
+     * @return a new {@linkplain Resource} instance
+     */
+    public static Resources res() {
+       return Resources.get(EPDShore.class); 
     }
 }

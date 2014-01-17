@@ -33,7 +33,6 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -149,8 +148,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         mapToolsPanel.setOpaque(false);
         mapToolsPanel.setPreferredSize(new Dimension(60, 50));
 
-        JLabel close = new JLabel(new ImageIcon(EPDShore.class.getClassLoader()
-                .getResource("images/window/close.png")));
+        JLabel close = new JLabel(EPDShore.res().getCachedImageIcon("images/window/close.png"));
         close.addMouseListener(new MouseAdapter() {
 
             public void mouseReleased(MouseEvent e) {
@@ -261,8 +259,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         // zoomToBtn.setBounds(10, 80, 89, 23);
         // routePanel.add(zoomToBtn);
 
-        zoomLbl = new JLabel("Zoom To", new ImageIcon(EPDShore.class
-                .getClassLoader().getResource("images/buttons/zoom.png")),
+        zoomLbl = new JLabel("Zoom To", EPDShore.res().getCachedImageIcon("images/buttons/zoom.png"),
                 SwingConstants.CENTER);
         GuiStyler.styleButton(zoomLbl);
         zoomLbl.setBounds(10, 80, 75, 20);
@@ -330,8 +327,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         mainPanel.add(sendPanel);
         sendPanel.setLayout(null);
 
-        sendLbl = new JLabel("SEND", new ImageIcon(EPDShore.class
-                .getClassLoader().getResource("images/buttons/ok.png")),
+        sendLbl = new JLabel("SEND", EPDShore.res().getCachedImageIcon("images/buttons/ok.png"),
                 SwingConstants.CENTER);
         sendLbl.setBounds(10, 61, 75, 20);
         GuiStyler.styleButton(sendLbl);
@@ -351,8 +347,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         // cancelBtn.setBounds(145, 61, 89, 23);
         // sendPanel.add(cancelBtn);
 
-        cancelLbl = new JLabel("CANCEL", new ImageIcon(EPDShore.class
-                .getClassLoader().getResource("images/buttons/cancel.png")),
+        cancelLbl = new JLabel("CANCEL", EPDShore.res().getCachedImageIcon("images/buttons/cancel.png"),
                 SwingConstants.CENTER);
         GuiStyler.styleButton(cancelLbl);
         cancelLbl.setBounds(160, 61, 75, 20);

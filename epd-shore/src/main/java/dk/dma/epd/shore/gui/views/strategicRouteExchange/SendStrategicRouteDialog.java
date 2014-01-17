@@ -31,7 +31,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -171,8 +170,7 @@ public class SendStrategicRouteDialog extends ComponentFrame implements MouseLis
         mapToolsPanel.setOpaque(false);
         mapToolsPanel.setPreferredSize(new Dimension(20, 20));
 
-        JLabel close = new JLabel(new ImageIcon(EPDShore.class.getClassLoader()
-                .getResource("images/window/close.png")));
+        JLabel close = new JLabel(EPDShore.res().getCachedImageIcon("images/window/close.png"));
         close.addMouseListener(new MouseAdapter() {
 
             public void mouseReleased(MouseEvent e) {
@@ -226,8 +224,7 @@ public class SendStrategicRouteDialog extends ComponentFrame implements MouseLis
         mainPanel.add(sendPanel);
         sendPanel.setLayout(null);
 
-        sendLbl = new JLabel("SEND", new ImageIcon(EPDShore.class
-                .getClassLoader().getResource("images/buttons/ok.png")),
+        sendLbl = new JLabel("SEND", EPDShore.res().getCachedImageIcon("images/buttons/ok.png"),
                 SwingConstants.CENTER);
         sendLbl.setBounds(9, 195, 75, 20);
         GuiStyler.styleButton(sendLbl);
@@ -238,8 +235,7 @@ public class SendStrategicRouteDialog extends ComponentFrame implements MouseLis
         // cancelBtn.setBounds(145, 61, 89, 23);
         // sendPanel.add(cancelBtn);
 
-        cancelLbl = new JLabel("CANCEL", new ImageIcon(EPDShore.class
-                .getClassLoader().getResource("images/buttons/cancel.png")),
+        cancelLbl = new JLabel("CANCEL", EPDShore.res().getCachedImageIcon("images/buttons/cancel.png"),
                 SwingConstants.CENTER);
         GuiStyler.styleButton(cancelLbl);
         cancelLbl.setBounds(159, 195, 75, 20);

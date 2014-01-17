@@ -63,9 +63,9 @@ public class MainFrame extends JFrame implements WindowListener {
     private static final Logger LOG = LoggerFactory.getLogger(MainFrame.class);
 
     private static Image getAppIcon() {
-        java.net.URL imgURL = EPDShore.class.getResource("/images/appicon.png");
-        if (imgURL != null) {
-            return new ImageIcon(imgURL).getImage();
+        ImageIcon icon = EPDShore.res().getCachedImageIcon("/images/appicon.png");
+        if (icon != null) {
+            return icon.getImage();
         }
         LOG.error("Could not find app icon");
         return null;

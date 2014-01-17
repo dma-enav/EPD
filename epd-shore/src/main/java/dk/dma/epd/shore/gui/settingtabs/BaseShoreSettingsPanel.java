@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.shore.gui.settingtabs;
 
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -46,7 +45,7 @@ public class BaseShoreSettingsPanel extends BaseSettingsPanel implements BaseSho
         if (image != null) {
             label = new JLabel(
                     name, 
-                    new ImageIcon(EPDShore.class.getClassLoader().getResource("images/settings/" + image)), 
+                    EPDShore.res().getCachedImageIcon("images/settings/" + image), 
                     SwingConstants.LEFT);
             GuiStyler.styleTabButton(label);
         }

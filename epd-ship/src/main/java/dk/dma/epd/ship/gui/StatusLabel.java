@@ -35,10 +35,10 @@ public class StatusLabel extends JLabel {
     private static final long serialVersionUID = 1L;    
     private static Map<ComponentStatus.Status, ImageIcon> imageMap = new HashMap<>();    
     static {        
-        imageMap.put(ComponentStatus.Status.OK, new ImageIcon(EPDShip.class.getResource("/images/status/OK.png")));
-        imageMap.put(ComponentStatus.Status.ERROR, new ImageIcon(EPDShip.class.getResource("/images/status/ERROR.png")));
-        imageMap.put(ComponentStatus.Status.PARTIAL, new ImageIcon(EPDShip.class.getResource("/images/status/PARTIAL.png")));
-        imageMap.put(ComponentStatus.Status.UNKNOWN, new ImageIcon(EPDShip.class.getResource("/images/status/UNKNOWN.png")));
+        imageMap.put(ComponentStatus.Status.OK, EPDShip.res().getCachedImageIcon("/images/status/OK.png"));
+        imageMap.put(ComponentStatus.Status.ERROR, EPDShip.res().getCachedImageIcon("/images/status/ERROR.png"));
+        imageMap.put(ComponentStatus.Status.PARTIAL, EPDShip.res().getCachedImageIcon("/images/status/PARTIAL.png"));
+        imageMap.put(ComponentStatus.Status.UNKNOWN, EPDShip.res().getCachedImageIcon("/images/status/UNKNOWN.png"));
     }
     
     private static final Font FONT = new Font("Tahoma", Font.PLAIN, 9);
