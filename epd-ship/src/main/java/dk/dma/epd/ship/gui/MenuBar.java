@@ -26,7 +26,6 @@ import java.beans.beancontext.BeanContextChildSupport;
 import java.beans.beancontext.BeanContextMembershipEvent;
 import java.beans.beancontext.BeanContextMembershipListener;
 import java.io.File;
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -460,10 +459,9 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     }
 
     protected static ImageIcon createImageIcon() {
-        java.net.URL imgURL = EPDShip.class.getResource("/images/appicon.png");
-        if (imgURL != null) {
+        ImageIcon icon = EPDShip.res().getCachedImageIcon("/images/appicon.png");
+        if (icon != null) {
 
-            ImageIcon icon = new ImageIcon(imgURL);
             Image img = icon.getImage();
             Image newimg = img.getScaledInstance(45, 45, java.awt.Image.SCALE_SMOOTH);
             ImageIcon newImage = new ImageIcon(newimg);
@@ -725,8 +723,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     }
 
     public ImageIcon toolbarIcon(String imgpath) {
-        URL url = EPDShip.class.getClassLoader().getResource(imgpath);
-        ImageIcon icon = new ImageIcon(url);
+        ImageIcon icon = EPDShip.res().getCachedImageIcon(imgpath);
         Image img = icon.getImage();
         Image newimg = img.getScaledInstance(16, 16, java.awt.Image.SCALE_DEFAULT);
         ImageIcon newImage = new ImageIcon(newimg);

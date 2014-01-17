@@ -503,8 +503,7 @@ public class ToolBar extends JInternalFrame {
      */
     public ImageIcon toolbarIcon(String imgpath) {
 
-        ImageIcon icon = new ImageIcon(EPDShore.class.getClassLoader()
-                .getResource(imgpath));
+        ImageIcon icon = EPDShore.res().getCachedImageIcon(imgpath);
         Image img = icon.getImage();
         Image newimg = img.getScaledInstance(iconWidth, iconHeight,
                 java.awt.Image.SCALE_DEFAULT);

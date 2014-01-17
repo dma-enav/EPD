@@ -221,9 +221,9 @@ public class MainFrame extends JFrame implements WindowListener {
     }
 
     public static Image getAppIcon() {
-        java.net.URL imgURL = EPDShip.class.getResource("/images/appicon.png");
-        if (imgURL != null) {
-            return new ImageIcon(imgURL).getImage();
+        ImageIcon icon =  EPDShip.res().getCachedImageIcon("/images/appicon.png");
+        if (icon != null) {
+            return icon.getImage();
         }
         LOG.error("Could not find app icon");
         return null;

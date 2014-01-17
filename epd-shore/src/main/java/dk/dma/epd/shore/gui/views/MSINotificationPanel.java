@@ -27,7 +27,6 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListSelectionModel;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -44,6 +43,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.msi.MsiTableModel;
@@ -242,26 +242,21 @@ public class MSINotificationPanel extends JPanel {
         pane_3.setLayout(new FlowLayout());
         pane_3.setVisible(true);
 
-        but_read = new JLabel("Read", new ImageIcon(EPDShore.class
-                .getClassLoader().getResource(
-                        "images/notificationcenter/tick.png")),
+        Resources res = EPDShore.res().folder("images/notificationcenter");
+        but_read = new JLabel("Read", res.getCachedImageIcon("tick.png"),
                 SwingConstants.CENTER);
         GuiStyler.styleButton(but_read);
         but_read.setPreferredSize(new Dimension(75, 20));
         pane_3.add(but_read);
 
-        but_goto = new JLabel("Goto", new ImageIcon(EPDShore.class
-                .getClassLoader().getResource(
-                        "images/notificationcenter/map-pin.png")),
+        but_goto = new JLabel("Goto", res.getCachedImageIcon("map-pin.png"),
                 SwingConstants.CENTER);
         GuiStyler.styleButton(but_goto);
         but_goto.setPreferredSize(new Dimension(75, 20));
 
         pane_3.add(but_goto);
 
-        but_delete = new JLabel("Delete", new ImageIcon(EPDShore.class
-                .getClassLoader().getResource(
-                        "images/notificationcenter/cross.png")),
+        but_delete = new JLabel("Delete", res.getCachedImageIcon("cross.png"),
                 SwingConstants.CENTER);
         GuiStyler.styleButton(but_delete);
         but_delete.setPreferredSize(new Dimension(75, 20));

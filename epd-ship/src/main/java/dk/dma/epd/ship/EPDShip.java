@@ -46,6 +46,7 @@ import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
 import net.maritimecloud.net.MaritimeCloudClient;
 import dk.dma.epd.common.ExceptionHandler;
+import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.Bootstrap;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
@@ -714,4 +715,14 @@ public final class EPDShip extends EPD<EPDSettings> {
         return Paths.get(System.getProperty("user.home"), ".epd-ship");
     }
 
+
+    /**
+     * Returns a {@linkplain Resource} instance which loads resource from
+     * the same class-loader/jar-file as the {@code EPDShip} class.
+     * 
+     * @return a new {@linkplain Resource} instance
+     */
+    public static Resources res() {
+       return Resources.get(EPDShip.class); 
+    }    
 }

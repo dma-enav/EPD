@@ -46,8 +46,8 @@ public class MSIPanel extends JPanel {
     public MSIPanel() {
 
         ImageIcon[] msiAnim = new ImageIcon[2];
-        msiAnim[0] = new ImageIcon(EPDShip.class.getResource("/images/toppanel/msi_symbol_64x20.png"));
-        msiAnim[1] = new ImageIcon(EPDShip.class.getResource("/images/toppanel/blank64x20.png"));
+        msiAnim[0] = EPDShip.res().getCachedImageIcon("/images/toppanel/msi_symbol_64x20.png");
+        msiAnim[1] = EPDShip.res().getCachedImageIcon("/images/toppanel/blank64x20.png");
         msiIcon = new BlinkingLabel(400, msiAnim);
         
         GridBagLayout gridBagLayout = new GridBagLayout();

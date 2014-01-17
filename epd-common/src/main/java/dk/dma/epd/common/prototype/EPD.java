@@ -20,9 +20,13 @@ import java.util.Properties;
 
 import javax.swing.JFrame;
 
+import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.settings.Settings;
 
-
+/**
+ * Abstract super class for the main system, i.e either 
+ * {@code EPDShore} or {@code EPDShip}
+ */
 public abstract class EPD<S extends Settings> {
     
     protected static EPD<?> instance;    
@@ -36,10 +40,31 @@ public abstract class EPD<S extends Settings> {
         instance = this;
     }
     
+    /**
+     * Factory method that returns a reference to the current {@code EPD}
+     * system, i.e. either {@code EPDShore} or {@code EPDShip}.
+     * 
+     * @return a reference to the current {@code EPD} system
+     */
     public static EPD<?> getInstance() {
         return instance;
     }
     
+    /**
+     * Returns a {@linkplain Resource} instance which loads resource from
+     * the same class-loader/jar-file as the {@code EPD} class.
+     * 
+     * @return a new {@linkplain Resource} instance
+     */
+    public static Resources res() {
+       return Resources.get(EPD.class); 
+    }
+    
+    /**
+     * Returns the path to the home folder, used for settings,
+     * persisted data, etc.
+     * @return the path to the home folder
+     */
     public abstract Path getHomePath();
     
     /**
@@ -78,7 +103,9 @@ public abstract class EPD<S extends Settings> {
         return thread;
     }
 
-    public JFrame getMainFrame() {
-        return null;
-    }
+    /**
+     * Returns a reference to the main frame of the application
+     * @return a reference to the main frame of the application
+     */
+    public abstract JFrame getMainFrame();
 }

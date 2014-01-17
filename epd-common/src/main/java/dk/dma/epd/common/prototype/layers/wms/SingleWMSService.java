@@ -73,7 +73,7 @@ public final class SingleWMSService extends AbstractWMSService implements ImageS
             wmsImg.getImage();
             
             if (wmsImg.getIconHeight() == -1 || wmsImg.getIconWidth() ==-1){
-                Image noImage = new ImageIcon(EPD.class.getClassLoader().getResource("images/noWMSAvailable.png")).getImage();
+                Image noImage = EPD.res().getCachedImageIcon("images/noWMSAvailable.png").getImage();
                 BufferedImage bi = new BufferedImage(noImage.getWidth(null), noImage.getHeight(null), BufferedImage.TYPE_INT_ARGB);
                 Graphics g = bi.createGraphics();
                 g.drawImage(noImage, 0, 0, wmsWidth, wmsHeight, null);

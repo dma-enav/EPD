@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.shore.gui.settingtabs;
 
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -45,7 +44,7 @@ public class CloudShoreSettingsPanel extends CloudSettingsPanel implements BaseS
         // Create the image label
         label = new JLabel(
                 getName(), 
-                new ImageIcon(EPDShore.class.getClassLoader().getResource("images/settings/cloud.png")), 
+                EPDShore.res().getCachedImageIcon("images/settings/cloud.png"), 
                 SwingConstants.LEFT);
         GuiStyler.styleTabButton(label);
     }

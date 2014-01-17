@@ -23,7 +23,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.net.URL;
 
 import javax.swing.Box;
 import javax.swing.ImageIcon;
@@ -219,11 +218,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         horizontalStrut = Box.createHorizontalStrut(5);
 
         ImageIcon[] msiAnim = new ImageIcon[2];
-        msiAnim[0] = new ImageIcon(
-                EPDShip.class
-                        .getResource("/images/toppanel/msi_symbol_64x20.png"));
-        msiAnim[1] = new ImageIcon(
-                EPDShip.class.getResource("/images/toppanel/blank64x20.png"));
+        msiAnim[0] = EPDShip.res().getCachedImageIcon("/images/toppanel/msi_symbol_64x20.png");
+        msiAnim[1] = EPDShip.res().getCachedImageIcon("/images/toppanel/blank64x20.png");
         // msiIcon = new BlinkingLabel(400, msiAnim);
 
         add(horizontalStrut);
@@ -589,8 +585,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
      * @return newimage the newly created and resized image
      */
     public ImageIcon toolbarIcon(String imgpath) {
-        URL url = EPDShip.class.getClassLoader().getResource(imgpath);
-        ImageIcon icon = new ImageIcon(url);
+        ImageIcon icon = EPDShip.res().getCachedImageIcon(imgpath);
 
         Image img = icon.getImage();
         Image newimg = img.getScaledInstance(iconWidth, iconHeight,

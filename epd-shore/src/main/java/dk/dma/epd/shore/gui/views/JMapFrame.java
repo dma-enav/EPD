@@ -34,7 +34,6 @@ import java.beans.PropertyVetoException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
@@ -45,6 +44,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
 
+import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
@@ -219,7 +219,8 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
         mapToolsPanel.setOpaque(false);
         mapToolsPanel.setPreferredSize(new Dimension(60, 50));
 
-        JLabel minimize = new JLabel(new ImageIcon(EPDShore.class.getClassLoader().getResource("images/window/minimize.png")));
+        final Resources windowRes = EPDShore.res().folder("images/window");
+        JLabel minimize = new JLabel(windowRes.getCachedImageIcon("minimize.png"));
         minimize.addMouseListener(new MouseAdapter() {
 
             public void mouseReleased(MouseEvent e) {
@@ -234,7 +235,7 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
         minimize.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 3));
         mapToolsPanel.add(minimize);
 
-        maximize = new JLabel(new ImageIcon(EPDShore.class.getClassLoader().getResource("images/window/maximize.png")));
+        maximize = new JLabel(windowRes.getCachedImageIcon("maximize.png"));
         maximize.addMouseListener(new MouseAdapter() {
 
             public void mouseReleased(MouseEvent e) {
@@ -242,11 +243,11 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
                     if(maximized) {
                         mapFrame.setMaximum(false);
                         maximized = false;
-                        maximize.setIcon(new ImageIcon(EPDShore.class.getClassLoader().getResource("images/window/maximize.png")));
+                        maximize.setIcon(windowRes.getCachedImageIcon("maximize.png"));
                     } else {
                         mapFrame.setMaximum(true);
                         maximized = true;
-                        maximize.setIcon(new ImageIcon(EPDShore.class.getClassLoader().getResource("images/window/restore.png")));
+                        maximize.setIcon(windowRes.getCachedImageIcon("restore.png"));
                     }
                 } catch (PropertyVetoException e1) {
                     e1.printStackTrace();
@@ -257,7 +258,7 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
         maximize.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 3));
         mapToolsPanel.add(maximize);
 
-        JLabel close = new JLabel(new ImageIcon(EPDShore.class.getClassLoader().getResource("images/window/close.png")));
+        JLabel close = new JLabel(windowRes.getCachedImageIcon("close.png"));
         close.addMouseListener(new MouseAdapter() {
 
             public void mouseReleased(MouseEvent e) {
@@ -294,7 +295,7 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
 
     public void setMaximizedIcon(){
         maximized = true;
-        maximize.setIcon(new ImageIcon(EPDShore.class.getClassLoader().getResource("images/window/restore.png")));
+        maximize.setIcon(EPDShore.res().getCachedImageIcon("images/window/restore.png"));
     }
 
     /**
