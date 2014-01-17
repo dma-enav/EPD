@@ -32,6 +32,7 @@ import javax.swing.JSeparator;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DistanceCircleMouseMode;
@@ -90,6 +91,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             toolbarIcon("images/toolbar/zoom.png"));
     private final ToggleButtonLabel dragMouseMode = new ToggleButtonLabel(
             toolbarIcon("images/toolbar/drag.png"));
+    private final ButtonLabel goBack = new ButtonLabel(toolbarIcon(""));
+    private final ButtonLabel goForward = new ButtonLabel(toolbarIcon(""));
 
     // TODO update to unique icon
     /**
@@ -111,6 +114,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     private RouteLayer routeLayer;
 
     private MouseDelegator mouseDelegator;
+    
+    private MapHistory mapHistory = new MapHistory();
     
     /**
      * A slightly hacked way of simulating a click on the aisToggleName label
@@ -160,6 +165,9 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         aisToggleName.setToolTipText("Show/hide AIS Name Labels");
         // riskBtn.setToolTipText("Show/hide risk info");
         encBtn.setToolTipText("Show/hide ENC");
+        
+        goBack.setToolTipText("Go back");
+        goForward.setToolTipText("Go forward");
 
         wmsBtn.setToolTipText("Show/hide WMS seacharts");
         // tglbtnMsiFilter
@@ -188,6 +196,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         add(routeManagerBtn);
         add(msiButton);
         add(aisButton);
+        this.add(this.goBack);
+        this.add(this.goForward);
         add(new JSeparator());
         add(aisBtn);
         add(aisToggleName);
@@ -240,6 +250,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         encBtn.addMouseListener(this);
         wmsBtn.addMouseListener(this);
         aisToggleName.addMouseListener(this);
+        goBack.addMouseListener(this);
+        goForward.addMouseListener(this);
         // tglbtnMsiFilter.addMouseListener(this);
         // lockFrames.addMouseListener(this);
 
@@ -396,6 +408,13 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
         } else if (e.getSource() == centreBtn) {
             mainFrame.getChartPanel().centreOnShip();
+           
+            // Save position of ship in history
+            Position shipPos = EPDShip.getInstance().getPntHandler().getCurrentData().getPosition();
+            saveToHistory(shipPos);
+            
+            System.out.println(mapHistory.toString());
+            
         } else if (e.getSource() == zoomInBtn) {
             mainFrame.getChartPanel().doZoom(0.5f);
         } else if (e.getSource() == zoomOutBtn) {
@@ -469,6 +488,14 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             // mainFrame.getChartPanel().setMouseMode(1);
             mainFrame.getChartPanel().setMouseMode(NavigationMouseMode.MODE_ID);
             System.out.println("Nav mouse mode!");
+        } else if (e.getSource() == this.goBack) {
+            System.out.println("Going back in history.");
+            Position pos = this.mapHistory.goBack();
+            mainFrame.getChartPanel().zoomToPosition(pos);
+        } else if (e.getSource() == this.goForward) {
+            System.out.println("Going forward in history.");
+            Position pos = this.mapHistory.goForward();
+            mainFrame.getChartPanel().zoomToPosition(pos);
         }
         // react on mouse click on "toggle distance circles mode"
         else if (e.getSource() == this.toggleDistanceCircleMode) {
@@ -495,6 +522,10 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         // mainFrame.getDockableComponents().toggleFrameLock();
         // }
 
+    }
+
+    private void saveToHistory(Position shipPos) {
+        this.mapHistory.addPositionToHistory(shipPos);
     }
 
     public ToggleButtonLabel getNavigationMouseMode() {
