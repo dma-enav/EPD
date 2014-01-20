@@ -91,6 +91,8 @@ public class MainFrame extends JFrame implements WindowListener {
 
     private RequestStrategicRouteDialog monaLisaSTCCDialog;
     
+    protected MapHistory mapHistory = new MapHistory();
+    
     public MainFrame() {
         super();
         initGUI();

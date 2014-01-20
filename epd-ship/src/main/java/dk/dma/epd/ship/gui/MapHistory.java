@@ -21,93 +21,132 @@ import dk.dma.enav.model.geometry.Position;
 
 public class MapHistory {
 
-    private ArrayList<Position> historyOfPos;
-    private int posInHistory;
-    
+    private ArrayList<Position> historyOfPositions;
+    private int pointerInHistory;
+
     /**
      * Constructor
      */
     public MapHistory() {
-        this.historyOfPos = new ArrayList<Position>();
-        this.posInHistory = -1;
+        this.historyOfPositions = new ArrayList<Position>();
+        this.pointerInHistory = -1; // No elements in the history.
     }
-    
-    /**
-     * Adds an element to the history
-     * 
-     * @param newHistory: new element to be added in the history
-     */
-    protected void addPositionToHistory(Position newHistory) {
-       // TODO:
 
+    /**
+     * Adds an element to the list of Position objects. If the element is not added to the highest element in
+     * history, the history will be reset from the point of entry to the highest element.
+     * 
+     * @param newHistory
+     *            new element to be added in the history
+     * @param increasePointer
+     *            if true, will increase the pointer in history.
+     */
+    protected synchronized boolean addHistoryElement(Position newHistory, boolean increasePointer) {
+        // TODO: Add reset functionality for a button?
+
+        // The new history element must not be a null object go into adding the position.
         if (newHistory != null) {
-            // Add the element to the array of positions ..
-            try {
-                // .. if the element is not equal to the latest element in the history.
-                if (!newHistory.equals(this.getLatestElementOfHistory())) {
-                    this.historyOfPos.add(newHistory);
-                    this.posInHistory++;
+            // If the pointer is at the first element OR the position wished to be added are not equal to the newest element in history. 
+            if (this.pointerInHistory == -1 || !this.isSamePositionAsHighest(newHistory)) {
+                
+                // If the pointer is not at the newest position, reset the history from this pointer to the end.
+                if (this.pointerInHistory != this.historyOfPositions.size()-1) {
+//                    System.out.println("DEBUG: Reseting some history; pointer is: "+this.pointerInHistory);
+                    
+                    // Remove every element in the history from the position of the pointer to the end history.
+                    for(int i = this.historyOfPositions.size()-1; i >= this.pointerInHistory+1; i--) {
+//                        System.out.println("DEBUG: Deleting an item at index: "+i+"; "+this.toString());
+                        this.historyOfPositions.remove(i);
+                    }
+                    
+                    // Set the newest position to the highest element in the history.
+                    this.historyOfPositions.set(this.pointerInHistory, newHistory);
+                    // Do not increase the pointer, since the newest element will only be removed again.
+                    increasePointer = false;
+                    // End.
+                    return true;
+                }
+                
+                // Add the new element in the history.
+                this.historyOfPositions.add(newHistory);
+                
+                // Increase the pointer, if told so by the boolean.
+                if (increasePointer) {
+                    pointerInHistory++;
                 }
             }
-            
-            // If the element is the first element in the history, add it and point the position to this element.
-            catch (IndexOutOfBoundsException e) {
-                System.out.println(e.getMessage()+": added position to index 0");
-                this.historyOfPos.add(newHistory);
-                this.posInHistory++;
-            }
+
+            return true;
         }
+        
+        return false;
     }
     
     /**
-     * Get the latest element of the historie.
+     * Checks if the position parameter is the same according to the latitude and longitude of the highest element in history.
      * 
-     * @return the latest element in the history.
+     * @param position: the position
+     * @return True if the latitude and longitude of the position parameter as strings are equal to the newest element, or false if not. 
      */
-    protected Position getLatestElementOfHistory() {
-        return this.historyOfPos.get(posInHistory);
+    private boolean isSamePositionAsHighest(Position position) {
+        
+        Position highestElementPosition = this.historyOfPositions.get(this.historyOfPositions.size()-1);
+        
+        if (highestElementPosition.getLatitudeAsString().equals(position.getLatitudeAsString()) && 
+                highestElementPosition.getLongitudeAsString().equals(position.getLongitudeAsString())) {
+            return true;
+        }
+        
+        return false;
     }
-    
+
     /**
-     * Go one step back in history.
+     * Get the element which is one index
      * 
      * @return The position of one step back in the history.
      */
-    protected Position goBack() {
-        // If the position in history is not the last element, decrease the index position.
-        try {
-            if (this.posInHistory != 0) {
-                this.posInHistory--;
-            } else {
-                System.out.println("Cant go further back.");
-            }
-            
-            return this.historyOfPos.get(posInHistory);
-        }
+    protected Position goOneHistoryElementBack(Position currentPosition) {
         
-        
-        catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println(e.getMessage()+": No elements in the history");
-            return null; 
-        }
+        this.pointerInHistory--;
+
+        return this.historyOfPositions.get(pointerInHistory);
     }
-    
+
     /**
      * Go forward in the history.
      * 
      * @return The position of one step forward in the history.
      */
-    protected Position goForward() {
-        // If the position in history is not empty or the index has not reach its end, 
-        // increase the position to get the next element in history.
-        if (this.posInHistory != -1 &&
-                this.posInHistory != this.historyOfPos.size()-1) {
-            this.posInHistory++;
-        } else {
-            System.out.println("Cant go further ahead.");
-        }
+    protected Position goOneHistoryElementForward() {
         
-        return this.historyOfPos.get(posInHistory);
+        this.pointerInHistory++;
+        
+        return this.historyOfPositions.get(pointerInHistory);
+    }
+
+    /**
+     * Tells if the user contains any elements of history.
+     * 
+     * @return True if the history contains any elements and false if not.
+     */
+    protected boolean containsElements() {
+        return this.historyOfPositions.size() > 0;
+    }
+    
+    /**
+     * 
+     * @return True if the pointer is at the highest element in the history, or false if not.
+     */
+    protected boolean isAtHighestElement() {
+        return this.pointerInHistory == this.historyOfPositions.size()-1;
+    }
+    
+    /**
+     * 
+     * @return True if the pointer is at the lowest element in the history, or false if not.
+     */
+    protected boolean isAtLowestElement() {
+        return this.pointerInHistory == 0;
     }
 
     /*
@@ -116,6 +155,6 @@ public class MapHistory {
      */
     @Override
     public String toString() {
-        return "MapHistory [historyOfPos=" + historyOfPos.toString() + ", posOfHistory=" + posInHistory + "]";
+        return "MapHistory [historyOfPositions=" + historyOfPositions + ", pointerInHistory=" + pointerInHistory + "]";
     }
 }

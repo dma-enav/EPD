@@ -444,7 +444,8 @@ public final class EPDShip extends EPD<EPDSettings> {
         Action centreOnShip = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                mainFrame.getChartPanel().centreOnShip();
+//                mainFrame.getChartPanel().centreOnShip();
+                mainFrame.getTopPanel().centerAndSaveToHistory();
             }
         };
 

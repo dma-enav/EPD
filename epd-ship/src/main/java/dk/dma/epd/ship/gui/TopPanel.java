@@ -90,8 +90,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             toolbarIcon("images/toolbar/zoom.png"));
     private final ToggleButtonLabel dragMouseMode = new ToggleButtonLabel(
             toolbarIcon("images/toolbar/drag.png"));
-    private final ButtonLabel goBack = new ButtonLabel(toolbarIcon(""));
-    private final ButtonLabel goForward = new ButtonLabel(toolbarIcon(""));
+    private final ButtonLabel goBack = new ButtonLabel(toolbarIcon("images/toolbar/go-back.png"));
+    private final ButtonLabel goForward = new ButtonLabel(toolbarIcon("images/toolbar/go-forward.png"));
 
     // TODO update to unique icon
     /**
@@ -113,9 +113,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     private RouteLayer routeLayer;
 
     private MouseDelegator mouseDelegator;
-    
-    private MapHistory mapHistory = new MapHistory();
-    
+        
     /**
      * A slightly hacked way of simulating a click on the aisToggleName label
      */
@@ -167,6 +165,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         
         goBack.setToolTipText("Go back");
         goForward.setToolTipText("Go forward");
+        goBack.setEnabled(false);
+        goForward.setEnabled(false);
 
         wmsBtn.setToolTipText("Show/hide WMS seacharts");
         // tglbtnMsiFilter
@@ -181,6 +181,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         // boolean showRiskAndNogo = !EeINS.getSettings().getGuiSettings()
         // .isRiskNogoDisabled();
 
+        this.add(this.goBack);
+        this.add(this.goForward);
         add(zoomInBtn);
         add(zoomOutBtn);
         add(navigationMouseMode);
@@ -195,8 +197,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         add(routeManagerBtn);
         add(msiButton);
         add(aisButton);
-        this.add(this.goBack);
-        this.add(this.goForward);
         add(new JSeparator());
         add(aisBtn);
         add(aisToggleName);
@@ -401,17 +401,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             }
             menuBar.getAutoFollow().setSelected(
                     EPDShip.getInstance().getSettings().getNavSettings().isAutoFollow());
-
-        } else if (e.getSource() == centreBtn) {
-            mainFrame.getChartPanel().centreOnShip();
-           
-            // Save position of ship in history
-            Position shipPos = EPDShip.getInstance().getPntHandler().getCurrentData().getPosition();
-            saveToHistory(shipPos);
-            
-            System.out.println(mapHistory.toString());
-            
-        } else if (e.getSource() == zoomInBtn) {
+        }
+        else if (e.getSource() == zoomInBtn) {
             mainFrame.getChartPanel().doZoom(0.5f);
         } else if (e.getSource() == zoomOutBtn) {
             mainFrame.getChartPanel().doZoom(2f);
@@ -484,14 +475,43 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             // mainFrame.getChartPanel().setMouseMode(1);
             mainFrame.getChartPanel().setMouseMode(NavigationMouseMode.MODE_ID);
             System.out.println("Nav mouse mode!");
+        } else if (e.getSource() == centreBtn) {
+            centerAndSaveToHistory();
         } else if (e.getSource() == this.goBack) {
-            System.out.println("Going back in history.");
-            Position pos = this.mapHistory.goBack();
-            mainFrame.getChartPanel().zoomToPosition(pos);
+            if (this.goBack.isEnabled()) {
+                // Add the current position of view in the history.
+                Position currentPosition = EPDShip.getInstance().getMainFrame().mapHistory.goOneHistoryElementBack(
+                        Position.create(mainFrame.getChartPanel().getMap().getCenter().getY(), mainFrame.getChartPanel().getMap().getCenter().getX()));
+                mainFrame.getChartPanel().zoomToPosition(currentPosition);
+                            
+                // If we're at the lowest element, disable the back button. 
+                if (this.mainFrame.mapHistory.isAtLowestElement()) {
+                    this.goBack.setEnabled(false);
+                }
+                
+                // If there are more elements in the hostory enable the back button.
+                if (this.mainFrame.mapHistory.containsElements()) {
+                    this.goForward.setEnabled(true);
+                }
+            }
         } else if (e.getSource() == this.goForward) {
-            System.out.println("Going forward in history.");
-            Position pos = this.mapHistory.goForward();
-            mainFrame.getChartPanel().zoomToPosition(pos);
+            if (this.goForward.isEnabled()) {
+                // Go one element forward in the history.
+                Position pos = EPDShip.getInstance().getMainFrame().mapHistory.goOneHistoryElementForward();
+                                
+                // Move to the next elements position.
+                mainFrame.getChartPanel().zoomToPosition(pos);
+                
+                // If we're at the highest element in the history, disable the go forward button.
+                if (this.mainFrame.mapHistory.isAtHighestElement()) {
+                    this.goForward.setEnabled(false);
+                }
+                
+                // If there are more elements in the history enable the go forward button.
+                if (this.mainFrame.mapHistory.containsElements()) {
+                    this.goBack.setEnabled(true);
+                }
+            }
         }
         // react on mouse click on "toggle distance circles mode"
         else if (e.getSource() == this.toggleDistanceCircleMode) {
@@ -520,8 +540,31 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
     }
 
+    public void centerAndSaveToHistory() {
+        // Get position of the ship.
+        Position shipPos = EPDShip.getInstance().getPntHandler().getCurrentData().getPosition();
+        if (shipPos != null) {
+            // Save current position of view in history.
+            Position currentPosition = Position.create(mainFrame.getChartPanel().getMap().getCenter().getY(), 
+                mainFrame.getChartPanel().getMap().getCenter().getX());
+            saveToHistory(currentPosition);                
+                
+            // Move view to centre on ship.
+            mainFrame.getChartPanel().centreOnShip();
+            
+            // Save the new position of the ship.
+            saveToHistory(shipPos);
+                            
+            // If the list contains element, enable the button to go back.
+            this.goBack.setEnabled(this.mainFrame.mapHistory.containsElements());
+            if (this.mainFrame.mapHistory.isAtHighestElement()) {
+                this.goForward.setEnabled(false);
+            }
+        }
+    }
+
     private void saveToHistory(Position shipPos) {
-        this.mapHistory.addPositionToHistory(shipPos);
+        EPDShip.getInstance().getMainFrame().mapHistory.addHistoryElement(shipPos, true);
     }
 
     public ToggleButtonLabel getNavigationMouseMode() {
