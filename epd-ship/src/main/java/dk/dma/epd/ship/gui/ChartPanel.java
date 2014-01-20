@@ -738,6 +738,10 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
             }
         }
     }
+    
+    public void zoomToPosition(Position pos) {
+        map.setCenter((float) pos.getLatitude(), (float) pos.getLongitude());
+    }
 
     public int getMaxScale() {
         return maxScale;
