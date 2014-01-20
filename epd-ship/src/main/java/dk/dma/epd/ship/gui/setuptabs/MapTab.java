@@ -34,9 +34,12 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
+import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.settings.EPDMapSettings;
 
@@ -374,9 +377,8 @@ public class MapTab extends BaseSettingsPanel {
      */
     @Override
     public void loadSettings() {
-        super.loadSettings();
+        mapSettings = EPDShip.getInstance().getSettings().getMapSettings();
         
-        this.mapSettings = EPDShip.getInstance().getSettings().getMapSettings();
         spinnerDefaultMapScale.setValue(mapSettings.getScale());
         spinnerMaximumScale.setValue(mapSettings.getMaxScale());
         Float latitude = mapSettings.getCenter().getLatitude();
@@ -384,6 +386,8 @@ public class MapTab extends BaseSettingsPanel {
         spinnerLatitude.setValue(latitude.doubleValue());
         spinnerLongitude.setValue(longitude.doubleValue());
         chckbxUseENC.setSelected(mapSettings.isUseEnc());
+        checkBoxUseWms.setSelected(mapSettings.isUseWms());
+        checkBoxUseWmsWhenDragging.setSelected(mapSettings.isUseWmsDragging());
         
         spinnerShallowContour.setValue(mapSettings.getS52ShallowContour());
         spinnerSafetyDepth.setValue(mapSettings.getS52SafetyDepth());
@@ -403,17 +407,14 @@ public class MapTab extends BaseSettingsPanel {
             listModel.addElement(wmsProviders[i]);
         }
         
-        wmsQueryTextField.setText(mapSettings.getWmsQuery());
-        checkBoxUseWms.setSelected(mapSettings.isUseWms());
-        checkBoxUseWmsWhenDragging.setSelected(mapSettings.isUseWmsDragging());
-        
+        wmsQueryTextField.setText(mapSettings.getWmsQuery());        
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public void saveSettings() {
+    public void doSaveSettings() {
         mapSettings.setScale((Float) spinnerDefaultMapScale.getValue());
         mapSettings.setMaxScale((Integer) spinnerMaximumScale.getValue());
         LatLonPoint center = new LatLonPoint.Double((Double) spinnerLatitude.getValue(), (Double) spinnerLongitude.getValue());
@@ -441,7 +442,51 @@ public class MapTab extends BaseSettingsPanel {
             arr[i] = list.getModel().getElementAt(i); 
         }
         mapSettings.setWmsProviders(arr);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean wasChanged() {
+        boolean changed =
+                changed(mapSettings.getScale(), spinnerDefaultMapScale.getValue()) ||
+                changed(mapSettings.getMaxScale(), spinnerMaximumScale.getValue()) ||
+                changed(mapSettings.getCenter().getLatitude(), spinnerLatitude.getValue()) ||
+                changed(mapSettings.getCenter().getLongitude(), spinnerLongitude.getValue()) ||
+                changed(mapSettings.isUseEnc(), chckbxUseENC.isSelected()) ||
+                changed(mapSettings.isUseWms(), checkBoxUseWms.isSelected()) ||
+                changed(mapSettings.isUseWmsDragging(), checkBoxUseWmsWhenDragging.isSelected()) ||
+                
+                changed(mapSettings.getS52ShallowContour(), spinnerShallowContour.getValue()) ||
+                changed(mapSettings.getS52SafetyDepth(), spinnerSafetyDepth.getValue()) ||
+                changed(mapSettings.getS52SafetyContour(), spinnerSafetyContour.getValue()) ||
+                changed(mapSettings.getS52DeepContour(), spinnerDeepContour.getValue()) ||
+                changed(mapSettings.isS52ShowText(), chckbxShowText.isSelected()) ||
+                changed(mapSettings.isS52ShallowPattern(), chckbxShallowPattern.isSelected()) ||
+                changed(mapSettings.isUseSimplePointSymbols(), chckbxSimplePointSymbols.isSelected()) ||
+                changed(mapSettings.isUsePlainAreas(), chckbxPlainAreas.isSelected()) ||
+                changed(mapSettings.isS52TwoShades(), chckbxTwoShades.isSelected()) ||
+                changed(mapSettings.getColor(), comboBoxColorProfile.getSelectedItem().toString()) ||
+                
+                changed(mapSettings.getWmsQuery(), wmsQueryTextField.getText());
+
+        if (!changed) {
+            String[] arr = new String[list.getModel().getSize()];
+            for (int i=0; i<list.getModel().getSize(); i++) {
+                arr[i] = list.getModel().getElementAt(i); 
+            }
+            changed = !ArrayUtils.isEquals(mapSettings.getWmsProviders(), arr);
+        }
         
-        super.saveSettings();
+        return changed;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void fireSettingsChanged() {
+        fireSettingsChanged(Type.MAP);
     }
 }

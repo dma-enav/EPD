@@ -25,6 +25,7 @@ import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.util.ParseUtils;
 
@@ -145,7 +146,6 @@ public class CloudSettingsPanel extends BaseSettingsPanel {
      */
     @Override
     public void loadSettings() {
-        super.loadSettings();
         this.enavSettings = EPD.getInstance().getSettings().getEnavSettings();
         textFieldServerName.setText(enavSettings.getCloudServerHost());
         textFieldServerPort.setText(Integer.toString(enavSettings
@@ -156,13 +156,31 @@ public class CloudSettingsPanel extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void saveSettings() {
+    public void doSaveSettings() {
         enavSettings.setCloudServerHost(textFieldServerName.getText());
         enavSettings.setCloudServerPort(getIntVal(
                 textFieldServerPort.getText(), enavSettings.getHttpPort()));
-        super.saveSettings();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean wasChanged() {
+        return 
+                changed(enavSettings.getCloudServerHost(), textFieldServerName.getText()) ||
+                changed(enavSettings.getCloudServerPort(), textFieldServerPort.getText());
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void fireSettingsChanged() {
+        fireSettingsChanged(Type.CLOUD);
+    }
+    
+    
     private static int getIntVal(String fieldVal, int defaultValue) {
         Integer val;
         try {

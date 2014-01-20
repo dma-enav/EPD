@@ -102,17 +102,16 @@ public class MapWindowSinglePanel extends BaseShoreSettingsPanel {
 
         textField.setText(mapWindow.getTitle());
 
-//        System.out.println(textField.getText() + " locked: " + mapWindow.isLocked());
-
         chckbxLocked.setSelected(mapWindow.isLocked());
         chckbxAlwaysOnTop.setSelected(mapWindow.isInFront());
     }
 
+    
     /**
      * {@inheritDoc}
      */
     @Override
-    public void saveSettings() {
+    public void doSaveSettings() {
         JMapFrame mapWindow = mainFrame.getMapWindows().get(id);
 
         mapWindow.setTitle(textField.getText());
@@ -128,10 +127,31 @@ public class MapWindowSinglePanel extends BaseShoreSettingsPanel {
             mainFrame.onTopMapWindow(mapWindow, chckbxAlwaysOnTop.isSelected());
 
         }
-
-        super.saveSettings();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean wasChanged() {
+        if (!loaded) {
+            return false;
+        }
+        
+        JMapFrame mapWindow = mainFrame.getMapWindows().get(id);
+        
+        return
+                changed(mapWindow.getTitle(), textField.getText()) ||
+                changed(mapWindow.isLocked(), chckbxLocked.isSelected()) ||
+                changed(mapWindow.isInFront(), chckbxAlwaysOnTop.isSelected());
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void fireSettingsChanged() {
+    }
 
     public String getMapTitle(){
         return textField.getText();

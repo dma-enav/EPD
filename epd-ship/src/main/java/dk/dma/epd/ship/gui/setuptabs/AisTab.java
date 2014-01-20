@@ -26,6 +26,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
+import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.settings.EPDAisSettings;
 
@@ -285,17 +286,15 @@ public class AisTab extends BaseSettingsPanel {
      */
     @Override
     public void loadSettings() {
-        super.loadSettings();
-        
         this.aisSettings = EPDShip.getInstance().getSettings().getAisSettings();
         checkBoxAllowSending.setSelected(aisSettings.isAllowSending());
         checkBoxStrict.setSelected(aisSettings.isStrict());
 
         checkBoxShowNameLabels.setSelected(aisSettings.isShowNameLabels());
-        this.spinnerCogVectorLengthMin.setValue(aisSettings.getCogVectorLengthMin());
-        this.spinnerCogVectorLengthMax.setValue(aisSettings.getCogVectorLengthMax());
-        this.spinnerCogVectorLengthScaleStepSize.setValue(aisSettings.getCogVectorLengthScaleInterval());
-        this.spinnerCogVectorHideBelow.setValue(aisSettings.getCogVectorHideBelow());
+        spinnerCogVectorLengthMin.setValue(aisSettings.getCogVectorLengthMin());
+        spinnerCogVectorLengthMax.setValue(aisSettings.getCogVectorLengthMax());
+        spinnerCogVectorLengthScaleStepSize.setValue(aisSettings.getCogVectorLengthScaleInterval());
+        spinnerCogVectorHideBelow.setValue(aisSettings.getCogVectorHideBelow());
         spinnerMinRedrawInterval.setValue(aisSettings.getMinRedrawInterval());
 
         checkBoxBroadcastIntendedRoute.setSelected(aisSettings.isBroadcastIntendedRoute());
@@ -308,22 +307,50 @@ public class AisTab extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void saveSettings() {
+    public void doSaveSettings() {
         aisSettings.setAllowSending(checkBoxAllowSending.isSelected());
         aisSettings.setStrict(checkBoxStrict.isSelected());
 
         aisSettings.setShowNameLabels(checkBoxShowNameLabels.isSelected());
-        this.aisSettings.setCogVectorLengthMin((Integer) this.spinnerCogVectorLengthMin.getValue());
-        this.aisSettings.setCogVectorLengthMax((Integer) this.spinnerCogVectorLengthMax.getValue());
-        this.aisSettings.setCogVectorLengthScaleInterval((Float) this.spinnerCogVectorLengthScaleStepSize.getValue());
-        this.aisSettings.setCogVectorHideBelow((Float) this.spinnerCogVectorHideBelow.getValue());
+        aisSettings.setCogVectorLengthMin((Integer) spinnerCogVectorLengthMin.getValue());
+        aisSettings.setCogVectorLengthMax((Integer) spinnerCogVectorLengthMax.getValue());
+        aisSettings.setCogVectorLengthScaleInterval((Float) spinnerCogVectorLengthScaleStepSize.getValue());
+        aisSettings.setCogVectorHideBelow((Float) spinnerCogVectorHideBelow.getValue());
         aisSettings.setMinRedrawInterval((Integer) spinnerMinRedrawInterval.getValue());
 
         aisSettings.setBroadcastIntendedRoute(checkBoxBroadcastIntendedRoute.isSelected());
         aisSettings.setShowIntendedRouteByDefault(checkBoxShowIntendedRoutesByDefault.isSelected());
         aisSettings.setIntendedRouteMaxWps((Integer) spinnerIntendedRouteMaxWps.getValue());
         aisSettings.setIntendedRouteMaxTime((Integer) spinnerIntendedRouteMaxTime.getValue());
-        
-        super.saveSettings();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean wasChanged() {
+        return 
+                changed(aisSettings.isAllowSending(), checkBoxAllowSending.isSelected()) ||
+                changed(aisSettings.isStrict(), checkBoxStrict.isSelected()) ||
+                
+                changed(aisSettings.isShowNameLabels(), checkBoxShowNameLabels.isSelected()) ||
+                changed(aisSettings.getCogVectorLengthMin(), spinnerCogVectorLengthMin.getValue()) ||
+                changed(aisSettings.getCogVectorLengthMax(), spinnerCogVectorLengthMax.getValue()) ||
+                changed(aisSettings.getCogVectorLengthScaleInterval(), spinnerCogVectorLengthScaleStepSize.getValue()) ||
+                changed(aisSettings.getCogVectorHideBelow(), spinnerCogVectorHideBelow.getValue()) ||
+                changed(aisSettings.getMinRedrawInterval(), spinnerMinRedrawInterval.getValue()) ||
+                
+                changed(aisSettings.isBroadcastIntendedRoute(), checkBoxBroadcastIntendedRoute.isSelected()) ||
+                changed(aisSettings.isShowIntendedRouteByDefault(), checkBoxShowIntendedRoutesByDefault.isSelected()) ||
+                changed(aisSettings.getIntendedRouteMaxWps(), spinnerIntendedRouteMaxWps.getValue()) ||
+                changed(aisSettings.getIntendedRouteMaxTime(), spinnerIntendedRouteMaxTime.getValue());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void fireSettingsChanged() {
+        fireSettingsChanged(Type.AIS);
     }
 }

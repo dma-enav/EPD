@@ -70,7 +70,7 @@ public class NmeaSerialSensor extends NmeaSensor implements SerialPortEventListe
     @Override
     public void run() {
         
-        while (true) {
+        while (!isStopped()) {
             if (!isConnected()) {
                 try {
                     connect();
@@ -86,8 +86,12 @@ public class NmeaSerialSensor extends NmeaSensor implements SerialPortEventListe
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         }
+        
+        // Disconnect and flag that the sensor has terminated
+        disconnect();
+        flagTerminated();
+        LOG.warn("Serial NMEA sensor terminated");
     }
     
     private void connect() throws IOException, UnsupportedCommOperationException, PortInUseException, TooManyListenersException, gnu.io.PortInUseException, gnu.io.UnsupportedCommOperationException {
@@ -105,6 +109,20 @@ public class NmeaSerialSensor extends NmeaSensor implements SerialPortEventListe
         serialPort.notifyOnDataAvailable(true);
         serialPort.notifyOnOutputEmpty(true);
         setConnected(true);
+    }
+    
+    private void disconnect() {
+        if (serialPort != null) {
+            try {
+                LOG.info("Disconnecting serial port " + serialPortName);
+                serialPort.removeEventListener();
+                serialPort.close();
+                serialPort = null;
+                portId = null;
+                setConnected(false);
+            } catch (Exception ex) {
+            }
+        }
     }
     
     public boolean isConnected() {
@@ -155,7 +173,7 @@ public class NmeaSerialSensor extends NmeaSensor implements SerialPortEventListe
         case SerialPortEvent.DATA_AVAILABLE:
             byte[] readBuffer = new byte[1024];
             try {
-                while (inputStream.available() > 0) {
+                while (!isStopped() && inputStream.available() > 0) {
                     int count = inputStream.read(readBuffer);
                     for (int i = 0; i < count; i++) {
                         buffer.append((char) readBuffer[i]);
@@ -169,11 +187,7 @@ public class NmeaSerialSensor extends NmeaSensor implements SerialPortEventListe
                 }
             } catch (IOException e) {
                 LOG.error("Failed to read serial data: " + e.getMessage());
-                serialPort.removeEventListener();
-                serialPort.close();
-                serialPort = null;
-                portId = null;
-                setConnected(false);
+                disconnect();
             }
             break;
         }        

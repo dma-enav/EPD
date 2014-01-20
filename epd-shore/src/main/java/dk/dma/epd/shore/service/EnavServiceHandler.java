@@ -58,6 +58,7 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRout
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.util.Util;
+import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.settings.EPDEnavSettings;
 
@@ -76,6 +77,7 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
     private StrategicRouteExchangeHandler monaLisaHandler;
 
     MaritimeCloudClient connection;
+    boolean stopped = true;
     RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData> routeSuggestions = new RouteSuggestionDataStructure<RouteSuggestionKey, RouteSuggestionData>();
     protected Set<RouteExchangeListener> routeExchangeListener = new HashSet<RouteExchangeListener>();
 
@@ -88,9 +90,19 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
     private long ownMMSI;
 
     public EnavServiceHandler(EPDEnavSettings enavSettings) {
-        this.hostPort = String.format("%s:%d", enavSettings.getCloudServerHost(), enavSettings.getCloudServerPort());
+        readEnavSettings(enavSettings);
     }
 
+    /**
+     * Reads the e-Nav settings
+     * @param enavSettings the e-Nav settings
+     */
+    private void readEnavSettings(EPDEnavSettings enavSettings) {
+        this.hostPort = String.format("%s:%d",
+                enavSettings.getCloudServerHost(),
+                enavSettings.getCloudServerPort());
+    }
+    
     public MaritimeCloudClient getConnection() {
         return connection;
     }
@@ -249,7 +261,7 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
             }
         });
 
-        while (connection == null) {
+        while (!stopped && connection == null) {
             try {
                 enavCloudConnection.setHost(hostPort);
                 System.out.println(hostPort);
@@ -337,7 +349,7 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
         // }
         // }
 
-        while (true) {
+        while (!stopped) {
             getRouteSuggestionServiceList();
             Util.sleep(10000);
         }
@@ -352,7 +364,33 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
     }
 
     public void start() {
+        if (!stopped) {
+            return;
+        }
+        // Update the e-Nav settings
+        readEnavSettings(EPDShore.getInstance().getSettings().getEnavSettings());
+        stopped = false;
         new Thread(this).start();
+    }
+    
+    /**
+     * Stops the Maritime cloud client
+     */
+    public synchronized void stop() {
+        if (stopped) {
+            return;
+        }
+        
+        this.stopped = true;
+        if (connection != null) {
+            try {
+                connection.close();
+                connection.awaitTermination(2, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                LOG.error("Error terminating cloud connection");
+            }
+            connection = null;
+        }
     }
 
     /**

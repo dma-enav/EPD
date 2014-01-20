@@ -28,6 +28,7 @@ import javax.swing.JTextField;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
+import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.settings.EPDAisSettings;
@@ -148,8 +149,9 @@ public class AisSettingsPanel extends BaseShoreSettingsPanel {
     public void loadSettings() {
         super.loadSettings();
         
-        this.aisSettings = EPDShore.getInstance().getSettings().getAisSettings();
-        this.sensorSettings = EPDShore.getInstance().getSettings().getSensorSettings();
+        aisSettings = EPDShore.getInstance().getSettings().getAisSettings();
+        sensorSettings = EPDShore.getInstance().getSettings().getSensorSettings();
+        
         comboBoxAisConnectionType.getModel().setSelectedItem(sensorSettings.getAisConnectionType());
         textFieldAisHostOrSerialPort.setText(sensorSettings.getAisHostOrSerialPort());
         spinnerAisTcpOrUdpPort.setValue(sensorSettings.getAisTcpOrUdpPort());
@@ -165,7 +167,7 @@ public class AisSettingsPanel extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void saveSettings() {
+    public void doSaveSettings() {
         sensorSettings.setAisConnectionType((SensorConnectionType) comboBoxAisConnectionType.getModel().getSelectedItem());
         sensorSettings.setAisHostOrSerialPort(textFieldAisHostOrSerialPort.getText());
         sensorSettings.setAisTcpOrUdpPort((Integer) spinnerAisTcpOrUdpPort.getValue());
@@ -174,8 +176,34 @@ public class AisSettingsPanel extends BaseShoreSettingsPanel {
         aisSettings.setStrict(chckbxStrictTimeout.isSelected());
 
         aisSettings.setOwnMMSI(Long.parseLong(ownMMSITxt.getText()));
-
-        super.saveSettings();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean wasChanged() {
+        if (!loaded) {
+            return false;
+        }
+        
+        return 
+                changed(sensorSettings.getAisConnectionType(), comboBoxAisConnectionType.getModel().getSelectedItem()) ||
+                changed(sensorSettings.getAisHostOrSerialPort(), textFieldAisHostOrSerialPort.getText()) ||
+                changed(sensorSettings.getAisTcpOrUdpPort(), spinnerAisTcpOrUdpPort.getValue()) ||
+                
+                changed(aisSettings.isAllowSending(), chckbxAllowSending.isSelected()) ||
+                changed(aisSettings.isStrict(), chckbxStrictTimeout.isSelected()) ||
+                changed(aisSettings.getOwnMMSI(), ownMMSITxt.getText());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void fireSettingsChanged() {
+        fireSettingsChanged(Type.AIS);
+        fireSettingsChanged(Type.SENSOR);
+    }
+    
 }

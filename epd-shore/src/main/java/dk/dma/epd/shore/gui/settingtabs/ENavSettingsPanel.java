@@ -26,6 +26,7 @@ import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.FormatException;
+import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.common.util.ParseUtils;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.settings.EPDEnavSettings;
@@ -234,7 +235,7 @@ public class ENavSettingsPanel  extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void saveSettings() {
+    public void doSaveSettings() {
         enavSettings.setMetocTtl((Integer) spinnerMetocTtl.getValue());
         enavSettings.setActiveRouteMetocPollInterval((Integer) spinnerActiveRouteMetocPoll.getValue());
         enavSettings.setMetocTimeDiffTolerance((Integer) spinnerMetocTimeDiffTolerance.getValue());
@@ -250,8 +251,41 @@ public class ENavSettingsPanel  extends BaseShoreSettingsPanel {
         enavSettings.setMsiRelevanceGpsUpdateRange((Double) spinnerMsiRelevanceGpsUpdateRange.getValue());
         enavSettings.setMsiRelevanceFromOwnShipRange((Double) spinnerMsiVisibilityFromOwnShipRange.getValue());
         enavSettings.setMsiVisibilityFromNewWaypoint((Double) spinnerMsiVisibilityFromNewWaypoint.getValue());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean wasChanged() {
+        if (!loaded) {
+            return false;
+        }
         
-        super.saveSettings();
+        return
+                changed(enavSettings.getMetocTtl(), spinnerMetocTtl.getValue()) ||
+                changed(enavSettings.getActiveRouteMetocPollInterval(), spinnerActiveRouteMetocPoll.getValue()) ||
+                changed(enavSettings.getMetocTimeDiffTolerance(), spinnerMetocTimeDiffTolerance.getValue()) ||
+
+                changed(enavSettings.getServerName(), textFieldServerName.getText()) ||
+                changed(enavSettings.getHttpPort(), textFieldServerPort.getText()) ||
+                changed(enavSettings.getConnectTimeout(), textFieldConnectionTimeout.getText()) ||
+                changed(enavSettings.getReadTimeout(), textFieldReadTimeout.getText()) ||
+
+                changed(enavSettings.getMsiPollInterval(), spinnerMsiPollInterval.getValue()) ||
+                changed(enavSettings.getMsiTextboxesVisibleAtScale(), spinnerMsiTextboxesVisibleAtScale.getValue()) ||
+
+                changed(enavSettings.getMsiRelevanceGpsUpdateRange(), spinnerMsiRelevanceGpsUpdateRange.getValue()) ||
+                changed(enavSettings.getMsiRelevanceFromOwnShipRange(), spinnerMsiVisibilityFromOwnShipRange.getValue()) ||
+                changed(enavSettings.getMsiVisibilityFromNewWaypoint(), spinnerMsiVisibilityFromNewWaypoint.getValue());
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void fireSettingsChanged() {
+        fireSettingsChanged(Type.ENAV);
     }
 
     private static int getIntVal(String fieldVal, int defaultValue) {

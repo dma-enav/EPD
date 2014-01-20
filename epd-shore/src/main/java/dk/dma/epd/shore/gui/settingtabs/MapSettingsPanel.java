@@ -28,6 +28,7 @@ import javax.swing.border.TitledBorder;
 
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
+import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.settings.EPDGuiSettings;
 import dk.dma.epd.shore.settings.EPDMapSettings;
@@ -42,6 +43,9 @@ public class MapSettingsPanel extends BaseShoreSettingsPanel {
     JTextField wmsTextField;
     JCheckBox wmsCheckBox;
     private JCheckBox chckbxWmsDrag;
+    
+    private EPDMapSettings mapSettings;
+    private EPDGuiSettings guiSettings;
     
     public MapSettingsPanel(){
         super("Map Settings", "map.png");
@@ -169,11 +173,10 @@ public class MapSettingsPanel extends BaseShoreSettingsPanel {
     public void loadSettings() {
         super.loadSettings();
         
-        EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
+        mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
+        guiSettings = EPDShore.getInstance().getSettings().getGuiSettings();
 
         defaultMapScaleSpinner.setValue(mapSettings.getScale());
-//        System.out.println(mapScale);
-//        defaultMapScaleSpinner.setValue(mapScale);
         maximumMapScaleSpinner.setValue(mapSettings.getMaxScale());
         Float latitude = mapSettings.getCenter().getLatitude();
         Float longitude = mapSettings.getCenter().getLongitude();
@@ -190,9 +193,7 @@ public class MapSettingsPanel extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void saveSettings(){
-        EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
-        EPDGuiSettings guiSettings = EPDShore.getInstance().getSettings().getGuiSettings();
+    public void doSaveSettings(){
 
         mapSettings.setScale((Float) defaultMapScaleSpinner.getValue());
         mapSettings.setMaxScale((Integer) maximumMapScaleSpinner.getValue());
@@ -205,7 +206,33 @@ public class MapSettingsPanel extends BaseShoreSettingsPanel {
         mapSettings.setUseWms(wmsCheckBox.isSelected());
         mapSettings.setWmsQuery(wmsTextField.getText());
         mapSettings.setUseWmsDragging(chckbxWmsDrag.isSelected());
-        
-        super.saveSettings();
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean wasChanged() {
+        if (!loaded) {
+            return false;
+        }
+        
+        return
+                changed(mapSettings.getScale(), defaultMapScaleSpinner.getValue()) ||
+                changed(mapSettings.getMaxScale(), maximumMapScaleSpinner.getValue()) ||
+                changed(mapSettings.getCenter().getLatitude(), latitudeSpinner.getValue()) ||
+                changed(mapSettings.getCenter().getLongitude(), longitudeSpinner.getValue()) ||
+                
+                changed(mapSettings.getWmsQuery(), wmsTextField.getText()) ||
+                changed(mapSettings.isUseWms(), wmsCheckBox.isSelected()) ||
+                changed(mapSettings.isUseWmsDragging(), chckbxWmsDrag.isSelected());
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void fireSettingsChanged() {
+        fireSettingsChanged(Type.MAP);
+    }    
 }

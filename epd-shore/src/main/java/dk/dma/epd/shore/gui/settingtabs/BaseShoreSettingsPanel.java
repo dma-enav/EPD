@@ -25,11 +25,12 @@ import dk.dma.epd.shore.EPDShore;
 /**
  * Abstract base class that may be implemented by EPDShore settings panels.
  */
-public class BaseShoreSettingsPanel extends BaseSettingsPanel implements BaseShoreSettings {
+public abstract class BaseShoreSettingsPanel extends BaseSettingsPanel implements BaseShoreSettings {
 
     private static final long serialVersionUID = 1L;
 
     JLabel label;
+    boolean loaded;
     
     /**
      * Constructor
@@ -72,7 +73,7 @@ public class BaseShoreSettingsPanel extends BaseSettingsPanel implements BaseSho
      */
     @Override
     public void loadSettings() {
-        super.loadSettings();
         setVisible(true);
+        loaded = true;
     }    
 }

@@ -70,6 +70,7 @@ public class EPDSettings extends Settings implements Serializable {
     /**
      * Load the settings files as well as the workspace files
      */
+    @Override
     public void loadFromFile() {
         // Open properties file
         Properties props = new Properties();
@@ -134,7 +135,8 @@ public class EPDSettings extends Settings implements Serializable {
     /**
      * Save the settings to the files
      */
-    public void saveToFile() {
+    @Override
+    public void doSaveToFile() {
         Properties props = new Properties();
 
         aisSettings.setProperties(props);

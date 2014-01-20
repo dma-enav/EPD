@@ -19,11 +19,12 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
@@ -31,6 +32,7 @@ import javax.swing.WindowConstants;
 
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.CloudSettingsPanel;
+import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.setuptabs.AisTab;
 import dk.dma.epd.ship.gui.setuptabs.ENavTab;
@@ -42,7 +44,7 @@ import dk.dma.epd.ship.settings.EPDSettings;
 /**
  * The setup dialog
  */
-public class SetupDialog extends JDialog implements ActionListener {
+public class SetupDialog extends JDialog implements ActionListener, ISettingsListener {
     private static final long serialVersionUID = 1L;
 
     private EPDSettings settings;
@@ -57,8 +59,7 @@ public class SetupDialog extends JDialog implements ActionListener {
     private SensorTab sensorTab         = new SensorTab();
     private MapTab mapTab               = new MapTab();
     private CloudSettingsPanel cloudTab = new CloudSettingsPanel();
-    private BaseSettingsPanel[] settingsPanels = { 
-            aisTab, enavTab, navTab, sensorTab, mapTab, cloudTab };
+    private List<BaseSettingsPanel> settingsPanels = new ArrayList<>();
     
     /**
      * Constructor
@@ -68,13 +69,15 @@ public class SetupDialog extends JDialog implements ActionListener {
     public SetupDialog(JFrame parent) {
         super(parent, "Setup", true);
         
+        registerSettings(aisTab, enavTab, navTab, sensorTab, mapTab, cloudTab);
+        
         setSize(462, 720);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(parent);
         
         JTabbedPane tabbedPane = new JTabbedPane(SwingConstants.TOP);
         getContentPane().add(tabbedPane, BorderLayout.CENTER);
-        
+                
         for (BaseSettingsPanel tab : settingsPanels) {
             tabbedPane.addTab(tab.getName(), null, tab, null);            
         }
@@ -91,6 +94,18 @@ public class SetupDialog extends JDialog implements ActionListener {
         btnCancel.addActionListener(this);
         panel.add(btnCancel);
     }
+
+    /**
+     * Register the given settings panels
+     * @param settings the settings panels to register
+     */
+    private void registerSettings(BaseSettingsPanel... settings) {
+        for (BaseSettingsPanel s : settings) {
+            settingsPanels.add(s);
+            s.addListener(this);
+        }
+    }
+    
     
     /**
      * Initializes the tabs with the settings
@@ -106,12 +121,17 @@ public class SetupDialog extends JDialog implements ActionListener {
     /**
      * Updates the global settings with the
      * tab settings
+     * @return if there were any changes to save
      */
-    public void saveSettings() {
+    public boolean saveSettings() {
+        boolean changes = false;
         for (BaseSettingsPanel tab : settingsPanels) {
-            tab.saveSettings();            
+            changes |= tab.saveSettings();            
         }
-        settings.saveToFile();
+        if (changes) {
+            settings.saveToFile();
+        }
+        return changes;
     }
 
     /**
@@ -123,13 +143,26 @@ public class SetupDialog extends JDialog implements ActionListener {
         if(e.getSource() == btnOk){
             saveSettings();
             this.setVisible(false);
-            int choice = JOptionPane.showOptionDialog(EPDShip.getInstance().getMainFrame(), "The settings will take effect next time the application is started.\nStop now?", "Restart required", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, JOptionPane.YES_OPTION);
-            if(choice == JOptionPane.YES_OPTION) {
-                EPDShip.closeApp();
+            /* Now, the sensors are actually updated via settingsChanged() 
+            if (changes) {
+                int choice = JOptionPane.showOptionDialog(EPDShip.getInstance().getMainFrame(), "The settings will take effect next time the application is started.\nStop now?", "Restart required", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, JOptionPane.YES_OPTION);
+                if(choice == JOptionPane.YES_OPTION) {
+                    EPDShip.closeApp();
+                }
             }
+            */
         }
         if(e.getSource() == btnCancel){
             this.setVisible(false);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void settingsChanged(
+            dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type type) {
+        EPDShip.getInstance().settingsChanged(type);
     }
 }

@@ -58,6 +58,10 @@ public class EPDSettings extends Settings implements Serializable {
         this.settingsFile = settingsFile;
     }
 
+    /**
+     * Load the settings files as well as the workspace files
+     */
+    @Override
     public void loadFromFile() {
         // Open properties file
         Properties props = new Properties();
@@ -83,7 +87,11 @@ public class EPDSettings extends Settings implements Serializable {
         s57Settings.readSettings(EPDShip.getInstance().getHomePath().resolve("s57Props.properties").toString());
     }
 
-    public void saveToFile() {
+    /**
+     * Save the settings to the files
+     */
+    @Override
+    public void doSaveToFile() {
         Properties props = new Properties();
         aisSettings.setProperties(props);
         enavSettings.setProperties(props);

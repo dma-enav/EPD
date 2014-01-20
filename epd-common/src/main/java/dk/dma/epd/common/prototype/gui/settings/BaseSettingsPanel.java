@@ -15,18 +15,26 @@
  */
 package dk.dma.epd.common.prototype.gui.settings;
 
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import javax.swing.JPanel;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 
 /**
  * Abstract base class that may be implemented by settings panels.
  * <p>
  * It provides crude functionality for tracking if the settings were changed.
  */
-public abstract class BaseSettingsPanel extends JPanel {
+public abstract class BaseSettingsPanel extends JPanel implements BaseSettings {
 
     private static final long serialVersionUID = 1L;
 
-    protected boolean wasChanged;
+    private static final Logger LOG = LoggerFactory.getLogger(BaseSettingsPanel.class);
+    protected CopyOnWriteArrayList<ISettingsListener> listeners = new CopyOnWriteArrayList<>();
     protected String name;
     
     /**
@@ -41,31 +49,86 @@ public abstract class BaseSettingsPanel extends JPanel {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getName() {
         return name;
     }
 
     /**
-     * Called when the settings panel needs to be loaded.<br>
-     * Overriding classes should call {@code super.loadSettings()} first.
+     * Saves the settings and notifies listeners if 
+     * the settings have changed.
+     * @return if the settings were saved
      */
-    public void loadSettings() {
-        wasChanged = true;
+    @Override
+    public final boolean saveSettings() {
+        if (wasChanged()) {
+            LOG.info("Settings " + getClass().getName() + " was changed and will be saved");
+            doSaveSettings();
+            fireSettingsChanged();
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Called when the settings panel needs to be saved.
+     */
+    protected abstract void doSaveSettings();
+
+    /**
+     * Notifies all listeners that the settings were changed
+     */
+    protected abstract void fireSettingsChanged();
+    
+    /**
+     * Notifies all listeners that settings of the given type have been changed
+     * @param type the type settings that have been updated
+     */
+    protected void fireSettingsChanged(Type type) {
+        if (type != null) {
+            for (ISettingsListener listener : listeners) {
+                listener.settingsChanged(type);
+            }
+        }
+    }
+    
+    /**
+     * Utility method that returns if the two objects are identical or not.
+     * The comparison works on the string representation of the objects, and so,
+     * can only be used for certain comparisons.
+     * <p>
+     * A blank string representation is identical to {@code null} in this comparison.
+     * 
+     * @param o1 the first object
+     * @param o2 the second object
+     * @return true if the string representation of the objects differs
+     */
+    protected boolean changed(Object o1, Object o2) {
+        if (o1 == o2) {
+            return false;
+        } else if (o1 == null) {
+            return !"".equals(o2.toString());
+        } else if (o2 == null) {
+            return !"".equals(o1.toString());
+        } else if (o1 instanceof Number && o2 instanceof Number) {
+            return Math.abs(Double.parseDouble(o1.toString()) - Double.parseDouble(o2.toString())) > 0.0001;
+        }
+        return !o1.toString().equals(o2.toString());
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized void addListener(ISettingsListener listener) {
+        listeners.addIfAbsent(listener);
     }
 
     /**
-     * Called when the settings panel needs to be saved.<br>
-     * Overriding classes should call {@code super.saveSettings()} last.
+     * {@inheritDoc}
      */
-    public void saveSettings() {
-        wasChanged = false;
-    }
-
-    /**
-     * Returns if the settings was changed and needs saving
-     * @return if the settings was changed and needs saving
-     */
-    public boolean wasChanged() {
-        return wasChanged;
+    @Override
+    public synchronized void removeListener(ISettingsListener listener) {
+        listeners.remove(listener);
     }
 }

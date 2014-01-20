@@ -21,13 +21,16 @@ import java.util.Properties;
 import javax.swing.JFrame;
 
 import dk.dma.epd.common.graphics.Resources;
+import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
+import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
+import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
 
 /**
  * Abstract super class for the main system, i.e either 
  * {@code EPDShore} or {@code EPDShip}
  */
-public abstract class EPD<S extends Settings> {
+public abstract class EPD<S extends Settings> implements ISettingsListener {
     
     protected static EPD<?> instance;    
     protected S settings;
@@ -103,6 +106,40 @@ public abstract class EPD<S extends Settings> {
         return thread;
     }
 
+    /**
+     * Starts the sensors as defined in the {@linkplain SensorSettings} and hook up listeners
+     */
+    protected abstract void startSensors();
+    
+    /**
+     * Stops all sensors and remove listeners
+     */
+    protected abstract void stopSensors();
+    
+    /**
+     * Stop {@code sensor} and wait at most {@code timeout} ms for it to terminate.
+     * 
+     * @param sensor the sensor to stop
+     * @param timeout the time in ms to wait for the sensor to termine
+     * @return if the sensor was terminated
+     */
+    protected boolean stopSensor(NmeaSensor sensor, long timeout) {
+        // Sanity check
+        if (sensor == null) {
+            return true;
+        }
+    
+        sensor.stop();
+        long t0 = System.currentTimeMillis();
+        while (!sensor.hasTerminated() && System.currentTimeMillis() - t0 < timeout) {
+            try { 
+                Thread.sleep(100); 
+            } catch (Exception ex) {
+            }
+        }
+        return sensor.hasTerminated();
+    }
+   
     /**
      * Returns a reference to the main frame of the application
      * @return a reference to the main frame of the application

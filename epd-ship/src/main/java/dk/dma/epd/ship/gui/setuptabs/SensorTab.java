@@ -35,6 +35,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
+import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.common.prototype.settings.SensorSettings.PntSourceSetting;
 import dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType;
 import dk.dma.epd.ship.EPDShip;
@@ -387,8 +388,7 @@ public class SensorTab extends BaseSettingsPanel implements ActionListener {
      */
     @Override
     public void loadSettings() {
-        super.loadSettings();
-        
+
         this.sensorSettings = EPDShip.getInstance().getSettings().getSensorSettings();
         
         // Loads the AIS Connection settings
@@ -424,7 +424,7 @@ public class SensorTab extends BaseSettingsPanel implements ActionListener {
      * {@inheritDoc}
      */
     @Override
-    public void saveSettings() {
+    public void doSaveSettings() {
         
         // Saves the AIS Connection settings
         sensorSettings.setAisConnectionType((SensorConnectionType) comboBoxAisConnectionType.getSelectedItem());
@@ -450,10 +450,43 @@ public class SensorTab extends BaseSettingsPanel implements ActionListener {
         // Saves the Transponder settings
         sensorSettings.setStartTransponder(startTransponder.isSelected());        
         sensorSettings.setAisSensorRange((Double) spinnerAisSensorRange.getValue());
-        
-        super.saveSettings();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean wasChanged() {
+        return 
+                changed(sensorSettings.getAisConnectionType(), comboBoxAisConnectionType.getSelectedItem()) ||
+                changed(sensorSettings.getAisHostOrSerialPort(), textFieldAisHostOrSerialPort.getText()) ||
+                changed(sensorSettings.getAisFilename(), textFieldAisFilename.getText()) ||
+                changed(sensorSettings.getAisTcpOrUdpPort(), spinnerAisTcpOrUdpPort.getValue()) ||
+                
+                changed(sensorSettings.getGpsConnectionType(), comboBoxGpsConnectionType.getSelectedItem()) ||
+                changed(sensorSettings.getGpsHostOrSerialPort(), textFieldGpsHostOrSerialPort.getText()) ||
+                changed(sensorSettings.getGpsFilename(), textFieldGpsFilename.getText()) ||
+                changed(sensorSettings.getGpsTcpOrUdpPort(), spinnerGpsTcpOrUdpPort.getValue()) ||
+                
+                changed(sensorSettings.getMsPntConnectionType(), comboBoxMsPntConnectionType.getSelectedItem()) ||
+                changed(sensorSettings.getMsPntHostOrSerialPort(), textFieldMsPntHostOrSerialPort.getText()) ||
+                changed(sensorSettings.getMsPntFilename(), textFieldMsPntFilename.getText()) ||
+                changed(sensorSettings.getMsPntTcpOrUdpPort(), spinnerMsPntTcpOrUdpPort.getValue()) ||
+                
+                changed(sensorSettings.getPntSource(), comboBoxPntSource.getSelectedItem()) ||
+                
+                changed(sensorSettings.isStartTransponder(), startTransponder.isSelected()) ||
+                changed(sensorSettings.getAisSensorRange(), spinnerAisSensorRange.getValue());
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void fireSettingsChanged() {
+        fireSettingsChanged(Type.SENSOR);
+    }
+    
     /**
      * Called when the selection of various combo-boxes changes
      */

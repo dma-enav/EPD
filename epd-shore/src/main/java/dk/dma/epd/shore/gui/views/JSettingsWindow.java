@@ -31,7 +31,6 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
@@ -48,6 +47,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
+import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
 import dk.dma.epd.common.prototype.layers.wms.SingleWMSService;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -68,7 +68,7 @@ import dk.dma.epd.shore.settings.EPDSettings;
 /**
  * The main {@code EPDShore} settings frame
  */
-public class JSettingsWindow extends ComponentFrame implements MouseListener {
+public class JSettingsWindow extends ComponentFrame implements MouseListener, ISettingsListener {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(JSettingsWindow.class);
@@ -95,9 +95,7 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
     private AisSettingsPanel aisSettingsPanel = new AisSettingsPanel();
     private ENavSettingsPanel eNavSettingsPanel = new ENavSettingsPanel();
     private CloudShoreSettingsPanel cloudSettingsPanel = new CloudShoreSettingsPanel();
-    
-    private BaseShoreSettings[] settingsPanels = { 
-            mapSettingsPanel, mapWindowsPanel, connectionsPanel, aisSettingsPanel, eNavSettingsPanel, cloudSettingsPanel };
+    private List<BaseShoreSettings> settingsPanels = new ArrayList<>();
     
     private JPanel contentPane;
 
@@ -124,6 +122,10 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
      */
     public JSettingsWindow() {
         super("Settings Window", false, true, false, false);
+        
+        registerSettings(mapSettingsPanel, mapWindowsPanel, connectionsPanel, 
+                aisSettingsPanel, eNavSettingsPanel, cloudSettingsPanel);
+        
         setSize(800, 600);
         setLocation(10, 10);
 
@@ -155,7 +157,18 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
         // NB: The rest of the GUI is postponed until the mainFrame
         //     has been set via findAndInit...
     }
-
+    
+    /**
+     * Register the given settings panels
+     * @param settings the settings panels to register
+     */
+    private void registerSettings(BaseShoreSettings... settings) {
+        for (BaseShoreSettings s : settings) {
+            settingsPanels.add(s);
+            s.addListener(this);
+        }
+    }
+    
     /**
      * Activates the given panel 
      * @param settingsPanel the panel to activate
@@ -383,19 +396,13 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
 
         // OK button clicked
         if (evt.getSource() == ok) {
-            boolean restart = false;
 
+            // Save the usual settings panels
             for (BaseShoreSettings settings : settingsPanels) {
-                if (!settings.wasChanged()) {
-                    LOG.info("Panel " + settings.getName() + " is unchanged and will not be saved");
+                if (!settings.saveSettings()) {
                     continue;
                 }
                 
-                LOG.info("Panel " + settings.getName() + " is changed and will be saved");
-                settings.saveSettings();
-                if (settings == aisSettingsPanel || settings == cloudSettingsPanel) {
-                    restart = true;
-                }
                 if (settings == mapSettingsPanel) {
                     
                     // Set the new WMS Query
@@ -404,15 +411,16 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
                                 .setWMSString(EPDShore.getInstance().getSettings().getGuiSettings().getWmsQuery());
                     }
                 }
-                if (settings == mapWindowsPanel) {
-                    for (MapWindowSinglePanel mapPanel : mapWindowsListPanels) {
-                        mapPanel.saveSettings();
-                    }                    
-                }
             }
+            
+            // Save the map window settings
+            for (MapWindowSinglePanel mapPanel : mapWindowsListPanels) {
+                mapPanel.saveSettings();
+            }                    
             
             settings.saveToFile();
 
+            /** Now, the sensors are actually updated via settingsChanged() 
             if (restart && this.isVisible()) {
                 restart = false;
                 System.out.println("ais changed?");
@@ -424,7 +432,8 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
                     EPDShore.closeApp();
                 }
             }
-
+            */
+            
             this.setVisible(false);
 
         }
@@ -542,4 +551,11 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void settingsChanged(Type type) {
+        EPDShore.getInstance().settingsChanged(type);
+    }
 }

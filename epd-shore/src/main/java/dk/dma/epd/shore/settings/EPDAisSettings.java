@@ -20,6 +20,7 @@ import java.util.Properties;
 import com.bbn.openmap.util.PropUtils;
 
 import dk.dma.epd.common.prototype.settings.AisSettings;
+import dk.dma.epd.common.prototype.settings.Settings;
 
 /**
  * Sensor settings
@@ -32,7 +33,10 @@ public class EPDAisSettings extends AisSettings {
 
     public void readProperties(Properties props) {
         super.readProperties(props);
-        ownMMSI = PropUtils.longFromProperties(props, PREFIX + "ownMMSI", ownMMSI);
+        
+        if (!Settings.isReadOnly()) {
+            ownMMSI = PropUtils.longFromProperties(props, PREFIX + "ownMMSI", ownMMSI);
+        }
     }
 
     public void setProperties(Properties props) {

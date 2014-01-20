@@ -22,7 +22,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -44,7 +43,6 @@ import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
-import net.maritimecloud.net.MaritimeCloudClient;
 import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.Bootstrap;
@@ -59,7 +57,9 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaUdpSensor;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.sensor.rpnt.MultiSourcePntHandler;
+import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.settings.SensorSettings.PntSourceSetting;
+import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -166,6 +166,10 @@ public final class EPDShip extends EPD<EPDSettings> {
             JOptionPane.showMessageDialog(null, "One application instance already running. Stop instance or restart computer.",
                     "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
+        } else if (guard.isAlreadyRunning()) {
+            JOptionPane.showMessageDialog(null, "One application instance already running.\nThis application will not persist settings changes.",
+                    "Warning", JOptionPane.WARNING_MESSAGE);
+            Settings.setReadOnly(true);
         }
 
         // start riskHandler
@@ -281,7 +285,12 @@ public final class EPDShip extends EPD<EPDSettings> {
     }
     
 
-    private void startSensors() {
+    
+    /**
+     * Starts the sensors defined in the {@linkplain SensorSettings} and hook up listeners
+     */
+    @Override
+   protected void startSensors() {
         EPDSensorSettings sensorSettings = settings.getSensorSettings();
         switch (sensorSettings.getAisConnectionType()) {
         case NONE:
@@ -385,6 +394,60 @@ public final class EPDShip extends EPD<EPDSettings> {
 
     }
 
+    /**
+     * Stops all sensors and remove listeners
+     */
+    @Override
+    protected void stopSensors() {
+        // Stop AIS sensor
+        if (aisSensor != null) {
+            mapHandler.remove(aisSensor);
+            aisSensor.removeAisListener(aisHandler);
+            aisSensor.removeAisListener(ownShipHandler);
+            aisSensor.removePntListener(pntHandler);
+            aisSensor.removePntListener(PntTime.getInstance());
+            stopSensor(aisSensor, 3000L);
+            aisSensor = null;
+        }
+        
+        // Stop GPS sensor
+        if (gpsSensor != null) {
+            mapHandler.remove(gpsSensor);
+            gpsSensor.removePntListener(pntHandler);
+            gpsSensor.removePntListener(PntTime.getInstance());
+            stopSensor(gpsSensor, 3000L);
+            gpsSensor = null;
+        }
+
+        // Stop multi-source PNT sensor
+        if (msPntSensor != null) {
+            mapHandler.remove(msPntSensor);
+            msPntSensor.removeMsPntListener(msPntHandler);
+            msPntSensor.removePntListener(msPntHandler);
+            msPntSensor.removePntListener(PntTime.getInstance());
+            stopSensor(msPntSensor, 3000L);
+            msPntSensor = null;
+        }
+    }
+    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void settingsChanged(Type type) {
+        if (type == Type.SENSOR) {
+            LOG.warn("Restarting all sensors");
+            stopSensors();
+            startSensors();
+        
+        } else if (type == Type.CLOUD) {
+            LOG.warn("Restarting all eNav Service");
+            enavServiceHandler.stop();
+            enavServiceHandler.start();
+        }
+    }
+    
     public void startRiskHandler() {
         riskHandler = new RiskHandler();
     }
@@ -584,28 +647,22 @@ public final class EPDShip extends EPD<EPDSettings> {
     public void closeApp(boolean restart) {
         // Shutdown routine
 
-        MaritimeCloudClient connection = enavServiceHandler.getConnection();
-
-        if (connection != null) {
-            connection.close();
+        if (!Settings.isReadOnly()) {
+            mainFrame.saveSettings();
+            settings.saveToFile();
+            routeManager.saveToFile();
+            msiHandler.saveToFile();
+            aisHandler.saveView();
+            ownShipHandler.saveView();
         }
-
-        mainFrame.saveSettings();
-        settings.saveToFile();
-        routeManager.saveToFile();
-        msiHandler.saveToFile();
-        aisHandler.saveView();
-        ownShipHandler.saveView();
         transponderFrame.shutdown();
 
-        if (connection != null) {
-            try {
-                enavServiceHandler.getConnection().awaitTermination(2, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                LOG.info("Failed to close connection - Terminatnig");
-            }
-        }
+        // Stop the Maritime Cloud connection
+        enavServiceHandler.stop();
 
+        // Stop sensors
+        stopSensors();
+                
         LOG.info("Closing EPD-ship");
         System.exit(restart ? 2 : 0);
 

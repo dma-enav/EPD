@@ -81,7 +81,22 @@ public class MapWindowsPanel extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void saveSettings() {        
-        super.saveSettings();
+    public void doSaveSettings() {        
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean wasChanged() {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void fireSettingsChanged() {
+    }
+
 }

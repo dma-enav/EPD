@@ -273,7 +273,21 @@ public class ConnectionStatus extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void saveSettings() {        
-        super.saveSettings();
+    public void doSaveSettings() {        
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void fireSettingsChanged() {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean wasChanged() {
+        return false;
     }
 }

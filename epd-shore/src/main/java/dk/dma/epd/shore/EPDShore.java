@@ -22,7 +22,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -38,7 +37,6 @@ import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
-import net.maritimecloud.net.MaritimeCloudClient;
 import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.Bootstrap;
@@ -51,6 +49,8 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensorFactory;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.settings.SensorSettings;
+import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -155,6 +155,10 @@ public final class EPDShore extends EPD<EPDSettings> {
             JOptionPane.showMessageDialog(null, "One application instance already running. Stop instance or restart computer.",
                     "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
+        } else if (guard.isAlreadyRunning()) {
+            JOptionPane.showMessageDialog(null, "One application instance already running.\nThis application will not persist settings changes.",
+                    "Warning", JOptionPane.WARNING_MESSAGE);
+            Settings.setReadOnly(true);
         }
 
         // Enable GPS timer by adding it to bean context
@@ -285,35 +289,28 @@ public final class EPDShore extends EPD<EPDSettings> {
 
         // Main application
 
-        String filename = "temp.workspace";
-        mainFrame.saveWorkSpace(filename);
-        
-        mainFrame.saveSettings();
-        settings.saveToFile();
-
-        MaritimeCloudClient connection = enavServiceHandler.getConnection();
-
-        if (connection != null) {
-            connection.close();
+        if (!Settings.isReadOnly()) {
+            String filename = "temp.workspace";
+            mainFrame.saveWorkSpace(filename);
+            
+            mainFrame.saveSettings();
+            settings.saveToFile();
+    
+            // GuiSettings
+            // Handler settings
+            voyageManager.saveToFile();
+            routeManager.saveToFile();
+            msiHandler.saveToFile();
+            aisHandler.saveView();
         }
-
-        // GuiSettings
-        // Handler settings
-        voyageManager.saveToFile();
-        routeManager.saveToFile();
-        msiHandler.saveToFile();
-        aisHandler.saveView();
-
-        if (connection != null) {
-            try {
-                enavServiceHandler.getConnection().awaitTermination(2, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                LOG.info("Failed to close connection - Terminatnig");
-            }
-        }
-
         transponderFrame.shutdown();
 
+        enavServiceHandler.stop();
+
+
+        // Stop sensors
+        stopSensors();
+        
         LOG.info("Closing ESD");
         System.exit(restart ? 2 : 0);
     }
@@ -494,7 +491,11 @@ public final class EPDShore extends EPD<EPDSettings> {
         return properties;
     }
 
-    private void startSensors() {
+    /**
+     * Starts the sensors defined in the {@linkplain SensorSettings} and hook up listeners
+     */
+    @Override
+    protected void startSensors() {
         EPDSensorSettings sensorSettings = settings.getSensorSettings();
         switch (sensorSettings.getAisConnectionType()) {
         case NONE:
@@ -522,6 +523,37 @@ public final class EPDShore extends EPD<EPDSettings> {
 
     }
 
+    /**
+     * Stops all sensors and remove listeners
+     */
+    @Override
+    protected void stopSensors() {
+        // Stop AIS sensor
+        if (aisSensor != null) {
+            beanHandler.remove(aisSensor);
+            aisSensor.removeAisListener(aisHandler);
+            stopSensor(aisSensor, 3000L);
+            aisSensor = null;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void settingsChanged(Type type) {
+        if (type == Type.SENSOR) {
+            LOG.warn("Restarting all sensors");
+            stopSensors();
+            startSensors();
+            
+        } else if (type == Type.CLOUD) {
+            LOG.warn("Restarting all eNav Service");
+            enavServiceHandler.stop();
+            enavServiceHandler.start();
+        }
+    }
+    
     public StaticImages getStaticImages() {
         return staticImages;
     }

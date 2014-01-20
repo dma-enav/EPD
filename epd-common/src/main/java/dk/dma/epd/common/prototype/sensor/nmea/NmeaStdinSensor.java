@@ -46,6 +46,10 @@ public class NmeaStdinSensor extends NmeaSensor {
         } catch (IOException e) {
             LOG.error("Failed to open stdin");
         }
+
+        // Flag that the sensor has terminated
+        flagTerminated();
+        LOG.warn("Stdin NMEA sensor terminated");
     }
 
     @Override

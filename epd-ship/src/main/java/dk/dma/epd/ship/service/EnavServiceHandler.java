@@ -86,6 +86,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context;
     InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply> monaLisaContext;
     protected CloudStatus cloudStatus = new CloudStatus();
+    boolean stopped = true;
 
     // End point holders for Mona Lisa Route Exchange
     private List<ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply>> monaLisaSTCCList = new ArrayList<>();
@@ -96,11 +97,19 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private IntendedRouteService intendedRouteService;
 
     public EnavServiceHandler(EPDEnavSettings enavSettings) {
+        readEnavSettings(enavSettings);
+    }
+
+    /**
+     * Reads the e-Nav settings
+     * @param enavSettings the e-Nav settings
+     */
+    private void readEnavSettings(EPDEnavSettings enavSettings) {
         this.hostPort = String.format("%s:%d",
                 enavSettings.getCloudServerHost(),
                 enavSettings.getCloudServerPort());
     }
-
+    
     private void intendedRouteListener() throws InterruptedException {
 
         connection.broadcastListen(EnavRouteBroadcast.class,
@@ -303,7 +312,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         // For now ship id will be MMSI so we need to know
         // own ship information. Busy wait for it.
 
-        while (true) {
+        while (!stopped) {
             Util.sleep(10000);
             if (this.ownShipHandler != null) {
                 if (ownShipHandler.getMmsi() != null) {
@@ -330,7 +339,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
             }
         }
 
-        while (true) {
+        while (!stopped) {
             getSTCCList();
             getMonaLisaRouteAckList();
             cloudStatus.markCloudReception();
@@ -339,7 +348,33 @@ public class EnavServiceHandler extends MapHandlerChild implements
     }
 
     public void start() {
+        if (!stopped) {
+            return;
+        }
+        // Update the eNav settings
+        readEnavSettings(EPDShip.getInstance().getSettings().getEnavSettings());
+        stopped = false;
         new Thread(this).start();
+    }
+    
+    /**
+     * Stops the Maritime cloud client
+     */
+    public synchronized void stop() {
+        if (stopped) {
+            return;
+        }
+        
+        this.stopped = true;
+        if (connection != null) {
+            try {
+                connection.close();
+                connection.awaitTermination(2, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                LOG.error("Error terminating cloud connection");
+            }
+            connection = null;
+        }
     }
 
     private void getSTCCList() {

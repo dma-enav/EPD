@@ -32,13 +32,27 @@ public interface BaseSettings {
     void loadSettings();
 
     /**
-     * Called when the settings panel needs to be saved
+     * Saves the settings and notifies listeners if 
+     * the settings have changed.
+     * @return if the settings were saved
      */
-    void saveSettings();
+    boolean saveSettings();
     
     /**
-     * Returns if the settings was changed and needs saving
-     * @return if the settings was changed and needs saving
+     * Returns if the settings were changed and needs saving
+     * @return if the settings were changed and needs saving
      */
     boolean wasChanged();
+    
+    /**
+     * Adds a change listener to these settings
+     * @param listener the listener to add
+     */
+    void addListener(ISettingsListener listener);
+
+    /**
+     * Removes a change listener from these settings
+     * @param listener the listener to remove
+     */
+    void removeListener(ISettingsListener listener);
 }

@@ -30,6 +30,7 @@ public class CloudShoreSettingsPanel extends CloudSettingsPanel implements BaseS
     private static final long serialVersionUID = 1L;
     
     JLabel label;
+    boolean loaded;
     
     /**
      * Constructor
@@ -72,5 +73,17 @@ public class CloudShoreSettingsPanel extends CloudSettingsPanel implements BaseS
     public void loadSettings() {
         super.loadSettings();
         setVisible(true);
+        loaded = true;
     }    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean wasChanged() {
+        if (!loaded) {
+            return false;
+        }
+        return super.wasChanged();
+    }
 }

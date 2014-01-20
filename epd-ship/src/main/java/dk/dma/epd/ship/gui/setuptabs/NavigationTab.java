@@ -26,6 +26,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
+import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.settings.EPDNavSettings;
 
@@ -185,8 +186,6 @@ public class NavigationTab extends BaseSettingsPanel {
      */
     @Override
     public void loadSettings() {
-        super.loadSettings();
-        
         this.navSettings = EPDShip.getInstance().getSettings().getNavSettings();
         checkBoxLookAhead.setSelected(navSettings.isLookAhead());
         spinnerAutoFollowPctOffTolerance.setValue(navSettings.getAutoFollowPctOffTollerance());
@@ -202,7 +201,7 @@ public class NavigationTab extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void saveSettings() {
+    public void doSaveSettings() {
         navSettings.setLookAhead(checkBoxLookAhead.isSelected());
         navSettings.setAutoFollowPctOffTollerance((Integer) spinnerAutoFollowPctOffTolerance.getValue());
         navSettings.setShowMinuteMarksSelf((Integer) spinnerShowMinuteMarksSelf.getValue());
@@ -211,8 +210,29 @@ public class NavigationTab extends BaseSettingsPanel {
         navSettings.setDefaultSpeed((Double) spinnerDefaultSpeed.getValue());
         navSettings.setDefaultTurnRad((Double) spinnerDefaultTurnRad.getValue());
         navSettings.setDefaultXtd((Double) spinnerDefaultXtd.getValue());
-        
-        super.saveSettings();
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean wasChanged() {
+        return 
+                changed(navSettings.isLookAhead(), checkBoxLookAhead.isSelected()) ||
+                changed(navSettings.getAutoFollowPctOffTollerance(), spinnerAutoFollowPctOffTolerance.getValue()) ||
+                changed(navSettings.getShowMinuteMarksSelf(), spinnerShowMinuteMarksSelf.getValue()) ||
+                
+                changed(navSettings.getShowArrowScale(), spinnerShowArrowScale.getValue()) ||
+                changed(navSettings.getDefaultSpeed(), spinnerDefaultSpeed.getValue()) ||
+                changed(navSettings.getDefaultTurnRad(), spinnerDefaultTurnRad.getValue()) ||
+                changed(navSettings.getDefaultXtd(), spinnerDefaultXtd.getValue());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void fireSettingsChanged() {
+        fireSettingsChanged(Type.NAVIGATION);
+    }
 }
