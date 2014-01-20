@@ -374,6 +374,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
             add(hidePastTracks);
             addSeparator();
             add(scaleMenu);
+            revalidate();
             return;
         }
 
@@ -382,6 +383,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         add(clearMap);
         add(hideIntendedRoutes);
         add(scaleMenu);
+        revalidate();
     }
 
     /**
@@ -436,6 +438,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
             aisTargetLabelToggle.setText("Show AIS target label");
         }
 
+        revalidate();
         generalMenu(false);
     }
 
@@ -463,6 +466,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         }
         add(aisIntendedRouteToggle);
 
+        revalidate();
         generalMenu(false);
     }
     
@@ -485,6 +489,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         aisClearPastTrack.setText("Clear past-track");
         add(aisClearPastTrack);
         
+        revalidate();
         generalMenu(false);
     }
 
@@ -516,8 +521,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         aisClearPastTrack.setAisLayer(aisLayer);
         aisClearPastTrack.setText("Clear past-track");
         add(aisClearPastTrack);
+        revalidate();
         
-
         generalMenu(false);
     }
 
@@ -543,6 +548,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         msiAcknowledge.setMsiMessage(selectedGraphic.getMsiMessage());
         add(msiAcknowledge);
 
+        revalidate();
         generalMenu(false);
     }
 
@@ -558,6 +564,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         msiZoomTo.setMsiMessageExtended(selectedGraphic.getMessage());
         add(msiZoomTo);
 
+        revalidate();
         generalMenu(false);
     }
 
@@ -582,7 +589,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         }
 
         add(sendToSTCC);
-
+        revalidate();
     }
 
     public void addVoyageHandlingWaypointAppendMenuItem(Route route, int routeIndex) {
@@ -592,8 +599,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         this.add(this.voyageAppendWaypoint);
     }
     
-    public void addVoyageHandlingWaypointDeleteMenuItem(Route route, int routeIndex, int waypointIndex)
-    {
+    public void addVoyageHandlingWaypointDeleteMenuItem(Route route, int routeIndex, int waypointIndex) {
         this.voyageDeleteWaypoint.setRouteIndex(routeIndex);
         this.voyageDeleteWaypoint.setRoute(route);
         this.voyageDeleteWaypoint.setVoyageWaypointIndex(waypointIndex);
@@ -711,8 +717,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         routeProperties.setRouteIndex(routeIndex);
         add(routeProperties);
 
-        // generalMenu(false);
-        this.repaint();
+//        generalMenu(false); //TODO: is this supposed to be commented out?
+        revalidate();
     }
 
     public void routeLegMenu(int routeIndex, RouteLeg routeLeg, Point point) {
@@ -734,6 +740,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         generalRouteMenu(routeIndex);
         // TODO: add leg specific items
+        
+        revalidate();
     }
 
     public void routeWaypointMenu(int routeIndex, int routeWaypointIndex) {
@@ -758,6 +766,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         add(routeWaypointDelete);
 
         generalRouteMenu(routeIndex);
+        revalidate();
     }
 
     public void suggestedRouteMenu(RecievedRoute aisSuggestedRoute) {
@@ -768,6 +777,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         add(suggestedRouteDetails);
 
         generalMenu(false);
+        revalidate();
     }
 
     public void routeEditMenu() {
@@ -777,6 +787,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         add(routeEditEndRoute);
 
         generalMenu(false);
+        revalidate();
     }
 
     @Override
@@ -917,5 +928,4 @@ public class MapMenu extends JPopupMenu implements ActionListener,
      public Point getLatestVisibleLocation() {
          return this.latestScreenLocation;
      }
-     
 }
