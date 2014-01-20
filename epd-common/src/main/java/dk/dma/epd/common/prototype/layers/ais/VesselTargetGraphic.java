@@ -180,7 +180,8 @@ public class VesselTargetGraphic extends TargetGraphic {
         }
         switch (zl) {
         case VESSEL_OUTLINE:
-            if (this.vesselTarget.getStaticData() != null) {
+            VesselStaticData vsd = this.vesselTarget.getStaticData();
+            if (vsd != null && (vsd.getDimBow() + vsd.getDimStern()) > 0 && (vsd.getDimPort() + vsd.getDimStarboard()) > 0) {
                 // can only draw outline if static data is available
                 this.drawOutline();
             } else {
