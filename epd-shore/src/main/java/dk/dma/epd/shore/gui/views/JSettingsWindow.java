@@ -53,7 +53,6 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
-import dk.dma.epd.common.prototype.gui.settings.CloudSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
 import dk.dma.epd.common.prototype.layers.wms.SingleWMSService;
 import dk.dma.epd.shore.EPDShore;
@@ -66,6 +65,7 @@ import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.gui.settingtabs.MapSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.MapWindowSinglePanel;
 import dk.dma.epd.shore.gui.settingtabs.MapWindowsPanel;
+import dk.dma.epd.shore.gui.settingtabs.ShoreCloudSettingsPanel;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.services.shore.ShoreServices;
 import dk.dma.epd.shore.settings.EPDSettings;
@@ -102,7 +102,7 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
     private ConnectionStatus connectionsPanel = new ConnectionStatus();
     private AisSettingsPanel aisSettingsPanel = new AisSettingsPanel();
     private ENavSettingsPanel eNavSettingsPanel = new ENavSettingsPanel();
-    private CloudSettingsPanel cloudSettingsPanel = new CloudSettingsPanel();
+    private ShoreCloudSettingsPanel cloudSettingsPanel = new ShoreCloudSettingsPanel();
 
     // Normal settings panels
     private List<BaseSettingsPanel> settingsPanels = new ArrayList<>();
@@ -179,6 +179,7 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
      */
     private void registerSettings(BaseSettingsPanel... panels) {
         for (BaseSettingsPanel settingsPanel : panels) {
+            settingsPanel.setVisible(false);
             createLabel(settingsPanel, settingsLabels);
             settingsPanels.add(settingsPanel);
             settingsPanel.addListener(this);

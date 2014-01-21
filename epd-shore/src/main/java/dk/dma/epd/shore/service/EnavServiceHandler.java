@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
+import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import net.maritimecloud.net.ClosingCode;
 import net.maritimecloud.net.ConnectionFuture;
@@ -87,6 +88,7 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
     private String hostPort;
     private ShipId shipId;
     private long ownMMSI;
+    private LatLonPoint shorePos = new LatLonPoint.Double(0.0, 0.0);
     
     private AisHandler aisHandler;
     MaritimeCloudClient connection;
@@ -114,9 +116,16 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
      * @param enavSettings the e-Nav settings
      */
     private void readEnavSettings(EPDEnavSettings enavSettings) {
-        this.hostPort = String.format("%s:%d",
+        hostPort = String.format("%s:%d",
                 enavSettings.getCloudServerHost(),
                 enavSettings.getCloudServerPort());
+
+        // Determine the shore ID
+        String shoreID = (String) enavSettings.getShoreId().subSequence(0, 9);
+        shipId = ShipId.create(shoreID);
+        ownMMSI = Long.parseLong(shoreID);
+        
+        shorePos = enavSettings.getShorePos();
     }
     
     public MaritimeCloudClient getConnection() {
@@ -178,10 +187,6 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
 
         Util.sleep(1000);
         
-        String shoreID = "999" + System.currentTimeMillis();
-        shoreID = (String) shoreID.subSequence(0, 9);
-        shipId = ShipId.create(shoreID);
-        ownMMSI = Long.parseLong(shoreID);
         init();
         try {
             listenToIntendedRouteBroadcasts();
@@ -209,7 +214,7 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
         enavCloudConnection.setPositionReader(new PositionReader() {
             @Override
             public PositionTime getCurrentPosition() {
-                return PositionTime.create(0, 0, System.currentTimeMillis());
+                return PositionTime.create(shorePos.getLatitude(), shorePos.getLongitude(), System.currentTimeMillis());
             }
         });
 
