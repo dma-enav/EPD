@@ -391,7 +391,7 @@ public class RouteExchangeNotificationPanel extends JPanel {
                     RouteSuggestionData message = routeTableModel.getMessages()
                             .get(currentSelection);
 
-                    enavServiceHandler.setAcknowledged(message.getMmsi(),
+                    enavServiceHandler.setRouteSuggestionAcknowledged(message.getMmsi(),
                             message.getId());
                     routeTableModel.updateMessages();
                     but_read.setEnabled(false);

@@ -472,19 +472,19 @@ public class RouteManager extends RouteManagerCommon implements Runnable,
         case ACCEPTED:
             routeSuggestion.setStatus(Status.ACCEPTED);
             acceptSuggested(routeSuggestion);
-            enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_ACCEPTED, routeSuggestion.getId(), message);
+            enavServiceHandler.sendRouteExchangeReply(AIS_STATUS.RECIEVED_ACCEPTED, routeSuggestion.getId(), message);
             break;
         case REJECTED:
             //Remove it
             routeSuggestion.setStatus(Status.REJECTED);
             routeSuggestion.setStatus(Status.REJECTED);
 //            removeSuggested(routeSuggestion);
-            enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_REJECTED, routeSuggestion.getId(), message);
+            enavServiceHandler.sendRouteExchangeReply(AIS_STATUS.RECIEVED_REJECTED, routeSuggestion.getId(), message);
             break;
         case NOTED:
             //Do nothing
             routeSuggestion.setStatus(Status.NOTED);
-            enavServiceHandler.sendReply(AIS_STATUS.RECIEVED_NOTED, routeSuggestion.getId(), message);
+            enavServiceHandler.sendRouteExchangeReply(AIS_STATUS.RECIEVED_NOTED, routeSuggestion.getId(), message);
             break;
         default:
             break;

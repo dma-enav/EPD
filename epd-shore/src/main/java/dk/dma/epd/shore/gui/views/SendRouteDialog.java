@@ -467,8 +467,8 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         // Remove duplicates
         List<String> mmsi = new ArrayList<String>();
 
-        for (int i = 0; i < enavServiceHandler.getRouteSuggestionList().size(); i++) {
-            mmsi.add(enavServiceHandler.getRouteSuggestionList().get(i).getId()
+        for (int i = 0; i < enavServiceHandler.getRouteSuggestionServiceList().size(); i++) {
+            mmsi.add(enavServiceHandler.getRouteSuggestionServiceList().get(i).getId()
                     .toString().split("//")[1]);
         }
 
@@ -477,7 +477,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         mmsi.clear();
         mmsi.addAll(hs);
 
-        if (enavServiceHandler.getRouteSuggestionList().size() > 0) {
+        if (enavServiceHandler.getRouteSuggestionServiceList().size() > 0) {
             mmsiListComboBox.setEnabled(true);
             for (int i = 0; i < mmsi.size(); i++) {
                 mmsiListComboBox.addItem(mmsi.get(i));

@@ -470,7 +470,7 @@ public class NotificationArea extends ComponentFrame implements
     @Override
     public void routeUpdate() {
         try {
-            setMessages("routeExchange", enavServiceHandler.getUnkAck());
+            setMessages("routeExchange", enavServiceHandler.getUnacknowledgedRouteSuggestions());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

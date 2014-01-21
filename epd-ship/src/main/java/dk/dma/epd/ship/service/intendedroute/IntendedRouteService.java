@@ -79,7 +79,7 @@ public class IntendedRouteService extends EnavService implements
         // send message
         LOG.info("Sending");
         try {
-            enavServiceHandler.sendMessage(message);
+            enavServiceHandler.sendIntendedRouteMessage(message);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

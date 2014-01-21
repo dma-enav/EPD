@@ -69,7 +69,14 @@ import dk.dma.epd.ship.settings.EPDEnavSettings;
 
 
 /**
- * Component offering e-Navigation services
+ * Component offering e-Navigation services via the Maritime Cloud
+ * <p>
+ * Currently, three types of route handling is supported:
+ * <ul>
+ *   <li>Intended routes</li>
+ *   <li>Suggested routes</li>
+ *   <li>Strategic routes - a.k.a. Mona Lisa</li>
+ * </ul>
  */
 public class EnavServiceHandler extends MapHandlerChild implements
         IPntDataListener, Runnable, IStatusComponent {
@@ -82,20 +89,27 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private PntHandler pntHandler;
     private AisHandler aisHandler;
     private OwnShipHandler ownShipHandler;
-    private StrategicRouteExchangeHandler monaLisaHandler;
-    private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context;
-    InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply> monaLisaContext;
+    private MaritimeCloudClient connection;
     protected CloudStatus cloudStatus = new CloudStatus();
     boolean stopped = true;
 
-    // End point holders for Mona Lisa Route Exchange
+    // Intended route
+    private IntendedRouteService intendedRouteService;
+    
+    // Route suggestion service
+    private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> routeExchangeCallbackContext;
+
+    // Mona Lisa 
+    private StrategicRouteExchangeHandler monaLisaHandler;
+    InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply> monaLisaContext;
     private List<ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply>> monaLisaSTCCList = new ArrayList<>();
     private List<ServiceEndpoint<StrategicRouteAckMsg, Void>> monaLisaRouteAckList = new ArrayList<>();
-
-    MaritimeCloudClient connection;
-
-    private IntendedRouteService intendedRouteService;
-
+    
+    /**
+     * Constructor 
+     * 
+     * @param enavSettings the e-navigation settings
+     */
     public EnavServiceHandler(EPDEnavSettings enavSettings) {
         readEnavSettings(enavSettings);
     }
@@ -110,202 +124,54 @@ public class EnavServiceHandler extends MapHandlerChild implements
                 enavSettings.getCloudServerPort());
     }
     
-    private void intendedRouteListener() throws InterruptedException {
-
-        connection.broadcastListen(EnavRouteBroadcast.class,
-                new BroadcastListener<EnavRouteBroadcast>() {
-                    public void onMessage(BroadcastMessageHeader l,
-                            EnavRouteBroadcast r) {
-
-                        cloudStatus.markCloudReception();
-                        int id = Integer.parseInt(l.getId().toString()
-                                .split("mmsi://")[1]);
-
-                        updateIntendedRoute(id, r.getIntendedRoute());
-                    }
-                });
-    }
-
-    private void getMonaLisaRouteAckList() {
-        cloudStatus.markCloudReception();
-
-        try {
-            monaLisaRouteAckList = connection
-                    .serviceLocate(StrategicRouteAck.INIT)
-                    .nearest(Integer.MAX_VALUE).get();
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-        }
-    }
-
+    /**
+     * Returns a reference to the cloud client connection
+     * @return a reference to the cloud client connection
+     */
     public MaritimeCloudClient getConnection() {
         return connection;
     }
 
-    private void routeExchangeListener() throws InterruptedException {
-
-        connection
-                .serviceRegister(
-                        RouteSuggestionService.INIT,
-                        new InvocationCallback<RouteSuggestionService.RouteSuggestionMessage, RouteSuggestionService.RouteSuggestionReply>() {
-                            public void process(
-                                    RouteSuggestionMessage message,
-                                    InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context) {
-
-                                cloudStatus.markCloudReception();
-
-                                setContext(context);
-
-                                RecievedRoute recievedRoute = new RecievedRoute(
-                                        message);
-
-                                EPDShip.getInstance().getRouteManager()
-                                        .recieveRouteSuggestion(recievedRoute);
-
-                            }
-                        }).awaitRegistered(4, TimeUnit.SECONDS);
-    }
-
-    public InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> getContext() {
-        return context;
-    }
-
-    public void setContext(
-            InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context) {
-        this.context = context;
-    }
-
-    public void sendReply(AIS_STATUS recievedAccepted, long id, String message) {
-        try {
-            long ownMmsi = ownShipHandler.getMmsi() == null ? -1L : ownShipHandler.getMmsi();
-            context.complete(new RouteSuggestionService.RouteSuggestionReply(
-                    message, id, ownMmsi, System.currentTimeMillis(), recievedAccepted));
-            cloudStatus.markSuccesfullSend();
-        } catch (Exception e) {
-            cloudStatus.markFailedSend();
-            System.out.println("Failed to reply");
-        }
-
-    }
+    /*********************************/
+    /** Life cycle functionality    **/
+    /*********************************/
 
     /**
-     * Update intended route of vessel target
-     * 
-     * @param mmsi
-     * @param routeData
+     * Starts the Maritime cloud client
      */
-    private synchronized void updateIntendedRoute(long mmsi, Route routeData) {
-
-        // Try to find exiting target
-        VesselTarget vesselTarget = aisHandler.getVesselTarget(mmsi);
-        // If not exists, wait for it to be created by position report
-        if (vesselTarget == null) {
+    public void start() {
+        if (!stopped) {
             return;
         }
-
-        CloudIntendedRoute intendedRoute = new CloudIntendedRoute(routeData);
-
-        // Update intented route
-        vesselTarget.setCloudRouteData(intendedRoute);
-        aisHandler.publishUpdate(vesselTarget);
+        // Update the eNav settings
+        readEnavSettings(EPDShip.getInstance().getSettings().getEnavSettings());
+        stopped = false;
+        new Thread(this).start();
     }
-
+    
     /**
-     * Send maritime message over cloud
-     * 
-     * @param message
-     * @return
-     * @throws Exception
+     * Stops the Maritime cloud client
      */
-    public void sendMessage(BroadcastMessage message) throws Exception {
-
-        // if connection.
-        EnavCloudSendThread sendThread = new EnavCloudSendThread(message,
-                connection);
-
-        // Send it in a seperate thread
-        sendThread.start();
-        cloudStatus.markSuccesfullSend();
-    }
-
-    /**
-     * Create the message bus
-     */
-    public void init() {
-        LOG.info("Connecting to cloud server: " + hostPort
-                + " with shipId " + shipId.getId());
-
-        // enavCloudConnection =
-        // MaritimeNetworkConnectionBuilder.create("mmsi://"+shipId.getId());
-        MaritimeCloudClientConfiguration enavCloudConnection = MaritimeCloudClientConfiguration
-                .create("mmsi://" + shipId.getId());
-
-        enavCloudConnection.setPositionReader(new PositionReader() {
-            @Override
-            public PositionTime getCurrentPosition() {
-                Position pos = pntHandler.getCurrentData().getPosition();
-                if (pos != null) {
-                    return PositionTime.create(pos.getLatitude(), pos.getLongitude(),
-                            System.currentTimeMillis());
-                } else {
-                    return PositionTime.create(0.0, 0.0,
-                            System.currentTimeMillis());
-                }
-            }});
+    public synchronized void stop() {
+        if (stopped) {
+            return;
+        }
         
-        try {
-            enavCloudConnection.setHost(hostPort);
-            // System.out.println(hostPort);
-            connection = enavCloudConnection.build();
-
-            if (connection != null) {
-
-                cloudStatus.markCloudReception();
-                cloudStatus.markSuccesfullSend();
+        this.stopped = true;
+        if (connection != null) {
+            try {
+                connection.close();
+                connection.awaitTermination(2, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                LOG.error("Error terminating cloud connection");
             }
-        } catch (Exception e) {
-            // e.printStackTrace();
-            System.out.println("Failed to connect to server: " + e);
-            cloudStatus.markFailedSend();
-            cloudStatus.markFailedReceive();
+            connection = null;
         }
-
-        // ENavContainerConfiguration conf = new ENavContainerConfiguration();
-        // conf.addDatasource(new JmsC2SMessageSource(hostPort, shipId));
-        // ENavContainer client = conf.createAndStart();
-        // messageBus = client.getService(MessageBus.class);
-        LOG.info("Started succesfull cloud server: " + hostPort
-                + " with shipId " + shipId.getId());
-
     }
-
+    
     /**
-     * Receive position updates
+     * Thread run method
      */
-    @Override
-    public void pntDataUpdate(PntData pntData) {
-        // TODO give information to messageBus if valid position
-    }
-
-    @Override
-    public void findAndInit(Object obj) {
-        if (obj instanceof RouteManager) {
-            intendedRouteService = new IntendedRouteService(this,
-                    (ActiveRouteProvider) obj);
-            ((RouteManager) obj).addListener(intendedRouteService);
-            ((RouteManager) obj).setIntendedRouteService(intendedRouteService);
-        } else if (obj instanceof PntHandler) {
-            this.pntHandler = (PntHandler) obj;
-            this.pntHandler.addListener(this);
-        } else if (obj instanceof AisHandler) {
-            this.aisHandler = (AisHandler) obj;
-        } else if (obj instanceof OwnShipHandler) {
-            this.ownShipHandler = (OwnShipHandler) obj;
-        } else if (obj instanceof StrategicRouteExchangeHandler) {
-            this.monaLisaHandler = (StrategicRouteExchangeHandler) obj;
-        }
-    }
-
     @Override
     public void run() {
 
@@ -347,36 +213,249 @@ public class EnavServiceHandler extends MapHandlerChild implements
         }
     }
 
-    public void start() {
-        if (!stopped) {
-            return;
-        }
-        // Update the eNav settings
-        readEnavSettings(EPDShip.getInstance().getSettings().getEnavSettings());
-        stopped = false;
-        new Thread(this).start();
-    }
-    
     /**
-     * Stops the Maritime cloud client
+     * Create the message bus
      */
-    public synchronized void stop() {
-        if (stopped) {
-            return;
-        }
+    public void init() {
+        LOG.info("Connecting to cloud server: " + hostPort
+                + " with shipId " + shipId.getId());
+
+        // enavCloudConnection =
+        // MaritimeNetworkConnectionBuilder.create("mmsi://"+shipId.getId());
+        MaritimeCloudClientConfiguration enavCloudConnection = MaritimeCloudClientConfiguration
+                .create("mmsi://" + shipId.getId());
+
+        enavCloudConnection.setPositionReader(new PositionReader() {
+            @Override
+            public PositionTime getCurrentPosition() {
+                Position pos = pntHandler.getCurrentData().getPosition();
+                if (pos != null) {
+                    return PositionTime.create(pos.getLatitude(), pos.getLongitude(),
+                            System.currentTimeMillis());
+                } else {
+                    return PositionTime.create(0.0, 0.0,
+                            System.currentTimeMillis());
+                }
+            }});
         
-        this.stopped = true;
-        if (connection != null) {
-            try {
-                connection.close();
-                connection.awaitTermination(2, TimeUnit.SECONDS);
-            } catch (Exception e) {
-                LOG.error("Error terminating cloud connection");
+        try {
+            enavCloudConnection.setHost(hostPort);
+            connection = enavCloudConnection.build();
+
+            if (connection != null) {
+
+                cloudStatus.markCloudReception();
+                cloudStatus.markSuccesfullSend();
             }
-            connection = null;
+        } catch (Exception e) {
+            // e.printStackTrace();
+            System.out.println("Failed to connect to server: " + e);
+            cloudStatus.markFailedSend();
+            cloudStatus.markFailedReceive();
+        }
+
+        LOG.info("Started succesfull cloud server: " + hostPort
+                + " with shipId " + shipId.getId());
+
+    }
+
+    /**
+     * Receive position updates
+     */
+    @Override
+    public void pntDataUpdate(PntData pntData) {
+        // TODO give information to messageBus if valid position
+    }
+
+    /**
+     * Receive position updates from the {@linkplain PntHandler}
+     * @param pnt the updated PNT data
+     */
+    @Override
+    public void findAndInit(Object obj) {
+        if (obj instanceof RouteManager) {
+            intendedRouteService = new IntendedRouteService(this,
+                    (ActiveRouteProvider) obj);
+            ((RouteManager) obj).addListener(intendedRouteService);
+            ((RouteManager) obj).setIntendedRouteService(intendedRouteService);
+        } else if (obj instanceof PntHandler) {
+            this.pntHandler = (PntHandler) obj;
+            this.pntHandler.addListener(this);
+        } else if (obj instanceof AisHandler) {
+            this.aisHandler = (AisHandler) obj;
+        } else if (obj instanceof OwnShipHandler) {
+            this.ownShipHandler = (OwnShipHandler) obj;
+        } else if (obj instanceof StrategicRouteExchangeHandler) {
+            this.monaLisaHandler = (StrategicRouteExchangeHandler) obj;
         }
     }
 
+    @Override
+    public ComponentStatus getStatus() {
+        return cloudStatus;
+    }
+
+    /*********************************/
+    /** Intended route handling     **/
+    /*********************************/
+    
+    /**
+     * Register a cloud broadcast listener that listens for intended routes
+     */
+    private void intendedRouteListener() throws InterruptedException {
+
+        connection.broadcastListen(EnavRouteBroadcast.class,
+                new BroadcastListener<EnavRouteBroadcast>() {
+                    public void onMessage(BroadcastMessageHeader l,
+                            EnavRouteBroadcast r) {
+
+                        cloudStatus.markCloudReception();
+                        int id = Integer.parseInt(l.getId().toString()
+                                .split("mmsi://")[1]);
+
+                        updateIntendedRoute(id, r.getIntendedRoute());
+                    }
+                });
+    }
+
+    /**
+     * Update intended route of vessel target
+     * 
+     * @param mmsi
+     * @param routeData
+     */
+    private synchronized void updateIntendedRoute(long mmsi, Route routeData) {
+
+        // Try to find exiting target
+        VesselTarget vesselTarget = aisHandler.getVesselTarget(mmsi);
+        // If not exists, wait for it to be created by position report
+        if (vesselTarget == null) {
+            return;
+        }
+
+        CloudIntendedRoute intendedRoute = new CloudIntendedRoute(routeData);
+
+        // Update intented route
+        vesselTarget.setCloudRouteData(intendedRoute);
+        aisHandler.publishUpdate(vesselTarget);
+    }
+
+    /**
+     * Send maritime message over cloud
+     * 
+     * @param message
+     * @return
+     * @throws Exception
+     */
+    public void sendIntendedRouteMessage(BroadcastMessage message) throws Exception {
+
+        // if connection.
+        EnavCloudSendThread sendThread = new EnavCloudSendThread(message,
+                connection);
+
+        // Send it in a seperate thread
+        sendThread.start();
+        cloudStatus.markSuccesfullSend();
+    }
+    
+    /*********************************/
+    /** Suggested route handling    **/
+    /*********************************/
+
+    /**
+     * Register a cloud route suggestion service
+     */
+    private void routeExchangeListener() throws InterruptedException {
+
+        connection
+                .serviceRegister(
+                        RouteSuggestionService.INIT,
+                        new InvocationCallback<RouteSuggestionService.RouteSuggestionMessage, RouteSuggestionService.RouteSuggestionReply>() {
+                            public void process(
+                                    RouteSuggestionMessage message,
+                                    InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context) {
+
+                                cloudStatus.markCloudReception();
+
+                                routeExchangeCallbackContext = context;
+
+                                RecievedRoute recievedRoute = new RecievedRoute(
+                                        message);
+
+                                EPDShip.getInstance().getRouteManager()
+                                        .recieveRouteSuggestion(recievedRoute);
+
+                            }
+                        }).awaitRegistered(4, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Sends a reply to route suggestion reply
+     * 
+     * @param receivedAccepted the reply
+     * @param id the ID of the route suggestion
+     * @param message a message to send along with the reply
+     */
+    public void sendRouteExchangeReply(AIS_STATUS recievedAccepted, long id, String message) {
+        try {
+            long ownMmsi = ownShipHandler.getMmsi() == null ? -1L : ownShipHandler.getMmsi();
+            routeExchangeCallbackContext.complete(new RouteSuggestionService.RouteSuggestionReply(
+                    message, id, ownMmsi, System.currentTimeMillis(), recievedAccepted));
+            cloudStatus.markSuccesfullSend();
+        } catch (Exception e) {
+            cloudStatus.markFailedSend();
+            System.out.println("Failed to reply");
+        }
+
+    }
+    
+    /*********************************/
+    /** Mona Lisa route handling    **/
+    /*********************************/
+
+    /**
+     * Register a Mona Lisa strategic route service listener
+     */
+    private void monaLisaRouteRequestListener() throws InterruptedException {
+
+        connection
+                .serviceRegister(
+                        StrategicRouteService.INIT,
+                        new InvocationCallback<StrategicRouteService.StrategicRouteRequestMessage, StrategicRouteService.StrategicRouteRequestReply>() {
+                            public void process(
+                                    StrategicRouteRequestMessage message,
+                                    InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply> context) {
+
+                                monaLisaContext = context;
+
+                                System.out
+                                        .println("Ship received a request for reopening a transaction!");
+
+                                cloudStatus.markCloudReception();
+
+                                monaLisaHandler.handleReNegotiation(message);
+                            }
+                        }).awaitRegistered(4, TimeUnit.SECONDS);
+    }
+    
+    /**
+     * Fetch list of Mona Lisa route ack's
+     */
+    private void getMonaLisaRouteAckList() {
+        cloudStatus.markCloudReception();
+
+        try {
+            monaLisaRouteAckList = connection
+                    .serviceLocate(StrategicRouteAck.INIT)
+                    .nearest(Integer.MAX_VALUE).get();
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
+        }
+    }
+
+    /**
+     * Fetches the list of Sea Traffic Control Centers
+     */
     private void getSTCCList() {
         try {
             monaLisaSTCCList = connection
@@ -389,12 +468,24 @@ public class EnavServiceHandler extends MapHandlerChild implements
         }
     }
 
+    /**
+     * Returns the current list of Sea Traffic Control Centers
+     * @return the current list of Sea Traffic Control Centers
+     */
     public List<ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply>> getMonaLisaSTCCList() {
         return monaLisaSTCCList;
     }
 
-    public void sendMonaLisaAck(long addressMMSI, long id, long ownMMSI,
-            boolean ack, String message) {
+    /**
+     * Sends a Mona Lisa Ack message
+     * 
+     * @param addressMMSI the mmsi of the route
+     * @param id the route id
+     * @param ownMMSI own mmsi
+     * @param ack acknowledged or rejected
+     * @param message an additional message
+     */
+    public void sendMonaLisaAck(long addressMMSI, long id, long ownMMSI, boolean ack, String message) {
         String mmsiStr = "mmsi://" + addressMMSI;
 
         System.out.println(mmsiStr);
@@ -430,8 +521,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         }
     }
 
-    public void sendMonaLisaRouteRequest(
-            StrategicRouteRequestMessage routeMessage) {
+    public void sendMonaLisaRouteRequest(StrategicRouteRequestMessage routeMessage) {
 
         ServiceEndpoint<StrategicRouteService.StrategicRouteRequestMessage, StrategicRouteService.StrategicRouteRequestReply> end = null;
 
@@ -473,52 +563,4 @@ public class EnavServiceHandler extends MapHandlerChild implements
         monaLisaHandler.handleReply(reply);
 
     }
-
-    private void monaLisaRouteRequestListener() throws InterruptedException {
-
-        connection
-                .serviceRegister(
-                        StrategicRouteService.INIT,
-                        new InvocationCallback<StrategicRouteService.StrategicRouteRequestMessage, StrategicRouteService.StrategicRouteRequestReply>() {
-                            public void process(
-                                    StrategicRouteRequestMessage message,
-                                    InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply> context) {
-
-                                monaLisaContext = context;
-
-                                System.out
-                                        .println("Ship received a request for reopening a transaction!");
-
-                                cloudStatus.markCloudReception();
-
-                                monaLisaHandler.handleReNegotiation(message);
-                                // Does transaction exist?
-
-                                // If not, recreate as much as possible and open
-
-                                // Start new transaction with the end result
-
-                                // // long mmsi = message.getMmsi();
-                                // contextSenders.put(message.getId(), context);
-                                //
-                                // // if
-                                // //
-                                // (EPDShore.getAisHandler().getVesselTargets()
-                                // // .containsKey(mmsi)) {
-                                //
-                                // System.out
-                                // .println("Recieved a message with id "
-                                // + message.getId());
-                                //
-                                // monaLisaHandler.handleMessage(message);
-
-                            }
-                        }).awaitRegistered(4, TimeUnit.SECONDS);
-    }
-
-    @Override
-    public ComponentStatus getStatus() {
-        return cloudStatus;
-    }
-
 }

@@ -702,7 +702,7 @@ public class NotificationCenter extends ComponentFrame implements
             routePanel.readMessage(routeTable.getSelectedRow());
         }
         try {
-            setMessages("Route", enavServiceHandler.getUnkAck());
+            setMessages("Route", enavServiceHandler.getUnacknowledgedRouteSuggestions());
 
         } catch (InterruptedException e) {
             e.printStackTrace();
