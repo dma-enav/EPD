@@ -22,9 +22,10 @@ import javax.swing.JPanel;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
+import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.shore.EPDShore;
 
-public class MapWindowsPanel extends BaseShoreSettingsPanel {
+public class MapWindowsPanel extends BaseSettingsPanel {
 
     private static final long serialVersionUID = 1L;
     
@@ -32,7 +33,7 @@ public class MapWindowsPanel extends BaseShoreSettingsPanel {
     private JLabel lblTheCurrentWorkspace;
 
     public MapWindowsPanel() {
-        super("Map Windows", "window.png");
+        super("Map Windows", EPDShore.res().getCachedImageIcon("images/settings/window.png"));
 
 
         setBackground(GuiStyler.backgroundColor);
@@ -67,8 +68,7 @@ public class MapWindowsPanel extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void loadSettings(){
-        super.loadSettings();
+    protected void doLoadSettings(){
         
         lblTheresCurrently.setText("There's currently " + 
                 EPDShore.getInstance().getMainFrame().getMapWindows().size() + 
@@ -81,14 +81,14 @@ public class MapWindowsPanel extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void doSaveSettings() {        
+    protected void doSaveSettings() {        
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean wasChanged() {
+    protected boolean checkSettingsChanged() {
         return false;
     }
 

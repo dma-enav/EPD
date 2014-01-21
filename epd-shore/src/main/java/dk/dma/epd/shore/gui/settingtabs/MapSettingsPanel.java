@@ -28,12 +28,13 @@ import javax.swing.border.TitledBorder;
 
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
+import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.settings.EPDGuiSettings;
 import dk.dma.epd.shore.settings.EPDMapSettings;
 
-public class MapSettingsPanel extends BaseShoreSettingsPanel {
+public class MapSettingsPanel extends BaseSettingsPanel {
 
     private static final long serialVersionUID = 1L;
     JSpinner defaultMapScaleSpinner;
@@ -48,7 +49,7 @@ public class MapSettingsPanel extends BaseShoreSettingsPanel {
     private EPDGuiSettings guiSettings;
     
     public MapSettingsPanel(){
-        super("Map Settings", "map.png");
+        super("Map Settings", EPDShore.res().getCachedImageIcon("images/settings/map.png"));
         
         setBackground(GuiStyler.backgroundColor);
         setBounds(10, 11, 493, 381);
@@ -170,9 +171,7 @@ public class MapSettingsPanel extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void loadSettings() {
-        super.loadSettings();
-        
+    protected void doLoadSettings() {
         mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
         guiSettings = EPDShore.getInstance().getSettings().getGuiSettings();
 
@@ -193,7 +192,7 @@ public class MapSettingsPanel extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void doSaveSettings(){
+    protected void doSaveSettings(){
 
         mapSettings.setScale((Float) defaultMapScaleSpinner.getValue());
         mapSettings.setMaxScale((Integer) maximumMapScaleSpinner.getValue());
@@ -212,11 +211,7 @@ public class MapSettingsPanel extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public boolean wasChanged() {
-        if (!loaded) {
-            return false;
-        }
-        
+    protected boolean checkSettingsChanged() {
         return
                 changed(mapSettings.getScale(), defaultMapScaleSpinner.getValue()) ||
                 changed(mapSettings.getMaxScale(), maximumMapScaleSpinner.getValue()) ||

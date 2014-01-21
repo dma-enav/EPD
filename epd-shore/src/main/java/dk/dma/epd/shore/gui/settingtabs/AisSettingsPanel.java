@@ -28,13 +28,14 @@ import javax.swing.JTextField;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
+import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.common.prototype.settings.SensorSettings.SensorConnectionType;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.settings.EPDAisSettings;
 import dk.dma.epd.shore.settings.EPDSensorSettings;
 
-public class AisSettingsPanel extends BaseShoreSettingsPanel {
+public class AisSettingsPanel extends BaseSettingsPanel {
 
     private static final long serialVersionUID = 1L;
     
@@ -51,7 +52,7 @@ public class AisSettingsPanel extends BaseShoreSettingsPanel {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public AisSettingsPanel(){
-        super("AIS Settings", "binocular.png");
+        super("AIS Settings", EPDShore.res().getCachedImageIcon("images/settings/binocular.png"));
 
         setBackground(GuiStyler.backgroundColor);
         setBounds(10, 11, 493, 600);
@@ -146,9 +147,7 @@ public class AisSettingsPanel extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void loadSettings() {
-        super.loadSettings();
-        
+    protected void doLoadSettings() {
         aisSettings = EPDShore.getInstance().getSettings().getAisSettings();
         sensorSettings = EPDShore.getInstance().getSettings().getSensorSettings();
         
@@ -160,14 +159,13 @@ public class AisSettingsPanel extends BaseShoreSettingsPanel {
         chckbxStrictTimeout.setSelected(aisSettings.isStrict());
 
         ownMMSITxt.setText(Long.toString(aisSettings.getOwnMMSI()));
-
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void doSaveSettings() {
+    protected void doSaveSettings() {
         sensorSettings.setAisConnectionType((SensorConnectionType) comboBoxAisConnectionType.getModel().getSelectedItem());
         sensorSettings.setAisHostOrSerialPort(textFieldAisHostOrSerialPort.getText());
         sensorSettings.setAisTcpOrUdpPort((Integer) spinnerAisTcpOrUdpPort.getValue());
@@ -182,11 +180,7 @@ public class AisSettingsPanel extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public boolean wasChanged() {
-        if (!loaded) {
-            return false;
-        }
-        
+    protected boolean checkSettingsChanged() {
         return 
                 changed(sensorSettings.getAisConnectionType(), comboBoxAisConnectionType.getModel().getSelectedItem()) ||
                 changed(sensorSettings.getAisHostOrSerialPort(), textFieldAisHostOrSerialPort.getText()) ||

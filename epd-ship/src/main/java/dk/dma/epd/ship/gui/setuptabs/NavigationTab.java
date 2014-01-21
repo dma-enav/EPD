@@ -185,7 +185,7 @@ public class NavigationTab extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void loadSettings() {
+    protected void doLoadSettings() {
         this.navSettings = EPDShip.getInstance().getSettings().getNavSettings();
         checkBoxLookAhead.setSelected(navSettings.isLookAhead());
         spinnerAutoFollowPctOffTolerance.setValue(navSettings.getAutoFollowPctOffTollerance());
@@ -201,7 +201,7 @@ public class NavigationTab extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void doSaveSettings() {
+    protected void doSaveSettings() {
         navSettings.setLookAhead(checkBoxLookAhead.isSelected());
         navSettings.setAutoFollowPctOffTollerance((Integer) spinnerAutoFollowPctOffTolerance.getValue());
         navSettings.setShowMinuteMarksSelf((Integer) spinnerShowMinuteMarksSelf.getValue());
@@ -216,7 +216,7 @@ public class NavigationTab extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public boolean wasChanged() {
+    protected boolean checkSettingsChanged() {
         return 
                 changed(navSettings.isLookAhead(), checkBoxLookAhead.isSelected()) ||
                 changed(navSettings.getAutoFollowPctOffTollerance(), spinnerAutoFollowPctOffTolerance.getValue()) ||

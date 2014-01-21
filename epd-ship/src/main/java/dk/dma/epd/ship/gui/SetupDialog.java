@@ -19,6 +19,8 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +30,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
@@ -51,6 +54,12 @@ public class SetupDialog extends JDialog implements ActionListener, ISettingsLis
     
     private JButton btnOk;
     private JButton btnCancel;
+
+    private Timer timer = new Timer(500, new ActionListener() {        
+        @Override public void actionPerformed(ActionEvent e) {
+            checkSettingsChanged();
+        }});
+    
     
     // Settings tabs
     private AisTab aisTab               = new AisTab();
@@ -70,6 +79,11 @@ public class SetupDialog extends JDialog implements ActionListener, ISettingsLis
         super(parent, "Setup", true);
         
         registerSettings(aisTab, enavTab, navTab, sensorTab, mapTab, cloudTab);
+        
+        addWindowListener(new WindowAdapter() {
+            @Override public void windowClosing(WindowEvent e) {
+                timer.stop();
+            }});
         
         setSize(462, 720);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -116,6 +130,7 @@ public class SetupDialog extends JDialog implements ActionListener, ISettingsLis
         for (BaseSettingsPanel tab : settingsPanels) {
             tab.loadSettings();            
         }
+        timer.start();
     }
     
     /**
@@ -140,6 +155,7 @@ public class SetupDialog extends JDialog implements ActionListener, ISettingsLis
      */
     @Override
     public void actionPerformed(ActionEvent e) {
+        timer.stop();
         if(e.getSource() == btnOk){
             saveSettings();
             this.setVisible(false);
@@ -164,5 +180,19 @@ public class SetupDialog extends JDialog implements ActionListener, ISettingsLis
     public void settingsChanged(
             dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type type) {
         EPDShip.getInstance().settingsChanged(type);
+    }
+
+    /**
+     * Checks if the settings have changed and update the OK button enabled state
+     */
+    private void checkSettingsChanged() {
+        if (!isVisible()) {
+            return;
+        }
+        boolean changed = false;
+        for (BaseSettingsPanel settingsPanel : settingsPanels) {
+            changed |= settingsPanel.settingsChanged();
+        }
+        btnOk.setEnabled(changed);
     }
 }

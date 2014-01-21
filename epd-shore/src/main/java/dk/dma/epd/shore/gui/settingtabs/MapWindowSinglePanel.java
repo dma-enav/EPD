@@ -24,11 +24,12 @@ import javax.swing.JTextField;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
+import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MainFrame;
 
-public class MapWindowSinglePanel extends BaseShoreSettingsPanel {
+public class MapWindowSinglePanel extends BaseSettingsPanel {
 
     /**
      *
@@ -41,7 +42,7 @@ public class MapWindowSinglePanel extends BaseShoreSettingsPanel {
     private int id;
 
     public MapWindowSinglePanel(String name, int id){
-        super(name, "window.png");
+        super(name, EPDShore.res().getCachedImageIcon("images/settings/window.png"));
 
         this.mainFrame = EPDShore.getInstance().getMainFrame();
         this.id = id;
@@ -95,9 +96,7 @@ public class MapWindowSinglePanel extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void loadSettings() {
-        super.loadSettings();
-        
+    protected void doLoadSettings() {
         JMapFrame mapWindow = mainFrame.getMapWindows().get(id);
 
         textField.setText(mapWindow.getTitle());
@@ -111,7 +110,7 @@ public class MapWindowSinglePanel extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void doSaveSettings() {
+    protected void doSaveSettings() {
         JMapFrame mapWindow = mainFrame.getMapWindows().get(id);
 
         mapWindow.setTitle(textField.getText());
@@ -133,11 +132,7 @@ public class MapWindowSinglePanel extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public boolean wasChanged() {
-        if (!loaded) {
-            return false;
-        }
-        
+    protected boolean checkSettingsChanged() {
         JMapFrame mapWindow = mainFrame.getMapWindows().get(id);
         
         return

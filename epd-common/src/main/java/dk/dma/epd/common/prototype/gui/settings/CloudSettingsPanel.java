@@ -39,7 +39,7 @@ public class CloudSettingsPanel extends BaseSettingsPanel {
     private EnavSettings enavSettings;
 
     public CloudSettingsPanel() {
-        super("Cloud");
+        super("Cloud", EPD.res().getCachedImageIcon("images/settings/cloud.png"));
         
         JPanel cloudPanel = new JPanel();
         cloudPanel.setBorder(new TitledBorder(null, "HTTP Settings",
@@ -145,7 +145,7 @@ public class CloudSettingsPanel extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void loadSettings() {
+    protected void doLoadSettings() {
         this.enavSettings = EPD.getInstance().getSettings().getEnavSettings();
         textFieldServerName.setText(enavSettings.getCloudServerHost());
         textFieldServerPort.setText(Integer.toString(enavSettings
@@ -156,7 +156,7 @@ public class CloudSettingsPanel extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void doSaveSettings() {
+    protected void doSaveSettings() {
         enavSettings.setCloudServerHost(textFieldServerName.getText());
         enavSettings.setCloudServerPort(getIntVal(
                 textFieldServerPort.getText(), enavSettings.getHttpPort()));
@@ -166,7 +166,7 @@ public class CloudSettingsPanel extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public boolean wasChanged() {
+    protected boolean checkSettingsChanged() {
         return 
                 changed(enavSettings.getCloudServerHost(), textFieldServerName.getText()) ||
                 changed(enavSettings.getCloudServerPort(), textFieldServerPort.getText());

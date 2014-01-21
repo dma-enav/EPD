@@ -285,7 +285,7 @@ public class AisTab extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void loadSettings() {
+    protected void doLoadSettings() {
         this.aisSettings = EPDShip.getInstance().getSettings().getAisSettings();
         checkBoxAllowSending.setSelected(aisSettings.isAllowSending());
         checkBoxStrict.setSelected(aisSettings.isStrict());
@@ -307,7 +307,7 @@ public class AisTab extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void doSaveSettings() {
+    protected void doSaveSettings() {
         aisSettings.setAllowSending(checkBoxAllowSending.isSelected());
         aisSettings.setStrict(checkBoxStrict.isSelected());
 
@@ -328,7 +328,7 @@ public class AisTab extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public boolean wasChanged() {
+    protected boolean checkSettingsChanged() {
         return 
                 changed(aisSettings.isAllowSending(), checkBoxAllowSending.isSelected()) ||
                 changed(aisSettings.isStrict(), checkBoxStrict.isSelected()) ||

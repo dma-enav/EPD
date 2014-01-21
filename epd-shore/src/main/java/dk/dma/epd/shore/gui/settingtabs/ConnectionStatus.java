@@ -24,14 +24,16 @@ import javax.swing.JPanel;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
+import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.status.AisStatus;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.prototype.status.ShoreServiceStatus;
 import dk.dma.epd.common.prototype.status.WMSStatus;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.shore.EPDShore;
 
-public class ConnectionStatus extends BaseShoreSettingsPanel {
+public class ConnectionStatus extends BaseSettingsPanel {
 
     private static final long serialVersionUID = 1L;
     
@@ -48,7 +50,7 @@ public class ConnectionStatus extends BaseShoreSettingsPanel {
 
 
     public ConnectionStatus() {
-        super("Connections", "connections.png");
+        super("Connections", EPDShore.res().getCachedImageIcon("images/settings/connections.png"));
 
         setBackground(GuiStyler.backgroundColor);
         setBounds(10, 11, 493, 600);
@@ -264,8 +266,7 @@ public class ConnectionStatus extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void loadSettings(){
-        super.loadSettings();
+    protected void doLoadSettings(){
         showStatus();
     }
 
@@ -273,21 +274,21 @@ public class ConnectionStatus extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void doSaveSettings() {        
+    protected void doSaveSettings() {        
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean checkSettingsChanged() {
+        return false;
+    }
+    
     /**
      * {@inheritDoc}
      */
     @Override
     protected void fireSettingsChanged() {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean wasChanged() {
-        return false;
     }
 }

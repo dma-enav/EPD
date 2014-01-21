@@ -272,7 +272,7 @@ public class ENavTab extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void loadSettings() {
+    protected void doLoadSettings() {
         enavSettings = EPDShip.getInstance().getSettings().getEnavSettings();
         
         spinnerMetocTtl.setValue(enavSettings.getMetocTtl());
@@ -296,7 +296,7 @@ public class ENavTab extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void doSaveSettings() {
+    protected void doSaveSettings() {
         enavSettings.setMetocTtl((Integer) spinnerMetocTtl.getValue());
         enavSettings.setActiveRouteMetocPollInterval((Integer) spinnerActiveRouteMetocPoll.getValue());
         enavSettings.setMetocTimeDiffTolerance((Integer) spinnerMetocTimeDiffTolerance.getValue());
@@ -318,7 +318,7 @@ public class ENavTab extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public boolean wasChanged() {
+    protected boolean checkSettingsChanged() {
         return 
                 changed(enavSettings.getMetocTtl(), spinnerMetocTtl.getValue()) ||
                 changed(enavSettings.getActiveRouteMetocPollInterval(), spinnerActiveRouteMetocPoll.getValue()) ||

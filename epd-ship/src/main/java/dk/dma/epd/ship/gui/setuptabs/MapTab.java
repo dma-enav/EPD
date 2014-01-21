@@ -376,7 +376,7 @@ public class MapTab extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void loadSettings() {
+    protected void doLoadSettings() {
         mapSettings = EPDShip.getInstance().getSettings().getMapSettings();
         
         spinnerDefaultMapScale.setValue(mapSettings.getScale());
@@ -414,7 +414,7 @@ public class MapTab extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void doSaveSettings() {
+    protected void doSaveSettings() {
         mapSettings.setScale((Float) spinnerDefaultMapScale.getValue());
         mapSettings.setMaxScale((Integer) spinnerMaximumScale.getValue());
         LatLonPoint center = new LatLonPoint.Double((Double) spinnerLatitude.getValue(), (Double) spinnerLongitude.getValue());
@@ -448,7 +448,7 @@ public class MapTab extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public boolean wasChanged() {
+    protected boolean checkSettingsChanged() {
         boolean changed =
                 changed(mapSettings.getScale(), spinnerDefaultMapScale.getValue()) ||
                 changed(mapSettings.getMaxScale(), spinnerMaximumScale.getValue()) ||

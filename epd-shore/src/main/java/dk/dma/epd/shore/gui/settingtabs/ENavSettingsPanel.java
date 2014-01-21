@@ -26,13 +26,14 @@ import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.FormatException;
+import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.common.util.ParseUtils;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.settings.EPDEnavSettings;
 
 
-public class ENavSettingsPanel  extends BaseShoreSettingsPanel {
+public class ENavSettingsPanel  extends BaseSettingsPanel {
 
     private static final long serialVersionUID = 1L;
     private JTextField textFieldServerPort;
@@ -51,7 +52,7 @@ public class ENavSettingsPanel  extends BaseShoreSettingsPanel {
 
 
     public ENavSettingsPanel(){
-        super("e-Nav Services", "servers-network.png");
+        super("e-Nav Services", EPDShore.res().getCachedImageIcon("images/settings/servers-network.png"));
 
         setBackground(GuiStyler.backgroundColor);
         setBounds(10, 11, 493, 600);
@@ -210,8 +211,7 @@ public class ENavSettingsPanel  extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void loadSettings() {
-        super.loadSettings();
+    protected void doLoadSettings() {
         
         this.enavSettings = EPDShore.getInstance().getSettings().getEnavSettings();
         spinnerMetocTtl.setValue(enavSettings.getMetocTtl());
@@ -235,7 +235,7 @@ public class ENavSettingsPanel  extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public void doSaveSettings() {
+    protected void doSaveSettings() {
         enavSettings.setMetocTtl((Integer) spinnerMetocTtl.getValue());
         enavSettings.setActiveRouteMetocPollInterval((Integer) spinnerActiveRouteMetocPoll.getValue());
         enavSettings.setMetocTimeDiffTolerance((Integer) spinnerMetocTimeDiffTolerance.getValue());
@@ -257,11 +257,7 @@ public class ENavSettingsPanel  extends BaseShoreSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public boolean wasChanged() {
-        if (!loaded) {
-            return false;
-        }
-        
+    protected boolean checkSettingsChanged() {
         return
                 changed(enavSettings.getMetocTtl(), spinnerMetocTtl.getValue()) ||
                 changed(enavSettings.getActiveRouteMetocPollInterval(), spinnerActiveRouteMetocPoll.getValue()) ||

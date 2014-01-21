@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.gui.settings;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 import org.slf4j.Logger;
@@ -29,13 +30,15 @@ import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
  * <p>
  * It provides crude functionality for tracking if the settings were changed.
  */
-public abstract class BaseSettingsPanel extends JPanel implements BaseSettings {
+public abstract class BaseSettingsPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(BaseSettingsPanel.class);
     protected CopyOnWriteArrayList<ISettingsListener> listeners = new CopyOnWriteArrayList<>();
     protected String name;
+    protected ImageIcon icon;
+    protected boolean loaded;
     
     /**
      * Constructor
@@ -43,25 +46,78 @@ public abstract class BaseSettingsPanel extends JPanel implements BaseSettings {
      * @param name the name of the settings panel
      */
     public BaseSettingsPanel(String name) {
-        this.name = name;
+        this(name, null);
     }
     
     /**
-     * {@inheritDoc}
+     * Constructor
+     * 
+     * @param name the name of the settings panel
+     * @param icon the icon of the settings panel
      */
-    @Override
+    public BaseSettingsPanel(String name, ImageIcon icon) {
+        this.name = name;
+        this.icon = icon;
+    }
+    
+    /**
+     * Returns the name associated with this settings panel
+     * @return the name associated with this settings panel
+     */
     public String getName() {
         return name;
     }
+    
+    /**
+     * Returns the image icon associated with this settings panel
+     * @return the image icon associated with this settings panel
+     */
+    public ImageIcon getIcon() {
+        return icon;
+    }
+
+    /**
+     * Returns if the settings have been changed since they were loaded
+     * @return if the settings have been changed since they were loaded
+     */
+    public final boolean settingsChanged() {
+        if (!loaded) {
+            return false;
+        }
+        return checkSettingsChanged();
+    }
+    
+    /**
+     * Returns if the settings have been changed since they were loaded
+     * <p>
+     * Should be implemented by sub-classes.
+     * 
+     * @return if the settings have been changed since they were loaded
+     */
+    protected abstract boolean checkSettingsChanged();
+
+    /**
+     * Initializes the UI from the current EPD settings
+     */
+    public final void loadSettings() {
+        doLoadSettings();
+        this.loaded = true;
+    }
+
+    /**
+     * Initializes the UI from the current EPD settings.
+     * <p>
+     * Should be implemented by sub-classes.
+     */
+    protected abstract void doLoadSettings();
 
     /**
      * Saves the settings and notifies listeners if 
      * the settings have changed.
      * @return if the settings were saved
      */
-    @Override
     public final boolean saveSettings() {
-        if (wasChanged()) {
+        if (settingsChanged()) {
             LOG.info("Settings " + getClass().getName() + " was changed and will be saved");
             doSaveSettings();
             fireSettingsChanged();
@@ -72,6 +128,8 @@ public abstract class BaseSettingsPanel extends JPanel implements BaseSettings {
     
     /**
      * Called when the settings panel needs to be saved.
+     * <p>
+     * Should be implemented by sub-classes.
      */
     protected abstract void doSaveSettings();
 
@@ -117,17 +175,17 @@ public abstract class BaseSettingsPanel extends JPanel implements BaseSettings {
     }
     
     /**
-     * {@inheritDoc}
+     * Adds a listener that gets called when settings are changed
+     * @param listener the listener to add
      */
-    @Override
     public synchronized void addListener(ISettingsListener listener) {
         listeners.addIfAbsent(listener);
     }
 
     /**
-     * {@inheritDoc}
+     * Removes a listener 
+     * @param listener the listener to remove
      */
-    @Override
     public synchronized void removeListener(ISettingsListener listener) {
         listeners.remove(listener);
     }

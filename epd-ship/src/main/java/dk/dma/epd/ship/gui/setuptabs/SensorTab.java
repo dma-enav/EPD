@@ -387,7 +387,7 @@ public class SensorTab extends BaseSettingsPanel implements ActionListener {
      * {@inheritDoc}
      */
     @Override
-    public void loadSettings() {
+    protected void doLoadSettings() {
 
         this.sensorSettings = EPDShip.getInstance().getSettings().getSensorSettings();
         
@@ -424,7 +424,7 @@ public class SensorTab extends BaseSettingsPanel implements ActionListener {
      * {@inheritDoc}
      */
     @Override
-    public void doSaveSettings() {
+    protected void doSaveSettings() {
         
         // Saves the AIS Connection settings
         sensorSettings.setAisConnectionType((SensorConnectionType) comboBoxAisConnectionType.getSelectedItem());
@@ -456,7 +456,7 @@ public class SensorTab extends BaseSettingsPanel implements ActionListener {
      * {@inheritDoc}
      */
     @Override
-    public boolean wasChanged() {
+    protected boolean checkSettingsChanged() {
         return 
                 changed(sensorSettings.getAisConnectionType(), comboBoxAisConnectionType.getSelectedItem()) ||
                 changed(sensorSettings.getAisHostOrSerialPort(), textFieldAisHostOrSerialPort.getText()) ||
