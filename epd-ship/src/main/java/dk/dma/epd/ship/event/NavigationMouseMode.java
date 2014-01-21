@@ -26,7 +26,6 @@ import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
-import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.ChartPanel;
 
@@ -265,44 +264,15 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
             if (newScale < maxScale) {
                 newScale = maxScale;
             }
-            
+            p.setScale(newScale);
+            p.setCenter(center);
+
             // on the repaint.
             point1 = null;
             point2 = null;
-            
-            
-            // Save the scaling to history.
-            // ----------------------------
 
-            double positionX;
-            double positionY;
-            Position position;
-            
-            // If the pointer in history is at -1, the current position should be saved to the history aswell.
-            if (EPDShip.getInstance().getMainFrame().mapHistory.getPointerInHistory() == -1) {
-                // Get position of the current position.
-                positionX = this.chartPanel.getMap().getCenter().getX();
-                positionY = this.chartPanel.getMap().getCenter().getY();
-                position  = Position.create(positionY, positionX);
-                EPDShip.getInstance().getMainFrame().mapHistory.addHistoryElement(position, true);
-            }
-            
-            // Move to the new view.
-            p.setScale(newScale);
-            p.setCenter(center);
             map.setProjection(p);
             chartPanel.manualProjChange();
-            
-            // Get position of the new scaled position.
-            positionX = this.chartPanel.getMap().getCenter().getX();
-            positionY = this.chartPanel.getMap().getCenter().getY();
-            position  = Position.create(positionY, positionX);
-            
-            // Save the position to the history.
-            EPDShip.getInstance().getMainFrame().mapHistory.addHistoryElement(position, true);
-            
-            // Toggle buttons for navigation.
-            EPDShip.getInstance().getMainFrame().getTopPanel().toggleGoBackButton();
         }
     }
 

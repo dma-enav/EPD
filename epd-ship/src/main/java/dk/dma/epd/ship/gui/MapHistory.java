@@ -41,33 +41,41 @@ public class MapHistory {
      * @param increasePointer
      *            if true, will increase the pointer in history.
      */
-    public synchronized boolean addHistoryElement(Position newHistory, boolean increasePointer) {
+    protected synchronized boolean addHistoryElement(Position newHistory, boolean increasePointer) {
         // TODO: Add reset functionality for a button?
-        
-        // The new history element must:
-        //  - be initialized (not null) and
-        //  - be equal to -1 or not the same position as the newest element in history.
-        if ((newHistory != null) && 
-                (this.pointerInHistory == -1 || !this.isSamePositionAsNewest(newHistory))) {
-            
-            // If the pointer is not at the newest position, reset the history from the position of the pointer plus 1 to the end.
-            if (this.pointerInHistory != this.historyOfPositions.size()-1) {
+
+        // The new history element must not be a null object go into adding the position.
+        if (newHistory != null) {
+            // If the pointer is at the first element OR the position wished to be added are not equal to the newest element in history. 
+            if (this.pointerInHistory == -1 || !this.isSamePositionAsHighest(newHistory)) {
                 
-                // Remove elements from the top op the history untill one position from the pointer.
-                for(int i = this.historyOfPositions.size()-1; i >= this.pointerInHistory+1; i--) {
-                    this.historyOfPositions.remove(i);
+                // If the pointer is not at the newest position, reset the history from this pointer to the end.
+                if (this.pointerInHistory != this.historyOfPositions.size()-1) {
+//                    System.out.println("DEBUG: Reseting some history; pointer is: "+this.pointerInHistory);
+                    
+                    // Remove every element in the history from the position of the pointer to the end history.
+                    for(int i = this.historyOfPositions.size()-1; i >= this.pointerInHistory+1; i--) {
+//                        System.out.println("DEBUG: Deleting an item at index: "+i+"; "+this.toString());
+                        this.historyOfPositions.remove(i);
+                    }
+                    
+                    // Set the newest position to the highest element in the history.
+                    this.historyOfPositions.set(this.pointerInHistory, newHistory);
+                    // Do not increase the pointer, since the newest element will only be removed again.
+                    increasePointer = false;
+                    // End.
+                    return true;
+                }
+                
+                // Add the new element in the history.
+                this.historyOfPositions.add(newHistory);
+                
+                // Increase the pointer, if told so by the boolean.
+                if (increasePointer) {
+                    pointerInHistory++;
                 }
             }
-            
-            // Add the new element in the history.
-            this.historyOfPositions.add(newHistory);
-            
-            // Increase the pointer, if told so by the boolean.
-            if (increasePointer) {
-                pointerInHistory++;
-            }
-            
-            System.out.println("DEBUG:\t"+this.toString());
+
             return true;
         }
         
@@ -80,7 +88,7 @@ public class MapHistory {
      * @param position: the position
      * @return True if the latitude and longitude of the position parameter as strings are equal to the newest element, or false if not. 
      */
-    public boolean isSamePositionAsNewest(Position position) {
+    private boolean isSamePositionAsHighest(Position position) {
         
         Position highestElementPosition = this.historyOfPositions.get(this.historyOfPositions.size()-1);
         
@@ -97,12 +105,10 @@ public class MapHistory {
      * 
      * @return The position of one step back in the history.
      */
-    public Position goOneHistoryElementBack() {
-        
+    protected Position goOneHistoryElementBack(Position currentPosition) {
         
         this.pointerInHistory--;
 
-        System.out.println("DEBUG: "+this.toString());
         return this.historyOfPositions.get(pointerInHistory);
     }
 
@@ -111,12 +117,10 @@ public class MapHistory {
      * 
      * @return The position of one step forward in the history.
      */
-    public Position goOneHistoryElementForward() {
-
-
+    protected Position goOneHistoryElementForward() {
+        
         this.pointerInHistory++;
         
-        System.out.println("DEBUG: "+this.toString());
         return this.historyOfPositions.get(pointerInHistory);
     }
 
@@ -125,7 +129,7 @@ public class MapHistory {
      * 
      * @return True if the history contains any elements and false if not.
      */
-    public boolean containsElements() {
+    protected boolean containsElements() {
         return this.historyOfPositions.size() > 0;
     }
     
@@ -133,7 +137,7 @@ public class MapHistory {
      * 
      * @return True if the pointer is at the highest element in the history, or false if not.
      */
-    public boolean isAtHighestElement() {
+    protected boolean isAtHighestElement() {
         return this.pointerInHistory == this.historyOfPositions.size()-1;
     }
     
@@ -141,16 +145,8 @@ public class MapHistory {
      * 
      * @return True if the pointer is at the lowest element in the history, or false if not.
      */
-    public boolean isAtLowestElement() {
+    protected boolean isAtLowestElement() {
         return this.pointerInHistory == 0;
-    }
-    
-    /**
-     * 
-     * @return The pointer in history.
-     */
-    public int getPointerInHistory() {
-        return this.pointerInHistory;
     }
 
     /*
