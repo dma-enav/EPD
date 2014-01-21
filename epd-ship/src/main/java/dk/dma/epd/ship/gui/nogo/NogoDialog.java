@@ -27,7 +27,6 @@ import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -40,7 +39,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.text.NumberFormatter;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.text.Formatter;
