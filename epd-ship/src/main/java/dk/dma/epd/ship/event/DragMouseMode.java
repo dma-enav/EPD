@@ -293,7 +293,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
             // Save new position to the history
             // --------------------------------
             
-            EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().setCommand(HistoryListener.DRAGGED);;
+            EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().setCommand(HistoryListener.DRAGGED);
             EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().savingToEmptyHistory();
 
             //this will trigger "projection changed" in SimpleOffScreenMapRenderer

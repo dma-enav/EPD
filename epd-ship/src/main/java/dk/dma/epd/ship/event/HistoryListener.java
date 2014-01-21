@@ -25,9 +25,9 @@ import dk.dma.epd.ship.gui.HistoryPosition;
 public class HistoryListener implements ProjectionListener {
 
     private String command;
-    public final static String DRAGGED = "dragged";
-    public final static String CENTERED = "centered";
-    public final static String SCALED = "scaled";
+    public static final String DRAGGED = "dragged";
+    public static final String CENTERED = "centered";
+    public static final String SCALED = "scaled";
     
     private double positionX;
     private double positionY;
@@ -41,6 +41,9 @@ public class HistoryListener implements ProjectionListener {
 
     @Override
     public void projectionChanged(ProjectionEvent e) {
+        
+        // TODO: Clean up this mess.
+        
         if (this.command.equals(HistoryListener.DRAGGED)) {
             System.out.println("DEBUG:\tSaving to history with dragged mode.");
             
