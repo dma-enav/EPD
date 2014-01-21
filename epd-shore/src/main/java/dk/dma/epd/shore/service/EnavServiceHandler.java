@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.shore.service;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,9 +32,11 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandlerChild;
 
+import net.maritimecloud.net.ClosingCode;
 import net.maritimecloud.net.ConnectionFuture;
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.MaritimeCloudClientConfiguration;
+import net.maritimecloud.net.MaritimeCloudConnection;
 import net.maritimecloud.net.broadcast.BroadcastListener;
 import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
 import net.maritimecloud.net.service.ServiceEndpoint;
@@ -55,8 +58,6 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck.StrategicRouteAck
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
-import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
-import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -73,8 +74,14 @@ import dk.dma.epd.shore.settings.EPDEnavSettings;
  *   <li>Strategic routes - a.k.a. Mona Lisa</li>
  * </ul>
  */
-public class EnavServiceHandler extends MapHandlerChild implements IPntDataListener, Runnable {
+public class EnavServiceHandler extends MapHandlerChild implements Runnable {
 
+    /** 
+     * Set this flag to true, if you want to log all 
+     * messages sent and received by the {@linkplain MaritimeCloudClient} 
+     */
+    private static final boolean LOG_MARITIME_CLOUD_ACTIVITY = false;
+    
     private static final Logger LOG = LoggerFactory.getLogger(EnavServiceHandler.class);
 
     private String hostPort;
@@ -202,10 +209,35 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
         enavCloudConnection.setPositionReader(new PositionReader() {
             @Override
             public PositionTime getCurrentPosition() {
-                return PositionTime.create(0.0, 0.0, System.currentTimeMillis());
+                return PositionTime.create(0, 0, System.currentTimeMillis());
             }
         });
 
+        // Check if we need to log the MaritimeCloudConnection activity
+        if (LOG_MARITIME_CLOUD_ACTIVITY) {
+            enavCloudConnection.addListener(new MaritimeCloudConnection.Listener() {
+                @Override
+                public void messageReceived(String message) {
+                    LOG.info("Received:" + message);
+                }
+    
+                @Override
+                public void messageSend(String message) {
+                    LOG.info("Sending :" + message);
+                }
+                
+                @Override
+                public void connecting(URI host) {
+                    LOG.info("Connecting to host :" + host);
+                }
+
+                @Override
+                public void disconnected(ClosingCode closeReason) {
+                    LOG.info("Disconnecting from cloud :" + closeReason);
+                }
+            });
+        }
+        
         while (!stopped && connection == null) {
             try {
                 enavCloudConnection.setHost(hostPort);
@@ -221,14 +253,6 @@ public class EnavServiceHandler extends MapHandlerChild implements IPntDataListe
         }
         LOG.info("Started succesfull cloud server: " + hostPort + " with shipId " + shipId.getId());
 
-    }
-
-    /**
-     * Receive position updates
-     */
-    @Override
-    public void pntDataUpdate(PntData gpsData) {
-        // TODO give information to messageBus if valid position
     }
 
     @Override
