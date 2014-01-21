@@ -52,6 +52,7 @@ import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.MSIFilterMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
+import dk.dma.epd.ship.event.HistoryListener;
 import dk.dma.epd.ship.event.RouteEditMouseMode;
 import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.nogo.NogoDialog;
@@ -106,6 +107,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
     private RulerLayer rulerLayer;
     
     private IntendedRouteLayer intendedRouteLayer;
+    private HistoryListener pcl;
 
     public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel) {
         super();
@@ -145,6 +147,8 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
         map.setDoubleBuffered(true);
+        pcl = new HistoryListener();
+        map.addProjectionListener(pcl);
 
         // Orthographic test = new Orthographic((LatLonPoint)
         // mapSettings.getCenter(), mapSettings.getScale(), 1000, 1000);
@@ -387,6 +391,10 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
 
     public Layer getBgLayer() {
         return coastalOutlineLayer;
+    }
+    
+    public HistoryListener getProjectChangeListener() {
+        return this.pcl;
     }
 
     public void centreOnShip() {

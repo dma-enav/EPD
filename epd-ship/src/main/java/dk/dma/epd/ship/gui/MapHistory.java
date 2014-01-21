@@ -17,19 +17,17 @@ package dk.dma.epd.ship.gui;
 
 import java.util.ArrayList;
 
-import dk.dma.enav.model.geometry.Position;
-
 public class MapHistory {
 
-    private ArrayList<Position> historyOfPositions;
+    private ArrayList<HistoryPosition> historyOfPositions;
     private int pointerInHistory;
 
     /**
      * Constructor
      */
     public MapHistory() {
-        this.historyOfPositions = new ArrayList<Position>();
-        this.pointerInHistory = -1; // No elements in the history.
+        this.historyOfPositions = new ArrayList<HistoryPosition>();
+        this.pointerInHistory   = -1; // No elements in the history.
     }
 
     /**
@@ -41,14 +39,14 @@ public class MapHistory {
      * @param increasePointer
      *            if true, will increase the pointer in history.
      */
-    public synchronized boolean addHistoryElement(Position newHistory, boolean increasePointer) {
+    public synchronized boolean addHistoryElement(HistoryPosition newHistory, boolean increasePointer) {
         // TODO: Add reset functionality for a button?
         
         // The new history element must:
         //  - be initialized (not null) and
-        //  - be equal to -1 or not the same position as the newest element in history.
+        //  - be equal to -1 or not the same position as the newest element in history
         if ((newHistory != null) && 
-                (this.pointerInHistory == -1 || !this.isSamePositionAsNewest(newHistory))) {
+                (this.pointerInHistory == -1 || !newHistory.equals(this.historyOfPositions.size()-1))) {
             
             // If the pointer is not at the newest position, reset the history from the position of the pointer plus 1 to the end.
             if (this.pointerInHistory != this.historyOfPositions.size()-1) {
@@ -73,36 +71,17 @@ public class MapHistory {
         
         return false;
     }
-    
-    /**
-     * Checks if the position parameter is the same according to the latitude and longitude of the highest element in history.
-     * 
-     * @param position: the position
-     * @return True if the latitude and longitude of the position parameter as strings are equal to the newest element, or false if not. 
-     */
-    public boolean isSamePositionAsNewest(Position position) {
-        
-        Position highestElementPosition = this.historyOfPositions.get(this.historyOfPositions.size()-1);
-        
-        if (highestElementPosition.getLatitudeAsString().equals(position.getLatitudeAsString()) && 
-                highestElementPosition.getLongitudeAsString().equals(position.getLongitudeAsString())) {
-            return true;
-        }
-        
-        return false;
-    }
 
     /**
      * Get the element which is one index
      * 
      * @return The position of one step back in the history.
      */
-    public Position goOneHistoryElementBack() {
-        
+    public HistoryPosition goOneHistoryElementBack() {
         
         this.pointerInHistory--;
 
-        System.out.println("DEBUG: "+this.toString());
+        System.out.println("DEBUG:\t"+this.toString());
         return this.historyOfPositions.get(pointerInHistory);
     }
 
@@ -111,12 +90,12 @@ public class MapHistory {
      * 
      * @return The position of one step forward in the history.
      */
-    public Position goOneHistoryElementForward() {
+    public HistoryPosition goOneHistoryElementForward() {
 
 
         this.pointerInHistory++;
         
-        System.out.println("DEBUG: "+this.toString());
+        System.out.println("DEBUG:\t"+this.toString());
         return this.historyOfPositions.get(pointerInHistory);
     }
 

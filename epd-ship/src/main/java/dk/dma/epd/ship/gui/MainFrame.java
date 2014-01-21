@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandler;
 
-import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.event.HistoryListener;
 import dk.dma.epd.ship.gui.ais.AisDialog;
 import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
@@ -393,30 +393,11 @@ public class MainFrame extends JFrame implements WindowListener {
         // Save the centering of ship to history.
         // ----------------------------
 
-        double positionX;
-        double positionY;
-        Position position;
-        
-        // 
-        if (this.mapHistory.getPointerInHistory() == -1) {
-            // Get position of the current position.
-            positionX = this.getChartPanel().getMap().getCenter().getX();
-            positionY = this.getChartPanel().getMap().getCenter().getY();
-            position  = Position.create(positionY, positionX);
-            EPDShip.getInstance().getMainFrame().mapHistory.addHistoryElement(position, true);
-        }
+        EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().setCommand(HistoryListener.CENTERED);
+        EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().savingToEmptyHistory();
 
         // Move view to centre on ship.
         this.getChartPanel().centreOnShip();
-        
-        // Get position of the ship.
-        positionX = this.getChartPanel().getMap().getCenter().getX();
-        positionY = this.getChartPanel().getMap().getCenter().getY();
-        position  = Position.create(positionY, positionX);
-        EPDShip.getInstance().getMainFrame().mapHistory.addHistoryElement(position, true);
-        
-        // Toggle buttons for navigation through history.
-        this.getTopPanel().toggleGoBackButton();
     }
 
     

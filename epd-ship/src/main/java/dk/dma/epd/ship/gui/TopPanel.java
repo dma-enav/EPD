@@ -31,7 +31,6 @@ import javax.swing.JSeparator;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
-import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DistanceCircleMouseMode;
@@ -483,18 +482,20 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             if (this.goBack.isEnabled()) {
                 
                 // Jump to the previous position in the history.
-                Position previousPosition = EPDShip.getInstance().getMainFrame().mapHistory.goOneHistoryElementBack();
-                mainFrame.getChartPanel().zoomToPosition(previousPosition);
+                HistoryPosition hpos = EPDShip.getInstance().getMainFrame().mapHistory.goOneHistoryElementBack();
+                mainFrame.getChartPanel().zoomToPosition(hpos.getPosition());
+                mainFrame.getChartPanel().getMap().setScale(hpos.getZoomScale());
                 
                 toggleGoForwardButton();
             }
         } else if (e.getSource() == this.goForward) {
             if (this.goForward.isEnabled()) {
                 // Go one element forward in the history.
-                Position pos = EPDShip.getInstance().getMainFrame().mapHistory.goOneHistoryElementForward();
+                HistoryPosition hpos = EPDShip.getInstance().getMainFrame().mapHistory.goOneHistoryElementForward();
                                 
                 // Move to the next elements position.
-                mainFrame.getChartPanel().zoomToPosition(pos);
+                mainFrame.getChartPanel().zoomToPosition(hpos.getPosition());
+                mainFrame.getChartPanel().getMap().setScale(hpos.getZoomScale());
                 
                 toggleGoBackButton();
             }
