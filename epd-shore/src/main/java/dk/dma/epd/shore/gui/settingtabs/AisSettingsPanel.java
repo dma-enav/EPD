@@ -46,7 +46,6 @@ public class AisSettingsPanel extends BaseSettingsPanel {
     private JSpinner spinnerAisTcpOrUdpPort;
     private JCheckBox chckbxAllowSending;
     private JCheckBox chckbxStrictTimeout;
-    private JTextField ownMMSITxt;
     private EPDSensorSettings sensorSettings;
 
 
@@ -117,29 +116,6 @@ public class AisSettingsPanel extends BaseSettingsPanel {
         GuiStyler.styleCheckbox(chckbxStrictTimeout);
         chckbxStrictTimeout.setBounds(6, 53, 120, 23);
         transponderSettings.add(chckbxStrictTimeout);
-
-
-
-        JPanel ownMMSI = new JPanel();
-
-        ownMMSI.setBackground(GuiStyler.backgroundColor);
-        ownMMSI.setBorder(new TitledBorder(new MatteBorder(1, 1, 1, 1, new Color(70, 70, 70)), "MMSI Settings", TitledBorder.LEADING, TitledBorder.TOP, GuiStyler.defaultFont, GuiStyler.textColor));
-
-        ownMMSI.setLayout(null);
-        ownMMSI.setBounds(11, 272, 472, 100);
-        add(ownMMSI);
-
-        JLabel lblNewLabel_3 = new JLabel("Own MMSI:");
-        GuiStyler.styleText(lblNewLabel_3);
-        lblNewLabel_3.setBounds(10, 22, 114, 14);
-        ownMMSI.add(lblNewLabel_3);
-
-        ownMMSITxt = new JTextField();
-        ownMMSITxt.setBounds(134, 19, 142, 20);
-        GuiStyler.styleTextFields(ownMMSITxt);
-        ownMMSI.add(ownMMSITxt);
-        ownMMSITxt.setColumns(10);
-
     }
 
 
@@ -157,8 +133,6 @@ public class AisSettingsPanel extends BaseSettingsPanel {
 
         chckbxAllowSending.setSelected(aisSettings.isAllowSending());
         chckbxStrictTimeout.setSelected(aisSettings.isStrict());
-
-        ownMMSITxt.setText(Long.toString(aisSettings.getOwnMMSI()));
     }
 
     /**
@@ -172,8 +146,6 @@ public class AisSettingsPanel extends BaseSettingsPanel {
 
         aisSettings.setAllowSending(chckbxAllowSending.isSelected());
         aisSettings.setStrict(chckbxStrictTimeout.isSelected());
-
-        aisSettings.setOwnMMSI(Long.parseLong(ownMMSITxt.getText()));
     }
 
     /**
@@ -187,8 +159,7 @@ public class AisSettingsPanel extends BaseSettingsPanel {
                 changed(sensorSettings.getAisTcpOrUdpPort(), spinnerAisTcpOrUdpPort.getValue()) ||
                 
                 changed(aisSettings.isAllowSending(), chckbxAllowSending.isSelected()) ||
-                changed(aisSettings.isStrict(), chckbxStrictTimeout.isSelected()) ||
-                changed(aisSettings.getOwnMMSI(), ownMMSITxt.getText());
+                changed(aisSettings.isStrict(), chckbxStrictTimeout.isSelected());
     }
 
     /**

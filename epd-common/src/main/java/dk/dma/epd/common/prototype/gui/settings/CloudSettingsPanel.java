@@ -15,15 +15,22 @@
  */
 package dk.dma.epd.common.prototype.gui.settings;
 
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.WEST;
+import static java.awt.GridBagConstraints.NORTHWEST;
+
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.FormatException;
+import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.common.prototype.settings.EnavSettings;
@@ -33,106 +40,47 @@ import dk.dma.epd.common.util.ParseUtils;
  * Maritime cloud tab panel
  */
 public class CloudSettingsPanel extends BaseSettingsPanel {
+    
     private static final long serialVersionUID = 1L;
-    private JTextField textFieldServerPort;
-    private JTextField textFieldServerName;
+    
+    private JTextField txtServerPort = new JTextField();
+    private JTextField txtServerName = new JTextField();
     private EnavSettings enavSettings;
+    protected Insets insets5  = new Insets(5, 5, 5, 5);
 
+    /**
+     * Constructor
+     */
     public CloudSettingsPanel() {
         super("Cloud", EPD.res().getCachedImageIcon("images/settings/cloud.png"));
         
-        JPanel cloudPanel = new JPanel();
+        setLayout(new GridBagLayout());
+
+        // Cloud connection settings
+        JPanel cloudPanel = new JPanel(new GridBagLayout());
+        add(cloudPanel, 
+                new GridBagConstraints(0, 0, 1, 1, 1.0, 0.1, NORTHWEST, HORIZONTAL, new Insets(15, 5, 5, 5), 0, 0));
+        
         cloudPanel.setBorder(new TitledBorder(null, "HTTP Settings",
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
-
-        JLabel label_3 = new JLabel("Server name:");
-
-        JLabel label_4 = new JLabel("Server port:");
-
-        textFieldServerPort = new JTextField();
-
-        textFieldServerName = new JTextField();
-        textFieldServerName.setColumns(10);
-        GroupLayout gl_CloudPanel = new GroupLayout(cloudPanel);
-        gl_CloudPanel
-                .setHorizontalGroup(gl_CloudPanel
-                        .createParallelGroup(Alignment.LEADING)
-                        .addGroup(
-                                gl_CloudPanel
-                                        .createSequentialGroup()
-                                        .addContainerGap()
-                                        .addGroup(
-                                                gl_CloudPanel
-                                                        .createParallelGroup(
-                                                                Alignment.LEADING)
-                                                        .addComponent(label_3)
-                                                        .addComponent(label_4))
-                                        .addGap(36)
-                                        .addGroup(
-                                                gl_CloudPanel
-                                                        .createParallelGroup(
-                                                                Alignment.LEADING,
-                                                                false)
-                                                        .addComponent(
-                                                                textFieldServerPort,
-                                                                GroupLayout.PREFERRED_SIZE,
-                                                                288,
-                                                                GroupLayout.PREFERRED_SIZE)
-                                                        .addComponent(
-                                                                textFieldServerName,
-                                                                GroupLayout.PREFERRED_SIZE,
-                                                                288,
-                                                                GroupLayout.PREFERRED_SIZE))
-                                        .addContainerGap()));
-        gl_CloudPanel
-                .setVerticalGroup(gl_CloudPanel
-                        .createParallelGroup(Alignment.LEADING)
-                        .addGroup(
-                                gl_CloudPanel
-                                        .createSequentialGroup()
-                                        .addGroup(
-                                                gl_CloudPanel
-                                                        .createParallelGroup(
-                                                                Alignment.BASELINE)
-                                                        .addComponent(label_3)
-                                                        .addComponent(
-                                                                textFieldServerName,
-                                                                GroupLayout.PREFERRED_SIZE,
-                                                                GroupLayout.DEFAULT_SIZE,
-                                                                GroupLayout.PREFERRED_SIZE))
-                                        .addPreferredGap(
-                                                ComponentPlacement.RELATED)
-                                        .addGroup(
-                                                gl_CloudPanel
-                                                        .createParallelGroup(
-                                                                Alignment.BASELINE)
-                                                        .addComponent(
-                                                                textFieldServerPort,
-                                                                GroupLayout.PREFERRED_SIZE,
-                                                                GroupLayout.DEFAULT_SIZE,
-                                                                GroupLayout.PREFERRED_SIZE)
-                                                        .addComponent(label_4))
-                                        .addContainerGap(34, Short.MAX_VALUE)));
-        cloudPanel.setLayout(gl_CloudPanel);
-        GroupLayout groupLayout = new GroupLayout(this);
-        groupLayout.setHorizontalGroup(groupLayout.createParallelGroup(
-                Alignment.LEADING).addGroup(
-                groupLayout
-                        .createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(cloudPanel, GroupLayout.PREFERRED_SIZE,
-                                434, Short.MAX_VALUE).addGap(6)));
-        groupLayout.setVerticalGroup(groupLayout.createParallelGroup(
-                Alignment.LEADING).addGroup(
-                groupLayout
-                        .createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(cloudPanel, GroupLayout.PREFERRED_SIZE,
-                                72, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(217, Short.MAX_VALUE)));
-        setLayout(groupLayout);
+        
+        // Server name
+        GraphicsUtil.fixSize(txtServerName, 250);
+        int gridy = 0;
+        cloudPanel.add(new JLabel("Server name:"), 
+                new GridBagConstraints(0, gridy, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        cloudPanel.add(txtServerName, 
+                new GridBagConstraints(1, gridy, 1, 1, 1.0, 0.0, WEST, NONE, insets5, 0, 0));
+        
+        // Server port
+        gridy++;
+        GraphicsUtil.fixSize(txtServerPort, 60);
+        cloudPanel.add(new JLabel("Server port:"), 
+                new GridBagConstraints(0, gridy, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        cloudPanel.add(txtServerPort, 
+                new GridBagConstraints(1, gridy, 1, 1, 1.0, 0.0, WEST, NONE, insets5, 0, 0));
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -147,8 +95,8 @@ public class CloudSettingsPanel extends BaseSettingsPanel {
     @Override
     protected void doLoadSettings() {
         this.enavSettings = EPD.getInstance().getSettings().getEnavSettings();
-        textFieldServerName.setText(enavSettings.getCloudServerHost());
-        textFieldServerPort.setText(Integer.toString(enavSettings
+        txtServerName.setText(enavSettings.getCloudServerHost());
+        txtServerPort.setText(Integer.toString(enavSettings
                 .getCloudServerPort()));
     }
 
@@ -157,9 +105,9 @@ public class CloudSettingsPanel extends BaseSettingsPanel {
      */
     @Override
     protected void doSaveSettings() {
-        enavSettings.setCloudServerHost(textFieldServerName.getText());
+        enavSettings.setCloudServerHost(txtServerName.getText());
         enavSettings.setCloudServerPort(getIntVal(
-                textFieldServerPort.getText(), enavSettings.getHttpPort()));
+                txtServerPort.getText(), enavSettings.getHttpPort()));
     }
     
     /**
@@ -168,8 +116,8 @@ public class CloudSettingsPanel extends BaseSettingsPanel {
     @Override
     protected boolean checkSettingsChanged() {
         return 
-                changed(enavSettings.getCloudServerHost(), textFieldServerName.getText()) ||
-                changed(enavSettings.getCloudServerPort(), textFieldServerPort.getText());
+                changed(enavSettings.getCloudServerHost(), txtServerName.getText()) ||
+                changed(enavSettings.getCloudServerPort(), txtServerPort.getText());
     }
 
     /**

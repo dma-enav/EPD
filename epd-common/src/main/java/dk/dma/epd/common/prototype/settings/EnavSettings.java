@@ -77,6 +77,10 @@ public class EnavSettings implements Serializable {
         
     }
 
+    public static String getPrefix() {
+        return PREFIX;
+    }
+    
     public void readProperties(Properties props) {
         defaultWindWarnLimit = PropUtils.doubleFromProperties(props, PREFIX + "defaultWindWarnLimit", defaultWindWarnLimit);
         defaultCurrentWarnLimit = PropUtils.doubleFromProperties(props, PREFIX + "defaultCurrentWarnLimit", defaultCurrentWarnLimit);

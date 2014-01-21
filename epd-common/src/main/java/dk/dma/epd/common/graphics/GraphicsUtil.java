@@ -16,6 +16,7 @@
 package dk.dma.epd.common.graphics;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -23,6 +24,8 @@ import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
+
+import javax.swing.JComponent;
 
 /**
  * Graphics-related utility methods
@@ -55,4 +58,24 @@ public class GraphicsUtil {
                 fm.getAscent() + (height - (fm.getAscent() + fm.getDescent())) / 2);
         return new TexturePaint(bi, new Rectangle(0, 0, width, height));        
     }    
+
+
+    /**
+     * Fixes the size of a {@linkplain JComponent} to the given width
+     * 
+     * @param comp the component to fix the size of
+     * @param width the fixed width
+     */
+    public static void fixSize(JComponent comp, int width) {
+        // Sanity check
+        if (comp == null) {
+            return;
+        }
+        
+        Dimension dim = new Dimension(width, (int)comp.getPreferredSize().getHeight());
+        comp.setPreferredSize(dim);
+        comp.setMaximumSize(dim);
+        comp.setMinimumSize(dim);
+        comp.setSize(dim);
+    }
 }
