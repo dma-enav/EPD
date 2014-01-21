@@ -555,7 +555,7 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
      * Create new map panels for each open map window
      */
     private void createMapLabels() {
-        mapWindowsListPanels.clear();;
+        mapWindowsListPanels.clear();
         mapWindowLabels.clear();
 
         List<JMapFrame> mainWindows = mainFrame.getMapWindows();
