@@ -394,7 +394,7 @@ public class MainFrame extends JFrame implements WindowListener {
         // ----------------------------
 
         EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().setCommand(HistoryListener.CENTERED);
-        EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().savingToEmptyHistory();
+        EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().saveToHistoryBeforeMoving();
 
         // Move view to centre on ship.
         this.getChartPanel().centreOnShip();
