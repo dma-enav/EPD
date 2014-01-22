@@ -50,7 +50,7 @@ public final class HomePathDialog extends JDialog {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(HomePathDialog.class);
-    private Preferences prefs = Preferences.userNodeForPackage(getClass());
+    private Preferences prefs;
     private Path selectedPath;
 
     JComboBox<HomePath> pathSelector;
@@ -63,6 +63,8 @@ public final class HomePathDialog extends JDialog {
      */
     private HomePathDialog(Path defaultHomePath) {
         super((JFrame)null, "Select Home Path", true);
+        
+        prefs = Preferences.userNodeForPackage(EPD.getInstance().getClass());
         
         selectedPath = defaultHomePath;
         Insets insets5  = new Insets(5, 5, 5, 5);
