@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -63,7 +62,6 @@ import dk.dma.epd.shore.gui.settingtabs.ConnectionStatus;
 import dk.dma.epd.shore.gui.settingtabs.ENavSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.gui.settingtabs.MapSettingsPanel;
-import dk.dma.epd.shore.gui.settingtabs.MapWindowSinglePanel;
 import dk.dma.epd.shore.gui.settingtabs.MapWindowsPanel;
 import dk.dma.epd.shore.gui.settingtabs.ShoreCloudSettingsPanel;
 import dk.dma.epd.shore.gui.utils.ComponentFrame;
@@ -104,13 +102,9 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
     private ENavSettingsPanel eNavSettingsPanel = new ENavSettingsPanel();
     private ShoreCloudSettingsPanel cloudSettingsPanel = new ShoreCloudSettingsPanel();
 
-    // Normal settings panels
+    // Settings panels
     private List<BaseSettingsPanel> settingsPanels = new ArrayList<>();
     private Map<BaseSettingsPanel, JLabel> settingsLabels = new HashMap<>();
-    
-    // Map window settings panels
-    private List<MapWindowSinglePanel> mapWindowsListPanels = new ArrayList<MapWindowSinglePanel>();
-    private Map<BaseSettingsPanel, JLabel> mapWindowLabels = new HashMap<>();
 
     private JPanel contentPane;
 
@@ -126,10 +120,8 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
     private static int moveHandlerHeight = 18;
     public int width;
     public int height;
-    JInternalFrame settingsWindow;
     private MainFrame mainFrame;
     private EPDSettings settings;
-    private boolean reset;
 
     /**
      * Constructor.
@@ -137,40 +129,15 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
      */
     public JSettingsWindow() {
         super("Settings Window", false, true, false, false);
-        
-        registerSettings(mapSettingsPanel, mapWindowsPanel, connectionsPanel, 
-                aisSettingsPanel, eNavSettingsPanel, cloudSettingsPanel);
-        
-        setSize(800, 600);
-        setLocation(10, 10);
 
         settings = EPDShore.getInstance().getSettings();
 
-        setResizable(false);
-        setTitle("Preferences");
-        setBounds(100, 100, 661, 481);
-        backgroundPane = new JPanel();
+        registerSettings(mapSettingsPanel, mapWindowsPanel, connectionsPanel, 
+                aisSettingsPanel, eNavSettingsPanel, cloudSettingsPanel);
 
-        backgroundPane.setLayout(new FormLayout(new ColumnSpec[] { ColumnSpec.decode("653px:grow"), }, new RowSpec[] {
-                FormFactory.NARROW_LINE_GAP_ROWSPEC, RowSpec.decode("23px:grow"), RowSpec.decode("428px:grow"), }));
-
-        backgroundPane.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-
-        JPanel topPanel = new JPanel();
-        topPanel.setBorder(new MatteBorder(0, 0, 1, 0, new Color(70, 70, 70)));
-        backgroundPane.add(topPanel, "1, 2, fill, fill");
-        topPanel.setLayout(null);
-        topPanel.setBackground(GuiStyler.backgroundColor);
-
-        breadCrumps = new JLabel("Preferences > Map Settings");
-        GuiStyler.styleText(breadCrumps);
-
-        breadCrumps.setBounds(10, 4, 603, 14);
-        breadCrumps.setHorizontalAlignment(SwingConstants.LEFT);
-        topPanel.add(breadCrumps);
-
-        // NB: The rest of the GUI is postponed until the mainFrame
+        // NB: Setting up the GUI is postponed until the mainFrame
         //     has been set via findAndInit...
+        
     }
     
     /**
@@ -190,57 +157,59 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
      * Activates the given panel 
      * @param settingsPanel the panel to activate
      */
-    private void activateSettingsPanel(final BaseSettingsPanel settingsPanel) {
+    private void activateSettingsPanel(BaseSettingsPanel settingsPanel) {
         LOG.info("Activating panel: " + settingsPanel.getName());
 
-        settingsLabels.get(settingsPanel).setBackground(new Color(45, 45, 45));
-        hideAllPanels();
-        settingsPanel.loadSettings();
-        settingsPanel.setVisible(true);
-        if (settingsPanel == mapWindowsPanel) {
-            for (MapWindowSinglePanel mapPanel : mapWindowsListPanels) {
-                mapWindowLabels.get(mapPanel).setVisible(true);
+        for (BaseSettingsPanel panel : settingsPanels) {
+            if (panel == settingsPanel) {
+                panel.loadSettings();
+                panel.setVisible(true);
+                settingsLabels.get(panel).setBackground(new Color(55, 55, 55));
+                breadCrumps.setText("Preferences > " + panel.getName());
+            } else {
+                panel.setVisible(false);                
+                settingsLabels.get(panel).setBackground(new Color(65, 65, 65));
             }
-        } else {
-            hideMapTabs();
         }
-
-        resetTabs();
-        settingsLabels.get(settingsPanel).setBackground(new Color(55, 55, 55));
-        breadCrumps.setText("Preferences > " + settingsPanel.getName());
     }
     
-    /**
-     * Resets the tabs by setting the background color of their labels
-     */
-    private void resetTabs() {
-        for (BaseSettingsPanel settingsPanel : settingsPanels) {
-            settingsLabels.get(settingsPanel).setBackground(new Color(65, 65, 65));
-        }
-        
-        for (MapWindowSinglePanel mapPanel : mapWindowsListPanels) {
-            mapWindowLabels.get(mapPanel).setBackground(new Color(75, 75, 75));
-        }
-    }
-
-    /**
-     * Hides all tabs
-     */
-    private void hideAllPanels() {
-        for (BaseSettingsPanel settingsPanel : settingsPanels) {
-            settingsPanel.setVisible(false);
-        }
-        
-        for (MapWindowSinglePanel mapPanel : mapWindowsListPanels) {
-            mapPanel.setVisible(false);
-        }
-    }
-
     /**
      * Function for setting up custom GUI for the map frame
      */
     public void initGUI() {
 
+        setSize(800, 600);
+        setLocation(10, 10);
+
+
+        setResizable(false);
+        setTitle("Preferences");
+        setBounds(100, 100, 661, 481);
+        
+        // Background pane
+        backgroundPane = new JPanel();
+
+        backgroundPane.setLayout(new FormLayout(new ColumnSpec[] { ColumnSpec.decode("653px:grow"), }, new RowSpec[] {
+                FormFactory.NARROW_LINE_GAP_ROWSPEC, RowSpec.decode("23px:grow"), RowSpec.decode("428px:grow"), }));
+
+        backgroundPane.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+
+        // Top panel
+        JPanel topPanel = new JPanel();
+        topPanel.setBorder(new MatteBorder(0, 0, 1, 0, new Color(70, 70, 70)));
+        backgroundPane.add(topPanel, "1, 2, fill, fill");
+        topPanel.setLayout(null);
+        topPanel.setBackground(GuiStyler.backgroundColor);
+
+        // Bread crumps
+        breadCrumps = new JLabel("Preferences > Map Settings");
+        GuiStyler.styleText(breadCrumps);
+
+        breadCrumps.setBounds(10, 4, 603, 14);
+        breadCrumps.setHorizontalAlignment(SwingConstants.LEFT);
+        topPanel.add(breadCrumps);
+        
+        // Bottom panel
         JPanel bottomPanel = new JPanel();
         backgroundPane.add(bottomPanel, "1, 3, fill, fill");
         bottomPanel.setLayout(null);
@@ -252,12 +221,13 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
         scrollPane.setBorder(null);
         bottomPanel.add(scrollPane);
 
-        // Panels
+        // Menu panel
         JPanel menuPanel = new JPanel();
         scrollPane.setViewportView(menuPanel);
         menuPanel.setBackground(GuiStyler.backgroundColor);
         menuPanel.setLayout(null);
 
+        // Label container
         labelContainer = new JPanel();
         labelContainer.setLocation(0, 0);
         labelContainer.setBackground(GuiStyler.backgroundColor);
@@ -265,6 +235,7 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
 
         menuPanel.add(labelContainer);
 
+        // Content pane
         contentPane = new JPanel();
         contentPane.setBorder(new MatteBorder(0, 1, 0, 0, new Color(70, 70, 70)));
         contentPane.setBounds(140, 0, 513, 428);
@@ -272,30 +243,24 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
         contentPane.setBackground(GuiStyler.backgroundColor);
         contentPane.setLayout(null);
 
+        // OK button
         ok = new JLabel("OK", EPDShore.res().getCachedImageIcon("images/buttons/ok.png"), SwingConstants.CENTER);
         ok.setBounds(335, 390, 75, 20);
         GuiStyler.styleButton(ok);
         contentPane.add(ok);
 
+        // Cancel button
         cancel = new JLabel("CANCEL", EPDShore.res().getCachedImageIcon("images/buttons/cancel.png"), SwingConstants.CENTER);
         GuiStyler.styleButton(cancel);
         cancel.setBounds(417, 390, 75, 20);
         contentPane.add(cancel);
 
-        // Content panels
-        mapSettingsPanel.loadSettings();
-        settingsLabels.get(mapSettingsPanel).setBackground(new Color(45, 45, 45));
-
-        cloudSettingsPanel.setBounds(10, 11, 500, 300);
-        GuiStyler.styleSettingsTab(cloudSettingsPanel);
-
+        // Add the settings panels
         for (BaseSettingsPanel settingsPanel : settingsPanels) {
             contentPane.add(settingsPanel);
+            labelContainer.add(settingsLabels.get(settingsPanel));
         }
-
-        generateTabs();
-
-        settingsWindow = this;
+        activateSettingsPanel(mapSettingsPanel);
 
         // Strip off
         setRootPaneCheckingEnabled(false);
@@ -333,9 +298,8 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
 
         JLabel close = new JLabel(EPDShore.res().getCachedImageIcon("images/window/close.png"));
         close.addMouseListener(new MouseAdapter() {
-
             public void mouseReleased(MouseEvent e) {
-                settingsWindow.setVisible(false);
+                close(false);
             }
 
         });
@@ -364,32 +328,6 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
         
         ok.addMouseListener(this);
         cancel.addMouseListener(this);
-        
-        reset = true;
-    }
-
-    /**
-     * Override {@code setVisible()} to handle panel selection when the window is closed
-     */
-    @Override
-    public void setVisible(boolean visible) {
-        super.setVisible(visible);
-        
-        if (!visible && timer != null) {
-            timer.stop();
-        }
-
-        // Remove the generated map panels so that we can make new ones
-        if (!visible && mapWindowsListPanels != null) {
-            for (int i = 0; i < mapWindowsListPanels.size(); i++) {
-                contentPane.remove(mapWindowsListPanels.get(i));
-            }
-        }
-
-        // Reset view and make the map settings panel the active one
-        if (reset) {
-            activateSettingsPanel(mapSettingsPanel);
-        }
     }
 
     @Override
@@ -410,64 +348,22 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
     }
 
     /**
-     * Called when various sources have been clicked
+     * Called when OK and Cancel have been clicked
      * @param evt the mouse event
      */
     @Override
     public void mouseReleased(MouseEvent evt) {
 
         // OK button clicked
-        if (evt.getSource() == ok) {
-            
-            if (!ok.isEnabled()) {
-                return;
-            }
-
-            // Save the usual settings panels
-            for (BaseSettingsPanel settings : settingsPanels) {
-                if (!settings.saveSettings()) {
-                    continue;
-                }
-                
-                if (settings == mapSettingsPanel) {
-                    
-                    // Set the new WMS Query
-                    for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                        mainFrame.getMapWindows().get(i).getChartPanel().getWmsLayer().getWmsService()
-                                .setWMSString(EPDShore.getInstance().getSettings().getGuiSettings().getWmsQuery());
-                    }
-                }
-            }
-            
-            // Save the map window settings
-            for (MapWindowSinglePanel mapPanel : mapWindowsListPanels) {
-                mapPanel.saveSettings();
-            }                    
-            
-            settings.saveToFile();
-
-            /** Now, the sensors are actually updated via settingsChanged() 
-            if (restart && this.isVisible()) {
-                restart = false;
-                System.out.println("ais changed?");
-                int choice = JOptionPane.showOptionDialog(EPDShore.getInstance().getMainFrame(),
-                        "The settings will take effect next time the application is started.\nStop now?",
-                        "Restart required", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null,
-                        JOptionPane.YES_OPTION);
-                if (choice == JOptionPane.YES_OPTION) {
-                    EPDShore.closeApp();
-                }
-            }
-            */
-            
-            this.setVisible(false);
-
+        if (evt.getSource() == ok && ok.isEnabled()) {
+            // Close and save
+            close(true);
         }
         
         // Cancel button clicked
         else if (evt.getSource() == cancel) {
-            LOG.info("Closing settings panel");
-            this.setVisible(false);
+            // Close but do not save
+            close(false);
         }
     }
 
@@ -499,46 +395,52 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
      * Change the visibility
      */
     public void toggleVisibility() {
-        setVisible(!this.isVisible());
-
-        // Regenerate Tabs
-        if (this.isVisible()) {
-            generateTabs();
+        if (isVisible()) {
+            close(false);
         } else {
-            for (int i = 0; i < mapWindowsListPanels.size(); i++) {
-                contentPane.remove(mapWindowsListPanels.get(i));
-            }
+            open();
         }
-
-        // Start checking for changes
-        timer.start();
     }
 
     /**
-     * Called when the window is (re-)opened. Updates the list of settings 
-     * and create a new map panel for each open map window
+     * Opens the settings panel
      */
-    private void generateTabs() {
-
-        labelContainer.removeAll();
-
-        labelContainer.add(settingsLabels.get(mapSettingsPanel));
-        labelContainer.add(settingsLabels.get(mapWindowsPanel));
-
-        // Create labels for map windows
-        createMapLabels();
-        for (MapWindowSinglePanel mapPanel : mapWindowsListPanels) {
-            labelContainer.add(mapWindowLabels.get(mapPanel));
-            mapWindowLabels.get(mapPanel).setVisible(false);
+    public void open() {
+        // Is it already open
+        if (isVisible()) {
+            return;
+        }
+        
+        // Load settings and make the panel visible
+        for (BaseSettingsPanel settingsPanel : settingsPanels) {
+            settingsPanel.loadSettings();
+        }
+        activateSettingsPanel(mapSettingsPanel);
+        setVisible(true);
+        timer.start();
+    }
+    
+    /**
+     * Closes the settings panel and optionally saves the updated settings
+     * @param save whether to save the settings or not
+     */
+    public void close(boolean save) {
+        // Is it already closed
+        if (!isVisible()) {
+            return;
         }
 
-        labelContainer.add(settingsLabels.get(connectionsPanel));
-        labelContainer.add(settingsLabels.get(aisSettingsPanel));
-        labelContainer.add(settingsLabels.get(eNavSettingsPanel));
-        labelContainer.add(settingsLabels.get(cloudSettingsPanel));
-
+        if (save) {
+            // Save settings and make the panel visible
+            for (BaseSettingsPanel settingsPanel : settingsPanels) {
+                settingsPanel.saveSettings();
+            }
+            settings.saveToFile();
+        }
+        setVisible(false);
+        timer.stop();
     }
-
+    
     /**
      * Creates a new JLabel for the given settings panel
      */
@@ -552,48 +454,6 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
         return label;
     }
     
-    /**
-     * Create new map panels for each open map window
-     */
-    private void createMapLabels() {
-        mapWindowsListPanels.clear();
-        mapWindowLabels.clear();
-
-        List<JMapFrame> mainWindows = mainFrame.getMapWindows();
-
-        for (int i = 0; i < mainWindows.size(); i++) {
-            final MapWindowSinglePanel panel = new MapWindowSinglePanel(mainWindows.get(i).getTitle(), i);
-            contentPane.add(panel);
-            mapWindowsListPanels.add(panel);
-            
-            final JLabel label = createLabel(panel, mapWindowLabels);
-            GuiStyler.styleSubTab(label);
-
-            label.addMouseListener(new MouseAdapter() {
-                public void mousePressed(MouseEvent e) {
-                    label.setBackground(new Color(45, 45, 45));
-                    hideAllPanels();
-                    panel.loadSettings();
-                    panel.setVisible(true);
-
-                    resetTabs();
-                    label.setBackground(new Color(55, 55, 55));
-                    breadCrumps.setText("Preferences > Map Windows > " + panel.getName());
-                }
-            });
-
-        }
-    }
-
-    /**
-     * Hide all map tabs
-     */
-    private void hideMapTabs() {
-        for (MapWindowSinglePanel mapPanel : mapWindowsListPanels) {
-            mapWindowLabels.get(mapPanel).setVisible(false);
-        }
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -612,9 +472,6 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
         boolean changed = false;
         for (BaseSettingsPanel settingsPanel : settingsPanels) {
             changed |= settingsPanel.settingsChanged();
-        }
-        for (MapWindowSinglePanel mapPanel : mapWindowsListPanels) {
-            changed |= mapPanel.settingsChanged();
         }
         ok.setEnabled(changed);
     }

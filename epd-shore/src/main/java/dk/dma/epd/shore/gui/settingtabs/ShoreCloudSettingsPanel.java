@@ -91,6 +91,9 @@ public class ShoreCloudSettingsPanel extends CloudSettingsPanel {
         shorePanel.add(spnShoreLon, 
                 new GridBagConstraints(gridx++, gridy, 1, 1, 1.0, 0.0, WEST, NONE, insets5, 0, 0));
         
+        // Shorify the panel
+        setBounds(10, 11, 500, 300);
+        GuiStyler.styleSettingsTab(this);        
     }
 
     /**

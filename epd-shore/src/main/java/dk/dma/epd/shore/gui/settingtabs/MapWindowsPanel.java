@@ -15,73 +15,81 @@
  */
 package dk.dma.epd.shore.gui.settingtabs;
 
-import java.awt.Color;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.MatteBorder;
-import javax.swing.border.TitledBorder;
+import javax.swing.JTabbedPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
+import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.gui.views.JMapFrame;
+import dk.dma.epd.shore.gui.views.MainFrame;
 
 public class MapWindowsPanel extends BaseSettingsPanel {
 
     private static final long serialVersionUID = 1L;
     
-    private JLabel lblTheresCurrently;
-    private JLabel lblTheCurrentWorkspace;
+    private MainFrame mainFrame;
+    private Map<JMapFrame, MapWindowSinglePanel> panels = new ConcurrentHashMap<>();
+    private JTabbedPane mapWindowTabs = new JTabbedPane();
 
     public MapWindowsPanel() {
         super("Map Windows", EPDShore.res().getCachedImageIcon("images/settings/window.png"));
 
-
         setBackground(GuiStyler.backgroundColor);
-        setBounds(10, 11, 493, 600);
+        setBounds(10, 11, 493, 500);
         setLayout(null);
-
-        JPanel panel_1 = new JPanel();
-        panel_1.setBackground(GuiStyler.backgroundColor);
-        panel_1.setBorder(new TitledBorder(new MatteBorder(1, 1, 1, 1, new Color(70, 70, 70)), "Map Windows", TitledBorder.LEADING, TitledBorder.TOP, GuiStyler.defaultFont, GuiStyler.textColor));
-        panel_1.setBounds(10, 11, 473, 283);
-
-        add(panel_1);
-        panel_1.setLayout(null);
-
-        lblTheresCurrently = new JLabel("There's currently x active Map Windows");
-        GuiStyler.styleText(lblTheresCurrently);
-        lblTheresCurrently.setBounds(10, 33, 352, 14);
-        panel_1.add(lblTheresCurrently);
-
-        lblTheCurrentWorkspace = new JLabel("The current workspace is: name");
-        GuiStyler.styleText(lblTheCurrentWorkspace);
-        lblTheCurrentWorkspace.setBounds(10, 54, 317, 14);
-        panel_1.add(lblTheCurrentWorkspace);
-
-        JLabel lblClickOnThe = new JLabel("Click on the Map Tabs to change settings for the individual map");
-        GuiStyler.styleText(lblClickOnThe);
-        lblClickOnThe.setBounds(10, 133, 387, 87);
-        panel_1.add(lblClickOnThe);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void doLoadSettings(){
         
-        lblTheresCurrently.setText("There's currently " + 
-                EPDShore.getInstance().getMainFrame().getMapWindows().size() + 
-                " active Map Windows");
-        lblTheCurrentWorkspace.setText("The current workspace is " + 
-                EPDShore.getInstance().getSettings().getGuiSettings().getWorkspace());
+        GraphicsUtil.fixSize(mapWindowTabs, 480, 240);
+        add(mapWindowTabs);
+    }
+
+    /**
+     * Updates the title of the tab for the given panel
+     * @param panel the panel to update the tab title for
+     */
+    private void updateTabTitle(MapWindowSinglePanel panel) {
+        mapWindowTabs.setTitleAt(panel.getIndex(), panel.getMapTitleField().getText());
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void doLoadSettings() {
+        
+        mainFrame = EPDShore.getInstance().getMainFrame();
+
+        // Clear old map windows
+        mapWindowTabs.removeAll();
+        panels.clear();
+        
+        // Add a tab for each map window
+        int index = 0;
+        for (JMapFrame mapWindow : mainFrame.getMapWindows()) {
+            final MapWindowSinglePanel panel = new MapWindowSinglePanel(mapWindow, index++);
+            mapWindowTabs.add(panel);
+            panels.put(mapWindow, panel);
+            panel.loadSettings();
+            panel.getMapTitleField().getDocument().addDocumentListener(new DocumentListener() {                
+                @Override public void removeUpdate(DocumentEvent e) { updateTabTitle(panel); }                
+                @Override public void insertUpdate(DocumentEvent e) { updateTabTitle(panel); } 
+                @Override public void changedUpdate(DocumentEvent e) { updateTabTitle(panel); } 
+            });
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void doSaveSettings() {        
+    protected void doSaveSettings() { 
+        for (MapWindowSinglePanel panel : panels.values()) {
+            panel.saveSettings();
+        }
     }
 
     /**
@@ -89,6 +97,11 @@ public class MapWindowsPanel extends BaseSettingsPanel {
      */
     @Override
     protected boolean checkSettingsChanged() {
+        for (MapWindowSinglePanel panel : panels.values()) {
+            if (panel.settingsChanged()) {
+                return true;
+            }
+        }
         return false;
     }
 

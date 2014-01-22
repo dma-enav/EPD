@@ -31,31 +31,31 @@ import dk.dma.epd.shore.gui.views.MainFrame;
 
 public class MapWindowSinglePanel extends BaseSettingsPanel {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
+    
     private MainFrame mainFrame;
+    private JMapFrame mapWindow;
+    private int index;
+    
     private JTextField textField;
     private JCheckBox chckbxLocked;
     private JCheckBox chckbxAlwaysOnTop;
-    private int id;
 
-    public MapWindowSinglePanel(String name, int id){
-        super(name, EPDShore.res().getCachedImageIcon("images/settings/window.png"));
+    public MapWindowSinglePanel(JMapFrame mapWindow, int index) {
+        super(mapWindow.getTitle(), EPDShore.res().getCachedImageIcon("images/settings/window.png"));
 
         this.mainFrame = EPDShore.getInstance().getMainFrame();
-        this.id = id;
-
+        this.mapWindow = mapWindow;
+        this.index = index;
 
         setBackground(GuiStyler.backgroundColor);
-        setBounds(10, 11, 493, 600);
+        setBounds(10, 11, 440, 400);
         setLayout(null);
 
         JPanel panel_1 = new JPanel();
         panel_1.setBackground(GuiStyler.backgroundColor);
         panel_1.setBorder(new TitledBorder(new MatteBorder(1, 1, 1, 1, new Color(70, 70, 70)), "Map Window Settings", TitledBorder.LEADING, TitledBorder.TOP, GuiStyler.defaultFont, GuiStyler.textColor));
-        panel_1.setBounds(10, 11, 473, 122);
+        panel_1.setBounds(10, 11, 440, 122);
 
         add(panel_1);
         panel_1.setLayout(null);
@@ -82,14 +82,6 @@ public class MapWindowSinglePanel extends BaseSettingsPanel {
         textField.setColumns(10);
         GuiStyler.styleTextFields(textField);
 
-        JPanel panel_2 = new JPanel();
-        panel_2.setBackground(GuiStyler.backgroundColor);
-        panel_2.setBorder(new TitledBorder(new MatteBorder(1, 1, 1, 1, new Color(70, 70, 70)), "AIS Layer Settings", TitledBorder.LEADING, TitledBorder.TOP, GuiStyler.defaultFont, GuiStyler.textColor));
-
-        panel_2.setBounds(10, 144, 473, 190);
-
-        add(panel_2);
-        panel_2.setLayout(null);
     }
 
     /**
@@ -97,8 +89,6 @@ public class MapWindowSinglePanel extends BaseSettingsPanel {
      */
     @Override
     protected void doLoadSettings() {
-        JMapFrame mapWindow = mainFrame.getMapWindows().get(id);
-
         textField.setText(mapWindow.getTitle());
 
         chckbxLocked.setSelected(mapWindow.isLocked());
@@ -111,8 +101,6 @@ public class MapWindowSinglePanel extends BaseSettingsPanel {
      */
     @Override
     protected void doSaveSettings() {
-        JMapFrame mapWindow = mainFrame.getMapWindows().get(id);
-
         mapWindow.setTitle(textField.getText());
         mainFrame.renameMapWindow(mapWindow);
 
@@ -133,8 +121,6 @@ public class MapWindowSinglePanel extends BaseSettingsPanel {
      */
     @Override
     protected boolean checkSettingsChanged() {
-        JMapFrame mapWindow = mainFrame.getMapWindows().get(id);
-        
         return
                 changed(mapWindow.getTitle(), textField.getText()) ||
                 changed(mapWindow.isLocked(), chckbxLocked.isSelected()) ||
@@ -148,7 +134,11 @@ public class MapWindowSinglePanel extends BaseSettingsPanel {
     protected void fireSettingsChanged() {
     }
 
-    public String getMapTitle(){
-        return textField.getText();
+    public JTextField getMapTitleField(){
+        return textField;
+    }
+    
+    public int getIndex() {
+        return index;
     }
 }

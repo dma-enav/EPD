@@ -31,6 +31,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.settings.EPDGuiSettings;
 import dk.dma.epd.shore.settings.EPDMapSettings;
 
@@ -205,6 +206,13 @@ public class MapSettingsPanel extends BaseSettingsPanel {
         mapSettings.setUseWms(wmsCheckBox.isSelected());
         mapSettings.setWmsQuery(wmsTextField.getText());
         mapSettings.setUseWmsDragging(chckbxWmsDrag.isSelected());
+
+        // Set the new WMS Query
+        MainFrame mainFrame = EPDShore.getInstance().getMainFrame();
+        for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
+            mainFrame.getMapWindows().get(i).getChartPanel().getWmsLayer().getWmsService()
+                    .setWMSString(EPDShore.getInstance().getSettings().getGuiSettings().getWmsQuery());
+        }
     }
     
     /**

@@ -61,21 +61,42 @@ public class GraphicsUtil {
 
 
     /**
-     * Fixes the size of a {@linkplain JComponent} to the given width
+     * Fixes the size of a {@linkplain JComponent} to the given width and height.
+     * <p>
+     * If a value of -1 is passed along, the preferred size is used instead.
      * 
      * @param comp the component to fix the size of
      * @param width the fixed width
+     * @param height the fixed height
      */
-    public static void fixSize(JComponent comp, int width) {
+    public static void fixSize(JComponent comp, int width, int height) {
         // Sanity check
         if (comp == null) {
             return;
         }
         
-        Dimension dim = new Dimension(width, (int)comp.getPreferredSize().getHeight());
+        if (width == -1) {
+            width = (int)comp.getPreferredSize().getWidth();
+        }
+        if (height == -1) {
+            height = (int)comp.getPreferredSize().getHeight();
+        }
+        Dimension dim = new Dimension(width, height);
         comp.setPreferredSize(dim);
         comp.setMaximumSize(dim);
         comp.setMinimumSize(dim);
         comp.setSize(dim);
+    }
+
+    /**
+     * Fixes the size of a {@linkplain JComponent} to the given width
+     * <p>
+     * If a value of -1 is passed along, the preferred size is used instead.
+     * 
+     * @param comp the component to fix the size of
+     * @param width the fixed width
+     */
+    public static void fixSize(JComponent comp, int width) {
+        fixSize(comp, width, -1);
     }
 }
