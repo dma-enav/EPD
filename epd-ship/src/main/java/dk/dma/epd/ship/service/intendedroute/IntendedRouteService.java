@@ -39,56 +39,40 @@ public class IntendedRouteService extends EnavService implements
      */
     private final ActiveRouteProvider provider;
 
+    /**
+     * Constructor
+     * 
+     * @param enavServiceHandler
+     * @param provider
+     */
     public IntendedRouteService(EnavServiceHandler enavServiceHandler,
             ActiveRouteProvider provider) {
         super(enavServiceHandler);
         this.provider = provider;
     }
-
-    
     
     /**
      * Broadcast intended route
      */
-    // @ScheduleWithFixedDelay(10000)
     public void broadcastIntendedRoute() {
-        System.out.println("BROADCAST INTENDED ROUTE");
-
-        // Get active route from provider
-        LOG.info("Get active route");
-
-        provider.getActiveRoute();
-        
-        LOG.info("Got active route");
-        
-     // Make intended route message
+        // Make intended route message
         EnavRouteBroadcast message = new EnavRouteBroadcast();
         
         if (provider.getActiveRoute() != null){
-            
-            message.setIntendedRoute(provider.getActiveRoute().getFullRouteData());
-            
-        }else{
-            System.out.println("Active route is null!");
+            message.setIntendedRoute(provider.getActiveRoute().getFullRouteData());    
+        } else {
             message.setIntendedRoute(new Route());
         }
-        
-        
-        
-        
+                
         // send message
-        LOG.info("Sending");
         try {
+            LOG.debug("Sending");
             enavServiceHandler.sendIntendedRouteMessage(message);
+            LOG.debug("Done sending");        
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error("Error sending intended route " + e.getMessage(), e);
         }
-        LOG.info("Done sending");
-        
     }
-
-    
     
     /**
      * Handle event of active route change

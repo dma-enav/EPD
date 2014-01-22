@@ -294,7 +294,7 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
      */
     private synchronized void updateIntendedRoute(long mmsi, Route routeData) {
 
-        System.out.println("Intended route recieved");
+        LOG.debug("Intended route recieved");
 
         // Try to find exiting target
         VesselTarget vesselTarget = aisHandler.getVesselTarget(mmsi);
@@ -307,6 +307,7 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
 
         // Update intented route
         vesselTarget.setCloudRouteData(intendedRoute);
+        vesselTarget.getSettings().setShowRoute(true);
         aisHandler.publishUpdate(vesselTarget);
     }
 
