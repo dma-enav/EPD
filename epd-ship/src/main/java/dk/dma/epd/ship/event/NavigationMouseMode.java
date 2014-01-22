@@ -274,7 +274,7 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
             // ----------------------------
 
             EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().setCommand(HistoryListener.SCALED);
-            EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().savingToEmptyHistory();
+            EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().saveToHistoryBeforeMoving();
             
             // Move to the new view.
             p.setScale(newScale);

@@ -17,13 +17,27 @@ package dk.dma.epd.ship.gui;
 
 import java.util.ArrayList;
 
+/**
+ * This class works as an history, in which HistoryPosition objects
+ * are stored in an ArrayList object. When a HistoryPosition objects
+ * is put in the list, a integer will point to this new object.
+ * When this class is requested to go back into the history (or forward
+ * into the history) the pointer will decrease (or increase) so that
+ * it will point to another HistoryPosition object in the history.
+ * 
+ * @author adamduehansen
+ *
+ */
 public class MapHistory {
 
+    /**
+     * Private fields.
+     */
     private ArrayList<HistoryPosition> historyOfPositions;
     private int pointerInHistory;
 
     /**
-     * Constructor
+     * Constructs a new MapHisotory.
      */
     public MapHistory() {
         this.historyOfPositions = new ArrayList<HistoryPosition>();
@@ -44,17 +58,14 @@ public class MapHistory {
         
         // The new history element must:
         //  - be initialized (not null) and
-        //  - be equal to -1 or not the same position as the newest element in history
+        //  - be equal to -1 or not equal to the newest element in history.
         if ((newHistory != null) && 
-                (this.pointerInHistory == -1 || !newHistory.equals(this.historyOfPositions.size()-1))) {
-            
+                (this.pointerInHistory == -1 || 
+                !newHistory.equals(this.historyOfPositions.get(this.historyOfPositions.size()-1)))) {
+                        
             // If the pointer is not at the newest position, reset the history from the position of the pointer plus 1 to the end.
             if (this.pointerInHistory != this.historyOfPositions.size()-1) {
-                
-                // Remove elements from the top op the history untill one position from the pointer.
-                for(int i = this.historyOfPositions.size()-1; i >= this.pointerInHistory+1; i--) {
-                    this.historyOfPositions.remove(i);
-                }
+                this.resetHistory(this.historyOfPositions.size()-1, this.pointerInHistory);
             }
             
             // Add the new element in the history.
@@ -65,11 +76,27 @@ public class MapHistory {
                 pointerInHistory++;
             }
             
-            System.out.println("DEBUG:\t"+this.toString());
+//            System.out.println("DEBUG:\t"+this.toString());
             return true;
         }
         
         return false;
+    }
+    
+    /**
+     * Resets the history from the given start point to end point.
+     * 
+     * @param startPoint
+     *          From what index the history should reset.
+     * @param endPoint
+     *          From what index the history should reset to.
+     */
+    public void resetHistory(int startPoint, int endPoint) {
+        for(int i = startPoint; i >= endPoint; i--) {
+            this.historyOfPositions.remove(i);
+        }
+        
+        this.pointerInHistory--;
     }
 
     /**
@@ -81,7 +108,7 @@ public class MapHistory {
         
         this.pointerInHistory--;
 
-        System.out.println("DEBUG:\t"+this.toString());
+//        System.out.println("DEBUG:\t"+this.toString());
         return this.historyOfPositions.get(pointerInHistory);
     }
 
@@ -95,7 +122,7 @@ public class MapHistory {
 
         this.pointerInHistory++;
         
-        System.out.println("DEBUG:\t"+this.toString());
+//        System.out.println("DEBUG:\t"+this.toString());
         return this.historyOfPositions.get(pointerInHistory);
     }
 
