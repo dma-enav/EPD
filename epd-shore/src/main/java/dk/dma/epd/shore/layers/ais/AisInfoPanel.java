@@ -15,7 +15,12 @@
  */
 package dk.dma.epd.shore.layers.ais;
 
+import dk.dma.ais.message.AisMessage;
+import dk.dma.epd.common.prototype.ais.VesselPositionData;
+import dk.dma.epd.common.prototype.ais.VesselStaticData;
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
+import dk.dma.epd.common.text.Formatter;
 
 /**
  * AIS mouse over info
@@ -36,19 +41,31 @@ public class AisInfoPanel extends InfoPanel {
      * 
      * @param vessel
      */
-    public void showAisInfo(Vessel vessel) {
+    public void showAisInfo(VesselTarget vessel) {
         if (vessel != null) {
-
-            String aisText = "<HTML>";
-            if (!vessel.getName().equals("N/A")) {
-                aisText += vessel.getName() + " (" + vessel.getMMSI() + ")";
+            VesselStaticData vsd = vessel.getStaticData();
+            VesselPositionData vpd = vessel.getPositionData();
+            
+            StringBuilder sb = new StringBuilder();
+            sb.append("<HTML>");
+            
+            if (vsd != null) {
+                String name = vsd.getName() != null ? AisMessage.trimText(vsd.getName()) : "N/A";
+                sb.append(name);
+                sb.append(" (" + vessel.getMmsi() + ")");                
             } else {
-                aisText += vessel.getMMSI();
+                sb.append("N/A (" + vessel.getMmsi() + ")");
             }
-            aisText += "<BR/>COG " + vessel.getHeading() + "° SOG "
-                    + vessel.getSog() + " kn";
-            aisText += "</HTML>";
-            showText(aisText);
+            
+            if(vpd != null) {
+                sb.append("<BR/>COG ");
+                sb.append(Formatter.formatDouble(new Double(vpd.getCog()), 2));                
+                sb.append("° SOG ");
+                sb.append(Formatter.formatSpeed(new Double(vpd.getSog())));
+            }
+            
+            sb.append("</HTML>");
+            showText(sb.toString());
         }
     }
 }

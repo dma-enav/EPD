@@ -18,27 +18,29 @@ package dk.dma.epd.shore.layers.ais;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.SwingUtilities;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
-import com.bbn.openmap.omGraphics.OMList;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.MobileTarget;
 import dk.dma.epd.common.prototype.ais.SarTarget;
+import dk.dma.epd.common.prototype.ais.VesselPositionData;
+import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.layers.ais.AisTargetSelectionGraphic;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteLegGraphic;
@@ -48,6 +50,8 @@ import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SarTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
 import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
+import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
+import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
@@ -187,7 +191,7 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
                 mapScale = chartPanel.getMap().getScale();
                 mapClearTargets();
             }
-
+            
             for (MobileTarget mobileTarget : aisHandler.getMobileTargets(AisTarget.Status.OK)) {
                 
                 // Check if vessel is near map coordinates or it's
@@ -200,7 +204,10 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
                     TargetGraphic targetGraphic = targets.get(mobileTarget.getMmsi());
                     if (targetGraphic == null) {
                         if (mobileTarget instanceof VesselTarget) {
-                            targetGraphic = new Vessel(mobileTarget.getMmsi());
+//                            targetGraphic = new Vessel(mobileTarget.getMmsi());
+                            // TODO fix boolean argument
+                            targetGraphic = new VesselTargetGraphic(true, this);
+                            targetGraphic.setVague(true);
                         } else if (mobileTarget instanceof SarTarget) {
                             targetGraphic = new SarTargetGraphic();
                         } else {
@@ -219,7 +226,7 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
                     if (mobileTarget.getMmsi() == mainFrame.getSelectedMMSI()) {
                         targetSelectionGraphic.moveSymbol(mobileTarget.getPositionData().getPos());
                         setStatusAreaTxt();
-                    }                        
+                    }
                 }
             }
         }
@@ -275,7 +282,8 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
                 VesselLayer.class,
                 IntendedRouteWpCircle.class,
                 IntendedRouteLegGraphic.class,
-                SartGraphic.class);
+                SartGraphic.class,
+                VesselTargetGraphic.class);
 
         if (e.getButton() == MouseEvent.BUTTON1) {
 
@@ -296,6 +304,18 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
 
                 setStatusAreaTxt();
 
+            }
+            else if(newClosest != null && newClosest instanceof VesselTargetGraphic) {
+                VesselTargetGraphic vtg = (VesselTargetGraphic) newClosest;
+                synchronized(targets) {
+                    if(vtg.getVesselTarget() != null && vtg.getVesselTarget().getPositionData() != null) {
+                        mainFrame.setSelectedMMSI(vtg.getVesselTarget().getMmsi());
+                        targetSelectionGraphic.setVisible(true);
+                        targetSelectionGraphic.moveSymbol(vtg.getVesselTarget().getPositionData().getPos());
+                    }
+                }
+                doPrepare();
+                setStatusAreaTxt();
             }
 
         }
@@ -343,15 +363,15 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
     }
 
     /**
-     * Returns the {@code Vessel} with the given mmsi, or null if not found
+     * Returns the {@code VesselTargetGraphic} correspondign to the given mmsi, or null if not found
      * @param mmsi the mmsi of the vessel
-     * @return the vessel or null if not found
+     * @return the graphic representing the vessel or null if not found
      */
-    private Vessel getVessel(Long mmsi) {
+    private VesselTargetGraphic getVessel(Long mmsi) {
         synchronized (targets) {
             TargetGraphic target = this.targets.get(mmsi);
-            if (target != null && target instanceof Vessel) {
-                return (Vessel)target;
+            if (target != null && target instanceof VesselTargetGraphic) {
+                return (VesselTargetGraphic)target;
             }
         }
         return null;
@@ -359,37 +379,87 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
     
     private void setStatusAreaTxt() {
         HashMap<String, String> info = new HashMap<String, String>();
-        Vessel vessel = getVessel(mainFrame.getSelectedMMSI());
+        String currKey;
+        VesselTargetGraphic vtg = getVessel(mainFrame.getSelectedMMSI());
+        VesselTarget vessel = vtg.getVesselTarget();
         if (vessel != null) {
-
-            info.put("MMSI", Long.toString(vessel.getMMSI()));
-            info.put("Name", vessel.getName());
-            info.put("COG", vessel.getHeading());
-            info.put("Call sign", vessel.getCallSign());
-            info.put("LAT", vessel.getLat());
-            info.put("LON", vessel.getLon());
-            info.put("SOG", vessel.getSog());
-            info.put("ETA", vessel.getEta());
-            info.put("Type", vessel.getShipType());
-            statusArea.receiveHighlight(info, vessel.getMMSI());
-
-            // statusArea.receiveHighlight(info, vessel.getMMSI());
+            VesselStaticData vsd = vessel.getStaticData();
+            VesselPositionData vpd = vessel.getPositionData();
+            
+            info.put("MMSI", Long.toString(vessel.getMmsi()));
+            currKey = "Name";
+            String na = "N/A";
+            if(vsd != null && vsd.getName() != null) {
+                info.put(currKey, vsd.getName());
+            }
+            else {
+                info.put(currKey, na);
+            }
+            
+            currKey = "COG";
+            if(vpd != null) {
+                info.put(currKey, Formatter.formatDegrees(new Double(vpd.getCog()), 2));
+            }
+            else {
+                info.put(currKey, na);
+            }
+            
+            currKey = "Call sign";
+            if(vsd != null && vsd.getCallsign() != null) {
+                info.put(currKey, vsd.getCallsign());
+            }
+            else {
+                info.put(currKey, na);
+            }
+            
+            currKey = "LAT";
+            if(vpd != null && vpd.getPos() != null) {
+                info.put(currKey, Formatter.latToPrintable(vpd.getPos().getLatitude()));
+                currKey = "LON";
+                info.put(currKey, Formatter.lonToPrintable(vpd.getPos().getLongitude()));
+            }
+            else {
+                info.put(currKey, na);
+                currKey = "LON";
+                info.put(currKey, na);
+            }
+            
+            currKey = "SOG";
+            if(vpd != null) {
+                info.put(currKey, Formatter.formatSpeed(new Double(vpd.getSog())));
+            }
+            else {
+                info.put(currKey, na);
+            }
+            
+            currKey = "ETA";
+            if(vsd != null) {
+                info.put(currKey, Formatter.formatShortDateTime(new Date(vsd.getEta())));
+            }
+            else {
+                info.put(currKey, na);
+            }
+            
+            currKey = "Type";
+            if(vsd != null) {
+                info.put(currKey, vsd.getShipType().toString());
+            }
+            else {
+                info.put(currKey, na);
+            }
+            
+            statusArea.receiveHighlight(info, vessel.getMmsi());
         }
     }
 
     @Override
     public boolean mouseMoved(MouseEvent e) {
         OMGraphic newClosest = null;
-        OMList<OMGraphic> allClosest;
         synchronized (graphics) {
-            allClosest = graphics.findAll(e.getX(), e.getY(), 3.0f);
-        }
-        for (OMGraphic omGraphic : allClosest) {
-            newClosest = omGraphic;
-            break;
+            newClosest = graphics.findClosest(e.getX(), e.getY(), 3.0f);
         }
 
-        if (allClosest.size() == 0) {
+        if (newClosest == null) {
             aisInfoPanel.setVisible(false);
             intendedRouteInfoPanel.setVisible(false);
             pastTrackInfoPanel.setVisible(false);
@@ -415,14 +485,14 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
                 intendedRouteInfoPanel.showWpInfo(wpCircle);
             }
 
-            if (newClosest instanceof VesselLayer) {
+            if (newClosest instanceof VesselTargetGraphic) {
                 jMapFrame.getGlassPane().setVisible(true);
                 closest = newClosest;
-                VesselLayer vessel = (VesselLayer) newClosest;
+                VesselTargetGraphic vtg = (VesselTargetGraphic) newClosest;
                 int x = (int) containerPoint.getX() + 10;
                 int y = (int) containerPoint.getY() + 10;
                 synchronized (targets) {
-                    aisInfoPanel.showAisInfo(getVessel(vessel.getMMSI()));
+                    aisInfoPanel.showAisInfo(vtg.getVesselTarget());
                 }                
                 if (chartPanel.getMap().getProjection().getWidth() - x < aisInfoPanel.getWidth()) {
                     x -= aisInfoPanel.getWidth() + 20;
