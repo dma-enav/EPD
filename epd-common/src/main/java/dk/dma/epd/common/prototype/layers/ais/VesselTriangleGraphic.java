@@ -114,7 +114,7 @@ public class VesselTriangleGraphic extends TargetGraphic {
             if (noHeading) {
                 heading.setVisible(false);
             }
-            // TODO sometimes null point here (parentLayer or projection is null)
+            
             // update the speed vector with the new data
             if (this.parentLayer != null && this.parentLayer.getProjection() != null) {
                 this.speedVector.update(posData, this.parentLayer.getProjection().getScale());
