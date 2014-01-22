@@ -122,8 +122,8 @@ public class ShoreCloudSettingsPanel extends CloudSettingsPanel {
         enavSettings.setShoreId(txtShoreId.getText());
         enavSettings.setShorePos(
                 new LatLonPoint.Double(
-                        (Double)spnShoreLat.getValue(), 
-                        (Double)spnShoreLon.getValue()));
+                        ((Float)spnShoreLat.getValue()).doubleValue(), 
+                        ((Float)spnShoreLon.getValue()).doubleValue()));
     }
     
     /**
