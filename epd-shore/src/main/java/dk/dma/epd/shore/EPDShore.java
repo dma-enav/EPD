@@ -75,6 +75,7 @@ import dk.dma.epd.shore.voyage.VoyageManager;
 public final class EPDShore extends EPD<EPDSettings> {
 
     private static Logger LOG;
+    private Path homePath;
     private MainFrame mainFrame;
     private BeanContextServicesSupport beanHandler;
     private NmeaSensor aisSensor;
@@ -116,6 +117,8 @@ public final class EPDShore extends EPD<EPDSettings> {
      */
     private EPDShore(String settingsFile) throws IOException {
         super();
+        
+        homePath = determineHomePath(Paths.get(System.getProperty("user.home"), ".epd-shore"));
         
         new Bootstrap().run(
                 this, 
@@ -252,7 +255,7 @@ public final class EPDShore extends EPD<EPDSettings> {
     
     @Override
     public Path getHomePath() {
-        return Paths.get(System.getProperty("user.home"), ".epd-shore");
+        return homePath;
     }
 
     /**

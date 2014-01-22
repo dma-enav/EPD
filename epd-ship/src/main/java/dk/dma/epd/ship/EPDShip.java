@@ -87,6 +87,7 @@ import dk.dma.epd.ship.settings.EPDSettings;
 public final class EPDShip extends EPD<EPDSettings> {
 
     private static Logger LOG;
+    private Path homePath;
     MainFrame mainFrame;
     private MapHandler mapHandler;
     private NmeaSensor aisSensor;
@@ -128,6 +129,8 @@ public final class EPDShip extends EPD<EPDSettings> {
     private EPDShip(String settingsFile) throws IOException {
         super();
 
+        homePath = determineHomePath(Paths.get(System.getProperty("user.home"), ".epd-ship"));
+        
         new Bootstrap().run(
                 this, 
                 new String[] { "epd-ship.properties", "enc_navicon.properties", "settings.properties", "transponder.xml" },
@@ -769,7 +772,7 @@ public final class EPDShip extends EPD<EPDSettings> {
 
     @Override
     public Path getHomePath() {
-        return Paths.get(System.getProperty("user.home"), ".epd-ship");
+        return homePath;
     }
 
 

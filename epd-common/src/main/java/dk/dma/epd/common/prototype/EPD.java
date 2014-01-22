@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.common.prototype;
 
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
 import java.nio.file.Path;
 import java.util.Properties;
 
@@ -145,4 +147,20 @@ public abstract class EPD<S extends Settings> implements ISettingsListener {
      * @return a reference to the main frame of the application
      */
     public abstract JFrame getMainFrame();
+    
+    /**
+     * If Key caps is pressed during start up, and if so,
+     * asks the user for a home path.<br>
+     * Otherwise, the {@code defaultHomePath} is returned
+     * 
+     * @param defaultHomePath the default home path
+     * @return the chosen home path
+     */
+    protected Path determineHomePath(Path defaultHomePath) {
+        if (Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_CAPS_LOCK)) {
+            return HomePathDialog.determineHomePath(defaultHomePath);
+        }
+        // Caps-lock not on, return default home path
+        return defaultHomePath;  
+    }
 }

@@ -138,8 +138,10 @@ public class VesselOutlineGraphic extends OMGraphicList {
         }
         // don't show COG vector if vessel is docked
         this.speedVector.setVisible(positionData.getSog() > 0.1);
-        this.speedVector.update(positionData, this.parentLayer.getProjection().getScale());
-
+        if (parentLayer != null && parentLayer.getProjection() != null) {
+            this.speedVector.update(positionData, this.parentLayer.getProjection().getScale());
+        }
+        
         // clear old PntDevice display
         this.remove(this.pntDevice);
         this.pntDevice = new OMCircle(lat, lon, 3, 3);

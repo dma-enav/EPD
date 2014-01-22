@@ -23,6 +23,8 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.TexturePaint;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
@@ -99,4 +101,15 @@ public class GraphicsUtil {
     public static void fixSize(JComponent comp, int width) {
         fixSize(comp, width, -1);
     }
-}
+
+    /**
+     * Centers the given window on the main screen
+     * 
+     * @param frame the window to center
+     */
+    public static void centerWindow(Window frame) {
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);
+        int y = (int) ((dimension.getHeight() - frame.getHeight()) / 2);
+        frame.setLocation(x, y);
+    }}
