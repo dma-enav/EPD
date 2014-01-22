@@ -191,6 +191,9 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
                 mapScale = chartPanel.getMap().getScale();
                 mapClearTargets();
             }
+            // Bug fix: clear selection such that a deselection in one window
+            // will propagate to other windows
+            this.targetSelectionGraphic.setVisible(false);
             
             for (MobileTarget mobileTarget : aisHandler.getMobileTargets(AisTarget.Status.OK)) {
                 

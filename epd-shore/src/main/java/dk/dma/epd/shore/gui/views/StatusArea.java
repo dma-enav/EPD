@@ -27,6 +27,7 @@ import java.beans.beancontext.BeanContext;
 import java.beans.beancontext.BeanContextChild;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.JInternalFrame;
@@ -60,7 +61,7 @@ public class StatusArea extends JInternalFrame implements IMapCoordListener, Bea
     private static int statusItemWidth = 130;
     private static int statusPanelOffset = 4;
     private HashMap<String, JLabel> statusItems = new HashMap<String, JLabel>();
-    private HashMap<String, JLabel> highlightItems = new HashMap<String, JLabel>();
+    private ConcurrentHashMap<String, JLabel> highlightItems = new ConcurrentHashMap<String, JLabel>();
     public int width;
     public int height;
     private long highlightedMMSI;
