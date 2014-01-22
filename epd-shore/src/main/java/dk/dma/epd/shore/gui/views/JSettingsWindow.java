@@ -162,7 +162,6 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
 
         for (BaseSettingsPanel panel : settingsPanels) {
             if (panel == settingsPanel) {
-                panel.loadSettings();
                 panel.setVisible(true);
                 settingsLabels.get(panel).setBackground(new Color(55, 55, 55));
                 breadCrumps.setText("Preferences > " + panel.getName());
