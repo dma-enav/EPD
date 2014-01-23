@@ -33,41 +33,33 @@ import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.layers.ais.IntendedRouteGraphic;
 
 /**
+ * Base layer for displaying intended routes in {@linkplain EPDShip} and {@linkplain EPDShore}
+ * 
  * @author Janus Varmarken
  */
 public class IntendedRouteLayer extends OMGraphicHandlerLayer implements IAisTargetListener {
 
-    /**
-     * Default.
-     */
     private static final long serialVersionUID = 1L;
     
     /**
      * Map from MMSI to intended route graphic.
      */
-    private ConcurrentHashMap<Long, IntendedRouteGraphic> iRoutes = new ConcurrentHashMap<Long, IntendedRouteGraphic>();  
+    private ConcurrentHashMap<Long, IntendedRouteGraphic> intendedRoutes = new ConcurrentHashMap<>();  
     
+    /**
+     * Called when the given AIS target is updated
+     * @param aisTarget the AIS target that has been updated
+     */
     @Override
     public void targetUpdated(AisTarget aisTarget) {
         boolean redraw = false;
-//        if(aisTarget.getMmsi() == 219230000) {
-//            System.out.println("Tycho Brahe found");
-//            System.out.println("hasIntendedRoute = " + ((VesselTarget)aisTarget).hasIntendedRoute());
-//            System.out.println("inteded route == null? " + ((((VesselTarget)aisTarget).getIntendedRoute()) == null));
-//        }
-//        
-//        if(aisTarget.getMmsi() == 219622000) {
-//            System.out.println("Hamlet found");
-//            System.out.println("hasIntendedRoute = " + ((VesselTarget)aisTarget).hasIntendedRoute());
-//            System.out.println("inteded route == null? " + ((((VesselTarget)aisTarget).getIntendedRoute()) == null));
-//        }
         
-        if(aisTarget.isGone() && this.iRoutes.containsKey(aisTarget.getMmsi())) {
+        if(aisTarget.isGone() && intendedRoutes.containsKey(aisTarget.getMmsi())) {
             // This target should no longer be painted
-            this.iRoutes.remove(aisTarget.getMmsi());
+            intendedRoutes.remove(aisTarget.getMmsi());
             redraw = true;
         }
-        else if(!aisTarget.isGone() && aisTarget instanceof VesselTarget && ((VesselTarget)aisTarget).hasIntendedRoute()) {
+        else if (!aisTarget.isGone() && aisTarget instanceof VesselTarget && ((VesselTarget)aisTarget).hasIntendedRoute()) {
             // Get the needed data from model
             VesselTarget vessel = (VesselTarget) aisTarget;
             
@@ -77,12 +69,12 @@ public class IntendedRouteLayer extends OMGraphicHandlerLayer implements IAisTar
             CloudIntendedRoute cloudIntendedRoute = vessel.getIntendedRoute();
             Position pos = posData.getPos();
             
-            IntendedRouteGraphic irg = this.iRoutes.get(aisTarget.getMmsi());
+            IntendedRouteGraphic irg = intendedRoutes.get(aisTarget.getMmsi());
             if(irg == null) {
                 // No current intended route graphic for this target - create it
                 irg = new IntendedRouteGraphic();
                 // add the new intended route graphic to the set of managed intended route graphics
-                this.iRoutes.put(vessel.getMmsi(), irg);
+                intendedRoutes.put(vessel.getMmsi(), irg);
             }
             // Determine vessel name
             String name;
@@ -112,15 +104,15 @@ public class IntendedRouteLayer extends OMGraphicHandlerLayer implements IAisTar
     @Override
     public synchronized OMGraphicList prepare() {
        OMGraphicList toDraw = new OMGraphicList();
-       toDraw.addAll(this.iRoutes.values());
+       toDraw.addAll(intendedRoutes.values());
         
-        this.setList(null);
+        setList(null);
 
-        toDraw.project(this.getProjection());
+        toDraw.project(getProjection());
         
-        this.setList(toDraw);
+        setList(toDraw);
         
-        return this.getList();
+        return getList();
     }
     
     public void findAndInit(Object obj) {

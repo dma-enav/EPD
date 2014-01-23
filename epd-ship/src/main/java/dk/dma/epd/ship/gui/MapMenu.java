@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.ship.gui;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -34,8 +35,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.swing.JButton;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
 import com.bbn.openmap.LightMapHandlerChild;
@@ -45,6 +48,7 @@ import com.bbn.openmap.MouseDelegator;
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
+import dk.dma.epd.common.prototype.gui.menuitems.ColorMenuItem;
 import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
 import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
 import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
@@ -466,6 +470,12 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         }
         add(aisIntendedRouteToggle);
 
+        ColorMenuItem colorMenuItem = new ColorMenuItem(
+                this,
+                new Color[] { Color.red, Color.blue, Color.white, Color.black, Color.gray },
+                Color.green);
+        add(colorMenuItem);
+        
         revalidate();
         generalMenu(false);
     }
