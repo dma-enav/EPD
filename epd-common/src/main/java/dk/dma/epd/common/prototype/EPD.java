@@ -20,9 +20,8 @@ import java.awt.event.KeyEvent;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import javax.swing.JFrame;
-
 import dk.dma.epd.common.graphics.Resources;
+import dk.dma.epd.common.prototype.gui.ais.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
@@ -146,7 +145,15 @@ public abstract class EPD<S extends Settings> implements ISettingsListener {
      * Returns a reference to the main frame of the application
      * @return a reference to the main frame of the application
      */
-    public abstract JFrame getMainFrame();
+    public abstract MainFrameCommon getMainFrame();
+    
+    
+    /**
+     * Call this method to terminate the application
+     * @param restart whether to restart or not
+     */
+    public abstract void closeApp(boolean restart);
+    
     
     /**
      * If Key caps is pressed during start up, and if so,

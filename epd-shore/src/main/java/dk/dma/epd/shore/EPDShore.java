@@ -258,13 +258,6 @@ public final class EPDShore extends EPD<EPDSettings> {
         return homePath;
     }
 
-    /**
-     * Function called on shutdown
-     */
-    public static void closeApp() {
-        getInstance().closeApp(false);
-    }
-
     public EnavServiceHandler getEnavServiceHandler() {
         return enavServiceHandler;
     }

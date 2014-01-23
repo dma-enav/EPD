@@ -18,7 +18,6 @@ package dk.dma.epd.ship.layers.ais;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.event.ProjectionEvent;
-import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMList;
@@ -47,9 +45,6 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.AisTargetSelectionGraphic;
 import dk.dma.epd.common.prototype.layers.ais.AtonTargetGraphic;
-import dk.dma.epd.common.prototype.layers.ais.IntendedRouteGraphic;
-import dk.dma.epd.common.prototype.layers.ais.IntendedRouteLegGraphic;
-import dk.dma.epd.common.prototype.layers.ais.IntendedRouteWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SarTargetGraphic;
@@ -58,6 +53,8 @@ import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetTriangle;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLegGraphic;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteWpCircle;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
@@ -65,7 +62,6 @@ import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
-import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.TopPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
@@ -88,7 +84,6 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
     private AisHandler aisHandler;
     private OwnShipHandler ownShipHandler;
 
-    private IntendedRouteInfoPanel intendedRouteInfoPanel = new IntendedRouteInfoPanel();
     private AisTargetInfoPanel aisTargetInfoPanel = new AisTargetInfoPanel();
     private SarTargetInfoPanel sarTargetInfoPanel = new SarTargetInfoPanel();
     private final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
@@ -103,8 +98,6 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
     // Only accessed in event dispatch thread
     private OMGraphic closest;
     private OMGraphic selectedGraphic;
-    private ChartPanel chartPanel;
-    private OMCircle dummyCircle = new OMCircle();
     private AisComponentPanel aisPanel;
     private AisTargetSelectionGraphic targetSelectionGraphic = new AisTargetSelectionGraphic();
 
@@ -312,12 +305,6 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
             VesselTarget vesselTarget = (VesselTarget) aisTarget;
 
             VesselTargetGraphic vesselTargetGraphic = (VesselTargetGraphic) targetGraphic;
-            if (vesselTarget.getSettings().isShowRoute() && vesselTarget.hasIntendedRoute()
-                    && !vesselTargetGraphic.getRouteGraphic().isVisible()) {
-                forceRedraw = true;
-            } else if (!vesselTarget.getSettings().isShowRoute() && vesselTargetGraphic.getRouteGraphic().isVisible()) {
-                forceRedraw = true;
-            }
 
             if (this.currentZoomLevel == null) {
                 this.currentZoomLevel = ZoomLevel.getFromScale(mapScale);
@@ -367,15 +354,6 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
         // long start = System.nanoTime();
         Iterator<TargetGraphic> it = targets.values().iterator();
 
-        synchronized (graphics) {
-            for (OMGraphic omgraphic : graphics) {
-                if (omgraphic instanceof IntendedRouteGraphic) {
-                    ((IntendedRouteGraphic) omgraphic).showArrowHeads(getProjection().getScale() < EPDShip.getInstance()
-                            .getSettings().getNavSettings().getShowArrowScale());
-                }
-            }
-        }
-
         while (it.hasNext()) {
             TargetGraphic target = it.next();
             target.setMarksVisible(getProjection(), aisSettings, navSettings);
@@ -419,16 +397,12 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
             ownShipHandler = (OwnShipHandler) obj;
         }
         if (obj instanceof MainFrame) {
-            mainFrame.getGlassPanel().add(intendedRouteInfoPanel);
             mainFrame.getGlassPanel().add(aisTargetInfoPanel);
             mainFrame.getGlassPanel().add(sarTargetInfoPanel);
             mainFrame.getGlassPanel().add(pastTrackInfoPanel);
         }
         if (obj instanceof PntHandler) {
             sarTargetInfoPanel.setPntHandler((PntHandler) obj);
-        }
-        if (obj instanceof ChartPanel) {
-            chartPanel = (ChartPanel) obj;
         }
         if (obj instanceof TopPanel) {
             topPanel = (TopPanel) obj;
@@ -531,7 +505,7 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
      */
     private void setActiveInfoPanel(OMGraphic closest, InfoPanel visiblePanel) {
         this.closest = closest;
-        InfoPanel[] infoPanels = { intendedRouteInfoPanel, aisTargetInfoPanel, sarTargetInfoPanel, pastTrackInfoPanel };
+        InfoPanel[] infoPanels = { aisTargetInfoPanel, sarTargetInfoPanel, pastTrackInfoPanel };
         for (InfoPanel infoPanel : infoPanels) {
             if (infoPanel != visiblePanel) {
                 infoPanel.setVisible(false);
@@ -557,27 +531,11 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
         if (newClosest != closest) {
             Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), mainFrame);
 
-            if (newClosest instanceof IntendedRouteWpCircle) {
-                IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) newClosest;
-                intendedRouteInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-                intendedRouteInfoPanel.showWpInfo(wpCircle);
-                setActiveInfoPanel(newClosest, intendedRouteInfoPanel);
-                return true;
-
-            } else if (newClosest instanceof PastTrackWpCircle) {
+            if (newClosest instanceof PastTrackWpCircle) {
                 PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
                 pastTrackInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
                 pastTrackInfoPanel.showWpInfo(wpCircle);
                 setActiveInfoPanel(newClosest, pastTrackInfoPanel);
-                return true;
-
-            } else if (newClosest instanceof IntendedRouteLegGraphic) {
-                // lets user see ETA continually along route leg
-                Point2D worldLocation = chartPanel.getMap().getProjection().inverse(e.getPoint());
-                IntendedRouteLegGraphic legGraphic = (IntendedRouteLegGraphic) newClosest;
-                intendedRouteInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-                intendedRouteInfoPanel.showLegInfo(legGraphic, worldLocation);
-                setActiveInfoPanel(dummyCircle, intendedRouteInfoPanel);
                 return true;
 
             } else if (newClosest instanceof VesselTargetTriangle) {

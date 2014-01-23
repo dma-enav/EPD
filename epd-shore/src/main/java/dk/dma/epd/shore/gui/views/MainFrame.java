@@ -20,25 +20,17 @@ import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
 import java.beans.beancontext.BeanContextServicesSupport;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.WindowConstants;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import dk.dma.epd.common.prototype.gui.ais.MainFrameCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
@@ -55,21 +47,11 @@ import dk.dma.epd.shore.voyage.Voyage;
  * 
  * @author David A. Camre (davidcamre@gmail.com)
  */
-public class MainFrame extends JFrame implements WindowListener {
+public class MainFrame extends MainFrameCommon {
 
     private static final String TITLE = "EPD-shore " + VersionInfo.getVersion();
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(MainFrame.class);
-
-    private static Image getAppIcon() {
-        ImageIcon icon = EPDShore.res().getCachedImageIcon("/images/appicon.png");
-        if (icon != null) {
-            return icon.getImage();
-        }
-        LOG.error("Could not find app icon");
-        return null;
-    }
 
     private int windowCount;
     private Dimension size = new Dimension(1000, 700);
@@ -104,7 +86,7 @@ public class MainFrame extends JFrame implements WindowListener {
      * Constructor
      */
     public MainFrame() {
-        super();
+        super(TITLE);
         // System.out.println("before init gui");
         initGUI();
 
@@ -136,92 +118,13 @@ public class MainFrame extends JFrame implements WindowListener {
      * @return
      */
     public void addMapWindow() {
-
         new ThreadedMapCreator(this).run();
-        // windowCount++;
-        // JMapFrame window = new JMapFrame(windowCount, this);
-        //
-        // desktop.add(window);
-        //
-        // mapWindows.add(window);
-        // // window.toFront();
-        //
-        // topMenu.addMap(window, false, false);
-        //
-        // if (!wmsLayerEnabled) {
-        // // System.out.println("wmslayer is not enabled");
-        // window.getChartPanel().getWmsLayer().setVisible(false);
-        // window.getChartPanel().getBgLayer().setVisible(true);
-        // } else {
-        // // System.out.println("wmslayer is enabled");
-        // window.getChartPanel().getWmsLayer().setVisible(true);
-        // window.getChartPanel().getBgLayer().setVisible(false);
-        // }
-        //
-        // if (!msiLayerEnabled) {
-        // window.getChartPanel().getMsiLayer().setVisible(false);
-        //
-        // }
-        //
-        // if (windowCount == 1) {
-        // beanHandler.add(window.getChartPanel().getWmsLayer()
-        // .getWmsService());
-        // }
-
-        // return window;
     }
 
     public void addStrategicRouteExchangeHandlingWindow(Route originalRoute, String shipName,
             Voyage voyage, boolean renegotiate) {
         new ThreadedMapCreator(this, shipName, voyage, originalRoute,
                 renegotiate).run();
-        // windowCount++;
-        // JMapFrame window = new JMapFrame(windowCount, this);
-        //
-        // desktop.add(window);
-        //
-        // mapWindows.add(window);
-        //
-        // window.setTitle("Handle route request " + shipName);
-        // // window.toFront();
-        //
-        // topMenu.addMap(window, false, false);
-        //
-        // if (!wmsLayerEnabled) {
-        // // System.out.println("wmslayer is not enabled");
-        // window.getChartPanel().getWmsLayer().setVisible(false);
-        // window.getChartPanel().getBgLayer().setVisible(true);
-        // } else {
-        // // System.out.println("wmslayer is enabled");
-        // window.getChartPanel().getWmsLayer().setVisible(true);
-        // window.getChartPanel().getBgLayer().setVisible(false);
-        // }
-        //
-        // if (!msiLayerEnabled) {
-        // window.getChartPanel().getMsiLayer().setVisible(false);
-        //
-        // }
-        //
-        // if (windowCount == 1) {
-        // beanHandler.add(window.getChartPanel().getWmsLayer()
-        // .getWmsService());
-        // }
-        //
-        // window.alwaysFront();
-        //
-        // VoyageHandlingLayer voyageHandlingLayer = new VoyageHandlingLayer();
-        // voyageHandlingLayer.handleVoyage(voyage);
-        //
-        // window.getChartPanel().getMapHandler().add(voyageHandlingLayer);
-        //
-        // // map.setCenter(center);
-        // // map.setScale(scale);
-        //
-        // window.getChartPanel().getMap().setScale(5);
-        // window.getChartPanel().zoomToPoint(
-        // voyage.getRoute().getWaypoints().get(0).getPos());
-        //
-        // return window;
     }
 
     /**
@@ -249,39 +152,10 @@ public class MainFrame extends JFrame implements WindowListener {
 
         windowCreator.run();
 
-        // windowCount++;
-        //
-        // JMapFrame window = new JMapFrame(windowCount, this, center, scale);
-        // desktop.add(window, workspace);
-        // mapWindows.add(window);
-        // window.toFront();
-        // topMenu.addMap(window, locked, alwaysInFront);
-        // window.getChartPanel().getMsiLayer().setVisible(isMsiLayerEnabled());
-        //
-        // if (!wmsLayerEnabled) {
-        // window.getChartPanel().getWmsLayer().setVisible(false);
-        // window.getChartPanel().getBgLayer().setVisible(true);
-        // } else {
-        // window.getChartPanel().getBgLayer().setVisible(false);
-        // }
-        //
-        // if (windowCount == 1) {
-        // beanHandler.add(window.getChartPanel().getWmsLayer()
-        // .getWmsService());
-        // }
-        //
-        // return window;
-
         if (this.getMapWindows().size() > 0) {
             if (this.getMapWindows().get(0).getChartPanel().getEncLayer() != null && !this.getToolbar().isEncButtonEnabled()) {
                 this.getToolbar().enableEncButton();
-            }
-            
-//            else{
-//                //Disabling ENC
-//                useEnc = false;
-////            this.setEncLayerEnabled(false);
-//            }
+            }            
         }
 
     }
@@ -407,8 +281,6 @@ public class MainFrame extends JFrame implements WindowListener {
         
         Workspace workspace = EPDShore.getInstance().getSettings().getWorkspace();
 
-        setTitle(TITLE);
-
         // Set location and size
         if (guiSettings.isMaximized()) {
             setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
@@ -420,10 +292,6 @@ public class MainFrame extends JFrame implements WindowListener {
         } else {
             setSize(guiSettings.getAppDimensions());
         }
-
-        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        setIconImage(getAppIcon());
-        addWindowListener(this);
 
         desktop = new JMainDesktopPane(this);
         scrollPane = new JScrollPane();
@@ -631,12 +499,6 @@ public class MainFrame extends JFrame implements WindowListener {
     public void toggleBarsLock() {
         toolbarsLocked = !toolbarsLocked;
 
-        // if (toolbarsLocked) {
-        // toolbarsLocked = false;
-        // } else {
-        // toolbarsLocked = true;
-        // }
-
         toolbar.toggleLock();
         notificationArea.toggleLock();
         statusArea.toggleLock();
@@ -646,9 +508,6 @@ public class MainFrame extends JFrame implements WindowListener {
      * Set the maindow in fullscreen mode
      */
     public void toggleFullScreen() {
-
-        // System.out.println(this.getLocationOnScreen());
-        // System.out.println("fullscreen toggle");
 
         if (!fullscreen) {
             location = this.getLocation();
@@ -687,40 +546,6 @@ public class MainFrame extends JFrame implements WindowListener {
     public void toggleNotificationCenter(int service) {
         System.out.println("Toggle service: " + service);
         notificationCenter.toggleVisibility(service);
-    }
-
-    @Override
-    public void windowActivated(WindowEvent we) {
-    }
-
-    @Override
-    public void windowClosed(WindowEvent we) {
-    }
-
-    /**
-     * Function called on close event, saves the settings on close
-     */
-    @Override
-    public void windowClosing(WindowEvent we) {
-
-        // Close routine
-        EPDShore.closeApp();
-    }
-
-    @Override
-    public void windowDeactivated(WindowEvent we) {
-    }
-
-    @Override
-    public void windowDeiconified(WindowEvent we) {
-    }
-
-    @Override
-    public void windowIconified(WindowEvent we) {
-    }
-
-    @Override
-    public void windowOpened(WindowEvent we) {
     }
 
     /**

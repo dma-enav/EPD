@@ -13,10 +13,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.layers.ais;
+package dk.dma.epd.common.prototype.layers.intendedroute;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,55 +72,6 @@ public class IntendedRouteGraphic extends OMGraphicList {
         add(wpCircle);
     }
 
-    //
-    // public void update(VesselTarget vesselTarget, String label,
-    // AisIntendedRoute routeData, Position pos) {
-    // this.vesselTarget = vesselTarget;
-    // this.name = label;
-    // // Handle no or empty route
-    // if (routeData == null || routeData.getWaypoints().size() == 0) {
-    // clear();
-    // if (isVisible()) {
-    // setVisible(false);
-    // }
-    // previousData = null;
-    // return;
-    // }
-    //
-    // if (previousData != routeData) {
-    // // Route has changed, draw new route
-    // clear();
-    // add(activeWpLine);
-    // List<Position> waypoints = routeData.getWaypoints();
-    // // Make first WP circle
-    // makeWpCircle(0, waypoints.get(0));
-    // for (int i=0; i < waypoints.size() - 1; i++) {
-    // Position start = waypoints.get(i);
-    // Position end = waypoints.get(i + 1);
-    //
-    // // Make wp circle
-    // makeWpCircle(i + 1, end);
-    //
-    // // Make leg line
-    // makeLegLine(i + 1, start, end);
-    // }
-    // previousData = routeData;
-    // }
-    //
-    // // Update leg to first waypoint
-    // Position activeWpPos = routeData.getWaypoints().get(0);
-    // activeWpLineLL[0] = pos.getLatitude();
-    // activeWpLineLL[1] = pos.getLongitude();
-    // activeWpLineLL[2] = activeWpPos.getLatitude();
-    // activeWpLineLL[3] = activeWpPos.getLongitude();
-    // activeWpLine.setLL(activeWpLineLL);
-    //
-    // // Set visible if not visible
-    // if (!isVisible()) {
-    // setVisible(true);
-    // }
-    //
-    // }
 
     public VesselTarget getVesselTarget() {
         return vesselTarget;
@@ -258,9 +212,15 @@ public class IntendedRouteGraphic extends OMGraphicList {
         activeWpLineLL[2] = activeWpPos.getLatitude();
         activeWpLineLL[3] = activeWpPos.getLongitude();
         activeWpLine.setLL(activeWpLineLL);
+    }
 
-        
-
-        
+    /**
+     * Turn on anti-aliasing
+     */
+    @Override
+    public void render(Graphics g) {
+        Graphics2D image = (Graphics2D) g;
+        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        super.render(image);
     }
 }

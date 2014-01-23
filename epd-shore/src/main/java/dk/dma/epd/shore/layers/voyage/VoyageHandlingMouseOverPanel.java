@@ -22,7 +22,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
-import dk.dma.epd.common.prototype.layers.ais.IntendedRouteLegGraphic;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLegGraphic;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Calculator;

@@ -35,9 +35,6 @@ import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.ais.VesselTargetSettings;
-import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
-import dk.dma.epd.common.prototype.layers.ais.IntendedRouteGraphic;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackGraphic;
 import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
 import dk.dma.epd.common.prototype.settings.AisSettings;
@@ -75,7 +72,6 @@ public class Vessel extends TargetGraphic {
     private String vesselDest = "N/A";
     private String vesselEta = "N/A";
     private String vesselShiptype = "N/A";
-    private IntendedRouteGraphic routeGraphic = new IntendedRouteGraphic();
     private VesselTarget vesselTarget;
     private PastTrackGraphic pastTrackGraphic = new PastTrackGraphic();
 
@@ -120,8 +116,6 @@ public class Vessel extends TargetGraphic {
         this.add(speedVector);
         this.add(callSign);
         this.add(nameMMSI);
-
-        this.add(routeGraphic);
         this.add(pastTrackGraphic);
     }
 
@@ -136,7 +130,6 @@ public class Vessel extends TargetGraphic {
     @Override
     public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale) {
         vesselTarget = (VesselTarget)aisTarget;
-        VesselTargetSettings targetSettings = vesselTarget.getSettings();
         VesselPositionData location = vesselTarget.getPositionData();
         VesselStaticData staticData = vesselTarget.getStaticData();
         
@@ -203,16 +196,6 @@ public class Vessel extends TargetGraphic {
                 nameMMSI.setY(-10);
             } else {
                 nameMMSI.setY(20);
-            }
-
-
-            CloudIntendedRoute aisIntendedRoute = vesselTarget.getIntendedRoute();
-
-
-            // Intended route graphic
-            routeGraphic.update(vesselTarget, vesselName, aisIntendedRoute, vesselTarget.getPositionData().getPos());
-            if (!targetSettings.isShowRoute()) {
-                routeGraphic.setVisible(false);
             }
         }
         

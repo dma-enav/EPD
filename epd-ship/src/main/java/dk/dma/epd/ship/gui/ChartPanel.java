@@ -41,7 +41,6 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
-import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayer;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -60,6 +59,7 @@ import dk.dma.epd.ship.layers.EncLayerFactory;
 import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.background.CoastalOutlineLayer;
+import dk.dma.epd.ship.layers.intendedroute.IntendedRouteLayer;
 import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
 import dk.dma.epd.ship.layers.nogo.DynamicNogoLayer;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
@@ -79,21 +79,25 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
 
+    private NavigationMouseMode mapNavMouseMode;
+    private DragMouseMode dragMouseMode;
+    
+    // Layers
     private OwnShipLayer ownShipLayer;
     private AisLayer aisLayer;
     private GeneralLayer generalLayer;
-    private CoastalOutlineLayer coastalOutlineLayer;
-    private NavigationMouseMode mapNavMouseMode;
-    private DragMouseMode dragMouseMode;
+    private CoastalOutlineLayer coastalOutlineLayer;    
     private RouteLayer routeLayer;
     private VoyageLayer voyageLayer;
     private EpdMsiLayer msiLayer;
     private NogoLayer nogoLayer;
     private DynamicNogoLayer dynamicNogoLayer;
+    private IntendedRouteLayer intendedRouteLayer;
+    private NewRouteContainerLayer newRouteContainerLayer;
+    
     private TopPanel topPanel;
     private RouteEditMouseMode routeEditMouseMode;
     private RouteEditLayer routeEditLayer;
-    private NewRouteContainerLayer newRouteContainerLayer;
     public int maxScale = 5000;
     private MSIFilterMouseMode msiFilterMouseMode;
 
@@ -106,7 +110,6 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
     private NogoDialog nogoDialog;
     private RulerLayer rulerLayer;
     
-    private IntendedRouteLayer intendedRouteLayer;
     private HistoryListener pcl;
 
     public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel) {
@@ -252,22 +255,10 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         mapHandler.add(ownShipLayer);
 
         // Create Intended Route Layer
-        this.intendedRouteLayer = new IntendedRouteLayer();
-        this.intendedRouteLayer.setVisible(true);
-        this.mapHandler.add(this.intendedRouteLayer);
+        intendedRouteLayer = new IntendedRouteLayer();
+        intendedRouteLayer.setVisible(true);
+        mapHandler.add(intendedRouteLayer);
         
-        // Create a esri shape layer
-        // URL dbf = EeINS.class.getResource("/shape/urbanap020.dbf");
-        // URL shp = EeINS.class.getResource("/shape/urbanap020.shp");
-        // URL shx = EeINS.class.getResource("/shape/urbanap020.shx");
-        //
-        // DrawingAttributes da = new DrawingAttributes();
-        // da.setFillPaint(Color.blue);
-        // da.setLinePaint(Color.black);
-        //
-        // EsriLayer esriLayer = new EsriLayer("Drogden", dbf, shp, shx, da);
-        // mapHandler.add(esriLayer);
-
         // Create background layer
         String layerName = "background";
         coastalOutlineLayer = new CoastalOutlineLayer();

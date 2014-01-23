@@ -153,7 +153,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         exit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                mainFrame.windowClosing(null);
+                mainFrame.onWindowClosing();
             }
         });
 

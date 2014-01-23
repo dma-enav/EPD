@@ -180,7 +180,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
         mi.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                EPDShore.closeApp();
+                EPDShore.getInstance().closeApp(false);
             }
         });
 

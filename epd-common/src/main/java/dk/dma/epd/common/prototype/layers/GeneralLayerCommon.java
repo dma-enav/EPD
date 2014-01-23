@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.layers;
 
 import java.awt.event.MouseEvent;
 
+import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapEventUtils;
 import com.bbn.openmap.event.MapMouseListener;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
@@ -24,6 +25,7 @@ import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.ais.MainFrameCommon;
 
 /**
  * Common EPD layer subclass that may be sub-classed by other layers.
@@ -33,6 +35,39 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     private static final long serialVersionUID = 1L;
 
     protected OMGraphicList graphics = new OMGraphicList();
+    protected MapBean mapBean;
+    protected MainFrameCommon mainFrame;
+
+    /**
+     * Called when a bean is added to the bean context
+     * @param obj the bean being added
+     */
+    @Override
+    public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+        
+        if (obj instanceof MapBean) {
+            mapBean = (MapBean) obj;
+        } else if (obj instanceof MainFrameCommon) {
+            mainFrame = (MainFrameCommon) obj;
+        }
+    }
+
+    /**
+     * Called when a bean is removed from the bean context
+     * @param obj the bean being removed
+     */
+    @Override
+    public void findAndUndo(Object obj) {
+        // Important notice:
+        // The mechanism for adding and removing beans has been used in 
+        // a wrong way in epd-shore, which has multiple ChartPanels.
+        // When the "global" beans are added to a new ChartPanel, they
+        // will be removed from the other ChartPanels using findAndUndo.
+        // Hence, we do not reset the references to mapBean and mainFrame
+        
+        super.findAndUndo(obj);
+    }
 
     /**
      * Returns {@code this} as the {@linkplain MapMouseListener}

@@ -17,8 +17,6 @@ package dk.dma.epd.ship.layers;
 
 import java.awt.event.MouseEvent;
 
-import com.bbn.openmap.MapBean;
-
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.layers.GeneralLayerCommon;
 import dk.dma.epd.ship.event.DragMouseMode;
@@ -36,8 +34,6 @@ public class GeneralLayer extends GeneralLayerCommon {
     private static final long serialVersionUID = 1L;
 
     protected MapMenu mapMenu;
-    protected MapBean mapBean;
-    protected MainFrame mainFrame;
 
     /**
      * Returns the mouse mode service list
@@ -82,12 +78,10 @@ public class GeneralLayer extends GeneralLayerCommon {
      */
     @Override
     public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+        
         if (obj instanceof MapMenu) {
             mapMenu = (MapMenu) obj;
-        } else if (obj instanceof MapBean) {
-            mapBean = (MapBean) obj;
-        } else if (obj instanceof MainFrame) {
-            mainFrame = (MainFrame) obj;
         }
     }
 
@@ -99,10 +93,15 @@ public class GeneralLayer extends GeneralLayerCommon {
     public void findAndUndo(Object obj) {
         if (obj == mapMenu) {
             mapMenu = null;
-        } else if (obj == mapBean) {
-            mapBean = null;
-        } else if (obj == mainFrame) {
-            mainFrame = null;
         }
+        super.findAndUndo(obj);
+    }
+    
+    /**
+     * Returns a reference to the main frame
+     * @return a reference to the main frame
+     */
+    public MainFrame getMainFrame() {
+        return (MainFrame)mainFrame;
     }
 }

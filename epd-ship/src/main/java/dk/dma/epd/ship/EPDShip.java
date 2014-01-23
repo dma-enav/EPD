@@ -643,10 +643,6 @@ public final class EPDShip extends EPD<EPDSettings> {
 
     }
 
-    public static void closeApp() {
-        getInstance().closeApp(false);
-    }
-
     public void closeApp(boolean restart) {
         // Shutdown routine
 

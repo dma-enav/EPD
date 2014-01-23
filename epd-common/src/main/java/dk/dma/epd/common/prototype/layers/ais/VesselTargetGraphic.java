@@ -18,14 +18,11 @@ package dk.dma.epd.common.prototype.layers.ais;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.proj.Projection;
 
-import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.ais.VesselTargetSettings;
-import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
@@ -49,8 +46,6 @@ public class VesselTargetGraphic extends TargetGraphic {
     // VesselDotGraphic
     private VesselDotGraphic vesselDotGraphic;
 
-    private IntendedRouteGraphic routeGraphic = new IntendedRouteGraphic();
-
     private PastTrackGraphic pastTrackGraphic = new PastTrackGraphic();
 
     public VesselTargetGraphic(boolean showName, OMGraphicHandlerLayer parentLayer) {
@@ -63,7 +58,6 @@ public class VesselTargetGraphic extends TargetGraphic {
 
     private void createGraphics() {
         this.add(this.pastTrackGraphic);
-        this.add(this.routeGraphic);
         this.add(this.vesselTriangleGraphic);
         this.add(this.vesselOutlineGraphic);
         this.add(this.vesselDotGraphic);
@@ -76,9 +70,6 @@ public class VesselTargetGraphic extends TargetGraphic {
 
             vesselTarget = (VesselTarget) aisTarget;
             VesselPositionData posData = vesselTarget.getPositionData();
-            VesselStaticData staticData = vesselTarget.getStaticData();
-            VesselTargetSettings targetSettings = vesselTarget.getSettings();
-            CloudIntendedRoute cloudIntendedRoute = vesselTarget.getIntendedRoute();
 
             Position pos = posData.getPos();
 
@@ -90,20 +81,6 @@ public class VesselTargetGraphic extends TargetGraphic {
             
             if (pos != null) {
                 this.vesselDotGraphic.updateLocation(posData);
-            }
-            // Determine name
-            String name;
-            if (staticData != null) {
-                name = AisMessage.trimText(staticData.getName());
-            } else {
-                Long mmsi = vesselTarget.getMmsi();
-                name = "ID:" + mmsi.toString();
-            }
-
-            // Intended route graphic
-            routeGraphic.update(vesselTarget, name, cloudIntendedRoute, pos);
-            if (!targetSettings.isShowRoute()) {
-                routeGraphic.setVisible(false);
             }
 
             // Past-track graphics
@@ -163,10 +140,6 @@ public class VesselTargetGraphic extends TargetGraphic {
             return this.vesselTriangleGraphic.getShowNameLabel();
         }
         return true;
-    }
-
-    public IntendedRouteGraphic getRouteGraphic() {
-        return routeGraphic;
     }
 
     public PastTrackGraphic getPastTrackGraphic() {

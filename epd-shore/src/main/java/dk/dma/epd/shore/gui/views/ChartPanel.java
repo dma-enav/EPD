@@ -52,6 +52,7 @@ import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.layers.EncLayerFactory;
 import dk.dma.epd.shore.layers.GeneralLayer;
 import dk.dma.epd.shore.layers.ais.AisLayer;
+import dk.dma.epd.shore.layers.intendedroute.IntendedRouteLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
 import dk.dma.epd.shore.layers.route.RouteLayer;
 import dk.dma.epd.shore.layers.routeEdit.RouteEditLayer;
@@ -90,6 +91,7 @@ public class ChartPanel extends CommonChartPanel {
     private RouteEditLayer routeEditLayer;
     private NewRouteContainerLayer newRouteContainerLayer;
     private VoyageHandlingLayer voyageHandlingLayer;
+    private IntendedRouteLayer intendedRouteLayer;
 
     private MainFrame mainFrame;
     private Color background = new Color(168, 228, 255);
@@ -492,6 +494,11 @@ public class ChartPanel extends CommonChartPanel {
         monaLisaHandler = EPDShore.getInstance().getMonaLisaHandler();
         mapHandler.add(monaLisaHandler);
 
+        // Create Intended Route Layer
+        intendedRouteLayer = new IntendedRouteLayer();
+        intendedRouteLayer.setVisible(true);
+        mapHandler.add(intendedRouteLayer);
+        
         // Create background layer
         String layerName = "background";
         bgLayer = new MultiShapeLayer();

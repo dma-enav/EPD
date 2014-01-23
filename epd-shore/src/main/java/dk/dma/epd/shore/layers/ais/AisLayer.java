@@ -43,14 +43,14 @@ import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.layers.ais.AisTargetSelectionGraphic;
-import dk.dma.epd.common.prototype.layers.ais.IntendedRouteLegGraphic;
-import dk.dma.epd.common.prototype.layers.ais.IntendedRouteWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SarTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
 import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLegGraphic;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteWpCircle;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
@@ -145,7 +145,7 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
     public void removeSelection() {
         targetSelectionGraphic.setVisible(false);
         
-        mainFrame.setSelectedMMSI(-1);
+        getMainFrame().setSelectedMMSI(-1);
 
         statusArea.removeHighlight();
 
@@ -226,7 +226,7 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
                     // Update the target graphics
                     targetGraphic.update(mobileTarget, null, null, mapScale);
 
-                    if (mobileTarget.getMmsi() == mainFrame.getSelectedMMSI()) {
+                    if (mobileTarget.getMmsi() == getMainFrame().getSelectedMMSI()) {
                         targetSelectionGraphic.moveSymbol(mobileTarget.getPositionData().getPos());
                         setStatusAreaTxt();
                     }
@@ -295,7 +295,7 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
             if (newClosest != null && newClosest instanceof VesselLayer) {
                 synchronized (targets) {
                     long mmsi = ((VesselLayer) newClosest).getMMSI();
-                    mainFrame.setSelectedMMSI(mmsi);
+                    getMainFrame().setSelectedMMSI(mmsi);
 
                     targetSelectionGraphic.setVisible(true);
 
@@ -312,7 +312,7 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
                 VesselTargetGraphic vtg = (VesselTargetGraphic) newClosest;
                 synchronized(targets) {
                     if(vtg.getVesselTarget() != null && vtg.getVesselTarget().getPositionData() != null) {
-                        mainFrame.setSelectedMMSI(vtg.getVesselTarget().getMmsi());
+                        getMainFrame().setSelectedMMSI(vtg.getVesselTarget().getMmsi());
                         targetSelectionGraphic.setVisible(true);
                         targetSelectionGraphic.moveSymbol(vtg.getVesselTarget().getPositionData().getPos());
                     }
@@ -383,7 +383,7 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
     private void setStatusAreaTxt() {
         HashMap<String, String> info = new HashMap<String, String>();
         String currKey;
-        VesselTargetGraphic vtg = getVessel(mainFrame.getSelectedMMSI());
+        VesselTargetGraphic vtg = getVessel(getMainFrame().getSelectedMMSI());
         VesselTarget vessel = vtg.getVesselTarget();
         if (vessel != null) {
             VesselStaticData vsd = vessel.getStaticData();
