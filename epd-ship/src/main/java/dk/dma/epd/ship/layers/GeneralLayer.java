@@ -35,16 +35,25 @@ public class GeneralLayer extends GeneralLayerCommon {
 
     private static final long serialVersionUID = 1L;
 
+    
+    /**
+     * Returns the default shore mouse mode service list
+     * @return the default shore mouse mode service list
+     */
+    public static String[] getDefaultMouseModeServiceList() {
+        String[] ret = new String[2];
+        ret[0] = NavigationMouseMode.MODE_ID; // "Gestures"
+        ret[1] = DragMouseMode.MODE_ID;
+        return ret;
+    }
+    
     /**
      * Returns the mouse mode service list
      * @return the mouse mode service list
      */
     @Override
     public String[] getMouseModeServiceList() {
-        String[] ret = new String[2];
-        ret[0] = NavigationMouseMode.MODE_ID; // "Gestures"
-        ret[1] = DragMouseMode.MODE_ID;
-        return ret;
+        return getDefaultMouseModeServiceList();
     }
 
     /**

@@ -40,16 +40,24 @@ public class GeneralLayer extends GeneralLayerCommon {
     protected JMapFrame jMapFrame;
     
     /**
-     * Returns the mouse mode service list
-     * @return the mouse mode service list
+     * Returns the default shore mouse mode service list
+     * @return the default shore mouse mode service list
      */
-    @Override
-    public String[] getMouseModeServiceList() {
+    public static String[] getDefaultMouseModeServiceList() {
         String[] ret = new String[3];
         ret[0] = DragMouseMode.MODEID; // "DragMouseMode"
         ret[1] = NavigationMouseMode.MODEID; // "ZoomMouseMode"
         ret[2] = SelectMouseMode.MODEID; // "SelectMouseMode"
         return ret;
+    }
+    
+    /**
+     * Returns the mouse mode service list
+     * @return the mouse mode service list
+     */
+    @Override
+    public String[] getMouseModeServiceList() {
+        return  getDefaultMouseModeServiceList();
     }
 
     /**

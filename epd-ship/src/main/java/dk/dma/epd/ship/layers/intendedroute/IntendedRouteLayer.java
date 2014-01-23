@@ -27,10 +27,9 @@ import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteInfoPanel;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteWpCircle;
-import dk.dma.epd.ship.event.DragMouseMode;
-import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.MapMenu;
+import dk.dma.epd.ship.layers.GeneralLayer;
 
 public class IntendedRouteLayer extends IntendedRouteLayerCommon {
 
@@ -42,10 +41,7 @@ public class IntendedRouteLayer extends IntendedRouteLayerCommon {
      */
     @Override
     public String[] getMouseModeServiceList() {
-        String[] ret = new String[2];
-        ret[0] = NavigationMouseMode.MODE_ID; // "Gestures"
-        ret[1] = DragMouseMode.MODE_ID;
-        return ret;
+        return GeneralLayer.getDefaultMouseModeServiceList();
     }
 
     /**
