@@ -284,7 +284,6 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
             chartPanel.manualProjChange();
             
             // Toggle buttons for navigation.
-            EPDShip.getInstance().getMainFrame().getTopPanel().toggleGoBackButton();
         }
     }
 

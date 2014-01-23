@@ -53,8 +53,6 @@ public class HistoryListener implements ProjectionListener {
     private CommonChartPanel chartPanel;
     private HistoryList historyList;
     
-    
-
     public HistoryListener(CommonChartPanel chartPanel) {
         this.chartPanel = chartPanel;
         this.historyList = new HistoryList();
@@ -113,7 +111,8 @@ public class HistoryListener implements ProjectionListener {
     }
     
     /**
-     * Saves the current position in 
+     * Saves the current position before moving to a new one.
+     * This is used when the very first position move is used.
      */
     public void saveToHistoryBeforeMoving() {
         if (historyList.getPointerInHistory() == -1) {
@@ -123,11 +122,41 @@ public class HistoryListener implements ProjectionListener {
         }
     }
     
+    /**
+     * 
+     * @return Returns the element one position back.
+     */
     public HistoryPosition goOneElementBack() {
+        if (historyList.isAtLowestElement() || 
+                historyList.getPointerInHistory() == -1) {
+            return null;
+        }
+            
         return this.historyList.goOneHistoryElementBack();
     }
 
+    /**
+     * 
+     * @return Returns the element on position forward.
+     */
     public HistoryPosition goOneElementForward() {
-        return this.historyList.goOneHistoryElementForward();
+        if (historyList.isAtHighestElement() ||
+                historyList.getPointerInHistory() == -1) {
+            return null;
+        }
+        
+        return this.historyList.goOneHistoryElementForward();            
+    }
+    
+    public boolean isAtHighestElement() {
+        return this.historyList.isAtHighestElement();
+    }
+    
+    public boolean isAtLowestElement() {
+        return this.historyList.isAtLowestElement();
+    }
+
+    public boolean containsElements() {
+        return this.historyList.containsElements();
     }
 }

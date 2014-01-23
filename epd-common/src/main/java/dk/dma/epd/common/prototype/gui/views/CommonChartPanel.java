@@ -23,6 +23,7 @@ import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
@@ -113,5 +114,11 @@ public abstract class CommonChartPanel extends OMComponentPanel {
         return dragMap;
     }
 
-
+    /**
+     * Changes the current center of the map to a new position.
+     * @param position Position to change to center.
+     */
+    public void goToPosition(Position position) {
+        this.getMap().setCenter(position.getLatitude(), position.getLongitude());
+    }
 }

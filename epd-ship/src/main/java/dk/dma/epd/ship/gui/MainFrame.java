@@ -192,6 +192,14 @@ public class MainFrame extends MainFrameCommon {
         mapMenu = new MapMenu();
         mapHandler.add(mapMenu);
         
+        topPanel.getGoBackButton().setHistoryListener(chartPanel.getHistoryListener());
+        topPanel.getGoBackButton().setChartPanel(chartPanel);
+        topPanel.getGoBackButton().setGoForwardButton(topPanel.getGoForwardButton());
+        
+        topPanel.getGoForwardButton().setHistoryListener(chartPanel.getHistoryListener());
+        topPanel.getGoForwardButton().setChartPanel(chartPanel);
+        topPanel.getGoForwardButton().setBackButton(topPanel.getGoBackButton());
+        
         if (EPDShip.getInstance().getSettings().getGuiSettings().isFullscreen()){
             doFullScreen();
         }else{

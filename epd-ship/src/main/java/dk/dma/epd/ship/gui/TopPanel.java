@@ -31,7 +31,6 @@ import javax.swing.JSeparator;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
-import dk.dma.epd.common.prototype.event.HistoryPosition;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.gui.route.GoBackButton;
 import dk.dma.epd.common.prototype.gui.route.GoForwardButton;
@@ -92,8 +91,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             toolbarIcon("images/toolbar/zoom.png"));
     private final ToggleButtonLabel dragMouseMode = new ToggleButtonLabel(
             toolbarIcon("images/toolbar/drag.png"));
-    private final GoBackButton goBackBtn = new GoBackButton();
-    private final GoForwardButton goForwardBtn = new GoForwardButton();
 
     // TODO update to unique icon
     /**
@@ -115,6 +112,10 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     private RouteLayer routeLayer;
 
     private MouseDelegator mouseDelegator;
+    private final GoBackButton goBackBtn = new GoBackButton(
+            toolbarIcon("images/toolbar/go-back.png"));
+    private final GoForwardButton goForwardBtn = new GoForwardButton(
+            toolbarIcon("images/toolbar/go-forward.png"));
         
     /**
      * A slightly hacked way of simulating a click on the aisToggleName label
@@ -167,8 +168,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         
         goBackBtn.setToolTipText("Go back");
         goForwardBtn.setToolTipText("Go forward");
-//        goBack.setEnabled(false);
-//        goForward.setEnabled(false);
+//        goBackBtn.setEnabled(false);
+//        goForwardBtn.setEnabled(false);
 
         wmsBtn.setToolTipText("Show/hide WMS seacharts");
         // tglbtnMsiFilter
@@ -339,6 +340,14 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             routeLayer = (RouteLayer) obj;
         }
     }
+    
+    public GoBackButton getGoBackButton() {
+        return this.goBackBtn;
+    }
+    
+    public GoForwardButton getGoForwardButton() {
+        return this.goForwardBtn;
+    }
 
     public MsiDialog getMsiDialog() {
         return msiDialog;
@@ -482,17 +491,17 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             mainFrame.saveCentreOnShip();
         } else if (e.getSource() == this.goBackBtn) {
                 // Jump to the previous position in the history.
-                HistoryPosition hpos = EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().goOneElementBack();
-                mainFrame.getChartPanel().zoomToPosition(hpos.getPosition());
-                mainFrame.getChartPanel().getMap().setScale(hpos.getZoomScale());
+//                HistoryPosition hpos = EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().goOneElementBack();
+//                mainFrame.getChartPanel().zoomToPosition(hpos.getPosition());
+//                mainFrame.getChartPanel().getMap().setScale(hpos.getZoomScale());
         } else if (e.getSource() == this.goForwardBtn) {
             if (this.goForwardBtn.isEnabled()) {
                 // Go one element forward in the history.
-                HistoryPosition hpos = EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().goOneElementForward();
-                                
-                // Move to the next elements position.
-                mainFrame.getChartPanel().zoomToPosition(hpos.getPosition());
-                mainFrame.getChartPanel().getMap().setScale(hpos.getZoomScale());
+//                HistoryPosition hpos = EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().goOneElementForward();
+//                                
+//                // Move to the next elements position.
+//                mainFrame.getChartPanel().zoomToPosition(hpos.getPosition());
+//                mainFrame.getChartPanel().getMap().setScale(hpos.getZoomScale());
 //                
 //                toggleGoBackButton();
             }
@@ -522,31 +531,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         // mainFrame.getDockableComponents().toggleFrameLock();
         // }
 
-    }
-
-    public void toggleGoForwardButton() {
-//        // If we're at the lowest element, disable the back button. 
-//        if (this.mainFrame.mapHistory.isAtLowestElement()) {
-//            this.goBack.setEnabled(false);
-//        }
-//        
-//        // If there are more elements in the hostory enable the back button.
-//        if (this.mainFrame.mapHistory.containsElements()) {
-//            this.goForward.setEnabled(true);
-//        }
-    }
-
-    public void toggleGoBackButton() {
-//        // If we're at the highest element in the history, disable the go forward button.
-//        if (this.mainFrame.mapHistory.isAtHighestElement()) {
-//            this.goForward.setEnabled(false);
-//        }
-//        
-//        // If there are more elements in the history enable the go forward button.
-//        if (this.mainFrame.mapHistory.containsElements()) {            
-//            // Unless the pointer is at zero.
-//            this.goBack.setEnabled(true);
-//        }
     }
 
     public ToggleButtonLabel getNavigationMouseMode() {
