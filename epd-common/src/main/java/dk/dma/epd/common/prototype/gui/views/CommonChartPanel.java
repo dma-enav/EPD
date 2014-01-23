@@ -23,6 +23,7 @@ import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
+import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
@@ -46,6 +47,7 @@ public abstract class CommonChartPanel extends OMComponentPanel {
     protected MouseDelegator mouseDelegator;
     protected WMSLayer wmsLayer;
     protected WMSLayer wmsDragLayer;
+    private HistoryListener historyListener;
     
     public WMSLayer getWmsDragLayer() {
         return wmsDragLayer;
@@ -69,6 +71,14 @@ public abstract class CommonChartPanel extends OMComponentPanel {
 
     public void setEncLayer(Layer encLayer) {
         this.encLayer = encLayer;
+    }
+    
+    public HistoryListener getHistoryListener() {
+        return historyListener;
+    }
+    
+    public void setHistoryListener(HistoryListener historyListener2) {
+        this.historyListener = historyListener2;
     }
     
     /**

@@ -13,14 +13,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.event;
+package dk.dma.epd.common.prototype.event;
 
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.gui.HistoryPosition;
+import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 
 /**
  * This class is a listener for projection changes and therefore implements
@@ -51,7 +50,16 @@ public class HistoryListener implements ProjectionListener {
     private Position position;    // The Position object created from positionX and positionY. 
     private float zoomScale;      // The zoom scale of the position.
     private HistoryPosition hpos; // The HistoryPosition object created from position and zoomScale.
+    private CommonChartPanel chartPanel;
+    private HistoryList historyList;
     
+    
+
+    public HistoryListener(CommonChartPanel chartPanel) {
+        this.chartPanel = chartPanel;
+        this.historyList = new HistoryList();
+    }
+
     /**
      * 
      * @param command: The command which is executed.
@@ -74,52 +82,52 @@ public class HistoryListener implements ProjectionListener {
      */
     @Override
     public void projectionChanged(ProjectionEvent e) {
-                
+                        
         if (this.getCommand().equals(HistoryListener.DRAGGED) || 
                 this.getCommand().equals(HistoryListener.CENTERED) || 
                 this.getCommand().equals(HistoryListener.SCALED)) {
             
-            addElementToHistory();
+            addHistoryPosition();
             
             // Reset command.
             this.setCommand(this.NO_COMMAND);
         }
+    }
+
+    private void addHistoryPosition() {
+        // Get x and y coordinates of the center of the current view of map.
+        this.positionX = this.chartPanel.getMap().getCenter().getX();
+        this.positionY = this.chartPanel.getMap().getCenter().getY();
+        
+        // Create the position object from the x and y coordinates.
+        this.position = Position.create(positionY, positionX);
+        
+        // Get the zoom scale of the current view
+        this.zoomScale = this.chartPanel.getMap().getScale();
+        
+        // Create a HistoryPosition object which can store the position and zoom scale.
+        this.hpos = new HistoryPosition(this.position, this.zoomScale);
+        
+        // Add the object to the history listener, and make it increase the pointer.
+        this.historyList.addHistoryElement(hpos, true);
     }
     
     /**
      * Saves the current position in 
      */
     public void saveToHistoryBeforeMoving() {
-        if (EPDShip.getInstance().getMainFrame().mapHistory.getPointerInHistory() == -1) {
-            addElementToHistory();
+        if (historyList.getPointerInHistory() == -1) {
+            addHistoryPosition();
         } else {
-            addElementToHistory();
+            addHistoryPosition();
         }
-
     }
     
-    /**
-     * Adds the current Position in map and zoomscale to the MapHistory.
-     * 
-     * @param increaseHistoryPointer
-     */
-    private void addElementToHistory() {
-        
-        // Get x and y coordinates of the center of the current view of map.
-        positionX = EPDShip.getInstance().getMainFrame().getChartPanel().getMap().getCenter().getX();
-        positionY = EPDShip.getInstance().getMainFrame().getChartPanel().getMap().getCenter().getY();
-        
-        // Create the position object.
-        position  = Position.create(positionY, positionX);
-        
-        // Get the zoom level.
-        zoomScale = EPDShip.getInstance().getMainFrame().getChartPanel().getMap().getScale();
-        
-        // Create the HistoryPosition object.
-        hpos = new HistoryPosition(position, zoomScale);
-        
-        // Add the object and toggle the go back button.
-        EPDShip.getInstance().getMainFrame().mapHistory.addHistoryElement(hpos, true);
-        EPDShip.getInstance().getMainFrame().getTopPanel().toggleGoBackButton();
+    public HistoryPosition goOneElementBack() {
+        return this.historyList.goOneHistoryElementBack();
+    }
+
+    public HistoryPosition goOneElementForward() {
+        return this.historyList.goOneHistoryElementForward();
     }
 }
