@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.common.prototype.layers.intendedroute;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -28,18 +27,34 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
+import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 
 /**
  * Graphic for intended route
  */
 public class IntendedRouteGraphic extends OMGraphicList {
+    
     private static final long serialVersionUID = 1L;
-
-    // private AisIntendedRoute previousData;
+    private static final float SCALE = 0.7f;    // "Size" of graphics
+    private static final int ALPHA = 150;       // Alpha of color
+    
+    /**
+     * Valid colors for intended routes 
+     */
+    public static final Color[] COLORS = {
+        new Color(170, 40, 40, ALPHA),    // red'ish
+        new Color(40, 170, 40, ALPHA),    // green'ish
+        new Color(40, 40, 130, ALPHA),    // blue'ish
+        new Color(100, 100, 100, ALPHA)   // gray'ish
+    };
+    public static final Color COLOR_LATE        =  new Color(255, 255, 0, ALPHA); // Yellow'ish
+    public static final Color COLOR_VERY_LATE   =  new Color(128, 128, 128, ALPHA); // Gray'ish
+    
     private CloudIntendedRoute previousData;
     private IntendedRouteLegGraphic activeWpLine;
     private double[] activeWpLineLL = new double[4];
-    private Color legColor = new Color(42, 172, 12, 255);
+    private Color normalColor = COLORS[1];
+    private Color currentColor = normalColor;
     private String name;
     private boolean arrowsVisible;
 
@@ -52,22 +67,20 @@ public class IntendedRouteGraphic extends OMGraphicList {
         super();
         Position nullGeoLocation = Position.create(0, 0);
         activeWpLine = new IntendedRouteLegGraphic(0, this, true,
-                nullGeoLocation, nullGeoLocation, legColor);
+                nullGeoLocation, nullGeoLocation, currentColor, SCALE);
         setVisible(false);
     }
 
     private void makeLegLine(int index, Position start, Position end) {
         IntendedRouteLegGraphic leg = new IntendedRouteLegGraphic(index, this,
-                false, start, end, legColor);
+                false, start, end, currentColor, SCALE);
         routeLegs.add(leg);
         add(leg);
     }
 
     private void makeWpCircle(int index, Position wp) {
         IntendedRouteWpCircle wpCircle = new IntendedRouteWpCircle(this, index,
-                wp.getLatitude(), wp.getLongitude(), 0, 0, 18, 18);
-        wpCircle.setStroke(new BasicStroke(3));
-        wpCircle.setLinePaint(legColor);
+                wp.getLatitude(), wp.getLongitude(), currentColor, SCALE);
         routeWps.add(wpCircle);
         add(wpCircle);
     }
@@ -90,81 +103,63 @@ public class IntendedRouteGraphic extends OMGraphicList {
         }
     }
 
+    /**
+     * Updates the intended route color
+     * @param color the color to use
+     */
+    private void updateColor(Color color) {        
+        this.setVisible(true);
+        currentColor =  color;
+        
+        for (IntendedRouteLegGraphic routeLeg : routeLegs) {
+            routeLeg.setLinePaint(currentColor);
+        }
+        for (IntendedRouteWpCircle routeWp : routeWps) {
+            routeWp.setLinePaint(currentColor);
+        }
+        activeWpLine.setLinePaint(currentColor);
+    }
+    
+    /**
+     * Called when the vessel target has been updated
+     * 
+     * @param vesselTarget the vessel target
+     * @param name the name
+     * @param cloudIntendedRoute the intended route data
+     * @param pos the current vessel position
+     */
     public void update(VesselTarget vesselTarget, String name,
             CloudIntendedRoute cloudIntendedRoute, Position pos) {
 
-        
         // Set visible if not visible
         if (!isVisible()) {
             setVisible(true);
         }
         
         
-        if (cloudIntendedRoute != null){
+        if (cloudIntendedRoute != null) {
 
-            long timeSinceRecieved = System.currentTimeMillis() - cloudIntendedRoute.getReceived().getTime();
+            long secondsSinceRecieved = 
+                    (System.currentTimeMillis() - cloudIntendedRoute.getReceived().getTime()) / 1000L;
             
-//            System.out.println(timeSinceRecieved);
+            if (secondsSinceRecieved < 60){
+                // Fresh route, within a minute
+                updateColor(normalColor);
+            
+            } else if (secondsSinceRecieved < 300) {
+                // Between 1 and 5 minutes since received
+                updateColor(COLOR_LATE);
 
-            //Fresh route
-            if (timeSinceRecieved < 60000){
-                this.setVisible(true);
-                legColor =  new Color(42, 172, 12, 255);
+            } else if (secondsSinceRecieved < 600) {
+                // Between 5 and 10 minutes since received
+                updateColor(COLOR_VERY_LATE);
                 
-                for (int i = 0; i < routeLegs.size(); i++) {
-                    routeLegs.get(i).setLinePaint(legColor);
-                }
-
-                for (int i = 0; i < routeWps.size(); i++) {
-                    routeWps.get(i).setLinePaint(legColor);
-                }
-                activeWpLine.setLinePaint(legColor);
-                
-            }
-            
-            //1 min since recieved
-            if (timeSinceRecieved > 60000){
-                this.setVisible(true);
-                legColor = Color.YELLOW;                
-                for (int i = 0; i < routeLegs.size(); i++) {
-                    routeLegs.get(i).setLinePaint(legColor);
-                }
-
-                for (int i = 0; i < routeWps.size(); i++) {
-                    routeWps.get(i).setLinePaint(legColor);
-                }
-                activeWpLine.setLinePaint(legColor);
-                
-                
-            }
-            
-            
-            
-            //5 min since recieved
-            if (timeSinceRecieved > 300000){
-                this.setVisible(true);
-                legColor = Color.GRAY;
-                for (int i = 0; i < routeLegs.size(); i++) {
-                    routeLegs.get(i).setLinePaint(legColor);
-                }
-                
-                for (int i = 0; i < routeWps.size(); i++) {
-                    routeWps.get(i).setLinePaint(legColor);
-                }
-                activeWpLine.setLinePaint(legColor);
-            }
-            
-            //10 min since recieved
-            if (timeSinceRecieved > 600000){
+            } else {
+                // > 10 min since received
                 this.setVisible(false);
             }
-            
-//            System.out.println(cloudIntendedRoute.getReceived());   
         }
         
-
-
-
         
         this.vesselTarget = vesselTarget;
         this.name = name;
@@ -184,12 +179,10 @@ public class IntendedRouteGraphic extends OMGraphicList {
             add(activeWpLine);
             
             List<Position> waypoints = new ArrayList<>();
-            
-            for (int i = 0; i < cloudIntendedRoute.getWaypoints().size(); i++) {
-                waypoints.add(cloudIntendedRoute.getWaypoints().get(i).getPos());
+            for (RouteWaypoint routeWp : cloudIntendedRoute.getWaypoints()) {
+                waypoints.add(routeWp.getPos());
             }
             
-//            List<Position> waypoints = cloudIntendedRoute.getWaypoints();
             // Make first WP circle
             makeWpCircle(0, waypoints.get(0));
             for (int i=0; i < waypoints.size() - 1; i++) {
@@ -222,5 +215,21 @@ public class IntendedRouteGraphic extends OMGraphicList {
         Graphics2D image = (Graphics2D) g;
         image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         super.render(image);
+    }
+
+    /**
+     * Returns the normal (i.e. fresh) color for the intended route
+     * @return the normal color for the intended route
+     */
+    public Color getNormalColor() {
+        return normalColor;
+    }
+
+    /**
+     * Sets the normal (i.e. fresh) color for the intended route
+     * @param normalColor the normal color for the intended route
+     */
+    public void setNormalColor(Color normalColor) {
+        this.normalColor = normalColor;
     }
 }

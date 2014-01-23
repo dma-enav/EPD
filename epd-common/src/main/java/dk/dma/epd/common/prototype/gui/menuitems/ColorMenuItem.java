@@ -86,7 +86,7 @@ public class ColorMenuItem extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override public void mouseExited(MouseEvent e) { repaint(e.getPoint()); }
             @Override public void mouseEntered(MouseEvent e) { repaint(e.getPoint()); }
-            @Override public void mouseClicked(MouseEvent e) { handleClick(e); }
+            @Override public void mousePressed(MouseEvent e) { handleClick(e); }
         });
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override public void mouseMoved(MouseEvent e) { repaint(e.getPoint()); }
@@ -96,8 +96,6 @@ public class ColorMenuItem extends JPanel {
     /**
      * Checks if the selection is included in the list of colors
      * and adds it to the result if not.
-     * <p>
-     * Also, strips the alpha value of the colors.
      * 
      * @param colors the colors
      * @param selection the selection color
@@ -117,13 +115,13 @@ public class ColorMenuItem extends JPanel {
         Color[] cols;
         if (!selectionFound && selection != null) {
             cols = new Color[colors.length + 1];
-            cols[xx++] = stripAlpha(selection);
+            cols[xx++] = selection;
             selectionIndex = 0;
         } else {
             cols = new Color[colors.length];
         }
         for (int x = 0; x < colors.length; x++) {
-            cols[xx++] = stripAlpha(colors[x]);
+            cols[xx++] = colors[x];
         }
         return cols;
     }
@@ -161,9 +159,8 @@ public class ColorMenuItem extends JPanel {
         menu.setVisible(false);
         
         // Notify listeners
-        pos = e.getPoint();
         int clickIndex = currentMouseColorIndex();
-        if (clickIndex > 0) {
+        if (clickIndex >= 0) {
             for (ColorMenuItemListener listener : listeners) {
                 listener.colorSelected(colors[clickIndex]);
             }
@@ -221,10 +218,10 @@ public class ColorMenuItem extends JPanel {
                 g2.drawRect(INDENT + x * CELL_SIZE, INDENT, CELL_SIZE, CELL_SIZE);
             }
             
-            g2.setColor(colors[x]);
+            g2.setColor(stripAlpha(colors[x]));
             g2.fill(circles[x]);
             g2.setStroke(new BasicStroke(2));
-            g2.setColor(highlight(colors[x]));
+            g2.setColor(highlight(stripAlpha(colors[x])));
             g2.draw(circles[x]);
         }
     }

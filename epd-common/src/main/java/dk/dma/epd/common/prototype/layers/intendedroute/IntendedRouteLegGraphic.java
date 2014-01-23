@@ -35,24 +35,24 @@ public class IntendedRouteLegGraphic extends OMLine {
     private int index;
 
     public IntendedRouteLegGraphic(int index, IntendedRouteGraphic intendedRouteGraphic, boolean activeWaypoint, Position start,
-            Position end, Color legColor) {
+            Position end, Color legColor, float scale) {
         
         super(start.getLatitude(), start.getLongitude(), end.getLatitude(), end.getLongitude(), LINETYPE_RHUMB);
         this.index = index;
         this.intendedRouteGraphic = intendedRouteGraphic;
         if(activeWaypoint){
-            setStroke(new BasicStroke(2.0f, // Width
+            setStroke(new BasicStroke(2.0f * scale, // Width
                     BasicStroke.CAP_SQUARE, // End cap
                     BasicStroke.JOIN_MITER, // Join style
-                    10.0f, // Miter limit
-                    new float[] { 3.0f, 10.0f }, // Dash pattern
+                    10.0f * scale, // Miter limit
+                    new float[] { 3.0f * scale, 10.0f * scale }, // Dash pattern
                     0.0f)); // Dash phase)
         } else {
-            setStroke(new BasicStroke(2.0f, // Width
+            setStroke(new BasicStroke(2.0f * scale, // Width
                     BasicStroke.CAP_SQUARE, // End cap
                     BasicStroke.JOIN_MITER, // Join style
-                    10.0f, // Miter limit
-                    new float[] { 10.0f, 8.0f }, // Dash pattern
+                    10.0f * scale, // Miter limit
+                    new float[] { 10.0f * scale, 8.0f * scale }, // Dash pattern
                     0.0f)); // Dash phase)
         }
         setLinePaint(legColor);        

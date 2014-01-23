@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.shore.gui.views;
 
+import java.awt.Color;
 import java.awt.Point;
 
 import com.bbn.openmap.MapBean;
@@ -23,8 +24,10 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
+import dk.dma.epd.common.prototype.gui.menuitems.ColorMenuItem;
 import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteGraphic;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
@@ -352,7 +355,7 @@ public class MapMenu extends MapMenuCommon {
     /**
      * Options for suggested route
      */
-    public void aisSuggestedRouteMenu(VesselTarget vesselTarget) {
+    public void aisSuggestedRouteMenu(final VesselTarget vesselTarget, final IntendedRouteGraphic routeGraphics) {
         removeAll();
 
         aisIntendedRouteToggle.setVesselTargetSettings(vesselTarget
@@ -372,6 +375,20 @@ public class MapMenu extends MapMenuCommon {
             aisIntendedRouteToggle.setText("Show intended route");
         }
         add(aisIntendedRouteToggle);
+
+        
+        // Add a color selector menu item
+        // TODO: Included for test purposes for now
+        ColorMenuItem colorMenuItem = new ColorMenuItem(
+                this, 
+                IntendedRouteGraphic.COLORS, 
+                routeGraphics.getNormalColor());
+        colorMenuItem.addListener(new ColorMenuItem.ColorMenuItemListener() {
+            @Override public void colorSelected(Color color) {
+                routeGraphics.setNormalColor(color);
+            }});
+        add(colorMenuItem);
+        revalidate();
 
         generalMenu(false);
     }

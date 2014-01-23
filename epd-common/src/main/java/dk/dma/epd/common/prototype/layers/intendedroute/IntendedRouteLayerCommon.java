@@ -43,7 +43,7 @@ import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.GeneralLayerCommon;
 
 /**
- * Base layer for displaying intended routes in {@linkplain EPDShip} and {@linkplain EPDShore}
+ * Base layer for displaying intended routes in EPDShip and EPDShore
  * 
  * @author Janus Varmarken
  */

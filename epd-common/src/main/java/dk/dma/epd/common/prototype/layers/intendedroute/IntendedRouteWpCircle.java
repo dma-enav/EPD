@@ -15,6 +15,9 @@
  */
 package dk.dma.epd.common.prototype.layers.intendedroute;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+
 import dk.dma.epd.common.prototype.layers.common.WpCircle;
 
 /**
@@ -26,8 +29,10 @@ public class IntendedRouteWpCircle extends WpCircle {
     private IntendedRouteGraphic intendedRouteGraphic;
     private int index;
 
-    public IntendedRouteWpCircle(IntendedRouteGraphic intendedRouteGraphic, int index, double latitude, double longitude, int offX1, int offY1, int w, int h) {
-        super(latitude, longitude, offX1, offY1, w, h);
+    public IntendedRouteWpCircle(IntendedRouteGraphic intendedRouteGraphic, int index, double latitude, double longitude, Color color, float scale) {
+        super(latitude, longitude, 0, 0, (int)(18.0 * scale), (int)(18.0 * scale));
+        setStroke(new BasicStroke(3.0f * scale));
+        setLinePaint(color);
         this.index = index;
         this.intendedRouteGraphic = intendedRouteGraphic;
     }
