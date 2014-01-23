@@ -27,7 +27,6 @@ import com.bbn.openmap.MapHandler;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.event.HistoryListener;
 import dk.dma.epd.ship.gui.ais.AisDialog;
 import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
@@ -84,9 +83,7 @@ public class MainFrame extends MainFrameCommon {
     private MenuBar menuBar;
 
     private RequestStrategicRouteDialog monaLisaSTCCDialog;
-    
-    public MapHistory mapHistory = new MapHistory();
-    
+        
     public MainFrame() {
         super(TITLE);
         initGUI();
@@ -328,8 +325,10 @@ public class MainFrame extends MainFrameCommon {
         // Save the centering of ship to history.
         // ----------------------------
 
-        EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().setCommand(HistoryListener.CENTERED);
-        EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().saveToHistoryBeforeMoving();
+        
+        
+//        EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().setCommand(HistoryListener.CENTERED);
+//        EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().saveToHistoryBeforeMoving();
 
         // Move view to centre on ship.
         this.getChartPanel().centreOnShip();

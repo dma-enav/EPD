@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui;
+package dk.dma.epd.common.prototype.event;
 
 import java.util.ArrayList;
 
@@ -28,7 +28,7 @@ import java.util.ArrayList;
  * @author adamduehansen
  *
  */
-public class MapHistory {
+public class HistoryList {
 
     /**
      * Private fields.
@@ -39,7 +39,7 @@ public class MapHistory {
     /**
      * Constructs a new MapHisotory.
      */
-    public MapHistory() {
+    public HistoryList() {
         this.historyOfPositions = new ArrayList<HistoryPosition>();
         this.pointerInHistory   = -1; // No elements in the history.
     }
@@ -76,7 +76,7 @@ public class MapHistory {
                 pointerInHistory++;
             }
             
-//            System.out.println("DEBUG:\t"+this.toString());
+            System.out.println("DEBUG:\t"+this.toString());
             return true;
         }
         
