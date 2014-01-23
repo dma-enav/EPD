@@ -15,42 +15,16 @@
  */
 package dk.dma.epd.shore.gui.views;
 
-import java.awt.Font;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.PropertyVetoException;
-import java.beans.VetoableChangeListener;
-import java.beans.beancontext.BeanContext;
-import java.beans.beancontext.BeanContextChild;
-import java.beans.beancontext.BeanContextChildSupport;
-import java.beans.beancontext.BeanContextMembershipEvent;
-import java.beans.beancontext.BeanContextMembershipListener;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-
-import com.bbn.openmap.BufferedLayerMapBean;
-import com.bbn.openmap.LightMapHandlerChild;
 import com.bbn.openmap.MapBean;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
+import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
-import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
-import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
-import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
 import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
@@ -104,24 +78,17 @@ import dk.dma.epd.shore.voyage.Voyage;
 /**
  * Right click map menu
  */
-public class MapMenu extends JPopupMenu implements ActionListener,
-        LightMapHandlerChild, BeanContextChild, BeanContextMembershipListener {
+public class MapMenu extends MapMenuCommon {
 
     private static final long serialVersionUID = 1L;
 
-    private IMapMenuAction action;
     private MsiHandler msiHandler;
 
     // menu items
     private GeneralHideIntendedRoutes hideIntendedRoutes;
     private GeneralShowIntendedRoutes showIntendedRoutes;
     private GeneralNewRoute newRoute;
-    private SetShowPastTracks hidePastTracks;
-    private SetShowPastTracks showPastTracks;
-    private JMenu scaleMenu;
     private AisIntendedRouteToggle aisIntendedRouteToggle;
-    private ToggleShowPastTrack aisTogglePastTrack;
-    private ClearPastTrack aisClearPastTrack;
 
     private SarTargetDetails sarTargetDetails;
     // private NogoRequest nogoRequest;
@@ -160,23 +127,11 @@ public class MapMenu extends JPopupMenu implements ActionListener,
     private ShowVoyagePlanInfo openVoyagePlan;
     private SendVoyage sendVoyage;
 
-    // bean context
-    protected String propertyPrefix;
-    protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(
-            this);
-    protected boolean isolated;
     private RouteManager routeManager;
     private Route route;
     
     private VoyageLayer voyageLayer;
-    // private SendRouteDialog sendRouteDialog;
 
-    // Route suggest?
-    // private RouteSuggestionDialog routeSuggestionDialog;
-
-    private MapBean mapBean;
-    private Map<Integer, String> map;
-    // private NewRouteContainerLayer newRouteLayer;
     private AisLayer aisLayer;
     private AisHandler aisHandler;
     private StrategicRouteExchangeHandler monaLisaHandler;
@@ -196,23 +151,9 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         newRoute = new GeneralNewRoute("Add new route");
         newRoute.addActionListener(this);
 
-        showPastTracks = new SetShowPastTracks("Show all past-tracks", true);
-        showPastTracks.addActionListener(this);
-        hidePastTracks = new SetShowPastTracks("Hide all past-tracks", false);
-        hidePastTracks.addActionListener(this);
-        
-        scaleMenu = new JMenu("Scale");
-
-        // using treemap so scale levels are always sorted
-        map = new TreeMap<Integer, String>();
-
         // ais menu items
         aisIntendedRouteToggle = new AisIntendedRouteToggle();
         aisIntendedRouteToggle.addActionListener(this);
-        aisTogglePastTrack = new ToggleShowPastTrack();
-        aisTogglePastTrack.addActionListener(this);
-        aisClearPastTrack = new ClearPastTrack();
-        aisClearPastTrack.addActionListener(this);
 
         // SART menu items
         sarTargetDetails = new SarTargetDetails("SART details");
@@ -323,46 +264,11 @@ public class MapMenu extends JPopupMenu implements ActionListener,
      * this first, when creating specific menus.
      * 
      * @param alone
-     *            TODO
      */
+    @Override
     public void generalMenu(boolean alone) {
 
-        scaleMenu.removeAll();
-
-        // clear previous map scales
-        map.clear();
-        // Initialize the scale levels, and give them name (this should be done
-        // from settings later...)
-        map.put(5000, "Berthing      (1 : 5.000)");
-        map.put(10000, "Harbour       (1 : 10.000)");
-        map.put(70000, "Approach      (1 : 70.000)");
-        map.put(300000, "Coastal       (1 : 300.000)");
-        map.put(2000000, "Overview      (1 : 2.000.000)");
-        map.put(20000000, "Ocean         (1 : 20.000.000)");
-        // put current scale level
-        Integer currentScale = (int) mapBean.getScale();
-
-        DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance();
-        DecimalFormatSymbols symbols = formatter.getDecimalFormatSymbols();
-        symbols.setGroupingSeparator(' ');
-
-        map.put(currentScale,
-                "Current scale (1 : " + formatter.format(currentScale) + ")");
-
-        // Iterate through the treemap, adding the menuitems and assigning
-        // actions
-        Set<Integer> keys = map.keySet();
-        for (final Integer key : keys) {
-            String value = map.get(key);
-            JMenuItem menuItem = new JMenuItem(value);
-            menuItem.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-            menuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent ae) {
-                    mapBean.setScale(key);
-                }
-            });
-            scaleMenu.add(menuItem);
-        }
+        generateScaleMenu();
 
         hideIntendedRoutes.setAisHandler(aisHandler);
         showIntendedRoutes.setAisHandler(aisHandler);
@@ -775,20 +681,13 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         generalMenu(false);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        action = (IMapMenuAction) e.getSource();
-        action.doAction();
-    }
-
     // Allows MapMenu to be added to the MapHandler (eg. use the find and init)
     @Override
     public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+        
         if (obj instanceof MsiHandler) {
             msiHandler = (MsiHandler) obj;
-        }
-        if (obj instanceof BufferedLayerMapBean) {
-            mapBean = (BufferedLayerMapBean) obj;
         }
         if (obj instanceof NewRouteContainerLayer) {
             // newRouteLayer = (NewRouteContainerLayer) obj;
@@ -806,60 +705,4 @@ public class MapMenu extends JPopupMenu implements ActionListener,
             voyageLayer = (VoyageLayer) obj;
         }
     }
-
-    public void findAndInit(Iterator<?> it) {
-        while (it.hasNext()) {
-            findAndInit(it.next());
-        }
-    }
-
-    @Override
-    public void findAndUndo(Object obj) {
-    }
-
-    @Override
-    public void childrenAdded(BeanContextMembershipEvent bcme) {
-        if (!isolated || bcme.getBeanContext().equals(getBeanContext())) {
-            findAndInit(bcme.iterator());
-        }
-    }
-
-    @Override
-    public void childrenRemoved(BeanContextMembershipEvent bcme) {
-        Iterator<?> it = bcme.iterator();
-        while (it.hasNext()) {
-            findAndUndo(it.next());
-        }
-    }
-
-    @Override
-    public BeanContext getBeanContext() {
-        return beanContextChildSupport.getBeanContext();
-    }
-
-    @Override
-    public void setBeanContext(BeanContext in_bc) throws PropertyVetoException {
-
-        if (in_bc != null) {
-            if (!isolated || beanContextChildSupport.getBeanContext() == null) {
-                in_bc.addBeanContextMembershipListener(this);
-                beanContextChildSupport.setBeanContext(in_bc);
-                findAndInit(in_bc.iterator());
-            }
-        }
-    }
-
-    @Override
-    public void addVetoableChangeListener(String propertyName,
-            VetoableChangeListener in_vcl) {
-        beanContextChildSupport.addVetoableChangeListener(propertyName, in_vcl);
-    }
-
-    @Override
-    public void removeVetoableChangeListener(String propertyName,
-            VetoableChangeListener in_vcl) {
-        beanContextChildSupport.removeVetoableChangeListener(propertyName,
-                in_vcl);
-    }
-
 }

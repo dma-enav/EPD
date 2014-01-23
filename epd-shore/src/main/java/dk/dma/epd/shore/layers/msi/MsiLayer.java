@@ -125,17 +125,17 @@ public class MsiLayer extends GeneralLayer implements IMsiUpdateListener {
 
         if(selectedGraphic instanceof MsiSymbolGraphic){
             MsiSymbolGraphic msi = (MsiSymbolGraphic) selectedGraphic;
-            mapMenu.msiMenu(msi);
-            mapMenu.setVisible(true);
-            mapMenu.show(this, e.getX()-2, e.getY()-2);
+            getMapMenu().msiMenu(msi);
+            getMapMenu().setVisible(true);
+            getMapMenu().show(this, e.getX()-2, e.getY()-2);
             msiInfoPanel.setVisible(false);
             return true;
         }
         if(selectedGraphic instanceof MsiDirectionalIcon) {
             MsiDirectionalIcon direction = (MsiDirectionalIcon) selectedGraphic;
-            mapMenu.msiDirectionalMenu(direction, this);
-            mapMenu.setVisible(true);
-            mapMenu.show(this, e.getX()-10, e.getY()-10);
+            getMapMenu().msiDirectionalMenu(direction, this);
+            getMapMenu().setVisible(true);
+            getMapMenu().show(this, e.getX()-10, e.getY()-10);
             msiInfoPanel.setVisible(false);
             return true;
         }

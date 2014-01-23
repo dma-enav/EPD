@@ -218,7 +218,7 @@ public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, Proj
         }
         if (obj instanceof MainFrame && pastTrackInfoPanel == null) {
             pastTrackInfoPanel = new PastTrackInfoPanel();
-            mainFrame.getGlassPanel().add(pastTrackInfoPanel);
+            getMainFrame().getGlassPanel().add(pastTrackInfoPanel);
         }
     }
 
@@ -260,9 +260,9 @@ public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, Proj
         }
 
         if (ownShipGraphics == graphics && evt.getButton() == MouseEvent.BUTTON3) {
-            mapMenu.ownShipMenu();
-            mapMenu.setVisible(true);
-            mapMenu.show(OwnShipLayer.this, evt.getX() - 2, evt.getY() - 2);
+            getMapMenu().ownShipMenu();
+            getMapMenu().setVisible(true);
+            getMapMenu().show(OwnShipLayer.this, evt.getX() - 2, evt.getY() - 2);
             return true;
         }
         return false;

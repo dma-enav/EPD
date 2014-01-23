@@ -53,8 +53,6 @@ import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetTriangle;
-import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLegGraphic;
-import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteWpCircle;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
@@ -397,9 +395,9 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
             ownShipHandler = (OwnShipHandler) obj;
         }
         if (obj instanceof MainFrame) {
-            mainFrame.getGlassPanel().add(aisTargetInfoPanel);
-            mainFrame.getGlassPanel().add(sarTargetInfoPanel);
-            mainFrame.getGlassPanel().add(pastTrackInfoPanel);
+            getMainFrame().getGlassPanel().add(aisTargetInfoPanel);
+            getMainFrame().getGlassPanel().add(sarTargetInfoPanel);
+            getMainFrame().getGlassPanel().add(pastTrackInfoPanel);
         }
         if (obj instanceof PntHandler) {
             sarTargetInfoPanel.setPntHandler((PntHandler) obj);
@@ -427,8 +425,7 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
                     allClosest = graphics.findAll(e.getX(), e.getY(), 5.0f);
                 }
                 for (OMGraphic omGraphic : allClosest) {
-                    if (omGraphic instanceof IntendedRouteWpCircle || omGraphic instanceof VesselTargetTriangle
-                            || omGraphic instanceof IntendedRouteLegGraphic || omGraphic instanceof SartGraphic) {
+                    if (omGraphic instanceof VesselTargetTriangle || omGraphic instanceof SartGraphic) {
                         selectedGraphic = omGraphic;
                         break;
                     }
@@ -456,36 +453,18 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
                         VesselTargetGraphic vesselTargetGraphic = vtt.getVesselTargetGraphic();
 
                         // mainFrame.getGlassPane().setVisible(false);
-                        mapMenu.aisMenu(vesselTargetGraphic, topPanel);
-                        mapMenu.setVisible(true);
-                        mapMenu.show(this, e.getX() - 2, e.getY() - 2);
-                        aisTargetInfoPanel.setVisible(false);
-                        return true;
-                    } else if (selectedGraphic instanceof IntendedRouteWpCircle) {
-                        IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) selectedGraphic;
-                        VesselTarget vesselTarget = wpCircle.getIntendedRouteGraphic().getVesselTarget();
-                        mainFrame.getGlassPane().setVisible(false);
-                        mapMenu.aisSuggestedRouteMenu(vesselTarget);
-                        mapMenu.setVisible(true);
-                        mapMenu.show(this, e.getX() - 2, e.getY() - 2);
-                        aisTargetInfoPanel.setVisible(false);
-                        return true;
-                    } else if (selectedGraphic instanceof IntendedRouteLegGraphic) {
-                        IntendedRouteLegGraphic wpCircle = (IntendedRouteLegGraphic) selectedGraphic;
-                        VesselTarget vesselTarget = wpCircle.getIntendedRouteGraphic().getVesselTarget();
-                        mainFrame.getGlassPane().setVisible(false);
-                        mapMenu.aisSuggestedRouteMenu(vesselTarget);
-                        mapMenu.setVisible(true);
-                        mapMenu.show(this, e.getX() - 2, e.getY() - 2);
+                        getMapMenu().aisMenu(vesselTargetGraphic, topPanel);
+                        getMapMenu().setVisible(true);
+                        getMapMenu().show(this, e.getX() - 2, e.getY() - 2);
                         aisTargetInfoPanel.setVisible(false);
                         return true;
                     } else if (selectedGraphic instanceof SartGraphic) {
                         SartGraphic sartGraphic = (SartGraphic) selectedGraphic;
                         SarTarget sarTarget = sartGraphic.getSarTargetGraphic().getSarTarget();
                         mainFrame.getGlassPane().setVisible(false);
-                        mapMenu.sartMenu(this, sarTarget);
-                        mapMenu.setVisible(true);
-                        mapMenu.show(this, e.getX() - 2, e.getY() - 2);
+                        getMapMenu().sartMenu(this, sarTarget);
+                        getMapMenu().setVisible(true);
+                        getMapMenu().show(this, e.getX() - 2, e.getY() - 2);
                         sarTargetInfoPanel.setVisible(false);
                         return true;
                     }
@@ -524,7 +503,8 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
             return false;
         }
 
-        OMGraphic newClosest = getSelectedGraphic(e, IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class,
+        OMGraphic newClosest = getSelectedGraphic(
+                e,
                 VesselTargetTriangle.class, SartGraphic.class, AtonTargetGraphic.class, PastTrackWpCircle.class,
                 VesselOutlineGraphic.class);
 

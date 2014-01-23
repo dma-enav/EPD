@@ -134,9 +134,9 @@ public class RouteEditLayer extends GeneralLayer {
             routeContainerLayer.doPrepare();
             return true;
         } else if (e.getButton() == MouseEvent.BUTTON3) {
-            mapMenu.routeEditMenu();
-            mapMenu.setVisible(true);
-            mapMenu.show(this, e.getX() - 2, e.getY() - 2);
+            getMapMenu().routeEditMenu();
+            getMapMenu().setVisible(true);
+            getMapMenu().show(this, e.getX() - 2, e.getY() - 2);
             
             return true;
         }

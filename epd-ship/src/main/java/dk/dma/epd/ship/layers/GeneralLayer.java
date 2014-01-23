@@ -17,6 +17,8 @@ package dk.dma.epd.ship.layers;
 
 import java.awt.event.MouseEvent;
 
+import javax.swing.JPanel;
+
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.layers.GeneralLayerCommon;
 import dk.dma.epd.ship.event.DragMouseMode;
@@ -32,8 +34,6 @@ import dk.dma.epd.ship.gui.MapMenu;
 public class GeneralLayer extends GeneralLayerCommon {
 
     private static final long serialVersionUID = 1L;
-
-    protected MapMenu mapMenu;
 
     /**
      * Returns the mouse mode service list
@@ -73,35 +73,28 @@ public class GeneralLayer extends GeneralLayerCommon {
     }
 
     /**
-     * Called when a bean is added to the bean context
-     * @param obj the bean being added
-     */
-    @Override
-    public void findAndInit(Object obj) {
-        super.findAndInit(obj);
-        
-        if (obj instanceof MapMenu) {
-            mapMenu = (MapMenu) obj;
-        }
-    }
-
-    /**
-     * Called when a bean is removed from the bean context
-     * @param obj the bean being removed
-     */
-    @Override
-    public void findAndUndo(Object obj) {
-        if (obj == mapMenu) {
-            mapMenu = null;
-        }
-        super.findAndUndo(obj);
-    }
-    
-    /**
      * Returns a reference to the main frame
      * @return a reference to the main frame
      */
+    @Override
     public MainFrame getMainFrame() {
         return (MainFrame)mainFrame;
     }
+
+    /**
+     * Returns a reference to the map menu
+     * @return a reference to the map menu
+     */
+    @Override
+    public MapMenu getMapMenu() {
+        return (MapMenu)mapMenu;
+    }   
+
+    /**
+     * Returns a reference to the glass pane
+     * @return a reference to the glass pane
+     */
+    public JPanel getGlassPanel() {
+        return getMainFrame().getGlassPanel();
+    }    
 }

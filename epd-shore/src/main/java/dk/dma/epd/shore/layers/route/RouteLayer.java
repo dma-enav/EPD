@@ -305,17 +305,17 @@ public class RouteLayer extends GeneralLayer implements IRoutesUpdateListener {
         if(selectedGraphic instanceof WaypointCircle){
             WaypointCircle wpc = (WaypointCircle) selectedGraphic;
             waypointInfoPanel.setVisible(false);
-            mapMenu.routeWaypointMenu(wpc.getRouteIndex(), wpc.getWpIndex());
-            mapMenu.setVisible(true);
-            mapMenu.show(this, e.getX()-2, e.getY()-2);
+            getMapMenu().routeWaypointMenu(wpc.getRouteIndex(), wpc.getWpIndex());
+            getMapMenu().setVisible(true);
+            getMapMenu().show(this, e.getX()-2, e.getY()-2);
             return true;
         }
         if(selectedGraphic instanceof RouteLegGraphic){
             RouteLegGraphic rlg = (RouteLegGraphic) selectedGraphic;
             waypointInfoPanel.setVisible(false);
-            mapMenu.routeLegMenu(rlg.getRouteIndex(), rlg.getRouteLeg(), e.getPoint());
-            mapMenu.setVisible(true);
-            mapMenu.show(this, e.getX()-2, e.getY()-2);
+            getMapMenu().routeLegMenu(rlg.getRouteIndex(), rlg.getRouteLeg(), e.getPoint());
+            getMapMenu().setVisible(true);
+            getMapMenu().show(this, e.getX()-2, e.getY()-2);
             return true;
         }
 //

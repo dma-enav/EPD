@@ -140,13 +140,13 @@ public class VoyageLayer extends GeneralLayer implements
 
                     Voyage currentVoyage = voyageManager.getVoyage(voyageIndex);
 
-                    mapMenu.voyageGeneralMenu(currentVoyage.getId(),
+                    getMapMenu().voyageGeneralMenu(currentVoyage.getId(),
                             currentVoyage.getMmsi(), currentVoyage.getRoute(),
                             mapBean);
-                    mapMenu.setVisible(true);
+                    getMapMenu().setVisible(true);
 
                     try {
-                        mapMenu.show(this, e.getX() - 2, e.getY() - 2);
+                        getMapMenu().show(this, e.getX() - 2, e.getY() - 2);
                     } catch (Exception e2) {
                         System.out.println("Exception error: "
                                 + e2.getMessage());

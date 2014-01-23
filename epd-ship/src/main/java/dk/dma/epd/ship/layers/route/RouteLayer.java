@@ -429,12 +429,12 @@ public class RouteLayer extends GeneralLayer implements
         }
         if (obj instanceof MainFrame) {
             metocInfoPanel = new MetocInfoPanel();
-            mainFrame.getGlassPanel().add(metocInfoPanel);
+            getMainFrame().getGlassPanel().add(metocInfoPanel);
         }
         if (waypointInfoPanel == null && routeManager != null
                 && mainFrame != null) {
             waypointInfoPanel = new WaypointInfoPanel();
-            mainFrame.getGlassPanel().add(waypointInfoPanel);
+            getMainFrame().getGlassPanel().add(waypointInfoPanel);
         }
     }
 
@@ -465,7 +465,7 @@ public class RouteLayer extends GeneralLayer implements
                 break;
             }
         }
-        mapMenu.setRouteLocation(new Point(e.getX(), e.getY()));
+        getMapMenu().setRouteLocation(new Point(e.getX(), e.getY()));
 
         if (selectedGraphic instanceof SuggestedRouteGraphic) {
             // mainFrame.getGlassPane().setVisible(false);
@@ -473,8 +473,8 @@ public class RouteLayer extends GeneralLayer implements
             SuggestedRouteGraphic suggestedRoute = (SuggestedRouteGraphic) selectedGraphic;
             RecievedRoute aisSuggestedRoute = suggestedRoute
                     .getRouteSuggestion();
-            mapMenu.suggestedRouteMenu(aisSuggestedRoute);
-            mapMenu.setVisible(true);
+            getMapMenu().suggestedRouteMenu(aisSuggestedRoute);
+            getMapMenu().setVisible(true);
             // routeMenu.show(this, e.getX() - 2, e.getY() - 2);
             routeMenu(e);
             return true;
@@ -483,8 +483,8 @@ public class RouteLayer extends GeneralLayer implements
             WaypointCircle wpc = (WaypointCircle) selectedGraphic;
             // mainFrame.getGlassPane().setVisible(false);
             waypointInfoPanel.setVisible(false);
-            mapMenu.routeWaypointMenu(wpc.getRouteIndex(), wpc.getWpIndex());
-            mapMenu.setVisible(true);
+            getMapMenu().routeWaypointMenu(wpc.getRouteIndex(), wpc.getWpIndex());
+            getMapMenu().setVisible(true);
             // routeMenu.show(this, e.getX() - 2, e.getY() - 2);
             routeMenu(e);
             return true;
@@ -493,9 +493,9 @@ public class RouteLayer extends GeneralLayer implements
             RouteLegGraphic rlg = (RouteLegGraphic) selectedGraphic;
             // mainFrame.getGlassPane().setVisible(false);
             waypointInfoPanel.setVisible(false);
-            mapMenu.routeLegMenu(rlg.getRouteIndex(), rlg.getRouteLeg(),
+            getMapMenu().routeLegMenu(rlg.getRouteIndex(), rlg.getRouteLeg(),
                     e.getPoint());
-            mapMenu.setVisible(true);
+            getMapMenu().setVisible(true);
             // routeMenu.show(this, e.getX() - 2, e.getY() - 2);
             routeMenu(e);
             return true;

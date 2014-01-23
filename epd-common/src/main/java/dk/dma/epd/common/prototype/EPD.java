@@ -21,7 +21,7 @@ import java.nio.file.Path;
 import java.util.Properties;
 
 import dk.dma.epd.common.graphics.Resources;
-import dk.dma.epd.common.prototype.gui.ais.MainFrameCommon;
+import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.settings.SensorSettings;

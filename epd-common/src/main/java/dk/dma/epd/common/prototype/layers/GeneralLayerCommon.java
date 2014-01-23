@@ -25,7 +25,8 @@ import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.gui.ais.MainFrameCommon;
+import dk.dma.epd.common.prototype.gui.MainFrameCommon;
+import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 
 /**
  * Common EPD layer subclass that may be sub-classed by other layers.
@@ -37,6 +38,7 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     protected OMGraphicList graphics = new OMGraphicList();
     protected MapBean mapBean;
     protected MainFrameCommon mainFrame;
+    protected MapMenuCommon mapMenu;
 
     /**
      * Called when a bean is added to the bean context
@@ -50,6 +52,8 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
             mapBean = (MapBean) obj;
         } else if (obj instanceof MainFrameCommon) {
             mainFrame = (MainFrameCommon) obj;
+        } else if (obj instanceof MapMenuCommon) {
+            mapMenu = (MapMenuCommon) obj;
         }
     }
 
@@ -134,4 +138,20 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     public final OMGraphic getSelectedGraphic(MouseEvent evt, Class<?>... types) {
         return MapEventUtils.getSelectedGraphic(graphics, evt, getMouseSelectTolerance(), types);
     }
+    
+    /**
+     * Returns a reference to the main frame
+     * @return a reference to the main frame
+     */
+    public MainFrameCommon getMainFrame() {
+        return mainFrame;
+    }   
+
+    /**
+     * Returns a reference to the map menu
+     * @return a reference to the map menu
+     */
+    public MapMenuCommon getMapMenu() {
+        return mapMenu;
+    }   
 }

@@ -30,7 +30,7 @@ import java.util.List;
 
 import javax.swing.JScrollPane;
 
-import dk.dma.epd.common.prototype.gui.ais.MainFrameCommon;
+import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;

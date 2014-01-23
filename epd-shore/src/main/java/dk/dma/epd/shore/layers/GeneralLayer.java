@@ -17,6 +17,8 @@ package dk.dma.epd.shore.layers;
 
 import java.awt.event.MouseEvent;
 
+import javax.swing.JPanel;
+
 import dk.dma.epd.common.prototype.layers.GeneralLayerCommon;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
@@ -36,7 +38,6 @@ public class GeneralLayer extends GeneralLayerCommon {
     private static final long serialVersionUID = 1L;
 
     protected JMapFrame jMapFrame;
-    protected MapMenu mapMenu;
     
     /**
      * Returns the mouse mode service list
@@ -75,9 +76,7 @@ public class GeneralLayer extends GeneralLayerCommon {
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
         
-        if (obj instanceof MapMenu) {
-            mapMenu = (MapMenu) obj;
-        } else if (obj instanceof JMapFrame) {
+        if (obj instanceof JMapFrame) {
             jMapFrame = (JMapFrame) obj;
         }
     }
@@ -102,7 +101,25 @@ public class GeneralLayer extends GeneralLayerCommon {
      * Returns a reference to the main frame
      * @return a reference to the main frame
      */
+    @Override
     public MainFrame getMainFrame() {
         return (MainFrame)mainFrame;
     }
+
+    /**
+     * Returns a reference to the map menu
+     * @return a reference to the map menu
+     */
+    @Override
+    public MapMenu getMapMenu() {
+        return (MapMenu)mapMenu;
+    }   
+
+    /**
+     * Returns a reference to the glass pane
+     * @return a reference to the glass pane
+     */
+    public JPanel getGlassPanel() {
+        return jMapFrame.getGlassPanel();
+    }    
 }

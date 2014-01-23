@@ -15,9 +15,22 @@
  */
 package dk.dma.epd.ship.layers.intendedroute;
 
+import java.awt.event.MouseEvent;
+
+import javax.swing.JPanel;
+
+import com.bbn.openmap.omGraphics.OMGraphic;
+
+import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.gui.MainFrameCommon;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteInfoPanel;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLegGraphic;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteWpCircle;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
+import dk.dma.epd.ship.gui.MainFrame;
+import dk.dma.epd.ship.gui.MapMenu;
 
 public class IntendedRouteLayer extends IntendedRouteLayerCommon {
 
@@ -35,5 +48,61 @@ public class IntendedRouteLayer extends IntendedRouteLayerCommon {
         return ret;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+        
+        if (obj instanceof MainFrameCommon && intendedRouteInfoPanel == null) {
+            intendedRouteInfoPanel = new IntendedRouteInfoPanel();
+            getGlassPanel().add(intendedRouteInfoPanel);
+        }
+    }
+
+
+    /**
+     * Returns a reference to the glass pane
+     * @return a reference to the glass pane
+     */
+    protected JPanel getGlassPanel() {
+        return ((MainFrame)mainFrame).getGlassPanel();
+    }    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean mouseClicked(MouseEvent e) {
+        
+        OMGraphic newClosest = getSelectedGraphic(
+                e, 
+                IntendedRouteWpCircle.class,
+                IntendedRouteLegGraphic.class);
+
+        if (e.getButton() == MouseEvent.BUTTON3 && newClosest != null) {
+            
+            if (newClosest instanceof IntendedRouteWpCircle) {
     
+                IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) newClosest;
+                VesselTarget vesselTarget = wpCircle.getIntendedRouteGraphic().getVesselTarget();
+                mainFrame.getGlassPane().setVisible(false);
+                ((MapMenu)mapMenu).aisSuggestedRouteMenu(vesselTarget);
+                mapMenu.setVisible(true);
+                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
+                return true;
+                
+            } else if (newClosest instanceof IntendedRouteLegGraphic) {
+    
+                IntendedRouteLegGraphic wpCircle = (IntendedRouteLegGraphic) newClosest;
+                VesselTarget vesselTarget = wpCircle.getIntendedRouteGraphic().getVesselTarget();
+                mainFrame.getGlassPane().setVisible(false);
+                ((MapMenu)mapMenu).aisSuggestedRouteMenu(vesselTarget);
+                mapMenu.setVisible(true);
+                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
+                return true;
+            }
+        }
+        return false;
+    }
 }

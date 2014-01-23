@@ -172,7 +172,7 @@ public class VoyageLayer extends GeneralLayer implements
         super.findAndInit(obj);
         
         if (obj instanceof MainFrame) {
-            mainFrame.getGlassPanel().add(voyageHandlingMouseOverPanel);
+            getMainFrame().getGlassPanel().add(voyageHandlingMouseOverPanel);
         } else if (obj instanceof StrategicRouteExchangeHandler) {
             monaLisaHandler = (StrategicRouteExchangeHandler) obj;
         }
@@ -209,30 +209,30 @@ public class VoyageLayer extends GeneralLayer implements
                 WaypointCircle wpc = (WaypointCircle) selectedGraphic;
 
                 // waypointInfoPanel.setVisible(false);
-                mapMenu.sendToSTCC(wpc.getRouteIndex());
+                getMapMenu().sendToSTCC(wpc.getRouteIndex());
                 if (wpc.getRouteIndex() == 2) {
                     // This is a route under modification: allow append waypoint
-                    this.mapMenu.addVoyageHandlingWaypointAppendMenuItem(wpc.getRoute(), wpc.getRouteIndex());
+                    this.getMapMenu().addVoyageHandlingWaypointAppendMenuItem(wpc.getRoute(), wpc.getRouteIndex());
                     // also allow Waypoint deletion
-                    this.mapMenu.addVoyageHandlingWaypointDeleteMenuItem(wpc.getRoute(), wpc.getRouteIndex(), wpc.getWpIndex());
+                    this.getMapMenu().addVoyageHandlingWaypointDeleteMenuItem(wpc.getRoute(), wpc.getRouteIndex(), wpc.getWpIndex());
                 }
 
-                mapMenu.setVisible(true);
-                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
+                getMapMenu().setVisible(true);
+                getMapMenu().show(this, e.getX() - 2, e.getY() - 2);
                 return true;
             }
             if (selectedGraphic instanceof RouteLegGraphic) {
                 RouteLegGraphic rlg = (RouteLegGraphic) selectedGraphic;
                 // waypointInfoPanel.setVisible(false);
-                mapMenu.sendToSTCC(rlg.getRouteIndex());
+                getMapMenu().sendToSTCC(rlg.getRouteIndex());
                 if(rlg.getRouteIndex() == 2 && this.modifiedSTCCRoute != null) {
                     // This is a route under modification: allow insert waypoint
-                    this.mapMenu.addVoyageHandlingLegInsertWaypointMenuItem(this.modifiedSTCCRoute,
+                    getMapMenu().addVoyageHandlingLegInsertWaypointMenuItem(this.modifiedSTCCRoute,
                             rlg.getRouteLeg(), e.getPoint(), rlg.getRouteIndex());
                 }
                 
-                mapMenu.setVisible(true);
-                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
+                getMapMenu().setVisible(true);
+                getMapMenu().show(this, e.getX() - 2, e.getY() - 2);
                 return true;
             }
         }

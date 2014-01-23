@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.gui.ais;
+package dk.dma.epd.common.prototype.gui;
 
 import java.awt.Image;
 import java.awt.event.WindowAdapter;
@@ -21,7 +21,6 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 import org.slf4j.Logger;
@@ -40,8 +39,6 @@ public class MainFrameCommon extends JFrame {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(MainFrameCommon.class);
-
-    private JPanel glassPanel;
     
     /**
      * Constructor
@@ -51,7 +48,6 @@ public class MainFrameCommon extends JFrame {
         
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         setIconImage(getAppIcon());
-        initGlassPane();
         
         addWindowListener(new WindowAdapter() {
             @Override public void windowClosing(WindowEvent we) {
@@ -66,15 +62,6 @@ public class MainFrameCommon extends JFrame {
         EPD.getInstance().closeApp(false);
     }
 
-    /** 
-     * Initializes the glass pane of the frame
-     */
-    private void initGlassPane() {
-        glassPanel = (JPanel) getGlassPane();
-        glassPanel.setLayout(null);
-        glassPanel.setVisible(false);
-    }
-
     /**
      * Returns the application icon
      * @return the application icon
@@ -86,13 +73,5 @@ public class MainFrameCommon extends JFrame {
         }
         LOG.error("Could not find app icon");
         return null;
-    }
-    
-    /**
-     * Returns a reference to the glass pane
-     * @return a reference to the glass pane
-     */
-    public JPanel getGlassPanel() {
-        return glassPanel;
-    }
+    }    
 }

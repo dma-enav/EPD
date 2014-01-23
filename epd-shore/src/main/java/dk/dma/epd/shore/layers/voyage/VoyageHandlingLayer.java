@@ -146,11 +146,11 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
 
                 voyage.setRoute(newRoute);
 
-                mapMenu.voyageWaypontMenu(this, mapBean, voyage, modified,
+                getMapMenu().voyageWaypontMenu(this, mapBean, voyage, modified,
                         jMapFrame, voyagePlanInfoPanel, true, newRoute, null,
                         e.getPoint(), wpc.getWpIndex(), this.renegotiate);
-                mapMenu.setVisible(true);
-                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
+                getMapMenu().setVisible(true);
+                getMapMenu().show(this, e.getX() - 2, e.getY() - 2);
                 return true;
             }
         }
@@ -164,12 +164,12 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
 
                 voyage.setRoute(newRoute);
 
-                mapMenu.voyageWaypontMenu(this, mapBean, voyage, modified,
+                getMapMenu().voyageWaypontMenu(this, mapBean, voyage, modified,
                         jMapFrame, voyagePlanInfoPanel, false, newRoute,
                         rlg.getRouteLeg(), e.getPoint(), 0, this.renegotiate);
 
-                mapMenu.setVisible(true);
-                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
+                getMapMenu().setVisible(true);
+                getMapMenu().show(this, e.getX() - 2, e.getY() - 2);
 
                 return true;
             }

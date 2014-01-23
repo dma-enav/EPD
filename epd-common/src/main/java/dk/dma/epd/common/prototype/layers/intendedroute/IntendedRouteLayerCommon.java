@@ -20,6 +20,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import com.bbn.openmap.event.ProjectionEvent;
@@ -38,7 +39,6 @@ import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTargetSettings;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
-import dk.dma.epd.common.prototype.gui.ais.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.GeneralLayerCommon;
 
@@ -56,7 +56,7 @@ public abstract class IntendedRouteLayerCommon extends GeneralLayerCommon implem
      */
     protected ConcurrentHashMap<Long, IntendedRouteGraphic> intendedRoutes = new ConcurrentHashMap<>();  
 
-    private IntendedRouteInfoPanel intendedRouteInfoPanel;
+    protected IntendedRouteInfoPanel intendedRouteInfoPanel;
     private CommonChartPanel chartPanel;
     private OMGraphic closest;
     private OMCircle dummyCircle = new OMCircle();
@@ -159,11 +159,14 @@ public abstract class IntendedRouteLayerCommon extends GeneralLayerCommon implem
             ((AisHandlerCommon)obj).addListener(this);
         } else if (obj instanceof CommonChartPanel) {
             this.chartPanel = (CommonChartPanel)obj;
-        } else if (obj instanceof MainFrameCommon && intendedRouteInfoPanel == null) {
-            intendedRouteInfoPanel = new IntendedRouteInfoPanel();
-            ((MainFrameCommon)obj).getGlassPanel().add(intendedRouteInfoPanel);
         }
-    };
+    }
+    
+    /**
+     * Returns a reference to the glass pane
+     * @return a reference to the glass pane
+     */
+    protected abstract JPanel getGlassPanel();
     
     /**
      * Handle mouse moved
@@ -182,7 +185,7 @@ public abstract class IntendedRouteLayerCommon extends GeneralLayerCommon implem
                 intendedRouteInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
                 intendedRouteInfoPanel.showWpInfo(wpCircle);
                 intendedRouteInfoPanel.setVisible(true);
-                mainFrame.getGlassPane().setVisible(true);
+                getGlassPanel().setVisible(true);
                 return true;
                 
             } else if (newClosest instanceof IntendedRouteLegGraphic) {
@@ -193,7 +196,7 @@ public abstract class IntendedRouteLayerCommon extends GeneralLayerCommon implem
                 intendedRouteInfoPanel.showLegInfo(legGraphic, worldLocation);
                 closest = dummyCircle;
                 intendedRouteInfoPanel.setVisible(true);
-                mainFrame.getGlassPane().setVisible(true);
+                getGlassPanel().setVisible(true);
                 return true;
             }
         } else if (newClosest == null) {
