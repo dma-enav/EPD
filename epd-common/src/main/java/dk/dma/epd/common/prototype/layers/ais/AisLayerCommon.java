@@ -26,7 +26,7 @@ import dk.dma.epd.common.prototype.layers.LazyLayerCommon;
 public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         extends LazyLayerCommon implements IAisTargetListener {
 
-    protected AISHANDLER aisHandler;
+    protected volatile AISHANDLER aisHandler;
 
     public AisLayerCommon(int repaintIntervalMillis) {
         super(repaintIntervalMillis);
