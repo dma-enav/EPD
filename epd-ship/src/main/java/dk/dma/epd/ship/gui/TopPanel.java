@@ -31,6 +31,7 @@ import javax.swing.JSeparator;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
+import dk.dma.epd.common.prototype.event.HistoryNavigationPanel;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.gui.route.GoBackButton;
 import dk.dma.epd.common.prototype.gui.route.GoForwardButton;
@@ -49,7 +50,7 @@ import dk.dma.epd.ship.layers.route.RouteLayer;
  * The top buttons panel
  */
 public class TopPanel extends OMComponentPanel implements ActionListener,
-        MouseListener {
+        MouseListener, HistoryNavigationPanel {
 
     private static final long serialVersionUID = 1L;
 
@@ -168,8 +169,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         
         goBackBtn.setToolTipText("Go back");
         goForwardBtn.setToolTipText("Go forward");
-//        goBackBtn.setEnabled(false);
-//        goForwardBtn.setEnabled(false);
+        goBackBtn.setEnabled(false);
+        goForwardBtn.setEnabled(false);
 
         wmsBtn.setToolTipText("Show/hide WMS seacharts");
         // tglbtnMsiFilter

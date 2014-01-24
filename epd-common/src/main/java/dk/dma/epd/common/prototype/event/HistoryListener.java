@@ -39,12 +39,8 @@ import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
  */
 public class HistoryListener implements ProjectionListener {
 
-    public static final String DRAGGED = "dragged";
-    public static final String CENTERED = "centered";
-    public static final String SCALED = "scaled";
-    private final String NO_COMMAND = "no_command"; // init.
     
-    private String command;       // The command for the type of projection change.
+    private boolean shouldSave;
     private double positionX;     // The x-axis of the position.
     private double positionY;     // The y-axis of the position.
     private Position position;    // The Position object created from positionX and positionY. 
@@ -52,26 +48,26 @@ public class HistoryListener implements ProjectionListener {
     private HistoryPosition hpos; // The HistoryPosition object created from position and zoomScale.
     private CommonChartPanel chartPanel;
     private HistoryList historyList;
+    private HistoryNavigationPanel navigationPanel;
     
     public HistoryListener(CommonChartPanel chartPanel) {
-        this.chartPanel = chartPanel;
+        this.chartPanel  = chartPanel;
         this.historyList = new HistoryList();
-    }
-
-    /**
-     * 
-     * @param command: The command which is executed.
-     */
-    public void setCommand(String command) {
-        this.command = command;
+        this.setShouldSave(false);
     }
     
-    /**
-     * 
-     * @return The executed command.
-     */
-    public String getCommand() {
-        return this.command;
+    public void setNavigationPanel(HistoryNavigationPanel navigationPanel) {
+        this.navigationPanel = navigationPanel;
+        
+        // Go back properties.
+        this.navigationPanel.getGoBackButton().setHistoryListener(this);
+        this.navigationPanel.getGoBackButton().setChartPanel(chartPanel);
+        this.navigationPanel.getGoBackButton().setGoForwardButton(navigationPanel.getGoForwardButton());
+        
+        // Go Forward properties.
+        this.navigationPanel.getGoForwardButton().setHistoryListener(this);
+        this.navigationPanel.getGoForwardButton().setChartPanel(chartPanel);
+        this.navigationPanel.getGoForwardButton().seGotBackButton(navigationPanel.getGoBackButton());
     }
 
     /*
@@ -80,15 +76,10 @@ public class HistoryListener implements ProjectionListener {
      */
     @Override
     public void projectionChanged(ProjectionEvent e) {
-                        
-        if (this.getCommand().equals(HistoryListener.DRAGGED) || 
-                this.getCommand().equals(HistoryListener.CENTERED) || 
-                this.getCommand().equals(HistoryListener.SCALED)) {
-            
+
+        if (this.getShouldSave()) {
             addHistoryPosition();
-            
-            // Reset command.
-            this.setCommand(this.NO_COMMAND);
+            setShouldSave(false);
         }
     }
 
@@ -108,6 +99,9 @@ public class HistoryListener implements ProjectionListener {
         
         // Add the object to the history listener, and make it increase the pointer.
         this.historyList.addHistoryElement(hpos, true);
+        
+        System.out.println(this.historyList.toString());
+        this.navigationPanel.getGoBackButton().setEnabled(true);
     }
     
     /**
@@ -131,7 +125,7 @@ public class HistoryListener implements ProjectionListener {
                 historyList.getPointerInHistory() == -1) {
             return null;
         }
-            
+         
         return this.historyList.goOneHistoryElementBack();
     }
 
@@ -142,6 +136,11 @@ public class HistoryListener implements ProjectionListener {
     public HistoryPosition goOneElementForward() {
         if (historyList.isAtHighestElement() ||
                 historyList.getPointerInHistory() == -1) {
+            
+            if (historyList.isAtHighestElement()) {
+                this.navigationPanel.getGoForwardButton().setEnabled(false);
+            }
+            
             return null;
         }
         
@@ -158,5 +157,13 @@ public class HistoryListener implements ProjectionListener {
 
     public boolean containsElements() {
         return this.historyList.containsElements();
+    }
+
+    public boolean getShouldSave() {
+        return shouldSave;
+    }
+
+    public void setShouldSave(boolean shouldSave) {
+        this.shouldSave = shouldSave;
     }
 }
