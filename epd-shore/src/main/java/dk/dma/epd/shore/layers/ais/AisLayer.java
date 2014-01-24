@@ -16,6 +16,7 @@
 package dk.dma.epd.shore.layers.ais;
 
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.Date;
@@ -42,6 +43,7 @@ import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.layers.ais.AisTargetSelectionGraphic;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
@@ -53,18 +55,20 @@ import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
+import dk.dma.epd.shore.gui.views.MainFrame;
+import dk.dma.epd.shore.gui.views.MapMenu;
 import dk.dma.epd.shore.gui.views.StatusArea;
-import dk.dma.epd.shore.layers.GeneralLayer;
 
 /**
  * The class AisLayer is the layer containing all AIS targets. The class handles the drawing of vessels on the chartPanel.
+ * 
+ * SuppressWarnings("serial") as a layer should never be serialized.
  */
+@SuppressWarnings("serial")
 @ThreadSafe
-public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListener {
-    private static final long serialVersionUID = 1L;
+public class AisLayer extends AisLayerCommon<AisHandler> implements Runnable, IAisTargetListener {
     private static final Logger LOG = LoggerFactory.getLogger(AisLayer.class);
 
-    private volatile AisHandler aisHandler;
     private AisInfoPanel aisInfoPanel;
     private StatusArea statusArea;
     private ChartPanel chartPanel;
@@ -108,6 +112,8 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
      * Starts the AisLayer thread
      */
     public AisLayer() {
+        // repaint every 1000 milliseconds
+        super(1000);
         synchronized (graphics) {
             graphics.add(targetSelectionGraphic);
         }
@@ -246,11 +252,7 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
-        
-        if (obj instanceof AisHandler) {
-            aisHandler = (AisHandler) obj;
-            aisHandler.addListener(this);
-        }
+
         if (obj instanceof ChartPanel) {
             chartPanel = (ChartPanel) obj;
         }
@@ -267,9 +269,6 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
 
     @Override
     public void findAndUndo(Object obj) {
-        if (obj == aisHandler) {
-            aisHandler.removeListener(this);
-        }
         super.findAndUndo(obj);
     }
 
@@ -482,5 +481,22 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
 
     @Override
     public void targetUpdated(AisTarget arg0) {
+    }
+    
+    @Override
+    public MainFrame getMainFrame() {
+        // get the shore specific main frame
+        return (MainFrame) super.getMainFrame();
+    }
+    
+    @Override
+    public MapMenu getMapMenu() {
+        // get the shore specific map menu
+        return (MapMenu) super.getMapMenu();
+    }
+    
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        super.actionPerformed(e);
     }
 }
