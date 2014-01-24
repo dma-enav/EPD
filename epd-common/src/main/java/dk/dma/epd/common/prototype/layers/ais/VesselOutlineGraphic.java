@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.layers.ais;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -26,7 +27,9 @@ import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMPoly;
+import com.bbn.openmap.omGraphics.OMText;
 
+import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
@@ -72,6 +75,10 @@ public class VesselOutlineGraphic extends OMGraphicList {
      * The VesselTargetGraphics which created this object.
      */
     private VesselTargetGraphic vesselTargetGraphic;
+    private OMText aisName;
+    private boolean showNameLabel = true;
+
+    private Font font;
 
     public VesselOutlineGraphic(Color lineColor, float lineThickness, OMGraphicHandlerLayer parentLayer,
             VesselTargetGraphic vesselTargetGraphic) {
@@ -81,6 +88,11 @@ public class VesselOutlineGraphic extends OMGraphicList {
         this.lineThickness = lineThickness;
         this.lineStroke = new BasicStroke(this.lineThickness);
         this.parentLayer = parentLayer;
+        
+        this.font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
+        this.aisName = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);
+        this.setLinePaint(Color.BLACK);
+        this.add(aisName);
     }
 
     /**
@@ -176,6 +188,16 @@ public class VesselOutlineGraphic extends OMGraphicList {
         this.setLinePaint(this.lineColor);
         // this.setStroke(this.lineStroke);
         this.shipOutline.setStroke(this.lineStroke);
+        
+        
+        
+        
+        this.aisName.setLon(positionData.getPos().getLongitude());
+        this.aisName.setLat(positionData.getPos().getLatitude());
+        this.aisName.setY(-20);
+        this.aisName.setData(AisMessage.trimText(staticData.getName()));
+        this.aisName.setVisible(this.showNameLabel);
+        
     }
 
     /**
@@ -187,6 +209,7 @@ public class VesselOutlineGraphic extends OMGraphicList {
      *            the vessel static data
      */
     public void setLocation(VesselPositionData positionData, VesselStaticData staticData) {
+        
         this.producePolygon(positionData, staticData);
     }
 
@@ -228,5 +251,13 @@ public class VesselOutlineGraphic extends OMGraphicList {
     public VesselTargetGraphic getVesselTargetGraphic() {
         return vesselTargetGraphic;
 
+    }
+    
+    public void setShowNameLabel(boolean showNameLabel) {
+        this.showNameLabel = showNameLabel;
+    }
+
+    public boolean getShowNameLabel() {
+        return showNameLabel;
     }
 }

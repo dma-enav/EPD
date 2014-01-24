@@ -53,6 +53,7 @@ public class VesselTargetGraphic extends TargetGraphic {
         this.vesselTriangleGraphic = new VesselTriangleGraphic(this, parentLayer);
         this.vesselTriangleGraphic.setShowNameLabel(showName);
         this.vesselOutlineGraphic = new VesselOutlineGraphic(ColorConstants.EPD_SHIP_VESSEL_COLOR, 2.0f, parentLayer, this);
+        this.vesselOutlineGraphic.setShowNameLabel(showName);
         this.vesselDotGraphic = new VesselDotGraphic();
     }
 
@@ -132,6 +133,10 @@ public class VesselTargetGraphic extends TargetGraphic {
     public void setShowNameLabel(boolean showNameLabel) {
         if (this.vesselTriangleGraphic != null) {
             this.vesselTriangleGraphic.setShowNameLabel(showNameLabel);
+        }
+        
+        if (this.vesselOutlineGraphic != null) {
+            this.vesselOutlineGraphic.setShowNameLabel(showNameLabel);
         }
     }
 
