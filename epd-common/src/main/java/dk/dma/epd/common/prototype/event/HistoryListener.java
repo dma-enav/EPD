@@ -48,7 +48,7 @@ public class HistoryListener implements ProjectionListener {
     private HistoryPosition hpos; // The HistoryPosition object created from position and zoomScale.
     private CommonChartPanel chartPanel;
     private HistoryList historyList;
-    private HistoryNavigationPanel navigationPanel;
+    private HistoryNavigationPanelInterface navigationPanel;
     
     public HistoryListener(CommonChartPanel chartPanel) {
         this.chartPanel  = chartPanel;
@@ -56,18 +56,20 @@ public class HistoryListener implements ProjectionListener {
         this.setShouldSave(false);
     }
     
-    public void setNavigationPanel(HistoryNavigationPanel navigationPanel) {
+    public void setNavigationPanel(HistoryNavigationPanelInterface navigationPanel) {
         this.navigationPanel = navigationPanel;
         
         // Go back properties.
         this.navigationPanel.getGoBackButton().setHistoryListener(this);
         this.navigationPanel.getGoBackButton().setChartPanel(chartPanel);
         this.navigationPanel.getGoBackButton().setGoForwardButton(navigationPanel.getGoForwardButton());
+        this.navigationPanel.getGoBackButton().initMouseListener();
         
         // Go Forward properties.
         this.navigationPanel.getGoForwardButton().setHistoryListener(this);
         this.navigationPanel.getGoForwardButton().setChartPanel(chartPanel);
         this.navigationPanel.getGoForwardButton().seGotBackButton(navigationPanel.getGoBackButton());
+        this.navigationPanel.getGoForwardButton().initMouseListener();
     }
 
     /*
@@ -100,8 +102,9 @@ public class HistoryListener implements ProjectionListener {
         // Add the object to the history listener, and make it increase the pointer.
         this.historyList.addHistoryElement(hpos, true);
         
-        System.out.println(this.historyList.toString());
         this.navigationPanel.getGoBackButton().setEnabled(true);
+        
+        
     }
     
     /**

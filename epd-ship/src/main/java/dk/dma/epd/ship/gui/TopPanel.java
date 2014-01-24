@@ -31,10 +31,10 @@ import javax.swing.JSeparator;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
-import dk.dma.epd.common.prototype.event.HistoryNavigationPanel;
+import dk.dma.epd.common.prototype.event.HistoryNavigationPanelInterface;
+import dk.dma.epd.common.prototype.gui.GoBackButton;
+import dk.dma.epd.common.prototype.gui.GoForwardButton;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.common.prototype.gui.route.GoBackButton;
-import dk.dma.epd.common.prototype.gui.route.GoForwardButton;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.event.DragMouseMode;
@@ -50,7 +50,7 @@ import dk.dma.epd.ship.layers.route.RouteLayer;
  * The top buttons panel
  */
 public class TopPanel extends OMComponentPanel implements ActionListener,
-        MouseListener, HistoryNavigationPanel {
+        MouseListener, HistoryNavigationPanelInterface {
 
     private static final long serialVersionUID = 1L;
 
@@ -113,10 +113,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     private RouteLayer routeLayer;
 
     private MouseDelegator mouseDelegator;
-    private final GoBackButton goBackBtn = new GoBackButton(
-            toolbarIcon("images/toolbar/go-back.png"));
-    private final GoForwardButton goForwardBtn = new GoForwardButton(
-            toolbarIcon("images/toolbar/go-forward.png"));
+    private final GoBackButton goBackBtn = new GoBackButton();
+    private final GoForwardButton goForwardBtn = new GoForwardButton();
         
     /**
      * A slightly hacked way of simulating a click on the aisToggleName label
