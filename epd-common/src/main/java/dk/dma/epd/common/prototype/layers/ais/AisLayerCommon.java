@@ -49,4 +49,9 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         }
         super.findAndUndo(obj);
     }
+    
+    /**
+     * Force this AIS layer to update itself.
+     */
+    public abstract void forceLayerUpdate();
 }

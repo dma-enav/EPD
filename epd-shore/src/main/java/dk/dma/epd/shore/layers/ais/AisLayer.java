@@ -66,7 +66,7 @@ import dk.dma.epd.shore.gui.views.StatusArea;
  */
 @SuppressWarnings("serial")
 @ThreadSafe
-public class AisLayer extends AisLayerCommon<AisHandler> implements Runnable, IAisTargetListener {
+public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetListener {
     private static final Logger LOG = LoggerFactory.getLogger(AisLayer.class);
 
     private AisInfoPanel aisInfoPanel;
@@ -77,36 +77,33 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements Runnable, IA
     @GuardedBy("targets")
     private final Map<Long, TargetGraphic> targets = new ConcurrentHashMap<>();
 
-    private volatile boolean shouldRun = true;
     private volatile float mapScale;
-
-    private final Thread aisThread;
 
     private volatile OMGraphic closest;
     private final AisTargetSelectionGraphic targetSelectionGraphic = new AisTargetSelectionGraphic();
 
-    /**
-     * Keeps the AisLayer thread alive
-     */
-    @Override
-    public void run() {
-
-        while (shouldRun) {
-            try {
-                drawTargets();
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-        }
-        synchronized (targets) {
-            targets.clear();
-        }
-        synchronized (graphics) {
-            graphics.clear();
-            graphics.add(targetSelectionGraphic);
-        }
-    }
+//    /**
+//     * Keeps the AisLayer thread alive
+//     */
+//    @Override
+//    public void run() {
+//
+//        while (shouldRun) {
+//            try {
+//                drawTargets();
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//            }
+//
+//        }
+//        synchronized (targets) {
+//            targets.clear();
+//        }
+//        synchronized (graphics) {
+//            graphics.clear();
+//            graphics.add(targetSelectionGraphic);
+//        }
+//    }
 
     /**
      * Starts the AisLayer thread
@@ -117,19 +114,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements Runnable, IA
         synchronized (graphics) {
             graphics.add(targetSelectionGraphic);
         }
-        aisThread = new Thread(this);
-        aisThread.start();
-    }
-
-    public Thread getAisThread() {
-        return aisThread;
-    }
-
-    /**
-     * Kills the AisLayer thread
-     */
-    public void stop() {
-        shouldRun = false;
     }
 
     /**
@@ -241,6 +225,14 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements Runnable, IA
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void forceLayerUpdate() {
+        this.drawTargets();
+    }
+    
     @Override
     public OMGraphicList prepare() {
         synchronized (graphics) {
@@ -498,5 +490,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements Runnable, IA
     @Override
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
+        drawTargets();
     }
 }
