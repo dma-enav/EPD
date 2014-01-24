@@ -20,7 +20,6 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import com.bbn.openmap.event.ProjectionEvent;
@@ -161,12 +160,6 @@ public abstract class IntendedRouteLayerCommon extends GeneralLayerCommon implem
             this.chartPanel = (CommonChartPanel)obj;
         }
     }
-    
-    /**
-     * Returns a reference to the glass pane
-     * @return a reference to the glass pane
-     */
-    protected abstract JPanel getGlassPanel();
     
     /**
      * Handle mouse moved

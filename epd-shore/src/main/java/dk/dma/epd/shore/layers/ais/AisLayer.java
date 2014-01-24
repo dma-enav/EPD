@@ -259,9 +259,9 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
         }
         if (obj instanceof JMapFrame) {
             aisInfoPanel = new AisInfoPanel();
-            jMapFrame.getGlassPanel().add(aisInfoPanel);
-            jMapFrame.getGlassPanel().add(pastTrackInfoPanel);
-            jMapFrame.getGlassPanel().setVisible(true);
+            mapFrame.getGlassPanel().add(aisInfoPanel);
+            mapFrame.getGlassPanel().add(pastTrackInfoPanel);
+            mapFrame.getGlassPanel().setVisible(true);
         }
     }
 
@@ -446,7 +446,7 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
         }
 
         if (newClosest != closest) {
-            Point containerPoint = SwingUtilities.convertPoint(chartPanel, e.getPoint(), jMapFrame);
+            Point containerPoint = SwingUtilities.convertPoint(chartPanel, e.getPoint(), mapFrame);
 
             if (newClosest instanceof PastTrackWpCircle) {
                 closest = newClosest;
@@ -457,7 +457,7 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
             }
 
             if (newClosest instanceof VesselTargetGraphic) {
-                jMapFrame.getGlassPane().setVisible(true);
+                mapFrame.getGlassPane().setVisible(true);
                 closest = newClosest;
                 VesselTargetGraphic vtg = (VesselTargetGraphic) newClosest;
                 int x = (int) containerPoint.getX() + 10;

@@ -63,6 +63,8 @@ import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.ais.AisHandler;
+import dk.dma.epd.ship.event.DragMouseMode;
+import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.route.RouteManagerDialog;
 import dk.dma.epd.ship.monalisa.MonaLisaRouteOptimization;
@@ -288,6 +290,17 @@ public final class EPDShip extends EPD<EPDSettings> {
     }
     
 
+    /**
+     * Returns the default shore mouse mode service list
+     * @return the default shore mouse mode service list
+     */
+    @Override
+    public String[] getDefaultMouseModeServiceList() {
+        String[] ret = new String[2];
+        ret[0] = NavigationMouseMode.MODE_ID; // "Gestures"
+        ret[1] = DragMouseMode.MODE_ID;
+        return ret;
+    }
     
     /**
      * Starts the sensors defined in the {@linkplain SensorSettings} and hook up listeners

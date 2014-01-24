@@ -17,6 +17,8 @@ package dk.dma.epd.common.prototype.layers;
 
 import java.awt.event.MouseEvent;
 
+import javax.swing.JPanel;
+
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapEventUtils;
 import com.bbn.openmap.event.MapMouseListener;
@@ -26,6 +28,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
+import dk.dma.epd.common.prototype.gui.MapFrameCommon;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 
 /**
@@ -39,6 +42,7 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     protected MapBean mapBean;
     protected MainFrameCommon mainFrame;
     protected MapMenuCommon mapMenu;
+    protected MapFrameCommon mapFrame;
 
     /**
      * Called when a bean is added to the bean context
@@ -54,6 +58,8 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
             mainFrame = (MainFrameCommon) obj;
         } else if (obj instanceof MapMenuCommon) {
             mapMenu = (MapMenuCommon) obj;
+        } else if (obj instanceof MapFrameCommon) {
+            mapFrame = (MapFrameCommon) obj;
         }
     }
 
@@ -82,38 +88,87 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
         return this;
     }
 
+    /**
+     * Returns the mouse mode service list
+     * @return the mouse mode service list
+     */
     @Override
-    public boolean mouseClicked(MouseEvent evt) {
-        return false;
+    public String[] getMouseModeServiceList() {
+        return  EPD.getInstance().getDefaultMouseModeServiceList();
     }
 
+    
+    /**
+     * Provides default behavior for right-clicks by
+     * showing the general menu.
+     * 
+     * @param evt the mouse event
+     */
+    @Override
+    public boolean mouseClicked(MouseEvent evt) {
+        if (evt.getButton() == MouseEvent.BUTTON3) {
+            mapMenu.generalMenu(true);
+            mapMenu.setVisible(true);
+
+            if (mainFrame.getHeight() < evt.getYOnScreen() + mapMenu.getHeight()) {
+                mapMenu.show(this, evt.getX() - 2, evt.getY() - mapMenu.getHeight());
+            } else {
+                mapMenu.show(this, evt.getX() - 2, evt.getY() - 2);
+            }
+            return true;
+        }
+
+        return false;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean mouseDragged(MouseEvent arg0) {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void mouseEntered(MouseEvent arg0) {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void mouseExited(MouseEvent arg0) {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void mouseMoved() {
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean mouseMoved(MouseEvent arg0) {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean mousePressed(MouseEvent arg0) {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean mouseReleased(MouseEvent arg0) {
         return false;
@@ -154,4 +209,20 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     public MapMenuCommon getMapMenu() {
         return mapMenu;
     }   
+
+    /**
+     * Returns a reference to the map frame
+     * @return a reference to the map frame
+     */
+    public MapFrameCommon getMapFrame() {
+        return mapFrame;
+    }
+
+    /**
+     * Returns a reference to the glass pane
+     * @return a reference to the glass pane
+     */
+    public JPanel getGlassPanel() {
+        return (mapFrame != null) ? mapFrame.getGlassPanel() : mainFrame.getGlassPanel();
+    }    
 }

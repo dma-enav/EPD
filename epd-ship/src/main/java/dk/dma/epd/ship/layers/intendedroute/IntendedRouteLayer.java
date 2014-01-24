@@ -17,8 +17,6 @@ package dk.dma.epd.ship.layers.intendedroute;
 
 import java.awt.event.MouseEvent;
 
-import javax.swing.JPanel;
-
 import com.bbn.openmap.omGraphics.OMGraphic;
 
 import dk.dma.epd.common.prototype.ais.VesselTarget;
@@ -27,9 +25,7 @@ import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteInfoPanel;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteWpCircle;
-import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.MapMenu;
-import dk.dma.epd.ship.layers.GeneralLayer;
 
 /**
  * Layer for displaying intended routes in EPDShip
@@ -37,15 +33,6 @@ import dk.dma.epd.ship.layers.GeneralLayer;
 public class IntendedRouteLayer extends IntendedRouteLayerCommon {
 
     private static final long serialVersionUID = 1L;
-
-    /**
-     * Returns the mouse mode service list
-     * @return the mouse mode service list
-     */
-    @Override
-    public String[] getMouseModeServiceList() {
-        return GeneralLayer.getDefaultMouseModeServiceList();
-    }
 
     /**
      * {@inheritDoc}
@@ -59,14 +46,6 @@ public class IntendedRouteLayer extends IntendedRouteLayerCommon {
         }
     }
 
-
-    /**
-     * Returns a reference to the glass pane
-     * @return a reference to the glass pane
-     */
-    protected JPanel getGlassPanel() {
-        return ((MainFrame)mainFrame).getGlassPanel();
-    }    
 
     /**
      * {@inheritDoc}

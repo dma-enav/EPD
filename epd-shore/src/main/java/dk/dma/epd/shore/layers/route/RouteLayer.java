@@ -281,8 +281,8 @@ public class RouteLayer extends GeneralLayer implements IRoutesUpdateListener {
             }
 
             metocInfoPanel = new MetocInfoPanel();
-            jMapFrame.getGlassPanel().add(metocInfoPanel);
-            jMapFrame.getGlassPanel().add(waypointInfoPanel);
+            mapFrame.getGlassPanel().add(metocInfoPanel);
+            mapFrame.getGlassPanel().add(waypointInfoPanel);
         }
     }
 
@@ -376,11 +376,11 @@ public class RouteLayer extends GeneralLayer implements IRoutesUpdateListener {
                         closest = newClosest;
                         MetocPointGraphic pointGraphic = (MetocPointGraphic)newClosest;
                         MetocForecastPoint pointForecast = pointGraphic.getMetocPoint();
-                        Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), jMapFrame);
+                        Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), mapFrame);
                         metocInfoPanel.setPos((int)containerPoint.getX(), (int)containerPoint.getY());
                         metocInfoPanel.showText(pointForecast, pointGraphic.getMetocGraphic().getRoute().getRouteMetocSettings());
                         waypointInfoPanel.setVisible(false);
-                        jMapFrame.getGlassPane().setVisible(true);
+                        mapFrame.getGlassPane().setVisible(true);
                         return true;
                     }
                 }
@@ -391,10 +391,10 @@ public class RouteLayer extends GeneralLayer implements IRoutesUpdateListener {
             if (newClosest instanceof WaypointCircle) {
                 closest = newClosest;
                 WaypointCircle waypointCircle = (WaypointCircle)closest;
-                Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), jMapFrame);
+                Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), mapFrame);
                 waypointInfoPanel.setPos((int)containerPoint.getX(), (int)containerPoint.getY() - 10);
                 waypointInfoPanel.showWpInfo(waypointCircle.getRoute(), waypointCircle.getWpIndex());
-                jMapFrame.getGlassPane().setVisible(true);
+                mapFrame.getGlassPane().setVisible(true);
                 metocInfoPanel.setVisible(false);
                 return true;
             } else {

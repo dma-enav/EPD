@@ -15,95 +15,16 @@
  */
 package dk.dma.epd.ship.layers;
 
-import java.awt.event.MouseEvent;
-
-import javax.swing.JPanel;
-
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.layers.GeneralLayerCommon;
-import dk.dma.epd.ship.event.DragMouseMode;
-import dk.dma.epd.ship.event.NavigationMouseMode;
+import dk.dma.epd.common.prototype.gui.MapFrameCommon;
+import dk.dma.epd.common.prototype.layers.GeneralLayerCommonTS;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.MapMenu;
 
 /**
- * General layer that may be sub-classed by other layers.
- * <p>
- * Contains default functionality for handling mouse right click
+ * General layer for EPDShip that may be sub-classed by other layers.
  */
-public class GeneralLayer extends GeneralLayerCommon {
+public class GeneralLayer extends GeneralLayerCommonTS<MainFrame, MapMenu, MapFrameCommon> {
 
     private static final long serialVersionUID = 1L;
 
-    
-    /**
-     * Returns the default shore mouse mode service list
-     * @return the default shore mouse mode service list
-     */
-    public static String[] getDefaultMouseModeServiceList() {
-        String[] ret = new String[2];
-        ret[0] = NavigationMouseMode.MODE_ID; // "Gestures"
-        ret[1] = DragMouseMode.MODE_ID;
-        return ret;
-    }
-    
-    /**
-     * Returns the mouse mode service list
-     * @return the mouse mode service list
-     */
-    @Override
-    public String[] getMouseModeServiceList() {
-        return getDefaultMouseModeServiceList();
-    }
-
-    /**
-     * Provides default behavior for right-clicks by
-     * showing the general menu.
-     * @param evt the mouse event
-     */
-    @Override
-    public boolean mouseClicked(MouseEvent evt) {
-        if (evt.getButton() == MouseEvent.BUTTON3) {
-            mapMenu.generalMenu(true);
-            mapMenu.setVisible(true);
-
-            if (EPD.getInstance().getMainFrame().getHeight() < evt.getYOnScreen()
-                    + mapMenu.getHeight()) {
-                mapMenu.show(this, evt.getX() - 2,
-                        evt.getY() - mapMenu.getHeight());
-            } else {
-                mapMenu.show(this, evt.getX() - 2, evt.getY() - 2);
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns a reference to the main frame
-     * @return a reference to the main frame
-     */
-    @Override
-    public MainFrame getMainFrame() {
-        return (MainFrame)mainFrame;
-    }
-
-    /**
-     * Returns a reference to the map menu
-     * @return a reference to the map menu
-     */
-    @Override
-    public MapMenu getMapMenu() {
-        return (MapMenu)mapMenu;
-    }   
-
-    /**
-     * Returns a reference to the glass pane
-     * @return a reference to the glass pane
-     */
-    public JPanel getGlassPanel() {
-        return getMainFrame().getGlassPanel();
-    }    
 }

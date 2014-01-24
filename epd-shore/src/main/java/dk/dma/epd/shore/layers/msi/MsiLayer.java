@@ -104,7 +104,7 @@ public class MsiLayer extends GeneralLayer implements IMsiUpdateListener {
         }
         if (obj instanceof JMapFrame){
             msiInfoPanel = new MsiInfoPanel();
-            jMapFrame.getGlassPanel().add(msiInfoPanel);
+            mapFrame.getGlassPanel().add(msiInfoPanel);
         }
     }
 
@@ -149,14 +149,14 @@ public class MsiLayer extends GeneralLayer implements IMsiUpdateListener {
         OMGraphic newClosest = getSelectedGraphic(e, MsiSymbolGraphic.class, MsiDirectionalIcon.class);
 
         if (newClosest != closest && this.isVisible()) {
-            Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), jMapFrame);
+            Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), mapFrame);
             if (newClosest instanceof MsiSymbolGraphic) {
                 closest = newClosest;
                 MsiSymbolGraphic msiSymbolGraphic = (MsiSymbolGraphic)newClosest;
 
                 int x = (int) containerPoint.getX()+10;
                 int y = (int) containerPoint.getY()+10;
-                jMapFrame.getGlassPanel().setVisible(true);
+                mapFrame.getGlassPanel().setVisible(true);
                 msiInfoPanel.showMsiInfo(msiSymbolGraphic.getMsiMessage());
                 if(mapBean.getProjection().getWidth() - x < msiInfoPanel.getWidth()){
                     x -= msiInfoPanel.getWidth()+20;

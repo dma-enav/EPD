@@ -54,6 +54,9 @@ import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.ais.AisHandler;
+import dk.dma.epd.shore.event.DragMouseMode;
+import dk.dma.epd.shore.event.NavigationMouseMode;
+import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.gui.utils.StaticImages;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.route.RouteManager;
@@ -252,6 +255,20 @@ public final class EPDShore extends EPD<EPDSettings> {
     public static EPDShore getInstance() {
         return (EPDShore)instance;
     }
+    
+    /**
+     * Returns the default shore mouse mode service list
+     * @return the default shore mouse mode service list
+     */
+    @Override
+    public String[] getDefaultMouseModeServiceList() {
+        String[] ret = new String[3];
+        ret[0] = DragMouseMode.MODEID; // "DragMouseMode"
+        ret[1] = NavigationMouseMode.MODEID; // "ZoomMouseMode"
+        ret[2] = SelectMouseMode.MODEID; // "SelectMouseMode"
+        return ret;
+    }
+
     
     @Override
     public Path getHomePath() {

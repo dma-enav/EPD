@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.utils;
+package dk.dma.epd.common.prototype.gui;
 
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
@@ -63,14 +63,14 @@ public abstract class ComponentFrame extends JInternalFrame implements PropertyC
 
     /**
      * Constructor used in creating gui elements with arguments
-     * @param string Title
-     * @param b Resizable
-     * @param c Closeable
-     * @param d Maximizable
-     * @param e Iconifiable
+     * @param title Title
+     * @param resizable Resizable
+     * @param closable Closeable
+     * @param maximizable Maximizable
+     * @param iconifiable Iconifiable
      */
-    protected ComponentFrame(String string, boolean b, boolean c, boolean d, boolean e) {
-        super( string,  b,  c,  d,  e);
+    protected ComponentFrame(String title, boolean resizable, boolean closable, boolean maximizable, boolean iconifiable) {
+        super( title,  resizable,  closable,  maximizable,  iconifiable);
     }
 
     /**

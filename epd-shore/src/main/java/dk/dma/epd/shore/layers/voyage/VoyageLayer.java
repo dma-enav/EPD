@@ -93,7 +93,7 @@ public class VoyageLayer extends GeneralLayer implements
         }
 
         if (obj instanceof JMapFrame) {
-            jMapFrame.getGlassPanel().add(voyageInfoPanel);
+            mapFrame.getGlassPanel().add(voyageInfoPanel);
         }
 
         if (obj instanceof AisHandler) {
@@ -183,7 +183,7 @@ public class VoyageLayer extends GeneralLayer implements
 
         if (newClosest != closest && this.isVisible()) {
             Point containerPoint = SwingUtilities.convertPoint(chartPanel,
-                    e.getPoint(), jMapFrame);
+                    e.getPoint(), mapFrame);
 
             if (newClosest instanceof VoyageLegGraphic) {
                 closest = newClosest;
@@ -276,8 +276,8 @@ public class VoyageLayer extends GeneralLayer implements
                     shipIndicatorPanel.setLocation(newPoint);
 
                     shipIndicatorPanels.put(mmsi, shipIndicatorPanel);
-                    jMapFrame.getGlassPanel().remove(shipIndicatorPanel);
-                    jMapFrame.getGlassPanel().add(shipIndicatorPanel);
+                    mapFrame.getGlassPanel().remove(shipIndicatorPanel);
+                    mapFrame.getGlassPanel().add(shipIndicatorPanel);
 
                     shipIndicatorPanel.paintAll(shipIndicatorPanel
                             .getGraphics());
@@ -287,7 +287,7 @@ public class VoyageLayer extends GeneralLayer implements
                 // Iterate through and remove old
 
                 for (ShipIndicatorPanel value : shipIndicatorPanels.values()) {
-                    jMapFrame.getGlassPanel().remove(value);
+                    mapFrame.getGlassPanel().remove(value);
                 }
                 shipIndicatorPanels.clear();
             }

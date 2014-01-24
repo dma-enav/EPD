@@ -26,7 +26,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
@@ -45,9 +44,9 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
 
 import dk.dma.epd.common.graphics.Resources;
+import dk.dma.epd.common.prototype.gui.MapFrameCommon;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
-import dk.dma.epd.shore.gui.utils.ComponentFrame;
 
 
 
@@ -56,7 +55,7 @@ import dk.dma.epd.shore.gui.utils.ComponentFrame;
  * Class for setting up a map frame
  * @author Steffen D. Sommer (steffendsommer@gmail.com), David A. Camre (davidcamre@gmail.com)
  */
-public class JMapFrame extends ComponentFrame implements MouseListener  {
+public class JMapFrame extends MapFrameCommon  {
     
     private static final long serialVersionUID = 1L;
     private ChartPanel chartPanel;
@@ -65,7 +64,6 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
     MouseMotionListener[] actions;
     private int id;
     private final MainFrame mainFrame;
-    private JPanel glassPanel;
     private JLabel moveHandler;
     private JPanel mapPanel;
     private JPanel masterPanel;
@@ -85,7 +83,7 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
      * @param mainFrame    reference to the mainframe
      */
     public JMapFrame(int id, MainFrame mainFrame, MapFrameType type) {
-        super("New Window " + id, true, true, true, true);
+        super("New Window " + id);
 
         this.mainFrame = mainFrame;
         this.id = id;
@@ -94,7 +92,6 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
         this.setContentPane(chartPanel);
         this.setVisible(true);
 
-        initGlassPane();
         chartPanel.initChart(type);
         initGUI();
     }
@@ -108,7 +105,7 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
      */
     public JMapFrame(int id, MainFrame mainFrame, Point2D center, float scale) {
 
-        super("New Window " + id, true, true, true, true);
+        super("New Window " + id);
 
         this.mainFrame = mainFrame;
         this.id = id;
@@ -116,7 +113,6 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
         this.setContentPane(chartPanel);
         this.setVisible(true);
 
-        initGlassPane();
         chartPanel.initChart(center, scale);
         initGUI();
 
@@ -145,28 +141,11 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
     }
 
     /**
-     * Function for getting the glassPanel of the map frame
-     * @return glassPanel the glassPanel of the map frame
-     */
-    public JPanel getGlassPanel() {
-        return glassPanel;
-    }
-
-    /**
      * Function for getting the id of the map frame
      * @return id id of the map frame
      */
     public int getId() {
         return id;
-    }
-
-    /**
-     * Function for initializing the glasspane
-     */
-    private void initGlassPane() {
-        glassPanel = (JPanel) getGlassPane();
-        glassPanel.setLayout(null);
-        glassPanel.setVisible(false);
     }
 
     /**
@@ -420,29 +399,6 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
         if (arg0.getClickCount() == 2){
             rename();
         }
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void mouseExited(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mousePressed(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     /**

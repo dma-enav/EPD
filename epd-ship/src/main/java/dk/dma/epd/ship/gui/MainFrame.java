@@ -20,7 +20,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import com.bbn.openmap.MapHandler;
 
@@ -54,8 +53,6 @@ public class MainFrame extends MainFrameCommon {
 
     protected static final int SENSOR_PANEL_WIDTH = 190;
 
-    private JPanel glassPanel;
-    
     private TopPanel topPanel;
     private ChartPanel chartPanel;
 
@@ -101,9 +98,6 @@ public class MainFrame extends MainFrameCommon {
             setLocation(guiSettings.getAppLocation());
             setSize(guiSettings.getAppDimensions());
         }
-
-        // Initialize the glass panel
-        initGlassPane();
 
         // Create panels
         Container pane = getContentPane();
@@ -205,15 +199,6 @@ public class MainFrame extends MainFrameCommon {
         }else{
             doNormal();
         }
-    }
-
-    /** 
-     * Initializes the glass pane of the frame
-     */
-    private void initGlassPane() {
-        glassPanel = (JPanel) getGlassPane();
-        glassPanel.setLayout(null);
-        glassPanel.setVisible(false);
     }
 
     public RequestStrategicRouteDialog getMonaLisaSTCCDialog() {
@@ -341,12 +326,4 @@ public class MainFrame extends MainFrameCommon {
         // Move view to centre on ship.
         this.getChartPanel().centreOnShip();
     }
-
-    /**
-     * Returns a reference to the glass pane
-     * @return a reference to the glass pane
-     */
-    public JPanel getGlassPanel() {
-        return glassPanel;
-    }    
 }

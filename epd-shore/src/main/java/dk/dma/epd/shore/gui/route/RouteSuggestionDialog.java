@@ -31,9 +31,9 @@ import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
+import dk.dma.epd.common.prototype.gui.ComponentFrame;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.route.RouteManager;
 

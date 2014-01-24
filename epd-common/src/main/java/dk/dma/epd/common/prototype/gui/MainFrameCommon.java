@@ -21,6 +21,7 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 import org.slf4j.Logger;
@@ -39,7 +40,9 @@ public class MainFrameCommon extends JFrame {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(MainFrameCommon.class);
-    
+
+    private JPanel glassPanel;
+        
     /**
      * Constructor
      */
@@ -53,8 +56,21 @@ public class MainFrameCommon extends JFrame {
             @Override public void windowClosing(WindowEvent we) {
                 onWindowClosing();
             }});
+
+        // Initialize the glass panel
+        initGlassPane();
+
     }
     
+    /** 
+     * Initializes the glass pane of the frame
+     */
+    private void initGlassPane() {
+        glassPanel = (JPanel) getGlassPane();
+        glassPanel.setLayout(null);
+        glassPanel.setVisible(false);
+    }
+
     /**
      * Called when the window is closing
      */
@@ -73,5 +89,14 @@ public class MainFrameCommon extends JFrame {
         }
         LOG.error("Could not find app icon");
         return null;
+    }    
+
+
+    /**
+     * Returns a reference to the glass pane
+     * @return a reference to the glass pane
+     */
+    public JPanel getGlassPanel() {
+        return glassPanel;
     }    
 }

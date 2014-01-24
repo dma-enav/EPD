@@ -147,6 +147,11 @@ public abstract class EPD<S extends Settings> implements ISettingsListener {
      */
     public abstract MainFrameCommon getMainFrame();
     
+    /**
+     * Returns the default shore mouse mode service list
+     * @return the default shore mouse mode service list
+     */
+    public abstract String[] getDefaultMouseModeServiceList();
     
     /**
      * Call this method to terminate the application

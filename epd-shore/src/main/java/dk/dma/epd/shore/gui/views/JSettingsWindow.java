@@ -51,6 +51,7 @@ import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
+import dk.dma.epd.common.prototype.gui.ComponentFrame;
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
 import dk.dma.epd.common.prototype.layers.wms.SingleWMSService;
@@ -64,7 +65,6 @@ import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.gui.settingtabs.MapSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.MapWindowsPanel;
 import dk.dma.epd.shore.gui.settingtabs.ShoreCloudSettingsPanel;
-import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.services.shore.ShoreServices;
 import dk.dma.epd.shore.settings.EPDSettings;
 
