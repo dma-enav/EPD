@@ -26,6 +26,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -240,6 +241,33 @@ public class ToolBar extends JInternalFrame {
             }
         });
         layerToolItems.addToolItem(msi);
+        
+        final JLabel aisToggle = new JLabel(toolbarIcon("images/toolbar/edit-letter-spacing.png"));
+        aisToggle.addMouseListener(new MouseAdapter() {
+            
+            private boolean isPressed;
+            
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (isPressed) {
+                    setInactiveToolItem(aisToggle);
+                    isPressed = false;
+                } else if (!isPressed) {
+                    setActiveToolItem(aisToggle, layerToolItems);
+                    
+                    List<JMapFrame> frames = EPDShore.getInstance().getMainFrame().getMapWindows();
+                    
+                    for (JMapFrame frame : frames) {
+                        // TODO: We need some kind of similar method to EPDShips AisLayer setShowNameLabels.
+                        //frame.getChartPanel().getAisLayer().setShowNameLabels(); ........
+                    }
+                    
+                    isPressed = true;
+                }
+            }
+        });
+        
+        layerToolItems.addToolItem(aisToggle);
 
         try {
 
