@@ -49,9 +49,19 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         }
         super.findAndUndo(obj);
     }
-    
+
     /**
      * Force this AIS layer to update itself.
      */
     public abstract void forceLayerUpdate();
+
+    /**
+     * Set if this AIS layer should show name labels for the AIS targets it
+     * displays.
+     * 
+     * @param showLabels
+     *            Use true to show name labels, and use false to hide name
+     *            labels.
+     */
+    public abstract void setShowNameLabels(boolean showLabels);
 }

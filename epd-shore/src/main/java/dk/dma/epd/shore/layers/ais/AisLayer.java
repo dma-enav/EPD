@@ -487,9 +487,18 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         return (MapMenu) super.getMapMenu();
     }
     
+    /**
+     * This method is called repeatedly as specified by the {@code LazyLayerCommon} and signals that this AisLayer should repaint itself.
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
         drawTargets();
+    }
+    
+    @Override
+    public void setShowNameLabels(boolean showLabels) {
+        // TODO Adam Due Hansen: implement this :-).
+        
     }
 }
