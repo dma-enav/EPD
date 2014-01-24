@@ -15,9 +15,7 @@
  */
 package dk.dma.epd.shore.gui.views.menuitems;
 
-import javax.swing.JMenuItem;
-
-import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteMetocDialog;
@@ -25,14 +23,9 @@ import dk.dma.epd.shore.route.RouteManager;
 
 
 
-public class RouteMetocProperties extends JMenuItem implements IMapMenuAction {
+public class RouteMetocProperties extends RouteMenuItem<RouteManager> {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
-    private int routeIndex;
-    private RouteManager routeManager;
 
     public RouteMetocProperties(String text) {
         super();
@@ -41,21 +34,8 @@ public class RouteMetocProperties extends JMenuItem implements IMapMenuAction {
 
     @Override
     public void doAction() {
-
-
         RouteMetocDialog routeMetocDialog = new RouteMetocDialog(EPDShore.getInstance().getMainFrame(),routeManager, routeIndex);
         routeMetocDialog.setVisible(true);
         routeManager.notifyListeners(RoutesUpdateEvent.METOC_SETTINGS_CHANGED);
-
-
     }
-
-    public void setRouteIndex(int routeIndex) {
-        this.routeIndex = routeIndex;
-    }
-
-    public void setRouteManager(RouteManager routeManager) {
-        this.routeManager = routeManager;
-    }
-
 }

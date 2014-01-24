@@ -17,31 +17,25 @@ package dk.dma.epd.shore.gui.views.menuitems;
 
 import java.awt.Point;
 
-import javax.swing.JMenuItem;
-
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.math.Vector2D;
-import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.shore.route.RouteManager;
 
-public class RouteLegInsertWaypoint extends JMenuItem implements IMapMenuAction {
+public class RouteLegInsertWaypoint extends RouteMenuItem<RouteManager> {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
+    
     private RouteLeg routeLeg;
     private Point point;
     private MapBean mapBean;
-    private RouteManager routeManager;
-    private int routeIndex;
 
     public RouteLegInsertWaypoint(String text) {
         super();
@@ -85,13 +79,4 @@ public class RouteLegInsertWaypoint extends JMenuItem implements IMapMenuAction 
     public void setMapBean(MapBean mapBean) {
         this.mapBean = mapBean;
     }
-
-    public void setRouteIndex(int routeIndex) {
-        this.routeIndex = routeIndex;
-    }
-
-    public void setRouteManager(RouteManager routeManager) {
-        this.routeManager = routeManager;
-    }
-
 }

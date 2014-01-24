@@ -39,7 +39,6 @@ import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralHideIntendedRoutes;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralNewRoute;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralShowIntendedRoutes;
-import dk.dma.epd.shore.gui.views.menuitems.MsiAcknowledge;
 import dk.dma.epd.shore.gui.views.menuitems.MsiDetails;
 import dk.dma.epd.shore.gui.views.menuitems.MsiZoomTo;
 import dk.dma.epd.shore.gui.views.menuitems.RouteAppendWaypoint;
@@ -93,7 +92,6 @@ public class MapMenu extends MapMenuCommon {
 
     private SarTargetDetails sarTargetDetails;
     // private NogoRequest nogoRequest;
-    private MsiAcknowledge msiAcknowledge;
     private MsiDetails msiDetails;
     private MsiZoomTo msiZoomTo;
 
@@ -159,8 +157,6 @@ public class MapMenu extends MapMenuCommon {
         // msi menu items
         msiDetails = new MsiDetails("Show MSI details");
         msiDetails.addActionListener(this);
-        msiAcknowledge = new MsiAcknowledge("Acknowledge MSI");
-        msiAcknowledge.addActionListener(this);
         msiZoomTo = new MsiZoomTo("Zoom to MSI");
         msiZoomTo.addActionListener(this);
 

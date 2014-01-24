@@ -15,23 +15,16 @@
  */
 package dk.dma.epd.shore.gui.views.menuitems;
 
-import javax.swing.JMenuItem;
-
-import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.shore.route.RouteManager;
 
 
-public class RouteShowMetocToggle extends JMenuItem implements IMapMenuAction {
+public class RouteShowMetocToggle extends RouteMenuItem<RouteManager> {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
-    private int routeIndex;
-    private RouteManager routeManager;
-
+    
     public RouteShowMetocToggle() {
         super();
     }
@@ -49,13 +42,4 @@ public class RouteShowMetocToggle extends JMenuItem implements IMapMenuAction {
         }
         routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_METOC_CHANGED);
     }
-
-    public void setRouteIndex(int routeIndex) {
-        this.routeIndex = routeIndex;
-    }
-
-    public void setRouteManager(RouteManager routeManager) {
-        this.routeManager = routeManager;
-    }
-
 }

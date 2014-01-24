@@ -18,22 +18,18 @@ package dk.dma.epd.ship.gui.menuitems;
 
 import java.util.ArrayList;
 
-import javax.swing.JMenuItem;
-
 import dk.dma.epd.common.prototype.gui.dialogs.ISimpleConfirmDialogListener;
 import dk.dma.epd.common.prototype.gui.dialogs.SimpleConfirmDialog;
-import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
 import dk.dma.epd.ship.gui.MapMenu;
 import dk.dma.epd.ship.route.RouteManager;
 
-public class RouteDelete extends JMenuItem implements IMapMenuAction, ISimpleConfirmDialogListener {
+public class RouteDelete extends RouteMenuItem<RouteManager> implements ISimpleConfirmDialogListener {
     
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
-    private int routeIndex;
-    private RouteManager routeManager;
     private MapMenu parentMenu;
     
     public RouteDelete(String text, MapMenu parentMenu) {
@@ -50,14 +46,6 @@ public class RouteDelete extends JMenuItem implements IMapMenuAction, ISimpleCon
         ArrayList<ISimpleConfirmDialogListener> diaListeners = new ArrayList<ISimpleConfirmDialogListener>();
         diaListeners.add(this);
         SimpleConfirmDialog.showSimpleConfirmDialog("Route delete", "Delete route?", diaListeners, this.parentMenu.getLatestVisibleLocation()); 
-    }
-
-    public void setRouteIndex(int routeIndex) {
-        this.routeIndex = routeIndex;
-    }
-    
-    public void setRouteManager(RouteManager routeManager) {
-        this.routeManager = routeManager;
     }
 
     @Override

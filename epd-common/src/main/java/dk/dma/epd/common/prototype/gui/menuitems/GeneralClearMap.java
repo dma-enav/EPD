@@ -13,39 +13,52 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.menuitems;
+package dk.dma.epd.common.prototype.gui.menuitems;
 
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.frv.enav.common.xml.msi.MsiMessage;
 
-public class MsiAcknowledge extends JMenuItem implements IMapMenuAction {
+/**
+ * Clears the map for:
+ * <ul>
+ *  <li>Past-tracks</li>
+ *  <li>Intended routes</li>
+ *  <li>Labels</li>
+ * </ul>
+ */
+public class GeneralClearMap extends JMenuItem implements IMapMenuAction {
+    
+    private static final long serialVersionUID = 1L;    
 
+    IMapMenuAction[] mapMenuActions;
+    
     /**
-     * 
+     * Constructor
+     * @param text the name of the menu item
      */
-    private static final long serialVersionUID = 1L;
-    private MsiHandler msiHandler;
-    private MsiMessage msiMessage;
-
-    public MsiAcknowledge(String text) {
+    public GeneralClearMap(String text) {
         super();
-        setText(text);
+        this.setText(text);
     }
     
+    /**
+     * Called when the menu item is enacted
+     */
     @Override
     public void doAction() {
-        msiHandler.setAcknowledged(msiMessage);
+        if (mapMenuActions != null) {
+            for (IMapMenuAction action : mapMenuActions) {
+                action.doAction();
+            }
+        }
     }
-
-    public void setMsiHandler(MsiHandler msiHandler) {
-        this.msiHandler = msiHandler;
-    }
-
-    public void setMsiMessage(MsiMessage msiMessage) {
-        this.msiMessage = msiMessage;
-        
+    
+    /**
+     * Sets the list of menu actions to execute
+     * @param mapMenuActions the 
+     */
+    public void setMapMenuActions(IMapMenuAction... mapMenuActions) {
+        this.mapMenuActions = mapMenuActions;
     }
 }

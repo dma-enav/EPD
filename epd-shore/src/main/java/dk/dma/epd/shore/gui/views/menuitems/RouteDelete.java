@@ -15,23 +15,17 @@
  */
 package dk.dma.epd.shore.gui.views.menuitems;
 
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
-import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
 import dk.dma.epd.shore.route.RouteManager;
 
 
 
-public class RouteDelete extends JMenuItem implements IMapMenuAction {
+public class RouteDelete extends RouteMenuItem<RouteManager> {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
-    private int routeIndex;
-    private RouteManager routeManager;
-
+    
     public RouteDelete(String text) {
         super();
         setText(text);
@@ -43,13 +37,4 @@ public class RouteDelete extends JMenuItem implements IMapMenuAction {
             routeManager.removeRoute(routeIndex);
         }
     }
-
-    public void setRouteIndex(int routeIndex) {
-        this.routeIndex = routeIndex;
-    }
-
-    public void setRouteManager(RouteManager routeManager) {
-        this.routeManager = routeManager;
-    }
-
 }

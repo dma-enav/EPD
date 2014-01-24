@@ -15,21 +15,16 @@
  */
 package dk.dma.epd.shore.gui.views.menuitems;
 
-import javax.swing.JMenuItem;
-
-import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
 import dk.dma.epd.common.prototype.gui.metoc.MetocRequestDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.route.RouteManager;
 
 
-
-public class RouteRequestMetoc extends JMenuItem implements IMapMenuAction {
+public class RouteRequestMetoc extends RouteMenuItem<RouteManager> {
 
     private static final long serialVersionUID = 1L;
-    private int routeIndex;
-    private RouteManager routeManager;
 
     public RouteRequestMetoc(String text) {
         super();
@@ -44,13 +39,4 @@ public class RouteRequestMetoc extends JMenuItem implements IMapMenuAction {
         }
         MetocRequestDialog.requestMetoc(EPDShore.getInstance().getMainFrame(), routeManager, route);
     }
-
-    public void setRouteIndex(int routeIndex) {
-        this.routeIndex = routeIndex;
-    }
-
-    public void setRouteManager(RouteManager routeManager) {
-        this.routeManager = routeManager;
-    }
-
 }
