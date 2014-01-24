@@ -20,11 +20,9 @@ import java.awt.event.MouseEvent;
 import com.bbn.openmap.omGraphics.OMGraphic;
 
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteInfoPanel;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteWpCircle;
-import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MapMenu;
 
 /**

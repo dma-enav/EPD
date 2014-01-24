@@ -49,6 +49,18 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     protected MapMenuCommon mapMenu;
     protected MapFrameCommon mapFrame;
 
+    /** 
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized OMGraphicList prepare() {
+        if (getProjection() == null) {
+            return graphics;
+        }
+        graphics.project(getProjection(), true);
+        return graphics;
+    }
+    
     /**
      * Called when a bean is added to the bean context
      * @param obj the bean being added
@@ -61,7 +73,7 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
             mapBean = (MapBean) obj;
         } else if (obj instanceof MainFrameCommon) {
             mainFrame = (MainFrameCommon) obj;
-            if (mainFrame.getGlassPane() != null) {
+            if (mainFrame.getGlassPanel() != null) {
                 // EPDShip case
                 addInfoPanelsToGlassPane();
             }
@@ -69,7 +81,7 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
             mapMenu = (MapMenuCommon) obj;
         } else if (obj instanceof MapFrameCommon) {
             mapFrame = (MapFrameCommon) obj;
-            if (mapFrame.getGlassPane() != null) {
+            if (mapFrame.getGlassPanel() != null) {
                 // EPDShore case
                 addInfoPanelsToGlassPane();
             }

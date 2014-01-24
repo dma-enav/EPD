@@ -25,7 +25,6 @@ import javax.swing.SwingUtilities;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
-import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.Position;
@@ -145,18 +144,6 @@ public abstract class IntendedRouteLayerCommon extends GeneralLayerCommon implem
         super.projectionChanged(pe);
     }
 
-    /** 
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized OMGraphicList prepare() {
-        if (getProjection() == null) {
-            return graphics;
-        }
-        graphics.project(getProjection(), true);
-        return graphics;
-    }
-    
     /**
      * {@inheritDoc}
      */
