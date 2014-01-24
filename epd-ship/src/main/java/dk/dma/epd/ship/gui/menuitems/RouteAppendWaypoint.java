@@ -15,21 +15,17 @@
  */
 package dk.dma.epd.ship.gui.menuitems;
 
-import javax.swing.JMenuItem;
-
-import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.ship.route.RouteManager;
 
-public class RouteAppendWaypoint extends JMenuItem implements IMapMenuAction {
+public class RouteAppendWaypoint extends RouteMenuItem<RouteManager> {
     
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
-    private RouteManager routeManager;
-    private int routeIndex;
 
     public RouteAppendWaypoint(String text) {
         super();
@@ -42,13 +38,4 @@ public class RouteAppendWaypoint extends JMenuItem implements IMapMenuAction {
         route.appendWaypoint();
         routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_APPENDED);
     }
-    
-    public void setRouteIndex(int routeIndex) {
-        this.routeIndex = routeIndex;
-    }
-    
-    public void setRouteManager(RouteManager routeManager) {
-        this.routeManager = routeManager;
-    }
-
 }

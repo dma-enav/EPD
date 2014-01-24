@@ -15,21 +15,14 @@
  */
 package dk.dma.epd.ship.gui.menuitems;
 
-import javax.swing.JMenuItem;
-
-import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
 import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.route.RouteManager;
 
-public class RouteProperties extends JMenuItem implements IMapMenuAction {
+public class RouteProperties extends RouteMenuItem<RouteManager> {
     
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
-    private int routeIndex;
-    private RouteManager routeManager;
 
     public RouteProperties(String text) {
         super();
@@ -41,13 +34,4 @@ public class RouteProperties extends JMenuItem implements IMapMenuAction {
         RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(EPDShip.getInstance().getMainFrame(), routeManager, routeIndex);
         routePropertiesDialog.setVisible(true);
     }
-    
-    public void setRouteIndex(int routeIndex) {
-        this.routeIndex = routeIndex;
-    }
-    
-    public void setRouteManager(RouteManager routeManager) {
-        this.routeManager = routeManager;
-    }
-
 }

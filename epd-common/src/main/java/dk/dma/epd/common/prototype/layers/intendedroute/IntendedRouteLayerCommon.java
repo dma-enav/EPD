@@ -35,7 +35,6 @@ import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.ais.VesselTargetSettings;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.GeneralLayerCommon;
@@ -90,7 +89,6 @@ public abstract class IntendedRouteLayerCommon extends GeneralLayerCommon implem
             
             VesselPositionData posData = vessel.getPositionData();
             VesselStaticData staticData = vessel.getStaticData();
-            VesselTargetSettings targetSettings = vessel.getSettings();
             CloudIntendedRoute cloudIntendedRoute = vessel.getIntendedRoute();
             Position pos = posData.getPos();
             
@@ -116,8 +114,6 @@ public abstract class IntendedRouteLayerCommon extends GeneralLayerCommon implem
             
             // Update the graphic with the updated vessel, route and position data
             intendedRoute.update(vessel, name, cloudIntendedRoute, pos);
-            // Update graphic visibility according to model
-            intendedRoute.setVisible(targetSettings.isShowRoute());
             redraw = true;
         }
         

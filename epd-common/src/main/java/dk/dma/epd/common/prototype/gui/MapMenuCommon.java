@@ -41,6 +41,8 @@ import com.bbn.openmap.LightMapHandlerChild;
 import com.bbn.openmap.MapBean;
 
 import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
+import dk.dma.epd.common.prototype.gui.menuitems.IntendedRouteToggle;
+import dk.dma.epd.common.prototype.gui.menuitems.MsiAcknowledge;
 import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
 import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
@@ -56,11 +58,15 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
     private static final long serialVersionUID = 1L;
 
     protected IMapMenuAction action;
-    
+
+    // Common menu items for shore and ship
     protected SetShowPastTracks hidePastTracks;
     protected SetShowPastTracks showPastTracks;
     protected ToggleShowPastTrack aisTogglePastTrack;
     protected ClearPastTrack aisClearPastTrack;
+
+    protected IntendedRouteToggle intendedRouteToggle;
+    protected MsiAcknowledge msiAcknowledge;
     
     protected JMenu scaleMenu;
     protected Map<Integer, String> map;
@@ -85,6 +91,14 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
         aisTogglePastTrack.addActionListener(this);
         aisClearPastTrack = new ClearPastTrack();
         aisClearPastTrack.addActionListener(this);
+
+        // Intended route
+        intendedRouteToggle = new IntendedRouteToggle();
+        intendedRouteToggle.addActionListener(this);
+
+        // MSI menu items
+        msiAcknowledge = new MsiAcknowledge("Acknowledge MSI");
+        msiAcknowledge.addActionListener(this);
         
         // using treemap so scale levels are always sorted
         map = new TreeMap<Integer, String>();

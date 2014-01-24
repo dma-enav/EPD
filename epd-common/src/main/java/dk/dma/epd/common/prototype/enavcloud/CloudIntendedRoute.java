@@ -265,4 +265,12 @@ public class CloudIntendedRoute extends Route {
         return 0;
     }
 
+    /**
+     * Returns whether the route is non-empty or not
+     * @return whether the route is non-empty or not
+     */
+    public synchronized boolean hasRoute() {
+        return waypoints != null && waypoints.size() > 0;
+    }
+
 }

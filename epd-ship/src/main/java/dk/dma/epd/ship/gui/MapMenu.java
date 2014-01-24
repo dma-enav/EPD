@@ -24,6 +24,7 @@ import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.ColorMenuItem;
+import dk.dma.epd.common.prototype.gui.menuitems.GeneralClearMap;
 import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
@@ -38,15 +39,12 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
-import dk.dma.epd.ship.gui.menuitems.AisIntendedRouteToggle;
 import dk.dma.epd.ship.gui.menuitems.AisTargetDetails;
 import dk.dma.epd.ship.gui.menuitems.AisTargetLabelToggle;
-import dk.dma.epd.ship.gui.menuitems.GeneralClearMap;
 import dk.dma.epd.ship.gui.menuitems.GeneralHideIntendedRoutes;
 import dk.dma.epd.ship.gui.menuitems.GeneralNewRoute;
 import dk.dma.epd.ship.gui.menuitems.GeneralShowIntendedRoutes;
 import dk.dma.epd.ship.gui.menuitems.MonaLisaRouteRequest;
-import dk.dma.epd.ship.gui.menuitems.MsiAcknowledge;
 import dk.dma.epd.ship.gui.menuitems.MsiDetails;
 import dk.dma.epd.ship.gui.menuitems.MsiZoomTo;
 import dk.dma.epd.ship.gui.menuitems.NogoRequest;
@@ -92,13 +90,11 @@ public class MapMenu extends MapMenuCommon {
     private GeneralHideIntendedRoutes hideIntendedRoutes;
     private GeneralShowIntendedRoutes showIntendedRoutes;
     private GeneralNewRoute newRoute;
-    private AisIntendedRouteToggle aisIntendedRouteToggle;
     private AisTargetDetails aisTargetDetails;
 
     private SarTargetDetails sarTargetDetails;
     private AisTargetLabelToggle aisTargetLabelToggle;
     private NogoRequest nogoRequest;
-    private MsiAcknowledge msiAcknowledge;
     private MsiDetails msiDetails;
     private MsiZoomTo msiZoomTo;
     private RouteActivateToggle routeActivateToggle;
@@ -165,8 +161,6 @@ public class MapMenu extends MapMenuCommon {
         // ais menu items
         aisTargetDetails = new AisTargetDetails("Show AIS target details");
         aisTargetDetails.addActionListener(this);
-        aisIntendedRouteToggle = new AisIntendedRouteToggle();
-        aisIntendedRouteToggle.addActionListener(this);
         aisTargetLabelToggle = new AisTargetLabelToggle();
         aisTargetLabelToggle.addActionListener(this);
 
@@ -177,8 +171,6 @@ public class MapMenu extends MapMenuCommon {
         // msi menu items
         msiDetails = new MsiDetails("Show MSI details");
         msiDetails.addActionListener(this);
-        msiAcknowledge = new MsiAcknowledge("Acknowledge MSI");
-        msiAcknowledge.addActionListener(this);
         msiZoomTo = new MsiZoomTo("Zoom to MSI");
         msiZoomTo.addActionListener(this);
 
@@ -312,23 +304,21 @@ public class MapMenu extends MapMenuCommon {
         add(aisTargetDetails);
 
         // Toggle show intended route
-        aisIntendedRouteToggle.setVesselTargetSettings(vesselTarget
-                .getSettings());
-        aisIntendedRouteToggle.setAisLayer(aisLayer);
-        aisIntendedRouteToggle.setVesselTarget(vesselTarget);
+        intendedRouteToggle.setAisTargetListener(aisLayer);
+        intendedRouteToggle.setVesselTarget(vesselTarget);
 
         if (vesselTarget.getAisRouteData() != null
                 && vesselTarget.getAisRouteData().hasRoute()) {
-            aisIntendedRouteToggle.setEnabled(true);
+            intendedRouteToggle.setEnabled(true);
         } else {
-            aisIntendedRouteToggle.setEnabled(false);
+            intendedRouteToggle.setEnabled(false);
         }
         if (vesselTarget.getSettings().isShowRoute()) {
-            aisIntendedRouteToggle.setText("Hide intended route");
+            intendedRouteToggle.setText("Hide intended route");
         } else {
-            aisIntendedRouteToggle.setText("Show intended route");
+            intendedRouteToggle.setText("Show intended route");
         }
-        add(aisIntendedRouteToggle);
+        add(intendedRouteToggle);
 
         // Toggle show past-track
         aisTogglePastTrack.setMobileTarget(vesselTarget);
@@ -357,28 +347,26 @@ public class MapMenu extends MapMenuCommon {
     }
 
     /**
-     * Options for suggested route
+     * Options for intended route
      */
-    public void aisSuggestedRouteMenu(final VesselTarget vesselTarget, final IntendedRouteGraphic routeGraphics) {
+    public void intendedRouteMenu(final VesselTarget vesselTarget, final IntendedRouteGraphic routeGraphics) {
         removeAll();
 
-        aisIntendedRouteToggle.setVesselTargetSettings(vesselTarget
-                .getSettings());
-        aisIntendedRouteToggle.setAisLayer(aisLayer);
-        aisIntendedRouteToggle.setVesselTarget(vesselTarget);
+        intendedRouteToggle.setAisTargetListener(aisLayer);
+        intendedRouteToggle.setVesselTarget(vesselTarget);
 
-        if (vesselTarget.getAisRouteData() != null
-                && vesselTarget.getAisRouteData().hasRoute()) {
-            aisIntendedRouteToggle.setEnabled(true);
+        if (vesselTarget.getIntendedRoute() != null
+                && vesselTarget.getIntendedRoute().hasRoute()) {
+            intendedRouteToggle.setEnabled(true);
         } else {
-            aisIntendedRouteToggle.setEnabled(false);
+            intendedRouteToggle.setEnabled(false);
         }
         if (vesselTarget.getSettings().isShowRoute()) {
-            aisIntendedRouteToggle.setText("Hide intended route");
+            intendedRouteToggle.setText("Hide intended route");
         } else {
-            aisIntendedRouteToggle.setText("Show intended route");
+            intendedRouteToggle.setText("Show intended route");
         }
-        add(aisIntendedRouteToggle);
+        add(intendedRouteToggle);
         
         // Add a color selector menu item
         // TODO: Included for test purposes for now

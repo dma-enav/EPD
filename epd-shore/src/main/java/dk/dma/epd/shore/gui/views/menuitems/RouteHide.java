@@ -15,22 +15,14 @@
  */
 package dk.dma.epd.shore.gui.views.menuitems;
 
-import javax.swing.JMenuItem;
-
-import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.shore.route.RouteManager;
 
 
+public class RouteHide extends RouteMenuItem<RouteManager> {
 
-public class RouteHide extends JMenuItem implements IMapMenuAction {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
-    private int routeIndex;
-    private RouteManager routeManager;
 
     public RouteHide(String text) {
         super();
@@ -42,13 +34,4 @@ public class RouteHide extends JMenuItem implements IMapMenuAction {
         routeManager.getRoute(routeIndex).setVisible(false);
         routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
     }
-
-    public void setRouteIndex(int routeIndex) {
-        this.routeIndex = routeIndex;
-    }
-
-    public void setRouteManager(RouteManager routeManager) {
-        this.routeManager = routeManager;
-    }
-
 }

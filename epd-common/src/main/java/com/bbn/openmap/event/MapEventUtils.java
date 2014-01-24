@@ -50,8 +50,8 @@ public class MapEventUtils {
         if (allClosest.size() > 0 && types.length == 0) {
             return allClosest.get(0);
         }
-        for (OMGraphic g : allClosest) {
-            for (Class<?> type : types) {
+        for (Class<?> type : types) {
+            for (OMGraphic g : allClosest) {
                 if (type.isAssignableFrom(g.getClass())) {
                     return g;
                 }

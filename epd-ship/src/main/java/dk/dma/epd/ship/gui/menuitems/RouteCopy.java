@@ -15,19 +15,15 @@
  */
 package dk.dma.epd.ship.gui.menuitems;
 
-import javax.swing.JMenuItem;
-
-import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
 import dk.dma.epd.ship.route.RouteManager;
 
-public class RouteCopy extends JMenuItem implements IMapMenuAction {
+public class RouteCopy extends RouteMenuItem<RouteManager> {
     
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
-    private int routeIndex;
-    private RouteManager routeManager;
     
     public RouteCopy(String text) {
         super();
@@ -38,13 +34,4 @@ public class RouteCopy extends JMenuItem implements IMapMenuAction {
     public void doAction() {
         routeManager.routeCopy(routeIndex);
     }
-    
-    public void setRouteIndex(int routeIndex) {
-        this.routeIndex = routeIndex;
-    }
-    
-    public void setRouteManager(RouteManager routeManager) {
-        this.routeManager = routeManager;
-    }
-
 }

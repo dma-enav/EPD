@@ -107,9 +107,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
      * Updates the intended route color
      * @param color the color to use
      */
-    private void updateColor(Color color) {        
-        this.setVisible(true);
-        
+    private void updateColor(Color color) {                
         for (IntendedRouteLegGraphic routeLeg : routeLegs) {
             routeLeg.setLinePaint(color);
         }
@@ -183,7 +181,8 @@ public class IntendedRouteGraphic extends OMGraphicList {
             float factor = 1.0f - (float)secondsSinceRecieved / (float)TTL;
             Color color = adjustColor(routeColor, factor, factor);
             updateColor(color);
-            
+            this.setVisible(vesselTarget.getSettings().isShowRoute());
+
         } else {
             this.setVisible(false);
         }        
