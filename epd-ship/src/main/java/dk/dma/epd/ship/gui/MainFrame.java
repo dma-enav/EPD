@@ -20,6 +20,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import com.bbn.openmap.MapHandler;
 
@@ -86,6 +87,16 @@ public class MainFrame extends MainFrameCommon {
         initGUI();
     }
 
+    /** 
+     * Initializes the glass pane of the frame
+     */
+    @Override
+    protected void initGlassPane() {
+        glassPanel = (JPanel) getGlassPane();
+        glassPanel.setLayout(null);
+        glassPanel.setVisible(false);
+    }
+    
     private void initGUI() {
         MapHandler mapHandler = EPDShip.getInstance().getMapHandler();
         // Get settings

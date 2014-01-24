@@ -38,18 +38,6 @@ public class IntendedRouteLayer extends IntendedRouteLayerCommon {
     /**
      * {@inheritDoc}
      */
-    public void findAndInit(Object obj) {
-        super.findAndInit(obj);
-        
-        if (obj instanceof JMapFrame && intendedRouteInfoPanel == null) {
-            intendedRouteInfoPanel = new IntendedRouteInfoPanel();
-            getGlassPanel().add(intendedRouteInfoPanel);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean mouseClicked(MouseEvent e) {
         

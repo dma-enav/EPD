@@ -92,6 +92,14 @@ public class MainFrame extends MainFrameCommon {
 
     }
 
+    /** 
+     * Initializes the glass pane of the frame
+     */
+    @Override
+    protected void initGlassPane() {
+        // Do nothing. EPDShore uses MapFrames for the various maps
+    }
+    
     public synchronized void increaseWindowCount() {
         windowCount++;
     }

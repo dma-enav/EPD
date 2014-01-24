@@ -16,6 +16,8 @@
 package dk.dma.epd.common.prototype.layers;
 
 import java.awt.event.MouseEvent;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JPanel;
 
@@ -30,6 +32,7 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.MapFrameCommon;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 
 /**
  * Common EPD layer subclass that may be sub-classed by other layers.
@@ -38,6 +41,8 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
 
     private static final long serialVersionUID = 1L;
 
+    protected List<InfoPanel> infoPanels = new CopyOnWriteArrayList<>();
+    
     protected OMGraphicList graphics = new OMGraphicList();
     protected MapBean mapBean;
     protected MainFrameCommon mainFrame;
@@ -56,10 +61,18 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
             mapBean = (MapBean) obj;
         } else if (obj instanceof MainFrameCommon) {
             mainFrame = (MainFrameCommon) obj;
+            if (mainFrame.getGlassPane() != null) {
+                // EPDShip case
+                addInfoPanelsToGlassPane();
+            }
         } else if (obj instanceof MapMenuCommon) {
             mapMenu = (MapMenuCommon) obj;
         } else if (obj instanceof MapFrameCommon) {
             mapFrame = (MapFrameCommon) obj;
+            if (mapFrame.getGlassPane() != null) {
+                // EPDShore case
+                addInfoPanelsToGlassPane();
+            }
         }
     }
 
@@ -224,5 +237,36 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
      */
     public JPanel getGlassPanel() {
         return (mapFrame != null) ? mapFrame.getGlassPanel() : mainFrame.getGlassPanel();
+    }    
+
+    /**
+     * Returns the list of information panels in this layer
+     * @return the list of information panels
+     */
+    public List<InfoPanel> getInfoPanels() {
+        return infoPanels;
+    }
+
+    /**
+     * Registers the list of {@linkplain InfoPanel} panels.
+     * <p>
+     * These panels will automatically be added to the glass pane.
+     * 
+     * @param infoPanels the {@linkplain InfoPanel} panels to register
+     */
+    protected void registerInfoPanels(InfoPanel... infoPanels) {
+        for (InfoPanel infoPanel : infoPanels) {
+            this.infoPanels.add(infoPanel);
+        }
+    }
+    
+    /**
+     * Called when a glass pane has been resolved.
+     * Adds all info panels to the glass pane
+     */
+    private void addInfoPanelsToGlassPane() {
+        for (InfoPanel infoPanel : infoPanels) {
+            getGlassPanel().add(infoPanel);
+        }
     }    
 }

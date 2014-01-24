@@ -20,8 +20,6 @@ import java.awt.event.MouseEvent;
 import com.bbn.openmap.omGraphics.OMGraphic;
 
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.gui.MainFrameCommon;
-import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteInfoPanel;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteWpCircle;
@@ -33,19 +31,6 @@ import dk.dma.epd.ship.gui.MapMenu;
 public class IntendedRouteLayer extends IntendedRouteLayerCommon {
 
     private static final long serialVersionUID = 1L;
-
-    /**
-     * {@inheritDoc}
-     */
-    public void findAndInit(Object obj) {
-        super.findAndInit(obj);
-        
-        if (obj instanceof MainFrameCommon && intendedRouteInfoPanel == null) {
-            intendedRouteInfoPanel = new IntendedRouteInfoPanel();
-            getGlassPanel().add(intendedRouteInfoPanel);
-        }
-    }
-
 
     /**
      * {@inheritDoc}

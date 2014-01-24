@@ -55,10 +55,20 @@ public abstract class IntendedRouteLayerCommon extends GeneralLayerCommon implem
      */
     protected ConcurrentHashMap<Long, IntendedRouteGraphic> intendedRoutes = new ConcurrentHashMap<>();  
 
-    protected IntendedRouteInfoPanel intendedRouteInfoPanel;
+    protected IntendedRouteInfoPanel intendedRouteInfoPanel = new IntendedRouteInfoPanel();
     private CommonChartPanel chartPanel;
     private OMGraphic closest;
     private OMCircle dummyCircle = new OMCircle();
+    
+    /**
+     * Constructor
+     */
+    public IntendedRouteLayerCommon() {
+        super();
+        
+        // Automatically add info panels
+        registerInfoPanels(intendedRouteInfoPanel);
+    }
     
     /**
      * Called when the given AIS target is updated

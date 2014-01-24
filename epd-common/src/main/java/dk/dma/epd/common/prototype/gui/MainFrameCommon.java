@@ -36,12 +36,12 @@ import dk.dma.epd.common.prototype.EPD;
  * <p>
  * TODO: Move more common functionality to this class
  */
-public class MainFrameCommon extends JFrame {
+public abstract class MainFrameCommon extends JFrame {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(MainFrameCommon.class);
 
-    private JPanel glassPanel;
+    protected JPanel glassPanel;
         
     /**
      * Constructor
@@ -65,11 +65,7 @@ public class MainFrameCommon extends JFrame {
     /** 
      * Initializes the glass pane of the frame
      */
-    private void initGlassPane() {
-        glassPanel = (JPanel) getGlassPane();
-        glassPanel.setLayout(null);
-        glassPanel.setVisible(false);
-    }
+    protected abstract void initGlassPane();
 
     /**
      * Called when the window is closing
