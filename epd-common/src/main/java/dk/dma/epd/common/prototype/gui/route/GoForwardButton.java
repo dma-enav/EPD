@@ -25,45 +25,42 @@ import dk.dma.epd.common.prototype.event.HistoryPosition;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 
 /**
+ * This class is a GUI component of going forward in history.
+ * 
+ * TODO: The ImageIcon should not be given in the constructor, but know to the common package.
+ * TODO: MouseLogic could be in a seperate class.
  * 
  * @author adamduehansen
  *
  */
 public class GoForwardButton extends ButtonLabelCommon implements MouseListener {
     
+    /****************\
+    * private fields *
+    \****************/
     private static final long serialVersionUID = 1L;
     private HistoryListener historyListener;
     private CommonChartPanel chartPanel;
     private GoBackButton goBackButton;
 
+    /**
+     * Constructs a new button with an arrow.
+     * 
+     * @param icon 
+     *          Path to arrow.
+     */
     public GoForwardButton(ImageIcon icon) {
         super(icon);
         this.addMouseListener(this);
     }
     
-    public void setHistoryListener(HistoryListener historyListener) {
-        this.historyListener = historyListener;
-    }
+    /*****************\
+    * private methods *
+    \*****************/
     
-    public void setChartPanel(CommonChartPanel chartPanel) {
-        this.chartPanel = chartPanel;
-    }
-    
-    public void setBackButton(GoBackButton backButton) {
-        this.goBackButton = backButton;
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        HistoryPosition hpos = historyListener.goOneElementForward();
-        
-        if (hpos != null) {
-            chartPanel.goToPosition(hpos.getPosition());
-            chartPanel.getMap().setScale(hpos.getZoomScale());
-            this.toogleButton();
-        }
-    }
-    
+    /**
+     * Toggles the button enabled or disabled.
+     */
     private void toogleButton() {
         if (this.historyListener.containsElements()) {
             this.goBackButton.setEnabled(true);
@@ -71,6 +68,53 @@ public class GoForwardButton extends ButtonLabelCommon implements MouseListener 
         
         if (this.historyListener.isAtHighestElement()) {
             this.setEnabled(false);
+        }
+    }
+    
+    /****************\
+    * public methods *
+    \****************/
+    
+    /**
+     * Adds a HistoryListener to the button.
+     * 
+     * @param historyListener
+     */
+    public void setHistoryListener(HistoryListener historyListener) {
+        this.historyListener = historyListener;
+    }
+    
+    /**
+     * Sets the ChartPanel for the button.
+     * 
+     * @param chartPanel
+     */
+    public void setChartPanel(CommonChartPanel chartPanel) {
+        this.chartPanel = chartPanel;
+    }
+    
+    /**
+     * Sets the GoForwardButton of the button.
+     * 
+     * @param goForwardButton
+     */
+    public void seGotBackButton(GoBackButton backButton) {
+        this.goBackButton = backButton;
+    }
+
+    /***************\
+    * MouseListener *
+    \***************/
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        // Get the HistoryPosition one element back in history.
+        HistoryPosition hpos = historyListener.goOneElementForward();
+
+        // If the HistoryPosition is not null, go to the position and zoom scale.
+        if (hpos != null) {
+            chartPanel.goToPosition(hpos.getPosition());
+            chartPanel.getMap().setScale(hpos.getZoomScale());
+            this.toogleButton(); // Toggle the button.
         }
     }
 

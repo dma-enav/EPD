@@ -26,7 +26,6 @@ import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
-import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.ChartPanel;
 
@@ -274,7 +273,7 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
             // Save the scaling to history.
             // ----------------------------
             
-            EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().setCommand(HistoryListener.SCALED);
+            EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().setShouldSave(true);
             EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().saveToHistoryBeforeMoving();
             
             // Move to the new view.

@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 
 import com.bbn.openmap.MapHandler;
 
+import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
@@ -196,14 +197,11 @@ public class MainFrame extends MainFrameCommon {
         // Init the map right click menu
         mapMenu = new MapMenu();
         mapHandler.add(mapMenu);
-        
-        topPanel.getGoBackButton().setHistoryListener(chartPanel.getHistoryListener());
-        topPanel.getGoBackButton().setChartPanel(chartPanel);
-        topPanel.getGoBackButton().setGoForwardButton(topPanel.getGoForwardButton());
-        
-        topPanel.getGoForwardButton().setHistoryListener(chartPanel.getHistoryListener());
-        topPanel.getGoForwardButton().setChartPanel(chartPanel);
-        topPanel.getGoForwardButton().setBackButton(topPanel.getGoBackButton());
+
+        // Add a history listener to the chart panel.
+        this.chartPanel.setHistoryListener(new HistoryListener(this.chartPanel));
+        this.chartPanel.getMap().addProjectionListener(this.chartPanel.getHistoryListener());
+        chartPanel.getHistoryListener().setNavigationPanel(topPanel);
         
         if (EPDShip.getInstance().getSettings().getGuiSettings().isFullscreen()){
             doFullScreen();
@@ -331,8 +329,8 @@ public class MainFrame extends MainFrameCommon {
 
         
         
-//        EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().setCommand(HistoryListener.CENTERED);
-//        EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().saveToHistoryBeforeMoving();
+        EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().setShouldSave(true);
+        EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().saveToHistoryBeforeMoving();
 
         // Move view to centre on ship.
         this.getChartPanel().centreOnShip();

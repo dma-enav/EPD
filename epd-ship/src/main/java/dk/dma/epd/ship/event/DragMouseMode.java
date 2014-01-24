@@ -37,7 +37,6 @@ import com.bbn.openmap.image.ImageScaler;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.util.PropUtils;
 
-import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.ship.EPDShip;
 
 /**
@@ -294,7 +293,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
             // Save new position to the history
             // --------------------------------
             
-            EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().setCommand(HistoryListener.DRAGGED);
+            EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().setShouldSave(true);
             EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().saveToHistoryBeforeMoving();
             
             //this will trigger "projection changed" in SimpleOffScreenMapRenderer

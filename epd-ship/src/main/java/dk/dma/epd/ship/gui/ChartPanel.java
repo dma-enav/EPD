@@ -148,9 +148,6 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         // Create a MapBean, and add it to the MapHandler.
         map = new BufferedLayerMapBean();
         map.setDoubleBuffered(true);
-        
-        this.setHistoryListener(new HistoryListener(this));
-        map.addProjectionListener(this.getHistoryListener());
 
         // Orthographic test = new Orthographic((LatLonPoint)
         // mapSettings.getCenter(), mapSettings.getScale(), 1000, 1000);
