@@ -15,25 +15,20 @@
  */
 package dk.dma.epd.common.prototype.gui;
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
 import javax.swing.ImageIcon;
 
+import dk.dma.epd.common.prototype.event.GoForwardMouseListener;
 import dk.dma.epd.common.prototype.event.HistoryListener;
-import dk.dma.epd.common.prototype.event.HistoryPosition;
 import dk.dma.epd.common.prototype.gui.route.ButtonLabelCommon;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 
 /**
  * This class is a GUI component of going forward in history.
  * 
- * TODO: MouseLogic could be in a seperate class.
- * 
  * @author adamduehansen
  *
  */
-public class GoForwardButton extends ButtonLabelCommon implements MouseListener {
+public class GoForwardButton extends ButtonLabelCommon {
     
     /****************\
     * private fields *
@@ -51,25 +46,8 @@ public class GoForwardButton extends ButtonLabelCommon implements MouseListener 
      */
     public GoForwardButton() {
         super(new ImageIcon(GoForwardButton.class.getResource("/images/navigation_buttons/go-forward.png")));
-        this.addMouseListener(this);
     }
-    
-    /*****************\
-    * private methods *
-    \*****************/
-    
-    /**
-     * Toggles the button enabled or disabled.
-     */
-    private void toogleButton() {
-        if (this.historyListener.containsElements()) {
-            this.goBackButton.setEnabled(true);
-        }
-        
-        if (this.historyListener.isAtHighestElement()) {
-            this.setEnabled(false);
-        }
-    }
+
     
     /****************\
     * public methods *
@@ -101,32 +79,8 @@ public class GoForwardButton extends ButtonLabelCommon implements MouseListener 
     public void seGotBackButton(GoBackButton backButton) {
         this.goBackButton = backButton;
     }
-
-    /***************\
-    * MouseListener *
-    \***************/
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        // Get the HistoryPosition one element back in history.
-        HistoryPosition hpos = historyListener.goOneElementForward();
-
-        // If the HistoryPosition is not null, go to the position and zoom scale.
-        if (hpos != null) {
-            chartPanel.goToPosition(hpos.getPosition());
-            chartPanel.getMap().setScale(hpos.getZoomScale());
-            this.toogleButton(); // Toggle the button.
-        }
+    
+    public void initMouseListener() {
+        this.addMouseListener(new GoForwardMouseListener(this, this.goBackButton, this.historyListener, this.chartPanel));
     }
-
-    @Override
-    public void mousePressed(MouseEvent e) {}
-
-    @Override
-    public void mouseReleased(MouseEvent e) {}
-
-    @Override
-    public void mouseEntered(MouseEvent e) {}
-
-    @Override
-    public void mouseExited(MouseEvent e) {}
 }

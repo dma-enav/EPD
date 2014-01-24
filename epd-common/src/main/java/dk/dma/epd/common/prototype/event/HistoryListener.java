@@ -63,11 +63,13 @@ public class HistoryListener implements ProjectionListener {
         this.navigationPanel.getGoBackButton().setHistoryListener(this);
         this.navigationPanel.getGoBackButton().setChartPanel(chartPanel);
         this.navigationPanel.getGoBackButton().setGoForwardButton(navigationPanel.getGoForwardButton());
+        this.navigationPanel.getGoBackButton().initMouseListener();
         
         // Go Forward properties.
         this.navigationPanel.getGoForwardButton().setHistoryListener(this);
         this.navigationPanel.getGoForwardButton().setChartPanel(chartPanel);
         this.navigationPanel.getGoForwardButton().seGotBackButton(navigationPanel.getGoBackButton());
+        this.navigationPanel.getGoForwardButton().initMouseListener();
     }
 
     /*
@@ -102,9 +104,7 @@ public class HistoryListener implements ProjectionListener {
         
         this.navigationPanel.getGoBackButton().setEnabled(true);
         
-        if (this.historyList.isAtHighestElement()) {
-            this.navigationPanel.getGoForwardButton().setEnabled(false);
-        }
+        
     }
     
     /**
