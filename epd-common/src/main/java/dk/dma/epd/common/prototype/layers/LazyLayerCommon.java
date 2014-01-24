@@ -13,13 +13,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.layers.ais;
+package dk.dma.epd.common.prototype.layers;
 
 import java.awt.event.ActionListener;
 
 import javax.swing.Timer;
-
-import dk.dma.epd.common.prototype.layers.GeneralLayerCommon;
 
 /**
  * Layer that provides a timer that is invoked at a given interval. Subclasses
