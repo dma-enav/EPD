@@ -36,7 +36,6 @@ import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
-import dk.dma.epd.shore.gui.views.menuitems.AisIntendedRouteToggle;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralHideIntendedRoutes;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralNewRoute;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralShowIntendedRoutes;
@@ -91,7 +90,6 @@ public class MapMenu extends MapMenuCommon {
     private GeneralHideIntendedRoutes hideIntendedRoutes;
     private GeneralShowIntendedRoutes showIntendedRoutes;
     private GeneralNewRoute newRoute;
-    private AisIntendedRouteToggle aisIntendedRouteToggle;
 
     private SarTargetDetails sarTargetDetails;
     // private NogoRequest nogoRequest;
@@ -153,10 +151,6 @@ public class MapMenu extends MapMenuCommon {
         showIntendedRoutes.addActionListener(this);
         newRoute = new GeneralNewRoute("Add new route");
         newRoute.addActionListener(this);
-
-        // ais menu items
-        aisIntendedRouteToggle = new AisIntendedRouteToggle();
-        aisIntendedRouteToggle.addActionListener(this);
 
         // SART menu items
         sarTargetDetails = new SarTargetDetails("SART details");
@@ -319,23 +313,21 @@ public class MapMenu extends MapMenuCommon {
 
         add(sendRouteToShip);
 
-        aisIntendedRouteToggle.setVesselTargetSettings(vesselTarget
-                .getSettings());
-        aisIntendedRouteToggle.setAisLayer(aisLayer);
-        aisIntendedRouteToggle.setVesselTarget(vesselTarget);
+        intendedRouteToggle.setAisTargetListener(aisLayer);
+        intendedRouteToggle.setVesselTarget(vesselTarget);
 
         if (vesselTarget.getAisRouteData() != null
                 && vesselTarget.getAisRouteData().hasRoute()) {
-            aisIntendedRouteToggle.setEnabled(true);
+            intendedRouteToggle.setEnabled(true);
         } else {
-            aisIntendedRouteToggle.setEnabled(false);
+            intendedRouteToggle.setEnabled(false);
         }
         if (vesselTarget.getSettings().isShowRoute()) {
-            aisIntendedRouteToggle.setText("Hide intended route");
+            intendedRouteToggle.setText("Hide intended route");
         } else {
-            aisIntendedRouteToggle.setText("Show intended route");
+            intendedRouteToggle.setText("Show intended route");
         }
-        add(aisIntendedRouteToggle);
+        add(intendedRouteToggle);
 
         // Toggle show past-track
         aisTogglePastTrack.setMobileTarget(vesselTarget);
@@ -353,28 +345,26 @@ public class MapMenu extends MapMenuCommon {
     }
 
     /**
-     * Options for suggested route
+     * Options for intended route
      */
-    public void aisSuggestedRouteMenu(final VesselTarget vesselTarget, final IntendedRouteGraphic routeGraphics) {
+    public void intendedRouteMenu(final VesselTarget vesselTarget, final IntendedRouteGraphic routeGraphics) {
         removeAll();
 
-        aisIntendedRouteToggle.setVesselTargetSettings(vesselTarget
-                .getSettings());
-        aisIntendedRouteToggle.setAisLayer(aisLayer);
-        aisIntendedRouteToggle.setVesselTarget(vesselTarget);
+        intendedRouteToggle.setAisTargetListener(aisLayer);
+        intendedRouteToggle.setVesselTarget(vesselTarget);
 
-        if (vesselTarget.getAisRouteData() != null
-                && vesselTarget.getAisRouteData().hasRoute()) {
-            aisIntendedRouteToggle.setEnabled(true);
+        if (vesselTarget.getIntendedRoute() != null
+                && vesselTarget.getIntendedRoute().hasRoute()) {
+            intendedRouteToggle.setEnabled(true);
         } else {
-            aisIntendedRouteToggle.setEnabled(false);
+            intendedRouteToggle.setEnabled(false);
         }
         if (vesselTarget.getSettings().isShowRoute()) {
-            aisIntendedRouteToggle.setText("Hide intended route");
+            intendedRouteToggle.setText("Hide intended route");
         } else {
-            aisIntendedRouteToggle.setText("Show intended route");
+            intendedRouteToggle.setText("Show intended route");
         }
-        add(aisIntendedRouteToggle);
+        add(intendedRouteToggle);
 
         
         // Add a color selector menu item

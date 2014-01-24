@@ -305,9 +305,8 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
 
         CloudIntendedRoute intendedRoute = new CloudIntendedRoute(routeData);
 
-        // Update intented route
+        // Update intended route
         vesselTarget.setCloudRouteData(intendedRoute);
-        vesselTarget.getSettings().setShowRoute(true);
         aisHandler.publishUpdate(vesselTarget);
     }
 

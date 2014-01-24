@@ -50,7 +50,7 @@ public class IntendedRouteLayer extends IntendedRouteLayerCommon {
                 IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) newClosest;
                 VesselTarget vesselTarget = wpCircle.getIntendedRouteGraphic().getVesselTarget();
                 getGlassPanel().setVisible(false);
-                ((MapMenu)mapMenu).aisSuggestedRouteMenu(vesselTarget, wpCircle.getIntendedRouteGraphic());
+                ((MapMenu)mapMenu).intendedRouteMenu(vesselTarget, wpCircle.getIntendedRouteGraphic());
                 mapMenu.setVisible(true);
                 mapMenu.show(this, e.getX() - 2, e.getY() - 2);
                 return true;
@@ -60,7 +60,7 @@ public class IntendedRouteLayer extends IntendedRouteLayerCommon {
                 IntendedRouteLegGraphic wpLeg = (IntendedRouteLegGraphic) newClosest;
                 VesselTarget vesselTarget = wpLeg.getIntendedRouteGraphic().getVesselTarget();
                 getGlassPanel().setVisible(false);
-                ((MapMenu)mapMenu).aisSuggestedRouteMenu(vesselTarget, wpLeg.getIntendedRouteGraphic());
+                ((MapMenu)mapMenu).intendedRouteMenu(vesselTarget, wpLeg.getIntendedRouteGraphic());
                 mapMenu.setVisible(true);
                 mapMenu.show(this, e.getX() - 2, e.getY() - 2);
                 return true;
