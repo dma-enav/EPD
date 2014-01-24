@@ -15,8 +15,8 @@
  */
 package dk.dma.epd.common.prototype.event;
 
-import dk.dma.epd.common.prototype.gui.route.GoBackButton;
-import dk.dma.epd.common.prototype.gui.route.GoForwardButton;
+import dk.dma.epd.common.prototype.gui.GoBackButton;
+import dk.dma.epd.common.prototype.gui.GoForwardButton;
 
 /**
  * This interface should be implemented for each chartpanel which
@@ -26,7 +26,7 @@ import dk.dma.epd.common.prototype.gui.route.GoForwardButton;
  * @author adamduehansen
  *
  */
-public interface HistoryNavigationPanel {
+public interface HistoryNavigationPanelInterface {
 
     GoBackButton getGoBackButton();
     GoForwardButton getGoForwardButton();

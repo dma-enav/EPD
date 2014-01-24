@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.gui.route;
+package dk.dma.epd.common.prototype.gui;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -22,12 +22,12 @@ import javax.swing.ImageIcon;
 
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.event.HistoryPosition;
+import dk.dma.epd.common.prototype.gui.route.ButtonLabelCommon;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 
 /**
  * This class is a GUI component of going forward in history.
  * 
- * TODO: The ImageIcon should not be given in the constructor, but know to the common package.
  * TODO: MouseLogic could be in a seperate class.
  * 
  * @author adamduehansen
@@ -49,8 +49,8 @@ public class GoForwardButton extends ButtonLabelCommon implements MouseListener 
      * @param icon 
      *          Path to arrow.
      */
-    public GoForwardButton(ImageIcon icon) {
-        super(icon);
+    public GoForwardButton() {
+        super(new ImageIcon(GoForwardButton.class.getResource("/images/navigation_buttons/go-forward.png")));
         this.addMouseListener(this);
     }
     
