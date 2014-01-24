@@ -35,26 +35,26 @@ import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 public class IntendedRouteGraphic extends OMGraphicList {
     
     private static final long serialVersionUID = 1L;
-    private static final float SCALE = 0.7f;    // "Size" of graphics
-    private static final int ALPHA = 150;       // Alpha of color
+    private static final float SCALE    = 0.7f;    // "Size" of graphics
+    private static final int TTL        = 600;     // Time to live of graphics, i.e. 10 minutes
     
     /**
      * Valid colors for intended routes 
      */
     public static final Color[] COLORS = {
-        new Color(170, 40, 40, ALPHA),    // red'ish
-        new Color(40, 170, 40, ALPHA),    // green'ish
-        new Color(40, 40, 130, ALPHA),    // blue'ish
-        new Color(100, 100, 100, ALPHA)   // gray'ish
+        new Color(170, 40, 40),    // red'ish
+        new Color(40, 170, 40),    // green'ish
+        new Color(40, 40, 130),    // blue'ish
+        new Color(170, 170, 40),   // yellow'ish
+        new Color(100, 100, 100),  // gray'ish
+        new Color(240, 240, 240),  // white'ish
+        new Color(20, 20, 20)      // black'ish
     };
-    public static final Color COLOR_LATE        =  new Color(255, 255, 0, ALPHA); // Yellow'ish
-    public static final Color COLOR_VERY_LATE   =  new Color(128, 128, 128, ALPHA); // Gray'ish
     
     private CloudIntendedRoute previousData;
     private IntendedRouteLegGraphic activeWpLine;
     private double[] activeWpLineLL = new double[4];
-    private Color normalColor = COLORS[1];
-    private Color currentColor = normalColor;
+    private Color routeColor = COLORS[1];
     private String name;
     private boolean arrowsVisible;
 
@@ -67,20 +67,20 @@ public class IntendedRouteGraphic extends OMGraphicList {
         super();
         Position nullGeoLocation = Position.create(0, 0);
         activeWpLine = new IntendedRouteLegGraphic(0, this, true,
-                nullGeoLocation, nullGeoLocation, currentColor, SCALE);
+                nullGeoLocation, nullGeoLocation, routeColor, SCALE);
         setVisible(false);
     }
 
     private void makeLegLine(int index, Position start, Position end) {
         IntendedRouteLegGraphic leg = new IntendedRouteLegGraphic(index, this,
-                false, start, end, currentColor, SCALE);
+                false, start, end, routeColor, SCALE);
         routeLegs.add(leg);
         add(leg);
     }
 
     private void makeWpCircle(int index, Position wp) {
         IntendedRouteWpCircle wpCircle = new IntendedRouteWpCircle(this, index,
-                wp.getLatitude(), wp.getLongitude(), currentColor, SCALE);
+                wp.getLatitude(), wp.getLongitude(), routeColor, SCALE);
         routeWps.add(wpCircle);
         add(wpCircle);
     }
@@ -109,15 +109,14 @@ public class IntendedRouteGraphic extends OMGraphicList {
      */
     private void updateColor(Color color) {        
         this.setVisible(true);
-        currentColor =  color;
         
         for (IntendedRouteLegGraphic routeLeg : routeLegs) {
-            routeLeg.setLinePaint(currentColor);
+            routeLeg.setLinePaint(color);
         }
         for (IntendedRouteWpCircle routeWp : routeWps) {
-            routeWp.setLinePaint(currentColor);
+            routeWp.setLinePaint(color);
         }
-        activeWpLine.setLinePaint(currentColor);
+        activeWpLine.setLinePaint(color);
     }
     
     /**
@@ -131,36 +130,6 @@ public class IntendedRouteGraphic extends OMGraphicList {
     public void update(VesselTarget vesselTarget, String name,
             CloudIntendedRoute cloudIntendedRoute, Position pos) {
 
-        // Set visible if not visible
-        if (!isVisible()) {
-            setVisible(true);
-        }
-        
-        
-        if (cloudIntendedRoute != null) {
-
-            long secondsSinceRecieved = 
-                    (System.currentTimeMillis() - cloudIntendedRoute.getReceived().getTime()) / 1000L;
-            
-            if (secondsSinceRecieved < 60){
-                // Fresh route, within a minute
-                updateColor(normalColor);
-            
-            } else if (secondsSinceRecieved < 300) {
-                // Between 1 and 5 minutes since received
-                updateColor(COLOR_LATE);
-
-            } else if (secondsSinceRecieved < 600) {
-                // Between 5 and 10 minutes since received
-                updateColor(COLOR_VERY_LATE);
-                
-            } else {
-                // > 10 min since received
-                this.setVisible(false);
-            }
-        }
-        
-        
         this.vesselTarget = vesselTarget;
         this.name = name;
         // Handle no or empty route
@@ -205,8 +174,37 @@ public class IntendedRouteGraphic extends OMGraphicList {
         activeWpLineLL[2] = activeWpPos.getLatitude();
         activeWpLineLL[3] = activeWpPos.getLongitude();
         activeWpLine.setLL(activeWpLineLL);
+
+        // Adjust the transparency of the color depending on the last-received time for the route
+        long secondsSinceRecieved = 
+                    (System.currentTimeMillis() - cloudIntendedRoute.getReceived().getTime()) / 1000L;
+
+        if (secondsSinceRecieved < TTL) {
+            float factor = 1.0f - (float)secondsSinceRecieved / (float)TTL;
+            Color color = adjustColor(routeColor, factor, factor);
+            updateColor(color);
+            
+        } else {
+            this.setVisible(false);
+        }        
     }
 
+    /**
+     * Adjusts the saturation and opacity of the color according to the parameters
+     * 
+     * @param col the color to adjust
+     * @param saturation the change to saturation
+     * @param opacity the change to opacity
+     * @return the result
+     */
+    private Color adjustColor(Color col, float saturation, float opacity) {
+        float[] hsb = Color.RGBtoHSB(col.getRed(), col.getGreen(), col.getBlue(), null);
+        hsb[1] = (float)Math.max(Math.min(hsb[1] * saturation, 1.0), 0.0);
+        col = Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
+        int alpha = (int)Math.max(Math.min(255.0 * opacity, 255.0), 0.0);
+        return new Color(col.getRed(), col.getGreen(), col.getBlue(), alpha);
+    }
+    
     /**
      * Turn on anti-aliasing
      */
@@ -218,18 +216,18 @@ public class IntendedRouteGraphic extends OMGraphicList {
     }
 
     /**
-     * Returns the normal (i.e. fresh) color for the intended route
-     * @return the normal color for the intended route
+     * Returns the color for the intended route
+     * @return the color for the intended route
      */
-    public Color getNormalColor() {
-        return normalColor;
+    public Color getRouteColor() {
+        return routeColor;
     }
 
     /**
-     * Sets the normal (i.e. fresh) color for the intended route
-     * @param normalColor the normal color for the intended route
+     * Sets the color for the intended route
+     * @param routeColor the color for the intended route
      */
-    public void setNormalColor(Color normalColor) {
-        this.normalColor = normalColor;
+    public void setRouteColor(Color routeColor) {
+        this.routeColor = routeColor;
     }
 }

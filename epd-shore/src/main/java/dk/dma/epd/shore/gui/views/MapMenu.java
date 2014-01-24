@@ -382,10 +382,10 @@ public class MapMenu extends MapMenuCommon {
         ColorMenuItem colorMenuItem = new ColorMenuItem(
                 this, 
                 IntendedRouteGraphic.COLORS, 
-                routeGraphics.getNormalColor());
+                routeGraphics.getRouteColor());
         colorMenuItem.addListener(new ColorMenuItem.ColorMenuItemListener() {
             @Override public void colorSelected(Color color) {
-                routeGraphics.setNormalColor(color);
+                routeGraphics.setRouteColor(color);
             }});
         add(colorMenuItem);
         revalidate();

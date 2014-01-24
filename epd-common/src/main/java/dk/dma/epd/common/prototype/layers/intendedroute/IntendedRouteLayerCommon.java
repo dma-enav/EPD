@@ -166,7 +166,7 @@ public abstract class IntendedRouteLayerCommon extends GeneralLayerCommon implem
 
         OMGraphic newClosest = getSelectedGraphic(e, IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
 
-        if (newClosest != null && newClosest != closest) {
+        if (newClosest != null && newClosest.isVisible() && newClosest != closest) {
             closest = newClosest;
             Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), mainFrame);
 

@@ -27,7 +27,7 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 @ThreadSafe
 public class VesselTarget extends MobileTarget {
     
-    private static final long serialVersionUID = 8886828351333930646L;
+    private static final long serialVersionUID = -5911356750376325979L;
     
     /**
      * Time an intended route is considered valid without update
@@ -39,9 +39,10 @@ public class VesselTarget extends MobileTarget {
      */
     public enum AisClass {A, B};
     
-    private AisIntendedRoute aisIntendedRoute;
-    private AisClass aisClass; 
-    private CloudIntendedRoute intendedRoute;
+    // NB: We do not want to persist intended route data
+    private transient AisIntendedRoute aisIntendedRoute;
+    private transient AisClass aisClass; 
+    private transient CloudIntendedRoute intendedRoute;
     
 
     /**
