@@ -18,6 +18,8 @@ package dk.dma.epd.common.prototype.layers;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -44,13 +46,15 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     private static final long serialVersionUID = 1L;
 
     protected InfoPanelBinding infoPanels = new InfoPanelBinding();
+    protected List<Class<?>> mouseClickClasses = new CopyOnWriteArrayList<>();
+    protected List<Class<?>> mapMenuClasses = new CopyOnWriteArrayList<>();
     
     protected OMGraphicList graphics = new OMGraphicList();
     protected MapBean mapBean;
     protected MainFrameCommon mainFrame;
     protected MapMenuCommon mapMenu;
     protected MapFrameCommon mapFrame;
-
+    
     protected OMGraphic closest;
     
     /** 
@@ -128,23 +132,54 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
 
     
     /**
-     * Provides default behavior for right-clicks by
-     * showing the general menu.
+     * Provides default behavior for mouse clicks.
+     * <p> 
+     * If graphics classes have been registered using {@code #registerMouseClickClasses()}
+     * for right-clicks and {@code #registerMapMenuClasses()} for left-clicks, 
+     * it is checked whether one of these classes have been clicked.
      * 
      * @param evt the mouse event
      */
     @Override
     public boolean mouseClicked(MouseEvent evt) {
-        if (evt.getButton() == MouseEvent.BUTTON3) {
-            mapMenu.generalMenu(true);
-            mapMenu.setVisible(true);
-
-            if (mainFrame.getHeight() < evt.getYOnScreen() + mapMenu.getHeight()) {
-                mapMenu.show(this, evt.getX() - 2, evt.getY() - mapMenu.getHeight());
-            } else {
-                mapMenu.show(this, evt.getX() - 2, evt.getY() - 2);
+        if (evt.getButton() == MouseEvent.BUTTON1) {
+            
+            // Check if any mouse click classes have been registered
+            if (mouseClickClasses.size() > 0) {
+                OMGraphic clickedGraphics = getSelectedGraphic(
+                        evt, 
+                        mouseClickClasses.toArray(new Class<?>[mouseClickClasses.size()]));
+                if (clickedGraphics != null) {
+                    // Clean up any info panels
+                    hideInfoPanels();
+                    getGlassPanel().setVisible(false);
+                    
+                    // Allow custom handling of right-clicks by sub-classes
+                    handleMouseClick(clickedGraphics, evt);
+                    return true;
+                }
             }
-            return true;
+            
+        } else if (evt.getButton() == MouseEvent.BUTTON3) {
+            OMGraphic clickedGraphics = getSelectedGraphic(
+                    evt, 
+                    mapMenuClasses.toArray(new Class<?>[mapMenuClasses.size()]));
+            if (clickedGraphics != null) {
+                // Clean up any info panels
+                hideInfoPanels();
+                getGlassPanel().setVisible(false);
+                
+                // Allow custom map menu initialization by sub-classes
+                initMapMenu(clickedGraphics, evt);
+                
+                // Display the menu
+                int yOffset = 2;
+                if (mainFrame.getHeight() < evt.getYOnScreen() + mapMenu.getHeight()) {
+                    yOffset = mapMenu.getHeight();
+                }
+                mapMenu.show(this, evt.getX() - 2, evt.getY() - yOffset);
+                return true;
+            }
         }
 
         return false;
@@ -212,9 +247,7 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
                 return true;
             } else if (newClosest == null) {
                 closest = null;
-                for (InfoPanel infoPanel : infoPanels.getInfoPanels()) {
-                    infoPanel.setVisible(false);
-                }
+                hideInfoPanels();
             }
         }
         
@@ -302,6 +335,63 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     }
 
     /**
+     * Register the graphics classes that are handled upon right-clicking the mouse.
+     * 
+     * @param graphics the graphics classes that are handled upon right-clicking the mouse.
+     */
+    @SafeVarargs
+    protected final void registerMouseClickClasses(Class<? extends OMGraphic>... graphics) {
+        for (Class<? extends OMGraphic> g : graphics) {
+            mouseClickClasses.add(g);
+        }
+    }
+    
+    /**
+     * Register the graphics classes that are handled upon left-clicking the mouse,
+     * i.e. the classes that triggers displaying the context menu
+     * 
+     * @param graphics the graphics classes that are handled upon left-clicking the mouse.
+     */
+    @SafeVarargs
+    protected final void registerMapMenuClasses(Class<? extends OMGraphic>... graphics) {
+        for (Class<? extends OMGraphic> g : graphics) {
+            mapMenuClasses.add(g);
+        }
+    }
+    
+    /**
+     * Register the graphics classes that are handled upon right-clicking and
+     * left-clicking the mouse
+     * 
+     * @param graphics the graphics classes that are handled upon right- and left-clicking the mouse.
+     */
+    @SafeVarargs
+    protected final void registerMouseClickAndMapMenuClasses(Class<? extends OMGraphic>... graphics) {
+        registerMouseClickClasses(graphics);
+        registerMapMenuClasses(graphics);
+    }
+    
+    /**
+     * Sub-classes using {@code #registerMouseClickClasses()} should override this method, 
+     * which will be called when one of the registered classes is right-clicked. 
+     * 
+     * @param clickedGraphics the clicked graphics that triggered the call
+     * @param evt the mouse event
+     */
+    protected void handleMouseClick(OMGraphic clickedGraphics, MouseEvent evt) {        
+    }
+
+    /**
+     * Sub-classes using {@code #registerMapMenuClasses()} should override this method, 
+     * which will be called when one of the registered classes is left-clicked. 
+     * 
+     * @param clickedGraphics the clicked graphics that triggered the call
+     * @param evt the mouse event
+     */
+    protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {        
+    }
+    
+    /**
      * Registers the {@linkplain InfoPanel} binding.
      * <p>
      * These panels will automatically be added to the glass pane and
@@ -337,6 +427,15 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     private void addInfoPanelsToGlassPane() {
         for (InfoPanel infoPanel : infoPanels.getInfoPanels()) {
             getGlassPanel().add(infoPanel);
+        }
+    }    
+
+    /**
+     * Hides all info panels.
+     */
+    private void hideInfoPanels() {
+        for (InfoPanel infoPanel : infoPanels.getInfoPanels()) {
+            infoPanel.setVisible(false);
         }
     }    
 }

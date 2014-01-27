@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.ship.layers;
 
+import java.awt.event.MouseEvent;
+
 import dk.dma.epd.common.prototype.gui.MapFrameCommon;
 import dk.dma.epd.common.prototype.layers.GeneralLayerCommonTS;
 import dk.dma.epd.ship.gui.MainFrame;
@@ -27,4 +29,26 @@ public class GeneralLayer extends GeneralLayerCommonTS<MainFrame, MapMenu, MapFr
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Provides default behavior for right-clicks by
+     * showing the general menu.
+     * 
+     * @param evt the mouse event
+     */
+    @Override
+    public boolean mouseClicked(MouseEvent evt) {
+        if (evt.getButton() == MouseEvent.BUTTON3) {
+            mapMenu.generalMenu(true);
+            mapMenu.setVisible(true);
+
+            if (mainFrame.getHeight() < evt.getYOnScreen() + mapMenu.getHeight()) {
+                mapMenu.show(this, evt.getX() - 2, evt.getY() - mapMenu.getHeight());
+            } else {
+                mapMenu.show(this, evt.getX() - 2, evt.getY() - 2);
+            }
+            return true;
+        }
+
+        return false;
+    }
 }

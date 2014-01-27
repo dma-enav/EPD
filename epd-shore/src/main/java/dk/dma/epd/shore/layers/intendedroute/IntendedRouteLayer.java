@@ -34,39 +34,30 @@ public class IntendedRouteLayer extends IntendedRouteLayerCommon {
     private static final long serialVersionUID = 1L;
 
     /**
+     * Constructor
+     */
+    public IntendedRouteLayer() {
+        super();
+        
+        // Register the classes the will trigger the map menu
+        registerMapMenuClasses(IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
+    }
+    
+    /**
      * {@inheritDoc}
      */
-    @Override
-    public boolean mouseClicked(MouseEvent e) {
-        
-        OMGraphic newClosest = getSelectedGraphic(
-                e, 
-                IntendedRouteWpCircle.class,
-                IntendedRouteLegGraphic.class);
-
-        if (e.getButton() == MouseEvent.BUTTON3 && newClosest != null) {
+    protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {        
+        if (clickedGraphics instanceof IntendedRouteWpCircle) {
             
-            if (newClosest instanceof IntendedRouteWpCircle) {
-    
-                IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) newClosest;
-                VesselTarget vesselTarget = wpCircle.getIntendedRouteGraphic().getVesselTarget();
-                getGlassPanel().setVisible(false);
-                ((MapMenu)mapMenu).intendedRouteMenu(vesselTarget, wpCircle.getIntendedRouteGraphic());
-                mapMenu.setVisible(true);
-                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
-                return true;
-                
-            } else if (newClosest instanceof IntendedRouteLegGraphic) {
-    
-                IntendedRouteLegGraphic wpLeg = (IntendedRouteLegGraphic) newClosest;
-                VesselTarget vesselTarget = wpLeg.getIntendedRouteGraphic().getVesselTarget();
-                getGlassPanel().setVisible(false);
-                ((MapMenu)mapMenu).intendedRouteMenu(vesselTarget, wpLeg.getIntendedRouteGraphic());
-                mapMenu.setVisible(true);
-                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
-                return true;
-            }
+            IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) clickedGraphics;
+            VesselTarget vesselTarget = wpCircle.getIntendedRouteGraphic().getVesselTarget();
+            ((MapMenu)mapMenu).intendedRouteMenu(vesselTarget, wpCircle.getIntendedRouteGraphic());
+            
+        } else if (clickedGraphics instanceof IntendedRouteLegGraphic) {
+
+            IntendedRouteLegGraphic wpLeg = (IntendedRouteLegGraphic) clickedGraphics;
+            VesselTarget vesselTarget = wpLeg.getIntendedRouteGraphic().getVesselTarget();
+            ((MapMenu)mapMenu).intendedRouteMenu(vesselTarget, wpLeg.getIntendedRouteGraphic());
         }
-        return false;
     }
 }
