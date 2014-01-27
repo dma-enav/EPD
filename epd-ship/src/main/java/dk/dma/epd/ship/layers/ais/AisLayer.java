@@ -145,8 +145,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         targetSelectionGraphic.setVisible(true);
         targetSelectionGraphic.moveSymbol(((VesselTarget) aisTarget).getPositionData().getPos());
 
-        // doPrepare();
-
         VesselTarget vessel = (VesselTarget) aisTarget;
 
         double rhumbLineDistance = -1.0;
@@ -168,8 +166,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             );
         } else {
 
-            // if (vessel.getStaticData() != null) {
-
             if (ownShipHandler.isPositionDefined()) {
                 rhumbLineDistance = ownShipHandler.getPositionData().getPos()
                         .rhumbLineDistanceTo(vessel.getPositionData().getPos());
@@ -180,7 +176,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 
             aisPanel.receiveHighlight(vessel.getMmsi(), vessel.getPositionData().getCog(), rhumbLineDistance, rhumbLineBearing,
                     vessel.getPositionData().getSog());
-            // }
         }
         if (vessel.getStaticData() != null && ownShipHandler.isPositionDefined()) {
             aisPanel.dynamicNogoAvailable(true);
