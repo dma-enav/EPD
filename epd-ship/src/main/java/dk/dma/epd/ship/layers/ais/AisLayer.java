@@ -77,8 +77,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     private static final Logger LOG = LoggerFactory.getLogger(AisLayer.class);
     private static final long serialVersionUID = 1L;
 
-    private volatile long minRedrawInterval;
-
     private OwnShipHandler ownShipHandler;
 
     private AisTargetInfoPanel aisTargetInfoPanel = new AisTargetInfoPanel();
@@ -110,7 +108,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     public AisLayer(int redrawIntervalMillis) {
         // repaint every 1000 milliseconds
         super(redrawIntervalMillis);
-        this.minRedrawInterval = redrawIntervalMillis;
         graphics.add(targetSelectionGraphic);
 
         showLabels = EPDShip.getInstance().getSettings().getAisSettings().isShowNameLabels();
@@ -310,14 +307,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         // System.out.println("Finished AisLayer.prepare() in " +
         // EeINS.elapsed(start) + " ms\n---");
         return graphics;
-    }
-
-    public long getMinRedrawInterval() {
-        return minRedrawInterval;
-    }
-
-    public void setMinRedrawInterval(long minRedrawInterval) {
-        this.minRedrawInterval = minRedrawInterval;
     }
 
     @Override
