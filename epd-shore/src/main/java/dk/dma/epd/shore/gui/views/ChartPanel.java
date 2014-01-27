@@ -221,7 +221,7 @@ public class ChartPanel extends CommonChartPanel {
     }
 
     public void forceAisLayerUpdate() {
-        aisLayer.getAisThread().interrupt();
+        this.aisLayer.forceLayerUpdate();
     }
 
 
