@@ -43,6 +43,7 @@ public class SetupDialogCommon extends JDialog {
     // Settings panels
     private ENavSettingsPanelCommon enavSettings;
     private Settings settings;
+    private JTabbedPane tabbedPane;
     
     /**
      * 
@@ -57,7 +58,7 @@ public class SetupDialogCommon extends JDialog {
         this.setLocationRelativeTo(parent);
         getContentPane().setLayout(new BorderLayout(0, 0));
         
-        JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+        tabbedPane = new JTabbedPane(JTabbedPane.TOP);
         getContentPane().add(tabbedPane, BorderLayout.CENTER);
         
         JPanel panel = new JPanel();
@@ -76,24 +77,28 @@ public class SetupDialogCommon extends JDialog {
         
         // Register the panels to the tab menu.
         registerSettingsPanels(enavSettings);
-        
-        for (BaseSettingsPanel baseSettingsPanel : settingsPanels) {
-            tabbedPane.add(baseSettingsPanel);
-        }
-        
+                
         SetupDialogActionListener dialogListener = new SetupDialogActionListener(this);
         this.btnOk.addActionListener(dialogListener);
         this.btnCancel.addActionListener(dialogListener);
+    }
+
+    private void addTabs(JTabbedPane tabbedPane) {
+        for (BaseSettingsPanel baseSettingsPanel : settingsPanels) {
+            tabbedPane.add(baseSettingsPanel);
+        }
     }
     
     /**
      * Register the given settings panels.
      * @param settings The settings panel to register.
      */
-    private void registerSettingsPanels(BaseSettingsPanel... settingsPanels) {
+    public void registerSettingsPanels(BaseSettingsPanel... settingsPanels) {
         for (BaseSettingsPanel baseSettingsPanel : settingsPanels) {
             this.settingsPanels.add(baseSettingsPanel);
         }
+        
+        addTabs(tabbedPane);
     }
     
     /**
