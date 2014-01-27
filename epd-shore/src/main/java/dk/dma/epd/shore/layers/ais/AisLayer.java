@@ -319,10 +319,10 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
 
         if (e.getButton() == MouseEvent.BUTTON3 && newClosest != null) {
 
-            if (newClosest instanceof VesselLayer) {
+            if (newClosest instanceof VesselTargetGraphic) {
 
-                VesselLayer vesselLayer = (VesselLayer) newClosest;
-                getMapMenu().aisMenu(vesselLayer.getVessel().getVesselTarget());
+                VesselTargetGraphic vesselTarget = (VesselTargetGraphic) newClosest;
+                getMapMenu().aisMenu(vesselTarget.getVesselTarget());
                 getMapMenu().setVisible(true);
                 getMapMenu().show(this, e.getX() - 2, e.getY() - 2);
                 return true;
