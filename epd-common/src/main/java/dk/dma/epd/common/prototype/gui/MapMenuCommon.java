@@ -41,6 +41,7 @@ import com.bbn.openmap.LightMapHandlerChild;
 import com.bbn.openmap.MapBean;
 
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
+import dk.dma.epd.common.prototype.gui.menuitems.CenterVesselTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.HideAllIntendedRoutes;
 import dk.dma.epd.common.prototype.gui.menuitems.ShowAllIntendedRoutes;
@@ -72,6 +73,8 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
     protected HideAllIntendedRoutes hideIntendedRoutes;
     protected ShowAllIntendedRoutes showIntendedRoutes;
     protected MsiAcknowledge msiAcknowledge;
+
+    protected CenterVesselTarget centerVesselTarget;
     
     protected JMenu scaleMenu;
     protected Map<Integer, String> map;
@@ -110,6 +113,9 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
         // MSI menu items
         msiAcknowledge = new MsiAcknowledge("Acknowledge MSI");
         msiAcknowledge.addActionListener(this);
+        
+        centerVesselTarget = new CenterVesselTarget("Jump to ship");
+        centerVesselTarget.addActionListener(this);
         
         // using treemap so scale levels are always sorted
         map = new TreeMap<Integer, String>();

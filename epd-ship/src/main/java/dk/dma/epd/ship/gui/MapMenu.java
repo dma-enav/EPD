@@ -356,6 +356,10 @@ public class MapMenu extends MapMenuCommon {
         }
         add(intendedRouteToggle);
         
+        centerVesselTarget.setVesselTarget(vesselTarget);
+        centerVesselTarget.setMapBean(mapBean);
+        add(centerVesselTarget);
+        
         // Add a color selector menu item
         // TODO: Included for test purposes for now
         ColorMenuItem colorMenuItem = new ColorMenuItem(
