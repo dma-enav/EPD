@@ -85,9 +85,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     /**
      * Starts the AisLayer thread
      */
-    public AisLayer() {
-        // repaint every 1000 milliseconds
-        super(1000);
+    public AisLayer(int redrawIntervalMillis) {
+        super(redrawIntervalMillis);
         synchronized (graphics) {
             graphics.add(targetSelectionGraphic);
         }
