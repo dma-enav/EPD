@@ -15,11 +15,12 @@
  */
 package dk.dma.epd.common.prototype.layers;
 
+import java.awt.Component;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapEventUtils;
@@ -33,6 +34,7 @@ import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.MapFrameCommon;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
+import dk.dma.epd.common.prototype.gui.util.InfoPanel.InfoPanelBinding;
 
 /**
  * Common EPD layer subclass that may be sub-classed by other layers.
@@ -41,7 +43,7 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
 
     private static final long serialVersionUID = 1L;
 
-    protected List<InfoPanel> infoPanels = new CopyOnWriteArrayList<>();
+    protected InfoPanelBinding infoPanels = new InfoPanelBinding();
     
     protected OMGraphicList graphics = new OMGraphicList();
     protected MapBean mapBean;
@@ -49,6 +51,8 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     protected MapMenuCommon mapMenu;
     protected MapFrameCommon mapFrame;
 
+    protected OMGraphic closest;
+    
     /** 
      * {@inheritDoc}
      */
@@ -176,13 +180,47 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     }
 
     /**
-     * {@inheritDoc}
+     * Default implementation of the mouseMoved method that opens {@linkplain InfoPanel}
+     * based on the graphics closest to the mouse location.
+     * <p>
+     * In order to use this mechanism, first register the info panels using the
+     * {@code registerInfoPanel()} method.
+     * 
+     * @param evt the mouse event
+     * @return if the event was handled
      */
     @Override
-    public boolean mouseMoved(MouseEvent arg0) {
+    public boolean mouseMoved(MouseEvent evt) {
+        
+        if (!isVisible() || mapMenu.isVisible()) {
+            return false;
+        }
+        
+        if (!infoPanels.isEmpty()) {
+            OMGraphic newClosest = getSelectedGraphic(evt, infoPanels.getGraphicsList());
+            
+            if (newClosest != null && newClosest.isVisible() && newClosest != closest) {
+                closest = newClosest;
+                Point containerPoint = SwingUtilities.convertPoint(mapBean, evt.getPoint(), getMapContainer());
+                
+                InfoPanel infoPanel = infoPanels.getInfoPanel(newClosest.getClass());
+                infoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
+                // Allow custom initialization by sub-classes
+                initInfoPanel(infoPanel, newClosest, evt, containerPoint);
+                infoPanel.setVisible(true);
+                getGlassPanel().setVisible(true);
+                return true;
+            } else if (newClosest == null) {
+                closest = null;
+                for (InfoPanel infoPanel : infoPanels.getInfoPanels()) {
+                    infoPanel.setVisible(false);
+                }
+            }
+        }
+        
         return false;
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -244,40 +282,60 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     }
 
     /**
-     * Returns a reference to the glass pane
+     * Returns a reference to the glass pane of the map container,
+     * i.e. of the main frame (EPDShip) or of the map frame (EPDShore)
+     * 
      * @return a reference to the glass pane
      */
     public JPanel getGlassPanel() {
         return (mapFrame != null) ? mapFrame.getGlassPanel() : mainFrame.getGlassPanel();
     }    
-
+    
     /**
-     * Returns the list of information panels in this layer
-     * @return the list of information panels
+     * Returns a reference to the map container, 
+     * i.e. the main frame (EPDShip) or map frame (EPDShore)
+     * 
+     * @return a reference to the glass pane
      */
-    public List<InfoPanel> getInfoPanels() {
-        return infoPanels;
+    public Component getMapContainer() {
+        return (mapFrame != null) ? mapFrame : mainFrame;
     }
 
     /**
-     * Registers the list of {@linkplain InfoPanel} panels.
+     * Registers the {@linkplain InfoPanel} binding.
      * <p>
-     * These panels will automatically be added to the glass pane.
+     * These panels will automatically be added to the glass pane and
+     * will automatically be displayed in the {@code mouseMoved} method.
      * 
      * @param infoPanels the {@linkplain InfoPanel} panels to register
+     * @param graphics the list of {@linkplain OMGraphic} elements that triggers the info panel
      */
-    protected void registerInfoPanels(InfoPanel... infoPanels) {
-        for (InfoPanel infoPanel : infoPanels) {
-            this.infoPanels.add(infoPanel);
-        }
+    @SafeVarargs
+    protected final void registerInfoPanel(InfoPanel infoPanel, Class<? extends OMGraphic>... graphics) {
+        infoPanels.addBinding(infoPanel, graphics);
     }
     
+    /**
+     * For sub-classes using the info-panel registration, override this method to initialize the
+     * info panel before it is displayed.
+     * <p>
+     * The default implementation of {@code mouseMoved()} will find the info panel to display
+     * and call this method for custom initialization.
+     * 
+     * @param infoPanel the info panel about to be displayed
+     * @param newClosest the mouse-over graphics that triggered the info panel
+     * @param evt the mouse event
+     * @param containerPoint the current container point
+     */
+    protected void initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
+    }
+
     /**
      * Called when a glass pane has been resolved.
      * Adds all info panels to the glass pane
      */
     private void addInfoPanelsToGlassPane() {
-        for (InfoPanel infoPanel : infoPanels) {
+        for (InfoPanel infoPanel : infoPanels.getInfoPanels()) {
             getGlassPanel().add(infoPanel);
         }
     }    

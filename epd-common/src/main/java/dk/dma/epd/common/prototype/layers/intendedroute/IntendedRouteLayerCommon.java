@@ -20,8 +20,6 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.swing.SwingUtilities;
-
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
@@ -36,6 +34,7 @@ import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.GeneralLayerCommon;
 
@@ -55,7 +54,6 @@ public abstract class IntendedRouteLayerCommon extends GeneralLayerCommon implem
 
     protected IntendedRouteInfoPanel intendedRouteInfoPanel = new IntendedRouteInfoPanel();
     private CommonChartPanel chartPanel;
-    private OMGraphic closest;
     private OMCircle dummyCircle = new OMCircle();
     
     /**
@@ -65,7 +63,7 @@ public abstract class IntendedRouteLayerCommon extends GeneralLayerCommon implem
         super();
         
         // Automatically add info panels
-        registerInfoPanels(intendedRouteInfoPanel);
+        registerInfoPanel(intendedRouteInfoPanel, IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
     }
     
     /**
@@ -155,40 +153,17 @@ public abstract class IntendedRouteLayerCommon extends GeneralLayerCommon implem
     }
     
     /**
-     * Handle mouse moved
+     * {@inheritDoc}
      */
     @Override
-    public boolean mouseMoved(MouseEvent e) {
-
-        OMGraphic newClosest = getSelectedGraphic(e, IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
-
-        if (newClosest != null && newClosest.isVisible() && newClosest != closest) {
-            closest = newClosest;
-            Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), mainFrame);
-
-            if (newClosest instanceof IntendedRouteWpCircle) {
-                IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) newClosest;
-                intendedRouteInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-                intendedRouteInfoPanel.showWpInfo(wpCircle);
-                intendedRouteInfoPanel.setVisible(true);
-                getGlassPanel().setVisible(true);
-                return true;
-                
-            } else if (newClosest instanceof IntendedRouteLegGraphic) {
-                // lets user see ETA continually along route leg
-                Point2D worldLocation = chartPanel.getMap().getProjection().inverse(e.getPoint());
-                IntendedRouteLegGraphic legGraphic = (IntendedRouteLegGraphic) newClosest;
-                intendedRouteInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-                intendedRouteInfoPanel.showLegInfo(legGraphic, worldLocation);
-                closest = dummyCircle;
-                intendedRouteInfoPanel.setVisible(true);
-                getGlassPanel().setVisible(true);
-                return true;
-            }
-        } else if (newClosest == null) {
-            closest = null;
-            intendedRouteInfoPanel.setVisible(false);
+    protected void initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
+        if (newClosest instanceof IntendedRouteWpCircle) {
+            intendedRouteInfoPanel.showWpInfo((IntendedRouteWpCircle) newClosest);
+        } else {
+            // lets user see ETA continually along route leg
+            Point2D worldLocation = chartPanel.getMap().getProjection().inverse(evt.getPoint());
+            intendedRouteInfoPanel.showLegInfo((IntendedRouteLegGraphic)newClosest, worldLocation);
+            closest = dummyCircle;
         }
-        return false;
     }
 }
