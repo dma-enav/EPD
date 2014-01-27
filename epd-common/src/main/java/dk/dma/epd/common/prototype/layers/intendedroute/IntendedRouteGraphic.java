@@ -74,6 +74,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
     private void makeLegLine(int index, Position start, Position end) {
         IntendedRouteLegGraphic leg = new IntendedRouteLegGraphic(index, this,
                 false, start, end, routeColor, SCALE);
+        leg.setArrows(arrowsVisible);
         routeLegs.add(leg);
         add(leg);
     }
