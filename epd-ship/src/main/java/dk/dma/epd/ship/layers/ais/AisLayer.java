@@ -85,11 +85,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 
     private Map<Long, TargetGraphic> targets = new ConcurrentHashMap<>();
 
-    @GuardedBy("redrawPending")
-    private Date lastRedraw = new Date();
-    @GuardedBy("redrawPending")
-    private Boolean redrawPending = false;
-
     // Only accessed in event dispatch thread
     private OMGraphic closest;
     private OMGraphic selectedGraphic;
