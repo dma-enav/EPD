@@ -17,6 +17,7 @@ package dk.dma.epd.ship.layers.ais;
 
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.Date;
 import java.util.Iterator;
@@ -43,6 +44,7 @@ import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
+import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.layers.ais.AisTargetSelectionGraphic;
 import dk.dma.epd.common.prototype.layers.ais.AtonTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
@@ -57,29 +59,27 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
 import dk.dma.epd.common.prototype.zoom.ZoomLevel;
-import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.MainFrame;
+import dk.dma.epd.ship.gui.MapMenu;
 import dk.dma.epd.ship.gui.TopPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
-import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 /**
  * AIS layer. Showing AIS targets and intended routes.
  */
 @ThreadSafe
-public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnable {
+public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(AisLayer.class);
     private static final long serialVersionUID = 1L;
 
     private volatile long minRedrawInterval = 5 * 1000; // 5 sec
 
-    private AisHandler aisHandler;
     private OwnShipHandler ownShipHandler;
 
     private AisTargetInfoPanel aisTargetInfoPanel = new AisTargetInfoPanel();
@@ -101,7 +101,6 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
 
     private volatile long selectedMMSI = -1;
     private volatile boolean showLabels;
-    // long selectedMMSI = 230994000;
     private final AisSettings aisSettings = EPDShip.getInstance().getSettings().getAisSettings();
     private final NavSettings navSettings = EPDShip.getInstance().getSettings().getNavSettings();
 
@@ -110,21 +109,12 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
     private ZoomLevel currentZoomLevel;
 
     public AisLayer() {
+        // repaint every 1000 milliseconds
+        super(1000);
         graphics.add(targetSelectionGraphic);
         // graphics.setVague(false);
-        new Thread(this).start();
 
         showLabels = EPDShip.getInstance().getSettings().getAisSettings().isShowNameLabels();
-    }
-
-    @Override
-    public void run() {
-        while (true) {
-            Util.sleep(1000);
-            if (isRedrawPending()) {
-                updateLayer();
-            }
-        }
     }
 
     private void updateLayer() {
@@ -335,7 +325,7 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
         }
     }
 
-    public boolean isRedrawPending() {
+    private boolean isRedrawPending() {
         synchronized (redrawPending) {
             return redrawPending;
         }
@@ -387,10 +377,6 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
         if (obj instanceof AisComponentPanel) {
             aisPanel = (AisComponentPanel) obj;
         }
-        if (obj instanceof AisHandler) {
-            aisHandler = (AisHandler) obj;
-            aisHandler.addListener(this);
-        }
         if (obj instanceof OwnShipHandler) {
             ownShipHandler = (OwnShipHandler) obj;
         }
@@ -409,9 +395,6 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
 
     @Override
     public void findAndUndo(Object obj) {
-        if (obj == aisHandler) {
-            aisHandler.removeListener(this);
-        }
         super.findAndUndo(obj);
     }
 
@@ -607,5 +590,28 @@ public class AisLayer extends GeneralLayer implements IAisTargetListener, Runnab
             // force redraw
             this.updateLayer(true);
         }
+    }
+    
+    /**
+     * This method is called repeatedly as specified by the {@code LazyLayerCommon} and signals that this AisLayer should repaint itself.
+     */
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        super.actionPerformed(e);
+        if (isRedrawPending()) {
+          updateLayer();
+        }
+    }
+    
+    
+    @Override
+    public void forceLayerUpdate() {
+        // force a repaint
+        this.updateLayer(true);
+    }
+    
+    @Override
+    public MapMenu getMapMenu() {
+        return (MapMenu) super.getMapMenu();
     }
 }
