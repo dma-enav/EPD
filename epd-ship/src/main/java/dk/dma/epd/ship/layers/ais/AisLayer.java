@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.ship.layers.ais;
 
-import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
@@ -113,23 +112,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         super(redrawIntervalMillis);
         this.minRedrawInterval = redrawIntervalMillis;
         graphics.add(targetSelectionGraphic);
-        // graphics.setVague(false);
 
         showLabels = EPDShip.getInstance().getSettings().getAisSettings().isShowNameLabels();
-    }
-
-    private void updateLayer() {
-        updateLayer(false);
-    }
-
-    private void updateLayer(boolean force) {
-        if (!force) {
-            long elapsed = new Date().getTime() - getLastRedraw().getTime();
-            if (elapsed < minRedrawInterval) {
-                return;
-            }
-        }
-        doPrepare();
     }
 
     /**
@@ -259,8 +243,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
                 synchronized (graphics) {
                     graphics.remove(targetGraphic);
                 }
-                setRedrawPending(true);
-                updateLayer();
 
                 if (mmsi == selectedMMSI) {
                     removeSelection();
@@ -287,8 +269,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             }
         }
 
-        boolean forceRedraw = false;
-
         if (aisTarget instanceof VesselTarget) {
             // Maybe we would like to force redraw
             VesselTarget vesselTarget = (VesselTarget) aisTarget;
@@ -312,30 +292,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         // Handle past track
 
         targetGraphic.project(getProjection());
-
-        setRedrawPending(true);
-        updateLayer(forceRedraw);
-    }
-
-    private void setRedrawPending(boolean val) {
-        synchronized (redrawPending) {
-            redrawPending = val;
-            if (!val) {
-                lastRedraw = new Date();
-            }
-        }
-    }
-
-    private boolean isRedrawPending() {
-        synchronized (redrawPending) {
-            return redrawPending;
-        }
-    }
-
-    private Date getLastRedraw() {
-        synchronized (redrawPending) {
-            return lastRedraw;
-        }
     }
 
     @Override
@@ -348,7 +304,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             target.setMarksVisible(getProjection(), aisSettings, navSettings);
         }
 
-        setRedrawPending(false);
         synchronized (graphics) {
             graphics.project(getProjection());
         }
@@ -363,12 +318,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 
     public void setMinRedrawInterval(long minRedrawInterval) {
         this.minRedrawInterval = minRedrawInterval;
-    }
-
-    @Override
-    public void paint(Graphics g) {
-        super.paint(g);
-        setRedrawPending(false);
     }
 
     @Override
@@ -589,7 +538,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
                 }
             }
             // force redraw
-            this.updateLayer(true);
+            this.forceLayerUpdate();
         }
     }
     
@@ -599,16 +548,15 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     @Override
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
-        if (isRedrawPending()) {
-          updateLayer();
-        }
+        // Repaint every time the timer expires.
+        this.doPrepare();
     }
     
     
     @Override
     public void forceLayerUpdate() {
         // force a repaint
-        this.updateLayer(true);
+        this.doPrepare();
     }
     
     @Override
