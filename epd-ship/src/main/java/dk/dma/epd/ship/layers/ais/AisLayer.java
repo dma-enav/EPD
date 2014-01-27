@@ -78,7 +78,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     private static final Logger LOG = LoggerFactory.getLogger(AisLayer.class);
     private static final long serialVersionUID = 1L;
 
-    private volatile long minRedrawInterval = 5 * 1000; // 5 sec
+    private volatile long minRedrawInterval;
 
     private OwnShipHandler ownShipHandler;
 
@@ -108,9 +108,10 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 
     private ZoomLevel currentZoomLevel;
 
-    public AisLayer() {
+    public AisLayer(int redrawIntervalMillis) {
         // repaint every 1000 milliseconds
-        super(1000);
+        super(redrawIntervalMillis);
+        this.minRedrawInterval = redrawIntervalMillis;
         graphics.add(targetSelectionGraphic);
         // graphics.setVague(false);
 
