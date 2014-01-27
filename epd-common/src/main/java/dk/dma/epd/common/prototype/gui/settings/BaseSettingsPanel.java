@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
+import dk.dma.epd.common.prototype.settings.Settings;
 
 /**
  * Abstract base class that may be implemented by settings panels.
@@ -39,6 +40,8 @@ public abstract class BaseSettingsPanel extends JPanel {
     protected String name;
     protected ImageIcon icon;
     protected boolean loaded;
+
+    private Settings settings;
     
     /**
      * Constructor
@@ -148,6 +151,14 @@ public abstract class BaseSettingsPanel extends JPanel {
                 listener.settingsChanged(type);
             }
         }
+    }
+    
+    public void setSettings(Settings settings) {
+        this.settings = settings;
+    }
+    
+    public Settings getSettings() {
+        return this.settings;
     }
     
     /**
