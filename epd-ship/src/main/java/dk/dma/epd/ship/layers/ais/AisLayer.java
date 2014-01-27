@@ -18,14 +18,12 @@ package dk.dma.epd.ship.layers.ais;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.SwingUtilities;
 
-import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
 import org.slf4j.Logger;
@@ -101,7 +99,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     private ZoomLevel currentZoomLevel;
 
     public AisLayer(int redrawIntervalMillis) {
-        // repaint every 1000 milliseconds
         super(redrawIntervalMillis);
         graphics.add(targetSelectionGraphic);
 

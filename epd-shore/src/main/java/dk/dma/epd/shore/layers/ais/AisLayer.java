@@ -82,29 +82,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     private volatile OMGraphic closest;
     private final AisTargetSelectionGraphic targetSelectionGraphic = new AisTargetSelectionGraphic();
 
-//    /**
-//     * Keeps the AisLayer thread alive
-//     */
-//    @Override
-//    public void run() {
-//
-//        while (shouldRun) {
-//            try {
-//                drawTargets();
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//            }
-//
-//        }
-//        synchronized (targets) {
-//            targets.clear();
-//        }
-//        synchronized (graphics) {
-//            graphics.clear();
-//            graphics.add(targetSelectionGraphic);
-//        }
-//    }
-
     /**
      * Starts the AisLayer thread
      */
