@@ -35,10 +35,7 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.ais.AisHandler;
-import dk.dma.epd.shore.gui.views.menuitems.GeneralHideIntendedRoutes;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralNewRoute;
-import dk.dma.epd.shore.gui.views.menuitems.GeneralShowIntendedRoutes;
 import dk.dma.epd.shore.gui.views.menuitems.MsiDetails;
 import dk.dma.epd.shore.gui.views.menuitems.MsiZoomTo;
 import dk.dma.epd.shore.gui.views.menuitems.RouteAppendWaypoint;
@@ -86,8 +83,6 @@ public class MapMenu extends MapMenuCommon {
     private MsiHandler msiHandler;
 
     // menu items
-    private GeneralHideIntendedRoutes hideIntendedRoutes;
-    private GeneralShowIntendedRoutes showIntendedRoutes;
     private GeneralNewRoute newRoute;
 
     private SarTargetDetails sarTargetDetails;
@@ -132,7 +127,6 @@ public class MapMenu extends MapMenuCommon {
     private VoyageLayer voyageLayer;
 
     private AisLayer aisLayer;
-    private AisHandler aisHandler;
     private StrategicRouteExchangeHandler monaLisaHandler;
 
     // private NogoHandler nogoHandler;
@@ -141,12 +135,6 @@ public class MapMenu extends MapMenuCommon {
         super();
 
         // general menu items
-        hideIntendedRoutes = new GeneralHideIntendedRoutes(
-                "Hide all intended routes");
-        hideIntendedRoutes.addActionListener(this);
-        showIntendedRoutes = new GeneralShowIntendedRoutes(
-                "Show all intended routes");
-        showIntendedRoutes.addActionListener(this);
         newRoute = new GeneralNewRoute("Add new route");
         newRoute.addActionListener(this);
 
@@ -697,9 +685,6 @@ public class MapMenu extends MapMenuCommon {
         }
         if (obj instanceof AisLayer) {
             aisLayer = (AisLayer) obj;
-        }
-        if (obj instanceof AisHandler) {
-            aisHandler = (AisHandler) obj;
         }
         if (obj instanceof StrategicRouteExchangeHandler) {
             monaLisaHandler = (StrategicRouteExchangeHandler) obj;

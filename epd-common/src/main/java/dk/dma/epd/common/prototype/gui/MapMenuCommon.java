@@ -40,7 +40,10 @@ import javax.swing.JPopupMenu;
 import com.bbn.openmap.LightMapHandlerChild;
 import com.bbn.openmap.MapBean;
 
+import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
+import dk.dma.epd.common.prototype.gui.menuitems.HideAllIntendedRoutes;
+import dk.dma.epd.common.prototype.gui.menuitems.ShowAllIntendedRoutes;
 import dk.dma.epd.common.prototype.gui.menuitems.IntendedRouteToggle;
 import dk.dma.epd.common.prototype.gui.menuitems.MsiAcknowledge;
 import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
@@ -66,11 +69,15 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
     protected ClearPastTrack aisClearPastTrack;
 
     protected IntendedRouteToggle intendedRouteToggle;
+    protected HideAllIntendedRoutes hideIntendedRoutes;
+    protected ShowAllIntendedRoutes showIntendedRoutes;
     protected MsiAcknowledge msiAcknowledge;
     
     protected JMenu scaleMenu;
     protected Map<Integer, String> map;
     protected MapBean mapBean;
+    
+    protected AisHandlerCommon aisHandler;
     
     // bean context
     protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(this);
@@ -95,6 +102,10 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
         // Intended route
         intendedRouteToggle = new IntendedRouteToggle();
         intendedRouteToggle.addActionListener(this);
+        hideIntendedRoutes = new HideAllIntendedRoutes("Hide all intended routes");
+        hideIntendedRoutes.addActionListener(this);
+        showIntendedRoutes = new ShowAllIntendedRoutes("Show all intended routes");
+        showIntendedRoutes.addActionListener(this);
 
         // MSI menu items
         msiAcknowledge = new MsiAcknowledge("Acknowledge MSI");
@@ -173,6 +184,9 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
     public void findAndInit(Object obj) {
         if (obj instanceof MapBean) {
             mapBean = (MapBean) obj;
+        }
+        else if (obj instanceof AisHandlerCommon) {
+            aisHandler = (AisHandlerCommon) obj;
         }
     }
 

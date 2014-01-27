@@ -38,12 +38,9 @@ import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.menuitems.AisTargetDetails;
 import dk.dma.epd.ship.gui.menuitems.AisTargetLabelToggle;
-import dk.dma.epd.ship.gui.menuitems.GeneralHideIntendedRoutes;
 import dk.dma.epd.ship.gui.menuitems.GeneralNewRoute;
-import dk.dma.epd.ship.gui.menuitems.GeneralShowIntendedRoutes;
 import dk.dma.epd.ship.gui.menuitems.MonaLisaRouteRequest;
 import dk.dma.epd.ship.gui.menuitems.MsiDetails;
 import dk.dma.epd.ship.gui.menuitems.MsiZoomTo;
@@ -87,8 +84,6 @@ public class MapMenu extends MapMenuCommon {
 
     // menu items
     private GeneralClearMap clearMap;
-    private GeneralHideIntendedRoutes hideIntendedRoutes;
-    private GeneralShowIntendedRoutes showIntendedRoutes;
     private GeneralNewRoute newRoute;
     private AisTargetDetails aisTargetDetails;
 
@@ -124,7 +119,6 @@ public class MapMenu extends MapMenuCommon {
     private RouteSuggestionDialog routeSuggestionDialog;
     private NewRouteContainerLayer newRouteLayer;
     private AisLayer aisLayer;
-    private AisHandler aisHandler;
     private OwnShipHandler ownShipHandler;
     private NogoHandler nogoHandler;
     private MouseDelegator mouseDelegator;
@@ -146,12 +140,6 @@ public class MapMenu extends MapMenuCommon {
         // general menu items
         clearMap = new GeneralClearMap("Clear chart");
         clearMap.addActionListener(this);
-        hideIntendedRoutes = new GeneralHideIntendedRoutes(
-                "Hide all intended routes");
-        hideIntendedRoutes.addActionListener(this);
-        showIntendedRoutes = new GeneralShowIntendedRoutes(
-                "Show all intended routes");
-        showIntendedRoutes.addActionListener(this);
         newRoute = new GeneralNewRoute("Add new route - Ctrl N");
         newRoute.addActionListener(this);
 
@@ -723,9 +711,6 @@ public class MapMenu extends MapMenuCommon {
         }
         if (obj instanceof AisLayer) {
             aisLayer = (AisLayer) obj;
-        }
-        if (obj instanceof AisHandler) {
-            aisHandler = (AisHandler) obj;
         }
         if (obj instanceof OwnShipHandler) {
             ownShipHandler = (OwnShipHandler) obj;
