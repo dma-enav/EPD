@@ -35,7 +35,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
     /**
      * The graphic that is currently selected by the user.
      */
-    protected ISelectableGraphic selectecGraphic;
+    private ISelectableGraphic selectedGraphic;
 
     public AisLayerCommon(int repaintIntervalMillis) {
         super(repaintIntervalMillis);
@@ -85,16 +85,16 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      */
     public void setSelectedGraphic(ISelectableGraphic newSelection,
             boolean repaint) {
-        if (this.selectecGraphic != null) {
+        if (this.selectedGraphic != null) {
             // remove current selection
-            this.selectecGraphic.setSelected(false);
+            this.selectedGraphic.setSelection(false);
         }
         if (newSelection != null) {
             // mark new selection
-            newSelection.setSelected(true);
+            newSelection.setSelection(true);
         }
         // keep reference to new selection
-        this.selectecGraphic = newSelection;
+        this.selectedGraphic = newSelection;
         if (repaint) {
             this.doPrepare();
         }
