@@ -32,13 +32,14 @@ import com.bbn.openmap.omGraphics.OMText;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 
 /**
  * @author Janus Varmarken
  */
-public class VesselOutlineGraphic extends OMGraphicList {
+public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGraphic {
 
     private static final long serialVersionUID = 1L;
 
@@ -61,6 +62,11 @@ public class VesselOutlineGraphic extends OMGraphicList {
 
     private Color lineColor;
 
+    /**
+     * Color used to draw ship outline when this graphic is selected.
+     */
+    private Color selectionColor = Color.GREEN;
+    
     private float lineThickness = 1.0f;
 
     private BasicStroke lineStroke;
@@ -259,5 +265,18 @@ public class VesselOutlineGraphic extends OMGraphicList {
 
     public boolean getShowNameLabel() {
         return showNameLabel;
+    }
+
+    @Override
+    public void setSelection(boolean selected) {
+        if(this.shipOutline != null) {
+            // Simply change the color of the outline when selected.
+            if(selected) {
+                this.shipOutline.setLinePaint(this.selectionColor); 
+            }
+            else {
+                this.shipOutline.setLinePaint(this.lineColor);
+            }
+        }
     }
 }
