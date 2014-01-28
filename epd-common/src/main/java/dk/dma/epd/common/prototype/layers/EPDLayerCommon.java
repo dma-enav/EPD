@@ -172,6 +172,9 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
                     // Allow custom handling of right-clicks by sub-classes
                     handleMouseClick(clickedGraphics, evt);
                     return true;
+                
+                } else {
+                    handleMouseClick(null, evt);
                 }
             }
             
@@ -392,6 +395,9 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
     /**
      * Sub-classes using {@linkplain #registerMouseClickClasses()} should override this method, 
      * which will be called when one of the registered classes is right-clicked. 
+     * <p>
+     * If none of the registered {@linkplain OMGraphic} classes is clicked, this method is
+     * called with null as the {@code clickedGraphics} parameter.
      * 
      * @param clickedGraphics the clicked graphics that triggered the call
      * @param evt the mouse event
