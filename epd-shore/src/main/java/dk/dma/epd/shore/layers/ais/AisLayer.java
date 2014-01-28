@@ -273,6 +273,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             this.setSelectedGraphic(null, true);
             // Call mainframe with invalid selection sucht that AisLayers in other frames will also have their selection removed.
             this.getMainFrame().setSelectedMMSI(-1);
+            // remove status info as no target is selected
+            this.statusArea.removeHighlight();
         }
     }
     /*
