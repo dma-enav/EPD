@@ -65,7 +65,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         generalMapSettings.add(lblDefaultMapScale);
         
         spinnerMaximumScale = new JSpinner(new SpinnerNumberModel(new Integer(0), null, null, new Integer(1)));
-        spinnerMaximumScale.setBounds(16, 45, 75, 19);
+        spinnerMaximumScale.setBounds(16, 45, 75, 20);
         generalMapSettings.add(spinnerMaximumScale);
         
         JLabel lblMaximumScale = new JLabel("Maximum scale");

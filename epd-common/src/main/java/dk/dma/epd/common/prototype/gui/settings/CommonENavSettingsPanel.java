@@ -66,27 +66,27 @@ public class CommonENavSettingsPanel extends BaseSettingsPanel {
                 TitledBorder.TOP, null, null));
         
         spinnerMETOCValidityDuration = new JSpinner();
-        spinnerMETOCValidityDuration.setBounds(16, 20, 70, 20);
+        spinnerMETOCValidityDuration.setBounds(16, 20, 75, 20);
         METOCPanel.add(spinnerMETOCValidityDuration);
         
         JLabel lblMetocValidityDuration = new JLabel("METOC validity duration (min)");
-        lblMetocValidityDuration.setBounds(98, 22, 188, 16);
+        lblMetocValidityDuration.setBounds(103, 22, 188, 16);
         METOCPanel.add(lblMetocValidityDuration);
         
         spinnerActiveRouteMETOCPollInterval = new JSpinner();
-        spinnerActiveRouteMETOCPollInterval.setBounds(16, 45, 70, 20);
+        spinnerActiveRouteMETOCPollInterval.setBounds(16, 45, 75, 20);
         METOCPanel.add(spinnerActiveRouteMETOCPollInterval);
         
         JLabel lblActiveRouteMetoc = new JLabel("Active route METOC poll interval (min)");
-        lblActiveRouteMetoc.setBounds(98, 47, 240, 16);
+        lblActiveRouteMetoc.setBounds(103, 47, 240, 16);
         METOCPanel.add(lblActiveRouteMetoc);
         
         spinnerMETOCTimeDifferenceTolerance = new JSpinner();
-        spinnerMETOCTimeDifferenceTolerance.setBounds(16, 70, 70, 20);
+        spinnerMETOCTimeDifferenceTolerance.setBounds(16, 70, 75, 20);
         METOCPanel.add(spinnerMETOCTimeDifferenceTolerance);
         
         JLabel lblMetocTimeDifference = new JLabel("METOC time difference tolerance (min)");
-        lblMetocTimeDifference.setBounds(98, 72, 242, 16);
+        lblMetocTimeDifference.setBounds(101, 72, 242, 16);
         METOCPanel.add(lblMetocTimeDifference);
         
         // Add the panel.

@@ -87,14 +87,6 @@ public class CommonCloudSettingsPanel extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    public String getName() {
-        return "Cloud Settings";
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected void doLoadSettings() {
         this.enavSettings = EPD.getInstance().getSettings().getEnavSettings();
         txtServerName.setText(enavSettings.getCloudServerHost());
