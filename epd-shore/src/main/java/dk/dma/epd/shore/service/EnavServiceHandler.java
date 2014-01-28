@@ -50,6 +50,7 @@ import dk.dma.enav.model.voyage.Route;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
+import dk.dma.epd.common.prototype.enavcloud.EnavCloudUtils;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
@@ -59,7 +60,6 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck.StrategicRouteAck
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
-import dk.dma.epd.common.util.MmsiUtils;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -211,7 +211,7 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
         LOG.info("Connecting to enav cloud server: " + hostPort + " with shipId " + shipId.getId());
 
         MaritimeCloudClientConfiguration enavCloudConnection = 
-                MaritimeCloudClientConfiguration.create(MmsiUtils.toMaritimeId(shipId.getId()));
+                MaritimeCloudClientConfiguration.create(EnavCloudUtils.toMaritimeId(shipId.getId()));
 
         enavCloudConnection.setPositionReader(new PositionReader() {
             @Override
@@ -282,7 +282,7 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
     private void listenToIntendedRouteBroadcasts() throws InterruptedException {
         connection.broadcastListen(EnavRouteBroadcast.class, new BroadcastListener<EnavRouteBroadcast>() {
             public void onMessage(BroadcastMessageHeader l, EnavRouteBroadcast r) {
-                int id = MmsiUtils.toMmsi(l.getId());
+                int id = EnavCloudUtils.toMmsi(l.getId());
                 updateIntendedRoute(id, r.getIntendedRoute());
             }
         });
@@ -343,14 +343,7 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
      * @return if one such ship is available
      */
     public boolean shipAvailableForRouteSuggestion(long mmsi) {
-        for (int i = 0; i < routeSuggestionServiceList.size(); i++) {
-            if (mmsi == MmsiUtils.toMmsi(routeSuggestionServiceList.get(i).getId()).longValue()) {
-                return true;
-            }
-
-        }
-
-        return false;
+        return EnavCloudUtils.findServiceWithMmsi(routeSuggestionServiceList, (int)mmsi) != null;
     }
 
     /**
@@ -365,14 +358,8 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
             ExecutionException, TimeoutException {
 
         // System.out.println("Send to : " + mmsi);
-        ServiceEndpoint<RouteSuggestionService.RouteSuggestionMessage, RouteSuggestionService.RouteSuggestionReply> end = null;
-
-        for (int i = 0; i < routeSuggestionServiceList.size(); i++) {
-            if (MmsiUtils.toMmsi(routeSuggestionServiceList.get(i).getId()).longValue() == mmsi) {
-                end = routeSuggestionServiceList.get(i);
-                // break;
-            }
-        }
+        ServiceEndpoint<RouteSuggestionService.RouteSuggestionMessage, RouteSuggestionService.RouteSuggestionReply> end 
+            = EnavCloudUtils.findServiceWithMmsi(routeSuggestionServiceList, (int)mmsi);
 
         RouteSuggestionMessage routeMessage = new RouteSuggestionService.RouteSuggestionMessage(route, sender, message);
 
@@ -599,17 +586,8 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
      */
     public void sendStrategicRouteRequest(long mmsiDestination, StrategicRouteRequestMessage routeMessage) {
 
-        ServiceEndpoint<StrategicRouteService.StrategicRouteRequestMessage, StrategicRouteService.StrategicRouteRequestReply> end = null;
-
-        // How to determine which to send to?
-        for (int i = 0; i < monaLisaShipList.size(); i++) {
-
-            if (mmsiDestination == MmsiUtils.toMmsi(monaLisaShipList.get(i).getId()).longValue()) {
-
-                System.out.println("We have a match on" + mmsiDestination);
-                end = monaLisaShipList.get(i);
-            }
-        }
+        ServiceEndpoint<StrategicRouteService.StrategicRouteRequestMessage, StrategicRouteService.StrategicRouteRequestReply> end 
+            = EnavCloudUtils.findServiceWithMmsi(monaLisaShipList, (int)mmsiDestination);
 
         // Each request has a unique ID, talk to Kasper?
 
@@ -647,12 +625,7 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
      */
     public boolean shipAvailableForMonaLisaTransaction(long mmsi) {
         fetchMonaLisaShipList();
-        for (int i = 0; i < monaLisaShipList.size(); i++) {
-            if (mmsi == MmsiUtils.toMmsi(monaLisaShipList.get(i).getId()).longValue()) {
-                return true;
-            }
-        }
-
-        return false;
+        
+        return EnavCloudUtils.findServiceWithMmsi(monaLisaShipList, (int)mmsi) != null;
     }
 }

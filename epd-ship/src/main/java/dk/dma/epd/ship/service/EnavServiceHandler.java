@@ -45,6 +45,7 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.enavcloud.EnavCloudSendThread;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
+import dk.dma.epd.common.prototype.enavcloud.EnavCloudUtils;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
@@ -59,7 +60,6 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.status.CloudStatus;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
-import dk.dma.epd.common.util.MmsiUtils;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -231,7 +231,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                 + " with shipId " + shipId.getId());
 
         MaritimeCloudClientConfiguration enavCloudConnection = MaritimeCloudClientConfiguration
-                .create(MmsiUtils.toMaritimeId(shipId.getId()));
+                .create(EnavCloudUtils.toMaritimeId(shipId.getId()));
 
         enavCloudConnection.setPositionReader(new PositionReader() {
             @Override
@@ -344,7 +344,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                             EnavRouteBroadcast r) {
 
                         cloudStatus.markCloudReception();
-                        int id = MmsiUtils.toMmsi(l.getId());
+                        int id = EnavCloudUtils.toMmsi(l.getId());
 
                         updateIntendedRoute(id, r.getIntendedRoute());
                     }
@@ -520,18 +520,11 @@ public class EnavServiceHandler extends MapHandlerChild implements
      */
     public void sendMonaLisaAck(long addressMMSI, long id, long ownMMSI, boolean ack, String message) {
 
-        ServiceEndpoint<StrategicRouteAckMsg, Void> end = null;
 
         getMonaLisaRouteAckList();
 
-        for (int i = 0; i < monaLisaRouteAckList.size(); i++) {
-            System.out.println(monaLisaRouteAckList.get(i).getId().toString());
-
-            if (MmsiUtils.isSTCC(monaLisaRouteAckList.get(i).getId())) {
-                end = monaLisaRouteAckList.get(i);
-                break;
-            }
-        }
+        ServiceEndpoint<StrategicRouteAckMsg, Void> end 
+            = EnavCloudUtils.findSTCCService(monaLisaRouteAckList);
 
         StrategicRouteAckMsg msg = new StrategicRouteAckMsg(ack, id, ownMMSI,
                 message);
@@ -550,15 +543,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     public void sendMonaLisaRouteRequest(StrategicRouteRequestMessage routeMessage) {
 
-        ServiceEndpoint<StrategicRouteService.StrategicRouteRequestMessage, StrategicRouteService.StrategicRouteRequestReply> end = null;
-
-        // How to determine which to send to?
-        for (int i = 0; i < monaLisaSTCCList.size(); i++) {
-
-            if (MmsiUtils.isSTCC(monaLisaSTCCList.get(i).getId())) {
-                end = monaLisaSTCCList.get(i);
-            }
-        }
+        ServiceEndpoint<StrategicRouteService.StrategicRouteRequestMessage, StrategicRouteService.StrategicRouteRequestReply> end 
+            = EnavCloudUtils.findSTCCService(monaLisaSTCCList);
 
         // Each request has a unique ID, talk to Kasper?
 

@@ -13,16 +13,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.util;
+package dk.dma.epd.common.prototype.enavcloud;
+
+import java.util.List;
 
 import net.maritimecloud.core.id.MaritimeId;
 import net.maritimecloud.core.id.MmsiId;
+import net.maritimecloud.net.service.ServiceEndpoint;
 
 /**
  * Utility methods for converting between different representations
- * of MMSI identifiers
+ * of MMSI identifiers and for searching lists of Maritime Cloud
+ * services based on MMSI
  */
-public class MmsiUtils {
+public class EnavCloudUtils {
 
     public static final String STCC_MMSI_PREFIX = "999";
     
@@ -35,6 +39,17 @@ public class MmsiUtils {
      */
     public static boolean isSTCC(MaritimeId id) {
         return id != null && id.toString().startsWith("mmsi://" + STCC_MMSI_PREFIX);
+    }
+    
+    /**
+     * Returns if the given maritime id is from a ship, i.e. not from
+     * a sea traffic control center
+     * 
+     * @param id the maritime id to check
+     * @return if the id is from a ship
+     */
+    public static boolean isShip(MaritimeId id) {
+        return id != null && !isSTCC(id);
     }
     
     /**
@@ -66,5 +81,39 @@ public class MmsiUtils {
         }
         String mmsi = id.toString().split("mmsi://")[1];
         return Integer.parseInt(mmsi);
+    }
+    
+    /**
+     * Finds the first service in the list with a matching MMSI
+     * @param serviceList the list of services to check
+     * @param mmsi the MMSI of the service to find
+     * @return the matching service or null if not found
+     */
+    public static <E, T> ServiceEndpoint<E, T> findServiceWithMmsi(List<ServiceEndpoint<E, T>> serviceList, int mmsi) {
+        if (serviceList != null) {
+            for (ServiceEndpoint<E, T> service : serviceList) {
+                if (toMmsi(service.getId()) == mmsi) {
+                    return service;
+                }
+            }
+        }
+        return null;
+    }
+
+    
+    /**
+     * Finds the first STCC (sea traffic control center) in the list
+     * @param serviceList the list of services to check
+     * @return an STCC service or null if not found
+     */
+    public static <E, T> ServiceEndpoint<E, T> findSTCCService(List<ServiceEndpoint<E, T>> serviceList) {
+        if (serviceList != null) {
+            for (ServiceEndpoint<E, T> service : serviceList) {
+                if (isSTCC(service.getId())) {
+                    return service;
+                }
+            }
+        }
+        return null;
     }
 }
