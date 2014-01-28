@@ -59,6 +59,7 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck.StrategicRouteAck
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
+import dk.dma.epd.common.util.MmsiUtils;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -209,7 +210,8 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
     public void init() {
         LOG.info("Connecting to enav cloud server: " + hostPort + " with shipId " + shipId.getId());
 
-        MaritimeCloudClientConfiguration enavCloudConnection = MaritimeCloudClientConfiguration.create("mmsi://" + shipId.getId());
+        MaritimeCloudClientConfiguration enavCloudConnection = 
+                MaritimeCloudClientConfiguration.create(MmsiUtils.toMaritimeId(shipId.getId()));
 
         enavCloudConnection.setPositionReader(new PositionReader() {
             @Override
@@ -280,7 +282,7 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
     private void listenToIntendedRouteBroadcasts() throws InterruptedException {
         connection.broadcastListen(EnavRouteBroadcast.class, new BroadcastListener<EnavRouteBroadcast>() {
             public void onMessage(BroadcastMessageHeader l, EnavRouteBroadcast r) {
-                int id = Integer.parseInt(l.getId().toString().split("mmsi://")[1]);
+                int id = MmsiUtils.toMmsi(l.getId());
                 updateIntendedRoute(id, r.getIntendedRoute());
             }
         });
@@ -342,7 +344,7 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
      */
     public boolean shipAvailableForRouteSuggestion(long mmsi) {
         for (int i = 0; i < routeSuggestionServiceList.size(); i++) {
-            if (mmsi == Long.parseLong(routeSuggestionServiceList.get(i).getId().toString().split("//")[1])) {
+            if (mmsi == MmsiUtils.toMmsi(routeSuggestionServiceList.get(i).getId()).longValue()) {
                 return true;
             }
 
@@ -363,11 +365,10 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
             ExecutionException, TimeoutException {
 
         // System.out.println("Send to : " + mmsi);
-        String mmsiStr = "mmsi://" + mmsi;
         ServiceEndpoint<RouteSuggestionService.RouteSuggestionMessage, RouteSuggestionService.RouteSuggestionReply> end = null;
 
         for (int i = 0; i < routeSuggestionServiceList.size(); i++) {
-            if (routeSuggestionServiceList.get(i).getId().toString().equals(mmsiStr)) {
+            if (MmsiUtils.toMmsi(routeSuggestionServiceList.get(i).getId()).longValue() == mmsi) {
                 end = routeSuggestionServiceList.get(i);
                 // break;
             }
@@ -603,7 +604,7 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
         // How to determine which to send to?
         for (int i = 0; i < monaLisaShipList.size(); i++) {
 
-            if (mmsiDestination == Long.parseLong(monaLisaShipList.get(i).getId().toString().split("//")[1])) {
+            if (mmsiDestination == MmsiUtils.toMmsi(monaLisaShipList.get(i).getId()).longValue()) {
 
                 System.out.println("We have a match on" + mmsiDestination);
                 end = monaLisaShipList.get(i);
@@ -647,7 +648,7 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
     public boolean shipAvailableForMonaLisaTransaction(long mmsi) {
         fetchMonaLisaShipList();
         for (int i = 0; i < monaLisaShipList.size(); i++) {
-            if (mmsi == Long.parseLong(monaLisaShipList.get(i).getId().toString().split("//")[1])) {
+            if (mmsi == MmsiUtils.toMmsi(monaLisaShipList.get(i).getId()).longValue()) {
                 return true;
             }
         }

@@ -59,6 +59,7 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.status.CloudStatus;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
+import dk.dma.epd.common.util.MmsiUtils;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -229,10 +230,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
         LOG.info("Connecting to cloud server: " + hostPort
                 + " with shipId " + shipId.getId());
 
-        // enavCloudConnection =
-        // MaritimeNetworkConnectionBuilder.create("mmsi://"+shipId.getId());
         MaritimeCloudClientConfiguration enavCloudConnection = MaritimeCloudClientConfiguration
-                .create("mmsi://" + shipId.getId());
+                .create(MmsiUtils.toMaritimeId(shipId.getId()));
 
         enavCloudConnection.setPositionReader(new PositionReader() {
             @Override
@@ -345,8 +344,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
                             EnavRouteBroadcast r) {
 
                         cloudStatus.markCloudReception();
-                        int id = Integer.parseInt(l.getId().toString()
-                                .split("mmsi://")[1]);
+                        int id = MmsiUtils.toMmsi(l.getId());
 
                         updateIntendedRoute(id, r.getIntendedRoute());
                     }
@@ -521,10 +519,6 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * @param message an additional message
      */
     public void sendMonaLisaAck(long addressMMSI, long id, long ownMMSI, boolean ack, String message) {
-        String mmsiStr = "mmsi://" + addressMMSI;
-
-        System.out.println(mmsiStr);
-        System.out.println(ownMMSI);
 
         ServiceEndpoint<StrategicRouteAckMsg, Void> end = null;
 
@@ -533,11 +527,9 @@ public class EnavServiceHandler extends MapHandlerChild implements
         for (int i = 0; i < monaLisaRouteAckList.size(); i++) {
             System.out.println(monaLisaRouteAckList.get(i).getId().toString());
 
-            if (monaLisaRouteAckList.get(i).getId().toString()
-                    .startsWith("mmsi://999")) {
+            if (MmsiUtils.isSTCC(monaLisaRouteAckList.get(i).getId())) {
                 end = monaLisaRouteAckList.get(i);
-                // break;
-
+                break;
             }
         }
 
@@ -563,8 +555,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
         // How to determine which to send to?
         for (int i = 0; i < monaLisaSTCCList.size(); i++) {
 
-            if (!monaLisaSTCCList.get(i).getId().toString()
-                    .contains(routeMessage.getMmsi() + "")) {
+            if (MmsiUtils.isSTCC(monaLisaSTCCList.get(i).getId())) {
                 end = monaLisaSTCCList.get(i);
             }
         }
