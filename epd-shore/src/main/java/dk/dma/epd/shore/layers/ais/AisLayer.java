@@ -36,6 +36,7 @@ import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.MobileTarget;
@@ -90,6 +91,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         synchronized (graphics) {
             graphics.add(targetSelectionGraphic);
         }
+        // receive click events for the following set of classes.
+        this.registerMouseClickClasses(VesselTargetGraphic.class);
     }
 
     /**
@@ -191,7 +194,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 
                     if (mobileTarget.getMmsi() == getMainFrame().getSelectedMMSI()) {
                         targetSelectionGraphic.moveSymbol(mobileTarget.getPositionData().getPos());
-                        setStatusAreaTxt();
+// TODO Janus Varmarken: fix this call                        setStatusAreaTxt();
                     }
                 }
             }
@@ -240,6 +243,40 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         super.findAndUndo(obj);
     }
 
+    /**
+     * Event handler for left click on the map.
+     */
+    @Override
+    protected void handleMouseClick(OMGraphic clickedGraphics, MouseEvent evt) {
+        // Should only handle left clicks.
+        assert(evt.getButton() == MouseEvent.BUTTON1);
+        if(clickedGraphics != null) {
+            System.out.println("clickedGraphics has type = " + clickedGraphics.getClass().getSimpleName());
+        }
+        if(clickedGraphics instanceof ISelectableGraphic) {
+//            VesselTargetGraphic vtg = (VesselTargetGraphic) clickedGraphics;
+//            synchronized(targets) {
+//                if(vtg.getVesselTarget() != null && vtg.getVesselTarget().getPositionData() != null) {
+//                    getMainFrame().setSelectedMMSI(vtg.getVesselTarget().getMmsi());
+//                    targetSelectionGraphic.setVisible(true);
+//                    targetSelectionGraphic.moveSymbol(vtg.getVesselTarget().getPositionData().getPos());
+//                    this.setSelectedGraphic(vtg, true);
+//                }
+//            }
+            // update selected graphic and do a repaint
+            this.setSelectedGraphic((ISelectableGraphic) clickedGraphics, true);
+            // update status text if clicked graphic is a vessel
+            if(clickedGraphics instanceof VesselTargetGraphic) {
+                setStatusAreaTxt(((VesselTargetGraphic)clickedGraphics).getVesselTarget());
+            }
+        }
+        else if(clickedGraphics == null) {
+            // User clicked somewhere on the map with no nearby graphics
+            // We need to remove the current selection and repaint
+            this.setSelectedGraphic(null, true);
+        }
+    }
+    /*
     @Override
     public boolean mouseClicked(MouseEvent e) {
         
@@ -307,7 +344,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         }
         return false;
     }
-
+    */
     /**
      * Returns the {@code VesselTargetGraphic} correspondign to the given mmsi, or null if not found
      * @param mmsi the mmsi of the vessel
@@ -323,11 +360,11 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         return null;
     }
     
-    private void setStatusAreaTxt() {
+    private void setStatusAreaTxt(VesselTarget vessel) {
         HashMap<String, String> info = new HashMap<String, String>();
         String currKey;
-        VesselTargetGraphic vtg = getVessel(getMainFrame().getSelectedMMSI());
-        VesselTarget vessel = vtg.getVesselTarget();
+//        VesselTargetGraphic vtg = getVessel(getMainFrame().getSelectedMMSI());
+//        VesselTarget vessel = vtg.getVesselTarget();
         if (vessel != null) {
             VesselStaticData vsd = vessel.getStaticData();
             VesselPositionData vpd = vessel.getPositionData();
