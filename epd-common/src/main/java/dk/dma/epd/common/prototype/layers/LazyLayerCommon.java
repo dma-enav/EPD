@@ -34,7 +34,7 @@ import javax.swing.Timer;
  * @author Janus Varmarken
  */
 @SuppressWarnings("serial")
-public abstract class LazyLayerCommon extends GeneralLayerCommon implements
+public abstract class LazyLayerCommon extends EPDLayerCommon implements
         ActionListener {
 
     /**

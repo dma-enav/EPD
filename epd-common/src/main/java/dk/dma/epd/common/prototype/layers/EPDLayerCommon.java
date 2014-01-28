@@ -39,8 +39,24 @@ import dk.dma.epd.common.prototype.gui.util.InfoPanel.InfoPanelBinding;
 
 /**
  * Common EPD layer subclass that may be sub-classed by other layers.
- */
-public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implements MapMouseListener {
+ * <p>
+ * The {@code EPDLayerCommon} class automatically binds the {@code mapBean},
+ * {@code mainFrame} and {@code mapMenu} beans.
+ * <p>
+ * Additionally, it binds the bean ({@code mapContainer}) that implements the
+ * {@linkplain MapContainer} interface.<br>
+ * In EPDShip this bean will be the {@code MainFrame} class bean, and in EPDShore
+ * it will be the {@code JMapFrame} class bean.
+ * <p>
+ * Utility methods such as {@linkplain #convertPoint(Point)} and {@linkplain #getGlassPanel()}
+ * thus works on the {@code mapContainer} bean.
+ * <p>
+ * {@code EPDLayerCommon} also provides standardized ways of binding {@code InfoPanel} panels
+ * to {@linkplain OMGraphic} classes, as well as container managed handling of right-
+ * and left-button mouse clicks, for mouse selection and displaying the context menu
+ * respectively.
+ */ 
+public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements MapMouseListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -130,8 +146,8 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     /**
      * Provides default behavior for mouse clicks.
      * <p> 
-     * If graphics classes have been registered using {@code #registerMouseClickClasses()}
-     * for right-clicks and {@code #registerMapMenuClasses()} for left-clicks, 
+     * If graphics classes have been registered using {@linkplain #registerMouseClickClasses()}
+     * for right-clicks and {@linkplain #registerMapMenuClasses()} for left-clicks, 
      * it is checked whether one of these classes have been clicked.
      * 
      * @param evt the mouse event
@@ -371,7 +387,7 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     }
     
     /**
-     * Sub-classes using {@code #registerMouseClickClasses()} should override this method, 
+     * Sub-classes using {@linkplain #registerMouseClickClasses()} should override this method, 
      * which will be called when one of the registered classes is right-clicked. 
      * 
      * @param clickedGraphics the clicked graphics that triggered the call
@@ -381,7 +397,7 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     }
 
     /**
-     * Sub-classes using {@code #registerMapMenuClasses()} should override this method, 
+     * Sub-classes using {@linkplain #registerMapMenuClasses()} should override this method, 
      * which will be called when one of the registered classes is left-clicked. 
      * 
      * @param clickedGraphics the clicked graphics that triggered the call

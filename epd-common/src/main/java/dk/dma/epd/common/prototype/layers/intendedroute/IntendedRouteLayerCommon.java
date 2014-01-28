@@ -36,14 +36,14 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
-import dk.dma.epd.common.prototype.layers.GeneralLayerCommon;
+import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 
 /**
  * Base layer for displaying intended routes in EPDShip and EPDShore
  * 
  * @author Janus Varmarken
  */
-public abstract class IntendedRouteLayerCommon extends GeneralLayerCommon implements IAisTargetListener {
+public abstract class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTargetListener {
 
     private static final long serialVersionUID = 1L;
     
