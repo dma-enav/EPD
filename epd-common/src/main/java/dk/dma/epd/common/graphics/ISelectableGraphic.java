@@ -31,5 +31,5 @@ public interface ISelectableGraphic {
      * @param selected
      *            True if the graphic is selected, false if it is deselected.
      */
-    public void setSelected(boolean selected);
+    public void setSelection(boolean selected);
 }
