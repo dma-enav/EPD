@@ -232,7 +232,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     @Override
     protected void handleMouseClick(OMGraphic clickedGraphics, MouseEvent evt) {
         // Should only handle left clicks.
-        assert(evt.getButton() == MouseEvent.BUTTON1);
+        assert evt.getButton() == MouseEvent.BUTTON1;
         if(clickedGraphics != null) {
             System.out.println("clickedGraphics has type = " + clickedGraphics.getClass().getSimpleName());
         }
@@ -267,7 +267,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     @Override
     protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {
         // Should only handle right clicks
-        assert(evt.getButton() == MouseEvent.BUTTON3);
+        assert evt.getButton() == MouseEvent.BUTTON3;
         if (clickedGraphics instanceof VesselTargetGraphic) {
             VesselTarget vt = ((VesselTargetGraphic) clickedGraphics).getVesselTarget();
             // Pass data to the pop up menu that is to be displayed.
