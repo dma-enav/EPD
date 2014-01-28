@@ -254,26 +254,25 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             System.out.println("clickedGraphics has type = " + clickedGraphics.getClass().getSimpleName());
         }
         if(clickedGraphics instanceof ISelectableGraphic) {
-//            VesselTargetGraphic vtg = (VesselTargetGraphic) clickedGraphics;
-//            synchronized(targets) {
-//                if(vtg.getVesselTarget() != null && vtg.getVesselTarget().getPositionData() != null) {
-//                    getMainFrame().setSelectedMMSI(vtg.getVesselTarget().getMmsi());
-//                    targetSelectionGraphic.setVisible(true);
-//                    targetSelectionGraphic.moveSymbol(vtg.getVesselTarget().getPositionData().getPos());
-//                    this.setSelectedGraphic(vtg, true);
-//                }
-//            }
-            // update selected graphic and do a repaint
+            // Update selected graphic and do a repaint
             this.setSelectedGraphic((ISelectableGraphic) clickedGraphics, true);
-            // update status text if clicked graphic is a vessel
+            
             if(clickedGraphics instanceof VesselTargetGraphic) {
-                setStatusAreaTxt(((VesselTargetGraphic)clickedGraphics).getVesselTarget());
+                VesselTarget vt = ((VesselTargetGraphic)clickedGraphics).getVesselTarget();
+                if(vt != null) {
+                    // Update status text if clicked graphic is a vessel
+                    setStatusAreaTxt(vt);
+                    // Call mainframe with new selection such that AisLayers in other frames will also display the new selection.
+                    getMainFrame().setSelectedMMSI(vt.getMmsi());
+                }
             }
         }
         else if(clickedGraphics == null) {
             // User clicked somewhere on the map with no nearby graphics
             // We need to remove the current selection and repaint
             this.setSelectedGraphic(null, true);
+            // Call mainframe with invalid selection sucht that AisLayers in other frames will also have their selection removed.
+            this.getMainFrame().setSelectedMMSI(-1);
         }
     }
     /*
