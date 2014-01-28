@@ -110,16 +110,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         }
     }
 
-    public void removeSelection() {
-        targetSelectionGraphic.setVisible(false);
-        
-        getMainFrame().setSelectedMMSI(-1);
-
-        statusArea.removeHighlight();
-
-        doPrepare();
-    }
-
     /**
      * Check if vessel is near map coordinates or it's
      * sending an intended route
