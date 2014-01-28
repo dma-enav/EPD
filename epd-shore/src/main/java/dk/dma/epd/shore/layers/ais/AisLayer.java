@@ -157,7 +157,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
                     TargetGraphic targetGraphic = targets.get(mobileTarget.getMmsi());
                     if (targetGraphic == null) {
                         if (mobileTarget instanceof VesselTarget) {
-//                            targetGraphic = new Vessel(mobileTarget.getMmsi());
                             // TODO fix boolean argument
                             targetGraphic = new VesselTargetGraphic(true, this);
                             targetGraphic.setVague(true);
@@ -175,11 +174,11 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
                     
                     // Update the target graphics
                     targetGraphic.update(mobileTarget, null, null, mapScale);
-
-                    if (mobileTarget.getMmsi() == getMainFrame().getSelectedMMSI()) {
-//                        targetSelectionGraphic.moveSymbol(mobileTarget.getPositionData().getPos());
-// TODO Janus Varmarken: fix this call                        setStatusAreaTxt();
+                    // update selection on graphic if selectable graphic
+                    if (targetGraphic instanceof ISelectableGraphic) {
+                        ((ISelectableGraphic)targetGraphic).setSelection(mobileTarget.getMmsi() == getMainFrame().getSelectedMMSI());
                     }
+                    
                 }
             }
         }

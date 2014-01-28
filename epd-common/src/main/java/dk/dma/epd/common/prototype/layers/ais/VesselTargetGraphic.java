@@ -186,7 +186,8 @@ public class VesselTargetGraphic extends TargetGraphic implements ISelectableGra
     @Override
     public void setSelection(boolean selected) {
         // Simply delegate call to sub graphics
-        this.vesselTriangleGraphic.setSelection(selected);
         this.vesselOutlineGraphic.setSelection(selected);
+        this.vesselTriangleGraphic.setSelection(selected);
+        this.vesselDotGraphic.setSelection(selected);
     }
 }

@@ -31,6 +31,7 @@ import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
+import dk.dma.epd.common.prototype.layers.CircleSelectionGraphic;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
 
@@ -55,7 +56,10 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
 
     private SpeedVectorGraphic speedVector;
     
-    private AisTargetSelectionGraphic selectionGraphic;
+    /**
+     * Manages visualization of selection of this graphic.
+     */
+    private CircleSelectionGraphic circleSelectionGraphic;
     
     /**
      * The layer that displays this graphic object.
@@ -85,6 +89,8 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
         add(0, vessel);
         this.add(this.speedVector);
         add(heading);
+        // create the selection graphic
+        this.circleSelectionGraphic = new CircleSelectionGraphic(this);
     }
 
     @Override
@@ -160,26 +166,8 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
 
     @Override
     public void setSelection(boolean selected) {
-        VesselPositionData posData = this.vesselTarget != null ? this.vesselTarget.getPositionData() : null;
-        Position pos = posData != null ? posData.getPos() : null;
-        if(pos == null) {
-            // Cannot paint selection if we have no stored position data.
-            return;
-        }
-        // Simply move the selection graphic if already selected 
-        if(this.selectionGraphic != null && selected) {
-            this.selectionGraphic.moveSymbol(pos);
-        }
-        // If no previous selection, create graphics
-        else if(selected) {
-            this.selectionGraphic = new AisTargetSelectionGraphic();
-            this.selectionGraphic.moveSymbol(pos);
-            this.add(this.selectionGraphic);
-        }
-        // Selection was removed
-        else if(this.selectionGraphic != null){
-            this.remove(this.selectionGraphic);
-            this.selectionGraphic = null;
-        }
+        // Get the latest position data
+        Position centerPos = this.vesselTarget != null ? this.vesselTarget.getPositionData() != null ? this.vesselTarget.getPositionData().getPos() : null : null;
+        this.circleSelectionGraphic.updateSelection(selected, centerPos);
     }
 }
