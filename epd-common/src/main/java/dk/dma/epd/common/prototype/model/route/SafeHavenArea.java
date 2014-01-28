@@ -18,8 +18,10 @@ package dk.dma.epd.common.prototype.model.route;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
@@ -188,4 +190,13 @@ public class SafeHavenArea extends OMGraphicList {
 //        remove(selectionGraphics);
 //    }
 
+    /**
+     * Turn on anti-aliasing
+     */
+    @Override
+    public void render(Graphics g) {
+        Graphics2D image = (Graphics2D) g;
+        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        super.render(image);
+    }
 }
