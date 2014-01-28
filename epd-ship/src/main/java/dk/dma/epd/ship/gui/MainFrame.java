@@ -16,6 +16,7 @@
 package dk.dma.epd.ship.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 
@@ -26,6 +27,7 @@ import com.bbn.openmap.MapHandler;
 
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
+import dk.dma.epd.common.prototype.gui.MapContainer;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.ais.AisDialog;
@@ -47,7 +49,7 @@ import dk.dma.epd.ship.settings.EPDGuiSettings;
 /**
  * The main frame containing map and panels
  */
-public class MainFrame extends MainFrameCommon {
+public class MainFrame extends MainFrameCommon implements MapContainer {
 
     private static final String TITLE = "EPD-ship " + VersionInfo.getVersion();
 
@@ -96,6 +98,15 @@ public class MainFrame extends MainFrameCommon {
         glassPanel = (JPanel) getGlassPane();
         glassPanel.setLayout(null);
         glassPanel.setVisible(false);
+    }
+    
+    /**
+     * Returns a reference to the map container cast as a component
+     * @return a reference to the map container cast as a component
+     */
+    @Override
+    public Component asComponent() {
+        return this;
     }
     
     private void initGUI() {

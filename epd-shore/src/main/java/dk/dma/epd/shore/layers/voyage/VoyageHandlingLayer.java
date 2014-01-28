@@ -21,8 +21,6 @@ import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 
-import javax.swing.SwingUtilities;
-
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.coords.LatLonPoint;
@@ -84,6 +82,14 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
         EPDShore.getInstance().getVoyageEventDispatcher().registerListener(this);
     }
 
+    /**
+     * Returns the map container cast as a {@linkplain JMapFrame}
+     * @return the map container cast as a {@linkplain JMapFrame}
+     */
+    private JMapFrame getMapFrame() {
+        return (JMapFrame)getMapContainer();
+    }
+    
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
@@ -91,8 +97,8 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
         if (obj instanceof JMapFrame) {
             voyagePlanInfoPanel.setParent(getMapFrame());
 
-            mapFrame.getGlassPanel().add(voyagePlanInfoPanel);
-            mapFrame.getGlassPanel().add(voyageHandlingMouseOverPanel);
+            mapContainer.getGlassPanel().add(voyagePlanInfoPanel);
+            mapContainer.getGlassPanel().add(voyageHandlingMouseOverPanel);
             voyagePlanInfoPanel.setBounds(0, 20, 208, 300);
         }
 
@@ -146,7 +152,7 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
 
                 voyage.setRoute(newRoute);
 
-                getMapMenu().voyageWaypontMenu(this, mapBean, voyage, modified,
+                getMapMenu().voyageWaypointMenu(this, mapBean, voyage, modified,
                         getMapFrame(), voyagePlanInfoPanel, true, newRoute, null,
                         e.getPoint(), wpc.getWpIndex(), this.renegotiate);
                 getMapMenu().setVisible(true);
@@ -164,7 +170,7 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
 
                 voyage.setRoute(newRoute);
 
-                getMapMenu().voyageWaypontMenu(this, mapBean, voyage, modified,
+                getMapMenu().voyageWaypointMenu(this, mapBean, voyage, modified,
                         getMapFrame(), voyagePlanInfoPanel, false, newRoute,
                         rlg.getRouteLeg(), e.getPoint(), 0, this.renegotiate);
 
@@ -280,8 +286,7 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
 
                 if (closest instanceof WaypointCircle) {
                     WaypointCircle waypointCircle = (WaypointCircle) closest;
-                    Point containerPoint = SwingUtilities.convertPoint(mapBean,
-                            e.getPoint(), mapFrame);
+                    Point containerPoint = convertPoint(e.getPoint());
                     voyageHandlingMouseOverPanel.setPos(
                             (int) containerPoint.getX(),
                             (int) containerPoint.getY() - 10);
@@ -293,8 +298,7 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
                             .getRouteIndex());
                 } else {
                     RouteLegGraphic waypointLeg = (RouteLegGraphic) closest;
-                    Point containerPoint = SwingUtilities.convertPoint(mapBean,
-                            e.getPoint(), mapFrame);
+                    Point containerPoint = convertPoint(e.getPoint());
                     voyageHandlingMouseOverPanel.setPos(
                             (int) containerPoint.getX(),
                             (int) containerPoint.getY() - 10);
@@ -306,7 +310,7 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
                             .getRouteIndex());
                 }
 
-                mapFrame.getGlassPane().setVisible(true);
+                getGlassPanel().setVisible(true);
                 return true;
             } else {
                 voyageHandlingMouseOverPanel.setVisible(false);

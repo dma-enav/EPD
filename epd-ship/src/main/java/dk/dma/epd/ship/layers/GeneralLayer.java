@@ -17,7 +17,6 @@ package dk.dma.epd.ship.layers;
 
 import java.awt.event.MouseEvent;
 
-import dk.dma.epd.common.prototype.gui.MapFrameCommon;
 import dk.dma.epd.common.prototype.layers.GeneralLayerCommonTS;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.MapMenu;
@@ -25,7 +24,7 @@ import dk.dma.epd.ship.gui.MapMenu;
 /**
  * General layer for EPDShip that may be sub-classed by other layers.
  */
-public class GeneralLayer extends GeneralLayerCommonTS<MainFrame, MapMenu, MapFrameCommon> {
+public class GeneralLayer extends GeneralLayerCommonTS<MainFrame, MapMenu> {
 
     private static final long serialVersionUID = 1L;
 

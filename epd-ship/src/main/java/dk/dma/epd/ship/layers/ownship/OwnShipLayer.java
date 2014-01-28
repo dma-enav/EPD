@@ -19,8 +19,6 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.Date;
 
-import javax.swing.SwingUtilities;
-
 import com.bbn.openmap.event.MapEventUtils;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
@@ -279,7 +277,7 @@ public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, Proj
 
         if (newClosest != null && newClosest != closest) {
             closest = newClosest;
-            Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), mainFrame);
+            Point containerPoint = convertPoint(e.getPoint());
 
             PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
             pastTrackInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);

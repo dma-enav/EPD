@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.common.prototype.layers;
 
-import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.List;
@@ -33,7 +32,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
-import dk.dma.epd.common.prototype.gui.MapFrameCommon;
+import dk.dma.epd.common.prototype.gui.MapContainer;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel.InfoPanelBinding;
@@ -53,7 +52,7 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     protected MapBean mapBean;
     protected MainFrameCommon mainFrame;
     protected MapMenuCommon mapMenu;
-    protected MapFrameCommon mapFrame;
+    protected MapContainer mapContainer;
     
     protected OMGraphic closest;
     
@@ -81,18 +80,15 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
             mapBean = (MapBean) obj;
         } else if (obj instanceof MainFrameCommon) {
             mainFrame = (MainFrameCommon) obj;
-            if (mainFrame.getGlassPanel() != null) {
-                // EPDShip case
-                addInfoPanelsToGlassPane();
-            }
         } else if (obj instanceof MapMenuCommon) {
             mapMenu = (MapMenuCommon) obj;
-        } else if (obj instanceof MapFrameCommon) {
-            mapFrame = (MapFrameCommon) obj;
-            if (mapFrame.getGlassPanel() != null) {
-                // EPDShore case
-                addInfoPanelsToGlassPane();
-            }
+        } 
+        
+        // For EPDShip the MapContainer is the MainFrame
+        // For EPDShore the MapContainer is the JMapFrame
+        if (obj instanceof MapContainer) {
+            mapContainer = (MapContainer) obj;
+            addInfoPanelsToGlassPane();
         }
     }
 
@@ -236,7 +232,7 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
             
             if (newClosest != null && newClosest.isVisible() && newClosest != closest) {
                 closest = newClosest;
-                Point containerPoint = SwingUtilities.convertPoint(mapBean, evt.getPoint(), getMapContainer());
+                Point containerPoint = convertPoint(evt.getPoint());
                 
                 InfoPanel infoPanel = infoPanels.getInfoPanel(newClosest.getClass());
                 infoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
@@ -307,11 +303,15 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
     }   
 
     /**
-     * Returns a reference to the map frame
+     * Returns a reference to the map container.
+     * <p>
+     * For EPDShip the MapContainer is the MainFrame.<br>
+     * For EPDShore the MapContainer is the JMapFrame
+     * 
      * @return a reference to the map frame
      */
-    public MapFrameCommon getMapFrame() {
-        return mapFrame;
+    public MapContainer getMapContainer() {
+        return mapContainer;
     }
 
     /**
@@ -321,19 +321,18 @@ public abstract class GeneralLayerCommon extends OMGraphicHandlerLayer implement
      * @return a reference to the glass pane
      */
     public JPanel getGlassPanel() {
-        return (mapFrame != null) ? mapFrame.getGlassPanel() : mainFrame.getGlassPanel();
+       return getMapContainer().getGlassPanel();
     }    
     
     /**
-     * Returns a reference to the map container, 
-     * i.e. the main frame (EPDShip) or map frame (EPDShore)
-     * 
-     * @return a reference to the glass pane
+     * Converts a point in {@linkplain MapBean} coordinates the that of the {@linkplain MapContainer}
+     * @param point the point to convert
+     * @return the converted point
      */
-    public Component getMapContainer() {
-        return (mapFrame != null) ? mapFrame : mainFrame;
+    public Point convertPoint(Point aPoint) {
+        return SwingUtilities.convertPoint(mapBean, aPoint, mapContainer.asComponent());
     }
-
+    
     /**
      * Register the graphics classes that are handled upon right-clicking the mouse.
      * 

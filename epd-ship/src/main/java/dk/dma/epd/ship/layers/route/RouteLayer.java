@@ -24,7 +24,6 @@ import java.awt.geom.Point2D;
 import java.util.List;
 
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
@@ -628,8 +627,7 @@ public class RouteLayer extends GeneralLayer implements
                         MetocPointGraphic pointGraphic = (MetocPointGraphic) newClosest;
                         MetocForecastPoint pointForecast = pointGraphic
                                 .getMetocPoint();
-                        Point containerPoint = SwingUtilities.convertPoint(
-                                mapBean, e.getPoint(), mainFrame);
+                        Point containerPoint = convertPoint(e.getPoint());
                         metocInfoPanel.setPos((int) containerPoint.getX(),
                                 (int) containerPoint.getY());
                         metocInfoPanel.showText(pointForecast, pointGraphic
@@ -647,8 +645,7 @@ public class RouteLayer extends GeneralLayer implements
             if (newClosest instanceof WaypointCircle) {
                 closest = newClosest;
                 WaypointCircle waypointCircle = (WaypointCircle) closest;
-                Point containerPoint = SwingUtilities.convertPoint(mapBean,
-                        e.getPoint(), mainFrame);
+                Point containerPoint = convertPoint(e.getPoint());
                 waypointInfoPanel.setPos((int) containerPoint.getX(),
                         (int) containerPoint.getY() - 10);
                 waypointInfoPanel.showWpInfo(waypointCircle.getRoute(),

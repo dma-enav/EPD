@@ -492,7 +492,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
                 VesselOutlineGraphic.class);
 
         if (newClosest != closest) {
-            Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), mainFrame);
+            Point containerPoint = convertPoint(e.getPoint());
 
             if (newClosest instanceof PastTrackWpCircle) {
                 PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;

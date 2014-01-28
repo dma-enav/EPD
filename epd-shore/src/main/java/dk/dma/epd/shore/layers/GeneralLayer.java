@@ -18,7 +18,6 @@ package dk.dma.epd.shore.layers;
 import java.awt.event.MouseEvent;
 
 import dk.dma.epd.common.prototype.layers.GeneralLayerCommonTS;
-import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.gui.views.MapMenu;
 
@@ -26,7 +25,7 @@ import dk.dma.epd.shore.gui.views.MapMenu;
 /**
  * General layer for EPDShore that may be sub-classed by other layers.
  */
-public class GeneralLayer extends GeneralLayerCommonTS<MainFrame, MapMenu, JMapFrame> {
+public class GeneralLayer extends GeneralLayerCommonTS<MainFrame, MapMenu> {
 
     private static final long serialVersionUID = 1L;
     

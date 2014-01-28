@@ -16,7 +16,6 @@
 package dk.dma.epd.common.prototype.layers;
 
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
-import dk.dma.epd.common.prototype.gui.MapFrameCommon;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 
 /**
@@ -24,8 +23,7 @@ import dk.dma.epd.common.prototype.gui.MapMenuCommon;
  */
 public class GeneralLayerCommonTS<
     MAINFRAME extends MainFrameCommon,
-    MAPMENU extends MapMenuCommon,
-    MAPFRAME extends MapFrameCommon> extends GeneralLayerCommon {
+    MAPMENU extends MapMenuCommon> extends GeneralLayerCommon {
 
     private static final long serialVersionUID = 1L;
     
@@ -48,14 +46,4 @@ public class GeneralLayerCommonTS<
     public MAPMENU getMapMenu() {
         return (MAPMENU)mapMenu;
     }   
-
-    /**
-     * Returns a reference to the map frame
-     * @return a reference to the map frame
-     */
-    @Override
-    @SuppressWarnings("unchecked")
-    public MAPFRAME getMapFrame() {
-        return (MAPFRAME)mapFrame;
-    }
 }

@@ -599,7 +599,7 @@ public class MapMenu extends MapMenuCommon {
         // Renegotiate Voyage
     }
 
-    public void voyageWaypontMenu(VoyageHandlingLayer voyageHandlingLayer,
+    public void voyageWaypointMenu(VoyageHandlingLayer voyageHandlingLayer,
             MapBean mapBean, Voyage voyage, boolean modified, JMapFrame parent,
             VoyagePlanInfoPanel voyagePlanInfoPanel, boolean waypoint,
             Route route, RouteLeg routeLeg, Point point, int routeWayPointIndex, boolean renegotiate) {

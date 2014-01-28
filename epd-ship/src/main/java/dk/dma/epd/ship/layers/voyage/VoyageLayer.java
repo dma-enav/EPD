@@ -23,8 +23,6 @@ import java.awt.event.MouseEvent;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.SwingUtilities;
-
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMList;
@@ -307,8 +305,7 @@ public class VoyageLayer extends GeneralLayer implements
 
                 if (closest instanceof WaypointCircle) {
                     WaypointCircle waypointCircle = (WaypointCircle) closest;
-                    Point containerPoint = SwingUtilities.convertPoint(mapBean,
-                            e.getPoint(), mainFrame);
+                    Point containerPoint = convertPoint(e.getPoint());
                     voyageHandlingMouseOverPanel.setPos(
                             (int) containerPoint.getX(),
                             (int) containerPoint.getY() - 10);
@@ -320,8 +317,7 @@ public class VoyageLayer extends GeneralLayer implements
                             .getRouteIndex());
                 } else {
                     RouteLegGraphic waypointLeg = (RouteLegGraphic) closest;
-                    Point containerPoint = SwingUtilities.convertPoint(mapBean,
-                            e.getPoint(), mainFrame);
+                    Point containerPoint = convertPoint(e.getPoint());
                     voyageHandlingMouseOverPanel.setPos(
                             (int) containerPoint.getX(),
                             (int) containerPoint.getY() - 10);

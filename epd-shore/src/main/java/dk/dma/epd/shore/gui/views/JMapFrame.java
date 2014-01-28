@@ -17,6 +17,7 @@ package dk.dma.epd.shore.gui.views;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -44,7 +45,8 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
 
 import dk.dma.epd.common.graphics.Resources;
-import dk.dma.epd.common.prototype.gui.MapFrameCommon;
+import dk.dma.epd.common.prototype.gui.ComponentFrame;
+import dk.dma.epd.common.prototype.gui.MapContainer;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 
@@ -55,7 +57,7 @@ import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
  * Class for setting up a map frame
  * @author Steffen D. Sommer (steffendsommer@gmail.com), David A. Camre (davidcamre@gmail.com)
  */
-public class JMapFrame extends MapFrameCommon  {
+public class JMapFrame extends ComponentFrame implements MapContainer {
     
     private static final long serialVersionUID = 1L;
     private ChartPanel chartPanel;
@@ -76,6 +78,7 @@ public class JMapFrame extends MapFrameCommon  {
     public int height;
     private static int chartPanelOffset = 12;
     JInternalFrame mapFrame;
+    private JPanel glassPanel;
 
     /**
      * Constructor for setting up the map frame
@@ -83,10 +86,13 @@ public class JMapFrame extends MapFrameCommon  {
      * @param mainFrame    reference to the mainframe
      */
     public JMapFrame(int id, MainFrame mainFrame, MapFrameType type) {
-        super("New Window " + id);
+        super("New Window " + id, true, true, true, true);
 
         this.mainFrame = mainFrame;
         this.id = id;
+
+        // Initialize the glass pane
+        initGlassPane();
 
         chartPanel = new ChartPanel(mainFrame, this);
         this.setContentPane(chartPanel);
@@ -105,10 +111,14 @@ public class JMapFrame extends MapFrameCommon  {
      */
     public JMapFrame(int id, MainFrame mainFrame, Point2D center, float scale) {
 
-        super("New Window " + id);
+        super("New Window " + id, true, true, true, true);
 
         this.mainFrame = mainFrame;
         this.id = id;
+        
+        // Initialize the glass pane
+        initGlassPane();
+        
         chartPanel = new ChartPanel(mainFrame, this);
         this.setContentPane(chartPanel);
         this.setVisible(true);
@@ -116,6 +126,33 @@ public class JMapFrame extends MapFrameCommon  {
         chartPanel.initChart(center, scale);
         initGUI();
 
+    }
+    
+    /**
+     * Function for initializing the glasspane
+     */
+    private void initGlassPane() {
+        glassPanel = (JPanel) getGlassPane();
+        glassPanel.setLayout(null);
+        glassPanel.setVisible(false);
+    }
+
+    /**
+     * Function for getting the glassPanel of the map frame
+     * @return glassPanel the glassPanel of the map frame
+     */
+    @Override
+    public JPanel getGlassPanel() {
+        return glassPanel;
+    }
+
+    /**
+     * Returns a reference to the map container cast as a component
+     * @return a reference to the map container cast as a component
+     */
+    @Override
+    public Component asComponent() {
+        return this;
     }
 
     /**
@@ -186,7 +223,12 @@ public class JMapFrame extends MapFrameCommon  {
         moveHandler = new JLabel("New Window "+id, SwingConstants.CENTER);
         moveHandler.setFont(new Font("Arial", Font.BOLD, 9));
         moveHandler.setForeground(new Color(200, 200, 200));
-        moveHandler.addMouseListener(this);
+        moveHandler.addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent arg0) {
+                if (arg0.getClickCount() == 2){
+                    rename();
+                }
+            }});
         moveHandler.addMouseListener(mml);
         moveHandler.addMouseMotionListener(mml);
         actions = moveHandler.getListeners(MouseMotionListener.class);
@@ -389,16 +431,6 @@ public class JMapFrame extends MapFrameCommon  {
         content.getActionMap().put("panLeft", panLeft);
         content.getActionMap().put("panRight", panRight);
 
-    }
-
-    /**
-     * Function for setting the title of the map frame when double-clicking on the title
-     */
-    @Override
-    public void mouseClicked(MouseEvent arg0) {
-        if (arg0.getClickCount() == 2){
-            rename();
-        }
     }
 
     /**

@@ -20,8 +20,6 @@ import java.awt.event.MouseEvent;
 import java.util.Date;
 import java.util.List;
 
-import javax.swing.SwingUtilities;
-
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMList;
@@ -104,7 +102,7 @@ public class MsiLayer extends GeneralLayer implements IMsiUpdateListener {
         }
         if (obj instanceof JMapFrame){
             msiInfoPanel = new MsiInfoPanel();
-            mapFrame.getGlassPanel().add(msiInfoPanel);
+            mapContainer.getGlassPanel().add(msiInfoPanel);
         }
     }
 
@@ -149,14 +147,14 @@ public class MsiLayer extends GeneralLayer implements IMsiUpdateListener {
         OMGraphic newClosest = getSelectedGraphic(e, MsiSymbolGraphic.class, MsiDirectionalIcon.class);
 
         if (newClosest != closest && this.isVisible()) {
-            Point containerPoint = SwingUtilities.convertPoint(mapBean, e.getPoint(), mapFrame);
+            Point containerPoint = convertPoint(e.getPoint());
             if (newClosest instanceof MsiSymbolGraphic) {
                 closest = newClosest;
                 MsiSymbolGraphic msiSymbolGraphic = (MsiSymbolGraphic)newClosest;
 
                 int x = (int) containerPoint.getX()+10;
                 int y = (int) containerPoint.getY()+10;
-                mapFrame.getGlassPanel().setVisible(true);
+                mapContainer.getGlassPanel().setVisible(true);
                 msiInfoPanel.showMsiInfo(msiSymbolGraphic.getMsiMessage());
                 if(mapBean.getProjection().getWidth() - x < msiInfoPanel.getWidth()){
                     x -= msiInfoPanel.getWidth()+20;
