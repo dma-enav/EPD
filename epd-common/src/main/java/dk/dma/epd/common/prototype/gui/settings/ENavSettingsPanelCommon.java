@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.gui.settings;
 
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
+import javax.swing.ImageIcon;
 import javax.swing.JSpinner;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -52,7 +53,9 @@ public class ENavSettingsPanelCommon extends BaseSettingsPanel {
      * Constructs a new ENavSettingsPanelCommon object.
      */
     public ENavSettingsPanelCommon() {
-        super("e-Nav Services");
+        // Create the panel with a name and the path to its icon.
+        super("e-Nav Services", new ImageIcon(ENavSettingsPanelCommon.class.getResource
+                ("/images/settings/servers-network.png")));
         this.setLayout(null);
         
         // METOC panel

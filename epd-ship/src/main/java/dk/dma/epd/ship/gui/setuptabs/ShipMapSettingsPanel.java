@@ -23,6 +23,8 @@ public class ShipMapSettingsPanel extends MapSettingsPanelCommon {
     private static final long serialVersionUID = 1L;
 
     public ShipMapSettingsPanel() {
+        
+        // Resize the panel to add spaces for ekstra ship options.
         this.getGenerelPanel().setSize(438, 220);
         this.getApperancePanel().setBounds(this.getApperancePanel().getBounds().x, this.getApperancePanel().getBounds().y+70, 
                 this.getApperancePanel().getWidth(), (int) this.getApperancePanel().getBounds().getHeight());

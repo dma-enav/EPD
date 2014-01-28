@@ -20,9 +20,11 @@ import javax.swing.JFrame;
 
 import java.awt.BorderLayout;
 
+import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import javax.swing.JPanel;
 import javax.swing.JButton;
+import javax.swing.SwingConstants;
 
 import dk.dma.epd.common.prototype.event.SetupDialogActionListener;
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
@@ -84,8 +86,19 @@ public class SetupDialogCommon extends JDialog {
     }
 
     private void addTabs(JTabbedPane tabbedPane) {
-        for (BaseSettingsPanel baseSettingsPanel : settingsPanels) {
-            tabbedPane.add(baseSettingsPanel);
+        for (int i = 0; i < settingsPanels.size(); i++) {
+            // Add the panel.
+            tabbedPane.add(this.settingsPanels.get(i));
+
+            // Get the settingsPanel.
+            BaseSettingsPanel newPanel = this.settingsPanels.get(i);
+            
+            // Create icon for tab.
+            JLabel panelTitle = new JLabel(newPanel.getName());
+            panelTitle.setIcon(newPanel.getIcon());
+            panelTitle.setIconTextGap(5);
+            panelTitle.setHorizontalTextPosition(SwingConstants.RIGHT);
+            tabbedPane.setTabComponentAt(i, panelTitle);
         }
     }
     
