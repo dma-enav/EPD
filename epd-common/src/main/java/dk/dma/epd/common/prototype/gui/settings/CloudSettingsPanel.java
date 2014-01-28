@@ -24,6 +24,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -52,7 +53,8 @@ public class CloudSettingsPanel extends BaseSettingsPanel {
      * Constructor
      */
     public CloudSettingsPanel() {
-        super("Cloud", EPD.res().getCachedImageIcon("images/settings/cloud.png"));
+        super("Cloud", new ImageIcon(CloudSettingsPanel.class.getResource
+                ("/images/settings/cloud.png")));
         
         setLayout(new GridBagLayout());
 

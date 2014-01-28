@@ -18,18 +18,26 @@ package dk.dma.epd.ship.gui;
 import javax.swing.JFrame;
 
 import dk.dma.epd.common.prototype.gui.SetupDialogCommon;
+import dk.dma.epd.common.prototype.gui.settings.CloudSettingsPanel;
 import dk.dma.epd.ship.gui.setuptabs.ShipMapSettingsPanel;
 
+/**
+ * 
+ * @author adamduehansen
+ *
+ */
 public class SetupDialogShip extends SetupDialogCommon {
 
     private static final long serialVersionUID = 1L;
+    private CloudSettingsPanel cloudSettings;
     private ShipMapSettingsPanel mapSettings;
 
     public SetupDialogShip(JFrame mainFrame) {
         super(mainFrame, "Ship Setup", true);
 
+        cloudSettings = new CloudSettingsPanel();
         mapSettings   = new ShipMapSettingsPanel();
         
-        //registerSettingsPanels(mapSettings);
+        registerSettingsPanels(cloudSettings, mapSettings);
     }
 }

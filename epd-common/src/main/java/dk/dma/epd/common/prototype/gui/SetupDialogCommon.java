@@ -35,6 +35,12 @@ import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This is the common setup GUI for ship and shore.
+ * 
+ * @author adamduehansen
+ *
+ */
 public class SetupDialogCommon extends JDialog {
 
     private static final long serialVersionUID = 1L;
@@ -42,8 +48,9 @@ public class SetupDialogCommon extends JDialog {
     private JButton btnCancel;
     private List<BaseSettingsPanel> settingsPanels;
     
-    // Settings panels
+    // Common settings panels
     private ENavSettingsPanelCommon enavSettings;
+    
     private Settings settings;
     private JTabbedPane tabbedPane;
     
@@ -85,6 +92,11 @@ public class SetupDialogCommon extends JDialog {
         this.btnCancel.addActionListener(dialogListener);
     }
 
+    /**
+     * Adds a setting panel to the tabbed pane section, and adds an
+     * icon infront of the title.
+     * @param tabbedPane The tabbed pane.
+     */
     private void addTabs(JTabbedPane tabbedPane) {
         for (int i = 0; i < settingsPanels.size(); i++) {
             // Add the panel.
@@ -93,7 +105,7 @@ public class SetupDialogCommon extends JDialog {
             // Get the settingsPanel.
             BaseSettingsPanel newPanel = this.settingsPanels.get(i);
             
-            // Create icon for tab.
+            // Create icon and title for tab.
             JLabel panelTitle = new JLabel(newPanel.getName());
             panelTitle.setIcon(newPanel.getIcon());
             panelTitle.setIconTextGap(5);

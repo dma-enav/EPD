@@ -14,19 +14,28 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 package dk.dma.epd.common.prototype.gui.settings;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JLabel;
 import javax.swing.border.TitledBorder;
+import javax.swing.JTextField;
 
+/**
+ * 
+ * @author adamduehansen
+ *
+ */
 public class MapSettingsPanelCommon extends BaseSettingsPanel {
     
     private static final long serialVersionUID = 1L;
     private JPanel generelMapSettings;
-    private JPanel apperanceSettings;
+    private JPanel wmsSettings;
+    private JTextField textField;
     
     public MapSettingsPanelCommon() {
-        super("Map Settings");
+        super("Map", new ImageIcon(MapSettingsPanelCommon.class.getResource
+                ("/images/settings/map.png")));
         setLayout(null);
         
         // Generel settings apenel.
@@ -38,7 +47,7 @@ public class MapSettingsPanelCommon extends BaseSettingsPanel {
         
         // Generel settings panel components.
         JSpinner spinnerDefaultMapScale = new JSpinner();
-        spinnerDefaultMapScale.setBounds(6, 20, 75, 22);
+        spinnerDefaultMapScale.setBounds(6, 20, 75, 19);
         generelMapSettings.add(spinnerDefaultMapScale);
         
         JLabel lblDefaultMapScale = new JLabel("Default map scale");
@@ -46,55 +55,61 @@ public class MapSettingsPanelCommon extends BaseSettingsPanel {
         generelMapSettings.add(lblDefaultMapScale);
         
         JSpinner spinnerMaximumScale = new JSpinner();
-        spinnerMaximumScale.setBounds(6, 54, 75, 22);
+        spinnerMaximumScale.setBounds(6, 51, 75, 19);
         generelMapSettings.add(spinnerMaximumScale);
         
         JLabel lblMaximumScale = new JLabel("Maximum scale");
-        lblMaximumScale.setBounds(93, 57, 98, 16);
+        lblMaximumScale.setBounds(93, 51, 98, 16);
         generelMapSettings.add(lblMaximumScale);
         
         JLabel lblDefaultMapCenter = new JLabel("Default map center");
-        lblDefaultMapCenter.setBounds(6, 88, 120, 16);
+        lblDefaultMapCenter.setBounds(6, 82, 120, 16);
         generelMapSettings.add(lblDefaultMapCenter);
         
         JLabel lblLatitude = new JLabel("Latitude:");
-        lblLatitude.setBounds(6, 116, 55, 16);
+        lblLatitude.setBounds(6, 110, 55, 16);
         generelMapSettings.add(lblLatitude);
         
         JSpinner spinnerLatitude = new JSpinner();
-        spinnerLatitude.setBounds(73, 113, 75, 22);
+        spinnerLatitude.setBounds(73, 108, 75, 19);
         generelMapSettings.add(spinnerLatitude);
         
         JLabel lblLongitude = new JLabel("Longitude:");
-        lblLongitude.setBounds(185, 116, 75, 16);
+        lblLongitude.setBounds(160, 108, 75, 16);
         generelMapSettings.add(lblLongitude);
         
         JSpinner spinnerLongitude = new JSpinner();
-        spinnerLongitude.setBounds(272, 113, 75, 22);
+        spinnerLongitude.setBounds(247, 108, 75, 19);
         generelMapSettings.add(spinnerLongitude);
         
         // Add the panel.
         this.add(generelMapSettings);
         
         
-        apperanceSettings = new JPanel();
-        apperanceSettings.setBounds(6, 163, 438, 131);
-        apperanceSettings.setLayout(null);
-        apperanceSettings.setBorder(new TitledBorder(null, "Apperance", TitledBorder.LEADING, 
+        wmsSettings = new JPanel();
+        wmsSettings.setBounds(6, 163, 438, 131);
+        wmsSettings.setLayout(null);
+        wmsSettings.setBorder(new TitledBorder(null, "WMS Settings", TitledBorder.LEADING, 
                 TitledBorder.TOP, null, null));
+
+        this.add(wmsSettings);
         
+        JLabel lblWmsUrl = new JLabel("WMS URL");
+        lblWmsUrl.setBounds(6, 20, 61, 16);
+        wmsSettings.add(lblWmsUrl);
         
-        
-        
-        this.add(apperanceSettings);
+        textField = new JTextField();
+        textField.setBounds(6, 48, 426, 28);
+        wmsSettings.add(textField);
+        textField.setColumns(10);
     }
     
     public JPanel getGenerelPanel() {
         return this.generelMapSettings;
     }
     
-    public JPanel getApperancePanel() {
-        return this.apperanceSettings;
+    public JPanel getWMSPanel() {
+        return this.wmsSettings;
     }
 
     @Override
