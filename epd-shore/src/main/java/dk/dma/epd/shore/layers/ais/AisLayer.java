@@ -45,7 +45,6 @@ import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
-import dk.dma.epd.common.prototype.layers.ais.AisTargetSelectionGraphic;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SarTargetGraphic;
@@ -81,16 +80,13 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     private volatile float mapScale;
 
     private volatile OMGraphic closest;
-    private final AisTargetSelectionGraphic targetSelectionGraphic = new AisTargetSelectionGraphic();
 
     /**
-     * Starts the AisLayer thread
+     * Create a new AisLayer that is redrawn repeatedly at a given interval.
+     * @param redrawIntervalMillis The interval at which the AisLayer will redraw itself.
      */
     public AisLayer(int redrawIntervalMillis) {
         super(redrawIntervalMillis);
-        synchronized (graphics) {
-            graphics.add(targetSelectionGraphic);
-        }
         // receive left-click events for the following set of classes.
         this.registerMouseClickClasses(VesselTargetGraphic.class);
         // receive right-click events for the following set of classes.
@@ -103,7 +99,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     public void mapClearTargets() {
         synchronized (graphics) {
             graphics.clear();
-            graphics.add(targetSelectionGraphic);
         }
         synchronized (targets) {
             targets.clear();
@@ -149,9 +144,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
                 mapScale = chartPanel.getMap().getScale();
                 mapClearTargets();
             }
-            // Bug fix: clear selection such that a deselection in one window
-            // will propagate to other windows
-            this.targetSelectionGraphic.setVisible(false);
             
             for (MobileTarget mobileTarget : aisHandler.getMobileTargets(AisTarget.Status.OK)) {
                 
@@ -185,7 +177,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
                     targetGraphic.update(mobileTarget, null, null, mapScale);
 
                     if (mobileTarget.getMmsi() == getMainFrame().getSelectedMMSI()) {
-                        targetSelectionGraphic.moveSymbol(mobileTarget.getPositionData().getPos());
+//                        targetSelectionGraphic.moveSymbol(mobileTarget.getPositionData().getPos());
 // TODO Janus Varmarken: fix this call                        setStatusAreaTxt();
                     }
                 }
