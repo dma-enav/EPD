@@ -317,8 +317,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     private void setStatusAreaTxt(VesselTarget vessel) {
         HashMap<String, String> info = new HashMap<String, String>();
         String currKey;
-//        VesselTargetGraphic vtg = getVessel(getMainFrame().getSelectedMMSI());
-//        VesselTarget vessel = vtg.getVesselTarget();
         if (vessel != null) {
             VesselStaticData vsd = vessel.getStaticData();
             VesselPositionData vpd = vessel.getPositionData();
