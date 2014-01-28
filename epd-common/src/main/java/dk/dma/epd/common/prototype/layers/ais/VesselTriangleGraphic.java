@@ -24,6 +24,7 @@ import com.bbn.openmap.proj.Projection;
 
 import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
@@ -36,7 +37,7 @@ import dk.dma.epd.common.prototype.settings.NavSettings;
 /**
  * @author Janus Varmarken
  */
-public class VesselTriangleGraphic extends TargetGraphic {
+public class VesselTriangleGraphic extends TargetGraphic implements ISelectableGraphic {
 
     private static final long serialVersionUID = 1L;
 
@@ -53,6 +54,8 @@ public class VesselTriangleGraphic extends TargetGraphic {
     private boolean showNameLabel = true;
 
     private SpeedVectorGraphic speedVector;
+    
+    private AisTargetSelectionGraphic selectionGraphic;
     
     /**
      * The layer that displays this graphic object.
@@ -153,5 +156,30 @@ public class VesselTriangleGraphic extends TargetGraphic {
 
     public boolean getShowNameLabel() {
         return showNameLabel;
+    }
+
+    @Override
+    public void setSelection(boolean selected) {
+        VesselPositionData posData = this.vesselTarget != null ? this.vesselTarget.getPositionData() : null;
+        Position pos = posData != null ? posData.getPos() : null;
+        if(pos == null) {
+            // Cannot paint selection if we have no stored position data.
+            return;
+        }
+        // Simply move the selection graphic if already selected 
+        if(this.selectionGraphic != null && selected) {
+            this.selectionGraphic.moveSymbol(pos);
+        }
+        // If no previous selection, create graphics
+        else if(selected) {
+            this.selectionGraphic = new AisTargetSelectionGraphic();
+            this.selectionGraphic.moveSymbol(pos);
+            this.add(this.selectionGraphic);
+        }
+        // Selection was removed
+        else if(this.selectionGraphic != null){
+            this.remove(this.selectionGraphic);
+            this.selectionGraphic = null;
+        }
     }
 }
