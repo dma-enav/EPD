@@ -75,7 +75,7 @@ import dk.dma.epd.shore.voyage.VoyageManager;
  * Starts up components, bean context and GUI.
  * 
  */
-public final class EPDShore extends EPD<EPDSettings> {
+public final class EPDShore extends EPD {
 
     private static Logger LOG;
     private Path homePath;
@@ -150,7 +150,7 @@ public final class EPDShore extends EPD<EPDSettings> {
         } else {
             settings = new EPDSettings();
         }
-        LOG.info("Using settings file: " + settings.getSettingsFile());
+        LOG.info("Using settings file: " + getSettings().getSettingsFile());
         settings.loadFromFile();
         beanHandler.add(settings);
         
@@ -256,6 +256,15 @@ public final class EPDShore extends EPD<EPDSettings> {
         return (EPDShore)instance;
     }
     
+    /**
+     * Returns the settings associated with the EPD system
+     * @return the settings associated with the EPD system
+     */
+    @Override
+    public EPDSettings getSettings() {
+        return (EPDSettings)settings;
+    }    
+
     /**
      * Returns the default shore mouse mode service list
      * @return the default shore mouse mode service list
@@ -509,7 +518,7 @@ public final class EPDShore extends EPD<EPDSettings> {
      */
     @Override
     protected void startSensors() {
-        EPDSensorSettings sensorSettings = settings.getSensorSettings();
+        EPDSensorSettings sensorSettings = getSettings().getSensorSettings();
         switch (sensorSettings.getAisConnectionType()) {
         case NONE:
             aisSensor = new NmeaStdinSensor();

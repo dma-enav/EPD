@@ -31,10 +31,10 @@ import dk.dma.epd.common.prototype.settings.Settings;
  * Abstract super class for the main system, i.e either 
  * {@code EPDShore} or {@code EPDShip}
  */
-public abstract class EPD<S extends Settings> implements ISettingsListener {
+public abstract class EPD implements ISettingsListener {
     
-    protected static EPD<?> instance;    
-    protected S settings;
+    protected static EPD instance;    
+    protected Settings settings;
     protected Properties properties = new Properties();
     
     /**
@@ -50,7 +50,7 @@ public abstract class EPD<S extends Settings> implements ISettingsListener {
      * 
      * @return a reference to the current {@code EPD} system
      */
-    public static EPD<?> getInstance() {
+    public static EPD getInstance() {
         return instance;
     }
     
@@ -75,7 +75,7 @@ public abstract class EPD<S extends Settings> implements ISettingsListener {
      * Returns the settings associated with the EPD system
      * @return the settings associated with the EPD system
      */
-    public S getSettings() {
+    public Settings getSettings() {
         return settings;
     }
     

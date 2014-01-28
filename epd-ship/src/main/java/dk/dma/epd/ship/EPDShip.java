@@ -86,7 +86,7 @@ import dk.dma.epd.ship.settings.EPDSettings;
  * Starts up components, bean context and GUI.
  * 
  */
-public final class EPDShip extends EPD<EPDSettings> {
+public final class EPDShip extends EPD {
 
     private static Logger LOG;
     private Path homePath;
@@ -161,7 +161,7 @@ public final class EPDShip extends EPD<EPDSettings> {
 
             settings = new EPDSettings(getHomePath().resolve("settings.properties").toString());
         }
-        LOG.info("Using settings file: " + settings.getSettingsFile());
+        LOG.info("Using settings file: " + getSettings().getSettingsFile());
         settings.loadFromFile();
         mapHandler.add(settings);
         
@@ -289,6 +289,14 @@ public final class EPDShip extends EPD<EPDSettings> {
         return (EPDShip)instance;
     }
     
+    /**
+     * Returns the settings associated with the EPD system
+     * @return the settings associated with the EPD system
+     */
+    @Override
+    public EPDSettings getSettings() {
+        return (EPDSettings)settings;
+    }    
 
     /**
      * Returns the default shore mouse mode service list
@@ -307,7 +315,7 @@ public final class EPDShip extends EPD<EPDSettings> {
      */
     @Override
    protected void startSensors() {
-        EPDSensorSettings sensorSettings = settings.getSensorSettings();
+        EPDSensorSettings sensorSettings = getSettings().getSensorSettings();
         switch (sensorSettings.getAisConnectionType()) {
         case NONE:
             aisSensor = null;
