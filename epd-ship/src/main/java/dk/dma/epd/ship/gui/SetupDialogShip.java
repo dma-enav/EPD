@@ -19,6 +19,7 @@ import javax.swing.JFrame;
 
 import dk.dma.epd.common.prototype.gui.SetupDialogCommon;
 import dk.dma.epd.common.prototype.gui.settings.CloudSettingsPanel;
+import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.ship.gui.setuptabs.ShipMapSettingsPanel;
 
 /**
@@ -39,5 +40,11 @@ public class SetupDialogShip extends SetupDialogCommon {
         mapSettings   = new ShipMapSettingsPanel();
         
         registerSettingsPanels(cloudSettings, mapSettings);
+    }
+    
+    @Override
+    public void loadSettings(Settings settings) {
+        super.loadSettings(settings);
+        mapSettings.doLoadSettings();
     }
 }

@@ -61,32 +61,32 @@ public class ENavSettingsPanelCommon extends BaseSettingsPanel {
         // METOC panel
         JPanel METOCPanel = new JPanel();
         METOCPanel.setLayout(null);
-        METOCPanel.setBounds(0, 0, 450, 120);
+        METOCPanel.setBounds(6, 6, 438, 110);
         METOCPanel.setBorder(new TitledBorder(null, "METOC Settings", TitledBorder.LEADING,
                 TitledBorder.TOP, null, null));
         
         spinnerMETOCValidityDuration = new JSpinner();
-        spinnerMETOCValidityDuration.setBounds(6, 20, 70, 19);
+        spinnerMETOCValidityDuration.setBounds(16, 20, 70, 20);
         METOCPanel.add(spinnerMETOCValidityDuration);
         
         JLabel lblMetocValidityDuration = new JLabel("METOC validity duration (min)");
-        lblMetocValidityDuration.setBounds(88, 22, 188, 16);
+        lblMetocValidityDuration.setBounds(98, 22, 188, 16);
         METOCPanel.add(lblMetocValidityDuration);
         
         spinnerActiveRouteMETOCPollInterval = new JSpinner();
-        spinnerActiveRouteMETOCPollInterval.setBounds(6, 51, 70, 19);
+        spinnerActiveRouteMETOCPollInterval.setBounds(16, 45, 70, 20);
         METOCPanel.add(spinnerActiveRouteMETOCPollInterval);
         
         JLabel lblActiveRouteMetoc = new JLabel("Active route METOC poll interval (min)");
-        lblActiveRouteMetoc.setBounds(88, 53, 240, 16);
+        lblActiveRouteMetoc.setBounds(98, 47, 240, 16);
         METOCPanel.add(lblActiveRouteMetoc);
         
         spinnerMETOCTimeDifferenceTolerance = new JSpinner();
-        spinnerMETOCTimeDifferenceTolerance.setBounds(6, 82, 70, 19);
+        spinnerMETOCTimeDifferenceTolerance.setBounds(16, 70, 70, 20);
         METOCPanel.add(spinnerMETOCTimeDifferenceTolerance);
         
         JLabel lblMetocTimeDifference = new JLabel("METOC time difference tolerance (min)");
-        lblMetocTimeDifference.setBounds(88, 84, 242, 16);
+        lblMetocTimeDifference.setBounds(98, 72, 242, 16);
         METOCPanel.add(lblMetocTimeDifference);
         
         // Add the panel.
@@ -95,44 +95,44 @@ public class ENavSettingsPanelCommon extends BaseSettingsPanel {
         // Http panel
         JPanel httpPanel = new JPanel();
         httpPanel.setLayout(null);
-        httpPanel.setBounds(0, 132, 450, 136);
+        httpPanel.setBounds(6, 128, 438, 128);
         httpPanel.setBorder(new TitledBorder(null, "HTTP Settings", TitledBorder.LEADING, 
                 TitledBorder.TOP, null, null));
         
         // Http panel components.
         JLabel lblServerName = new JLabel("Server name:");
-        lblServerName.setBounds(6, 20, 80, 16);
+        lblServerName.setBounds(16, 19, 80, 16);
         httpPanel.add(lblServerName);
         
         textFieldServerName = new JTextField();
-        textFieldServerName.setBounds(150, 17, 294, 22);
+        textFieldServerName.setBounds(136, 18, 280, 17);
         httpPanel.add(textFieldServerName);
         textFieldServerName.setColumns(10);
         
         JLabel lblServerPort = new JLabel("Server port:");
-        lblServerPort.setBounds(6, 48, 80, 16);
+        lblServerPort.setBounds(16, 43, 80, 16);
         httpPanel.add(lblServerPort);
         
         textFieldServerPort = new JTextField();
-        textFieldServerPort.setBounds(150, 45, 294, 22);
+        textFieldServerPort.setBounds(136, 42, 280, 17);
         httpPanel.add(textFieldServerPort);
         textFieldServerPort.setColumns(10);
         
         JLabel lblConnectionTimeout = new JLabel("Connection Timeout:");
-        lblConnectionTimeout.setBounds(6, 76, 132, 16);
+        lblConnectionTimeout.setBounds(16, 67, 132, 16);
         httpPanel.add(lblConnectionTimeout);
         
         textFieldConnectionTimeout = new JTextField();
-        textFieldConnectionTimeout.setBounds(150, 73, 294, 22);
+        textFieldConnectionTimeout.setBounds(136, 66, 280, 17);
         httpPanel.add(textFieldConnectionTimeout);
         textFieldConnectionTimeout.setColumns(10);
         
         JLabel lblReadTimeout = new JLabel("Read timeout:");
-        lblReadTimeout.setBounds(6, 104, 87, 16);
+        lblReadTimeout.setBounds(16, 91, 87, 16);
         httpPanel.add(lblReadTimeout);
         
         textFieldReadTimeout = new JTextField();
-        textFieldReadTimeout.setBounds(150, 101, 294, 22);
+        textFieldReadTimeout.setBounds(136, 90, 280, 17);
         httpPanel.add(textFieldReadTimeout);
         textFieldReadTimeout.setColumns(10);
         
@@ -142,48 +142,48 @@ public class ENavSettingsPanelCommon extends BaseSettingsPanel {
         // MSI panel
         JPanel MSIPanel = new JPanel();
         MSIPanel.setLayout(null);
-        MSIPanel.setBounds(0, 280, 450, 190);
+        MSIPanel.setBounds(6, 268, 438, 160);
         MSIPanel.setBorder(new TitledBorder(null, "MSI Settings", TitledBorder.LEADING,
                 TitledBorder.TOP, null, null));
         
         spinnerMSIPollInterval = new JSpinner();
-        spinnerMSIPollInterval.setBounds(6, 20, 75, 22);
+        spinnerMSIPollInterval.setBounds(16, 20, 75, 20);
         MSIPanel.add(spinnerMSIPollInterval);
         
         JLabel lblMsiPollInterval = new JLabel("MSI poll interval (sec)");
-        lblMsiPollInterval.setBounds(93, 23, 134, 16);
+        lblMsiPollInterval.setBounds(103, 22, 134, 16);
         MSIPanel.add(lblMsiPollInterval);
         
         spinnerMSITextBoxVisibilityScale = new JSpinner();
-        spinnerMSITextBoxVisibilityScale.setBounds(6, 54, 75, 22);
+        spinnerMSITextBoxVisibilityScale.setBounds(16, 45, 75, 20);
         MSIPanel.add(spinnerMSITextBoxVisibilityScale);
         
         JLabel lblMsiTextboxVisibility = new JLabel("MSI textbox visibility scale (map scale)");
-        lblMsiTextboxVisibility.setBounds(93, 57, 244, 16);
+        lblMsiTextboxVisibility.setBounds(103, 47, 244, 16);
         MSIPanel.add(lblMsiTextboxVisibility);
         
         spinnerGPSPositionInterval = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Double(1)));
-        spinnerGPSPositionInterval.setBounds(6, 88, 75, 22);
+        spinnerGPSPositionInterval.setBounds(16, 70, 75, 20);
         MSIPanel.add(spinnerGPSPositionInterval);
         
         JLabel lblGpsPositionintervalBefore = new JLabel("GPS position interval before MSI visibility is calculated");
-        lblGpsPositionintervalBefore.setBounds(93, 91, 341, 16);
+        lblGpsPositionintervalBefore.setBounds(103, 72, 341, 16);
         MSIPanel.add(lblGpsPositionintervalBefore);
         
         spinnerMSIVisibilityRangeFromOwnShip = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Double(1)));
-        spinnerMSIVisibilityRangeFromOwnShip.setBounds(6, 122, 75, 22);
+        spinnerMSIVisibilityRangeFromOwnShip.setBounds(16, 95, 75, 20);
         MSIPanel.add(spinnerMSIVisibilityRangeFromOwnShip);
         
         JLabel lblMsiVisibilityRange = new JLabel("MSI visibility range from own ship");
-        lblMsiVisibilityRange.setBounds(93, 125, 214, 16);
+        lblMsiVisibilityRange.setBounds(103, 97, 214, 16);
         MSIPanel.add(lblMsiVisibilityRange);
         
         spinnerMSIVisibilituRangeAtWaypoint = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Double(1)));
-        spinnerMSIVisibilituRangeAtWaypoint.setBounds(6, 156, 75, 22);
+        spinnerMSIVisibilituRangeAtWaypoint.setBounds(16, 120, 75, 20);
         MSIPanel.add(spinnerMSIVisibilituRangeAtWaypoint);
         
         JLabel lblMsiVisibilityRange_1 = new JLabel("MSI visibility range from new waypoint at route creation");
-        lblMsiVisibilityRange_1.setBounds(93, 159, 351, 16);
+        lblMsiVisibilityRange_1.setBounds(103, 122, 351, 16);
         MSIPanel.add(lblMsiVisibilityRange_1);
         
         // Add the panel

@@ -64,6 +64,7 @@ public class SetupDialogCommon extends JDialog {
         // Frame settings.
         this.setSize(462, 720);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.setResizable(false);
         this.setLocationRelativeTo(parent);
         getContentPane().setLayout(new BorderLayout(0, 0));
         
