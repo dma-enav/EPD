@@ -19,6 +19,7 @@ import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.proj.Projection;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
@@ -31,7 +32,7 @@ import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 /**
  * Graphic for vessel target
  */
-public class VesselTargetGraphic extends TargetGraphic {
+public class VesselTargetGraphic extends TargetGraphic implements ISelectableGraphic {
 
     private static final long serialVersionUID = 1L;
 
@@ -180,5 +181,12 @@ public class VesselTargetGraphic extends TargetGraphic {
     // Get the visibility of VesselTriangleGraphic object of this class.
     public boolean getVesselTriangleVisibility() {
         return this.vesselTriangleGraphic.isVisible();
+    }
+
+    @Override
+    public void setSelection(boolean selected) {
+        // Simply delegate call to sub graphics
+        this.vesselTriangleGraphic.setSelection(selected);
+        this.vesselOutlineGraphic.setSelection(selected);
     }
 }
