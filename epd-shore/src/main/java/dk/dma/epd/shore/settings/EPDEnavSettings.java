@@ -20,6 +20,7 @@ import java.util.Properties;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 import com.bbn.openmap.util.PropUtils;
 
+import dk.dma.epd.common.prototype.enavcloud.EnavCloudUtils;
 import dk.dma.epd.common.prototype.settings.EnavSettings;
 
 /**
@@ -33,7 +34,7 @@ public class EPDEnavSettings extends EnavSettings {
 
     private static final String PREFIX = EnavSettings.getPrefix();
 
-    private String shoreId = "999" + System.currentTimeMillis();
+    private String shoreId = EnavCloudUtils.STCC_MMSI_PREFIX + System.currentTimeMillis();
     private LatLonPoint shorePos = new LatLonPoint.Double(56.02, 12.36); // Somewhere around Helsingør
  
     /**
