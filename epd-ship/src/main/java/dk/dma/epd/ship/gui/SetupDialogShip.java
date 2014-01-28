@@ -18,7 +18,7 @@ package dk.dma.epd.ship.gui;
 import javax.swing.JFrame;
 
 import dk.dma.epd.common.prototype.gui.SetupDialogCommon;
-import dk.dma.epd.common.prototype.gui.settings.CloudSettingsPanel;
+import dk.dma.epd.common.prototype.gui.settings.CommonCloudSettingsPanel;
 import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.ship.gui.setuptabs.ShipMapSettingsPanel;
 
@@ -30,13 +30,13 @@ import dk.dma.epd.ship.gui.setuptabs.ShipMapSettingsPanel;
 public class SetupDialogShip extends SetupDialogCommon {
 
     private static final long serialVersionUID = 1L;
-    private CloudSettingsPanel cloudSettings;
+    private CommonCloudSettingsPanel cloudSettings;
     private ShipMapSettingsPanel mapSettings;
 
     public SetupDialogShip(JFrame mainFrame) {
         super(mainFrame, "Ship Setup", true);
 
-        cloudSettings = new CloudSettingsPanel();
+        cloudSettings = new CommonCloudSettingsPanel();
         mapSettings   = new ShipMapSettingsPanel();
         
         registerSettingsPanels(cloudSettings, mapSettings);

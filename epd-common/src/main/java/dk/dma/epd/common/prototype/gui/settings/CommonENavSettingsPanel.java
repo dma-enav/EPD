@@ -33,7 +33,7 @@ import dk.dma.epd.common.util.ParseUtils;
  * @author adamduehansen
  *
  */
-public class ENavSettingsPanelCommon extends BaseSettingsPanel {
+public class CommonENavSettingsPanel extends BaseSettingsPanel {
     private static final long serialVersionUID = 1L;
     private JTextField textFieldConnectionTimeout;
     private JTextField textFieldServerPort;
@@ -52,9 +52,9 @@ public class ENavSettingsPanelCommon extends BaseSettingsPanel {
     /**
      * Constructs a new ENavSettingsPanelCommon object.
      */
-    public ENavSettingsPanelCommon() {
+    public CommonENavSettingsPanel() {
         // Create the panel with a name and the path to its icon.
-        super("e-Nav Services", new ImageIcon(ENavSettingsPanelCommon.class.getResource
+        super("e-Nav Services", new ImageIcon(CommonENavSettingsPanel.class.getResource
                 ("/images/settings/servers-network.png")));
         this.setLayout(null);
         

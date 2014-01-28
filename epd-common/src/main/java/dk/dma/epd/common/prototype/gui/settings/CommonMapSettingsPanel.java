@@ -32,7 +32,7 @@ import dk.dma.epd.common.prototype.settings.MapSettings;
  * @author adamduehansen
  *
  */
-public class MapSettingsPanelCommon extends BaseSettingsPanel {
+public class CommonMapSettingsPanel extends BaseSettingsPanel {
     
     private static final long serialVersionUID = 1L;
     private JPanel generelMapSettings;
@@ -44,8 +44,8 @@ public class MapSettingsPanelCommon extends BaseSettingsPanel {
     private JSpinner spinnerLatitude;
     private JSpinner spinnerLongitude;
     
-    public MapSettingsPanelCommon() {
-        super("Map", new ImageIcon(MapSettingsPanelCommon.class.getResource
+    public CommonMapSettingsPanel() {
+        super("Map", new ImageIcon(CommonMapSettingsPanel.class.getResource
                 ("/images/settings/map.png")));
         setLayout(null);
         
