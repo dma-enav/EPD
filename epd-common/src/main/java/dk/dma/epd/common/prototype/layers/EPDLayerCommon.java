@@ -15,7 +15,10 @@
  */
 package dk.dma.epd.common.prototype.layers;
 
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -64,7 +67,7 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
     protected List<Class<?>> mouseClickClasses = new CopyOnWriteArrayList<>();
     protected List<Class<?>> mapMenuClasses = new CopyOnWriteArrayList<>();
     
-    protected OMGraphicList graphics = new OMGraphicList();
+    protected OMGraphicList graphics = new AntialiasedGraphicList();
     protected MapBean mapBean;
     protected MainFrameCommon mainFrame;
     protected MapMenuCommon mapMenu;
@@ -454,3 +457,23 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
         }
     }    
 }
+
+
+/**
+ * Sub-class of {@linkplain OMGraphicList} that turns on antialiasing
+ */
+class AntialiasedGraphicList extends OMGraphicList {
+    
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Turn on anti-aliasing
+     */
+    @Override
+    public void render(Graphics g) {
+        Graphics2D image = (Graphics2D) g;
+        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        super.render(image);
+    }
+}
+
