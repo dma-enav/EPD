@@ -287,41 +287,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
                 SartGraphic.class,
                 VesselTargetGraphic.class);
 
-        if (e.getButton() == MouseEvent.BUTTON1) {
-
-            removeSelection();
-
-            if (newClosest != null && newClosest instanceof VesselLayer) {
-                synchronized (targets) {
-                    long mmsi = ((VesselLayer) newClosest).getMMSI();
-                    getMainFrame().setSelectedMMSI(mmsi);
-
-                    targetSelectionGraphic.setVisible(true);
-
-                    targetSelectionGraphic.moveSymbol(Position.create(((VesselLayer) newClosest).getLat(),
-                            ((VesselLayer) newClosest).getLon()));
-                }
-
-                doPrepare();
-
-                setStatusAreaTxt();
-
-            }
-            else if(newClosest != null && newClosest instanceof VesselTargetGraphic) {
-                VesselTargetGraphic vtg = (VesselTargetGraphic) newClosest;
-                synchronized(targets) {
-                    if(vtg.getVesselTarget() != null && vtg.getVesselTarget().getPositionData() != null) {
-                        getMainFrame().setSelectedMMSI(vtg.getVesselTarget().getMmsi());
-                        targetSelectionGraphic.setVisible(true);
-                        targetSelectionGraphic.moveSymbol(vtg.getVesselTarget().getPositionData().getPos());
-                    }
-                }
-                doPrepare();
-                setStatusAreaTxt();
-            }
-
-        }
-
         if (e.getButton() == MouseEvent.BUTTON3 && newClosest != null) {
 
             if (newClosest instanceof VesselTargetGraphic) {
