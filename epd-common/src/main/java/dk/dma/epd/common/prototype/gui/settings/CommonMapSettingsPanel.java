@@ -35,7 +35,7 @@ import dk.dma.epd.common.prototype.settings.MapSettings;
 public class CommonMapSettingsPanel extends BaseSettingsPanel {
     
     private static final long serialVersionUID = 1L;
-    private JPanel generelMapSettings;
+    private JPanel generalMapSettings;
     private JPanel wmsSettings;
     private JTextField textFieldWMSURL;
     private MapSettings settings;
@@ -50,50 +50,50 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         setLayout(null);
         
         // Generel settings apenel.
-        generelMapSettings = new JPanel();
-        generelMapSettings.setBounds(6, 6, 438, 145);
-        generelMapSettings.setLayout(null);
-        generelMapSettings.setBorder(new TitledBorder(null, "Generel", TitledBorder.LEADING, 
+        generalMapSettings = new JPanel();
+        generalMapSettings.setBounds(6, 6, 438, 145);
+        generalMapSettings.setLayout(null);
+        generalMapSettings.setBorder(new TitledBorder(null, "General", TitledBorder.LEADING, 
                 TitledBorder.TOP, null, null));
         
         spinnerDefaultMapScale = new JSpinner(new SpinnerNumberModel(new Float(0), null, null, new Float(1)));
         spinnerDefaultMapScale.setBounds(16, 20, 75, 20);
-        generelMapSettings.add(spinnerDefaultMapScale);
+        generalMapSettings.add(spinnerDefaultMapScale);
         
         JLabel lblDefaultMapScale = new JLabel("Default map scale");
         lblDefaultMapScale.setBounds(103, 22, 113, 16);
-        generelMapSettings.add(lblDefaultMapScale);
+        generalMapSettings.add(lblDefaultMapScale);
         
         spinnerMaximumScale = new JSpinner(new SpinnerNumberModel(new Integer(0), null, null, new Integer(1)));
         spinnerMaximumScale.setBounds(16, 45, 75, 19);
-        generelMapSettings.add(spinnerMaximumScale);
+        generalMapSettings.add(spinnerMaximumScale);
         
         JLabel lblMaximumScale = new JLabel("Maximum scale");
         lblMaximumScale.setBounds(103, 47, 98, 16);
-        generelMapSettings.add(lblMaximumScale);
+        generalMapSettings.add(lblMaximumScale);
         
         JLabel lblDefaultMapCenter = new JLabel("Default map center");
         lblDefaultMapCenter.setBounds(16, 70, 120, 16);
-        generelMapSettings.add(lblDefaultMapCenter);
+        generalMapSettings.add(lblDefaultMapCenter);
         
         JLabel lblLatitude = new JLabel("Latitude:");
         lblLatitude.setBounds(16, 95, 55, 16);
-        generelMapSettings.add(lblLatitude);
+        generalMapSettings.add(lblLatitude);
         
         spinnerLatitude = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Double(1)));
         spinnerLatitude.setBounds(83, 93, 75, 20);
-        generelMapSettings.add(spinnerLatitude);
+        generalMapSettings.add(spinnerLatitude);
         
         JLabel lblLongitude = new JLabel("Longitude:");
         lblLongitude.setBounds(190, 93, 75, 16);
-        generelMapSettings.add(lblLongitude);
+        generalMapSettings.add(lblLongitude);
         
         spinnerLongitude = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Double(1)));
         spinnerLongitude.setBounds(245, 91, 75, 20);
-        generelMapSettings.add(spinnerLongitude);
+        generalMapSettings.add(spinnerLongitude);
         
         // Add the panel.
-        this.add(generelMapSettings);
+        this.add(generalMapSettings);
         
         
         wmsSettings = new JPanel();
@@ -115,7 +115,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     }
     
     public JPanel getGenerelPanel() {
-        return this.generelMapSettings;
+        return this.generalMapSettings;
     }
     
     public JPanel getWMSPanel() {
