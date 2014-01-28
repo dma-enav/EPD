@@ -91,8 +91,10 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         synchronized (graphics) {
             graphics.add(targetSelectionGraphic);
         }
-        // receive click events for the following set of classes.
+        // receive left-click events for the following set of classes.
         this.registerMouseClickClasses(VesselTargetGraphic.class);
+        // receive right-click events for the following set of classes.
+        this.registerMapMenuClasses(VesselTargetGraphic.class, SartGraphic.class);
     }
 
     /**
@@ -277,40 +279,26 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             this.statusArea.removeHighlight();
         }
     }
-    /*
+    
+    /**
+     * Event handler for right click on the map.
+     */
     @Override
-    public boolean mouseClicked(MouseEvent e) {
-        
-        OMGraphic newClosest = getSelectedGraphic(
-                e, 
-                VesselLayer.class,
-                SartGraphic.class,
-                VesselTargetGraphic.class);
-
-        if (e.getButton() == MouseEvent.BUTTON3 && newClosest != null) {
-
-            if (newClosest instanceof VesselTargetGraphic) {
-
-                VesselTargetGraphic vesselTarget = (VesselTargetGraphic) newClosest;
-                getMapMenu().aisMenu(vesselTarget.getVesselTarget());
-                getMapMenu().setVisible(true);
-                getMapMenu().show(this, e.getX() - 2, e.getY() - 2);
-                return true;
-                
-            } else if (newClosest instanceof SartGraphic) {
-
-                SartGraphic sartGraphic = (SartGraphic) newClosest;
-                SarTarget sarTarget = sartGraphic.getSarTargetGraphic().getSarTarget();
-                getMapMenu().sartMenu(this, sarTarget);
-                getMapMenu().setVisible(true);
-                getMapMenu().show(this, e.getX() - 2, e.getY() - 2);
-                return true;
-            }
-
+    protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {
+        // Should only handle right clicks
+        assert(evt.getButton() == MouseEvent.BUTTON3);
+        if (clickedGraphics instanceof VesselTargetGraphic) {
+            VesselTarget vt = ((VesselTargetGraphic) clickedGraphics).getVesselTarget();
+            // Pass data to the pop up menu that is to be displayed.
+            this.getMapMenu().aisMenu(vt);
+        } else if (clickedGraphics instanceof SartGraphic) {
+            SartGraphic sartGraphic = (SartGraphic) clickedGraphics;
+            SarTarget sarTarget = sartGraphic.getSarTargetGraphic().getSarTarget();
+            // Pass data to the pop up menu that is to be displayed.
+            this.getMapMenu().sartMenu(this, sarTarget);
         }
-        return false;
     }
-    */
+    
     /**
      * Returns the {@code VesselTargetGraphic} correspondign to the given mmsi, or null if not found
      * @param mmsi the mmsi of the vessel
