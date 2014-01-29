@@ -46,7 +46,7 @@ import javax.swing.border.EtchedBorder;
 
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.gui.ComponentFrame;
-import dk.dma.epd.common.prototype.gui.MapContainer;
+import dk.dma.epd.common.prototype.gui.IMapContainer;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 
@@ -57,7 +57,7 @@ import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
  * Class for setting up a map frame
  * @author Steffen D. Sommer (steffendsommer@gmail.com), David A. Camre (davidcamre@gmail.com)
  */
-public class JMapFrame extends ComponentFrame implements MapContainer {
+public class JMapFrame extends ComponentFrame implements IMapContainer {
     
     private static final long serialVersionUID = 1L;
     private ChartPanel chartPanel;
