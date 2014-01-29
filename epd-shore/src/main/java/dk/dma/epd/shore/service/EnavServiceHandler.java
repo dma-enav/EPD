@@ -52,7 +52,7 @@ import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
 import dk.dma.epd.common.prototype.enavcloud.EnavCloudUtils;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck;
@@ -296,7 +296,7 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
      */
     private synchronized void updateIntendedRoute(long mmsi, Route routeData) {
 
-        LOG.debug("Intended route recieved");
+        LOG.debug("Intended route received");
 
         // Try to find exiting target
         VesselTarget vesselTarget = aisHandler.getVesselTarget(mmsi);
@@ -366,7 +366,7 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
         System.out.println("Sending to mmsi: " + mmsi + " with ID: " + routeMessage.getId());
 
         RouteSuggestionData suggestionData = new RouteSuggestionData(routeMessage, null, routeMessage.getId(), mmsi, false,
-                AIS_STATUS.RECIEVED_APP_ACK);
+                RouteSuggestionStatus.RECEIVED_APP_ACK);
         RouteSuggestionKey routeSuggestionKey = new RouteSuggestionKey(mmsi, routeMessage.getId());
         routeSuggestions.put(routeSuggestionKey, suggestionData);
 
@@ -378,14 +378,13 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
             f.handle(new BiConsumer<RouteSuggestionService.RouteSuggestionReply, Throwable>() {
                 @Override
                 public void accept(RouteSuggestionReply l, Throwable r) {
-                    routeSuggestionReplyRecieved(l);
+                    routeSuggestionReplyReceived(l);
                 }
             });
 
         } else {
             // notifyRouteExchangeListeners();
             System.out.println("Failed to send");
-            // replyRecieved(f.get());
         }
 
     }
@@ -467,15 +466,13 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
      * Called when a route suggestion reply has been received
      * @param message the reply
      */
-    private void routeSuggestionReplyRecieved(RouteSuggestionReply message) {
+    private void routeSuggestionReplyReceived(RouteSuggestionReply message) {
 
-        System.out.println("MSG Recieved from MMSI: " + message.getMmsi() + " and ID " + message.getId());
+        System.out.println("MSG Received from MMSI: " + message.getMmsi() + " and ID " + message.getId());
 
         if (routeSuggestions.containsKey(new RouteSuggestionKey(message.getMmsi(), message.getId()))) {
 
-            // System.out.println("Reply recieved for " + mmsi + " " +
-            // message.getRefMsgLinkId());
-            AIS_STATUS response = message.getStatus();
+            RouteSuggestionStatus response = message.getStatus();
 
             long mmsi = message.getMmsi();
             long id = message.getId();
@@ -483,29 +480,29 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
             routeSuggestions.get(new RouteSuggestionKey(message.getMmsi(), message.getId())).setReply(message);
 
             switch (response) {
-            case RECIEVED_ACCEPTED:
-                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).getStatus() != AIS_STATUS.RECIEVED_ACCEPTED) {
+            case RECEIVED_ACCEPTED:
+                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).getStatus() != RouteSuggestionStatus.RECEIVED_ACCEPTED) {
                     // Accepted
-                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setStatus(AIS_STATUS.RECIEVED_ACCEPTED);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setStatus(RouteSuggestionStatus.RECEIVED_ACCEPTED);
                     routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setAcknowleged(false);
                     notifyRouteExchangeListeners();
                 }
 
                 break;
-            case RECIEVED_REJECTED:
+            case RECEIVED_REJECTED:
                 // Rejected
-                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).getStatus() != AIS_STATUS.RECIEVED_REJECTED) {
+                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).getStatus() != RouteSuggestionStatus.RECEIVED_REJECTED) {
                     // Accepted
-                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setStatus(AIS_STATUS.RECIEVED_REJECTED);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setStatus(RouteSuggestionStatus.RECEIVED_REJECTED);
                     routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setAcknowleged(false);
                     notifyRouteExchangeListeners();
                 }
                 break;
-            case RECIEVED_NOTED:
+            case RECEIVED_NOTED:
                 // Noted
-                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).getStatus() != AIS_STATUS.RECIEVED_NOTED) {
+                if (routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).getStatus() != RouteSuggestionStatus.RECEIVED_NOTED) {
                     // Accepted
-                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setStatus(AIS_STATUS.RECIEVED_NOTED);
+                    routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setStatus(RouteSuggestionStatus.RECEIVED_NOTED);
                     routeSuggestions.get(new RouteSuggestionKey(mmsi, id)).setAcknowleged(false);
                     notifyRouteExchangeListeners();
                 }
@@ -536,8 +533,6 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
                                 // long mmsi = message.getMmsi();
                                 contextSenders.put(message.getId(), context);
 
-                                System.out.println("Recieved a message with id " + message.getId());
-
                                 monaLisaHandler.handleMessage(message);
                             }
                         }).awaitRegistered(4, TimeUnit.SECONDS);
@@ -551,8 +546,6 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
             @Override
             public void process(StrategicRouteAckMsg message,
                     InvocationCallback.Context<Void> context) {
-
-                System.out.println("Recieved an ack from: " + message.getId());
 
                 monaLisaHandler.handleSingleAckMsg(message);
 
@@ -598,9 +591,7 @@ public class EnavServiceHandler extends MapHandlerChild implements Runnable {
             // normal transaction
 
         } else {
-            // notifyRouteExchangeListeners();
             System.out.println("Failed to send?");
-            // replyRecieved(f.get());
         }
 
     }

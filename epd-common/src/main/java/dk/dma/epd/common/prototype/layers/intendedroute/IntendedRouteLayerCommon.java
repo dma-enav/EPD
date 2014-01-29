@@ -152,7 +152,7 @@ public abstract class IntendedRouteLayerCommon extends EPDLayerCommon implements
      * {@inheritDoc}
      */
     @Override
-    protected void initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
+    protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
         if (newClosest instanceof IntendedRouteWpCircle) {
             intendedRouteInfoPanel.showWpInfo((IntendedRouteWpCircle) newClosest);
         } else {
@@ -161,5 +161,6 @@ public abstract class IntendedRouteLayerCommon extends EPDLayerCommon implements
             intendedRouteInfoPanel.showLegInfo((IntendedRouteLegGraphic)newClosest, worldLocation);
             closest = dummyCircle;
         }
+        return true;
     }
 }

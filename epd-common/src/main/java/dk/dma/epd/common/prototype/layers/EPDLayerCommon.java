@@ -420,6 +420,9 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
      * <p>
      * These panels will automatically be added to the glass pane and
      * will automatically be displayed in the {@code mouseMoved} method.
+     * <p>
+     * Override the {@linkplain #initInfoPanel()} method to initialize the info panel
+     * about to be shown.
      * 
      * @param infoPanels the {@linkplain InfoPanel} panels to register
      * @param graphics the list of {@linkplain OMGraphic} elements that triggers the info panel
@@ -435,13 +438,17 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
      * <p>
      * The default implementation of {@code mouseMoved()} will find the info panel to display
      * and call this method for custom initialization.
+     * <p>
+     * Return whether to display the info panel or not
      * 
      * @param infoPanel the info panel about to be displayed
      * @param newClosest the mouse-over graphics that triggered the info panel
      * @param evt the mouse event
      * @param containerPoint the current container point
+     * @return whether to display the info panel or not
      */
-    protected void initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
+    protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
+        return false;
     }
 
     /**
@@ -457,7 +464,7 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
     /**
      * Hides all info panels.
      */
-    private void hideInfoPanels() {
+    protected void hideInfoPanels() {
         for (InfoPanel infoPanel : infoPanels.getInfoPanels()) {
             infoPanel.setVisible(false);
         }

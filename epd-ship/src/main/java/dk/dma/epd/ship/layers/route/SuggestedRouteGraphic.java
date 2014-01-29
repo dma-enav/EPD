@@ -28,7 +28,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
 
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
-import dk.dma.epd.ship.route.strategic.RecievedRoute;
+import dk.dma.epd.ship.route.strategic.ReceivedRoute;
 
 /**
  * Graphic for a suggested route
@@ -38,12 +38,12 @@ public class SuggestedRouteGraphic extends OMGraphicList {
     private static final long serialVersionUID = 1L;
 
     private List<RouteWaypoint> routeWaypoints;
-    private RecievedRoute routeSuggestion;
+    private ReceivedRoute routeSuggestion;
 //    private AisAdressedRouteSuggestion routeSuggestion;
     
     private Stroke stroke;
 
-    public SuggestedRouteGraphic(RecievedRoute routeSuggestion, Stroke stroke) {
+    public SuggestedRouteGraphic(ReceivedRoute routeSuggestion, Stroke stroke) {
         this.routeSuggestion = routeSuggestion;
         this.stroke = stroke;
         
@@ -85,7 +85,7 @@ public class SuggestedRouteGraphic extends OMGraphicList {
         }
     }
 
-    public RecievedRoute getRouteSuggestion() {
+    public ReceivedRoute getRouteSuggestion() {
         return routeSuggestion;
     }
 

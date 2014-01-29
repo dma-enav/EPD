@@ -117,10 +117,10 @@ public class ConnectionStatus extends BaseSettingsPanel {
         aisSendingOK.setBounds(126, 41, 142, 14);
         aisPanel.add(aisSendingOK);
 
-        JLabel aisLastRecieved = new JLabel("Last Reception:");
-        GuiStyler.styleText(aisLastRecieved);
-        aisLastRecieved.setBounds(10, 65, 85, 14);
-        aisPanel.add(aisLastRecieved);
+        JLabel aisLastReceived = new JLabel("Last Reception:");
+        GuiStyler.styleText(aisLastReceived);
+        aisLastReceived.setBounds(10, 65, 85, 14);
+        aisPanel.add(aisLastReceived);
 
         JLabel aisLastSending = new JLabel("Last Sending:");
         GuiStyler.styleText(aisLastSending);

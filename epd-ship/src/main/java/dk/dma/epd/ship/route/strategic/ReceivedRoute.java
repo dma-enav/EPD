@@ -20,15 +20,26 @@ import java.util.Date;
 
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.common.prototype.model.route.RouteStatus;
 
-public class RecievedRoute implements Serializable {
+public class ReceivedRoute implements Serializable {
 
+    /**
+     * Possible status of a received strategic route
+     */
+    public enum ReceivedRouteStatus {
+        PENDING,
+        ACCEPTED,
+        REJECTED,
+        NOTED,
+        IGNORED,
+        CANCELLED,
+    }    
+    
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
-    Date recieved;
+    Date received;
     Date sent;
     String sender;
     Route route;
@@ -36,24 +47,24 @@ public class RecievedRoute implements Serializable {
     String replySent;
     long id;
     private boolean hidden;
-    private RouteStatus status = RouteStatus.PENDING;
+    private ReceivedRouteStatus status = ReceivedRouteStatus.PENDING;
     
 
-    public RecievedRoute(RouteSuggestionMessage suggestionMessage) {
+    public ReceivedRoute(RouteSuggestionMessage suggestionMessage) {
         this.sender = suggestionMessage.getSender();
         this.sent = suggestionMessage.getSent();
-        this.recieved = new Date();
+        this.received = new Date();
         this.route = new Route(suggestionMessage.getRoute());
         this.message = suggestionMessage.getMessage();
         id = suggestionMessage.getId();
     }
 
-    public Date getRecieved() {
-        return recieved;
+    public Date getReceived() {
+        return received;
     }
 
-    public void setRecieved(Date recieved) {
-        this.recieved = recieved;
+    public void setReceived(Date received) {
+        this.received = received;
     }
 
     public Date getSent() {
@@ -106,11 +117,11 @@ public class RecievedRoute implements Serializable {
 
  
     
-    public RouteStatus getStatus() {
+    public ReceivedRouteStatus getStatus() {
         return status;
     }
     
-    public void setStatus(RouteStatus status) {
+    public void setStatus(ReceivedRouteStatus status) {
         switch (status) {
         case ACCEPTED:
         case NOTED:
@@ -130,7 +141,7 @@ public class RecievedRoute implements Serializable {
     }
     
     public boolean isReplied() {
-        return status == RouteStatus.ACCEPTED || status == RouteStatus.NOTED || status == RouteStatus.REJECTED;
+        return status == ReceivedRouteStatus.ACCEPTED || status == ReceivedRouteStatus.NOTED || status == ReceivedRouteStatus.REJECTED;
     }
     
     public boolean isHidden() {
@@ -142,27 +153,27 @@ public class RecievedRoute implements Serializable {
     }
     
     public boolean isAcceptable() {
-        return status == RouteStatus.PENDING || status == RouteStatus.IGNORED; 
+        return status == ReceivedRouteStatus.PENDING || status == ReceivedRouteStatus.IGNORED; 
     }
     
     public boolean isRejectable() {
-        return status == RouteStatus.PENDING || status == RouteStatus.IGNORED;
+        return status == ReceivedRouteStatus.PENDING || status == ReceivedRouteStatus.IGNORED;
     }
     
     public boolean isNoteable() {
-        return status == RouteStatus.PENDING || status == RouteStatus.IGNORED;
+        return status == ReceivedRouteStatus.PENDING || status == ReceivedRouteStatus.IGNORED;
     }
     
     public boolean isIgnorable() {
-        return status == RouteStatus.PENDING; 
+        return status == ReceivedRouteStatus.PENDING; 
     }
     
     public boolean isPostponable() {
-        return status == RouteStatus.PENDING; 
+        return status == ReceivedRouteStatus.PENDING; 
     }
     
     public void cancel() {
-        setStatus(RouteStatus.CANCELLED);
+        setStatus(ReceivedRouteStatus.CANCELLED);
     }
     
     

@@ -68,7 +68,7 @@ public class ActiveWaypointComponentPanel extends OMComponentPanel implements IP
 //        }
     }
     @Override
-    public void recieveCoord(LatLonPoint llp) {
+    public void receiveCoord(LatLonPoint llp) {
         // TODO Auto-generated method stub
         
     }

@@ -62,7 +62,7 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
     private Voyage voyage;
 
     private Route originalRoute;
-    private Route initialRecievedRoute;
+    private Route initialReceivedRoute;
     private Route newRoute;
     private boolean modified;
     private boolean renegotiate;
@@ -121,7 +121,7 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
         if (!modified) {
             for (int i = 0; i < newRoute.getEtas().size(); i++) {
 
-                if (initialRecievedRoute.getEtas().get(i) != newRoute.getEtas()
+                if (initialReceivedRoute.getEtas().get(i) != newRoute.getEtas()
                         .get(i)) {
                     modified = true;
                     System.out.println("Forcing modified");
@@ -130,8 +130,6 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
 
             }
             // newRoute
-
-            // initialRecievedRoute
         }
     }
 
@@ -258,7 +256,7 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
         graphics.add(originalRouteGraphic);
 
         if (routeChange) {
-            RouteGraphic voyageGraphic = new RouteGraphic(initialRecievedRoute,
+            RouteGraphic voyageGraphic = new RouteGraphic(initialReceivedRoute,
                     2, false, stroke, ECDISOrange, new Color(1f, 1f, 0, 0.7f),
                     false, true);
             graphics.add(voyageGraphic);
@@ -343,12 +341,12 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
         this.renegotiate = renegotiate;
         this.originalRoute = originalRoute.copy();
         this.voyage = voyage;
-        this.initialRecievedRoute = voyage.getRoute().copy();
+        this.initialReceivedRoute = voyage.getRoute().copy();
         this.newRoute = voyage.getRoute();
 
         Color ECDISOrange = new Color(213, 103, 45, 255);
 
-        // Added the route as green, original recieved one
+        // Added the route as green, original received one
         RouteGraphic voyageGraphic = new RouteGraphic(newRoute, 1, false,
                 stroke, ECDISOrange, new Color(0.39f, 0.69f, 0.49f, 0.6f),
                 false, true);

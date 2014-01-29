@@ -23,23 +23,38 @@ import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
 import net.maritimecloud.net.service.spi.ServiceMessage;
 import dk.dma.enav.model.voyage.Route;
 
+/**
+ * Defines the route suggestion maritime cloud service
+ */
 public class RouteSuggestionService {
     
     /** An initiation point */
     public static final ServiceInitiationPoint<RouteSuggestionMessage> INIT = new ServiceInitiationPoint<>(
             RouteSuggestionMessage.class);
     
-    public enum AIS_STATUS {
-        NOT_SENT, FAILED, SENT_NOT_ACK, RECIEVED_APP_ACK, RECIEVED_ACCEPTED, RECIEVED_REJECTED, RECIEVED_NOTED
+    /**
+     * Status of the suggested route
+     */
+    public enum RouteSuggestionStatus {
+        NOT_SENT, 
+        FAILED, 
+        SENT_NOT_ACK, 
+        RECEIVED_APP_ACK, 
+        RECEIVED_ACCEPTED, 
+        RECEIVED_REJECTED, 
+        RECEIVED_NOTED
     }
     
+    /**
+     * Route suggestion reply class
+     */
     public static class RouteSuggestionReply extends ServiceMessage<Void> {
 
         private String message;
         private long id;
         private long mmsi;
         private long sendDate;
-        private AIS_STATUS status;
+        private RouteSuggestionStatus status;
   
 
         public RouteSuggestionReply() {
@@ -48,7 +63,7 @@ public class RouteSuggestionService {
         /**
          * @param message
          */
-        public RouteSuggestionReply(String message, long id, long mmsi, long sendDate, AIS_STATUS status) {
+        public RouteSuggestionReply(String message, long id, long mmsi, long sendDate, RouteSuggestionStatus status) {
             this.message = message;
             this.id = id;
             this.mmsi = mmsi;
@@ -95,11 +110,11 @@ public class RouteSuggestionService {
             this.sendDate = sendDate;
         }
 
-        public AIS_STATUS getStatus() {
+        public RouteSuggestionStatus getStatus() {
             return status;
         }
 
-        public void setStatus(AIS_STATUS status) {
+        public void setStatus(RouteSuggestionStatus status) {
             this.status = status;
         }
         
@@ -109,7 +124,9 @@ public class RouteSuggestionService {
     }
     
     
-
+    /**
+     * Route suggestion message class
+     */
     public static class RouteSuggestionMessage extends
             ServiceMessage<RouteSuggestionReply> {
         private Route route;
@@ -181,7 +198,5 @@ public class RouteSuggestionService {
         
         
     }
-
-
 
 }

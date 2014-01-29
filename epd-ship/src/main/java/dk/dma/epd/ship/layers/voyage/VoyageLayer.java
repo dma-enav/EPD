@@ -84,7 +84,7 @@ public class VoyageLayer extends GeneralLayer implements
         tolerance = EPDShip.getInstance().getSettings().getGuiSettings()
                 .getMouseSelectTolerance();
 
-        // Added the route as green, original recieved one
+        // Added the route as green, original received one
         drawRoute(route, ECDISOrange);
 
         startRouteAnimation();
@@ -99,7 +99,7 @@ public class VoyageLayer extends GeneralLayer implements
                 new float[] { 3.0f, 10.0f }, // Dash pattern
                 0.0f);
 
-        // Added the route as green, original recieved one
+        // Added the route as green, original received one
         RouteGraphic routeGraphic = new RouteGraphic(route, 3, true, stroke,
                 color);
         graphics.add(routeGraphic);
@@ -120,7 +120,7 @@ public class VoyageLayer extends GeneralLayer implements
                 new float[] { 3.0f, 10.0f }, // Dash pattern
                 0.0f);
 
-        // Added the route as green, original recieved one
+        // Added the route as green, original received one
         RouteGraphic routeGraphic = new RouteGraphic(route, id, true, stroke,
                 color, broadLineColor, circleDash, true);
         graphics.add(routeGraphic);
