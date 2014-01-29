@@ -2,15 +2,10 @@
 
 ## Introduction ##
    
-EPD (e-Navigation Prototype Display) is an ECDIS like
-application for demonstrating possible e-Navigation services.
-
-This project contains two module, EPD-Ship and EPD-Shore each focusing on various services from the point of view of the Ship and of the Shore control center.
+EPD (e-Navigation Prototype Displays) is consisting of two applications for demonstrating potential e-navigation solutions. An ECDIS like ship side application and a shore side application.
    
-The application is in Java and uses OpenMap(tm) for presenting geospatial
+The applications is in Java and uses OpenMap(tm) for presenting geospatial
 information, and as a JavaBeans(tm) component framework.
-
-For detailed description see Wiki.
 
 ## Prerequisites ##
 
@@ -41,7 +36,10 @@ Use M2 Eclipse plugin or use Maven eclipse target
 
 ## Virtual AIS transponder ##
 
-TBD
+The virtual transponder can provide a live anonymized AIS feed. The following settings can be used for the transponder:
+
+Host:port: `ais.e-navigation.net:8002` 
+Username/password: `anon/anon`
 
 ## Contribution ##
 
@@ -69,6 +67,12 @@ selecting a sensor range so targets farther than this distance away not will
 be shown.
 
 Press OK and restart application.
+
+## Design ##
+
+EPD uses a component based design to facilitate an event driven architecture. Functionality is encapsulated in components. Events come from sensor and user input.
+
+Using components allows easy collaborative development as components can be developed independently. Components automatically identify each others in the BeanContext, so no hard wiring is necessary. Components can also be moved between different projects using the same component framework. E.g. OpenMap.
 
 ## Contribution ##
 
