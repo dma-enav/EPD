@@ -13,24 +13,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.menuitems;
+package dk.dma.epd.common.prototype.gui.menuitems;
 
-import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
-import dk.dma.epd.shore.route.RouteManager;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
-
-
-public class RouteReverse extends RouteMenuItem<RouteManager> {
-
+public class RouteCopy extends RouteMenuItem<RouteManagerCommon> {
+    
     private static final long serialVersionUID = 1L;
-
-    public RouteReverse(String text) {
+    
+    public RouteCopy(String text) {
         super();
         setText(text);
     }
-
+    
     @Override
     public void doAction() {
-        routeManager.routeReverse(routeIndex);
+        routeManager.routeCopy(routeIndex);
     }
 }

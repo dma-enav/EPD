@@ -13,29 +13,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.menuitems;
+package dk.dma.epd.common.prototype.gui.menuitems;
 
-import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
-import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.ship.route.RouteManager;
+import javax.swing.JMenuItem;
 
-public class RouteAppendWaypoint extends RouteMenuItem<RouteManager> {
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
+
+public class RouteWaypointActivateToggle extends JMenuItem implements IMapMenuAction {
     
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
+    
+    private int routeWaypointIndex;
+    private RouteManagerCommon routeManager;
 
-    public RouteAppendWaypoint(String text) {
+    public RouteWaypointActivateToggle(String text) {
         super();
         setText(text);
     }
     
     @Override
     public void doAction() {
-        Route route = routeManager.getRoute(routeIndex);
-        route.appendWaypoint();
-        routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_APPENDED);
+        routeManager.changeActiveWp(routeWaypointIndex);
     }
+    
+    public void setRouteWaypointIndex(int routeWaypointIndex) {
+        this.routeWaypointIndex = routeWaypointIndex;
+    }
+    
+    public void setRouteManager(RouteManagerCommon routeManager) {
+        this.routeManager = routeManager;
+    }
+
 }

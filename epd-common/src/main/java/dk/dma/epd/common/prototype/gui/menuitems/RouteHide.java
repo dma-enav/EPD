@@ -13,24 +13,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.menuitems;
+package dk.dma.epd.common.prototype.gui.menuitems;
 
-import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
-import dk.dma.epd.shore.route.RouteManager;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
-
-
-public class RouteCopy extends RouteMenuItem<RouteManager> {
-
+/**
+ * Used to hide routes.
+ * <p>
+ * If the {@code routeIndex} equals {@code ALL_INACTIVE_ROUTES} then all inactive routes
+ * are hidden. Otherwise, the route with the given index is hidden.
+ */
+public class RouteHide extends RouteMenuItem<RouteManagerCommon> {
+    
     private static final long serialVersionUID = 1L;
-
-    public RouteCopy(String text) {
+    public static final int ALL_INACTIVE_ROUTES = -1;
+    
+    public RouteHide(String text) {
         super();
         setText(text);
     }
-
+    
     @Override
     public void doAction() {
-        routeManager.routeCopy(routeIndex);
+        if (routeIndex == ALL_INACTIVE_ROUTES) {
+            routeManager.hideInactiveRoutes();
+        } else {
+            routeManager.hideRoute(routeIndex);
+        }
     }
 }
