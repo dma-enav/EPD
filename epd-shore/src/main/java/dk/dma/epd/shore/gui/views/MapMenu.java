@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.shore.gui.views;
 
-import java.awt.Color;
 import java.awt.Point;
 
 import com.bbn.openmap.MapBean;
@@ -24,7 +23,6 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
-import dk.dma.epd.common.prototype.gui.menuitems.ColorMenuItem;
 import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteGraphic;
@@ -296,19 +294,11 @@ public class MapMenu extends MapMenuCommon {
         add(centerVesselTarget);
         
         // Add a color selector menu item
-        // TODO: Included for test purposes for now
-        ColorMenuItem colorMenuItem = new ColorMenuItem(
-                this, 
-                IntendedRouteGraphic.COLORS, 
-                routeGraphics.getRouteColor());
-        colorMenuItem.addListener(new ColorMenuItem.ColorMenuItemListener() {
-            @Override public void colorSelected(Color color) {
-                routeGraphics.setRouteColor(color);
-            }});
-        add(colorMenuItem);
-        revalidate();
+        intendedRouteColor.init(this, routeGraphics);
+        add(intendedRouteColor);
 
         generalMenu(false);
+        revalidate();
     }
     
     /**

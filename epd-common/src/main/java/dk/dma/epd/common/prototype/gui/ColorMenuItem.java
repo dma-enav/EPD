@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.gui.menuitems;
+package dk.dma.epd.common.prototype.gui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -67,21 +67,11 @@ public class ColorMenuItem extends JPanel {
     /**
      * Constructor
      */
-    public ColorMenuItem(JPopupMenu menu, Color[] colors, Color selection) {
+    public ColorMenuItem() {
         super();
-        this.menu = menu;
-        this.colors = getColors(colors, selection);
-        
-        // Prepare the color circles
-        circles = new Ellipse2D.Double[this.colors.length];
-        for (int x = 0; x < this.colors.length; x++) {
-            circles[x] = new Ellipse2D.Double(INDENT + x * CELL_SIZE + 3, INDENT + 3, CELL_SIZE - 6, CELL_SIZE - 6);
-        }
         
         setOpaque(false);
         setLayout(null);
-        setMinimumSize(new Dimension(2 * INDENT + CELL_SIZE * this.colors.length, 2 * INDENT + CELL_SIZE));
-        setPreferredSize(new Dimension(2 * INDENT + CELL_SIZE * this.colors.length, 2 * INDENT + CELL_SIZE));
         
         addMouseListener(new MouseAdapter() {
             @Override public void mouseExited(MouseEvent e) { repaint(e.getPoint()); }
@@ -91,6 +81,40 @@ public class ColorMenuItem extends JPanel {
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override public void mouseMoved(MouseEvent e) { repaint(e.getPoint()); }
         });
+    }
+    
+    /**
+     * Constructor
+     * 
+     * @param menu the pop up menu
+     * @param colors the list of colors to display
+     * @param selection the currently selected color
+     */
+    public ColorMenuItem(JPopupMenu menu, Color[] colors, Color selection) {
+        this();
+        init(menu, colors, selection);
+    }
+    
+    /**
+     * Initializes the color menu item with the list of colors to display
+     * and the currently selected color
+     * 
+     * @param menu the pop up menu
+     * @param colors the list of colors to display
+     * @param selection the currently selected color
+     */
+    public void init(JPopupMenu menu, Color[] colors, Color selection) {
+        this.menu = menu;
+        this.colors = getColors(colors, selection);
+        
+        // Prepare the color circles
+        circles = new Ellipse2D.Double[this.colors.length];
+        for (int x = 0; x < this.colors.length; x++) {
+            circles[x] = new Ellipse2D.Double(INDENT + x * CELL_SIZE + 3, INDENT + 3, CELL_SIZE - 6, CELL_SIZE - 6);
+        }
+        
+        setMinimumSize(new Dimension(2 * INDENT + CELL_SIZE * this.colors.length, 2 * INDENT + CELL_SIZE));
+        setPreferredSize(new Dimension(2 * INDENT + CELL_SIZE * this.colors.length, 2 * INDENT + CELL_SIZE));
     }
     
     /**

@@ -45,6 +45,7 @@ import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.CenterVesselTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.HideAllIntendedRoutes;
+import dk.dma.epd.common.prototype.gui.menuitems.IntendedRouteColor;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteAppendWaypoint;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteCopy;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteDelete;
@@ -98,6 +99,7 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
     protected IntendedRouteToggle intendedRouteToggle;
     protected HideAllIntendedRoutes hideIntendedRoutes;
     protected ShowAllIntendedRoutes showIntendedRoutes;
+    protected IntendedRouteColor intendedRouteColor;
     
     protected MsiAcknowledge msiAcknowledge;
 
@@ -141,6 +143,7 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
         hideIntendedRoutes.addActionListener(this);
         showIntendedRoutes = new ShowAllIntendedRoutes("Show all intended routes");
         showIntendedRoutes.addActionListener(this);
+        intendedRouteColor = new IntendedRouteColor();
 
         // Route
         routeHide = new RouteHide("Hide route");
