@@ -50,6 +50,7 @@ import dk.dma.epd.common.prototype.gui.menuitems.RouteCopy;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteDelete;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteHide;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteLegInsertWaypoint;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteMetocProperties;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteProperties;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteRequestMetoc;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteReverse;
@@ -88,6 +89,7 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
     protected RouteDelete routeDelete;
     protected RouteProperties routeProperties;
     protected RouteRequestMetoc routeRequestMetoc;
+    protected RouteMetocProperties routeMetocProperties;
     protected RouteShowMetocToggle routeShowMetocToggle;
     protected RouteLegInsertWaypoint routeLegInsertWaypoint;
     protected RouteWaypointActivateToggle routeWaypointActivateToggle;
@@ -151,6 +153,8 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
         routeDelete.addActionListener(this);
         routeRequestMetoc = new RouteRequestMetoc("Request METOC");
         routeRequestMetoc.addActionListener(this);
+        routeMetocProperties = new RouteMetocProperties("METOC properties");
+        routeMetocProperties.addActionListener(this);
         routeShowMetocToggle = new RouteShowMetocToggle();
         routeShowMetocToggle.addActionListener(this);
         routeProperties = new RouteProperties("Route properties");

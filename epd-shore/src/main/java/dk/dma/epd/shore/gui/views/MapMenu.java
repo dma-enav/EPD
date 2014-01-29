@@ -39,7 +39,6 @@ import dk.dma.epd.shore.gui.views.menuitems.GeneralNewRoute;
 import dk.dma.epd.shore.gui.views.menuitems.MsiDetails;
 import dk.dma.epd.shore.gui.views.menuitems.MsiZoomTo;
 import dk.dma.epd.shore.gui.views.menuitems.RouteEditEndRoute;
-import dk.dma.epd.shore.gui.views.menuitems.RouteMetocProperties;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteFromRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteToShip;
 import dk.dma.epd.shore.gui.views.menuitems.SendVoyage;
@@ -79,7 +78,6 @@ public class MapMenu extends MapMenuCommon {
     private MsiDetails msiDetails;
     private MsiZoomTo msiZoomTo;
 
-    private RouteMetocProperties routeMetocProperties;
     private RouteEditEndRoute routeEditEndRoute;
     private SendRouteToShip sendRouteToShip;
     private SendRouteFromRoute setRouteExchangeRoute;
@@ -129,8 +127,6 @@ public class MapMenu extends MapMenuCommon {
         // route general items
         setRouteExchangeRoute = new SendRouteFromRoute("Send Route");
         setRouteExchangeRoute.addActionListener(this);
-        routeMetocProperties = new RouteMetocProperties("METOC properties");
-        routeMetocProperties.addActionListener(this);
 
         // route edit menu
         routeEditEndRoute = new RouteEditEndRoute("End route");

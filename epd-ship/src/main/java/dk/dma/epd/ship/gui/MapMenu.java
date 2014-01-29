@@ -48,7 +48,6 @@ import dk.dma.epd.ship.gui.menuitems.MsiZoomTo;
 import dk.dma.epd.ship.gui.menuitems.NogoRequest;
 import dk.dma.epd.ship.gui.menuitems.RouteActivateToggle;
 import dk.dma.epd.ship.gui.menuitems.RouteEditEndRoute;
-import dk.dma.epd.ship.gui.menuitems.RouteMetocProperties;
 import dk.dma.epd.ship.gui.menuitems.SendToSTCC;
 import dk.dma.epd.ship.gui.menuitems.SuggestedRouteDetails;
 import dk.dma.epd.ship.gui.menuitems.VoyageAppendWaypoint;
@@ -84,7 +83,6 @@ public class MapMenu extends MapMenuCommon {
     private MsiZoomTo msiZoomTo;
     
     private RouteActivateToggle routeActivateToggle;
-    private RouteMetocProperties routeMetocProperties;
     private MonaLisaRouteRequest monaLisaRouteRequest;
     private SuggestedRouteDetails suggestedRouteDetails;
     private RouteEditEndRoute routeEditEndRoute;
@@ -148,8 +146,6 @@ public class MapMenu extends MapMenuCommon {
         monaLisaRouteRequest = new MonaLisaRouteRequest(
                 "Request Optimized SSPA Route");
         monaLisaRouteRequest.addActionListener(this);
-        routeMetocProperties = new RouteMetocProperties("METOC properties");
-        routeMetocProperties.addActionListener(this);
 
         // suggested route menu
         suggestedRouteDetails = new SuggestedRouteDetails(

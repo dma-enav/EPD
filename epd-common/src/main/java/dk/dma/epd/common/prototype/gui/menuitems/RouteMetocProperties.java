@@ -13,20 +13,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.menuitems;
+package dk.dma.epd.common.prototype.gui.menuitems;
 
-import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.route.RouteMetocDialog;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.gui.route.RouteMetocDialog;
-import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
-public class RouteMetocProperties extends RouteMenuItem<RouteManager> {
+public class RouteMetocProperties extends RouteMenuItem<RouteManagerCommon> {
     
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+   private static final long serialVersionUID = 1L;
 
     public RouteMetocProperties(String text) {
         super();
@@ -35,7 +31,7 @@ public class RouteMetocProperties extends RouteMenuItem<RouteManager> {
     
     @Override
     public void doAction() {
-        RouteMetocDialog routeMetocDialog = new RouteMetocDialog(EPDShip.getInstance().getMainFrame(),routeManager, routeIndex);
+        RouteMetocDialog routeMetocDialog = new RouteMetocDialog(EPD.getInstance().getMainFrame(), routeManager, routeIndex);
         routeMetocDialog.setVisible(true);
         routeManager.notifyListeners(RoutesUpdateEvent.METOC_SETTINGS_CHANGED);
     }
