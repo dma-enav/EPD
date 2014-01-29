@@ -44,18 +44,24 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     private JSpinner spinnerLatitude;
     private JSpinner spinnerLongitude;
     
+    /**
+     * Constructs a new CommonMapSettingsPanel object.
+     */
     public CommonMapSettingsPanel() {
         super("Map", new ImageIcon(CommonMapSettingsPanel.class.getResource
                 ("/images/settings/map.png")));
         setLayout(null);
         
-        // Generel settings apenel.
+        
+        /************** General settings ***************/
+        
         generalMapSettings = new JPanel();
         generalMapSettings.setBounds(6, 6, 438, 145);
         generalMapSettings.setLayout(null);
         generalMapSettings.setBorder(new TitledBorder(null, "General", TitledBorder.LEADING, 
                 TitledBorder.TOP, null, null));
         
+        // General settings panel components.
         spinnerDefaultMapScale = new JSpinner(new SpinnerNumberModel(new Float(0), null, null, new Float(1)));
         spinnerDefaultMapScale.setBounds(16, 20, 75, 20);
         generalMapSettings.add(spinnerDefaultMapScale);
@@ -92,9 +98,10 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         spinnerLongitude.setBounds(245, 91, 75, 20);
         generalMapSettings.add(spinnerLongitude);
         
-        // Add the panel.
         this.add(generalMapSettings);
         
+        
+        /************** WMS settings ***************/
         
         wmsSettings = new JPanel();
         wmsSettings.setBounds(6, 163, 438, 85);
@@ -102,8 +109,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         wmsSettings.setBorder(new TitledBorder(null, "WMS Settings", TitledBorder.LEADING, 
                 TitledBorder.TOP, null, null));
 
-        this.add(wmsSettings);
-        
+        // WMS settings panel component.
         JLabel lblWmsUrl = new JLabel("WMS URL");
         lblWmsUrl.setBounds(16, 20, 61, 16);
         wmsSettings.add(lblWmsUrl);
@@ -112,12 +118,22 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         textFieldWMSURL.setBounds(16, 40, 405, 20);
         wmsSettings.add(textFieldWMSURL);
         textFieldWMSURL.setColumns(10);
+        
+        this.add(wmsSettings);
     }
     
-    public JPanel getGenerelPanel() {
+    /**
+     * 
+     * @return The General settings panel.
+     */
+    public JPanel getGeneralPanel() {
         return this.generalMapSettings;
     }
     
+    /**
+     * 
+     * @return The WMS settings panel.
+     */
     public JPanel getWMSPanel() {
         return this.wmsSettings;
     }
@@ -131,6 +147,9 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
                 changed(this.settings.getCenter().getLongitude(), this.spinnerLongitude.getValue());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void doLoadSettings() {
         this.settings = this.getSettings().getMapSettings();
@@ -145,6 +164,9 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void doSaveSettings() {
         
@@ -156,6 +178,9 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         this.settings.setCenter(center);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void fireSettingsChanged() {
         fireSettingsChanged(Type.MAP);

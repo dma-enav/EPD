@@ -58,6 +58,5 @@ public class SetupDialogShip extends SetupDialogCommon {
     @Override
     public void loadSettings(Settings settings) {
         super.loadSettings(settings);
-        mapSettings.doLoadSettings();
     }
 }

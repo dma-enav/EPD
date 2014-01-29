@@ -56,65 +56,61 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
     private JCheckBox chckbxTwoShades;
     private JCheckBox chckbxPlainAreas;
 
+    /**
+     * Constructs a new ShipMapSettingsPanel object.
+     */
     public ShipMapSettingsPanel() {
-        getGenerelPanel().setLocation(6, 6);
+        
+        // Get the general panel from super class.
+        this.getGeneralPanel().setLocation(6, 6);
         
         // Resize the panel to add spaces for ekstra ship options.
-        this.getGenerelPanel().setSize(438, 184);
-        this.getWMSPanel().setBounds(6, 434, 
-                438, 190);
+        this.getGeneralPanel().setSize(438, 184);
+        this.getWMSPanel().setBounds(6, 434, 438, 190);
         
-        // Components for WMS layout.
-        JLabel lblWmsServices = new JLabel("WMS Services");
-        lblWmsServices.setBounds(16, 65, 84, 16);
-        this.getWMSPanel().add(lblWmsServices);
         
-        this.listModel = new DefaultListModel<String>();
-        this.listWMSServices = new JList<String>(listModel);
-        this.listWMSServices.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        this.listWMSServices.setLayoutOrientation(JList.VERTICAL);
+        /************** General settings ***************/
         
-        this.listWMSServices.setBounds(16, 85, 405, 80);
-        this.getWMSPanel().add(listWMSServices);
+        this.chckbxUseEnc = new JCheckBox("Use ENC");
+        this.chckbxUseEnc.setBounds(16, 120, 85, 23);
+        this.getGeneralPanel().add(chckbxUseEnc);
         
-        chckbxUseEnc = new JCheckBox("Use ENC");
-        chckbxUseEnc.setBounds(16, 120, 85, 23);
-        this.getGenerelPanel().add(chckbxUseEnc);
+        this.chckbxUseWms = new JCheckBox("Use WMS");
+        this.chckbxUseWms.setBounds(113, 120, 88, 23);
+        this.getGeneralPanel().add(chckbxUseWms);
         
-        chckbxUseWms = new JCheckBox("Use WMS");
-        chckbxUseWms.setBounds(113, 120, 88, 23);
-        this.getGenerelPanel().add(chckbxUseWms);
+        this.chckbxDragWmsdisable = new JCheckBox("Drag WMS (disable for performance)");
+        this.chckbxDragWmsdisable.setBounds(16, 145, 257, 23);
+        this.getGeneralPanel().add(this.chckbxDragWmsdisable);
         
-        chckbxDragWmsdisable = new JCheckBox("Drag WMS (disable for performance)");
-        chckbxDragWmsdisable.setBounds(16, 145, 257, 23);
-        this.getGenerelPanel().add(chckbxDragWmsdisable);
         
-        // S52 panel.
+        /************** S52 settings ***************/
+        
         JPanel s52Settings = new JPanel();
         s52Settings.setBounds(6, 202, 438, 219);
         s52Settings.setLayout(null);
-        s52Settings.setBorder(new TitledBorder(null, "S52 Layer", TitledBorder.LEADING, 
-                TitledBorder.TOP, null, null));
+        s52Settings.setBorder(new TitledBorder(
+                null, "S52 Layer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
-        spinnerShallowContour = new JSpinner();
-        spinnerShallowContour.setBounds(16, 20, 75, 20);
-        s52Settings.add(spinnerShallowContour);
+        this.spinnerShallowContour = new JSpinner();
+        this.spinnerShallowContour.setBounds(16, 20, 75, 20);
+        s52Settings.add(this.spinnerShallowContour);
         
-        spinnerSafetyDepth = new JSpinner();
-        spinnerSafetyDepth.setBounds(16, 45, 75, 20);
-        s52Settings.add(spinnerSafetyDepth);
+        this.spinnerSafetyDepth = new JSpinner();
+        this.spinnerSafetyDepth.setBounds(16, 45, 75, 20);
+        s52Settings.add(this.spinnerSafetyDepth);
         
-        spinnerSafetyContour = new JSpinner();
-        spinnerSafetyContour.setBounds(16, 70, 75, 20);
-        s52Settings.add(spinnerSafetyContour);
+        this.spinnerSafetyContour = new JSpinner();
+        this.spinnerSafetyContour.setBounds(16, 70, 75, 20);
+        s52Settings.add(this.spinnerSafetyContour);
         
-        spinnerDeepContour = new JSpinner();
-        spinnerDeepContour.setBounds(16, 95, 75, 20);
-        s52Settings.add(spinnerDeepContour);
+        this.spinnerDeepContour = new JSpinner();
+        this.spinnerDeepContour.setBounds(16, 95, 75, 20);
+        s52Settings.add(this.spinnerDeepContour);
         
-        lblShallowContour = new JLabel("Shallow contour");
-        lblShallowContour.setBounds(103, 22, 101, 16);
-        s52Settings.add(lblShallowContour);
+        this.lblShallowContour = new JLabel("Shallow contour");
+        this.lblShallowContour.setBounds(103, 22, 101, 16);
+        s52Settings.add(this.lblShallowContour);
         
         JLabel lblSafetyDepth = new JLabel("Safety depth");
         lblSafetyDepth.setBounds(103, 47, 78, 16);
@@ -129,40 +125,54 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
         s52Settings.add(lblDeepContour);
         
         String[] colorModes = {"Day", "Dusk", "Night"};
-        comboBoxColorProfile = new JComboBox<String>(colorModes);
-        comboBoxColorProfile.setBounds(206, 19, 75, 20);
-        s52Settings.add(comboBoxColorProfile);
+        this.comboBoxColorProfile = new JComboBox<String>(colorModes);
+        this.comboBoxColorProfile.setBounds(206, 19, 75, 20);
+        s52Settings.add(this.comboBoxColorProfile);
         
         JLabel lblColorProfile = new JLabel("Color profile");
         lblColorProfile.setBounds(293, 20, 91, 16);
         s52Settings.add(lblColorProfile);
         
-        chckbxShowText = new JCheckBox("Show text");
-        chckbxShowText.setBounds(16, 125, 128, 23);
-        s52Settings.add(chckbxShowText);
+        this.chckbxShowText = new JCheckBox("Show text");
+        this.chckbxShowText.setBounds(16, 125, 128, 23);
+        s52Settings.add(this.chckbxShowText);
         
-        chckbxShallowPattern = new JCheckBox("Shallow pattern");
-        chckbxShallowPattern.setBounds(16, 150, 142, 23);
-        s52Settings.add(chckbxShallowPattern);
+        this.chckbxShallowPattern = new JCheckBox("Shallow pattern");
+        this.chckbxShallowPattern.setBounds(16, 150, 142, 23);
+        s52Settings.add(this.chckbxShallowPattern);
         
-        chckbxSimplePointSymbols = new JCheckBox("Simple point symbols");
-        chckbxSimplePointSymbols.setBounds(16, 175, 168, 23);
-        s52Settings.add(chckbxSimplePointSymbols);
+        this.chckbxSimplePointSymbols = new JCheckBox("Simple point symbols");
+        this.chckbxSimplePointSymbols.setBounds(16, 175, 168, 23);
+        s52Settings.add(this.chckbxSimplePointSymbols);
         
-        chckbxTwoShades = new JCheckBox("Two shades");
-        chckbxTwoShades.setBounds(220, 150, 106, 23);
-        s52Settings.add(chckbxTwoShades);
+        this.chckbxTwoShades = new JCheckBox("Two shades");
+        this.chckbxTwoShades.setBounds(220, 150, 106, 23);
+        s52Settings.add(this.chckbxTwoShades);
         
-        chckbxPlainAreas = new JCheckBox("Plain areas");
-        chckbxPlainAreas.setBounds(220, 125, 106, 23);
-        s52Settings.add(chckbxPlainAreas);
+        this.chckbxPlainAreas = new JCheckBox("Plain areas");
+        this.chckbxPlainAreas.setBounds(220, 125, 106, 23);
+        s52Settings.add(this.chckbxPlainAreas);
         
         JButton btnAdvancedOptions = new JButton("Advanced Options");
         btnAdvancedOptions.setEnabled(false);
         btnAdvancedOptions.setBounds(220, 175, 107, 20);
         s52Settings.add(btnAdvancedOptions);
         
-        add(s52Settings);
+        this.add(s52Settings);
+        
+        /************** WMS settings ***************/
+        
+        JLabel lblWmsServices = new JLabel("WMS Services");
+        lblWmsServices.setBounds(16, 65, 84, 16);
+        this.getWMSPanel().add(lblWmsServices);
+        
+        this.listModel = new DefaultListModel<String>();
+        this.listWMSServices = new JList<String>(listModel);
+        this.listWMSServices.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        this.listWMSServices.setLayoutOrientation(JList.VERTICAL);
+        
+        this.listWMSServices.setBounds(16, 85, 405, 80);
+        this.getWMSPanel().add(listWMSServices);
     }
     
     public void doLoadSettings() {
@@ -220,7 +230,7 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
         
         // Only check if changes were made in ship components if super.checkSettingsChanged
         // return false:
-        // Cosider a change were made to the common components but not the ship components. It
+        // Consider a change were made to the common components but not the ship components. It
         // would result in "changesWereMade" to be false, and the changes in common components
         // would not be saved!
         if (!changesWereMade) {

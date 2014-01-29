@@ -29,6 +29,11 @@ import javax.swing.JSpinner;
 import javax.swing.JLabel;
 import javax.swing.SpinnerNumberModel;
 
+/**
+ * 
+ * @author adamduehansen
+ *
+ */
 public class ShipNavigationSettingsPanel extends BaseSettingsPanel {
 
     private static final long serialVersionUID = 1L;
@@ -41,61 +46,67 @@ public class ShipNavigationSettingsPanel extends BaseSettingsPanel {
     private JSpinner spinnerNewRouteDefaultTurnRadius;
     private JSpinner spinnerNewRouteDefaultXtd;
 
+    /**
+     * Constructs a new ShipNavigationSettingsPanel object.
+     */
     public ShipNavigationSettingsPanel() {
         super("Navigation", new ImageIcon(ShipAisSettingsPanel.class.getResource("/images/settingspanels/navigation.png")));
         setLayout(null);
         
-        // Own Ship settings.
+        
+        /************** Own ship settings ***************/
+        
         JPanel ownShipPanel = new JPanel();
         ownShipPanel.setBounds(6, 6, 438, 110);
         ownShipPanel.setLayout(null);
         ownShipPanel.setBorder(new TitledBorder(null, "Own Ship", TitledBorder.LEADING, 
                 TitledBorder.TOP, null, null));        
         
-        chckbxLookAhead = new JCheckBox("Look ahead");
-        chckbxLookAhead.setBounds(16, 20, 128, 20);
-        ownShipPanel.add(chckbxLookAhead);
+        this.chckbxLookAhead = new JCheckBox("Look ahead");
+        this.chckbxLookAhead.setBounds(16, 20, 128, 20);
+        ownShipPanel.add(this.chckbxLookAhead);
         
-        spinnerAutoFollowTolerance = new JSpinner();
-        spinnerAutoFollowTolerance.setBounds(16, 45, 75, 20);
-        ownShipPanel.add(spinnerAutoFollowTolerance);
+        this.spinnerAutoFollowTolerance = new JSpinner();
+        this.spinnerAutoFollowTolerance.setBounds(16, 45, 75, 20);
+        ownShipPanel.add(this.spinnerAutoFollowTolerance);
         
         JLabel lblAutoFollowTolerance = new JLabel("Auto follow tolerance (%)");
         lblAutoFollowTolerance.setBounds(103, 47, 156, 16);
         ownShipPanel.add(lblAutoFollowTolerance);
         
-        spinnerScaleToShowMinuteMarks = new JSpinner();
-        spinnerScaleToShowMinuteMarks.setBounds(16, 70, 75, 20);
-        ownShipPanel.add(spinnerScaleToShowMinuteMarks);
+        this.spinnerScaleToShowMinuteMarks = new JSpinner();
+        this.spinnerScaleToShowMinuteMarks.setBounds(16, 70, 75, 20);
+        ownShipPanel.add(this.spinnerScaleToShowMinuteMarks);
         
         JLabel lblScaleToShow = new JLabel("Scale to show minute marks (screen distance in pixed)");
         lblScaleToShow.setBounds(103, 72, 342, 16);
         ownShipPanel.add(lblScaleToShow);
         
-        // Add the panel.
         this.add(ownShipPanel);
         
-        // Route settings
+        
+        /************** Route settings ***************/
+        
         JPanel routePanel = new JPanel();
         routePanel.setBounds(6, 128, 438, 135);
         routePanel.setLayout(null);
         routePanel.setBorder(new TitledBorder(null, "Route Settings", TitledBorder.LEADING, 
                 TitledBorder.TOP, null, null));
 
-        spinnerScaleToShowRouteArrows = new JSpinner(new SpinnerNumberModel(new Float(0), null, null, new Float(1)));
-        spinnerScaleToShowRouteArrows.setBounds(16, 20, 75, 20);
-        routePanel.add(spinnerScaleToShowRouteArrows);
+        this.spinnerScaleToShowRouteArrows = new JSpinner(new SpinnerNumberModel(new Float(0), null, null, new Float(1)));
+        this.spinnerScaleToShowRouteArrows.setBounds(16, 20, 75, 20);
+        routePanel.add(this.spinnerScaleToShowRouteArrows);
         
-        spinnerNewRouteDefaultSpeed = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Float(1)));
-        spinnerNewRouteDefaultSpeed.setBounds(16, 45, 75, 20);
+        this.spinnerNewRouteDefaultSpeed = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Float(1)));
+        this.spinnerNewRouteDefaultSpeed.setBounds(16, 45, 75, 20);
         routePanel.add(spinnerNewRouteDefaultSpeed);
         
-        spinnerNewRouteDefaultTurnRadius = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Float(1)));
-        spinnerNewRouteDefaultTurnRadius.setBounds(16, 70, 75, 20);
+        this.spinnerNewRouteDefaultTurnRadius = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Float(1)));
+        this.spinnerNewRouteDefaultTurnRadius.setBounds(16, 70, 75, 20);
         routePanel.add(spinnerNewRouteDefaultTurnRadius);
         
-        spinnerNewRouteDefaultXtd = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Float(1)));
-        spinnerNewRouteDefaultXtd.setBounds(16, 95, 75, 20);
+        this.spinnerNewRouteDefaultXtd = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Float(1)));
+        this.spinnerNewRouteDefaultXtd.setBounds(16, 95, 75, 20);
         routePanel.add(spinnerNewRouteDefaultXtd);
         
         JLabel lblScaleToShow_1 = new JLabel("Scale to show route arrows (map scale)");
@@ -114,10 +125,12 @@ public class ShipNavigationSettingsPanel extends BaseSettingsPanel {
         lblNewRouteDefault_2.setBounds(103, 97, 329, 16);
         routePanel.add(lblNewRouteDefault_2);
         
-        // Add the panel.
         this.add(routePanel);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected boolean checkSettingsChanged() {
         
@@ -134,6 +147,9 @@ public class ShipNavigationSettingsPanel extends BaseSettingsPanel {
                 changed(this.settings.getDefaultXtd(), this.spinnerNewRouteDefaultXtd.getValue());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void doLoadSettings() {
         
@@ -152,6 +168,9 @@ public class ShipNavigationSettingsPanel extends BaseSettingsPanel {
         
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void doSaveSettings() {
         
@@ -167,6 +186,9 @@ public class ShipNavigationSettingsPanel extends BaseSettingsPanel {
         this.settings.setDefaultXtd((Double) this.spinnerNewRouteDefaultXtd.getValue());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void fireSettingsChanged() {
         fireSettingsChanged(Type.NAVIGATION);
