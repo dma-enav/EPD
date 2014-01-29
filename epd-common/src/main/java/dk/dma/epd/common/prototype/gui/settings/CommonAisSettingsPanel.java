@@ -20,6 +20,9 @@ import javax.swing.JPanel;
 import javax.swing.JCheckBox;
 import javax.swing.border.TitledBorder;
 
+import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
+import dk.dma.epd.common.prototype.settings.AisSettings;
+
 /**
  * 
  * @author adamduehansen
@@ -29,6 +32,9 @@ public class CommonAisSettingsPanel extends BaseSettingsPanel {
 
     private static final long serialVersionUID = 1L;
     private JPanel transponderPanel;
+    private AisSettings settings;
+    private JCheckBox chckbxAllowSending;
+    private JCheckBox chckbxStrictTimeout;
 
     /**
      * Constructs a new CommonAisSettingsPanel object.
@@ -41,22 +47,21 @@ public class CommonAisSettingsPanel extends BaseSettingsPanel {
         
         /************** Transponder settings ***************/
         
-        transponderPanel = new JPanel();
-        transponderPanel.setBounds(6, 6, 438, 82);
-        transponderPanel.setBorder(new TitledBorder(
+        this.transponderPanel = new JPanel();
+        this.transponderPanel.setBounds(6, 6, 438, 82);
+        this.transponderPanel.setBorder(new TitledBorder(
                 null, "Transponder Settings", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        transponderPanel.setLayout(null);
+        this.transponderPanel.setLayout(null);
         
-        // HTTP settings panel components.
-        JCheckBox chckbxAllowSending = new JCheckBox("Allow Sending");
+        chckbxAllowSending = new JCheckBox("Allow Sending");
         chckbxAllowSending.setBounds(16, 20, 128, 20);
-        transponderPanel.add(chckbxAllowSending);
+        this.transponderPanel.add(chckbxAllowSending);
         
-        JCheckBox checkBoxStrictTimeout = new JCheckBox("Strict timeout");
-        checkBoxStrictTimeout.setBounds(16, 45, 128, 20);
-        transponderPanel.add(checkBoxStrictTimeout);
+        chckbxStrictTimeout = new JCheckBox("Strict timeout");
+        chckbxStrictTimeout.setBounds(16, 45, 128, 20);
+        this.transponderPanel.add(chckbxStrictTimeout);
         
-        this.add(transponderPanel);
+        this.add(this.transponderPanel);
     }
     
  
@@ -65,8 +70,10 @@ public class CommonAisSettingsPanel extends BaseSettingsPanel {
      */
     @Override
     protected boolean checkSettingsChanged() {
-        // TODO Auto-generated method stub
-        return false;
+        return 
+                // Changes in transponder settings.
+                changed(this.settings.isAllowSending(), this.chckbxAllowSending.isSelected()) ||
+                changed(this.settings.isStrict(), this.chckbxStrictTimeout.isSelected());
     }
 
     /**
@@ -74,8 +81,13 @@ public class CommonAisSettingsPanel extends BaseSettingsPanel {
      */
     @Override
     protected void doLoadSettings() {
-        // TODO Auto-generated method stub
         
+        // Get AIS settings.
+        this.settings = this.getSettings().getAisSettings();
+        
+        // Load transponder settings.
+        this.chckbxAllowSending.setSelected(this.settings.isAllowSending());
+        this.chckbxStrictTimeout.setSelected(this.settings.isStrict());
     }
 
     /**
@@ -83,8 +95,10 @@ public class CommonAisSettingsPanel extends BaseSettingsPanel {
      */
     @Override
     protected void doSaveSettings() {
-        // TODO Auto-generated method stub
         
+        // Save transponder settings.
+        this.settings.setAllowSending(this.chckbxAllowSending.isSelected());
+        this.settings.setStrict(this.chckbxStrictTimeout.isSelected());
     }
 
     /**
@@ -92,8 +106,7 @@ public class CommonAisSettingsPanel extends BaseSettingsPanel {
      */
     @Override
     protected void fireSettingsChanged() {
-        // TODO Auto-generated method stub
-        
+        super.fireSettingsChanged(Type.AIS);
     }
 
     public JPanel getTransponderPanel() {

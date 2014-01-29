@@ -230,7 +230,7 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
         
         // Only check if changes were made in ship components if super.checkSettingsChanged
         // return false:
-        // Cosider a change were made to the common components but not the ship components. It
+        // Consider a change were made to the common components but not the ship components. It
         // would result in "changesWereMade" to be false, and the changes in common components
         // would not be saved!
         if (!changesWereMade) {
