@@ -52,7 +52,7 @@ import dk.dma.epd.ship.gui.menuitems.VoyageAppendWaypoint;
 import dk.dma.epd.ship.gui.menuitems.VoyageHandlingWaypointDelete;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.layers.ais.AisLayer;
-import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
+import dk.dma.epd.ship.layers.msi.MsiLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
@@ -390,7 +390,7 @@ public class MapMenu extends MapMenuCommon {
     }
 
     public void msiDirectionalMenu(TopPanel topPanel,
-            MsiDirectionalIcon selectedGraphic, EpdMsiLayer msiLayer) {
+            MsiDirectionalIcon selectedGraphic, MsiLayer msiLayer) {
         removeAll();
 
         msiDetails.setTopPanel(topPanel);

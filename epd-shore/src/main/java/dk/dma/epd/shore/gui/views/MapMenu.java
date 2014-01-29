@@ -330,7 +330,7 @@ public class MapMenu extends MapMenuCommon {
         aisClearPastTrack.setText("Clear past-track");
         add(aisClearPastTrack);
         
-
+        revalidate();
         generalMenu(false);
     }
 
@@ -356,6 +356,7 @@ public class MapMenu extends MapMenuCommon {
         msiAcknowledge.setMsiMessage(selectedGraphic.getMsiMessage());
         add(msiAcknowledge);
 
+        revalidate();
         generalMenu(false);
     }
 
@@ -370,6 +371,7 @@ public class MapMenu extends MapMenuCommon {
         msiZoomTo.setMsiMessageExtended(selectedGraphic.getMessage());
         add(msiZoomTo);
 
+        revalidate();
         generalMenu(false);
     }
 
@@ -435,6 +437,7 @@ public class MapMenu extends MapMenuCommon {
         routeProperties.setRouteIndex(routeIndex);
         add(routeProperties);
 
+        revalidate();
         generalMenu(false);
     }
 

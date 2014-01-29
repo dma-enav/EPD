@@ -13,9 +13,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.layers.msi;
+package dk.dma.epd.common.prototype.layers.msi;
 
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
+import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.frv.enav.common.xml.msi.MsiMessage;
 
 /**
@@ -24,13 +25,33 @@ import dk.frv.enav.common.xml.msi.MsiMessage;
 public class MsiInfoPanel extends InfoPanel {
 
     private static final long serialVersionUID = 1L;
-    
+
+    /**
+     * Constructor
+     */
     public MsiInfoPanel() {
         super();
     }
-    
+
+    /**
+     * Display a msi message
+     * @param message
+     */
     public void showMsiInfo(MsiMessage message) {
         String encText = message.getEncText();
+        if (encText == null){
+            encText = "No MSI Message attached";
+        }
         showText(encText);
+    }
+
+    /**
+     * Display a msi message
+     * @param message
+     */
+    public void showMsiInfo(MsiMessageExtended message) {
+        if (message != null && message.getMsiMessage() != null) {
+            showMsiInfo(message.getMsiMessage());
+        }
     }
 }
