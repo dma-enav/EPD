@@ -43,6 +43,7 @@ import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.Bootstrap;
@@ -734,6 +735,15 @@ public final class EPDShip extends EPD {
         return mainFrame;
     }
 
+    /**
+     * Returns the current position of the ship
+     * @return the current position of the ship
+     */
+    @Override
+    public Position getPosition() {
+        return getPntHandler().getCurrentData().getPosition();
+    }
+    
     public AisHandler getAisHandler() {
         return aisHandler;
     }

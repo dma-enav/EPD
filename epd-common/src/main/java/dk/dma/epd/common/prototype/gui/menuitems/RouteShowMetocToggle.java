@@ -13,25 +13,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.menuitems;
+package dk.dma.epd.common.prototype.gui.menuitems;
 
-import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
-import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
-import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
-public class RouteProperties extends RouteMenuItem<RouteManager> {
+public class RouteShowMetocToggle extends RouteMenuItem<RouteManagerCommon> {
     
     private static final long serialVersionUID = 1L;
 
-    public RouteProperties(String text) {
-        super();
-        setText(text);
-    }
-    
     @Override
     public void doAction() {
-        RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(EPDShip.getInstance().getMainFrame(), routeManager, routeIndex);
-        routePropertiesDialog.setVisible(true);
+        Route route = routeManager.getRoute(routeIndex);
+        if (routeManager.isActiveRoute(routeIndex)) {
+            route = routeManager.getActiveRoute();
+        }
+        if(route.getRouteMetocSettings().isShowRouteMetoc()){
+            route.getRouteMetocSettings().setShowRouteMetoc(false);
+        } else {
+            route.getRouteMetocSettings().setShowRouteMetoc(true);
+        }
+        routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_METOC_CHANGED);
     }
 }

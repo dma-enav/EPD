@@ -24,19 +24,21 @@ import com.bbn.openmap.proj.Projection;
 
 import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
+import dk.dma.epd.common.prototype.layers.CircleSelectionGraphic;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
 
 /**
  * @author Janus Varmarken
  */
-public class VesselTriangleGraphic extends TargetGraphic {
+public class VesselTriangleGraphic extends TargetGraphic implements ISelectableGraphic {
 
     private static final long serialVersionUID = 1L;
 
@@ -53,6 +55,11 @@ public class VesselTriangleGraphic extends TargetGraphic {
     private boolean showNameLabel = true;
 
     private SpeedVectorGraphic speedVector;
+    
+    /**
+     * Manages visualization of selection of this graphic.
+     */
+    private CircleSelectionGraphic circleSelectionGraphic;
     
     /**
      * The layer that displays this graphic object.
@@ -82,6 +89,8 @@ public class VesselTriangleGraphic extends TargetGraphic {
         add(0, vessel);
         this.add(this.speedVector);
         add(heading);
+        // create the selection graphic
+        this.circleSelectionGraphic = new CircleSelectionGraphic(this);
     }
 
     @Override
@@ -153,5 +162,12 @@ public class VesselTriangleGraphic extends TargetGraphic {
 
     public boolean getShowNameLabel() {
         return showNameLabel;
+    }
+
+    @Override
+    public void setSelection(boolean selected) {
+        // Get the latest position data
+        Position centerPos = this.vesselTarget != null ? this.vesselTarget.getPositionData() != null ? this.vesselTarget.getPositionData().getPos() : null : null;
+        this.circleSelectionGraphic.updateSelection(selected, centerPos);
     }
 }

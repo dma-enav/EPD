@@ -13,29 +13,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.menuitems;
+package dk.dma.epd.common.graphics;
 
-import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
-import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.ship.route.RouteManager;
-
-public class RouteAppendWaypoint extends RouteMenuItem<RouteManager> {
-    
+/**
+ * Interface that a graphic can implement in order to allow for clients to
+ * toggle selection of the graphic. For example, an implementation could add an
+ * extra selection graphic (e.g. a ring surrounding the original graphic) or
+ * change the current display of the graphic to visualize the
+ * selection/deselection.
+ * 
+ * @author Janus Varmarken
+ */
+public interface ISelectableGraphic {
     /**
+     * Update the selected status of this graphic.
      * 
+     * @param selected
+     *            True if the graphic is selected, false if it is deselected.
      */
-    private static final long serialVersionUID = 1L;
-
-    public RouteAppendWaypoint(String text) {
-        super();
-        setText(text);
-    }
-    
-    @Override
-    public void doAction() {
-        Route route = routeManager.getRoute(routeIndex);
-        route.appendWaypoint();
-        routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_APPENDED);
-    }
+    void setSelection(boolean selected);
 }

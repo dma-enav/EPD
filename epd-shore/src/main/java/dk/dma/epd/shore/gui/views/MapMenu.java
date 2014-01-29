@@ -38,19 +38,7 @@ import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralNewRoute;
 import dk.dma.epd.shore.gui.views.menuitems.MsiDetails;
 import dk.dma.epd.shore.gui.views.menuitems.MsiZoomTo;
-import dk.dma.epd.shore.gui.views.menuitems.RouteAppendWaypoint;
-import dk.dma.epd.shore.gui.views.menuitems.RouteCopy;
-import dk.dma.epd.shore.gui.views.menuitems.RouteDelete;
 import dk.dma.epd.shore.gui.views.menuitems.RouteEditEndRoute;
-import dk.dma.epd.shore.gui.views.menuitems.RouteHide;
-import dk.dma.epd.shore.gui.views.menuitems.RouteLegInsertWaypoint;
-import dk.dma.epd.shore.gui.views.menuitems.RouteMetocProperties;
-import dk.dma.epd.shore.gui.views.menuitems.RouteProperties;
-import dk.dma.epd.shore.gui.views.menuitems.RouteRequestMetoc;
-import dk.dma.epd.shore.gui.views.menuitems.RouteReverse;
-import dk.dma.epd.shore.gui.views.menuitems.RouteShowMetocToggle;
-import dk.dma.epd.shore.gui.views.menuitems.RouteWaypointActivateToggle;
-import dk.dma.epd.shore.gui.views.menuitems.RouteWaypointDelete;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteFromRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteToShip;
 import dk.dma.epd.shore.gui.views.menuitems.SendVoyage;
@@ -90,18 +78,6 @@ public class MapMenu extends MapMenuCommon {
     private MsiDetails msiDetails;
     private MsiZoomTo msiZoomTo;
 
-    private RouteAppendWaypoint routeAppendWaypoint;
-    private RouteHide routeHide;
-    private RouteCopy routeCopy;
-    private RouteReverse routeReverse;
-    private RouteDelete routeDelete;
-    private RouteProperties routeProperties;
-    private RouteMetocProperties routeMetocProperties;
-    private RouteRequestMetoc routeRequestMetoc;
-    private RouteShowMetocToggle routeShowMetocToggle;
-    private RouteLegInsertWaypoint routeLegInsertWaypoint;
-    private RouteWaypointActivateToggle routeWaypointActivateToggle;
-    private RouteWaypointDelete routeWaypointDelete;
     private RouteEditEndRoute routeEditEndRoute;
     private SendRouteToShip sendRouteToShip;
     private SendRouteFromRoute setRouteExchangeRoute;
@@ -151,41 +127,6 @@ public class MapMenu extends MapMenuCommon {
         // route general items
         setRouteExchangeRoute = new SendRouteFromRoute("Send Route");
         setRouteExchangeRoute.addActionListener(this);
-
-        routeHide = new RouteHide("Hide route");
-        routeHide.addActionListener(this);
-
-        routeCopy = new RouteCopy("Copy route");
-        routeCopy.addActionListener(this);
-
-        routeReverse = new RouteReverse("Reverse route");
-        routeReverse.addActionListener(this);
-
-        routeDelete = new RouteDelete("Delete route");
-        routeDelete.addActionListener(this);
-
-        routeRequestMetoc = new RouteRequestMetoc("Request METOC");
-        routeRequestMetoc.addActionListener(this);
-        routeShowMetocToggle = new RouteShowMetocToggle();
-        routeShowMetocToggle.addActionListener(this);
-        routeProperties = new RouteProperties("Route properties");
-        routeProperties.addActionListener(this);
-        routeMetocProperties = new RouteMetocProperties("METOC properties");
-        routeMetocProperties.addActionListener(this);
-        routeAppendWaypoint = new RouteAppendWaypoint("Append waypoint");
-        routeAppendWaypoint.addActionListener(this);
-
-        // route leg menu
-        routeLegInsertWaypoint = new RouteLegInsertWaypoint(
-                "Insert waypoint here");
-        routeLegInsertWaypoint.addActionListener(this);
-
-        // route waypoint menu
-        routeWaypointActivateToggle = new RouteWaypointActivateToggle(
-                "Activate waypoint");
-        routeWaypointActivateToggle.addActionListener(this);
-        routeWaypointDelete = new RouteWaypointDelete("Delete waypoint");
-        routeWaypointDelete.addActionListener(this);
 
         // route edit menu
         routeEditEndRoute = new RouteEditEndRoute("End route");
@@ -513,12 +454,7 @@ public class MapMenu extends MapMenuCommon {
 
         removeAll();
 
-        if (routeManager.getActiveRouteIndex() == routeIndex) {
-            routeLegInsertWaypoint.setEnabled(false);
-        } else {
-            routeLegInsertWaypoint.setEnabled(true);
-        }
-
+        routeLegInsertWaypoint.setEnabled(true);
         routeLegInsertWaypoint.setMapBean(mapBean);
         routeLegInsertWaypoint.setRouteManager(routeManager);
         routeLegInsertWaypoint.setRouteLeg(routeLeg);

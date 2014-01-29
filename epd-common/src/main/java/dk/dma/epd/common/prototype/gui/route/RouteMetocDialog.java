@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.route;
+package dk.dma.epd.common.prototype.gui.route;
 
 import java.awt.Color;
 import java.awt.Dialog;
@@ -25,6 +25,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.StringWriter;
 import java.util.Set;
 
 import javax.swing.DefaultComboBoxModel;
@@ -40,23 +41,29 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
 import dk.dma.epd.common.prototype.gui.metoc.MetocRequestDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteMetocSettings;
+import dk.dma.epd.common.prototype.monalisa.XMLDialog;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
+import dk.dma.epd.common.prototype.shoreservice.Metoc;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.shore.route.RouteManager;
 import dk.frv.enav.common.xml.metoc.MetocDataTypes;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
-
+import dk.frv.enav.common.xml.metoc.request.MetocForecastRequest;
 /**
- * Dialog with METOC settings
- *
+ * Dialog with METOC settings 
  */
 public class RouteMetocDialog extends JDialog implements ActionListener, FocusListener  {
 
     private static final long serialVersionUID = 1L;
-
+    
     private JTextField windLimit;
     private JTextField currentLimit;
     private JTextField waveLimit;
@@ -64,8 +71,7 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
     private JLabel currentLabel;
     private JLabel currentMetocDataLbl;
     private JLabel intervalLbl;
-    @SuppressWarnings("rawtypes")
-    private JComboBox intervalDb;
+    private JComboBox<String> intervalDb;
     private JButton requestBtn;
     private JCheckBox windCb;
     private JCheckBox currentCb;
@@ -78,29 +84,35 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
     private JPanel statusPanel;
     private JPanel typesPanel;
     private JPanel warnLimitsPanel;
-    private JButton closeBtn;
-
-    private RouteManager routeManager;
+    
+    JButton closeBtn;
+    
+    private RouteManagerCommon routeManager;
     private Route route;
+    private JPanel providerPanel;
+    private JComboBox<String> providerBox;
+    private JCheckBox chckbxShowRawRequest;
 
-    public RouteMetocDialog(Window parent, RouteManager routeManager, int routeId) {
+
+
+    public RouteMetocDialog(Window parent, RouteManagerCommon routeManager, int routeId) {
         super(parent, "Route METOC properties", Dialog.ModalityType.APPLICATION_MODAL);
-
+        
         this.routeManager = routeManager;
         if (routeManager.isActiveRoute(routeId)) {
             route = routeManager.getActiveRoute();
         } else {
             route = routeManager.getRoute(routeId);
         }
-
-        setSize(270, 460);
+        
+        setSize(270, 517);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(parent);
-
+                
         initGui();
         updateFields();
     }
-
+    
     private void updateFields() {
         if (route.getRouteMetocSettings() == null) {
             // Set default settings
@@ -108,25 +120,25 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
         }
         RouteMetocSettings metocSettings = route.getRouteMetocSettings();
         MetocForecast metocForecast = route.getMetocForecast();
-
+        
         // Enabled or not
         if (metocForecast == null) {
             currentMetocDataLbl.setText("None");
         } else {
-            currentMetocDataLbl.setText(Formatter.formatLongDateTime(metocForecast.getCreated()));
+            currentMetocDataLbl.setText(Formatter.formatLongDateTime(metocForecast.getCreated()));            
         }
         showCheckbox.setSelected(metocSettings.isShowRouteMetoc());
-
+        
         // Interval
         intervalDb.getModel().setSelectedItem(Integer.toString(metocSettings.getInterval()));
-
+        
         // METOC data
         windCb.setSelected(metocSettings.getDataTypes().contains(MetocDataTypes.WI));
         currentCb.setSelected(metocSettings.getDataTypes().contains(MetocDataTypes.CU));
         wavesCb.setSelected(metocSettings.getDataTypes().contains(MetocDataTypes.WA));
         seaLevelCb.setSelected(metocSettings.getDataTypes().contains(MetocDataTypes.SE));
         densityCb.setSelected(metocSettings.getDataTypes().contains(MetocDataTypes.DE));
-
+        
         // Warn limits
         windLimit.setText(String.format("%.2f", metocSettings.getWindWarnLimit()));
         windLimit.addFocusListener(this);
@@ -134,14 +146,35 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
         currentLimit.addFocusListener(this);
         waveLimit.setText(String.format("%.2f", metocSettings.getWaveWarnLimit()));
         waveLimit.addFocusListener(this);
+        
+        //show raw xml
+        if (chckbxShowRawRequest.isSelected()) {
+            try {
+                MetocForecastRequest req = Metoc.generateMetocRequest(route, EPD.getInstance().getPosition());
+                
+                JAXBContext context = JAXBContext.newInstance(MetocForecastRequest.class);
+                Marshaller m = context.createMarshaller();
+                m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+                m.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+                StringWriter st = new StringWriter();
+                
+                m.marshal(req, st);
+                
+                new XMLDialog(st.toString(), "RAW XML Request").setVisible(true);
+                
+            } catch (ShoreServiceException | JAXBException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
-
-    private void saveValues() {
+    
+    void saveValues() {
         RouteMetocSettings metocSettings = route.getRouteMetocSettings();
-
+        
         metocSettings.setShowRouteMetoc(showCheckbox.isSelected());
         metocSettings.setInterval(Integer.parseInt((String)intervalDb.getSelectedItem()));
-
+        
         Set<MetocDataTypes> dataTypes = metocSettings.getDataTypes();
         dataTypes.clear();
         if (windCb.isSelected()) {
@@ -159,30 +192,32 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
         if (densityCb.isSelected()) {
             dataTypes.add(MetocDataTypes.DE);
         }
-
+        
         metocSettings.setWindWarnLimit(parseFieldVal(windLimit, metocSettings.getWindWarnLimit()));
         metocSettings.setCurrentWarnLimit(parseFieldVal(currentLimit, metocSettings.getCurrentWarnLimit()));
         metocSettings.setWaveWarnLimit(parseFieldVal(waveLimit, metocSettings.getWaveWarnLimit()));
+        
+        metocSettings.setProvider((String)providerBox.getSelectedItem());
     }
-
+    
     private void requestMetoc() {
         showCheckbox.setSelected(true);
-        saveValues();
+        saveValues();        
         MetocRequestDialog.requestMetoc(this, routeManager, route);
         updateFields();
     }
-
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == closeBtn) {
             saveValues();
             dispose();
         } else if (e.getSource() == requestBtn) {
-            requestMetoc();
+            requestMetoc();            
         }
-
+        
     }
-
+    
     @Override
     public void focusLost(FocusEvent e) {
         if (!(e.getSource() instanceof JTextField)) {
@@ -199,49 +234,48 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
             parseFieldVal(waveLimit, metocSettings.getWaveWarnLimit());
         }
     }
-
+    
     @Override
     public void focusGained(FocusEvent e) {
-
+        
     }
-
+    
     private static Double parseFieldVal(JTextField field, Double defaultVal) {
         Double val = defaultVal;
         String strVal = field.getText();
         // Be relaxed
         strVal = strVal.replace(',', '.');
         try {
-            val = Double.parseDouble(strVal);
+            val = Double.parseDouble(strVal);                        
         } catch (NumberFormatException e) { }
         field.setText(String.format("%.2f", val));
-        return val;
+        return val; 
     }
-
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    
+    
     private void initGui() {
         showCheckbox = new JCheckBox("Show route METOC (if available)");
         showCheckbox.setSelected(true);
-        showCheckbox.setEnabled(true);
-        currentLabel = new JLabel("Current METOC data:");
+        showCheckbox.setEnabled(true);  
+        currentLabel = new JLabel("Current METOC data:");        
         currentMetocDataLbl = new JLabel("None");
-        currentMetocDataLbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        intervalLbl = new JLabel("Point interval (min)");
-        intervalDb = new JComboBox();
-        intervalDb.setModel(new DefaultComboBoxModel(new String[] {"15", "30", "45", "60"}));
+        currentMetocDataLbl.setFont(new Font("Segoe UI", Font.BOLD, 12));        
+        intervalLbl = new JLabel("Point interval (min)");        
+        intervalDb = new JComboBox<>();
+        intervalDb.setModel(new DefaultComboBoxModel<>(new String[] {"15", "30", "45", "60"}));
         intervalDb.setSelectedIndex(0);
-        intervalDb.setMaximumRowCount(4);
+        intervalDb.setMaximumRowCount(4);        
         requestBtn = new JButton("Request METOC");
         requestBtn.addActionListener(this);
         closeBtn = new JButton("Close");
         closeBtn.addActionListener(this);
-
+        
         windCb = new JCheckBox("Wind");
         currentCb = new JCheckBox("Current");
         wavesCb = new JCheckBox("Waves");
         seaLevelCb = new JCheckBox("Sea Level");
         densityCb = new JCheckBox("Density");
-
+        
 
         windLimitLbl = new JLabel("Wind speed m/s");
         currentLimitLbl = new JLabel("Current speed kn");
@@ -252,34 +286,72 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
         currentLimit.setColumns(10);
         waveLimit = new JTextField();
         waveLimit.setColumns(10);
+        
+        
 
         statusPanel = new JPanel();
+        
+
+        
         statusPanel.setBorder(new TitledBorder(null, "METOC status", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+      
         typesPanel = new JPanel();
-        typesPanel.setBorder(new TitledBorder(null, "METOC data", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+        typesPanel.setBorder(new TitledBorder(null, "METOC data", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));        
         warnLimitsPanel = new JPanel();
         warnLimitsPanel.setBorder(new TitledBorder(null, "Warn limits", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-
-
+        
+        providerPanel = new JPanel();
+        providerPanel.setBorder(new TitledBorder(null, "METOC provider", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+        
+        providerBox = new JComboBox<String>();
+        providerBox.addItem("dmi");
+        providerBox.addItem("fco");
+        providerBox.addActionListener(this);
+        providerBox.addFocusListener(this);
+      
+        
+        providerBox.setMaximumRowCount(2);
+        GroupLayout gl_providerPanel = new GroupLayout(providerPanel);
+        gl_providerPanel.setHorizontalGroup(
+            gl_providerPanel.createParallelGroup(Alignment.LEADING)
+                .addComponent(providerBox, 0, 247, Short.MAX_VALUE)
+        );
+        gl_providerPanel.setVerticalGroup(
+            gl_providerPanel.createParallelGroup(Alignment.LEADING)
+                .addGroup(gl_providerPanel.createSequentialGroup()
+                    .addComponent(providerBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        providerPanel.setLayout(gl_providerPanel);
+        
+        
         GroupLayout groupLayout = new GroupLayout(getContentPane());
         groupLayout.setHorizontalGroup(
             groupLayout.createParallelGroup(Alignment.LEADING)
-                .addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
-                    .addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
-                        .addComponent(warnLimitsPanel, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 251, Short.MAX_VALUE)
-                        .addComponent(typesPanel, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
-                        .addComponent(statusPanel, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 251, Short.MAX_VALUE))
-                    .addGap(3))
-                .addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
-                    .addContainerGap(173, Short.MAX_VALUE)
+                .addGroup(groupLayout.createSequentialGroup()
+                    .addContainerGap(190, Short.MAX_VALUE)
                     .addComponent(closeBtn, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
                     .addContainerGap())
+                .addGroup(groupLayout.createSequentialGroup()
+                    .addComponent(providerPanel, GroupLayout.PREFERRED_SIZE, 259, GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap())
+                .addGroup(groupLayout.createSequentialGroup()
+                    .addComponent(typesPanel, GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
+                    .addContainerGap())
+                .addGroup(groupLayout.createSequentialGroup()
+                    .addComponent(warnLimitsPanel, GroupLayout.PREFERRED_SIZE, 259, Short.MAX_VALUE)
+                    .addContainerGap())
+                .addGroup(groupLayout.createSequentialGroup()
+                    .addComponent(statusPanel, GroupLayout.PREFERRED_SIZE, 266, Short.MAX_VALUE)
+                    .addGap(3))
         );
         groupLayout.setVerticalGroup(
             groupLayout.createParallelGroup(Alignment.LEADING)
                 .addGroup(groupLayout.createSequentialGroup()
                     .addGap(7)
-                    .addComponent(statusPanel, GroupLayout.PREFERRED_SIZE, 142, GroupLayout.PREFERRED_SIZE)
+                    .addComponent(statusPanel, GroupLayout.PREFERRED_SIZE, 164, GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addComponent(providerPanel, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(typesPanel, GroupLayout.PREFERRED_SIZE, 103, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
@@ -288,7 +360,7 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
                     .addComponent(closeBtn)
                     .addGap(17))
         );
-
+        
         GroupLayout gl_warnLimitsPanel = new GroupLayout(warnLimitsPanel);
         gl_warnLimitsPanel.setHorizontalGroup(
             gl_warnLimitsPanel.createParallelGroup(Alignment.LEADING)
@@ -330,7 +402,7 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
                     .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         warnLimitsPanel.setLayout(gl_warnLimitsPanel);
-
+        
         GroupLayout gl_typesPanel = new GroupLayout(typesPanel);
         gl_typesPanel.setHorizontalGroup(
             gl_typesPanel.createParallelGroup(Alignment.LEADING)
@@ -362,13 +434,18 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
                     .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         typesPanel.setLayout(gl_typesPanel);
-
+        
+        chckbxShowRawRequest = new JCheckBox("Show Raw Request (debug)");
+        
         GroupLayout gl_statusPanel = new GroupLayout(statusPanel);
         gl_statusPanel.setHorizontalGroup(
             gl_statusPanel.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_statusPanel.createSequentialGroup()
                     .addGroup(gl_statusPanel.createParallelGroup(Alignment.LEADING)
-                        .addComponent(showCheckbox)
+                        .addComponent(chckbxShowRawRequest)
+                        .addGroup(gl_statusPanel.createSequentialGroup()
+                            .addGap(63)
+                            .addComponent(requestBtn))
                         .addGroup(gl_statusPanel.createSequentialGroup()
                             .addComponent(intervalLbl)
                             .addPreferredGap(ComponentPlacement.RELATED)
@@ -377,15 +454,15 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
                             .addComponent(currentLabel)
                             .addPreferredGap(ComponentPlacement.RELATED)
                             .addComponent(currentMetocDataLbl))
-                        .addGroup(gl_statusPanel.createSequentialGroup()
-                            .addGap(63)
-                            .addComponent(requestBtn)))
-                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(showCheckbox))
+                    .addContainerGap(119, Short.MAX_VALUE))
         );
         gl_statusPanel.setVerticalGroup(
             gl_statusPanel.createParallelGroup(Alignment.LEADING)
                 .addGroup(gl_statusPanel.createSequentialGroup()
                     .addComponent(showCheckbox)
+                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addComponent(chckbxShowRawRequest)
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addGroup(gl_statusPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(intervalLbl)
@@ -394,26 +471,26 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
                     .addGroup(gl_statusPanel.createParallelGroup(Alignment.BASELINE)
                         .addComponent(currentLabel)
                         .addComponent(currentMetocDataLbl))
-                    .addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGap(18)
                     .addComponent(requestBtn)
                     .addContainerGap())
         );
         statusPanel.setLayout(gl_statusPanel);
         getContentPane().setLayout(groupLayout);
-
+        
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowOpened(WindowEvent e) {
                 closeBtn.requestFocus();
             }
         });
-
+        
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 saveValues();
             }
         });
-
+        
     }
 }

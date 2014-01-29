@@ -13,26 +13,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.menuitems;
+package dk.dma.epd.common.prototype.gui.menuitems;
 
-import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
-import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.shore.route.RouteManager;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
-public class RouteAppendWaypoint extends RouteMenuItem<RouteManager> {
-
+public class RouteProperties extends RouteMenuItem<RouteManagerCommon> {
+    
     private static final long serialVersionUID = 1L;
 
-    public RouteAppendWaypoint(String text) {
+    public RouteProperties(String text) {
         super();
         setText(text);
     }
-
+    
     @Override
     public void doAction() {
-        Route route = routeManager.getRoute(routeIndex);
-        route.appendWaypoint();
-        routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_APPENDED);
+        RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(EPD.getInstance().getMainFrame(), routeManager, routeIndex);
+        routePropertiesDialog.setVisible(true);
     }
 }

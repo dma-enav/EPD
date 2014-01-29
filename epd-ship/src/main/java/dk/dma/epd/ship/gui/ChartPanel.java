@@ -239,9 +239,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         mapHandler.add(dynamicNogoLayer);
 
         // Create AIS layer
-        aisLayer = new AisLayer();
-        aisLayer.setMinRedrawInterval(EPDShip.getInstance().getSettings().getAisSettings()
-                .getMinRedrawInterval() * 1000);
+        aisLayer = new AisLayer(EPDShip.getInstance().getSettings().getAisSettings().getMinRedrawInterval() * 1000);
         aisLayer.setVisible(true);
         mapHandler.add(aisLayer);
 

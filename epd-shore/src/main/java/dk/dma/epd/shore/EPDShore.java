@@ -32,11 +32,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.PropertyConsumer;
+import com.bbn.openmap.proj.coords.LatLonPoint;
 import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 
 import dk.dma.ais.reader.AisReader;
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.commons.app.OneInstanceGuard;
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.Bootstrap;
@@ -433,6 +435,16 @@ public final class EPDShore extends EPD {
         return mainFrame;
     }
 
+    /**
+     * Returns the current position of the ship
+     * @return the current position of the ship
+     */
+    @Override
+    public Position getPosition() {
+        LatLonPoint pos = getSettings().getEnavSettings().getShorePos();
+        return Position.create(pos.getLatitude(), pos.getLongitude());
+    }
+    
     public RouteManager getRouteManager() {
         return routeManager;
     }

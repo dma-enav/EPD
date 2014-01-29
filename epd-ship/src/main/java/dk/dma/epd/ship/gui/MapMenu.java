@@ -25,6 +25,7 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.ColorMenuItem;
 import dk.dma.epd.common.prototype.gui.menuitems.GeneralClearMap;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteHide;
 import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
@@ -46,19 +47,7 @@ import dk.dma.epd.ship.gui.menuitems.MsiDetails;
 import dk.dma.epd.ship.gui.menuitems.MsiZoomTo;
 import dk.dma.epd.ship.gui.menuitems.NogoRequest;
 import dk.dma.epd.ship.gui.menuitems.RouteActivateToggle;
-import dk.dma.epd.ship.gui.menuitems.RouteAppendWaypoint;
-import dk.dma.epd.ship.gui.menuitems.RouteCopy;
-import dk.dma.epd.ship.gui.menuitems.RouteDelete;
 import dk.dma.epd.ship.gui.menuitems.RouteEditEndRoute;
-import dk.dma.epd.ship.gui.menuitems.RouteHide;
-import dk.dma.epd.ship.gui.menuitems.RouteLegInsertWaypoint;
-import dk.dma.epd.ship.gui.menuitems.RouteMetocProperties;
-import dk.dma.epd.ship.gui.menuitems.RouteProperties;
-import dk.dma.epd.ship.gui.menuitems.RouteRequestMetoc;
-import dk.dma.epd.ship.gui.menuitems.RouteReverse;
-import dk.dma.epd.ship.gui.menuitems.RouteShowMetocToggle;
-import dk.dma.epd.ship.gui.menuitems.RouteWaypointActivateToggle;
-import dk.dma.epd.ship.gui.menuitems.RouteWaypointDelete;
 import dk.dma.epd.ship.gui.menuitems.SendToSTCC;
 import dk.dma.epd.ship.gui.menuitems.SuggestedRouteDetails;
 import dk.dma.epd.ship.gui.menuitems.VoyageAppendWaypoint;
@@ -92,20 +81,9 @@ public class MapMenu extends MapMenuCommon {
     private NogoRequest nogoRequest;
     private MsiDetails msiDetails;
     private MsiZoomTo msiZoomTo;
+    
     private RouteActivateToggle routeActivateToggle;
-    private RouteAppendWaypoint routeAppendWaypoint;
-    private RouteHide routeHide;
-    private RouteCopy routeCopy;
-    private RouteReverse routeReverse;
-    private RouteDelete routeDelete;
-    private RouteProperties routeProperties;
-    private RouteMetocProperties routeMetocProperties;
-    private RouteRequestMetoc routeRequestMetoc;
     private MonaLisaRouteRequest monaLisaRouteRequest;
-    private RouteShowMetocToggle routeShowMetocToggle;
-    private RouteLegInsertWaypoint routeLegInsertWaypoint;
-    private RouteWaypointActivateToggle routeWaypointActivateToggle;
-    private RouteWaypointDelete routeWaypointDelete;
     private SuggestedRouteDetails suggestedRouteDetails;
     private RouteEditEndRoute routeEditEndRoute;
     private SendToSTCC sendToSTCC;
@@ -126,10 +104,6 @@ public class MapMenu extends MapMenuCommon {
     private Point windowLocation;
     private StrategicRouteExchangeHandler monaLisaHandler;
 
-    /**
-     * The location on screen where this MapMenu was last displayed. 
-     */
-    private Point latestScreenLocation;
     
     // private RouteLayer routeLayer;
     // private VoyageLayer voyageLayer;
@@ -168,43 +142,10 @@ public class MapMenu extends MapMenuCommon {
 
         routeActivateToggle = new RouteActivateToggle();
         routeActivateToggle.addActionListener(this);
-        routeHide = new RouteHide("Hide route");
-        routeHide.addActionListener(this);
-
-        routeCopy = new RouteCopy("Copy route");
-        routeCopy.addActionListener(this);
-
-        routeReverse = new RouteReverse("Reverse route");
-        routeReverse.addActionListener(this);
-
-        routeDelete = new RouteDelete("Delete route", this);
-        routeDelete.addActionListener(this);
 
         monaLisaRouteRequest = new MonaLisaRouteRequest(
                 "Request Optimized SSPA Route");
         monaLisaRouteRequest.addActionListener(this);
-        routeRequestMetoc = new RouteRequestMetoc("Request METOC");
-        routeRequestMetoc.addActionListener(this);
-        routeShowMetocToggle = new RouteShowMetocToggle();
-        routeShowMetocToggle.addActionListener(this);
-        routeProperties = new RouteProperties("Route properties");
-        routeProperties.addActionListener(this);
-        routeMetocProperties = new RouteMetocProperties("METOC properties");
-        routeMetocProperties.addActionListener(this);
-        routeAppendWaypoint = new RouteAppendWaypoint("Append waypoint");
-        routeAppendWaypoint.addActionListener(this);
-
-        // route leg menu
-        routeLegInsertWaypoint = new RouteLegInsertWaypoint(
-                "Insert waypoint here");
-        routeLegInsertWaypoint.addActionListener(this);
-
-        // route waypoint menu
-        routeWaypointActivateToggle = new RouteWaypointActivateToggle(
-                "Activate waypoint");
-        routeWaypointActivateToggle.addActionListener(this);
-        routeWaypointDelete = new RouteWaypointDelete("Delete waypoint");
-        routeWaypointDelete.addActionListener(this);
 
         // suggested route menu
         suggestedRouteDetails = new SuggestedRouteDetails(
@@ -216,12 +157,12 @@ public class MapMenu extends MapMenuCommon {
         routeEditEndRoute.addActionListener(this);
     
         // Init STCC Route negotiation items
-        this.voyageAppendWaypoint = new VoyageAppendWaypoint("Append waypoint");
-        this.voyageAppendWaypoint.addActionListener(this);
-        this.voyageDeleteWaypoint = new VoyageHandlingWaypointDelete("Delete waypoint");
-        this.voyageDeleteWaypoint.addActionListener(this);
-        this.voyageLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint("Insert waypoint here", EPDShip.getInstance().getVoyageEventDispatcher());
-        this.voyageLegInsertWaypoint.addActionListener(this);
+        voyageAppendWaypoint = new VoyageAppendWaypoint("Append waypoint");
+        voyageAppendWaypoint.addActionListener(this);
+        voyageDeleteWaypoint = new VoyageHandlingWaypointDelete("Delete waypoint");
+        voyageDeleteWaypoint.addActionListener(this);
+        voyageLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint("Insert waypoint here", EPDShip.getInstance().getVoyageEventDispatcher());
+        voyageLegInsertWaypoint.addActionListener(this);
     }
 
     /**
@@ -749,25 +690,4 @@ public class MapMenu extends MapMenuCommon {
         this.windowLocation = point;
     }
 
-    // @Override
-    // public void show(boolean show){
-    //
-    // }
-
-     @Override
-     public void setVisible(boolean visible){
-         if(this.isVisible()) {
-             // log latest location every time this MapMenu is made visible.
-             this.latestScreenLocation = this.getLocationOnScreen();
-         }
-         super.setVisible(visible);
-     }
-
-     /**
-      * Get the position on screen where this MapMenu was last shown.
-      * @return The latest position or null if this MapMenu was never shown.
-      */
-     public Point getLatestVisibleLocation() {
-         return this.latestScreenLocation;
-     }
 }

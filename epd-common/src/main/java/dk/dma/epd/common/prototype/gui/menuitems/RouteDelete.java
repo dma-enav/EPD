@@ -13,26 +13,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.menuitems;
+package dk.dma.epd.common.prototype.gui.menuitems;
 
 
 import java.util.ArrayList;
 
+import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 import dk.dma.epd.common.prototype.gui.dialogs.ISimpleConfirmDialogListener;
 import dk.dma.epd.common.prototype.gui.dialogs.SimpleConfirmDialog;
-import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
-import dk.dma.epd.ship.gui.MapMenu;
-import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
-public class RouteDelete extends RouteMenuItem<RouteManager> implements ISimpleConfirmDialogListener {
+public class RouteDelete extends RouteMenuItem<RouteManagerCommon> implements ISimpleConfirmDialogListener {
     
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
-    private MapMenu parentMenu;
     
-    public RouteDelete(String text, MapMenu parentMenu) {
+    private MapMenuCommon parentMenu;
+    
+    public RouteDelete(String text, MapMenuCommon parentMenu) {
         super();
         setText(text);
         this.parentMenu = parentMenu;
@@ -40,24 +37,19 @@ public class RouteDelete extends RouteMenuItem<RouteManager> implements ISimpleC
     
     @Override
     public void doAction() {
-//        if (JOptionPane.showConfirmDialog(this, "Delete route?", "Route dele", JOptionPane.YES_NO_OPTION) == 0) {
-//            routeManager.removeRoute(routeIndex);
-//        }
         ArrayList<ISimpleConfirmDialogListener> diaListeners = new ArrayList<ISimpleConfirmDialogListener>();
         diaListeners.add(this);
-        SimpleConfirmDialog.showSimpleConfirmDialog("Route delete", "Delete route?", diaListeners, this.parentMenu.getLatestVisibleLocation()); 
+        SimpleConfirmDialog.showSimpleConfirmDialog("Route delete", "Delete route?", diaListeners, parentMenu.getLatestVisibleLocation()); 
     }
 
     @Override
     public void onNoClicked() {
         // User cancelled route deletion, do nothing.
-        System.out.println("No clicked!!");
     }
 
     @Override
     public void onYesClicked() {
         // User confirmed route deletion
-        System.out.println("Yes clicked!!");
-        this.routeManager.removeRoute(routeIndex);
+        routeManager.removeRoute(routeIndex);
     }
 }

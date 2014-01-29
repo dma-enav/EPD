@@ -20,6 +20,7 @@ import java.awt.event.KeyEvent;
 import java.nio.file.Path;
 import java.util.Properties;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
@@ -146,6 +147,12 @@ public abstract class EPD implements ISettingsListener {
      * @return a reference to the main frame of the application
      */
     public abstract MainFrameCommon getMainFrame();
+    
+    /**
+     * Returns the current position of the EPD system
+     * @return the current position of the EPD system
+     */
+    public abstract Position getPosition();
     
     /**
      * Returns the default shore mouse mode service list

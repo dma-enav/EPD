@@ -13,25 +13,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.menuitems;
+package dk.dma.epd.common.prototype.gui.menuitems;
 
-import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
-import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.gui.route.RoutePropertiesDialog;
-import dk.dma.epd.shore.route.RouteManager;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.metoc.MetocRequestDialog;
+import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
-public class RouteProperties extends RouteMenuItem<RouteManager> {
+public class RouteRequestMetoc extends RouteMenuItem<RouteManagerCommon> {
 
     private static final long serialVersionUID = 1L;
 
-    public RouteProperties(String text) {
+    public RouteRequestMetoc(String text) {
         super();
         setText(text);
     }
 
     @Override
     public void doAction() {
-        RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(EPDShore.getInstance().getMainFrame(), routeManager, routeIndex);
-        routePropertiesDialog.setVisible(true);
+        Route route = routeManager.getRoute(routeIndex);
+        if (routeManager.isRouteActive()) {
+            route = routeManager.getActiveRoute();
+        }
+        MetocRequestDialog.requestMetoc(EPD.getInstance().getMainFrame(), routeManager, route);        
     }
 }

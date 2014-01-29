@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.menuitems;
+package dk.dma.epd.common.prototype.gui.menuitems;
 
 import java.awt.Point;
 
@@ -23,18 +23,15 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.math.Vector2D;
-import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
-public class RouteLegInsertWaypoint extends RouteMenuItem<RouteManager> {
+public class RouteLegInsertWaypoint extends RouteMenuItem<RouteManagerCommon> {
     
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
+    
     private RouteLeg routeLeg;
     private Point point;
     private MapBean mapBean;

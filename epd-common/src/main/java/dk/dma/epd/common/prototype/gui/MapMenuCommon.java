@@ -16,6 +16,7 @@
 package dk.dma.epd.common.prototype.gui;
 
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
@@ -44,6 +45,18 @@ import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.CenterVesselTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.HideAllIntendedRoutes;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteAppendWaypoint;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteCopy;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteDelete;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteHide;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteLegInsertWaypoint;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteMetocProperties;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteProperties;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteRequestMetoc;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteReverse;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteShowMetocToggle;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteWaypointActivateToggle;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteWaypointDelete;
 import dk.dma.epd.common.prototype.gui.menuitems.ShowAllIntendedRoutes;
 import dk.dma.epd.common.prototype.gui.menuitems.IntendedRouteToggle;
 import dk.dma.epd.common.prototype.gui.menuitems.MsiAcknowledge;
@@ -69,9 +82,23 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
     protected ToggleShowPastTrack aisTogglePastTrack;
     protected ClearPastTrack aisClearPastTrack;
 
+    protected RouteAppendWaypoint routeAppendWaypoint;
+    protected RouteHide routeHide;
+    protected RouteCopy routeCopy;
+    protected RouteReverse routeReverse;
+    protected RouteDelete routeDelete;
+    protected RouteProperties routeProperties;
+    protected RouteRequestMetoc routeRequestMetoc;
+    protected RouteMetocProperties routeMetocProperties;
+    protected RouteShowMetocToggle routeShowMetocToggle;
+    protected RouteLegInsertWaypoint routeLegInsertWaypoint;
+    protected RouteWaypointActivateToggle routeWaypointActivateToggle;
+    protected RouteWaypointDelete routeWaypointDelete;
+
     protected IntendedRouteToggle intendedRouteToggle;
     protected HideAllIntendedRoutes hideIntendedRoutes;
     protected ShowAllIntendedRoutes showIntendedRoutes;
+    
     protected MsiAcknowledge msiAcknowledge;
 
     protected CenterVesselTarget centerVesselTarget;
@@ -85,6 +112,11 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
     // bean context
     protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(this);
     protected boolean isolated;
+    
+    /**
+     * The location on screen where this MapMenu was last displayed. 
+     */
+    private Point latestScreenLocation;
     
     /**
      * Constructor
@@ -110,6 +142,32 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
         showIntendedRoutes = new ShowAllIntendedRoutes("Show all intended routes");
         showIntendedRoutes.addActionListener(this);
 
+        // Route
+        routeHide = new RouteHide("Hide route");
+        routeHide.addActionListener(this);
+        routeCopy = new RouteCopy("Copy route");
+        routeCopy.addActionListener(this);
+        routeReverse = new RouteReverse("Reverse route");
+        routeReverse.addActionListener(this);
+        routeDelete = new RouteDelete("Delete route", this);
+        routeDelete.addActionListener(this);
+        routeRequestMetoc = new RouteRequestMetoc("Request METOC");
+        routeRequestMetoc.addActionListener(this);
+        routeMetocProperties = new RouteMetocProperties("METOC properties");
+        routeMetocProperties.addActionListener(this);
+        routeShowMetocToggle = new RouteShowMetocToggle();
+        routeShowMetocToggle.addActionListener(this);
+        routeProperties = new RouteProperties("Route properties");
+        routeProperties.addActionListener(this);
+        routeAppendWaypoint = new RouteAppendWaypoint("Append waypoint");
+        routeAppendWaypoint.addActionListener(this);
+        routeLegInsertWaypoint = new RouteLegInsertWaypoint("Insert waypoint here");
+        routeLegInsertWaypoint.addActionListener(this);
+        routeWaypointActivateToggle = new RouteWaypointActivateToggle("Activate waypoint");
+        routeWaypointActivateToggle.addActionListener(this);
+        routeWaypointDelete = new RouteWaypointDelete("Delete waypoint");
+        routeWaypointDelete.addActionListener(this);
+        
         // MSI menu items
         msiAcknowledge = new MsiAcknowledge("Acknowledge MSI");
         msiAcknowledge.addActionListener(this);
@@ -249,5 +307,22 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
             VetoableChangeListener in_vcl) {
         beanContextChildSupport.removeVetoableChangeListener(propertyName,
                 in_vcl);
+    }
+
+    @Override
+    public void setVisible(boolean visible){
+        if(this.isVisible()) {
+            // log latest location every time this MapMenu is made visible.
+            this.latestScreenLocation = this.getLocationOnScreen();
+        }
+        super.setVisible(visible);
+    }
+
+    /**
+     * Get the position on screen where this MapMenu was last shown.
+     * @return The latest position or null if this MapMenu was never shown.
+     */
+    public Point getLatestVisibleLocation() {
+        return latestScreenLocation;
     }
 }

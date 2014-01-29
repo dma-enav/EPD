@@ -13,40 +13,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.menuitems;
+package dk.dma.epd.common.prototype.gui.menuitems;
 
-import javax.swing.JMenuItem;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
-import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.shore.route.RouteManager;
-
-
-
-public class RouteWaypointActivateToggle extends JMenuItem implements IMapMenuAction {
-
-    /**
-     *
-     */
+public class RouteReverse extends RouteMenuItem<RouteManagerCommon> {
+    
     private static final long serialVersionUID = 1L;
-    private int routeWaypointIndex;
-    private RouteManager routeManager;
-
-    public RouteWaypointActivateToggle(String text) {
+    
+    public RouteReverse(String text) {
         super();
         setText(text);
     }
-
+    
     @Override
     public void doAction() {
-        routeManager.changeActiveWp(routeWaypointIndex);
+        routeManager.routeReverse(routeIndex);
     }
-
-    public void setRouteWaypointIndex(int routeWaypointIndex) {
-        this.routeWaypointIndex = routeWaypointIndex;
-    }
-
-    public void setRouteManager(RouteManager routeManager) {
-        this.routeManager = routeManager;
-    }
-
 }

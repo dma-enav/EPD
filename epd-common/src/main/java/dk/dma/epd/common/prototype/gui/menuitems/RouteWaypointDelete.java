@@ -13,27 +13,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.menuitems;
+package dk.dma.epd.common.prototype.gui.menuitems;
 
 import javax.swing.JOptionPane;
 
-import dk.dma.epd.common.prototype.gui.menuitems.RouteMenuItem;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.route.RouteManager;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
-public class RouteWaypointDelete extends RouteMenuItem<RouteManager> {
-
-    private static final long serialVersionUID = 1L;
+public class RouteWaypointDelete extends RouteMenuItem<RouteManagerCommon> {
     
+    private static final long serialVersionUID = 1L;
     private int routeWaypointIndex;
 
     public RouteWaypointDelete(String text) {
         super();
         setText(text);
     }
-
+    
     @Override
     public void doAction() {
         Route route = routeManager.getRoute(routeIndex);
@@ -41,7 +39,7 @@ public class RouteWaypointDelete extends RouteMenuItem<RouteManager> {
 
             int result = JOptionPane
                     .showConfirmDialog(
-                            EPDShore.getInstance().getMainFrame(),
+                            EPD.getInstance().getMainFrame(),
                             "A route must have at least two waypoints.\nDo you want to delete the route?",
                             "Delete Route?", JOptionPane.YES_NO_OPTION,
                             JOptionPane.QUESTION_MESSAGE);
@@ -59,8 +57,11 @@ public class RouteWaypointDelete extends RouteMenuItem<RouteManager> {
             routeManager
                     .notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_DELETED);
         }
-    }
+        
+        
 
+    }
+    
     public void setRouteWaypointIndex(int routeWaypointIndex) {
         this.routeWaypointIndex = routeWaypointIndex;
     }
