@@ -47,7 +47,7 @@ import dk.dma.epd.common.prototype.enavcloud.EnavCloudSendThread;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
 import dk.dma.epd.common.prototype.enavcloud.EnavCloudUtils;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck.StrategicRouteAckMsg;
@@ -65,7 +65,7 @@ import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
-import dk.dma.epd.ship.route.strategic.RecievedRoute;
+import dk.dma.epd.ship.route.strategic.ReceivedRoute;
 import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
 import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
 import dk.dma.epd.ship.service.intendedroute.IntendedRouteService;
@@ -412,11 +412,11 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
                                 routeExchangeCallbackContext = context;
 
-                                RecievedRoute recievedRoute = new RecievedRoute(
+                                ReceivedRoute receivedRoute = new ReceivedRoute(
                                         message);
 
                                 EPDShip.getInstance().getRouteManager()
-                                        .recieveRouteSuggestion(recievedRoute);
+                                        .receiveRouteSuggestion(receivedRoute);
 
                             }
                         }).awaitRegistered(4, TimeUnit.SECONDS);
@@ -429,11 +429,11 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * @param id the ID of the route suggestion
      * @param message a message to send along with the reply
      */
-    public void sendRouteExchangeReply(AIS_STATUS recievedAccepted, long id, String message) {
+    public void sendRouteExchangeReply(RouteSuggestionStatus receivedAccepted, long id, String message) {
         try {
             long ownMmsi = ownShipHandler.getMmsi() == null ? -1L : ownShipHandler.getMmsi();
             routeExchangeCallbackContext.complete(new RouteSuggestionService.RouteSuggestionReply(
-                    message, id, ownMmsi, System.currentTimeMillis(), recievedAccepted));
+                    message, id, ownMmsi, System.currentTimeMillis(), receivedAccepted));
             cloudStatus.markSuccesfullSend();
         } catch (Exception e) {
             cloudStatus.markFailedSend();
@@ -556,7 +556,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
                 @Override
                 public void accept(StrategicRouteRequestReply l, Throwable r) {
-                    replyRecieved(l);
+                    replyReceived(l);
                     cloudStatus.markCloudReception();
                 }
             });
@@ -569,8 +569,8 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     }
 
-    private void replyRecieved(StrategicRouteRequestReply reply) {
-        System.out.println("Mona Lisa Reply recieved: " + reply.getStatus());
+    private void replyReceived(StrategicRouteRequestReply reply) {
+        System.out.println("Mona Lisa Reply received: " + reply.getStatus());
 
         monaLisaHandler.handleReply(reply);
 

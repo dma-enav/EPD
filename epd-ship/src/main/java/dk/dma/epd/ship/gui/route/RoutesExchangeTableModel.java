@@ -22,7 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.route.RouteManager;
-import dk.dma.epd.ship.route.strategic.RecievedRoute;
+import dk.dma.epd.ship.route.strategic.ReceivedRoute;
+import dk.dma.epd.ship.route.strategic.ReceivedRoute.ReceivedRouteStatus;
 
 /**
  * Table model for RouteManagerDialog
@@ -58,11 +59,11 @@ public class RoutesExchangeTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        RecievedRoute route = routeManager.getSuggestedRoutes().get(rowIndex);
+        ReceivedRoute route = routeManager.getSuggestedRoutes().get(rowIndex);
         
         switch (columnIndex) {
         case 0: return Formatter.formatString(route.getRoute().getName());
-        case 1: return Formatter.formatRouteSuggestionStatus(route.getStatus());
+        case 1: return formatRouteSuggestionStatus(route.getStatus());
         case 2: return !route.isHidden();
         default:
             LOG.error("Unknown column " + columnIndex);
@@ -70,9 +71,26 @@ public class RoutesExchangeTableModel extends AbstractTableModel {
         }
     }
     
+    private String formatRouteSuggestionStatus(ReceivedRouteStatus status) {
+        switch (status) {
+        case PENDING:
+            return "Pending";
+        case ACCEPTED:
+            return "Accepted";
+        case REJECTED:
+            return "Rejected";
+        case NOTED:
+            return "Noted";
+        case IGNORED:
+            return "Ignored";
+        default:
+            return "Unknown";
+        }
+    }
+        
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        RecievedRoute route = routeManager.getSuggestedRoutes().get(rowIndex);        
+        ReceivedRoute route = routeManager.getSuggestedRoutes().get(rowIndex);        
         switch (columnIndex) {
         case 2:
             route.setHidden(!(Boolean)aValue);

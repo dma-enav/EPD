@@ -175,11 +175,11 @@ public class IntendedRouteGraphic extends OMGraphicList {
         activeWpLine.setLL(activeWpLineLL);
 
         // Adjust the transparency of the color depending on the last-received time for the route
-        long secondsSinceRecieved = 
+        long secondsSinceReceived = 
                     (System.currentTimeMillis() - cloudIntendedRoute.getReceived().getTime()) / 1000L;
 
-        if (secondsSinceRecieved < TTL) {
-            float factor = 1.0f - (float)secondsSinceRecieved / (float)TTL;
+        if (secondsSinceReceived < TTL) {
+            float factor = 1.0f - (float)secondsSinceReceived / (float)TTL;
             Color color = adjustColor(routeColor, factor, factor);
             updateColor(color);
             this.setVisible(vesselTarget.getSettings().isShowRoute());

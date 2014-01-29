@@ -50,7 +50,7 @@ import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.route.RouteManager;
-import dk.dma.epd.ship.route.strategic.RecievedRoute;
+import dk.dma.epd.ship.route.strategic.ReceivedRoute;
 import dk.frv.enav.common.xml.metoc.MetocForecast;
 import dk.frv.enav.common.xml.metoc.MetocForecastPoint;
 
@@ -266,7 +266,7 @@ public class RouteLayer extends GeneralLayer implements
         // graphics.add(suggestedRoute);
         // }
         // }
-        for (RecievedRoute routeSuggestion : routeManager.getSuggestedRoutes()) {
+        for (ReceivedRoute routeSuggestion : routeManager.getSuggestedRoutes()) {
             if (!routeSuggestion.isHidden()) {
                 suggestedRoute = new SuggestedRouteGraphic(routeSuggestion,
                         stroke);
@@ -470,7 +470,7 @@ public class RouteLayer extends GeneralLayer implements
             // mainFrame.getGlassPane().setVisible(false);
             waypointInfoPanel.setVisible(false);
             SuggestedRouteGraphic suggestedRoute = (SuggestedRouteGraphic) selectedGraphic;
-            RecievedRoute aisSuggestedRoute = suggestedRoute
+            ReceivedRoute aisSuggestedRoute = suggestedRoute
                     .getRouteSuggestion();
             getMapMenu().suggestedRouteMenu(aisSuggestedRoute);
             getMapMenu().setVisible(true);

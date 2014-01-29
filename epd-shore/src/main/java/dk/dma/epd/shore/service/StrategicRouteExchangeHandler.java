@@ -61,8 +61,6 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
         StrategicRouteStatus status = strategicNegotiationData.get(id)
                 .getStatus();
         
-        System.out.println("Reply recieved internal - Current status is " + status);
-
         System.out.println(status == StrategicRouteStatus.NEGOTIATING
                 || status == StrategicRouteStatus.PENDING);
         
@@ -129,7 +127,7 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
 
     public void handleMessage(StrategicRouteRequestMessage message) {
 
-        // Recieved a message, how to handle it?
+        // Received a message, how to handle it?
 
         long transactionID = message.getId();
         long mmsi = message.getMmsi();

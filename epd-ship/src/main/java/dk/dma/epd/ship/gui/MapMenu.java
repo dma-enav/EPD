@@ -56,7 +56,7 @@ import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
-import dk.dma.epd.ship.route.strategic.RecievedRoute;
+import dk.dma.epd.ship.route.strategic.ReceivedRoute;
 import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
 import dk.dma.epd.ship.service.EnavServiceHandler;
 
@@ -606,7 +606,7 @@ public class MapMenu extends MapMenuCommon {
         revalidate();
     }
 
-    public void suggestedRouteMenu(RecievedRoute aisSuggestedRoute) {
+    public void suggestedRouteMenu(ReceivedRoute aisSuggestedRoute) {
         removeAll();
 
         suggestedRouteDetails.setSuggestedRoute(aisSuggestedRoute);

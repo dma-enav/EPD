@@ -36,7 +36,6 @@ import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.model.route.RouteStatus;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
@@ -47,7 +46,8 @@ import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.ComponentFrame;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.route.RouteManager;
-import dk.dma.epd.ship.route.strategic.RecievedRoute;
+import dk.dma.epd.ship.route.strategic.ReceivedRoute;
+import dk.dma.epd.ship.route.strategic.ReceivedRoute.ReceivedRouteStatus;
 
 /**
  * Dialog shown when route suggestion is received
@@ -60,7 +60,7 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
     private ChartPanel chartPanel;
     private PntHandler gpsHandler;
 
-    private RecievedRoute cloudRouteSuggestion;
+    private ReceivedRoute cloudRouteSuggestion;
 
 
     private JButton acceptBtn;
@@ -94,7 +94,7 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
     }
     
     
-    public void showSuggestion(final RecievedRoute cloudRouteSuggestion) {
+    public void showSuggestion(final ReceivedRoute cloudRouteSuggestion) {
         if (!SwingUtilities.isEventDispatchThread()) {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
@@ -115,7 +115,7 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
         str.append("<html>");
         str.append("<table cellpadding='0' cellspacing='3'>");
         str.append("<tr><td>Sent:</td><td>" + cloudRouteSuggestion.getSent()+ "</td></tr>");
-        str.append("<tr><td>Received:</td><td>" + cloudRouteSuggestion.getRecieved()+ "</td></tr>");
+        str.append("<tr><td>Received:</td><td>" + cloudRouteSuggestion.getReceived()+ "</td></tr>");
         str.append("<tr><td>Message:</td><td>" + cloudRouteSuggestion.getMessage() + "</td></tr>");
         str.append("<tr><td>Status:</td><td>" + cloudRouteSuggestion.getStatus() + "</td></tr>");
         str.append("<tr><td>ID:</td><td>" + cloudRouteSuggestion.getId() + "</td></tr>");
@@ -131,24 +131,6 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
         showAndPosition();
     }
     
-    //moved here to start breaking up dependencies
-    public static String formatRouteSuggestioStatus(RouteStatus status) {
-        switch (status) {
-        case PENDING:
-            return "Pending";
-        case ACCEPTED:
-            return "Accepted";
-        case REJECTED:
-            return "Rejected";
-        case NOTED:
-            return "Noted";
-        case IGNORED:
-            return "Ignored";
-        default:
-            return "Unknown";
-        }
-    }
-
     private void updateWpInfo() {
         // Get current position
         StringBuilder str = new StringBuilder();
@@ -228,19 +210,19 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
             updateBtnStatus();
             routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
         } else if (e.getSource() == acceptBtn) {
-            routeManager.routeSuggestionReply(cloudRouteSuggestion, RouteStatus.ACCEPTED, textArea.getText());
+            routeManager.routeSuggestionReply(cloudRouteSuggestion, ReceivedRouteStatus.ACCEPTED, textArea.getText());
 //            routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
             close();
         } else if (e.getSource() == rejectBtn) {
-            routeManager.routeSuggestionReply(cloudRouteSuggestion, RouteStatus.REJECTED, textArea.getText());
+            routeManager.routeSuggestionReply(cloudRouteSuggestion, ReceivedRouteStatus.REJECTED, textArea.getText());
 //            routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
             close();
         } else if (e.getSource() == notedBtn) {
-            routeManager.routeSuggestionReply(cloudRouteSuggestion, RouteStatus.NOTED, textArea.getText());
+            routeManager.routeSuggestionReply(cloudRouteSuggestion, ReceivedRouteStatus.NOTED, textArea.getText());
 //            routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
             close();
         } else if (e.getSource() == ignoreBtn) {
-            routeManager.routeSuggestionReply(cloudRouteSuggestion, RouteStatus.IGNORED, textArea.getText());
+            routeManager.routeSuggestionReply(cloudRouteSuggestion, ReceivedRouteStatus.IGNORED, textArea.getText());
 //            routeManager.notifyListeners(RoutesUpdateEvent.SUGGESTED_ROUTES_CHANGED);
             close();
         } else if (e.getSource() == postponeBtn) {

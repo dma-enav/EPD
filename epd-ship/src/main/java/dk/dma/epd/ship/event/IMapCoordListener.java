@@ -26,6 +26,6 @@ public interface IMapCoordListener {
      * Receive new coordinate position
      * @param llp
      */
-    void recieveCoord(LatLonPoint llp);
+    void receiveCoord(LatLonPoint llp);
     
 }
