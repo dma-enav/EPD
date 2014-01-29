@@ -28,7 +28,7 @@ import javax.swing.SwingConstants;
 
 import dk.dma.epd.common.prototype.event.SetupDialogActionListener;
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
-import dk.dma.epd.common.prototype.gui.settings.ENavSettingsPanelCommon;
+import dk.dma.epd.common.prototype.gui.settings.CommonENavSettingsPanel;
 import dk.dma.epd.common.prototype.settings.Settings;
 
 import java.awt.FlowLayout;
@@ -49,7 +49,7 @@ public class SetupDialogCommon extends JDialog {
     private List<BaseSettingsPanel> settingsPanels;
     
     // Common settings panels
-    private ENavSettingsPanelCommon enavSettings;
+    private CommonENavSettingsPanel enavSettings;
     
     private Settings settings;
     private JTabbedPane tabbedPane;
@@ -83,7 +83,7 @@ public class SetupDialogCommon extends JDialog {
         
         // Create the panels.
         this.settingsPanels = new ArrayList<BaseSettingsPanel>();
-        this.enavSettings   = new ENavSettingsPanelCommon();
+        this.enavSettings   = new CommonENavSettingsPanel();
         
         // Register the panels to the tab menu.
         registerSettingsPanels(enavSettings);

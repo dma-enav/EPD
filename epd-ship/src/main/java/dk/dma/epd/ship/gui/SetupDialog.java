@@ -34,7 +34,7 @@ import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
-import dk.dma.epd.common.prototype.gui.settings.CloudSettingsPanel;
+import dk.dma.epd.common.prototype.gui.settings.CommonCloudSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.setuptabs.AisTab;
@@ -67,7 +67,7 @@ public class SetupDialog extends JDialog implements ActionListener, ISettingsLis
     private NavigationTab navTab        = new NavigationTab();
     private SensorTab sensorTab         = new SensorTab();
     private MapTab mapTab               = new MapTab();
-    private CloudSettingsPanel cloudTab = new CloudSettingsPanel();
+    private CommonCloudSettingsPanel cloudTab = new CommonCloudSettingsPanel();
     private List<BaseSettingsPanel> settingsPanels = new ArrayList<>();
     
     /**

@@ -34,15 +34,15 @@ import javax.swing.border.TitledBorder;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.epd.common.graphics.GraphicsUtil;
-import dk.dma.epd.common.prototype.gui.settings.CloudSettingsPanel;
+import dk.dma.epd.common.prototype.gui.settings.CommonCloudSettingsPanel;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.settings.EPDEnavSettings;
 
 /**
- * The shore version of the {@linkplain CloudSettingsPanel} adds
+ * The shore version of the {@linkplain CommonCloudSettingsPanel} adds
  * settings for a shore ID and shore position
  */
-public class ShoreCloudSettingsPanel extends CloudSettingsPanel {
+public class ShoreCloudSettingsPanel extends CommonCloudSettingsPanel {
 
     private static final long serialVersionUID = -7159933582775260430L;
 

@@ -15,7 +15,7 @@
  */
 package dk.dma.epd.ship.gui.setuptabs;
 
-import dk.dma.epd.common.prototype.gui.settings.MapSettingsPanelCommon;
+import dk.dma.epd.common.prototype.gui.settings.CommonMapSettingsPanel;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.settings.EPDMapSettings;
 
@@ -35,7 +35,7 @@ import javax.swing.ListSelectionModel;
  * @author adamduehansen
  *
  */
-public class ShipMapSettingsPanel extends MapSettingsPanelCommon {
+public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
 
     private static final long serialVersionUID = 1L;
     private JList<String> listWMSServices;

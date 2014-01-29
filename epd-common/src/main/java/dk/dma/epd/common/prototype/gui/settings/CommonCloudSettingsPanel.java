@@ -40,7 +40,7 @@ import dk.dma.epd.common.util.ParseUtils;
 /**
  * Maritime cloud tab panel
  */
-public class CloudSettingsPanel extends BaseSettingsPanel {
+public class CommonCloudSettingsPanel extends BaseSettingsPanel {
     
     private static final long serialVersionUID = 1L;
     
@@ -52,8 +52,8 @@ public class CloudSettingsPanel extends BaseSettingsPanel {
     /**
      * Constructor
      */
-    public CloudSettingsPanel() {
-        super("Cloud", new ImageIcon(CloudSettingsPanel.class.getResource
+    public CommonCloudSettingsPanel() {
+        super("Cloud", new ImageIcon(CommonCloudSettingsPanel.class.getResource
                 ("/images/settings/cloud.png")));
         
         setLayout(new GridBagLayout());
@@ -81,14 +81,6 @@ public class CloudSettingsPanel extends BaseSettingsPanel {
                 new GridBagConstraints(0, gridy, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         cloudPanel.add(txtServerPort, 
                 new GridBagConstraints(1, gridy, 1, 1, 1.0, 0.0, WEST, NONE, insets5, 0, 0));
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return "Cloud Settings";
     }
     
     /**

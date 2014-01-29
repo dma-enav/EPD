@@ -26,7 +26,6 @@ public class SetupDialogActionListener implements ActionListener {
 
     public SetupDialogActionListener(SetupDialogCommon setupDialog) {
         this.setupDialog = setupDialog;
-        
     }
 
     @Override
