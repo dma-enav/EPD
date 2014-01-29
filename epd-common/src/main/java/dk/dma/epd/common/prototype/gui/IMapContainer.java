@@ -26,7 +26,7 @@ import javax.swing.JPanel;
  * In EPDShip that will be the {@code MainFrame} class and in EPDShore 
  * that will be the {@code MapFrame} class.
  */
-public interface MapContainer {
+public interface IMapContainer {
 
     
     /**

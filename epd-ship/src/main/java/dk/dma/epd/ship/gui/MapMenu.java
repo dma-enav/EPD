@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.ship.gui;
 
-import java.awt.Color;
 import java.awt.Point;
 
 import com.bbn.openmap.MouseDelegator;
@@ -23,7 +22,6 @@ import com.bbn.openmap.MouseDelegator;
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
-import dk.dma.epd.common.prototype.gui.menuitems.ColorMenuItem;
 import dk.dma.epd.common.prototype.gui.menuitems.GeneralClearMap;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteHide;
 import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
@@ -236,8 +234,8 @@ public class MapMenu extends MapMenuCommon {
         intendedRouteToggle.setAisTargetListener(aisLayer);
         intendedRouteToggle.setVesselTarget(vesselTarget);
 
-        if (vesselTarget.getAisRouteData() != null
-                && vesselTarget.getAisRouteData().hasRoute()) {
+        if (vesselTarget.getIntendedRoute() != null
+                && vesselTarget.getIntendedRoute().hasRoute()) {
             intendedRouteToggle.setEnabled(true);
         } else {
             intendedRouteToggle.setEnabled(false);
@@ -302,16 +300,8 @@ public class MapMenu extends MapMenuCommon {
         add(centerVesselTarget);
         
         // Add a color selector menu item
-        // TODO: Included for test purposes for now
-        ColorMenuItem colorMenuItem = new ColorMenuItem(
-                this, 
-                IntendedRouteGraphic.COLORS, 
-                routeGraphics.getRouteColor());
-        colorMenuItem.addListener(new ColorMenuItem.ColorMenuItemListener() {
-            @Override public void colorSelected(Color color) {
-                routeGraphics.setRouteColor(color);
-            }});
-        add(colorMenuItem);
+        intendedRouteColor.init(this, routeGraphics);
+        add(intendedRouteColor);
 
         revalidate();
         generalMenu(false);

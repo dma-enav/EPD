@@ -65,7 +65,6 @@ import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.service.MonaLisaRouteOptimization;
 import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
-import dk.dma.epd.shore.service.ais.AisServices;
 import dk.dma.epd.shore.services.shore.ShoreServices;
 import dk.dma.epd.shore.settings.EPDSensorSettings;
 import dk.dma.epd.shore.settings.EPDSettings;
@@ -87,7 +86,6 @@ public final class EPDShore extends EPD {
     private AisHandler aisHandler;
     private MsiHandler msiHandler;
     private StrategicRouteExchangeHandler monaLisaHandler;
-    private AisServices aisServices;
     private AisReader aisReader;
     private ShoreServicesCommon shoreServicesCommon;
     private StaticImages staticImages;
@@ -191,10 +189,6 @@ public final class EPDShore extends EPD {
         // voyageManager = new VoyageManager();
         voyageManager = VoyageManager.loadVoyageManager();
         beanHandler.add(voyageManager);
-        
-        // Create AIS services
-        aisServices = new AisServices();
-        beanHandler.add(aisServices);
         
         // Create shore services
         shoreServicesCommon = new ShoreServices(getSettings().getEnavSettings());
@@ -608,10 +602,6 @@ public final class EPDShore extends EPD {
 
     public AisReader getAisReader() {
         return aisReader;
-    }
-
-    public AisServices getAisServices() {
-        return aisServices;
     }
 
     public VoyageManager getVoyageManager() {

@@ -13,18 +13,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.ais;
-
+package dk.dma.epd.common.prototype.model.route;
 
 /**
- * Interface to implement for classes wanting to receive route suggestions
+ * Possible status of a route suggestion
  */
-public interface IAisRouteSuggestionListener {
-    
-    /**
-     * Method called when routeSuggestion is received
-     * @param routeSuggestion
-     */
-    void receiveRouteSuggestion(AisRouteData routeSuggestion);
-
+public enum RouteStatus {
+    PENDING,
+    ACCEPTED,
+    REJECTED,
+    NOTED,
+    IGNORED,
+    CANCELLED,
 }

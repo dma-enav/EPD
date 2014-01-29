@@ -27,7 +27,6 @@ import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
 
-import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.ship.route.strategic.RecievedRoute;
 
@@ -44,14 +43,6 @@ public class SuggestedRouteGraphic extends OMGraphicList {
     
     private Stroke stroke;
 
-    public SuggestedRouteGraphic(AisAdressedRouteSuggestion routeSuggestion, Stroke stroke) {
-//        this.routeSuggestion = routeSuggestion;
-        this.stroke = stroke;
-//        routeWaypoints = routeSuggestion.getWaypoints();
-        initGraphics();
-        setVague(true);
-    }
-    
     public SuggestedRouteGraphic(RecievedRoute routeSuggestion, Stroke stroke) {
         this.routeSuggestion = routeSuggestion;
         this.stroke = stroke;

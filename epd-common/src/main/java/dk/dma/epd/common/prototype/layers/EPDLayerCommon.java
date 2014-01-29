@@ -35,7 +35,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
-import dk.dma.epd.common.prototype.gui.MapContainer;
+import dk.dma.epd.common.prototype.gui.IMapContainer;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel.InfoPanelBinding;
@@ -47,7 +47,7 @@ import dk.dma.epd.common.prototype.gui.util.InfoPanel.InfoPanelBinding;
  * {@code mainFrame} and {@code mapMenu} beans.
  * <p>
  * Additionally, it binds the bean ({@code mapContainer}) that implements the
- * {@linkplain MapContainer} interface.<br>
+ * {@linkplain IMapContainer} interface.<br>
  * In EPDShip this bean will be the {@code MainFrame} class bean, and in EPDShore
  * it will be the {@code JMapFrame} class bean.
  * <p>
@@ -71,7 +71,7 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
     protected MapBean mapBean;
     protected MainFrameCommon mainFrame;
     protected MapMenuCommon mapMenu;
-    protected MapContainer mapContainer;
+    protected IMapContainer mapContainer;
     
     protected OMGraphic closest;
     
@@ -105,8 +105,8 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
         
         // For EPDShip the MapContainer is the MainFrame
         // For EPDShore the MapContainer is the JMapFrame
-        if (obj instanceof MapContainer) {
-            mapContainer = (MapContainer) obj;
+        if (obj instanceof IMapContainer) {
+            mapContainer = (IMapContainer) obj;
             addInfoPanelsToGlassPane();
         }
     }
@@ -332,7 +332,7 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
      * 
      * @return a reference to the map frame
      */
-    public MapContainer getMapContainer() {
+    public IMapContainer getMapContainer() {
         return mapContainer;
     }
 
@@ -347,7 +347,7 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
     }    
     
     /**
-     * Converts a point in {@linkplain MapBean} coordinates the that of the {@linkplain MapContainer}
+     * Converts a point in {@linkplain MapBean} coordinates the that of the {@linkplain IMapContainer}
      * @param point the point to convert
      * @return the converted point
      */

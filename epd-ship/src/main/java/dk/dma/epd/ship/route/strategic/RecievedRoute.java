@@ -18,9 +18,9 @@ package dk.dma.epd.ship.route.strategic;
 import java.io.Serializable;
 import java.util.Date;
 
-import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion.Status;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.RouteStatus;
 
 public class RecievedRoute implements Serializable {
 
@@ -36,7 +36,7 @@ public class RecievedRoute implements Serializable {
     String replySent;
     long id;
     private boolean hidden;
-    private Status status = Status.PENDING;
+    private RouteStatus status = RouteStatus.PENDING;
     
 
     public RecievedRoute(RouteSuggestionMessage suggestionMessage) {
@@ -106,11 +106,11 @@ public class RecievedRoute implements Serializable {
 
  
     
-    public Status getStatus() {
+    public RouteStatus getStatus() {
         return status;
     }
     
-    public void setStatus(Status status) {
+    public void setStatus(RouteStatus status) {
         switch (status) {
         case ACCEPTED:
         case NOTED:
@@ -130,7 +130,7 @@ public class RecievedRoute implements Serializable {
     }
     
     public boolean isReplied() {
-        return status == Status.ACCEPTED || status == Status.NOTED || status == Status.REJECTED;
+        return status == RouteStatus.ACCEPTED || status == RouteStatus.NOTED || status == RouteStatus.REJECTED;
     }
     
     public boolean isHidden() {
@@ -142,27 +142,27 @@ public class RecievedRoute implements Serializable {
     }
     
     public boolean isAcceptable() {
-        return status == Status.PENDING || status == Status.IGNORED; 
+        return status == RouteStatus.PENDING || status == RouteStatus.IGNORED; 
     }
     
     public boolean isRejectable() {
-        return status == Status.PENDING || status == Status.IGNORED;
+        return status == RouteStatus.PENDING || status == RouteStatus.IGNORED;
     }
     
     public boolean isNoteable() {
-        return status == Status.PENDING || status == Status.IGNORED;
+        return status == RouteStatus.PENDING || status == RouteStatus.IGNORED;
     }
     
     public boolean isIgnorable() {
-        return status == Status.PENDING; 
+        return status == RouteStatus.PENDING; 
     }
     
     public boolean isPostponable() {
-        return status == Status.PENDING; 
+        return status == RouteStatus.PENDING; 
     }
     
     public void cancel() {
-        setStatus(Status.CANCELLED);
+        setStatus(RouteStatus.CANCELLED);
     }
     
     

@@ -13,27 +13,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.service.communication.ais;
+package dk.dma.epd.common.prototype.gui.menuitems;
 
-import dk.dma.ais.reader.SendRequest;
+import javax.swing.JMenuItem;
 
-/**
- * Thread for sending intended routes
- */
-public class AisIntendedRouteSendThread extends AisSendThread {
+import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
+import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 
-    public AisIntendedRouteSendThread(SendRequest sendRequest, AisServices aisServices) {
-        super(sendRequest, aisServices);
-    }
+
+public class GeneralShowIntendedRoutes extends JMenuItem implements IMapMenuAction {
+
+    private static final long serialVersionUID = 1L;
     
+    private AisHandlerCommon aisHandler;
+
+    public GeneralShowIntendedRoutes(String text) {
+        super();
+        setText(text);
+    }
+
     @Override
-    public void run() {
-        super.run();
-        
-        if (abk != null && abk.isSuccess()) {
-            aisServices.setLastIntendedRouteBroadcast();
-        }
-        
+    public void doAction() {
+        aisHandler.showAllIntendedRoutes();
+    }
+
+    public void setAisHandler(AisHandlerCommon aisHandler) {
+        this.aisHandler = aisHandler;
     }
 
 }
