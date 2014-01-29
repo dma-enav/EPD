@@ -285,6 +285,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
      * @param mmsi the mmsi of the vessel
      * @return the graphic representing the vessel or null if not found
      */
+    @SuppressWarnings("unused")
     private VesselTargetGraphic getVessel(Long mmsi) {
         synchronized (targets) {
             TargetGraphic target = this.targets.get(mmsi);

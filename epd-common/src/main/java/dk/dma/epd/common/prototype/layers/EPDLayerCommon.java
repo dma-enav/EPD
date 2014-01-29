@@ -55,8 +55,8 @@ import dk.dma.epd.common.prototype.gui.util.InfoPanel.InfoPanelBinding;
  * thus works on the {@code mapContainer} bean.
  * <p>
  * {@code EPDLayerCommon} also provides standardized ways of binding {@code InfoPanel} panels
- * to {@linkplain OMGraphic} classes, as well as container managed handling of right-
- * and left-button mouse clicks, for mouse selection and displaying the context menu
+ * to {@linkplain OMGraphic} classes, as well as container managed handling of left-
+ * and right-button mouse clicks, for mouse selection and displaying the context menu
  * respectively.
  */ 
 public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements MapMouseListener {
@@ -150,7 +150,7 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
      * Provides default behavior for mouse clicks.
      * <p> 
      * If graphics classes have been registered using {@linkplain #registerMouseClickClasses()}
-     * for right-clicks and {@linkplain #registerMapMenuClasses()} for left-clicks, 
+     * for left-clicks and {@linkplain #registerMapMenuClasses()} for right-clicks, 
      * it is checked whether one of these classes have been clicked.
      * 
      * @param evt the mouse event
@@ -356,9 +356,9 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
     }
     
     /**
-     * Register the graphics classes that are handled upon right-clicking the mouse.
+     * Register the graphics classes that are handled upon left-clicking the mouse.
      * 
-     * @param graphics the graphics classes that are handled upon right-clicking the mouse.
+     * @param graphics the graphics classes that are handled upon left-clicking the mouse.
      */
     @SafeVarargs
     protected final void registerMouseClickClasses(Class<? extends OMGraphic>... graphics) {
@@ -368,10 +368,10 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
     }
     
     /**
-     * Register the graphics classes that are handled upon left-clicking the mouse,
+     * Register the graphics classes that are handled upon right-clicking the mouse,
      * i.e. the classes that triggers displaying the context menu
      * 
-     * @param graphics the graphics classes that are handled upon left-clicking the mouse.
+     * @param graphics the graphics classes that are handled upon right-clicking the mouse.
      */
     @SafeVarargs
     protected final void registerMapMenuClasses(Class<? extends OMGraphic>... graphics) {
@@ -381,10 +381,10 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
     }
     
     /**
-     * Register the graphics classes that are handled upon right-clicking and
-     * left-clicking the mouse
+     * Register the graphics classes that are handled upon left-clicking and
+     * right-clicking the mouse
      * 
-     * @param graphics the graphics classes that are handled upon right- and left-clicking the mouse.
+     * @param graphics the graphics classes that are handled upon left- and right-clicking the mouse.
      */
     @SafeVarargs
     protected final void registerMouseClickAndMapMenuClasses(Class<? extends OMGraphic>... graphics) {
