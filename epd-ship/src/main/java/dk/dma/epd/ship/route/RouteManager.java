@@ -33,11 +33,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion.Status;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute.ActiveWpSelectionResult;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.RouteStatus;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
@@ -306,25 +306,25 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
      */
     public void routeSuggestionReply(
             RecievedRoute routeSuggestion,
-            Status status, String message) {
+            RouteStatus status, String message) {
         
 
         switch (status) {
         case ACCEPTED:
-            routeSuggestion.setStatus(Status.ACCEPTED);
+            routeSuggestion.setStatus(RouteStatus.ACCEPTED);
             acceptSuggested(routeSuggestion);
             enavServiceHandler.sendRouteExchangeReply(AIS_STATUS.RECIEVED_ACCEPTED, routeSuggestion.getId(), message);
             break;
         case REJECTED:
             //Remove it
-            routeSuggestion.setStatus(Status.REJECTED);
-            routeSuggestion.setStatus(Status.REJECTED);
+            routeSuggestion.setStatus(RouteStatus.REJECTED);
+            routeSuggestion.setStatus(RouteStatus.REJECTED);
 //            removeSuggested(routeSuggestion);
             enavServiceHandler.sendRouteExchangeReply(AIS_STATUS.RECIEVED_REJECTED, routeSuggestion.getId(), message);
             break;
         case NOTED:
             //Do nothing
-            routeSuggestion.setStatus(Status.NOTED);
+            routeSuggestion.setStatus(RouteStatus.NOTED);
             enavServiceHandler.sendRouteExchangeReply(AIS_STATUS.RECIEVED_NOTED, routeSuggestion.getId(), message);
             break;
         default:

@@ -532,7 +532,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         // Check if route information is invalid
         if (aisTarget instanceof VesselTarget) {
             
-            if (((VesselTarget) aisTarget).checkAisRouteData()) {
+            if (((VesselTarget) aisTarget).checkIntendedRoute()) {
                 publishUpdate(aisTarget);
                 return false;
             }

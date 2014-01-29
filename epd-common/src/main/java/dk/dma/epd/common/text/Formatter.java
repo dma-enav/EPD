@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion.Status;
+import dk.dma.epd.common.prototype.model.route.RouteStatus;
 
 /**
  * Utility class for doing different formatting
@@ -34,7 +34,7 @@ public class Formatter {
     //private static final TimeZone tzGMT = TimeZone.getTimeZone("GMT+0000");
 
     
-    public static String formatRouteSuggestionStatus(Status status) {
+    public static String formatRouteSuggestionStatus(RouteStatus status) {
         switch (status) {
         case PENDING:
             return "Pending";

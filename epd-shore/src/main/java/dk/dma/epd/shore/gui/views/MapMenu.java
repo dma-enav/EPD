@@ -239,8 +239,8 @@ public class MapMenu extends MapMenuCommon {
         intendedRouteToggle.setAisTargetListener(aisLayer);
         intendedRouteToggle.setVesselTarget(vesselTarget);
 
-        if (vesselTarget.getAisRouteData() != null
-                && vesselTarget.getAisRouteData().hasRoute()) {
+        if (vesselTarget.getIntendedRoute() != null
+                && vesselTarget.getIntendedRoute().hasRoute()) {
             intendedRouteToggle.setEnabled(true);
         } else {
             intendedRouteToggle.setEnabled(false);

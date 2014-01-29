@@ -40,7 +40,6 @@ public class VesselTarget extends MobileTarget {
     public enum AisClass {A, B};
     
     // NB: We do not want to persist intended route data
-    private transient AisIntendedRoute aisIntendedRoute;
     private transient AisClass aisClass; 
     private transient CloudIntendedRoute intendedRoute;
     
@@ -52,9 +51,6 @@ public class VesselTarget extends MobileTarget {
     public VesselTarget(VesselTarget vesselTarget) {
         super(vesselTarget);
         this.aisClass = vesselTarget.aisClass;
-        if (vesselTarget.aisIntendedRoute != null) {
-            this.aisIntendedRoute = new AisIntendedRoute(vesselTarget.aisIntendedRoute);
-        }
     }
 
     /**
@@ -67,20 +63,8 @@ public class VesselTarget extends MobileTarget {
     @Override
     public synchronized void setPositionData(VesselPositionData positionData) {
         super.setPositionData(positionData);
-        if (aisIntendedRoute != null) {
-            aisIntendedRoute.update(positionData);
-        }
     }
 
-    public synchronized AisIntendedRoute getAisRouteData() {
-        return aisIntendedRoute;
-    }
-    
-    public synchronized void setAisRouteData(AisIntendedRoute aisIntendedRoute) {
-        this.aisIntendedRoute = aisIntendedRoute;
-        this.aisIntendedRoute.update(positionData);
-    }
-    
     public synchronized void setCloudRouteData(CloudIntendedRoute intendedRoute) {
         this.intendedRoute = intendedRoute;
         this.intendedRoute.update(positionData);
@@ -106,14 +90,14 @@ public class VesselTarget extends MobileTarget {
      * Returns true if route information changes from valid to invalid
      * @return
      */
-    public synchronized boolean checkAisRouteData() {
-        if (aisIntendedRoute == null || aisIntendedRoute.getWaypoints().size() == 0 || aisIntendedRoute.getDuration() == 0) {
+    public synchronized boolean checkIntendedRoute() {
+        if (intendedRoute == null || !intendedRoute.hasRoute() || intendedRoute.getDuration() == 0) {
             return false;
         }
         Date now = PntTime.getInstance().getDate();
-        long elapsed = now.getTime() - aisIntendedRoute.getReceived().getTime();
+        long elapsed = now.getTime() - intendedRoute.getReceived().getTime();
         if (elapsed > ROUTE_TTL) {
-            aisIntendedRoute = null;
+            intendedRoute = null;
             return true;
         }
         return false;        

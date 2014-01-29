@@ -13,27 +13,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.service.communication.ais;
-
-import dk.dma.ais.reader.SendRequest;
+package dk.dma.epd.common.prototype.model.route;
 
 /**
- * Thread for sending intended routes
+ * Possible status of a route suggestion
  */
-public class AisIntendedRouteSendThread extends AisSendThread {
-
-    public AisIntendedRouteSendThread(SendRequest sendRequest, AisServices aisServices) {
-        super(sendRequest, aisServices);
-    }
-    
-    @Override
-    public void run() {
-        super.run();
-        
-        if (abk != null && abk.isSuccess()) {
-            aisServices.setLastIntendedRouteBroadcast();
-        }
-        
-    }
-
+public enum RouteStatus {
+    PENDING,
+    ACCEPTED,
+    REJECTED,
+    NOTED,
+    IGNORED,
+    CANCELLED,
 }

@@ -76,7 +76,6 @@ import dk.dma.epd.ship.risk.RiskHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
 import dk.dma.epd.ship.service.EnavServiceHandler;
-import dk.dma.epd.ship.service.communication.ais.AisServices;
 import dk.dma.epd.ship.service.shore.ShoreServices;
 import dk.dma.epd.ship.settings.EPDSensorSettings;
 import dk.dma.epd.ship.settings.EPDSettings;
@@ -105,7 +104,6 @@ public final class EPDShip extends EPD {
     private ShoreServicesCommon shoreServices;
     private StrategicRouteExchangeHandler strategicRouteExchangeHandler;
     private MonaLisaRouteOptimization monaLisaRouteExchange;
-    private AisServices aisServices;
     private MsiHandler msiHandler;
     private NogoHandler nogoHandler;
     private EnavServiceHandler enavServiceHandler;
@@ -216,10 +214,6 @@ public final class EPDShip extends EPD {
         // Create mona lisa route exchange
         monaLisaRouteExchange = new MonaLisaRouteOptimization();
         mapHandler.add(monaLisaRouteExchange);
-
-        // Create AIS services
-        aisServices = new AisServices();
-        mapHandler.add(aisServices);
 
         // Create MSI handler
         msiHandler = new MsiHandler(getSettings().getEnavSettings());
