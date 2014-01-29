@@ -513,12 +513,7 @@ public class MapMenu extends MapMenuCommon {
 
         removeAll();
 
-        if (routeManager.getActiveRouteIndex() == routeIndex) {
-            routeLegInsertWaypoint.setEnabled(false);
-        } else {
-            routeLegInsertWaypoint.setEnabled(true);
-        }
-
+        routeLegInsertWaypoint.setEnabled(true);
         routeLegInsertWaypoint.setMapBean(mapBean);
         routeLegInsertWaypoint.setRouteManager(routeManager);
         routeLegInsertWaypoint.setRouteLeg(routeLeg);

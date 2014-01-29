@@ -437,7 +437,6 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         }
         if (obj instanceof RouteManagerCommon) {
             routeManager = (RouteManagerCommon) obj;
-            routeManager.addListener(this);
         }
         if (obj instanceof MsiLayer) {
             msiLayer = (MsiLayer) obj;

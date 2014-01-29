@@ -106,10 +106,6 @@ public abstract class IntendedRouteLayerCommon extends EPDLayerCommon implements
                 name = "ID:" + mmsi.toString();
             }
             
-            if(vessel.hasIntendedRoute()) {
-                System.out.println(name + " has an intended route!");
-            }
-            
             // Update the graphic with the updated vessel, route and position data
             intendedRoute.update(vessel, name, cloudIntendedRoute, pos);
             redraw = true;

@@ -71,7 +71,6 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
     protected ConcurrentHashMap<Long, SarTarget> sarTargets = new ConcurrentHashMap<>();
 
     protected CopyOnWriteArrayList<IAisTargetListener> listeners = new CopyOnWriteArrayList<>();
-    protected CopyOnWriteArrayList<IAisRouteSuggestionListener> suggestionListeners = new CopyOnWriteArrayList<>();
     
     protected AisStatus aisStatus = new AisStatus();
     protected final boolean strictAisMode;
@@ -600,14 +599,6 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
 
     public final void removeListener(IAisTargetListener targetListener) {
         listeners.remove(targetListener);
-    }
-
-    public final void addRouteSuggestionListener(IAisRouteSuggestionListener routeSuggestionListener) {
-        suggestionListeners.add(routeSuggestionListener);
-    }
-
-    public final void removeRouteSuggestionListener(IAisRouteSuggestionListener routeSuggestionListener) {
-        suggestionListeners.remove(routeSuggestionListener);
     }
 
     /**
