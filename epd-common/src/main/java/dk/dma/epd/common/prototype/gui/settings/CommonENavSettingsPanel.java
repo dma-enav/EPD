@@ -58,138 +58,149 @@ public class CommonENavSettingsPanel extends BaseSettingsPanel {
                 ("/images/settings/servers-network.png")));
         this.setLayout(null);
         
-        // METOC panel
+        
+        /************** METOC settings ***************/
+        
         JPanel METOCPanel = new JPanel();
         METOCPanel.setLayout(null);
         METOCPanel.setBounds(6, 6, 438, 110);
         METOCPanel.setBorder(new TitledBorder(null, "METOC Settings", TitledBorder.LEADING,
                 TitledBorder.TOP, null, null));
         
-        spinnerMETOCValidityDuration = new JSpinner();
-        spinnerMETOCValidityDuration.setBounds(16, 20, 75, 20);
-        METOCPanel.add(spinnerMETOCValidityDuration);
+        // METOC settings panel components.
+        this.spinnerMETOCValidityDuration = new JSpinner();
+        this.spinnerMETOCValidityDuration.setBounds(16, 20, 75, 20);
+        METOCPanel.add(this.spinnerMETOCValidityDuration);
         
         JLabel lblMetocValidityDuration = new JLabel("METOC validity duration (min)");
         lblMetocValidityDuration.setBounds(103, 22, 188, 16);
         METOCPanel.add(lblMetocValidityDuration);
         
-        spinnerActiveRouteMETOCPollInterval = new JSpinner();
-        spinnerActiveRouteMETOCPollInterval.setBounds(16, 45, 75, 20);
-        METOCPanel.add(spinnerActiveRouteMETOCPollInterval);
+        this.spinnerActiveRouteMETOCPollInterval = new JSpinner();
+        this.spinnerActiveRouteMETOCPollInterval.setBounds(16, 45, 75, 20);
+        METOCPanel.add(this.spinnerActiveRouteMETOCPollInterval);
         
         JLabel lblActiveRouteMetoc = new JLabel("Active route METOC poll interval (min)");
         lblActiveRouteMetoc.setBounds(103, 47, 240, 16);
         METOCPanel.add(lblActiveRouteMetoc);
         
-        spinnerMETOCTimeDifferenceTolerance = new JSpinner();
-        spinnerMETOCTimeDifferenceTolerance.setBounds(16, 70, 75, 20);
-        METOCPanel.add(spinnerMETOCTimeDifferenceTolerance);
+        this.spinnerMETOCTimeDifferenceTolerance = new JSpinner();
+        this.spinnerMETOCTimeDifferenceTolerance.setBounds(16, 70, 75, 20);
+        METOCPanel.add(this.spinnerMETOCTimeDifferenceTolerance);
         
         JLabel lblMetocTimeDifference = new JLabel("METOC time difference tolerance (min)");
         lblMetocTimeDifference.setBounds(101, 72, 242, 16);
         METOCPanel.add(lblMetocTimeDifference);
         
-        // Add the panel.
         this.add(METOCPanel);
         
-        // Http panel
+        
+        /************** HTTP settings ***************/        
+        
         JPanel httpPanel = new JPanel();
         httpPanel.setLayout(null);
         httpPanel.setBounds(6, 128, 438, 128);
         httpPanel.setBorder(new TitledBorder(null, "HTTP Settings", TitledBorder.LEADING, 
                 TitledBorder.TOP, null, null));
         
-        // Http panel components.
+        // Http settings panel components.
         JLabel lblServerName = new JLabel("Server name:");
         lblServerName.setBounds(16, 19, 80, 16);
         httpPanel.add(lblServerName);
         
-        textFieldServerName = new JTextField();
-        textFieldServerName.setBounds(136, 18, 280, 17);
-        httpPanel.add(textFieldServerName);
-        textFieldServerName.setColumns(10);
+        this.textFieldServerName = new JTextField();
+        this.textFieldServerName.setBounds(136, 18, 280, 17);
+        httpPanel.add(this.textFieldServerName);
+        this.textFieldServerName.setColumns(10);
         
         JLabel lblServerPort = new JLabel("Server port:");
         lblServerPort.setBounds(16, 43, 80, 16);
         httpPanel.add(lblServerPort);
         
-        textFieldServerPort = new JTextField();
-        textFieldServerPort.setBounds(136, 42, 280, 17);
-        httpPanel.add(textFieldServerPort);
-        textFieldServerPort.setColumns(10);
+        this.textFieldServerPort = new JTextField();
+        this.textFieldServerPort.setBounds(136, 42, 280, 17);
+        httpPanel.add(this.textFieldServerPort);
+        this.textFieldServerPort.setColumns(10);
         
         JLabel lblConnectionTimeout = new JLabel("Connection Timeout:");
         lblConnectionTimeout.setBounds(16, 67, 132, 16);
         httpPanel.add(lblConnectionTimeout);
         
-        textFieldConnectionTimeout = new JTextField();
-        textFieldConnectionTimeout.setBounds(136, 66, 280, 17);
-        httpPanel.add(textFieldConnectionTimeout);
-        textFieldConnectionTimeout.setColumns(10);
+        this.textFieldConnectionTimeout = new JTextField();
+        this.textFieldConnectionTimeout.setBounds(136, 66, 280, 17);
+        httpPanel.add(this.textFieldConnectionTimeout);
+        this.textFieldConnectionTimeout.setColumns(10);
         
         JLabel lblReadTimeout = new JLabel("Read timeout:");
         lblReadTimeout.setBounds(16, 91, 87, 16);
         httpPanel.add(lblReadTimeout);
         
-        textFieldReadTimeout = new JTextField();
-        textFieldReadTimeout.setBounds(136, 90, 280, 17);
-        httpPanel.add(textFieldReadTimeout);
-        textFieldReadTimeout.setColumns(10);
+        this.textFieldReadTimeout = new JTextField();
+        this.textFieldReadTimeout.setBounds(136, 90, 280, 17);
+        httpPanel.add(this.textFieldReadTimeout);
+        this.textFieldReadTimeout.setColumns(10);
         
-        // Add the panel.
         this.add(httpPanel);
         
-        // MSI panel
+        
+        /************** MSI settings ***************/         
+        
         JPanel MSIPanel = new JPanel();
         MSIPanel.setLayout(null);
         MSIPanel.setBounds(6, 268, 438, 160);
         MSIPanel.setBorder(new TitledBorder(null, "MSI Settings", TitledBorder.LEADING,
                 TitledBorder.TOP, null, null));
         
-        spinnerMSIPollInterval = new JSpinner();
-        spinnerMSIPollInterval.setBounds(16, 20, 75, 20);
-        MSIPanel.add(spinnerMSIPollInterval);
+        // MSI settings panel components.
+        this.spinnerMSIPollInterval = new JSpinner();
+        this.spinnerMSIPollInterval.setBounds(16, 20, 75, 20);
+        MSIPanel.add(this.spinnerMSIPollInterval);
         
         JLabel lblMsiPollInterval = new JLabel("MSI poll interval (sec)");
         lblMsiPollInterval.setBounds(103, 22, 134, 16);
         MSIPanel.add(lblMsiPollInterval);
         
-        spinnerMSITextBoxVisibilityScale = new JSpinner();
-        spinnerMSITextBoxVisibilityScale.setBounds(16, 45, 75, 20);
-        MSIPanel.add(spinnerMSITextBoxVisibilityScale);
+        this.spinnerMSITextBoxVisibilityScale = new JSpinner();
+        this.spinnerMSITextBoxVisibilityScale.setBounds(16, 45, 75, 20);
+        MSIPanel.add(this.spinnerMSITextBoxVisibilityScale);
         
         JLabel lblMsiTextboxVisibility = new JLabel("MSI textbox visibility scale (map scale)");
         lblMsiTextboxVisibility.setBounds(103, 47, 244, 16);
         MSIPanel.add(lblMsiTextboxVisibility);
         
-        spinnerGPSPositionInterval = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Double(1)));
-        spinnerGPSPositionInterval.setBounds(16, 70, 75, 20);
-        MSIPanel.add(spinnerGPSPositionInterval);
+        this.spinnerGPSPositionInterval = new JSpinner(new SpinnerNumberModel(
+                new Double(0), null, null, new Double(1)));
+        this.spinnerGPSPositionInterval.setBounds(16, 70, 75, 20);
+        MSIPanel.add(this.spinnerGPSPositionInterval);
         
         JLabel lblGpsPositionintervalBefore = new JLabel("GPS position interval before MSI visibility is calculated");
         lblGpsPositionintervalBefore.setBounds(103, 72, 341, 16);
         MSIPanel.add(lblGpsPositionintervalBefore);
         
-        spinnerMSIVisibilityRangeFromOwnShip = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Double(1)));
-        spinnerMSIVisibilityRangeFromOwnShip.setBounds(16, 95, 75, 20);
-        MSIPanel.add(spinnerMSIVisibilityRangeFromOwnShip);
+        this.spinnerMSIVisibilityRangeFromOwnShip = new JSpinner(new SpinnerNumberModel(
+                new Double(0), null, null, new Double(1)));
+        this.spinnerMSIVisibilityRangeFromOwnShip.setBounds(16, 95, 75, 20);
+        MSIPanel.add(this.spinnerMSIVisibilityRangeFromOwnShip);
         
         JLabel lblMsiVisibilityRange = new JLabel("MSI visibility range from own ship");
         lblMsiVisibilityRange.setBounds(103, 97, 214, 16);
         MSIPanel.add(lblMsiVisibilityRange);
         
-        spinnerMSIVisibilituRangeAtWaypoint = new JSpinner(new SpinnerNumberModel(new Double(0), null, null, new Double(1)));
-        spinnerMSIVisibilituRangeAtWaypoint.setBounds(16, 120, 75, 20);
-        MSIPanel.add(spinnerMSIVisibilituRangeAtWaypoint);
+        this.spinnerMSIVisibilituRangeAtWaypoint = new JSpinner(new SpinnerNumberModel(
+                new Double(0), null, null, new Double(1)));
+        this.spinnerMSIVisibilituRangeAtWaypoint.setBounds(16, 120, 75, 20);
+        MSIPanel.add(this.spinnerMSIVisibilituRangeAtWaypoint);
         
         JLabel lblMsiVisibilityRange_1 = new JLabel("MSI visibility range from new waypoint at route creation");
         lblMsiVisibilityRange_1.setBounds(103, 122, 351, 16);
         MSIPanel.add(lblMsiVisibilityRange_1);
         
-        // Add the panel
         this.add(MSIPanel);        
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected boolean checkSettingsChanged() {
         
@@ -213,30 +224,36 @@ public class CommonENavSettingsPanel extends BaseSettingsPanel {
                 changed(this.settings.getMsiRelevanceFromOwnShipRange(), this.spinnerMSIVisibilityRangeFromOwnShip);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void doLoadSettings() {
         
         this.settings = this.getSettings().getEnavSettings();
         
         // Initialize METOC settings.
-        this.spinnerMETOCValidityDuration.setValue(settings.getMetocTtl());
-        this.spinnerActiveRouteMETOCPollInterval.setValue(settings.getActiveRouteMetocPollInterval());
-        this.spinnerMETOCTimeDifferenceTolerance.setValue(settings.getMetocTimeDiffTolerance());
+        this.spinnerMETOCValidityDuration.setValue(this.settings.getMetocTtl());
+        this.spinnerActiveRouteMETOCPollInterval.setValue(this.settings.getActiveRouteMetocPollInterval());
+        this.spinnerMETOCTimeDifferenceTolerance.setValue(this.settings.getMetocTimeDiffTolerance());
         
         // Initialize http settings.
-        this.textFieldServerName.setText(settings.getServerName());
-        this.textFieldServerPort.setText(Integer.toString(settings.getHttpPort()));
-        this.textFieldConnectionTimeout.setText(Integer.toString(settings.getConnectTimeout()));
-        this.textFieldReadTimeout.setText(Integer.toString(settings.getReadTimeout()));
+        this.textFieldServerName.setText(this.settings.getServerName());
+        this.textFieldServerPort.setText(Integer.toString(this.settings.getHttpPort()));
+        this.textFieldConnectionTimeout.setText(Integer.toString(this.settings.getConnectTimeout()));
+        this.textFieldReadTimeout.setText(Integer.toString(this.settings.getReadTimeout()));
         
         // initialize MSI settings.
-        this.spinnerMSIPollInterval.setValue(settings.getMsiPollInterval());
-        this.spinnerMSITextBoxVisibilityScale.setValue(settings.getMsiTextboxesVisibleAtScale());
-        this.spinnerGPSPositionInterval.setValue(settings.getMsiRelevanceGpsUpdateRange());
-        this.spinnerMSIVisibilityRangeFromOwnShip.setValue(settings.getMsiRelevanceFromOwnShipRange());
-        this.spinnerMSIVisibilituRangeAtWaypoint.setValue(settings.getMsiVisibilityFromNewWaypoint());
+        this.spinnerMSIPollInterval.setValue(this.settings.getMsiPollInterval());
+        this.spinnerMSITextBoxVisibilityScale.setValue(this.settings.getMsiTextboxesVisibleAtScale());
+        this.spinnerGPSPositionInterval.setValue(this.settings.getMsiRelevanceGpsUpdateRange());
+        this.spinnerMSIVisibilityRangeFromOwnShip.setValue(this.settings.getMsiRelevanceFromOwnShipRange());
+        this.spinnerMSIVisibilituRangeAtWaypoint.setValue(this.settings.getMsiVisibilityFromNewWaypoint());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void doSaveSettings() {
         
@@ -259,6 +276,9 @@ public class CommonENavSettingsPanel extends BaseSettingsPanel {
         this.settings.setMsiVisibilityFromNewWaypoint((Double) this.spinnerMSIVisibilituRangeAtWaypoint.getValue());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void fireSettingsChanged() {
         fireSettingsChanged(Type.ENAV);

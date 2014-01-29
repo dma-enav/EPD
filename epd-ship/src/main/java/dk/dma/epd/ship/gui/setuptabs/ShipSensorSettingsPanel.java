@@ -72,6 +72,9 @@ public class ShipSensorSettingsPanel extends BaseSettingsPanel implements Action
     private JCheckBox chckbxStartTransponder;
     private JSpinner spinnerAisSensorRange;
 
+    /**
+     * Constructs a new ShipSensorSettingsPanel object.
+     */
     public ShipSensorSettingsPanel() {
         super("Sensor", new ImageIcon(ShipSensorSettingsPanel.class.getResource
                 ("/images/settingspanels/sensor.png")));

@@ -15,13 +15,6 @@
  */
 package dk.dma.epd.common.prototype.gui.settings;
 
-import static java.awt.GridBagConstraints.HORIZONTAL;
-import static java.awt.GridBagConstraints.NONE;
-import static java.awt.GridBagConstraints.WEST;
-import static java.awt.GridBagConstraints.NORTHWEST;
-
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Insets;
 
 import javax.swing.ImageIcon;
@@ -31,7 +24,6 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.FormatException;
-import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.common.prototype.settings.EnavSettings;
@@ -55,32 +47,30 @@ public class CommonCloudSettingsPanel extends BaseSettingsPanel {
     public CommonCloudSettingsPanel() {
         super("Cloud", new ImageIcon(CommonCloudSettingsPanel.class.getResource
                 ("/images/settings/cloud.png")));
-        
-        setLayout(new GridBagLayout());
+        setLayout(null);
 
-        // Cloud connection settings
-        JPanel cloudPanel = new JPanel(new GridBagLayout());
-        add(cloudPanel, 
-                new GridBagConstraints(0, 0, 1, 1, 1.0, 0.1, NORTHWEST, HORIZONTAL, new Insets(15, 5, 5, 5), 0, 0));
+        /************** HTTP settings ***************/
+        JPanel httpPanel = new JPanel();
+        httpPanel.setBounds(6, 6, 438, 84);
+        add(httpPanel);
         
-        cloudPanel.setBorder(new TitledBorder(null, "HTTP Settings",
+        httpPanel.setBorder(new TitledBorder(null, "HTTP Settings",
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
         // Server name
-        GraphicsUtil.fixSize(txtServerName, 250);
-        int gridy = 0;
-        cloudPanel.add(new JLabel("Server name:"), 
-                new GridBagConstraints(0, gridy, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        cloudPanel.add(txtServerName, 
-                new GridBagConstraints(1, gridy, 1, 1, 1.0, 0.0, WEST, NONE, insets5, 0, 0));
+        httpPanel.setLayout(null);
+        JLabel label = new JLabel("Server name:");
+        label.setBounds(16, 20, 80, 16);
+        httpPanel.add(label);
+        txtServerName.setBounds(108, 18, 324, 20);
+        httpPanel.add(txtServerName);
         
         // Server port
-        gridy++;
-        GraphicsUtil.fixSize(txtServerPort, 60);
-        cloudPanel.add(new JLabel("Server port:"), 
-                new GridBagConstraints(0, gridy, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        cloudPanel.add(txtServerPort, 
-                new GridBagConstraints(1, gridy, 1, 1, 1.0, 0.0, WEST, NONE, insets5, 0, 0));
+        JLabel label_1 = new JLabel("Server port:");
+        label_1.setBounds(16, 45, 72, 16);
+        httpPanel.add(label_1);
+        txtServerPort.setBounds(108, 43, 80, 20);
+        httpPanel.add(txtServerPort);
     }
     
     /**

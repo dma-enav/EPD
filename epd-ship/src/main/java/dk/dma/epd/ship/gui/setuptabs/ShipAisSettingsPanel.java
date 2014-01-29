@@ -17,11 +17,25 @@ package dk.dma.epd.ship.gui.setuptabs;
 
 import dk.dma.epd.common.prototype.gui.settings.CommonAisSettingsPanel;
 
+/**
+ * 
+ * @author adamduehansen
+ *
+ */
 public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
 
     private static final long serialVersionUID = 1L;
-    
+
+    /**
+     * Constructs a new ShipAisSettingsPanel object.
+     */
     public ShipAisSettingsPanel() {
 
+        // Get the transponderPanel from super class.
+        super.getTransponderPanel().setLocation(6, 6);
+        
+        
+        
+        
     }
 }

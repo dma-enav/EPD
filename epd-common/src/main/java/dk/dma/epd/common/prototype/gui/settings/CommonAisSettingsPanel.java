@@ -28,51 +28,75 @@ import javax.swing.border.TitledBorder;
 public class CommonAisSettingsPanel extends BaseSettingsPanel {
 
     private static final long serialVersionUID = 1L;
+    private JPanel transponderPanel;
 
+    /**
+     * Constructs a new CommonAisSettingsPanel object.
+     */
     public CommonAisSettingsPanel() {
         super("AIS", new ImageIcon(CommonAisSettingsPanel.class.getResource
                 ("/images/settings/ais.png")));
         this.setLayout(null);
         
-        JPanel panel = new JPanel();
-        panel.setBounds(6, 6, 438, 82);
-        panel.setBorder(new TitledBorder(null, "Transponder Settings", TitledBorder.LEADING, 
-                TitledBorder.TOP, null, null));
-        panel.setLayout(null);
         
+        /************** Transponder settings ***************/
+        
+        transponderPanel = new JPanel();
+        transponderPanel.setBounds(6, 6, 438, 82);
+        transponderPanel.setBorder(new TitledBorder(
+                null, "Transponder Settings", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        transponderPanel.setLayout(null);
+        
+        // HTTP settings panel components.
         JCheckBox chckbxAllowSending = new JCheckBox("Allow Sending");
         chckbxAllowSending.setBounds(16, 20, 128, 20);
-        panel.add(chckbxAllowSending);
+        transponderPanel.add(chckbxAllowSending);
         
         JCheckBox checkBoxStrictTimeout = new JCheckBox("Strict timeout");
         checkBoxStrictTimeout.setBounds(16, 45, 128, 20);
-        panel.add(checkBoxStrictTimeout);
+        transponderPanel.add(checkBoxStrictTimeout);
         
-        this.add(panel);
+        this.add(transponderPanel);
     }
     
+ 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected boolean checkSettingsChanged() {
         // TODO Auto-generated method stub
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void doLoadSettings() {
         // TODO Auto-generated method stub
         
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void doSaveSettings() {
         // TODO Auto-generated method stub
         
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void fireSettingsChanged() {
         // TODO Auto-generated method stub
         
     }
-    
+
+    public JPanel getTransponderPanel() {
+        return this.transponderPanel;
+    }
 }
