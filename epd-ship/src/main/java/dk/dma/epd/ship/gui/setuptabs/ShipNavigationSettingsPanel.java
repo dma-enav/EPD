@@ -42,7 +42,7 @@ public class ShipNavigationSettingsPanel extends BaseSettingsPanel {
     private JSpinner spinnerNewRouteDefaultXtd;
 
     public ShipNavigationSettingsPanel() {
-        super("Navigation", new ImageIcon(ShipAisSettingsPanel.class.getResource("/images/toolbar/radar.png")));
+        super("Navigation", new ImageIcon(ShipAisSettingsPanel.class.getResource("/images/settingspanels/navigation.png")));
         setLayout(null);
         
         // Own Ship settings.

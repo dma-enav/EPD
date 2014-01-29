@@ -23,6 +23,7 @@ import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.ship.gui.setuptabs.ShipAisSettingsPanel;
 import dk.dma.epd.ship.gui.setuptabs.ShipMapSettingsPanel;
 import dk.dma.epd.ship.gui.setuptabs.ShipNavigationSettingsPanel;
+import dk.dma.epd.ship.gui.setuptabs.ShipSensorSettingsPanel;
 
 /**
  * 
@@ -36,6 +37,7 @@ public class SetupDialogShip extends SetupDialogCommon {
     private ShipMapSettingsPanel mapSettings;
     private ShipAisSettingsPanel aisSettings;
     private ShipNavigationSettingsPanel navigationSettings;
+    private ShipSensorSettingsPanel sensorSettings;
 
     public SetupDialogShip(JFrame mainFrame) {
         super(mainFrame, "Ship Setup", true);
@@ -44,8 +46,13 @@ public class SetupDialogShip extends SetupDialogCommon {
         mapSettings   = new ShipMapSettingsPanel();
         aisSettings   = new ShipAisSettingsPanel();
         navigationSettings = new ShipNavigationSettingsPanel();
+        sensorSettings = new ShipSensorSettingsPanel();
         
-        registerSettingsPanels(navigationSettings, cloudSettings, mapSettings, aisSettings);
+        registerSettingsPanels( navigationSettings, 
+                                cloudSettings, 
+                                mapSettings, 
+                                aisSettings, 
+                                sensorSettings );
     }
     
     @Override
