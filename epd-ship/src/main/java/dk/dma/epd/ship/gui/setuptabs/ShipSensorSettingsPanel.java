@@ -25,8 +25,6 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.ImageIcon;
-
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
@@ -44,6 +42,7 @@ import javax.swing.JTextField;
 import javax.swing.JSpinner;
 import javax.swing.JCheckBox;
 import javax.swing.JSpinner.NumberEditor;
+import javax.swing.ImageIcon;
 
 /**
  * 
@@ -274,7 +273,7 @@ public class ShipSensorSettingsPanel extends BaseSettingsPanel implements Action
         PntSourceSetting pntSrc = (PntSourceSetting) this.comboBoxPntSource.getSelectedItem();
         
         // Set enabled state of AIS connection components.
-        boolean aisEnabled = ((pntSrc == PntSourceSetting.AUTO) || (pntSrc == PntSourceSetting.AIS));
+        boolean aisEnabled = pntSrc == PntSourceSetting.AUTO || pntSrc == PntSourceSetting.AIS;
         Object aisConType  = this.comboBoxAisConnectionType.getSelectedItem();
         this.aisConnectionPanel.setEnabled(aisEnabled);
         this.setEnabled(aisConnectionPanel, aisEnabled, JLabel.class);
@@ -284,7 +283,7 @@ public class ShipSensorSettingsPanel extends BaseSettingsPanel implements Action
         this.textFieldAisFilename.setEnabled(aisEnabled && aisConType == FILE);
         
         // Set enabled state of GPS connection components.
-        boolean gpsEnabled = ((pntSrc == PntSourceSetting.AUTO) || (pntSrc == PntSourceSetting.GPS));
+        boolean gpsEnabled = pntSrc == PntSourceSetting.AUTO || pntSrc == PntSourceSetting.GPS;
         Object gpsConType = this.comboBoxGPSConnectionType.getSelectedItem();
         this.gpsConnectionPanel.setEnabled(gpsEnabled);
         this.setEnabled(this.gpsConnectionPanel, gpsEnabled, JLabel.class);
@@ -294,7 +293,7 @@ public class ShipSensorSettingsPanel extends BaseSettingsPanel implements Action
         this.textFieldGpsFilename.setEnabled(gpsConType == FILE);
         
         // Set enabled state of Multi-source PNT connection components
-        boolean msPntEnabled = ((pntSrc == PntSourceSetting.AUTO) || (pntSrc == PntSourceSetting.MSPNT));
+        boolean msPntEnabled = pntSrc == PntSourceSetting.AUTO || pntSrc == PntSourceSetting.MSPNT;
         Object msPntConType = this.comboBoxMsPntConnectionType.getSelectedItem();
         this.msPntConnectionPanel.setEnabled(msPntEnabled);
         this.setEnabled(this.msPntConnectionPanel, msPntEnabled, JLabel.class);
