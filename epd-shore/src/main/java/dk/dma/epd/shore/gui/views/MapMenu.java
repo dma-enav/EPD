@@ -438,6 +438,13 @@ public class MapMenu extends MapMenuCommon {
         generalMenu(false);
     }
 
+    /**
+     * Creates the route leg menu
+     * @param routeIndex the route index
+     * @param routeLeg the route leg
+     * @param point the mouse location
+     */
+    @Override
     public void routeLegMenu(int routeIndex, RouteLeg routeLeg, Point point) {
         routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
                 .getRouteManager();
@@ -455,8 +462,15 @@ public class MapMenu extends MapMenuCommon {
 
         generalRouteMenu(routeIndex);
         // TODO: add leg specific items
+        revalidate();
     }
 
+    /**
+     * Creates the route way point menu
+     * @param routeIndex the route index
+     * @param routeWaypointIndex the route way point index
+     */
+    @Override
     public void routeWaypointMenu(int routeIndex, int routeWaypointIndex) {
         routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
                 .getRouteManager();

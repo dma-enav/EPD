@@ -558,6 +558,13 @@ public class MapMenu extends MapMenuCommon {
         revalidate();
     }
 
+    /**
+     * Creates the route leg menu
+     * @param routeIndex the route index
+     * @param routeLeg the route leg
+     * @param point the mouse location
+     */
+    @Override
     public void routeLegMenu(int routeIndex, RouteLeg routeLeg, Point point) {
         removeAll();
 
@@ -581,6 +588,12 @@ public class MapMenu extends MapMenuCommon {
         revalidate();
     }
 
+    /**
+     * Creates the route way point menu
+     * @param routeIndex the route index
+     * @param routeWaypointIndex the route way point index
+     */
+    @Override
     public void routeWaypointMenu(int routeIndex, int routeWaypointIndex) {
         removeAll();
 

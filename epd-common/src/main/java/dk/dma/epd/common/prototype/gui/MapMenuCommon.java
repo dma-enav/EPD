@@ -64,6 +64,7 @@ import dk.dma.epd.common.prototype.gui.menuitems.MsiAcknowledge;
 import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
 import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.model.route.RouteLeg;
 
 /**
  * Abstract base class for the right click map menu
@@ -234,6 +235,21 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
             scaleMenu.add(menuItem);
         }
     }
+
+    /**
+     * Creates the route leg menu
+     * @param routeIndex the route index
+     * @param routeLeg the route leg
+     * @param point the mouse localtion
+     */
+    public abstract void routeLegMenu(int routeIndex, RouteLeg routeLeg, Point point);
+    
+    /**
+     * Creates the route way point menu
+     * @param routeIndex the route index
+     * @param routeWaypointIndex the route way point index
+     */
+    public abstract void routeWaypointMenu(int routeIndex, int routeWaypointIndex);
     
     /**
      * {@inheritDoc}
