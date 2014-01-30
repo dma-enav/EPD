@@ -88,7 +88,7 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
      */
     @Override
     public JMapFrame getMapFrame() {
-        return (JMapFrame)getMapFrame();
+        return (JMapFrame)super.getMapFrame();
     }
     
     @Override

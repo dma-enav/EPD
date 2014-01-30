@@ -141,12 +141,14 @@ public class WMSLayer extends OMGraphicHandlerLayer implements Runnable, WMSEven
             try {
                 Thread.sleep(25000);
                 final Projection proj = this.getProjection();
-                width = proj.getWidth();
-                height = proj.getHeight();
-
-                if (width > 0 && height > 0 && proj.getScale() <= 3428460) {
-                    OMGraphicList result = wmsService.getWmsList(proj);
-                    drawWMS(result);
+                if (proj != null) {
+                    width = proj.getWidth();
+                    height = proj.getHeight();
+    
+                    if (width > 0 && height > 0 && proj.getScale() <= 3428460) {
+                        OMGraphicList result = wmsService.getWmsList(proj);
+                        drawWMS(result);
+                    }
                 }
 
             } catch (InterruptedException | NullPointerException e) {
