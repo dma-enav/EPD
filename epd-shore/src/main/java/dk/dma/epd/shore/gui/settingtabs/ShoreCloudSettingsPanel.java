@@ -15,15 +15,6 @@
  */
 package dk.dma.epd.shore.gui.settingtabs;
 
-import static java.awt.GridBagConstraints.HORIZONTAL;
-import static java.awt.GridBagConstraints.NONE;
-import static java.awt.GridBagConstraints.NORTHWEST;
-import static java.awt.GridBagConstraints.WEST;
-
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -33,7 +24,6 @@ import javax.swing.border.TitledBorder;
 
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
-import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.gui.settings.CommonCloudSettingsPanel;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.settings.EPDEnavSettings;
@@ -46,54 +36,52 @@ public class ShoreCloudSettingsPanel extends CommonCloudSettingsPanel {
 
     private static final long serialVersionUID = -7159933582775260430L;
 
-    JSpinner spnShoreLat = new JSpinner();
-    JSpinner spnShoreLon = new JSpinner();
-    JTextField txtShoreId = new JTextField();
-    EPDEnavSettings enavSetting;
+    private JSpinner spinnerShoreLat;
+    private JSpinner spinnerShoreLon;
+    private JTextField textFieldShoreId;
 
     /**
      * Constructor
      */
     public ShoreCloudSettingsPanel() {
-        super();  
         
-        // Cloud connection settings
-        JPanel shorePanel = new JPanel(new GridBagLayout());
-        add(shorePanel, 
-                new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0, NORTHWEST, HORIZONTAL, new Insets(15, 5, 5, 5), 0, 0));
+        JPanel shorePanel = new JPanel();
+        shorePanel.setBounds(6, 106, 438, 105);
+        shorePanel.setLayout(null);
+        shorePanel.setBorder(new TitledBorder(
+                null, "Shore Settings", TitledBorder.LEADING, TitledBorder.TOP, null, null));
         
-        shorePanel.setBorder(new TitledBorder(null, "Shore Settings",
-                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        JLabel lblShoreId = new JLabel("Shore Id");
+        lblShoreId.setBounds(16, 20, 55, 16);
+        shorePanel.add(lblShoreId);
         
-        // Shore ID
-        GraphicsUtil.fixSize(txtShoreId, 160);
-        int gridy = 0;
-        shorePanel.add(new JLabel("Shore ID:"), 
-                new GridBagConstraints(0, gridy, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        shorePanel.add(txtShoreId, 
-                new GridBagConstraints(1, gridy, 4, 1, 1.0, 0.0, WEST, NONE, insets5, 0, 0));
+        this.textFieldShoreId = new JTextField();
+        this.textFieldShoreId.setBounds(83, 18, 338, 20);
+        shorePanel.add(textFieldShoreId);
         
-        // Shore position
-        spnShoreLat.setModel(new SpinnerNumberModel(new Double(0), null, null, new Double(1)));
-        spnShoreLon.setModel(new SpinnerNumberModel(new Double(0), null, null, new Double(1)));
-        GraphicsUtil.fixSize(spnShoreLat, 80);
-        GraphicsUtil.fixSize(spnShoreLon, 80);
-        gridy++;
-        int gridx = 0;
-        shorePanel.add(new JLabel("Position:"), 
-                new GridBagConstraints(gridx++, gridy, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        shorePanel.add(new JLabel("Latitude:"), 
-                new GridBagConstraints(gridx++, gridy, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        shorePanel.add(spnShoreLat, 
-                new GridBagConstraints(gridx++, gridy, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        shorePanel.add(new JLabel("Longtitude:"), 
-                new GridBagConstraints(gridx++, gridy, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        shorePanel.add(spnShoreLon, 
-                new GridBagConstraints(gridx++, gridy, 1, 1, 1.0, 0.0, WEST, NONE, insets5, 0, 0));
+        JLabel lblPosition = new JLabel("Position");
+        lblPosition.setBounds(16, 45, 61, 16);
+        shorePanel.add(lblPosition);
         
-        // Shorify the panel
-        setBounds(10, 11, 500, 300);
-        GuiStyler.styleSettingsTab(this);        
+        JLabel lblLatitude = new JLabel("Latitude");
+        lblLatitude.setBounds(16, 67, 61, 16);
+        shorePanel.add(lblLatitude);
+        
+        this.spinnerShoreLat = new JSpinner(new SpinnerNumberModel(
+                new Double(0), null, null, new Double(1)));
+        this.spinnerShoreLat.setBounds(83, 65, 90, 20);
+        shorePanel.add(this.spinnerShoreLat);
+        
+        JLabel lblLongitude = new JLabel("Longitude");
+        lblLongitude.setBounds(185, 67, 63, 16);
+        shorePanel.add(lblLongitude);
+        
+        this.spinnerShoreLon = new JSpinner(new SpinnerNumberModel(
+                new Double(0), null, null, new Double(1)));
+        this.spinnerShoreLon.setBounds(260, 65, 90, 20);
+        shorePanel.add(this.spinnerShoreLon);
+
+        this.add(shorePanel);
     }
 
     /**
@@ -105,9 +93,9 @@ public class ShoreCloudSettingsPanel extends CommonCloudSettingsPanel {
         
         EPDEnavSettings enavSettings = EPDShore.getInstance().getSettings().getEnavSettings();
         
-        txtShoreId.setText(enavSettings.getShoreId());
-        spnShoreLat.setValue(enavSettings.getShorePos().getLatitude());
-        spnShoreLon.setValue(enavSettings.getShorePos().getLongitude());
+        textFieldShoreId.setText(enavSettings.getShoreId());
+        spinnerShoreLat.setValue(enavSettings.getShorePos().getLatitude());
+        spinnerShoreLon.setValue(enavSettings.getShorePos().getLongitude());
     }
 
     /**
@@ -119,11 +107,11 @@ public class ShoreCloudSettingsPanel extends CommonCloudSettingsPanel {
         
         EPDEnavSettings enavSettings = EPDShore.getInstance().getSettings().getEnavSettings();
         
-        enavSettings.setShoreId(txtShoreId.getText());
+        enavSettings.setShoreId(textFieldShoreId.getText());
         enavSettings.setShorePos(
                 new LatLonPoint.Double(
-                        ((Number)spnShoreLat.getValue()).doubleValue(), 
-                        ((Number)spnShoreLon.getValue()).doubleValue()));
+                        ((Number)spinnerShoreLat.getValue()).doubleValue(), 
+                        ((Number)spinnerShoreLon.getValue()).doubleValue()));
     }
     
     /**
@@ -137,9 +125,9 @@ public class ShoreCloudSettingsPanel extends CommonCloudSettingsPanel {
             EPDEnavSettings enavSettings = EPDShore.getInstance().getSettings().getEnavSettings();
             
             changed = 
-                    changed(enavSettings.getShoreId(), txtShoreId.getText()) ||
-                    changed(enavSettings.getShorePos().getLatitude(), spnShoreLat.getValue()) ||
-                    changed(enavSettings.getShorePos().getLongitude(), spnShoreLon.getValue());
+                    changed(enavSettings.getShoreId(), textFieldShoreId.getText()) ||
+                    changed(enavSettings.getShorePos().getLatitude(), spinnerShoreLat.getValue()) ||
+                    changed(enavSettings.getShorePos().getLongitude(), spinnerShoreLon.getValue());
         }
         return changed;
     }

@@ -16,6 +16,8 @@
 package dk.dma.epd.shore.gui.settingtabs;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
@@ -35,7 +37,7 @@ import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.settings.EPDAisSettings;
 import dk.dma.epd.shore.settings.EPDSensorSettings;
 
-public class AisSettingsPanel extends BaseSettingsPanel {
+public class AisSettingsPanel extends BaseSettingsPanel implements ActionListener {
 
     private static final long serialVersionUID = 1L;
     
@@ -169,6 +171,19 @@ public class AisSettingsPanel extends BaseSettingsPanel {
     protected void fireSettingsChanged() {
         fireSettingsChanged(Type.AIS);
         fireSettingsChanged(Type.SENSOR);
+    }
+
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        
+        if (this.comboBoxAisConnectionType.getSelectedItem().equals("None")) {
+            this.textFieldAisHostOrSerialPort.setEditable(false);
+            this.spinnerAisTcpOrUdpPort.setEnabled(false);
+        } else if (!this.comboBoxAisConnectionType.getSelectedItem().equals("None")) {
+            this.textFieldAisHostOrSerialPort.setEditable(true);
+            this.spinnerAisTcpOrUdpPort.setEnabled(true);
+        }
     }
     
 }

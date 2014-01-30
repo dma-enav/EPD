@@ -62,7 +62,7 @@ public class CommonCloudSettingsPanel extends BaseSettingsPanel {
         JLabel label = new JLabel("Server name:");
         label.setBounds(16, 20, 80, 16);
         httpPanel.add(label);
-        txtServerName.setBounds(108, 18, 324, 20);
+        txtServerName.setBounds(108, 18, 313, 20);
         httpPanel.add(txtServerName);
         
         // Server port
