@@ -15,80 +15,86 @@
  */
 package dk.dma.epd.common.prototype.gui;
 
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-
-import java.awt.BorderLayout;
-
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
 
-import dk.dma.epd.common.prototype.event.SetupDialogActionListener;
+import dk.dma.epd.common.prototype.event.SetupDialogHandler;
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.CommonENavSettingsPanel;
 import dk.dma.epd.common.prototype.settings.Settings;
 
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * This is the common setup GUI for ship and shore.
- * 
  * @author adamduehansen
  *
  */
 public class SetupDialogCommon extends JDialog {
 
+    /**
+     * private fields.
+     */
     private static final long serialVersionUID = 1L;
     private JButton btnOk;
     private JButton btnCancel;
+    private JTabbedPane tabbedPane;
     private List<BaseSettingsPanel> settingsPanels;
     
     // Common settings panels
     private CommonENavSettingsPanel enavSettings;
-    
     private Settings settings;
-    private JTabbedPane tabbedPane;
-    
+
     /**
      * 
      * @param parent The parent frame.
+     * @param title The title 
      */
-    public SetupDialogCommon(JFrame parent, String title, boolean modal) {
-        super(parent, title, modal);
+    public SetupDialogCommon(JFrame parent, String title, int tabAlignment) {
+        super(parent, title, true);
         
         // Frame settings.
         this.setSize(462, 720);
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setResizable(false);
         this.setLocationRelativeTo(parent);
-        getContentPane().setLayout(new BorderLayout(0, 0));
+        this.getContentPane().setLayout(new BorderLayout(0, 0));
         
-        tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-        getContentPane().add(tabbedPane, BorderLayout.CENTER);
+        this.tabbedPane = new JTabbedPane(tabAlignment);
+        this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
         
-        JPanel panel = new JPanel();
-        getContentPane().add(panel, BorderLayout.SOUTH);
-        panel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+        JPanel btnPanel = new JPanel();
+        btnPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+        this.getContentPane().add(btnPanel, BorderLayout.SOUTH);
         
-        this.btnOk = new JButton("OK");
-        panel.add(this.btnOk);
+        this.btnOk = new JButton("Accept", 
+                new ImageIcon(SetupDialogCommon.class.getResource("/images/settings/btnok.png")));
+        this.btnOk.setEnabled(false);
+        btnPanel.add(this.btnOk);
         
-        this.btnCancel = new JButton("Cancel");
-        panel.add(this.btnCancel);
+        this.btnCancel = new JButton("Cancel",
+                new ImageIcon(SetupDialogCommon.class.getResource("/images/settings/btncancel.png")));
+        btnPanel.add(this.btnCancel);
         
         // Create the panels.
         this.settingsPanels = new ArrayList<BaseSettingsPanel>();
         this.enavSettings   = new CommonENavSettingsPanel();
         
         // Register the panels to the tab menu.
-        registerSettingsPanels(enavSettings);
+        this.registerSettingsPanels(enavSettings);
                 
-        SetupDialogActionListener dialogListener = new SetupDialogActionListener(this);
+        SetupDialogHandler dialogListener = new SetupDialogHandler(this);
+        this.addWindowListener(dialogListener);
         this.btnOk.addActionListener(dialogListener);
         this.btnCancel.addActionListener(dialogListener);
     }
@@ -163,5 +169,25 @@ public class SetupDialogCommon extends JDialog {
     
     public JButton getCancelButton() {
         return this.btnCancel;
+    }
+
+    /**
+     * Checks if the settings have changed and update the OK button enabled state
+     * @return 
+     */
+    public boolean checkSettingsChanged() {
+        if (!this.isVisible()) {
+            return false;
+        }
+        boolean changed = false;
+        for (BaseSettingsPanel settingsPanel : settingsPanels) {
+            changed |= settingsPanel.settingsChanged();
+        }
+        btnOk.setEnabled(changed);
+        return changed;
+    }
+
+    public int askIfShouldSaveChanges() {
+        return JOptionPane.showConfirmDialog(this, "Should changes be saved?", "Save changes", JOptionPane.YES_NO_OPTION);
     }
 }

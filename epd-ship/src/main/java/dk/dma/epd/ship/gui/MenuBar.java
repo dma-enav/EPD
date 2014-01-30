@@ -126,9 +126,13 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         setup.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SetupDialog setupDialog = new SetupDialog(mainFrame);
-                setupDialog.loadSettings(EPDShip.getInstance().getSettings());
-                setupDialog.setVisible(true);
+//                SetupDialog setupDialog = new SetupDialog(mainFrame);
+//                setupDialog.loadSettings(EPDShip.getInstance().getSettings());
+//                setupDialog.setVisible(true);
+                
+                SetupDialogShip setup = new SetupDialogShip(mainFrame);
+                setup.loadSettings(EPDShip.getInstance().getSettings());
+                setup.setVisible(true);                
             }
         });
 

@@ -16,6 +16,7 @@
 package dk.dma.epd.ship.gui;
 
 import javax.swing.JFrame;
+import javax.swing.JTabbedPane;
 
 import dk.dma.epd.common.prototype.gui.SetupDialogCommon;
 import dk.dma.epd.common.prototype.gui.settings.CommonCloudSettingsPanel;
@@ -26,12 +27,16 @@ import dk.dma.epd.ship.gui.setuptabs.ShipNavigationSettingsPanel;
 import dk.dma.epd.ship.gui.setuptabs.ShipSensorSettingsPanel;
 
 /**
- * 
+ * This is the setup dialog made specific for ship, by
+ * extending the common setup dialog.
  * @author adamduehansen
  *
  */
 public class SetupDialogShip extends SetupDialogCommon {
 
+    /**
+     * private fields.
+     */
     private static final long serialVersionUID = 1L;
     private CommonCloudSettingsPanel cloudSettings;
     private ShipMapSettingsPanel mapSettings;
@@ -39,22 +44,34 @@ public class SetupDialogShip extends SetupDialogCommon {
     private ShipNavigationSettingsPanel navigationSettings;
     private ShipSensorSettingsPanel sensorSettings;
 
+    /**
+     * Constructs a new SetDialogShip object.
+     * @param mainFrame The frame which the setup dialog should be on top of.
+     */
     public SetupDialogShip(JFrame mainFrame) {
-        super(mainFrame, "Ship Setup", true);
+        // Constructs the common dialog.
+        super(mainFrame, "Ship Setup", JTabbedPane.TOP);
 
-        cloudSettings = new CommonCloudSettingsPanel();
-        mapSettings   = new ShipMapSettingsPanel();
-        aisSettings   = new ShipAisSettingsPanel();
-        navigationSettings = new ShipNavigationSettingsPanel();
-        sensorSettings = new ShipSensorSettingsPanel();
+        // Constructs some panels for the setup dialog.
+        this.cloudSettings      = new CommonCloudSettingsPanel();
+        this.mapSettings        = new ShipMapSettingsPanel();
+        this.aisSettings        = new ShipAisSettingsPanel();
+        this.navigationSettings = new ShipNavigationSettingsPanel();
+        this.sensorSettings     = new ShipSensorSettingsPanel();
         
-        registerSettingsPanels( navigationSettings, 
-                                cloudSettings, 
-                                mapSettings, 
-                                aisSettings, 
-                                sensorSettings );
+        // Register the panels in the setup dialog.
+        super.registerSettingsPanels( 
+                navigationSettings,
+                cloudSettings, 
+                mapSettings,
+                aisSettings, 
+                sensorSettings 
+                );
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void loadSettings(Settings settings) {
         super.loadSettings(settings);
