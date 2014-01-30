@@ -210,7 +210,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
      */
     @Override
     public MapMenu getMapMenu() {
-        return (MapMenu)super.getMapMenu();
+        return (MapMenu)mapMenu;
     }
     
     /**
