@@ -63,11 +63,15 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
 
     private static final long serialVersionUID = 1L;
 
-    protected InfoPanelBinding infoPanels = new InfoPanelBinding();
-    protected List<Class<?>> mouseClickClasses = new CopyOnWriteArrayList<>();
-    protected List<Class<?>> mapMenuClasses = new CopyOnWriteArrayList<>();
+    protected OMGraphicList graphics            = new AntialiasedGraphicList();
     
-    protected OMGraphicList graphics = new AntialiasedGraphicList();
+    protected InfoPanelBinding infoPanels       = new InfoPanelBinding();
+    protected List<Class<?>> mouseClickClasses  = new CopyOnWriteArrayList<>();
+    protected List<Class<?>> mapMenuClasses     = new CopyOnWriteArrayList<>();
+    protected OMGraphicList infoPanelsGraphics  = graphics;
+    protected OMGraphicList mouseClickGraphics  = graphics;
+    protected OMGraphicList mapMenuGraphics     = graphics;
+    
     protected MapBean mapBean;
     protected MainFrameCommon mainFrame;
     protected MapMenuCommon mapMenu;
@@ -157,29 +161,28 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
      */
     @Override
     public boolean mouseClicked(MouseEvent evt) {
-        if (evt.getButton() == MouseEvent.BUTTON1) {
+        if (evt.getButton() == MouseEvent.BUTTON1 && !mouseClickClasses.isEmpty()) {
             
-            // Check if any mouse click classes have been registered
-            if (mouseClickClasses.size() > 0) {
-                OMGraphic clickedGraphics = getSelectedGraphic(
-                        evt, 
-                        mouseClickClasses.toArray(new Class<?>[mouseClickClasses.size()]));
-                if (clickedGraphics != null) {
-                    // Clean up any info panels
-                    hideInfoPanels();
-                    getGlassPanel().setVisible(false);
-                    
-                    // Allow custom handling of right-clicks by sub-classes
-                    handleMouseClick(clickedGraphics, evt);
-                    return true;
+            OMGraphic clickedGraphics = getSelectedGraphic(
+                    mouseClickGraphics,
+                    evt, 
+                    mouseClickClasses.toArray(new Class<?>[mouseClickClasses.size()]));
+            if (clickedGraphics != null) {
+                // Clean up any info panels
+                hideInfoPanels();
+                getGlassPanel().setVisible(false);
                 
-                } else {
-                    handleMouseClick(null, evt);
-                }
+                // Allow custom handling of right-clicks by sub-classes
+                handleMouseClick(clickedGraphics, evt);
+                return true;
+            
+            } else {
+                handleMouseClick(null, evt);
             }
             
-        } else if (evt.getButton() == MouseEvent.BUTTON3) {
+        } else if (evt.getButton() == MouseEvent.BUTTON3 && !mapMenuClasses.isEmpty()) {
             OMGraphic clickedGraphics = getSelectedGraphic(
+                    mapMenuGraphics,
                     evt, 
                     mapMenuClasses.toArray(new Class<?>[mapMenuClasses.size()]));
             if (clickedGraphics != null) {
@@ -250,7 +253,7 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
         }
         
         if (!infoPanels.isEmpty()) {
-            OMGraphic newClosest = getSelectedGraphic(evt, infoPanels.getGraphicsList());
+            OMGraphic newClosest = getSelectedGraphic(infoPanelsGraphics, evt, infoPanels.getGraphicsList());
             
             if (newClosest != null && newClosest.isVisible() && newClosest != closest) {
                 closest = newClosest;
@@ -305,7 +308,21 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
      * @return the first matching graphics element
      */
     public final OMGraphic getSelectedGraphic(MouseEvent evt, Class<?>... types) {
-        return MapEventUtils.getSelectedGraphic(graphics, evt, getMouseSelectTolerance(), types);
+        return getSelectedGraphic(graphics, evt, types);
+    }
+    
+    /**
+     * Returns the first graphics element placed at the mouse event location
+     * that matches any of the types passed along.<br>
+     * The {@code graphicsList} is the list of graphics to search.
+     * 
+     * @param graphicsList the graphics list to search
+     * @param evt the mouse event
+     * @param types the possible types
+     * @return the first matching graphics element
+     */
+    public final OMGraphic getSelectedGraphic(OMGraphicList graphicsList, MouseEvent evt, Class<?>... types) {
+        return MapEventUtils.getSelectedGraphic(graphicsList, evt, getMouseSelectTolerance(), types);
     }
     
     /**

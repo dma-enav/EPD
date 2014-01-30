@@ -19,7 +19,6 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.Date;
 
-import com.bbn.openmap.event.MapEventUtils;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.omGraphics.OMGraphic;
@@ -29,21 +28,22 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
+import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackGraphic;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphic;
 import dk.dma.epd.common.prototype.sensor.rpnt.MultiSourcePntHandler;
 import dk.dma.epd.common.prototype.zoom.ZoomLevel;
-import dk.dma.epd.ship.gui.MainFrame;
-import dk.dma.epd.ship.layers.GeneralLayer;
+import dk.dma.epd.ship.gui.MapMenu;
 import dk.dma.epd.ship.ownship.IOwnShipListener;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 /**
  * Defines the own-ship layer
  */
-public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, ProjectionListener {
+public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, ProjectionListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -63,14 +63,34 @@ public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, Proj
 
     private ZoomLevel currentZoomLevel;
 
-    private PastTrackGraphic pastTrackGraphic;
-    private PastTrackInfoPanel pastTrackInfoPanel;
-    private OMGraphic closest;
+    private PastTrackGraphic pastTrackGraphic = new PastTrackGraphic();
+    private PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
 
+    /**
+     * Constructor
+     */
     public OwnShipLayer() {
+        super();
+        
         graphics.setVague(true);
+        
+        graphics.add(pastTrackGraphic);
+        
+        // Register the info panels
+        registerInfoPanel(pastTrackInfoPanel, PastTrackWpCircle.class);
+        infoPanelsGraphics = pastTrackGraphic;
+                
+        // Register the classes the will trigger the map menu
+        registerMapMenuClasses(OMGraphicList.class);
     }
 
+    /**
+     * Checks whether an update is due, i.e. when a certain 
+     * time interval has passed or when the current position 
+     * has moved more than 10 meters.
+     * 
+     * @return whether an update is due
+     */
     private synchronized boolean doUpdate() {
         if (lastRedraw == null || lastPos == null) {
             return true;
@@ -83,7 +103,6 @@ public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, Proj
 
         // Check distance moved
         double dist = currentPos.rhumbLineDistanceTo(lastPos);
-        // System.out.println("dist: " + dist);
         if (dist > 10) { // 10 m
             return true;
         }
@@ -112,12 +131,6 @@ public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, Proj
         } else {
             // draw standard version of own ship for all other zoom levels than VESSEL_OUTLINE
             this.drawOwnShipStandard(ownShipHandler.getPositionData());
-        }
-
-        // Add the past-track graphics the first time around
-        if (pastTrackGraphic == null) {
-            pastTrackGraphic = new PastTrackGraphic();
-            this.graphics.add(pastTrackGraphic);
         }
 
         // Update the past-track graphics
@@ -194,15 +207,9 @@ public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, Proj
         return this.ownShipGraphic.update(positionData);
     }
 
-    @Override
-    public synchronized OMGraphicList prepare() {
-        if (getProjection() == null) {
-            return graphics;
-        }
-        graphics.project(getProjection(), true);
-        return graphics;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
@@ -214,12 +221,11 @@ public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, Proj
         if (multiSourcePntHandler == null && obj instanceof MultiSourcePntHandler) {
             multiSourcePntHandler = (MultiSourcePntHandler) obj;
         }
-        if (obj instanceof MainFrame && pastTrackInfoPanel == null) {
-            pastTrackInfoPanel = new PastTrackInfoPanel();
-            getMainFrame().getGlassPanel().add(pastTrackInfoPanel);
-        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void findAndUndo(Object obj) {
         if (ownShipHandler == obj) {
@@ -233,6 +239,9 @@ public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, Proj
         super.findAndUndo(obj);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void projectionChanged(ProjectionEvent pe) {
         // the new zoom level
@@ -249,46 +258,22 @@ public class OwnShipLayer extends GeneralLayer implements IOwnShipListener, Proj
         super.projectionChanged(pe);
     }
 
-    @Override
-    public boolean mouseClicked(MouseEvent evt) {
-        OMGraphic ownShipGraphics = getSelectedGraphic(evt, OMGraphicList.class);
-
-        if (ownShipGraphics != null) {
-            pastTrackInfoPanel.setVisible(false);
+    /**
+     * {@inheritDoc}
+     */
+    protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {        
+        if (clickedGraphics == graphics) {
+            ((MapMenu)getMapMenu()).ownShipMenu();
         }
-
-        if (ownShipGraphics == graphics && evt.getButton() == MouseEvent.BUTTON3) {
-            getMapMenu().ownShipMenu();
-            getMapMenu().setVisible(true);
-            getMapMenu().show(OwnShipLayer.this, evt.getX() - 2, evt.getY() - 2);
-            return true;
-        }
-        return false;
     }
 
     /**
-     * Handle mouse moved
+     * {@inheritDoc}
      */
     @Override
-    public boolean mouseMoved(MouseEvent e) {
-
-        OMGraphic newClosest = MapEventUtils.getSelectedGraphic(pastTrackGraphic, e, getMouseSelectTolerance(),
-                PastTrackWpCircle.class);
-
-        if (newClosest != null && newClosest != closest) {
-            closest = newClosest;
-            Point containerPoint = convertPoint(e.getPoint());
-
-            PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
-            pastTrackInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-            pastTrackInfoPanel.showWpInfo(wpCircle);
-            pastTrackInfoPanel.setVisible(true);
-            mainFrame.getGlassPane().setVisible(true);
-            return true;
-        } else if (newClosest == null) {
-            closest = null;
-            pastTrackInfoPanel.setVisible(false);
-        }
-        return false;
+    protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
+        PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
+        pastTrackInfoPanel.showWpInfo(wpCircle);
+        return true;
     }
 }
