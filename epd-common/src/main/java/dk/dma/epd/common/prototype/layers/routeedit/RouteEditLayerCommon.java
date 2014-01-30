@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.layers.routeEdit;
+package dk.dma.epd.common.prototype.layers.routeedit;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
