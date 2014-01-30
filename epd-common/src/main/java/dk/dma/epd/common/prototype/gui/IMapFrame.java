@@ -20,13 +20,13 @@ import java.awt.Component;
 import javax.swing.JPanel;
 
 /**
- * Interface that should be implemented by the map container component,
+ * Interface that should be implemented by the map frame component,
  * i.e. the widget that holds the maps.
  * <p>
  * In EPDShip that will be the {@code MainFrame} class and in EPDShore 
- * that will be the {@code MapFrame} class.
+ * that will be the {@code JMapFrame} class.
  */
-public interface IMapContainer {
+public interface IMapFrame {
 
     
     /**
@@ -36,8 +36,8 @@ public interface IMapContainer {
     JPanel getGlassPanel();
     
     /**
-     * Returns a reference to the map container cast as a component
-     * @return a reference to the map container cast as a component
+     * Returns a reference to the map frame cast as a component
+     * @return a reference to the map frame cast as a component
      */
     Component asComponent();
     

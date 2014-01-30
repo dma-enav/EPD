@@ -83,11 +83,12 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
     }
 
     /**
-     * Returns the map container cast as a {@linkplain JMapFrame}
-     * @return the map container cast as a {@linkplain JMapFrame}
+     * Returns the map frame cast as a {@linkplain JMapFrame}
+     * @return the map frame cast as a {@linkplain JMapFrame}
      */
-    private JMapFrame getMapFrame() {
-        return (JMapFrame)getMapContainer();
+    @Override
+    public JMapFrame getMapFrame() {
+        return (JMapFrame)getMapFrame();
     }
     
     @Override
@@ -97,8 +98,8 @@ public class VoyageHandlingLayer extends GeneralLayer implements IVoyageUpdateLi
         if (obj instanceof JMapFrame) {
             voyagePlanInfoPanel.setParent(getMapFrame());
 
-            mapContainer.getGlassPanel().add(voyagePlanInfoPanel);
-            mapContainer.getGlassPanel().add(voyageHandlingMouseOverPanel);
+            mapFrame.getGlassPanel().add(voyagePlanInfoPanel);
+            mapFrame.getGlassPanel().add(voyageHandlingMouseOverPanel);
             voyagePlanInfoPanel.setBounds(0, 20, 208, 300);
         }
 

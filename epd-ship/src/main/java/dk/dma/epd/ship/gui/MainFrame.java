@@ -27,7 +27,7 @@ import com.bbn.openmap.MapHandler;
 
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
-import dk.dma.epd.common.prototype.gui.IMapContainer;
+import dk.dma.epd.common.prototype.gui.IMapFrame;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.ais.AisDialog;
@@ -49,7 +49,7 @@ import dk.dma.epd.ship.settings.EPDGuiSettings;
 /**
  * The main frame containing map and panels
  */
-public class MainFrame extends MainFrameCommon implements IMapContainer {
+public class MainFrame extends MainFrameCommon implements IMapFrame {
 
     private static final String TITLE = "EPD-ship " + VersionInfo.getVersion();
 
@@ -101,8 +101,8 @@ public class MainFrame extends MainFrameCommon implements IMapContainer {
     }
     
     /**
-     * Returns a reference to the map container cast as a component
-     * @return a reference to the map container cast as a component
+     * Returns a reference to the map frame cast as a component
+     * @return a reference to the map frame cast as a component
      */
     @Override
     public Component asComponent() {

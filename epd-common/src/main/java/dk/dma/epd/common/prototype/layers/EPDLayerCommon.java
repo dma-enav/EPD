@@ -35,7 +35,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
-import dk.dma.epd.common.prototype.gui.IMapContainer;
+import dk.dma.epd.common.prototype.gui.IMapFrame;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel.InfoPanelBinding;
@@ -46,13 +46,13 @@ import dk.dma.epd.common.prototype.gui.util.InfoPanel.InfoPanelBinding;
  * The {@code EPDLayerCommon} class automatically binds the {@code mapBean},
  * {@code mainFrame} and {@code mapMenu} beans.
  * <p>
- * Additionally, it binds the bean ({@code mapContainer}) that implements the
- * {@linkplain IMapContainer} interface.<br>
+ * Additionally, it binds the bean ({@code mapFrame}) that implements the
+ * {@linkplain IMapFrame} interface.<br>
  * In EPDShip this bean will be the {@code MainFrame} class bean, and in EPDShore
  * it will be the {@code JMapFrame} class bean.
  * <p>
  * Utility methods such as {@linkplain #convertPoint(Point)} and {@linkplain #getGlassPanel()}
- * thus works on the {@code mapContainer} bean.
+ * thus works on the {@code mapFrame} bean.
  * <p>
  * {@code EPDLayerCommon} also provides standardized ways of binding {@code InfoPanel} panels
  * to {@linkplain OMGraphic} classes, as well as container managed handling of left-
@@ -71,7 +71,7 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
     protected MapBean mapBean;
     protected MainFrameCommon mainFrame;
     protected MapMenuCommon mapMenu;
-    protected IMapContainer mapContainer;
+    protected IMapFrame mapFrame;
     
     protected OMGraphic closest;
     
@@ -103,10 +103,10 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
             mapMenu = (MapMenuCommon) obj;
         } 
         
-        // For EPDShip the MapContainer is the MainFrame
-        // For EPDShore the MapContainer is the JMapFrame
-        if (obj instanceof IMapContainer) {
-            mapContainer = (IMapContainer) obj;
+        // For EPDShip the IMapFrame is the MainFrame
+        // For EPDShore the IMapFrame is the JMapFrame
+        if (obj instanceof IMapFrame) {
+            mapFrame = (IMapFrame) obj;
             addInfoPanelsToGlassPane();
         }
     }
@@ -325,34 +325,34 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
     }   
 
     /**
-     * Returns a reference to the map container.
+     * Returns a reference to the map frame.
      * <p>
-     * For EPDShip the MapContainer is the MainFrame.<br>
-     * For EPDShore the MapContainer is the JMapFrame
+     * For EPDShip the IMapFrame is the MainFrame.<br>
+     * For EPDShore the IMapFrame is the JMapFrame
      * 
      * @return a reference to the map frame
      */
-    public IMapContainer getMapContainer() {
-        return mapContainer;
+    public IMapFrame getMapFrame() {
+        return mapFrame;
     }
 
     /**
-     * Returns a reference to the glass pane of the map container,
+     * Returns a reference to the glass pane of the map frame,
      * i.e. of the main frame (EPDShip) or of the map frame (EPDShore)
      * 
      * @return a reference to the glass pane
      */
     public JPanel getGlassPanel() {
-       return getMapContainer().getGlassPanel();
+       return getMapFrame().getGlassPanel();
     }    
     
     /**
-     * Converts a point in {@linkplain MapBean} coordinates the that of the {@linkplain IMapContainer}
+     * Converts a point in {@linkplain MapBean} coordinates the that of the {@linkplain IMapFrame}
      * @param point the point to convert
      * @return the converted point
      */
     public Point convertPoint(Point aPoint) {
-        return SwingUtilities.convertPoint(mapBean, aPoint, mapContainer.asComponent());
+        return SwingUtilities.convertPoint(mapBean, aPoint, mapFrame.asComponent());
     }
     
     /**

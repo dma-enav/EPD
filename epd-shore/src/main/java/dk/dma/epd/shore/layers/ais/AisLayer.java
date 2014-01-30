@@ -215,9 +215,9 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         }
         if (obj instanceof JMapFrame) {
             aisInfoPanel = new AisInfoPanel();
-            mapContainer.getGlassPanel().add(aisInfoPanel);
-            mapContainer.getGlassPanel().add(pastTrackInfoPanel);
-            mapContainer.getGlassPanel().setVisible(true);
+            mapFrame.getGlassPanel().add(aisInfoPanel);
+            mapFrame.getGlassPanel().add(pastTrackInfoPanel);
+            mapFrame.getGlassPanel().setVisible(true);
         }
     }
 
@@ -384,7 +384,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         }
 
         if (newClosest != closest) {
-            Point containerPoint = SwingUtilities.convertPoint(chartPanel, e.getPoint(), mapContainer.asComponent());
+            Point containerPoint = SwingUtilities.convertPoint(chartPanel, e.getPoint(), mapFrame.asComponent());
 
             if (newClosest instanceof PastTrackWpCircle) {
                 closest = newClosest;
