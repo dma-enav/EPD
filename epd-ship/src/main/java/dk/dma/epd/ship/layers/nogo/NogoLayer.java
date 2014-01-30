@@ -19,25 +19,31 @@ import java.awt.Color;
 import java.util.Date;
 import java.util.List;
 
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
-import com.bbn.openmap.omGraphics.OMGraphicList;
-
+import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.frv.enav.common.xml.nogo.types.NogoPolygon;
 
-public class NogoLayer extends OMGraphicHandlerLayer {
+/**
+ * No-go layer
+ */
+public class NogoLayer extends EPDLayerCommon {
+    
     private static final long serialVersionUID = 1L;
 
     private NogoHandler nogoHandler;
-//    private DynamicNogoHandler dynamicNogoHandler = null;
-    
-    
-    private OMGraphicList graphics = new OMGraphicList();
 
+    /**
+     * Constructor
+     */
     public NogoLayer() {
-
+        super();
     }
 
+    /**
+     * Called by the {@linkplain NogoHandler} with status updates.
+     * Updates the graphics with the no-go elemetns
+     * @param completed
+     */
     public void doUpdate(boolean completed) {
         Date validFrom = nogoHandler.getValidFrom();
         Date validTo = nogoHandler.getValidTo();
@@ -91,51 +97,36 @@ public class NogoLayer extends OMGraphicHandlerLayer {
                     }
 
                 }
-
-                // We have selected an area outside of the available data - send
-                // appropiate message
-                // if (polygons.size() == 0) {
-                //
-                // } else {
-                // // Data available, go through each polygon and draw them
-                // for (NogoPolygon polygon : polygons) {
-                // NogoGraphic nogoGraphic = new NogoGraphic(polygon, validFrom,
-                // validTo, draught, "", nogoHandler.getNorthWestPoint(),
-                // nogoHandler.getSouthEastPoint());
-                // graphics.add(nogoGraphic);
-                // }
-                // }
             }
         } else {
             // We have just sent a nogo request - display a message telling the
             // user to standby
             addFrame("NoGo area requested - standby", validFrom, validTo, draught, 1);
-            
-//            NogoGraphic nogoGraphic = new NogoGraphic(null, validFrom, validTo, draught,
-//                    "NoGo area requested - standby", nogoHandler.getNorthWestPoint(), nogoHandler.getSouthEastPoint(),
-//                    1);
-//            graphics.add(nogoGraphic);
         }
 
         doPrepare();
     }
 
-    @Override
-    public synchronized OMGraphicList prepare() {
-        graphics.project(getProjection());
-        return graphics;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+        
         if (obj instanceof NogoHandler) {
             nogoHandler = (NogoHandler) obj;
         }
-//        if (obj instanceof DynamicNogoHandler) {
-//            dynamicNogoHandler = (DynamicNogoHandler) obj;
-//        }
     }
 
+    /**
+     * Adds a no-go frame to the graphics
+     * @param message the message to display
+     * @param validFrom valid from
+     * @param validTo valid to
+     * @param draught the draught
+     * @param errorCode the error code
+     */
     public void addFrame(String message, Date validFrom, Date validTo, Double draught, int errorCode){
         NogoGraphic nogoGraphic = new NogoGraphic(null, validFrom, validTo, draught, message, nogoHandler.getNorthWestPoint(), nogoHandler.getSouthEastPoint(),
                 errorCode, true, Color.RED);

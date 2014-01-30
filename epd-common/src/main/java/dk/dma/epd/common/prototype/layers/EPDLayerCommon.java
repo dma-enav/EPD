@@ -248,7 +248,7 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
     @Override
     public boolean mouseMoved(MouseEvent evt) {
         
-        if (!isVisible() || mapMenu.isVisible()) {
+        if (!isVisible() || mapMenu == null || mapMenu.isVisible()) {
             return false;
         }
         
