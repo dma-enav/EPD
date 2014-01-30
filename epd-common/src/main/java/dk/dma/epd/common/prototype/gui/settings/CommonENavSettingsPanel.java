@@ -206,22 +206,21 @@ public class CommonENavSettingsPanel extends BaseSettingsPanel {
         
         return 
                 // Changes in METOC panel.
-                changed(this.settings.getMetocTtl(), this.spinnerMETOCValidityDuration) || 
+                changed(this.settings.getMetocTtl(), this.spinnerMETOCValidityDuration.getValue()) ||
                 changed(this.settings.getActiveRouteMetocPollInterval(), this.spinnerActiveRouteMETOCPollInterval.getValue()) ||
                 changed(this.settings.getMetocTimeDiffTolerance(), this.spinnerMETOCTimeDifferenceTolerance.getValue()) ||
                 
-                // Changes in HTTP panel.
-                changed(this.settings.getServerName(), this.textFieldServerName.getText()) || 
+                changed(this.settings.getServerName(), this.textFieldServerName.getText()) ||
                 changed(this.settings.getHttpPort(), this.textFieldServerPort.getText()) ||
                 changed(this.settings.getConnectTimeout(), this.textFieldConnectionTimeout.getText()) ||
                 changed(this.settings.getReadTimeout(), this.textFieldReadTimeout.getText()) ||
-                
-                // Changes in MSI panel.
+
                 changed(this.settings.getMsiPollInterval(), this.spinnerMSIPollInterval.getValue()) ||
                 changed(this.settings.getMsiTextboxesVisibleAtScale(), this.spinnerMSITextBoxVisibilityScale.getValue()) ||
+
                 changed(this.settings.getMsiRelevanceGpsUpdateRange(), this.spinnerGPSPositionInterval.getValue()) ||
-                changed(this.settings.getMsiVisibilityFromNewWaypoint(), this.spinnerMSIVisibilityRangeFromOwnShip.getValue()) ||
-                changed(this.settings.getMsiRelevanceFromOwnShipRange(), this.spinnerMSIVisibilityRangeFromOwnShip);
+                changed(this.settings.getMsiRelevanceFromOwnShipRange(), this.spinnerMSIVisibilityRangeFromOwnShip.getValue()) ||
+                changed(this.settings.getMsiVisibilityFromNewWaypoint(), this.spinnerMSIVisibilituRangeAtWaypoint.getValue());
     }
 
     /**

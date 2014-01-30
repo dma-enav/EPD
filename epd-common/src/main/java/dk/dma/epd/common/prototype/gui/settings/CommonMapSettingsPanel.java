@@ -43,6 +43,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     private JSpinner spinnerMaximumScale;
     private JSpinner spinnerLatitude;
     private JSpinner spinnerLongitude;
+    private JLabel lblWmsUrl;
     
     /**
      * Constructs a new CommonMapSettingsPanel object.
@@ -109,8 +110,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         wmsSettings.setBorder(new TitledBorder(null, "WMS Settings", TitledBorder.LEADING, 
                 TitledBorder.TOP, null, null));
 
-        // WMS settings panel component.
-        JLabel lblWmsUrl = new JLabel("WMS URL");
+        lblWmsUrl = new JLabel("WMS URL");
         lblWmsUrl.setBounds(16, 20, 61, 16);
         wmsSettings.add(lblWmsUrl);
         
@@ -136,6 +136,18 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
      */
     public JPanel getWMSPanel() {
         return this.wmsSettings;
+    }
+    
+    /**
+     * 
+     * @return The WMS URL JLabel Component.
+     */
+    public JLabel getLblWMSURL() {
+        return this.lblWmsUrl;
+    }
+    
+    public JTextField getTextFieldWMSURL() {
+        return this.textFieldWMSURL;
     }
 
     @Override
