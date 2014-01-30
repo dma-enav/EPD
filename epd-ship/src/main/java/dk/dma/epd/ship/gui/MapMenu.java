@@ -630,6 +630,10 @@ public class MapMenu extends MapMenuCommon {
         revalidate();
     }
 
+    /**
+     * Creates the route edit menu
+     */
+    @Override
     public void routeEditMenu() {
         removeAll();
         routeEditEndRoute.setNewRouteLayer(newRouteLayer);

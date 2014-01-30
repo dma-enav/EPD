@@ -606,7 +606,11 @@ public class MapMenu extends MapMenuCommon {
 
     }
 
-    public void routeEditMenu() {
+    /**
+     * Creates the route edit menu
+     */
+    @Override
+   public void routeEditMenu() {
         removeAll();
         routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
                 .getRouteManager();

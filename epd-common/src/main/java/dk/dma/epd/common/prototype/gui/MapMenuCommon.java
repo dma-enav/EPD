@@ -252,6 +252,11 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
     public abstract void routeWaypointMenu(int routeIndex, int routeWaypointIndex);
     
     /**
+     * Creates the route edit menu
+     */
+    public abstract void routeEditMenu();
+
+    /**
      * {@inheritDoc}
      */
     @Override
