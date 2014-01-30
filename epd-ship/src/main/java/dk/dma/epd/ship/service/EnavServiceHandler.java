@@ -35,6 +35,7 @@ import net.maritimecloud.net.broadcast.BroadcastMessage;
 import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
 import net.maritimecloud.net.service.ServiceEndpoint;
 import net.maritimecloud.net.service.invocation.InvocationCallback;
+import net.maritimecloud.net.service.invocation.InvocationCallback.Context;
 import net.maritimecloud.util.function.BiConsumer;
 import net.maritimecloud.util.geometry.PositionReader;
 import net.maritimecloud.util.geometry.PositionTime;
@@ -46,9 +47,11 @@ import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
 import dk.dma.epd.common.prototype.enavcloud.EnavCloudSendThread;
 import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
 import dk.dma.epd.common.prototype.enavcloud.EnavCloudUtils;
+import dk.dma.epd.common.prototype.enavcloud.InvocationCallbackContextMap;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck.StrategicRouteAckMsg;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
@@ -90,6 +93,7 @@ public class EnavServiceHandler extends MapHandlerChild implements
      * messages sent and received by the {@linkplain MaritimeCloudClient} 
      */
     private static final boolean LOG_MARITIME_CLOUD_ACTIVITY = false;
+    private static final long CALLBACK_TTL = 1 * 60 * 60; // 60 minutes
     
     private static final Logger LOG = LoggerFactory
             .getLogger(EnavServiceHandler.class);
@@ -107,11 +111,11 @@ public class EnavServiceHandler extends MapHandlerChild implements
     private IntendedRouteService intendedRouteService;
     
     // Route suggestion service
-    private InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> routeExchangeCallbackContext;
+    private InvocationCallbackContextMap<Long, Context<RouteSuggestionReply>> routeExchangeContexts = new InvocationCallbackContextMap<>(CALLBACK_TTL);
 
     // Mona Lisa 
     private StrategicRouteExchangeHandler monaLisaHandler;
-    InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply> monaLisaContext;
+    private InvocationCallbackContextMap<Long, Context<StrategicRouteRequestReply>> monaLisaContexts = new InvocationCallbackContextMap<>(CALLBACK_TTL);
     private List<ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply>> monaLisaSTCCList = new ArrayList<>();
     private List<ServiceEndpoint<StrategicRouteAckMsg, Void>> monaLisaRouteAckList = new ArrayList<>();
     
@@ -219,6 +223,11 @@ public class EnavServiceHandler extends MapHandlerChild implements
             getSTCCList();
             getMonaLisaRouteAckList();
             cloudStatus.markCloudReception();
+            
+            // Clean up cached invocation callback contexts
+            routeExchangeContexts.cleanup();
+            monaLisaContexts.cleanup();
+            
             Util.sleep(10000);
         }
     }
@@ -403,14 +412,14 @@ public class EnavServiceHandler extends MapHandlerChild implements
         connection
                 .serviceRegister(
                         RouteSuggestionService.INIT,
-                        new InvocationCallback<RouteSuggestionService.RouteSuggestionMessage, RouteSuggestionService.RouteSuggestionReply>() {
+                        new InvocationCallback<RouteSuggestionMessage, RouteSuggestionReply>() {
                             public void process(
                                     RouteSuggestionMessage message,
-                                    InvocationCallback.Context<RouteSuggestionService.RouteSuggestionReply> context) {
+                                    Context<RouteSuggestionReply> context) {
 
                                 cloudStatus.markCloudReception();
 
-                                routeExchangeCallbackContext = context;
+                                routeExchangeContexts.put(message.getId(), context);
 
                                 ReceivedRoute receivedRoute = new ReceivedRoute(
                                         message);
@@ -432,9 +441,13 @@ public class EnavServiceHandler extends MapHandlerChild implements
     public void sendRouteExchangeReply(RouteSuggestionStatus receivedAccepted, long id, String message) {
         try {
             long ownMmsi = ownShipHandler.getMmsi() == null ? -1L : ownShipHandler.getMmsi();
-            routeExchangeCallbackContext.complete(new RouteSuggestionService.RouteSuggestionReply(
-                    message, id, ownMmsi, System.currentTimeMillis(), receivedAccepted));
-            cloudStatus.markSuccesfullSend();
+            if (routeExchangeContexts.containsKey(id)) {
+                routeExchangeContexts.remove(id).complete(new RouteSuggestionReply(
+                        message, id, ownMmsi, System.currentTimeMillis(), receivedAccepted));
+                cloudStatus.markSuccesfullSend();
+            } else {
+                LOG.error("No callback context found for route suggestion " + id);
+            }
         } catch (Exception e) {
             cloudStatus.markFailedSend();
             System.out.println("Failed to reply");
@@ -454,12 +467,12 @@ public class EnavServiceHandler extends MapHandlerChild implements
         connection
                 .serviceRegister(
                         StrategicRouteService.INIT,
-                        new InvocationCallback<StrategicRouteService.StrategicRouteRequestMessage, StrategicRouteService.StrategicRouteRequestReply>() {
+                        new InvocationCallback<StrategicRouteRequestMessage, StrategicRouteRequestReply>() {
                             public void process(
                                     StrategicRouteRequestMessage message,
-                                    InvocationCallback.Context<StrategicRouteService.StrategicRouteRequestReply> context) {
+                                    Context<StrategicRouteRequestReply> context) {
 
-                                monaLisaContext = context;
+                                monaLisaContexts.put(message.getId(), context);
 
                                 System.out
                                         .println("Ship received a request for reopening a transaction!");
@@ -543,16 +556,16 @@ public class EnavServiceHandler extends MapHandlerChild implements
 
     public void sendMonaLisaRouteRequest(StrategicRouteRequestMessage routeMessage) {
 
-        ServiceEndpoint<StrategicRouteService.StrategicRouteRequestMessage, StrategicRouteService.StrategicRouteRequestReply> end 
+        ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply> end 
             = EnavCloudUtils.findSTCCService(monaLisaSTCCList);
 
         // Each request has a unique ID, talk to Kasper?
 
         if (end != null) {
-            ConnectionFuture<StrategicRouteService.StrategicRouteRequestReply> f = end
+            ConnectionFuture<StrategicRouteRequestReply> f = end
                     .invoke(routeMessage);
             cloudStatus.markSuccesfullSend();
-            f.handle(new BiConsumer<StrategicRouteService.StrategicRouteRequestReply, Throwable>() {
+            f.handle(new BiConsumer<StrategicRouteRequestReply, Throwable>() {
 
                 @Override
                 public void accept(StrategicRouteRequestReply l, Throwable r) {
