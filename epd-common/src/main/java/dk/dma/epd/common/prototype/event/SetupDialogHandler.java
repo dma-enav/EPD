@@ -20,6 +20,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
@@ -47,6 +48,24 @@ public class SetupDialogHandler implements ActionListener, WindowListener {
         timer = new Timer(500, this);
         timer.start();
     }
+    
+    /**
+     * Finds the parent JOptionPane.
+     * @param parent The parent JComponent.
+     * @return 
+     */
+    private JOptionPane getOptionPane(JComponent parent) {
+        
+        JOptionPane pane = null;
+        
+        if (!(parent instanceof JOptionPane)) {
+            pane = getOptionPane((JComponent)parent.getParent());
+        } else {
+            pane = (JOptionPane) parent;
+        }
+        
+        return pane;
+    }
 
     /**
      * {@inheritDoc}
@@ -54,15 +73,30 @@ public class SetupDialogHandler implements ActionListener, WindowListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         
-        if (e.getSource() == this.setupDialog.getOkButton()) {
+        // Dialog buttons.
+        if (e.getSource() == this.setupDialog.getAcceptButton()) {
+            
             // Save changes if changes were made.
             this.setupDialog.saveSettings();
             timer.stop();
             this.setupDialog.dispose();
+            
         } else if (e.getSource() == this.setupDialog.getCancelButton()) {
+            
             // Close the window.
             timer.stop();
             this.setupDialog.dispose();
+            
+        // Warning buttons.
+        } else if (e.getSource() == this.setupDialog.getWarningAcceptButton()) {
+            
+            JOptionPane pane = getOptionPane((JComponent) e.getSource());                
+            pane.setValue(this.setupDialog.getWarningAcceptButton());
+            
+        } else if (e.getSource() == this.setupDialog.getWarningCancelButton()) {
+            
+            JOptionPane pane = getOptionPane((JComponent) e.getSource());
+            pane.setValue(this.setupDialog.getWarningCancelButton());
         }
         
         this.setupDialog.checkSettingsChanged();

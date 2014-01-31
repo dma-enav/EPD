@@ -32,6 +32,7 @@ import dk.dma.epd.common.prototype.settings.Settings;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class SetupDialogCommon extends JDialog {
      * private fields.
      */
     private static final long serialVersionUID = 1L;
-    private JButton btnOk;
+    private JButton btnAccept;
     private JButton btnCancel;
     private JTabbedPane tabbedPane;
     private List<BaseSettingsPanel> settingsPanels;
@@ -54,6 +55,11 @@ public class SetupDialogCommon extends JDialog {
     // Common settings panels
     private CommonENavSettingsPanel enavSettings;
     private Settings settings;
+    private String tabPrefix;
+    private int fontSize;
+    private JButton btnWarningCancel;
+    private JButton btnWarningOkay;
+    private SetupDialogHandler dialogListener;
 
     /**
      * 
@@ -71,16 +77,27 @@ public class SetupDialogCommon extends JDialog {
         this.getContentPane().setLayout(new BorderLayout(0, 0));
         
         this.tabbedPane = new JTabbedPane(tabAlignment);
+        
+        // If the tabs is displayed on the left side, give them
+        // more width and height and a larger font.
+        if (tabAlignment == JTabbedPane.LEFT) {
+            tabPrefix = "<html><body leftmargin=15 topmargin=8 marginwidth=15 marginheight=5 align=left>";
+            fontSize  = 13;
+        } else {
+            tabPrefix = "";
+            fontSize  = 10;
+        }
+        
         this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
         
         JPanel btnPanel = new JPanel();
         btnPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
         this.getContentPane().add(btnPanel, BorderLayout.SOUTH);
         
-        this.btnOk = new JButton("Accept", 
+        this.btnAccept = new JButton("Accept", 
                 new ImageIcon(SetupDialogCommon.class.getResource("/images/settings/btnok.png")));
-        this.btnOk.setEnabled(false);
-        btnPanel.add(this.btnOk);
+        this.btnAccept.setEnabled(false);
+        btnPanel.add(this.btnAccept);
         
         this.btnCancel = new JButton("Cancel",
                 new ImageIcon(SetupDialogCommon.class.getResource("/images/settings/btncancel.png")));
@@ -93,9 +110,9 @@ public class SetupDialogCommon extends JDialog {
         // Register the panels to the tab menu.
         this.registerSettingsPanels(enavSettings);
                 
-        SetupDialogHandler dialogListener = new SetupDialogHandler(this);
+        dialogListener = new SetupDialogHandler(this);
         this.addWindowListener(dialogListener);
-        this.btnOk.addActionListener(dialogListener);
+        this.btnAccept.addActionListener(dialogListener);
         this.btnCancel.addActionListener(dialogListener);
     }
 
@@ -113,7 +130,8 @@ public class SetupDialogCommon extends JDialog {
             BaseSettingsPanel newPanel = this.settingsPanels.get(i);
             
             // Create icon and title for tab.
-            JLabel panelTitle = new JLabel(newPanel.getName());
+            JLabel panelTitle = new JLabel(tabPrefix+newPanel.getName());
+            panelTitle.setFont(new Font(panelTitle.getFont().getName(), Font.PLAIN, this.fontSize));
             panelTitle.setIcon(newPanel.getIcon());
             panelTitle.setIconTextGap(5);
             panelTitle.setHorizontalTextPosition(SwingConstants.RIGHT);
@@ -163,12 +181,20 @@ public class SetupDialogCommon extends JDialog {
         return changesWereMade;
     }
     
-    public JButton getOkButton() {
-        return this.btnOk;
+    public JButton getAcceptButton() {
+        return this.btnAccept;
     }
     
     public JButton getCancelButton() {
         return this.btnCancel;
+    }
+    
+    public JButton getWarningAcceptButton() {
+        return this.btnWarningOkay;
+    }
+    
+    public JButton getWarningCancelButton() {
+        return this.btnWarningCancel;
     }
 
     /**
@@ -183,11 +209,32 @@ public class SetupDialogCommon extends JDialog {
         for (BaseSettingsPanel settingsPanel : settingsPanels) {
             changed |= settingsPanel.settingsChanged();
         }
-        btnOk.setEnabled(changed);
+        btnAccept.setEnabled(changed);
         return changed;
     }
 
     public int askIfShouldSaveChanges() {
-        return JOptionPane.showConfirmDialog(this, "Should changes be saved?", "Save changes", JOptionPane.YES_NO_OPTION);
+        
+        
+        btnWarningOkay = new JButton("Yes", 
+                new ImageIcon(SetupDialogCommon.class.getResource("/images/settings/btnok.png")));
+        
+        // Add a value to the button, when it is pressed.
+        btnWarningOkay.addActionListener(dialogListener);
+        
+        btnWarningCancel = new JButton("No", 
+                new ImageIcon(SetupDialogCommon.class.getResource("/images/settings/btncancel.png")));
+        
+        // Add a value to the button, when pressed.
+        btnWarningCancel.addActionListener(dialogListener);
+                
+        return JOptionPane.showOptionDialog(
+                this, "Some changes were made to the settings.\nShould these changes be saved?", 
+                "Changes were made", 
+                JOptionPane.YES_NO_OPTION, 
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new Object[]{btnWarningOkay, btnWarningCancel},
+                btnWarningOkay);
     }
 }
