@@ -18,30 +18,26 @@ package dk.dma.epd.common.prototype.enavcloud;
 import net.maritimecloud.net.broadcast.BroadcastMessage;
 import dk.dma.enav.model.voyage.Route;
 
-//import dk.dma.epd.common.prototype.model.route.Route;
-
-
-public class EnavRouteBroadcast extends BroadcastMessage {
+/**
+ * Used for intended route broadcasts
+ */
+public class IntendedRouteBroadcast extends BroadcastMessage {
 
     private Route intendedRoute;
 
+    /**
+     * Returns the intended route being broadcasted
+     * @return the intended route being broadcasted
+     */
     public Route getIntendedRoute() {
         return intendedRoute;
     }
 
+    /**
+     * Sets the intended route being broadcasted
+     * @param intendedRoute the intended route being broadcasted
+     */
     public void setIntendedRoute(Route intendedRoute) {
         this.intendedRoute = intendedRoute;
     }
-
-
-    
-//    public static void main(String[] args) throws Exception {
-//        ObjectMapper m = new ObjectMapper();
-//        
-//   String msg=m.writeValueAsString(new Route());
-//
-//   System.out.println(    m.readValue(msg, Route.class));
-//    
-//    }
-    
 }

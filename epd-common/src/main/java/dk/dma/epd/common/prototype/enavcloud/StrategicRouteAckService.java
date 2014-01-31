@@ -18,24 +18,45 @@ package dk.dma.epd.common.prototype.enavcloud;
 import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
 import net.maritimecloud.net.service.spi.ServiceMessage;
 
-public class StrategicRouteAck {
+/**
+ * 
+ * Maritime cloud service for acknowledging strategic routes (formerly "Mona Lisa").
+ * <p>
+ * Defines the service initiation point along with the {@linkplain StrategicRouteAckMsg} class
+ * used for sending an acknowledge message from a ship to an STCC.
+ * <p>
+ * Before sending acknowledge messages for a strategic route, there will have been an 
+ * exchange via the {@linkplain StrategicRouteService} Maritime Cloud service.
+ */
+public class StrategicRouteAckService {
 
     /** An initiation point */
     public static final ServiceInitiationPoint<StrategicRouteAckMsg> INIT = new ServiceInitiationPoint<>(
             StrategicRouteAckMsg.class);
 
+    /**
+     * Used for sending an acknowledge message from a ship to an STCC
+     */
     public static class StrategicRouteAckMsg extends ServiceMessage<Void> {
 
         private boolean ack;
         private long id;
         private long mmsi;
         private String message;
-        
+
+        /**
+         * No-arg constructor
+         */
         public StrategicRouteAckMsg() {
         }
 
         /**
-         * @param message
+         * Constructor
+         * 
+         * @param ack acknowledge a strategic route or not
+         * @param id the id of the route
+         * @param mmsi the MMSI of the vessel
+         * @param message a additional message
          */
         public StrategicRouteAckMsg(boolean ack, long id, long mmsi, String message) {
             this.ack = ack;
@@ -94,9 +115,5 @@ public class StrategicRouteAck {
         public void setMessage(String message) {
             this.message = message;
         }
-        
-        
-
     }
-
 }

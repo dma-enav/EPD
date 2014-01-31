@@ -18,7 +18,7 @@ package dk.dma.epd.common.prototype.ais;
 import java.util.Date;
 
 import net.jcip.annotations.ThreadSafe;
-import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
+import dk.dma.epd.common.prototype.enavcloud.IntendedRoute;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 
 /**
@@ -41,7 +41,7 @@ public class VesselTarget extends MobileTarget {
     
     // NB: We do not want to persist intended route data
     private transient AisClass aisClass; 
-    private transient CloudIntendedRoute intendedRoute;
+    private transient IntendedRoute intendedRoute;
     
 
     /**
@@ -65,16 +65,16 @@ public class VesselTarget extends MobileTarget {
         super.setPositionData(positionData);
     }
 
-    public synchronized void setCloudRouteData(CloudIntendedRoute intendedRoute) {
+    public synchronized void setCloudRouteData(IntendedRoute intendedRoute) {
         this.intendedRoute = intendedRoute;
         this.intendedRoute.update(positionData);
     }
     
-    public synchronized CloudIntendedRoute getIntendedRoute() {
+    public synchronized IntendedRoute getIntendedRoute() {
         return intendedRoute;
     }
 
-    public synchronized void setIntendedRoute(CloudIntendedRoute intendedRoute) {
+    public synchronized void setIntendedRoute(IntendedRoute intendedRoute) {
         this.intendedRoute = intendedRoute;
     }
 

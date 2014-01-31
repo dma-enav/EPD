@@ -31,7 +31,7 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
     private long transactionid;
     private AisHandlerCommon aisHandler;
     private static final long serialVersionUID = 1L;
-    private StrategicRouteExchangeHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler strategicRouteHandler;
 
     /**
      * @param transactionid
@@ -56,10 +56,10 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
     }
 
     /**
-     * @param monaLisaHandler the monaLisaHandler to set
+     * @param strategicRouteHandler the strategicRouteHandler to set
      */
-    public void setMonaLisaHandler(StrategicRouteExchangeHandler monaLisaHandler) {
-        this.monaLisaHandler = monaLisaHandler;
+    public void setStrategicRouteHandler(StrategicRouteExchangeHandler strategicRouteHandler) {
+        this.strategicRouteHandler = strategicRouteHandler;
     }
 
     @Override
@@ -71,11 +71,11 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
     
     private void handleNegotiation(){
         
-        if (monaLisaHandler.getStrategicNegotiationData().containsKey(transactionid)){
+        if (strategicRouteHandler.getStrategicNegotiationData().containsKey(transactionid)){
             
         System.out.println("Handling it!");
         
-        StrategicRouteNegotiationData message = monaLisaHandler.getStrategicNegotiationData().get(transactionid);
+        StrategicRouteNegotiationData message = strategicRouteHandler.getStrategicNegotiationData().get(transactionid);
         
 
         String shipName = "" + message.getMmsi();

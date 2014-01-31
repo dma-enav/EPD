@@ -551,8 +551,6 @@ public class NotificationCenter extends ComponentFrame implements
             strategicRouteExchangeHandler = (StrategicRouteExchangeHandler) obj;
             strategicRouteExchangeHandler.addStrategicRouteExchangeListener(this);
             strategicRoutePanel.setStrategicRouteExchangeHandler(strategicRouteExchangeHandler);
-//            monaLisaRoutePanel.setEnavServiceHandler(enavServiceHandler);
-//            monaLisaRouteTableModel.setEnavServiceHandler(enavServiceHandler);
             
             
             strategicRouteTableModel.setStrategicRouteExchangeHandler(strategicRouteExchangeHandler);

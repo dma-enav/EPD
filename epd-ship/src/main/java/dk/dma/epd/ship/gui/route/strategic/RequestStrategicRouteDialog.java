@@ -82,7 +82,6 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
     JPanel routeNotAcceptedPanel;
 
     private Route latestReceivedRoute;
-//    private MonaLisaRouteRequestReply reply;
 
     long transactionID;
 
@@ -113,9 +112,6 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
         setResizable(false);
 
         strategicRouteExchangeHandler = EPDShip.getInstance().getStrategicRouteExchangeHandler();
-
-        // enavServiceHandler = EPDShip.getEnavServiceHandler();
-        // enavServiceHandler.setMonaLisaSTCCDialog(this);
 
         initGui();
 
@@ -393,8 +389,7 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
         if (e.getSource() == btnAccept) {
 
             System.out.println("btn accept");
-            // Accept or send modified clicked, let monalisahandler figure it
-            // out
+
             strategicRouteExchangeHandler.sendReply(chatMessages.getText());
             // this.setVisible(false);
             btnAccept.setText("Accept");
@@ -434,27 +429,13 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
     private String findChanges() {
 
         Route originalRoute = new Route(strategicRouteExchangeHandler
-                .getMonaLisaNegotiationData()
+                .getStrategicRouteNegotiationData()
                 .get(transactionID)
                 .getRouteMessage()
-                .get(strategicRouteExchangeHandler.getMonaLisaNegotiationData()
+                .get(strategicRouteExchangeHandler.getStrategicRouteNegotiationData()
                         .get(transactionID).getRouteMessage().size() - 1)
                 .getRoute());
-        // transactionID
-        // System.out.println("The original route is comparable from : "
-        // + monaLisaHandler.getMonaLisaNegotiationData()
-        // .get(transactionID).getRouteMessage().size());
-        //
-        // System.out.println("Comparing ETAS");
-        //
-        // for (int i = 0; i < originalRoute.getEtas().size(); i++) {
-        // System.out.println("Original ETA for " + i + " is: "
-        // + originalRoute.getEtas().get(i)
-        // + " vs Receieved Route ETA: "
-        // + latestReceivedRoute.getEtas().get(i));
-        // }
 
-        // String
         String changes = "";
 
         if (originalRoute.getWaypoints().size() == latestReceivedRoute

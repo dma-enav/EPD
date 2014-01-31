@@ -59,7 +59,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
     private Route primaryRoute;
     private Route stccRoute;
     private Route modifiedSTCCRoute;
-    private StrategicRouteExchangeHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler strategicRouteHandler;
 
     private boolean dragging;
 
@@ -192,7 +192,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
         super.findAndInit(obj);
         
         if (obj instanceof StrategicRouteExchangeHandler) {
-            monaLisaHandler = (StrategicRouteExchangeHandler) obj;
+            strategicRouteHandler = (StrategicRouteExchangeHandler) obj;
         }
     }
 
@@ -323,8 +323,8 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
     private void drawAllRoutes() {
 
         // First time modifying
-        if (!monaLisaHandler.isRouteModified()) {
-            monaLisaHandler.modifiedRequest();
+        if (!strategicRouteHandler.isRouteModified()) {
+            strategicRouteHandler.modifiedRequest();
         }
 
         graphics.clear();
@@ -507,7 +507,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
             // Redraw the route to reflect modifications
             drawModifiedSTCCRoute(true);
             // update dialog to "send modified"
-            monaLisaHandler.modifiedRequest();
+            strategicRouteHandler.modifiedRequest();
         }
     }
 }

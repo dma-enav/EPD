@@ -373,29 +373,7 @@ public class StrategicRouteExchangeNotificationPanel extends JPanel {
 
         // Update area
 
-//        System.out.println("Trying to get " + selectedRow + " out of " + monaLisaHandler
-//                .getMonaLisaNegotiationData().size() + " available");
-        
         StrategicRouteNegotiationData message = ((StrategicRouteExchangeTableModel) routeTable.getModel()).getMessages().get(selectedRow);
-//                .getMonaLisaNegotiationData().get(selectedRow);
-        
-//        System.out.println(message);
-
-//        doc.delete(0, doc.length());
-//        doc.append("<font size=\"2\" face=\"times, serif\" color=\"white\">");
-//        for (int i = 0; i < ((MonaLisaRouteExchangeTableModel) routeTable
-//                .getModel()).areaGetColumnCount(); i++) {
-//
-//            doc.append("<u><b>"
-//                    + ((MonaLisaRouteExchangeTableModel) routeTable.getModel())
-//                            .areaGetColumnName(i)
-//                    + ":</b></u><br />"
-//                    + ((MonaLisaRouteExchangeTableModel) routeTable.getModel())
-//                            .areaGetValueAt(selectedRow, i) + "<br /><br />");
-//        }
-//
-//        doc.append("</font>");
-        // area.setText(doc.toString());
 
         VesselTarget aisData = aisHandler.getVesselTarget(message.getRouteMessage().get(0).getMmsi());        
         
@@ -465,27 +443,7 @@ public class StrategicRouteExchangeNotificationPanel extends JPanel {
                     EPDShore.getInstance().getMainFrame().addStrategicRouteExchangeHandlingWindow(originalRoute,
                             shipName, voyage, false);
 
-                    // MonaLisaRouteService.MonaLisaRouteRequestReply reply =
-                    // new
-                    // MonaLisaRouteService.MonaLisaRouteRequestReply("Automatic reply",
-                    // message.getId(), aisHandler.getOwnShip().getMmsi(),
-                    // System
-                    // .currentTimeMillis(),
-                    // MonaLisaRouteService.MonaLisaRouteStatus.AGREED,
-                    // message.getRouteMessage().get(0).getRoute());
-                    //
-                    // enavServiceHandler.getMonaLisaNegotiationData().get(message.getId()).addReply(reply);
-                    // enavServiceHandler.getMonaLisaNegotiationData().get(message.getId()).setStatus(reply.getStatus());
-                    // enavServiceHandler.getMonaLisaNegotiationData().get(message.getId()).setHandled(true);
-                    // enavServiceHandler.sendReply(reply);
-                    //
-                    // handle_request.setEnabled(false);
-
                     notCenter.setVisible(false);
-
-                    // Reply sent, add it to voyagemanager
-                    // voyageManager.addVoyage(new Voyage(message.getMmsi(), new
-                    // Route(message.getRouteMessage().get(0).getRoute())));
 
                 }
             }
@@ -494,27 +452,7 @@ public class StrategicRouteExchangeNotificationPanel extends JPanel {
         optimize_btn.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 if (optimize_btn.isEnabled()) {
-//                    MonaLisaRouteNegotiationData message = routeTableModel
-//                            .getMessages().get(currentSelection);
-
-                    // enavServiceHandler.getRouteSuggestions().get(new
-                    // RouteSuggestionKey(message.getMmsi(), message.getId()));
-
-                    // Position routeLocation = Position.create(message
-                    // .getOutgoingMsg().getRoute().getWaypoints().get(0)
-                    // .getLatitude(), message.getOutgoingMsg().getRoute()
-                    // .getWaypoints().get(0).getLongitude());
-                    //
-                    // if (EPDShore.getMainFrame().getActiveMapWindow() != null)
-                    // {
-                    // EPDShore.getMainFrame().getActiveMapWindow()
-                    // .getChartPanel().zoomToPoint(routeLocation);
-                    // } else if (EPDShore.getMainFrame().getMapWindows().size()
-                    // > 0) {
-                    // EPDShore.getMainFrame().getMapWindows().get(0)
-                    // .getChartPanel().zoomToPoint(routeLocation);
-                    // }
-
+                    // TODO
                 }
             }
         });

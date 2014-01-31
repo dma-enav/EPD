@@ -33,7 +33,7 @@ import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
+import dk.dma.epd.common.prototype.enavcloud.IntendedRoute;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
@@ -74,11 +74,11 @@ public abstract class IntendedRouteLayerCommon extends EPDLayerCommon implements
     public void targetUpdated(AisTarget aisTarget) {
         boolean redraw = false;
         
-        IntendedRouteGraphic intendedRoute = intendedRoutes.get(aisTarget.getMmsi());
-        if(aisTarget.isGone() && intendedRoute != null) {
+        IntendedRouteGraphic intendedRouteGraphic = intendedRoutes.get(aisTarget.getMmsi());
+        if(aisTarget.isGone() && intendedRouteGraphic != null) {
             // This target should no longer be painted
             intendedRoutes.remove(aisTarget.getMmsi());
-            graphics.remove(intendedRoute);
+            graphics.remove(intendedRouteGraphic);
             redraw = true;
         }
         else if (!aisTarget.isGone() && aisTarget instanceof VesselTarget && ((VesselTarget)aisTarget).hasIntendedRoute()) {
@@ -87,15 +87,15 @@ public abstract class IntendedRouteLayerCommon extends EPDLayerCommon implements
             
             VesselPositionData posData = vessel.getPositionData();
             VesselStaticData staticData = vessel.getStaticData();
-            CloudIntendedRoute cloudIntendedRoute = vessel.getIntendedRoute();
+            IntendedRoute intendedRoute = vessel.getIntendedRoute();
             Position pos = posData.getPos();
             
-            if(intendedRoute == null) {
+            if(intendedRouteGraphic == null) {
                 // No current intended route graphic for this target - create it
-                intendedRoute = new IntendedRouteGraphic();
+                intendedRouteGraphic = new IntendedRouteGraphic();
                 // add the new intended route graphic to the set of managed intended route graphics
-                intendedRoutes.put(vessel.getMmsi(), intendedRoute);
-                graphics.add(intendedRoute);
+                intendedRoutes.put(vessel.getMmsi(), intendedRouteGraphic);
+                graphics.add(intendedRouteGraphic);
             }
             // Determine vessel name
             String name;
@@ -107,7 +107,7 @@ public abstract class IntendedRouteLayerCommon extends EPDLayerCommon implements
             }
             
             // Update the graphic with the updated vessel, route and position data
-            intendedRoute.update(vessel, name, cloudIntendedRoute, pos);
+            intendedRouteGraphic.update(vessel, name, intendedRoute, pos);
             redraw = true;
         }
         

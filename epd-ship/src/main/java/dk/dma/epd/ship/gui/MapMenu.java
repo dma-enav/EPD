@@ -100,7 +100,7 @@ public class MapMenu extends MapMenuCommon {
     private MouseDelegator mouseDelegator;
     private EnavServiceHandler enavServiceHandler;
     private Point windowLocation;
-    private StrategicRouteExchangeHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler strategicRouteHandler;
 
     
     // private RouteLayer routeLayer;
@@ -415,11 +415,11 @@ public class MapMenu extends MapMenuCommon {
         sendToSTCC.setRoute(route);
         sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
-                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() > 0
+                .setEnabled(enavServiceHandler.getStrategicRouteSTCCList().size() > 0
                         && routeManager.getActiveRouteIndex() != routeIndex
                         && enavServiceHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
-        if (monaLisaHandler.isTransaction()) {
+        if (strategicRouteHandler.isTransaction()) {
             sendToSTCC.setText("Show STCC info");
         } else {
             sendToSTCC.setText("Send to STCC");
@@ -479,11 +479,11 @@ public class MapMenu extends MapMenuCommon {
         sendToSTCC.setRoute(route);
         sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
-                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() > 0
+                .setEnabled(enavServiceHandler.getStrategicRouteSTCCList().size() > 0
                         && routeManager.getActiveRouteIndex() != routeIndex
                         && enavServiceHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
-        if (monaLisaHandler.isTransaction()) {
+        if (strategicRouteHandler.isTransaction()) {
             sendToSTCC.setText("Show STCC info");
         } else {
             sendToSTCC.setText("Send to STCC");
@@ -520,7 +520,6 @@ public class MapMenu extends MapMenuCommon {
 
         monaLisaRouteRequest.setRouteManager(routeManager);
         monaLisaRouteRequest.setRouteIndex(routeIndex);
-        // monaLisaRouteRequest.setMonaLisaRouteExchange(EPDShip.getInstance().getMonaLisaRouteExchange());
         monaLisaRouteRequest.setMainFrame(mainFrame);
         monaLisaRouteRequest.setOwnShipHandler(ownShipHandler);
         add(monaLisaRouteRequest);
@@ -684,7 +683,7 @@ public class MapMenu extends MapMenuCommon {
             enavServiceHandler = (EnavServiceHandler) obj;
         }
         if (obj instanceof StrategicRouteExchangeHandler) {
-            monaLisaHandler = (StrategicRouteExchangeHandler) obj;
+            strategicRouteHandler = (StrategicRouteExchangeHandler) obj;
         }
         // if (obj instanceof VoyageLayer) {
         // voyageLayer = (VoyageLayer) obj;

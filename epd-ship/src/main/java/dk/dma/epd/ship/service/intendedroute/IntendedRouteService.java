@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.enavcloud.EnavRouteBroadcast;
+import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.ship.service.EnavService;
@@ -56,7 +56,7 @@ public class IntendedRouteService extends EnavService implements
      */
     public void broadcastIntendedRoute() {
         // Make intended route message
-        EnavRouteBroadcast message = new EnavRouteBroadcast();
+        IntendedRouteBroadcast message = new IntendedRouteBroadcast();
         
         if (provider.getActiveRoute() != null){
             message.setIntendedRoute(provider.getActiveRoute().getFullRouteData());    

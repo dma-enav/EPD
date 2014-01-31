@@ -20,7 +20,7 @@ import java.util.Date;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
+import dk.dma.epd.common.prototype.enavcloud.IntendedRoute;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Calculator;
@@ -34,7 +34,7 @@ public class IntendedRouteInfoPanel extends InfoPanel {
 
     public void showWpInfo(IntendedRouteWpCircle wpCircle) {
 //        AisIntendedRoute routeData = wpCircle.getIntendedRouteGraphic().getVesselTarget().getAisRouteData();
-        CloudIntendedRoute routeData = wpCircle.getIntendedRouteGraphic().getVesselTarget().getIntendedRoute();
+        IntendedRoute routeData = wpCircle.getIntendedRouteGraphic().getVesselTarget().getIntendedRoute();
         if (routeData == null) {
             showText("");
             return;
@@ -63,7 +63,7 @@ public class IntendedRouteInfoPanel extends InfoPanel {
             return;
         }
 //        AisIntendedRoute routeData = legGraphic.getIntendedRouteGraphic().getVesselTarget().getAisRouteData();
-        CloudIntendedRoute routeData = legGraphic.getIntendedRouteGraphic().getVesselTarget().getIntendedRoute();
+        IntendedRoute routeData = legGraphic.getIntendedRouteGraphic().getVesselTarget().getIntendedRoute();
         Position startPos = routeData.getWaypoints().get(legIndex - 1).getPos();
         Position midPos = Position.create(worldLocation.getY(), worldLocation.getX());
         Position endPos = routeData.getWaypoints().get(legIndex).getPos();

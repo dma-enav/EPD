@@ -85,7 +85,7 @@ public final class EPDShore extends EPD {
     private NmeaSensor aisSensor;
     private AisHandler aisHandler;
     private MsiHandler msiHandler;
-    private StrategicRouteExchangeHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler strategicRouteHandler;
     private AisReader aisReader;
     private ShoreServicesCommon shoreServicesCommon;
     private StaticImages staticImages;
@@ -204,8 +204,8 @@ public final class EPDShore extends EPD {
         enavServiceHandler.start();
 
         // Create Mona Lisa Handler;
-        monaLisaHandler = new StrategicRouteExchangeHandler();
-        beanHandler.add(monaLisaHandler);
+        strategicRouteHandler = new StrategicRouteExchangeHandler();
+        beanHandler.add(strategicRouteHandler);
 
         // Create MSI handler
         msiHandler = new MsiHandler(getSettings().getEnavSettings());
@@ -284,8 +284,8 @@ public final class EPDShore extends EPD {
         return enavServiceHandler;
     }
     
-    public StrategicRouteExchangeHandler getMonaLisaHandler() {
-        return monaLisaHandler;
+    public StrategicRouteExchangeHandler getStrategicRouteHandler() {
+        return strategicRouteHandler;
     }
 
     /**

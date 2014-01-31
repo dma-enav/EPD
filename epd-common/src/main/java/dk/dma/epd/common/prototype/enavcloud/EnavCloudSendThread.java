@@ -20,54 +20,32 @@ import net.maritimecloud.net.broadcast.BroadcastMessage;
 
 
 /**
- * Thread for sending AIS messages
+ * Thread for sending messages over the maritime cloud
  */
 public class EnavCloudSendThread extends Thread {
 
     private BroadcastMessage message;
-    // private EnavCloudHandler enavCloudHandler;
     MaritimeCloudClient connection;
 
-    // private static final Logger LOG = Logger
-    // .getLogger(EnavCloudSendThread.class);
-
+    /**
+     * Constructor
+     * @param message the message to send
+     * @param connection the maritime cloud connection
+     */
     public EnavCloudSendThread(BroadcastMessage message,
             MaritimeCloudClient connection) {
         this.message = message;
         this.connection = connection;
-        // this.sendRequest = sendRequest;
-        // this.aisServices = aisServices;
     }
 
+    /**
+     * Main thread run method.
+     * Broadcasts the message.
+     */
     @Override
     public void run() {
-
         if (connection != null) {
             connection.broadcast(message);
         }
-        // dk.dma.enav.communication.PersistentConnection.State test =
-        // connection.getState();
-
-        // Send message
-
-        // try (MaritimeNetworkConnection c =
-        // aisServices.getEnavCloudConnection().connect()) {
-        // for (;;) {
-
-        // try {
-        // while (true) {
-
-        // Thread.sleep(5000);
-        // }
-        // } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
-        // } catch (Exception e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
-
     }
-
 }
