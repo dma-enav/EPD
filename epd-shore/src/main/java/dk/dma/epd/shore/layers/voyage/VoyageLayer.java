@@ -57,7 +57,7 @@ public class VoyageLayer extends EPDLayerCommon implements
     private static final long serialVersionUID = 1L;
 
     private VoyageManager voyageManager;
-    private StrategicRouteExchangeHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler strategicRouteHandler;
     private ChartPanel chartPanel;
     private AisHandler aisHandler;
 
@@ -98,8 +98,8 @@ public class VoyageLayer extends EPDLayerCommon implements
         super.findAndInit(obj);
         
         if (obj instanceof StrategicRouteExchangeHandler) {
-            monaLisaHandler = (StrategicRouteExchangeHandler) obj;
-            monaLisaHandler.addStrategicRouteExchangeListener(this);
+            strategicRouteHandler = (StrategicRouteExchangeHandler) obj;
+            strategicRouteHandler.addStrategicRouteExchangeListener(this);
         }
         if (obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
@@ -211,17 +211,17 @@ public class VoyageLayer extends EPDLayerCommon implements
      */
     private synchronized void updateDialogLocations() {
 
-        if (monaLisaHandler != null && !windowHandling) {
+        if (strategicRouteHandler != null && !windowHandling) {
 
-            List<Long> unhandledTransactions = monaLisaHandler
+            List<Long> unhandledTransactions = strategicRouteHandler
                     .getUnhandledTransactions();
 
             if (unhandledTransactions.size() > 0) {
 
                 for (int j = 0; j < unhandledTransactions.size(); j++) {
-                    long mmsi = monaLisaHandler
+                    long mmsi = strategicRouteHandler
                             .getStrategicNegotiationData()
-                            .get(monaLisaHandler.getUnhandledTransactions()
+                            .get(strategicRouteHandler.getUnhandledTransactions()
                                     .get(j)).getRouteMessage().get(0).getMmsi();
 
                     ShipIndicatorPanel shipIndicatorPanel;
@@ -278,7 +278,7 @@ public class VoyageLayer extends EPDLayerCommon implements
      */
     @Override
     public void targetUpdated(AisTarget aisTarget) {
-        for (StrategicRouteNegotiationData data : monaLisaHandler
+        for (StrategicRouteNegotiationData data : strategicRouteHandler
                 .getStrategicNegotiationData().values()) {
             if (data.getMmsi() == aisTarget.getMmsi()) {
                 // only run update if this vessel has negotiation data

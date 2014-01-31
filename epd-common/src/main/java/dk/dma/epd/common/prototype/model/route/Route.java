@@ -101,7 +101,7 @@ public class Route implements Serializable {
 
     protected boolean stccApproved;
 
-    protected long monalisarouteid;
+    protected long strategicRouteId;
     
     protected EtaCalculationType etaCalculationType = EtaCalculationType.PLANNED_SPEED;
 
@@ -131,7 +131,7 @@ public class Route implements Serializable {
         this.metocStarttime = orig.metocStarttime;
         this.metocEta = orig.metocEta;
         this.routeMetocSettings = orig.routeMetocSettings;
-        this.monalisarouteid = orig.monalisarouteid;
+        this.strategicRouteId = orig.strategicRouteId;
     }
 
     public Route(dk.dma.enav.model.voyage.Route cloudRouteData) {
@@ -303,23 +303,22 @@ public class Route implements Serializable {
         this.stccApproved = stccApproved;
 
         if (!stccApproved) {
-            monalisarouteid = -1;
+            strategicRouteId = -1;
         }
     }
 
     /**
-     * @return the monalisarouteid
+     * @return the strategic route id
      */
-    public long getMonalisarouteid() {
-        return monalisarouteid;
+    public long getStrategicRouteId() {
+        return strategicRouteId;
     }
 
     /**
-     * @param monalisarouteid
-     *            the monalisarouteid to set
+     * @param strategicRouteId the strategic route id
      */
-    public void setMonalisarouteid(long monalisarouteid) {
-        this.monalisarouteid = monalisarouteid;
+    public void setStrategicRouteId(long strategicRouteId) {
+        this.strategicRouteId = strategicRouteId;
     }
 
     public double getWpRngSum(int index) {

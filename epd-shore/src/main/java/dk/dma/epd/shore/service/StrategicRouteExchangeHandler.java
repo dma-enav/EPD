@@ -24,7 +24,7 @@ import java.util.Set;
 import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAck.StrategicRouteAckMsg;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAckService.StrategicRouteAckMsg;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
@@ -42,14 +42,6 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
     private List<Long> unhandledTransactions  = new ArrayList<Long>();
     
     private int unhandled;
-
-    // public void sendReply(MonaLisaRouteService.MonaLisaRouteRequestReply
-    // reply) {
-    // // Store the reply we are sending?
-    //
-    // enavServiceHandler.sendReply(reply);
-    // notifyMonaLisaRouteExchangeListeners();
-    // }
 
     public void sendReply(long id, String text,
             long currentTimeMillis, StrategicRouteStatus replyStatus, Route route, boolean renegotiate) {
@@ -259,27 +251,10 @@ public class StrategicRouteExchangeHandler extends MapHandlerChild {
 
     @Override
     public void findAndInit(Object obj) {
-        // if (obj instanceof AisHandlerCommon) {
-        // aisHandler = (AisHandlerCommon) obj;
-        // } else
         if (obj instanceof EnavServiceHandler) {
             enavServiceHandler = (EnavServiceHandler) obj;
-            // } else if (obj instanceof VoyageLayer) {
-            // voyageLayer = (VoyageLayer) obj;
-            // } else if (obj instanceof RouteManager) {
-            // routeManager = (RouteManager) obj;
         } else if (obj instanceof VoyageManager) {
             this.voyageManager = (VoyageManager) obj;
-            // intendedRouteService = new IntendedRouteService(this,
-            // (ActiveRouteProvider) obj);
-            // ((RouteManager) obj).addListener(intendedRouteService);
-            // ((RouteManager)
-            // obj).setIntendedRouteService(intendedRouteService);
-
-            // intendedRouteService.start();
-            // } else if (obj instanceof EnavCloudHandler) {
-            // enavCloudHandler = (EnavCloudHandler) obj;
-            // enavCloudHandler.start();
         }
     }
 

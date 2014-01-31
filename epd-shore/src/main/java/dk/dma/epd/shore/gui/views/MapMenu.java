@@ -101,7 +101,7 @@ public class MapMenu extends MapMenuCommon {
     private VoyageLayer voyageLayer;
 
     private AisLayer aisLayer;
-    private StrategicRouteExchangeHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler strategicRouteHandler;
 
     // private NogoHandler nogoHandler;
 
@@ -504,7 +504,7 @@ public class MapMenu extends MapMenuCommon {
             voyageZoomToShip.setEnabled(false);
         }
 
-        if (monaLisaHandler.getStrategicNegotiationData().containsKey(
+        if (strategicRouteHandler.getStrategicNegotiationData().containsKey(
                 transactionID)) {
             voyageShowTransaction.setEnabled(true);
             voyageShowTransaction.setTransactionID(transactionID);
@@ -516,17 +516,13 @@ public class MapMenu extends MapMenuCommon {
 
         voyageRenegotiate.setTransactionid(transactionID);
         voyageRenegotiate.setAisHandler(aisHandler);
-        voyageRenegotiate.setMonaLisaHandler(monaLisaHandler);
+        voyageRenegotiate.setStrategicRouteHandler(strategicRouteHandler);
 
         voyageRenegotiate.setEnabled(EPDShore.getInstance().getEnavServiceHandler()
-                .shipAvailableForMonaLisaTransaction(mmsi)
-                && monaLisaHandler.getStrategicNegotiationData().containsKey(
+                .shipAvailableForStrategicRouteTransaction(mmsi)
+                && strategicRouteHandler.getStrategicNegotiationData().containsKey(
                         transactionID));
 
-//        System.out.println("Ship available: " + EPDShore.getEnavServiceHandler()
-//                .shipAvailableForMonaLisaTransaction(mmsi));
-//        System.out.println("Key is contained: " + monaLisaHandler.getMonaLisaNegotiationData().containsKey(
-//                transactionID));
         add(voyageZoomToShip);
         add(voyageShowTransaction);
 
@@ -637,7 +633,7 @@ public class MapMenu extends MapMenuCommon {
             aisLayer = (AisLayer) obj;
         }
         if (obj instanceof StrategicRouteExchangeHandler) {
-            monaLisaHandler = (StrategicRouteExchangeHandler) obj;
+            strategicRouteHandler = (StrategicRouteExchangeHandler) obj;
         }
         if (obj instanceof VoyageLayer) {
             voyageLayer = (VoyageLayer) obj;

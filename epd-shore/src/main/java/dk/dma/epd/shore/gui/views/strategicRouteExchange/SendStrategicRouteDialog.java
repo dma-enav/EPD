@@ -327,8 +327,6 @@ public class SendStrategicRouteDialog extends ComponentFrame implements MouseLis
                     System.currentTimeMillis(), replyStatus, voyage.getRoute()
                             .getFullRouteData(), this.renegotiate);
 
-            // monaLisaHandler.sendReply(reply);
-
             this.textArea.setText("");
             this.setVisible(false);
 

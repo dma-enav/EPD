@@ -72,7 +72,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     private DynamicNoGoComponentPanel dynamicNoGoPanel;
     private NoGoComponentPanel nogoPanel;
     private MultiSourcePntComponentPanel msPntComponentPanel;
-//    private MonaLisaCommunicationComponentPanel monaLisaPanel;
     
     private MsiDialog msiDialog;
     private AisDialog aisDialog;
@@ -83,7 +82,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     private MapMenu mapMenu;
     private MenuBar menuBar;
 
-    private RequestStrategicRouteDialog monaLisaSTCCDialog;
+    private RequestStrategicRouteDialog strategicRouteSTCCDialog;
         
     public MainFrame() {
         super(TITLE);
@@ -138,10 +137,9 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         dynamicNoGoPanel = new DynamicNoGoComponentPanel();
         nogoPanel = new NoGoComponentPanel();
         msPntComponentPanel = new MultiSourcePntComponentPanel();
-//        monaLisaPanel = new MonaLisaCommunicationComponentPanel();
         
         //Mona Lisa Dialog
-        monaLisaSTCCDialog = new RequestStrategicRouteDialog(this);
+        strategicRouteSTCCDialog = new RequestStrategicRouteDialog(this);
         
         // Unmovable panels
         bottomPanel = new BottomPanel();
@@ -181,7 +179,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         mapHandler.add(dynamicNoGoPanel);
         mapHandler.add(nogoPanel);
         mapHandler.add(msPntComponentPanel);
-//        mapHandler.add(monaLisaPanel);
         
         // Create top menubar
         menuBar = new MenuBar();
@@ -221,8 +218,8 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         }
     }
 
-    public RequestStrategicRouteDialog getMonaLisaSTCCDialog() {
-        return monaLisaSTCCDialog;
+    public RequestStrategicRouteDialog getStrategicRouteSTCCDialog() {
+        return strategicRouteSTCCDialog;
     }
 
     /**
@@ -302,11 +299,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         return msPntComponentPanel;
     }
 
-//    public MonaLisaCommunicationComponentPanel getMonaLisaPanel() {
-//        return monaLisaPanel;
-//    }
-
-    
     
     public void doFullScreen() {
         setVisible(false);

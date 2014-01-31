@@ -76,7 +76,7 @@ public class ChartPanel extends CommonChartPanel {
     private MsiHandler msiHandler;
 
     private GeneralLayer generalLayer;
-    private StrategicRouteExchangeHandler monaLisaHandler;
+    private StrategicRouteExchangeHandler strategicRouteHandler;
 
     private NavigationMouseMode mapNavMouseMode;
     private DragMouseMode dragMouseMode;
@@ -455,7 +455,7 @@ public class ChartPanel extends CommonChartPanel {
         routeLayer.setVisible(true);
         mapHandler.add(routeLayer);
 
-        if (type == MapFrameType.monaLisa) {
+        if (type == MapFrameType.suggestedRoute) {
 
             // Add Voyage Layer
             voyageLayer = new VoyageLayer(true);
@@ -492,8 +492,8 @@ public class ChartPanel extends CommonChartPanel {
         msiHandler = EPDShore.getInstance().getMsiHandler();
         mapHandler.add(msiHandler);
 
-        monaLisaHandler = EPDShore.getInstance().getMonaLisaHandler();
-        mapHandler.add(monaLisaHandler);
+        strategicRouteHandler = EPDShore.getInstance().getStrategicRouteHandler();
+        mapHandler.add(strategicRouteHandler);
 
         // Create Intended Route Layer
         intendedRouteLayer = new IntendedRouteLayer();

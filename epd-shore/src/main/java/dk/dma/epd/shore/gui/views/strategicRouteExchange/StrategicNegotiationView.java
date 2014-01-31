@@ -94,15 +94,6 @@ public class StrategicNegotiationView extends JPanel {
         requestMessageSP.setBounds(10, 37, 243, 41);
         requestPanel.add(requestMessageSP);
         
-        
-        
-        
-//        JLabel requestMessageTxt = new JLabel(
-//                monaLisaRouteRequestMessage.getMessage());
-//        requestMessageTxt.setBounds(10, 40, 243, 14);
-//        GuiStyler.styleText(requestMessageTxt);
-//        requestPanel.add(requestMessageTxt);
-
         JLabel sentDateTxt = new JLabel(
                 Formatter.formatLongDateTime(strategicRouteRequestMessage
                         .getSent()));
@@ -131,10 +122,6 @@ public class StrategicNegotiationView extends JPanel {
         GuiStyler.styleText(lblNoReply);
         lblNoReply.setBounds(10, 20, 243, 14);
         replyPanel.add(lblNoReply);
-
-        
-//        handleReply(new MonaLisaRouteRequestReply("TEST TEST MSG", -1, -1, 1, MonaLisaRouteStatus.AGREED, new Route()));
-        
     }
 
     public void handleReply(StrategicRouteRequestReply strategicRouteRequestReply) {
@@ -176,14 +163,6 @@ public class StrategicNegotiationView extends JPanel {
         replyMessageSP.setBounds(10, 55, 243, 39);
         replyPanel.add(replyMessageSP);
         
-        
-        
-        
-//        JLabel messageTxt = new JLabel(monaLisaRouteRequestReply.getMessage());
-//        messageTxt.setBounds(65, 40, 188, 14);
-//        GuiStyler.styleText(messageTxt);
-//        replyPanel.add(messageTxt);
-
         JLabel typeTxt = new JLabel();
         typeTxt.setBounds(65, 94, 188, 14);
         GuiStyler.styleText(typeTxt);

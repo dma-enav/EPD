@@ -29,7 +29,10 @@ import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 
-public class CloudIntendedRoute extends Route {
+/**
+ * Defines an intended route.
+ */
+public class IntendedRoute extends Route {
 
     private static final long serialVersionUID = 1L;
     protected Double routeRange;
@@ -41,14 +44,20 @@ public class CloudIntendedRoute extends Route {
 
     protected List<Double> ranges = new ArrayList<>();
 
-    public CloudIntendedRoute(dk.dma.enav.model.voyage.Route cloudRouteData) {
+    /**
+     * Initializes the intended route from route data received over the cloud
+     * @param cloudRouteData route data received over the cloud
+     */
+    public IntendedRoute(dk.dma.enav.model.voyage.Route cloudRouteData) {
         super();
         received = PntTime.getInstance().getDate();
         parseRoute(cloudRouteData);
     }
 
-
-
+    /**
+     * Parses the route data received over the cloud as an EPD route
+     * @param cloudRouteData route data received over the cloud
+     */
     private void parseRoute(dk.dma.enav.model.voyage.Route cloudRouteData) {
         this.setName(cloudRouteData.getName());
         List<Waypoint> cloudRouteWaypoints = cloudRouteData.getWaypoints();
@@ -72,18 +81,7 @@ public class CloudIntendedRoute extends Route {
                 RouteLeg outLeg = new RouteLeg();
                 outLeg.setHeading(Heading.RL);
                 waypoint.setOutLeg(outLeg);
-                // System.out.println("For waypoint" + i + " creating out leg");
             }
-
-            // if (waypoint.getInLeg() != null) {
-            // waypoint.getInLeg().setSpeed(5.0);
-            // }
-
-            // if (waypoint.getOutLeg() != null) {
-            // System.out.println("SEtting stuff?");
-            // waypoint.getOutLeg().setSpeed(5.0);
-            // // System.out.println(waypoint.getOutLeg().getSpeed());
-            // }
 
             Position position = Position.create(cloudWaypoint.getLatitude(),
                     cloudWaypoint.getLongitude());
@@ -96,7 +94,6 @@ public class CloudIntendedRoute extends Route {
         if (routeWaypoints.size() > 1) {
             for (int i = 0; i < routeWaypoints.size(); i++) {
 
-                // System.out.println("Looking at waypoint:" + i);
                 RouteWaypoint waypoint = routeWaypoints.get(i);
                 Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
 
@@ -105,18 +102,13 @@ public class CloudIntendedRoute extends Route {
                     RouteWaypoint prevWaypoint = routeWaypoints.get(i - 1);
 
                     if (waypoint.getInLeg() != null) {
-                        // System.out.println("Setting inleg prev for waypoint:"
-                        // + i);
                         waypoint.getInLeg().setStartWp(prevWaypoint);
                         waypoint.getInLeg().setEndWp(waypoint);
                     }
 
                     if (prevWaypoint.getOutLeg() != null) {
-                        // System.out.println("Setting outleg prev for waypoint:"
-                        // + i);
                         prevWaypoint.getOutLeg().setStartWp(prevWaypoint);
                         prevWaypoint.getOutLeg().setEndWp(waypoint);
-
                     }
                 }
 

@@ -26,7 +26,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
+import dk.dma.epd.common.prototype.enavcloud.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 
 /**
@@ -51,7 +51,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
         new Color(20, 20, 20)      // black'ish
     };
     
-    private CloudIntendedRoute previousData;
+    private IntendedRoute previousData;
     private IntendedRouteLegGraphic activeWpLine;
     private double[] activeWpLineLL = new double[4];
     private Color routeColor = COLORS[1];
@@ -123,16 +123,16 @@ public class IntendedRouteGraphic extends OMGraphicList {
      * 
      * @param vesselTarget the vessel target
      * @param name the name
-     * @param cloudIntendedRoute the intended route data
+     * @param intendedRoute the intended route data
      * @param pos the current vessel position
      */
     public void update(VesselTarget vesselTarget, String name,
-            CloudIntendedRoute cloudIntendedRoute, Position pos) {
+            IntendedRoute intendedRoute, Position pos) {
 
         this.vesselTarget = vesselTarget;
         this.name = name;
         // Handle no or empty route
-        if (cloudIntendedRoute == null || cloudIntendedRoute.getWaypoints().size() == 0) {
+        if (intendedRoute == null || intendedRoute.getWaypoints().size() == 0) {
             clear();
             if (isVisible()) {
                 setVisible(false);
@@ -141,13 +141,13 @@ public class IntendedRouteGraphic extends OMGraphicList {
             return;
         }
         
-        if (previousData != cloudIntendedRoute) {
+        if (previousData != intendedRoute) {
             // Route has changed, draw new route
             clear();
             add(activeWpLine);
             
             List<Position> waypoints = new ArrayList<>();
-            for (RouteWaypoint routeWp : cloudIntendedRoute.getWaypoints()) {
+            for (RouteWaypoint routeWp : intendedRoute.getWaypoints()) {
                 waypoints.add(routeWp.getPos());
             }
             
@@ -163,11 +163,11 @@ public class IntendedRouteGraphic extends OMGraphicList {
                 // Make leg line
                 makeLegLine(i + 1, start, end);
             }
-            previousData = cloudIntendedRoute;
+            previousData = intendedRoute;
         }
         
         // Update leg to first waypoint
-        Position activeWpPos = cloudIntendedRoute.getWaypoints().get(0).getPos();
+        Position activeWpPos = intendedRoute.getWaypoints().get(0).getPos();
         activeWpLineLL[0] = pos.getLatitude();
         activeWpLineLL[1] = pos.getLongitude();
         activeWpLineLL[2] = activeWpPos.getLatitude();
@@ -176,7 +176,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
 
         // Adjust the transparency of the color depending on the last-received time for the route
         long secondsSinceReceived = 
-                    (System.currentTimeMillis() - cloudIntendedRoute.getReceived().getTime()) / 1000L;
+                    (System.currentTimeMillis() - intendedRoute.getReceived().getTime()) / 1000L;
 
         if (secondsSinceReceived < TTL) {
             float factor = 1.0f - (float)secondsSinceReceived / (float)TTL;
