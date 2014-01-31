@@ -22,7 +22,9 @@ import dk.dma.epd.common.prototype.gui.SetupDialogCommon;
 import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.shore.gui.settingtabs.ShoreAisSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.ShoreCloudSettingsPanel;
+import dk.dma.epd.shore.gui.settingtabs.ShoreConnectionSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.ShoreMapSettingsPanel;
+import dk.dma.epd.shore.gui.settingtabs.ShoreMapFramesSettingsPanel;
 
 public class SetupDialogShore extends SetupDialogCommon {
     
@@ -30,23 +32,29 @@ public class SetupDialogShore extends SetupDialogCommon {
     private ShoreCloudSettingsPanel shoreSettings;
     private ShoreMapSettingsPanel mapSettings;
     private ShoreAisSettingsPanel aisSettings;
+    private ShoreMapFramesSettingsPanel windowsSettings;
+    private ShoreConnectionSettingsPanel connectionPanel;
     
     public SetupDialogShore(JFrame mainFrame) {
         
         super(mainFrame, "Setup", JTabbedPane.LEFT);
         
-        // Resize the dialog to make more room for tabs on the left side.
-        this.setSize(800, super.getHeight()-100);
+        // Resize the dialog to make more room for tabs on the right side.
+        this.setSize(800, super.getHeight()-200);
         
-        this.shoreSettings = new ShoreCloudSettingsPanel();
-        this.mapSettings = new ShoreMapSettingsPanel();
-        this.aisSettings = new ShoreAisSettingsPanel();
+        this.connectionPanel = new ShoreConnectionSettingsPanel();
+        this.shoreSettings   = new ShoreCloudSettingsPanel();
+        this.mapSettings     = new ShoreMapSettingsPanel();
+        this.windowsSettings = new ShoreMapFramesSettingsPanel();
+        this.aisSettings     = new ShoreAisSettingsPanel();
         
-        
+        // Register the panels for shore setup.
         super.registerSettingsPanels(
-                shoreSettings,
-                mapSettings,
-                aisSettings
+                this.connectionPanel,
+                this.shoreSettings,
+                this.mapSettings,
+                this.windowsSettings,
+                this.aisSettings
                 );
     }
     
@@ -56,4 +64,6 @@ public class SetupDialogShore extends SetupDialogCommon {
     public void loadSettings(Settings settings) {
         super.loadSettings(settings);
     }
+    
+    
 }

@@ -123,11 +123,12 @@ public class SetupDialogCommon extends JDialog {
      */
     private void addTabs(JTabbedPane tabbedPane) {
         for (int i = 0; i < settingsPanels.size(); i++) {
-            // Add the panel.
-            tabbedPane.add(this.settingsPanels.get(i));
-
+            
             // Get the settingsPanel.
             BaseSettingsPanel newPanel = this.settingsPanels.get(i);
+
+            // Add the panel.
+            tabbedPane.add(newPanel);
             
             // Create icon and title for tab.
             JLabel panelTitle = new JLabel(tabPrefix+newPanel.getName());
