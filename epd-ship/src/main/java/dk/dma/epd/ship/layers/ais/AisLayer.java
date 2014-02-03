@@ -23,7 +23,6 @@ import javax.swing.SwingUtilities;
 
 import net.jcip.annotations.ThreadSafe;
 
-import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMList;
@@ -428,28 +427,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
                 }
                 doPrepare();
             }
-        }
-    }
-
-    @Override
-    public void projectionChanged(ProjectionEvent pe) {
-        super.projectionChanged(pe);
-        // the new zoom level
-        ZoomLevel updatedZl = ZoomLevel.getFromScale(pe.getProjection().getScale());
-        // log if zoom level was changed
-        boolean zoomChanged = this.currentZoomLevel != updatedZl;
-        this.currentZoomLevel = updatedZl;
-        if (zoomChanged) {
-            // only need to redraw vessels if zoom level changed
-            synchronized(this.graphics) {
-                for (OMGraphic tg : this.graphics) {
-                    if (tg instanceof VesselTargetGraphic) {
-                        ((VesselTargetGraphic) tg).drawAccordingToScale(this.currentZoomLevel);
-                    }
-                }
-            }
-            // force redraw
-            this.forceLayerUpdate();
         }
     }
     

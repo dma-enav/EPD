@@ -16,6 +16,7 @@
 package dk.dma.epd.common.prototype.layers.ais;
 
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
+import com.bbn.openmap.proj.Projection;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.ISelectableGraphic;
@@ -144,7 +145,7 @@ public class VesselTargetGraphic extends TargetGraphic implements ISelectableGra
         return pastTrackGraphic;
     }
 
-    public void drawAccordingToScale(ZoomLevel zl) {
+    private void drawAccordingToScale(ZoomLevel zl) {
         if (this.vesselTarget == null || this.vesselTarget.getPositionData() == null) {
             // cannot draw when we have no vessel data
             return;
@@ -168,6 +169,24 @@ public class VesselTargetGraphic extends TargetGraphic implements ISelectableGra
             this.drawDot();
             break;
         }
+    }
+    
+    @Override
+    public boolean generate(Projection p) {
+        // Generate is called every time the layer's projection changes.
+        // A projection change might impose a need for changing the current draw mode for this graphic.
+        // Hence recompute how this graphic should visualize itself with the new projection.
+        this.drawAccordingToScale(ZoomLevel.getFromScale(p.getScale()));
+        return super.generate(p);
+    }
+    
+    @Override
+    public boolean generate(Projection p, boolean forceProjectAll) {
+        // Generate is called every time the layer's projection changes.
+        // A projection change might impose a need for changing the current draw mode for this graphic.
+        // Hence recompute how this graphic should visualize itself with the new projection.
+        this.drawAccordingToScale(ZoomLevel.getFromScale(p.getScale()));
+        return super.generate(p, forceProjectAll);
     }
     
     // Get the visibility of VesselTriangleGraphic object of this class.
