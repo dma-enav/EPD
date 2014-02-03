@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
+import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.layers.LazyLayerCommon;
 
@@ -66,21 +67,6 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         }
         super.findAndUndo(obj);
     }
-
-    /**
-     * Force this AIS layer to update itself.
-     */
-    public abstract void forceLayerUpdate();
-
-    /**
-     * Set if this AIS layer should show name labels for the AIS targets it
-     * displays.
-     * 
-     * @param showLabels
-     *            Use true to show name labels, and use false to hide name
-     *            labels.
-     */
-    public abstract void setShowNameLabels(boolean showLabels);
 
     /**
      * Mark a graphic as selected. Repaint this layer if requested.
@@ -167,4 +153,19 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
     protected TargetGraphic getTargetGraphic(Long mmsi) {
         return mmsi == null ? null : this.targets.get(mmsi);
     }
+    
+    /**
+     * Force this AIS layer to update itself.
+     */
+    public abstract void forceLayerUpdate();
+
+    /**
+     * Set if this AIS layer should show name labels for the AIS targets it
+     * displays.
+     * 
+     * @param showLabels
+     *            Use true to show name labels, and use false to hide name
+     *            labels.
+     */
+    public abstract void setShowNameLabels(boolean showLabels);
 }
