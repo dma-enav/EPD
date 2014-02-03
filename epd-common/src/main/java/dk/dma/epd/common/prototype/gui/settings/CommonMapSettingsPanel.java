@@ -156,7 +156,10 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
                 changed(this.settings.getScale(), this.spinnerDefaultMapScale.getValue()) ||
                 changed(this.settings.getMaxScale(), this.spinnerMaximumScale.getValue()) ||
                 changed(this.settings.getCenter().getLatitude(), this.spinnerLatitude.getValue()) ||
-                changed(this.settings.getCenter().getLongitude(), this.spinnerLongitude.getValue());
+                changed(this.settings.getCenter().getLongitude(), this.spinnerLongitude.getValue()) ||
+                
+                // Changes in WMS settings.
+                changed(this.settings.getWmsQuery(), this.textFieldWMSURL.getText());
     }
 
     /**
@@ -174,6 +177,8 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         this.spinnerLatitude.setValue(latitude.doubleValue());
         this.spinnerLongitude.setValue(longitude.doubleValue());
 
+        // Load settings for WMS.
+        this.textFieldWMSURL.setText(settings.getWmsQuery());
     }
 
     /**
@@ -188,6 +193,9 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         LatLonPoint center = new LatLonPoint.Double(
                 (Double) this.spinnerLatitude.getValue(), (Double) this.spinnerLongitude.getValue());
         this.settings.setCenter(center);
+        
+        // Save settings for WMS.
+        this.settings.setWmsQuery(textFieldWMSURL.getText());
     }
 
     /**

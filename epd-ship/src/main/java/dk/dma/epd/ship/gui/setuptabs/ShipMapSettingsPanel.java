@@ -30,6 +30,8 @@ import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
 
+import org.apache.commons.lang.ArrayUtils;
+
 /**
  * 
  * @author adamduehansen
@@ -198,6 +200,11 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
         this.chckbxPlainAreas.setSelected(mapSettings.isUsePlainAreas());
         this.chckbxTwoShades.setSelected(mapSettings.isS52TwoShades());
         this.comboBoxColorProfile.setSelectedItem(mapSettings.getColor());
+        
+        String[] wmsProviders = this.mapSettings.getWmsProviders();
+        for (int i = 0; i < wmsProviders.length; i++) {
+            this.listModel.addElement(wmsProviders[i]);
+        }
     }
     
     public void doSaveSettings() {
@@ -221,6 +228,11 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
         this.mapSettings.setUsePlainAreas(this.chckbxPlainAreas.isSelected());
         this.mapSettings.setS52TwoShades(this.chckbxTwoShades.isSelected());
         this.mapSettings.setColor(comboBoxColorProfile.getSelectedItem().toString());
+        
+        String[] wmsProviders = new String[this.listModel.getSize()];
+        for (int i = 0; i < wmsProviders.length; i++) {
+            wmsProviders[i] = this.listModel.getElementAt(i);
+        }
     }
     
     public boolean checkSettingsChanged() {
@@ -251,6 +263,15 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
                     changed(this.mapSettings.isUsePlainAreas(), this.chckbxPlainAreas.isSelected()) ||
                     changed(this.mapSettings.isS52TwoShades(), this.chckbxTwoShades.isSelected()) ||
                     changed(this.mapSettings.getColor(), this.comboBoxColorProfile.getSelectedItem().toString());
+            
+            if (!changesWereMade) {
+                String[] wmsProviders = new String[this.listModel.getSize()];
+                for (int i = 0; i < wmsProviders.length; i++) {
+                    wmsProviders[i] = this.listModel.getElementAt(i);
+                }
+                
+                changesWereMade = !ArrayUtils.isEquals(this.mapSettings.getWmsProviders(), wmsProviders);
+            }
         }
         
         return changesWereMade;
