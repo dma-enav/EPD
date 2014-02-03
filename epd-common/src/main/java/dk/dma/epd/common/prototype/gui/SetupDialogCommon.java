@@ -213,6 +213,10 @@ public class SetupDialogCommon extends JDialog {
         btnAccept.setEnabled(changed);
         return changed;
     }
+    
+    public void setActivePanel(int tabNumber) {
+        tabbedPane.setSelectedIndex(tabNumber);
+    }
 
     public int askIfShouldSaveChanges() {
         

@@ -443,10 +443,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
                     mainFrame);
             routeManagerDialog.setVisible(true);
         } else if (e.getSource() == setupBtn) {
-//            SetupDialog setupDialog = new SetupDialog(mainFrame);
-//            setupDialog.loadSettings(EPDShip.getInstance().getSettings());
-//            setupDialog.setVisible(true);
-            
+            // Show setup dialog.
             SetupDialogShip setup = new SetupDialogShip(mainFrame);
             setup.loadSettings(EPDShip.getInstance().getSettings());
             setup.setVisible(true);

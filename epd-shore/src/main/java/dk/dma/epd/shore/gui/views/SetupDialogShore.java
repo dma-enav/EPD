@@ -56,6 +56,8 @@ public class SetupDialogShore extends SetupDialogCommon {
                 this.windowsSettings,
                 this.aisSettings
                 );
+        
+        super.setActivePanel(1);
     }
     
     /**

@@ -187,6 +187,9 @@ public class JMenuWorkspaceBar extends JMenuBar {
         preferences.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 mainFrame.getSettingsWindow().toggleVisibility();
+                SetupDialogShore setup = new SetupDialogShore(mainFrame);
+                setup.loadSettings(EPDShore.getInstance().getSettings());
+                setup.setVisible(true);
             }
         });
 

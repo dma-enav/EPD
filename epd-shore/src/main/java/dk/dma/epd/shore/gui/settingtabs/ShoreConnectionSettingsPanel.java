@@ -15,19 +15,16 @@
  */
 package dk.dma.epd.shore.gui.settingtabs;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Color;
 
 import javax.swing.ImageIcon;
-import javax.swing.Timer;
 
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
-import dk.dma.epd.common.prototype.status.ComponentStatus;
+import dk.dma.epd.common.prototype.status.AisStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.prototype.status.ShoreServiceStatus;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.services.shore.ShoreServices;
 
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -38,6 +35,10 @@ public class ShoreConnectionSettingsPanel extends BaseSettingsPanel {
     private static final long serialVersionUID = 1L;
     private JLabel lblSsLastContactStatus;
     private JLabel lblSsContactStatus;
+    private JLabel lblAisReceptionStatus;
+    private JLabel lblAisSendingStatus;
+    private JLabel lblAisLastReceptionStatus;
+    private JLabel lblAisLastSendingStatus;
 
     public ShoreConnectionSettingsPanel() {
         super("Connections", new ImageIcon(
@@ -96,21 +97,21 @@ public class ShoreConnectionSettingsPanel extends BaseSettingsPanel {
         lblLastSending.setBounds(16, 95, 84, 16);
         aisPanel.add(lblLastSending);
         
-        JLabel lblLastReceptionStatus = new JLabel("null");
-        lblLastReceptionStatus.setBounds(121, 70, 298, 16);
-        aisPanel.add(lblLastReceptionStatus);
+        lblAisSendingStatus = new JLabel("null");
+        lblAisSendingStatus.setBounds(121, 45, 298, 16);
+        aisPanel.add(lblAisSendingStatus);
         
-        JLabel lblSendingStatus = new JLabel("null");
-        lblSendingStatus.setBounds(121, 45, 298, 16);
-        aisPanel.add(lblSendingStatus);
+        lblAisReceptionStatus = new JLabel("null");
+        lblAisReceptionStatus.setBounds(121, 20, 298, 16);
+        aisPanel.add(lblAisReceptionStatus);
         
-        JLabel lblReceptionStatus = new JLabel("null");
-        lblReceptionStatus.setBounds(121, 20, 298, 16);
-        aisPanel.add(lblReceptionStatus);
+        lblAisLastReceptionStatus = new JLabel("null");
+        lblAisLastReceptionStatus.setBounds(121, 70, 298, 16);
+        aisPanel.add(lblAisLastReceptionStatus);
         
-        JLabel lblLastSendingStatus = new JLabel("null");
-        lblLastSendingStatus.setBounds(121, 95, 298, 16);
-        aisPanel.add(lblLastSendingStatus);
+        lblAisLastSendingStatus = new JLabel("null");
+        lblAisLastSendingStatus.setBounds(121, 95, 298, 16);
+        aisPanel.add(lblAisLastSendingStatus);
         
         this.add(aisPanel);
         
@@ -151,27 +152,50 @@ public class ShoreConnectionSettingsPanel extends BaseSettingsPanel {
     @Override
     protected void doLoadSettings() {
         
-        Timer timer = new Timer(500, new ActionListener() {
-            
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                
-                IStatusComponent statusComponent = 
-                        new ShoreServices(EPDShore.getInstance().getSettings().getEnavSettings());
-                ComponentStatus componentStatus = statusComponent.getStatus();
-                
-                ShoreServiceStatus shoreServiceStatus = (ShoreServiceStatus) componentStatus;
-                
-                if (shoreServiceStatus.getStatus().toString().equals("UNKNOWN")) {
-                    System.out.println("asd");
-                }
-                
-                lblSsContactStatus.setText(shoreServiceStatus.getStatus().toString());
-                lblSsLastContactStatus.setText(Formatter.formatLongDateTime(shoreServiceStatus.getLastContact()));
-            }
-        });
+        IStatusComponent statusComponent;
         
-        timer.start();
+        // Get Shore Service connections.
+        statusComponent = EPDShore.getInstance().getShoreServices();
+        ShoreServiceStatus shoreServicesStatus = (ShoreServiceStatus) statusComponent.getStatus();
+        
+        lblSsContactStatus.setText(shoreServicesStatus.getStatus().toString());
+        this.setStatusColor(lblSsContactStatus);
+        lblSsLastContactStatus.setText(Formatter.formatLongDateTime(shoreServicesStatus.getLastContact()));
+        
+        // Get AIS connections.
+        statusComponent = EPDShore.getInstance().getAisHandler();
+        AisStatus aisStatus = (AisStatus) statusComponent.getStatus();
+        
+        lblAisReceptionStatus.setText(aisStatus.getReceiveStatus().toString());
+        lblAisSendingStatus.setText(aisStatus.getSendStatus().toString());
+        this.setStatusColor(lblAisReceptionStatus);
+        this.setStatusColor(lblAisSendingStatus);
+        lblAisLastReceptionStatus.setText(Formatter.formatLongDateTime(aisStatus.getLastReceived()));
+        lblAisLastSendingStatus.setText(Formatter.formatLongDateTime(aisStatus.getLastSent()));
+        
+        // Get WMS connections.
+        
+    }
+
+    protected void setStatusColor(JLabel statusLabel) {
+        
+        // Grab the status.
+        String statusText = statusLabel.getText();
+        
+        Color green  = new Color(130, 165, 80);
+        Color red    = new Color(165, 80, 80);
+        Color yellow = new Color(208, 192, 61);
+        
+        // Color the status labels.
+        if (statusText.equals("OK")) {
+            statusLabel.setForeground(green);
+        } else if (statusText.equals("ERROR")) {
+            statusLabel.setForeground(red);
+        } else if (statusText.equals("UNKNOWN")) {
+            statusLabel.setForeground(yellow);
+        } else if (statusText.equals("PARTIAL")) {
+            statusLabel.setForeground(yellow);
+        }
     }
 
     @Override
