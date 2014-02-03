@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.enavcloud;
+package dk.dma.epd.common.prototype.service;
 
 import java.net.URI;
 import java.util.List;

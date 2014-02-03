@@ -20,7 +20,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import net.maritimecloud.core.id.MaritimeId;
 import net.maritimecloud.core.id.MmsiId;
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.enavcloud.MaritimeCloudServiceCommon;
+import dk.dma.epd.common.prototype.service.MaritimeCloudServiceCommon;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.settings.EPDEnavSettings;
 

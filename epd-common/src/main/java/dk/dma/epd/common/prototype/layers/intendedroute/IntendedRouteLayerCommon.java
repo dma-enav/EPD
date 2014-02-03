@@ -21,6 +21,7 @@ import java.awt.geom.Point2D;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.bbn.openmap.event.ProjectionEvent;
+import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
 
@@ -33,17 +34,18 @@ import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.enavcloud.IntendedRoute;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
+import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 
 /**
  * Base layer for displaying intended routes in EPDShip and EPDShore
  * 
  * @author Janus Varmarken
  */
-public abstract class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTargetListener {
+public abstract class IntendedRouteLayerCommon extends EPDLayerCommon 
+    implements IAisTargetListener, ProjectionListener {
 
     private static final long serialVersionUID = 1L;
     

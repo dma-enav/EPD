@@ -47,16 +47,15 @@ import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog;
 import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
-import dk.dma.epd.ship.route.strategic.ReceivedRoute;
-import dk.dma.epd.ship.route.strategic.ReceivedRoute.ReceivedRouteStatus;
 import dk.dma.epd.ship.service.RouteSuggestionHandler;
-import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
+import dk.dma.epd.ship.service.SuggestedRoute;
+import dk.dma.epd.ship.service.SuggestedRoute.SuggestedRouteStatus;
 
 /**
  * Manager for handling a collection of routes and active route
  */
 @ThreadSafe
-public class RouteManager extends RouteManagerCommon implements IPntDataListener, ActiveRouteProvider {
+public class RouteManager extends RouteManagerCommon implements IPntDataListener {
 
     private static final long serialVersionUID = -9019124285849351709L;
     private static final String ROUTES_FILE = EPD.getInstance().getHomePath().resolve(".routes").toString();
@@ -66,7 +65,7 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
     private volatile PntHandler pntHandler;
     
     @GuardedBy("suggestedRoutes")
-    private List<ReceivedRoute> suggestedRoutes = new LinkedList<>();    
+    private List<SuggestedRoute> suggestedRoutes = new LinkedList<>();    
     private RouteSuggestionDialog routeSuggestionDialog;
     
 
@@ -204,7 +203,7 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
      * Called when a new suggested route is received via the Maritime Cloud
      * @param message the route suggestion
      */
-    public void receiveRouteSuggestion(ReceivedRoute message){
+    public void receiveRouteSuggestion(SuggestedRoute message){
         
         synchronized(suggestedRoutes){
             suggestedRoutes.add(message);            
@@ -233,7 +232,7 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
      * @param route the suggested route to accept
      * @return if the route was accepted
      */
-    public boolean acceptSuggested(ReceivedRoute route){
+    public boolean acceptSuggested(SuggestedRoute route){
         boolean removed = false;
         
         synchronized (suggestedRoutes) {
@@ -264,7 +263,7 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
      * @param route the suggested route to remove
      * @return if the route was removed
      */
-    public boolean removeSuggested(ReceivedRoute route){
+    public boolean removeSuggested(SuggestedRoute route){
         System.out.println("Removing");
         
         boolean removed = false;
@@ -295,24 +294,24 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
      * @param message an additional message
      */
     public void routeSuggestionReply(
-            ReceivedRoute routeSuggestion,
-            ReceivedRouteStatus status, String message) {
+            SuggestedRoute routeSuggestion,
+            SuggestedRouteStatus status, String message) {
         
 
         switch (status) {
         case ACCEPTED:
-            routeSuggestion.setStatus(ReceivedRouteStatus.ACCEPTED);
+            routeSuggestion.setStatus(SuggestedRouteStatus.ACCEPTED);
             acceptSuggested(routeSuggestion);
             routeSuggestionHandler.sendRouteExchangeReply(RouteSuggestionStatus.RECEIVED_ACCEPTED, routeSuggestion.getId(), message);
             break;
         case REJECTED:
             //Remove it
-            routeSuggestion.setStatus(ReceivedRouteStatus.REJECTED);
+            routeSuggestion.setStatus(SuggestedRouteStatus.REJECTED);
             routeSuggestionHandler.sendRouteExchangeReply(RouteSuggestionStatus.RECEIVED_REJECTED, routeSuggestion.getId(), message);
             break;
         case NOTED:
             //Do nothing
-            routeSuggestion.setStatus(ReceivedRouteStatus.NOTED);
+            routeSuggestion.setStatus(SuggestedRouteStatus.NOTED);
             routeSuggestionHandler.sendRouteExchangeReply(RouteSuggestionStatus.RECEIVED_NOTED, routeSuggestion.getId(), message);
             break;
         default:
@@ -334,7 +333,7 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
      * Returns the list of suggested routes
      * @return the list of suggested routes
      */
-    public List<ReceivedRoute> getSuggestedRoutes() {
+    public List<SuggestedRoute> getSuggestedRoutes() {
         synchronized (suggestedRoutes) {
             return new ArrayList<>(suggestedRoutes);
         }
@@ -344,7 +343,7 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
      * Sets the list of suggested routes
      * @param suggestedRoutes the list of suggested routes
      */
-    private void setSuggestedRoutes(List<ReceivedRoute> suggestedRoutes) {
+    private void setSuggestedRoutes(List<SuggestedRoute> suggestedRoutes) {
         synchronized (suggestedRoutes) {
             if (suggestedRoutes != null) {
                 this.suggestedRoutes = suggestedRoutes;

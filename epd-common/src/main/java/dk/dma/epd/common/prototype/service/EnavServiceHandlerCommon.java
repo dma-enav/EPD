@@ -13,12 +13,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.enavcloud;
+package dk.dma.epd.common.prototype.service;
 
 import com.bbn.openmap.MapHandlerChild;
 
 import net.maritimecloud.net.MaritimeCloudClient;
-import dk.dma.epd.common.prototype.enavcloud.MaritimeCloudServiceCommon.IMaritimeCloudListener;
+import dk.dma.epd.common.prototype.service.MaritimeCloudServiceCommon.IMaritimeCloudListener;
 import dk.dma.epd.common.prototype.status.CloudStatus;
 
 

@@ -34,12 +34,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.enavcloud.EnavCloudUtils;
-import dk.dma.epd.common.prototype.enavcloud.EnavServiceHandlerCommon;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon;
 
 /**
  * Shore-specific route suggestion e-Nav service.
@@ -87,7 +87,7 @@ public class RouteSuggestionHandler extends EnavServiceHandlerCommon {
      * @return if one such ship is available
      */
     public boolean shipAvailableForRouteSuggestion(long mmsi) {
-        return EnavCloudUtils.findServiceWithMmsi(routeSuggestionServiceList, (int)mmsi) != null;
+        return MaritimeCloudUtils.findServiceWithMmsi(routeSuggestionServiceList, (int)mmsi) != null;
     }
 
     /**
@@ -102,7 +102,7 @@ public class RouteSuggestionHandler extends EnavServiceHandlerCommon {
             ExecutionException, TimeoutException {
 
         ServiceEndpoint<RouteSuggestionMessage, RouteSuggestionReply> end 
-            = EnavCloudUtils.findServiceWithMmsi(routeSuggestionServiceList, (int)mmsi);
+            = MaritimeCloudUtils.findServiceWithMmsi(routeSuggestionServiceList, (int)mmsi);
 
         RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(route, sender, message);
 

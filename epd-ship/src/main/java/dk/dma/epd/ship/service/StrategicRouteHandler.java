@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.route.strategic;
+package dk.dma.epd.ship.service;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -32,8 +32,6 @@ import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.service.ServiceEndpoint;
 import net.maritimecloud.net.service.invocation.InvocationCallback;
 import net.maritimecloud.util.function.BiConsumer;
-import dk.dma.epd.common.prototype.enavcloud.EnavCloudUtils;
-import dk.dma.epd.common.prototype.enavcloud.EnavServiceHandlerCommon;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAckService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAckService.StrategicRouteAckMsg;
@@ -42,6 +40,8 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRout
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.route.strategic.RequestStrategicRouteDialog;
@@ -245,7 +245,7 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
     private void sendStrategicRouteRequest(StrategicRouteRequestMessage routeMessage) {
 
         ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply> end 
-            = EnavCloudUtils.findSTCCService(strategicRouteSTCCList);
+            = MaritimeCloudUtils.findSTCCService(strategicRouteSTCCList);
 
         // Each request has a unique ID, talk to Kasper?
 
@@ -575,7 +575,7 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
         fetchStrategicRouteAckList();
 
         ServiceEndpoint<StrategicRouteAckMsg, Void> end 
-            = EnavCloudUtils.findSTCCService(strategicRouteRouteAckList);
+            = MaritimeCloudUtils.findSTCCService(strategicRouteRouteAckList);
 
         StrategicRouteAckMsg msg = new StrategicRouteAckMsg(ack, id, ownMMSI,
                 message);

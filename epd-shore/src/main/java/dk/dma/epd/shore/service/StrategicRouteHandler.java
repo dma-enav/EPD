@@ -33,15 +33,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.enavcloud.EnavCloudUtils;
-import dk.dma.epd.common.prototype.enavcloud.EnavServiceHandlerCommon;
-import dk.dma.epd.common.prototype.enavcloud.InvocationCallbackContextMap;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAckService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAckService.StrategicRouteAckMsg;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon;
+import dk.dma.epd.common.prototype.service.InvocationCallbackContextMap;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
@@ -148,7 +148,7 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
     private void sendStrategicRenegotiateRequest(long mmsiDestination, StrategicRouteRequestMessage routeMessage) {
 
         ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply> end 
-            = EnavCloudUtils.findServiceWithMmsi(strategicRouteShipList, (int)mmsiDestination);
+            = MaritimeCloudUtils.findServiceWithMmsi(strategicRouteShipList, (int)mmsiDestination);
 
         // Each request has a unique ID, talk to Kasper?
 
@@ -184,7 +184,7 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
     public boolean shipAvailableForStrategicRouteTransaction(long mmsi) {
         fetchStrategicShipList();
         
-        return EnavCloudUtils.findServiceWithMmsi(strategicRouteShipList, (int)mmsi) != null;
+        return MaritimeCloudUtils.findServiceWithMmsi(strategicRouteShipList, (int)mmsi) != null;
     }
 
     

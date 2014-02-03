@@ -18,7 +18,7 @@ package dk.dma.epd.common.prototype.ais;
 import java.util.Date;
 
 import net.jcip.annotations.ThreadSafe;
-import dk.dma.epd.common.prototype.enavcloud.IntendedRoute;
+import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 
 /**

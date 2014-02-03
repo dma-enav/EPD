@@ -23,15 +23,14 @@ import org.slf4j.LoggerFactory;
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.service.invocation.InvocationCallback;
 import net.maritimecloud.net.service.invocation.InvocationCallback.Context;
-import dk.dma.epd.common.prototype.enavcloud.EnavCloudUtils;
-import dk.dma.epd.common.prototype.enavcloud.EnavServiceHandlerCommon;
-import dk.dma.epd.common.prototype.enavcloud.InvocationCallbackContextMap;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon;
+import dk.dma.epd.common.prototype.service.InvocationCallbackContextMap;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.route.strategic.ReceivedRoute;
 
 /**
  * Ship-specific route suggestion e-Nav service.
@@ -70,11 +69,11 @@ public class RouteSuggestionHandler extends EnavServiceHandlerCommon {
 
                             routeExchangeContexts.put(message.getId(), context);
 
-                            ReceivedRoute receivedRoute = new ReceivedRoute(
+                            SuggestedRoute suggestedRoute = new SuggestedRoute(
                                     message);
 
                             EPDShip.getInstance().getRouteManager()
-                                    .receiveRouteSuggestion(receivedRoute);
+                                    .receiveRouteSuggestion(suggestedRoute);
 
                         }
                     }).awaitRegistered(4, TimeUnit.SECONDS);
@@ -104,7 +103,7 @@ public class RouteSuggestionHandler extends EnavServiceHandlerCommon {
      */
     public void sendRouteExchangeReply(RouteSuggestionStatus receivedAccepted, long id, String message) {
         try {
-            long ownMmsi = (maritimeCloudService.getMaritimeId() == null) ? -1 : EnavCloudUtils.toMmsi(maritimeCloudService.getMaritimeId());
+            long ownMmsi = (maritimeCloudService.getMaritimeId() == null) ? -1 : MaritimeCloudUtils.toMmsi(maritimeCloudService.getMaritimeId());
             if (routeExchangeContexts.containsKey(id)) {
                 routeExchangeContexts.remove(id).complete(new RouteSuggestionReply(
                         message, 

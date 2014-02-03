@@ -36,8 +36,8 @@ import javax.swing.event.TableModelListener;
 
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.ship.route.RouteManager;
-import dk.dma.epd.ship.route.strategic.ReceivedRoute;
-import dk.dma.epd.ship.route.strategic.ReceivedRoute.ReceivedRouteStatus;
+import dk.dma.epd.ship.service.SuggestedRoute;
+import dk.dma.epd.ship.service.SuggestedRoute.SuggestedRouteStatus;
 
 public class RouteExchangeManagerPanel extends JPanel implements
         ActionListener, ListSelectionListener, TableModelListener,
@@ -251,9 +251,9 @@ public class RouteExchangeManagerPanel extends JPanel implements
     private void updateButtons() {
         
         if(routeTable.getSelectedRow() >= 0){
-            ReceivedRoute route = routeManager.getSuggestedRoutes().get(
+            SuggestedRoute route = routeManager.getSuggestedRoutes().get(
                     routeTable.getSelectedRow());
-            ReceivedRouteStatus status = route.getStatus();
+            SuggestedRouteStatus status = route.getStatus();
 
             switch (status) {
             case PENDING:
@@ -337,7 +337,7 @@ public class RouteExchangeManagerPanel extends JPanel implements
         }
     }
 
-    private void handleReply(ReceivedRouteStatus status) {
+    private void handleReply(SuggestedRouteStatus status) {
         if (routeTable.getSelectedRow() >= 0) {
             routeManager.routeSuggestionReply(routeManager.getSuggestedRoutes()
                     .get(routeTable.getSelectedRow()), status, "No message");
@@ -364,11 +364,11 @@ public class RouteExchangeManagerPanel extends JPanel implements
         } else if (e.getSource() == zoomToBtn) {
             zoomTo();
         } else if (e.getSource() == acceptBtn) {
-            handleReply(ReceivedRouteStatus.ACCEPTED);
+            handleReply(SuggestedRouteStatus.ACCEPTED);
         } else if (e.getSource() == rejectBtn) {
-            handleReply(ReceivedRouteStatus.REJECTED);
+            handleReply(SuggestedRouteStatus.REJECTED);
         } else if (e.getSource() == notedBtn) {
-            handleReply(ReceivedRouteStatus.NOTED);
+            handleReply(SuggestedRouteStatus.NOTED);
         } else if (e.getSource() == deleteBtn) {
             delete();
         }

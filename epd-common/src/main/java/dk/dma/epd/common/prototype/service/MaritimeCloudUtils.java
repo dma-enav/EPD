@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.enavcloud;
+package dk.dma.epd.common.prototype.service;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ import net.maritimecloud.net.service.ServiceEndpoint;
  * of MMSI identifiers and for searching lists of Maritime Cloud
  * services based on MMSI
  */
-public class EnavCloudUtils {
+public class MaritimeCloudUtils {
 
     public static final String STCC_MMSI_PREFIX = "999";
     

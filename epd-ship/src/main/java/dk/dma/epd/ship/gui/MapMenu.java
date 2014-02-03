@@ -56,8 +56,8 @@ import dk.dma.epd.ship.layers.msi.MsiLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
-import dk.dma.epd.ship.route.strategic.ReceivedRoute;
-import dk.dma.epd.ship.route.strategic.StrategicRouteHandler;
+import dk.dma.epd.ship.service.StrategicRouteHandler;
+import dk.dma.epd.ship.service.SuggestedRoute;
 
 /**
  * Right click map menu
@@ -616,7 +616,7 @@ public class MapMenu extends MapMenuCommon {
         revalidate();
     }
 
-    public void suggestedRouteMenu(ReceivedRoute aisSuggestedRoute) {
+    public void suggestedRouteMenu(SuggestedRoute aisSuggestedRoute) {
         removeAll();
 
         suggestedRouteDetails.setSuggestedRoute(aisSuggestedRoute);
