@@ -18,10 +18,20 @@ package dk.dma.epd.common.prototype.layers.ais;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import dk.dma.epd.common.graphics.ISelectableGraphic;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
+import dk.dma.epd.common.prototype.ais.AisTarget;
+import dk.dma.epd.common.prototype.ais.AtoNTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
+import dk.dma.epd.common.prototype.ais.SarTarget;
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.layers.LazyLayerCommon;
+import dk.dma.epd.common.prototype.settings.AisSettings;
+import dk.dma.epd.common.prototype.settings.NavSettings;
 
 /**
  * @author Janus Varmarken
@@ -30,6 +40,8 @@ import dk.dma.epd.common.prototype.layers.LazyLayerCommon;
 public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         extends LazyLayerCommon implements IAisTargetListener {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AisLayerCommon.class);
+    
     /**
      * The AIS handler that provides AIS data for this layer.
      */
@@ -44,9 +56,22 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      * The graphic that is currently selected by the user.
      */
     private ISelectableGraphic selectedGraphic;
-
+    
+    /**
+     * The application wide AIS settings.
+     */
+    private final AisSettings aisSettings;
+    
+    /**
+     * The application wide Navigation settings.
+     */
+    private final NavSettings navSettings;
+    
     public AisLayerCommon(int repaintIntervalMillis) {
         super(repaintIntervalMillis);
+        // Get the settings singletons
+        this.aisSettings = EPD.getInstance().getSettings().getAisSettings();
+        this.navSettings = EPD.getInstance().getSettings().getNavSettings();
     }
 
     @SuppressWarnings("unchecked")
@@ -151,6 +176,54 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      */
     protected TargetGraphic getTargetGraphic(Long mmsi) {
         return mmsi == null ? null : this.targets.get(mmsi);
+    }
+    
+    @Override
+    public void targetUpdated(AisTarget aisTarget) {
+        // Sanity check
+        if (aisTarget == null) {
+            return;
+        }
+        long mmsi = aisTarget.getMmsi();
+        TargetGraphic targetGraphic = this.getTargetGraphic(mmsi);
+        float mapScale = (this.getProjection() == null) ? 0 : this.getProjection().getScale();
+        
+        if (aisTarget.isGone()) {
+            if (targetGraphic != null) {
+                // Remove target from map of graphics + graphics list
+                this.removeTargetGraphic(mmsi);
+            }
+            return;
+        }
+
+        // Create and insert
+        if (targetGraphic == null) {
+            if (aisTarget instanceof VesselTarget) {
+                // TODO update boolean argument to use dynamic value
+                targetGraphic = new VesselTargetGraphic(true, this);
+            } else if (aisTarget instanceof SarTarget) {
+                targetGraphic = new SarTargetGraphic();
+            } else if (aisTarget instanceof AtoNTarget) {
+                targetGraphic = new AtonTargetGraphic();
+            } else {
+                LOG.error("Unknown target type");
+                return;
+            }
+            // add to map of graphics + graphics list
+            this.addTargetGraphic(mmsi, targetGraphic);
+        }
+
+        if (aisTarget instanceof VesselTarget) {
+            VesselTarget vesselTarget = (VesselTarget) aisTarget;
+            VesselTargetGraphic vesselTargetGraphic = (VesselTargetGraphic) targetGraphic;
+            // Send new position data to graphic object
+            vesselTargetGraphic.update(vesselTarget, this.aisSettings, this.navSettings, mapScale);
+        } else if (aisTarget instanceof SarTarget) {
+            targetGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
+        } else if (aisTarget instanceof AtoNTarget) {
+            targetGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
+        }
+        targetGraphic.project(getProjection());
     }
     
     /**

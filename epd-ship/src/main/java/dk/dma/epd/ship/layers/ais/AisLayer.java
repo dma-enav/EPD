@@ -23,9 +23,6 @@ import javax.swing.SwingUtilities;
 
 import net.jcip.annotations.ThreadSafe;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
@@ -43,15 +40,11 @@ import dk.dma.epd.common.prototype.layers.ais.AisTargetSelectionGraphic;
 import dk.dma.epd.common.prototype.layers.ais.AtonTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
-import dk.dma.epd.common.prototype.layers.ais.SarTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
-import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetTriangle;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
-import dk.dma.epd.common.prototype.settings.AisSettings;
-import dk.dma.epd.common.prototype.settings.NavSettings;
 import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -69,7 +62,6 @@ import dk.dma.epd.ship.ownship.OwnShipHandler;
 @ThreadSafe
 public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AisLayer.class);
     private static final long serialVersionUID = 1L;
 
     private OwnShipHandler ownShipHandler;
@@ -86,8 +78,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 
     private volatile long selectedMMSI = -1;
     private volatile boolean showLabels;
-    private final AisSettings aisSettings = EPDShip.getInstance().getSettings().getAisSettings();
-    private final NavSettings navSettings = EPDShip.getInstance().getSettings().getNavSettings();
 
     private TopPanel topPanel;
 
@@ -204,76 +194,33 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 
     @Override
     public void targetUpdated(AisTarget aisTarget) {
+        // Let super class manage the graphics map and list by invoking the super implementation of this method
+        super.targetUpdated(aisTarget);
+        // Sanity check
         if (aisTarget == null) {
             return;
         }
 
         long mmsi = aisTarget.getMmsi();
 
-        TargetGraphic targetGraphic = this.getTargetGraphic(mmsi);
-        float mapScale = (this.getProjection() == null) ? 0 : this.getProjection().getScale();
-
-        if (aisTarget.isGone()) {
-            if (targetGraphic != null) {
-                // Remove target from map of graphics + graphics list
-                this.removeTargetGraphic(mmsi);
-                if (mmsi == selectedMMSI) {
-                    removeSelection();
-                }
-            }
-            return;
+        if (aisTarget.isGone() && mmsi == selectedMMSI) {
+            // Clear selection if selected target was the target that is now gone.
+            removeSelection();
         }
-
-        // Create and insert
-        if (targetGraphic == null) {
-            if (aisTarget instanceof VesselTarget) {
-                targetGraphic = new VesselTargetGraphic(showLabels, this);
-            } else if (aisTarget instanceof SarTarget) {
-                targetGraphic = new SarTargetGraphic();
-            } else if (aisTarget instanceof AtoNTarget) {
-                targetGraphic = new AtonTargetGraphic();
-            } else {
-                LOG.error("Unknown target type");
-                return;
-            }
-            // add to map of graphics + graphics list
-            this.addTargetGraphic(mmsi, targetGraphic);
+        else if (mmsi == selectedMMSI) {
+            // Update selection if MMSI of updated target matches MMSI of selected target.
+            updateSelection(aisTarget, false);
         }
-
-        if (aisTarget instanceof VesselTarget) {
-            // Maybe we would like to force redraw
-            VesselTarget vesselTarget = (VesselTarget) aisTarget;
-
-            VesselTargetGraphic vesselTargetGraphic = (VesselTargetGraphic) targetGraphic;
-
-            if (this.currentZoomLevel == null) {
-                this.currentZoomLevel = ZoomLevel.getFromScale(mapScale);
-            }
-            vesselTargetGraphic.update(vesselTarget, aisSettings, navSettings, mapScale);
-            if (vesselTarget.getMmsi() == selectedMMSI) {
-                updateSelection(aisTarget, false);
-            }
-        } else if (aisTarget instanceof SarTarget) {
-            targetGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
-        } else if (aisTarget instanceof AtoNTarget) {
-            targetGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
+        
+        if (this.currentZoomLevel == null) {
+            float mapScale = (this.getProjection() == null) ? 0 : this.getProjection().getScale();
+            this.currentZoomLevel = ZoomLevel.getFromScale(mapScale);
         }
-
-        // Handle past track
-
-        targetGraphic.project(getProjection());
     }
 
     @Override
     public OMGraphicList prepare() {
         // long start = System.nanoTime();
-//        Iterator<TargetGraphic> it = targets.values().iterator();
-//
-//        while (it.hasNext()) {
-//            TargetGraphic target = it.next();
-//            target.setMarksVisible(getProjection(), aisSettings, navSettings);
-//        }
-
         synchronized (graphics) {
             graphics.project(getProjection());
         }
