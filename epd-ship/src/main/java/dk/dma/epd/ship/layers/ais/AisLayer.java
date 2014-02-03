@@ -18,9 +18,6 @@ package dk.dma.epd.ship.layers.ais;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.SwingUtilities;
 
@@ -80,8 +77,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     private AisTargetInfoPanel aisTargetInfoPanel = new AisTargetInfoPanel();
     private SarTargetInfoPanel sarTargetInfoPanel = new SarTargetInfoPanel();
     private final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
-
-    private Map<Long, TargetGraphic> targets = new ConcurrentHashMap<>();
 
     // Only accessed in event dispatch thread
     private OMGraphic closest;
@@ -215,19 +210,13 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 
         long mmsi = aisTarget.getMmsi();
 
-        TargetGraphic targetGraphic = targets.get(mmsi);
+        TargetGraphic targetGraphic = this.getTargetGraphic(mmsi);
         float mapScale = (this.getProjection() == null) ? 0 : this.getProjection().getScale();
 
         if (aisTarget.isGone()) {
-
             if (targetGraphic != null) {
-                // Remove target
-                // LOG.info("Target has gone: " + mmsi);
-                targets.remove(mmsi);
-                synchronized (graphics) {
-                    graphics.remove(targetGraphic);
-                }
-
+                // Remove target from map of graphics + graphics list
+                this.removeTargetGraphic(mmsi);
                 if (mmsi == selectedMMSI) {
                     removeSelection();
                 }
@@ -247,10 +236,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
                 LOG.error("Unknown target type");
                 return;
             }
-            targets.put(mmsi, targetGraphic);
-            synchronized (graphics) {
-                graphics.add(targetGraphic);
-            }
+            // add to map of graphics + graphics list
+            this.addTargetGraphic(mmsi, targetGraphic);
         }
 
         if (aisTarget instanceof VesselTarget) {
@@ -266,7 +253,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             if (vesselTarget.getMmsi() == selectedMMSI) {
                 updateSelection(aisTarget, false);
             }
-
         } else if (aisTarget instanceof SarTarget) {
             targetGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
         } else if (aisTarget instanceof AtoNTarget) {
@@ -281,12 +267,12 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     @Override
     public OMGraphicList prepare() {
         // long start = System.nanoTime();
-        Iterator<TargetGraphic> it = targets.values().iterator();
-
-        while (it.hasNext()) {
-            TargetGraphic target = it.next();
-            target.setMarksVisible(getProjection(), aisSettings, navSettings);
-        }
+//        Iterator<TargetGraphic> it = targets.values().iterator();
+//
+//        while (it.hasNext()) {
+//            TargetGraphic target = it.next();
+//            target.setMarksVisible(getProjection(), aisSettings, navSettings);
+//        }
 
         synchronized (graphics) {
             graphics.project(getProjection());
@@ -487,15 +473,15 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         }
 
         this.showLabels = showLabels;
-        for (TargetGraphic value : targets.values()) {
-
-            if (value instanceof VesselTargetGraphic) {
-                ((VesselTargetGraphic) value).setShowNameLabel(showLabels);
-                targetUpdated(((VesselTargetGraphic) value).getVesselTarget());
+        synchronized(this.graphics) {
+            for (OMGraphic value : this.graphics) {
+                if (value instanceof VesselTargetGraphic) {
+                    ((VesselTargetGraphic) value).setShowNameLabel(showLabels);
+                    targetUpdated(((VesselTargetGraphic) value).getVesselTarget());
+                }
+                doPrepare();
             }
-            doPrepare();
         }
-
     }
 
     @Override
@@ -508,9 +494,11 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         this.currentZoomLevel = updatedZl;
         if (zoomChanged) {
             // only need to redraw vessels if zoom level changed
-            for (TargetGraphic tg : this.targets.values()) {
-                if (tg instanceof VesselTargetGraphic) {
-                    ((VesselTargetGraphic) tg).drawAccordingToScale(this.currentZoomLevel);
+            synchronized(this.graphics) {
+                for (OMGraphic tg : this.graphics) {
+                    if (tg instanceof VesselTargetGraphic) {
+                        ((VesselTargetGraphic) tg).drawAccordingToScale(this.currentZoomLevel);
+                    }
                 }
             }
             // force redraw
