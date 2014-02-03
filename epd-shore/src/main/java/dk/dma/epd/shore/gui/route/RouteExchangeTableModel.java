@@ -24,8 +24,8 @@ import javax.swing.table.AbstractTableModel;
 
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.service.RouteSuggestionData;
+import dk.dma.epd.shore.service.RouteSuggestionHandler;
 
 /**
  * Table model for Route Exchange Notifications
@@ -39,7 +39,7 @@ public class RouteExchangeTableModel extends AbstractTableModel {
     private static final String[] COLUMN_NAMES = { "ID", "MMSI", "Route Name",
             "Status" };
 
-    private EnavServiceHandler enavServiceHandler;
+    private RouteSuggestionHandler routeSuggestionHandler;
 
     private List<RouteSuggestionData> messages = new ArrayList<RouteSuggestionData>();
 
@@ -48,9 +48,9 @@ public class RouteExchangeTableModel extends AbstractTableModel {
      * 
      * @param msiHandler
      */
-    public RouteExchangeTableModel(EnavServiceHandler enavServiceHandler) {
+    public RouteExchangeTableModel(RouteSuggestionHandler routeSuggestionHandler) {
         super();
-        this.enavServiceHandler = enavServiceHandler;
+        this.routeSuggestionHandler = routeSuggestionHandler;
         updateMessages();
     }
 
@@ -246,7 +246,7 @@ public class RouteExchangeTableModel extends AbstractTableModel {
     public void updateMessages() {
         messages.clear();
 
-        for (Iterator<RouteSuggestionData> it = enavServiceHandler
+        for (Iterator<RouteSuggestionData> it = routeSuggestionHandler
                 .getRouteSuggestions().values().iterator(); it.hasNext();) {
             messages.add(it.next());
         }

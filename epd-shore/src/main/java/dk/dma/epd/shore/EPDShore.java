@@ -43,6 +43,7 @@ import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.Bootstrap;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.enavcloud.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
@@ -62,9 +63,10 @@ import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.gui.utils.StaticImages;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.route.RouteManager;
-import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.service.MaritimeCloudService;
 import dk.dma.epd.shore.service.MonaLisaRouteOptimization;
-import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
+import dk.dma.epd.shore.service.RouteSuggestionHandler;
+import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.services.shore.ShoreServices;
 import dk.dma.epd.shore.settings.EPDSensorSettings;
 import dk.dma.epd.shore.settings.EPDSettings;
@@ -85,7 +87,6 @@ public final class EPDShore extends EPD {
     private NmeaSensor aisSensor;
     private AisHandler aisHandler;
     private MsiHandler msiHandler;
-    private StrategicRouteExchangeHandler strategicRouteHandler;
     private AisReader aisReader;
     private ShoreServicesCommon shoreServicesCommon;
     private StaticImages staticImages;
@@ -95,7 +96,12 @@ public final class EPDShore extends EPD {
     
     private RouteManager routeManager;
     private VoyageManager voyageManager;
-    private EnavServiceHandler enavServiceHandler;
+    
+    // Maritime Cloud services
+    private MaritimeCloudService maritimeCloudService;
+    private StrategicRouteHandler strategicRouteHandler;
+    private RouteSuggestionHandler routeSuggestionHandler;
+    private IntendedRouteHandlerCommon intendedRouteHandler;
 
     /**
      * Event dispatcher used to notify listeners of voyage changes.
@@ -198,15 +204,23 @@ public final class EPDShore extends EPD {
         monaLisaRouteExchange = new MonaLisaRouteOptimization();
         beanHandler.add(monaLisaRouteExchange);
         
-        // Create EnavServiceHandler
-        enavServiceHandler = new EnavServiceHandler(getSettings().getEnavSettings());
-        beanHandler.add(enavServiceHandler);
-        enavServiceHandler.start();
-
-        // Create Mona Lisa Handler;
-        strategicRouteHandler = new StrategicRouteExchangeHandler();
+        // Create Maritime Cloud service
+        maritimeCloudService = new MaritimeCloudService();
+        beanHandler.add(maritimeCloudService);
+        maritimeCloudService.start();
+        
+        // Create strategic route Handler;
+        strategicRouteHandler = new StrategicRouteHandler();
         beanHandler.add(strategicRouteHandler);
 
+        // Create intended route handler
+        intendedRouteHandler = new IntendedRouteHandlerCommon();
+        beanHandler.add(intendedRouteHandler);
+        
+        // Create the route suggestion handler
+        routeSuggestionHandler = new RouteSuggestionHandler();
+        beanHandler.add(routeSuggestionHandler);
+        
         // Create MSI handler
         msiHandler = new MsiHandler(getSettings().getEnavSettings());
         beanHandler.add(msiHandler);
@@ -280,11 +294,11 @@ public final class EPDShore extends EPD {
         return homePath;
     }
 
-    public EnavServiceHandler getEnavServiceHandler() {
-        return enavServiceHandler;
+    public RouteSuggestionHandler getRouteSuggestionHandler() {
+        return routeSuggestionHandler;
     }
     
-    public StrategicRouteExchangeHandler getStrategicRouteHandler() {
+    public StrategicRouteHandler getStrategicRouteHandler() {
         return strategicRouteHandler;
     }
 
@@ -323,7 +337,7 @@ public final class EPDShore extends EPD {
         }
         transponderFrame.shutdown();
 
-        enavServiceHandler.stop();
+        maritimeCloudService.stop();
 
 
         // Stop sensors
@@ -577,8 +591,8 @@ public final class EPDShore extends EPD {
             
         } else if (type == Type.CLOUD) {
             LOG.warn("Restarting all eNav Service");
-            enavServiceHandler.stop();
-            enavServiceHandler.start();
+            maritimeCloudService.stop();
+            maritimeCloudService.start();
         }
     }
     

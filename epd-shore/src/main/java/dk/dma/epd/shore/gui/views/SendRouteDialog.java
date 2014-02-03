@@ -53,7 +53,7 @@ import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.route.RouteManager;
-import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.service.RouteSuggestionHandler;
 
 public class SendRouteDialog extends ComponentFrame implements MouseListener,
         ActionListener {
@@ -91,7 +91,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
     private long mmsi = -1;
     private boolean loading;
 
-    private EnavServiceHandler enavServiceHandler;
+    private RouteSuggestionHandler routeSuggestionHandler;
 
     /**
      * Create the frame.
@@ -365,26 +365,18 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
 
     @Override
     public void mouseClicked(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseEntered(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseExited(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mousePressed(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -421,7 +413,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
             }
 
             try {
-                enavServiceHandler.sendRouteSuggestion(mmsi,
+                routeSuggestionHandler.sendRouteSuggestion(mmsi,
                         route.getFullRouteData(), senderTxtField.getText(),
                         messageTxtField.getText());
                 messageTxtField.setText("");
@@ -467,8 +459,8 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         // Remove duplicates
         List<String> mmsi = new ArrayList<String>();
 
-        for (int i = 0; i < enavServiceHandler.getRouteSuggestionServiceList().size(); i++) {
-            mmsi.add(enavServiceHandler.getRouteSuggestionServiceList().get(i).getId()
+        for (int i = 0; i < routeSuggestionHandler.getRouteSuggestionServiceList().size(); i++) {
+            mmsi.add(routeSuggestionHandler.getRouteSuggestionServiceList().get(i).getId()
                     .toString().split("//")[1]);
         }
 
@@ -477,7 +469,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         mmsi.clear();
         mmsi.addAll(hs);
 
-        if (enavServiceHandler.getRouteSuggestionServiceList().size() > 0) {
+        if (routeSuggestionHandler.getRouteSuggestionServiceList().size() > 0) {
             mmsiListComboBox.setEnabled(true);
             for (int i = 0; i < mmsi.size(); i++) {
                 mmsiListComboBox.addItem(mmsi.get(i));
@@ -525,8 +517,8 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
             routeManager = (RouteManager) obj;
         }
 
-        if (obj instanceof EnavServiceHandler) {
-            enavServiceHandler = (EnavServiceHandler) obj;
+        if (obj instanceof RouteSuggestionHandler) {
+            routeSuggestionHandler = (RouteSuggestionHandler) obj;
         }
 
     }

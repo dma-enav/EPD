@@ -24,7 +24,15 @@ import net.maritimecloud.net.service.spi.ServiceMessage;
 import dk.dma.enav.model.voyage.Route;
 
 /**
- * Defines the route suggestion maritime cloud service
+ * Maritime cloud service for exchanging routes suggestions from 
+ * a sea traffic control center (STCC) to ship.
+ * <p>
+ * Defines the service initiation point along with the following classes:
+ * <ul>
+ *   <li>{@linkplain RouteSuggestionStatus} status of the route suggestion.</li>
+ *   <li>{@linkplain RouteSuggestionMessage} Used for sending a suggested route from STCC to a ship.</li>
+ *   <li>{@linkplain RouteSuggestionReply} Used for sending a reply from a ship to the STCC.</li>
+ * </ul>
  */
 public class RouteSuggestionService {
     
@@ -33,7 +41,7 @@ public class RouteSuggestionService {
             RouteSuggestionMessage.class);
     
     /**
-     * Status of the suggested route
+     * Status of the route suggestion
      */
     public enum RouteSuggestionStatus {
         NOT_SENT, 
@@ -46,7 +54,88 @@ public class RouteSuggestionService {
     }
     
     /**
-     * Route suggestion reply class
+     * Used for sending a suggested route from STCC to a ship
+     */
+    public static class RouteSuggestionMessage extends
+            ServiceMessage<RouteSuggestionReply> {
+        private Route route;
+        private Date sent;
+        private String sender;
+        private String message;
+        private long id;
+        
+        /**
+         * Constructor
+         */
+        public RouteSuggestionMessage() {
+        }
+
+        /**
+         * Constructor
+         * 
+         * @param route the suggested route
+         * @param sender the sender
+         * @param message an additional message
+         */
+        public RouteSuggestionMessage(Route route, String sender, String message) {
+            this.route = requireNonNull(route);
+            this.sender = requireNonNull(sender);
+            this.id = requireNonNull(System.currentTimeMillis());
+            this.sent = requireNonNull(new Date());
+            this.message = requireNonNull(message);
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        /**
+         * @return the route
+         */
+        public Route getRoute() {
+            return route;
+        }
+        
+        public String getSender() {
+            return sender;
+        }
+
+        public Date getSent() {
+            return sent;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        /**
+         * @param route the route to set
+         */
+        public void setRoute(Route route) {
+            this.route = route;
+        }
+
+        public void setSender(String sender) {
+            this.sender = sender;
+        }
+
+        public void setSent(Date sent) {
+            this.sent = sent;
+        }
+
+        public long getId() {
+            return id;
+        }
+
+        public void setId(long id) {
+            this.id = id;
+        }
+        
+        
+    }
+
+    /**
+     * Used for sending a reply from a ship to the STCC
      */
     public static class RouteSuggestionReply extends ServiceMessage<Void> {
 
@@ -56,12 +145,20 @@ public class RouteSuggestionService {
         private long sendDate;
         private RouteSuggestionStatus status;
   
-
+        /**
+         * Constructor
+         */
         public RouteSuggestionReply() {
         }
 
         /**
-         * @param message
+         * Constructor
+         * 
+         * @param message a message
+         * @param id id of the original suggestion
+         * @param mmsi the MMSI of the vessel
+         * @param sendDate the send date
+         * @param status the reply status
          */
         public RouteSuggestionReply(String message, long id, long mmsi, long sendDate, RouteSuggestionStatus status) {
             this.message = message;
@@ -79,8 +176,7 @@ public class RouteSuggestionService {
         }
 
         /**
-         * @param message
-         *            the message to set
+         * @param message the message to set
          */
         public void setMessage(String message) {
             this.message = message;
@@ -117,86 +213,5 @@ public class RouteSuggestionService {
         public void setStatus(RouteSuggestionStatus status) {
             this.status = status;
         }
-        
-        
-        
-        
     }
-    
-    
-    /**
-     * Route suggestion message class
-     */
-    public static class RouteSuggestionMessage extends
-            ServiceMessage<RouteSuggestionReply> {
-        private Route route;
-        private Date sent;
-        private String sender;
-        private String message;
-        private long id;
-        
-
-        public RouteSuggestionMessage() {
-        }
-
-        public RouteSuggestionMessage(Route route, String sender, String message) {
-            this.route = requireNonNull(route);
-            this.sender = requireNonNull(sender);
-            this.id = requireNonNull(System.currentTimeMillis());
-            this.sent = requireNonNull(new Date());
-            this.message = requireNonNull(message);
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        /**
-         * @return the route
-         */
-        public Route getRoute() {
-            return route;
-        }
-
-        
-        
-        public String getSender() {
-            return sender;
-        }
-
-        public Date getSent() {
-            return sent;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-
-        /**
-         * @param route
-         *            the route to set
-         */
-        public void setRoute(Route route) {
-            this.route = route;
-        }
-
-        public void setSender(String sender) {
-            this.sender = sender;
-        }
-
-        public void setSent(Date sent) {
-            this.sent = sent;
-        }
-
-        public long getId() {
-            return id;
-        }
-
-        public void setId(long id) {
-            this.id = id;
-        }
-        
-        
-    }
-
 }

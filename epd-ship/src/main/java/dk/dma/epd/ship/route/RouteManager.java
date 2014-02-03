@@ -49,9 +49,8 @@ import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.route.strategic.ReceivedRoute;
 import dk.dma.epd.ship.route.strategic.ReceivedRoute.ReceivedRouteStatus;
-import dk.dma.epd.ship.service.EnavServiceHandler;
+import dk.dma.epd.ship.service.RouteSuggestionHandler;
 import dk.dma.epd.ship.service.intendedroute.ActiveRouteProvider;
-import dk.dma.epd.ship.service.intendedroute.IntendedRouteService;
 
 /**
  * Manager for handling a collection of routes and active route
@@ -63,9 +62,8 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
     private static final String ROUTES_FILE = EPD.getInstance().getHomePath().resolve(".routes").toString();
     private static final Logger LOG = LoggerFactory.getLogger(RouteManager.class);
 
-    private volatile EnavServiceHandler enavServiceHandler;
+    private volatile RouteSuggestionHandler routeSuggestionHandler;
     private volatile PntHandler pntHandler;
-    private volatile IntendedRouteService intendedRouteService;
     
     @GuardedBy("suggestedRoutes")
     private List<ReceivedRoute> suggestedRoutes = new LinkedList<>();    
@@ -77,14 +75,6 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
      */
     public RouteManager() {
         super();
-    }
-
-    /**
-     * Sets the intended route service
-     * @param intendedRouteService the intended route service
-     */
-    public void setIntendedRouteService(IntendedRouteService intendedRouteService) {
-        this.intendedRouteService = intendedRouteService;        
     }
 
     /**
@@ -313,17 +303,17 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
         case ACCEPTED:
             routeSuggestion.setStatus(ReceivedRouteStatus.ACCEPTED);
             acceptSuggested(routeSuggestion);
-            enavServiceHandler.sendRouteExchangeReply(RouteSuggestionStatus.RECEIVED_ACCEPTED, routeSuggestion.getId(), message);
+            routeSuggestionHandler.sendRouteExchangeReply(RouteSuggestionStatus.RECEIVED_ACCEPTED, routeSuggestion.getId(), message);
             break;
         case REJECTED:
             //Remove it
             routeSuggestion.setStatus(ReceivedRouteStatus.REJECTED);
-            enavServiceHandler.sendRouteExchangeReply(RouteSuggestionStatus.RECEIVED_REJECTED, routeSuggestion.getId(), message);
+            routeSuggestionHandler.sendRouteExchangeReply(RouteSuggestionStatus.RECEIVED_REJECTED, routeSuggestion.getId(), message);
             break;
         case NOTED:
             //Do nothing
             routeSuggestion.setStatus(ReceivedRouteStatus.NOTED);
-            enavServiceHandler.sendRouteExchangeReply(RouteSuggestionStatus.RECEIVED_NOTED, routeSuggestion.getId(), message);
+            routeSuggestionHandler.sendRouteExchangeReply(RouteSuggestionStatus.RECEIVED_NOTED, routeSuggestion.getId(), message);
             break;
         default:
             break;
@@ -423,8 +413,8 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
         if (obj instanceof RouteSuggestionDialog) {
             routeSuggestionDialog = (RouteSuggestionDialog) obj;
         }
-        if (obj instanceof EnavServiceHandler) {
-            enavServiceHandler = (EnavServiceHandler) obj;
+        if (obj instanceof RouteSuggestionHandler) {
+            routeSuggestionHandler = (RouteSuggestionHandler) obj;
         }
     }
 
@@ -438,16 +428,4 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
         }
         super.findAndUndo(obj);
     }
-    
-    /**************************************/
-    /** Thread operations                **/
-    /**************************************/
-
-    /**
-     * Called periodically by the thread if there is an active route
-     */
-    @Override
-    protected void periodicActiveRouteOperation() {        
-        intendedRouteService.broadcastIntendedRoute();
-    }
-}
+ }

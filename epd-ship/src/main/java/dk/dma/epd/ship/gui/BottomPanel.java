@@ -39,7 +39,7 @@ import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.ais.AisHandler;
-import dk.dma.epd.ship.service.EnavServiceHandler;
+import dk.dma.epd.ship.service.MaritimeCloudService;
 
 /**
  * Panel shown below the chart
@@ -52,7 +52,7 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
     private ShoreServicesCommon shoreServices;
     private AisHandler aisHandler;
     private PntHandler pntHandler;
-    private EnavServiceHandler enavServiceHandler;
+    private MaritimeCloudService maritimeCloudService;
     private StatusLabel pntStatus;
     private StatusLabel aisStatus;
     private StatusLabel shoreServiceStatus;
@@ -133,9 +133,9 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
             shoreServices = (ShoreServicesCommon) obj;
             statusComponents.add(shoreServices);
         }
-        if (obj instanceof EnavServiceHandler) {
-            enavServiceHandler = (EnavServiceHandler) obj;
-            statusComponents.add(enavServiceHandler);
+        if (obj instanceof MaritimeCloudService) {
+            maritimeCloudService = (MaritimeCloudService) obj;
+            statusComponents.add(maritimeCloudService);
         }
 
     }
@@ -186,8 +186,8 @@ public class BottomPanel extends OMComponentPanel implements MouseListener, Runn
         if (shoreServices != null) {
             shoreServiceStatus.updateStatus(shoreServices);
         }
-        if (enavServiceHandler != null) {
-            cloudStatus.updateStatus(enavServiceHandler);
+        if (maritimeCloudService != null) {
+            cloudStatus.updateStatus(maritimeCloudService);
         }
     }
 

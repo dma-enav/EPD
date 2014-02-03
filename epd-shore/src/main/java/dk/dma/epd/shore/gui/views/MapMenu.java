@@ -56,7 +56,7 @@ import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.layers.voyage.VoyagePlanInfoPanel;
 import dk.dma.epd.shore.route.RouteManager;
-import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
+import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.voyage.Voyage;
 
 /**
@@ -101,7 +101,7 @@ public class MapMenu extends MapMenuCommon {
     private VoyageLayer voyageLayer;
 
     private AisLayer aisLayer;
-    private StrategicRouteExchangeHandler strategicRouteHandler;
+    private StrategicRouteHandler strategicRouteHandler;
 
     // private NogoHandler nogoHandler;
 
@@ -231,7 +231,7 @@ public class MapMenu extends MapMenuCommon {
         sendRouteToShip.setMSSI(vesselTarget.getMmsi());
         sendRouteToShip.setSendRouteDialog(EPDShore.getInstance().getMainFrame()
                 .getSendRouteDialog());
-        sendRouteToShip.setEnabled(EPDShore.getInstance().getEnavServiceHandler()
+        sendRouteToShip.setEnabled(EPDShore.getInstance().getRouteSuggestionHandler()
                 .shipAvailableForRouteSuggestion(vesselTarget.getMmsi()));
 
         add(sendRouteToShip);
@@ -518,7 +518,7 @@ public class MapMenu extends MapMenuCommon {
         voyageRenegotiate.setAisHandler(aisHandler);
         voyageRenegotiate.setStrategicRouteHandler(strategicRouteHandler);
 
-        voyageRenegotiate.setEnabled(EPDShore.getInstance().getEnavServiceHandler()
+        voyageRenegotiate.setEnabled(EPDShore.getInstance().getStrategicRouteHandler()
                 .shipAvailableForStrategicRouteTransaction(mmsi)
                 && strategicRouteHandler.getStrategicNegotiationData().containsKey(
                         transactionID));
@@ -632,8 +632,8 @@ public class MapMenu extends MapMenuCommon {
         if (obj instanceof AisLayer) {
             aisLayer = (AisLayer) obj;
         }
-        if (obj instanceof StrategicRouteExchangeHandler) {
-            strategicRouteHandler = (StrategicRouteExchangeHandler) obj;
+        if (obj instanceof StrategicRouteHandler) {
+            strategicRouteHandler = (StrategicRouteHandler) obj;
         }
         if (obj instanceof VoyageLayer) {
             voyageLayer = (VoyageLayer) obj;

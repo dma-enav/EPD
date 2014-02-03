@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.strategicRouteExchange;
+package dk.dma.epd.shore.gui.route.strategic;
 
 import java.awt.Color;
 
@@ -29,7 +29,7 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRout
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 
-public class StrategicRouteExchangeNotificationInternalPanel extends JPanel {
+public class StrategicRouteNotificationInternalPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     JLabel transactionIDText;
@@ -49,7 +49,7 @@ public class StrategicRouteExchangeNotificationInternalPanel extends JPanel {
 
     JTabbedPane tabbedPane;
 
-    public StrategicRouteExchangeNotificationInternalPanel() {
+    public StrategicRouteNotificationInternalPanel() {
         setLayout(null);
 
         JLabel lblTransactionId = new JLabel("Transaction ID:");

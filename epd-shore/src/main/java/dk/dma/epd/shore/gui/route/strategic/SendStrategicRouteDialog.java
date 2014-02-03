@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.strategicRouteExchange;
+package dk.dma.epd.shore.gui.route.strategic;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -49,7 +49,7 @@ import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.gui.views.JMapFrame;
-import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
+import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
@@ -78,7 +78,7 @@ public class SendStrategicRouteDialog extends ComponentFrame implements MouseLis
     // private EnavServiceHandler enavServiceHandler;
     // private VoyageManager voyageManager;
     private boolean renegotiate;
-    private StrategicRouteExchangeHandler strategicRouteExchangeHandler;
+    private StrategicRouteHandler strategicRouteHandler;
 
     private JLabel lblRoutenamelbl;
     private JLabel lblShipnamecallsignlbl;
@@ -323,7 +323,7 @@ public class SendStrategicRouteDialog extends ComponentFrame implements MouseLis
                 replyStatus = StrategicRouteService.StrategicRouteStatus.AGREED;
             }
 
-            strategicRouteExchangeHandler.sendReply(voyage.getId(), textArea.getText(),
+            strategicRouteHandler.sendStrategicRouteReply(voyage.getId(), textArea.getText(),
                     System.currentTimeMillis(), replyStatus, voyage.getRoute()
                             .getFullRouteData(), this.renegotiate);
 
@@ -390,8 +390,8 @@ public class SendStrategicRouteDialog extends ComponentFrame implements MouseLis
             aisHandler = (AisHandler) obj;
 
         }
-        if (obj instanceof StrategicRouteExchangeHandler) {
-            strategicRouteExchangeHandler = (StrategicRouteExchangeHandler) obj;
+        if (obj instanceof StrategicRouteHandler) {
+            strategicRouteHandler = (StrategicRouteHandler) obj;
         }
         if (obj instanceof VoyageManager) {
             // voyageManager = (VoyageManager) obj;

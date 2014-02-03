@@ -59,7 +59,7 @@ import dk.dma.epd.shore.layers.route.RouteLayer;
 import dk.dma.epd.shore.layers.routeedit.RouteEditLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
-import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
+import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.settings.EPDMapSettings;
 import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
 
@@ -76,7 +76,7 @@ public class ChartPanel extends CommonChartPanel {
     private MsiHandler msiHandler;
 
     private GeneralLayer generalLayer;
-    private StrategicRouteExchangeHandler strategicRouteHandler;
+    private StrategicRouteHandler strategicRouteHandler;
 
     private NavigationMouseMode mapNavMouseMode;
     private DragMouseMode dragMouseMode;

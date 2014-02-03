@@ -74,8 +74,10 @@ import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.risk.RiskHandler;
 import dk.dma.epd.ship.route.RouteManager;
-import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
-import dk.dma.epd.ship.service.EnavServiceHandler;
+import dk.dma.epd.ship.route.strategic.StrategicRouteHandler;
+import dk.dma.epd.ship.service.MaritimeCloudService;
+import dk.dma.epd.ship.service.RouteSuggestionHandler;
+import dk.dma.epd.ship.service.intendedroute.IntendedRouteHandler;
 import dk.dma.epd.ship.service.shore.ShoreServices;
 import dk.dma.epd.ship.settings.EPDSensorSettings;
 import dk.dma.epd.ship.settings.EPDSettings;
@@ -102,14 +104,18 @@ public final class EPDShip extends EPD {
     private RiskHandler riskHandler;
     private RouteManager routeManager;
     private ShoreServicesCommon shoreServices;
-    private StrategicRouteExchangeHandler strategicRouteExchangeHandler;
     private MonaLisaRouteOptimization monaLisaRouteExchange;
     private MsiHandler msiHandler;
     private NogoHandler nogoHandler;
-    private EnavServiceHandler enavServiceHandler;
     private DynamicNogoHandler dynamicNoGoHandler;
     private TransponderFrame transponderFrame;
     private VoyageEventDispatcher voyageEventDispatcher;
+    
+    // Maritime Cloud services
+    private MaritimeCloudService maritimeCloudService;
+    private IntendedRouteHandler intendedRouteHandler;
+    private RouteSuggestionHandler routeSuggestionHandler;
+    private StrategicRouteHandler strategicRouteHandler;
 
     /**
      * Starts the program by initializing the various threads and spawning the main GUI
@@ -228,17 +234,22 @@ public final class EPDShip extends EPD {
         dynamicNoGoHandler = new DynamicNogoHandler(getSettings().getEnavSettings());
         mapHandler.add(dynamicNoGoHandler);
 
-        // Create EnavServiceHandler
-        enavServiceHandler = new EnavServiceHandler(getSettings().getEnavSettings());
-        mapHandler.add(enavServiceHandler);
-        enavServiceHandler.start();
+        // Create Maritime Cloud service
+        maritimeCloudService = new MaritimeCloudService();
+        mapHandler.add(maritimeCloudService);
+        maritimeCloudService.start();
+        
+        strategicRouteHandler = new StrategicRouteHandler();
+        mapHandler.add(strategicRouteHandler);
 
-        strategicRouteExchangeHandler = new StrategicRouteExchangeHandler();
-        mapHandler.add(strategicRouteExchangeHandler);
-        // // Create cloud handler
-        // enavCloudHandler = new EnavCloudHandler(settings.getEnavSettings());
-        // mapHandler.add(enavCloudHandler);
-
+        // Create intended route handler
+        intendedRouteHandler = new IntendedRouteHandler();
+        mapHandler.add(intendedRouteHandler);
+        
+        // Create the route suggestion handler
+        routeSuggestionHandler = new RouteSuggestionHandler();
+        mapHandler.add(routeSuggestionHandler);
+        
         // Create voyage event dispatcher
         voyageEventDispatcher = new VoyageEventDispatcher();
 
@@ -462,8 +473,8 @@ public final class EPDShip extends EPD {
         
         } else if (type == Type.CLOUD) {
             LOG.warn("Restarting all eNav Service");
-            enavServiceHandler.stop();
-            enavServiceHandler.start();
+            maritimeCloudService.stop();
+            maritimeCloudService.start();
         }
     }
     
@@ -673,7 +684,7 @@ public final class EPDShip extends EPD {
         transponderFrame.shutdown();
 
         // Stop the Maritime Cloud connection
-        enavServiceHandler.stop();
+        maritimeCloudService.stop();
 
         // Stop sensors
         stopSensors();
@@ -762,8 +773,8 @@ public final class EPDShip extends EPD {
         return monaLisaRouteExchange;
     }
 
-    public EnavServiceHandler getEnavServiceHandler() {
-        return enavServiceHandler;
+    public MaritimeCloudService getMaritimeCloudService() {
+        return maritimeCloudService;
     }
 
     public double elapsed(long start) {
@@ -778,8 +789,8 @@ public final class EPDShip extends EPD {
     /**
      * @return the monaLisaHandler
      */
-    public StrategicRouteExchangeHandler getStrategicRouteExchangeHandler() {
-        return strategicRouteExchangeHandler;
+    public StrategicRouteHandler getStrategicRouteHandler() {
+        return strategicRouteHandler;
     }
 
     /**

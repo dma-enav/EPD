@@ -53,18 +53,21 @@ import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.msi.MsiTableModel;
 import dk.dma.epd.shore.gui.route.RouteExchangeTableModel;
-import dk.dma.epd.shore.gui.views.strategicRouteExchange.StrategicRouteExchangeNotificationPanel;
-import dk.dma.epd.shore.gui.views.strategicRouteExchange.StrategicRouteExchangeTableModel;
-import dk.dma.epd.shore.service.EnavServiceHandler;
-import dk.dma.epd.shore.service.RouteExchangeListener;
-import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
-import dk.dma.epd.shore.service.StrategicRouteExchangeListener;
+import dk.dma.epd.shore.gui.route.strategic.StrategicRouteNotificationPanel;
+import dk.dma.epd.shore.gui.route.strategic.StrategicRouteTableModel;
+import dk.dma.epd.shore.service.RouteSuggestionHandler;
+import dk.dma.epd.shore.service.RouteSuggestionHandler.RouteSuggestionListener;
+import dk.dma.epd.shore.service.StrategicRouteHandler;
+import dk.dma.epd.shore.service.StrategicRouteHandler.StrategicRouteListener;
 import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
 public class NotificationCenter extends ComponentFrame implements
-        ListSelectionListener, ActionListener, IMsiUpdateListener,
-        RouteExchangeListener, StrategicRouteExchangeListener {
+        ListSelectionListener, 
+        ActionListener, 
+        IMsiUpdateListener,
+        RouteSuggestionListener, 
+        StrategicRouteListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -96,7 +99,7 @@ public class NotificationCenter extends ComponentFrame implements
     private MsiTableModel msiTableModel;
 
     private RouteExchangeTableModel routeTableModel;
-    private StrategicRouteExchangeTableModel strategicRouteTableModel = new StrategicRouteExchangeTableModel();
+    private StrategicRouteTableModel strategicRouteTableModel = new StrategicRouteTableModel();
 
     private JPanel msiPanelLeft;
     private JPanel routePanelLeft;
@@ -114,11 +117,11 @@ public class NotificationCenter extends ComponentFrame implements
 
     private MSINotificationPanel msiPanel;
     private RouteExchangeNotificationPanel routePanel;
-    private StrategicRouteExchangeNotificationPanel strategicRoutePanel;
+    private StrategicRouteNotificationPanel strategicRoutePanel;
 
-    private EnavServiceHandler enavServiceHandler;
+    private RouteSuggestionHandler routeSuggestionHandler;
     
-    private StrategicRouteExchangeHandler strategicRouteExchangeHandler;
+    private StrategicRouteHandler strategicRouteHandler;
     
     private AisHandler aisHandler;
     
@@ -386,7 +389,7 @@ public class NotificationCenter extends ComponentFrame implements
         routePanel.setVisible(false);
 
         // Add notification panel
-        strategicRoutePanel = new StrategicRouteExchangeNotificationPanel(this);
+        strategicRoutePanel = new StrategicRouteNotificationPanel(this);
         strategicRouteTable = strategicRoutePanel.getRouteTable();
 
         notificationContentPanel.add(strategicRoutePanel, gbc_panel);
@@ -483,7 +486,7 @@ public class NotificationCenter extends ComponentFrame implements
     }
     
     
-    public void showStrategicRouteExchangeMsg(int service, long msgId) {
+    public void showStrategicRouteMsg(int service, long msgId) {
         
         setNotificationView(service);
 
@@ -531,12 +534,12 @@ public class NotificationCenter extends ComponentFrame implements
             topBar.addMouseMotionListener(mml);
         } else
 
-        if (obj instanceof EnavServiceHandler) {
-            enavServiceHandler = (EnavServiceHandler) obj;
-            enavServiceHandler.addRouteExchangeListener(this);
+        if (obj instanceof RouteSuggestionHandler) {
+            routeSuggestionHandler = (RouteSuggestionHandler) obj;
+            routeSuggestionHandler.addRouteSuggestionListener(this);
             
-            routePanel.setEnavServiceHandler(enavServiceHandler);
-            routeTableModel = new RouteExchangeTableModel(enavServiceHandler);
+            routePanel.setRouteSuggestionHandler(routeSuggestionHandler);
+            routeTableModel = new RouteExchangeTableModel(routeSuggestionHandler);
             routeTable.setModel(routeTableModel);
             routePanel.initTable();
             
@@ -547,13 +550,13 @@ public class NotificationCenter extends ComponentFrame implements
             strategicRoutePanel.setVoyageManager((VoyageManager) obj);
         }
         
-        if (obj instanceof StrategicRouteExchangeHandler){
-            strategicRouteExchangeHandler = (StrategicRouteExchangeHandler) obj;
-            strategicRouteExchangeHandler.addStrategicRouteExchangeListener(this);
-            strategicRoutePanel.setStrategicRouteExchangeHandler(strategicRouteExchangeHandler);
+        if (obj instanceof StrategicRouteHandler){
+            strategicRouteHandler = (StrategicRouteHandler) obj;
+            strategicRouteHandler.addStrategicRouteListener(this);
+            strategicRoutePanel.setStrategicRouteHandler(strategicRouteHandler);
             
             
-            strategicRouteTableModel.setStrategicRouteExchangeHandler(strategicRouteExchangeHandler);
+            strategicRouteTableModel.setStrategicRouteHandler(strategicRouteHandler);
             strategicRouteTable.setModel(strategicRouteTableModel);
             strategicRoutePanel.initTable();
             
@@ -573,14 +576,11 @@ public class NotificationCenter extends ComponentFrame implements
 
     @Override
     public void actionPerformed(ActionEvent arg0) {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void valueChanged(ListSelectionEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     /**
@@ -700,7 +700,7 @@ public class NotificationCenter extends ComponentFrame implements
             routePanel.readMessage(routeTable.getSelectedRow());
         }
         try {
-            setMessages("Route", enavServiceHandler.getUnacknowledgedRouteSuggestions());
+            setMessages("Route", routeSuggestionHandler.getUnacknowledgedRouteSuggestions());
 
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -715,7 +715,7 @@ public class NotificationCenter extends ComponentFrame implements
             strategicRoutePanel.readMessage(strategicRouteTable.getSelectedRow());
         }
         try {
-            setMessages("StrategicRoute", strategicRouteExchangeHandler.getUnHandled());
+            setMessages("StrategicRoute", strategicRouteHandler.getUnHandled());
 
         } catch (InterruptedException e) {
             e.printStackTrace();

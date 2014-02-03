@@ -39,8 +39,8 @@ import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.MapMenu;
-import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
-import dk.dma.epd.shore.service.StrategicRouteExchangeListener;
+import dk.dma.epd.shore.service.StrategicRouteHandler;
+import dk.dma.epd.shore.service.StrategicRouteHandler.StrategicRouteListener;
 import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
@@ -51,13 +51,15 @@ import dk.dma.epd.shore.voyage.VoyageUpdateListener;
  * Layer for showing routes
  */
 public class VoyageLayer extends EPDLayerCommon implements
-        VoyageUpdateListener, StrategicRouteExchangeListener,
-        IAisTargetListener, ProjectionListener {
+        VoyageUpdateListener, 
+        StrategicRouteListener,
+        IAisTargetListener, 
+        ProjectionListener {
 
     private static final long serialVersionUID = 1L;
 
     private VoyageManager voyageManager;
-    private StrategicRouteExchangeHandler strategicRouteHandler;
+    private StrategicRouteHandler strategicRouteHandler;
     private ChartPanel chartPanel;
     private AisHandler aisHandler;
 
@@ -97,9 +99,9 @@ public class VoyageLayer extends EPDLayerCommon implements
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
         
-        if (obj instanceof StrategicRouteExchangeHandler) {
-            strategicRouteHandler = (StrategicRouteExchangeHandler) obj;
-            strategicRouteHandler.addStrategicRouteExchangeListener(this);
+        if (obj instanceof StrategicRouteHandler) {
+            strategicRouteHandler = (StrategicRouteHandler) obj;
+            strategicRouteHandler.addStrategicRouteListener(this);
         }
         if (obj instanceof AisHandler) {
             aisHandler = (AisHandler) obj;
@@ -264,7 +266,7 @@ public class VoyageLayer extends EPDLayerCommon implements
     }
 
     /**
-     * Called by the {@linkplain StrategicRouteExchangeHandler} upon updates
+     * Called by the {@linkplain StrategicRouteHandler} upon updates
      * to the strategic routes
      */
     @Override

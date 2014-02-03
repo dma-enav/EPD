@@ -22,7 +22,7 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
+import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.voyage.Voyage;
 
@@ -31,7 +31,7 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
     private long transactionid;
     private AisHandlerCommon aisHandler;
     private static final long serialVersionUID = 1L;
-    private StrategicRouteExchangeHandler strategicRouteHandler;
+    private StrategicRouteHandler strategicRouteHandler;
 
     /**
      * @param transactionid
@@ -58,7 +58,7 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
     /**
      * @param strategicRouteHandler the strategicRouteHandler to set
      */
-    public void setStrategicRouteHandler(StrategicRouteExchangeHandler strategicRouteHandler) {
+    public void setStrategicRouteHandler(StrategicRouteHandler strategicRouteHandler) {
         this.strategicRouteHandler = strategicRouteHandler;
     }
 
@@ -104,7 +104,7 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
 
         Route originalRoute = new Route(message.getRouteMessage().get(0).getRoute());
         
-        EPDShore.getInstance().getMainFrame().addStrategicRouteExchangeHandlingWindow(originalRoute,
+        EPDShore.getInstance().getMainFrame().addStrategicRouteHandlingWindow(originalRoute,
                 shipName, voyage, true);
     }
     }
