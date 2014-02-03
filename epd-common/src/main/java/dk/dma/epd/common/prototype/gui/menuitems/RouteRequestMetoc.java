@@ -32,9 +32,6 @@ public class RouteRequestMetoc extends RouteMenuItem<RouteManagerCommon> {
     @Override
     public void doAction() {
         Route route = routeManager.getRoute(routeIndex);
-        if (routeManager.isRouteActive()) {
-            route = routeManager.getActiveRoute();
-        }
         MetocRequestDialog.requestMetoc(EPD.getInstance().getMainFrame(), routeManager, route);        
     }
 }

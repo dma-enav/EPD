@@ -26,9 +26,6 @@ public class RouteShowMetocToggle extends RouteMenuItem<RouteManagerCommon> {
     @Override
     public void doAction() {
         Route route = routeManager.getRoute(routeIndex);
-        if (routeManager.isActiveRoute(routeIndex)) {
-            route = routeManager.getActiveRoute();
-        }
         if(route.getRouteMetocSettings().isShowRouteMetoc()){
             route.getRouteMetocSettings().setShowRouteMetoc(false);
         } else {

@@ -99,11 +99,7 @@ public class RouteMetocDialog extends JDialog implements ActionListener, FocusLi
         super(parent, "Route METOC properties", Dialog.ModalityType.APPLICATION_MODAL);
         
         this.routeManager = routeManager;
-        if (routeManager.isActiveRoute(routeId)) {
-            route = routeManager.getActiveRoute();
-        } else {
-            route = routeManager.getRoute(routeId);
-        }
+        this.route = routeManager.getRoute(routeId);
         
         setSize(270, 517);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
