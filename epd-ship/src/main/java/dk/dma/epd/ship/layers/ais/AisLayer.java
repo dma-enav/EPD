@@ -44,7 +44,6 @@ import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetTriangle;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
-import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.MainFrame;
@@ -79,8 +78,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     private volatile boolean showLabels;
 
     private TopPanel topPanel;
-
-    private ZoomLevel currentZoomLevel;
 
     public AisLayer(int redrawIntervalMillis) {
         super(redrawIntervalMillis);
@@ -209,11 +206,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         else if (mmsi == selectedMMSI) {
             // Update selection if MMSI of updated target matches MMSI of selected target.
             updateSelection(aisTarget, false);
-        }
-        
-        if (this.currentZoomLevel == null) {
-            float mapScale = (this.getProjection() == null) ? 0 : this.getProjection().getScale();
-            this.currentZoomLevel = ZoomLevel.getFromScale(mapScale);
         }
     }
 
