@@ -35,7 +35,7 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
-import dk.dma.epd.shore.gui.views.strategicRouteExchange.SendStrategicRouteDialog;
+import dk.dma.epd.shore.gui.route.strategic.SendStrategicRouteDialog;
 import dk.dma.epd.shore.settings.EPDGuiSettings;
 import dk.dma.epd.shore.settings.EPDMapSettings;
 import dk.dma.epd.shore.settings.Workspace;
@@ -129,7 +129,7 @@ public class MainFrame extends MainFrameCommon {
         new ThreadedMapCreator(this).run();
     }
 
-    public void addStrategicRouteExchangeHandlingWindow(Route originalRoute, String shipName,
+    public void addStrategicRouteHandlingWindow(Route originalRoute, String shipName,
             Voyage voyage, boolean renegotiate) {
         new ThreadedMapCreator(this, shipName, voyage, originalRoute,
                 renegotiate).run();

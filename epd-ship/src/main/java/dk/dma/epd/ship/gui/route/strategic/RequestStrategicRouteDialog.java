@@ -41,7 +41,8 @@ import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.layers.route.RouteLayer;
-import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
+import dk.dma.epd.ship.route.strategic.StrategicRouteHandler;
+import dk.dma.epd.ship.route.strategic.StrategicRouteNegotiationData;
 
 public class RequestStrategicRouteDialog extends JDialog implements ActionListener {
 
@@ -70,7 +71,7 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
 
     private JTextArea routeMessage;
     // private EnavServiceHandler enavServiceHandler;
-    private StrategicRouteExchangeHandler strategicRouteExchangeHandler;
+    private StrategicRouteHandler strategicRouteHandler;
     RouteLayer routeLayer;
 
     private boolean isActive;
@@ -111,7 +112,7 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
 
         setResizable(false);
 
-        strategicRouteExchangeHandler = EPDShip.getInstance().getStrategicRouteExchangeHandler();
+        strategicRouteHandler = EPDShip.getInstance().getStrategicRouteHandler();
 
         initGui();
 
@@ -371,13 +372,13 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
             // Cancel request
             if (isActive) {
                 setInActive();
-                strategicRouteExchangeHandler.cancelRouteRequest(transactionID);
+                strategicRouteHandler.cancelRouteRequest(transactionID);
                 this.setVisible(false);
             } else {
                 // Is not active and button pressed - when can this happen?
                 // its being acked?
                 setInActive();
-                strategicRouteExchangeHandler.sendAgreeMsg(transactionID,
+                strategicRouteHandler.sendAgreeMsg(transactionID,
                         chatMessages.getText());
                 this.setVisible(false);
 
@@ -390,14 +391,14 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
 
             System.out.println("btn accept");
 
-            strategicRouteExchangeHandler.sendReply(chatMessages.getText());
+            strategicRouteHandler.sendReply(chatMessages.getText());
             // this.setVisible(false);
             btnAccept.setText("Accept");
         }
         if (e.getSource() == btnReject) {
 
             // Send reject message
-            strategicRouteExchangeHandler.sendReject(chatMessages.getText());
+            strategicRouteHandler.sendReject(chatMessages.getText());
             this.setVisible(false);
 
         }
@@ -428,12 +429,12 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
 
     private String findChanges() {
 
-        Route originalRoute = new Route(strategicRouteExchangeHandler
-                .getStrategicRouteNegotiationData()
-                .get(transactionID)
+        StrategicRouteNegotiationData data = strategicRouteHandler
+                .getStrategicRouteNegotiationData(transactionID);
+        
+        Route originalRoute = new Route(data
                 .getRouteMessage()
-                .get(strategicRouteExchangeHandler.getStrategicRouteNegotiationData()
-                        .get(transactionID).getRouteMessage().size() - 1)
+                .get(data.getRouteMessage().size() - 1)
                 .getRoute());
 
         String changes = "";

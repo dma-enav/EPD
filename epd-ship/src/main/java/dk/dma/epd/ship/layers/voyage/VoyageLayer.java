@@ -43,7 +43,7 @@ import dk.dma.epd.common.prototype.model.voyage.VoyageUpdateEvent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.MapMenu;
-import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
+import dk.dma.epd.ship.route.strategic.StrategicRouteHandler;
 
 /**
  * Layer for showing voyages
@@ -59,7 +59,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
     private Route primaryRoute;
     private Route stccRoute;
     private Route modifiedSTCCRoute;
-    private StrategicRouteExchangeHandler strategicRouteHandler;
+    private StrategicRouteHandler strategicRouteHandler;
 
     private boolean dragging;
 
@@ -85,7 +85,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
     }
 
     /**
-     * Receives a route from the {@linkplain StrategicRouteExchangeHandler}
+     * Receives a route from the {@linkplain StrategicRouteHandler}
      * @param route the new route
      */
     public void startRouteNegotiation(Route route) {
@@ -191,8 +191,8 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
         
-        if (obj instanceof StrategicRouteExchangeHandler) {
-            strategicRouteHandler = (StrategicRouteExchangeHandler) obj;
+        if (obj instanceof StrategicRouteHandler) {
+            strategicRouteHandler = (StrategicRouteHandler) obj;
         }
     }
 
@@ -375,7 +375,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
     }
 
     /**
-     * Called by the {@link StrategicRouteExchangeHandler} when a route is accepted
+     * Called by the {@link StrategicRouteHandler} when a route is accepted
      */
     public void routeAccepted() {
         graphics.clear();
@@ -383,7 +383,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
     }
 
     /**
-     * Called by the {@link StrategicRouteExchangeHandler} when the route is locked for editing
+     * Called by the {@link StrategicRouteHandler} when the route is locked for editing
      */
     public void lockEditing() {
         // Draw only original and the recently sent one?
@@ -395,7 +395,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
     }
 
     /**
-     * Called by the {@link StrategicRouteExchangeHandler} to handle re-negotiation
+     * Called by the {@link StrategicRouteHandler} to handle re-negotiation
      */
     public void handleReNegotiation(StrategicRouteRequestReply reply,
             Route previousAcceptedRoute) {
@@ -437,7 +437,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
     }
 
     /**
-     * Called by the {@link StrategicRouteExchangeHandler} upon receiving a reply
+     * Called by the {@link StrategicRouteHandler} upon receiving a reply
      * @param reply the reply
      */
     public void handleReply(StrategicRouteRequestReply reply) {
@@ -481,7 +481,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
     }
 
     /**
-     * Called by the {@link StrategicRouteExchangeHandler} when cancelling a request
+     * Called by the {@link StrategicRouteHandler} when cancelling a request
      */
     public void cancelRequest() {
         stopRouteAnimated();

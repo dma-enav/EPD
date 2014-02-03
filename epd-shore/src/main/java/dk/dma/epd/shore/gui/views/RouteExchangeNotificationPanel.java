@@ -50,8 +50,8 @@ import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteExchangeTableModel;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
-import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.service.RouteSuggestionData;
+import dk.dma.epd.shore.service.RouteSuggestionHandler;
 
 public class RouteExchangeNotificationPanel extends JPanel {
 
@@ -96,7 +96,7 @@ public class RouteExchangeNotificationPanel extends JPanel {
 
     private JPanel rightPanel;
     private JPanel leftPanel;
-    private EnavServiceHandler enavServiceHandler;
+    private RouteSuggestionHandler routeSuggestionHandler;
 
     public RouteExchangeNotificationPanel() {
         GridBagConstraints gbc_scrollPane_2 = new GridBagConstraints();
@@ -391,7 +391,7 @@ public class RouteExchangeNotificationPanel extends JPanel {
                     RouteSuggestionData message = routeTableModel.getMessages()
                             .get(currentSelection);
 
-                    enavServiceHandler.setRouteSuggestionAcknowledged(message.getMmsi(),
+                    routeSuggestionHandler.setRouteSuggestionAcknowledged(message.getMmsi(),
                             message.getId());
                     routeTableModel.updateMessages();
                     but_read.setEnabled(false);
@@ -405,7 +405,7 @@ public class RouteExchangeNotificationPanel extends JPanel {
                     RouteSuggestionData message = routeTableModel.getMessages()
                             .get(currentSelection);
                     try {
-                        enavServiceHandler.sendRouteSuggestion(message
+                        routeSuggestionHandler.sendRouteSuggestion(message
                                 .getMmsi(), message.getOutgoingMsg().getRoute(), message.getOutgoingMsg().getSender(), message.getOutgoingMsg().getMessage());
                     } catch (InterruptedException e1) {
                         // TODO Auto-generated catch block
@@ -458,7 +458,7 @@ public class RouteExchangeNotificationPanel extends JPanel {
                     // routeTable.getSelectedRow();
                     routeTable.setRowSelectionInterval(0, 0);
 
-                    enavServiceHandler.removeSuggestion(message.getMmsi(),
+                    routeSuggestionHandler.removeSuggestion(message.getMmsi(),
                             message.getId());
                     routeTableModel.updateMessages();
 
@@ -488,8 +488,8 @@ public class RouteExchangeNotificationPanel extends JPanel {
         return routeTable;
     }
 
-    public void setEnavServiceHandler(EnavServiceHandler enavServiceHandler) {
-        this.enavServiceHandler = enavServiceHandler;
+    public void setRouteSuggestionHandler(RouteSuggestionHandler routeSuggestionHandler) {
+        this.routeSuggestionHandler = routeSuggestionHandler;
     }
     
     private class RouteExchangeRowListener implements ListSelectionListener {

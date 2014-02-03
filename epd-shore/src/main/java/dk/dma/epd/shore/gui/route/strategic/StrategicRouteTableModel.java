@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.strategicRouteExchange;
+package dk.dma.epd.shore.gui.route.strategic;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,19 +24,19 @@ import javax.swing.table.AbstractTableModel;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.ais.AisHandler;
-import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
+import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 
 /**
  * Table model for Route Exchange Notifications
  */
-public class StrategicRouteExchangeTableModel extends AbstractTableModel {
+public class StrategicRouteTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
 
     private static final String[] COLUMN_NAMES = { "Name", "Callsign",
             "Called", "Status" };
 
-    private StrategicRouteExchangeHandler strategicRouteExchangeHandler;
+    private StrategicRouteHandler strategicRouteHandler;
     private AisHandler aisHandler;
 
     private List<StrategicRouteNegotiationData> messages = new ArrayList<StrategicRouteNegotiationData>();
@@ -46,7 +46,7 @@ public class StrategicRouteExchangeTableModel extends AbstractTableModel {
      * 
      * @param msiHandler
      */
-    public StrategicRouteExchangeTableModel() {
+    public StrategicRouteTableModel() {
         super();
         updateMessages();
     }
@@ -55,8 +55,8 @@ public class StrategicRouteExchangeTableModel extends AbstractTableModel {
         this.aisHandler = aisHandler;
     }
     
-    public void setStrategicRouteExchangeHandler(StrategicRouteExchangeHandler strategicRouteExchangeHandler) {
-        this.strategicRouteExchangeHandler = strategicRouteExchangeHandler;
+    public void setStrategicRouteHandler(StrategicRouteHandler strategicRouteHandler) {
+        this.strategicRouteHandler = strategicRouteHandler;
     }
 
     /**
@@ -154,12 +154,12 @@ public class StrategicRouteExchangeTableModel extends AbstractTableModel {
      * Update messages
      */
     public void updateMessages() {
-        if (strategicRouteExchangeHandler != null){
+        if (strategicRouteHandler != null){
             
         
         messages.clear();
 
-        for (Iterator<StrategicRouteNegotiationData> it = strategicRouteExchangeHandler
+        for (Iterator<StrategicRouteNegotiationData> it = strategicRouteHandler
                 .getStrategicNegotiationData().values().iterator(); it.hasNext();) {
             messages.add(it.next());
         }

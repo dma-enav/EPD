@@ -57,8 +57,7 @@ import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.route.strategic.ReceivedRoute;
-import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
-import dk.dma.epd.ship.service.EnavServiceHandler;
+import dk.dma.epd.ship.route.strategic.StrategicRouteHandler;
 
 /**
  * Right click map menu
@@ -98,9 +97,8 @@ public class MapMenu extends MapMenuCommon {
     private OwnShipHandler ownShipHandler;
     private NogoHandler nogoHandler;
     private MouseDelegator mouseDelegator;
-    private EnavServiceHandler enavServiceHandler;
     private Point windowLocation;
-    private StrategicRouteExchangeHandler strategicRouteHandler;
+    private StrategicRouteHandler strategicRouteHandler;
 
     
     // private RouteLayer routeLayer;
@@ -415,9 +413,9 @@ public class MapMenu extends MapMenuCommon {
         sendToSTCC.setRoute(route);
         sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
-                .setEnabled(enavServiceHandler.getStrategicRouteSTCCList().size() > 0
+                .setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
                         && routeManager.getActiveRouteIndex() != routeIndex
-                        && enavServiceHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
+                        && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
         if (strategicRouteHandler.isTransaction()) {
             sendToSTCC.setText("Show STCC info");
@@ -479,9 +477,9 @@ public class MapMenu extends MapMenuCommon {
         sendToSTCC.setRoute(route);
         sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
-                .setEnabled(enavServiceHandler.getStrategicRouteSTCCList().size() > 0
+                .setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
                         && routeManager.getActiveRouteIndex() != routeIndex
-                        && enavServiceHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
+                        && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
         if (strategicRouteHandler.isTransaction()) {
             sendToSTCC.setText("Show STCC info");
@@ -678,16 +676,9 @@ public class MapMenu extends MapMenuCommon {
         if (obj instanceof MouseDelegator) {
             mouseDelegator = (MouseDelegator) obj;
         }
-
-        if (obj instanceof EnavServiceHandler) {
-            enavServiceHandler = (EnavServiceHandler) obj;
+        if (obj instanceof StrategicRouteHandler) {
+            strategicRouteHandler = (StrategicRouteHandler) obj;
         }
-        if (obj instanceof StrategicRouteExchangeHandler) {
-            strategicRouteHandler = (StrategicRouteExchangeHandler) obj;
-        }
-        // if (obj instanceof VoyageLayer) {
-        // voyageLayer = (VoyageLayer) obj;
-        // }
 
     }
 

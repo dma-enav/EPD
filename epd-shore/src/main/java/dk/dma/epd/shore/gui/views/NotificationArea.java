@@ -39,17 +39,18 @@ import dk.dma.epd.common.prototype.gui.ComponentFrame;
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
-import dk.dma.epd.shore.service.EnavServiceHandler;
-import dk.dma.epd.shore.service.RouteExchangeListener;
-import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
-import dk.dma.epd.shore.service.StrategicRouteExchangeListener;
+import dk.dma.epd.shore.service.RouteSuggestionHandler;
+import dk.dma.epd.shore.service.RouteSuggestionHandler.RouteSuggestionListener;
+import dk.dma.epd.shore.service.StrategicRouteHandler;
+import dk.dma.epd.shore.service.StrategicRouteHandler.StrategicRouteListener;
 
 /**
  * Class for setting up the notification area of the application
  */
 public class NotificationArea extends ComponentFrame implements
-        IMsiUpdateListener, RouteExchangeListener,
-        StrategicRouteExchangeListener {
+        IMsiUpdateListener, 
+        RouteSuggestionListener,
+        StrategicRouteListener {
 
     private static final long serialVersionUID = 1L;
     private Boolean locked = false;
@@ -69,8 +70,8 @@ public class NotificationArea extends ComponentFrame implements
     public int height;
     private MsiHandler msiHandler;
     // private AisServices aisService;
-    private EnavServiceHandler enavServiceHandler;
-    private StrategicRouteExchangeHandler strategicRouteExchangeHandler;
+    private RouteSuggestionHandler routeSuggestionHandler;
+    private StrategicRouteHandler strategicRouteHandler;
     
     Border paddingLeft = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(
             65, 65, 65));
@@ -215,14 +216,14 @@ public class NotificationArea extends ComponentFrame implements
             msiHandler.addListener(this);
         }
 
-        if (obj instanceof EnavServiceHandler) {
-            enavServiceHandler = (EnavServiceHandler) obj;
-            enavServiceHandler.addRouteExchangeListener(this);
+        if (obj instanceof RouteSuggestionHandler) {
+            routeSuggestionHandler = (RouteSuggestionHandler) obj;
+            routeSuggestionHandler.addRouteSuggestionListener(this);
         }
         
-        if (obj instanceof StrategicRouteExchangeHandler) {
-            strategicRouteExchangeHandler = (StrategicRouteExchangeHandler) obj;
-            strategicRouteExchangeHandler.addStrategicRouteExchangeListener(this);
+        if (obj instanceof StrategicRouteHandler) {
+            strategicRouteHandler = (StrategicRouteHandler) obj;
+            strategicRouteHandler.addStrategicRouteListener(this);
         }
 
     }
@@ -470,7 +471,7 @@ public class NotificationArea extends ComponentFrame implements
     @Override
     public void routeUpdate() {
         try {
-            setMessages("routeExchange", enavServiceHandler.getUnacknowledgedRouteSuggestions());
+            setMessages("routeExchange", routeSuggestionHandler.getUnacknowledgedRouteSuggestions());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -479,7 +480,7 @@ public class NotificationArea extends ComponentFrame implements
     @Override
     public void strategicRouteUpdate() {
         try {
-            setMessages("strategicRouteExchange", strategicRouteExchangeHandler.getUnHandled());
+            setMessages("strategicRouteExchange", strategicRouteHandler.getUnHandled());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

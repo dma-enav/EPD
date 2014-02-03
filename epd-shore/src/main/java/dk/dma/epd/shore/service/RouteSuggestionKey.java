@@ -15,6 +15,9 @@
  */
 package dk.dma.epd.shore.service;
 
+import net.jcip.annotations.Immutable;
+
+@Immutable
 public class RouteSuggestionKey {
 
     private long mmsi;
@@ -33,24 +36,29 @@ public class RouteSuggestionKey {
         return id;
     }
 
-    @Override
-    public boolean equals(Object key) {
-
-        if (key != null) {
-
-            RouteSuggestionKey routeKey = (RouteSuggestionKey) key;
-
-            return routeKey.getId() == this.id
-                    && routeKey.getMmsi() == this.mmsi;
-        }
-        return false;
-    }
-
-    public int hashCode() {
-        return super.hashCode();
-    }
 
     public String toString() {
         return "mmsi: " + this.mmsi + " id: " + this.id;
+    }
+    
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) (id ^ (id >>> 32));
+        result = prime * result + (int) (mmsi ^ (mmsi >>> 32));
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        RouteSuggestionKey other = (RouteSuggestionKey) obj;
+        return id == other.id && mmsi == other.mmsi;
     }
 }

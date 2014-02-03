@@ -18,8 +18,8 @@ package dk.dma.epd.shore.gui.views.menuitems;
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.shore.gui.route.strategic.SendStrategicRouteDialog;
 import dk.dma.epd.shore.gui.views.JMapFrame;
-import dk.dma.epd.shore.gui.views.strategicRouteExchange.SendStrategicRouteDialog;
 import dk.dma.epd.shore.voyage.Voyage;
 
 

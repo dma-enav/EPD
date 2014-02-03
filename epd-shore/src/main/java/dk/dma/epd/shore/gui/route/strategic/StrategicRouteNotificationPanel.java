@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views.strategicRouteExchange;
+package dk.dma.epd.shore.gui.route.strategic;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -51,12 +51,12 @@ import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.route.RoutePropertiesDialog;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.gui.views.NotificationCenter;
-import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
+import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
-public class StrategicRouteExchangeNotificationPanel extends JPanel {
+public class StrategicRouteNotificationPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     Border paddingLeft = BorderFactory.createMatteBorder(0, 8, 0, 0, new Color(
@@ -79,7 +79,7 @@ public class StrategicRouteExchangeNotificationPanel extends JPanel {
 
     private Color backgroundColor = new Color(83, 83, 83);
     // private JTextPane area = new JTextPane();
-    private StrategicRouteExchangeNotificationInternalPanel area = new StrategicRouteExchangeNotificationInternalPanel();
+    private StrategicRouteNotificationInternalPanel area = new StrategicRouteNotificationInternalPanel();
 
     private JLabel route_details;
     private JLabel optimize_btn;
@@ -92,7 +92,7 @@ public class StrategicRouteExchangeNotificationPanel extends JPanel {
 
     private JScrollPane leftScrollPane;
 
-    private StrategicRouteExchangeTableModel routeTableModel;
+    private StrategicRouteTableModel routeTableModel;
 
     private int currentSelection = -1;
 
@@ -102,9 +102,9 @@ public class StrategicRouteExchangeNotificationPanel extends JPanel {
     private AisHandler aisHandler;
     private VoyageManager voyageManager;
     private NotificationCenter notCenter;
-    private StrategicRouteExchangeHandler strategicRouteExchangeHandler;
+    private StrategicRouteHandler strategicRouteHandler;
 
-    public StrategicRouteExchangeNotificationPanel(NotificationCenter notCenter) {
+    public StrategicRouteNotificationPanel(NotificationCenter notCenter) {
         this.notCenter = notCenter;
         GridBagConstraints gbc_scrollPane_2 = new GridBagConstraints();
         gbc_scrollPane_2.fill = GridBagConstraints.BOTH;
@@ -301,7 +301,7 @@ public class StrategicRouteExchangeNotificationPanel extends JPanel {
     }
 
     public void initTable() {
-        routeTableModel = (StrategicRouteExchangeTableModel) routeTable
+        routeTableModel = (StrategicRouteTableModel) routeTable
                 .getModel();
         routeTable.getColumnModel().getColumn(0).setPreferredWidth(100);
         routeTable.getColumnModel().getColumn(1).setPreferredWidth(70);
@@ -373,7 +373,7 @@ public class StrategicRouteExchangeNotificationPanel extends JPanel {
 
         // Update area
 
-        StrategicRouteNegotiationData message = ((StrategicRouteExchangeTableModel) routeTable.getModel()).getMessages().get(selectedRow);
+        StrategicRouteNegotiationData message = ((StrategicRouteTableModel) routeTable.getModel()).getMessages().get(selectedRow);
 
         VesselTarget aisData = aisHandler.getVesselTarget(message.getRouteMessage().get(0).getMmsi());        
         
@@ -440,7 +440,7 @@ public class StrategicRouteExchangeNotificationPanel extends JPanel {
 
                     Route originalRoute = new Route(message.getRouteMessage().get(0).getRoute());
                     
-                    EPDShore.getInstance().getMainFrame().addStrategicRouteExchangeHandlingWindow(originalRoute,
+                    EPDShore.getInstance().getMainFrame().addStrategicRouteHandlingWindow(originalRoute,
                             shipName, voyage, false);
 
                     notCenter.setVisible(false);
@@ -481,12 +481,12 @@ public class StrategicRouteExchangeNotificationPanel extends JPanel {
         this.voyageManager = voyageManager;
     }
 
-    public StrategicRouteExchangeHandler getStrategicRouteExchangeHandler() {
-        return strategicRouteExchangeHandler;
+    public StrategicRouteHandler getStrategicRouteHandler() {
+        return strategicRouteHandler;
     }
 
-    public void setStrategicRouteExchangeHandler(StrategicRouteExchangeHandler strategicRouteExchangeHandler) {
-        this.strategicRouteExchangeHandler = strategicRouteExchangeHandler;
+    public void setStrategicRouteHandler(StrategicRouteHandler strategicRouteHandler) {
+        this.strategicRouteHandler = strategicRouteHandler;
     }
 
     private class RouteExchangeRowListener implements ListSelectionListener {
