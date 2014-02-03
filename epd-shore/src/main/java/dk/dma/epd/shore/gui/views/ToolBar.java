@@ -244,22 +244,30 @@ public class ToolBar extends JInternalFrame {
         final JLabel aisToggle = new JLabel(toolbarIcon("images/toolbar/edit-letter-spacing.png"));
         aisToggle.addMouseListener(new MouseAdapter() {
             
-            private boolean isPressed;
+            private boolean isPressed = true;
             
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (isPressed) {
                     setInactiveToolItem(aisToggle);
                     isPressed = false;
+                    toggleVesselNames(isPressed);
+                    
                 } else if (!isPressed) {
                     setActiveToolItem(aisToggle, layerToolItems);
-                    // TODO: We need some kind of similar method to EPDShips AisLayer setShowNameLabels.
-                    
                     isPressed = true;
+                    toggleVesselNames(isPressed);
+                }
+            }
+
+            private void toggleVesselNames(boolean showLabels) {
+                for (JMapFrame map : EPDShore.getInstance().getMainFrame().getMapWindows()) {
+                    map.getChartPanel().getAisLayer().setShowNameLabels(showLabels);
                 }
             }
         });
         
+        setActiveToolItem(aisToggle, layerToolItems);
         layerToolItems.addToolItem(aisToggle);
 
         try {

@@ -220,6 +220,8 @@ public class MapMenu extends MapMenuCommon {
         addSeparator();
         add(hideIntendedRoutes);
         add(scaleMenu);
+                
+        revalidate();
     }
 
     /**
@@ -265,6 +267,7 @@ public class MapMenu extends MapMenuCommon {
         add(aisClearPastTrack);
                 
         generalMenu(false);
+        revalidate();
     }
 
     /**
@@ -488,6 +491,7 @@ public class MapMenu extends MapMenuCommon {
         add(routeWaypointDelete);
 
         generalRouteMenu(routeIndex);
+        revalidate();
     }
 
     public void voyageGeneralMenu(long transactionID, long mmsi, Route route,
@@ -536,6 +540,8 @@ public class MapMenu extends MapMenuCommon {
         // Show transaction
         // Show voyage plan
         // Renegotiate Voyage
+        
+        revalidate();
     }
 
     public void voyageWaypointMenu(VoyageHandlingLayer voyageHandlingLayer,
@@ -599,7 +605,7 @@ public class MapMenu extends MapMenuCommon {
         
         
         add(voyageHandlingOptimizeRoute);
-
+        revalidate();
     }
 
     /**
@@ -616,6 +622,7 @@ public class MapMenu extends MapMenuCommon {
         add(routeEditEndRoute);
 
         generalMenu(false);
+        revalidate();
     }
 
     // Allows MapMenu to be added to the MapHandler (eg. use the find and init)

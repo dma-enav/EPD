@@ -52,6 +52,7 @@ import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
 import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
@@ -73,6 +74,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     private StatusArea statusArea;
     private ChartPanel chartPanel;
     private final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
+    private boolean showVesselLabels;
 
     @GuardedBy("targets")
     private final Map<Long, TargetGraphic> targets = new ConcurrentHashMap<>();
@@ -93,6 +95,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         this.registerInfoPanel(this.aisTargetInfoPanel, VesselTargetGraphic.class);
         // Register mouse over of PastTrackWpCircle to invoke the PastTrackInfoPanel
         this.registerInfoPanel(this.pastTrackInfoPanel, PastTrackWpCircle.class);
+        
+        this.showVesselLabels = EPDShore.getInstance().getSettings().getAisSettings().isShowNameLabels();
     }
 
     /**
@@ -423,9 +427,27 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         drawTargets();
     }
     
+    /**
+     * Updates visibility of vessel names. Updates are done with the redraw interval,
+     * defined by the constructor of this object. 
+     * @param Sets the vessel names to be shown or not.
+     */
     @Override
     public void setShowNameLabels(boolean showLabels) {
-        // TODO Adam Due Hansen: implement this :-).
         
+        if (showLabels == this.showVesselLabels) {
+            return;
+        }
+        
+        this.showVesselLabels = showLabels;
+        for (TargetGraphic graphic : targets.values()) {
+            
+            if (graphic instanceof VesselTargetGraphic) {
+                ((VesselTargetGraphic) graphic).setShowNameLabel(showLabels);
+                targetUpdated(((VesselTargetGraphic) graphic).getVesselTarget());
+            }
+            
+            doPrepare();
+        }
     }
 }

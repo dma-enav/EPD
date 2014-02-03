@@ -183,6 +183,7 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
         map = new TreeMap<Integer, String>();
         scaleMenu = new JMenu("Scale");
 
+        
     }
 
     /**
@@ -234,6 +235,10 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
             });
             scaleMenu.add(menuItem);
         }
+
+        
+        
+        revalidate();
     }
 
     /**
