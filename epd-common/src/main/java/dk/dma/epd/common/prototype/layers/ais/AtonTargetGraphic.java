@@ -17,8 +17,6 @@ package dk.dma.epd.common.prototype.layers.ais;
 
 import javax.swing.ImageIcon;
 
-import com.bbn.openmap.proj.Projection;
-
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.CenterRaster;
 import dk.dma.epd.common.prototype.ais.AisTarget;
@@ -64,11 +62,6 @@ public class AtonTargetGraphic extends TargetGraphic {
             atonMark.setLat(lat);
             atonMark.setLon(lon);
         }
-    }
-
-    @Override
-    public void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings) {
-
     }
 
     public AtoNTarget getAtonTarget() {

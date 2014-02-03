@@ -20,7 +20,6 @@ import java.awt.Font;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMText;
-import com.bbn.openmap.proj.Projection;
 
 import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.Position;
@@ -149,11 +148,6 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
             label.setData(name);
             label.setVisible(showNameLabel);
         }
-    }
-
-    @Override
-    public void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings) {
-        // TODO 08-01-2014: consider what to do with this method as number of marks are now extracted from ScaleDependantsValues.
     }
 
     public void setShowNameLabel(boolean showNameLabel) {

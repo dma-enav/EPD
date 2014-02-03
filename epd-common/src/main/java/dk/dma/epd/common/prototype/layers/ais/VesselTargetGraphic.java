@@ -16,7 +16,6 @@
 package dk.dma.epd.common.prototype.layers.ais;
 
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
-import com.bbn.openmap.proj.Projection;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.ISelectableGraphic;
@@ -118,13 +117,6 @@ public class VesselTargetGraphic extends TargetGraphic implements ISelectableGra
         this.vesselTriangleGraphic.setVisible(false);
         // (re-)enable visibility for dot mode
         this.vesselDotGraphic.setVisible(true);
-    }
-
-    @Override
-    public void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings) {
-        if (this.vesselTriangleGraphic != null) {
-            this.vesselTriangleGraphic.setMarksVisible(projection, aisSettings, navSettings);
-        }
     }
 
     public VesselTarget getVesselTarget() {
