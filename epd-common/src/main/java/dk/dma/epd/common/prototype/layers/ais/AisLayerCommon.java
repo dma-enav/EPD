@@ -20,7 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
-import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.layers.LazyLayerCommon;
 
