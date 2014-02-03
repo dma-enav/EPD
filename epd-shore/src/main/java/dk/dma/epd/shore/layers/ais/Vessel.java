@@ -27,7 +27,6 @@ import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMLine;
 import com.bbn.openmap.omGraphics.OMText;
 import com.bbn.openmap.proj.Length;
-import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.ais.message.AisMessage;
@@ -331,7 +330,4 @@ public class Vessel extends TargetGraphic {
         super.render(image);
     }
 
-    @Override
-    public void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings) {
-    }
 }
