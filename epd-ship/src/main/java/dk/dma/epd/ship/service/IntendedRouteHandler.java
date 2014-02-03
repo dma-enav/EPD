@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.service.intendedroute;
+package dk.dma.epd.ship.service;
 
 import net.maritimecloud.net.MaritimeCloudClient;
 
@@ -21,11 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.enavcloud.EnavCloudSendThread;
 import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
-import dk.dma.epd.common.prototype.enavcloud.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.service.MaritimeCloudSendThread;
+import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.route.RouteManager;
 
@@ -111,7 +111,7 @@ public class IntendedRouteHandler
         try {
             LOG.debug("Sending");
             // if connection.
-            EnavCloudSendThread sendThread = new EnavCloudSendThread(
+            MaritimeCloudSendThread sendThread = new MaritimeCloudSendThread(
                     message,
                     getMaritimeCloudConnection());
 

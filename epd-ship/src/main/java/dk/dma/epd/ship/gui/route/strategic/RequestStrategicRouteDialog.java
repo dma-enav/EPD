@@ -41,8 +41,8 @@ import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.layers.route.RouteLayer;
-import dk.dma.epd.ship.route.strategic.StrategicRouteHandler;
-import dk.dma.epd.ship.route.strategic.StrategicRouteNegotiationData;
+import dk.dma.epd.ship.service.StrategicRouteHandler;
+import dk.dma.epd.ship.service.StrategicRouteNegotiationData;
 
 public class RequestStrategicRouteDialog extends JDialog implements ActionListener {
 

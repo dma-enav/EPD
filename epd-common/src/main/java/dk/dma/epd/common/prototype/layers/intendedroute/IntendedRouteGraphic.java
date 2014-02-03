@@ -26,7 +26,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.enavcloud.IntendedRoute;
+import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 
 /**

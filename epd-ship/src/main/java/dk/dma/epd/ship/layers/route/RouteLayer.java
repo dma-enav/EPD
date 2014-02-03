@@ -36,7 +36,7 @@ import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.MapMenu;
 import dk.dma.epd.ship.route.RouteManager;
-import dk.dma.epd.ship.route.strategic.ReceivedRoute;
+import dk.dma.epd.ship.service.SuggestedRoute;
 
 /**
  * Layer for showing routes
@@ -243,7 +243,7 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
             graphics.add(0, metocGraphics);
         }
 
-        for (ReceivedRoute routeSuggestion : ((RouteManager)routeManager).getSuggestedRoutes()) {
+        for (SuggestedRoute routeSuggestion : ((RouteManager)routeManager).getSuggestedRoutes()) {
             if (!routeSuggestion.isHidden()) {
                 suggestedRoute = new SuggestedRouteGraphic(routeSuggestion,
                         stroke);
@@ -270,7 +270,7 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
         
         if (selectedGraphic instanceof SuggestedRouteGraphic) {
             SuggestedRouteGraphic suggestedRoute = (SuggestedRouteGraphic) selectedGraphic;
-            ReceivedRoute aisSuggestedRoute = suggestedRoute.getRouteSuggestion();
+            SuggestedRoute aisSuggestedRoute = suggestedRoute.getRouteSuggestion();
             getMapMenu().suggestedRouteMenu(aisSuggestedRoute);
         }
     }

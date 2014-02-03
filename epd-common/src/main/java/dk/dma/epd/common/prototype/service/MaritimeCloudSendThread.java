@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.enavcloud;
+package dk.dma.epd.common.prototype.service;
 
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.broadcast.BroadcastMessage;
@@ -22,7 +22,7 @@ import net.maritimecloud.net.broadcast.BroadcastMessage;
 /**
  * Thread for sending messages over the maritime cloud
  */
-public class EnavCloudSendThread extends Thread {
+public class MaritimeCloudSendThread extends Thread {
 
     private BroadcastMessage message;
     MaritimeCloudClient connection;
@@ -32,7 +32,7 @@ public class EnavCloudSendThread extends Thread {
      * @param message the message to send
      * @param connection the maritime cloud connection
      */
-    public EnavCloudSendThread(BroadcastMessage message,
+    public MaritimeCloudSendThread(BroadcastMessage message,
             MaritimeCloudClient connection) {
         this.message = message;
         this.connection = connection;

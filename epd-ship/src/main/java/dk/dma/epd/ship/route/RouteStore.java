@@ -21,7 +21,7 @@ import java.util.List;
 
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.ship.route.strategic.ReceivedRoute;
+import dk.dma.epd.ship.service.SuggestedRoute;
 
 /**
  * A serializable class for storing route information
@@ -30,7 +30,7 @@ public class RouteStore implements Serializable {
 
     private static final long serialVersionUID = 2L;
     
-    private List<ReceivedRoute> suggestedRoutes = new LinkedList<>();
+    private List<SuggestedRoute> suggestedRoutes = new LinkedList<>();
     private List<Route> routes = new LinkedList<>();
     private ActiveRoute activeRoute;
     private int activeRouteIndex = -1;
@@ -54,7 +54,7 @@ public class RouteStore implements Serializable {
         return activeRouteIndex;
     }
 
-    public List<ReceivedRoute> getSuggestedRoutes() {
+    public List<SuggestedRoute> getSuggestedRoutes() {
         return suggestedRoutes;
     }
 

@@ -43,7 +43,7 @@ import dk.dma.epd.common.prototype.model.voyage.VoyageUpdateEvent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.MapMenu;
-import dk.dma.epd.ship.route.strategic.StrategicRouteHandler;
+import dk.dma.epd.ship.service.StrategicRouteHandler;
 
 /**
  * Layer for showing voyages

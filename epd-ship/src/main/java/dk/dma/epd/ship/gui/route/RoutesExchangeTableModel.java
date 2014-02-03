@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.route.RouteManager;
-import dk.dma.epd.ship.route.strategic.ReceivedRoute;
-import dk.dma.epd.ship.route.strategic.ReceivedRoute.ReceivedRouteStatus;
+import dk.dma.epd.ship.service.SuggestedRoute;
+import dk.dma.epd.ship.service.SuggestedRoute.SuggestedRouteStatus;
 
 /**
  * Table model for RouteManagerDialog
@@ -59,7 +59,7 @@ public class RoutesExchangeTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        ReceivedRoute route = routeManager.getSuggestedRoutes().get(rowIndex);
+        SuggestedRoute route = routeManager.getSuggestedRoutes().get(rowIndex);
         
         switch (columnIndex) {
         case 0: return Formatter.formatString(route.getRoute().getName());
@@ -71,7 +71,7 @@ public class RoutesExchangeTableModel extends AbstractTableModel {
         }
     }
     
-    private String formatRouteSuggestionStatus(ReceivedRouteStatus status) {
+    private String formatRouteSuggestionStatus(SuggestedRouteStatus status) {
         switch (status) {
         case PENDING:
             return "Pending";
@@ -90,7 +90,7 @@ public class RoutesExchangeTableModel extends AbstractTableModel {
         
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        ReceivedRoute route = routeManager.getSuggestedRoutes().get(rowIndex);        
+        SuggestedRoute route = routeManager.getSuggestedRoutes().get(rowIndex);        
         switch (columnIndex) {
         case 2:
             route.setHidden(!(Boolean)aValue);

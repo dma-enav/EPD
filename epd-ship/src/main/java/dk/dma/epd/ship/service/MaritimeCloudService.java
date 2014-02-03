@@ -18,8 +18,8 @@ package dk.dma.epd.ship.service;
 import net.maritimecloud.core.id.MaritimeId;
 import net.maritimecloud.core.id.MmsiId;
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.enavcloud.MaritimeCloudServiceCommon;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.common.prototype.service.MaritimeCloudServiceCommon;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 
 /**

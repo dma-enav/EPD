@@ -13,15 +13,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.enavcloud;
+package dk.dma.epd.common.prototype.service;
 
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.broadcast.BroadcastListener;
 import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
-
 import dk.dma.enav.model.voyage.Route;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
+import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 
 /**
  * Intended route service implementation.
@@ -53,7 +54,7 @@ public class IntendedRouteHandlerCommon
                     public void onMessage(BroadcastMessageHeader l, IntendedRouteBroadcast r) {
 
                         getStatus().markCloudReception();
-                        int id = EnavCloudUtils.toMmsi(l.getId());
+                        int id = MaritimeCloudUtils.toMmsi(l.getId());
                         updateIntendedRoute(id, r.getIntendedRoute());
                     }
                 });
