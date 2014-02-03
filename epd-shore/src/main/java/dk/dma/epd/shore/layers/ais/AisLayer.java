@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.swing.SwingUtilities;
-
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
@@ -44,7 +42,9 @@ import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
+import dk.dma.epd.common.prototype.layers.ais.AisTargetInfoPanelCommon;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SarTargetGraphic;
@@ -69,7 +69,7 @@ import dk.dma.epd.shore.gui.views.StatusArea;
 public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetListener {
     private static final Logger LOG = LoggerFactory.getLogger(AisLayer.class);
 
-    private AisInfoPanel aisInfoPanel;
+    private final AisTargetInfoPanelCommon aisTargetInfoPanel = new AisTargetInfoPanelCommon();
     private StatusArea statusArea;
     private ChartPanel chartPanel;
     private final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
@@ -78,8 +78,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     private final Map<Long, TargetGraphic> targets = new ConcurrentHashMap<>();
 
     private volatile float mapScale;
-
-    private volatile OMGraphic closest;
 
     /**
      * Create a new AisLayer that is redrawn repeatedly at a given interval.
@@ -91,6 +89,10 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         this.registerMouseClickClasses(VesselTargetGraphic.class);
         // receive right-click events for the following set of classes.
         this.registerMapMenuClasses(VesselTargetGraphic.class, SartGraphic.class);
+        // Register mouse over of VesselTargetGraphics to invoke the AisTargetInfoPanel
+        this.registerInfoPanel(this.aisTargetInfoPanel, VesselTargetGraphic.class);
+        // Register mouse over of PastTrackWpCircle to invoke the PastTrackInfoPanel
+        this.registerInfoPanel(this.pastTrackInfoPanel, PastTrackWpCircle.class);
     }
 
     /**
@@ -214,8 +216,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             statusArea = (StatusArea) obj;
         }
         if (obj instanceof JMapFrame) {
-            aisInfoPanel = new AisInfoPanel();
-            mapFrame.getGlassPanel().add(aisInfoPanel);
             mapFrame.getGlassPanel().add(pastTrackInfoPanel);
             mapFrame.getGlassPanel().setVisible(true);
         }
@@ -280,8 +280,37 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         }
     }
     
+    @Override
+    protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest,
+            MouseEvent evt, Point containerPoint) {
+        if(infoPanel == this.aisTargetInfoPanel && newClosest instanceof VesselTargetGraphic) {
+            VesselTarget vt = ((VesselTargetGraphic)newClosest).getVesselTarget(); 
+            // TODO: need to put call below in a synchronized(targets) block ?
+            this.aisTargetInfoPanel.showAisInfoLabel(vt);
+            // adjust info panel such that it fits in the frame
+            int x = (int) containerPoint.getX() + 10;
+            int y = (int) containerPoint.getY() + 10;
+            if (chartPanel.getMap().getProjection().getWidth() - x < aisTargetInfoPanel.getWidth()) {
+                x -= aisTargetInfoPanel.getWidth() + 20;
+            }
+            if (chartPanel.getMap().getProjection().getHeight() - y < aisTargetInfoPanel.getHeight()) {
+                y -= aisTargetInfoPanel.getHeight() + 20;
+            }
+            aisTargetInfoPanel.setPos(x, y);
+            return true;
+        }
+        // TODO 30-01-2014 Janus Varmarken: this is never called as VesselTargetGraphic has vague = true
+        // TODO 30-01-2014 Janus Varmarken: consider moving PastTrackGraphic outside VesselTargetGraphic
+        else if (infoPanel == this.pastTrackInfoPanel && newClosest instanceof PastTrackWpCircle) {
+          PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
+          pastTrackInfoPanel.showWpInfo(wpCircle);
+          return true;
+        }
+        return false;
+    }
+    
     /**
-     * Returns the {@code VesselTargetGraphic} correspondign to the given mmsi, or null if not found
+     * Returns the {@code VesselTargetGraphic} corresponding to the given mmsi, or null if not found
      * @param mmsi the mmsi of the vessel
      * @return the graphic representing the vessel or null if not found
      */
@@ -367,55 +396,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             
             statusArea.receiveHighlight(info, vessel.getMmsi());
         }
-    }
-
-    @Override
-    public boolean mouseMoved(MouseEvent e) {
-        OMGraphic newClosest = null;
-        synchronized (graphics) {
-            newClosest = graphics.findClosest(e.getX(), e.getY(), 3.0f);
-        }
-
-        if (newClosest == null) {
-            aisInfoPanel.setVisible(false);
-            pastTrackInfoPanel.setVisible(false);
-            closest = null;
-            return false;
-        }
-
-        if (newClosest != closest) {
-            Point containerPoint = SwingUtilities.convertPoint(chartPanel, e.getPoint(), mapFrame.asComponent());
-
-            if (newClosest instanceof PastTrackWpCircle) {
-                closest = newClosest;
-                PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
-                pastTrackInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-                pastTrackInfoPanel.showWpInfo(wpCircle);
-                pastTrackInfoPanel.setVisible(true);
-            }
-
-            if (newClosest instanceof VesselTargetGraphic) {
-                getGlassPanel().setVisible(true);
-                closest = newClosest;
-                VesselTargetGraphic vtg = (VesselTargetGraphic) newClosest;
-                int x = (int) containerPoint.getX() + 10;
-                int y = (int) containerPoint.getY() + 10;
-                synchronized (targets) {
-                    aisInfoPanel.showAisInfo(vtg.getVesselTarget());
-                }                
-                if (chartPanel.getMap().getProjection().getWidth() - x < aisInfoPanel.getWidth()) {
-                    x -= aisInfoPanel.getWidth() + 20;
-                }
-                if (chartPanel.getMap().getProjection().getHeight() - y < aisInfoPanel.getHeight()) {
-                    y -= aisInfoPanel.getHeight() + 20;
-                }
-                aisInfoPanel.setPos(x, y);
-                aisInfoPanel.setVisible(true);
-
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
