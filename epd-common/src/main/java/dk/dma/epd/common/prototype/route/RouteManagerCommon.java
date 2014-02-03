@@ -612,17 +612,6 @@ public abstract class RouteManagerCommon extends MapHandlerChild implements Runn
 
             // Check validity of METOC for all routes
             checkValidMetoc();
-            
-            if (isRouteActive()) {
-                periodicActiveRouteOperation();
-            }
         }
     }
-
-    /**
-     * Called periodically by the thread if there is an active route
-     */
-    protected void periodicActiveRouteOperation() {        
-    }
-
 }
