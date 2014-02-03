@@ -41,6 +41,7 @@ import dk.dma.epd.shore.gui.views.menuitems.SendRouteFromRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteToShip;
 import dk.dma.epd.shore.gui.views.menuitems.SendVoyage;
 import dk.dma.epd.shore.gui.views.menuitems.ShowVoyagePlanInfo;
+import dk.dma.epd.shore.gui.views.menuitems.ToggleAisTargetNames;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageDeleteMenuItem;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingAppendWaypoint;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingOptimizeRoute;
@@ -102,6 +103,8 @@ public class MapMenu extends MapMenuCommon {
 
     private AisLayer aisLayer;
     private StrategicRouteHandler strategicRouteHandler;
+
+    private ToggleAisTargetNames aisNames;
 
     // private NogoHandler nogoHandler;
 
@@ -177,6 +180,9 @@ public class MapMenu extends MapMenuCommon {
         
         voyageHideAll = new VoyageHideAll("Toggle Voyage Layer");
         voyageHideAll.addActionListener(this);
+        
+        aisNames = new ToggleAisTargetNames();
+        aisNames.addActionListener(this);
     }
 
     /**
@@ -209,6 +215,8 @@ public class MapMenu extends MapMenuCommon {
             addSeparator();
             add(showPastTracks);
             add(hidePastTracks);
+            addSeparator();
+            add(aisNames);
             addSeparator();
             add(scaleMenu);
             
