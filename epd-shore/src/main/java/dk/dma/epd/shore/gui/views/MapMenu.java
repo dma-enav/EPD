@@ -24,7 +24,9 @@ import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
+import dk.dma.epd.common.prototype.gui.menuitems.ToggleAisTargetName;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
+import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteGraphic;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
@@ -106,6 +108,8 @@ public class MapMenu extends MapMenuCommon {
 
     private ToggleAisTargetNames aisNames;
 
+    private ToggleAisTargetName hideAisTargetName;
+
     // private NogoHandler nogoHandler;
 
     public MapMenu() {
@@ -183,6 +187,8 @@ public class MapMenu extends MapMenuCommon {
         
         setAisNames(new ToggleAisTargetNames());
         getAisNames().addActionListener(this);
+        hideAisTargetName = new ToggleAisTargetName();
+        hideAisTargetName.addActionListener(this);
     }
 
     /**
@@ -235,8 +241,9 @@ public class MapMenu extends MapMenuCommon {
 
     /**
      * Builds ais target menu
+     * @param vesselTargetGraphic 
      */
-    public void aisMenu(VesselTarget vesselTarget) {
+    public void aisMenu(VesselTarget vesselTarget, VesselTargetGraphic vesselTargetGraphic) {
         removeAll();
 
         sendRouteToShip.setMSSI(vesselTarget.getMmsi());
@@ -246,6 +253,11 @@ public class MapMenu extends MapMenuCommon {
                 .shipAvailableForRouteSuggestion(vesselTarget.getMmsi()));
 
         add(sendRouteToShip);
+        
+        hideAisTargetName.setVesselTargetGraphic(vesselTargetGraphic);
+        hideAisTargetName.setIAisTargetListener(this.aisLayer);
+        
+        add(hideAisTargetName);
 
         intendedRouteToggle.setAisTargetListener(aisLayer);
         intendedRouteToggle.setVesselTarget(vesselTarget);
