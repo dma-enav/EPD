@@ -172,16 +172,12 @@ public class VesselTargetGraphic extends TargetGraphic implements ISelectableGra
     }
     
     @Override
-    public boolean generate(Projection p) {
-        // Generate is called every time the layer's projection changes.
-        // A projection change might impose a need for changing the current draw mode for this graphic.
-        // Hence recompute how this graphic should visualize itself with the new projection.
-        this.drawAccordingToScale(ZoomLevel.getFromScale(p.getScale()));
-        return super.generate(p);
-    }
-    
-    @Override
     public boolean generate(Projection p, boolean forceProjectAll) {
+        // Avoid NPE's during start-up
+        if (p == null) {
+            return true;
+        }
+        
         // Generate is called every time the layer's projection changes.
         // A projection change might impose a need for changing the current draw mode for this graphic.
         // Hence recompute how this graphic should visualize itself with the new projection.
