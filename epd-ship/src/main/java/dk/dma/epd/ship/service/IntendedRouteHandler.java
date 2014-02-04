@@ -17,6 +17,7 @@ package dk.dma.epd.ship.service;
 
 import net.maritimecloud.net.MaritimeCloudClient;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,29 +25,32 @@ import dk.dma.enav.model.voyage.Route;
 import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.service.MaritimeCloudSendThread;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
+import dk.dma.epd.common.prototype.service.MaritimeCloudSendThread;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.route.RouteManager;
 
 /**
  * Ship specific intended route service implementation.
  * <p>
- * Listens for changes to the active route and broadcasts it.
- * Also broadcasts the route periodically.
+ * Listens for changes to the active route and broadcasts it. Also broadcasts the route periodically.
  * <p>
  * Improvements:
  * <ul>
- *   <li>Use a worker pool rather than spawning a new thread for each broadcast.</li>
+ * <li>Use a worker pool rather than spawning a new thread for each broadcast.</li>
  * </ul>
  */
-public class IntendedRouteHandler 
-    extends IntendedRouteHandlerCommon 
-    implements IRoutesUpdateListener, Runnable {
+public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements IRoutesUpdateListener, Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(IntendedRouteHandler.class);
     private static final long BROADCAST_TIME = 60; // Broadcast intended route every minute for now
-    
+
+    // Set to 10 minutes?
+    private static final long ADAPTIVE_TIME = 60 * 10;
+//    private static final long ADAPTIVE_TIME = 10;
+
+    private DateTime lastTransmitActiveWp;
+    private DateTime lastSend = new DateTime(1);
     private RouteManager routeManager;
     private boolean running;
 
@@ -56,7 +60,7 @@ public class IntendedRouteHandler
     public IntendedRouteHandler() {
         super();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -77,91 +81,158 @@ public class IntendedRouteHandler
     public void cloudDisconnected() {
         running = false;
     }
-    
+
     /**
-     * Main thread run method.
-     * Broadcasts the intended route
+     * Main thread run method. Broadcasts the intended route
      */
     public void run() {
+
+        // Initialize first send
+        // lastSend = new DateTime();
+        // broadcastIntendedRoute();
+
         while (running) {
-            broadcastIntendedRoute();
-            Util.sleep(BROADCAST_TIME * 1000L);
+
+            if (routeManager != null) {
+
+                // We have no active route, keep sleeping
+                if (routeManager.getActiveRoute() == null) {
+                    Util.sleep(BROADCAST_TIME * 1000L);
+                } else {
+
+                    // Here we handle the periodical broadcasts
+                    DateTime calculatedTimeOfLastSend = new DateTime();
+                    calculatedTimeOfLastSend = calculatedTimeOfLastSend.minus(BROADCAST_TIME * 1000L);
+
+                    // Do we need to rebroadcast based on the broadcast time setting
+                    if (calculatedTimeOfLastSend.isAfter(lastSend)) {
+                        System.out.println("Periodically rebroadcasting");
+                        broadcastIntendedRoute();
+                        lastSend = new DateTime();
+                    } else {
+
+                        // We check for the adaptive route broadcast here
+                        // We need to compare lastTransmitActiveWp which is the last stored
+                        // ETA of the waypoint we sent to the current one
+                        DateTime currentActiveWaypointETA = new DateTime(routeManager.getActiveRoute().getActiveWaypointEta());
+
+                        // System.out.println("The ETA at last transmission was : " + lastTransmitActiveWp);
+                        // System.out.println("It is now                        : " + currentActiveWaypointETA);
+
+                        // //It can either be before or after
+                        //
+                        if (currentActiveWaypointETA.isAfter(lastTransmitActiveWp)
+                                || currentActiveWaypointETA.isBefore(lastTransmitActiveWp)) {
+
+                            long etaTimeChange;
+
+                            // Is it before?
+                            if (currentActiveWaypointETA.isAfter(lastTransmitActiveWp)) {
+
+                                etaTimeChange = currentActiveWaypointETA.minus(lastTransmitActiveWp.getMillis()).getMillis();
+
+                                // Must be after
+                            } else {
+                                etaTimeChange = currentActiveWaypointETA.plus(lastTransmitActiveWp.getMillis()).getMillis();
+                            }
+
+                            if (etaTimeChange > ADAPTIVE_TIME * 1000L) {
+                                System.out.println("Broadcast based on adaptive time!");
+                                broadcastIntendedRoute();
+                                lastSend = new DateTime();
+                            }
+
+                            // System.out.println("ETA has changed with " + etaTimeChange + " mili seconds" );
+
+                        }
+                
+
+                    }
+
+                    Util.sleep(1000L);
+                }
+            }
+
         }
+
     }
 
     /**
      * Broadcast intended route
      */
     public void broadcastIntendedRoute() {
+        System.out.println("Broadcast intended route");
         // Sanity check
         if (!running || routeManager == null || getMaritimeCloudConnection() == null) {
             return;
         }
-        
+
         // Make intended route message
         IntendedRouteBroadcast message = new IntendedRouteBroadcast();
-        
-        if (routeManager.getActiveRoute() != null){
-            message.setIntendedRoute(routeManager.getActiveRoute().getFullRouteData());    
+
+        if (routeManager.getActiveRoute() != null) {
+            message.setIntendedRoute(routeManager.getActiveRoute().getFullRouteData());
+
+            lastTransmitActiveWp = new DateTime(routeManager.getActiveRoute().getActiveWaypointEta());
+
         } else {
             message.setIntendedRoute(new Route());
         }
-                
+
         // send message
         try {
             LOG.debug("Sending");
             // if connection.
-            MaritimeCloudSendThread sendThread = new MaritimeCloudSendThread(
-                    message,
-                    getMaritimeCloudConnection());
+            MaritimeCloudSendThread sendThread = new MaritimeCloudSendThread(message, getMaritimeCloudConnection());
 
             // Send it in a seperate thread
             sendThread.start();
             getStatus().markSuccesfullSend();
-            LOG.debug("Done sending");        
+            LOG.debug("Done sending");
         } catch (Exception e) {
             LOG.error("Error sending intended route " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * Handle event of active route change
      */
     @Override
     public void routesChanged(RoutesUpdateEvent e) {
         if (e != null) {
-            if (e.is(RoutesUpdateEvent.ACTIVE_ROUTE_UPDATE,
-                    RoutesUpdateEvent.ACTIVE_ROUTE_FINISHED,
-                    RoutesUpdateEvent.ROUTE_ACTIVATED,
-                    RoutesUpdateEvent.ROUTE_DEACTIVATED)) {
+            if (e.is(RoutesUpdateEvent.ACTIVE_ROUTE_UPDATE, RoutesUpdateEvent.ACTIVE_ROUTE_FINISHED,
+                    RoutesUpdateEvent.ROUTE_ACTIVATED, RoutesUpdateEvent.ROUTE_DEACTIVATED)) {
+
+                lastSend = new DateTime();
                 broadcastIntendedRoute();
+
             }
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
-        
+
         if (obj instanceof RouteManager) {
-            routeManager = (RouteManager)obj;
+            routeManager = (RouteManager) obj;
             routeManager.addListener(this);
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public void findAndUndo(Object obj) {        
+    public void findAndUndo(Object obj) {
         if (obj instanceof RouteManager) {
             routeManager.removeListener(this);
             routeManager = null;
         }
         super.findAndUndo(obj);
     }
-    
+
 }
