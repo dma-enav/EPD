@@ -149,6 +149,12 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
             // rendered on the repaint.
             point1 = null;
             point2 = null;
+            
+            // Save the centering of ship to history.
+            // ----------------------------
+            
+            EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().setShouldSave(true);
+            EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().saveToHistoryBeforeMoving();
 
             p.setCenter(llp);
             map.setProjection(p);

@@ -104,7 +104,10 @@ public class HistoryListener implements ProjectionListener {
         
         this.navigationPanel.getGoBackButton().setEnabled(true);
         
-        
+        if (this.isAtHighestElement()) {
+            
+            this.navigationPanel.getGoForwardButton().setEnabled(false);
+        }
     }
     
     /**
