@@ -381,6 +381,7 @@ public class ToolBar extends JInternalFrame {
                         !mainFrame.getRouteManagerDialog().isVisible());
             }
         });
+        routes.setToolTipText("Routes Manager");
         routeToolItems.addToolItem(routes);
 
         // Tool: New route
@@ -399,7 +400,7 @@ public class ToolBar extends JInternalFrame {
                 newRoute();
             }
         });
-
+        newRoute.setToolTipText("Add route");
         routeToolItems.addToolItem(newRoute);
 
         // Set that the layer tools can have more than 1 active tool item at a
