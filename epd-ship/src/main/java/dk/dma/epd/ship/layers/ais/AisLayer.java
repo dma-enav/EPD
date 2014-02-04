@@ -258,7 +258,9 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
                     allClosest = graphics.findAll(e.getX(), e.getY(), 5.0f);
                 }
                 for (OMGraphic omGraphic : allClosest) {
-                    if (omGraphic instanceof VesselTargetTriangle || omGraphic instanceof SartGraphic) {
+                    if (omGraphic instanceof VesselTargetTriangle || 
+                            omGraphic instanceof SartGraphic ||
+                            omGraphic instanceof VesselOutlineGraphic) {
                         selectedGraphic = omGraphic;
                         break;
                     }
@@ -299,6 +301,20 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
                         getMapMenu().setVisible(true);
                         getMapMenu().show(this, e.getX() - 2, e.getY() - 2);
                         sarTargetInfoPanel.setVisible(false);
+                        return true;
+                    } else if (selectedGraphic instanceof VesselOutlineGraphic) {
+                        
+//                        VesselTargetTriangle vtt = (VesselTargetTriangle) selectedGraphic;
+//                        VesselTargetGraphic vesselTargetGraphic = vtt.getVesselTargetGraphic();
+//                        System.out.println(vesselTargetGraphic.toString());
+                        
+                        VesselOutlineGraphic vesselOutlineGraphics = (VesselOutlineGraphic) selectedGraphic;
+                        VesselTargetGraphic vesselTargetGraphic = vesselOutlineGraphics.getVesselTargetGraphic();
+                        
+                        this.getMapMenu().aisMenu(vesselTargetGraphic, this.topPanel);
+                        this.getMapMenu().setVisible(true);
+                        this.getMapMenu().show(this, e.getX(), e.getY());
+                        aisTargetInfoPanel.setVisible(false);
                         return true;
                     }
                 }
