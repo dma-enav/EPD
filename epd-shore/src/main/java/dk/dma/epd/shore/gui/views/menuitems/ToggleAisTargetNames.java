@@ -20,29 +20,51 @@ import javax.swing.JMenuItem;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.shore.EPDShore;
 
+/**
+ * Creates a menu item for the MapMenu pop-up. When the menu item is
+ * clicked, the visiblity of vessel name labes will be updated.
+ * @author adamduehansen
+ */
 public class ToggleAisTargetNames extends JMenuItem implements IMapMenuAction {
 
     private static final long serialVersionUID = 1L;
     private boolean namesShouldBeVisible;
 
     public ToggleAisTargetNames() {
-
         super("Toggle AIS target names");
-        namesShouldBeVisible = true; // AIS target names are visible as default.
+        
+        // Initialize if vessel names labels are shown. 
+        setNamesShouldBeVisible(EPDShore.getInstance().getSettings().getAisSettings().isShowNameLabels());
     }
 
     @Override
-    public void doAction() {
+    public void doAction() {        
         
-        // Check if AIS target names are already set to be shown or not.
-        if (namesShouldBeVisible) {
-            namesShouldBeVisible = false;
-        } else if (!namesShouldBeVisible) {
-            namesShouldBeVisible = true;
+        // Check if AIS target names are already set to be shown or not, and
+        // set it to the opposite.
+        if (isNamesShouldBeVisible()) {
+            setNamesShouldBeVisible(false);
+        } else if (!isNamesShouldBeVisible()) {
+            setNamesShouldBeVisible(true);
         }
-        
-        // Toggle ais target names for the selected frame only.
+                
+        // Update vessel target names for the selected frame only.
         EPDShore.getInstance().getMainFrame().getActiveMapWindow().getChartPanel().
-                getAisLayer().setShowNameLabels(namesShouldBeVisible);
+                getAisLayer().setShowNameLabels(isNamesShouldBeVisible());
+    }
+
+    /**
+     * @return The visibility value of vessel names labels.
+     */
+    public boolean isNamesShouldBeVisible() {
+        return namesShouldBeVisible;
+    }
+
+    /**
+     * Updates the visibility value of vessel names labels.
+     * @param namesShouldBeVisible
+     */
+    public void setNamesShouldBeVisible(boolean namesShouldBeVisible) {
+        this.namesShouldBeVisible = namesShouldBeVisible;
     }
 }

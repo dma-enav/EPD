@@ -241,33 +241,61 @@ public class ToolBar extends JInternalFrame {
         });
         layerToolItems.addToolItem(msi);
         
+        // Button which will toggle vessel names on or off.
         final JLabel aisToggle = new JLabel(toolbarIcon("images/toolbar/edit-letter-spacing.png"));
         aisToggle.addMouseListener(new MouseAdapter() {
             
-            private boolean isPressed = true;
+            // Initialize with ship visibility.
+            private boolean isPressed = EPDShore.getInstance().getSettings().getAisSettings().isShowNameLabels();
             
+            /**
+             * {@inheritDoc}
+             */
             @Override
             public void mouseClicked(MouseEvent e) {
+                // If names are show -
                 if (isPressed) {
+                    // Set button to off.
                     setInactiveToolItem(aisToggle);
+                    // Name labels should not be seen.
                     isPressed = false;
+                    // Update visibility of the vessel names.
                     toggleVesselNames(isPressed);
                     
+                // If names are not shown.
                 } else if (!isPressed) {
+                    // set button to on.
                     setActiveToolItem(aisToggle, layerToolItems);
+                    // Name labels should now be seen.
                     isPressed = true;
+                    // Update visibility of the vessel names.
                     toggleVesselNames(isPressed);
                 }
             }
 
+            /**
+             * Updates the visibility of vessel names.
+             * @param showLabels
+             *          Sets visibility of vessel names to
+             *          the passed value. 
+             */
             private void toggleVesselNames(boolean showLabels) {
+                // For each JMapFrame which is used in the mainFrame.
                 for (JMapFrame map : EPDShore.getInstance().getMainFrame().getMapWindows()) {
+                    // Update the ship names.
                     map.getChartPanel().getAisLayer().setShowNameLabels(showLabels);
+                    // Updates the right click menu option to set visibility of vessel names.
+                    map.getMapMenu().getAisNames().setNamesShouldBeVisible(showLabels);
                 }
+                
+                // Update the settings file.
+                EPDShore.getInstance().getSettings().getAisSettings().setShowNameLabels(showLabels);
             }
         });
         
-        setActiveToolItem(aisToggle, layerToolItems);
+        if (EPDShore.getInstance().getSettings().getAisSettings().isShowNameLabels()) {
+            setActiveToolItem(aisToggle, layerToolItems);            
+        }
         layerToolItems.addToolItem(aisToggle);
 
         try {

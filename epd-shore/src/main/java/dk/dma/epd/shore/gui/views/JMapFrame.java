@@ -309,8 +309,8 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
 
 
 //         Init the map right click menu
-        mapMenu = new MapMenu();
-        chartPanel.getMapHandler().add(mapMenu);
+        setMapMenu(new MapMenu());
+        chartPanel.getMapHandler().add(getMapMenu());
 
     }
 
@@ -476,6 +476,14 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
     public void setTitle(String title){
         super.setTitle(title);
         moveHandler.setText(title);
+    }
+
+    public MapMenu getMapMenu() {
+        return mapMenu;
+    }
+
+    public void setMapMenu(MapMenu mapMenu) {
+        this.mapMenu = mapMenu;
     }
 
 }

@@ -181,8 +181,8 @@ public class MapMenu extends MapMenuCommon {
         voyageHideAll = new VoyageHideAll("Toggle Voyage Layer");
         voyageHideAll.addActionListener(this);
         
-        aisNames = new ToggleAisTargetNames();
-        aisNames.addActionListener(this);
+        setAisNames(new ToggleAisTargetNames());
+        getAisNames().addActionListener(this);
     }
 
     /**
@@ -216,7 +216,7 @@ public class MapMenu extends MapMenuCommon {
             add(showPastTracks);
             add(hidePastTracks);
             addSeparator();
-            add(aisNames);
+            add(getAisNames());
             addSeparator();
             add(scaleMenu);
             
@@ -653,5 +653,13 @@ public class MapMenu extends MapMenuCommon {
         if (obj instanceof VoyageLayer) {
             voyageLayer = (VoyageLayer) obj;
         }
+    }
+
+    public ToggleAisTargetNames getAisNames() {
+        return aisNames;
+    }
+
+    public void setAisNames(ToggleAisTargetNames aisNames) {
+        this.aisNames = aisNames;
     }
 }
