@@ -36,7 +36,7 @@ public class AisSettings implements Serializable {
     private int minRedrawInterval = 5; // 5 sec
     private boolean allowSending = true;
     private boolean broadcastIntendedRoute = true;
-    private boolean showIntendedRouteByDefault;
+    private boolean showIntendedRoute;
     private int intendedRouteMaxWps = 8;
     private int intendedRouteMaxTime; // In minutes 0 = inf
     private int sartPrefix = 970;
@@ -99,8 +99,7 @@ public class AisSettings implements Serializable {
         minRedrawInterval = PropUtils.intFromProperties(props, PREFIX + "minRedrawInterval", minRedrawInterval);
         allowSending = PropUtils.booleanFromProperties(props, PREFIX + "allowSending", allowSending);
         broadcastIntendedRoute = PropUtils.booleanFromProperties(props, PREFIX + "broadcastIntendedRoute", broadcastIntendedRoute);
-        showIntendedRouteByDefault = PropUtils.booleanFromProperties(props, PREFIX + "showIntendedRouteByDefault",
-                showIntendedRouteByDefault);
+        showIntendedRoute = PropUtils.booleanFromProperties(props, PREFIX + "showIntendedRoute", showIntendedRoute);
         intendedRouteMaxWps = PropUtils.intFromProperties(props, PREFIX + "intendedRouteMaxWps", intendedRouteMaxWps);
         intendedRouteMaxTime = PropUtils.intFromProperties(props, PREFIX + "intendedRouteMaxTime", intendedRouteMaxTime);
         sartPrefix = PropUtils.intFromProperties(props, PREFIX + "sartPrefix", sartPrefix);
@@ -140,7 +139,7 @@ public class AisSettings implements Serializable {
         props.put(PREFIX + "minRedrawInterval", Integer.toString(minRedrawInterval));
         props.put(PREFIX + "allowSending", Boolean.toString(allowSending));
         props.put(PREFIX + "broadcastIntendedRoute", Boolean.toString(broadcastIntendedRoute));
-        props.put(PREFIX + "showIntendedRouteByDefault", Boolean.toString(showIntendedRouteByDefault));
+        props.put(PREFIX + "showIntendedRoute", Boolean.toString(showIntendedRoute));
         props.put(PREFIX + "intendedRouteMaxWps", Integer.toString(intendedRouteMaxWps));
         props.put(PREFIX + "intendedRouteMaxTime", Integer.toString(intendedRouteMaxTime));
         props.put(PREFIX + "sartPrefix", Integer.toString(sartPrefix));
@@ -208,12 +207,12 @@ public class AisSettings implements Serializable {
         this.broadcastIntendedRoute = broadcastIntendedRoute;
     }
 
-    public boolean isShowIntendedRouteByDefault() {
-        return showIntendedRouteByDefault;
+    public boolean isShowIntendedRoute() {
+        return showIntendedRoute;
     }
 
-    public void setShowIntendedRouteByDefault(boolean showIntendedRouteByDefault) {
-        this.showIntendedRouteByDefault = showIntendedRouteByDefault;
+    public void setShowIntendedRoute(boolean showIntendedRoute) {
+        this.showIntendedRoute = showIntendedRoute;
     }
 
     public int getIntendedRouteMaxWps() {

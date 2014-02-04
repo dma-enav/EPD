@@ -74,7 +74,6 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
     
     protected AisStatus aisStatus = new AisStatus();
     protected final boolean strictAisMode;
-    protected final boolean showIntendedRouteDefault;
     protected final String sartMmsiPrefix;
     protected final Set<String> simulatedSartMmsi = new ConcurrentHashSet<>();
     protected final int pastTrackMaxTime;       // NB: In minutes
@@ -90,7 +89,6 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         sartMmsiPrefix = aisSettings.getSartPrefix();
         Collections.addAll(simulatedSartMmsi, aisSettings.getSimulatedSartMmsi());
         strictAisMode = aisSettings.isStrict();
-        showIntendedRouteDefault = aisSettings.isShowIntendedRouteByDefault();
         this.pastTrackMaxTime = aisSettings.getPastTrackMaxTime();
         this.pastTrackDisplayTime = aisSettings.getPastTrackDisplayTime();
         this.pastTrackMinDist = aisSettings.getPastTrackMinDist();
@@ -276,7 +274,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         // If not exists, create and insert
         if (vesselTarget == null) {
             vesselTarget = new VesselTarget();
-            vesselTarget.getSettings().setShowRoute(showIntendedRouteDefault);
+            vesselTarget.getSettings().setShowRoute(true);
             vesselTarget.getSettings().setPastTrackDisplayTime(pastTrackDisplayTime);
             vesselTarget.getSettings().setPastTrackMinDist(pastTrackMinDist);
             vesselTarget.setMmsi(mmsi);

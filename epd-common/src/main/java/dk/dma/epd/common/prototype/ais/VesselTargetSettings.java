@@ -26,7 +26,7 @@ import net.jcip.annotations.ThreadSafe;
 @ThreadSafe
 public class VesselTargetSettings implements Serializable {
     
-    private static final long serialVersionUID = 2382827951614735277L;
+    private static final long serialVersionUID = 2382827951614735210L;
     
     @GuardedBy("this") private boolean hide;
     @GuardedBy("this") private boolean showRoute;
