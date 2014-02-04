@@ -25,6 +25,7 @@ import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.GeneralClearMap;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteHide;
 import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
+import dk.dma.epd.common.prototype.gui.menuitems.ToggleAisTargetName;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteGraphic;
@@ -38,7 +39,6 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.menuitems.AisTargetDetails;
-import dk.dma.epd.ship.gui.menuitems.AisTargetLabelToggle;
 import dk.dma.epd.ship.gui.menuitems.GeneralNewRoute;
 import dk.dma.epd.ship.gui.menuitems.MonaLisaRouteRequest;
 import dk.dma.epd.ship.gui.menuitems.MsiDetails;
@@ -74,7 +74,7 @@ public class MapMenu extends MapMenuCommon {
     private AisTargetDetails aisTargetDetails;
 
     private SarTargetDetails sarTargetDetails;
-    private AisTargetLabelToggle aisTargetLabelToggle;
+    private ToggleAisTargetName aisTargetLabelToggle;
     private NogoRequest nogoRequest;
     private MsiDetails msiDetails;
     private MsiZoomTo msiZoomTo;
@@ -119,8 +119,10 @@ public class MapMenu extends MapMenuCommon {
         // ais menu items
         aisTargetDetails = new AisTargetDetails("Show AIS target details");
         aisTargetDetails.addActionListener(this);
-        aisTargetLabelToggle = new AisTargetLabelToggle();
-        aisTargetLabelToggle.addActionListener(this);
+//        aisTargetLabelToggle = new AisTargetLabelToggle();
+//        aisTargetLabelToggle.addActionListener(this);
+        this.aisTargetLabelToggle = new ToggleAisTargetName();
+        this.aisTargetLabelToggle.addActionListener(this);
 
         // SART menu items
         sarTargetDetails = new SarTargetDetails("SART details");
@@ -261,7 +263,7 @@ public class MapMenu extends MapMenuCommon {
         
         // Toggle show label
         aisTargetLabelToggle.setVesselTargetGraphic(targetGraphic);
-        aisTargetLabelToggle.setAisLayer(aisLayer);
+        aisTargetLabelToggle.setIAisTargetListener(aisLayer);
         add(aisTargetLabelToggle);
         if (targetGraphic.getShowNameLabel()) {
             aisTargetLabelToggle.setText("Hide AIS target label");

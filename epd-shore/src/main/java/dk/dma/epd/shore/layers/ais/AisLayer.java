@@ -273,9 +273,10 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         // Should only handle right clicks
         assert evt.getButton() == MouseEvent.BUTTON3;
         if (clickedGraphics instanceof VesselTargetGraphic) {
+            VesselTargetGraphic vesselTargetGraphic = (VesselTargetGraphic) clickedGraphics;
             VesselTarget vt = ((VesselTargetGraphic) clickedGraphics).getVesselTarget();
             // Pass data to the pop up menu that is to be displayed.
-            this.getMapMenu().aisMenu(vt);
+            this.getMapMenu().aisMenu(vt, vesselTargetGraphic);
         } else if (clickedGraphics instanceof SartGraphic) {
             SartGraphic sartGraphic = (SartGraphic) clickedGraphics;
             SarTarget sarTarget = sartGraphic.getSarTargetGraphic().getSarTarget();
