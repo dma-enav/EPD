@@ -198,7 +198,8 @@ public class MapMenu extends MapMenuCommon {
 
         hideIntendedRoutes.setAisHandler(aisHandler);
         showIntendedRoutes.setAisHandler(aisHandler);
-
+        checkIntendedRouteItems(hideIntendedRoutes, showIntendedRoutes);
+        
         newRoute.setToolBar(EPDShore.getInstance().getMainFrame().getToolbar());
 
         showPastTracks.setAisHandler(aisHandler);
@@ -260,6 +261,7 @@ public class MapMenu extends MapMenuCommon {
         } else {
             intendedRouteToggle.setText("Show intended route");
         }
+        checkIntendedRouteItems(intendedRouteToggle);
         add(intendedRouteToggle);
 
         // Toggle show past-track
@@ -298,6 +300,7 @@ public class MapMenu extends MapMenuCommon {
         } else {
             intendedRouteToggle.setText("Show intended route");
         }
+        checkIntendedRouteItems(intendedRouteToggle);
         add(intendedRouteToggle);
 
         centerVesselTarget.setVesselTarget(vesselTarget);

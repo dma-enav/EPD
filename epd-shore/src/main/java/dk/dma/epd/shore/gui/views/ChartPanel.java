@@ -207,6 +207,17 @@ public class ChartPanel extends CommonChartPanel {
         }
     }
 
+    /**
+     * Sets the visibility of the intended route layer
+     * @param visible the visibility of the intended route layer
+     */
+    public void setIntendedRouteLayerVisibility(boolean visible) {
+        if (intendedRouteLayer != null) {
+            intendedRouteLayer.setVisible(visible);
+        }
+    }
+
+    
     @Override
     public void findAndInit(Object obj) {
 
@@ -374,32 +385,6 @@ public class ChartPanel extends CommonChartPanel {
 
         map = new BufferedLayerMapBean();
 
-        // LLXY llxyProjection = new LLXY((LatLonPoint) center, scale, 100,
-        // 100);
-        //
-        // map.setProjection(llxyProjection);
-
-        // Projection projx =
-        // ProjectionFactory.loadDefaultProjections().makeProjection("com.bbn.openmap.proj.LLXY",
-        // map.getProjection());
-        // Projection projx =
-        // ProjectionFactory.loadDefaultProjections().makeProjection(null,
-        // center, scale, 100, 100, null);
-        // System.out.println("map projection set");
-        // LLXY test = new LLXY(null, alignmentX, maxScale, maxScale);
-
-        // map.setProjection(test);
-
-        // Projection newProx = map.getProjection().makeClone();
-        //
-        // Projection newProj =
-        // ProjectionFactory.loadDefaultProjections().makeProjection("com.bbn.openmap.proj.LLXY",
-        // newProx);
-
-        // map.setDoubleBuffered(true);
-
-        // System.out.println(map.getBackground());
-
         mouseDelegator = new MouseDelegator();
         mapHandler.add(mouseDelegator);
 
@@ -497,7 +482,7 @@ public class ChartPanel extends CommonChartPanel {
 
         // Create Intended Route Layer
         intendedRouteLayer = new IntendedRouteLayer();
-        intendedRouteLayer.setVisible(true);
+        intendedRouteLayer.setVisible(EPD.getInstance().getSettings().getAisSettings().isShowIntendedRoute());
         mapHandler.add(intendedRouteLayer);
         
         // Create background layer

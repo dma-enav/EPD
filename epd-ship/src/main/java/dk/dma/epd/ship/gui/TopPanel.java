@@ -55,55 +55,45 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     private static final long serialVersionUID = 1L;
 
     private final ButtonLabel zoomInBtn = new ButtonLabel(
-            toolbarIcon("images/toolbar/magnifier-zoom-in.png"));
+            toolbarIcon("magnifier-zoom-in.png"));
     private final ButtonLabel zoomOutBtn = new ButtonLabel(
-            toolbarIcon("images/toolbar/magnifier-zoom-out.png"));
+            toolbarIcon("magnifier-zoom-out.png"));
     private final ButtonLabel centreBtn = new ButtonLabel(
-            toolbarIcon("images/toolbar/arrow-in.png"));
+            toolbarIcon("arrow-in.png"));
     private final ToggleButtonLabel autoFollowBtn = new ToggleButtonLabel(
-            toolbarIcon("images/toolbar/arrow-curve-000-double.png"));
+            toolbarIcon("arrow-curve-000-double.png"));
     private final ButtonLabel setupBtn = new ButtonLabel(
-            toolbarIcon("images/toolbar/wrench.png"));
-    // private ToggleButtonLabel routeBtn = new
-    // ToggleButtonLabel(toolbarIcon("images/toolbar/marker--plus.png"));
+            toolbarIcon("wrench.png"));
     private final ButtonLabel routeManagerBtn = new ButtonLabel(
-            toolbarIcon("images/toolbar/marker.png"));
+            toolbarIcon("marker.png"));
     private final ButtonLabel msiButton = new ButtonLabel(
-            toolbarIcon("images/toolbar/msi_symbol_16.png"));
+            toolbarIcon("msi_symbol_16.png"));
     private final ButtonLabel aisButton = new ButtonLabel(
-            toolbarIcon("images/toolbar/radar.png"));
+            toolbarIcon("radar.png"));
     private final ToggleButtonLabel aisToggleName = new ToggleButtonLabel(
-            toolbarIcon("images/toolbar/edit-letter-spacing.png"));
-    // private ToggleButtonLabel nogoButton = new
-    // ToggleButtonLabel("Toggle NoGo");
+            toolbarIcon("edit-letter-spacing.png"));
     private final ToggleButtonLabel aisBtn = new ToggleButtonLabel(
-            toolbarIcon("images/toolbar/board-game.png"));
-    // private ToggleButtonLabel riskBtn = new ToggleButtonLabel("Risk");
+            toolbarIcon("board-game.png"));
     private final ToggleButtonLabel encBtn = new ToggleButtonLabel(
-            toolbarIcon("images/toolbar/map-medium.png"));
+            toolbarIcon("map-medium.png"));
     private final ToggleButtonLabel wmsBtn = new ToggleButtonLabel(
-            toolbarIcon("images/toolbar/map-medium.png"));
+            toolbarIcon("map-medium.png"));
     private final ToggleButtonLabel newRouteBtn = new ToggleButtonLabel(
-            toolbarIcon("images/toolbar/marker--plus.png"));
+            toolbarIcon("marker--plus.png"));
     private final ToggleButtonLabel toggleSafeHaven = new ToggleButtonLabel(
-            toolbarIcon("images/toolbar/document-resize-actual.png"));
-
+            toolbarIcon("document-resize-actual.png"));
     private final ToggleButtonLabel navigationMouseMode = new ToggleButtonLabel(
-            toolbarIcon("images/toolbar/zoom.png"));
+            toolbarIcon("zoom.png"));
     private final ToggleButtonLabel dragMouseMode = new ToggleButtonLabel(
-            toolbarIcon("images/toolbar/drag.png"));
+            toolbarIcon("drag.png"));
+    private final ToggleButtonLabel toggleIntendedRoute = new ToggleButtonLabel(
+            toolbarIcon("direction.png"));
 
-    // TODO update to unique icon
     /**
      * Toggle button to enable distance circle mode.
      */
     private final ToggleButtonLabel toggleDistanceCircleMode = new ToggleButtonLabel(
-            toolbarIcon("images/toolbar/ruler-triangle.png"));
-    // private final ToggleButtonLabel tglbtnMsiFilter = new ToggleButtonLabel(
-    // "MSI filter");
-
-    // private ToggleButtonLabel lockFrames = new ToggleButtonLabel(
-    // "Lock/Unlock UI");
+            toolbarIcon("ruler-triangle.png"));
 
     private MainFrame mainFrame;
     private MsiDialog msiDialog;
@@ -116,6 +106,9 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     private final GoBackButton goBackBtn = new GoBackButton();
     private final GoForwardButton goForwardBtn = new GoForwardButton();
         
+    private static int iconWidth = 16;
+    private static int iconHeight = 16;
+    
     /**
      * A slightly hacked way of simulating a click on the aisToggleName label
      */
@@ -127,13 +120,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             }
         }};
 
-    // private MsiHandler msiHandler;
-    // private NogoHandler nogoHandler;
-    // private BlinkingLabel msiIcon;
-    // private int notifyMsgId = -1;
-
-    private static int iconWidth = 16;
-    private static int iconHeight = 16;
 
     public TopPanel() {
         super();
@@ -152,18 +138,15 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
         autoFollowBtn.setToolTipText("Auto follow own ship");
         setupBtn.setToolTipText("Setup");
-        // routeBtn.setToolTipText("New route");
-        // routeBtn.setVisible(false);
         newRouteBtn.setToolTipText("Add a new route : Shortcut Ctrl N");
         routeManagerBtn.setToolTipText("Routes Manager : Shortcut Ctrl R");
         msiButton
                 .setToolTipText("Maritime Safety Information : Shortcut Ctrl M");
         aisButton.setToolTipText("Show nearby vessels : Shortcut Ctrl A");
-        // nogoButton.setToolTipText("Show/hide NoGo area");
         aisBtn.setToolTipText("Show/hide AIS targets");
         aisToggleName.setToolTipText("Show/hide AIS Name Labels");
-        // riskBtn.setToolTipText("Show/hide risk info");
         encBtn.setToolTipText("Show/hide ENC");
+        toggleIntendedRoute.setToolTipText("Show/hide intended routes");
         
         goBackBtn.setToolTipText("Go back");
         goForwardBtn.setToolTipText("Go forward");
@@ -171,30 +154,23 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         goForwardBtn.setEnabled(false);
 
         wmsBtn.setToolTipText("Show/hide WMS seacharts");
-        // tglbtnMsiFilter
-        // .setToolTipText("Enable/disable MSI message filtering based on position and routes");
 
         toggleSafeHaven.setToolTipText("Show/hide SafeHaven guidelines");
 
         this.toggleDistanceCircleMode
                 .setToolTipText("Enable range circles mode.");
 
-        // Temporary
-        // boolean showRiskAndNogo = !EeINS.getSettings().getGuiSettings()
-        // .isRiskNogoDisabled();
-
-        this.add(this.goBackBtn);
-        this.add(this.goForwardBtn);
+        add(goBackBtn);
+        add(goForwardBtn);
         add(zoomInBtn);
         add(zoomOutBtn);
         add(navigationMouseMode);
         add(dragMouseMode);
         // add the toggle button to the component
-        this.add(this.toggleDistanceCircleMode);
+        add(this.toggleDistanceCircleMode);
         add(centreBtn);
         add(autoFollowBtn);
         add(setupBtn);
-        // add(routeBtn);
         add(newRouteBtn);
         add(routeManagerBtn);
         add(msiButton);
@@ -205,64 +181,38 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         add(encBtn);
         add(wmsBtn);
         add(toggleSafeHaven);
-
-        // add(tglbtnMsiFilter);
-        // if (showRiskAndNogo)
-        // add(riskBtn);
-        // if (showRiskAndNogo)
-        // add(nogoButton);
-
-        // add(lockFrames);
+        add(toggleIntendedRoute);
 
         Component horizontalStrut = Box.createHorizontalStrut(5);
-        // JSeparator separator = new JSeparator();
-        // separator.setOrientation(SwingConstants.VERTICAL);
         horizontalStrut = Box.createHorizontalStrut(5);
 
         ImageIcon[] msiAnim = new ImageIcon[2];
         msiAnim[0] = EPDShip.res().getCachedImageIcon("/images/toppanel/msi_symbol_64x20.png");
         msiAnim[1] = EPDShip.res().getCachedImageIcon("/images/toppanel/blank64x20.png");
-        // msiIcon = new BlinkingLabel(400, msiAnim);
 
         add(horizontalStrut);
-        // add(separator);
-        // add(horizontalStrut);
-        // add(msiIcon);
-        // msiIcon.setVisible(false);
 
-        // msiIcon.addMouseListener(this);
         zoomInBtn.addMouseListener(this);
 
         zoomOutBtn.addMouseListener(this);
         centreBtn.addMouseListener(this);
         autoFollowBtn.addMouseListener(this);
         setupBtn.addMouseListener(this);
-        // routeBtn.addMouseListener(this);
         newRouteBtn.addMouseListener(this);
         routeManagerBtn.addMouseListener(this);
         msiButton.addMouseListener(this);
         aisButton.addMouseListener(this);
-        // nogoButton.addMouseListener(this);
         aisBtn.addMouseListener(this);
-        // riskBtn.addMouseListener(this);
         encBtn.addMouseListener(this);
         wmsBtn.addMouseListener(this);
         aisToggleName.addMouseListener(this);
         goBackBtn.addMouseListener(this);
         goForwardBtn.addMouseListener(this);
-        // tglbtnMsiFilter.addMouseListener(this);
-        // lockFrames.addMouseListener(this);
-
-        // lockFrames.setSelected(true);
-        // nogoButton.setSelected(true);
-
         toggleSafeHaven.addMouseListener(this);
-
         navigationMouseMode.addMouseListener(this);
         dragMouseMode.addMouseListener(this);
-
-        // Listen for mouse input on the range circle toggle button
-        this.toggleDistanceCircleMode.addMouseListener(this);
+        toggleDistanceCircleMode.addMouseListener(this);
+        toggleIntendedRoute.addMouseListener(this);
 
         updateButtons();
     }
@@ -275,14 +225,14 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
                 .isEncVisible());
         wmsBtn.setSelected(EPDShip.getInstance().getSettings().getMapSettings()
                 .isWmsVisible());
-        // tglbtnMsiFilter.setSelected(EeINS.getSettings().getEnavSettings()
-        // .isMsiFilter());
         aisToggleName.setSelected(EPDShip.getInstance().getSettings().getAisSettings()
                 .isShowNameLabels());
 
         navigationMouseMode.setSelected(true);
         // range circles mode is disabled by default.
-        this.toggleDistanceCircleMode.setSelected(false);
+        toggleDistanceCircleMode.setSelected(false);
+        
+        toggleIntendedRoute.setSelected(EPDShip.getInstance().getSettings().getAisSettings().isShowIntendedRoute());
     }
 
     public void disableAutoFollow() {
@@ -300,10 +250,8 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     public void newRoute() {
         if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID
                 || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID) {
-            // mainFrame.getChartPanel().setMouseMode(0);
             mainFrame.getChartPanel().setMouseMode(RouteEditMouseMode.MODE_ID);
         } else {
-            // mainFrame.getChartPanel().setMouseMode(1);
             mainFrame.getChartPanel().setMouseMode(NavigationMouseMode.MODE_ID);
         }
     }
@@ -323,9 +271,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         if (obj instanceof MouseDelegator) {
             mouseDelegator = (MouseDelegator) obj;
         }
-        // if (obj instanceof MsiHandler) {
-        // msiHandler = (MsiHandler) obj;
-        // }
         if (obj instanceof AisDialog) {
             aisDialog = (AisDialog) obj;
         }
@@ -372,36 +317,22 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        // TODO Auto-generated method stub
     }
 
     @Override
     public void mouseEntered(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseExited(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mousePressed(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        // if (e.getSource() == msiIcon) {
-        // if (notifyMsgId > 0) {
-        // msiDialog.showMessage(notifyMsgId);
-        // } else {
-        // msiDialog.setVisible(true);
-        // }
-        // } else
 
         if (e.getSource() == autoFollowBtn) {
             EPDShip.getInstance().getSettings().getNavSettings()
@@ -424,8 +355,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             menuBar.getAisLayer().setSelected(
                     EPDShip.getInstance().getSettings().getAisSettings().isVisible());
 
-            // } else if (e.getSource() == riskBtn) {
-            // EeINS.getRiskHandler().toggleRiskHandler(riskBtn.isSelected());
         } else if (e.getSource() == encBtn) {
             EPDShip.getInstance().getSettings().getMapSettings()
                     .setEncVisible(encBtn.isSelected());
@@ -437,7 +366,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             EPDShip.getInstance().getSettings().getMapSettings()
                     .setWmsVisible(wmsBtn.isSelected());
             mainFrame.getChartPanel().wmsVisible(wmsBtn.isSelected());
-            // mainFrame.getChartPanel().getWmsDragLayer().setVisible(wmsBtn.isSelected());
         } else if (e.getSource() == routeManagerBtn) {
             RouteManagerDialog routeManagerDialog = new RouteManagerDialog(
                     mainFrame);
@@ -457,17 +385,13 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
                     || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID
                     || mouseDelegator.getActiveMouseModeID() == DistanceCircleMouseMode.MODE_ID) {
                 menuBar.getNewRoute().setSelected(true);
-                // mainFrame.getChartPanel().setMouseMode(0);
                 mainFrame.getChartPanel().setMouseMode(
                         RouteEditMouseMode.MODE_ID);
             } else {
-                // mainFrame.getChartPanel().setMouseMode(1);
                 mainFrame.getChartPanel().setMouseMode(
                         NavigationMouseMode.MODE_ID);
                 menuBar.getNewRoute().setSelected(false);
             }
-            // } else if (e.getSource() == nogoButton) {
-            // nogoHandler.toggleLayer();
         } else if (e.getSource() == newRouteBtn) {
             newRoute();
             
@@ -479,58 +403,30 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         } else if (e.getSource() == toggleSafeHaven) {
             routeLayer.toggleSafeHaven();
         } else if (e.getSource() == dragMouseMode) {
-            System.out.println("Drag mouse mode!");
-            // mainFrame.getChartPanel().setMouseMode(2);
             mainFrame.getChartPanel().setMouseMode(DragMouseMode.MODE_ID);
         } else if (e.getSource() == navigationMouseMode) {
-            // mainFrame.getChartPanel().setMouseMode(1);
             mainFrame.getChartPanel().setMouseMode(NavigationMouseMode.MODE_ID);
-            System.out.println("Nav mouse mode!");
         } else if (e.getSource() == centreBtn) {
-            // Save the centering of the ship.
             mainFrame.saveCentreOnShip();
-        } else if (e.getSource() == this.goBackBtn) {
-                // Jump to the previous position in the history.
-//                HistoryPosition hpos = EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().goOneElementBack();
-//                mainFrame.getChartPanel().zoomToPosition(hpos.getPosition());
-//                mainFrame.getChartPanel().getMap().setScale(hpos.getZoomScale());
-        } else if (e.getSource() == this.goForwardBtn) {
-            if (this.goForwardBtn.isEnabled()) {
-                // Go one element forward in the history.
-//                HistoryPosition hpos = EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().goOneElementForward();
-//                                
-//                // Move to the next elements position.
-//                mainFrame.getChartPanel().zoomToPosition(hpos.getPosition());
-//                mainFrame.getChartPanel().getMap().setScale(hpos.getZoomScale());
-//                
-//                toggleGoBackButton();
-            }
         }
         // react on mouse click on "toggle distance circles mode"
         else if (e.getSource() == this.toggleDistanceCircleMode) {
             if (this.toggleDistanceCircleMode.isSelected()) {
-                // this.mainFrame.getChartPanel().setMouseMode(3);
                 this.mainFrame.getChartPanel().setMouseMode(
                         DistanceCircleMouseMode.MODE_ID);
             } else {
-                // go back to navigation mouse mode
-                // this.mainFrame.getChartPanel().setMouseMode(1);
                 // go back to previously active mouse mode
                 this.mainFrame.getChartPanel().setMouseMode(
                         ((DistanceCircleMouseMode) this.mainFrame
                                 .getChartPanel().getMouseDelegator()
                                 .getActiveMouseMode()).getPreviousMouseMode());
             }
+        } else if (e.getSource() == toggleIntendedRoute) {
+            boolean visible = toggleIntendedRoute.isSelected();
+            EPDShip.getInstance().getSettings().getAisSettings().setShowIntendedRoute(visible);
+            mainFrame.getChartPanel().setIntendedRouteLayerVisibility(visible);
+            menuBar.getIntendedRouteLayer().setSelected(visible);
         }
-        // else if (e.getSource() == tglbtnMsiFilter) {
-        // EeINS.getSettings().getEnavSettings()
-        // .setMsiFilter(tglbtnMsiFilter.isSelected());
-        // msiHandler.notifyUpdate();
-        // }
-        // else if (e.getSource() == lockFrames) {
-        // mainFrame.getDockableComponents().toggleFrameLock();
-        // }
-
     }
 
     public ToggleButtonLabel getNavigationMouseMode() {
@@ -549,30 +445,17 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         return msiButton;
     }
 
-    // public ToggleButtonLabel getNogoButton() {
-    // return nogoButton;
-    // }
-
     public ToggleButtonLabel getAisBtn() {
         return aisBtn;
     }
 
-    //
-    // public ToggleButtonLabel getRiskBtn() {
-    // return riskBtn;
-    // }
-
     public ToggleButtonLabel getEncBtn() {
         return encBtn;
     }
-
-    // public ToggleButtonLabel getLockFrames() {
-    // return lockFrames;
-    // }
-
-    // public ToggleButtonLabel getTglbtnMsiFilter() {
-    // return tglbtnMsiFilter;
-    // }
+    
+    public ToggleButtonLabel getIntendedRouteButton() {
+        return toggleIntendedRoute;
+    }
 
     public ToggleButtonLabel getAutoFollowBtn() {
         return autoFollowBtn;
@@ -594,7 +477,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
      * @return newimage the newly created and resized image
      */
     public ImageIcon toolbarIcon(String imgpath) {
-        ImageIcon icon = EPDShip.res().getCachedImageIcon(imgpath);
+        ImageIcon icon = EPDShip.res().folder("images/toolbar/").getCachedImageIcon(imgpath);
 
         Image img = icon.getImage();
         Image newimg = img.getScaledInstance(iconWidth, iconHeight,

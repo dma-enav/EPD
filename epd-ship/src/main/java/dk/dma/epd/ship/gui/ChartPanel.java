@@ -330,6 +330,9 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         // Show WMS or not
         wmsVisible(EPDShip.getInstance().getSettings().getMapSettings().isWmsVisible());
 
+        // Show intended routes or not
+        setIntendedRouteLayerVisibility(EPDShip.getInstance().getSettings().getAisSettings().isShowIntendedRoute());
+        
         getMap().addMouseWheelListener(this);
 
     }
@@ -426,6 +429,16 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
     public void wmsVisible(boolean visible) {
         if (wmsLayer != null) {
             wmsLayer.setVisible(visible);
+        }
+    }
+
+    /**
+     * Sets the visibility of the intended route layer
+     * @param visible the visibility of the intended route layer
+     */
+    public void setIntendedRouteLayerVisibility(boolean visible) {
+        if (intendedRouteLayer != null) {
+            intendedRouteLayer.setVisible(visible);
         }
     }
 

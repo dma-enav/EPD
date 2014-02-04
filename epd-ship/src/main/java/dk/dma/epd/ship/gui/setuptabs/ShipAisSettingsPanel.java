@@ -42,7 +42,6 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
     private AisSettings settings;
     private JCheckBox chckbxShowShipLabels;
     private JCheckBox chckbxBroadcastIntendedRoute;
-    private JCheckBox chckbxShowIntendedRoutesByDefault;
     private JSpinner spinnerIntendedRouteMaxWps;
     private JSpinner spinnerIntendedRouteMaxTime;
 
@@ -67,29 +66,29 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         chckbxShowShipLabels.setBounds(16, 20, 137, 23);
         appearancePanel.add(chckbxShowShipLabels);
         
-        this.spinnerCogVectorLengthMin = new JSpinner(new SpinnerNumberModel(
+        spinnerCogVectorLengthMin = new JSpinner(new SpinnerNumberModel(
                 new Integer(1), new Integer(1), null, new Integer(1)));
-        this.spinnerCogVectorLengthMin.setBounds(16, 45, 75, 20);
-        appearancePanel.add(this.spinnerCogVectorLengthMin);
+        spinnerCogVectorLengthMin.setBounds(16, 45, 75, 20);
+        appearancePanel.add(spinnerCogVectorLengthMin);
         
-        this.spinnerCogVectorLengthMax = new JSpinner(new SpinnerNumberModel(
+        spinnerCogVectorLengthMax = new JSpinner(new SpinnerNumberModel(
                 new Integer(6), new Integer(1), null, new Integer(1)));
-        this.spinnerCogVectorLengthMax.setBounds(16, 70, 75, 20);
-        appearancePanel.add(this.spinnerCogVectorLengthMax);
+        spinnerCogVectorLengthMax.setBounds(16, 70, 75, 20);
+        appearancePanel.add(spinnerCogVectorLengthMax);
         
-        this.spinnerCogVectorLengthScaleStepSize = new JSpinner(new SpinnerNumberModel(
+        spinnerCogVectorLengthScaleStepSize = new JSpinner(new SpinnerNumberModel(
                 new Float(5000), new Float(2000), null, new Float(1000)));
-        this.spinnerCogVectorLengthScaleStepSize.setBounds(16, 95, 75, 20);
-        appearancePanel.add(this.spinnerCogVectorLengthScaleStepSize);
+        spinnerCogVectorLengthScaleStepSize.setBounds(16, 95, 75, 20);
+        appearancePanel.add(spinnerCogVectorLengthScaleStepSize);
         
-        this.spinnerCogVectorHideBelow = new JSpinner(new SpinnerNumberModel(
+        spinnerCogVectorHideBelow = new JSpinner(new SpinnerNumberModel(
                 new Float(0.1), new Float(0.1), new Float(100), new Float(0.1)));
-        this.spinnerCogVectorHideBelow.setBounds(16, 120, 75, 20);
-        appearancePanel.add(this.spinnerCogVectorHideBelow);
+        spinnerCogVectorHideBelow.setBounds(16, 120, 75, 20);
+        appearancePanel.add(spinnerCogVectorHideBelow);
         
-        this.spinnerAISRedraw = new JSpinner();
-        this.spinnerAISRedraw.setBounds(16, 145, 75, 20);
-        appearancePanel.add(this.spinnerAISRedraw);
+        spinnerAISRedraw = new JSpinner();
+        spinnerAISRedraw.setBounds(16, 145, 75, 20);
+        appearancePanel.add(spinnerAISRedraw);
         
         JLabel lblOwnShipAnd = new JLabel("Own ship and targets COG vector length minimum (minutes)");
         lblOwnShipAnd.setBounds(103, 47, 383, 16);
@@ -111,13 +110,13 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         lblAisRedrawInterval.setBounds(103, 147, 150, 16);
         appearancePanel.add(lblAisRedrawInterval);
         
-        this.add(appearancePanel);
+        add(appearancePanel);
         
         
         /************** AIS intended route settings ***************/
         
         JPanel intendedRoutePanel = new JPanel();
-        intendedRoutePanel.setBounds(6, 297, 438, 135);
+        intendedRoutePanel.setBounds(6, 297, 438, 115);
         intendedRoutePanel.setLayout(null);
         intendedRoutePanel.setBorder(new TitledBorder(
                 null, "AIS Intended Route", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -126,27 +125,23 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         chckbxBroadcastIntendedRoute.setBounds(16, 20, 189, 20);
         intendedRoutePanel.add(chckbxBroadcastIntendedRoute);
         
-        chckbxShowIntendedRoutesByDefault = new JCheckBox("Show intended routes by default");
-        chckbxShowIntendedRoutesByDefault.setBounds(16, 45, 235, 20);
-        intendedRoutePanel.add(chckbxShowIntendedRoutesByDefault);
-        
         spinnerIntendedRouteMaxWps = new JSpinner();
-        spinnerIntendedRouteMaxWps.setBounds(16, 70, 75, 20);
+        spinnerIntendedRouteMaxWps.setBounds(16, 50, 75, 20);
         intendedRoutePanel.add(spinnerIntendedRouteMaxWps);
         
         JLabel lblMaximumWaypointsIn = new JLabel("Maximum waypoints in an intended route");
-        lblMaximumWaypointsIn.setBounds(103, 72, 261, 16);
+        lblMaximumWaypointsIn.setBounds(103, 52, 261, 16);
         intendedRoutePanel.add(lblMaximumWaypointsIn);
         
         spinnerIntendedRouteMaxTime = new JSpinner();
-        spinnerIntendedRouteMaxTime.setBounds(16, 95, 75, 20);
+        spinnerIntendedRouteMaxTime.setBounds(16, 75, 75, 20);
         intendedRoutePanel.add(spinnerIntendedRouteMaxTime);
         
         JLabel lblMaximumDurationOf = new JLabel("Maximum duration of intended route (min)");
-        lblMaximumDurationOf.setBounds(103, 97, 268, 16);
+        lblMaximumDurationOf.setBounds(103, 77, 268, 16);
         intendedRoutePanel.add(lblMaximumDurationOf);
         
-        this.add(intendedRoutePanel);
+        add(intendedRoutePanel);
     }
     
     /**
@@ -159,21 +154,20 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         super.doLoadSettings();
         
         // Get AIS settings.
-        this.settings = EPDShip.getInstance().getSettings().getAisSettings();
+        settings = EPDShip.getInstance().getSettings().getAisSettings();
         
         // Load appearance settings.
-        this.chckbxShowShipLabels.setSelected(this.settings.isShowNameLabels());
-        this.spinnerCogVectorLengthMin.setValue(this.settings.getCogVectorLengthMin());
-        this.spinnerCogVectorLengthMax.setValue(this.settings.getCogVectorLengthMax());
-        this.spinnerCogVectorLengthScaleStepSize.setValue(this.settings.getCogVectorLengthScaleInterval());
-        this.spinnerCogVectorHideBelow.setValue(this.settings.getCogVectorHideBelow());
-        this.spinnerAISRedraw.setValue(this.settings.getMinRedrawInterval());
+        chckbxShowShipLabels.setSelected(settings.isShowNameLabels());
+        spinnerCogVectorLengthMin.setValue(settings.getCogVectorLengthMin());
+        spinnerCogVectorLengthMax.setValue(settings.getCogVectorLengthMax());
+        spinnerCogVectorLengthScaleStepSize.setValue(settings.getCogVectorLengthScaleInterval());
+        spinnerCogVectorHideBelow.setValue(settings.getCogVectorHideBelow());
+        spinnerAISRedraw.setValue(settings.getMinRedrawInterval());
         
         // Load AIS Intended Route settings
-        this.chckbxBroadcastIntendedRoute.setSelected(this.settings.isBroadcastIntendedRoute());
-        this.chckbxShowIntendedRoutesByDefault.setSelected(this.settings.isShowIntendedRouteByDefault());
-        this.spinnerIntendedRouteMaxWps.setValue(this.settings.getIntendedRouteMaxWps());
-        this.spinnerIntendedRouteMaxTime.setValue(this.settings.getIntendedRouteMaxTime());
+        chckbxBroadcastIntendedRoute.setSelected(settings.isBroadcastIntendedRoute());
+        spinnerIntendedRouteMaxWps.setValue(settings.getIntendedRouteMaxWps());
+        spinnerIntendedRouteMaxTime.setValue(settings.getIntendedRouteMaxTime());
     }
     
     public void doSaveSettings() {
@@ -182,18 +176,17 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         super.doSaveSettings();
         
         // Save appearance settings.
-        this.settings.setShowNameLabels(chckbxShowShipLabels.isSelected());
-        this.settings.setCogVectorLengthMin((Integer) spinnerCogVectorLengthMin.getValue());
-        this.settings.setCogVectorLengthMax((Integer) spinnerCogVectorLengthMax.getValue());
-        this.settings.setCogVectorLengthScaleInterval((Float) spinnerCogVectorLengthScaleStepSize.getValue());
-        this.settings.setCogVectorHideBelow((Float) spinnerCogVectorHideBelow.getValue());
-        this.settings.setMinRedrawInterval((Integer) spinnerAISRedraw.getValue());
+        settings.setShowNameLabels(chckbxShowShipLabels.isSelected());
+        settings.setCogVectorLengthMin((Integer) spinnerCogVectorLengthMin.getValue());
+        settings.setCogVectorLengthMax((Integer) spinnerCogVectorLengthMax.getValue());
+        settings.setCogVectorLengthScaleInterval((Float) spinnerCogVectorLengthScaleStepSize.getValue());
+        settings.setCogVectorHideBelow((Float) spinnerCogVectorHideBelow.getValue());
+        settings.setMinRedrawInterval((Integer) spinnerAISRedraw.getValue());
 
         // Save AIS intended route settings
-        this.settings.setBroadcastIntendedRoute(chckbxBroadcastIntendedRoute.isSelected());
-        this.settings.setShowIntendedRouteByDefault(chckbxShowIntendedRoutesByDefault.isSelected());
-        this.settings.setIntendedRouteMaxWps((Integer) spinnerIntendedRouteMaxWps.getValue());
-        this.settings.setIntendedRouteMaxTime((Integer) spinnerIntendedRouteMaxTime.getValue());
+        settings.setBroadcastIntendedRoute(chckbxBroadcastIntendedRoute.isSelected());
+        settings.setIntendedRouteMaxWps((Integer) spinnerIntendedRouteMaxWps.getValue());
+        settings.setIntendedRouteMaxTime((Integer) spinnerIntendedRouteMaxTime.getValue());
     }
     
     public boolean checkSettingsChanged() {
@@ -210,18 +203,17 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         if (!changesWereMade) {
             changesWereMade = 
                     // Changes were made to appearance settings.
-                    changed(this.settings.isShowNameLabels(), chckbxShowShipLabels.isSelected()) ||
-                    changed(this.settings.getCogVectorLengthMin(), spinnerCogVectorLengthMin.getValue()) ||
-                    changed(this.settings.getCogVectorLengthMax(), spinnerCogVectorLengthMax.getValue()) ||
-                    changed(this.settings.getCogVectorLengthScaleInterval(), spinnerCogVectorLengthScaleStepSize.getValue()) ||
-                    changed(this.settings.getCogVectorHideBelow(), spinnerCogVectorHideBelow.getValue()) ||
-                    changed(this.settings.getMinRedrawInterval(), spinnerAISRedraw.getValue()) ||
+                    changed(settings.isShowNameLabels(), chckbxShowShipLabels.isSelected()) ||
+                    changed(settings.getCogVectorLengthMin(), spinnerCogVectorLengthMin.getValue()) ||
+                    changed(settings.getCogVectorLengthMax(), spinnerCogVectorLengthMax.getValue()) ||
+                    changed(settings.getCogVectorLengthScaleInterval(), spinnerCogVectorLengthScaleStepSize.getValue()) ||
+                    changed(settings.getCogVectorHideBelow(), spinnerCogVectorHideBelow.getValue()) ||
+                    changed(settings.getMinRedrawInterval(), spinnerAISRedraw.getValue()) ||
                     
                     // Changes were made to AIS intended route settings.
-                    changed(this.settings.isBroadcastIntendedRoute(), chckbxBroadcastIntendedRoute.isSelected()) ||
-                    changed(this.settings.isShowIntendedRouteByDefault(), chckbxShowIntendedRoutesByDefault.isSelected()) ||
-                    changed(this.settings.getIntendedRouteMaxWps(), spinnerIntendedRouteMaxWps.getValue()) ||
-                    changed(this.settings.getIntendedRouteMaxTime(), spinnerIntendedRouteMaxTime.getValue());
+                    changed(settings.isBroadcastIntendedRoute(), chckbxBroadcastIntendedRoute.isSelected()) ||
+                    changed(settings.getIntendedRouteMaxWps(), spinnerIntendedRouteMaxWps.getValue()) ||
+                    changed(settings.getIntendedRouteMaxTime(), spinnerIntendedRouteMaxTime.getValue());
         }
         
         return changesWereMade;

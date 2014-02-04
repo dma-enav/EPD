@@ -41,6 +41,7 @@ import javax.swing.JPopupMenu;
 import com.bbn.openmap.LightMapHandlerChild;
 import com.bbn.openmap.MapBean;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.CenterVesselTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
@@ -261,6 +262,19 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
      */
     public abstract void routeEditMenu();
 
+    /**
+     * Checks if the intended route layer is visible. If not,
+     * the menu items are disabled.
+     * @param items the intended route menu items to check
+     */
+    protected void checkIntendedRouteItems(JMenuItem... items) {
+        if (!EPD.getInstance().getSettings().getAisSettings().isShowIntendedRoute()) {
+            for (JMenuItem item : items) {
+                item.setEnabled(false);
+            }
+        }
+    }
+    
     /**
      * {@inheritDoc}
      */
