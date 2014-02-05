@@ -17,8 +17,8 @@ package dk.dma.epd.common.prototype.gui.menuitems;
 
 import javax.swing.JMenuItem;
 
-import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 
 /**
  * Hides all intended routes
@@ -27,7 +27,7 @@ public class HideAllIntendedRoutes extends JMenuItem implements IMapMenuAction {
     
     private static final long serialVersionUID = 1L;
     
-    private AisHandlerCommon aisHandler;
+    private IntendedRouteHandlerCommon intendedRouteHandler;
 
     /**
      * Constructor
@@ -43,14 +43,14 @@ public class HideAllIntendedRoutes extends JMenuItem implements IMapMenuAction {
      */
     @Override
     public void doAction() {
-        aisHandler.hideAllIntendedRoutes();
+        intendedRouteHandler.hideAllIntendedRoutes();
     }
 
     /**
      * Sets the associated AIS handler
      * @param aisHandler
      */
-    public void setAisHandler(AisHandlerCommon aisHandler) {
-        this.aisHandler = aisHandler;
+    public void setIntendedRouteHandler(IntendedRouteHandlerCommon intendedRouteHandler) {
+        this.intendedRouteHandler = intendedRouteHandler;
     }
 }

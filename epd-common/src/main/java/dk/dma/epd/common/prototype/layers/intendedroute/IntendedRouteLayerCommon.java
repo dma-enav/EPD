@@ -26,26 +26,23 @@ import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
 
 import dk.dma.ais.message.AisMessage;
-import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
-import dk.dma.epd.common.prototype.ais.VesselPositionData;
-import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
+import dk.dma.epd.common.prototype.service.IIntendedRouteListener;
+import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 
 /**
  * Base layer for displaying intended routes in EPDShip and EPDShore
- * 
- * @author Janus Varmarken
  */
 public abstract class IntendedRouteLayerCommon extends EPDLayerCommon 
-    implements IAisTargetListener, ProjectionListener {
+    implements IAisTargetListener, IIntendedRouteListener, ProjectionListener {
 
     private static final long serialVersionUID = 1L;
     
@@ -55,7 +52,10 @@ public abstract class IntendedRouteLayerCommon extends EPDLayerCommon
     protected ConcurrentHashMap<Long, IntendedRouteGraphic> intendedRoutes = new ConcurrentHashMap<>();  
 
     protected IntendedRouteInfoPanel intendedRouteInfoPanel = new IntendedRouteInfoPanel();
+    
     private CommonChartPanel chartPanel;
+    private AisHandlerCommon aisHandler;
+    private IntendedRouteHandlerCommon intendedRouteHandler;
     private OMCircle dummyCircle = new OMCircle();
     
     /**
@@ -74,46 +74,71 @@ public abstract class IntendedRouteLayerCommon extends EPDLayerCommon
      */
     @Override
     public void targetUpdated(AisTarget aisTarget) {
-        boolean redraw = false;
+        // Sanity checks
+        if (aisHandler == null || intendedRouteHandler == null || !(aisTarget instanceof VesselTarget)) {
+            return;
+        }
         
+        // Look up the intended route
+        IntendedRoute intendedRoute = intendedRouteHandler.getIntendedRoute(aisTarget.getMmsi());
         IntendedRouteGraphic intendedRouteGraphic = intendedRoutes.get(aisTarget.getMmsi());
-        if(aisTarget.isGone() && intendedRouteGraphic != null) {
-            // This target should no longer be painted
-            intendedRoutes.remove(aisTarget.getMmsi());
-            graphics.remove(intendedRouteGraphic);
-            redraw = true;
-        }
-        else if (!aisTarget.isGone() && aisTarget instanceof VesselTarget && ((VesselTarget)aisTarget).hasIntendedRoute()) {
-            // Get the needed data from model
-            VesselTarget vessel = (VesselTarget) aisTarget;
-            
-            VesselPositionData posData = vessel.getPositionData();
-            VesselStaticData staticData = vessel.getStaticData();
-            IntendedRoute intendedRoute = vessel.getIntendedRoute();
-            Position pos = posData.getPos();
-            
-            if(intendedRouteGraphic == null) {
-                // No current intended route graphic for this target - create it
-                intendedRouteGraphic = new IntendedRouteGraphic();
-                // add the new intended route graphic to the set of managed intended route graphics
-                intendedRoutes.put(vessel.getMmsi(), intendedRouteGraphic);
-                graphics.add(intendedRouteGraphic);
-            }
-            // Determine vessel name
-            String name;
-            if (staticData != null) {
-                name = AisMessage.trimText(staticData.getName());
-            } else {
-                Long mmsi = vessel.getMmsi();
-                name = "ID:" + mmsi.toString();
-            }
-            
-            // Update the graphic with the updated vessel, route and position data
-            intendedRouteGraphic.update(vessel, name, intendedRoute, pos);
-            redraw = true;
+        if (intendedRoute == null || intendedRouteGraphic == null) {
+            return;
         }
         
-        if(redraw) {
+        VesselTarget vessel = (VesselTarget)aisTarget;
+            
+        // Determine vessel name
+        String name = (vessel.getStaticData() != null) 
+                ? AisMessage.trimText(vessel.getStaticData().getName()) 
+                : "ID:" + aisTarget.getMmsi();
+        
+        // Update the graphic with the updated vessel, route and position data
+        intendedRouteGraphic.update(name, intendedRoute, vessel.getPositionData().getPos());
+        doPrepare();
+    }
+    
+    /**
+     * Called when an intended route has been added
+     * @param intendedRoute the intended route
+     */
+    @Override
+    public void intendedRouteAdded(IntendedRoute intendedRoute) {   
+        IntendedRouteGraphic intendedRouteGraphic = new IntendedRouteGraphic();
+        // add the new intended route graphic to the set of managed intended route graphics
+        intendedRoutes.put(intendedRoute.getMmsi(), intendedRouteGraphic);
+        graphics.add(intendedRouteGraphic);
+        intendedRouteGraphic.update("ID:" + intendedRoute.getMmsi(), intendedRoute, null);
+        doPrepare();
+    }
+    
+    /**
+     * Called when an intended route has been updated
+     * @param intendedRoute the intended route
+     */
+    @Override
+    public void intendedRouteUpdated(IntendedRoute intendedRoute) {   
+        IntendedRouteGraphic intendedRouteGraphic = intendedRoutes.get(intendedRoute.getMmsi());
+        
+        // Should always be defined, but better check...
+        if (intendedRouteGraphic != null) {
+            intendedRouteGraphic.update(null, intendedRoute, null);        
+            doPrepare();
+        }
+    }
+    
+    /**
+     * Called when an intended route has been removed
+     * @param intendedRoute the intended route
+     */
+    @Override
+    public void intendedRouteRemoved(IntendedRoute intendedRoute) {   
+        IntendedRouteGraphic intendedRouteGraphic = intendedRoutes.get(intendedRoute.getMmsi());
+        
+        // Should always be defined, but better check...
+        if (intendedRouteGraphic != null) {
+            graphics.remove(intendedRouteGraphic);
+            intendedRoutes.remove(intendedRoute.getMmsi());
             doPrepare();
         }
     }
@@ -143,8 +168,13 @@ public abstract class IntendedRouteLayerCommon extends EPDLayerCommon
         super.findAndInit(obj);
         
         if (obj instanceof AisHandlerCommon) {
+            aisHandler = (AisHandlerCommon)obj;
             // register as listener for AIS messages
-            ((AisHandlerCommon)obj).addListener(this);
+            aisHandler.addListener(this);
+        } else if (obj instanceof IntendedRouteHandlerCommon) {
+            intendedRouteHandler = (IntendedRouteHandlerCommon)obj;
+            // register as listener for intended routes
+            intendedRouteHandler.addListener(this);
         } else if (obj instanceof CommonChartPanel) {
             this.chartPanel = (CommonChartPanel)obj;
         }

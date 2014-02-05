@@ -66,6 +66,7 @@ import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
 import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
+import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 
 /**
  * Abstract base class for the right click map menu
@@ -112,6 +113,7 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
     protected MapBean mapBean;
     
     protected AisHandlerCommon aisHandler;
+    protected IntendedRouteHandlerCommon intendedRouteHandler;
     
     // bean context
     protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(this);
@@ -294,6 +296,9 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
         }
         else if (obj instanceof AisHandlerCommon) {
             aisHandler = (AisHandlerCommon) obj;
+        } 
+        else if (obj instanceof IntendedRouteHandlerCommon) {
+            intendedRouteHandler = (IntendedRouteHandlerCommon)obj;
         }
     }
 

@@ -17,9 +17,9 @@ package dk.dma.epd.common.prototype.gui.menuitems;
 
 import javax.swing.JMenuItem;
 
-import dk.dma.epd.common.prototype.ais.IAisTargetListener;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.model.route.IntendedRoute;
+import dk.dma.epd.common.prototype.service.IIntendedRouteListener;
 
 /**
  * Toggle displaying the intended route for a vessel target
@@ -29,8 +29,8 @@ public class IntendedRouteToggle extends JMenuItem implements
 
     private static final long serialVersionUID = 1L;
     
-    private VesselTarget vesselTarget;
-    private IAisTargetListener listener;
+    private IntendedRoute intendedRoute;
+    private IIntendedRouteListener listener;
 
     /**
      * Constructor
@@ -44,23 +44,23 @@ public class IntendedRouteToggle extends JMenuItem implements
      */
     @Override
     public void doAction() {
-        vesselTarget.getSettings().setShowRoute(!vesselTarget.getSettings().isShowRoute());
-        listener.targetUpdated(vesselTarget);
+        intendedRoute.setVisible(!intendedRoute.isVisible());
+        listener.intendedRouteUpdated(intendedRoute);
     }
     
     /**
-     * Sets the vessel target
-     * @param vesselTarget the vessel target
+     * Sets the intended route
+     * @param intendedRoute the intended route
      */
-    public void setVesselTarget(VesselTarget vesselTarget) {
-        this.vesselTarget = vesselTarget;
+    public void setIntendedRoute(IntendedRoute intendedRoute) {
+        this.intendedRoute = intendedRoute;
     }
     
     /**
      * Sets the listener that should be notified when the route visibility changes
      * @param listener the listener that should be notified when the route visibility changes
      */
-    public void setAisTargetListener(IAisTargetListener listener) {
+    public void setIntendedRouteListener(IIntendedRouteListener listener) {
         this.listener = listener;
     }
 }

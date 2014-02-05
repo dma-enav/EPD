@@ -18,8 +18,6 @@ package dk.dma.epd.common.prototype.ais;
 import java.util.Date;
 
 import net.jcip.annotations.ThreadSafe;
-import dk.dma.epd.common.prototype.model.route.IntendedRoute;
-import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 
 /**
  * Class representing an AIS vessel target
@@ -29,10 +27,6 @@ public class VesselTarget extends MobileTarget {
     
     private static final long serialVersionUID = -5911356750376325979L;
     
-    /**
-     * Time an intended route is considered valid without update
-     */
-    public static final long ROUTE_TTL = 10 * 60 * 1000; // 10 min
     
     /**
      * Target class A or B 
@@ -41,8 +35,6 @@ public class VesselTarget extends MobileTarget {
     
     // NB: We do not want to persist intended route data
     private transient AisClass aisClass; 
-    private transient IntendedRoute intendedRoute;
-    
 
     /**
      * Copy constructor
@@ -65,19 +57,6 @@ public class VesselTarget extends MobileTarget {
         super.setPositionData(positionData);
     }
 
-    public synchronized void setCloudRouteData(IntendedRoute intendedRoute) {
-        this.intendedRoute = intendedRoute;
-        this.intendedRoute.update(positionData);
-    }
-    
-    public synchronized IntendedRoute getIntendedRoute() {
-        return intendedRoute;
-    }
-
-    public synchronized void setIntendedRoute(IntendedRoute intendedRoute) {
-        this.intendedRoute = intendedRoute;
-    }
-
     public synchronized AisClass getAisClass() {
         return aisClass;
     }
@@ -85,32 +64,6 @@ public class VesselTarget extends MobileTarget {
     public synchronized void setAisClass(AisClass aisClass) {
         this.aisClass = aisClass;
     }
-    
-    /**
-     * Returns true if route information changes from valid to invalid
-     * @return
-     */
-    public synchronized boolean checkIntendedRoute() {
-        if (intendedRoute == null || !intendedRoute.hasRoute() || intendedRoute.getDuration() == 0) {
-            return false;
-        }
-        Date now = PntTime.getInstance().getDate();
-        long elapsed = now.getTime() - intendedRoute.getReceived().getTime();
-        if (elapsed > ROUTE_TTL) {
-            intendedRoute = null;
-            return true;
-        }
-        return false;        
-    }
-    
-    /**
-     * Returns if this target defines an intended route
-     * @return if this target defines an intended route
-     */
-    public synchronized boolean hasIntendedRoute() {
-        return intendedRoute != null;
-    }
-
     
     /**
      * Determine if the target has gone.

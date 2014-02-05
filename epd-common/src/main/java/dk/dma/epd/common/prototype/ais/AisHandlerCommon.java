@@ -274,7 +274,6 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         // If not exists, create and insert
         if (vesselTarget == null) {
             vesselTarget = new VesselTarget();
-            vesselTarget.getSettings().setShowRoute(true);
             vesselTarget.getSettings().setPastTrackDisplayTime(pastTrackDisplayTime);
             vesselTarget.getSettings().setPastTrackMinDist(pastTrackMinDist);
             vesselTarget.setMmsi(mmsi);
@@ -318,32 +317,6 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
      * @return if the position is within range
      */
     protected abstract boolean isWithinRange(Position pos);
-    
-    /**
-     * Hides intended routes for all vessel targets
-     */
-    public final void hideAllIntendedRoutes() {
-        for (VesselTarget vesselTarget : vesselTargets.values()) {
-            VesselTargetSettings settings = vesselTarget.getSettings();
-            if (settings.isShowRoute() && vesselTarget.hasIntendedRoute()) {
-                settings.setShowRoute(false);
-                publishUpdate(vesselTarget);
-            }
-        }
-    }
-
-    /**
-     * Show intended routes for all vessel targets
-     */
-    public final void showAllIntendedRoutes() {
-        for (VesselTarget vesselTarget : vesselTargets.values()) {
-            VesselTargetSettings settings = vesselTarget.getSettings();
-            if (!settings.isShowRoute() && vesselTarget.hasIntendedRoute()) {
-                settings.setShowRoute(true);
-                publishUpdate(vesselTarget);
-            }
-        }
-    }
     
     /**
      * Shows or hides past tracks for all vessel and sar targets
@@ -526,14 +499,6 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
             aisTarget.setStatus(AisTarget.Status.GONE);
             publishUpdate(aisTarget);
             return false;
-        }
-        // Check if route information is invalid
-        if (aisTarget instanceof VesselTarget) {
-            
-            if (((VesselTarget) aisTarget).checkIntendedRoute()) {
-                publishUpdate(aisTarget);
-                return false;
-            }
         }
         // Check if sart has gone old
         if (aisTarget instanceof SarTarget) {

@@ -17,15 +17,15 @@ package dk.dma.epd.common.prototype.gui.menuitems;
 
 import javax.swing.JMenuItem;
 
-import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 
 
 public class GeneralShowIntendedRoutes extends JMenuItem implements IMapMenuAction {
 
     private static final long serialVersionUID = 1L;
     
-    private AisHandlerCommon aisHandler;
+    private IntendedRouteHandlerCommon intendedRouteHandler;
 
     public GeneralShowIntendedRoutes(String text) {
         super();
@@ -34,11 +34,11 @@ public class GeneralShowIntendedRoutes extends JMenuItem implements IMapMenuActi
 
     @Override
     public void doAction() {
-        aisHandler.showAllIntendedRoutes();
+        intendedRouteHandler.showAllIntendedRoutes();
     }
 
-    public void setAisHandler(AisHandlerCommon aisHandler) {
-        this.aisHandler = aisHandler;
+    public void setIntendedRouteHandler(IntendedRouteHandlerCommon intendedRouteHandler) {
+        this.intendedRouteHandler = intendedRouteHandler;
     }
 
 }

@@ -420,6 +420,14 @@ public final class EPDShore extends EPD {
     }
 
     /**
+     * Returns a reference to the intended route handler
+     * @return a reference to the intended route handler
+     */
+    public IntendedRouteHandlerCommon getIntendedRouteHandler() {
+        return intendedRouteHandler;
+    }
+    
+    /**
      * BeanHandler for program structure
      * 
      * @return - beanHandler

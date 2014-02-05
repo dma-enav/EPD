@@ -20,7 +20,6 @@ import javax.swing.JMenuItem;
 import com.bbn.openmap.MapBean;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 
 /**
@@ -30,7 +29,7 @@ public class CenterVesselTarget extends JMenuItem implements IMapMenuAction {
 
     private static final long serialVersionUID = 1L;
     
-    private VesselTarget vesselTarget;
+    private Position pos;
     private MapBean mapBean;
 
     /**
@@ -49,20 +48,19 @@ public class CenterVesselTarget extends JMenuItem implements IMapMenuAction {
     public void doAction() {
         
         // Sanity check
-        if (!vesselTarget.getPositionData().hasPos()) {
+        if (pos == null) {
             return;
         }
         
-        Position pos = vesselTarget.getPositionData().getPos();        
         mapBean.setCenter((float)pos.getLatitude(), (float)pos.getLongitude());
     }
     
     /**
-     * Sets the vessel target
-     * @param vesselTarget the vessel target
+     * Sets the vessel position
+     * @param pos the vessel position
      */
-    public void setVesselTarget(VesselTarget vesselTarget) {
-        this.vesselTarget = vesselTarget;
+    public void setVesselPosition(Position pos) {
+        this.pos = pos;
     }
     
     /**

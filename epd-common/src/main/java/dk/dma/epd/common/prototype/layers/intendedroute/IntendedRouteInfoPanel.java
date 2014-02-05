@@ -34,12 +34,12 @@ public class IntendedRouteInfoPanel extends InfoPanel {
 
     public void showWpInfo(IntendedRouteWpCircle wpCircle) {
 //        AisIntendedRoute routeData = wpCircle.getIntendedRouteGraphic().getVesselTarget().getAisRouteData();
-        IntendedRoute routeData = wpCircle.getIntendedRouteGraphic().getVesselTarget().getIntendedRoute();
+        IntendedRoute routeData = wpCircle.getIntendedRouteGraphic().getIntendedRoute();
         if (routeData == null) {
             showText("");
             return;
         }
-        Position wp = wpCircle.getIntendedRouteGraphic().getVesselTarget().getIntendedRoute().getWaypoints().get(wpCircle.getIndex()).getPos();
+        Position wp = wpCircle.getIntendedRouteGraphic().getIntendedRoute().getWaypoints().get(wpCircle.getIndex()).getPos();
         StringBuilder str = new StringBuilder();
         str.append("<html>");
         str.append("<b>Intended route waypoint</b><br/>");
@@ -63,7 +63,7 @@ public class IntendedRouteInfoPanel extends InfoPanel {
             return;
         }
 //        AisIntendedRoute routeData = legGraphic.getIntendedRouteGraphic().getVesselTarget().getAisRouteData();
-        IntendedRoute routeData = legGraphic.getIntendedRouteGraphic().getVesselTarget().getIntendedRoute();
+        IntendedRoute routeData = legGraphic.getIntendedRouteGraphic().getIntendedRoute();
         Position startPos = routeData.getWaypoints().get(legIndex - 1).getPos();
         Position midPos = Position.create(worldLocation.getY(), worldLocation.getX());
         Position endPos = routeData.getWaypoints().get(legIndex).getPos();

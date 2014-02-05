@@ -72,7 +72,7 @@ public class VoyageInfoPanel extends InfoPanel {
             return;
         }
 //        AisIntendedRoute routeData = legGraphic.getIntendedRouteGraphic().getVesselTarget().getAisRouteData();
-        IntendedRoute routeData = legGraphic.getIntendedRouteGraphic().getVesselTarget().getIntendedRoute();
+        IntendedRoute routeData = legGraphic.getIntendedRouteGraphic().getIntendedRoute();
         Position startPos = routeData.getWaypoints().get(legIndex - 1).getPos();
         Position midPos = Position.create(worldLocation.getY(), worldLocation.getX());
         Position endPos = routeData.getWaypoints().get(legIndex).getPos();

@@ -122,6 +122,7 @@ public class ChartPanel extends CommonChartPanel {
         // Add the aishandler to this bean
         mapHandler.add(EPDShore.getInstance().getAisHandler());
         mapHandler.add(EPDShore.getInstance().getShoreServices());
+        mapHandler.add(EPDShore.getInstance().getIntendedRouteHandler());
         mapHandler.add(this);
         mapHandler.add(mainFrame);
         mapHandler.add(mainFrame.getStatusArea());

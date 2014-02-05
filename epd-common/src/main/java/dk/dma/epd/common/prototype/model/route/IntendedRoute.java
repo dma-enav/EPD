@@ -38,6 +38,8 @@ public class IntendedRoute extends Route {
     protected Date etaFirst;
     protected Date etaLast;
     protected Double activeWpRange;
+    protected boolean visible = true;
+    protected long mmsi;
 
     protected List<Double> ranges = new ArrayList<>();
 
@@ -262,4 +264,19 @@ public class IntendedRoute extends Route {
         return waypoints != null && waypoints.size() > 0;
     }
 
+    public boolean isVisible() { 
+        return visible;
+    }
+    
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public long getMmsi() {
+        return mmsi;
+    }
+
+    public void setMmsi(long mmsi) {
+        this.mmsi = mmsi;
+    }
 }

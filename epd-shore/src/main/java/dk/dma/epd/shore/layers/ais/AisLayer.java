@@ -129,7 +129,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         
         if (!(t1 && t2 && t3 && t4)) {
             VesselTarget vesselTarget = (mobileTarget instanceof VesselTarget) ? (VesselTarget)mobileTarget : null;
-            if (vesselTarget == null || !vesselTarget.hasIntendedRoute()) {
+            if (vesselTarget == null) {
                 return false;
             }
         }

@@ -19,7 +19,6 @@ import java.awt.event.MouseEvent;
 
 import com.bbn.openmap.omGraphics.OMGraphic;
 
-import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLegGraphic;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteWpCircle;
@@ -50,14 +49,12 @@ public class IntendedRouteLayer extends IntendedRouteLayerCommon {
         if (clickedGraphics instanceof IntendedRouteWpCircle) {
             
             IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) clickedGraphics;
-            VesselTarget vesselTarget = wpCircle.getIntendedRouteGraphic().getVesselTarget();
-            ((MapMenu)mapMenu).intendedRouteMenu(vesselTarget, wpCircle.getIntendedRouteGraphic());
+            ((MapMenu)mapMenu).intendedRouteMenu(wpCircle.getIntendedRouteGraphic(), this);
             
         } else if (clickedGraphics instanceof IntendedRouteLegGraphic) {
 
             IntendedRouteLegGraphic wpLeg = (IntendedRouteLegGraphic) clickedGraphics;
-            VesselTarget vesselTarget = wpLeg.getIntendedRouteGraphic().getVesselTarget();
-            ((MapMenu)mapMenu).intendedRouteMenu(vesselTarget, wpLeg.getIntendedRouteGraphic());
+            ((MapMenu)mapMenu).intendedRouteMenu(wpLeg.getIntendedRouteGraphic(), this);
         }
     }
 }

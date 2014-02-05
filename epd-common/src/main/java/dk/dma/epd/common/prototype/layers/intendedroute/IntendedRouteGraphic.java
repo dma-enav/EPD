@@ -25,7 +25,6 @@ import java.util.List;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 
@@ -51,14 +50,13 @@ public class IntendedRouteGraphic extends OMGraphicList {
         new Color(20, 20, 20)      // black'ish
     };
     
-    private IntendedRoute previousData;
+    private IntendedRoute intendedRoute;
     private IntendedRouteLegGraphic activeWpLine;
     private double[] activeWpLineLL = new double[4];
     private Color routeColor = COLORS[1];
     private String name;
     private boolean arrowsVisible;
-
-    private VesselTarget vesselTarget;
+    private Position vesselPos;
 
     private List<IntendedRouteLegGraphic> routeLegs = new ArrayList<>();
     private List<IntendedRouteWpCircle> routeWps = new ArrayList<>();
@@ -71,6 +69,10 @@ public class IntendedRouteGraphic extends OMGraphicList {
         setVisible(false);
     }
 
+    public IntendedRoute getIntendedRoute() {
+        return intendedRoute;
+    }
+    
     private void makeLegLine(int index, Position start, Position end) {
         IntendedRouteLegGraphic leg = new IntendedRouteLegGraphic(index, this,
                 false, start, end, routeColor, SCALE);
@@ -86,10 +88,6 @@ public class IntendedRouteGraphic extends OMGraphicList {
         add(wpCircle);
     }
 
-
-    public VesselTarget getVesselTarget() {
-        return vesselTarget;
-    }
 
     public String getName() {
         return name;
@@ -126,25 +124,25 @@ public class IntendedRouteGraphic extends OMGraphicList {
      * @param intendedRoute the intended route data
      * @param pos the current vessel position
      */
-    public void update(VesselTarget vesselTarget, String name,
-            IntendedRoute intendedRoute, Position pos) {
+    public void update(String name, IntendedRoute intendedRoute, Position pos) {
 
-        this.vesselTarget = vesselTarget;
-        this.name = name;
+        if (name != null) { 
+            this.name = name;
+        }
+        
         // Handle no or empty route
         if (intendedRoute == null || intendedRoute.getWaypoints().size() == 0) {
             clear();
             if (isVisible()) {
                 setVisible(false);
             }
-            previousData = null;
+            this.intendedRoute = null;
             return;
         }
         
-        if (previousData != intendedRoute) {
+        if (this.intendedRoute != intendedRoute) {
             // Route has changed, draw new route
             clear();
-            add(activeWpLine);
             
             List<Position> waypoints = new ArrayList<>();
             for (RouteWaypoint routeWp : intendedRoute.getWaypoints()) {
@@ -163,16 +161,22 @@ public class IntendedRouteGraphic extends OMGraphicList {
                 // Make leg line
                 makeLegLine(i + 1, start, end);
             }
-            previousData = intendedRoute;
+            this.intendedRoute = intendedRoute;
         }
         
         // Update leg to first waypoint
-        Position activeWpPos = intendedRoute.getWaypoints().get(0).getPos();
-        activeWpLineLL[0] = pos.getLatitude();
-        activeWpLineLL[1] = pos.getLongitude();
-        activeWpLineLL[2] = activeWpPos.getLatitude();
-        activeWpLineLL[3] = activeWpPos.getLongitude();
-        activeWpLine.setLL(activeWpLineLL);
+        if (pos != null) {
+            this.vesselPos = pos;
+        }
+        if (vesselPos != null) {
+            add(activeWpLine);
+            Position activeWpPos = intendedRoute.getWaypoints().get(0).getPos();
+            activeWpLineLL[0] = vesselPos.getLatitude();
+            activeWpLineLL[1] = vesselPos.getLongitude();
+            activeWpLineLL[2] = activeWpPos.getLatitude();
+            activeWpLineLL[3] = activeWpPos.getLongitude();
+            activeWpLine.setLL(activeWpLineLL);
+        }
 
         // Adjust the transparency of the color depending on the last-received time for the route
         long secondsSinceReceived = 
@@ -182,7 +186,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
             float factor = 1.0f - (float)secondsSinceReceived / (float)TTL;
             Color color = adjustColor(routeColor, factor, factor);
             updateColor(color);
-            this.setVisible(vesselTarget.getSettings().isShowRoute());
+            this.setVisible(intendedRoute.isVisible());
 
         } else {
             this.setVisible(false);
@@ -229,5 +233,14 @@ public class IntendedRouteGraphic extends OMGraphicList {
      */
     public void setRouteColor(Color routeColor) {
         this.routeColor = routeColor;
+    }
+    
+    /**
+     * Returns the current vessel position
+     * @return the current vessel position
+     * @return
+     */
+    public Position getVesselPostion() {
+        return vesselPos;
     }
 }
