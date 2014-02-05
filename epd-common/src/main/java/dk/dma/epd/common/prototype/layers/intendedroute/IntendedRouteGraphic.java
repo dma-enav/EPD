@@ -61,18 +61,22 @@ public class IntendedRouteGraphic extends OMGraphicList {
     private List<IntendedRouteLegGraphic> routeLegs = new ArrayList<>();
     private List<IntendedRouteWpCircle> routeWps = new ArrayList<>();
 
+    /**
+     * Constructor
+     */
     public IntendedRouteGraphic() {
         super();
         Position nullGeoLocation = Position.create(0, 0);
         activeWpLine = new IntendedRouteLegGraphic(0, this, true,
                 nullGeoLocation, nullGeoLocation, routeColor, SCALE);
-        setVisible(false);
     }
 
-    public IntendedRoute getIntendedRoute() {
-        return intendedRoute;
-    }
-    
+    /**
+     * Creates a new route leg line
+     * @param index the route leg index
+     * @param start the start position
+     * @param end the end position
+     */
     private void makeLegLine(int index, Position start, Position end) {
         IntendedRouteLegGraphic leg = new IntendedRouteLegGraphic(index, this,
                 false, start, end, routeColor, SCALE);
@@ -81,6 +85,11 @@ public class IntendedRouteGraphic extends OMGraphicList {
         add(leg);
     }
 
+    /**
+     * Creates a new route circle
+     * @param index the index of the way point
+     * @param wp the way point position
+     */
     private void makeWpCircle(int index, Position wp) {
         IntendedRouteWpCircle wpCircle = new IntendedRouteWpCircle(this, index,
                 wp.getLatitude(), wp.getLongitude(), routeColor, SCALE);
@@ -89,10 +98,10 @@ public class IntendedRouteGraphic extends OMGraphicList {
     }
 
 
-    public String getName() {
-        return name;
-    }
-
+    /**
+     * Flags whether or not to display arrows on the legs
+     * @param show whether or not to display arrows on the legs
+     */
     public void showArrowHeads(boolean show) {
         if (this.arrowsVisible != show) {
             for (IntendedRouteLegGraphic routeLeg : routeLegs) {
@@ -119,55 +128,66 @@ public class IntendedRouteGraphic extends OMGraphicList {
     /**
      * Called when the vessel target has been updated
      * 
-     * @param vesselTarget the vessel target
-     * @param name the name
-     * @param intendedRoute the intended route data
-     * @param pos the current vessel position
+     * @param vesselPos the vessel position
      */
-    public void update(String name, IntendedRoute intendedRoute, Position pos) {
-
-        if (name != null) { 
-            this.name = name;
-        }
+    public synchronized void updateVesselPosition(Position vesselPos) {
         
-        // Handle no or empty route
-        if (intendedRoute == null || intendedRoute.getWaypoints().size() == 0) {
-            clear();
-            if (isVisible()) {
-                setVisible(false);
-            }
-            this.intendedRoute = null;
+        if ((vesselPos == null && this.vesselPos != null) || !vesselPos.equals(this.vesselPos)) {
+            this.vesselPos = vesselPos;
+            renderIntendedRoute();
+        }
+    }
+    
+    /**
+     * Called when the intended route has been updated
+     * 
+     * @param intendedRoute the intended route data
+     * @return if the graphics has changed
+     */
+    public synchronized void updateIntendedRoute(IntendedRoute intendedRoute) {
+
+        if (this.name == null) {
+            this.name = "ID:" + intendedRoute.getMmsi();
+        }
+                
+        this.intendedRoute = intendedRoute;
+        // Always re-paint, since color may change over time
+        renderIntendedRoute();
+    }
+
+    /**
+     * Re-renders the intended route
+     */
+    private void renderIntendedRoute() {
+        // Clear the graphics
+        clear();
+        
+        // Handle empty route
+        if (intendedRoute == null || !intendedRoute.hasRoute()) {
+            setVisible(false);
             return;
         }
-        
-        if (this.intendedRoute != intendedRoute) {
-            // Route has changed, draw new route
-            clear();
-            
-            List<Position> waypoints = new ArrayList<>();
-            for (RouteWaypoint routeWp : intendedRoute.getWaypoints()) {
-                waypoints.add(routeWp.getPos());
-            }
-            
-            // Make first WP circle
-            makeWpCircle(0, waypoints.get(0));
-            for (int i=0; i < waypoints.size() - 1; i++) {
-                Position start = waypoints.get(i);
-                Position end = waypoints.get(i + 1);
-                
-                // Make wp circle
-                makeWpCircle(i + 1, end);
-                
-                // Make leg line
-                makeLegLine(i + 1, start, end);
-            }
-            this.intendedRoute = intendedRoute;
+
+        List<Position> waypoints = new ArrayList<>();
+        for (RouteWaypoint routeWp : intendedRoute.getWaypoints()) {
+            waypoints.add(routeWp.getPos());
         }
+            
+        // Make first WP circle
+        makeWpCircle(0, waypoints.get(0));
+        // And the rest
+        for (int i=0; i < waypoints.size() - 1; i++) {
+            Position start = waypoints.get(i);
+            Position end = waypoints.get(i + 1);
+            
+            // Make wp circle
+            makeWpCircle(i + 1, end);
+            
+            // Make leg line
+            makeLegLine(i + 1, start, end);
+        }            
         
         // Update leg to first waypoint
-        if (pos != null) {
-            this.vesselPos = pos;
-        }
         if (vesselPos != null) {
             add(activeWpLine);
             Position activeWpPos = intendedRoute.getWaypoints().get(0).getPos();
@@ -177,7 +197,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
             activeWpLineLL[3] = activeWpPos.getLongitude();
             activeWpLine.setLL(activeWpLineLL);
         }
-
+        
         // Adjust the transparency of the color depending on the last-received time for the route
         long secondsSinceReceived = 
                     (System.currentTimeMillis() - intendedRoute.getReceived().getTime()) / 1000L;
@@ -186,10 +206,9 @@ public class IntendedRouteGraphic extends OMGraphicList {
             float factor = 1.0f - (float)secondsSinceReceived / (float)TTL;
             Color color = adjustColor(routeColor, factor, factor);
             updateColor(color);
-            this.setVisible(intendedRoute.isVisible());
-
+            setVisible(intendedRoute.isVisible());
         } else {
-            this.setVisible(false);
+            setVisible(false);
         }        
     }
 
@@ -219,6 +238,30 @@ public class IntendedRouteGraphic extends OMGraphicList {
         super.render(image);
     }
 
+    /**
+     * Returns a reference to the associated intended route
+     * @return a reference to the associated intended route
+     */
+    public IntendedRoute getIntendedRoute() {
+        return intendedRoute;
+    }
+    
+    /**
+     * Returns the name of the associated vessel
+     * @return the name of the associated vessel
+     */
+    public String getName() {
+        return name;
+    }
+    
+    /**
+     * Sets the name of the associated vessel
+     * @param name the name of the associated vessel
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+    
     /**
      * Returns the color for the intended route
      * @return the color for the intended route

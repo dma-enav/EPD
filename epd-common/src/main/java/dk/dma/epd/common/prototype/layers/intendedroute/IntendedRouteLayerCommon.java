@@ -88,17 +88,19 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
         if (intendedRoute == null || intendedRouteGraphic == null) {
             return;
         }
-        
-        VesselTarget vessel = (VesselTarget)aisTarget;
+
+        // Update the intended route name and vessel position from the VesselTarget
+        VesselTarget vessel = aisHandler.getVesselTarget(intendedRoute.getMmsi());
+        if (vessel != null) {
+            if (vessel.getStaticData() != null) {
+                intendedRouteGraphic.setName(AisMessage.trimText(vessel.getStaticData().getName()));
+            }
             
-        // Determine vessel name
-        String name = (vessel.getStaticData() != null) 
-                ? AisMessage.trimText(vessel.getStaticData().getName()) 
-                : "ID:" + aisTarget.getMmsi();
+            // Update the graphics
+            intendedRouteGraphic.updateVesselPosition(vessel.getPositionData().getPos());
+            doPrepare();
         
-        // Update the graphic with the updated vessel, route and position data
-        intendedRouteGraphic.update(name, intendedRoute, vessel.getPositionData().getPos());
-        doPrepare();
+        } 
     }
     
     /**
@@ -108,10 +110,13 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
     @Override
     public void intendedRouteAdded(IntendedRoute intendedRoute) {   
         IntendedRouteGraphic intendedRouteGraphic = new IntendedRouteGraphic();
+        
         // add the new intended route graphic to the set of managed intended route graphics
         intendedRoutes.put(intendedRoute.getMmsi(), intendedRouteGraphic);
         graphics.add(intendedRouteGraphic);
-        intendedRouteGraphic.update("ID:" + intendedRoute.getMmsi(), intendedRoute, null);
+        
+        // Update the graphics
+        intendedRouteGraphic.updateIntendedRoute(intendedRoute);
         doPrepare();
     }
     
@@ -125,7 +130,8 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
         
         // Should always be defined, but better check...
         if (intendedRouteGraphic != null) {
-            intendedRouteGraphic.update(null, intendedRoute, null);        
+            // Update the graphics
+            intendedRouteGraphic.updateIntendedRoute(intendedRoute);
             doPrepare();
         }
     }
@@ -178,8 +184,20 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
             intendedRouteHandler = (IntendedRouteHandlerCommon)obj;
             // register as listener for intended routes
             intendedRouteHandler.addListener(this);
+            // Loads the existing intended routes
+            loadIntendedRoutes();
         } else if (obj instanceof CommonChartPanel) {
             this.chartPanel = (CommonChartPanel)obj;
+        }
+    }
+    
+    /**
+     * Upon creating a new layer, we need to load the intended routes
+     * held by the intended route handler
+     */
+    private void loadIntendedRoutes() {
+        for (IntendedRoute intendedRoute : intendedRouteHandler.fetchIntendedRoutes()) {
+            intendedRouteAdded(intendedRoute);
         }
     }
     

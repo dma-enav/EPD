@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -58,12 +59,14 @@ public class IntendedRouteHandlerCommon
     public IntendedRouteHandlerCommon() {
         super();
         
-        // Clean up the list of intended routes every 5 minutes
+        // Update the list of intended routes every minute. Involves:
+        // * Remove stale intended routes
+        // * Cause the active intended routes to update (i.e. update "active" color)
         getScheduler().scheduleWithFixedDelay(new Runnable() {
             @Override public void run() {
-                cleanUpIntendedRoutes();
+                updateIntendedRoutes();
             }
-        }, 1, 5, TimeUnit.MINUTES);
+        }, 1, 1, TimeUnit.MINUTES);
     }
     
     /**
@@ -73,6 +76,16 @@ public class IntendedRouteHandlerCommon
      */
     public IntendedRoute getIntendedRoute(long mmsi) {
         return intendedRoutes.get(mmsi);
+    }
+    
+    /**
+     * Returns a copy of the current list of intended routes
+     * @return a copy of the current list of intended routes
+     */
+    public List<IntendedRoute> fetchIntendedRoutes() {
+        List<IntendedRoute> list = new ArrayList<>();
+        list.addAll(intendedRoutes.values());
+        return list;
     }
     
     /**
@@ -135,15 +148,24 @@ public class IntendedRouteHandlerCommon
     }
     
     /**
-     * Purges intended routes that are stale
+     * Update the list of intended routes every minute. Involves:
+     * <ul>
+     *   <li>Remove stale intended routes.</li>
+     *   <li>Cause the active intended routes to update (i.e. update "active" color).</li>
+     * <ul>
      */
-    private synchronized void cleanUpIntendedRoutes() {
+    private synchronized void updateIntendedRoutes() {
         Date now = PntTime.getInstance().getDate();
         for (Iterator<Map.Entry<Long, IntendedRoute>> it = intendedRoutes.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<Long, IntendedRoute> entry = it.next();
             if (now.getTime() - entry.getValue().getReceived().getTime() > ROUTE_TTL) {
+                // Remove the intended route
                 it.remove();
                 fireIntendedRouteRemoved(entry.getValue());
+            } else {
+                // Fire an update to cause the route graphics to update
+                // i.e. change color depending on receive time
+                fireIntendedRouteUpdated(entry.getValue());
             }
         }
     }
