@@ -19,7 +19,7 @@ import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
-import dk.dma.epd.common.prototype.service.IIntendedRouteListener;
+import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 
 /**
  * Toggle displaying the intended route for a vessel target
@@ -30,7 +30,7 @@ public class IntendedRouteToggle extends JMenuItem implements
     private static final long serialVersionUID = 1L;
     
     private IntendedRoute intendedRoute;
-    private IIntendedRouteListener listener;
+    private IntendedRouteHandlerCommon intendedRouteHandler;
 
     /**
      * Constructor
@@ -45,7 +45,7 @@ public class IntendedRouteToggle extends JMenuItem implements
     @Override
     public void doAction() {
         intendedRoute.setVisible(!intendedRoute.isVisible());
-        listener.intendedRouteUpdated(intendedRoute);
+        intendedRouteHandler.fireIntendedRouteUpdated(intendedRoute);
     }
     
     /**
@@ -57,10 +57,10 @@ public class IntendedRouteToggle extends JMenuItem implements
     }
     
     /**
-     * Sets the listener that should be notified when the route visibility changes
-     * @param listener the listener that should be notified when the route visibility changes
+     * Sets the intended route handler
+     * @param intendedRouteHandler tSets the intended route handler
      */
-    public void setIntendedRouteListener(IIntendedRouteListener listener) {
-        this.listener = listener;
+    public void setIntendedRouteHandler(IntendedRouteHandlerCommon intendedRouteHandler) {
+        this.intendedRouteHandler = intendedRouteHandler;
     }
 }

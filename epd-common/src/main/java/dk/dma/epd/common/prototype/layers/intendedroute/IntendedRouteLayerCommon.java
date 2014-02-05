@@ -41,7 +41,7 @@ import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 /**
  * Base layer for displaying intended routes in EPDShip and EPDShore
  */
-public abstract class IntendedRouteLayerCommon extends EPDLayerCommon 
+public class IntendedRouteLayerCommon extends EPDLayerCommon 
     implements IAisTargetListener, IIntendedRouteListener, ProjectionListener {
 
     private static final long serialVersionUID = 1L;
@@ -66,6 +66,9 @@ public abstract class IntendedRouteLayerCommon extends EPDLayerCommon
         
         // Automatically add info panels
         registerInfoPanel(intendedRouteInfoPanel, IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
+        
+        // Register the classes the will trigger the map menu
+        registerMapMenuClasses(IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
     }
     
     /**
@@ -194,5 +197,21 @@ public abstract class IntendedRouteLayerCommon extends EPDLayerCommon
             closest = dummyCircle;
         }
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {        
+        if (clickedGraphics instanceof IntendedRouteWpCircle) {
+            
+            IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) clickedGraphics;
+            mapMenu.intendedRouteMenu(wpCircle.getIntendedRouteGraphic());
+            
+        } else if (clickedGraphics instanceof IntendedRouteLegGraphic) {
+
+            IntendedRouteLegGraphic wpLeg = (IntendedRouteLegGraphic) clickedGraphics;
+            mapMenu.intendedRouteMenu(wpLeg.getIntendedRouteGraphic());
+        }
     }
 }

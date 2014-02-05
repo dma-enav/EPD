@@ -41,6 +41,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -53,7 +54,6 @@ import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.layers.EncLayerFactory;
 import dk.dma.epd.shore.layers.GeneralLayer;
 import dk.dma.epd.shore.layers.ais.AisLayer;
-import dk.dma.epd.shore.layers.intendedroute.IntendedRouteLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
 import dk.dma.epd.shore.layers.route.RouteLayer;
 import dk.dma.epd.shore.layers.routeedit.RouteEditLayer;
@@ -92,7 +92,7 @@ public class ChartPanel extends CommonChartPanel {
     private RouteEditLayer routeEditLayer;
     private NewRouteContainerLayer newRouteContainerLayer;
     private VoyageHandlingLayer voyageHandlingLayer;
-    private IntendedRouteLayer intendedRouteLayer;
+    private IntendedRouteLayerCommon intendedRouteLayer;
 
     private MainFrame mainFrame;
     private Color background = new Color(168, 228, 255);
@@ -482,7 +482,7 @@ public class ChartPanel extends CommonChartPanel {
         mapHandler.add(strategicRouteHandler);
 
         // Create Intended Route Layer
-        intendedRouteLayer = new IntendedRouteLayer();
+        intendedRouteLayer = new IntendedRouteLayerCommon();
         intendedRouteLayer.setVisible(EPD.getInstance().getSettings().getAisSettings().isShowIntendedRoute());
         mapHandler.add(intendedRouteLayer);
         

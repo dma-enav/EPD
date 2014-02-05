@@ -42,6 +42,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -59,7 +60,6 @@ import dk.dma.epd.ship.layers.EncLayerFactory;
 import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.background.CoastalOutlineLayer;
-import dk.dma.epd.ship.layers.intendedroute.IntendedRouteLayer;
 import dk.dma.epd.ship.layers.msi.MsiLayer;
 import dk.dma.epd.ship.layers.nogo.DynamicNogoLayer;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
@@ -92,7 +92,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
     private MsiLayer msiLayer;
     private NogoLayer nogoLayer;
     private DynamicNogoLayer dynamicNogoLayer;
-    private IntendedRouteLayer intendedRouteLayer;
+    private IntendedRouteLayerCommon intendedRouteLayer;
     private NewRouteContainerLayer newRouteContainerLayer;
     
     private TopPanel topPanel;
@@ -249,7 +249,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         mapHandler.add(ownShipLayer);
 
         // Create Intended Route Layer
-        intendedRouteLayer = new IntendedRouteLayer();
+        intendedRouteLayer = new IntendedRouteLayerCommon();
         intendedRouteLayer.setVisible(true);
         mapHandler.add(intendedRouteLayer);
         

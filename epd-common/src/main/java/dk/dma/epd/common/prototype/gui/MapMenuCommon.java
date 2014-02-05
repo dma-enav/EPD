@@ -65,6 +65,8 @@ import dk.dma.epd.common.prototype.gui.menuitems.MsiAcknowledge;
 import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
 import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteGraphic;
+import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 
@@ -264,6 +266,45 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
      */
     public abstract void routeEditMenu();
 
+    /**
+     * Creates the intended route menu
+     */
+    public void intendedRouteMenu(final IntendedRouteGraphic routeGraphics) {
+        removeAll();
+
+        // Toggle show intended route
+        addIntendedRouteToggle(routeGraphics.getIntendedRoute());
+        
+        centerVesselTarget.setVesselPosition(routeGraphics.getVesselPostion());
+        centerVesselTarget.setMapBean(mapBean);
+        add(centerVesselTarget);
+        
+        // Add a color selector menu item
+        intendedRouteColor.init(this, routeGraphics, intendedRouteHandler);
+        add(intendedRouteColor);
+
+        revalidate();
+        generalMenu(false);
+    }
+    
+    /**
+     * Adds the toggle-visibility menu item for the intended route
+     * @param intendedRoute the intended route
+     */
+    protected void addIntendedRouteToggle(IntendedRoute intendedRoute) {
+        if (intendedRoute != null) {
+            intendedRouteToggle.setIntendedRouteHandler(intendedRouteHandler);
+            intendedRouteToggle.setIntendedRoute(intendedRoute);
+    
+            intendedRouteToggle.setEnabled(intendedRoute.hasRoute());
+            intendedRouteToggle.setText(intendedRoute.isVisible() 
+                    ? "Hide intended route" 
+                    : "Show intended route");
+            checkIntendedRouteItems(intendedRouteToggle);
+            add(intendedRouteToggle);
+        }
+    }
+    
     /**
      * Checks if the intended route layer is visible. If not,
      * the menu items are disabled.

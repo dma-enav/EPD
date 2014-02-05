@@ -27,14 +27,12 @@ import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
 import dk.dma.epd.common.prototype.gui.menuitems.ToggleAisTargetName;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
-import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteGraphic;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.prototype.service.IIntendedRouteListener;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralNewRoute;
 import dk.dma.epd.shore.gui.views.menuitems.MsiDetails;
@@ -260,24 +258,8 @@ public class MapMenu extends MapMenuCommon {
         
         add(hideAisTargetName);
 
-        /** TODO: Fix
-        intendedRouteToggle.setAisTargetListener(aisLayer);
-        intendedRouteToggle.setVesselTarget(vesselTarget);
-
-        if (vesselTarget.getIntendedRoute() != null
-                && vesselTarget.getIntendedRoute().hasRoute()) {
-            intendedRouteToggle.setEnabled(true);
-        } else {
-            intendedRouteToggle.setEnabled(false);
-        }
-        if (vesselTarget.getSettings().isShowRoute()) {
-            intendedRouteToggle.setText("Hide intended route");
-        } else {
-            intendedRouteToggle.setText("Show intended route");
-        }
-        checkIntendedRouteItems(intendedRouteToggle);
-        add(intendedRouteToggle);
-        */
+        // Toggle show intended route
+        addIntendedRouteToggle(intendedRouteHandler.getIntendedRoute(vesselTarget.getMmsi()));
 
         // Toggle show past-track
         aisTogglePastTrack.setMobileTarget(vesselTarget);
@@ -295,41 +277,6 @@ public class MapMenu extends MapMenuCommon {
         revalidate();
     }
 
-    /**
-     * Options for intended route
-     */
-    public void intendedRouteMenu(final IntendedRouteGraphic routeGraphics, IIntendedRouteListener listener) {
-        removeAll();
-
-        intendedRouteToggle.setIntendedRouteListener(listener);
-        intendedRouteToggle.setIntendedRoute(routeGraphics.getIntendedRoute());
-
-        if (routeGraphics.getIntendedRoute() != null
-                && routeGraphics.getIntendedRoute().hasRoute()) {
-            intendedRouteToggle.setEnabled(true);
-        } else {
-            intendedRouteToggle.setEnabled(false);
-        }
-        if (routeGraphics.getIntendedRoute().isVisible()) {
-            intendedRouteToggle.setText("Hide intended route");
-        } else {
-            intendedRouteToggle.setText("Show intended route");
-        }
-        checkIntendedRouteItems(intendedRouteToggle);
-        add(intendedRouteToggle);
-        
-        centerVesselTarget.setVesselPosition(routeGraphics.getVesselPostion());
-        centerVesselTarget.setMapBean(mapBean);
-        add(centerVesselTarget);
-        
-        // Add a color selector menu item
-        intendedRouteColor.init(this, routeGraphics, intendedRouteHandler);
-        add(intendedRouteColor);
-
-        generalMenu(false);
-        revalidate();
-    }
-    
     /**
      * SART menu option
      * 
