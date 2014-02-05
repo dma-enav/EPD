@@ -685,6 +685,9 @@ public final class EPDShip extends EPD {
 
         // Stop the Maritime Cloud connection
         maritimeCloudService.stop();
+        strategicRouteHandler.shutdown();
+        routeSuggestionHandler.shutdown();
+        intendedRouteHandler.shutdown();
 
         // Stop sensors
         stopSensors();

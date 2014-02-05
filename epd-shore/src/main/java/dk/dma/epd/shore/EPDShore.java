@@ -338,7 +338,9 @@ public final class EPDShore extends EPD {
         transponderFrame.shutdown();
 
         maritimeCloudService.stop();
-
+        strategicRouteHandler.shutdown();
+        routeSuggestionHandler.shutdown();
+        intendedRouteHandler.shutdown();
 
         // Stop sensors
         stopSensors();
