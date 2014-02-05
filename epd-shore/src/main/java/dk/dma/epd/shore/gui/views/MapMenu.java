@@ -323,7 +323,7 @@ public class MapMenu extends MapMenuCommon {
         add(centerVesselTarget);
         
         // Add a color selector menu item
-        intendedRouteColor.init(this, routeGraphics);
+        intendedRouteColor.init(this, routeGraphics, intendedRouteHandler);
         add(intendedRouteColor);
 
         generalMenu(false);

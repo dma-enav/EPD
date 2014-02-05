@@ -21,6 +21,7 @@ import dk.dma.epd.common.prototype.gui.ColorMenuItem;
 import dk.dma.epd.common.prototype.gui.MapMenuCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteGraphic;
+import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 
 /**
  * Map menu item for setting the color of an intended route
@@ -30,6 +31,7 @@ public class IntendedRouteColor extends ColorMenuItem implements IMapMenuAction 
     private static final long serialVersionUID = 1L;
 
     private IntendedRouteGraphic routeGraphics;
+    private IntendedRouteHandlerCommon intendedRouteHandler;
     
     /**
      * Constructor
@@ -41,6 +43,7 @@ public class IntendedRouteColor extends ColorMenuItem implements IMapMenuAction 
             @Override public void colorSelected(Color color) {
                 if (routeGraphics != null) {
                     routeGraphics.setRouteColor(color);
+                    intendedRouteHandler.fireIntendedRouteUpdated(routeGraphics.getIntendedRoute());
                 }
             }});
         }
@@ -58,8 +61,9 @@ public class IntendedRouteColor extends ColorMenuItem implements IMapMenuAction 
      * @param mapMenu the map menu
      * @param routeGraphics the route graphic to change color on
      */
-    public void init(MapMenuCommon mapMenu, IntendedRouteGraphic routeGraphics) {
+    public void init(MapMenuCommon mapMenu, IntendedRouteGraphic routeGraphics, IntendedRouteHandlerCommon intendedRouteHandler) {
         this.routeGraphics = routeGraphics;
+        this.intendedRouteHandler = intendedRouteHandler;
         init(mapMenu, IntendedRouteGraphic.COLORS, routeGraphics.getRouteColor());
     }
 }
