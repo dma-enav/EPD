@@ -37,7 +37,7 @@ import dk.dma.epd.ship.EPDShip;
  */
 public class RouteSuggestionHandler extends EnavServiceHandlerCommon {
 
-    private static final long CALLBACK_TTL = 1 * 60 * 60; // 60 minutes
+    private static final long CALLBACK_TTL = 60; // 60 minutes
     private static final Logger LOG = LoggerFactory.getLogger(RouteSuggestionHandler.class);  
     
     // Route suggestion service
@@ -48,6 +48,12 @@ public class RouteSuggestionHandler extends EnavServiceHandlerCommon {
      */
     public RouteSuggestionHandler() {
         super();
+        
+        // Schedule a clean-up check of the routeExchangeContexts every 10 minutes
+        getScheduler().scheduleWithFixedDelay(new Runnable() {
+            @Override public void run() {
+                routeExchangeContexts.cleanup();
+            }}, 10, 10, TimeUnit.MINUTES);
     }
     
     /**
@@ -83,15 +89,6 @@ public class RouteSuggestionHandler extends EnavServiceHandlerCommon {
             getStatus().markFailedReceive();
             LOG.error("Error hooking up services", e);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void cloudPeriodicTask() {
-        // Clean up cached invocation callback contexts
-        routeExchangeContexts.cleanup();
     }
 
     /**

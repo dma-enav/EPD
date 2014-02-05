@@ -15,6 +15,12 @@
  */
 package dk.dma.epd.common.prototype.service;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
 import com.bbn.openmap.MapHandlerChild;
 
 import net.maritimecloud.net.MaritimeCloudClient;
@@ -31,12 +37,29 @@ import dk.dma.epd.common.prototype.status.CloudStatus;
 public abstract class EnavServiceHandlerCommon extends MapHandlerChild implements IMaritimeCloudListener {
     
     protected MaritimeCloudServiceCommon maritimeCloudService;
+    private ScheduledExecutorService scheduler;
+    private final int schedulerPoolSize;
 
+    /**
+     * Constructor
+     */
+    protected EnavServiceHandlerCommon() {
+        this(1);
+    }
+
+    /**
+     * Constructor
+     * @param schedulerPoolSize the scheduler core pool size
+     */
+    protected EnavServiceHandlerCommon(int schedulerPoolSize) {
+        this.schedulerPoolSize = schedulerPoolSize;
+    }
+    
     /**
      * Returns a reference to the {@linkplain MaritimeCloudServiceCommon}
      * @return a reference to the {@linkplain MaritimeCloudServiceCommon}
      */
-    public MaritimeCloudServiceCommon getMaritimeCloudService() {
+    public synchronized MaritimeCloudServiceCommon getMaritimeCloudService() {
         return maritimeCloudService;
     }
     
@@ -44,7 +67,7 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
      * Returns a reference to the cloud client connection
      * @return a reference to the cloud client connection
      */
-    public MaritimeCloudClient getMaritimeCloudConnection() {
+    public synchronized MaritimeCloudClient getMaritimeCloudConnection() {
         return (maritimeCloudService == null) ? null : maritimeCloudService.getConnection();
     }
     
@@ -52,8 +75,18 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
      * Returns a reference to the cloud status 
      * @return a reference to the cloud status 
      */
-    public CloudStatus getStatus() {
+    public synchronized CloudStatus getStatus() {
         return (maritimeCloudService == null) ? null : maritimeCloudService.getStatus();
+    }
+    
+    
+    /**
+     * Returns if there is a live connection to the Maritime Cloud
+     * @return if there is a live connection to the Maritime Cloud
+     */
+    public synchronized boolean isConnected() {
+        // Consider using the isClosed()/isConnected methods of the connection
+        return maritimeCloudService != null && maritimeCloudService.isConnected();
     }
     
     /**
@@ -83,6 +116,65 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
         super.findAndUndo(obj);
     }
     
+    /**
+     * Will clean up the e-Navigation service
+     */
+    public synchronized void shutdown() {
+        if (scheduler != null) {
+            scheduler.shutdownNow();
+            scheduler = null;
+        }
+    }
+    
+    /****************************************/
+    /** Scheduler functions                **/
+    /****************************************/
+    
+    /**
+     * Returns the scheduler associated with this e-Navigation service.
+     * The scheduler is created the first time this method is called.
+     * @return
+     */
+    protected synchronized ScheduledExecutorService getScheduler() {
+        if (scheduler == null) {
+            scheduler = Executors.newScheduledThreadPool(schedulerPoolSize);
+        }
+        return scheduler;
+    }
+    
+    /**
+     * Schedules the given command to be run periodically in a separate thread.
+     * <p>
+     * The command is wrapper so that it will only actually be run when there
+     * is a live connection to the maritime cloud.
+     * 
+     * @param command the command to schedule
+     * @param initialDelay the initial delay in {@linkplain TimeUnit}
+     * @param delay the subsequent delay in {@linkplain TimeUnit}
+     * @param unit the {@linkplain TimeUnit} for the delays
+     * @return a {@linkplain ScheduledFuture} representing pending completion of the task
+     */
+    protected ScheduledFuture<?> scheduleWithFixedDelayWhenConnected(final Runnable command, long initialDelay, long delay, TimeUnit unit) {
+        return getScheduler().scheduleWithFixedDelay(
+                new ConnectedRunnableWrapper(command), 
+                initialDelay, 
+                delay, 
+                unit);
+    }
+    
+    /**
+     * Submits the given command for execution in a separate thread.
+     * <p>
+     * The command is wrapper so that it will only actually be run if there
+     * is a live connection to the maritime cloud at time of execution.
+     * 
+     * @param command the command to submit
+     * @return a {@linkplain Future} representing pending completion of the task
+     */
+    protected Future<?> submitIfConnected(final Runnable command) {
+        return getScheduler().submit(new ConnectedRunnableWrapper(command));
+    }
+    
     /****************************************/
     /** IMaritimeCloudListener functions   **/
     /****************************************/
@@ -108,10 +200,37 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
     public void cloudError(String error) {
     }
     
+    
+    /****************************************/
+    /** Helper classes                     **/
+    /****************************************/
+    
     /**
-     * {@inheritDoc}
+     * Simple wrapper of the {@linkplain Runnable} interface
+     * that only executes the wrapped runnable if there
+     * is a live connection to the maritime cloud.
      */
-    @Override
-    public void cloudPeriodicTask() {
+    class ConnectedRunnableWrapper implements Runnable {
+        
+        Runnable runnable;
+        
+        /**
+         * Constructor
+         * @param runnable the wrapped runnable
+         */
+        public ConnectedRunnableWrapper(Runnable runnable) {
+            this.runnable = runnable;
+        }
+        
+        /**
+         * Runnable run method.
+         */
+        @Override 
+        public void run() {
+            // Only execute wrapped runnable if connected
+            if (isConnected()) {
+                runnable.run();
+            }
+        }
     }
 }

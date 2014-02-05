@@ -75,7 +75,19 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
      * Constructor
      */
     public StrategicRouteHandler() {
-        super();
+        super(2);
+        
+        // Schedule a refresh of the STCC list approximately every minute
+        scheduleWithFixedDelayWhenConnected(new Runnable() {
+            @Override public void run() {
+                fetchSTCCList();
+            }}, 5, 57, TimeUnit.SECONDS);
+        
+        // Schedule a refresh of the strategic route acknowledge services approximately every minute
+        scheduleWithFixedDelayWhenConnected(new Runnable() {
+            @Override public void run() {
+                fetchStrategicRouteAckList();
+            }}, 15, 59, TimeUnit.SECONDS);        
     }
 
     /**
@@ -105,13 +117,8 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
             getStatus().markFailedReceive();
             LOG.error("Error hooking up services", e);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void cloudPeriodicTask() {
+        
+        // Refresh the service lists
         fetchSTCCList();
         fetchStrategicRouteAckList();
     }

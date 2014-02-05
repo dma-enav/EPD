@@ -24,9 +24,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import net.maritimecloud.net.ConnectionFuture;
+import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.service.ServiceEndpoint;
 import net.maritimecloud.util.function.BiConsumer;
 
@@ -57,13 +59,27 @@ public class RouteSuggestionHandler extends EnavServiceHandlerCommon {
      */
     public RouteSuggestionHandler() {
         super();
+        
+        // Schedule a refresh of the strategic route acknowledge services approximately every minute
+        scheduleWithFixedDelayWhenConnected(new Runnable() {
+            @Override public void run() {
+                fetchRouteSuggestionServices();
+            }}, 5, 62, TimeUnit.SECONDS);        
     }
     
     /**
      * {@inheritDoc}
      */
     @Override
-    public void cloudPeriodicTask() {
+    public void cloudConnected(MaritimeCloudClient connection) {
+        // Refresh the service list
+        fetchRouteSuggestionServices();
+    }
+    
+    /**
+     * Refreshes the list of route suggestion services
+     */
+    public void fetchRouteSuggestionServices() {
         try {
             routeSuggestionServiceList = getMaritimeCloudConnection().serviceLocate(RouteSuggestionService.INIT).nearest(Integer.MAX_VALUE).get();
         } catch (Exception e) {

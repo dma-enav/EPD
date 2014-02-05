@@ -159,6 +159,15 @@ public abstract class MaritimeCloudServiceCommon
     }
     
     /**
+     * Returns if there is a live connection to the Maritime Cloud
+     * @return if there is a live connection to the Maritime Cloud
+     */
+    public synchronized boolean isConnected() {
+        // Consider using the isClosed()/isConnected methods of the connection
+        return !stopped && connection != null;
+    }
+    
+    /**
      * Thread run method
      */
     @Override
@@ -183,8 +192,6 @@ public abstract class MaritimeCloudServiceCommon
         
         // Periodic tasks
         while (!stopped) {
-            firePeriodicTask();
-            
             cloudStatus.markCloudReception();
             Util.sleep(MARITIME_CLOUD_SLEEP_TIME);
         }
@@ -304,15 +311,6 @@ public abstract class MaritimeCloudServiceCommon
             listener.cloudError(error);
         }
     }
-
-    /**
-     * Notifies listeners that they can perform periodic tasks
-     */
-    protected void firePeriodicTask() {
-        for (IMaritimeCloudListener listener : listeners) {
-            listener.cloudPeriodicTask();
-        }
-    }
     
     /**
      * Provides a listener interface to the Maritime Cloud connection status.
@@ -345,13 +343,6 @@ public abstract class MaritimeCloudServiceCommon
          * @param error the error message
          */
         void cloudError(String error);
-        
-        /**
-         * Called periodically when the service is connected to the maritime cloud.
-         * <p>
-         * Can be used by listeners to perform periodic tasks.
-         */
-        void cloudPeriodicTask();
     }
 
 }

@@ -67,7 +67,19 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
      * Constructor
      */
     public StrategicRouteHandler() {
-        super();
+        super(2);
+        
+        // Schedule a refresh of the strategic route ship list approximately every minute
+        scheduleWithFixedDelayWhenConnected(new Runnable() {
+            @Override public void run() {
+                fetchStrategicRouteShipList();
+            }}, 13, 61, TimeUnit.SECONDS);
+
+        // Schedule a clean-up check of the strategicRouteContexts every 10 minutes
+        getScheduler().scheduleWithFixedDelay(new Runnable() {
+            @Override public void run() {
+                strategicRouteContexts.cleanup();
+            }}, 9, 10, TimeUnit.MINUTES);
     }
 
     
@@ -92,19 +104,11 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
             getStatus().markFailedReceive();
             LOG.error("Error hooking up services", e);
         }
+        
+        // Refresh the service list
+        fetchStrategicRouteShipList();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void cloudPeriodicTask() {
-        fetchStrategicShipList();
-        
-        // Clean up cached invocation callback contexts
-        strategicRouteContexts.cleanup();
-    }
-    
     /**
      * Register a strategic route service
      */
@@ -166,7 +170,7 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
     /**
      * Fetches the list of ships with a strategic route service
      */
-    private void fetchStrategicShipList() {
+    private void fetchStrategicRouteShipList() {
         try {
             strategicRouteShipList = getMaritimeCloudConnection().serviceLocate(StrategicRouteService.INIT).nearest(Integer.MAX_VALUE).get();
 
@@ -182,7 +186,7 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
      * @return if the given ship has a strategic route service
      */
     public boolean shipAvailableForStrategicRouteTransaction(long mmsi) {
-        fetchStrategicShipList();
+        fetchStrategicRouteShipList();
         
         return MaritimeCloudUtils.findServiceWithMmsi(strategicRouteShipList, (int)mmsi) != null;
     }

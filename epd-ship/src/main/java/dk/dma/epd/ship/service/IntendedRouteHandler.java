@@ -26,7 +26,6 @@ import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
-import dk.dma.epd.common.prototype.service.MaritimeCloudSendThread;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.route.RouteManager;
 
@@ -168,7 +167,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         }
 
         // Make intended route message
-        IntendedRouteBroadcast message = new IntendedRouteBroadcast();
+        final IntendedRouteBroadcast message = new IntendedRouteBroadcast();
 
         if (routeManager.getActiveRoute() != null) {
             message.setIntendedRoute(routeManager.getActiveRoute().getFullRouteData());
@@ -180,18 +179,14 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         }
 
         // send message
-        try {
-            LOG.debug("Sending");
-            // if connection.
-            MaritimeCloudSendThread sendThread = new MaritimeCloudSendThread(message, getMaritimeCloudConnection());
-
-            // Send it in a seperate thread
-            sendThread.start();
-            getStatus().markSuccesfullSend();
-            LOG.debug("Done sending");
-        } catch (Exception e) {
-            LOG.error("Error sending intended route " + e.getMessage(), e);
-        }
+        LOG.debug("Broadcasting intended route");
+        
+        submitIfConnected(new Runnable() {                
+            @Override  public void run() {
+                getMaritimeCloudConnection().broadcast(message);
+                getStatus().markSuccesfullSend();
+            }
+        });
     }
 
     /**

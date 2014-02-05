@@ -280,12 +280,15 @@ public class VoyageLayer extends EPDLayerCommon implements
      */
     @Override
     public void targetUpdated(AisTarget aisTarget) {
-        for (StrategicRouteNegotiationData data : strategicRouteHandler
-                .getStrategicNegotiationData().values()) {
-            if (data.getMmsi() == aisTarget.getMmsi()) {
-                // only run update if this vessel has negotiation data
-                this.updateDialogLocations();
-                break;
+        if (strategicRouteHandler != null && 
+            strategicRouteHandler.getStrategicNegotiationData() != null) {
+            for (StrategicRouteNegotiationData data : strategicRouteHandler
+                    .getStrategicNegotiationData().values()) {
+                if (data.getMmsi() == aisTarget.getMmsi()) {
+                    // only run update if this vessel has negotiation data
+                    this.updateDialogLocations();
+                    break;
+                }
             }
         }
     }
