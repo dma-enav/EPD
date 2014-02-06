@@ -45,6 +45,7 @@ public class ShoreMapFramesSettingsPanel extends BaseSettingsPanel {
     private JTabbedPane mapWindowsTabbedPane;
     private Map<JMapFrame, ShoreMapFrameSettingsPanel> mapFrames;
     private ShoreMapFrameSettingsPanel mapFrameSettings;
+	private List<JMapFrame> mapFramesUI;
 
     public ShoreMapFramesSettingsPanel() {
         super("Map Windows", new ImageIcon(
@@ -57,6 +58,23 @@ public class ShoreMapFramesSettingsPanel extends BaseSettingsPanel {
         this.mapWindowsTabbedPane = new JTabbedPane(JTabbedPane.TOP);
         this.mapWindowsTabbedPane.setBounds(6, 6, 608, 288);
         this.add(this.mapWindowsTabbedPane);
+    }
+    
+    /**
+     * Shows the settings for the map frame given.
+     * @param activeMapWindow The map to show settings for.
+     */
+    public void showSettingsFor(JMapFrame activeMapWindow) {
+    	
+    	// Go through the list of map frame until the map at index
+    	// is the same as the given.
+    	for (int i = 0; i < mapFramesUI.size(); i++) {
+			
+    		if (mapFramesUI.get(i).equals(activeMapWindow)) {
+				 
+				mapWindowsTabbedPane.setSelectedIndex(i);
+			}
+		}
     }
     
     /**
@@ -80,10 +98,14 @@ public class ShoreMapFramesSettingsPanel extends BaseSettingsPanel {
      */
     @Override
     protected void doLoadSettings() {
+    	
+    	// Clear old maps.
+    	mapWindowsTabbedPane.removeAll();
+    	mapFrames.clear();
 
         // Get map frames.
         MainFrame mainFrame = EPDShore.getInstance().getMainFrame();
-        List<JMapFrame> mapFramesUI = mainFrame.getMapWindows();
+        mapFramesUI = mainFrame.getMapWindows();
         
         // For every map frame, add settings for it.
         for (int i = 0; i < mapFramesUI.size(); i++) {

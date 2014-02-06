@@ -187,9 +187,8 @@ public class JMenuWorkspaceBar extends JMenuBar {
         preferences.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
 //                mainFrame.getSettingsWindow().toggleVisibility();
-                SetupDialogShore setup = new SetupDialogShore(mainFrame);
-                setup.loadSettings(EPDShore.getInstance().getSettings());
-                setup.setVisible(true);
+                mainFrame.getSetupDialog().loadSettings(EPDShore.getInstance().getSettings());
+                mainFrame.getSetupDialog().setVisible(true);
             }
         });
 
@@ -305,7 +304,11 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
         windowSettings.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                mainFrame.getSettingsWindow().toggleVisibility();
+            	
+            	// Open the setup dialog on map settings for this specific map.
+            	mainFrame.getSetupDialog().loadSettings(EPDShore.getInstance().getSettings());
+            	mainFrame.getSetupDialog().goToSpecifMapSettings(window);
+            	mainFrame.getSetupDialog().setVisible(true);
             }
         });
     }

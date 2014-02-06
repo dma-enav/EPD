@@ -73,7 +73,7 @@ public class MainFrame extends MainFrameCommon {
     private ToolBar toolbar = new ToolBar(this);
     private NotificationArea notificationArea = new NotificationArea(this);
     private NotificationCenter notificationCenter = new NotificationCenter();
-    private JSettingsWindow settingsWindow = new JSettingsWindow();
+    private SetupDialogShore setup = new SetupDialogShore(EPDShore.getInstance().getMainFrame());
     private RouteManagerDialog routeManagerDialog = new RouteManagerDialog(this);
     private SendRouteDialog sendRouteDialog = new SendRouteDialog();
     private SendStrategicRouteDialog sendVoyageDialog = new SendStrategicRouteDialog();
@@ -319,7 +319,6 @@ public class MainFrame extends MainFrameCommon {
         desktop.getManager().setNotificationArea(notificationArea);
         desktop.getManager().setToolbar(toolbar);
         desktop.getManager().setNotCenter(notificationCenter);
-        desktop.getManager().setSettings(settingsWindow);
         desktop.getManager().setRouteManager(routeManagerDialog);
         desktop.getManager().setRouteExchangeDialog(sendRouteDialog);
         desktop.getManager().setSendVoyageDialog(sendVoyageDialog);
@@ -328,12 +327,11 @@ public class MainFrame extends MainFrameCommon {
         desktop.add(notificationCenter, true);
         desktop.add(toolbar, true);
         desktop.add(notificationArea, true);
-        desktop.add(settingsWindow, true);
         desktop.add(sendRouteDialog, true);
         desktop.add(sendVoyageDialog, true);
 
         beanHandler.add(notificationArea);
-        beanHandler.add(settingsWindow);
+        beanHandler.add(this.setup);
         beanHandler.add(sendRouteDialog);
         beanHandler.add(sendVoyageDialog);
         // dtp.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
@@ -607,10 +605,6 @@ public class MainFrame extends MainFrameCommon {
         this.msiLayerEnabled = msiLayerEnabled;
     }
 
-    public JSettingsWindow getSettingsWindow() {
-        return settingsWindow;
-    }
-
     public synchronized long getSelectedMMSI() {
         return selectedMMSI;
     }
@@ -633,5 +627,9 @@ public class MainFrame extends MainFrameCommon {
     public JMenuWorkspaceBar getTopMenu() {
         return topMenu;
     }
+
+	public SetupDialogShore getSetupDialog() {
+		return this.setup;
+	}
 
 }

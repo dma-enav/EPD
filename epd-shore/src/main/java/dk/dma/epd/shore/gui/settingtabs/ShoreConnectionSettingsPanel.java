@@ -16,11 +16,19 @@
 package dk.dma.epd.shore.gui.settingtabs;
 
 import java.awt.Color;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.status.AisStatus;
+import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.prototype.status.ShoreServiceStatus;
 import dk.dma.epd.common.text.Formatter;
@@ -33,12 +41,17 @@ import javax.swing.JLabel;
 public class ShoreConnectionSettingsPanel extends BaseSettingsPanel {
 
     private static final long serialVersionUID = 1L;
+    
+    private List<IStatusComponent> statusComponents = new ArrayList<IStatusComponent>();
+    
     private JLabel lblSsLastContactStatus;
     private JLabel lblSsContactStatus;
     private JLabel lblAisReceptionStatus;
     private JLabel lblAisSendingStatus;
     private JLabel lblAisLastReceptionStatus;
     private JLabel lblAisLastSendingStatus;
+	private JLabel lblWmsContactStatus;
+	private JLabel lblWmsLastContactStatus;
 
     public ShoreConnectionSettingsPanel() {
         super("Connections", new ImageIcon(
@@ -134,52 +147,89 @@ public class ShoreConnectionSettingsPanel extends BaseSettingsPanel {
         lblWmsLastContact.setBounds(16, 45, 79, 16);
         wmsPanel.add(lblWmsLastContact);
         
-        JLabel lblWmsContactStatus = new JLabel("null");
+        lblWmsContactStatus = new JLabel("null");
         lblWmsContactStatus.setBounds(121, 20, 299, 16);
         wmsPanel.add(lblWmsContactStatus);
         
-        JLabel lblWmsLastContactStatus = new JLabel("null");
+        lblWmsLastContactStatus = new JLabel("null");
         lblWmsLastContactStatus.setBounds(121, 45, 299, 16);
         wmsPanel.add(lblWmsLastContactStatus);
     }
-    
-    @Override
-    protected boolean checkSettingsChanged() {
-        // TODO Auto-generated method stub
-        return false;
-    }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void doLoadSettings() {
-        
-        IStatusComponent statusComponent;
-        
-        // Get Shore Service connections.
-        statusComponent = EPDShore.getInstance().getShoreServices();
-        ShoreServiceStatus shoreServicesStatus = (ShoreServiceStatus) statusComponent.getStatus();
-        
-        lblSsContactStatus.setText(shoreServicesStatus.getStatus().toString());
-        this.setStatusColor(lblSsContactStatus);
-        lblSsLastContactStatus.setText(Formatter.formatLongDateTime(shoreServicesStatus.getLastContact()));
-        
-        // Get AIS connections.
-        statusComponent = EPDShore.getInstance().getAisHandler();
-        AisStatus aisStatus = (AisStatus) statusComponent.getStatus();
-        
-        lblAisReceptionStatus.setText(aisStatus.getReceiveStatus().toString());
-        lblAisSendingStatus.setText(aisStatus.getSendStatus().toString());
-        this.setStatusColor(lblAisReceptionStatus);
-        this.setStatusColor(lblAisSendingStatus);
-        lblAisLastReceptionStatus.setText(Formatter.formatLongDateTime(aisStatus.getLastReceived()));
-        lblAisLastSendingStatus.setText(Formatter.formatLongDateTime(aisStatus.getLastSent()));
+        	
+    	for (IStatusComponent statusComponent : this.statusComponents) {
+			
+    		ComponentStatus componentStatus = statusComponent.getStatus();
+			
+			if (componentStatus.getName().equals("Shore services")) {
+				
+				ShoreServiceStatus shoreServiceStatus = (ShoreServiceStatus) componentStatus;
+				
+		        this.lblSsContactStatus.setText(shoreServiceStatus.getStatus().toString());
+		        this.setStatusColor(lblSsContactStatus);
+		        this.lblSsLastContactStatus.setText(Formatter.formatLongDateTime(shoreServiceStatus.getLastContact()));
+			}
+			
+			if (componentStatus.getName().equals("AIS")) {
+
+				componentStatus.getStatus();
+				AisStatus aisStatus = (AisStatus) componentStatus;
+				
+		        this.lblAisReceptionStatus.setText(aisStatus.getReceiveStatus().toString());
+		        this.lblAisSendingStatus.setText(aisStatus.getSendStatus().toString());
+		        this.setStatusColor(lblAisReceptionStatus);
+		        this.setStatusColor(lblAisSendingStatus);
+		        this.lblAisLastReceptionStatus.setText(Formatter.formatLongDateTime(aisStatus.getLastReceived()));
+		        this.lblAisLastSendingStatus.setText(Formatter.formatLongDateTime(aisStatus.getLastSent()));
+			}
+		}
         
         // Get WMS connections.
+        HttpURLConnection connection = null;
         
+        	try {
+        		// Create a url to the website which stores the wms.
+				URL urlToWms = new URL(EPDShore.getInstance().getSettings().getGuiSettings().getWmsQuery());
+				
+				// Open connection to the url.
+				connection = (HttpURLConnection) urlToWms.openConnection();
+				connection.connect();
+				
+				// Change the status text if a file was found.
+				if (connection.getResponseCode() == 200) {
+					
+					// TODO: Should do some checking if the xml document contains valid information,
+					// before declaring it "OK".
+					
+					this.lblWmsContactStatus.setText("OK");
+				}
+				
+			} catch (MalformedURLException e) {
+				// An error occured while loading the url.
+				// It might be that the connection request returned a 404.
+				this.lblWmsContactStatus.setText("ERROR");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+        	
+        	setStatusColor(this.lblWmsContactStatus);
+        	this.lblWmsLastContactStatus.setText(Formatter.formatLongDateTime(new Date()));
     }
 
+	public void addStatusComponent(IStatusComponent statusComponent) {
+		this.statusComponents.add(statusComponent);
+	}
+
     protected void setStatusColor(JLabel statusLabel) {
+    	
+    	EPDShore.getInstance().getBeanHandler();
         
-        // Grab the status.
+        // Grab the status text.
         String statusText = statusLabel.getText();
         
         Color green  = new Color(130, 165, 80);
@@ -197,16 +247,24 @@ public class ShoreConnectionSettingsPanel extends BaseSettingsPanel {
             statusLabel.setForeground(yellow);
         }
     }
-
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void doSaveSettings() {
-        // TODO Auto-generated method stub
-
+    protected boolean checkSettingsChanged() {
+        return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void fireSettingsChanged() {
-        // TODO Auto-generated method stub
+    protected void doSaveSettings() {}
 
-    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void fireSettingsChanged() {}
 }

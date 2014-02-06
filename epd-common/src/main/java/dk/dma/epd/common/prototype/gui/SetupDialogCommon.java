@@ -24,6 +24,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 
 import dk.dma.epd.common.prototype.event.SetupDialogHandler;
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
@@ -241,5 +242,9 @@ public class SetupDialogCommon extends JDialog {
                 null,
                 new Object[]{btnWarningOkay, btnWarningCancel},
                 btnWarningOkay);
+    }
+    
+    public Timer getHandlerTimer() {
+    	return this.dialogListener.getTimer();
     }
 }
