@@ -15,6 +15,9 @@
  */
 package dk.dma.epd.common.prototype.settings;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 import java.util.Properties;
 
@@ -27,6 +30,11 @@ import com.bbn.openmap.util.PropUtils;
  */
 public class AisSettings implements Serializable {
 
+    /**
+     * Property name that a {@code PropertyChangeListener} of this bean should use to verify that a received {@code PropertyChangeEvent} concerns the {@link #showNameLabels} property.
+     */
+    public static final String SHOW_NAME_LABELS_CHANGED = "showNameLabels";
+    
     private static final long serialVersionUID = 1L;
     private static final String PREFIX = "ais.";
 
@@ -68,11 +76,24 @@ public class AisSettings implements Serializable {
     private final String varNameCogVectorHideBelow = "cogVectorHideBelow";
 
     /**
+     * Used to notify listeners of changes to properties in this bean.
+     */
+    private final PropertyChangeSupport notifier = new PropertyChangeSupport(this);
+    
+    /**
      * Constructor
      */
     public AisSettings() {
     }
 
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        this.notifier.addPropertyChangeListener(listener);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        this.notifier.removePropertyChangeListener(listener);
+    }
+    
     /**
      * Returns the AisSettings prefix
      * 
@@ -208,7 +229,10 @@ public class AisSettings implements Serializable {
     }
 
     public void setShowNameLabels(boolean showNameLabels) {
+        boolean oldVal = this.showNameLabels;
         this.showNameLabels = showNameLabels;
+        // notify property change listeners of the changed in value
+        this.notifier.firePropertyChange(SHOW_NAME_LABELS_CHANGED, oldVal, this.showNameLabels);
     }
 
     public int getShowMinuteMarksAISTarget() {
