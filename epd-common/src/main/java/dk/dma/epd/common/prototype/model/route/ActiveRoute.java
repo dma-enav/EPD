@@ -15,10 +15,15 @@
  */
 package dk.dma.epd.common.prototype.model.route;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.enav.model.voyage.Waypoint;
 import dk.dma.epd.common.Heading;
+import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
+import dk.dma.epd.common.prototype.model.route.PartialRouteFilter.FilterType;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.util.Calculator;
@@ -115,18 +120,6 @@ public class ActiveRoute extends Route {
         calcValues(true);
 
         changeActiveWaypoint(getBestWaypoint(route, pntData));
-
-        // for (int i = 0; i < route.getWaypoints().size(); i++) {
-        //
-        // if (route.getWaypoints().get(i).getOutLeg() != null) {
-        // System.out.println(i + "Original speed is "
-        // + route.getWaypoints().get(i).getOutLeg().getSpeed());
-        // System.out.println(i + "New speed is "
-        // + originalRoute.getWaypoints().get(i).getOutLeg()
-        // .getSpeed());
-        // }
-        //
-        // }
     }
 
     /*
@@ -543,4 +536,105 @@ public class ActiveRoute extends Route {
     
     
     
+    
+    /**
+     * Returns the intended route broadcast, based on the parameters passed along
+     * 
+     * @param filter the filter to apply to extract the partial route
+     * @param result the result to update. If null, a new instance is created.
+     * @return the partial route
+     */
+    public IntendedRouteBroadcast getPartialRouteData(PartialRouteFilter filter, IntendedRouteBroadcast result) {
+        
+        dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
+        List<Date> originalEtas = new ArrayList<>();
+        
+        if (result == null) {
+            result = new IntendedRouteBroadcast();
+        }
+        result.setIntendedRoute(voyageRoute);
+        result.setOriginalEtas(originalEtas);
+
+        // Pre-compute the start and end ETA's for the partial route 
+        Date startDate = null, endDate = null;
+        if (filter.getType() == FilterType.MINUTES) {
+            startDate = new Date(getActiveWaypointEta().getTime() - filter.getBackward() * 1000L * 60L); 
+            endDate = new Date(getActiveWaypointEta().getTime() + filter.getForward() * 1000L * 60L); 
+        }
+        
+        // Pre-compute the ranges to the active way point measured along the route
+        double[] distanceToActiveWaypoints = null;
+        if (filter.getType() == FilterType.METERS) {
+            distanceToActiveWaypoints = new double[waypoints.size()];
+            distanceToActiveWaypoints[activeWaypointIndex] = 0.0;
+            for (int i = activeWaypointIndex - 1; i >= 0; i--) {
+                double dist = waypoints.get(i).getPos().rhumbLineDistanceTo(waypoints.get(i + 1).getPos());
+                distanceToActiveWaypoints[i] = distanceToActiveWaypoints[i + 1] + dist;
+            }
+            for (int i = activeWaypointIndex + 1; i < waypoints.size(); i++) {
+                double dist = waypoints.get(i).getPos().rhumbLineDistanceTo(waypoints.get(i - 1).getPos());
+                distanceToActiveWaypoints[i] = distanceToActiveWaypoints[i - 1] + dist;
+            }
+        }
+        
+        for (int i = 0; i < getWaypoints().size(); i++) {
+            
+            RouteWaypoint currentWaypoint = getWaypoints().get(i);
+            
+            // Check if the way point should be included
+            if (filter.getType() == FilterType.MINUTES) {
+               Date currentWaypointEta = etas.get(i);
+               if ((i < activeWaypointIndex && currentWaypointEta.before(startDate)) ||
+                   (i > activeWaypointIndex && currentWaypointEta.after(endDate))) {
+                   continue;
+               }
+            } else {
+                if ((i < activeWaypointIndex && distanceToActiveWaypoints[i] > filter.getBackward()) ||
+                    (i > activeWaypointIndex && distanceToActiveWaypoints[i] > filter.getForward())) {
+                    continue;
+                }
+            }
+            
+            // Check if we have reached the active way point
+            if  (i == activeWaypointIndex) {
+                int activeWPIndex = result.getIntendedRoute().getWaypoints().size();
+                result.setActiveWPIndex(activeWPIndex);
+            }
+            // Add the original ETA for the current way point 
+            originalEtas.add(originalRoute.getEtas().get(i));
+            
+            // Add the way point
+            dk.dma.enav.model.voyage.Waypoint voyageWaypoint = new dk.dma.enav.model.voyage.Waypoint();
+
+            voyageWaypoint.setEta(etas.get(i));
+            voyageWaypoint.setLatitude(currentWaypoint.getPos().getLatitude());
+            voyageWaypoint
+                    .setLongitude(currentWaypoint.getPos().getLongitude());
+            voyageWaypoint.setRot(currentWaypoint.getRot());
+            voyageWaypoint.setTurnRad(currentWaypoint.getTurnRad());
+
+            // Leg related stored in the way point
+            if (currentWaypoint.getOutLeg() != null) {
+                dk.dma.enav.model.voyage.RouteLeg routeLeg = new dk.dma.enav.model.voyage.RouteLeg();
+                routeLeg.setSpeed(currentWaypoint.getOutLeg().getSpeed());
+                routeLeg.setXtdPort(currentWaypoint.getOutLeg().getXtdPort());
+                routeLeg.setXtdStarboard(currentWaypoint.getOutLeg().getXtdStarboard());
+                routeLeg.setSFWidth(currentWaypoint.getOutLeg().getSFWidth());
+                routeLeg.setSFLen(currentWaypoint.getOutLeg().getSFWidth());
+
+                voyageWaypoint.setRouteLeg(routeLeg);
+            }
+            voyageRoute.getWaypoints().add(voyageWaypoint);
+        }
+        
+        // Since this may be a partial route, make sure the last out-leg is null
+        if (!voyageRoute.getWaypoints().isEmpty()) {
+            Waypoint lastWaypoint = voyageRoute.getWaypoints().get(voyageRoute.getWaypoints().size() - 1);
+            if (lastWaypoint.getRouteLeg() != null) {
+                lastWaypoint.setRouteLeg(null);
+            }
+        }
+        
+        return result;
+    }
 }

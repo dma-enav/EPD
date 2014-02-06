@@ -15,6 +15,9 @@
  */
 package dk.dma.epd.ship.service;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.broadcast.BroadcastOptions;
 
@@ -25,7 +28,9 @@ import org.slf4j.LoggerFactory;
 import dk.dma.enav.model.voyage.Route;
 import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
+import dk.dma.epd.common.prototype.model.route.PartialRouteFilter;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.model.route.PartialRouteFilter.FilterType;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.route.RouteManager;
@@ -169,12 +174,14 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         final IntendedRouteBroadcast message = new IntendedRouteBroadcast();
 
         if (routeManager.getActiveRoute() != null) {
-            message.setIntendedRoute(routeManager.getActiveRoute().getFullRouteData());
+            PartialRouteFilter filter = new PartialRouteFilter(FilterType.METERS, 5000, 10000);
+            routeManager.getActiveRoute().getPartialRouteData(filter, message);
 
             lastTransmitActiveWp = new DateTime(routeManager.getActiveRoute().getActiveWaypointEta());
 
         } else {
             message.setIntendedRoute(new Route());
+            message.setOriginalEtas(new ArrayList<Date>());
         }
 
         // send message

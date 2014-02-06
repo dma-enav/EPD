@@ -15,6 +15,9 @@
  */
 package dk.dma.epd.common.prototype.enavcloud;
 
+import java.util.Date;
+import java.util.List;
+
 import net.maritimecloud.net.broadcast.BroadcastMessage;
 import dk.dma.enav.model.voyage.Route;
 
@@ -24,6 +27,8 @@ import dk.dma.enav.model.voyage.Route;
 public class IntendedRouteBroadcast extends BroadcastMessage {
 
     private Route intendedRoute;
+    private int activeWPIndex;
+    private List<Date> originalEtas;
 
     /**
      * Returns the intended route being broadcasted
@@ -40,4 +45,37 @@ public class IntendedRouteBroadcast extends BroadcastMessage {
     public void setIntendedRoute(Route intendedRoute) {
         this.intendedRoute = intendedRoute;
     }
+
+    /**
+     * Returns the active way point index
+     * @return the active way point index
+     */
+    public int getActiveWPIndex() {
+        return activeWPIndex;
+    }
+
+    /**
+     * Sets the active way point index
+     * @param activeWPIndex the active way point index
+     */
+    public void setActiveWPIndex(int activeWPIndex) {
+        this.activeWPIndex = activeWPIndex;
+    }
+
+    /**
+     * Returns the original ETA's for the way points
+     * @return the original ETA's for the way points
+     */
+    public List<Date> getOriginalEtas() {
+        return originalEtas;
+    }
+
+    /**
+     * Sets the original ETA's for the way points
+     * @param originalEtas the original ETA's for the way points
+     */
+    public void setOriginalEtas(List<Date> originalEtas) {
+        this.originalEtas = originalEtas;
+    }
+
 }
