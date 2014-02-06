@@ -60,7 +60,6 @@ import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.settingtabs.AisSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.ConnectionStatus;
-import dk.dma.epd.shore.gui.settingtabs.ENavSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.gui.settingtabs.MapSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.MapWindowsPanel;
@@ -99,7 +98,6 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
     private MapWindowsPanel mapWindowsPanel = new MapWindowsPanel();
     private ConnectionStatus connectionsPanel = new ConnectionStatus();
     private AisSettingsPanel aisSettingsPanel = new AisSettingsPanel();
-    private ENavSettingsPanel eNavSettingsPanel = new ENavSettingsPanel();
     private ShoreCloudSettingsPanel cloudSettingsPanel = new ShoreCloudSettingsPanel();
 
     // Settings panels
@@ -133,7 +131,7 @@ public class JSettingsWindow extends ComponentFrame implements MouseListener, IS
         settings = EPDShore.getInstance().getSettings();
 
         registerSettings(mapSettingsPanel, mapWindowsPanel, connectionsPanel, 
-                aisSettingsPanel, eNavSettingsPanel, cloudSettingsPanel);
+                aisSettingsPanel, cloudSettingsPanel);
 
         // NB: Setting up the GUI is postponed until the mainFrame
         //     has been set via findAndInit...

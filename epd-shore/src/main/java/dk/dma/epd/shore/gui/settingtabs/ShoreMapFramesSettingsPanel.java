@@ -80,6 +80,10 @@ public class ShoreMapFramesSettingsPanel extends BaseSettingsPanel {
      */
     @Override
     protected void doLoadSettings() {
+    	
+    	// Clear old maps.
+    	mapWindowsTabbedPane.removeAll();
+    	mapFrames.clear();
 
         // Get map frames.
         MainFrame mainFrame = EPDShore.getInstance().getMainFrame();

@@ -74,6 +74,7 @@ public class MainFrame extends MainFrameCommon {
     private NotificationArea notificationArea = new NotificationArea(this);
     private NotificationCenter notificationCenter = new NotificationCenter();
     private JSettingsWindow settingsWindow = new JSettingsWindow();
+    private SetupDialogShore setup = new SetupDialogShore(EPDShore.getInstance().getMainFrame());
     private RouteManagerDialog routeManagerDialog = new RouteManagerDialog(this);
     private SendRouteDialog sendRouteDialog = new SendRouteDialog();
     private SendStrategicRouteDialog sendVoyageDialog = new SendStrategicRouteDialog();
@@ -334,6 +335,7 @@ public class MainFrame extends MainFrameCommon {
 
         beanHandler.add(notificationArea);
         beanHandler.add(settingsWindow);
+        beanHandler.add(this.setup);
         beanHandler.add(sendRouteDialog);
         beanHandler.add(sendVoyageDialog);
         // dtp.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
@@ -633,5 +635,9 @@ public class MainFrame extends MainFrameCommon {
     public JMenuWorkspaceBar getTopMenu() {
         return topMenu;
     }
+
+	public SetupDialogShore getSetupDialog() {
+		return this.setup;
+	}
 
 }
