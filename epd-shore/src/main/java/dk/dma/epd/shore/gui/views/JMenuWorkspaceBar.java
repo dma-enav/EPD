@@ -304,7 +304,11 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
         windowSettings.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                mainFrame.getSettingsWindow().toggleVisibility();
+            	
+            	// Open the setup dialog on map settings for this specific map.
+            	mainFrame.getSetupDialog().loadSettings(EPDShore.getInstance().getSettings());
+            	mainFrame.getSetupDialog().goToSpecifMapSettings(window);
+            	mainFrame.getSetupDialog().setVisible(true);
             }
         });
     }

@@ -189,4 +189,17 @@ public class SetupDialogShore extends SetupDialogCommon implements LightMapHandl
 			findAndUndo(it.next());			
 		}
 	}
+
+	/**
+	 * Sets the panel tabs to show map frames settings and sets the
+	 * tabbed pane to a specific map frame. 
+	 * @param activeMapWindow
+	 */
+	public void goToSpecifMapSettings(JMapFrame activeMapWindow) {
+		
+		// Go to the map frames settings.
+		super.setActivePanel(4);
+		this.windowsSettings.showSettingsFor(activeMapWindow);
+		
+	}
 }
