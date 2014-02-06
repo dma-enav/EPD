@@ -40,7 +40,8 @@ public class IntendedRoute extends Route {
     protected Double activeWpRange;
     protected boolean visible = true;
     protected long mmsi;
-
+    protected int activeWpIndex;
+        
     protected List<Double> ranges = new ArrayList<>();
 
     /**
