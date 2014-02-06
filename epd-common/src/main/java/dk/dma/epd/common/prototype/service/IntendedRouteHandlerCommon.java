@@ -112,9 +112,12 @@ public class IntendedRouteHandlerCommon
      */
     private synchronized void updateIntendedRoute(long mmsi, Route routeData) {
         
-        boolean existing = intendedRoutes.containsKey(mmsi);
         IntendedRoute intendedRoute = new IntendedRoute(routeData);
         intendedRoute.setMmsi(mmsi);
+        IntendedRoute oldIntendedRoute = intendedRoutes.get(mmsi);
+        if (oldIntendedRoute != null) {
+            intendedRoute.setVisible(oldIntendedRoute.isVisible());
+        }
         
         // Check if this is a real intended route or one that signals a removal
         if (!intendedRoute.hasRoute()) {
@@ -138,7 +141,7 @@ public class IntendedRouteHandlerCommon
         }
 
         // Broadcast the happy occasion
-        if (existing) {
+        if (oldIntendedRoute != null) {
             fireIntendedRouteUpdated(intendedRoute);
         } else {
             fireIntendedRouteAdded(intendedRoute);            

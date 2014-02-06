@@ -156,7 +156,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
         if (this.name == null) {
             this.name = "ID:" + intendedRoute.getMmsi();
         }
-                
+        
         this.intendedRoute = intendedRoute;
         // Always re-paint, since color may change over time
         renderIntendedRoute();
