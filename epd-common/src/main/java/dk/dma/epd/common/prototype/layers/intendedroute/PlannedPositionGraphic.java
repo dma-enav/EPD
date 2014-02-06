@@ -53,7 +53,7 @@ public class PlannedPositionGraphic extends OMGraphicList {
     
     
     private RotationalPoly vessel;
-    private Paint paint = Color.BLACK;
+    private Paint paint = Color.GRAY;
     private Stroke stroke = new BasicStroke(2.0f);
     private VesselTargetGraphic vesselTarget;
 
@@ -81,14 +81,6 @@ public class PlannedPositionGraphic extends OMGraphicList {
         
         vessel.setFillPaint(new Color(0, 0, 0, 1));
         vessel.setTextureMask(new TexturePaint(hatchFill, hatchFillRectangle));
-
-        Stroke activeStroke = new BasicStroke(1.0f, // Width
-                BasicStroke.CAP_SQUARE, // End cap
-                BasicStroke.JOIN_MITER, // Join style
-                10.0f, // Miter limit
-                new float[] { 10.0f, 8.0f }, // Dash pattern
-                0.0f); // Dash phase
-//        vessel.setStroke(activeStroke);
         
         add(vessel);
         this.setVague(true);
@@ -115,15 +107,9 @@ public class PlannedPositionGraphic extends OMGraphicList {
         if (pos != null) {
             System.out.println("Moving symbol " + pos + " bearing " + bearing);
 
+            double hdgR = Math.toRadians(bearing);
             
-            
-            // remove(poly);
-//            graphics.clear();
-
-            // int width = 1000;
-            // int height = 500;
-
-            vessel.setLocation(pos.getLatitude(), pos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, bearing + 180);
+            vessel.setLocation(pos.getLatitude(), pos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, hdgR);
             
             this.setVisible(true);
         }else{
