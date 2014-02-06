@@ -59,12 +59,10 @@ public class IntendedRouteHandlerCommon
     public IntendedRouteHandlerCommon() {
         super();
         
-        // Update the list of intended routes every minute. Involves:
-        // * Remove stale intended routes
-        // * Cause the active intended routes to update (i.e. update "active" color)
+        // Checks and remove stale intended routes every minute
         getScheduler().scheduleWithFixedDelay(new Runnable() {
             @Override public void run() {
-                updateIntendedRoutes();
+                checkForInactiveRoutes();
             }
         }, 1, 1, TimeUnit.MINUTES);
     }
@@ -148,13 +146,9 @@ public class IntendedRouteHandlerCommon
     }
     
     /**
-     * Update the list of intended routes every minute. Involves:
-     * <ul>
-     *   <li>Remove stale intended routes.</li>
-     *   <li>Cause the active intended routes to update (i.e. update "active" color).</li>
-     * <ul>
+     * Remove stale intended routes.
      */
-    private synchronized void updateIntendedRoutes() {
+    private synchronized void checkForInactiveRoutes() {
         Date now = PntTime.getInstance().getDate();
         for (Iterator<Map.Entry<Long, IntendedRoute>> it = intendedRoutes.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<Long, IntendedRoute> entry = it.next();
@@ -162,10 +156,6 @@ public class IntendedRouteHandlerCommon
                 // Remove the intended route
                 it.remove();
                 fireIntendedRouteRemoved(entry.getValue());
-            } else {
-                // Fire an update to cause the route graphics to update
-                // i.e. change color depending on receive time
-                fireIntendedRouteUpdated(entry.getValue());
             }
         }
     }
@@ -185,7 +175,7 @@ public class IntendedRouteHandlerCommon
     /**
      * Hide all intended routes 
      */
-    public final void hideAllIntendedRoutes() {
+    public void hideAllIntendedRoutes() {
         for (IntendedRoute intendedRoute : intendedRoutes.values()) {
             intendedRoute.setVisible(false);
             fireIntendedRouteUpdated(intendedRoute);
@@ -195,7 +185,7 @@ public class IntendedRouteHandlerCommon
     /**
      * Show all intended routes 
      */
-    public final void showAllIntendedRoutes() {
+    public void showAllIntendedRoutes() {
         for (IntendedRoute intendedRoute : intendedRoutes.values()) {
             intendedRoute.setVisible(true);
             fireIntendedRouteUpdated(intendedRoute);

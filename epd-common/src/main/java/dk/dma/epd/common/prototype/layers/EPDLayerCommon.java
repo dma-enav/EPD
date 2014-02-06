@@ -19,12 +19,15 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapEventUtils;
@@ -79,6 +82,8 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
     
     protected OMGraphic closest;
     
+    private Timer timer;
+    
     /** 
      * {@inheritDoc}
      */
@@ -90,6 +95,10 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
         graphics.project(getProjection(), true);
         return graphics;
     }
+    
+    /***************************************/
+    /** Life-cycle functionality          **/
+    /***************************************/
     
     /**
      * Called when a bean is added to the bean context
@@ -130,7 +139,83 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
         
         super.findAndUndo(obj);
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void dispose() {
+        synchronized(graphics) {
+            graphics.clear();            
+        }
+        synchronized (this) {
+            if (timer != null) {
+                timer.stop();
+            }
+        }
+        super.dispose();
+    }
 
+    /***************************************/
+    /** Timer functionality               **/
+    /***************************************/
+    
+    /**
+     * Starts the timer with the given initial delay and subsequent delays.
+     * <p>
+     * When the timer is triggered, it will call the {@linkplain #timerAction()}
+     * method, which sub-classes should override.
+     */
+    protected synchronized void startTimer(int initialDelay, int delay) {
+        if (timer != null) {
+            timer.stop();
+        }
+        timer = new Timer(delay, new ActionListener() {
+                @Override public void actionPerformed(ActionEvent e) {
+                    timerAction();
+                }});
+        timer.setInitialDelay(initialDelay);
+        timer.setRepeats(true);
+        timer.setCoalesce(true);
+        timer.start();
+    }
+    
+    /**
+     * Re-starts the timer with the initial delay and subsequent delays
+     * that was specified upon first starting the timer using
+     * the {@linkplain #startTimer(int, int)} method.
+     * <p>
+     * When the timer is triggered, it will call the {@linkplain #timerAction()}
+     * method, which sub-classes should override.
+     */
+    protected synchronized void restartTimer() {
+        if (timer == null) {
+            throw new IllegalStateException("Timer must be started before being restarted");
+        }
+        timer.restart();
+    }
+    
+    /**
+     * Stops the timer
+     */
+    protected synchronized void stopTimer() {
+        if (timer != null) {
+            timer.stop();
+            timer = null;
+        }
+    }
+    
+    /**
+     * Sub-classes using the timer functionality should override this method,
+     * which gets called by the timer.
+     */
+    protected void timerAction() {
+    }
+    
+    /***************************************/
+    /** Mouse handling functionality      **/
+    /***************************************/
+    
     /**
      * Returns {@code this} as the {@linkplain MapMouseListener}
      * @return this
@@ -325,6 +410,10 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
         return MapEventUtils.getSelectedGraphic(graphicsList, evt, getMouseSelectTolerance(), types);
     }
     
+    /***************************************/
+    /** Misc functionality                **/
+    /***************************************/
+
     /**
      * Returns a reference to the main frame
      * @return a reference to the main frame
@@ -488,9 +577,12 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
     }    
 }
 
+/***************************************/
+/** Helper classes                    **/
+/***************************************/
 
 /**
- * Sub-class of {@linkplain OMGraphicList} that turns on antialiasing
+ * Sub-class of {@linkplain OMGraphicList} that turns on anti-aliasing
  */
 class AntialiasedGraphicList extends OMGraphicList {
     

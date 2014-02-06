@@ -139,10 +139,17 @@ public class IntendedRouteGraphic extends OMGraphicList {
     }
     
     /**
+     * Called when the graphics should be updated
+     * with the current intended route
+     */
+    public synchronized void updateIntendedRoute() {
+        updateIntendedRoute(intendedRoute);
+    }
+    
+    /**
      * Called when the intended route has been updated
      * 
      * @param intendedRoute the intended route data
-     * @return if the graphics has changed
      */
     public synchronized void updateIntendedRoute(IntendedRoute intendedRoute) {
 

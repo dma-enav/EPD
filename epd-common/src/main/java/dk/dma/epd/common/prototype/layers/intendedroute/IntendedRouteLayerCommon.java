@@ -69,6 +69,10 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
         
         // Register the classes the will trigger the map menu
         registerMapMenuClasses(IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
+        
+        // Starts the repaint timer, which runs every minute
+        // The initial delay is 100ms and is used to batch up repaints()
+        startTimer(100, 60 * 1000);
     }
     
     /**
@@ -113,11 +117,16 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
         
         // add the new intended route graphic to the set of managed intended route graphics
         intendedRoutes.put(intendedRoute.getMmsi(), intendedRouteGraphic);
-        graphics.add(intendedRouteGraphic);
+        synchronized(graphics) {
+            graphics.add(intendedRouteGraphic);
+        }
         
         // Update the graphics
         intendedRouteGraphic.updateIntendedRoute(intendedRoute);
-        doPrepare();
+        intendedRouteGraphic.showArrowHeads(showArrowHeads());
+        
+        // Cause imminent repaint
+        restartTimer();
     }
     
     /**
@@ -132,7 +141,9 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
         if (intendedRouteGraphic != null) {
             // Update the graphics
             intendedRouteGraphic.updateIntendedRoute(intendedRoute);
-            doPrepare();
+            
+            // Cause imminent repaint
+            restartTimer();
         }
     }
     
@@ -146,10 +157,25 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
         
         // Should always be defined, but better check...
         if (intendedRouteGraphic != null) {
-            graphics.remove(intendedRouteGraphic);
+            synchronized(graphics) {
+                graphics.remove(intendedRouteGraphic);
+            }
             intendedRoutes.remove(intendedRoute.getMmsi());
-            doPrepare();
+            
+            // Cause imminent repaint
+            restartTimer();
         }
+    }
+    
+    /**
+     * Called periodically by the timer
+     */
+    @Override
+    protected void timerAction() {
+        for (IntendedRouteGraphic intendedRouteGraphic : intendedRoutes.values()) {
+            intendedRouteGraphic.updateIntendedRoute();
+        }
+        doPrepare();
     }
     
     /**
@@ -160,11 +186,9 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
         // Check if we need to display the arrow heads
         if (getProjection() != null) {
             
-            boolean showArrowHeads = getProjection().getScale() < EPD.getInstance()
-                    .getSettings().getNavSettings().getShowArrowScale();
-            
-            for (IntendedRouteGraphic intendedRoute : intendedRoutes.values()) {
-                intendedRoute.showArrowHeads(showArrowHeads);
+            boolean showArrowHeads = showArrowHeads();
+            for (IntendedRouteGraphic intendedRouteGraphic : intendedRoutes.values()) {
+                intendedRouteGraphic.showArrowHeads(showArrowHeads);
             }
         }
         super.projectionChanged(pe);
@@ -232,4 +256,18 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
             mapMenu.intendedRouteMenu(wpLeg.getIntendedRouteGraphic());
         }
     }
+
+    /**
+     * Returns whether or not to show arrow heads on the route legs,
+     * which depends on the current projection
+     * @return whether or not to show arrow heads on the route legs
+     */
+    private boolean showArrowHeads() {
+        if (getProjection() != null) {
+            return getProjection().getScale() < EPD.getInstance()
+                    .getSettings().getNavSettings().getShowArrowScale();
+        }
+        return false;
+    }
+    
 }
