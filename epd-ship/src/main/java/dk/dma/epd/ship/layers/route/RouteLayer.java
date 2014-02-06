@@ -84,7 +84,11 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
 
                         safeHavenArea.moveSymbol(
                                 activeRoute.getSafeHavenLocation(),
+                                
+                                
                                 activeRoute.getSafeHavenBearing(),
+                                
+                                
                                 activeRoute.getActiveWp().getOutLeg()
                                         .getSFWidth(), activeRoute
                                         .getActiveWp().getOutLeg().getSFLen());
@@ -95,16 +99,19 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
                                 .moveSymbol(
                                         activeRoute.getSafeHavenLocation(),
                                         activeRoute.getSafeHavenBearing(),
-                                        activeRoute
-                                                .getWaypoints()
-                                                .get(activeRoute.getWaypoints()
-                                                        .size() - 2)
-                                                .getOutLeg().getSFWidth(),
-                                        activeRoute
-                                                .getWaypoints()
-                                                .get(activeRoute.getWaypoints()
-                                                        .size() - 2)
-                                                .getOutLeg().getSFLen());
+                                        activeRoute.getSafeHavenWidth(),
+                                        
+//                                                .getWaypoints()
+//                                                .get(activeRoute.getWaypoints()
+//                                                        .size() - 2)
+//                                                .getOutLeg().getSFWidth(),
+                                        activeRoute.getSafeHavenLength()
+                                       
+//                                                .getWaypoints()
+//                                                .get(activeRoute.getWaypoints()
+//                                                        .size() - 2)
+//                                                .getOutLeg().getSFLen()
+                                                );
                         graphics.add(safeHavenArea);
                     }
                 }

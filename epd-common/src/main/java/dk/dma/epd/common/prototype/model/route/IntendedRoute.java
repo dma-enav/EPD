@@ -25,6 +25,8 @@ import dk.dma.enav.model.voyage.Waypoint;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.util.Calculator;
+import dk.dma.epd.common.util.Converter;
 
 /**
  * Defines an intended route.
@@ -41,22 +43,32 @@ public class IntendedRoute extends Route {
     protected boolean visible = true;
     protected long mmsi;
     protected int activeWpIndex;
-        
+
     protected List<Double> ranges = new ArrayList<>();
+    protected List<Date> plannedEtas;
+
+    protected double plannedPositionBearing;
 
     /**
      * Initializes the intended route from route data received over the cloud
-     * @param cloudRouteData route data received over the cloud
+     * 
+     * @param cloudRouteData
+     *            route data received over the cloud
      */
     public IntendedRoute(dk.dma.enav.model.voyage.Route cloudRouteData) {
         super();
         received = PntTime.getInstance().getDate();
         parseRoute(cloudRouteData);
+
+        // Temporary hack - needs to be seperate
+        plannedEtas = etas;
     }
 
     /**
      * Parses the route data received over the cloud as an EPD route
-     * @param cloudRouteData route data received over the cloud
+     * 
+     * @param cloudRouteData
+     *            route data received over the cloud
      */
     private void parseRoute(dk.dma.enav.model.voyage.Route cloudRouteData) {
         this.setName(cloudRouteData.getName());
@@ -83,8 +95,7 @@ public class IntendedRoute extends Route {
                 waypoint.setOutLeg(outLeg);
             }
 
-            Position position = Position.create(cloudWaypoint.getLatitude(),
-                    cloudWaypoint.getLongitude());
+            Position position = Position.create(cloudWaypoint.getLatitude(), cloudWaypoint.getLongitude());
             waypoint.setPos(position);
 
             routeWaypoints.add(waypoint);
@@ -126,32 +137,27 @@ public class IntendedRoute extends Route {
 
                     // SOG
                     if (cloudWaypoint.getRouteLeg().getSpeed() != null) {
-                        waypoint.setSpeed(cloudWaypoint.getRouteLeg()
-                                .getSpeed());
+                        waypoint.setSpeed(cloudWaypoint.getRouteLeg().getSpeed());
                     }
 
                     // XTDS
                     if (cloudWaypoint.getRouteLeg().getXtdStarboard() != null) {
-                        waypoint.getOutLeg().setXtdStarboard(
-                                cloudWaypoint.getRouteLeg().getXtdStarboard());
+                        waypoint.getOutLeg().setXtdStarboard(cloudWaypoint.getRouteLeg().getXtdStarboard());
                     }
 
                     // XTDP
                     if (cloudWaypoint.getRouteLeg().getXtdPort() != null) {
-                        waypoint.getOutLeg().setXtdPort(
-                                cloudWaypoint.getRouteLeg().getXtdPort());
+                        waypoint.getOutLeg().setXtdPort(cloudWaypoint.getRouteLeg().getXtdPort());
                     }
 
                     // SF Width
                     if (cloudWaypoint.getRouteLeg().getSFWidth() != null) {
-                        waypoint.getOutLeg().setSFWidth(
-                                cloudWaypoint.getRouteLeg().getSFWidth());
+                        waypoint.getOutLeg().setSFWidth(cloudWaypoint.getRouteLeg().getSFWidth());
                     }
 
                     // SF Len
                     if (cloudWaypoint.getRouteLeg().getSFLen() != null) {
-                        waypoint.getOutLeg().setSFLen(
-                                cloudWaypoint.getRouteLeg().getSFLen());
+                        waypoint.getOutLeg().setSFLen(cloudWaypoint.getRouteLeg().getSFLen());
                     }
 
                 }
@@ -169,8 +175,7 @@ public class IntendedRoute extends Route {
         routeRange = 0.0;
         ranges.add(routeRange);
         for (int i = 0; i < waypoints.size() - 1; i++) {
-            double dist = waypoints.get(i).getPos()
-                    .rhumbLineDistanceTo(waypoints.get(i + 1).getPos()) / 1852.0;
+            double dist = waypoints.get(i).getPos().rhumbLineDistanceTo(waypoints.get(i + 1).getPos()) / 1852.0;
             routeRange += dist;
             ranges.add(routeRange);
         }
@@ -238,8 +243,7 @@ public class IntendedRoute extends Route {
      * @param posData
      */
     public void update(VesselPositionData posData) {
-        if (posData == null || posData.getPos() == null
-                || waypoints.size() == 0) {
+        if (posData == null || posData.getPos() == null || waypoints.size() == 0) {
             return;
         }
 
@@ -259,16 +263,17 @@ public class IntendedRoute extends Route {
 
     /**
      * Returns whether the route is non-empty or not
+     * 
      * @return whether the route is non-empty or not
      */
     public synchronized boolean hasRoute() {
         return waypoints != null && waypoints.size() > 0;
     }
 
-    public boolean isVisible() { 
+    public boolean isVisible() {
         return visible;
     }
-    
+
     public void setVisible(boolean visible) {
         this.visible = visible;
     }
@@ -296,6 +301,55 @@ public class IntendedRoute extends Route {
     public void setActiveWpIndex(int activeWpIndex) {
         this.activeWpIndex = activeWpIndex;
     }
-    
-    
+
+    public Position getPlannedPosition() {
+
+        long currentTime = PntTime.getInstance().getDate().getTime();
+
+        // Is the ship on the route yet? or where it was planning to be?
+        // If not, don't draw anything as nothing is planned
+        if (currentTime < plannedEtas.get(0).getTime()) {
+            return null;
+        } else {
+
+            for (int i = 0; i < getWaypoints().size(); i++) {
+
+                // We haven't found the match so the ship must have finished it's
+                // route - Display the box at the end
+                if (i == getWaypoints().size() - 1) {
+                    plannedPositionBearing = Calculator.bearing(getWaypoints().get(getWaypoints().size() - 2).getPos(),
+                            getWaypoints().get(getWaypoints().size() - 1).getPos(), Heading.RL);
+
+                    return getWaypoints().get(i).getPos();
+                } else {
+
+                    // We should be beyond this
+                    if (currentTime > plannedEtas.get(i).getTime() && currentTime < plannedEtas.get(i + 1).getTime()) {
+
+                        Position plannedPosition;
+
+                        // How long have we been sailing between these
+                        // waypoints?
+                        long secondsSailTime = (currentTime - plannedEtas.get(i).getTime()) / 1000;
+
+                        double distanceTravelledNauticalMiles = Converter.milesToNM(Calculator.distanceAfterTimeMph(getWaypoints()
+                                .get(i).getOutLeg().getSpeed(), secondsSailTime));
+
+                        plannedPosition = Calculator.findPosition(this.getWaypoints().get(i).getPos(), this.getWaypoints().get(i)
+                                .getOutLeg().calcBrg(), Converter.nmToMeters(distanceTravelledNauticalMiles));
+
+                        plannedPositionBearing = Calculator.bearing(getWaypoints().get(i).getPos(), getWaypoints().get(i + 1)
+                                .getPos(), Heading.RL);
+
+                        return plannedPosition;
+                    }
+                }
+
+            }
+
+        }
+        // An error must have occured
+        return null;
+    }
+
 }

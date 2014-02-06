@@ -86,6 +86,10 @@ public class ActiveRoute extends Route {
     protected int lastWpCounter;
 
     private Position safeHavenLocation;
+    private double safeHavenLength;
+    private double safeHavenWidth;
+    
+    
     private Route originalRoute;
 
     protected double safeHavenBearing;
@@ -182,6 +186,10 @@ public class ActiveRoute extends Route {
             safeHavenBearing = Calculator.bearing(originalRoute.getWaypoints()
                     .get(0).getPos(), originalRoute.getWaypoints().get(1)
                     .getPos(), Heading.RL);
+            
+            this.safeHavenLength = this.getWaypoints().get(0).getOutLeg().getSFLen();
+            this.safeHavenWidth = this.getWaypoints().get(0).getOutLeg().getSFWidth();
+            
             return originalRoute.getWaypoints().get(0).getPos();
         } else {
 
@@ -202,6 +210,10 @@ public class ActiveRoute extends Route {
                                                     .size() - 1).getPos(),
                                     Heading.RL);
 
+                    
+                    this.safeHavenLength = this.getWaypoints().get(i).getOutLeg().getSFLen();
+                    this.safeHavenWidth = this.getWaypoints().get(i).getOutLeg().getSFWidth();
+                    
                     return originalRoute.getWaypoints().get(i).getPos();
                 } else {
 
@@ -233,6 +245,12 @@ public class ActiveRoute extends Route {
                                         .getPos(), originalRoute.getWaypoints()
                                         .get(i + 1).getPos(), Heading.RL);
 
+                        
+                        this.safeHavenLength = this.getWaypoints().get(i).getOutLeg().getSFLen();
+                        this.safeHavenWidth = this.getWaypoints().get(i).getOutLeg().getSFWidth();
+                        
+                        
+                        
                         return safeHavenLocation;
                     }
                 }
@@ -514,5 +532,15 @@ public class ActiveRoute extends Route {
 
         return voyageRoute;
     }
+
+    public double getSafeHavenLength() {
+        return safeHavenLength;
+    }
+
+    public double getSafeHavenWidth() {
+        return safeHavenWidth;
+    }
+    
+    
     
 }
