@@ -40,8 +40,9 @@ import dk.dma.epd.common.prototype.settings.NavSettings;
 public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         extends LazyLayerCommon implements IAisTargetListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AisLayerCommon.class);
-    
+    private static final Logger LOG = LoggerFactory
+            .getLogger(AisLayerCommon.class);
+
     /**
      * The AIS handler that provides AIS data for this layer.
      */
@@ -56,17 +57,17 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      * The graphic that is currently selected by the user.
      */
     private ISelectableGraphic selectedGraphic;
-    
+
     /**
      * The application wide AIS settings.
      */
     private final AisSettings aisSettings;
-    
+
     /**
      * The application wide Navigation settings.
      */
     private final NavSettings navSettings;
-    
+
     public AisLayerCommon(int repaintIntervalMillis) {
         super(repaintIntervalMillis);
         // Get the settings singletons
@@ -87,9 +88,36 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
     @Override
     public void findAndUndo(Object obj) {
         if (obj == this.aisHandler) {
-            this.aisHandler.removeListener(this);
+            // TODO this cleanup causes problems when we have more than one
+            // MapWindow:
+            // When a new window is added, findAndUndo is called for the already
+            // present window.
+            // this.aisHandler.removeListener(this);
         }
         super.findAndUndo(obj);
+    }
+
+    /**
+     * Updates which AIS target this layer should display as the selected
+     * target. If the provided {@code mmsi} does not have a graphical
+     * representation in this layer, this method will remove the current
+     * selection. Furthermore, if a {@code TargetGraphic} matching the
+     * {@code mmsi} is found, this object needs to implement
+     * {@code ISelectableGraphic} for the selection to be valid. If this is not
+     * the case, this method will remove the current selection.
+     * 
+     * @param mmsi
+     *            The MMSI of an AIS target that is now the selected AIS target.
+     * @param repaintImmediately
+     *            If this layer should repaint itself immediately.
+     */
+    public final void setSelectedTarget(long mmsi, boolean repaintImmediately) {
+        TargetGraphic tg = this.targets.get(mmsi);
+        if (tg instanceof ISelectableGraphic) {
+            this.setSelectedGraphic((ISelectableGraphic) tg, repaintImmediately);
+        } else {
+            this.setSelectedGraphic(null, repaintImmediately);
+        }
     }
 
     /**
@@ -101,7 +129,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      *            If this layer should repaint itself to reflect the change in
      *            selection.
      */
-    public void setSelectedGraphic(ISelectableGraphic newSelection,
+    protected void setSelectedGraphic(ISelectableGraphic newSelection,
             boolean repaint) {
         if (this.selectedGraphic != null) {
             // remove current selection
@@ -177,7 +205,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
     protected TargetGraphic getTargetGraphic(Long mmsi) {
         return mmsi == null ? null : this.targets.get(mmsi);
     }
-    
+
     @Override
     public void targetUpdated(AisTarget aisTarget) {
         // Sanity check
@@ -186,8 +214,9 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         }
         long mmsi = aisTarget.getMmsi();
         TargetGraphic targetGraphic = this.getTargetGraphic(mmsi);
-        float mapScale = (this.getProjection() == null) ? 0 : this.getProjection().getScale();
-        
+        float mapScale = (this.getProjection() == null) ? 0 : this
+                .getProjection().getScale();
+
         if (aisTarget.isGone()) {
             if (targetGraphic != null) {
                 // Remove target from map of graphics + graphics list
@@ -201,6 +230,10 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
             if (aisTarget instanceof VesselTarget) {
                 // TODO update boolean argument to use dynamic value
                 targetGraphic = new VesselTargetGraphic(true, this);
+                // TODO this causes problems in EPDShip with regards to mouse
+                // clicks and mouse over as EPDShip does instanceof checks on
+                // sub graphics of VesselTargetGraphic
+                targetGraphic.setVague(true);
             } else if (aisTarget instanceof SarTarget) {
                 targetGraphic = new SarTargetGraphic();
             } else if (aisTarget instanceof AtoNTarget) {
@@ -217,7 +250,8 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
             VesselTarget vesselTarget = (VesselTarget) aisTarget;
             VesselTargetGraphic vesselTargetGraphic = (VesselTargetGraphic) targetGraphic;
             // Send new position data to graphic object
-            vesselTargetGraphic.update(vesselTarget, this.aisSettings, this.navSettings, mapScale);
+            vesselTargetGraphic.update(vesselTarget, this.aisSettings,
+                    this.navSettings, mapScale);
         } else if (aisTarget instanceof SarTarget) {
             targetGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
         } else if (aisTarget instanceof AtoNTarget) {
@@ -225,7 +259,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         }
         targetGraphic.project(getProjection());
     }
-    
+
     /**
      * Force this AIS layer to update itself.
      */

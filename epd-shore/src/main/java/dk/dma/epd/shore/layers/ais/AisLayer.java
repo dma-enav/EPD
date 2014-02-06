@@ -21,21 +21,14 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.ISelectableGraphic;
-import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.MobileTarget;
 import dk.dma.epd.common.prototype.ais.SarTarget;
@@ -47,9 +40,7 @@ import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.layers.ais.AisTargetInfoPanelCommon;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
-import dk.dma.epd.common.prototype.layers.ais.SarTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
-import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.EPDShore;
@@ -68,18 +59,12 @@ import dk.dma.epd.shore.gui.views.StatusArea;
 @SuppressWarnings("serial")
 @ThreadSafe
 public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetListener {
-    private static final Logger LOG = LoggerFactory.getLogger(AisLayer.class);
 
     private final AisTargetInfoPanelCommon aisTargetInfoPanel = new AisTargetInfoPanelCommon();
     private StatusArea statusArea;
     private ChartPanel chartPanel;
     private final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
     private boolean showVesselLabels;
-
-    @GuardedBy("targets")
-    private final Map<Long, TargetGraphic> targets = new ConcurrentHashMap<>();
-
-    private volatile float mapScale;
 
     /**
      * Create a new AisLayer that is redrawn repeatedly at a given interval.
@@ -97,18 +82,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         this.registerInfoPanel(this.pastTrackInfoPanel, PastTrackWpCircle.class);
         
         this.showVesselLabels = EPDShore.getInstance().getSettings().getAisSettings().isShowNameLabels();
-    }
-
-    /**
-     * Clears all targets from the map and in the local memory
-     */
-    public void mapClearTargets() {
-        synchronized (graphics) {
-            graphics.clear();
-        }
-        synchronized (targets) {
-            targets.clear();
-        }
     }
 
     /**
@@ -135,70 +108,14 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         }
         return true;
     }
-    
-    /**
-     * Draws or updates the supported AIS (vessels and sar) targets on the map
-     */
-    private void drawTargets() {
-        if (aisHandler == null) {
-            return;
-        }
-
-        if (chartPanel != null) {
-
-            if (chartPanel.getMap().getScale() != mapScale) {
-                mapScale = chartPanel.getMap().getScale();
-                mapClearTargets();
-            }
-            
-            for (MobileTarget mobileTarget : aisHandler.getMobileTargets(AisTarget.Status.OK)) {
-                
-                // Check if vessel is near map coordinates or it's
-                // sending an intended route
-                if (!drawTarget(mobileTarget)) {
-                    continue;
-                }
-
-                synchronized (targets) {
-                    TargetGraphic targetGraphic = targets.get(mobileTarget.getMmsi());
-                    if (targetGraphic == null) {
-                        if (mobileTarget instanceof VesselTarget) {
-                            // TODO fix boolean argument
-                            targetGraphic = new VesselTargetGraphic(true, this);
-                            targetGraphic.setVague(true);
-                        } else if (mobileTarget instanceof SarTarget) {
-                            targetGraphic = new SarTargetGraphic();
-                        } else {
-                            LOG.error("Unknown target type");
-                            continue;
-                        }
-                        synchronized (graphics) {
-                            graphics.add(targetGraphic);
-                        }
-                        targets.put(mobileTarget.getMmsi(), targetGraphic);
-                    }
-                    
-                    // Update the target graphics
-                    targetGraphic.update(mobileTarget, null, null, mapScale);
-                    // update selection on graphic if selectable graphic
-                    if (targetGraphic instanceof ISelectableGraphic) {
-                        ((ISelectableGraphic)targetGraphic).setSelection(mobileTarget.getMmsi() == getMainFrame().getSelectedMMSI());
-                    }
-                    
-                }
-            }
-        }
-
-        doPrepare();
-
-    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void forceLayerUpdate() {
-        this.drawTargets();
+        // Repaint
+        this.doPrepare();
     }
     
     @Override
@@ -223,11 +140,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             mapFrame.getGlassPanel().add(pastTrackInfoPanel);
             mapFrame.getGlassPanel().setVisible(true);
         }
-    }
-
-    @Override
-    public void findAndUndo(Object obj) {
-        super.findAndUndo(obj);
     }
 
     /**
@@ -314,22 +226,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         return false;
     }
     
-    /**
-     * Returns the {@code VesselTargetGraphic} corresponding to the given mmsi, or null if not found
-     * @param mmsi the mmsi of the vessel
-     * @return the graphic representing the vessel or null if not found
-     */
-    @SuppressWarnings("unused")
-    private VesselTargetGraphic getVessel(Long mmsi) {
-        synchronized (targets) {
-            TargetGraphic target = this.targets.get(mmsi);
-            if (target != null && target instanceof VesselTargetGraphic) {
-                return (VesselTargetGraphic)target;
-            }
-        }
-        return null;
-    }
-    
     private void setStatusAreaTxt(VesselTarget vessel) {
         HashMap<String, String> info = new HashMap<String, String>();
         String currKey;
@@ -402,10 +298,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             statusArea.receiveHighlight(info, vessel.getMmsi());
         }
     }
-
-    @Override
-    public void targetUpdated(AisTarget arg0) {
-    }
     
     @Override
     public MainFrame getMainFrame() {
@@ -425,7 +317,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     @Override
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
-        drawTargets();
+        // repaint every time the timer expires
+        this.doPrepare();
     }
     
     /**
@@ -435,20 +328,20 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
      */
     @Override
     public void setShowNameLabels(boolean showLabels) {
-        
-        if (showLabels == this.showVesselLabels) {
-            return;
-        }
-        
-        this.showVesselLabels = showLabels;
-        for (TargetGraphic graphic : targets.values()) {
-            
-            if (graphic instanceof VesselTargetGraphic) {
-                ((VesselTargetGraphic) graphic).setShowNameLabel(showLabels);
-                targetUpdated(((VesselTargetGraphic) graphic).getVesselTarget());
-            }
-            
-            doPrepare();
-        }
+        // TODO JVA: move this stuff to Common
+//        if (showLabels == this.showVesselLabels) {
+//            return;
+//        }
+//        
+//        this.showVesselLabels = showLabels;
+//        for (TargetGraphic graphic : targets.values()) {
+//            
+//            if (graphic instanceof VesselTargetGraphic) {
+//                ((VesselTargetGraphic) graphic).setShowNameLabel(showLabels);
+//                targetUpdated(((VesselTargetGraphic) graphic).getVesselTarget());
+//            }
+//            
+//            doPrepare();
+//        }
     }
 }
