@@ -34,7 +34,7 @@ import javax.swing.JTabbedPane;
 /**
  * 
  * @author adamduehansen
- *
+ * 
  */
 public class ShoreMapFramesSettingsPanel extends BaseSettingsPanel {
 
@@ -45,51 +45,52 @@ public class ShoreMapFramesSettingsPanel extends BaseSettingsPanel {
     private JTabbedPane mapWindowsTabbedPane;
     private Map<JMapFrame, ShoreMapFrameSettingsPanel> mapFrames;
     private ShoreMapFrameSettingsPanel mapFrameSettings;
-	private List<JMapFrame> mapFramesUI;
+    private List<JMapFrame> mapFramesUI;
 
     public ShoreMapFramesSettingsPanel() {
-        super("Map Windows", new ImageIcon(
-                ShoreMapFramesSettingsPanel.class.getResource("/images/settings/maps.png")));
-        
+        super("Map Windows", new ImageIcon(ShoreMapFramesSettingsPanel.class.getResource("/images/settings/maps.png")));
+
         this.setLayout(null);
-        
+
         this.mapFrames = new HashMap<JMapFrame, ShoreMapFrameSettingsPanel>();
-        
+
         this.mapWindowsTabbedPane = new JTabbedPane(JTabbedPane.TOP);
         this.mapWindowsTabbedPane.setBounds(6, 6, 608, 288);
         this.add(this.mapWindowsTabbedPane);
     }
-    
+
     /**
      * Shows the settings for the map frame given.
-     * @param activeMapWindow The map to show settings for.
+     * 
+     * @param activeMapWindow
+     *            The map to show settings for.
      */
     public void showSettingsFor(JMapFrame activeMapWindow) {
-    	
-    	// Go through the list of map frame until the map at index
-    	// is the same as the given.
-    	for (int i = 0; i < mapFramesUI.size(); i++) {
-			
-    		if (mapFramesUI.get(i).equals(activeMapWindow)) {
-				 
-				mapWindowsTabbedPane.setSelectedIndex(i);
-			}
-		}
+
+        // Go through the list of map frame until the map at index
+        // is the same as the given.
+        for (int i = 0; i < mapFramesUI.size(); i++) {
+
+            if (mapFramesUI.get(i).equals(activeMapWindow)) {
+
+                mapWindowsTabbedPane.setSelectedIndex(i);
+            }
+        }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     protected boolean checkSettingsChanged() {
-        
+
         // Check for changes in all map frame settings.
         for (ShoreMapFrameSettingsPanel mapFrame : this.mapFrames.values()) {
             if (mapFrame.checkSettingsChanged()) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -98,26 +99,26 @@ public class ShoreMapFramesSettingsPanel extends BaseSettingsPanel {
      */
     @Override
     protected void doLoadSettings() {
-    	
-    	// Clear old maps.
-    	mapWindowsTabbedPane.removeAll();
-    	mapFrames.clear();
+
+        // Clear old maps.
+        mapWindowsTabbedPane.removeAll();
+        mapFrames.clear();
 
         // Get map frames.
         MainFrame mainFrame = EPDShore.getInstance().getMainFrame();
         mapFramesUI = mainFrame.getMapWindows();
-        
+
         // For every map frame, add settings for it.
         for (int i = 0; i < mapFramesUI.size(); i++) {
 
             // Create and load the settings for the specific JMapFrame.
             this.mapFrameSettings = new ShoreMapFrameSettingsPanel(mapFramesUI.get(i));
             this.mapFrameSettings.loadSettings();
-            
+
             // Add the panel.
             this.mapWindowsTabbedPane.add(this.mapFrameSettings);
             this.mapFrames.put(mapFramesUI.get(i), this.mapFrameSettings);
-            
+
             // Create the pane title for the tab.
             JLabel paneTitle = new JLabel(mapFrameSettings.getName());
             paneTitle.setFont(new Font(paneTitle.getFont().getName(), Font.PLAIN, 13));
@@ -143,5 +144,6 @@ public class ShoreMapFramesSettingsPanel extends BaseSettingsPanel {
      * {@inheritDoc}
      */
     @Override
-    protected void fireSettingsChanged() {/*...*/}
+    protected void fireSettingsChanged() {/* ... */
+    }
 }

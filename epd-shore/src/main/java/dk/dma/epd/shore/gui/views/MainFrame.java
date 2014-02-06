@@ -92,14 +92,14 @@ public class MainFrame extends MainFrameCommon {
 
     }
 
-    /** 
+    /**
      * Initializes the glass pane of the frame
      */
     @Override
     protected void initGlassPane() {
         // Do nothing. EPDShore uses MapFrames for the various maps
     }
-    
+
     public synchronized void increaseWindowCount() {
         windowCount++;
     }
@@ -129,15 +129,12 @@ public class MainFrame extends MainFrameCommon {
         new ThreadedMapCreator(this).run();
     }
 
-    public void addStrategicRouteHandlingWindow(Route originalRoute, String shipName,
-            Voyage voyage, boolean renegotiate) {
-        new ThreadedMapCreator(this, shipName, voyage, originalRoute,
-                renegotiate).run();
+    public void addStrategicRouteHandlingWindow(Route originalRoute, String shipName, Voyage voyage, boolean renegotiate) {
+        new ThreadedMapCreator(this, shipName, voyage, originalRoute, renegotiate).run();
     }
 
     /**
-     * Add a new mapWindow with specific parameters, usually called when loading
-     * a workspace
+     * Add a new mapWindow with specific parameters, usually called when loading a workspace
      * 
      * @param workspace
      * @param center
@@ -150,26 +147,22 @@ public class MainFrame extends MainFrameCommon {
      * @param string
      * @return
      */
-    public void addMapWindow(boolean workspace, boolean locked,
-            boolean alwaysInFront, Point2D center, float scale, String title,
+    public void addMapWindow(boolean workspace, boolean locked, boolean alwaysInFront, Point2D center, float scale, String title,
             Dimension size, Point location, Boolean maximized) {
 
-        ThreadedMapCreator windowCreator = new ThreadedMapCreator(this,
-                workspace, locked, alwaysInFront, center, scale, title, size,
-                location, maximized);
+        ThreadedMapCreator windowCreator = new ThreadedMapCreator(this, workspace, locked, alwaysInFront, center, scale, title,
+                size, location, maximized);
 
         windowCreator.run();
 
         if (this.getMapWindows().size() > 0) {
             if (this.getMapWindows().get(0).getChartPanel().getEncLayer() != null && !this.getToolbar().isEncButtonEnabled()) {
                 this.getToolbar().enableEncButton();
-            }            
+            }
         }
 
     }
 
-    
-    
     public boolean isUseEnc() {
         return useEnc;
     }
@@ -214,8 +207,7 @@ public class MainFrame extends MainFrameCommon {
         int width = 0;
         int height = 0;
 
-        GraphicsEnvironment ge = GraphicsEnvironment
-                .getLocalGraphicsEnvironment();
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice[] gs = ge.getScreenDevices();
 
         for (GraphicsDevice curGs : gs) {
@@ -282,11 +274,9 @@ public class MainFrame extends MainFrameCommon {
         // System.out.println("Setting wmslayer enabled to:" +
         // guiSettings.useWMS());
         wmsLayerEnabled = mapSettings.isUseWms();
-        encLayerEnabled = EPDShore.getInstance().getSettings().getMapSettings()
-                .isEncVisible();
+        encLayerEnabled = EPDShore.getInstance().getSettings().getMapSettings().isEncVisible();
         useEnc = EPDShore.getInstance().getSettings().getMapSettings().isUseEnc();
-        
-        
+
         Workspace workspace = EPDShore.getInstance().getSettings().getWorkspace();
 
         // Set location and size
@@ -364,8 +354,7 @@ public class MainFrame extends MainFrameCommon {
      * @param filename
      */
     public void loadNewWorkspace(String parent, String filename) {
-        Workspace workspace = EPDShore.getInstance().getSettings().loadWorkspace(parent,
-                filename);
+        Workspace workspace = EPDShore.getInstance().getSettings().loadWorkspace(parent, filename);
         setWorkSpace(workspace);
     }
 
@@ -430,12 +419,9 @@ public class MainFrame extends MainFrameCommon {
      * @param filename
      */
     public void saveWorkSpace(String filename) {
-        EPDShore.getInstance().getSettings().getWorkspace()
-                .setToolbarPosition(toolbar.getLocation());
-        EPDShore.getInstance().getSettings().getWorkspace()
-                .setNotificationAreaPosition(notificationArea.getLocation());
-        EPDShore.getInstance().getSettings().getWorkspace()
-                .setStatusPosition(statusArea.getLocation());
+        EPDShore.getInstance().getSettings().getWorkspace().setToolbarPosition(toolbar.getLocation());
+        EPDShore.getInstance().getSettings().getWorkspace().setNotificationAreaPosition(notificationArea.getLocation());
+        EPDShore.getInstance().getSettings().getWorkspace().setStatusPosition(statusArea.getLocation());
         EPDShore.getInstance().getSettings().saveCurrentWorkspace(mapWindows, filename);
     }
 
@@ -472,13 +458,11 @@ public class MainFrame extends MainFrameCommon {
         if (workspace.isValidWorkspace()) {
             for (int i = 0; i < workspace.getName().size(); i++) {
                 // JMapFrame window =
-                addMapWindow(true, workspace.isLocked().get(i), workspace
-                        .getAlwaysInFront().get(i), workspace.getCenter()
-                        .get(i), workspace.getScale().get(i),
+                addMapWindow(true, workspace.isLocked().get(i), workspace.getAlwaysInFront().get(i), workspace.getCenter().get(i),
+                        workspace.getScale().get(i),
 
-                workspace.getName().get(i), workspace.getSize().get(i),
-                        workspace.getPosition().get(i), workspace.isMaximized()
-                                .get(i)
+                        workspace.getName().get(i), workspace.getSize().get(i), workspace.getPosition().get(i), workspace
+                                .isMaximized().get(i)
 
                 );
 
@@ -628,8 +612,8 @@ public class MainFrame extends MainFrameCommon {
         return topMenu;
     }
 
-	public SetupDialogShore getSetupDialog() {
-		return this.setup;
-	}
+    public SetupDialogShore getSetupDialog() {
+        return this.setup;
+    }
 
 }
