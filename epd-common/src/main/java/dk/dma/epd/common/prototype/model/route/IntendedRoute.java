@@ -40,7 +40,8 @@ public class IntendedRoute extends Route {
     protected Double activeWpRange;
     protected boolean visible = true;
     protected long mmsi;
-
+    protected int activeWpIndex;
+        
     protected List<Double> ranges = new ArrayList<>();
 
     /**
@@ -279,4 +280,22 @@ public class IntendedRoute extends Route {
     public void setMmsi(long mmsi) {
         this.mmsi = mmsi;
     }
+
+    public Double getActiveWpRange() {
+        return activeWpRange;
+    }
+
+    public void setActiveWpRange(Double activeWpRange) {
+        this.activeWpRange = activeWpRange;
+    }
+
+    public int getActiveWpIndex() {
+        return activeWpIndex;
+    }
+
+    public void setActiveWpIndex(int activeWpIndex) {
+        this.activeWpIndex = activeWpIndex;
+    }
+    
+    
 }
