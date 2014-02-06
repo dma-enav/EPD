@@ -34,11 +34,11 @@ import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.fileselection.WorkspaceFileFilter;
 
-
 /**
  * Toolbar used in the mainframe
+ * 
  * @author David A. Camre (davidcamre@gmail.com
- *
+ * 
  */
 public class JMenuWorkspaceBar extends JMenuBar {
 
@@ -51,6 +51,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
     /**
      * Constructor
+     * 
      * @param mainFrame
      */
     public JMenuWorkspaceBar(final MainFrame mainFrame) {
@@ -64,7 +65,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
         // this.setJMenuBar(mb);
         mapMenus = new HashMap<Integer, JMenu>();
 
-        //File menu
+        // File menu
 
         JMenu fm = new JMenu("File");
         this.add(fm);
@@ -74,21 +75,17 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
         JMenuItem preferences = new JMenuItem("Preferences");
         fm.add(preferences);
-        
+
         JMenuItem transponder = new JMenuItem("Transponder");
         fm.add(transponder);
 
         JMenuItem mi = new JMenuItem("Exit");
         fm.add(mi);
 
-
-
-        //Maps menu
+        // Maps menu
 
         maps = new JMenu("Maps");
         this.add(maps);
-
-
 
         JMenuItem addMap = new JMenuItem("New Map Window");
         maps.add(addMap);
@@ -100,7 +97,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
         maps.add(tile);
         maps.addSeparator();
 
-        //Workspace
+        // Workspace
 
         JMenu workspace = new JMenu("Workspace");
         this.add(workspace);
@@ -111,8 +108,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
         JMenuItem unlockAll = new JMenuItem("Unlock all windows");
         workspace.add(unlockAll);
 
-
-        //Notifications
+        // Notifications
 
         JMenu notifications = new JMenu("Notifications");
         this.add(notifications);
@@ -128,16 +124,14 @@ public class JMenuWorkspaceBar extends JMenuBar {
         JMenuItem saveWorkspace = new JMenuItem("Save workspace");
         workspace.add(saveWorkspace);
 
+        // Action listeners
 
-
-        //Action listeners
-        
         transponder.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (transponderFrame != null) {
                     transponderFrame.setVisible(true);
-                }                
+                }
             }
         });
 
@@ -152,7 +146,6 @@ public class JMenuWorkspaceBar extends JMenuBar {
             }
         });
 
-
         saveWorkspace.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -164,7 +157,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
             }
         });
 
-        //Action listeners
+        // Action listeners
 
         toggleFullScreen.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -186,13 +179,11 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
         preferences.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-//                mainFrame.getSettingsWindow().toggleVisibility();
-                SetupDialogShore setup = new SetupDialogShore(mainFrame);
-                setup.loadSettings(EPDShore.getInstance().getSettings());
-                setup.setVisible(true);
+                // mainFrame.getSettingsWindow().toggleVisibility();
+                mainFrame.getSetupDialog().loadSettings(EPDShore.getInstance().getSettings());
+                mainFrame.getSetupDialog().setVisible(true);
             }
         });
-
 
         addMap.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -202,21 +193,20 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
         cascade.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-              desktop.cascadeFrames();
+                desktop.cascadeFrames();
             }
-          });
+        });
         tile.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-            desktop.tileFrames();
+                desktop.tileFrames();
             }
-          });
-
+        });
 
         lockAll.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //if(!mainFrame.isToolbarsLocked()){
-                //    mainFrame.toggleBarsLock();
-                //}
+                // if(!mainFrame.isToolbarsLocked()){
+                // mainFrame.toggleBarsLock();
+                // }
 
                 lockAll();
             }
@@ -225,31 +215,32 @@ public class JMenuWorkspaceBar extends JMenuBar {
         unlockAll.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 unLockAll();
-                //if(mainFrame.isToolbarsLocked()){
-                //    mainFrame.toggleBarsLock();
-                //}
+                // if(mainFrame.isToolbarsLocked()){
+                // mainFrame.toggleBarsLock();
+                // }
             }
         });
 
-//        lockMaps.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                List<JMapFrame> mapWindows = mainFrame.getMapWindows();
-//                for (int i = 0; i < mapWindows.size(); i++) {
-//                    mapWindows.get(i).lockUnlockWindow();
-//                }
-//            }
-//        });
-
-
-
+        // lockMaps.addActionListener(new ActionListener() {
+        // public void actionPerformed(ActionEvent e) {
+        // List<JMapFrame> mapWindows = mainFrame.getMapWindows();
+        // for (int i = 0; i < mapWindows.size(); i++) {
+        // mapWindows.get(i).lockUnlockWindow();
+        // }
+        // }
+        // });
 
     }
 
     /**
      * Added mapWindow to the toolbar
-     * @param window to be added
-     * @param locked locked setting
-     * @param alwaysInFront setting
+     * 
+     * @param window
+     *            to be added
+     * @param locked
+     *            locked setting
+     * @param alwaysInFront
+     *            setting
      */
     public void addMap(final JMapFrame window, boolean locked, boolean alwaysInFront) {
         JMenu mapWindow = new JMenu(window.getTitle());
@@ -259,7 +250,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
         JMenuItem windowSettings = new JMenuItem("Settings");
         mapWindow.add(windowSettings);
-//        windowSettings.setEnabled(false);
+        // windowSettings.setEnabled(false);
 
         JCheckBoxMenuItem alwaysFront = new JCheckBoxMenuItem("Always on top");
         mapWindow.add(alwaysFront);
@@ -302,10 +293,13 @@ public class JMenuWorkspaceBar extends JMenuBar {
             }
         });
 
-
         windowSettings.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                mainFrame.getSettingsWindow().toggleVisibility();
+
+                // Open the setup dialog on map settings for this specific map.
+                mainFrame.getSetupDialog().loadSettings(EPDShore.getInstance().getSettings());
+                mainFrame.getSetupDialog().goToSpecifMapSettings(window);
+                mainFrame.getSetupDialog().setVisible(true);
             }
         });
     }
@@ -313,15 +307,14 @@ public class JMenuWorkspaceBar extends JMenuBar {
     /**
      * Set all windows to have a locked status
      */
-    public void lockAll(){
+    public void lockAll() {
         List<JMapFrame> mapWindows = mainFrame.getMapWindows();
         for (int i = 0; i < mapWindows.size(); i++) {
 
-            if (!mapWindows.get(i).isLocked()){
+            if (!mapWindows.get(i).isLocked()) {
                 mapWindows.get(i).lockUnlockWindow();
             }
         }
-
 
         Iterator<Entry<Integer, JMenu>> it = mapMenus.entrySet().iterator();
         while (it.hasNext()) {
@@ -331,6 +324,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
     /**
      * Remove a map from the toolbar
+     * 
      * @param window
      */
     public void removeMapMenu(final JMapFrame window) {
@@ -350,9 +344,9 @@ public class JMenuWorkspaceBar extends JMenuBar {
         menuItem.getItem(2).setSelected(locked);
     }
 
-
     /**
      * Rename a mapwindow in the toolbar
+     * 
      * @param window
      */
     public void renameMapMenu(final JMapFrame window) {
@@ -372,9 +366,10 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
     /**
      * Function used to save a workspace
+     * 
      * @throws IOException
      */
-    public void saveWorkspace() throws IOException{
+    public void saveWorkspace() throws IOException {
         final JFileChooser fc = new JFileChooser(EPDShore.getInstance().getHomePath().toString() + "\\workspaces");
         fc.setFileFilter(new WorkspaceFileFilter());
 
@@ -382,20 +377,20 @@ public class JMenuWorkspaceBar extends JMenuBar {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
             String filename = file.getName();
-            if(!filename.endsWith(".workspace")){
-//                System.out.println("Appending .workspace");
+            if (!filename.endsWith(".workspace")) {
+                // System.out.println("Appending .workspace");
                 filename = filename + ".workspace";
             }
             mainFrame.saveWorkSpace(filename);
         }
     }
 
-
     /**
      * Load a workspace from a file
+     * 
      * @throws IOException
      */
-    public void selectWorkspace() throws IOException{
+    public void selectWorkspace() throws IOException {
         final JFileChooser fc = new JFileChooser(EPDShore.getInstance().getHomePath().toString() + "\\workspaces");
         fc.setFileFilter(new WorkspaceFileFilter());
 
@@ -409,33 +404,32 @@ public class JMenuWorkspaceBar extends JMenuBar {
     /**
      * unlock all windows
      */
-    public void unLockAll(){
+    public void unLockAll() {
         List<JMapFrame> mapWindows = mainFrame.getMapWindows();
         for (int i = 0; i < mapWindows.size(); i++) {
 
-            if (mapWindows.get(i).isLocked()){
+            if (mapWindows.get(i).isLocked()) {
                 mapWindows.get(i).lockUnlockWindow();
             }
         }
 
         Iterator<Entry<Integer, JMenu>> it = mapMenus.entrySet().iterator();
         while (it.hasNext()) {
-//            JMenu menu = it.next().getValue();
-//            menu.getItem(0);
+            // JMenu menu = it.next().getValue();
+            // menu.getItem(0);
             ((JCheckBoxMenuItem) it.next().getValue().getItem(0)).setSelected(false);
-//            locked.setSelected(true);
-//            Map.Entry pairs = (Map.Entry)it.next();
-//            pairs
-//
-//            System.out.println(pairs.getKey() + " = " + pairs.getValue());
-//            it.remove(); // avoids a ConcurrentModificationException
+            // locked.setSelected(true);
+            // Map.Entry pairs = (Map.Entry)it.next();
+            // pairs
+            //
+            // System.out.println(pairs.getKey() + " = " + pairs.getValue());
+            // it.remove(); // avoids a ConcurrentModificationException
         }
 
-
     }
-    
+
     public void setTransponderFrame(TransponderFrame transponderFrame) {
         this.transponderFrame = transponderFrame;
     }
-    
+
 }

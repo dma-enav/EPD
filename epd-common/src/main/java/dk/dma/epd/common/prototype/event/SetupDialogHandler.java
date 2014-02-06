@@ -138,4 +138,8 @@ public class SetupDialogHandler implements ActionListener, WindowListener {
 
     @Override
     public void windowDeactivated(WindowEvent e) {}
+
+    public Timer getTimer() {
+        return this.timer;
+    }
 }
