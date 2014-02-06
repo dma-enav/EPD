@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.broadcast.BroadcastListener;
 import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
-import dk.dma.enav.model.voyage.Route;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
@@ -99,7 +98,7 @@ public class IntendedRouteHandlerCommon
 
                         getStatus().markCloudReception();
                         int id = MaritimeCloudUtils.toMmsi(l.getId());
-                        updateIntendedRoute(id, r.getIntendedRoute());
+                        updateIntendedRoute(id, r);
                     }
                 });
     }
@@ -108,12 +107,17 @@ public class IntendedRouteHandlerCommon
      * Update intended route of vessel target
      * 
      * @param mmsi
-     * @param routeData
+     * @param r
      */
-    private synchronized void updateIntendedRoute(long mmsi, Route routeData) {
+    private synchronized void updateIntendedRoute(long mmsi, IntendedRouteBroadcast r) {
         
-        IntendedRoute intendedRoute = new IntendedRoute(routeData);
+        IntendedRoute intendedRoute = new IntendedRoute(r.getIntendedRoute());
         intendedRoute.setMmsi(mmsi);
+        intendedRoute.setActiveWpIndex(r.getActiveWPIndex());
+        intendedRoute.setPlannedEtas(r.getOriginalEtas());
+        
+        
+        
         IntendedRoute oldIntendedRoute = intendedRoutes.get(mmsi);
         if (oldIntendedRoute != null) {
             intendedRoute.setVisible(oldIntendedRoute.isVisible());

@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.model.route;
+package dk.dma.epd.common.prototype.layers.route;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -40,7 +40,7 @@ import dk.dma.epd.common.util.Calculator;
 public class SafeHavenArea extends OMGraphicList {
     private static final long serialVersionUID = 1L;
 
-//    CenterRaster selectionGraphics;
+    // CenterRaster selectionGraphics;
 
     ImageIcon targetImage;
     int imageWidth;
@@ -57,9 +57,9 @@ public class SafeHavenArea extends OMGraphicList {
         hatchFill = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D big = hatchFill.createGraphics();
         Composite originalComposite = big.getComposite();
-//        big.setColor(Color.green);
+        // big.setColor(Color.green);
         big.setColor(new Color(0f, 1f, 0f, 0.7f));
-//        big.setComposite(makeComposite(0.7f));
+        // big.setComposite(makeComposite(0.7f));
         big.drawLine(0, 0, 10, 10);
 
         hatchFillRectangle = new Rectangle(0, 0, 10, 10);
@@ -80,115 +80,96 @@ public class SafeHavenArea extends OMGraphicList {
         }
         polyPoints[j] = polyPoints[0];
         polyPoints[j + 1] = polyPoints[1];
-        poly = new OMPoly(polyPoints, OMGraphicConstants.DECIMAL_DEGREES,
-                OMGraphicConstants.LINETYPE_RHUMB, 1);
+        poly = new OMPoly(polyPoints, OMGraphicConstants.DECIMAL_DEGREES, OMGraphicConstants.LINETYPE_RHUMB, 1);
         // poly.setLinePaint(clear);
         poly.setFillPaint(new Color(0, 0, 0, 1));
         poly.setTextureMask(new TexturePaint(hatchFill, hatchFillRectangle));
 
-        
         Stroke activeStroke = new BasicStroke(1.0f, // Width
                 BasicStroke.CAP_SQUARE, // End cap
                 BasicStroke.JOIN_MITER, // Join style
                 10.0f, // Miter limit
                 new float[] { 10.0f, 8.0f }, // Dash pattern
                 0.0f); // Dash phase
-        
+
         poly.setStroke(activeStroke);
-        
+
         add(poly);
     }
 
-
-
     public void moveSymbol(Position pos, double bearing, double width, double height) {
-        
-        System.out.println("Moving symbol " + pos);
-        
-//        remove(poly);
-        graphics.clear();
 
-//        int width = 1000;
-//        int height = 500;
-        
-        // Create the polygon around the position.
-        calculatePolygon(pos, bearing, width, height);
+        if (pos != null) {
+//            System.out.println("Moving symbol " + pos);
 
-        // createGraphics();
-        drawPolygon();
+            
+            
+            // remove(poly);
+            graphics.clear();
+
+            // int width = 1000;
+            // int height = 500;
+
+            // Create the polygon around the position.
+            calculatePolygon(pos, bearing, width, height);
+
+            // createGraphics();
+            drawPolygon();
+            
+            this.setVisible(true);
+        }else{
+            this.setVisible(false);
+        }
 
     }
 
-    private void calculatePolygon(Position position, double bearing,
-            double width, double height) {
-//        double withNm = Converter.nmToMeters(width/2);
-//        double heightNm = Converter.nmToMeters(height/2);
+    private void calculatePolygon(Position position, double bearing, double width, double height) {
+        // double withNm = Converter.nmToMeters(width/2);
+        // double heightNm = Converter.nmToMeters(height/2);
 
         double angle = 90 + bearing;
         double oppositeBearing = 180 + bearing;
-        
-        
-        Position topLinePt = Calculator
-                .findPosition(position, bearing,
-                        width/2);
-        
 
-        if (angle > 360){
+        Position topLinePt = Calculator.findPosition(position, bearing, width / 2);
+
+        if (angle > 360) {
             angle = angle - 360;
         }
-        
-        if (oppositeBearing > 360){
+
+        if (oppositeBearing > 360) {
             oppositeBearing = oppositeBearing - 360;
         }
-        
-        
-        Position bottomLinePt = Calculator
-                .findPosition(position, oppositeBearing,
-                        width/2);
 
-//        System.out.println("Top pnt: " + topLinePt);
-//        System.out.println("Btm pnt: " + bottomLinePt);
-        
-        
-        Position point1 = Calculator
-                .findPosition(bottomLinePt, angle,
-                        height/2);
-        
-        Position point2 = Calculator
-                .findPosition(topLinePt, angle,
-                        height/2);
-        
-        Position point3 = Calculator
-                .findPosition(bottomLinePt, angle + 180,
-                        height/2);
-        
+        Position bottomLinePt = Calculator.findPosition(position, oppositeBearing, width / 2);
 
-        
-        Position point4 = Calculator
-                .findPosition(topLinePt, angle + 180,
-                        height/2);
-    
+        // System.out.println("Top pnt: " + topLinePt);
+        // System.out.println("Btm pnt: " + bottomLinePt);
+
+        Position point1 = Calculator.findPosition(bottomLinePt, angle, height / 2);
+
+        Position point2 = Calculator.findPosition(topLinePt, angle, height / 2);
+
+        Position point3 = Calculator.findPosition(bottomLinePt, angle + 180, height / 2);
+
+        Position point4 = Calculator.findPosition(topLinePt, angle + 180, height / 2);
+
         polygon.clear();
 
-//        polygon.add(topLinePt);
-//        polygon.add(bottomLinePt);
-        
-        
-        
+        // polygon.add(topLinePt);
+        // polygon.add(bottomLinePt);
+
         polygon.add(point1);
 
         polygon.add(point2);
 
         polygon.add(point4);
-        polygon.add(point3);    
+        polygon.add(point3);
 
-        
-        
     }
 
-//    public void removeSymbol() {
-//        remove(selectionGraphics);
-//    }
+    // public void removeSymbol() {
+    // remove(selectionGraphics);
+    // }
 
     /**
      * Turn on anti-aliasing

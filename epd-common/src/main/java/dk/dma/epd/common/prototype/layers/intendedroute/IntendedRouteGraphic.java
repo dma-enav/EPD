@@ -59,6 +59,9 @@ public class IntendedRouteGraphic extends OMGraphicList {
 
     private List<IntendedRouteLegGraphic> routeLegs = new ArrayList<>();
     private List<IntendedRouteWpCircle> routeWps = new ArrayList<>();
+    
+    private PlannedPositionGraphic plannedPositionArea = new PlannedPositionGraphic();
+    
 
     /**
      * Constructor
@@ -67,6 +70,8 @@ public class IntendedRouteGraphic extends OMGraphicList {
         super();
         Position nullGeoLocation = Position.create(0, 0);
         activeWpLine = new IntendedRouteLegGraphic(0, this, true, nullGeoLocation, nullGeoLocation, routeColor, SCALE);
+        
+        add(plannedPositionArea);
     }
 
     /**
@@ -159,6 +164,14 @@ public class IntendedRouteGraphic extends OMGraphicList {
      */
     public synchronized void updateIntendedRoute() {
         updateIntendedRoute(intendedRoute);
+        
+        
+        System.out.println("The planned position is: " + intendedRoute.getPlannedPosition());
+        System.out.println("The planned bearing is " + intendedRoute.getPlannedPositionBearing());
+        
+        
+        //Update planned position
+        plannedPositionArea.moveSymbol(intendedRoute.getPlannedPosition(), intendedRoute.getPlannedPositionBearing(), 1000, 500);
     }
 
     /**
@@ -233,6 +246,8 @@ public class IntendedRouteGraphic extends OMGraphicList {
         } else {
             setVisible(false);
         }
+        
+        add(plannedPositionArea);
     }
 
     /**

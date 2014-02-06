@@ -153,6 +153,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                     }
 
                     Util.sleep(1000L);
+                    
                 }
             }
 
@@ -174,7 +175,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         final IntendedRouteBroadcast message = new IntendedRouteBroadcast();
 
         if (routeManager.getActiveRoute() != null) {
-            PartialRouteFilter filter = new PartialRouteFilter(FilterType.METERS, 5000, 10000);
+            PartialRouteFilter filter = new PartialRouteFilter(FilterType.METERS, 10000, 20000);
             routeManager.getActiveRoute().getPartialRouteData(filter, message);
 
             lastTransmitActiveWp = new DateTime(routeManager.getActiveRoute().getActiveWaypointEta());

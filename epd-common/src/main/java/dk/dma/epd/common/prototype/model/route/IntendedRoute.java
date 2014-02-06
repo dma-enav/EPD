@@ -352,4 +352,14 @@ public class IntendedRoute extends Route {
         return null;
     }
 
+    public double getPlannedPositionBearing() {
+        return plannedPositionBearing;
+    }
+
+    public void setPlannedEtas(List<Date> plannedEtas) {
+        this.plannedEtas = plannedEtas;
+    }
+
+    
+    
 }

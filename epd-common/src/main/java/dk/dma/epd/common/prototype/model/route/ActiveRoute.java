@@ -204,8 +204,8 @@ public class ActiveRoute extends Route {
                                     Heading.RL);
 
                     
-                    this.safeHavenLength = this.getWaypoints().get(i).getOutLeg().getSFLen();
-                    this.safeHavenWidth = this.getWaypoints().get(i).getOutLeg().getSFWidth();
+                    this.safeHavenLength = this.getWaypoints().get(i-1).getOutLeg().getSFLen();
+                    this.safeHavenWidth = this.getWaypoints().get(i-1).getOutLeg().getSFWidth();
                     
                     return originalRoute.getWaypoints().get(i).getPos();
                 } else {
