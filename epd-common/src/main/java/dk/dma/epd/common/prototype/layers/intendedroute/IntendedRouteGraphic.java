@@ -197,6 +197,9 @@ public class IntendedRouteGraphic extends OMGraphicList {
     private void renderIntendedRoute() {
         // Clear the graphics
         clear();
+        
+        //Re-add planned position
+        add(plannedPositionArea);
 
         // Handle empty route
         if (intendedRoute == null || !intendedRoute.hasRoute()) {
@@ -247,7 +250,6 @@ public class IntendedRouteGraphic extends OMGraphicList {
             setVisible(false);
         }
         
-        add(plannedPositionArea);
     }
 
     /**
