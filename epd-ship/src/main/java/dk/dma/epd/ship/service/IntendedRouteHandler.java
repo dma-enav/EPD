@@ -16,6 +16,7 @@
 package dk.dma.epd.ship.service;
 
 import net.maritimecloud.net.MaritimeCloudClient;
+import net.maritimecloud.net.broadcast.BroadcastOptions;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -43,10 +44,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
 
     private static final Logger LOG = LoggerFactory.getLogger(IntendedRouteHandler.class);
     private static final long BROADCAST_TIME = 60; // Broadcast intended route every minute for now
-
-    // Set to 10 minutes?
-    private static final long ADAPTIVE_TIME = 60 * 10;
-//    private static final long ADAPTIVE_TIME = 10;
+    private static final long ADAPTIVE_TIME = 60 * 10;    // Set to 10 minutes?
+    private static final int BROADCAST_RADIUS = Integer.MAX_VALUE;
 
     private DateTime lastTransmitActiveWp;
     private DateTime lastSend = new DateTime(1);
@@ -183,7 +182,9 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         
         submitIfConnected(new Runnable() {                
             @Override  public void run() {
-                getMaritimeCloudConnection().broadcast(message);
+                BroadcastOptions options = new BroadcastOptions();
+                options.setBroadcastRadius(BROADCAST_RADIUS);
+                getMaritimeCloudConnection().broadcast(message, options);
                 getStatus().markSuccesfullSend();
             }
         });
