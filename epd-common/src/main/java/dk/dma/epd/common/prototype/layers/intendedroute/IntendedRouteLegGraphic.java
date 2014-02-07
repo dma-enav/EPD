@@ -31,7 +31,7 @@ public class IntendedRouteLegGraphic extends OMLine {
     private static final long serialVersionUID = 1L;
     
     private IntendedRouteGraphic intendedRouteGraphic;
-    private OMArrowHead arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, 5, 15);
+    private OMArrowHead arrow;
     private int index;
 
     public IntendedRouteLegGraphic(int index, IntendedRouteGraphic intendedRouteGraphic, boolean activeWaypoint, Position start,
@@ -55,6 +55,13 @@ public class IntendedRouteLegGraphic extends OMLine {
                     new float[] { 10.0f * scale, 8.0f * scale }, // Dash pattern
                     0.0f)); // Dash phase)
         }
+        
+        arrow = new OMArrowHead(
+                OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 
+                55, 
+                (int)(5.0 * scale), 
+                (int)(15 * scale));
+        
         setLinePaint(legColor);        
     }
 
