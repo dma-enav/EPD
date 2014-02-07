@@ -15,168 +15,90 @@
  */
 package dk.dma.epd.ship.gui;
 
-import java.awt.Font;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.PropertyVetoException;
-import java.beans.VetoableChangeListener;
-import java.beans.beancontext.BeanContext;
-import java.beans.beancontext.BeanContextChild;
-import java.beans.beancontext.BeanContextChildSupport;
-import java.beans.beancontext.BeanContextMembershipEvent;
-import java.beans.beancontext.BeanContextMembershipListener;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-
-import com.bbn.openmap.LightMapHandlerChild;
-import com.bbn.openmap.MapBean;
 import com.bbn.openmap.MouseDelegator;
 
 import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.gui.menuitems.ClearPastTrack;
+import dk.dma.epd.common.prototype.gui.MapMenuCommon;
+import dk.dma.epd.common.prototype.gui.menuitems.GeneralClearMap;
+import dk.dma.epd.common.prototype.gui.menuitems.RouteHide;
 import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
-import dk.dma.epd.common.prototype.gui.menuitems.SetShowPastTracks;
-import dk.dma.epd.common.prototype.gui.menuitems.ToggleShowPastTrack;
+import dk.dma.epd.common.prototype.gui.menuitems.ToggleAisTargetName;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
-import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
-import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
+import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.ais.AisHandler;
-import dk.dma.epd.ship.gui.menuitems.AisIntendedRouteToggle;
 import dk.dma.epd.ship.gui.menuitems.AisTargetDetails;
-import dk.dma.epd.ship.gui.menuitems.AisTargetLabelToggle;
-import dk.dma.epd.ship.gui.menuitems.GeneralClearMap;
-import dk.dma.epd.ship.gui.menuitems.GeneralHideIntendedRoutes;
 import dk.dma.epd.ship.gui.menuitems.GeneralNewRoute;
-import dk.dma.epd.ship.gui.menuitems.GeneralShowIntendedRoutes;
 import dk.dma.epd.ship.gui.menuitems.MonaLisaRouteRequest;
-import dk.dma.epd.ship.gui.menuitems.MsiAcknowledge;
 import dk.dma.epd.ship.gui.menuitems.MsiDetails;
 import dk.dma.epd.ship.gui.menuitems.MsiZoomTo;
 import dk.dma.epd.ship.gui.menuitems.NogoRequest;
 import dk.dma.epd.ship.gui.menuitems.RouteActivateToggle;
-import dk.dma.epd.ship.gui.menuitems.RouteAppendWaypoint;
-import dk.dma.epd.ship.gui.menuitems.RouteCopy;
-import dk.dma.epd.ship.gui.menuitems.RouteDelete;
 import dk.dma.epd.ship.gui.menuitems.RouteEditEndRoute;
-import dk.dma.epd.ship.gui.menuitems.RouteHide;
-import dk.dma.epd.ship.gui.menuitems.RouteLegInsertWaypoint;
-import dk.dma.epd.ship.gui.menuitems.RouteMetocProperties;
-import dk.dma.epd.ship.gui.menuitems.RouteProperties;
-import dk.dma.epd.ship.gui.menuitems.RouteRequestMetoc;
-import dk.dma.epd.ship.gui.menuitems.RouteReverse;
-import dk.dma.epd.ship.gui.menuitems.RouteShowMetocToggle;
-import dk.dma.epd.ship.gui.menuitems.RouteWaypointActivateToggle;
-import dk.dma.epd.ship.gui.menuitems.RouteWaypointDelete;
 import dk.dma.epd.ship.gui.menuitems.SendToSTCC;
 import dk.dma.epd.ship.gui.menuitems.SuggestedRouteDetails;
 import dk.dma.epd.ship.gui.menuitems.VoyageAppendWaypoint;
 import dk.dma.epd.ship.gui.menuitems.VoyageHandlingWaypointDelete;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.layers.ais.AisLayer;
-import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
+import dk.dma.epd.ship.layers.msi.MsiLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
-import dk.dma.epd.ship.route.strategic.RecievedRoute;
-import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
-import dk.dma.epd.ship.service.EnavServiceHandler;
+import dk.dma.epd.ship.service.StrategicRouteHandler;
+import dk.dma.epd.ship.service.SuggestedRoute;
 
 /**
  * Right click map menu
  */
-public class MapMenu extends JPopupMenu implements ActionListener,
-        LightMapHandlerChild, BeanContextChild, BeanContextMembershipListener {
+public class MapMenu extends MapMenuCommon {
 
     private static final long serialVersionUID = 1L;
 
-    private IMapMenuAction action;
     private MsiHandler msiHandler;
 
     // menu items
     private GeneralClearMap clearMap;
-    private GeneralHideIntendedRoutes hideIntendedRoutes;
-    private GeneralShowIntendedRoutes showIntendedRoutes;
     private GeneralNewRoute newRoute;
-    private SetShowPastTracks hidePastTracks;
-    private SetShowPastTracks showPastTracks;
-    private JMenu scaleMenu;
-    private AisIntendedRouteToggle aisIntendedRouteToggle;
     private AisTargetDetails aisTargetDetails;
-    private ToggleShowPastTrack aisTogglePastTrack;
-    private ClearPastTrack aisClearPastTrack;
 
     private SarTargetDetails sarTargetDetails;
-    private AisTargetLabelToggle aisTargetLabelToggle;
+    private ToggleAisTargetName aisTargetLabelToggle;
     private NogoRequest nogoRequest;
-    private MsiAcknowledge msiAcknowledge;
     private MsiDetails msiDetails;
     private MsiZoomTo msiZoomTo;
+    
     private RouteActivateToggle routeActivateToggle;
-    private RouteAppendWaypoint routeAppendWaypoint;
-    private RouteHide routeHide;
-    private RouteCopy routeCopy;
-    private RouteReverse routeReverse;
-    private RouteDelete routeDelete;
-    private RouteProperties routeProperties;
-    private RouteMetocProperties routeMetocProperties;
-    private RouteRequestMetoc routeRequestMetoc;
     private MonaLisaRouteRequest monaLisaRouteRequest;
-    private RouteShowMetocToggle routeShowMetocToggle;
-    private RouteLegInsertWaypoint routeLegInsertWaypoint;
-    private RouteWaypointActivateToggle routeWaypointActivateToggle;
-    private RouteWaypointDelete routeWaypointDelete;
     private SuggestedRouteDetails suggestedRouteDetails;
     private RouteEditEndRoute routeEditEndRoute;
     private SendToSTCC sendToSTCC;
     private VoyageAppendWaypoint voyageAppendWaypoint;
     private VoyageHandlingWaypointDelete voyageDeleteWaypoint;
     private VoyageHandlingLegInsertWaypoint voyageLegInsertWaypoint;
-    // bean context
-    protected String propertyPrefix;
-    protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(
-            this);
-    protected boolean isolated;
     private RouteManager routeManager;
     private MainFrame mainFrame;
     private PntHandler gpsHandler;
     private Route route;
     private RouteSuggestionDialog routeSuggestionDialog;
-    MapBean mapBean;
-    private Map<Integer, String> map;
     private NewRouteContainerLayer newRouteLayer;
     private AisLayer aisLayer;
-    private AisHandler aisHandler;
     private OwnShipHandler ownShipHandler;
     private NogoHandler nogoHandler;
     private MouseDelegator mouseDelegator;
-    private EnavServiceHandler enavServiceHandler;
     private Point windowLocation;
-    private StrategicRouteExchangeHandler monaLisaHandler;
+    private StrategicRouteHandler strategicRouteHandler;
 
-    /**
-     * The location on screen where this MapMenu was last displayed. 
-     */
-    private Point latestScreenLocation;
     
     // private RouteLayer routeLayer;
     // private VoyageLayer voyageLayer;
@@ -187,39 +109,19 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         // general menu items
         clearMap = new GeneralClearMap("Clear chart");
         clearMap.addActionListener(this);
-        hideIntendedRoutes = new GeneralHideIntendedRoutes(
-                "Hide all intended routes");
-        hideIntendedRoutes.addActionListener(this);
-        showIntendedRoutes = new GeneralShowIntendedRoutes(
-                "Show all intended routes");
-        showIntendedRoutes.addActionListener(this);
         newRoute = new GeneralNewRoute("Add new route - Ctrl N");
         newRoute.addActionListener(this);
 
         nogoRequest = new NogoRequest("Request NoGo area");
         nogoRequest.addActionListener(this);
-
-        showPastTracks = new SetShowPastTracks("Show all past-tracks", true);
-        showPastTracks.addActionListener(this);
-        hidePastTracks = new SetShowPastTracks("Hide all past-tracks", false);
-        hidePastTracks.addActionListener(this);
         
-        scaleMenu = new JMenu("Scale");
-
-        // using treemap so scale levels are always sorted
-        map = new TreeMap<>();
-
         // ais menu items
         aisTargetDetails = new AisTargetDetails("Show AIS target details");
         aisTargetDetails.addActionListener(this);
-        aisIntendedRouteToggle = new AisIntendedRouteToggle();
-        aisIntendedRouteToggle.addActionListener(this);
-        aisTargetLabelToggle = new AisTargetLabelToggle();
-        aisTargetLabelToggle.addActionListener(this);
-        aisTogglePastTrack = new ToggleShowPastTrack();
-        aisTogglePastTrack.addActionListener(this);
-        aisClearPastTrack = new ClearPastTrack();
-        aisClearPastTrack.addActionListener(this);
+//        aisTargetLabelToggle = new AisTargetLabelToggle();
+//        aisTargetLabelToggle.addActionListener(this);
+        this.aisTargetLabelToggle = new ToggleAisTargetName();
+        this.aisTargetLabelToggle.addActionListener(this);
 
         // SART menu items
         sarTargetDetails = new SarTargetDetails("SART details");
@@ -228,8 +130,6 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         // msi menu items
         msiDetails = new MsiDetails("Show MSI details");
         msiDetails.addActionListener(this);
-        msiAcknowledge = new MsiAcknowledge("Acknowledge MSI");
-        msiAcknowledge.addActionListener(this);
         msiZoomTo = new MsiZoomTo("Zoom to MSI");
         msiZoomTo.addActionListener(this);
 
@@ -239,43 +139,10 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         routeActivateToggle = new RouteActivateToggle();
         routeActivateToggle.addActionListener(this);
-        routeHide = new RouteHide("Hide route");
-        routeHide.addActionListener(this);
-
-        routeCopy = new RouteCopy("Copy route");
-        routeCopy.addActionListener(this);
-
-        routeReverse = new RouteReverse("Reverse route");
-        routeReverse.addActionListener(this);
-
-        routeDelete = new RouteDelete("Delete route", this);
-        routeDelete.addActionListener(this);
 
         monaLisaRouteRequest = new MonaLisaRouteRequest(
                 "Request Optimized SSPA Route");
         monaLisaRouteRequest.addActionListener(this);
-        routeRequestMetoc = new RouteRequestMetoc("Request METOC");
-        routeRequestMetoc.addActionListener(this);
-        routeShowMetocToggle = new RouteShowMetocToggle();
-        routeShowMetocToggle.addActionListener(this);
-        routeProperties = new RouteProperties("Route properties");
-        routeProperties.addActionListener(this);
-        routeMetocProperties = new RouteMetocProperties("METOC properties");
-        routeMetocProperties.addActionListener(this);
-        routeAppendWaypoint = new RouteAppendWaypoint("Append waypoint");
-        routeAppendWaypoint.addActionListener(this);
-
-        // route leg menu
-        routeLegInsertWaypoint = new RouteLegInsertWaypoint(
-                "Insert waypoint here");
-        routeLegInsertWaypoint.addActionListener(this);
-
-        // route waypoint menu
-        routeWaypointActivateToggle = new RouteWaypointActivateToggle(
-                "Activate waypoint");
-        routeWaypointActivateToggle.addActionListener(this);
-        routeWaypointDelete = new RouteWaypointDelete("Delete waypoint");
-        routeWaypointDelete.addActionListener(this);
 
         // suggested route menu
         suggestedRouteDetails = new SuggestedRouteDetails(
@@ -287,12 +154,12 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         routeEditEndRoute.addActionListener(this);
     
         // Init STCC Route negotiation items
-        this.voyageAppendWaypoint = new VoyageAppendWaypoint("Append waypoint");
-        this.voyageAppendWaypoint.addActionListener(this);
-        this.voyageDeleteWaypoint = new VoyageHandlingWaypointDelete("Delete waypoint");
-        this.voyageDeleteWaypoint.addActionListener(this);
-        this.voyageLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint("Insert waypoint here", EPDShip.getInstance().getVoyageEventDispatcher());
-        this.voyageLegInsertWaypoint.addActionListener(this);
+        voyageAppendWaypoint = new VoyageAppendWaypoint("Append waypoint");
+        voyageAppendWaypoint.addActionListener(this);
+        voyageDeleteWaypoint = new VoyageHandlingWaypointDelete("Delete waypoint");
+        voyageDeleteWaypoint.addActionListener(this);
+        voyageLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint("Insert waypoint here", EPDShip.getInstance().getVoyageEventDispatcher());
+        voyageLegInsertWaypoint.addActionListener(this);
     }
 
     /**
@@ -300,49 +167,15 @@ public class MapMenu extends JPopupMenu implements ActionListener,
      * this first, when creating specific menus.
      * 
      * @param alone
-     *            TODO
      */
+    @Override
     public void generalMenu(boolean alone) {
-        scaleMenu.removeAll();
 
-        // clear previous map scales
-        map.clear();
-        // Initialize the scale levels, and give them name (this should be done
-        // from settings later...)
-        map.put(5000, "Berthing      (1 : 5.000)");
-        map.put(10000, "Harbour       (1 : 10.000)");
-        map.put(70000, "Approach      (1 : 70.000)");
-        map.put(300000, "Coastal       (1 : 300.000)");
-        map.put(2000000, "Overview      (1 : 2.000.000)");
-        map.put(20000000, "Ocean         (1 : 20.000.000)");
-        // put current scale level
-        Integer currentScale = (int) mapBean.getScale();
+        generateScaleMenu();
 
-        DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance();
-        DecimalFormatSymbols symbols = formatter.getDecimalFormatSymbols();
-        symbols.setGroupingSeparator(' ');
-
-        map.put(currentScale,
-                "Current scale (1 : " + formatter.format(currentScale) + ")");
-
-        // Iterate through the treemap, adding the menuitems and assigning
-        // actions
-        Set<Integer> keys = map.keySet();
-        for (final Integer key : keys) {
-            String value = map.get(key);
-            JMenuItem menuItem = new JMenuItem(value);
-            menuItem.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-            menuItem.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent ae) {
-                    mapBean.setScale(key);
-                }
-            });
-            scaleMenu.add(menuItem);
-        }
-
-        hideIntendedRoutes.setAisHandler(aisHandler);
-        showIntendedRoutes.setAisHandler(aisHandler);
+        hideIntendedRoutes.setIntendedRouteHandler(intendedRouteHandler);
+        showIntendedRoutes.setIntendedRouteHandler(intendedRouteHandler);
+        checkIntendedRouteItems(hideIntendedRoutes, showIntendedRoutes);
 
         newRoute.setMouseDelegator(mouseDelegator);
         newRoute.setMainFrame(mainFrame);
@@ -374,6 +207,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
             add(hidePastTracks);
             addSeparator();
             add(scaleMenu);
+            revalidate();
             return;
         }
 
@@ -382,6 +216,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         add(clearMap);
         add(hideIntendedRoutes);
         add(scaleMenu);
+        revalidate();
     }
 
     /**
@@ -396,23 +231,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         add(aisTargetDetails);
 
         // Toggle show intended route
-        aisIntendedRouteToggle.setVesselTargetSettings(vesselTarget
-                .getSettings());
-        aisIntendedRouteToggle.setAisLayer(aisLayer);
-        aisIntendedRouteToggle.setVesselTarget(vesselTarget);
-
-        if (vesselTarget.getAisRouteData() != null
-                && vesselTarget.getAisRouteData().hasRoute()) {
-            aisIntendedRouteToggle.setEnabled(true);
-        } else {
-            aisIntendedRouteToggle.setEnabled(false);
-        }
-        if (vesselTarget.getSettings().isShowRoute()) {
-            aisIntendedRouteToggle.setText("Hide intended route");
-        } else {
-            aisIntendedRouteToggle.setText("Show intended route");
-        }
-        add(aisIntendedRouteToggle);
+        addIntendedRouteToggle(intendedRouteHandler.getIntendedRoute(vesselTarget.getMmsi()));
 
         // Toggle show past-track
         aisTogglePastTrack.setMobileTarget(vesselTarget);
@@ -428,7 +247,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         
         // Toggle show label
         aisTargetLabelToggle.setVesselTargetGraphic(targetGraphic);
-        aisTargetLabelToggle.setAisLayer(aisLayer);
+        aisTargetLabelToggle.setIAisTargetListener(aisLayer);
         add(aisTargetLabelToggle);
         if (targetGraphic.getShowNameLabel()) {
             aisTargetLabelToggle.setText("Hide AIS target label");
@@ -436,36 +255,10 @@ public class MapMenu extends JPopupMenu implements ActionListener,
             aisTargetLabelToggle.setText("Show AIS target label");
         }
 
+        revalidate();
         generalMenu(false);
     }
 
-    /**
-     * Options for suggested route
-     */
-    public void aisSuggestedRouteMenu(VesselTarget vesselTarget) {
-        removeAll();
-
-        aisIntendedRouteToggle.setVesselTargetSettings(vesselTarget
-                .getSettings());
-        aisIntendedRouteToggle.setAisLayer(aisLayer);
-        aisIntendedRouteToggle.setVesselTarget(vesselTarget);
-
-        if (vesselTarget.getAisRouteData() != null
-                && vesselTarget.getAisRouteData().hasRoute()) {
-            aisIntendedRouteToggle.setEnabled(true);
-        } else {
-            aisIntendedRouteToggle.setEnabled(false);
-        }
-        if (vesselTarget.getSettings().isShowRoute()) {
-            aisIntendedRouteToggle.setText("Hide intended route");
-        } else {
-            aisIntendedRouteToggle.setText("Show intended route");
-        }
-        add(aisIntendedRouteToggle);
-
-        generalMenu(false);
-    }
-    
     /**
      * Builds own-ship menu
      */
@@ -485,6 +278,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         aisClearPastTrack.setText("Clear past-track");
         add(aisClearPastTrack);
         
+        revalidate();
         generalMenu(false);
     }
 
@@ -516,8 +310,8 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         aisClearPastTrack.setAisLayer(aisLayer);
         aisClearPastTrack.setText("Clear past-track");
         add(aisClearPastTrack);
+        revalidate();
         
-
         generalMenu(false);
     }
 
@@ -543,11 +337,12 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         msiAcknowledge.setMsiMessage(selectedGraphic.getMsiMessage());
         add(msiAcknowledge);
 
+        revalidate();
         generalMenu(false);
     }
 
     public void msiDirectionalMenu(TopPanel topPanel,
-            MsiDirectionalIcon selectedGraphic, EpdMsiLayer msiLayer) {
+            MsiDirectionalIcon selectedGraphic, MsiLayer msiLayer) {
         removeAll();
 
         msiDetails.setTopPanel(topPanel);
@@ -558,6 +353,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         msiZoomTo.setMsiMessageExtended(selectedGraphic.getMessage());
         add(msiZoomTo);
 
+        revalidate();
         generalMenu(false);
     }
 
@@ -571,18 +367,18 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         sendToSTCC.setRoute(route);
         sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
-                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() > 0
+                .setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
                         && routeManager.getActiveRouteIndex() != routeIndex
-                        && enavServiceHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
+                        && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
-        if (monaLisaHandler.isTransaction()) {
+        if (strategicRouteHandler.isTransaction()) {
             sendToSTCC.setText("Show STCC info");
         } else {
             sendToSTCC.setText("Send to STCC");
         }
 
         add(sendToSTCC);
-
+        revalidate();
     }
 
     public void addVoyageHandlingWaypointAppendMenuItem(Route route, int routeIndex) {
@@ -592,8 +388,7 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         this.add(this.voyageAppendWaypoint);
     }
     
-    public void addVoyageHandlingWaypointDeleteMenuItem(Route route, int routeIndex, int waypointIndex)
-    {
+    public void addVoyageHandlingWaypointDeleteMenuItem(Route route, int routeIndex, int waypointIndex) {
         this.voyageDeleteWaypoint.setRouteIndex(routeIndex);
         this.voyageDeleteWaypoint.setRoute(route);
         this.voyageDeleteWaypoint.setVoyageWaypointIndex(waypointIndex);
@@ -636,11 +431,11 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         sendToSTCC.setRoute(route);
         sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
-                .setEnabled(enavServiceHandler.getMonaLisaSTCCList().size() > 0
+                .setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
                         && routeManager.getActiveRouteIndex() != routeIndex
-                        && enavServiceHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
+                        && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
-        if (monaLisaHandler.isTransaction()) {
+        if (strategicRouteHandler.isTransaction()) {
             sendToSTCC.setText("Show STCC info");
         } else {
             sendToSTCC.setText("Send to STCC");
@@ -677,7 +472,6 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         monaLisaRouteRequest.setRouteManager(routeManager);
         monaLisaRouteRequest.setRouteIndex(routeIndex);
-        // monaLisaRouteRequest.setMonaLisaRouteExchange(EPDShip.getInstance().getMonaLisaRouteExchange());
         monaLisaRouteRequest.setMainFrame(mainFrame);
         monaLisaRouteRequest.setOwnShipHandler(ownShipHandler);
         add(monaLisaRouteRequest);
@@ -711,10 +505,17 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         routeProperties.setRouteIndex(routeIndex);
         add(routeProperties);
 
-        // generalMenu(false);
-        this.repaint();
+//        generalMenu(false); //TODO: is this supposed to be commented out?
+        revalidate();
     }
 
+    /**
+     * Creates the route leg menu
+     * @param routeIndex the route index
+     * @param routeLeg the route leg
+     * @param point the mouse location
+     */
+    @Override
     public void routeLegMenu(int routeIndex, RouteLeg routeLeg, Point point) {
         removeAll();
 
@@ -734,8 +535,16 @@ public class MapMenu extends JPopupMenu implements ActionListener,
 
         generalRouteMenu(routeIndex);
         // TODO: add leg specific items
+        
+        revalidate();
     }
 
+    /**
+     * Creates the route way point menu
+     * @param routeIndex the route index
+     * @param routeWaypointIndex the route way point index
+     */
+    @Override
     public void routeWaypointMenu(int routeIndex, int routeWaypointIndex) {
         removeAll();
 
@@ -758,9 +567,10 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         add(routeWaypointDelete);
 
         generalRouteMenu(routeIndex);
+        revalidate();
     }
 
-    public void suggestedRouteMenu(RecievedRoute aisSuggestedRoute) {
+    public void suggestedRouteMenu(SuggestedRoute aisSuggestedRoute) {
         removeAll();
 
         suggestedRouteDetails.setSuggestedRoute(aisSuggestedRoute);
@@ -768,8 +578,13 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         add(suggestedRouteDetails);
 
         generalMenu(false);
+        revalidate();
     }
 
+    /**
+     * Creates the route edit menu
+     */
+    @Override
     public void routeEditMenu() {
         removeAll();
         routeEditEndRoute.setNewRouteLayer(newRouteLayer);
@@ -777,17 +592,14 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         add(routeEditEndRoute);
 
         generalMenu(false);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        action = (IMapMenuAction) e.getSource();
-        action.doAction();
+        revalidate();
     }
 
     // Allows MapMenu to be added to the MapHandler (eg. use the find and init)
     @Override
     public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+        
         if (obj instanceof MsiHandler) {
             msiHandler = (MsiHandler) obj;
         }
@@ -797,17 +609,11 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         if (obj instanceof RouteSuggestionDialog) {
             routeSuggestionDialog = (RouteSuggestionDialog) obj;
         }
-        if (obj instanceof MapBean) {
-            mapBean = (MapBean) obj;
-        }
         if (obj instanceof NewRouteContainerLayer) {
             newRouteLayer = (NewRouteContainerLayer) obj;
         }
         if (obj instanceof AisLayer) {
             aisLayer = (AisLayer) obj;
-        }
-        if (obj instanceof AisHandler) {
-            aisHandler = (AisHandler) obj;
         }
         if (obj instanceof OwnShipHandler) {
             ownShipHandler = (OwnShipHandler) obj;
@@ -824,98 +630,15 @@ public class MapMenu extends JPopupMenu implements ActionListener,
         if (obj instanceof MouseDelegator) {
             mouseDelegator = (MouseDelegator) obj;
         }
-
-        if (obj instanceof EnavServiceHandler) {
-            enavServiceHandler = (EnavServiceHandler) obj;
+        if (obj instanceof StrategicRouteHandler) {
+            strategicRouteHandler = (StrategicRouteHandler) obj;
         }
-        if (obj instanceof StrategicRouteExchangeHandler) {
-            monaLisaHandler = (StrategicRouteExchangeHandler) obj;
-        }
-        // if (obj instanceof VoyageLayer) {
-        // voyageLayer = (VoyageLayer) obj;
-        // }
 
     }
 
-    public void findAndInit(Iterator<?> it) {
-        while (it.hasNext()) {
-            findAndInit(it.next());
-        }
-    }
-
-    @Override
-    public void findAndUndo(Object obj) {
-    }
-
-    @Override
-    public void childrenAdded(BeanContextMembershipEvent bcme) {
-        if (!isolated || bcme.getBeanContext().equals(getBeanContext())) {
-            findAndInit(bcme.iterator());
-        }
-    }
-
-    @Override
-    public void childrenRemoved(BeanContextMembershipEvent bcme) {
-        Iterator<?> it = bcme.iterator();
-        while (it.hasNext()) {
-            findAndUndo(it.next());
-        }
-    }
-
-    @Override
-    public BeanContext getBeanContext() {
-        return beanContextChildSupport.getBeanContext();
-    }
-
-    @Override
-    public void setBeanContext(BeanContext in_bc) throws PropertyVetoException {
-
-        if (in_bc != null) {
-            if (!isolated || beanContextChildSupport.getBeanContext() == null) {
-                in_bc.addBeanContextMembershipListener(this);
-                beanContextChildSupport.setBeanContext(in_bc);
-                findAndInit(in_bc.iterator());
-            }
-        }
-    }
-
-    @Override
-    public void addVetoableChangeListener(String propertyName,
-            VetoableChangeListener in_vcl) {
-        beanContextChildSupport.addVetoableChangeListener(propertyName, in_vcl);
-    }
-
-    @Override
-    public void removeVetoableChangeListener(String propertyName,
-            VetoableChangeListener in_vcl) {
-        beanContextChildSupport.removeVetoableChangeListener(propertyName,
-                in_vcl);
-    }
 
     public void setRouteLocation(Point point) {
         this.windowLocation = point;
     }
 
-    // @Override
-    // public void show(boolean show){
-    //
-    // }
-
-     @Override
-     public void setVisible(boolean visible){
-         if(this.isVisible()) {
-             // log latest location every time this MapMenu is made visible.
-             this.latestScreenLocation = this.getLocationOnScreen();
-         }
-         super.setVisible(visible);
-     }
-
-     /**
-      * Get the position on screen where this MapMenu was last shown.
-      * @return The latest position or null if this MapMenu was never shown.
-      */
-     public Point getLatestVisibleLocation() {
-         return this.latestScreenLocation;
-     }
-     
 }

@@ -43,7 +43,7 @@ public class NmeaUdpSensor extends NmeaSensor {
     public void run() {
         byte[] receiveData = new byte[256];
         try (DatagramSocket serverSocket = new DatagramSocket(port)) {
-            while (true) {
+            while (!isStopped()) {
                 DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                 serverSocket.receive(receivePacket);
                 handleLine(new String(receivePacket.getData(), 0, receivePacket.getLength(), Charsets.US_ASCII));
@@ -51,6 +51,10 @@ public class NmeaUdpSensor extends NmeaSensor {
         } catch (IOException e) {
             LOG.error("Failed to listen on UDP socket", e);
         }
+
+        // Flag that the sensor has terminated
+        flagTerminated();
+        LOG.warn("UDP NMEA sensor terminated");
     }
 
     @Override

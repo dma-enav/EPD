@@ -26,7 +26,6 @@ import java.beans.beancontext.BeanContextChildSupport;
 import java.beans.beancontext.BeanContextMembershipEvent;
 import java.beans.beancontext.BeanContextMembershipListener;
 import java.io.File;
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,6 +80,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     private JCheckBoxMenuItem encLayer;
     private JCheckBoxMenuItem msPntLayer;
     private final JCheckBoxMenuItem nogoLayer = new JCheckBoxMenuItem("NoGo Layer");;
+    private JCheckBoxMenuItem intendedRouteLayer;
     private JCheckBoxMenuItem newRoute;
     private JMenu dockableMenu;
 
@@ -127,9 +127,13 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         setup.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SetupDialog setupDialog = new SetupDialog(mainFrame);
-                setupDialog.loadSettings(EPDShip.getInstance().getSettings());
-                setupDialog.setVisible(true);
+//                SetupDialog setupDialog = new SetupDialog(mainFrame);
+//                setupDialog.loadSettings(EPDShip.getInstance().getSettings());
+//                setupDialog.setVisible(true);
+                
+                SetupDialogShip setup = new SetupDialogShip(mainFrame);
+                setup.loadSettings(EPDShip.getInstance().getSettings());
+                setup.setVisible(true);                
             }
         });
 
@@ -154,7 +158,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         exit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                mainFrame.windowClosing(null);
+                mainFrame.onWindowClosing();
             }
         });
 
@@ -275,6 +279,18 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
             }
         });
         
+        // Intended route layer
+        intendedRouteLayer = new JCheckBoxMenuItem("Intended route Layer");
+        layers.add(intendedRouteLayer);
+        intendedRouteLayer.setSelected(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
+        intendedRouteLayer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean selected = !topPanel.getIntendedRouteButton().isSelected();
+                topPanel.getIntendedRouteButton().setSelected(selected);
+                EPDShip.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(selected);
+            }
+        });
 
         // Multi-source PNT (a.k.a "Resilient PNT") layer.
         // Please note, this later is actually a virtual layer;
@@ -460,10 +476,9 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     }
 
     protected static ImageIcon createImageIcon() {
-        java.net.URL imgURL = EPDShip.class.getResource("/images/appicon.png");
-        if (imgURL != null) {
+        ImageIcon icon = EPDShip.res().getCachedImageIcon("/images/appicon.png");
+        if (icon != null) {
 
-            ImageIcon icon = new ImageIcon(imgURL);
             Image img = icon.getImage();
             Image newimg = img.getScaledInstance(45, 45, java.awt.Image.SCALE_SMOOTH);
             ImageIcon newImage = new ImageIcon(newimg);
@@ -719,14 +734,17 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
     public JCheckBoxMenuItem getNogoLayer() {
         return nogoLayer;
     }
+    
+    public JCheckBoxMenuItem getIntendedRouteLayer() {
+        return intendedRouteLayer;
+    }
 
     public JCheckBoxMenuItem getNewRoute() {
         return newRoute;
     }
 
     public ImageIcon toolbarIcon(String imgpath) {
-        URL url = EPDShip.class.getClassLoader().getResource(imgpath);
-        ImageIcon icon = new ImageIcon(url);
+        ImageIcon icon = EPDShip.res().getCachedImageIcon(imgpath);
         Image img = icon.getImage();
         Image newimg = img.getScaledInstance(16, 16, java.awt.Image.SCALE_DEFAULT);
         ImageIcon newImage = new ImageIcon(newimg);

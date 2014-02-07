@@ -15,7 +15,7 @@
  */
 package dk.dma.epd.shore.service;
 
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
 
@@ -28,11 +28,11 @@ public class RouteSuggestionData {
     private long mmsi;
     private boolean acknowleged;
 
-    private AIS_STATUS status;
+    private RouteSuggestionStatus status;
 
     public RouteSuggestionData(RouteSuggestionMessage outgoingMsg,
             RouteSuggestionReply reply, long id, long mmsi, boolean acknowleged,
-            AIS_STATUS status) {
+            RouteSuggestionStatus status) {
         this.outgoingMsg = outgoingMsg;
         this.reply = reply;
         this.id = id;
@@ -81,11 +81,11 @@ public class RouteSuggestionData {
         this.acknowleged = acknowleged;
     }
 
-    public AIS_STATUS getStatus() {
+    public RouteSuggestionStatus getStatus() {
         return status;
     }
 
-    public void setStatus(AIS_STATUS status) {
+    public void setStatus(RouteSuggestionStatus status) {
         this.status = status;
     }
 

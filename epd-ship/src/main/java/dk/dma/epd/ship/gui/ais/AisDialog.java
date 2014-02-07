@@ -117,7 +117,7 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
                 {" Cargo", ""},
                 {" Lat", ""},
                 {" Long", ""},
-                {" Last Recieved", ""},
+                {" Last Received", ""},
                 {" Destination", ""},
                 {" ETA", ""},
                 {" Heading", ""},
@@ -350,7 +350,7 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         String length = "N/A";
         String width = "N/A";
         String navStatus = "N/A";
-        String lastRecieved = "N/A";
+        String lastReceived = "N/A";
         String eta = "N/A";
         String cargo = "unknown";
         Date currentDate = new Date();
@@ -370,14 +370,14 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
             length = Integer.toString(vesselTarget.getStaticData().getDimBow() + vesselTarget.getStaticData().getDimStern()) + " M";
             width = Integer.toString(vesselTarget.getStaticData().getDimPort() + vesselTarget.getStaticData().getDimStarboard()) + " M";
             navStatus = vesselTarget.getPositionData().getEnumNavStatus().toString();
-            lastRecieved = Long.toString((currentDate.getTime() - vesselTarget.getLastReceived().getTime()) / 1000) + " seconds ago";
+            lastReceived = Long.toString((currentDate.getTime() - vesselTarget.getLastReceived().getTime()) / 1000) + " seconds ago";
 
             eta = Long.toString(vesselTarget.getStaticData().getEta());
         }
         
         updateTable(vesselTarget.getMmsi(), vesselTarget.getAisClass(), name, callsign, length, 
                 width, draught, navStatus, type, cargo, Formatter.latToPrintable(aisLocation.getLatitude()), 
-                        Formatter.lonToPrintable(aisLocation.getLongitude()), lastRecieved, destination, 
+                        Formatter.lonToPrintable(aisLocation.getLongitude()), lastReceived, destination, 
                                 eta, trueHeading, vesselTarget.getPositionData().getCog(), 
                                 vesselTarget.getPositionData().getSog(), vesselTarget.getPositionData().getRot());
     }
@@ -385,7 +385,7 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
 
     private void updateTable(long mmsi, AisClass aisClass, String name, String callSign,
             String length, String width, String draught, String navStatus, String type,
-            String cargo, String lat, String longi, String lastRecieved, String destination,
+            String cargo, String lat, String longi, String lastReceived, String destination,
             String eta, String trueHeading, float cog, float sog, float rot){
         
         if (!compare(aisTableDetails.getValueAt(0, 1), mmsi)){
@@ -424,8 +424,8 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         if (!compare(aisTableDetails.getValueAt(11, 1), longi)){
         aisTableDetails.setValueAt(longi, 11, 1);
         }
-        if (!compare(aisTableDetails.getValueAt(12, 1), lastRecieved)){
-        aisTableDetails.setValueAt(lastRecieved, 12, 1);
+        if (!compare(aisTableDetails.getValueAt(12, 1), lastReceived)){
+        aisTableDetails.setValueAt(lastReceived, 12, 1);
         }
         if (!compare(aisTableDetails.getValueAt(13, 1), destination)){
         aisTableDetails.setValueAt(destination, 13, 1);

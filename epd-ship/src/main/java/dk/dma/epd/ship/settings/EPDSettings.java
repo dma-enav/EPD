@@ -49,6 +49,7 @@ public class EPDSettings extends Settings implements Serializable {
     private final EPDAisSettings aisSettings = new EPDAisSettings();
     private final EPDEnavSettings enavSettings = new EPDEnavSettings();
     private final EPDS57LayerSettings s57Settings = new EPDS57LayerSettings();
+    private final EPDCloudSettings cloudSettings = new EPDCloudSettings();
 
     public EPDSettings() {
         this("settings.properties");
@@ -58,6 +59,10 @@ public class EPDSettings extends Settings implements Serializable {
         this.settingsFile = settingsFile;
     }
 
+    /**
+     * Load the settings files as well as the workspace files
+     */
+    @Override
     public void loadFromFile() {
         // Open properties file
         Properties props = new Properties();
@@ -79,11 +84,16 @@ public class EPDSettings extends Settings implements Serializable {
         mapSettings.readProperties(props);
         navSettings.readProperties(props);
         sensorSettings.readProperties(props);
+        cloudSettings.readProperties(props);
         
         s57Settings.readSettings(EPDShip.getInstance().getHomePath().resolve("s57Props.properties").toString());
     }
 
-    public void saveToFile() {
+    /**
+     * Save the settings to the files
+     */
+    @Override
+    public void doSaveToFile() {
         Properties props = new Properties();
         aisSettings.setProperties(props);
         enavSettings.setProperties(props);
@@ -91,6 +101,7 @@ public class EPDSettings extends Settings implements Serializable {
         mapSettings.setProperties(props);
         navSettings.setProperties(props);
         sensorSettings.setProperties(props);
+        cloudSettings.setProperties(props);
         try (
             FileWriter outFile = new FileWriter(settingsFile);
             PrintWriter out = new PrintWriter(outFile);) {
@@ -147,6 +158,11 @@ public class EPDSettings extends Settings implements Serializable {
         return s57Settings;
     }
 
+    @Override
+    public EPDCloudSettings getCloudSettings() {
+        return cloudSettings;
+    }
+    
     public String getSettingsFile() {
         return settingsFile;
     }

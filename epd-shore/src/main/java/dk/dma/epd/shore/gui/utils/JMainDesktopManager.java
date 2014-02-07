@@ -29,15 +29,14 @@ import javax.swing.JViewport;
 
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
+import dk.dma.epd.shore.gui.route.strategic.SendStrategicRouteDialog;
 import dk.dma.epd.shore.gui.views.JMainDesktopPane;
 import dk.dma.epd.shore.gui.views.JMapFrame;
-import dk.dma.epd.shore.gui.views.JSettingsWindow;
 import dk.dma.epd.shore.gui.views.NotificationArea;
 import dk.dma.epd.shore.gui.views.NotificationCenter;
 import dk.dma.epd.shore.gui.views.SendRouteDialog;
 import dk.dma.epd.shore.gui.views.StatusArea;
 import dk.dma.epd.shore.gui.views.ToolBar;
-import dk.dma.epd.shore.gui.views.strategicRouteExchange.SendStrategicRouteDialog;
 
 public class JMainDesktopManager extends DefaultDesktopManager {
     /**
@@ -50,7 +49,6 @@ public class JMainDesktopManager extends DefaultDesktopManager {
     private NotificationCenter notCenter;
     private NotificationArea notificationArea;
     private StatusArea statusArea;
-    private JSettingsWindow settings;
     private RouteManagerDialog routeManager;
     private SendRouteDialog routeDialog;
     private SendStrategicRouteDialog sendVoyageDialog;
@@ -95,7 +93,6 @@ public class JMainDesktopManager extends DefaultDesktopManager {
         super.activateFrame(notificationArea);
         super.activateFrame(toolbar);
         super.activateFrame(notCenter);
-        super.activateFrame(settings);
         super.activateFrame(routeManager);
         super.activateFrame(routeDialog);
         super.activateFrame(sendVoyageDialog);
@@ -227,14 +224,6 @@ public class JMainDesktopManager extends DefaultDesktopManager {
      */
     public void setNotCenter(NotificationCenter notCenter) {
         this.notCenter = notCenter;
-    }
-    
-    /**
-     * Set Settings Window
-     * @param notCenter
-     */
-    public void setSettings(JSettingsWindow settings) {
-        this.settings = settings;
     }
     
     /**

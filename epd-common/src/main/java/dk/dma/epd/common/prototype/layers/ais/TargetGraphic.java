@@ -16,7 +16,6 @@
 package dk.dma.epd.common.prototype.layers.ais;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
-import com.bbn.openmap.proj.Projection;
 
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.settings.AisSettings;
@@ -56,7 +55,5 @@ public abstract class TargetGraphic extends OMGraphicList {
     }
     
     public abstract void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale);
-
-    public abstract void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings);
     
 }

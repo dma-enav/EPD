@@ -23,32 +23,144 @@ import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
 import net.maritimecloud.net.service.spi.ServiceMessage;
 import dk.dma.enav.model.voyage.Route;
 
+/**
+ * Maritime cloud service for exchanging routes suggestions from 
+ * a sea traffic control center (STCC) to ship.
+ * <p>
+ * Defines the service initiation point along with the following classes:
+ * <ul>
+ *   <li>{@linkplain RouteSuggestionStatus} status of the route suggestion.</li>
+ *   <li>{@linkplain RouteSuggestionMessage} Used for sending a suggested route from STCC to a ship.</li>
+ *   <li>{@linkplain RouteSuggestionReply} Used for sending a reply from a ship to the STCC.</li>
+ * </ul>
+ */
 public class RouteSuggestionService {
     
     /** An initiation point */
     public static final ServiceInitiationPoint<RouteSuggestionMessage> INIT = new ServiceInitiationPoint<>(
             RouteSuggestionMessage.class);
     
-    public enum AIS_STATUS {
-        NOT_SENT, FAILED, SENT_NOT_ACK, RECIEVED_APP_ACK, RECIEVED_ACCEPTED, RECIEVED_REJECTED, RECIEVED_NOTED
+    /**
+     * Status of the route suggestion
+     */
+    public enum RouteSuggestionStatus {
+        NOT_SENT, 
+        FAILED, 
+        SENT_NOT_ACK, 
+        RECEIVED_APP_ACK, 
+        RECEIVED_ACCEPTED, 
+        RECEIVED_REJECTED, 
+        RECEIVED_NOTED
     }
     
+    /**
+     * Used for sending a suggested route from STCC to a ship
+     */
+    public static class RouteSuggestionMessage extends
+            ServiceMessage<RouteSuggestionReply> {
+        private Route route;
+        private Date sent;
+        private String sender;
+        private String message;
+        private long id;
+        
+        /**
+         * Constructor
+         */
+        public RouteSuggestionMessage() {
+        }
+
+        /**
+         * Constructor
+         * 
+         * @param route the suggested route
+         * @param sender the sender
+         * @param message an additional message
+         */
+        public RouteSuggestionMessage(Route route, String sender, String message) {
+            this.route = requireNonNull(route);
+            this.sender = requireNonNull(sender);
+            this.id = requireNonNull(System.currentTimeMillis());
+            this.sent = requireNonNull(new Date());
+            this.message = requireNonNull(message);
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        /**
+         * @return the route
+         */
+        public Route getRoute() {
+            return route;
+        }
+        
+        public String getSender() {
+            return sender;
+        }
+
+        public Date getSent() {
+            return sent;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        /**
+         * @param route the route to set
+         */
+        public void setRoute(Route route) {
+            this.route = route;
+        }
+
+        public void setSender(String sender) {
+            this.sender = sender;
+        }
+
+        public void setSent(Date sent) {
+            this.sent = sent;
+        }
+
+        public long getId() {
+            return id;
+        }
+
+        public void setId(long id) {
+            this.id = id;
+        }
+        
+        
+    }
+
+    /**
+     * Used for sending a reply from a ship to the STCC
+     */
     public static class RouteSuggestionReply extends ServiceMessage<Void> {
 
         private String message;
         private long id;
         private long mmsi;
         private long sendDate;
-        private AIS_STATUS status;
+        private RouteSuggestionStatus status;
   
-
+        /**
+         * Constructor
+         */
         public RouteSuggestionReply() {
         }
 
         /**
-         * @param message
+         * Constructor
+         * 
+         * @param message a message
+         * @param id id of the original suggestion
+         * @param mmsi the MMSI of the vessel
+         * @param sendDate the send date
+         * @param status the reply status
          */
-        public RouteSuggestionReply(String message, long id, long mmsi, long sendDate, AIS_STATUS status) {
+        public RouteSuggestionReply(String message, long id, long mmsi, long sendDate, RouteSuggestionStatus status) {
             this.message = message;
             this.id = id;
             this.mmsi = mmsi;
@@ -64,8 +176,7 @@ public class RouteSuggestionService {
         }
 
         /**
-         * @param message
-         *            the message to set
+         * @param message the message to set
          */
         public void setMessage(String message) {
             this.message = message;
@@ -95,93 +206,12 @@ public class RouteSuggestionService {
             this.sendDate = sendDate;
         }
 
-        public AIS_STATUS getStatus() {
+        public RouteSuggestionStatus getStatus() {
             return status;
         }
 
-        public void setStatus(AIS_STATUS status) {
+        public void setStatus(RouteSuggestionStatus status) {
             this.status = status;
         }
-        
-        
-        
-        
     }
-    
-    
-
-    public static class RouteSuggestionMessage extends
-            ServiceMessage<RouteSuggestionReply> {
-        private Route route;
-        private Date sent;
-        private String sender;
-        private String message;
-        private long id;
-        
-
-        public RouteSuggestionMessage() {
-        }
-
-        public RouteSuggestionMessage(Route route, String sender, String message) {
-            this.route = requireNonNull(route);
-            this.sender = requireNonNull(sender);
-            this.id = requireNonNull(System.currentTimeMillis());
-            this.sent = requireNonNull(new Date());
-            this.message = requireNonNull(message);
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        /**
-         * @return the route
-         */
-        public Route getRoute() {
-            return route;
-        }
-
-        
-        
-        public String getSender() {
-            return sender;
-        }
-
-        public Date getSent() {
-            return sent;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-
-        /**
-         * @param route
-         *            the route to set
-         */
-        public void setRoute(Route route) {
-            this.route = route;
-        }
-
-        public void setSender(String sender) {
-            this.sender = sender;
-        }
-
-        public void setSent(Date sent) {
-            this.sent = sent;
-        }
-
-        public long getId() {
-            return id;
-        }
-
-        public void setId(long id) {
-            this.id = id;
-        }
-        
-        
-    }
-
-
-
 }

@@ -16,6 +16,7 @@
 package dk.dma.epd.shore.gui.settingtabs;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
@@ -24,13 +25,16 @@ import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.MatteBorder;
+import javax.swing.border.TitledBorder;
 
 public class GuiStyler {
 
@@ -138,15 +142,6 @@ public class GuiStyler {
         });
     }
 
-    public static void styleUnderMenu(JLabel label){
-        label.setPreferredSize(new Dimension(125, 25));
-        label.setFont(defaultFont);
-        label.setForeground(textColor);
-        label.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
-        label.setBackground(Color.gray);
-        label.setOpaque(true);
-    }
-
     public static void styleText(JLabel label){
         label.setFont(defaultFont);
         label.setForeground(textColor);
@@ -180,5 +175,36 @@ public class GuiStyler {
         jtextField.setFont(GuiStyler.defaultFont);
         jtextField.setCaretColor(GuiStyler.textColor);
         jtextField.setBorder(GuiStyler.border);
+    }
+
+    /**
+     * Setting tabs that are shared between EPDShip and EPDShore should be 
+     * "styled" before using them in EPDShore.<p>
+     * This method will recursively style the components of the panel
+     * @param component call with the settings tab to style
+     */
+    public static void styleSettingsTab(Component component) {
+        if (component instanceof JTextField) {
+            styleTextFields((JTextField)component);
+        } else  if (component instanceof JSpinner) {
+            styleSpinner((JSpinner)component);
+        } else  if (component instanceof JTextArea) {
+            styleArea((JTextArea)component);
+        } else  if (component instanceof JLabel) {
+            styleText((JLabel)component);
+        } else  if (component instanceof JCheckBox) {
+            styleCheckbox((JCheckBox)component);
+        } else if (component instanceof JComponent) {
+            if (component instanceof JPanel) {
+                ((JPanel)component).setOpaque(false);
+                Border b = ((JComponent)component).getBorder();
+                if (b != null && b instanceof TitledBorder) {
+                    ((TitledBorder)b).setBorder(new MatteBorder(1, 1, 1, 1, new Color(70, 70, 70)));
+                }
+            }
+            for (Component childComponent : ((JComponent)component).getComponents()) {
+                styleSettingsTab(childComponent);
+            }
+        }
     }
 }

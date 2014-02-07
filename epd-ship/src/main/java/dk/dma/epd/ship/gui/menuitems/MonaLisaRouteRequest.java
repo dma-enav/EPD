@@ -26,7 +26,6 @@ import dk.dma.epd.ship.route.RouteManager;
 public class MonaLisaRouteRequest extends JMenuItem implements IMapMenuAction {
 
     private static final long serialVersionUID = 1L;
-//    private MonaLisaRouteExchange monaLisaRouteExchange;
 
     private int routeIndex;
     private RouteManager routeManager;
@@ -37,11 +36,6 @@ public class MonaLisaRouteRequest extends JMenuItem implements IMapMenuAction {
         super();
         setText(text);
     }
-
-//    public void setMonaLisaRouteExchange(
-//            MonaLisaRouteExchange monaLisaRouteExchange) {
-//        this.monaLisaRouteExchange = monaLisaRouteExchange;
-//    }
 
     public void setRouteManager(RouteManager routeManager) {
         this.routeManager = routeManager;
@@ -64,12 +58,6 @@ public class MonaLisaRouteRequest extends JMenuItem implements IMapMenuAction {
     @Override
     public void doAction() {
 
-//        Route route = routeManager.getRoute(routeIndex);
-//        if (routeManager.isRouteActive()) {
-//            route = routeManager.getActiveRoute();
-//        }
-        
-        
         MonaLisaSSPAOptionsDialog monaLisaDialog = new MonaLisaSSPAOptionsDialog(mainFrame, routeManager, ownShipHandler);
         monaLisaDialog.showDialog(routeIndex);
         

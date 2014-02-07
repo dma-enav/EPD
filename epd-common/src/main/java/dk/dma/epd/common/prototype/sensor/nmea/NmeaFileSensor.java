@@ -44,6 +44,7 @@ public class NmeaFileSensor extends NmeaSensor {
     private static final Logger LOG = LoggerFactory.getLogger(NmeaFileSensor.class);
     
     private final String filename;
+    private InputStream inputStream;
     private volatile Frame frame;
     
     public NmeaFileSensor(String filename, SensorSettings sensorSettings) {
@@ -58,9 +59,9 @@ public class NmeaFileSensor extends NmeaSensor {
     @Override
     public void run() {
         // Open file
-        InputStream in = null;
+        inputStream = null;
         try {
-            in = new FileInputStream(filename);
+            inputStream = new FileInputStream(filename);
         } catch (IOException e) {
             LOG.error("Failed to open replay file: " + filename + ": " + e.getMessage());
             return;
@@ -76,7 +77,7 @@ public class NmeaFileSensor extends NmeaSensor {
         
         // Read
         try {
-            readLoop(in);
+            readLoop(inputStream);
         } catch (IOException e) {
             LOG.error("Error while reading replay file: " + filename + ": " + e.getMessage());
         }
@@ -87,10 +88,14 @@ public class NmeaFileSensor extends NmeaSensor {
         LOG.info("Replay data start: " + getDataStart() + " end: " + getDataEnd() + " elapsed: " + dataElapsed / 1000);
         LOG.info("Replay real start: " + getReplayStart() + " end: " + getReplayEnd() + " elapsed: " + realElapsed / 1000);
         
-        if (frame != null) {
+        if (frame != null && !isStopped()) {
             JOptionPane.showMessageDialog(frame, "Replay finished");
         }
-
+        
+        // Flag that the sensor has terminated
+        try { inputStream.close(); } catch (Exception ex) {}
+        flagTerminated();
+        LOG.warn("File NMEA sensor terminated");
     }
     
     @Override

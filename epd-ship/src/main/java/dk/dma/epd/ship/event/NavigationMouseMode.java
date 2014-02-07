@@ -149,6 +149,12 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
             // rendered on the repaint.
             point1 = null;
             point2 = null;
+            
+            // Save the centering of ship to history.
+            // ----------------------------
+            
+            EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().setShouldSave(true);
+            EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().saveToHistoryBeforeMoving();
 
             p.setCenter(llp);
             map.setProjection(p);
@@ -264,15 +270,25 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
             if (newScale < maxScale) {
                 newScale = maxScale;
             }
-            p.setScale(newScale);
-            p.setCenter(center);
-
+            
             // on the repaint.
             point1 = null;
             point2 = null;
-
+            
+            
+            // Save the scaling to history.
+            // ----------------------------
+            
+            EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().setShouldSave(true);
+            EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().saveToHistoryBeforeMoving();
+            
+            // Move to the new view.
+            p.setScale(newScale);
+            p.setCenter(center);
             map.setProjection(p);
             chartPanel.manualProjChange();
+            
+            // Toggle buttons for navigation.
         }
     }
 

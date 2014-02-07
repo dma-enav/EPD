@@ -18,8 +18,6 @@ package dk.dma.epd.common.prototype.ais;
 import java.util.Date;
 
 import net.jcip.annotations.ThreadSafe;
-import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
-import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 
 /**
  * Class representing an AIS vessel target
@@ -27,22 +25,16 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 @ThreadSafe
 public class VesselTarget extends MobileTarget {
     
-    private static final long serialVersionUID = 8886828351333930646L;
+    private static final long serialVersionUID = -5911356750376325979L;
     
-    /**
-     * Time an intended route is considered valid without update
-     */
-    public static final long ROUTE_TTL = 10 * 60 * 1000; // 10 min
     
     /**
      * Target class A or B 
      */
     public enum AisClass {A, B};
     
-    private AisIntendedRoute aisIntendedRoute;
-    private AisClass aisClass; 
-    private CloudIntendedRoute intendedRoute;
-    
+    // NB: We do not want to persist intended route data
+    private transient AisClass aisClass; 
 
     /**
      * Copy constructor
@@ -51,9 +43,6 @@ public class VesselTarget extends MobileTarget {
     public VesselTarget(VesselTarget vesselTarget) {
         super(vesselTarget);
         this.aisClass = vesselTarget.aisClass;
-        if (vesselTarget.aisIntendedRoute != null) {
-            this.aisIntendedRoute = new AisIntendedRoute(vesselTarget.aisIntendedRoute);
-        }
     }
 
     /**
@@ -66,31 +55,6 @@ public class VesselTarget extends MobileTarget {
     @Override
     public synchronized void setPositionData(VesselPositionData positionData) {
         super.setPositionData(positionData);
-        if (aisIntendedRoute != null) {
-            aisIntendedRoute.update(positionData);
-        }
-    }
-
-    public synchronized AisIntendedRoute getAisRouteData() {
-        return aisIntendedRoute;
-    }
-    
-    public synchronized void setAisRouteData(AisIntendedRoute aisIntendedRoute) {
-        this.aisIntendedRoute = aisIntendedRoute;
-        this.aisIntendedRoute.update(positionData);
-    }
-    
-    public synchronized void setCloudRouteData(CloudIntendedRoute intendedRoute) {
-        this.intendedRoute = intendedRoute;
-        this.intendedRoute.update(positionData);
-    }
-    
-    public synchronized CloudIntendedRoute getIntendedRoute() {
-        return intendedRoute;
-    }
-
-    public synchronized void setIntendedRoute(CloudIntendedRoute intendedRoute) {
-        this.intendedRoute = intendedRoute;
     }
 
     public synchronized AisClass getAisClass() {
@@ -100,32 +64,6 @@ public class VesselTarget extends MobileTarget {
     public synchronized void setAisClass(AisClass aisClass) {
         this.aisClass = aisClass;
     }
-    
-    /**
-     * Returns true if route information changes from valid to invalid
-     * @return
-     */
-    public synchronized boolean checkAisRouteData() {
-        if (aisIntendedRoute == null || aisIntendedRoute.getWaypoints().size() == 0 || aisIntendedRoute.getDuration() == 0) {
-            return false;
-        }
-        Date now = PntTime.getInstance().getDate();
-        long elapsed = now.getTime() - aisIntendedRoute.getReceived().getTime();
-        if (elapsed > ROUTE_TTL) {
-            aisIntendedRoute = null;
-            return true;
-        }
-        return false;        
-    }
-    
-    /**
-     * Returns if this target defines an intended route
-     * @return if this target defines an intended route
-     */
-    public synchronized boolean hasIntendedRoute() {
-        return intendedRoute != null;
-    }
-
     
     /**
      * Determine if the target has gone.

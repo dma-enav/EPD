@@ -29,7 +29,6 @@ import java.util.concurrent.TimeoutException;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListSelectionModel;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -47,11 +46,12 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteExchangeTableModel;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
-import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.service.RouteSuggestionData;
+import dk.dma.epd.shore.service.RouteSuggestionHandler;
 
 public class RouteExchangeNotificationPanel extends JPanel {
 
@@ -96,7 +96,7 @@ public class RouteExchangeNotificationPanel extends JPanel {
 
     private JPanel rightPanel;
     private JPanel leftPanel;
-    private EnavServiceHandler enavServiceHandler;
+    private RouteSuggestionHandler routeSuggestionHandler;
 
     public RouteExchangeNotificationPanel() {
         GridBagConstraints gbc_scrollPane_2 = new GridBagConstraints();
@@ -248,26 +248,27 @@ public class RouteExchangeNotificationPanel extends JPanel {
         pane_3.setLayout(new FlowLayout());
         pane_3.setVisible(true);
 
-        but_read = new JLabel("Read", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/notificationcenter/tick.png")), SwingConstants.CENTER);
+        Resources res = EPDShore.res().folder("images/notificationcenter");
+        but_read = new JLabel("Read", res.getCachedImageIcon("tick.png"), SwingConstants.CENTER);
         GuiStyler.styleButton(but_read);
         but_read.setPreferredSize(new Dimension(75, 20));
         pane_3.add(but_read);
         but_read.setEnabled(false);
 
-        but_resend = new JLabel("Resend", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/notificationcenter/arrow-circle-315.png")),
+        but_resend = new JLabel("Resend", res.getCachedImageIcon("arrow-circle-315.png"),
                 SwingConstants.CENTER);
         GuiStyler.styleButton(but_resend);
         but_resend.setPreferredSize(new Dimension(75, 20));
         pane_3.add(but_resend);
         but_resend.setEnabled(false);
 
-        but_goto = new JLabel("Goto", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/notificationcenter/map-pin.png")), SwingConstants.CENTER);
+        but_goto = new JLabel("Goto", res.getCachedImageIcon("map-pin.png"), SwingConstants.CENTER);
         GuiStyler.styleButton(but_goto);
         but_goto.setPreferredSize(new Dimension(75, 20));
         pane_3.add(but_goto);
         but_goto.setEnabled(false);
 
-        but_delete = new JLabel("Delete", new ImageIcon(EPDShore.class.getClassLoader().getResource("images/notificationcenter/cross.png")), SwingConstants.CENTER);
+        but_delete = new JLabel("Delete", res.getCachedImageIcon("cross.png"), SwingConstants.CENTER);
         GuiStyler.styleButton(but_delete);
         but_delete.setPreferredSize(new Dimension(75, 20));
         pane_3.add(but_delete);
@@ -390,7 +391,7 @@ public class RouteExchangeNotificationPanel extends JPanel {
                     RouteSuggestionData message = routeTableModel.getMessages()
                             .get(currentSelection);
 
-                    enavServiceHandler.setAcknowledged(message.getMmsi(),
+                    routeSuggestionHandler.setRouteSuggestionAcknowledged(message.getMmsi(),
                             message.getId());
                     routeTableModel.updateMessages();
                     but_read.setEnabled(false);
@@ -404,7 +405,7 @@ public class RouteExchangeNotificationPanel extends JPanel {
                     RouteSuggestionData message = routeTableModel.getMessages()
                             .get(currentSelection);
                     try {
-                        enavServiceHandler.sendRouteSuggestion(message
+                        routeSuggestionHandler.sendRouteSuggestion(message
                                 .getMmsi(), message.getOutgoingMsg().getRoute(), message.getOutgoingMsg().getSender(), message.getOutgoingMsg().getMessage());
                     } catch (InterruptedException e1) {
                         // TODO Auto-generated catch block
@@ -457,7 +458,7 @@ public class RouteExchangeNotificationPanel extends JPanel {
                     // routeTable.getSelectedRow();
                     routeTable.setRowSelectionInterval(0, 0);
 
-                    enavServiceHandler.removeSuggestion(message.getMmsi(),
+                    routeSuggestionHandler.removeSuggestion(message.getMmsi(),
                             message.getId());
                     routeTableModel.updateMessages();
 
@@ -487,8 +488,8 @@ public class RouteExchangeNotificationPanel extends JPanel {
         return routeTable;
     }
 
-    public void setEnavServiceHandler(EnavServiceHandler enavServiceHandler) {
-        this.enavServiceHandler = enavServiceHandler;
+    public void setRouteSuggestionHandler(RouteSuggestionHandler routeSuggestionHandler) {
+        this.routeSuggestionHandler = routeSuggestionHandler;
     }
     
     private class RouteExchangeRowListener implements ListSelectionListener {

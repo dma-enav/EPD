@@ -16,7 +16,6 @@
 package dk.dma.epd.ship.layers.ownship;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Stroke;
 
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
@@ -29,6 +28,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
+import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 
 /**
  * @author Janus Varmarken
@@ -89,14 +89,14 @@ public class OwnShipGraphic extends OMGraphicList {
         this.circle2 = new OMCircle(0, 0, 0, 0, 8, 8);
         this.circle1.setStroke(stroke);
         this.circle2.setStroke(stroke);
-        this.speedVector = new OwnShipSpeedVectorGraphic(Color.BLACK);
+        this.speedVector = new OwnShipSpeedVectorGraphic(ColorConstants.OWNSHIP_HEADING_COLOR);
         
         int[] angularX = {-20,20};
         int[] angularY = {0,0};
-        angularVector = new RotationalPoly(angularX, angularY, null, null);
+        angularVector = new RotationalPoly(angularX, angularY, null, ColorConstants.OWNSHIP_HEADING_COLOR);
         int[] directionX = {0,0};
         int[] directionY = {0,-200};
-        directionVector = new RotationalPoly(directionX, directionY, stroke, null);
+        directionVector = new RotationalPoly(directionX, directionY, stroke, ColorConstants.OWNSHIP_HEADING_COLOR);
         
         this.add(this.circle1);
         this.add(this.circle2);
@@ -131,9 +131,10 @@ public class OwnShipGraphic extends OMGraphicList {
         this.circle2.setLatLon(this.currentPos.getLatitude(), this.currentPos.getLongitude());
         
         this.startPos = new LatLonPoint.Double(this.currentPos.getLatitude(), this.currentPos.getLongitude());
-        float mapScale = this.parentLayer.getProjection().getScale();
         
-        this.speedVector.update(ownShipData, mapScale);
+        if (parentLayer != null && parentLayer.getProjection() != null) {
+            this.speedVector.update(ownShipData, parentLayer.getProjection().getScale());
+        }
         this.angularVector.setLocation(this.startPos.getLatitude(), this.startPos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, this.headingRadian);
         this.directionVector.setLocation(this.startPos.getLatitude(), this.startPos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, this.headingRadian);
 

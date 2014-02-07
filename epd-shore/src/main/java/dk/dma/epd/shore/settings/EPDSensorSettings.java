@@ -23,5 +23,13 @@ import dk.dma.epd.common.prototype.settings.SensorSettings;
 public class EPDSensorSettings extends SensorSettings{
     private static final long serialVersionUID = 1L;
 
-
+    /**
+     * Constructor
+     */
+    public EPDSensorSettings() {
+        super();
+        
+        // Default aisTcpOrUdpPort is 4001 for edp-ship, but 4002 for edp-shore
+        setAisTcpOrUdpPort(4002);
+    }
 }

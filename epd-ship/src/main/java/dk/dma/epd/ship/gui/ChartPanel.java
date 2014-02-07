@@ -39,10 +39,11 @@ import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
-import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayer;
-import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
+import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
@@ -59,12 +60,12 @@ import dk.dma.epd.ship.layers.EncLayerFactory;
 import dk.dma.epd.ship.layers.GeneralLayer;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.background.CoastalOutlineLayer;
-import dk.dma.epd.ship.layers.msi.EpdMsiLayer;
+import dk.dma.epd.ship.layers.msi.MsiLayer;
 import dk.dma.epd.ship.layers.nogo.DynamicNogoLayer;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.layers.ownship.OwnShipLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
-import dk.dma.epd.ship.layers.routeEdit.RouteEditLayer;
+import dk.dma.epd.ship.layers.routeedit.RouteEditLayer;
 import dk.dma.epd.ship.layers.ruler.RulerLayer;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.settings.EPDMapSettings;
@@ -78,21 +79,25 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
 
+    private NavigationMouseMode mapNavMouseMode;
+    private DragMouseMode dragMouseMode;
+    
+    // Layers
     private OwnShipLayer ownShipLayer;
     private AisLayer aisLayer;
     private GeneralLayer generalLayer;
-    private CoastalOutlineLayer coastalOutlineLayer;
-    private NavigationMouseMode mapNavMouseMode;
-    private DragMouseMode dragMouseMode;
+    private CoastalOutlineLayer coastalOutlineLayer;    
     private RouteLayer routeLayer;
     private VoyageLayer voyageLayer;
-    private EpdMsiLayer msiLayer;
+    private MsiLayer msiLayer;
     private NogoLayer nogoLayer;
     private DynamicNogoLayer dynamicNogoLayer;
+    private IntendedRouteLayerCommon intendedRouteLayer;
+    private NewRouteContainerLayer newRouteContainerLayer;
+    
     private TopPanel topPanel;
     private RouteEditMouseMode routeEditMouseMode;
     private RouteEditLayer routeEditLayer;
-    private NewRouteContainerLayer newRouteContainerLayer;
     public int maxScale = 5000;
     private MSIFilterMouseMode msiFilterMouseMode;
 
@@ -105,8 +110,6 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
     private NogoDialog nogoDialog;
     private RulerLayer rulerLayer;
     
-    private IntendedRouteLayer intendedRouteLayer;
-
     public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel) {
         super();
         // Set map handler
@@ -222,7 +225,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         mapHandler.add(routeEditLayer);
 
         // Create MSI layer
-        msiLayer = new EpdMsiLayer();
+        msiLayer = new MsiLayer();
         msiLayer.setVisible(true);
         mapHandler.add(msiLayer);
 
@@ -236,9 +239,7 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         mapHandler.add(dynamicNogoLayer);
 
         // Create AIS layer
-        aisLayer = new AisLayer();
-        aisLayer.setMinRedrawInterval(EPDShip.getInstance().getSettings().getAisSettings()
-                .getMinRedrawInterval() * 1000);
+        aisLayer = new AisLayer(EPDShip.getInstance().getSettings().getAisSettings().getMinRedrawInterval() * 1000);
         aisLayer.setVisible(true);
         mapHandler.add(aisLayer);
 
@@ -248,22 +249,10 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         mapHandler.add(ownShipLayer);
 
         // Create Intended Route Layer
-        this.intendedRouteLayer = new IntendedRouteLayer();
-        this.intendedRouteLayer.setVisible(true);
-        this.mapHandler.add(this.intendedRouteLayer);
+        intendedRouteLayer = new IntendedRouteLayerCommon();
+        intendedRouteLayer.setVisible(true);
+        mapHandler.add(intendedRouteLayer);
         
-        // Create a esri shape layer
-        // URL dbf = EeINS.class.getResource("/shape/urbanap020.dbf");
-        // URL shp = EeINS.class.getResource("/shape/urbanap020.shp");
-        // URL shx = EeINS.class.getResource("/shape/urbanap020.shx");
-        //
-        // DrawingAttributes da = new DrawingAttributes();
-        // da.setFillPaint(Color.blue);
-        // da.setLinePaint(Color.black);
-        //
-        // EsriLayer esriLayer = new EsriLayer("Drogden", dbf, shp, shx, da);
-        // mapHandler.add(esriLayer);
-
         // Create background layer
         String layerName = "background";
         coastalOutlineLayer = new CoastalOutlineLayer();
@@ -341,6 +330,9 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
         // Show WMS or not
         wmsVisible(EPDShip.getInstance().getSettings().getMapSettings().isWmsVisible());
 
+        // Show intended routes or not
+        setIntendedRouteLayerVisibility(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
+        
         getMap().addMouseWheelListener(this);
 
     }
@@ -388,6 +380,10 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
     public Layer getBgLayer() {
         return coastalOutlineLayer;
     }
+    
+    public HistoryListener getProjectChangeListener() {
+        return this.getHistoryListener();
+    }
 
     public void centreOnShip() {
         // Get current position
@@ -433,6 +429,16 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
     public void wmsVisible(boolean visible) {
         if (wmsLayer != null) {
             wmsLayer.setVisible(visible);
+        }
+    }
+
+    /**
+     * Sets the visibility of the intended route layer
+     * @param visible the visibility of the intended route layer
+     */
+    public void setIntendedRouteLayerVisibility(boolean visible) {
+        if (intendedRouteLayer != null) {
+            intendedRouteLayer.setVisible(visible);
         }
     }
 
@@ -737,6 +743,10 @@ public class ChartPanel extends CommonChartPanel implements IPntDataListener,
                         + "\"");
             }
         }
+    }
+    
+    public void zoomToPosition(Position pos) {
+        map.setCenter((float) pos.getLatitude(), (float) pos.getLongitude());
     }
 
     public int getMaxScale() {

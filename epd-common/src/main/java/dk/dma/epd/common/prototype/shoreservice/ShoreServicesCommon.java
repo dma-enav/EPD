@@ -363,9 +363,6 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
             return new SSPAResponse(null, e.getMessage());
         }
 
-//        System.out.println("Recieved the following:");
-//        System.out.println(xmlReturnRoute);
-
          if (showOutput) {
          new XMLDialog(xmlReturnRoute, "Returned XML");
          }
@@ -380,8 +377,8 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
         } else {
             if (xmlReturnRoute != null) {
                 if (xmlReturnRoute.length() > 300000) {
-                    System.out.println("Failed to recieve a route in the area, buffer timedout");
-                    return new SSPAResponse(null, "Failed to recieve a route in the area, buffer timedout");
+                    System.out.println("Failed to receive a route in the area, buffer timedout");
+                    return new SSPAResponse(null, "Failed to receive a route in the area, buffer timedout");
                 }
 
                 xmlReturnRoute = xmlReturnRoute

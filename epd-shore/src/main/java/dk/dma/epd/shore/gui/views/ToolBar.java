@@ -39,7 +39,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
@@ -80,8 +81,6 @@ public class ToolBar extends JInternalFrame {
     private final ToolItemGroup routeToolItems;
     private MainFrame mainFrame;
     private final ToolItemGroup mapToolItems;
-
-    // private MouseDelegator mouseDelegator;
 
     /**
      * Constructor for setting up the toolbar
@@ -142,6 +141,7 @@ public class ToolBar extends JInternalFrame {
                 mainFrame.setMouseMode(2);
             }
         });
+        select.setToolTipText("Select mouse mode");
         mapToolItems.addToolItem(select);
 
         // Tool: Drag
@@ -157,6 +157,7 @@ public class ToolBar extends JInternalFrame {
                 mainFrame.setMouseMode(1);
             }
         });
+        drag.setToolTipText("Drag mouse mode");
         mapToolItems.addToolItem(drag);
 
         // Tool: Zoom
@@ -172,6 +173,7 @@ public class ToolBar extends JInternalFrame {
                 mainFrame.setMouseMode(0);
             }
         });
+        zoom.setToolTipText("Zoom mouse mode");
         mapToolItems.addToolItem(zoom);
 
         // Set that the map tools only can have 1 active tool item at a time
@@ -209,7 +211,7 @@ public class ToolBar extends JInternalFrame {
                 }
             }
         });
-
+        wms.setToolTipText("Show/hide WMS seacharts");
         layerToolItems.addToolItem(wms);
         if (EPDShore.getInstance().getSettings().getGuiSettings().useWMS()) {
             setActiveToolItem(wms, layerToolItems);
@@ -239,7 +241,66 @@ public class ToolBar extends JInternalFrame {
                 }
             }
         });
+        msi.setToolTipText("Show/hide maritime safety information");
         layerToolItems.addToolItem(msi);
+        
+        // Button which will toggle vessel names on or off.
+        final JLabel aisToggle = new JLabel(toolbarIcon("images/toolbar/edit-letter-spacing.png"));
+        aisToggle.addMouseListener(new MouseAdapter() {
+            
+            // Initialize with ship visibility.
+            private boolean isPressed = EPDShore.getInstance().getSettings().getAisSettings().isShowNameLabels();
+            
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // If names are show -
+                if (isPressed) {
+                    // Set button to off.
+                    setInactiveToolItem(aisToggle);
+                    // Name labels should not be seen.
+                    isPressed = false;
+                    // Update visibility of the vessel names.
+                    toggleVesselNames(isPressed);
+                    
+                // If names are not shown.
+                } else if (!isPressed) {
+                    // set button to on.
+                    setActiveToolItem(aisToggle, layerToolItems);
+                    // Name labels should now be seen.
+                    isPressed = true;
+                    // Update visibility of the vessel names.
+                    toggleVesselNames(isPressed);
+                }
+            }
+
+            /**
+             * Updates the visibility of vessel names.
+             * @param showLabels
+             *          Sets visibility of vessel names to
+             *          the passed value. 
+             */
+            private void toggleVesselNames(boolean showLabels) {
+                // For each JMapFrame which is used in the mainFrame.
+                for (JMapFrame map : EPDShore.getInstance().getMainFrame().getMapWindows()) {
+                    // Update the ship names.
+                    map.getChartPanel().getAisLayer().setShowNameLabels(showLabels);
+                    // Updates the right click menu option to set visibility of vessel names.
+                    map.getMapMenu().getAisNames().setNamesShouldBeVisible(showLabels);
+                }
+                
+                // Update the settings file.
+                EPDShore.getInstance().getSettings().getAisSettings().setShowNameLabels(showLabels);
+            }
+        });
+        
+        if (EPDShore.getInstance().getSettings().getAisSettings().isShowNameLabels()) {
+            setActiveToolItem(aisToggle, layerToolItems);            
+        }
+        aisToggle.setToolTipText("Show/hide AIS names");
+        layerToolItems.addToolItem(aisToggle);
 
         try {
 
@@ -259,8 +320,6 @@ public class ToolBar extends JInternalFrame {
                                     mainFrame.getMapWindows().get(i)
                                             .getChartPanel().getEncLayer()
                                             .setVisible(false);
-                                    // mainFrame.getMapWindows().get(i).getChartPanel()
-                                    // .getBgLayer().setVisible(true);
                                 }
                                 setInactiveToolItem(enc);
 
@@ -281,6 +340,7 @@ public class ToolBar extends JInternalFrame {
                         }
                     }
                 });
+                enc.setToolTipText("Show/hide ENC");
 
                 // is visible vs. is active
                 // disable bg or wms or enc?
@@ -293,9 +353,34 @@ public class ToolBar extends JInternalFrame {
                 enc.setEnabled(false);
             }
         } catch (Exception e) {
-            // TODO: handle exception
             System.out.println("failed to load enc dongle");
         }
+        
+        // Tool: MSI layer
+        final JLabel intendedRoutes = new JLabel(
+                toolbarIcon("images/toolbar/direction.png"));
+        intendedRoutes.setName("intended routes");
+        intendedRoutes.addMouseListener(new MouseAdapter() {
+            public void mouseReleased(MouseEvent e) {
+                boolean intendedRoutesVisible = EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute();
+                EPD.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(!intendedRoutesVisible);
+                for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
+                    mainFrame.getMapWindows().get(i).getChartPanel()
+                            .setIntendedRouteLayerVisibility(!intendedRoutesVisible);
+                }
+                if (intendedRoutesVisible) {
+                    setInactiveToolItem(intendedRoutes);
+                } else {
+                    setActiveToolItem(intendedRoutes, layerToolItems);
+                }
+            }
+        });
+        intendedRoutes.setToolTipText("Show/hide intended routes");
+        layerToolItems.addToolItem(intendedRoutes);
+        if (EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute()) {
+            setActiveToolItem(intendedRoutes, layerToolItems);
+        }
+        
 
         // Set that the layer tools can have more than 1 active tool item at a
         // time
@@ -324,6 +409,7 @@ public class ToolBar extends JInternalFrame {
                         !mainFrame.getRouteManagerDialog().isVisible());
             }
         });
+        routes.setToolTipText("Routes Manager");
         routeToolItems.addToolItem(routes);
 
         // Tool: New route
@@ -342,7 +428,7 @@ public class ToolBar extends JInternalFrame {
                 newRoute();
             }
         });
-
+        newRoute.setToolTipText("Add route");
         routeToolItems.addToolItem(newRoute);
 
         // Set that the layer tools can have more than 1 active tool item at a
@@ -503,8 +589,7 @@ public class ToolBar extends JInternalFrame {
      */
     public ImageIcon toolbarIcon(String imgpath) {
 
-        ImageIcon icon = new ImageIcon(EPDShore.class.getClassLoader()
-                .getResource(imgpath));
+        ImageIcon icon = EPDShore.res().getCachedImageIcon(imgpath);
         Image img = icon.getImage();
         Image newimg = img.getScaledInstance(iconWidth, iconHeight,
                 java.awt.Image.SCALE_DEFAULT);

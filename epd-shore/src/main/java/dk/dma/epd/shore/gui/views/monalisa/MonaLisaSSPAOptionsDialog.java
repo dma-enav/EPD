@@ -38,10 +38,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.NumberFormatter;
 
+import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.monalisa.MonaLisaSSPAWPSelection;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 
@@ -68,7 +68,7 @@ public class MonaLisaSSPAOptionsDialog extends
     private List<Boolean> selectedWp;
 
     ChartPanel chartPanel;
-    AisHandler aisHandler;
+    AisHandlerCommon aisHandler;
     JCheckBox intermediateETACheckBox;
 
     VoyageHandlingLayer voyageHandlingLayer;
@@ -79,7 +79,7 @@ public class MonaLisaSSPAOptionsDialog extends
     private JLabel routeNameTxt;
 
     public MonaLisaSSPAOptionsDialog(Route route,
-            VoyageHandlingLayer voyageHandlingLayer, AisHandler aisHandler,
+            VoyageHandlingLayer voyageHandlingLayer, AisHandlerCommon aisHandler,
             long mmsi) {
 
         super(EPDShore.getInstance().getMainFrame(), "Request Mona Lisa Route Exchange", true);

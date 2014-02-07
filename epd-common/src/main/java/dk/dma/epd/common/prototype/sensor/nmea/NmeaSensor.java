@@ -82,6 +82,10 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
     private Date replayTime = new Date(0);
     @GuardedBy("this")
     private int replaySpeedup = 1;
+    @GuardedBy("this")
+    private boolean stopped;
+    @GuardedBy("this")
+    private boolean terminated;
 
     private final AisPacketParser packetReader = new AisPacketParser();
 
@@ -104,7 +108,7 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         String line;
 
-        while ((line = reader.readLine()) != null) {
+        while (!isStopped() && (line = reader.readLine()) != null) {
             handleLine(line);
         }
     }
@@ -485,4 +489,37 @@ public abstract class NmeaSensor extends MapHandlerChild implements Runnable {
         this.replayStartDate = replayStartDate;
     }
 
+    /**
+     * Returns if {@linkplain #stop()} has been called to request that the sensor stops.<br>
+     * The sensor will not have completed until {@linkplain #hasTerminated()} returns true
+     * 
+     * @return if {@linkplain #stop()} has been called to request that the sensor stops
+     */
+    public synchronized boolean isStopped() {
+        return stopped;
+    }
+    
+    /**
+     * Call this method to stop the sensor.<br>
+     * The sensor will not have completed until {@linkplain #hasTerminated()} returns true
+     */
+    public synchronized void stop() {
+        this.stopped = true;
+    }
+
+    /**
+     * Returns if the sensor has terminated
+     * 
+     * @return if the sensor has terminated
+     */
+    public synchronized boolean hasTerminated() {
+        return terminated;
+    }
+    
+    /**
+     * Used internally to flag that the sensor has terminated
+     */
+    protected void flagTerminated() {
+        this.terminated = true;
+    }
 }

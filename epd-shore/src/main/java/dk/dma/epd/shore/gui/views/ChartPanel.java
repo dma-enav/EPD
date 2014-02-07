@@ -38,9 +38,11 @@ import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
-import dk.dma.epd.common.prototype.layers.routeEdit.NewRouteContainerLayer;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
+import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
@@ -54,10 +56,10 @@ import dk.dma.epd.shore.layers.GeneralLayer;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
 import dk.dma.epd.shore.layers.route.RouteLayer;
-import dk.dma.epd.shore.layers.routeEdit.RouteEditLayer;
+import dk.dma.epd.shore.layers.routeedit.RouteEditLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
-import dk.dma.epd.shore.service.StrategicRouteExchangeHandler;
+import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.settings.EPDMapSettings;
 import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
 
@@ -74,7 +76,7 @@ public class ChartPanel extends CommonChartPanel {
     private MsiHandler msiHandler;
 
     private GeneralLayer generalLayer;
-    private StrategicRouteExchangeHandler monaLisaHandler;
+    private StrategicRouteHandler strategicRouteHandler;
 
     private NavigationMouseMode mapNavMouseMode;
     private DragMouseMode dragMouseMode;
@@ -90,6 +92,7 @@ public class ChartPanel extends CommonChartPanel {
     private RouteEditLayer routeEditLayer;
     private NewRouteContainerLayer newRouteContainerLayer;
     private VoyageHandlingLayer voyageHandlingLayer;
+    private IntendedRouteLayerCommon intendedRouteLayer;
 
     private MainFrame mainFrame;
     private Color background = new Color(168, 228, 255);
@@ -119,6 +122,7 @@ public class ChartPanel extends CommonChartPanel {
         // Add the aishandler to this bean
         mapHandler.add(EPDShore.getInstance().getAisHandler());
         mapHandler.add(EPDShore.getInstance().getShoreServices());
+        mapHandler.add(EPDShore.getInstance().getIntendedRouteHandler());
         mapHandler.add(this);
         mapHandler.add(mainFrame);
         mapHandler.add(mainFrame.getStatusArea());
@@ -204,6 +208,17 @@ public class ChartPanel extends CommonChartPanel {
         }
     }
 
+    /**
+     * Sets the visibility of the intended route layer
+     * @param visible the visibility of the intended route layer
+     */
+    public void setIntendedRouteLayerVisibility(boolean visible) {
+        if (intendedRouteLayer != null) {
+            intendedRouteLayer.setVisible(visible);
+        }
+    }
+
+    
     @Override
     public void findAndInit(Object obj) {
 
@@ -219,7 +234,7 @@ public class ChartPanel extends CommonChartPanel {
     }
 
     public void forceAisLayerUpdate() {
-        aisLayer.getAisThread().interrupt();
+        this.aisLayer.forceLayerUpdate();
     }
 
 
@@ -371,32 +386,6 @@ public class ChartPanel extends CommonChartPanel {
 
         map = new BufferedLayerMapBean();
 
-        // LLXY llxyProjection = new LLXY((LatLonPoint) center, scale, 100,
-        // 100);
-        //
-        // map.setProjection(llxyProjection);
-
-        // Projection projx =
-        // ProjectionFactory.loadDefaultProjections().makeProjection("com.bbn.openmap.proj.LLXY",
-        // map.getProjection());
-        // Projection projx =
-        // ProjectionFactory.loadDefaultProjections().makeProjection(null,
-        // center, scale, 100, 100, null);
-        // System.out.println("map projection set");
-        // LLXY test = new LLXY(null, alignmentX, maxScale, maxScale);
-
-        // map.setProjection(test);
-
-        // Projection newProx = map.getProjection().makeClone();
-        //
-        // Projection newProj =
-        // ProjectionFactory.loadDefaultProjections().makeProjection("com.bbn.openmap.proj.LLXY",
-        // newProx);
-
-        // map.setDoubleBuffered(true);
-
-        // System.out.println(map.getBackground());
-
         mouseDelegator = new MouseDelegator();
         mapHandler.add(mouseDelegator);
 
@@ -452,7 +441,7 @@ public class ChartPanel extends CommonChartPanel {
         routeLayer.setVisible(true);
         mapHandler.add(routeLayer);
 
-        if (type == MapFrameType.monaLisa) {
+        if (type == MapFrameType.suggestedRoute) {
 
             // Add Voyage Layer
             voyageLayer = new VoyageLayer(true);
@@ -473,7 +462,7 @@ public class ChartPanel extends CommonChartPanel {
         }
 
         // Add AIS Layer
-        aisLayer = new AisLayer();
+        aisLayer = new AisLayer(EPD.getInstance().getSettings().getAisSettings().getMinRedrawInterval() * 1000);
         aisLayer.setVisible(true);
         mapHandler.add(aisLayer);
 
@@ -489,9 +478,14 @@ public class ChartPanel extends CommonChartPanel {
         msiHandler = EPDShore.getInstance().getMsiHandler();
         mapHandler.add(msiHandler);
 
-        monaLisaHandler = EPDShore.getInstance().getMonaLisaHandler();
-        mapHandler.add(monaLisaHandler);
+        strategicRouteHandler = EPDShore.getInstance().getStrategicRouteHandler();
+        mapHandler.add(strategicRouteHandler);
 
+        // Create Intended Route Layer
+        intendedRouteLayer = new IntendedRouteLayerCommon();
+        intendedRouteLayer.setVisible(EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
+        mapHandler.add(intendedRouteLayer);
+        
         // Create background layer
         String layerName = "background";
         bgLayer = new MultiShapeLayer();

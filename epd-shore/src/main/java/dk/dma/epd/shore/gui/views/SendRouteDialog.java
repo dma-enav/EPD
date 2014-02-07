@@ -33,7 +33,6 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -47,14 +46,14 @@ import javax.swing.border.TitledBorder;
 
 import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.gui.ComponentFrame;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
-import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.route.RouteManager;
-import dk.dma.epd.shore.service.EnavServiceHandler;
+import dk.dma.epd.shore.service.RouteSuggestionHandler;
 
 public class SendRouteDialog extends ComponentFrame implements MouseListener,
         ActionListener {
@@ -92,7 +91,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
     private long mmsi = -1;
     private boolean loading;
 
-    private EnavServiceHandler enavServiceHandler;
+    private RouteSuggestionHandler routeSuggestionHandler;
 
     /**
      * Create the frame.
@@ -149,8 +148,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         mapToolsPanel.setOpaque(false);
         mapToolsPanel.setPreferredSize(new Dimension(60, 50));
 
-        JLabel close = new JLabel(new ImageIcon(EPDShore.class.getClassLoader()
-                .getResource("images/window/close.png")));
+        JLabel close = new JLabel(EPDShore.res().getCachedImageIcon("images/window/close.png"));
         close.addMouseListener(new MouseAdapter() {
 
             public void mouseReleased(MouseEvent e) {
@@ -261,8 +259,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         // zoomToBtn.setBounds(10, 80, 89, 23);
         // routePanel.add(zoomToBtn);
 
-        zoomLbl = new JLabel("Zoom To", new ImageIcon(EPDShore.class
-                .getClassLoader().getResource("images/buttons/zoom.png")),
+        zoomLbl = new JLabel("Zoom To", EPDShore.res().getCachedImageIcon("images/buttons/zoom.png"),
                 SwingConstants.CENTER);
         GuiStyler.styleButton(zoomLbl);
         zoomLbl.setBounds(10, 80, 75, 20);
@@ -330,8 +327,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         mainPanel.add(sendPanel);
         sendPanel.setLayout(null);
 
-        sendLbl = new JLabel("SEND", new ImageIcon(EPDShore.class
-                .getClassLoader().getResource("images/buttons/ok.png")),
+        sendLbl = new JLabel("SEND", EPDShore.res().getCachedImageIcon("images/buttons/ok.png"),
                 SwingConstants.CENTER);
         sendLbl.setBounds(10, 61, 75, 20);
         GuiStyler.styleButton(sendLbl);
@@ -351,8 +347,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         // cancelBtn.setBounds(145, 61, 89, 23);
         // sendPanel.add(cancelBtn);
 
-        cancelLbl = new JLabel("CANCEL", new ImageIcon(EPDShore.class
-                .getClassLoader().getResource("images/buttons/cancel.png")),
+        cancelLbl = new JLabel("CANCEL", EPDShore.res().getCachedImageIcon("images/buttons/cancel.png"),
                 SwingConstants.CENTER);
         GuiStyler.styleButton(cancelLbl);
         cancelLbl.setBounds(160, 61, 75, 20);
@@ -370,26 +365,18 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
 
     @Override
     public void mouseClicked(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseEntered(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseExited(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mousePressed(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -426,7 +413,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
             }
 
             try {
-                enavServiceHandler.sendRouteSuggestion(mmsi,
+                routeSuggestionHandler.sendRouteSuggestion(mmsi,
                         route.getFullRouteData(), senderTxtField.getText(),
                         messageTxtField.getText());
                 messageTxtField.setText("");
@@ -472,8 +459,8 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         // Remove duplicates
         List<String> mmsi = new ArrayList<String>();
 
-        for (int i = 0; i < enavServiceHandler.getRouteSuggestionList().size(); i++) {
-            mmsi.add(enavServiceHandler.getRouteSuggestionList().get(i).getId()
+        for (int i = 0; i < routeSuggestionHandler.getRouteSuggestionServiceList().size(); i++) {
+            mmsi.add(routeSuggestionHandler.getRouteSuggestionServiceList().get(i).getId()
                     .toString().split("//")[1]);
         }
 
@@ -482,7 +469,7 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
         mmsi.clear();
         mmsi.addAll(hs);
 
-        if (enavServiceHandler.getRouteSuggestionList().size() > 0) {
+        if (routeSuggestionHandler.getRouteSuggestionServiceList().size() > 0) {
             mmsiListComboBox.setEnabled(true);
             for (int i = 0; i < mmsi.size(); i++) {
                 mmsiListComboBox.addItem(mmsi.get(i));
@@ -530,8 +517,8 @@ public class SendRouteDialog extends ComponentFrame implements MouseListener,
             routeManager = (RouteManager) obj;
         }
 
-        if (obj instanceof EnavServiceHandler) {
-            enavServiceHandler = (EnavServiceHandler) obj;
+        if (obj instanceof RouteSuggestionHandler) {
+            routeSuggestionHandler = (RouteSuggestionHandler) obj;
         }
 
     }

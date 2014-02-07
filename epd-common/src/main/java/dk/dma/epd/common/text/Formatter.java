@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.ais.AisAdressedRouteSuggestion.Status;
 
 /**
  * Utility class for doing different formatting
@@ -33,23 +32,6 @@ public class Formatter {
     private static SimpleDateFormat shortDateTimeNoS = new SimpleDateFormat("MM/dd HH:mm");
     //private static final TimeZone tzGMT = TimeZone.getTimeZone("GMT+0000");
 
-    
-    public static String formatRouteSuggestionStatus(Status status) {
-        switch (status) {
-        case PENDING:
-            return "Pending";
-        case ACCEPTED:
-            return "Accepted";
-        case REJECTED:
-            return "Rejected";
-        case NOTED:
-            return "Noted";
-        case IGNORED:
-            return "Ignored";
-        default:
-            return "Unknown";
-        }
-    }
     
     public static String formatShortDateTime(Date date) {
         if (date == null) {

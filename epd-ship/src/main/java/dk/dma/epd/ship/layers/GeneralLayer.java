@@ -17,43 +17,21 @@ package dk.dma.epd.ship.layers;
 
 import java.awt.event.MouseEvent;
 
-import com.bbn.openmap.MapBean;
-
-import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.layers.GeneralLayerCommon;
-import dk.dma.epd.ship.event.DragMouseMode;
-import dk.dma.epd.ship.event.NavigationMouseMode;
+import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.MapMenu;
 
 /**
- * General layer that may be sub-classed by other layers.
- * <p>
- * Contains default functionality for handling mouse right click
+ * General layer for EPDShip that may be sub-classed by other layers.
  */
-public class GeneralLayer extends GeneralLayerCommon {
+public class GeneralLayer extends EPDLayerCommon {
 
     private static final long serialVersionUID = 1L;
-
-    protected MapMenu mapMenu;
-    protected MapBean mapBean;
-    protected MainFrame mainFrame;
-
-    /**
-     * Returns the mouse mode service list
-     * @return the mouse mode service list
-     */
-    @Override
-    public String[] getMouseModeServiceList() {
-        String[] ret = new String[2];
-        ret[0] = NavigationMouseMode.MODE_ID; // "Gestures"
-        ret[1] = DragMouseMode.MODE_ID;
-        return ret;
-    }
 
     /**
      * Provides default behavior for right-clicks by
      * showing the general menu.
+     * 
      * @param evt the mouse event
      */
     @Override
@@ -62,14 +40,11 @@ public class GeneralLayer extends GeneralLayerCommon {
             mapMenu.generalMenu(true);
             mapMenu.setVisible(true);
 
-            if (EPD.getInstance().getMainFrame().getHeight() < evt.getYOnScreen()
-                    + mapMenu.getHeight()) {
-                mapMenu.show(this, evt.getX() - 2,
-                        evt.getY() - mapMenu.getHeight());
+            if (mainFrame.getHeight() < evt.getYOnScreen() + mapMenu.getHeight()) {
+                mapMenu.show(this, evt.getX() - 2, evt.getY() - mapMenu.getHeight());
             } else {
                 mapMenu.show(this, evt.getX() - 2, evt.getY() - 2);
             }
-
             return true;
         }
 
@@ -77,32 +52,20 @@ public class GeneralLayer extends GeneralLayerCommon {
     }
 
     /**
-     * Called when a bean is added to the bean context
-     * @param obj the bean being added
+     * Returns a reference to the main frame
+     * @return a reference to the main frame
      */
     @Override
-    public void findAndInit(Object obj) {
-        if (obj instanceof MapMenu) {
-            mapMenu = (MapMenu) obj;
-        } else if (obj instanceof MapBean) {
-            mapBean = (MapBean) obj;
-        } else if (obj instanceof MainFrame) {
-            mainFrame = (MainFrame) obj;
-        }
-    }
+    public MainFrame getMainFrame() {
+        return (MainFrame)mainFrame;
+    }   
 
     /**
-     * Called when a bean is removed from the bean context
-     * @param obj the bean being removed
+     * Returns a reference to the map menu
+     * @return a reference to the map menu
      */
     @Override
-    public void findAndUndo(Object obj) {
-        if (obj == mapMenu) {
-            mapMenu = null;
-        } else if (obj == mapBean) {
-            mapBean = null;
-        } else if (obj == mainFrame) {
-            mainFrame = null;
-        }
-    }
+    public MapMenu getMapMenu() {
+        return (MapMenu)mapMenu;
+    }   
 }

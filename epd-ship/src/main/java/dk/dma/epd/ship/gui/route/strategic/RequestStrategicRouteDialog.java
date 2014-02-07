@@ -41,7 +41,8 @@ import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.layers.route.RouteLayer;
-import dk.dma.epd.ship.route.strategic.StrategicRouteExchangeHandler;
+import dk.dma.epd.ship.service.StrategicRouteHandler;
+import dk.dma.epd.ship.service.StrategicRouteNegotiationData;
 
 public class RequestStrategicRouteDialog extends JDialog implements ActionListener {
 
@@ -70,7 +71,7 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
 
     private JTextArea routeMessage;
     // private EnavServiceHandler enavServiceHandler;
-    private StrategicRouteExchangeHandler strategicRouteExchangeHandler;
+    private StrategicRouteHandler strategicRouteHandler;
     RouteLayer routeLayer;
 
     private boolean isActive;
@@ -82,7 +83,6 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
     JPanel routeNotAcceptedPanel;
 
     private Route latestReceivedRoute;
-//    private MonaLisaRouteRequestReply reply;
 
     long transactionID;
 
@@ -112,10 +112,7 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
 
         setResizable(false);
 
-        strategicRouteExchangeHandler = EPDShip.getInstance().getStrategicRouteExchangeHandler();
-
-        // enavServiceHandler = EPDShip.getEnavServiceHandler();
-        // enavServiceHandler.setMonaLisaSTCCDialog(this);
+        strategicRouteHandler = EPDShip.getInstance().getStrategicRouteHandler();
 
         initGui();
 
@@ -375,13 +372,13 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
             // Cancel request
             if (isActive) {
                 setInActive();
-                strategicRouteExchangeHandler.cancelRouteRequest(transactionID);
+                strategicRouteHandler.cancelRouteRequest(transactionID);
                 this.setVisible(false);
             } else {
                 // Is not active and button pressed - when can this happen?
                 // its being acked?
                 setInActive();
-                strategicRouteExchangeHandler.sendAgreeMsg(transactionID,
+                strategicRouteHandler.sendAgreeMsg(transactionID,
                         chatMessages.getText());
                 this.setVisible(false);
 
@@ -393,16 +390,15 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
         if (e.getSource() == btnAccept) {
 
             System.out.println("btn accept");
-            // Accept or send modified clicked, let monalisahandler figure it
-            // out
-            strategicRouteExchangeHandler.sendReply(chatMessages.getText());
+
+            strategicRouteHandler.sendReply(chatMessages.getText());
             // this.setVisible(false);
             btnAccept.setText("Accept");
         }
         if (e.getSource() == btnReject) {
 
             // Send reject message
-            strategicRouteExchangeHandler.sendReject(chatMessages.getText());
+            strategicRouteHandler.sendReject(chatMessages.getText());
             this.setVisible(false);
 
         }
@@ -433,28 +429,14 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
 
     private String findChanges() {
 
-        Route originalRoute = new Route(strategicRouteExchangeHandler
-                .getMonaLisaNegotiationData()
-                .get(transactionID)
+        StrategicRouteNegotiationData data = strategicRouteHandler
+                .getStrategicRouteNegotiationData(transactionID);
+        
+        Route originalRoute = new Route(data
                 .getRouteMessage()
-                .get(strategicRouteExchangeHandler.getMonaLisaNegotiationData()
-                        .get(transactionID).getRouteMessage().size() - 1)
+                .get(data.getRouteMessage().size() - 1)
                 .getRoute());
-        // transactionID
-        // System.out.println("The original route is comparable from : "
-        // + monaLisaHandler.getMonaLisaNegotiationData()
-        // .get(transactionID).getRouteMessage().size());
-        //
-        // System.out.println("Comparing ETAS");
-        //
-        // for (int i = 0; i < originalRoute.getEtas().size(); i++) {
-        // System.out.println("Original ETA for " + i + " is: "
-        // + originalRoute.getEtas().get(i)
-        // + " vs Receieved Route ETA: "
-        // + latestReceivedRoute.getEtas().get(i));
-        // }
 
-        // String
         String changes = "";
 
         if (originalRoute.getWaypoints().size() == latestReceivedRoute

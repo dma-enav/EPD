@@ -19,7 +19,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.net.URL;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -57,15 +56,7 @@ public class LockLabel extends ButtonLabelCommon {
 
     // Needs fixing
     public ImageIcon toolbarIcon(String imgpath) {
-        URL url = EPD.class.getClassLoader().getResource(imgpath);
-        ImageIcon icon = new ImageIcon(url);
-
-        // Image img = icon.getImage();
-        // Image newimg = img.getScaledInstance(17, 20,
-        // java.awt.Image.SCALE_DEFAULT);
-        // ImageIcon newImage = new ImageIcon(newimg);
-        // return newImage;
-        return icon;
+        return EPD.res().getCachedImageIcon(imgpath);
     }
 
     public void unlockButton(){

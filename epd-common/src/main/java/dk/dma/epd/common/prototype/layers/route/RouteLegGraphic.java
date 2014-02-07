@@ -39,13 +39,13 @@ public class RouteLegGraphic extends OMGraphicList {
 
     protected RouteLeg routeLeg;
     private OMLine line;
-    private OMArrowHead arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, 5, 15);
+    private OMArrowHead arrow;
     protected Color color;
 
     private OMLine animationLine;
     private OMLine broadLine;
 
-    float[] dash = { 35.0f, 35.0f };
+    float[] dash;
     private int routeIndex;
 
     float dashPhase = 5000;
@@ -62,12 +62,14 @@ public class RouteLegGraphic extends OMGraphicList {
      * @param stroke
      *            Stroke type of the route leg
      */
-    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke) {
+    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, float scale) {
         super();
         this.routeIndex = routeIndex;
         this.routeLeg = routeLeg;
         this.color = color;
         this.stroke = stroke;
+        dash = new float[]{ scale*35.0f, scale*35.0f };
+        arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, (int) (scale*5.0), (int) (scale*15.0));
         this.setVague(true);
         initGraphics();
     }
@@ -85,26 +87,30 @@ public class RouteLegGraphic extends OMGraphicList {
      *            Stroke type of the route leg
      */
     public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor,
-            float[] broadLineDash) {
+            float[] broadLineDash, float scale) {
         super();
         this.routeIndex = routeIndex;
         this.routeLeg = routeLeg;
         this.color = color;
         this.stroke = stroke;
         this.setVague(true);
+        dash = new float[]{ scale*35.0f, scale*35.0f };
+        arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, (int) (scale*5.0), (int) (scale*15.0));
         initGraphics();
         addBroadLine(broadLineColor, broadLineDash);
     }
 
-    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor) {
+    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor,  float scale) {
         super();
         this.routeIndex = routeIndex;
         this.routeLeg = routeLeg;
         this.color = color;
         this.stroke = stroke;
+        dash = new float[]{ scale*35.0f, scale*35.0f };
+        arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, (int) (scale*5.0), (int) (scale*15.0));
         this.setVague(true);
         initGraphics();
-        addBroadLine(broadLineColor, new float[] { 40.0f, 15.0f });
+        addBroadLine(broadLineColor, new float[] { scale*40.0f, scale * 15.0f });
     }
 
     private void addBroadLine(Color color, float[] broadLineDash) {

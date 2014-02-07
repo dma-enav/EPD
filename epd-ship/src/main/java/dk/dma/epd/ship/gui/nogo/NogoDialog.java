@@ -27,7 +27,6 @@ import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -40,7 +39,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.text.NumberFormatter;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.text.Formatter;
@@ -199,12 +197,22 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
         lblNewLabel.setBounds(12, 26, 139, 16);
         panel_2.add(lblNewLabel);
 
-        spinnerDraught = new JSpinner();
-        spinnerDraught.setModel(new SpinnerNumberModel(new Integer(5), new Integer(0), null, new Integer(1)));
+        
+        
+        SpinnerNumberModel m_numberSpinnerModel;
+        Double current = new Double(5.50);
+        Double min = new Double(0.00);
+        Double max = new Double(1000.00);
+        Double step = new Double(0.50);
+        m_numberSpinnerModel = new SpinnerNumberModel(current, min, max, step);
+        
+        
+        spinnerDraught = new JSpinner(m_numberSpinnerModel);
+//        spinnerDraught.setModel(new SpinnerNumberModel(5.0, 0.0, 1000.0, 1.0));
         spinnerDraught.setBounds(151, 24, 38, 20);
 
-        JFormattedTextField txt = ((JSpinner.NumberEditor) spinnerDraught.getEditor()).getTextField();
-        ((NumberFormatter) txt.getFormatter()).setAllowsInvalid(false);
+//        JFormattedTextField txt = ((JSpinner.NumberEditor) spinnerDraught.getEditor()).getTextField();
+//        ((NumberFormatter) txt.getFormatter()).setAllowsInvalid(false);
 
         panel_2.add(spinnerDraught);
         {
@@ -226,7 +234,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
         }
 
         if (ownShipHandler != null && ownShipHandler.getStaticData() != null) {
-            Integer draught = (int)(ownShipHandler.getStaticData().getDraught() / 10);
+            double draught = (double)(ownShipHandler.getStaticData().getDraught() / 10);
             spinnerDraught.setValue(draught);
         }
 
@@ -276,7 +284,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
                     this.setVisible(false);
                     nogoHandler.setNorthWestPoint(northWestPoint);
                     nogoHandler.setSouthEastPoint(southEastPoint);
-                    double draught = ((Integer) spinnerDraught.getValue()).doubleValue();
+                    double draught = ((Double) spinnerDraught.getValue()).doubleValue();
                     nogoHandler.setDraught(draught);
                     nogoHandler.setValidFrom((Date) spinnerTimeStart.getValue());
                     nogoHandler.setValidTo((Date) spinnerTimeEnd.getValue());

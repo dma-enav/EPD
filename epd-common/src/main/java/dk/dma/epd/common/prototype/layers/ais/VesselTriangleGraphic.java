@@ -20,23 +20,24 @@ import java.awt.Font;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMText;
-import com.bbn.openmap.proj.Projection;
 
 import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
+import dk.dma.epd.common.prototype.layers.CircleSelectionGraphic;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
 
 /**
  * @author Janus Varmarken
  */
-public class VesselTriangleGraphic extends TargetGraphic {
+public class VesselTriangleGraphic extends TargetGraphic implements ISelectableGraphic {
 
     private static final long serialVersionUID = 1L;
 
@@ -55,6 +56,11 @@ public class VesselTriangleGraphic extends TargetGraphic {
     private SpeedVectorGraphic speedVector;
     
     /**
+     * Manages visualization of selection of this graphic.
+     */
+    private CircleSelectionGraphic circleSelectionGraphic;
+    
+    /**
      * The layer that displays this graphic object.
      * If this graphic is a subgraphic of another graphic,
      * use the top level graphic's parent layer.
@@ -71,17 +77,19 @@ public class VesselTriangleGraphic extends TargetGraphic {
 
         int[] headingX = { 0, 0 };
         int[] headingY = { 0, -100 };
-        heading = new RotationalPoly(headingX, headingY, null, ColorConstants.EPD_SHIP_VESSEL_COLOR);
+        heading = new RotationalPoly(headingX, headingY, null, ColorConstants.VESSEL_HEADING_COLOR);
 
         font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
         label = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);
 
-        this.speedVector = new SpeedVectorGraphic(ColorConstants.EPD_SHIP_VESSEL_COLOR);
+        this.speedVector = new SpeedVectorGraphic(ColorConstants.VESSEL_HEADING_COLOR);
         
         add(label);
         add(0, vessel);
         this.add(this.speedVector);
         add(heading);
+        // create the selection graphic
+        this.circleSelectionGraphic = new CircleSelectionGraphic(this);
     }
 
     @Override
@@ -116,7 +124,9 @@ public class VesselTriangleGraphic extends TargetGraphic {
             }
             
             // update the speed vector with the new data
-            this.speedVector.update(posData, this.parentLayer.getProjection().getScale());
+            if (this.parentLayer != null && this.parentLayer.getProjection() != null) {
+                this.speedVector.update(posData, this.parentLayer.getProjection().getScale());
+            }
             
             // Set label
             label.setLat(lat);
@@ -140,16 +150,18 @@ public class VesselTriangleGraphic extends TargetGraphic {
         }
     }
 
-    @Override
-    public void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings) {
-        // TODO 08-01-2014: consider what to do with this method as number of marks are now extracted from ScaleDependantsValues.
-    }
-
     public void setShowNameLabel(boolean showNameLabel) {
         this.showNameLabel = showNameLabel;
     }
 
     public boolean getShowNameLabel() {
         return showNameLabel;
+    }
+
+    @Override
+    public void setSelection(boolean selected) {
+        // Get the latest position data
+        Position centerPos = this.vesselTarget != null ? this.vesselTarget.getPositionData() != null ? this.vesselTarget.getPositionData().getPos() : null : null;
+        this.circleSelectionGraphic.updateSelection(selected, centerPos);
     }
 }

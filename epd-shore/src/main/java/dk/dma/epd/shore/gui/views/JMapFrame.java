@@ -17,6 +17,7 @@ package dk.dma.epd.shore.gui.views;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -26,7 +27,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
@@ -34,7 +34,6 @@ import java.beans.PropertyVetoException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
@@ -45,9 +44,11 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
 
+import dk.dma.epd.common.graphics.Resources;
+import dk.dma.epd.common.prototype.gui.ComponentFrame;
+import dk.dma.epd.common.prototype.gui.IMapFrame;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
-import dk.dma.epd.shore.gui.utils.ComponentFrame;
 
 
 
@@ -56,7 +57,7 @@ import dk.dma.epd.shore.gui.utils.ComponentFrame;
  * Class for setting up a map frame
  * @author Steffen D. Sommer (steffendsommer@gmail.com), David A. Camre (davidcamre@gmail.com)
  */
-public class JMapFrame extends ComponentFrame implements MouseListener  {
+public class JMapFrame extends ComponentFrame implements IMapFrame {
     
     private static final long serialVersionUID = 1L;
     private ChartPanel chartPanel;
@@ -65,7 +66,6 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
     MouseMotionListener[] actions;
     private int id;
     private final MainFrame mainFrame;
-    private JPanel glassPanel;
     private JLabel moveHandler;
     private JPanel mapPanel;
     private JPanel masterPanel;
@@ -78,6 +78,7 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
     public int height;
     private static int chartPanelOffset = 12;
     JInternalFrame mapFrame;
+    private JPanel glassPanel;
 
     /**
      * Constructor for setting up the map frame
@@ -90,11 +91,13 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
         this.mainFrame = mainFrame;
         this.id = id;
 
+        // Initialize the glass pane
+        initGlassPane();
+
         chartPanel = new ChartPanel(mainFrame, this);
         this.setContentPane(chartPanel);
         this.setVisible(true);
 
-        initGlassPane();
         chartPanel.initChart(type);
         initGUI();
     }
@@ -112,14 +115,44 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
 
         this.mainFrame = mainFrame;
         this.id = id;
+        
+        // Initialize the glass pane
+        initGlassPane();
+        
         chartPanel = new ChartPanel(mainFrame, this);
         this.setContentPane(chartPanel);
         this.setVisible(true);
 
-        initGlassPane();
         chartPanel.initChart(center, scale);
         initGUI();
 
+    }
+    
+    /**
+     * Function for initializing the glasspane
+     */
+    private void initGlassPane() {
+        glassPanel = (JPanel) getGlassPane();
+        glassPanel.setLayout(null);
+        glassPanel.setVisible(false);
+    }
+
+    /**
+     * Function for getting the glassPanel of the map frame
+     * @return glassPanel the glassPanel of the map frame
+     */
+    @Override
+    public JPanel getGlassPanel() {
+        return glassPanel;
+    }
+
+    /**
+     * Returns a reference to the map frame cast as a component
+     * @return a reference to the map frame cast as a component
+     */
+    @Override
+    public Component asComponent() {
+        return this;
     }
 
     /**
@@ -145,28 +178,11 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
     }
 
     /**
-     * Function for getting the glassPanel of the map frame
-     * @return glassPanel the glassPanel of the map frame
-     */
-    public JPanel getGlassPanel() {
-        return glassPanel;
-    }
-
-    /**
      * Function for getting the id of the map frame
      * @return id id of the map frame
      */
     public int getId() {
         return id;
-    }
-
-    /**
-     * Function for initializing the glasspane
-     */
-    private void initGlassPane() {
-        glassPanel = (JPanel) getGlassPane();
-        glassPanel.setLayout(null);
-        glassPanel.setVisible(false);
     }
 
     /**
@@ -207,7 +223,12 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
         moveHandler = new JLabel("New Window "+id, SwingConstants.CENTER);
         moveHandler.setFont(new Font("Arial", Font.BOLD, 9));
         moveHandler.setForeground(new Color(200, 200, 200));
-        moveHandler.addMouseListener(this);
+        moveHandler.addMouseListener(new MouseAdapter() {
+            @Override public void mouseClicked(MouseEvent arg0) {
+                if (arg0.getClickCount() == 2){
+                    rename();
+                }
+            }});
         moveHandler.addMouseListener(mml);
         moveHandler.addMouseMotionListener(mml);
         actions = moveHandler.getListeners(MouseMotionListener.class);
@@ -219,7 +240,8 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
         mapToolsPanel.setOpaque(false);
         mapToolsPanel.setPreferredSize(new Dimension(60, 50));
 
-        JLabel minimize = new JLabel(new ImageIcon(EPDShore.class.getClassLoader().getResource("images/window/minimize.png")));
+        final Resources windowRes = EPDShore.res().folder("images/window");
+        JLabel minimize = new JLabel(windowRes.getCachedImageIcon("minimize.png"));
         minimize.addMouseListener(new MouseAdapter() {
 
             public void mouseReleased(MouseEvent e) {
@@ -234,7 +256,7 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
         minimize.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 3));
         mapToolsPanel.add(minimize);
 
-        maximize = new JLabel(new ImageIcon(EPDShore.class.getClassLoader().getResource("images/window/maximize.png")));
+        maximize = new JLabel(windowRes.getCachedImageIcon("maximize.png"));
         maximize.addMouseListener(new MouseAdapter() {
 
             public void mouseReleased(MouseEvent e) {
@@ -242,11 +264,11 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
                     if(maximized) {
                         mapFrame.setMaximum(false);
                         maximized = false;
-                        maximize.setIcon(new ImageIcon(EPDShore.class.getClassLoader().getResource("images/window/maximize.png")));
+                        maximize.setIcon(windowRes.getCachedImageIcon("maximize.png"));
                     } else {
                         mapFrame.setMaximum(true);
                         maximized = true;
-                        maximize.setIcon(new ImageIcon(EPDShore.class.getClassLoader().getResource("images/window/restore.png")));
+                        maximize.setIcon(windowRes.getCachedImageIcon("restore.png"));
                     }
                 } catch (PropertyVetoException e1) {
                     e1.printStackTrace();
@@ -257,7 +279,7 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
         maximize.setBorder(BorderFactory.createEmptyBorder(0, 3, 0, 3));
         mapToolsPanel.add(maximize);
 
-        JLabel close = new JLabel(new ImageIcon(EPDShore.class.getClassLoader().getResource("images/window/close.png")));
+        JLabel close = new JLabel(windowRes.getCachedImageIcon("close.png"));
         close.addMouseListener(new MouseAdapter() {
 
             public void mouseReleased(MouseEvent e) {
@@ -287,14 +309,14 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
 
 
 //         Init the map right click menu
-        mapMenu = new MapMenu();
-        chartPanel.getMapHandler().add(mapMenu);
+        setMapMenu(new MapMenu());
+        chartPanel.getMapHandler().add(getMapMenu());
 
     }
 
     public void setMaximizedIcon(){
         maximized = true;
-        maximize.setIcon(new ImageIcon(EPDShore.class.getClassLoader().getResource("images/window/restore.png")));
+        maximize.setIcon(EPDShore.res().getCachedImageIcon("images/window/restore.png"));
     }
 
     /**
@@ -412,39 +434,6 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
     }
 
     /**
-     * Function for setting the title of the map frame when double-clicking on the title
-     */
-    @Override
-    public void mouseClicked(MouseEvent arg0) {
-        if (arg0.getClickCount() == 2){
-            rename();
-        }
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    public void mouseExited(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mousePressed(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /**
      * Function for renaming the map frame
      */
     public void rename(){
@@ -487,6 +476,14 @@ public class JMapFrame extends ComponentFrame implements MouseListener  {
     public void setTitle(String title){
         super.setTitle(title);
         moveHandler.setText(title);
+    }
+
+    public MapMenu getMapMenu() {
+        return mapMenu;
+    }
+
+    public void setMapMenu(MapMenu mapMenu) {
+        this.mapMenu = mapMenu;
     }
 
 }

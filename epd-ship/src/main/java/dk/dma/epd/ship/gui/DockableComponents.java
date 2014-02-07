@@ -79,7 +79,6 @@ public class DockableComponents {
     private DynamicNoGoComponentPanel dynamicNoGoPanel;
     private NoGoComponentPanel nogoPanel;
     private MultiSourcePntComponentPanel msPntPanel;
-//    private MonaLisaCommunicationComponentPanel monaLisaPanel;
 
     
     private boolean locked;
@@ -100,7 +99,6 @@ public class DockableComponents {
         dynamicNoGoPanel = mainFrame.getDynamicNoGoPanel();
         nogoPanel = mainFrame.getNogoPanel();
         msPntPanel = mainFrame.getMsPntComponentPanel();
-//        monaLisaPanel = mainFrame.getMonaLisaPanel();
 
         factory = new DockableFactory(chartPanel, scalePanel, ownShipPanel, gpsPanel, cursorPanel, activeWaypointPanel, msiPanel,
                 aisPanel, dynamicNoGoPanel, nogoPanel, msPntPanel);
@@ -474,7 +472,6 @@ public class DockableComponents {
         DynamicNoGoComponentPanel dynamicNoGoPanel;
         NoGoComponentPanel nogoPanel;
         MultiSourcePntComponentPanel msPntPanel;
-        //        MonaLisaCommunicationComponentPanel monaLisaPanel;
 
         public DockableFactory(ChartPanel chartPanel,
                 ScaleComponentPanel scalePanel,
@@ -501,7 +498,6 @@ public class DockableComponents {
             this.dynamicNoGoPanel = dynamicNoGoPanel;
             this.nogoPanel = nogoPanel;
             this.msPntPanel = msPntPanel;
-//            this.monaLisaPanel = monaLisaPanel;
 
         }
 
@@ -548,9 +544,6 @@ public class DockableComponents {
             if (id.equals("Resilient PNT")) {
                 return new PanelDockable(id, msPntPanel);
             }
-//            if (id.equals("Mona Lisa Communication")) {
-//                return new PanelDockable(id, monaLisaPanel);
-//            }
 
             return new PanelDockable(id, new JPanel());
 

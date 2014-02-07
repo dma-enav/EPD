@@ -71,11 +71,9 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
     protected ConcurrentHashMap<Long, SarTarget> sarTargets = new ConcurrentHashMap<>();
 
     protected CopyOnWriteArrayList<IAisTargetListener> listeners = new CopyOnWriteArrayList<>();
-    protected CopyOnWriteArrayList<IAisRouteSuggestionListener> suggestionListeners = new CopyOnWriteArrayList<>();
     
     protected AisStatus aisStatus = new AisStatus();
     protected final boolean strictAisMode;
-    protected final boolean showIntendedRouteDefault;
     protected final String sartMmsiPrefix;
     protected final Set<String> simulatedSartMmsi = new ConcurrentHashSet<>();
     protected final int pastTrackMaxTime;       // NB: In minutes
@@ -91,7 +89,6 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         sartMmsiPrefix = aisSettings.getSartPrefix();
         Collections.addAll(simulatedSartMmsi, aisSettings.getSimulatedSartMmsi());
         strictAisMode = aisSettings.isStrict();
-        showIntendedRouteDefault = aisSettings.isShowIntendedRouteByDefault();
         this.pastTrackMaxTime = aisSettings.getPastTrackMaxTime();
         this.pastTrackDisplayTime = aisSettings.getPastTrackDisplayTime();
         this.pastTrackMinDist = aisSettings.getPastTrackMinDist();
@@ -277,7 +274,6 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         // If not exists, create and insert
         if (vesselTarget == null) {
             vesselTarget = new VesselTarget();
-            vesselTarget.getSettings().setShowRoute(showIntendedRouteDefault);
             vesselTarget.getSettings().setPastTrackDisplayTime(pastTrackDisplayTime);
             vesselTarget.getSettings().setPastTrackMinDist(pastTrackMinDist);
             vesselTarget.setMmsi(mmsi);
@@ -321,32 +317,6 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
      * @return if the position is within range
      */
     protected abstract boolean isWithinRange(Position pos);
-    
-    /**
-     * Hides intended routes for all vessel targets
-     */
-    public final void hideAllIntendedRoutes() {
-        for (VesselTarget vesselTarget : vesselTargets.values()) {
-            VesselTargetSettings settings = vesselTarget.getSettings();
-            if (settings.isShowRoute() && vesselTarget.hasIntendedRoute()) {
-                settings.setShowRoute(false);
-                publishUpdate(vesselTarget);
-            }
-        }
-    }
-
-    /**
-     * Show intended routes for all vessel targets
-     */
-    public final void showAllIntendedRoutes() {
-        for (VesselTarget vesselTarget : vesselTargets.values()) {
-            VesselTargetSettings settings = vesselTarget.getSettings();
-            if (!settings.isShowRoute() && vesselTarget.hasIntendedRoute()) {
-                settings.setShowRoute(true);
-                publishUpdate(vesselTarget);
-            }
-        }
-    }
     
     /**
      * Shows or hides past tracks for all vessel and sar targets
@@ -530,14 +500,6 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
             publishUpdate(aisTarget);
             return false;
         }
-        // Check if route information is invalid
-        if (aisTarget instanceof VesselTarget) {
-            
-            if (((VesselTarget) aisTarget).checkAisRouteData()) {
-                publishUpdate(aisTarget);
-                return false;
-            }
-        }
         // Check if sart has gone old
         if (aisTarget instanceof SarTarget) {
             if (((SarTarget) aisTarget).hasGoneOld(now)) {
@@ -600,14 +562,6 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
 
     public final void removeListener(IAisTargetListener targetListener) {
         listeners.remove(targetListener);
-    }
-
-    public final void addRouteSuggestionListener(IAisRouteSuggestionListener routeSuggestionListener) {
-        suggestionListeners.add(routeSuggestionListener);
-    }
-
-    public final void removeRouteSuggestionListener(IAisRouteSuggestionListener routeSuggestionListener) {
-        suggestionListeners.remove(routeSuggestionListener);
     }
 
     /**

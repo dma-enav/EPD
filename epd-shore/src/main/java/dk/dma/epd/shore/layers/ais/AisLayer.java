@@ -16,113 +16,87 @@
 package dk.dma.epd.shore.layers.ais;
 
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.swing.SwingUtilities;
+import net.jcip.annotations.GuardedBy;
+import net.jcip.annotations.ThreadSafe;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.jcip.annotations.GuardedBy;
-import net.jcip.annotations.ThreadSafe;
-
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
-import com.bbn.openmap.omGraphics.OMList;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.MobileTarget;
 import dk.dma.epd.common.prototype.ais.SarTarget;
+import dk.dma.epd.common.prototype.ais.VesselPositionData;
+import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.layers.ais.AisTargetSelectionGraphic;
-import dk.dma.epd.common.prototype.layers.ais.IntendedRouteLegGraphic;
-import dk.dma.epd.common.prototype.layers.ais.IntendedRouteWpCircle;
+import dk.dma.epd.common.prototype.gui.util.InfoPanel;
+import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
+import dk.dma.epd.common.prototype.layers.ais.AisTargetInfoPanelCommon;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SarTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
 import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
+import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
+import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
+import dk.dma.epd.shore.gui.views.MainFrame;
+import dk.dma.epd.shore.gui.views.MapMenu;
 import dk.dma.epd.shore.gui.views.StatusArea;
-import dk.dma.epd.shore.layers.GeneralLayer;
 
 /**
  * The class AisLayer is the layer containing all AIS targets. The class handles the drawing of vessels on the chartPanel.
+ * 
+ * SuppressWarnings("serial") as a layer should never be serialized.
  */
+@SuppressWarnings("serial")
 @ThreadSafe
-public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListener {
-    private static final long serialVersionUID = 1L;
+public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetListener {
     private static final Logger LOG = LoggerFactory.getLogger(AisLayer.class);
 
-    private volatile AisHandler aisHandler;
-    private AisInfoPanel aisInfoPanel;
+    private final AisTargetInfoPanelCommon aisTargetInfoPanel = new AisTargetInfoPanelCommon();
     private StatusArea statusArea;
     private ChartPanel chartPanel;
-    private final IntendedRouteInfoPanel intendedRouteInfoPanel = new IntendedRouteInfoPanel();
     private final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
+    private boolean showVesselLabels;
 
     @GuardedBy("targets")
     private final Map<Long, TargetGraphic> targets = new ConcurrentHashMap<>();
 
-    private volatile boolean shouldRun = true;
     private volatile float mapScale;
 
-    private final Thread aisThread;
-
-    private volatile OMGraphic closest;
-    private final AisTargetSelectionGraphic targetSelectionGraphic = new AisTargetSelectionGraphic();
-
     /**
-     * Keeps the AisLayer thread alive
+     * Create a new AisLayer that is redrawn repeatedly at a given interval.
+     * @param redrawIntervalMillis The interval at which the AisLayer will redraw itself.
      */
-    @Override
-    public void run() {
-
-        while (shouldRun) {
-            try {
-                drawTargets();
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-        }
-        synchronized (targets) {
-            targets.clear();
-        }
-        synchronized (graphics) {
-            graphics.clear();
-            graphics.add(targetSelectionGraphic);
-        }
-    }
-
-    /**
-     * Starts the AisLayer thread
-     */
-    public AisLayer() {
-        synchronized (graphics) {
-            graphics.add(targetSelectionGraphic);
-        }
-        aisThread = new Thread(this);
-        aisThread.start();
-    }
-
-    public Thread getAisThread() {
-        return aisThread;
-    }
-
-    /**
-     * Kills the AisLayer thread
-     */
-    public void stop() {
-        shouldRun = false;
+    public AisLayer(int redrawIntervalMillis) {
+        super(redrawIntervalMillis);
+        // receive left-click events for the following set of classes.
+        this.registerMouseClickClasses(VesselTargetGraphic.class);
+        // receive right-click events for the following set of classes.
+        this.registerMapMenuClasses(VesselTargetGraphic.class, SartGraphic.class);
+        // Register mouse over of VesselTargetGraphics to invoke the AisTargetInfoPanel
+        this.registerInfoPanel(this.aisTargetInfoPanel, VesselTargetGraphic.class);
+        // Register mouse over of PastTrackWpCircle to invoke the PastTrackInfoPanel
+        this.registerInfoPanel(this.pastTrackInfoPanel, PastTrackWpCircle.class);
+        
+        this.showVesselLabels = EPDShore.getInstance().getSettings().getAisSettings().isShowNameLabels();
     }
 
     /**
@@ -131,21 +105,10 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
     public void mapClearTargets() {
         synchronized (graphics) {
             graphics.clear();
-            graphics.add(targetSelectionGraphic);
         }
         synchronized (targets) {
             targets.clear();
         }
-    }
-
-    public void removeSelection() {
-        targetSelectionGraphic.setVisible(false);
-        
-        mainFrame.setSelectedMMSI(-1);
-
-        statusArea.removeHighlight();
-
-        doPrepare();
     }
 
     /**
@@ -166,7 +129,7 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
         
         if (!(t1 && t2 && t3 && t4)) {
             VesselTarget vesselTarget = (mobileTarget instanceof VesselTarget) ? (VesselTarget)mobileTarget : null;
-            if (vesselTarget == null || !vesselTarget.hasIntendedRoute()) {
+            if (vesselTarget == null) {
                 return false;
             }
         }
@@ -187,7 +150,7 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
                 mapScale = chartPanel.getMap().getScale();
                 mapClearTargets();
             }
-
+            
             for (MobileTarget mobileTarget : aisHandler.getMobileTargets(AisTarget.Status.OK)) {
                 
                 // Check if vessel is near map coordinates or it's
@@ -200,7 +163,9 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
                     TargetGraphic targetGraphic = targets.get(mobileTarget.getMmsi());
                     if (targetGraphic == null) {
                         if (mobileTarget instanceof VesselTarget) {
-                            targetGraphic = new Vessel(mobileTarget.getMmsi());
+                            // TODO fix boolean argument
+                            targetGraphic = new VesselTargetGraphic(true, this);
+                            targetGraphic.setVague(true);
                         } else if (mobileTarget instanceof SarTarget) {
                             targetGraphic = new SarTargetGraphic();
                         } else {
@@ -215,11 +180,11 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
                     
                     // Update the target graphics
                     targetGraphic.update(mobileTarget, null, null, mapScale);
-
-                    if (mobileTarget.getMmsi() == mainFrame.getSelectedMMSI()) {
-                        targetSelectionGraphic.moveSymbol(mobileTarget.getPositionData().getPos());
-                        setStatusAreaTxt();
-                    }                        
+                    // update selection on graphic if selectable graphic
+                    if (targetGraphic instanceof ISelectableGraphic) {
+                        ((ISelectableGraphic)targetGraphic).setSelection(mobileTarget.getMmsi() == getMainFrame().getSelectedMMSI());
+                    }
+                    
                 }
             }
         }
@@ -228,6 +193,14 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void forceLayerUpdate() {
+        this.drawTargets();
+    }
+    
     @Override
     public OMGraphicList prepare() {
         synchronized (graphics) {
@@ -239,11 +212,7 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
-        
-        if (obj instanceof AisHandler) {
-            aisHandler = (AisHandler) obj;
-            aisHandler.addListener(this);
-        }
+
         if (obj instanceof ChartPanel) {
             chartPanel = (ChartPanel) obj;
         }
@@ -251,195 +220,235 @@ public class AisLayer extends GeneralLayer implements Runnable, IAisTargetListen
             statusArea = (StatusArea) obj;
         }
         if (obj instanceof JMapFrame) {
-            aisInfoPanel = new AisInfoPanel();
-            jMapFrame.getGlassPanel().add(aisInfoPanel);
-            jMapFrame.getGlassPanel().add(intendedRouteInfoPanel);
-            jMapFrame.getGlassPanel().add(pastTrackInfoPanel);
-            jMapFrame.getGlassPanel().setVisible(true);
+            mapFrame.getGlassPanel().add(pastTrackInfoPanel);
+            mapFrame.getGlassPanel().setVisible(true);
         }
     }
 
     @Override
     public void findAndUndo(Object obj) {
-        if (obj == aisHandler) {
-            aisHandler.removeListener(this);
-        }
         super.findAndUndo(obj);
     }
 
+    /**
+     * Event handler for left click on the map.
+     */
     @Override
-    public boolean mouseClicked(MouseEvent e) {
-        
-        OMGraphic newClosest = getSelectedGraphic(
-                e, 
-                VesselLayer.class,
-                IntendedRouteWpCircle.class,
-                IntendedRouteLegGraphic.class,
-                SartGraphic.class);
-
-        if (e.getButton() == MouseEvent.BUTTON1) {
-
-            removeSelection();
-
-            if (newClosest != null && newClosest instanceof VesselLayer) {
-                synchronized (targets) {
-                    long mmsi = ((VesselLayer) newClosest).getMMSI();
-                    mainFrame.setSelectedMMSI(mmsi);
-
-                    targetSelectionGraphic.setVisible(true);
-
-                    targetSelectionGraphic.moveSymbol(Position.create(((VesselLayer) newClosest).getLat(),
-                            ((VesselLayer) newClosest).getLon()));
-                }
-
-                doPrepare();
-
-                setStatusAreaTxt();
-
-            }
-
+    protected void handleMouseClick(OMGraphic clickedGraphics, MouseEvent evt) {
+        // Should only handle left clicks.
+        assert evt.getButton() == MouseEvent.BUTTON1;
+        if(clickedGraphics != null) {
+            System.out.println("clickedGraphics has type = " + clickedGraphics.getClass().getSimpleName());
         }
-
-        if (e.getButton() == MouseEvent.BUTTON3 && newClosest != null) {
-
-            if (newClosest instanceof VesselLayer) {
-
-                VesselLayer vesselLayer = (VesselLayer) newClosest;
-                mapMenu.aisMenu(vesselLayer.getVessel().getVesselTarget());
-                mapMenu.setVisible(true);
-                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
-                return true;
-
-            } else if (newClosest instanceof IntendedRouteWpCircle) {
-
-                IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) newClosest;
-                VesselTarget vesselTarget = wpCircle.getIntendedRouteGraphic().getVesselTarget();
-                mapMenu.aisSuggestedRouteMenu(vesselTarget);
-                mapMenu.setVisible(true);
-                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
-                return true;
-                
-            } else if (newClosest instanceof IntendedRouteLegGraphic) {
-
-                IntendedRouteLegGraphic wpCircle = (IntendedRouteLegGraphic) newClosest;
-                VesselTarget vesselTarget = wpCircle.getIntendedRouteGraphic().getVesselTarget();
-                mapMenu.aisSuggestedRouteMenu(vesselTarget);
-                mapMenu.setVisible(true);
-                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
-                return true;
-                
-            } else if (newClosest instanceof SartGraphic) {
-
-                SartGraphic sartGraphic = (SartGraphic) newClosest;
-                SarTarget sarTarget = sartGraphic.getSarTargetGraphic().getSarTarget();
-                mapMenu.sartMenu(this, sarTarget);
-                mapMenu.setVisible(true);
-                mapMenu.show(this, e.getX() - 2, e.getY() - 2);
-                return true;
+        if(clickedGraphics instanceof ISelectableGraphic) {
+            // Update selected graphic and do a repaint
+            this.setSelectedGraphic((ISelectableGraphic) clickedGraphics, true);
+            
+            if(clickedGraphics instanceof VesselTargetGraphic) {
+                VesselTarget vt = ((VesselTargetGraphic)clickedGraphics).getVesselTarget();
+                if(vt != null) {
+                    // Update status text if clicked graphic is a vessel
+                    setStatusAreaTxt(vt);
+                    // Call mainframe with new selection such that AisLayers in other frames will also display the new selection.
+                    getMainFrame().setSelectedMMSI(vt.getMmsi());
+                }
             }
-
+        }
+        else if(clickedGraphics == null) {
+            // User clicked somewhere on the map with no nearby graphics
+            // We need to remove the current selection and repaint
+            this.setSelectedGraphic(null, true);
+            // Call mainframe with invalid selection sucht that AisLayers in other frames will also have their selection removed.
+            this.getMainFrame().setSelectedMMSI(-1);
+            // remove status info as no target is selected
+            this.statusArea.removeHighlight();
+        }
+    }
+    
+    /**
+     * Event handler for right click on the map.
+     */
+    @Override
+    protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {
+        // Should only handle right clicks
+        assert evt.getButton() == MouseEvent.BUTTON3;
+        if (clickedGraphics instanceof VesselTargetGraphic) {
+            VesselTargetGraphic vesselTargetGraphic = (VesselTargetGraphic) clickedGraphics;
+            VesselTarget vt = ((VesselTargetGraphic) clickedGraphics).getVesselTarget();
+            // Pass data to the pop up menu that is to be displayed.
+            this.getMapMenu().aisMenu(vt, vesselTargetGraphic);
+        } else if (clickedGraphics instanceof SartGraphic) {
+            SartGraphic sartGraphic = (SartGraphic) clickedGraphics;
+            SarTarget sarTarget = sartGraphic.getSarTargetGraphic().getSarTarget();
+            // Pass data to the pop up menu that is to be displayed.
+            this.getMapMenu().sartMenu(this, sarTarget);
+        }
+    }
+    
+    @Override
+    protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest,
+            MouseEvent evt, Point containerPoint) {
+        if(infoPanel == this.aisTargetInfoPanel && newClosest instanceof VesselTargetGraphic) {
+            VesselTarget vt = ((VesselTargetGraphic)newClosest).getVesselTarget(); 
+            // TODO: need to put call below in a synchronized(targets) block ?
+            this.aisTargetInfoPanel.showAisInfoLabel(vt);
+            // adjust info panel such that it fits in the frame
+            int x = (int) containerPoint.getX() + 10;
+            int y = (int) containerPoint.getY() + 10;
+            if (chartPanel.getMap().getProjection().getWidth() - x < aisTargetInfoPanel.getWidth()) {
+                x -= aisTargetInfoPanel.getWidth() + 20;
+            }
+            if (chartPanel.getMap().getProjection().getHeight() - y < aisTargetInfoPanel.getHeight()) {
+                y -= aisTargetInfoPanel.getHeight() + 20;
+            }
+            aisTargetInfoPanel.setPos(x, y);
+            return true;
+        }
+        // TODO 30-01-2014 Janus Varmarken: this is never called as VesselTargetGraphic has vague = true
+        // TODO 30-01-2014 Janus Varmarken: consider moving PastTrackGraphic outside VesselTargetGraphic
+        else if (infoPanel == this.pastTrackInfoPanel && newClosest instanceof PastTrackWpCircle) {
+          PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
+          pastTrackInfoPanel.showWpInfo(wpCircle);
+          return true;
         }
         return false;
     }
-
+    
     /**
-     * Returns the {@code Vessel} with the given mmsi, or null if not found
+     * Returns the {@code VesselTargetGraphic} corresponding to the given mmsi, or null if not found
      * @param mmsi the mmsi of the vessel
-     * @return the vessel or null if not found
+     * @return the graphic representing the vessel or null if not found
      */
-    private Vessel getVessel(Long mmsi) {
+    @SuppressWarnings("unused")
+    private VesselTargetGraphic getVessel(Long mmsi) {
         synchronized (targets) {
             TargetGraphic target = this.targets.get(mmsi);
-            if (target != null && target instanceof Vessel) {
-                return (Vessel)target;
+            if (target != null && target instanceof VesselTargetGraphic) {
+                return (VesselTargetGraphic)target;
             }
         }
         return null;
     }
     
-    private void setStatusAreaTxt() {
+    private void setStatusAreaTxt(VesselTarget vessel) {
         HashMap<String, String> info = new HashMap<String, String>();
-        Vessel vessel = getVessel(mainFrame.getSelectedMMSI());
+        String currKey;
         if (vessel != null) {
-
-            info.put("MMSI", Long.toString(vessel.getMMSI()));
-            info.put("Name", vessel.getName());
-            info.put("COG", vessel.getHeading());
-            info.put("Call sign", vessel.getCallSign());
-            info.put("LAT", vessel.getLat());
-            info.put("LON", vessel.getLon());
-            info.put("SOG", vessel.getSog());
-            info.put("ETA", vessel.getEta());
-            info.put("Type", vessel.getShipType());
-            statusArea.receiveHighlight(info, vessel.getMMSI());
-
-            // statusArea.receiveHighlight(info, vessel.getMMSI());
-        }
-    }
-
-    @Override
-    public boolean mouseMoved(MouseEvent e) {
-        OMGraphic newClosest = null;
-        OMList<OMGraphic> allClosest;
-        synchronized (graphics) {
-            allClosest = graphics.findAll(e.getX(), e.getY(), 3.0f);
-        }
-        for (OMGraphic omGraphic : allClosest) {
-            newClosest = omGraphic;
-            break;
-        }
-
-        if (allClosest.size() == 0) {
-            aisInfoPanel.setVisible(false);
-            intendedRouteInfoPanel.setVisible(false);
-            pastTrackInfoPanel.setVisible(false);
-            closest = null;
-            return false;
-        }
-
-        if (newClosest != closest) {
-            Point containerPoint = SwingUtilities.convertPoint(chartPanel, e.getPoint(), jMapFrame);
-
-            if (newClosest instanceof PastTrackWpCircle) {
-                closest = newClosest;
-                PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
-                pastTrackInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-                pastTrackInfoPanel.showWpInfo(wpCircle);
-                pastTrackInfoPanel.setVisible(true);
+            VesselStaticData vsd = vessel.getStaticData();
+            VesselPositionData vpd = vessel.getPositionData();
+            
+            info.put("MMSI", Long.toString(vessel.getMmsi()));
+            currKey = "Name";
+            String na = "N/A";
+            if(vsd != null && vsd.getName() != null) {
+                info.put(currKey, vsd.getName());
             }
-
-            if (newClosest instanceof IntendedRouteWpCircle) {
-                closest = newClosest;
-                IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) newClosest;
-                intendedRouteInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-                intendedRouteInfoPanel.showWpInfo(wpCircle);
+            else {
+                info.put(currKey, na);
             }
-
-            if (newClosest instanceof VesselLayer) {
-                jMapFrame.getGlassPane().setVisible(true);
-                closest = newClosest;
-                VesselLayer vessel = (VesselLayer) newClosest;
-                int x = (int) containerPoint.getX() + 10;
-                int y = (int) containerPoint.getY() + 10;
-                synchronized (targets) {
-                    aisInfoPanel.showAisInfo(getVessel(vessel.getMMSI()));
-                }                
-                if (chartPanel.getMap().getProjection().getWidth() - x < aisInfoPanel.getWidth()) {
-                    x -= aisInfoPanel.getWidth() + 20;
-                }
-                if (chartPanel.getMap().getProjection().getHeight() - y < aisInfoPanel.getHeight()) {
-                    y -= aisInfoPanel.getHeight() + 20;
-                }
-                aisInfoPanel.setPos(x, y);
-                aisInfoPanel.setVisible(true);
-
-                return true;
+            
+            currKey = "COG";
+            if(vpd != null) {
+                info.put(currKey, Formatter.formatDegrees(new Double(vpd.getCog()), 2));
             }
+            else {
+                info.put(currKey, na);
+            }
+            
+            currKey = "Call sign";
+            if(vsd != null && vsd.getCallsign() != null) {
+                info.put(currKey, vsd.getCallsign());
+            }
+            else {
+                info.put(currKey, na);
+            }
+            
+            currKey = "LAT";
+            if(vpd != null && vpd.getPos() != null) {
+                info.put(currKey, Formatter.latToPrintable(vpd.getPos().getLatitude()));
+                currKey = "LON";
+                info.put(currKey, Formatter.lonToPrintable(vpd.getPos().getLongitude()));
+            }
+            else {
+                info.put(currKey, na);
+                currKey = "LON";
+                info.put(currKey, na);
+            }
+            
+            currKey = "SOG";
+            if(vpd != null) {
+                info.put(currKey, Formatter.formatSpeed(new Double(vpd.getSog())));
+            }
+            else {
+                info.put(currKey, na);
+            }
+            
+            currKey = "ETA";
+            if(vsd != null) {
+                info.put(currKey, Formatter.formatShortDateTime(new Date(vsd.getEta())));
+            }
+            else {
+                info.put(currKey, na);
+            }
+            
+            currKey = "Type";
+            if(vsd != null) {
+                info.put(currKey, vsd.getShipType().toString());
+            }
+            else {
+                info.put(currKey, na);
+            }
+            
+            statusArea.receiveHighlight(info, vessel.getMmsi());
         }
-        return false;
     }
 
     @Override
     public void targetUpdated(AisTarget arg0) {
+    }
+    
+    @Override
+    public MainFrame getMainFrame() {
+        // get the shore specific main frame
+        return (MainFrame) super.getMainFrame();
+    }
+    
+    @Override
+    public MapMenu getMapMenu() {
+        // get the shore specific map menu
+        return (MapMenu) super.getMapMenu();
+    }
+    
+    /**
+     * This method is called repeatedly as specified by the {@code LazyLayerCommon} and signals that this AisLayer should repaint itself.
+     */
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        super.actionPerformed(e);
+        drawTargets();
+    }
+    
+    /**
+     * Updates visibility of vessel names. Updates are done with the redraw interval,
+     * defined by the constructor of this object. 
+     * @param Sets the vessel names to be shown or not.
+     */
+    @Override
+    public void setShowNameLabels(boolean showLabels) {
+        
+        if (showLabels == this.showVesselLabels) {
+            return;
+        }
+        
+        this.showVesselLabels = showLabels;
+        for (TargetGraphic graphic : targets.values()) {
+            
+            if (graphic instanceof VesselTargetGraphic) {
+                ((VesselTargetGraphic) graphic).setShowNameLabel(showLabels);
+                targetUpdated(((VesselTargetGraphic) graphic).getVesselTarget());
+            }
+            
+            doPrepare();
+        }
     }
 }

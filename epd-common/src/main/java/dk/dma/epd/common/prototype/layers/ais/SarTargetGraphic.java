@@ -20,7 +20,6 @@ import java.awt.Font;
 import javax.swing.ImageIcon;
 
 import com.bbn.openmap.omGraphics.OMText;
-import com.bbn.openmap.proj.Projection;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisTarget;
@@ -93,11 +92,6 @@ public class SarTargetGraphic extends TargetGraphic {
         add(label);
         
         add(pastTrackGraphic);
-    }
-
-    @Override
-    public void setMarksVisible(Projection projection, AisSettings aisSettings, NavSettings navSettings) {
-
     }
     
     public SarTarget getSarTarget() {

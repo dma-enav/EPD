@@ -68,7 +68,7 @@ public class NmeaTcpSensor extends NmeaSensor {
     @Override
     public void run() {
 
-        while (true) {
+        while (!isStopped()) {
             try {
                 disconnect();
                 connect();
@@ -81,6 +81,11 @@ public class NmeaTcpSensor extends NmeaSensor {
                 }
             }
         }
+        
+        // Disconnect and flag that the sensor has terminated
+        disconnect();
+        flagTerminated();
+        LOG.warn("TCP NMEA sensor terminated");
     }
 
     private void connect() throws IOException {

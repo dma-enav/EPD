@@ -165,7 +165,6 @@ public class JMainDesktopPane extends JDesktopPane {
             // Thread(this)).start();
 
             //Cleanup of the threads attached to the window - important if adding new layers
-            ((JMapFrame) c).getChartPanel().getAisLayer().stop();
             ((JMapFrame) c).getChartPanel().getWmsLayer().stop();
         }
 

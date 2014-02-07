@@ -39,18 +39,18 @@ public class ActiveRouteLegGraphic extends RouteLegGraphic {
     private static final long serialVersionUID = 1L;
 
     public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor,
-            float[] broadLineDash) {
-        super(routeLeg, routeIndex, color, stroke, broadLineColor, broadLineDash);
+            float[] broadLineDash, float scale) {
+        super(routeLeg, routeIndex, color, stroke, broadLineColor, broadLineDash, scale);
         addCrossTrack();
     }
 
-    public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor) {
-        super(routeLeg, routeIndex, color, stroke, broadLineColor);
+    public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor, float scale) {
+        super(routeLeg, routeIndex, color, stroke, broadLineColor, scale);
         addCrossTrack();
     }
 
-    public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke) {
-        super(routeLeg, routeIndex, color, stroke);
+    public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, float scale) {
+        super(routeLeg, routeIndex, color, stroke, scale);
         addCrossTrack();
 
     }

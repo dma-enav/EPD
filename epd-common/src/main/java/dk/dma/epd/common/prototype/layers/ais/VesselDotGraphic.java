@@ -21,16 +21,23 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
+import dk.dma.epd.common.prototype.layers.CircleSelectionGraphic;
 
 /**
  * Class that draws a vessel as a circle.
  * @author Janus Varmarken
  */
-public class VesselDotGraphic extends OMGraphicList {
+public class VesselDotGraphic extends OMGraphicList implements ISelectableGraphic {
 
+    /**
+     * Diameter of the circle graphic (in pixels) that represents the Vessel's location on the map.
+     */
+    public static final int CIRCLE_PIXEL_DIAMETER = 7;
+    
     /**
      * Default.
      */
@@ -43,22 +50,28 @@ public class VesselDotGraphic extends OMGraphicList {
     private RotationalPoly cogVec;
     
     /**
-     * Diameter of the circle graphic (in pixels) that represents the Vessel's location on the map.
+     * Manages visualization of selection of this graphic.
      */
-    public static final int CIRCLE_PIXEL_DIAMETER = 7;
+    private CircleSelectionGraphic circleSelectionGraphic;
+    
+    /**
+     * The most recent position data.
+     */
+    private Position mostRecentPos;
     
     public void updateLocation(VesselPositionData posData) {
         Position newLocation = posData.getPos();
+        this.mostRecentPos = newLocation;
         if(this.vesselMarker == null) {
             // lazy initialization
             this.vesselMarker = new OMCircle(newLocation.getLatitude(), newLocation.getLongitude(), CIRCLE_PIXEL_DIAMETER, CIRCLE_PIXEL_DIAMETER);
-            this.vesselMarker.setLinePaint(ColorConstants.EPD_SHIP_VESSEL_COLOR);
-            this.vesselMarker.setFillPaint(ColorConstants.EPD_SHIP_VESSEL_COLOR);
+            this.vesselMarker.setLinePaint(ColorConstants.VESSEL_COLOR);
+            this.vesselMarker.setFillPaint(ColorConstants.VESSEL_COLOR);
             this.add(this.vesselMarker);
             
             int[] headingX = { 0, 0 };
             int[] headingY = { 0, -15 };
-            cogVec = new RotationalPoly(headingX, headingY, null, ColorConstants.EPD_SHIP_VESSEL_COLOR);
+            cogVec = new RotationalPoly(headingX, headingY, null, ColorConstants.VESSEL_COLOR);
             this.add(cogVec);
             
         }
@@ -66,5 +79,13 @@ public class VesselDotGraphic extends OMGraphicList {
         this.vesselMarker.setCenter(new LatLonPoint.Double(newLocation.getLatitude(), newLocation.getLongitude()));
         // Update cog vector
         this.cogVec.setLocation(newLocation.getLatitude(), newLocation.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, Math.toRadians(posData.getCog()));
+    }
+
+    @Override
+    public void setSelection(boolean selected) {
+        if(this.circleSelectionGraphic == null) {
+            this.circleSelectionGraphic = new CircleSelectionGraphic(this);
+        }
+        this.circleSelectionGraphic.updateSelection(selected, this.mostRecentPos);
     }
 }

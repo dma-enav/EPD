@@ -23,13 +23,16 @@ import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
 import net.maritimecloud.net.service.spi.ServiceMessage;
 import dk.dma.enav.model.voyage.Route;
 
+/**
+ * Not used. Should it be deleted?
+ */
 public class StrategicRouteChatService {
 
     /** An initiation point */
-    public static final ServiceInitiationPoint<MonaLisaChatAck> INIT = new ServiceInitiationPoint<>(
-            MonaLisaChatAck.class);
+    public static final ServiceInitiationPoint<StrategicRouteChatAck> INIT = new ServiceInitiationPoint<>(
+            StrategicRouteChatAck.class);
 
-    public static class MonaLisaChatMsg extends ServiceMessage<Void> {
+    public static class StrategicRouteChatMsg extends ServiceMessage<Void> {
 
         private String message;
         private long id;
@@ -37,13 +40,13 @@ public class StrategicRouteChatService {
         private long sendDate;
         private String name;
         
-        public MonaLisaChatMsg() {
+        public StrategicRouteChatMsg() {
         }
 
         /**
          * @param message
          */
-        public MonaLisaChatMsg(String message, long id, long mmsi, long sendDate, String name) {
+        public StrategicRouteChatMsg(String message, long id, long mmsi, long sendDate, String name) {
             this.message = message;
             this.id = id;
             this.mmsi = mmsi;
@@ -107,14 +110,14 @@ public class StrategicRouteChatService {
         
     }
 
-    public static class MonaLisaChatAck extends ServiceMessage<MonaLisaChatAck> {
+    public static class StrategicRouteChatAck extends ServiceMessage<StrategicRouteChatAck> {
         private Date sent;
         private long mmsi;
 
-        public MonaLisaChatAck() {
+        public StrategicRouteChatAck() {
         }
 
-        public MonaLisaChatAck(long id, Route route, long mmsi, String message) {
+        public StrategicRouteChatAck(long id, Route route, long mmsi, String message) {
             this.mmsi = requireNonNull(mmsi);
             this.sent = requireNonNull(new Date());
         }

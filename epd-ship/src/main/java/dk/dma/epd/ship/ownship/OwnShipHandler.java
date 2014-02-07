@@ -44,6 +44,7 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.settings.AisSettings;
+import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.common.util.Util;
 import net.jcip.annotations.ThreadSafe;
 
@@ -265,15 +266,17 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSen
      * Loads the own-ship object
      */
     public void loadView() {
-        try (FileInputStream fileIn = new FileInputStream(OWN_SHIP_FILE);
-                ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
-            aisTarget = (VesselTarget) objectIn.readObject();
-        } catch (FileNotFoundException e) {
-            // Not an error
-        } catch (Exception e) {
-            LOG.error("Failed to load own-ship file: " + e.getMessage(), e);
-            // Delete possible corrupted or old file
-            new File(".ownship").delete();
+        if (!Settings.isReadOnly()) {
+            try (FileInputStream fileIn = new FileInputStream(OWN_SHIP_FILE);
+                    ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
+                aisTarget = (VesselTarget) objectIn.readObject();
+            } catch (FileNotFoundException e) {
+                // Not an error
+            } catch (Exception e) {
+                LOG.error("Failed to load own-ship file: " + e.getMessage(), e);
+                // Delete possible corrupted or old file
+                new File(".ownship").delete();
+            }
         }
         
         if(aisTarget == null) {

@@ -20,12 +20,18 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Rectangle;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
+
+import com.bbn.openmap.omGraphics.OMGraphic;
 
 /**
  * Abstract base class for panels to be shown on the map in the glass pane
@@ -113,4 +119,81 @@ public abstract class InfoPanel extends JPanel {
         resizeAndShow();
     }
 
+    
+    /**
+     * Defines a binding between {@linkplain OMGraphic} classes and {@code InfoPanel}
+     */
+    public static class InfoPanelBinding {
+        
+        /**
+         * For the mapping, we use a linked hash map to preserve the order
+         * of the graphic elements
+         */
+        Map<Class<?>, InfoPanel> binding = new LinkedHashMap<>();
+        Class<?>[] graphicsList;
+        
+        /**
+         * Add the binding between {@linkplain OMGraphic} classes and {@code InfoPanel}
+         * 
+         * @param infoPanel the {@code InfoPanel}
+         * @param graphics the list of {@linkplain OMGraphic} classes bound to the InfoPanel
+         */
+        @SafeVarargs
+        public final synchronized void addBinding(InfoPanel infoPanel, Class<?>... graphics) {
+            Objects.requireNonNull(infoPanel, "InfoPanel must be defined");
+            Objects.requireNonNull(graphics, "The OMGraphic list must be defined");
+            
+            // Add the bindings
+            for (Class<?> clazz : graphics) {
+                if (binding.containsKey(clazz)) {
+                    throw new IllegalArgumentException("The class " + clazz + " is already defined");
+                }
+                binding.put(clazz, infoPanel);
+            }
+            
+            // Invalidate the graphics list
+            graphicsList = null;
+        }
+        
+        /**
+         * Returns the total list of {@linkplain OMGraphic} classes
+         * @return the total list of {@linkplain OMGraphic} classes
+         */
+        public synchronized Class<?>[] getGraphicsList() {
+            if (graphicsList == null) {
+                graphicsList =  binding.keySet().toArray(new Class<?>[binding.size()]);
+            }
+            return graphicsList;
+        }
+        
+        /**
+         * Returns the info panel associated with the given {@linkplain OMGraphic} class
+         * @param clazz the {@linkplain OMGraphic} class
+         * @return the associated info panel, or null if none is defined
+         */
+        public synchronized InfoPanel getInfoPanel(Class<? extends OMGraphic> clazz) {
+            for (Class<?> g : binding.keySet()) {
+                if (clazz.isAssignableFrom(g)) {
+                    return binding.get(g);
+                }
+            }
+            return null;
+        }
+        
+        /**
+         * Returns the total list of info panels
+         * @return the total list of info panels
+         */
+        public synchronized Collection<InfoPanel> getInfoPanels() {
+            return binding.values();
+        }
+        
+        /**
+         * Returns if no binding is defined
+         * @return if no binding is defined
+         */
+        public synchronized boolean isEmpty() {
+            return binding.size() == 0;
+        }
+    }
 }

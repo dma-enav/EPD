@@ -79,7 +79,7 @@ public class MonaLisaRouteOptimization extends dk.dma.epd.common.prototype.monal
 
         float fuelSaving = (routeResponse.getMonaLisaResponse().getFuelRequested() - routeResponse.getMonaLisaResponse().getFuelFinal()) / routeResponse.getMonaLisaResponse().getFuelRequested() * 100;
 
-        return new MonaLisaOptimizationResponse("Succesfully recieved optimized route",
+        return new MonaLisaOptimizationResponse("Succesfully received optimized route",
 
         "\nInitial route consumption is "
                 + routeResponse.getMonaLisaResponse().getFuelRequested()

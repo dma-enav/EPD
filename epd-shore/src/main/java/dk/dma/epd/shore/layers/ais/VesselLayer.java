@@ -120,39 +120,6 @@ public class VesselLayer extends CenterRaster {
             } else {
                 vesselIcon = staticImages.getVesselLightgray();
             }
-            /*
-            if (shipType.startsWith("Passenger"))
-                vesselIcon = new ImageIcon(ESD.class.getResource("/images/vesselIcons/blue1_90.png"));
-            else if (shipType.startsWith("Cargo"))
-                vesselIcon = new ImageIcon(ESD.class.getResource("/images/vesselIcons/lightgreen1_90.png"));
-            else if (shipType.startsWith("Tug"))
-                vesselIcon = new ImageIcon(ESD.class.getResource("/images/vesselIcons/cyan1_90.png"));
-            else if (shipType.startsWith("Tanker"))
-                vesselIcon = new ImageIcon(ESD.class.getResource("/images/vesselIcons/red1_90.png"));
-            else if (shipType.startsWith("Port"))
-                vesselIcon = new ImageIcon(ESD.class.getResource("/images/vesselIcons/cyan1_90.png"));
-            else if (shipType.startsWith("Dredging"))
-                vesselIcon = new ImageIcon(ESD.class.getResource("/images/vesselIcons/white0.png"));
-            else if (shipType.startsWith("Sailing"))
-                vesselIcon = new ImageIcon(ESD.class.getResource("/images/vesselIcons/brown1_90.png"));
-            else if (shipType.startsWith("Pleasure"))
-                vesselIcon = new ImageIcon(ESD.class.getResource("/images/vesselIcons/magenta1_90.png"));
-            else if (shipType.startsWith("Sar"))
-                vesselIcon = new ImageIcon(ESD.class.getResource("/images/vesselIcons/cyan1_90.png"));
-            else if (shipType.startsWith("Fishing"))
-                vesselIcon = new ImageIcon(ESD.class.getResource("/images/vesselIcons/brown1_90.png"));
-            else if (shipType.startsWith("Diving"))
-                vesselIcon = new ImageIcon(ESD.class.getResource("/images/vesselIcons/cyan1_90.png"));
-            else if (shipType.startsWith("Pilot"))
-                vesselIcon = new ImageIcon(ESD.class.getResource("/images/vesselIcons/cyan1_90.png"));
-            else if (shipType.startsWith("Undefined"))
-                vesselIcon = new ImageIcon(ESD.class.getResource("/images/vesselIcons/lightgray1_90.png"));
-            else if (shipType.startsWith("Unknown"))
-                vesselIcon = new ImageIcon(ESD.class.getResource("/images/vesselIcons/lightgray1_90.png"));
-            else {
-                vesselIcon = new ImageIcon(ESD.class.getResource("/images/vesselIcons/lightgray1_90.png"));
-            }
-            */
             this.setImageIcon(vesselIcon);
         }
     }

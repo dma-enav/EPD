@@ -32,7 +32,7 @@ import com.google.common.io.Resources;
 public class Bootstrap {
     Path home;
 
-    public void run(EPD<?> epd, String[] appHomeFiles, String[] appHomeFolders) throws IOException {
+    public void run(EPD epd, String[] appHomeFiles, String[] appHomeFolders) throws IOException {
         
         home = epd.getHomePath();
 

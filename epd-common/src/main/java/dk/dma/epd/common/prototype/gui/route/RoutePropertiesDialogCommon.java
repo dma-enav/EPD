@@ -132,13 +132,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
 
         this.parent = parent;
         this.routeManager = routeManager;
-
-        if (routeManager.isActiveRoute(routeId)) {
-            this.route = routeManager.getActiveRoute();
-            activeRoute = (ActiveRoute) this.route;
-        } else {
-            this.route = routeManager.getRoute(routeId);
-        }
+        this.route = routeManager.getRoute(routeId);
 
         setBounds(100, 100, 904, 435);
         getContentPane().setLayout(null);

@@ -21,6 +21,8 @@ package dk.dma.epd.common.prototype.settings;
  */
 public abstract class Settings {
 
+    private static final String READ_ONLY = "dma.settings.readonly";
+    
     public abstract GuiSettings getGuiSettings();
 
     public abstract MapSettings getMapSettings();
@@ -34,4 +36,42 @@ public abstract class Settings {
     public abstract EnavSettings getEnavSettings();
 
     public abstract S57LayerSettings getS57Settings();
+    
+    public abstract CloudSettings getCloudSettings();
+    
+    /**
+     * Load the settings files as well as the workspace files
+     */
+    public abstract void loadFromFile();
+
+    /**
+     * Save the settings to the files
+     */
+    public abstract void doSaveToFile();
+        
+    /**
+     * Save the settings to the files unless the system is started 
+     * in read-only mode
+     */
+    public final void saveToFile() {
+        if (!isReadOnly()) {
+            doSaveToFile();
+        }
+    }
+    
+    /**
+     * Returns if the updated settings are persisted to disk
+     * @return if the updated settings are persisted to disk
+     */
+    public static boolean isReadOnly() {
+        return "true".equals(System.getProperty(READ_ONLY));
+    }
+    
+    /**
+     * Sets if the updated settings are persisted to disk
+     * @param readOnly if the updated settings are persisted to disk
+     */
+    public static void setReadOnly(boolean readOnly) {
+        System.setProperty(READ_ONLY, String.valueOf(readOnly));
+    }
 }
