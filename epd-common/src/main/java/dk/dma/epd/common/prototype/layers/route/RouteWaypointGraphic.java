@@ -33,38 +33,49 @@ import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
  * Graphic for a route waypoint
  */
 public class RouteWaypointGraphic extends OMGraphicList {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     private RouteWaypoint routeWaypoint;
     private WaypointCircle circle;
     private Font font = new Font(Font.DIALOG, Font.PLAIN, 14);
-    private OMText label = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);    
+    private OMText label = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);
     private Color color;
     private int width;
     private int height;
-    
+    private float scale;
+
     private boolean dotted;
-    
+
     /**
      * Creates a route waypoint circle
-     * @param routeIndex TODO
-     * @param routeWaypoint RouteWaypoint object containing information about the route waypoint
-     * @param color Color of the waypoint
-     * @param width Width of the circle
-     * @param height Height of the circle 
+     * 
+     * @param routeIndex
+     *            TODO
+     * @param routeWaypoint
+     *            RouteWaypoint object containing information about the route waypoint
+     * @param color
+     *            Color of the waypoint
+     * @param width
+     *            Width of the circle
+     * @param height
+     *            Height of the circle
      */
-    public RouteWaypointGraphic(Route route, int routeIndex, int wpIndex, RouteWaypoint routeWaypoint, Color color, int width, int height) {
+    public RouteWaypointGraphic(Route route, int routeIndex, int wpIndex, RouteWaypoint routeWaypoint, Color color, int width,
+            int height, float scale) {
         super();
         this.routeWaypoint = routeWaypoint;
+        this.scale = scale;
         this.color = color;
-        this.width = width;
-        this.height = height;
+        this.width = (int) (width * scale);
+        this.height = (int) (height * scale);
         this.circle = new WaypointCircle(route, routeIndex, wpIndex);
+
         initGraphics();
     }
-    
-    public RouteWaypointGraphic(Route route, int routeIndex, int wpIndex, RouteWaypoint routeWaypoint, Color color, int width, int height, boolean dotted) {
+
+    public RouteWaypointGraphic(Route route, int routeIndex, int wpIndex, RouteWaypoint routeWaypoint, Color color, int width,
+            int height, boolean dotted, float scale) {
         super();
         this.routeWaypoint = routeWaypoint;
         this.color = color;
@@ -72,22 +83,24 @@ public class RouteWaypointGraphic extends OMGraphicList {
         this.height = height;
         this.dotted = dotted;
         this.circle = new WaypointCircle(route, routeIndex, wpIndex);
+        this.scale = scale;
         initVoyageGraphics();
     }
-    
-    public void initGraphics(){
+
+    public void initGraphics() {
         clear();
-        
+
         double lat = routeWaypoint.getPos().getLatitude();
         double lon = routeWaypoint.getPos().getLongitude();
-        
+
         circle.setLatLon(lat, lon);
         circle.setLinePaint(color);
         circle.setWidth(width);
         circle.setHeight(height);
-        circle.setStroke(new BasicStroke(3));
+
+        circle.setStroke(new BasicStroke(3.0f * scale));
         add(circle);
-        
+
         label.setLat(lat);
         label.setLon(lon);
         label.setY(25);
@@ -96,40 +109,32 @@ public class RouteWaypointGraphic extends OMGraphicList {
         label.setData(routeWaypoint.getName());
         add(label);
     }
-    
-    
-    public void initVoyageGraphics(){
+
+    public void initVoyageGraphics() {
         clear();
-        
+
         double lat = routeWaypoint.getPos().getLatitude();
         double lon = routeWaypoint.getPos().getLongitude();
-        
+
         circle.setLatLon(lat, lon);
         circle.setLinePaint(color);
         circle.setWidth(width);
         circle.setHeight(height);
-        
-        if (dotted){
-            Stroke stroke = new BasicStroke(
-                    3.0f,                      // Width
-                    BasicStroke.CAP_SQUARE,    // End cap
-                    BasicStroke.JOIN_MITER,    // Join style
-                    10.0f,                     // Miter limit
+
+        if (dotted) {
+            Stroke stroke = new BasicStroke(3.0f, // Width
+                    BasicStroke.CAP_SQUARE, // End cap
+                    BasicStroke.JOIN_MITER, // Join style
+                    10.0f, // Miter limit
                     new float[] { 1.0f, 5.0f }, // Dash pattern
                     0.0f);
             circle.setStroke(stroke);
-        }else{
+        } else {
             circle.setStroke(new BasicStroke(3));
         }
-        
-        
-        
-        
 
         add(circle);
 
-        
-        
         label.setLat(lat);
         label.setLon(lon);
         label.setY(25);
@@ -138,12 +143,12 @@ public class RouteWaypointGraphic extends OMGraphicList {
         label.setData(routeWaypoint.getName());
         add(label);
     }
-    
+
     @Override
     public void render(Graphics gr) {
         Graphics2D image = (Graphics2D) gr;
         image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         super.render(image);
     }
-    
+
 }
