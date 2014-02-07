@@ -302,6 +302,10 @@ public class IntendedRoute extends Route {
         this.activeWpIndex = activeWpIndex;
     }
 
+    public RouteWaypoint getActiveWaypoint() {
+        return getWaypoints().get(activeWpIndex);
+    }
+    
     public Position getPlannedPosition() {
 
         long currentTime = PntTime.getInstance().getDate().getTime();

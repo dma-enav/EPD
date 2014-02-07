@@ -230,7 +230,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
         // Update leg to first waypoint
         if (vesselPos != null) {
             add(activeWpLine);
-            Position activeWpPos = intendedRoute.getWaypoints().get(0).getPos();
+            Position activeWpPos = intendedRoute.getActiveWaypoint().getPos();
             activeWpLineLL[0] = vesselPos.getLatitude();
             activeWpLineLL[1] = vesselPos.getLongitude();
             activeWpLineLL[2] = activeWpPos.getLatitude();
