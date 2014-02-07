@@ -305,7 +305,7 @@ public class IntendedRoute extends Route {
     public RouteWaypoint getActiveWaypoint() {
         return getWaypoints().get(activeWpIndex);
     }
-    
+
     public Position getPlannedPosition() {
 
         long currentTime = PntTime.getInstance().getDate().getTime();
@@ -321,9 +321,11 @@ public class IntendedRoute extends Route {
                 // We haven't found the match so the ship must have finished it's
                 // route - Display the box at the end
                 if (i == getWaypoints().size() - 1) {
-                    plannedPositionBearing = Calculator.bearing(getWaypoints().get(getWaypoints().size() - 2).getPos(),
-                            getWaypoints().get(getWaypoints().size() - 1).getPos(), Heading.RL);
+//                    plannedPositionBearing = Calculator.bearing(getWaypoints().get(getWaypoints().size() - 2).getPos(),
+//                            getWaypoints().get(getWaypoints().size() - 1).getPos(), Heading.RL);
 
+                    plannedPositionBearing = 0;
+                    
                     return getWaypoints().get(i).getPos();
                 } else {
 
@@ -350,8 +352,8 @@ public class IntendedRoute extends Route {
                 }
 
             }
-
         }
+
         // An error must have occured
         return null;
     }
@@ -364,6 +366,4 @@ public class IntendedRoute extends Route {
         this.plannedEtas = plannedEtas;
     }
 
-    
-    
 }

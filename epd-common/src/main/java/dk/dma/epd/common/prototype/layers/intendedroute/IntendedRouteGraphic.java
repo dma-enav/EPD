@@ -35,7 +35,7 @@ import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 public class IntendedRouteGraphic extends OMGraphicList {
 
     private static final long serialVersionUID = 1L;
-    private static final float SCALE = 0.7f; // "Size" of graphics
+    private static final float SCALE = 0.6f; // "Size" of graphics
     private static final int TTL = 600; // Time to live of graphics, i.e. 10 minutes
 
     /**
