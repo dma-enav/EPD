@@ -22,7 +22,7 @@ package dk.dma.epd.common.prototype.model.route;
 public class PartialRouteFilter {
 
     public static final PartialRouteFilter DEFAULT = 
-            new PartialRouteFilter(FilterType.METERS, 10000, 20000);
+            new PartialRouteFilter(FilterType.MINUTES, 10000, 20000);
     
     /**
      * Defines the filter type, either time in minutes, distance in meters or number of way points
@@ -50,6 +50,10 @@ public class PartialRouteFilter {
     public FilterType getType() {
         return type;
     }
+    
+    public void setType(FilterType type) {
+        this.type = type;
+    }
 
     /**
      * Returns the the time or distance forward
@@ -58,6 +62,10 @@ public class PartialRouteFilter {
     public int getForward() {
         return forward;
     }
+    
+    public void setForward(int forward) {
+        this.forward = forward;
+    }
 
     /**
      * Returns the the time or distance backward
@@ -65,6 +73,10 @@ public class PartialRouteFilter {
      */
     public int getBackward() {
         return backward;
+    }
+    
+    public void setBackward(int backward) {
+        this.backward = backward;
     }
 
     /**
