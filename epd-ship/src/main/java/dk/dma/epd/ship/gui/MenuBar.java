@@ -282,13 +282,13 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         // Intended route layer
         intendedRouteLayer = new JCheckBoxMenuItem("Intended route Layer");
         layers.add(intendedRouteLayer);
-        intendedRouteLayer.setSelected(EPDShip.getInstance().getSettings().getAisSettings().isShowIntendedRoute());
+        intendedRouteLayer.setSelected(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
         intendedRouteLayer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 boolean selected = !topPanel.getIntendedRouteButton().isSelected();
                 topPanel.getIntendedRouteButton().setSelected(selected);
-                EPDShip.getInstance().getSettings().getAisSettings().setShowIntendedRoute(selected);
+                EPDShip.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(selected);
             }
         });
 

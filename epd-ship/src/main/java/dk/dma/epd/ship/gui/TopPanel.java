@@ -232,7 +232,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         // range circles mode is disabled by default.
         toggleDistanceCircleMode.setSelected(false);
         
-        toggleIntendedRoute.setSelected(EPDShip.getInstance().getSettings().getAisSettings().isShowIntendedRoute());
+        toggleIntendedRoute.setSelected(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
     }
 
     public void disableAutoFollow() {
@@ -423,7 +423,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             }
         } else if (e.getSource() == toggleIntendedRoute) {
             boolean visible = toggleIntendedRoute.isSelected();
-            EPDShip.getInstance().getSettings().getAisSettings().setShowIntendedRoute(visible);
+            EPDShip.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(visible);
             mainFrame.getChartPanel().setIntendedRouteLayerVisibility(visible);
             menuBar.getIntendedRouteLayer().setSelected(visible);
         }

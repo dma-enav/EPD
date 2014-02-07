@@ -311,7 +311,7 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
      * @param items the intended route menu items to check
      */
     protected void checkIntendedRouteItems(JMenuItem... items) {
-        if (!EPD.getInstance().getSettings().getAisSettings().isShowIntendedRoute()) {
+        if (!EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute()) {
             for (JMenuItem item : items) {
                 item.setEnabled(false);
             }

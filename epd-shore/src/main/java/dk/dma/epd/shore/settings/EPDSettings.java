@@ -57,6 +57,8 @@ public class EPDSettings extends Settings implements Serializable {
 
     private EPDAisSettings aisSettings = new EPDAisSettings();
     private EPDEnavSettings enavSettings = new EPDEnavSettings();
+    private EPDCloudSettings cloudSettings = new EPDCloudSettings();
+    
     private Workspace workspace = new Workspace();
 
     public EPDSettings() {
@@ -89,6 +91,7 @@ public class EPDSettings extends Settings implements Serializable {
         mapSettings.readProperties(props);
         navSettings.readProperties(props);
         sensorSettings.readProperties(props);
+        cloudSettings.readProperties(props);
 
         workspaceFile = guiSettings.getWorkspace();
 
@@ -145,6 +148,7 @@ public class EPDSettings extends Settings implements Serializable {
         mapSettings.setProperties(props);
         navSettings.setProperties(props);
         sensorSettings.setProperties(props);
+        cloudSettings.setProperties(props);
 
         // navSettings.setProperties(props);
 
@@ -236,6 +240,11 @@ public class EPDSettings extends Settings implements Serializable {
         return null;
     }
     
+    @Override
+    public EPDCloudSettings getCloudSettings() {
+        return cloudSettings;
+    }
+
     public Workspace getWorkspace() {
         return workspace;
     }

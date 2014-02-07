@@ -30,9 +30,9 @@ import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.PartialRouteFilter;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.model.route.PartialRouteFilter.FilterType;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.util.Util;
+import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.route.RouteManager;
 
 /**
@@ -175,7 +175,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         final IntendedRouteBroadcast message = new IntendedRouteBroadcast();
 
         if (routeManager.getActiveRoute() != null) {
-            PartialRouteFilter filter = new PartialRouteFilter(FilterType.METERS, 10000, 20000);
+            PartialRouteFilter filter = EPDShip.getInstance().getSettings().getCloudSettings().getIntendedRouteFilter();
             routeManager.getActiveRoute().getPartialRouteData(filter, message);
 
             lastTransmitActiveWp = new DateTime(routeManager.getActiveRoute().getActiveWaypointEta());

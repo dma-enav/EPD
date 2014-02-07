@@ -362,8 +362,8 @@ public class ToolBar extends JInternalFrame {
         intendedRoutes.setName("intended routes");
         intendedRoutes.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-                boolean intendedRoutesVisible = EPD.getInstance().getSettings().getAisSettings().isShowIntendedRoute();
-                EPD.getInstance().getSettings().getAisSettings().setShowIntendedRoute(!intendedRoutesVisible);
+                boolean intendedRoutesVisible = EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute();
+                EPD.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(!intendedRoutesVisible);
                 for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
                     mainFrame.getMapWindows().get(i).getChartPanel()
                             .setIntendedRouteLayerVisibility(!intendedRoutesVisible);
@@ -377,7 +377,7 @@ public class ToolBar extends JInternalFrame {
         });
         intendedRoutes.setToolTipText("Show/hide intended routes");
         layerToolItems.addToolItem(intendedRoutes);
-        if (EPD.getInstance().getSettings().getAisSettings().isShowIntendedRoute()) {
+        if (EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute()) {
             setActiveToolItem(intendedRoutes, layerToolItems);
         }
         

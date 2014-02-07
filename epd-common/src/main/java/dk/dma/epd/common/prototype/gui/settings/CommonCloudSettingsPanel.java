@@ -26,7 +26,7 @@ import javax.swing.border.TitledBorder;
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
-import dk.dma.epd.common.prototype.settings.EnavSettings;
+import dk.dma.epd.common.prototype.settings.CloudSettings;
 import dk.dma.epd.common.util.ParseUtils;
 
 /**
@@ -38,7 +38,7 @@ public class CommonCloudSettingsPanel extends BaseSettingsPanel {
     
     private JTextField txtServerPort = new JTextField();
     private JTextField txtServerName = new JTextField();
-    private EnavSettings enavSettings;
+    private CloudSettings cloudSettings;
     protected Insets insets5  = new Insets(5, 5, 5, 5);
 
     /**
@@ -78,9 +78,9 @@ public class CommonCloudSettingsPanel extends BaseSettingsPanel {
      */
     @Override
     protected void doLoadSettings() {
-        this.enavSettings = EPD.getInstance().getSettings().getEnavSettings();
-        txtServerName.setText(enavSettings.getCloudServerHost());
-        txtServerPort.setText(Integer.toString(enavSettings
+        this.cloudSettings = EPD.getInstance().getSettings().getCloudSettings();
+        txtServerName.setText(cloudSettings.getCloudServerHost());
+        txtServerPort.setText(Integer.toString(cloudSettings
                 .getCloudServerPort()));
     }
 
@@ -89,9 +89,9 @@ public class CommonCloudSettingsPanel extends BaseSettingsPanel {
      */
     @Override
     protected void doSaveSettings() {
-        enavSettings.setCloudServerHost(txtServerName.getText());
-        enavSettings.setCloudServerPort(getIntVal(
-                txtServerPort.getText(), enavSettings.getHttpPort()));
+        cloudSettings.setCloudServerHost(txtServerName.getText());
+        cloudSettings.setCloudServerPort(getIntVal(
+                txtServerPort.getText(), cloudSettings.getCloudServerPort()));
     }
     
     /**
@@ -100,8 +100,8 @@ public class CommonCloudSettingsPanel extends BaseSettingsPanel {
     @Override
     protected boolean checkSettingsChanged() {
         return 
-                changed(enavSettings.getCloudServerHost(), txtServerName.getText()) ||
-                changed(enavSettings.getCloudServerPort(), txtServerPort.getText());
+                changed(cloudSettings.getCloudServerHost(), txtServerName.getText()) ||
+                changed(cloudSettings.getCloudServerPort(), txtServerPort.getText());
     }
 
     /**

@@ -483,7 +483,7 @@ public class ChartPanel extends CommonChartPanel {
 
         // Create Intended Route Layer
         intendedRouteLayer = new IntendedRouteLayerCommon();
-        intendedRouteLayer.setVisible(EPD.getInstance().getSettings().getAisSettings().isShowIntendedRoute());
+        intendedRouteLayer.setVisible(EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
         mapHandler.add(intendedRouteLayer);
         
         // Create background layer

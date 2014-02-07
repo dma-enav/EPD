@@ -35,10 +35,6 @@ public class AisSettings implements Serializable {
     private boolean strict = true; // Strict timeout rules
     private int minRedrawInterval = 5; // 5 sec
     private boolean allowSending = true;
-    private boolean broadcastIntendedRoute = true;
-    private boolean showIntendedRoute;
-    private int intendedRouteMaxWps = 8;
-    private int intendedRouteMaxTime; // In minutes 0 = inf
     private int sartPrefix = 970;
     private String[] simulatedSartMmsi = {}; // Specify comma-separated mmsi list to simulate SarTarget's
     private boolean showNameLabels = true;
@@ -98,10 +94,6 @@ public class AisSettings implements Serializable {
         strict = PropUtils.booleanFromProperties(props, PREFIX + "strict", strict);
         minRedrawInterval = PropUtils.intFromProperties(props, PREFIX + "minRedrawInterval", minRedrawInterval);
         allowSending = PropUtils.booleanFromProperties(props, PREFIX + "allowSending", allowSending);
-        broadcastIntendedRoute = PropUtils.booleanFromProperties(props, PREFIX + "broadcastIntendedRoute", broadcastIntendedRoute);
-        showIntendedRoute = PropUtils.booleanFromProperties(props, PREFIX + "showIntendedRoute", showIntendedRoute);
-        intendedRouteMaxWps = PropUtils.intFromProperties(props, PREFIX + "intendedRouteMaxWps", intendedRouteMaxWps);
-        intendedRouteMaxTime = PropUtils.intFromProperties(props, PREFIX + "intendedRouteMaxTime", intendedRouteMaxTime);
         sartPrefix = PropUtils.intFromProperties(props, PREFIX + "sartPrefix", sartPrefix);
         simulatedSartMmsi = PropUtils.stringArrayFromProperties(props, PREFIX + "simulatedSartMmsi", ",");
         showNameLabels = PropUtils.booleanFromProperties(props, PREFIX + "showNameLabels", showNameLabels);
@@ -138,10 +130,6 @@ public class AisSettings implements Serializable {
         props.put(PREFIX + "strict", Boolean.toString(strict));
         props.put(PREFIX + "minRedrawInterval", Integer.toString(minRedrawInterval));
         props.put(PREFIX + "allowSending", Boolean.toString(allowSending));
-        props.put(PREFIX + "broadcastIntendedRoute", Boolean.toString(broadcastIntendedRoute));
-        props.put(PREFIX + "showIntendedRoute", Boolean.toString(showIntendedRoute));
-        props.put(PREFIX + "intendedRouteMaxWps", Integer.toString(intendedRouteMaxWps));
-        props.put(PREFIX + "intendedRouteMaxTime", Integer.toString(intendedRouteMaxTime));
         props.put(PREFIX + "sartPrefix", Integer.toString(sartPrefix));
         props.put(PREFIX + "simulatedSartMmsi", StringUtils.defaultString(StringUtils.join(simulatedSartMmsi, ",")));
         props.put(PREFIX + "showNameLabels", Boolean.toString(showNameLabels));
@@ -197,38 +185,6 @@ public class AisSettings implements Serializable {
 
     public void setAllowSending(boolean allowSending) {
         this.allowSending = allowSending;
-    }
-
-    public boolean isBroadcastIntendedRoute() {
-        return broadcastIntendedRoute;
-    }
-
-    public void setBroadcastIntendedRoute(boolean broadcastIntendedRoute) {
-        this.broadcastIntendedRoute = broadcastIntendedRoute;
-    }
-
-    public boolean isShowIntendedRoute() {
-        return showIntendedRoute;
-    }
-
-    public void setShowIntendedRoute(boolean showIntendedRoute) {
-        this.showIntendedRoute = showIntendedRoute;
-    }
-
-    public int getIntendedRouteMaxWps() {
-        return intendedRouteMaxWps;
-    }
-
-    public void setIntendedRouteMaxWps(int intendedRouteMaxWps) {
-        this.intendedRouteMaxWps = intendedRouteMaxWps;
-    }
-
-    public int getIntendedRouteMaxTime() {
-        return intendedRouteMaxTime;
-    }
-
-    public void setIntendedRouteMaxTime(int intendedRouteMaxTime) {
-        this.intendedRouteMaxTime = intendedRouteMaxTime;
     }
 
     public String getSartPrefix() {

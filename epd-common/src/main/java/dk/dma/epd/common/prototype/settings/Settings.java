@@ -37,6 +37,7 @@ public abstract class Settings {
 
     public abstract S57LayerSettings getS57Settings();
     
+    public abstract CloudSettings getCloudSettings();
     
     /**
      * Load the settings files as well as the workspace files

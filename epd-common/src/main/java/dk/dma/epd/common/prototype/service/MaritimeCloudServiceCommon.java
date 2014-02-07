@@ -35,7 +35,6 @@ import com.bbn.openmap.MapHandlerChild;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.prototype.status.CloudStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
@@ -86,11 +85,9 @@ public abstract class MaritimeCloudServiceCommon
      * Reads the e-Navigation settings for connection parameters
      */
     protected void readEnavSettings() {
-        EnavSettings enavSettings = EPD.getInstance().getSettings().getEnavSettings();
-        
         this.hostPort = String.format("%s:%d",
-                enavSettings.getCloudServerHost(),
-                enavSettings.getCloudServerPort());
+                EPD.getInstance().getSettings().getCloudSettings().getCloudServerHost(),
+                EPD.getInstance().getSettings().getCloudSettings().getCloudServerPort());
     }
     
     /**
