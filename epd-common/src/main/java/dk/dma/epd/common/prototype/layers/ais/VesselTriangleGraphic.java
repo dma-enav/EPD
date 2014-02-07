@@ -77,12 +77,12 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
 
         int[] headingX = { 0, 0 };
         int[] headingY = { 0, -100 };
-        heading = new RotationalPoly(headingX, headingY, null, ColorConstants.EPD_SHIP_VESSEL_COLOR);
+        heading = new RotationalPoly(headingX, headingY, null, ColorConstants.VESSEL_HEADING_COLOR);
 
         font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
         label = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);
 
-        this.speedVector = new SpeedVectorGraphic(ColorConstants.EPD_SHIP_VESSEL_COLOR);
+        this.speedVector = new SpeedVectorGraphic(ColorConstants.VESSEL_HEADING_COLOR);
         
         add(label);
         add(0, vessel);

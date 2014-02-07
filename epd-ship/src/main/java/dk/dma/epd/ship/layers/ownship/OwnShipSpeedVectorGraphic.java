@@ -39,10 +39,10 @@ public class OwnShipSpeedVectorGraphic extends SpeedVectorGraphic {
 
         int[] frontArrowX = { 5, 0, -5 };
         int[] frontArrowY = { 10, 0, 10 };
-        frontShipArrow = new RotationalPoly(frontArrowX, frontArrowY, stroke, null);
+        frontShipArrow = new RotationalPoly(frontArrowX, frontArrowY, stroke, paintUsed);
         int[] backArrowX = { 5, 0, -5 };
         int[] backArrowY = { 20, 10, 20 };
-        backShipArrow = new RotationalPoly(backArrowX, backArrowY, stroke, null);
+        backShipArrow = new RotationalPoly(backArrowX, backArrowY, stroke, paintUsed);
 
         this.add(frontShipArrow);
         this.add(backShipArrow);

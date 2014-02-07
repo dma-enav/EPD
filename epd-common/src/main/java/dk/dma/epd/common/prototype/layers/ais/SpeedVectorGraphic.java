@@ -60,7 +60,7 @@ public class SpeedVectorGraphic extends OMGraphicList {
     private int[] markX = { -5, 5 };
     private int[] markY = { 0, 0 };
 
-    private Paint paintUsed;
+    protected Paint paintUsed;
 
     private VesselPositionData lastUpdate;
 
@@ -129,7 +129,7 @@ public class SpeedVectorGraphic extends OMGraphicList {
                 );
         if (this.paintUsed == null) {
             // Use default color if none specified
-            this.paintUsed = ColorConstants.EPD_SHIP_VESSEL_COLOR;
+            this.paintUsed = ColorConstants.VESSEL_HEADING_COLOR;
         }
         this.speedVector.setLinePaint(this.paintUsed);
         this.add(this.speedVector);

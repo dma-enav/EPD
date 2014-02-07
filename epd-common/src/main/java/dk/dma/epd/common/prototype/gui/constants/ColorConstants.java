@@ -17,12 +17,20 @@ package dk.dma.epd.common.prototype.gui.constants;
 
 import java.awt.Color;
 
+import dk.dma.epd.common.graphics.GraphicsUtil;
+
 /**
  * @author Janus Varmarken
  */
 public final class ColorConstants {
     
-    public static final Color EPD_SHIP_VESSEL_COLOR = new Color(74, 97, 205, 255);
+    public static final int HEADING_ALPHA = 100;
     
-    public static final Color EPD_SHIP_OWNSHIP_COLOR = Color.BLACK;
+    public static final Color VESSEL_COLOR = new Color(74, 97, 205, 255);
+
+    public static final Color VESSEL_HEADING_COLOR = GraphicsUtil.transparentColor(VESSEL_COLOR, HEADING_ALPHA);
+    
+    public static final Color OWNSHIP_COLOR = Color.BLACK;
+
+    public static final Color OWNSHIP_HEADING_COLOR = GraphicsUtil.transparentColor(OWNSHIP_COLOR, HEADING_ALPHA);
 }

@@ -53,7 +53,7 @@ public class VesselTargetGraphic extends TargetGraphic implements ISelectableGra
         super();
         this.vesselTriangleGraphic = new VesselTriangleGraphic(this, parentLayer);
         this.vesselTriangleGraphic.setShowNameLabel(showName);
-        this.vesselOutlineGraphic = new VesselOutlineGraphic(ColorConstants.EPD_SHIP_VESSEL_COLOR, 2.0f, parentLayer, this);
+        this.vesselOutlineGraphic = new VesselOutlineGraphic(ColorConstants.VESSEL_COLOR, 2.0f, parentLayer, this);
         this.vesselOutlineGraphic.setShowNameLabel(showName);
         this.vesselDotGraphic = new VesselDotGraphic();
     }

@@ -61,7 +61,25 @@ public class GraphicsUtil {
         return new TexturePaint(bi, new Rectangle(0, 0, width, height));        
     }    
 
-
+    /**
+     * Creates a copy of the given color with the specified transparency
+     * 
+     * @param color the color to create a transparent copy of
+     * @param transparency the transparency, between 0 and 255.
+     * @return the transparent version of the color
+     */
+    public static Color transparentColor(Color color, int transparency) {
+        if (color == null) {
+            return null;
+        }
+        transparency = Math.min(Math.max(0, transparency), 255);
+        return new Color(
+                color.getRed(),
+                color.getGreen(),
+                color.getBlue(),
+                transparency);
+    }
+    
     /**
      * Fixes the size of a {@linkplain JComponent} to the given width and height.
      * <p>

@@ -65,13 +65,13 @@ public class VesselDotGraphic extends OMGraphicList implements ISelectableGraphi
         if(this.vesselMarker == null) {
             // lazy initialization
             this.vesselMarker = new OMCircle(newLocation.getLatitude(), newLocation.getLongitude(), CIRCLE_PIXEL_DIAMETER, CIRCLE_PIXEL_DIAMETER);
-            this.vesselMarker.setLinePaint(ColorConstants.EPD_SHIP_VESSEL_COLOR);
-            this.vesselMarker.setFillPaint(ColorConstants.EPD_SHIP_VESSEL_COLOR);
+            this.vesselMarker.setLinePaint(ColorConstants.VESSEL_COLOR);
+            this.vesselMarker.setFillPaint(ColorConstants.VESSEL_COLOR);
             this.add(this.vesselMarker);
             
             int[] headingX = { 0, 0 };
             int[] headingY = { 0, -15 };
-            cogVec = new RotationalPoly(headingX, headingY, null, ColorConstants.EPD_SHIP_VESSEL_COLOR);
+            cogVec = new RotationalPoly(headingX, headingY, null, ColorConstants.VESSEL_COLOR);
             this.add(cogVec);
             
         }
