@@ -24,7 +24,7 @@ import dk.dma.epd.common.graphics.GraphicsUtil;
  */
 public final class ColorConstants {
     
-    public static final int HEADING_ALPHA = 100;
+    public static final int HEADING_ALPHA = 255;
     
     public static final Color VESSEL_COLOR = new Color(74, 97, 205, 255);
 
