@@ -584,13 +584,21 @@ public class ActiveRoute extends Route {
             // Check if the way point should be included
             if (filter.getType() == FilterType.MINUTES) {
                Date currentWaypointEta = etas.get(i);
-               if ((i < activeWaypointIndex && currentWaypointEta.before(startDate)) ||
-                   (i > activeWaypointIndex && currentWaypointEta.after(endDate))) {
+               if ((i < activeWaypointIndex - 1 && currentWaypointEta.before(startDate)) ||
+                   (i > activeWaypointIndex + 1 && currentWaypointEta.after(endDate))) {
                    continue;
                }
+            
+            } else if (filter.getType() == FilterType.METERS) {
+                if ((i < activeWaypointIndex - 1 && distanceToActiveWaypoints[i] > filter.getBackward()) ||
+                    (i > activeWaypointIndex + 1 && distanceToActiveWaypoints[i] > filter.getForward())) {
+                    continue;
+                }
+            
             } else {
-                if ((i < activeWaypointIndex && distanceToActiveWaypoints[i] > filter.getBackward()) ||
-                    (i > activeWaypointIndex && distanceToActiveWaypoints[i] > filter.getForward())) {
+                // FilterType.COUNT
+                if ((i < activeWaypointIndex - Math.max(1, filter.getBackward())) ||
+                    (i > activeWaypointIndex + Math.max(1, filter.getForward()))) {
                     continue;
                 }
             }

@@ -25,9 +25,9 @@ public class PartialRouteFilter {
             new PartialRouteFilter(FilterType.METERS, 10000, 20000);
     
     /**
-     * Defines the filter type, either time in minutes or distance in meters
+     * Defines the filter type, either time in minutes, distance in meters or number of way points
      */
-    public enum FilterType { MINUTES, METERS }
+    public enum FilterType { MINUTES, METERS, COUNT }
     
     private FilterType type;
     private int forward;
@@ -89,7 +89,7 @@ public class PartialRouteFilter {
         try {
             String[] vals = str.split(",");
             return new PartialRouteFilter(
-                    vals[0].equals("TIME") ? FilterType.MINUTES : FilterType.METERS,
+                    FilterType.valueOf(vals[0]),
                     Integer.parseInt(vals[1]),
                     Integer.parseInt(vals[2]));
         } catch (Exception ex) {
