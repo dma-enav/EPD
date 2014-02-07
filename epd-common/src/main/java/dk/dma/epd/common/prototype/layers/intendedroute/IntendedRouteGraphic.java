@@ -25,6 +25,7 @@ import java.util.List;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.layers.common.WpCircle;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 
@@ -58,7 +59,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
     private Position vesselPos;
 
     private List<IntendedRouteLegGraphic> routeLegs = new ArrayList<>();
-    private List<IntendedRouteWpCircle> routeWps = new ArrayList<>();
+    private List<WpCircle> routeWps = new ArrayList<>();
     
     private PlannedPositionGraphic plannedPositionArea = new PlannedPositionGraphic();
     
@@ -105,6 +106,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
             ActiveIntendedRouteWpCircle activeWpCircle = new ActiveIntendedRouteWpCircle(this, index, wp.getLatitude(),
                     wp.getLongitude(), routeColor, SCALE);
             add(activeWpCircle);
+            routeWps.add(activeWpCircle);
         }
 
         IntendedRouteWpCircle wpCircle = new IntendedRouteWpCircle(this, index, wp.getLatitude(), wp.getLongitude(), routeColor,
@@ -139,7 +141,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
         for (IntendedRouteLegGraphic routeLeg : routeLegs) {
             routeLeg.setLinePaint(color);
         }
-        for (IntendedRouteWpCircle routeWp : routeWps) {
+        for (WpCircle routeWp : routeWps) {
             routeWp.setLinePaint(color);
         }
         activeWpLine.setLinePaint(color);
@@ -164,12 +166,7 @@ public class IntendedRouteGraphic extends OMGraphicList {
      */
     public synchronized void updateIntendedRoute() {
         updateIntendedRoute(intendedRoute);
-        
-        
-        System.out.println("The planned position is: " + intendedRoute.getPlannedPosition());
-        System.out.println("The planned bearing is " + intendedRoute.getPlannedPositionBearing());
-        
-        
+                
         //Update planned position
         plannedPositionArea.moveSymbol(intendedRoute.getPlannedPosition(), intendedRoute.getPlannedPositionBearing(), 1000, 500);
     }
@@ -197,6 +194,8 @@ public class IntendedRouteGraphic extends OMGraphicList {
     private void renderIntendedRoute() {
         // Clear the graphics
         clear();
+        routeLegs = new ArrayList<>();
+        routeWps = new ArrayList<>();
         
         //Re-add planned position
         add(plannedPositionArea);
