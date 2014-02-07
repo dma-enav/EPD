@@ -36,7 +36,7 @@ public class CloudSettings  implements Serializable {
     
     // Intended route settings
     private boolean broadcastIntendedRoute = true;
-    private boolean showIntendedRoute;
+    private boolean showIntendedRoute = true;
 
     /**
      * Constructor
