@@ -209,7 +209,7 @@ public class Route implements Serializable {
 
         newRoute.stccApproved = this.stccApproved;
 
-        calcValues(true);
+        newRoute.calcValues(true);
 
         return newRoute;
     }
