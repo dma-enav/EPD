@@ -326,7 +326,8 @@ public class IntendedRoute extends Route {
 
                     plannedPositionBearing = 0;
                     
-                    return getWaypoints().get(i).getPos();
+//                    return getWaypoints().get(i).getPos();
+                    return null;
                 } else {
 
                     // We should be beyond this
