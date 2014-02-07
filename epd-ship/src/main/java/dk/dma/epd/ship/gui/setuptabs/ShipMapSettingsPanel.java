@@ -15,6 +15,9 @@
  */
 package dk.dma.epd.ship.gui.setuptabs;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import dk.dma.epd.common.prototype.gui.settings.CommonMapSettingsPanel;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.settings.EPDMapSettings;
@@ -156,7 +159,25 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
         s52Settings.add(this.chckbxPlainAreas);
         
         JButton btnAdvancedOptions = new JButton("Advanced Options");
-        btnAdvancedOptions.setEnabled(false);
+        
+        
+        
+        if (!EPDShip.getInstance().getSettings().getMapSettings().isUseEnc()){
+            btnAdvancedOptions.setEnabled(false);
+        }
+        
+        btnAdvancedOptions.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                @SuppressWarnings("unused")
+                AdvancedSettingsWindow advSettingsWindow = new AdvancedSettingsWindow();
+//                advSettingsWindow.setVisible(true);
+//                btnAdvancedOptions
+                
+            }
+        });
+        
+        
+        
         btnAdvancedOptions.setBounds(220, 175, 107, 20);
         s52Settings.add(btnAdvancedOptions);
         
