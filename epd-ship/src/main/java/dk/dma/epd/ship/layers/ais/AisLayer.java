@@ -28,6 +28,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMList;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.AtoNTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
@@ -246,6 +247,22 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     }
 
     @Override
+    protected void handleMouseClick(OMGraphic clickedGraphics, MouseEvent evt) {
+        // Let super class handle selection marker
+        super.handleMouseClick(clickedGraphics, evt);
+        // Should run on event dispatch thread as we are updating swing components
+        assert SwingUtilities.isEventDispatchThread();
+        if(clickedGraphics == null) {
+            this.removeSelection();
+        }
+        else if(clickedGraphics instanceof ISelectableGraphic && clickedGraphics instanceof VesselTargetGraphic) {
+            VesselTarget vt = ((VesselTargetGraphic)clickedGraphics).getVesselTarget();
+            this.selectedMMSI = vt.getMmsi();
+            this.updateSelection(vt, true);
+        }
+    }
+    /*
+    @Override
     public boolean mouseClicked(MouseEvent e) {
         if (this.isVisible()) {
             if (e.getButton() == MouseEvent.BUTTON3 || e.getButton() == MouseEvent.BUTTON1) {
@@ -319,7 +336,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         }
         return false;
     }
-
+*/
     /**
      * Sets the given {@code closest} graphics as the new closest.
      * <p>
