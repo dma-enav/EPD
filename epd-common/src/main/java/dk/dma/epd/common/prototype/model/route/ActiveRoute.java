@@ -168,7 +168,7 @@ public class ActiveRoute extends Route {
         return safeHavenBearing;
     }
 
-    public Position getSafeHavenLocation() {
+    public synchronized Position getSafeHavenLocation() {
 
         long currentTime = PntTime.getInstance().getDate().getTime();
 
@@ -287,12 +287,12 @@ public class ActiveRoute extends Route {
     }
     
     @Override
-    public void calcAllWpEta() {
+    public synchronized void calcAllWpEta() {
         // Do not recalculate eta for an active route
     }
     
     @Override
-    public void calcValues(boolean force) {        
+    public synchronized void calcValues(boolean force) {        
         if (!force && ttgs != null && etas != null) {
             return;
         }
@@ -490,7 +490,7 @@ public class ActiveRoute extends Route {
         this.relaxedWpChange = relaxedWpChange;
     }
 
-    public dk.dma.enav.model.voyage.Route getFullRouteData() {
+    public synchronized dk.dma.enav.model.voyage.Route getFullRouteData() {
 
         dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
 
@@ -544,7 +544,7 @@ public class ActiveRoute extends Route {
      * @param result the result to update. If null, a new instance is created.
      * @return the partial route
      */
-    public IntendedRouteBroadcast getPartialRouteData(PartialRouteFilter filter, IntendedRouteBroadcast result) {
+    public synchronized IntendedRouteBroadcast getPartialRouteData(PartialRouteFilter filter, IntendedRouteBroadcast result) {
         
         dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
         List<Date> originalEtas = new ArrayList<>();
@@ -595,8 +595,7 @@ public class ActiveRoute extends Route {
                     continue;
                 }
             
-            } else {
-                // FilterType.COUNT
+            } else if (filter.getType() == FilterType.COUNT) {
                 if ((i < activeWaypointIndex - Math.max(1, filter.getBackward())) ||
                     (i > activeWaypointIndex + Math.max(1, filter.getForward()))) {
                     continue;
