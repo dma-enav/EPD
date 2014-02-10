@@ -41,7 +41,6 @@ import dk.dma.epd.common.prototype.layers.ais.AisTargetInfoPanelCommon;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
-import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -87,6 +86,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
      * @param mobileTarget
      * @return if the target should be included
      */
+    @SuppressWarnings("unused")
     private boolean drawTarget(MobileTarget mobileTarget) {
         Point2D lr = chartPanel.getMap().getProjection().getLowerRight();
         Point2D ul = chartPanel.getMap().getProjection().getUpperLeft();
