@@ -81,22 +81,22 @@ public class IntendedRoute extends Route {
             Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
 
             waypoint.setName(cloudWaypoint.getName());
-
-            if (i != 0) {
-                RouteLeg inLeg = new RouteLeg();
-                inLeg.setHeading(Heading.RL);
-                waypoint.setInLeg(inLeg);
-            }
-
-            // Outleg always has next
-            if (i != cloudRouteWaypoints.size() - 1) {
-                RouteLeg outLeg = new RouteLeg();
-                outLeg.setHeading(Heading.RL);
-                waypoint.setOutLeg(outLeg);
-            }
-
             Position position = Position.create(cloudWaypoint.getLatitude(), cloudWaypoint.getLongitude());
             waypoint.setPos(position);
+
+            // Handle leg
+            if (i > 0) {
+                RouteWaypoint prevWaypoint = routeWaypoints.get(i - 1);
+                RouteLeg leg = new RouteLeg();
+                waypoint.setInLeg(leg);
+                prevWaypoint.setOutLeg(leg);
+                leg.setStartWp(prevWaypoint);
+                leg.setEndWp(waypoint);
+                
+                // TODO: Do not hardcode heading
+                leg.setHeading(Heading.RL);
+            }
+
 
             routeWaypoints.add(waypoint);
 
@@ -107,21 +107,6 @@ public class IntendedRoute extends Route {
 
                 RouteWaypoint waypoint = routeWaypoints.get(i);
                 Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
-
-                // Waypoint 0 has no in leg, one out leg... no previous
-                if (i != 0) {
-                    RouteWaypoint prevWaypoint = routeWaypoints.get(i - 1);
-
-                    if (waypoint.getInLeg() != null) {
-                        waypoint.getInLeg().setStartWp(prevWaypoint);
-                        waypoint.getInLeg().setEndWp(waypoint);
-                    }
-
-                    if (prevWaypoint.getOutLeg() != null) {
-                        prevWaypoint.getOutLeg().setStartWp(prevWaypoint);
-                        prevWaypoint.getOutLeg().setEndWp(waypoint);
-                    }
-                }
 
                 if (cloudWaypoint.getTurnRad() != null) {
                     waypoint.setTurnRad(cloudWaypoint.getTurnRad());
