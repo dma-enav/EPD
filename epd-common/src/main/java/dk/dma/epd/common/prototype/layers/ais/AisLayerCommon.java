@@ -82,6 +82,8 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         this.aisSettings.addPropertyChangeListener(this);
         // receive left-click events for the following set of classes.
         this.registerMouseClickClasses(VesselTargetGraphic.class);
+        // receive right-click events for the following set of classes.
+        this.registerMapMenuClasses(VesselTargetGraphic.class, SartGraphic.class);
     }
 
     @SuppressWarnings("unchecked")

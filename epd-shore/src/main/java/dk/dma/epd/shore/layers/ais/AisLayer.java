@@ -70,8 +70,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
      */
     public AisLayer(int redrawIntervalMillis) {
         super(redrawIntervalMillis);
-        // receive right-click events for the following set of classes.
-        this.registerMapMenuClasses(VesselTargetGraphic.class, SartGraphic.class);
         // Register mouse over of VesselTargetGraphics to invoke the AisTargetInfoPanel
         this.registerInfoPanel(this.aisTargetInfoPanel, VesselTargetGraphic.class);
         // Register mouse over of PastTrackWpCircle to invoke the PastTrackInfoPanel
