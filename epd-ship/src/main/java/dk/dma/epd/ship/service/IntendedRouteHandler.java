@@ -112,7 +112,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                         System.out.println("Periodically rebroadcasting");
                         broadcastIntendedRoute();
                         lastSend = new DateTime();
-                    } else {
+                    } else if (lastTransmitActiveWp != null) {
 
                         // We check for the adaptive route broadcast here
                         // We need to compare lastTransmitActiveWp which is the last stored
