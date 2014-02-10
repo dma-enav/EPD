@@ -50,11 +50,13 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
     private JPanel useNumberOfWayPoints;
     private JSpinner spinnerForwardNumbers;
     private JSpinner spinnerBackwardsNumber;
+    private JSpinner spinnerTimeBetweenBroadcast;
+    private JSpinner spinnerAdaptionTime;
     
     public ShipServicesSettingsPanel() {
         super("Services", new ImageIcon(
                 ShipServicesSettingsPanel.class.getResource("/images/settingspanels/services.png")));
-        setLayout(null);
+        this.setLayout(null);
         
         
         /************** General settings ***************/
@@ -72,11 +74,11 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         lblTimeBetweenBroadcast.setBounds(103, 47, 189, 16);
         generalPanel.add(lblTimeBetweenBroadcast);
         
-        JSpinner spinnerTimeBetweenBroadcast = new JSpinner();
+        spinnerTimeBetweenBroadcast = new JSpinner();
         spinnerTimeBetweenBroadcast.setBounds(16, 45, 75, 20);
         generalPanel.add(spinnerTimeBetweenBroadcast);
         
-        JSpinner spinnerAdaptionTime = new JSpinner();
+        spinnerAdaptionTime = new JSpinner();
         spinnerAdaptionTime.setBounds(16, 70, 75, 20);
         generalPanel.add(spinnerAdaptionTime);
         
@@ -203,6 +205,7 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         
         this.useNumberOfWayPoints.setVisible(false);
                 
+        // Add all the panels.
         this.generalPanel.add(this.useMeterPanel);
         this.generalPanel.add(this.useMinutesPanel);
         this.generalPanel.add(this.useNumberOfWayPoints);
@@ -210,20 +213,26 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         this.updateGui();
     }
     
+    /**
+     * Updates the gui from what the user has selected.
+     */
     private void updateGui() {
         
+        // Show Distance panel.
         if (this.comboBoxSelectMethod.getSelectedItem().equals("Distance")) {
 
             this.useNumberOfWayPoints.setVisible(false);
             this.useMinutesPanel.setVisible(false);
             this.useMeterPanel.setVisible(true);
-                        
+
+        // Show the Time panel.
         } else if (this.comboBoxSelectMethod.getSelectedItem().equals("Time")) {
             
             this.useNumberOfWayPoints.setVisible(false);
             this.useMeterPanel.setVisible(false);
             this.useMinutesPanel.setVisible(true);
-                        
+        
+        // Show the number of waypoints panel.
         } else if (this.comboBoxSelectMethod.getSelectedItem().equals("Number of way points")) {
             
             this.useMeterPanel.setVisible(false);
@@ -231,30 +240,46 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
             this.useNumberOfWayPoints.setVisible(true);
             
         }
-        
-        this.generalPanel.repaint();
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         
         updateGui();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected boolean checkSettingsChanged() {
         
-        return 
-                changed(this.cloudSettings.isBroadcastIntendedRoute(), this.chckbxBroadcastIntendedRoute.isSelected());
+        boolean changesWereMade = changed(
+                this.cloudSettings.isShowIntendedRoute(), this.chckbxBroadcastIntendedRoute.isSelected());
+        
+        if (!changesWereMade) {
+            
+            
+        }
+
+        return changesWereMade;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void doLoadSettings() {
-        
+
+        // Get the settings.
         this.cloudSettings = EPDShip.getInstance().getSettings().getCloudSettings();
         
         // Load cloud Intended Route Settings.
         this.chckbxBroadcastIntendedRoute.setSelected(this.cloudSettings.isBroadcastIntendedRoute());
+//        this.spinnerTimeBetweenBroadcast.setValue(this.cloudSettings.);
         
         // Get filter type. 
         FilterType type = this.cloudSettings.getIntendedRouteFilter().getType();
@@ -283,11 +308,12 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
             
             this.spinnerForwardNumbers.setValue(this.cloudSettings.getIntendedRouteFilter().getForward());
             this.spinnerBackwardsNumber.setValue(this.cloudSettings.getIntendedRouteFilter().getBackward());
-            
         }
-            
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void doSaveSettings() {
         
@@ -332,9 +358,11 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
                     (Integer) this.spinnerBackwardsNumber.getValue());
             
         }
-        
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void fireSettingsChanged() {
         fireSettingsChanged(Type.CLOUD);
