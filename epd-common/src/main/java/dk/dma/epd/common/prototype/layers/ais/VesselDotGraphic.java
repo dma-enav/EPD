@@ -79,6 +79,12 @@ public class VesselDotGraphic extends OMGraphicList implements ISelectableGraphi
         this.vesselMarker.setCenter(new LatLonPoint.Double(newLocation.getLatitude(), newLocation.getLongitude()));
         // Update cog vector
         this.cogVec.setLocation(newLocation.getLatitude(), newLocation.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, Math.toRadians(posData.getCog()));
+        
+        if(this.circleSelectionGraphic == null) {
+            this.circleSelectionGraphic = new CircleSelectionGraphic(this);
+        }
+        // update selection graphic
+        this.circleSelectionGraphic.updatePosition(newLocation);
     }
 
     @Override

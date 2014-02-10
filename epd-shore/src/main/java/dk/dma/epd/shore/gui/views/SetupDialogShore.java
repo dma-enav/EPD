@@ -66,9 +66,14 @@ public class SetupDialogShore extends SetupDialogCommon implements LightMapHandl
         this.aisSettings = new ShoreAisSettingsPanel();
 
         // Register the panels for shore setup.
-        super.registerSettingsPanels(this.connectionPanel, this.shoreSettings, this.mapSettings, this.windowsSettings,
+        super.registerSettingsPanels(
+                this.connectionPanel, 
+                this.shoreSettings, 
+                this.mapSettings, 
+                this.windowsSettings,
                 this.aisSettings);
 
+        super.resizePanelsToFitContainer(this);
         super.setActivePanel(1);
     }
 

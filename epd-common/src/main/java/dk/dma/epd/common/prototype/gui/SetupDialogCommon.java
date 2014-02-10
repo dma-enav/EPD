@@ -32,6 +32,8 @@ import dk.dma.epd.common.prototype.gui.settings.CommonENavSettingsPanel;
 import dk.dma.epd.common.prototype.settings.Settings;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.ArrayList;
@@ -150,11 +152,48 @@ public class SetupDialogCommon extends JDialog {
      *            The settings panel to register.
      */
     public void registerSettingsPanels(BaseSettingsPanel... settingsPanels) {
+
         for (BaseSettingsPanel baseSettingsPanel : settingsPanels) {
             this.settingsPanels.add(baseSettingsPanel);
         }
 
         addTabs(tabbedPane);
+    }
+    
+    /**
+     * Resizes the settings panels in the setup dialog
+     * to fit into the container.
+     * @param container The container in which the panels are placed.
+     */
+    public void resizePanelsToFitContainer(Container container) {
+        
+        // The value to resize with.
+        int resizeWidthWith = 20;
+        
+        // If the tab placement is placed on the left side, we need to add
+        // some more width.
+        if (this.tabbedPane.getTabPlacement() == JTabbedPane.LEFT) {
+            resizeWidthWith = 188;
+        }
+        
+        // For each setting panel get the components.
+        for (BaseSettingsPanel baseSettingsPanel : this.settingsPanels) {
+            Component[] components = baseSettingsPanel.getComponents();
+            
+            // Go through each of the settings panels components.
+            for (Component component : components) {
+                
+                // If the component is an instance of JPanel, resize it.
+                if (component instanceof JPanel) {
+                    
+                    component.setBounds(
+                            component.getX(), 
+                            component.getY(), 
+                            container.getWidth()-resizeWidthWith, 
+                            component.getHeight());
+                }
+            }
+        }
     }
 
     /**

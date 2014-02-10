@@ -43,7 +43,6 @@ import dk.dma.epd.ship.event.RouteEditMouseMode;
 import dk.dma.epd.ship.gui.ais.AisDialog;
 import dk.dma.epd.ship.gui.msi.MsiDialog;
 import dk.dma.epd.ship.gui.route.RouteManagerDialog;
-import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
 
 /**
@@ -99,7 +98,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     private MsiDialog msiDialog;
     private AisDialog aisDialog;
     private MenuBar menuBar;
-    private AisLayer aisLayer;
     private RouteLayer routeLayer;
 
     private MouseDelegator mouseDelegator;
@@ -274,9 +272,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         if (obj instanceof AisDialog) {
             aisDialog = (AisDialog) obj;
         }
-        if (obj instanceof AisLayer) {
-            aisLayer = (AisLayer) obj;
-        }
         if (obj instanceof MenuBar) {
             menuBar = (MenuBar) obj;
         }
@@ -397,9 +392,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             
         } else if (e.getSource() == aisToggleName) {
             boolean showNameLabels = aisToggleName.isSelected();
-            EPDShip.getInstance().getSettings().getAisSettings().setShowNameLabels(showNameLabels);
-            aisLayer.setShowNameLabels(showNameLabels);
-            
+            EPDShip.getInstance().getSettings().getAisSettings().setShowNameLabels(showNameLabels);    
         } else if (e.getSource() == toggleSafeHaven) {
             routeLayer.toggleSafeHaven();
         } else if (e.getSource() == dragMouseMode) {

@@ -70,10 +70,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
      */
     public AisLayer(int redrawIntervalMillis) {
         super(redrawIntervalMillis);
-        // receive left-click events for the following set of classes.
-        this.registerMouseClickClasses(VesselTargetGraphic.class);
-        // receive right-click events for the following set of classes.
-        this.registerMapMenuClasses(VesselTargetGraphic.class, SartGraphic.class);
         // Register mouse over of VesselTargetGraphics to invoke the AisTargetInfoPanel
         this.registerInfoPanel(this.aisTargetInfoPanel, VesselTargetGraphic.class);
         // Register mouse over of PastTrackWpCircle to invoke the PastTrackInfoPanel
@@ -138,41 +134,32 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             mapFrame.getGlassPanel().setVisible(true);
         }
     }
-
+    
     /**
-     * Event handler for left click on the map.
+     * {@inheritDoc} <br/>
+     * In addition, this sub class implementation updates the status area text to reflect any new selection. Furthermore the {@code MainFrame} is notified about the change in selection such that it can pass this info to {@code AisLayer}s in other frames.
      */
     @Override
     protected void handleMouseClick(OMGraphic clickedGraphics, MouseEvent evt) {
-        // Should only handle left clicks.
-        assert evt.getButton() == MouseEvent.BUTTON1;
-        if(clickedGraphics != null) {
-            System.out.println("clickedGraphics has type = " + clickedGraphics.getClass().getSimpleName());
+        super.handleMouseClick(clickedGraphics, evt);
+        if(clickedGraphics == null) {
+            // Selection was cleared.
+            // Clear status area text.
+            this.statusArea.removeHighlight();
+            // Inform other AisLayers about the deselection
+            this.getMainFrame().setSelectedMMSI(-1);
         }
-        if(clickedGraphics instanceof ISelectableGraphic) {
-            // Update selected graphic and do a repaint
-            this.setSelectedGraphic((ISelectableGraphic) clickedGraphics, true);
-            
-            if(clickedGraphics instanceof VesselTargetGraphic) {
-                VesselTarget vt = ((VesselTargetGraphic)clickedGraphics).getVesselTarget();
-                if(vt != null) {
-                    // Update status text if clicked graphic is a vessel
-                    setStatusAreaTxt(vt);
-                    // Call mainframe with new selection such that AisLayers in other frames will also display the new selection.
-                    getMainFrame().setSelectedMMSI(vt.getMmsi());
-                }
+        else if(clickedGraphics instanceof ISelectableGraphic && clickedGraphics instanceof VesselTargetGraphic) {
+            VesselTarget vt = ((VesselTargetGraphic)clickedGraphics).getVesselTarget();
+            if(vt != null) {
+                // Update status text if clicked graphic is a vessel
+                setStatusAreaTxt(vt);
+                // Call mainframe with new selection such that AisLayers in other frames will also display the new selection.
+                getMainFrame().setSelectedMMSI(vt.getMmsi());
             }
         }
-        else if(clickedGraphics == null) {
-            // User clicked somewhere on the map with no nearby graphics
-            // We need to remove the current selection and repaint
-            this.setSelectedGraphic(null, true);
-            // Call mainframe with invalid selection sucht that AisLayers in other frames will also have their selection removed.
-            this.getMainFrame().setSelectedMMSI(-1);
-            // remove status info as no target is selected
-            this.statusArea.removeHighlight();
-        }
     }
+    
     
     /**
      * Event handler for right click on the map.
