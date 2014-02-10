@@ -35,7 +35,6 @@ import dk.dma.epd.common.prototype.ais.SarTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
-import dk.dma.epd.common.prototype.layers.ais.AisTargetSelectionGraphic;
 import dk.dma.epd.common.prototype.layers.ais.AtonTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
@@ -71,7 +70,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     // Only accessed in event dispatch thread
     private OMGraphic closest;
     private AisComponentPanel aisPanel;
-    private AisTargetSelectionGraphic targetSelectionGraphic = new AisTargetSelectionGraphic();
 
     private volatile long selectedMMSI = -1;
 
@@ -79,7 +77,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 
     public AisLayer(int redrawIntervalMillis) {
         super(redrawIntervalMillis);
-        graphics.add(targetSelectionGraphic);
     }
 
     /**
@@ -118,9 +115,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             }
 
         }
-
-        targetSelectionGraphic.setVisible(true);
-        targetSelectionGraphic.moveSymbol(((VesselTarget) aisTarget).getPositionData().getPos());
 
         VesselTarget vessel = (VesselTarget) aisTarget;
 
@@ -178,7 +172,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             });
             return;
         }
-        targetSelectionGraphic.setVisible(false);
         selectedMMSI = -1;
         aisPanel.resetHighLight();
         doPrepare();
