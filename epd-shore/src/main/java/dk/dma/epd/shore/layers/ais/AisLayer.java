@@ -41,9 +41,9 @@ import dk.dma.epd.common.prototype.layers.ais.AisTargetInfoPanelCommon;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
+import dk.dma.epd.common.prototype.layers.ais.TargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
@@ -64,7 +64,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     private StatusArea statusArea;
     private ChartPanel chartPanel;
     private final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
-    private boolean showVesselLabels;
 
     /**
      * Create a new AisLayer that is redrawn repeatedly at a given interval.
@@ -80,8 +79,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         this.registerInfoPanel(this.aisTargetInfoPanel, VesselTargetGraphic.class);
         // Register mouse over of PastTrackWpCircle to invoke the PastTrackInfoPanel
         this.registerInfoPanel(this.pastTrackInfoPanel, PastTrackWpCircle.class);
-        
-        this.showVesselLabels = EPDShore.getInstance().getSettings().getAisSettings().isShowNameLabels();
     }
 
     /**
@@ -322,26 +319,24 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     }
     
     /**
-     * Updates visibility of vessel names. Updates are done with the redraw interval,
-     * defined by the constructor of this object. 
-     * @param Sets the vessel names to be shown or not.
+     * Set if this AIS layer should show name labels for the AIS targets it
+     * displays. Use this method to toggle AIS target labels on a per layer
+     * basis. Modify the application wide AisSettings object to toggle AIS
+     * label visibility for all AIS layers (if more map windows are open).
+     * 
+     * @param showLabels
+     *            Use true to show name labels, and use false to hide name
+     *            labels.
      */
-    @Override
     public void setShowNameLabels(boolean showLabels) {
-        // TODO JVA: move this stuff to Common
-//        if (showLabels == this.showVesselLabels) {
-//            return;
-//        }
-//        
-//        this.showVesselLabels = showLabels;
-//        for (TargetGraphic graphic : targets.values()) {
-//            
-//            if (graphic instanceof VesselTargetGraphic) {
-//                ((VesselTargetGraphic) graphic).setShowNameLabel(showLabels);
-//                targetUpdated(((VesselTargetGraphic) graphic).getVesselTarget());
-//            }
-//            
-//            doPrepare();
-//        }
+        synchronized(this.graphics) {
+            for(OMGraphic og : this.graphics) {
+                if(og instanceof VesselTargetGraphic) {
+                    ((VesselTargetGraphic)og).setShowNameLabel(showLabels);
+                }
+            }
+        }
+        // repaint
+        this.doPrepare();
     }
 }

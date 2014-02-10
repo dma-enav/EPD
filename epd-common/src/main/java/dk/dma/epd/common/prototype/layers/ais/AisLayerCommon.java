@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.common.prototype.layers.ais;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -38,7 +40,7 @@ import dk.dma.epd.common.prototype.settings.NavSettings;
  */
 @SuppressWarnings("serial")
 public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
-        extends LazyLayerCommon implements IAisTargetListener {
+        extends LazyLayerCommon implements IAisTargetListener, PropertyChangeListener {
 
     private static final Logger LOG = LoggerFactory
             .getLogger(AisLayerCommon.class);
@@ -47,7 +49,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      * The AIS handler that provides AIS data for this layer.
      */
     protected volatile AISHANDLER aisHandler;
-
+    
     /**
      * Maps an MMSI to the object handling its graphical representation.
      */
@@ -73,6 +75,8 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         // Get the settings singletons
         this.aisSettings = EPD.getInstance().getSettings().getAisSettings();
         this.navSettings = EPD.getInstance().getSettings().getNavSettings();
+        // register self as listener for changes to the AIS settings
+        this.aisSettings.addPropertyChangeListener(this);
     }
 
     @SuppressWarnings("unchecked")
@@ -228,8 +232,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         // Create and insert
         if (targetGraphic == null) {
             if (aisTarget instanceof VesselTarget) {
-                // TODO update boolean argument to use dynamic value
-                targetGraphic = new VesselTargetGraphic(true, this);
+                targetGraphic = new VesselTargetGraphic(this.aisSettings.isShowNameLabels(), this);
                 // TODO this causes problems in EPDShip with regards to mouse
                 // clicks and mouse over as EPDShip does instanceof checks on
                 // sub graphics of VesselTargetGraphic
@@ -259,19 +262,31 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         }
         targetGraphic.project(getProjection());
     }
+    
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(AisSettings.SHOW_NAME_LABELS_CHANGED.equals(evt.getPropertyName())) {
+            // A change occurred in the "Show AIS name labels" setting
+            this.onShowNameLabelsChanged(evt);
+        }
+    }
+    
+    /**
+     * Invoked by {@link #propertyChange(PropertyChangeEvent)} when this layer receives a notification of a change to the "show AIS name labels" setting.
+     * @param evt The event fired by the {@code AisSettings} that this layer observes.
+     */
+    protected void onShowNameLabelsChanged(PropertyChangeEvent evt) {
+        for(TargetGraphic tg : this.targets.values()) {
+            if(tg instanceof VesselTargetGraphic) {
+                ((VesselTargetGraphic)tg).setShowNameLabel((Boolean)evt.getNewValue());
+            }
+        }
+        // do a repaint
+        this.doPrepare();
+    }
 
     /**
      * Force this AIS layer to update itself.
      */
     public abstract void forceLayerUpdate();
-
-    /**
-     * Set if this AIS layer should show name labels for the AIS targets it
-     * displays.
-     * 
-     * @param showLabels
-     *            Use true to show name labels, and use false to hide name
-     *            labels.
-     */
-    public abstract void setShowNameLabels(boolean showLabels);
 }
