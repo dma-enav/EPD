@@ -25,15 +25,10 @@ import dk.dma.epd.ship.settings.EPDMapSettings;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
-import javax.swing.DefaultListModel;
 import javax.swing.JSpinner;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
-import javax.swing.JList;
-import javax.swing.ListSelectionModel;
-
-import org.apache.commons.lang.ArrayUtils;
 
 /**
  * 
@@ -43,8 +38,6 @@ import org.apache.commons.lang.ArrayUtils;
 public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
 
     private static final long serialVersionUID = 1L;
-    private JList<String> listWMSServices;
-    private DefaultListModel<String> listModel;
     private JComboBox<String> comboBoxColorProfile;
     private JCheckBox chckbxUseEnc;
     private JCheckBox chckbxUseWms;
@@ -71,7 +64,11 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
         
         // Resize the panel to add spaces for ekstra ship options.
         this.getGeneralPanel().setSize(438, 184);
-        this.getWMSPanel().setBounds(6, 434, 438, 190);
+        this.getWMSPanel().setBounds(
+                super.getWMSPanel().getX(), 
+                super.getWMSPanel().getY()+268, 
+                super.getWMSPanel().getWidth(), 
+                super.getWMSPanel().getHeight());
         
         
         /************** General settings ***************/
@@ -176,26 +173,10 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
             }
         });
         
-        
-        
         btnAdvancedOptions.setBounds(220, 175, 107, 20);
         s52Settings.add(btnAdvancedOptions);
         
         this.add(s52Settings);
-        
-        /************** WMS settings ***************/
-        
-        JLabel lblWmsServices = new JLabel("WMS Services");
-        lblWmsServices.setBounds(16, 65, 84, 16);
-        this.getWMSPanel().add(lblWmsServices);
-        
-        this.listModel = new DefaultListModel<String>();
-        this.listWMSServices = new JList<String>(listModel);
-        this.listWMSServices.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        this.listWMSServices.setLayoutOrientation(JList.VERTICAL);
-        
-        this.listWMSServices.setBounds(16, 85, 405, 80);
-        this.getWMSPanel().add(listWMSServices);
     }
     
     public void doLoadSettings() {
@@ -221,11 +202,6 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
         this.chckbxPlainAreas.setSelected(mapSettings.isUsePlainAreas());
         this.chckbxTwoShades.setSelected(mapSettings.isS52TwoShades());
         this.comboBoxColorProfile.setSelectedItem(mapSettings.getColor());
-        
-        String[] wmsProviders = this.mapSettings.getWmsProviders();
-        for (int i = 0; i < wmsProviders.length; i++) {
-            this.listModel.addElement(wmsProviders[i]);
-        }
     }
     
     public void doSaveSettings() {
@@ -249,11 +225,6 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
         this.mapSettings.setUsePlainAreas(this.chckbxPlainAreas.isSelected());
         this.mapSettings.setS52TwoShades(this.chckbxTwoShades.isSelected());
         this.mapSettings.setColor(comboBoxColorProfile.getSelectedItem().toString());
-        
-        String[] wmsProviders = new String[this.listModel.getSize()];
-        for (int i = 0; i < wmsProviders.length; i++) {
-            wmsProviders[i] = this.listModel.getElementAt(i);
-        }
     }
     
     public boolean checkSettingsChanged() {
@@ -284,15 +255,6 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
                     changed(this.mapSettings.isUsePlainAreas(), this.chckbxPlainAreas.isSelected()) ||
                     changed(this.mapSettings.isS52TwoShades(), this.chckbxTwoShades.isSelected()) ||
                     changed(this.mapSettings.getColor(), this.comboBoxColorProfile.getSelectedItem().toString());
-            
-            if (!changesWereMade) {
-                String[] wmsProviders = new String[this.listModel.getSize()];
-                for (int i = 0; i < wmsProviders.length; i++) {
-                    wmsProviders[i] = this.listModel.getElementAt(i);
-                }
-                
-                changesWereMade = !ArrayUtils.isEquals(this.mapSettings.getWmsProviders(), wmsProviders);
-            }
         }
         
         return changesWereMade;
