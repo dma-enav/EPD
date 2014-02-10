@@ -258,7 +258,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {
         if (clickedGraphics instanceof VesselTargetGraphic) {
             this.getMapMenu().aisMenu((VesselTargetGraphic) clickedGraphics, topPanel);
-//            aisTargetInfoPanel.setVisible(false);
         }
         else if (clickedGraphics instanceof SartGraphic) {
             SartGraphic sartGraphic = (SartGraphic) clickedGraphics;
