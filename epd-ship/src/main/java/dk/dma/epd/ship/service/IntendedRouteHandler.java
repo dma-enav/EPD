@@ -17,6 +17,9 @@ package dk.dma.epd.ship.service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
 
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.broadcast.BroadcastOptions;
@@ -25,10 +28,16 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.enav.model.voyage.Route;
+import com.bbn.openmap.geo.Geo;
+import com.bbn.openmap.geo.Intersection;
+
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
+import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.PartialRouteFilter;
+import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.util.Util;
@@ -49,13 +58,16 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
 
     private static final Logger LOG = LoggerFactory.getLogger(IntendedRouteHandler.class);
     private static final long BROADCAST_TIME = 60; // Broadcast intended route every minute for now
-    private static final long ADAPTIVE_TIME = 60 * 10;    // Set to 10 minutes?
+    private static final long ADAPTIVE_TIME = 60 * 10; // Set to 10 minutes?
     private static final int BROADCAST_RADIUS = Integer.MAX_VALUE;
 
     private DateTime lastTransmitActiveWp;
     private DateTime lastSend = new DateTime(1);
     private RouteManager routeManager;
     private boolean running;
+    
+    
+    
 
     /**
      * Constructor
@@ -148,12 +160,11 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                             // System.out.println("ETA has changed with " + etaTimeChange + " mili seconds" );
 
                         }
-                
 
                     }
 
                     Util.sleep(1000L);
-                    
+
                 }
             }
 
@@ -181,15 +192,16 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
             lastTransmitActiveWp = new DateTime(routeManager.getActiveRoute().getActiveWaypointEta());
 
         } else {
-            message.setIntendedRoute(new Route());
+            message.setIntendedRoute(new dk.dma.enav.model.voyage.Route());
             message.setOriginalEtas(new ArrayList<Date>());
         }
 
         // send message
         LOG.debug("Broadcasting intended route");
-        
-        submitIfConnected(new Runnable() {                
-            @Override  public void run() {
+
+        submitIfConnected(new Runnable() {
+            @Override
+            public void run() {
                 BroadcastOptions options = new BroadcastOptions();
                 options.setBroadcastRadius(BROADCAST_RADIUS);
                 getMaritimeCloudConnection().broadcast(message, options);
@@ -209,6 +221,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
 
                 lastSend = new DateTime();
                 broadcastIntendedRoute();
+
+                filterTest();
 
             }
         }
@@ -239,4 +253,96 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         super.findAndUndo(obj);
     }
 
+    private void filterTest() {
+
+        intersectPositions.clear();
+        
+        // Compare all intended routes against our own active route
+
+        if (routeManager.getActiveRoute() != null) {
+
+            // The route we're comparing against
+            ActiveRoute route = routeManager.getActiveRoute();
+
+            Iterator it = intendedRoutes.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pairs = (Map.Entry) it.next();
+
+                System.out.println("Examining intended route from " + pairs.getKey());
+
+                Route recievedRoute = (dk.dma.epd.common.prototype.model.route.Route) pairs.getValue();
+
+                // Compare all line segments
+                LinkedList<RouteWaypoint> waypoints = recievedRoute.getWaypoints();
+
+                // Our own waypoint list
+                LinkedList<RouteWaypoint> activeRouteWaypoints = route.getWaypoints();
+
+                Position previousPositionActiveRoute = activeRouteWaypoints.get(0).getPos();
+                for (int i = 1; i < activeRouteWaypoints.size(); i++) {
+
+                    Position activeA = previousPositionActiveRoute;
+                    Position activeB =  activeRouteWaypoints.get(i).getPos();
+                    
+                    Position previousPositionIntendedRoute = waypoints.get(0).getPos();
+                    for (int j = 1; j < waypoints.size(); j++) {
+
+                        // Line segment
+                        Position intendedA = previousPositionIntendedRoute;
+                        Position intendedB = waypoints.get(j).getPos();
+
+                        
+                        System.out.println(intersection(activeA, activeB, intendedA, intendedB));
+                        
+                        previousPositionIntendedRoute = intendedB;
+                    }
+                    
+                    previousPositionActiveRoute = activeB;
+
+                    System.out.println(pairs.getKey() + " = " + pairs.getValue());
+//                    it.remove(); // avoids a ConcurrentModificationException
+                }
+
+            }
+            // intendedRoutes.get
+
+        }
+
+    }
+
+    
+    
+    
+    private boolean intersection(Position A1, Position A2, Position B1, Position B2){
+        Geo intersectionPoint = null;
+
+
+            Geo a1 = new Geo(A1.getLatitude(), A1.getLongitude());
+            Geo a2 = new Geo(A2.getLatitude(), A2.getLongitude());
+            
+            Geo b1 = new Geo(B1.getLatitude(), B1.getLongitude());
+            Geo b2 = new Geo(B2.getLatitude(), B2.getLongitude());
+
+            intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
+            
+            if (intersectionPoint != null){
+                System.out.println("We have interesection at " + intersectionPoint);
+                intersectPositions.add(Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude()));
+                
+//                intersectPositions.add(A1);
+//                intersectPositions.add(A2);
+//                intersectPositions.add(B1);
+//                intersectPositions.add(B2);
+                return true;
+            }else{
+                return false;
+            
+        }
+
+    }
+
+
+
+    
+    
 }

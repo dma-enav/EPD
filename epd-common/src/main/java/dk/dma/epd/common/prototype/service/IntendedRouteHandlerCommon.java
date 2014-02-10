@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.broadcast.BroadcastListener;
 import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
@@ -52,6 +53,8 @@ public class IntendedRouteHandlerCommon
     
     private AisHandlerCommon aisHandler;
 
+    protected List<Position> intersectPositions = new ArrayList<>();
+    
     /**
      * Constructor
      */
@@ -249,4 +252,11 @@ public class IntendedRouteHandlerCommon
             listener.intendedRouteRemoved(intendedRoute);
         }
     }
+
+    public List<Position> getIntersectPositions() {
+        return intersectPositions;
+    }
+    
+    
+    
 }

@@ -41,43 +41,45 @@ import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 /**
  * Base layer for displaying intended routes in EPDShip and EPDShore
  */
-public class IntendedRouteLayerCommon extends EPDLayerCommon 
-    implements IAisTargetListener, IIntendedRouteListener, ProjectionListener {
+public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTargetListener, IIntendedRouteListener,
+        ProjectionListener {
 
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * Map from MMSI to intended route graphic.
      */
-    protected ConcurrentHashMap<Long, IntendedRouteGraphic> intendedRoutes = new ConcurrentHashMap<>();  
+    protected ConcurrentHashMap<Long, IntendedRouteGraphic> intendedRoutes = new ConcurrentHashMap<>();
 
     protected IntendedRouteInfoPanel intendedRouteInfoPanel = new IntendedRouteInfoPanel();
-    
+
     private CommonChartPanel chartPanel;
     private AisHandlerCommon aisHandler;
     private IntendedRouteHandlerCommon intendedRouteHandler;
     private OMCircle dummyCircle = new OMCircle();
-    
+
     /**
      * Constructor
      */
     public IntendedRouteLayerCommon() {
         super();
-        
+
         // Automatically add info panels
         registerInfoPanel(intendedRouteInfoPanel, IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
-        
+
         // Register the classes the will trigger the map menu
         registerMapMenuClasses(IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
-        
+
         // Starts the repaint timer, which runs every minute
         // The initial delay is 100ms and is used to batch up repaints()
         startTimer(100, 60 * 1000);
     }
-    
+
     /**
      * Called when the given AIS target is updated
-     * @param aisTarget the AIS target that has been updated
+     * 
+     * @param aisTarget
+     *            the AIS target that has been updated
      */
     @Override
     public void targetUpdated(AisTarget aisTarget) {
@@ -85,7 +87,7 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
         if (aisHandler == null || intendedRouteHandler == null || !(aisTarget instanceof VesselTarget)) {
             return;
         }
-        
+
         // Look up the intended route
         IntendedRoute intendedRoute = intendedRouteHandler.getIntendedRoute(aisTarget.getMmsi());
         IntendedRouteGraphic intendedRouteGraphic = intendedRoutes.get(aisTarget.getMmsi());
@@ -99,74 +101,80 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
             if (vessel.getStaticData() != null) {
                 intendedRouteGraphic.setName(AisMessage.trimText(vessel.getStaticData().getName()));
             }
-            
+
             // Update the graphics
             intendedRouteGraphic.updateVesselPosition(vessel.getPositionData().getPos());
             doPrepare();
-        
-        } 
+
+        }
     }
-    
+
     /**
      * Called when an intended route has been added
-     * @param intendedRoute the intended route
+     * 
+     * @param intendedRoute
+     *            the intended route
      */
     @Override
-    public void intendedRouteAdded(IntendedRoute intendedRoute) {   
+    public void intendedRouteAdded(IntendedRoute intendedRoute) {
         IntendedRouteGraphic intendedRouteGraphic = new IntendedRouteGraphic();
-        
+
         // add the new intended route graphic to the set of managed intended route graphics
         intendedRoutes.put(intendedRoute.getMmsi(), intendedRouteGraphic);
-        synchronized(graphics) {
+        synchronized (graphics) {
             graphics.add(intendedRouteGraphic);
         }
-        
+
         // Update the graphics
         intendedRouteGraphic.updateIntendedRoute(intendedRoute);
         intendedRouteGraphic.showArrowHeads(showArrowHeads());
-        
+
         // Cause imminent repaint
         restartTimer();
     }
-    
+
     /**
      * Called when an intended route has been updated
-     * @param intendedRoute the intended route
+     * 
+     * @param intendedRoute
+     *            the intended route
      */
     @Override
-    public void intendedRouteUpdated(IntendedRoute intendedRoute) {   
+    public void intendedRouteUpdated(IntendedRoute intendedRoute) {
         IntendedRouteGraphic intendedRouteGraphic = intendedRoutes.get(intendedRoute.getMmsi());
-        
+
         // Should always be defined, but better check...
         if (intendedRouteGraphic != null) {
             // Update the graphics
             intendedRouteGraphic.updateIntendedRoute(intendedRoute);
-            
+
             // Cause imminent repaint
             restartTimer();
         }
     }
-    
+
     /**
      * Called when an intended route has been removed
-     * @param intendedRoute the intended route
+     * 
+     * @param intendedRoute
+     *            the intended route
      */
     @Override
-    public void intendedRouteRemoved(IntendedRoute intendedRoute) {   
+    public void intendedRouteRemoved(IntendedRoute intendedRoute) {
         IntendedRouteGraphic intendedRouteGraphic = intendedRoutes.get(intendedRoute.getMmsi());
-        
+
         // Should always be defined, but better check...
         if (intendedRouteGraphic != null) {
-            synchronized(graphics) {
+            synchronized (graphics) {
                 graphics.remove(intendedRouteGraphic);
             }
             intendedRoutes.remove(intendedRoute.getMmsi());
-            
+
             // Cause imminent repaint
             restartTimer();
         }
     }
-    
+
     /**
      * Called periodically by the timer
      */
@@ -174,10 +182,20 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
     protected void timerAction() {
         for (IntendedRouteGraphic intendedRouteGraphic : intendedRoutes.values()) {
             intendedRouteGraphic.updateIntendedRoute();
+
+            // Display icon at intersection
+
+            for (int i = 0; i < intendedRouteHandler.getIntersectPositions().size(); i++) {
+
+                System.out.println("Adding graphics");
+                graphics.add(new IntendedRouteIntersectionGraphic(intendedRouteHandler.getIntersectPositions().get(i)));
+
+            }
+
         }
         doPrepare();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -185,7 +203,7 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
     public void projectionChanged(ProjectionEvent pe) {
         // Check if we need to display the arrow heads
         if (getProjection() != null) {
-            
+
             boolean showArrowHeads = showArrowHeads();
             for (IntendedRouteGraphic intendedRouteGraphic : intendedRoutes.values()) {
                 intendedRouteGraphic.showArrowHeads(showArrowHeads);
@@ -199,32 +217,31 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
      */
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
-        
+
         if (obj instanceof AisHandlerCommon) {
-            aisHandler = (AisHandlerCommon)obj;
+            aisHandler = (AisHandlerCommon) obj;
             // register as listener for AIS messages
             aisHandler.addListener(this);
         } else if (obj instanceof IntendedRouteHandlerCommon) {
-            intendedRouteHandler = (IntendedRouteHandlerCommon)obj;
+            intendedRouteHandler = (IntendedRouteHandlerCommon) obj;
             // register as listener for intended routes
             intendedRouteHandler.addListener(this);
             // Loads the existing intended routes
             loadIntendedRoutes();
         } else if (obj instanceof CommonChartPanel) {
-            this.chartPanel = (CommonChartPanel)obj;
+            this.chartPanel = (CommonChartPanel) obj;
         }
     }
-    
+
     /**
-     * Upon creating a new layer, we need to load the intended routes
-     * held by the intended route handler
+     * Upon creating a new layer, we need to load the intended routes held by the intended route handler
      */
     private void loadIntendedRoutes() {
         for (IntendedRoute intendedRoute : intendedRouteHandler.fetchIntendedRoutes()) {
             intendedRouteAdded(intendedRoute);
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -235,7 +252,7 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
         } else {
             // lets user see ETA continually along route leg
             Point2D worldLocation = chartPanel.getMap().getProjection().inverse(evt.getPoint());
-            intendedRouteInfoPanel.showLegInfo((IntendedRouteLegGraphic)newClosest, worldLocation);
+            intendedRouteInfoPanel.showLegInfo((IntendedRouteLegGraphic) newClosest, worldLocation);
             closest = dummyCircle;
         }
         return true;
@@ -244,12 +261,12 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
     /**
      * {@inheritDoc}
      */
-    protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {        
+    protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {
         if (clickedGraphics instanceof IntendedRouteWpCircle) {
-            
+
             IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) clickedGraphics;
             mapMenu.intendedRouteMenu(wpCircle.getIntendedRouteGraphic());
-            
+
         } else if (clickedGraphics instanceof IntendedRouteLegGraphic) {
 
             IntendedRouteLegGraphic wpLeg = (IntendedRouteLegGraphic) clickedGraphics;
@@ -258,16 +275,15 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon
     }
 
     /**
-     * Returns whether or not to show arrow heads on the route legs,
-     * which depends on the current projection
+     * Returns whether or not to show arrow heads on the route legs, which depends on the current projection
+     * 
      * @return whether or not to show arrow heads on the route legs
      */
     private boolean showArrowHeads() {
         if (getProjection() != null) {
-            return getProjection().getScale() < EPD.getInstance()
-                    .getSettings().getNavSettings().getShowArrowScale();
+            return getProjection().getScale() < EPD.getInstance().getSettings().getNavSettings().getShowArrowScale();
         }
         return false;
     }
-    
+
 }
