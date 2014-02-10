@@ -217,6 +217,9 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         return mmsi == null ? null : this.targets.get(mmsi);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void targetUpdated(AisTarget aisTarget) {
         // Sanity check
@@ -261,6 +264,9 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         targetGraphic.project(getProjection());
     }
     
+    /**
+     * Invoked when a change occurs in the {@code AisSettings} object that this {@code AisLayerCommon} is registered with.
+     */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if(AisSettings.SHOW_NAME_LABELS_CHANGED.equals(evt.getPropertyName())) {
