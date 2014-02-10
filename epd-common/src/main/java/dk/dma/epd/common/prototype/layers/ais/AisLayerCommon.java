@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.layers.ais;
 
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Map;
@@ -22,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.bbn.openmap.omGraphics.OMGraphic;
 
 import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.prototype.EPD;
@@ -77,6 +80,8 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         this.navSettings = EPD.getInstance().getSettings().getNavSettings();
         // register self as listener for changes to the AIS settings
         this.aisSettings.addPropertyChangeListener(this);
+        // receive left-click events for the following set of classes.
+        this.registerMouseClickClasses(VesselTargetGraphic.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -276,6 +281,24 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         this.doPrepare();
     }
 
+    /**
+     * Updates target selection if the {@code clickedGraphics} is an {@code ISelectableGraphic} or null.
+     */
+    @Override
+    protected void handleMouseClick(OMGraphic clickedGraphics, MouseEvent evt) {
+        // Should only handle left clicks.
+        assert evt.getButton() == MouseEvent.BUTTON1;
+        if(clickedGraphics instanceof ISelectableGraphic) {
+            // Update selected graphic and do a repaint
+            this.setSelectedGraphic((ISelectableGraphic) clickedGraphics, true);
+        }
+        else if(clickedGraphics == null) {
+            // User clicked somewhere on the map with no nearby graphics
+            // We need to remove the current selection and repaint
+            this.setSelectedGraphic(null, true);
+        }
+    }
+    
     /**
      * Force this AIS layer to update itself.
      */
