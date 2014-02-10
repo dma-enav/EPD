@@ -17,7 +17,6 @@ package dk.dma.epd.ship.gui.setuptabs;
 
 import dk.dma.epd.common.prototype.gui.settings.CommonAisSettingsPanel;
 import dk.dma.epd.common.prototype.settings.AisSettings;
-import dk.dma.epd.common.prototype.settings.CloudSettings;
 import dk.dma.epd.ship.EPDShip;
 
 import javax.swing.JPanel;
@@ -41,11 +40,7 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
     private JSpinner spinnerCogVectorHideBelow;
     private JSpinner spinnerAISRedraw;
     private AisSettings aisSettings;
-    private CloudSettings cloudSettings;
     private JCheckBox chckbxShowShipLabels;
-    private JCheckBox chckbxBroadcastIntendedRoute;
-    private JSpinner spinnerIntendedRouteMaxWps;
-    private JSpinner spinnerIntendedRouteMaxTime;
 
     /**
      * Constructs a new ShipAisSettingsPanel object.
@@ -113,37 +108,6 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         appearancePanel.add(lblAisRedrawInterval);
         
         add(appearancePanel);
-        
-        
-        /************** AIS intended route settings ***************/
-        
-        JPanel intendedRoutePanel = new JPanel();
-        intendedRoutePanel.setBounds(6, 297, 438, 115);
-        intendedRoutePanel.setLayout(null);
-        intendedRoutePanel.setBorder(new TitledBorder(
-                null, "AIS Intended Route", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        
-        chckbxBroadcastIntendedRoute = new JCheckBox("Broadcast intended route");
-        chckbxBroadcastIntendedRoute.setBounds(16, 20, 189, 20);
-        intendedRoutePanel.add(chckbxBroadcastIntendedRoute);
-        
-        spinnerIntendedRouteMaxWps = new JSpinner();
-        spinnerIntendedRouteMaxWps.setBounds(16, 50, 75, 20);
-        intendedRoutePanel.add(spinnerIntendedRouteMaxWps);
-        
-        JLabel lblMaximumWaypointsIn = new JLabel("Maximum waypoints in an intended route");
-        lblMaximumWaypointsIn.setBounds(103, 52, 261, 16);
-        intendedRoutePanel.add(lblMaximumWaypointsIn);
-        
-        spinnerIntendedRouteMaxTime = new JSpinner();
-        spinnerIntendedRouteMaxTime.setBounds(16, 75, 75, 20);
-        intendedRoutePanel.add(spinnerIntendedRouteMaxTime);
-        
-        JLabel lblMaximumDurationOf = new JLabel("Maximum duration of intended route (min)");
-        lblMaximumDurationOf.setBounds(103, 77, 268, 16);
-        intendedRoutePanel.add(lblMaximumDurationOf);
-        
-        add(intendedRoutePanel);
     }
     
     /**
@@ -157,7 +121,6 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         
         // Get settings.
         aisSettings = EPDShip.getInstance().getSettings().getAisSettings();
-        cloudSettings = EPDShip.getInstance().getSettings().getCloudSettings();
         
         // Load appearance settings.
         chckbxShowShipLabels.setSelected(aisSettings.isShowNameLabels());
@@ -166,11 +129,6 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         spinnerCogVectorLengthScaleStepSize.setValue(aisSettings.getCogVectorLengthScaleInterval());
         spinnerCogVectorHideBelow.setValue(aisSettings.getCogVectorHideBelow());
         spinnerAISRedraw.setValue(aisSettings.getMinRedrawInterval());
-        
-        // Load cloud Intended Route settings
-        chckbxBroadcastIntendedRoute.setSelected(cloudSettings.isBroadcastIntendedRoute());
-        //spinnerIntendedRouteMaxWps.setValue(cloudSettings.getIntendedRouteMaxWps());
-        //spinnerIntendedRouteMaxTime.setValue(cloudSettings.getIntendedRouteMaxTime());
     }
     
     public void doSaveSettings() {
@@ -185,11 +143,6 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         aisSettings.setCogVectorLengthScaleInterval((Float) spinnerCogVectorLengthScaleStepSize.getValue());
         aisSettings.setCogVectorHideBelow((Float) spinnerCogVectorHideBelow.getValue());
         aisSettings.setMinRedrawInterval((Integer) spinnerAISRedraw.getValue());
-
-        // Save cloud intended route settings
-        cloudSettings.setBroadcastIntendedRoute(chckbxBroadcastIntendedRoute.isSelected());
-        //cloudSettings.setIntendedRouteMaxWps((Integer) spinnerIntendedRouteMaxWps.getValue());
-        //cloudSettings.setIntendedRouteMaxTime((Integer) spinnerIntendedRouteMaxTime.getValue());
     }
     
     public boolean checkSettingsChanged() {
@@ -211,12 +164,7 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
                     changed(aisSettings.getCogVectorLengthMax(), spinnerCogVectorLengthMax.getValue()) ||
                     changed(aisSettings.getCogVectorLengthScaleInterval(), spinnerCogVectorLengthScaleStepSize.getValue()) ||
                     changed(aisSettings.getCogVectorHideBelow(), spinnerCogVectorHideBelow.getValue()) ||
-                    changed(aisSettings.getMinRedrawInterval(), spinnerAISRedraw.getValue()) ||
-                    
-                    // Changes were made to AIS intended route settings.
-                    changed(cloudSettings.isBroadcastIntendedRoute(), chckbxBroadcastIntendedRoute.isSelected());
-                    //changed(cloudSettings.getIntendedRouteMaxWps(), spinnerIntendedRouteMaxWps.getValue()) ||
-                    //changed(cloudSettings.getIntendedRouteMaxTime(), spinnerIntendedRouteMaxTime.getValue());
+                    changed(aisSettings.getMinRedrawInterval(), spinnerAISRedraw.getValue());
         }
         
         return changesWereMade;

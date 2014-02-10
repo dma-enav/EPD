@@ -37,7 +37,7 @@ public class RouteLeg implements Serializable {
     /**
      * Sail heading rhumb line or great circle
      */
-    protected Heading heading;
+    protected Heading heading = Heading.RL;
     /**
      * XTD starboard nm
      */

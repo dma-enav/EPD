@@ -285,13 +285,10 @@ public class ToolBar extends JInternalFrame {
             private void toggleVesselNames(boolean showLabels) {
                 // For each JMapFrame which is used in the mainFrame.
                 for (JMapFrame map : EPDShore.getInstance().getMainFrame().getMapWindows()) {
-                    // Update the ship names.
-                    map.getChartPanel().getAisLayer().setShowNameLabels(showLabels);
                     // Updates the right click menu option to set visibility of vessel names.
                     map.getMapMenu().getAisNames().setNamesShouldBeVisible(showLabels);
                 }
-                
-                // Update the settings file.
+                // Update the settings file. PropertyChangeListeners of AisSettings will be notified as part of this call.
                 EPDShore.getInstance().getSettings().getAisSettings().setShowNameLabels(showLabels);
             }
         });

@@ -202,7 +202,6 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
         this.aisName.setLat(positionData.getPos().getLatitude());
         this.aisName.setY(-20);
         this.aisName.setData(AisMessage.trimText(staticData.getName()));
-        this.aisName.setVisible(this.showNameLabel);
         
     }
 
@@ -261,6 +260,9 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
     
     public void setShowNameLabel(boolean showNameLabel) {
         this.showNameLabel = showNameLabel;
+        if(this.aisName != null) {
+            this.aisName.setVisible(showNameLabel);
+        }
     }
 
     public boolean getShowNameLabel() {
