@@ -190,11 +190,6 @@ public class VesselTargetGraphic extends TargetGraphic implements ISelectableGra
         this.drawAccordingToScale(ZoomLevel.getFromScale(p.getScale()));
         return super.generate(p, forceProjectAll);
     }
-    
-    // Get the visibility of VesselTriangleGraphic object of this class.
-    public boolean getVesselTriangleVisibility() {
-        return this.vesselTriangleGraphic.isVisible();
-    }
 
     @Override
     public void setSelection(boolean selected) {
