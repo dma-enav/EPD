@@ -25,8 +25,10 @@ import java.util.List;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.layers.common.WpCircle;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
+import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 
 /**
@@ -52,7 +54,6 @@ public class IntendedRouteGraphic extends OMGraphicList {
 
     private IntendedRoute intendedRoute;
     private IntendedRouteLegGraphic activeWpLine;
-    private double[] activeWpLineLL = new double[4];
     private Color routeColor = COLORS[1];
     private String name;
     private boolean arrowsVisible;
@@ -69,8 +70,6 @@ public class IntendedRouteGraphic extends OMGraphicList {
      */
     public IntendedRouteGraphic() {
         super();
-        Position nullGeoLocation = Position.create(0, 0);
-        activeWpLine = new IntendedRouteLegGraphic(0, this, true, nullGeoLocation, nullGeoLocation, routeColor, SCALE);
         
         add(plannedPositionArea);
     }
@@ -78,15 +77,13 @@ public class IntendedRouteGraphic extends OMGraphicList {
     /**
      * Creates a new route leg line
      * 
-     * @param index
-     *            the route leg index
-     * @param start
-     *            the start position
-     * @param end
-     *            the end position
+     * @param index the route leg index
+     * @param start the start position
+     * @param end the end position
+     * @param heading the heading of the leg
      */
-    private void makeLegLine(int index, Position start, Position end) {
-        IntendedRouteLegGraphic leg = new IntendedRouteLegGraphic(index, this, false, start, end, routeColor, SCALE);
+    private void makeLegLine(int index, Position start, Position end, Heading heading) {
+        IntendedRouteLegGraphic leg = new IntendedRouteLegGraphic(index, this, false, start, end, heading, routeColor, SCALE);
         leg.setArrows(arrowsVisible);
         routeLegs.add(leg);
         add(leg);
@@ -144,7 +141,9 @@ public class IntendedRouteGraphic extends OMGraphicList {
         for (WpCircle routeWp : routeWps) {
             routeWp.setLinePaint(color);
         }
-        activeWpLine.setLinePaint(color);
+        if (activeWpLine != null) {
+            activeWpLine.setLinePaint(color);
+        }
     }
 
     /**
@@ -206,35 +205,32 @@ public class IntendedRouteGraphic extends OMGraphicList {
             return;
         }
 
-        List<Position> waypoints = new ArrayList<>();
-        for (RouteWaypoint routeWp : intendedRoute.getWaypoints()) {
-            waypoints.add(routeWp.getPos());
+        int x = 0;
+        for (RouteWaypoint wp : intendedRoute.getWaypoints()) {
+            // Make way point circle
+            makeWpCircle(x, wp.getPos());
+            
+            // Make the leg
+            RouteLeg leg = wp.getOutLeg();
+            if (leg != null) {
+                makeLegLine(x + 1, leg.getStartWp().getPos(), leg.getEndWp().getPos(), leg.getHeading());
+            }
+            
+            x++;
         }
 
-        // Make first WP circle
-        makeWpCircle(0, waypoints.get(0));
-
-        // And the rest
-        for (int i = 0; i < waypoints.size() - 1; i++) {
-            Position start = waypoints.get(i);
-            Position end = waypoints.get(i + 1);
-
-            // Make wp circle
-            makeWpCircle(i + 1, end);
-
-            // Make leg line
-            makeLegLine(i + 1, start, end);
-        }
-
-        // Update leg to first waypoint
+        // Update leg to first way point
         if (vesselPos != null) {
-            add(activeWpLine);
+            
+            // Attempt to set the heading of this leg to that
+            // of the in-leg of the active way point
+            Heading heading = Heading.RL;
+            if (intendedRoute.getActiveWaypoint().getInLeg() != null) {
+                heading = intendedRoute.getActiveWaypoint().getInLeg().getHeading();
+            }
             Position activeWpPos = intendedRoute.getActiveWaypoint().getPos();
-            activeWpLineLL[0] = vesselPos.getLatitude();
-            activeWpLineLL[1] = vesselPos.getLongitude();
-            activeWpLineLL[2] = activeWpPos.getLatitude();
-            activeWpLineLL[3] = activeWpPos.getLongitude();
-            activeWpLine.setLL(activeWpLineLL);
+            activeWpLine = new IntendedRouteLegGraphic(0, this, true, vesselPos, activeWpPos, heading, routeColor, SCALE);            
+            add(activeWpLine);
         }
 
         // Adjust the transparency of the color depending on the last-received time for the route

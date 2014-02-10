@@ -92,9 +92,6 @@ public class IntendedRoute extends Route {
                 prevWaypoint.setOutLeg(leg);
                 leg.setStartWp(prevWaypoint);
                 leg.setEndWp(waypoint);
-                
-                // TODO: Do not hardcode heading
-                leg.setHeading(Heading.RL);
             }
 
 
@@ -143,6 +140,13 @@ public class IntendedRoute extends Route {
                     // SF Len
                     if (cloudWaypoint.getRouteLeg().getSFLen() != null) {
                         waypoint.getOutLeg().setSFLen(cloudWaypoint.getRouteLeg().getSFLen());
+                    }
+                    
+                    // Heading
+                    if (cloudWaypoint.getRouteLeg().getHeading() == dk.dma.enav.model.voyage.RouteLeg.Heading.GC) {
+                        waypoint.getOutLeg().setHeading(Heading.GC);
+                    } else {
+                        waypoint.getOutLeg().setHeading(Heading.RL);
                     }
 
                 }
@@ -306,13 +310,9 @@ public class IntendedRoute extends Route {
                 // We haven't found the match so the ship must have finished it's
                 // route - Display the box at the end
                 if (i == getWaypoints().size() - 1) {
-//                    plannedPositionBearing = Calculator.bearing(getWaypoints().get(getWaypoints().size() - 2).getPos(),
-//                            getWaypoints().get(getWaypoints().size() - 1).getPos(), Heading.RL);
-
                     plannedPositionBearing = 0;
-                    
-//                    return getWaypoints().get(i).getPos();
                     return null;
+                    
                 } else {
 
                     // We should be beyond this
@@ -330,8 +330,8 @@ public class IntendedRoute extends Route {
                         plannedPosition = Calculator.findPosition(this.getWaypoints().get(i).getPos(), this.getWaypoints().get(i)
                                 .getOutLeg().calcBrg(), Converter.nmToMeters(distanceTravelledNauticalMiles));
 
-                        plannedPositionBearing = Calculator.bearing(getWaypoints().get(i).getPos(), getWaypoints().get(i + 1)
-                                .getPos(), Heading.RL);
+                        RouteLeg leg = getWaypoints().get(i).getOutLeg();
+                        plannedPositionBearing = Calculator.bearing(leg.getStartWp().getPos(), leg.getEndWp().getPos(), leg.getHeading());
 
                         return plannedPosition;
                     }

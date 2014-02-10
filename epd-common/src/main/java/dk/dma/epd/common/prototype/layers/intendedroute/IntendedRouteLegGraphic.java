@@ -22,6 +22,7 @@ import com.bbn.openmap.omGraphics.OMArrowHead;
 import com.bbn.openmap.omGraphics.OMLine;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.Heading;
 
 /**
  * Graphic for intended route leg graphic
@@ -34,10 +35,17 @@ public class IntendedRouteLegGraphic extends OMLine {
     private OMArrowHead arrow;
     private int index;
 
-    public IntendedRouteLegGraphic(int index, IntendedRouteGraphic intendedRouteGraphic, boolean activeWaypoint, Position start,
-            Position end, Color legColor, float scale) {
+    public IntendedRouteLegGraphic(
+            int index, 
+            IntendedRouteGraphic intendedRouteGraphic, 
+            boolean activeWaypoint, 
+            Position start,
+            Position end, 
+            Heading heading,
+            Color legColor, 
+            float scale) {
         
-        super(start.getLatitude(), start.getLongitude(), end.getLatitude(), end.getLongitude(), LINETYPE_RHUMB);
+        super(start.getLatitude(), start.getLongitude(), end.getLatitude(), end.getLongitude(), heading.getOMLineType());
         this.index = index;
         this.intendedRouteGraphic = intendedRouteGraphic;
         if(activeWaypoint){

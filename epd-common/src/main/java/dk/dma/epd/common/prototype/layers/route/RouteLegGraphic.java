@@ -26,7 +26,6 @@ import com.bbn.openmap.omGraphics.OMArrowHead;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
 
-import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 
@@ -125,7 +124,7 @@ public class RouteLegGraphic extends OMGraphicList {
             double endLat = legEnd.getPos().getLatitude();
             double endLon = legEnd.getPos().getLongitude();
 
-            broadLine = new OMLine(startLat, startLon, endLat, endLon, lineType);
+            broadLine = new OMLine(startLat, startLon, endLat, endLon, routeLeg.getHeading().getOMLineType());
             broadLine.setLinePaint(color);
             broadLine.setStroke(new BasicStroke(12.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, broadLineDash, 0.0f));
 
@@ -144,13 +143,7 @@ public class RouteLegGraphic extends OMGraphicList {
             double endLat = legEnd.getPos().getLatitude();
             double endLon = legEnd.getPos().getLongitude();
 
-            if (routeLeg.getHeading() == Heading.GC) {
-                lineType = LINETYPE_GREATCIRCLE;
-            } else if (routeLeg.getHeading() == Heading.RL) {
-                lineType = LINETYPE_RHUMB;
-            }
-
-            line = new OMLine(startLat, startLon, endLat, endLon, lineType);
+            line = new OMLine(startLat, startLon, endLat, endLon, routeLeg.getHeading().getOMLineType());
             line.setLinePaint(color);
             line.setStroke(stroke);
 
@@ -170,7 +163,7 @@ public class RouteLegGraphic extends OMGraphicList {
             double endLat = legEnd.getPos().getLatitude();
             double endLon = legEnd.getPos().getLongitude();
 
-            animationLine = new OMLine(startLat, startLon, endLat, endLon, lineType);
+            animationLine = new OMLine(startLat, startLon, endLat, endLon, routeLeg.getHeading().getOMLineType());
             animationLine.setLinePaint(new Color(1f, 1f, 0, 0.6f));
             animationLine.setStroke(new BasicStroke(10.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, dashPhase));
 

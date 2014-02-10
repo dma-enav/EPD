@@ -168,6 +168,21 @@ public class ActiveRoute extends Route {
         return safeHavenBearing;
     }
 
+    /**
+     * Computes the bearing of the route leg using its start and end position and
+     * its heading
+     * 
+     * @param leg the leg to compute the bearing for
+     * @return the bearing
+     */
+    private double computeBearing(RouteLeg leg) {
+        // Sanity check
+        if (leg == null || leg.getStartWp() == null || leg.getEndWp() == null) {
+            return 0.0;
+        }
+        return  Calculator.bearing(leg.getStartWp().getPos(), leg.getEndWp().getPos(), leg.getHeading());
+    }
+    
     public synchronized Position getSafeHavenLocation() {
 
         long currentTime = PntTime.getInstance().getDate().getTime();
@@ -176,12 +191,10 @@ public class ActiveRoute extends Route {
         // waypoint
 
         if (currentTime < originalRoute.getStarttime().getTime()) {
-            safeHavenBearing = Calculator.bearing(originalRoute.getWaypoints()
-                    .get(0).getPos(), originalRoute.getWaypoints().get(1)
-                    .getPos(), Heading.RL);
-            
-            this.safeHavenLength = this.getWaypoints().get(0).getOutLeg().getSFLen();
-            this.safeHavenWidth = this.getWaypoints().get(0).getOutLeg().getSFWidth();
+            RouteLeg leg = originalRoute.getWaypoints().get(0).getOutLeg();
+            safeHavenBearing = computeBearing(leg);
+            safeHavenLength = leg.getSFLen();
+            safeHavenWidth = leg.getSFWidth();
             
             return originalRoute.getWaypoints().get(0).getPos();
         } else {
@@ -191,21 +204,9 @@ public class ActiveRoute extends Route {
                 // We haven't found the match so we must be at the end of the
                 // route
                 if (i == originalRoute.getWaypoints().size() - 1) {
-                    safeHavenBearing = Calculator
-                            .bearing(
-                                    originalRoute
-                                            .getWaypoints()
-                                            .get(originalRoute.getWaypoints()
-                                                    .size() - 2).getPos(),
-                                    originalRoute
-                                            .getWaypoints()
-                                            .get(originalRoute.getWaypoints()
-                                                    .size() - 1).getPos(),
-                                    Heading.RL);
-
-                    
-                    this.safeHavenLength = this.getWaypoints().get(i-1).getOutLeg().getSFLen();
-                    this.safeHavenWidth = this.getWaypoints().get(i-1).getOutLeg().getSFWidth();
+                    safeHavenBearing =  computeBearing(originalRoute.getWaypoints().getLast().getInLeg());
+                    safeHavenLength = getWaypoints().get(i-1).getOutLeg().getSFLen();
+                    safeHavenWidth = getWaypoints().get(i-1).getOutLeg().getSFWidth();
                     
                     return originalRoute.getWaypoints().get(i).getPos();
                 } else {
@@ -233,23 +234,16 @@ public class ActiveRoute extends Route {
                                         Converter
                                                 .nmToMeters(distanceTravelledNauticalMiles));
 
-                        safeHavenBearing = Calculator
-                                .bearing(originalRoute.getWaypoints().get(i)
-                                        .getPos(), originalRoute.getWaypoints()
-                                        .get(i + 1).getPos(), Heading.RL);
-
-                        
-                        this.safeHavenLength = this.getWaypoints().get(i).getOutLeg().getSFLen();
-                        this.safeHavenWidth = this.getWaypoints().get(i).getOutLeg().getSFWidth();
+                        safeHavenBearing = computeBearing(originalRoute.getWaypoints().get(i).getOutLeg());
+                        safeHavenLength = getWaypoints().get(i).getOutLeg().getSFLen();
+                        safeHavenWidth = getWaypoints().get(i).getOutLeg().getSFWidth();
                         
                         
                         
                         return safeHavenLocation;
                     }
                 }
-
             }
-
         }
         // An error must have occured
         return null;
@@ -628,6 +622,11 @@ public class ActiveRoute extends Route {
                 routeLeg.setXtdStarboard(currentWaypoint.getOutLeg().getXtdStarboard());
                 routeLeg.setSFWidth(currentWaypoint.getOutLeg().getSFWidth());
                 routeLeg.setSFLen(currentWaypoint.getOutLeg().getSFWidth());
+                if (currentWaypoint.getOutLeg().getHeading() == Heading.GC) {
+                    routeLeg.setHeading(dk.dma.enav.model.voyage.RouteLeg.Heading.GC);
+                } else {
+                    routeLeg.setHeading(dk.dma.enav.model.voyage.RouteLeg.Heading.RL);
+                }
 
                 voyageWaypoint.setRouteLeg(routeLeg);
             }
