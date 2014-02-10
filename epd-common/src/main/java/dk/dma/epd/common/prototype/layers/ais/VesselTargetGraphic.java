@@ -92,32 +92,38 @@ public class VesselTargetGraphic extends TargetGraphic implements ISelectableGra
             this.drawAccordingToScale(zl);
         }
     }
+    
+    /**
+     * Removes all graphics that represent a vessel from this {@code OMGraphicList}.
+     */
+    private void removeVesselGraphics() {
+        this.remove(this.vesselTriangleGraphic);
+        this.remove(this.vesselDotGraphic);
+        this.remove(this.vesselOutlineGraphic);
+    }
 
     private void drawOutline() {
-        // hide other display modes
-        this.vesselTriangleGraphic.setVisible(false);
-        this.vesselDotGraphic.setVisible(false);
+        // clear vessel displays
+        this.removeVesselGraphics();
         // update data
         this.vesselOutlineGraphic.setLocation(vesselTarget.getPositionData(), vesselTarget.getStaticData());
-        // (re-)enable visibility for outline mode
-        this.vesselOutlineGraphic.setVisible(true);
+        // add outline graphic for display
+        this.add(this.vesselOutlineGraphic);
 
     }
 
     private void drawTriangle() {
-        // hide other display modes
-        this.vesselOutlineGraphic.setVisible(false);
-        this.vesselDotGraphic.setVisible(false);
-        // (re-)enable visibility for triangle mode
-        this.vesselTriangleGraphic.setVisible(true);
+        // clear vessel displays
+        this.removeVesselGraphics();
+        // add triangle graphic for display
+        this.add(this.vesselTriangleGraphic);
     }
 
     private void drawDot() {
-        // hide other display modes
-        this.vesselOutlineGraphic.setVisible(false);
-        this.vesselTriangleGraphic.setVisible(false);
-        // (re-)enable visibility for dot mode
-        this.vesselDotGraphic.setVisible(true);
+        // clear vessel displays
+        this.removeVesselGraphics();
+        // add dot graphic for display 
+        this.add(this.vesselDotGraphic);
     }
 
     public VesselTarget getVesselTarget() {
