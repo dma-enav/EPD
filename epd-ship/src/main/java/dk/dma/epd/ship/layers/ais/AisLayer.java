@@ -25,7 +25,6 @@ import net.jcip.annotations.ThreadSafe;
 
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
-import com.bbn.openmap.omGraphics.OMList;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.ISelectableGraphic;
@@ -71,7 +70,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 
     // Only accessed in event dispatch thread
     private OMGraphic closest;
-    private OMGraphic selectedGraphic;
     private AisComponentPanel aisPanel;
     private AisTargetSelectionGraphic targetSelectionGraphic = new AisTargetSelectionGraphic();
 
@@ -261,82 +259,20 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             this.updateSelection(vt, true);
         }
     }
-    /*
+    
     @Override
-    public boolean mouseClicked(MouseEvent e) {
-        if (this.isVisible()) {
-            if (e.getButton() == MouseEvent.BUTTON3 || e.getButton() == MouseEvent.BUTTON1) {
-                selectedGraphic = null;
-                OMList<OMGraphic> allClosest;
-                synchronized (graphics) {
-                    allClosest = graphics.findAll(e.getX(), e.getY(), 5.0f);
-                }
-                for (OMGraphic omGraphic : allClosest) {
-                    if (omGraphic instanceof VesselTargetTriangle || 
-                            omGraphic instanceof SartGraphic ||
-                            omGraphic instanceof VesselOutlineGraphic) {
-                        selectedGraphic = omGraphic;
-                        break;
-                    }
-                }
-                if (e.getButton() == MouseEvent.BUTTON1) {
-
-                    if (allClosest.size() == 0) {
-                        removeSelection();
-                    }
-
-                    if (selectedGraphic instanceof VesselTargetTriangle) {
-                        VesselTargetTriangle vtt = (VesselTargetTriangle) selectedGraphic;
-                        VesselTargetGraphic vesselTargetGraphic = vtt.getVesselTargetGraphic();
-
-                        selectedMMSI = vesselTargetGraphic.getVesselTarget().getMmsi();
-                        updateSelection(vesselTargetGraphic.getVesselTarget(), true);
-                    }
-                }
-
-                if (e.getButton() == MouseEvent.BUTTON3) {
-
-                    if (selectedGraphic instanceof VesselTargetTriangle) {
-
-                        VesselTargetTriangle vtt = (VesselTargetTriangle) selectedGraphic;
-                        VesselTargetGraphic vesselTargetGraphic = vtt.getVesselTargetGraphic();
-
-                        // mainFrame.getGlassPane().setVisible(false);
-                        getMapMenu().aisMenu(vesselTargetGraphic, topPanel);
-                        getMapMenu().setVisible(true);
-                        getMapMenu().show(this, e.getX() - 2, e.getY() - 2);
-                        aisTargetInfoPanel.setVisible(false);
-                        return true;
-                    } else if (selectedGraphic instanceof SartGraphic) {
-                        SartGraphic sartGraphic = (SartGraphic) selectedGraphic;
-                        SarTarget sarTarget = sartGraphic.getSarTargetGraphic().getSarTarget();
-                        mainFrame.getGlassPane().setVisible(false);
-                        getMapMenu().sartMenu(this, sarTarget);
-                        getMapMenu().setVisible(true);
-                        getMapMenu().show(this, e.getX() - 2, e.getY() - 2);
-                        sarTargetInfoPanel.setVisible(false);
-                        return true;
-                    } else if (selectedGraphic instanceof VesselOutlineGraphic) {
-                        
-//                        VesselTargetTriangle vtt = (VesselTargetTriangle) selectedGraphic;
-//                        VesselTargetGraphic vesselTargetGraphic = vtt.getVesselTargetGraphic();
-//                        System.out.println(vesselTargetGraphic.toString());
-                        
-                        VesselOutlineGraphic vesselOutlineGraphics = (VesselOutlineGraphic) selectedGraphic;
-                        VesselTargetGraphic vesselTargetGraphic = vesselOutlineGraphics.getVesselTargetGraphic();
-                        
-                        this.getMapMenu().aisMenu(vesselTargetGraphic, this.topPanel);
-                        this.getMapMenu().setVisible(true);
-                        this.getMapMenu().show(this, e.getX(), e.getY());
-                        aisTargetInfoPanel.setVisible(false);
-                        return true;
-                    }
-                }
-            }
+    protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {
+        if (clickedGraphics instanceof VesselTargetGraphic) {
+            this.getMapMenu().aisMenu((VesselTargetGraphic) clickedGraphics, topPanel);
+//            aisTargetInfoPanel.setVisible(false);
         }
-        return false;
+        else if (clickedGraphics instanceof SartGraphic) {
+            SartGraphic sartGraphic = (SartGraphic) clickedGraphics;
+            SarTarget sarTarget = sartGraphic.getSarTargetGraphic().getSarTarget();
+            getMapMenu().sartMenu(this, sarTarget);
+        }
     }
-*/
+
     /**
      * Sets the given {@code closest} graphics as the new closest.
      * <p>
