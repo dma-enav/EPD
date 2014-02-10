@@ -39,9 +39,7 @@ import dk.dma.epd.common.prototype.layers.ais.AtonTargetGraphic;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
-import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
-import dk.dma.epd.common.prototype.layers.ais.VesselTargetTriangle;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -68,7 +66,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     private final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
 
     // Only accessed in event dispatch thread
-    private OMGraphic closest;
     private AisComponentPanel aisPanel;
 
     private volatile long selectedMMSI = -1;
@@ -77,6 +74,10 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 
     public AisLayer(int redrawIntervalMillis) {
         super(redrawIntervalMillis);
+        // Register graphics for mouse over notifications
+        this.registerInfoPanel(this.aisTargetInfoPanel, VesselTargetGraphic.class, AtonTargetGraphic.class);
+        this.registerInfoPanel(this.sarTargetInfoPanel, SartGraphic.class);
+        this.registerInfoPanel(this.pastTrackInfoPanel, PastTrackWpCircle.class);
     }
 
     /**
@@ -266,93 +267,31 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         }
     }
 
-    /**
-     * Sets the given {@code closest} graphics as the new closest.
-     * <p>
-     * Hides all {@linkplain InfoPanel} panels except the {@code visiblePanel} if this is specified.
-     * 
-     * @param visiblePanel
-     *            the panel <i>not to hide</i>.
-     */
-    private void setActiveInfoPanel(OMGraphic closest, InfoPanel visiblePanel) {
-        this.closest = closest;
-        InfoPanel[] infoPanels = { aisTargetInfoPanel, sarTargetInfoPanel, pastTrackInfoPanel };
-        for (InfoPanel infoPanel : infoPanels) {
-            if (infoPanel != visiblePanel) {
-                infoPanel.setVisible(false);
-            }
-        }
-        mainFrame.getGlassPane().setVisible(visiblePanel != null);
-    }
-
-    /**
-     * Handle mouse moved
-     */
     @Override
-    public boolean mouseMoved(MouseEvent e) {
-        if (!this.isVisible()) {
-            setActiveInfoPanel(null, null);
-            return false;
+    protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest,
+            MouseEvent evt, Point containerPoint) {
+        if (newClosest instanceof PastTrackWpCircle) {
+            PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
+            pastTrackInfoPanel.showWpInfo(wpCircle);
+            return true;
+        } else if (newClosest instanceof VesselTargetGraphic) {
+            VesselTarget vesselTarget = ((VesselTargetGraphic)newClosest).getVesselTarget();
+            aisTargetInfoPanel.showAisInfo(vesselTarget);
+            return true;
         }
-
-        OMGraphic newClosest = getSelectedGraphic(
-                e,
-                VesselTargetTriangle.class, SartGraphic.class, AtonTargetGraphic.class, PastTrackWpCircle.class,
-                VesselOutlineGraphic.class);
-
-        if (newClosest != closest) {
-            Point containerPoint = convertPoint(e.getPoint());
-
-            if (newClosest instanceof PastTrackWpCircle) {
-                PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
-                pastTrackInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-                pastTrackInfoPanel.showWpInfo(wpCircle);
-                setActiveInfoPanel(newClosest, pastTrackInfoPanel);
-                return true;
-
-            } else if (newClosest instanceof VesselTargetTriangle) {
-                VesselTargetTriangle vesselTargetTriangle = (VesselTargetTriangle) newClosest;
-                // Only show infopanel if the triangle is visible.
-                if (vesselTargetTriangle.getVesselTargetGraphic().getVesselTriangleVisibility()) {
-                    VesselTarget vesselTarget = vesselTargetTriangle.getVesselTargetGraphic().getVesselTarget();
-                    aisTargetInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-                    aisTargetInfoPanel.showAisInfo(vesselTarget);
-                    setActiveInfoPanel(newClosest, aisTargetInfoPanel);
-                }
-                return true;
-
-            } else if (newClosest instanceof VesselOutlineGraphic) { // Infopanel at mouseover of outline of vessel
-                // Obtain outline graphic object from closest object.
-                VesselOutlineGraphic vesselOutlineGraphic = (VesselOutlineGraphic) newClosest;
-                // Obtain the target vessel which the outline graphics was created from.
-                VesselTarget vesselTarget = vesselOutlineGraphic.getVesselTargetGraphic().getVesselTarget();
-                this.aisTargetInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-                this.aisTargetInfoPanel.showAisInfo(vesselTarget);
-                setActiveInfoPanel(newClosest, aisTargetInfoPanel);
-                return true;
-
-            } else if (newClosest instanceof SartGraphic) {
-                SartGraphic sartGraphic = (SartGraphic) newClosest;
-                sarTargetInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-                sarTargetInfoPanel.showSarInfo(sartGraphic.getSarTargetGraphic().getSarTarget());
-                setActiveInfoPanel(newClosest, sarTargetInfoPanel);
-                return true;
-
-            } else if (newClosest instanceof AtonTargetGraphic) {
-                AtonTargetGraphic aton = (AtonTargetGraphic) newClosest;
-                AtoNTarget atonTarget = aton.getAtonTarget();
-                aisTargetInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-                aisTargetInfoPanel.showAtonInfo(atonTarget);
-                setActiveInfoPanel(newClosest, aisTargetInfoPanel);
-                return true;
-
-            } else {
-                setActiveInfoPanel(null, null);
-            }
+        else if (newClosest instanceof SartGraphic) {
+            SartGraphic sartGraphic = (SartGraphic) newClosest;
+            sarTargetInfoPanel.showSarInfo(sartGraphic.getSarTargetGraphic().getSarTarget());
+            return true;
+        }
+        else if (newClosest instanceof AtonTargetGraphic) {
+            AtoNTarget atonTarget = ((AtonTargetGraphic) newClosest).getAtonTarget();
+            aisTargetInfoPanel.showAtonInfo(atonTarget);
+            return true;
         }
         return false;
     }
-
+    
     public void zoomTo(Position position) {
         mapBean.setCenter(position.getLatitude(), position.getLongitude());
         // mapBean.setScale(EeINS.getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale());
