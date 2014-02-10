@@ -187,7 +187,7 @@ public class ShipAisSettingsPanel extends CommonAisSettingsPanel {
         aisSettings.setMinRedrawInterval((Integer) spinnerAISRedraw.getValue());
 
         // Save cloud intended route settings
-        cloudSettings.setBroadcastIntendedRoute(chckbxBroadcastIntendedRoute.isSelected());
+//        cloudSettings.setBroadcastIntendedRoute(chckbxBroadcastIntendedRoute.isSelected());
         //cloudSettings.setIntendedRouteMaxWps((Integer) spinnerIntendedRouteMaxWps.getValue());
         //cloudSettings.setIntendedRouteMaxTime((Integer) spinnerIntendedRouteMaxTime.getValue());
     }

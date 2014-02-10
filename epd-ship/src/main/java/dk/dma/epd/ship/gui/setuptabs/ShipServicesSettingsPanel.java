@@ -33,6 +33,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JSpinner;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
+import javax.swing.SpinnerNumberModel;
 
 public class ShipServicesSettingsPanel extends BaseSettingsPanel implements ActionListener {
     
@@ -41,17 +42,14 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
     private JCheckBox chckbxBroadcastIntendedRoute;
     private JComboBox<String> comboBoxSelectMethod;
     private JPanel generalPanel;
-    private JPanel useMeterPanel;
-    private JSpinner spinnerForwardMeters;
-    private JSpinner spinnerBackwardsMeters;
-    private JSpinner spinnerForwardMinutes;
-    private JSpinner spinnerBackwardsMinutes;
-    private JPanel useMinutesPanel;
-    private JPanel useNumberOfWayPoints;
-    private JSpinner spinnerForwardNumbers;
-    private JSpinner spinnerBackwardsNumber;
     private JSpinner spinnerTimeBetweenBroadcast;
     private JSpinner spinnerAdaptionTime;
+    private JSpinner spinnerForward;
+    private JSpinner spinnerBackward;
+    private JLabel lblTimeMeasurementForward;
+    private JLabel lblTimeMesaurementBackward;
+    private FilterType filterType;
+    private FilterType selectedType;
     
     public ShipServicesSettingsPanel() {
         super("Services", new ImageIcon(
@@ -90,125 +88,47 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         defaultComboBox.addElement("Distance");
         defaultComboBox.addElement("Time");
         defaultComboBox.addElement("Number of way points");
-        comboBoxSelectMethod = new JComboBox<String>(defaultComboBox);
-        comboBoxSelectMethod.addActionListener(this);
-        comboBoxSelectMethod.setBounds(16, 100, 176, 20);
-        generalPanel.add(comboBoxSelectMethod);
         
         // Add the panel
         this.add(generalPanel);
         
         
-        /*********** Combobox changing panels *************/
+        /*********** Intended route filter *************/
         
-        /************** Use Distance panel. ***************/
+        JPanel intendedRouteFilterPanel = new JPanel();
+        intendedRouteFilterPanel.setBounds(16, 102, 405, 120);
+        intendedRouteFilterPanel.setBorder(new TitledBorder(
+                null, "Intended Route Filter"));
+        generalPanel.add(intendedRouteFilterPanel);
+        intendedRouteFilterPanel.setLayout(null);
         
-        useMeterPanel = new JPanel();
-        useMeterPanel.setBorder(new TitledBorder(
-                null, "Use meters", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        useMeterPanel.setLayout(null);
-        useMeterPanel.setBounds(16, 132, 404, 90);
+        JLabel lblForward = new JLabel("Forward:");
+        lblForward.setBounds(16, 54, 54, 16);
+        intendedRouteFilterPanel.add(lblForward);
         
-        JLabel lblForwardMetes = new JLabel("Forward:");
-        lblForwardMetes.setBounds(16, 20, 54, 16);
-        useMeterPanel.add(lblForwardMetes);
+        JLabel lblBackward = new JLabel("Backward:");
+        lblBackward.setBounds(16, 79, 63, 16);
+        intendedRouteFilterPanel.add(lblBackward);
         
-        spinnerForwardMeters = new JSpinner();
-        spinnerForwardMeters.setBounds(98, 18, 75, 20);
-        useMeterPanel.add(spinnerForwardMeters);
+        spinnerForward = new JSpinner(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
+        spinnerForward.setBounds(91, 52, 75, 20);
+        intendedRouteFilterPanel.add(spinnerForward);
         
-        JLabel lblForwardKnMeters = new JLabel("(kn)");
-        lblForwardKnMeters.setBounds(185, 18, 24, 16);
-        useMeterPanel.add(lblForwardKnMeters);
+        spinnerBackward = new JSpinner(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
+        spinnerBackward.setBounds(91, 77, 75, 20);
+        intendedRouteFilterPanel.add(spinnerBackward);
         
-        JLabel lblBackwardsMeters = new JLabel("Backwards:");
-        lblBackwardsMeters.setBounds(16, 48, 70, 16);
-        useMeterPanel.add(lblBackwardsMeters);
+        lblTimeMeasurementForward = new JLabel("null");
+        lblTimeMeasurementForward.setBounds(178, 54, 210, 16);
+        intendedRouteFilterPanel.add(lblTimeMeasurementForward);
         
-        spinnerBackwardsMeters = new JSpinner();
-        spinnerBackwardsMeters.setBounds(98, 46, 75, 20);
-        useMeterPanel.add(spinnerBackwardsMeters);
-        
-        JLabel lblBackwardsKnMeters = new JLabel("(kn)");
-        lblBackwardsKnMeters.setBounds(185, 48, 24, 16);
-        useMeterPanel.add(lblBackwardsKnMeters);
-        this.useMeterPanel.setVisible(false);
-        
-        
-        /************** Use Minutes panel. ***************/
-        
-        useMinutesPanel = new JPanel();
-        useMinutesPanel.setBorder(new TitledBorder(
-                null, "Use minutes", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        
-        useMinutesPanel.setLayout(null);
-        useMinutesPanel.setBounds(16, 132, 404, 90);
-        
-        JLabel lblForwardMinutes = new JLabel("Forward:");
-        lblForwardMinutes.setBounds(16, 20, 54, 16);
-        useMinutesPanel.add(lblForwardMinutes);
-        
-        spinnerForwardMinutes = new JSpinner();
-        spinnerForwardMinutes.setBounds(98, 18, 75, 20);
-        useMinutesPanel.add(spinnerForwardMinutes);
-        
-        JLabel lblForwardMin = new JLabel("(Min)");
-        lblForwardMin.setBounds(185, 18, 24, 16);
-        useMinutesPanel.add(lblForwardMin);
-        
-        JLabel lblBackwardsMinutes = new JLabel("Backwards:");
-        lblBackwardsMinutes.setBounds(16, 48, 70, 16);
-        useMinutesPanel.add(lblBackwardsMinutes);
-        
-        spinnerBackwardsMinutes = new JSpinner();
-        spinnerBackwardsMinutes.setBounds(98, 46, 75, 20);
-        useMinutesPanel.add(spinnerBackwardsMinutes);
-        
-        JLabel lblBackwardsMin = new JLabel("(Min)");
-        lblBackwardsMin.setBounds(185, 48, 24, 16);
-        useMinutesPanel.add(lblBackwardsMin);
-        this.useMinutesPanel.setVisible(false);
-        
-        
-        /************** Use Number of way points. ***************/
-        
-        useNumberOfWayPoints = new JPanel();
-        useNumberOfWayPoints.setBorder(new TitledBorder(
-                null, "Use number of way points", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-       
-        useNumberOfWayPoints.setLayout(null);
-        useNumberOfWayPoints.setBounds(16, 132, 404, 90);
-        
-        JLabel lblForwardNumber = new JLabel("Forward:");
-        lblForwardNumber.setBounds(16, 20, 54, 16);
-        useNumberOfWayPoints.add(lblForwardNumber);
-        
-        spinnerForwardNumbers = new JSpinner();
-        spinnerForwardNumbers.setBounds(98, 18, 75, 20);
-        useNumberOfWayPoints.add(spinnerForwardNumbers);
-        
-        JLabel lblForwardNumbers = new JLabel("(Way points)");
-        lblForwardNumbers.setBounds(185, 18, 100, 16);
-        useNumberOfWayPoints.add(lblForwardNumbers);
-        
-        JLabel lblBackwardsNumber = new JLabel("Backwards:");
-        lblBackwardsNumber.setBounds(16, 48, 70, 16);
-        useNumberOfWayPoints.add(lblBackwardsNumber);
-        
-        spinnerBackwardsNumber = new JSpinner();
-        spinnerBackwardsNumber.setBounds(98, 46, 75, 20);
-        useNumberOfWayPoints.add(spinnerBackwardsNumber);
-        
-        JLabel lblBackwardsNumbers = new JLabel("(Way points)");
-        lblBackwardsNumbers.setBounds(185, 48, 100, 16);
-        useNumberOfWayPoints.add(lblBackwardsNumbers);
-        
-        this.useNumberOfWayPoints.setVisible(false);
-                
-        // Add all the panels.
-        this.generalPanel.add(this.useMeterPanel);
-        this.generalPanel.add(this.useMinutesPanel);
-        this.generalPanel.add(this.useNumberOfWayPoints);
+        lblTimeMesaurementBackward = new JLabel("null");
+        lblTimeMesaurementBackward.setBounds(178, 79, 210, 16);
+        intendedRouteFilterPanel.add(lblTimeMesaurementBackward);
+        comboBoxSelectMethod = new JComboBox<String>(defaultComboBox);
+        comboBoxSelectMethod.setBounds(16, 20, 176, 20);
+        intendedRouteFilterPanel.add(comboBoxSelectMethod);
+        comboBoxSelectMethod.addActionListener(this);
         
         this.updateGui();
     }
@@ -217,29 +137,56 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
      * Updates the gui from what the user has selected.
      */
     private void updateGui() {
-        
-        // Show Distance panel.
-        if (this.comboBoxSelectMethod.getSelectedItem().equals("Distance")) {
 
-            this.useNumberOfWayPoints.setVisible(false);
-            this.useMinutesPanel.setVisible(false);
-            this.useMeterPanel.setVisible(true);
-
-        // Show the Time panel.
-        } else if (this.comboBoxSelectMethod.getSelectedItem().equals("Time")) {
-            
-            this.useNumberOfWayPoints.setVisible(false);
-            this.useMeterPanel.setVisible(false);
-            this.useMinutesPanel.setVisible(true);
+        String measurement = "";
+        selectedType = null;
         
-        // Show the number of waypoints panel.
-        } else if (this.comboBoxSelectMethod.getSelectedItem().equals("Number of way points")) {
+        if (this.comboBoxSelectMethod.getSelectedIndex() == 0) {
             
-            this.useMeterPanel.setVisible(false);
-            this.useMinutesPanel.setVisible(false);
-            this.useNumberOfWayPoints.setVisible(true);
+            measurement = "(kn)";
+            selectedType = FilterType.METERS;
             
+        } else if (this.comboBoxSelectMethod.getSelectedIndex() == 1) {
+            
+            measurement = "(hour)";
+            selectedType = FilterType.MINUTES;
+            
+        } else if (this.comboBoxSelectMethod.getSelectedIndex() == 2) {
+            
+            measurement = "(Number of way point)";
+            selectedType = FilterType.COUNT;
         }
+        
+        this.setMeasurementLabels(measurement);
+        this.setSpinnerValues(selectedType);
+    }
+
+    /**
+     * Updates the value of the forward and backward spinner by the
+     * selected FilterType Enum.
+     * @param type The selected FilterType Enum.
+     */
+    private void setSpinnerValues(FilterType type) {
+        
+        if (this.filterType != null) {
+            
+            if (this.filterType.equals(type)) {
+                this.spinnerForward.setValue(this.cloudSettings.getIntendedRouteFilter().getForward());
+                this.spinnerBackward.setValue(this.cloudSettings.getIntendedRouteFilter().getBackward());
+            } else {
+                this.spinnerForward.setValue(0);
+                this.spinnerBackward.setValue(0);
+            }
+        }
+    }
+    
+    /**
+     * Updates the text in the measurement labels.
+     * @param measurement The text to be written in the measurement labels.
+     */
+    private void setMeasurementLabels(String measurement) {
+        this.lblTimeMeasurementForward.setText(measurement);
+        this.lblTimeMesaurementBackward.setText(measurement);
     }
     
     /**
@@ -257,13 +204,13 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
     @Override
     protected boolean checkSettingsChanged() {
         
-        boolean changesWereMade = changed(
-                this.cloudSettings.isShowIntendedRoute(), this.chckbxBroadcastIntendedRoute.isSelected());
-        
-        if (!changesWereMade) {
-            
-            
-        }
+        boolean changesWereMade = 
+                changed(this.cloudSettings.isBroadcastIntendedRoute(), this.chckbxBroadcastIntendedRoute.isSelected()) ||
+                changed(this.cloudSettings.getTimeBetweenBroadCast(), this.spinnerTimeBetweenBroadcast.getValue()) ||
+                changed(this.cloudSettings.getAdaptionTime(), this.spinnerAdaptionTime.getValue()) ||
+                changed(this.cloudSettings.getIntendedRouteFilter().getType(), this.selectedType) ||
+                changed(this.cloudSettings.getIntendedRouteFilter().getForward(), this.spinnerForward.getValue()) ||
+                changed(this.cloudSettings.getIntendedRouteFilter().getBackward(), this.spinnerBackward.getValue());
 
         return changesWereMade;
     }
@@ -279,36 +226,23 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         
         // Load cloud Intended Route Settings.
         this.chckbxBroadcastIntendedRoute.setSelected(this.cloudSettings.isBroadcastIntendedRoute());
-//        this.spinnerTimeBetweenBroadcast.setValue(this.cloudSettings.);
+        this.spinnerTimeBetweenBroadcast.setValue(this.cloudSettings.getTimeBetweenBroadCast());
+        this.spinnerAdaptionTime.setValue(this.cloudSettings.getAdaptionTime());
         
-        // Get filter type. 
-        FilterType type = this.cloudSettings.getIntendedRouteFilter().getType();
+        filterType = this.cloudSettings.getIntendedRouteFilter().getType();
         
-        // Set the combo boks to the filter type.
-        if (type.equals(FilterType.METERS)) {
-            this.comboBoxSelectMethod.setSelectedItem("Distance");
-        } else if (type.equals(FilterType.MINUTES)) {
-            this.comboBoxSelectMethod.setSelectedItem("Time");
-        } else if (type.equals(FilterType.COUNT)) {
-            this.comboBoxSelectMethod.setSelectedItem("Number of way points");
+        // Set combobox selection.
+        if (filterType.equals(FilterType.METERS)) {
+            this.comboBoxSelectMethod.setSelectedIndex(0);
+        } else if (filterType.equals(FilterType.MINUTES)) {
+            this.comboBoxSelectMethod.setSelectedIndex(1);
+        } else if (filterType.equals(FilterType.COUNT)) {
+            this.comboBoxSelectMethod.setSelectedIndex(2);
         }
         
-        // Load settings for combobox based on what filter type was loaded.
-        if (this.comboBoxSelectMethod.getSelectedItem().equals("Distance")) {
-            
-            this.spinnerForwardMeters.setValue(this.cloudSettings.getIntendedRouteFilter().getForward());
-            this.spinnerBackwardsMeters.setValue(this.cloudSettings.getIntendedRouteFilter().getBackward());
-            
-        } else if (this.comboBoxSelectMethod.getSelectedItem().equals("Time")) {
-            
-            this.spinnerForwardMinutes.setValue(this.cloudSettings.getIntendedRouteFilter().getForward());
-            this.spinnerBackwardsMinutes.setValue(this.cloudSettings.getIntendedRouteFilter().getBackward());
-            
-        } else if (this.comboBoxSelectMethod.getSelectedItem().equals("Number of way points")) {
-            
-            this.spinnerForwardNumbers.setValue(this.cloudSettings.getIntendedRouteFilter().getForward());
-            this.spinnerBackwardsNumber.setValue(this.cloudSettings.getIntendedRouteFilter().getBackward());
-        }
+        // Set value of backward and forward.
+        this.spinnerForward.setValue(this.cloudSettings.getIntendedRouteFilter().getForward());
+        this.spinnerBackward.setValue(this.cloudSettings.getIntendedRouteFilter().getBackward());
     }
 
     /**
@@ -317,47 +251,17 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
     @Override
     protected void doSaveSettings() {
         
+        System.out.println(this.chckbxBroadcastIntendedRoute.isSelected());
+        
         // Save cloud Intended Route Settings.
         this.cloudSettings.setBroadcastIntendedRoute(this.chckbxBroadcastIntendedRoute.isSelected());
+        this.cloudSettings.setTimeBetweenBroadCast((Integer) this.spinnerTimeBetweenBroadcast.getValue());
+        this.cloudSettings.setAdaptionTime((Integer) this.spinnerAdaptionTime.getValue());
         
-        String type = (String) this.comboBoxSelectMethod.getSelectedItem();
-        
-        System.out.println("TYPE: "+type);
-        
-        // Save Partial Route Filter settings.
-        if (type.equals("Distance")) {
-            this.cloudSettings.getIntendedRouteFilter().setType(FilterType.METERS);
-        } else if (type.equals("Time")) {
-            this.cloudSettings.getIntendedRouteFilter().setType(FilterType.MINUTES);
-        } else if (type.equals("Number of way points")) {
-            this.cloudSettings.getIntendedRouteFilter().setType(FilterType.COUNT);
-        }
-        
-        if (this.comboBoxSelectMethod.getSelectedItem().equals("Distance")) {
-            
-            this.cloudSettings.getIntendedRouteFilter().setForward(
-                    (Integer) this.spinnerForwardMeters.getValue());
-            
-            this.cloudSettings.getIntendedRouteFilter().setBackward(
-                    (Integer) this.spinnerBackwardsMeters.getValue());
-            
-        } else if (this.comboBoxSelectMethod.getSelectedItem().equals("Time")) {
-
-            this.cloudSettings.getIntendedRouteFilter().setForward(
-                    (Integer) this.spinnerForwardNumbers.getValue());
-            
-            this.cloudSettings.getIntendedRouteFilter().setBackward(
-                    (Integer) this.spinnerBackwardsMinutes.getValue());
-            
-        } else if (this.comboBoxSelectMethod.getSelectedItem().equals("Number of way points")) {
-            
-            this.cloudSettings.getIntendedRouteFilter().setForward(
-                    (Integer) this.spinnerForwardNumbers.getValue());
-            
-            this.cloudSettings.getIntendedRouteFilter().setBackward(
-                    (Integer) this.spinnerBackwardsNumber.getValue());
-            
-        }
+        // Save Intended route filter settings.
+        this.cloudSettings.getIntendedRouteFilter().setType(this.selectedType);
+        this.cloudSettings.getIntendedRouteFilter().setForward((Integer) this.spinnerForward.getValue());
+        this.cloudSettings.getIntendedRouteFilter().setBackward((Integer) this.spinnerBackward.getValue());
     }
 
     /**
