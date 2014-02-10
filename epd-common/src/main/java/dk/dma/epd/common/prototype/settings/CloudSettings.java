@@ -37,6 +37,8 @@ public class CloudSettings  implements Serializable {
     // Intended route settings
     private boolean broadcastIntendedRoute = true;
     private boolean showIntendedRoute = true;
+    private int timeBetweenBroadCast = 1;
+    private int adaptionTime = 1;
 
     /**
      * Constructor
@@ -57,6 +59,8 @@ public class CloudSettings  implements Serializable {
         
         // Intended route settings
         broadcastIntendedRoute = PropUtils.booleanFromProperties(props, PREFIX + "broadcastIntendedRoute", broadcastIntendedRoute);
+        this.timeBetweenBroadCast = PropUtils.intFromProperties(props, PREFIX + "timeBetweenBroadCast", this.timeBetweenBroadCast);
+        this.adaptionTime = PropUtils.intFromProperties(props, PREFIX + "adaptionTime", this.adaptionTime);
         showIntendedRoute = PropUtils.booleanFromProperties(props, PREFIX + "showIntendedRoute", showIntendedRoute);
     }
     
@@ -71,8 +75,12 @@ public class CloudSettings  implements Serializable {
         props.put(PREFIX + "cloudServerHost", cloudServerHost);
         props.put(PREFIX + "cloudServerPort", Integer.toString(cloudServerPort));
         
+        System.out.println(this.isBroadcastIntendedRoute());
+        
         // Intended route settings
         props.put(PREFIX + "broadcastIntendedRoute", Boolean.toString(broadcastIntendedRoute));
+        props.put(PREFIX + "timeBetweenBroadCast", Integer.toString(this.timeBetweenBroadCast));
+        props.put(PREFIX + "adaptionTime", this.adaptionTime);
         props.put(PREFIX + "showIntendedRoute", Boolean.toString(showIntendedRoute));
     }
     
@@ -116,5 +124,21 @@ public class CloudSettings  implements Serializable {
 
     public void setShowIntendedRoute(boolean showIntendedRoute) {
         this.showIntendedRoute = showIntendedRoute;
+    }
+
+    public int getTimeBetweenBroadCast() {
+        return timeBetweenBroadCast;
+    }
+
+    public void setTimeBetweenBroadCast(int timeBetweenBroadCast) {
+        this.timeBetweenBroadCast = timeBetweenBroadCast;
+    }
+
+    public int getAdaptionTime() {
+        return adaptionTime;
+    }
+
+    public void setAdaptionTime(int adaptionTime) {
+        this.adaptionTime = adaptionTime;
     }
 }
