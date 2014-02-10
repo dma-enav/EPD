@@ -249,17 +249,8 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
             this.addTargetGraphic(mmsi, targetGraphic);
         }
 
-        if (aisTarget instanceof VesselTarget) {
-            VesselTarget vesselTarget = (VesselTarget) aisTarget;
-            VesselTargetGraphic vesselTargetGraphic = (VesselTargetGraphic) targetGraphic;
-            // Send new position data to graphic object
-            vesselTargetGraphic.update(vesselTarget, this.aisSettings,
-                    this.navSettings, mapScale);
-        } else if (aisTarget instanceof SarTarget) {
-            targetGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
-        } else if (aisTarget instanceof AtoNTarget) {
-            targetGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
-        }
+        // Send the new location data to the graphic representing the AisTarget
+        targetGraphic.update(aisTarget, this.aisSettings, this.navSettings, mapScale);
         targetGraphic.project(getProjection());
     }
     
