@@ -16,7 +16,6 @@
 package dk.dma.epd.shore.gui.settingtabs;
 
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Font;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +32,6 @@ import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MainFrame;
 
 import javax.swing.JTabbedPane;
-import javax.swing.border.TitledBorder;
 
 /**
  * 

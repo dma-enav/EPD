@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.common.prototype.settings;
 
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
