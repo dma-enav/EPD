@@ -75,15 +75,12 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     private AisTargetSelectionGraphic targetSelectionGraphic = new AisTargetSelectionGraphic();
 
     private volatile long selectedMMSI = -1;
-    private volatile boolean showLabels;
 
     private TopPanel topPanel;
 
     public AisLayer(int redrawIntervalMillis) {
         super(redrawIntervalMillis);
         graphics.add(targetSelectionGraphic);
-
-        showLabels = EPDShip.getInstance().getSettings().getAisSettings().isShowNameLabels();
     }
 
     /**
@@ -413,29 +410,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     public void zoomTo(Position position) {
         mapBean.setCenter(position.getLatitude(), position.getLongitude());
         // mapBean.setScale(EeINS.getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale());
-    }
-
-    /**
-     * Sets whether to show the vessel name labels or not
-     * 
-     * @param showLabels
-     *            show the vessel name labels or not
-     */
-    public void setShowNameLabels(boolean showLabels) {
-        if (this.showLabels == showLabels) {
-            return;
-        }
-
-        this.showLabels = showLabels;
-        synchronized(this.graphics) {
-            for (OMGraphic value : this.graphics) {
-                if (value instanceof VesselTargetGraphic) {
-                    ((VesselTargetGraphic) value).setShowNameLabel(showLabels);
-                    targetUpdated(((VesselTargetGraphic) value).getVesselTarget());
-                }
-                doPrepare();
-            }
-        }
     }
     
     /**
