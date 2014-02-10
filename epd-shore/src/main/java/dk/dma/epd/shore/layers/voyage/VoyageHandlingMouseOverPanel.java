@@ -19,11 +19,12 @@ import java.awt.geom.Point2D;
 import java.util.Date;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLegGraphic;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.RouteLeg;
+import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.shore.voyage.Voyage;
@@ -95,13 +96,15 @@ public class VoyageHandlingMouseOverPanel extends InfoPanel {
         // AisIntendedRoute routeData =
         // legGraphic.getIntendedRouteGraphic().getVesselTarget().getAisRouteData();
         IntendedRoute routeData = legGraphic.getIntendedRouteGraphic().getIntendedRoute();
-        Position startPos = routeData.getWaypoints().get(legIndex - 1).getPos();
-        Position midPos = Position.create(worldLocation.getY(),
-                worldLocation.getX());
-        Position endPos = routeData.getWaypoints().get(legIndex).getPos();
-        double range = Calculator.range(startPos, endPos, Heading.RL);
-        double midRange = Calculator.range(startPos, midPos, Heading.RL);
-        double hdg = Calculator.bearing(startPos, endPos, Heading.RL);
+        RouteWaypoint startWp = routeData.getWaypoints().get(legIndex - 1);
+        RouteLeg leg = startWp.getOutLeg();
+        
+        Position startPos = startWp.getPos();
+        Position midPos = Position.create(worldLocation.getY(), worldLocation.getX());
+        Position endPos = leg.getEndWp().getPos();
+        double range = Calculator.range(startPos,endPos, leg.getHeading());
+        double midRange = Calculator.range(startPos, midPos, leg.getHeading());
+        double hdg = Calculator.bearing(startPos, endPos, leg.getHeading());
         Date startEta = routeData.getEtas().get(legIndex - 1);
 
         Date midEta = new Date((long) (midRange / routeData.getSpeed(legIndex)

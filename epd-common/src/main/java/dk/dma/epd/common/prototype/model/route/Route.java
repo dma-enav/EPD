@@ -891,19 +891,16 @@ public class Route implements Serializable {
 
             waypoint.setName(cloudWaypoint.getName());
 
+            // Handle leg
             if (i > 0) {
-                RouteLeg inLeg = new RouteLeg();
-                inLeg.setHeading(Heading.RL);
-                waypoint.setInLeg(inLeg);
+                RouteWaypoint prevWaypoint = routeWaypoints.get(i - 1);
+                RouteLeg leg = new RouteLeg();
+                waypoint.setInLeg(leg);
+                prevWaypoint.setOutLeg(leg);
+                leg.setStartWp(prevWaypoint);
+                leg.setEndWp(waypoint);
             }
-
-            // Outleg always has next
-            if (i != cloudRouteWaypoints.size() - 1) {
-                RouteLeg outLeg = new RouteLeg();
-                outLeg.setHeading(Heading.RL);
-                waypoint.setOutLeg(outLeg);
-            }
-
+            
             Position position = Position.create(cloudWaypoint.getLatitude(),
                     cloudWaypoint.getLongitude());
             waypoint.setPos(position);
@@ -917,22 +914,6 @@ public class Route implements Serializable {
 
                 RouteWaypoint waypoint = routeWaypoints.get(i);
                 Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
-
-                // Waypoint 0 has no in leg, one out leg... no previous
-                if (i != 0) {
-                    RouteWaypoint prevWaypoint = routeWaypoints.get(i - 1);
-
-                    if (waypoint.getInLeg() != null) {
-                        waypoint.getInLeg().setStartWp(prevWaypoint);
-                        waypoint.getInLeg().setEndWp(waypoint);
-                    }
-
-                    if (prevWaypoint.getOutLeg() != null) {
-                        prevWaypoint.getOutLeg().setStartWp(prevWaypoint);
-                        prevWaypoint.getOutLeg().setEndWp(waypoint);
-
-                    }
-                }
 
                 // Leg
                 if (cloudWaypoint.getRouteLeg() != null && waypoint.getOutLeg() != null) {
@@ -967,6 +948,12 @@ public class Route implements Serializable {
                                 cloudWaypoint.getRouteLeg().getSFLen());
                     }
 
+                    // Heading
+                    if (cloudWaypoint.getRouteLeg().getHeading() == dk.dma.enav.model.voyage.RouteLeg.Heading.GC) {
+                        waypoint.getOutLeg().setHeading(Heading.GC);
+                    } else {
+                        waypoint.getOutLeg().setHeading(Heading.RL);
+                    }
                 }
 
                 if (cloudWaypoint.getTurnRad() != null) {
