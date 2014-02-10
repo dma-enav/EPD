@@ -94,10 +94,19 @@ public class RouteLeg implements Serializable {
         SFLen = sFLen;
     }
 
+    
+    /**
+     * Speed in nautical miles pr. hour
+     * @param speed
+     */
     public double getSpeed() {
         return speed;
     }
 
+    /**
+     * Speed in nautical miles pr. hour
+     * @param speed
+     */
     public void setSpeed(double speed) {
         this.speed = speed;
     }

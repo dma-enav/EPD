@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.broadcast.BroadcastOptions;
@@ -33,8 +34,10 @@ import com.bbn.openmap.geo.Intersection;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
+import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
+import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.PartialRouteFilter;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
@@ -65,9 +68,6 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     private DateTime lastSend = new DateTime(1);
     private RouteManager routeManager;
     private boolean running;
-    
-    
-    
 
     /**
      * Constructor
@@ -222,7 +222,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                 lastSend = new DateTime();
                 broadcastIntendedRoute();
 
-                filterTest();
+                updateFilter();
 
             }
         }
@@ -253,10 +253,94 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         super.findAndUndo(obj);
     }
 
+    /**
+     * Update all filters
+     */
+    @Override
+    protected void updateFilter() {
+
+        // Clear existing filture and recalculate everything
+        // Compare all routes to current active route
+        
+
+        filteredIntendedRoutes.clear();
+
+        // Compare all intended routes against our own active route
+
+        if (routeManager.getActiveRoute() != null) {
+
+            // The route we're comparing against
+            ActiveRoute activeRoute = routeManager.getActiveRoute();
+
+            Iterator<Entry<Long, IntendedRoute>> it = intendedRoutes.entrySet().iterator();
+            while (it.hasNext()) {
+                Entry<Long, IntendedRoute> intendedRoute = it.next();
+
+                IntendedRoute recievedRoute = intendedRoute.getValue();
+
+                FilteredIntendedRoute filter = compareRoutes(activeRoute, recievedRoute);
+                
+
+                
+                //No warnings, ignore it
+                if (filter.getFilterMessages().size() != 0){
+    
+                    //Add the intended route to the filter
+                    filter.setIntendedRoute(recievedRoute);
+                    //Add the filtered route to the list
+                    filteredIntendedRoutes.put(recievedRoute.getMmsi(), filter);
+                    
+                }
+                
+            }
+
+            //Call an update
+
+        }
+        
+        
+
+    }
+
+    /**
+     * Update filter with new intendedroute
+     * 
+     * @param route
+     */
+    @Override
+    protected void applyFilter(IntendedRoute route) {
+
+        // If previous intended route exist reapply filter
+
+        if (routeManager.getActiveRoute() != null) {
+            FilteredIntendedRoute filter = compareRoutes(routeManager.getActiveRoute(), route);
+            
+            //No warnings, ignore it
+            if (filter.getFilterMessages().size() == 0){
+                
+                //Remove it, if it exists
+                if (this.filteredIntendedRoutes.contains(route.getMmsi())){
+                    filteredIntendedRoutes.remove(route.getMmsi());
+                }
+                
+            }else{
+                //Add the intended route to the filter
+                filter.setIntendedRoute(route);
+                
+                //Add the filtered route to the list
+                filteredIntendedRoutes.put(route.getMmsi(), filter);
+                
+                //Call an update?
+            }
+            
+        }
+
+    }
+
     private void filterTest() {
 
         intersectPositions.clear();
-        
+
         // Compare all intended routes against our own active route
 
         if (routeManager.getActiveRoute() != null) {
@@ -282,8 +366,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                 for (int i = 1; i < activeRouteWaypoints.size(); i++) {
 
                     Position activeA = previousPositionActiveRoute;
-                    Position activeB =  activeRouteWaypoints.get(i).getPos();
-                    
+                    Position activeB = activeRouteWaypoints.get(i).getPos();
+
                     Position previousPositionIntendedRoute = waypoints.get(0).getPos();
                     for (int j = 1; j < waypoints.size(); j++) {
 
@@ -291,16 +375,15 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                         Position intendedA = previousPositionIntendedRoute;
                         Position intendedB = waypoints.get(j).getPos();
 
-                        
-                        System.out.println(intersection(activeA, activeB, intendedA, intendedB));
-                        
+//                        System.out.println(intersection(activeA, activeB, intendedA, intendedB));
+
                         previousPositionIntendedRoute = intendedB;
                     }
-                    
+
                     previousPositionActiveRoute = activeB;
 
                     System.out.println(pairs.getKey() + " = " + pairs.getValue());
-//                    it.remove(); // avoids a ConcurrentModificationException
+                    // it.remove(); // avoids a ConcurrentModificationException
                 }
 
             }
@@ -310,39 +393,6 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
 
     }
 
-    
-    
-    
-    private boolean intersection(Position A1, Position A2, Position B1, Position B2){
-        Geo intersectionPoint = null;
+ 
 
-
-            Geo a1 = new Geo(A1.getLatitude(), A1.getLongitude());
-            Geo a2 = new Geo(A2.getLatitude(), A2.getLongitude());
-            
-            Geo b1 = new Geo(B1.getLatitude(), B1.getLongitude());
-            Geo b2 = new Geo(B2.getLatitude(), B2.getLongitude());
-
-            intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
-            
-            if (intersectionPoint != null){
-                System.out.println("We have interesection at " + intersectionPoint);
-                intersectPositions.add(Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude()));
-                
-//                intersectPositions.add(A1);
-//                intersectPositions.add(A2);
-//                intersectPositions.add(B1);
-//                intersectPositions.add(B2);
-                return true;
-            }else{
-                return false;
-            
-        }
-
-    }
-
-
-
-    
-    
 }
