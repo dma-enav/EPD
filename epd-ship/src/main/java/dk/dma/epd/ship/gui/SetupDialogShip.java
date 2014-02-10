@@ -53,7 +53,7 @@ public class SetupDialogShip extends SetupDialogCommon {
     public SetupDialogShip(JFrame mainFrame) {
         // Constructs the common dialog.
         super(mainFrame, "Ship Setup", JTabbedPane.TOP);
-        super.setSize(super.getWidth()+98, super.getHeight());
+        super.setSize(super.getWidth()+69, super.getHeight());
 
         // Constructs some panels for the setup dialog.
         this.cloudSettings      = new CommonCloudSettingsPanel();
@@ -72,6 +72,8 @@ public class SetupDialogShip extends SetupDialogCommon {
                 aisSettings, 
                 sensorSettings 
                 );
+        
+        super.resizePanelsToFitContainer(this);
     }
     
     /**

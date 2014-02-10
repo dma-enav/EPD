@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.shore.gui.settingtabs;
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Font;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
@@ -30,6 +33,7 @@ import dk.dma.epd.shore.gui.views.JMapFrame;
 import dk.dma.epd.shore.gui.views.MainFrame;
 
 import javax.swing.JTabbedPane;
+import javax.swing.border.TitledBorder;
 
 /**
  * 
@@ -75,6 +79,26 @@ public class ShoreMapFramesSettingsPanel extends BaseSettingsPanel {
 
                 mapWindowsTabbedPane.setSelectedIndex(i);
             }
+        }
+    }
+    
+    /**
+     * Resizes the panels to fit the container.
+     */
+    public void resizePanelsToFitContainer() {
+        
+        // For each map frame settings panel get the components.
+        for (ShoreMapFrameSettingsPanel mapFrame : this.mapFrames.values()) {
+
+            // For each component check if it is an instance of JPanel.
+            for (Component component : mapFrame.getComponents()) {
+                
+                if (component instanceof JPanel) {
+                    
+                    // If it yes -> resize it.
+                    component.setSize(this.mapWindowsTabbedPane.getWidth()-20, component.getHeight());
+                }
+            }            
         }
     }
 
@@ -127,6 +151,9 @@ public class ShoreMapFramesSettingsPanel extends BaseSettingsPanel {
             paneTitle.setHorizontalTextPosition(SwingConstants.RIGHT);
             this.mapWindowsTabbedPane.setTabComponentAt(i, paneTitle);
         }
+        
+        // Resize map frame settings to fit tabbed pane.
+        this.resizePanelsToFitContainer();
     }
 
     /**
