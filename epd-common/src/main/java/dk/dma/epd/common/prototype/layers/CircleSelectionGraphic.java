@@ -80,4 +80,14 @@ public class CircleSelectionGraphic {
             this.selectedGraphic.remove(this.selectionMark);
         }
     }
+    
+    /**
+     * Updates the location of this {@code CircleSelectionGraphic}.
+     * @param center The new center of the circle marking the selection.
+     */
+    public void updatePosition(Position center) {
+        if(center != null) {
+            this.selectionMark.moveSymbol(center);
+        }
+    }
 }

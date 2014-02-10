@@ -126,6 +126,8 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
             if (this.parentLayer != null && this.parentLayer.getProjection() != null) {
                 this.speedVector.update(posData, this.parentLayer.getProjection().getScale());
             }
+            // update position of selection marker
+            this.circleSelectionGraphic.updatePosition(pos);
             
             // Set label
             label.setLat(lat);
