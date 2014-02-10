@@ -51,8 +51,6 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
     private Font font;
     private OMText label;
 
-    private boolean showNameLabel = true;
-
     private SpeedVectorGraphic speedVector;
     
     /**
@@ -72,7 +70,7 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
         this.parentLayer = parentLayer;
     }
 
-    private void createGraphics() {
+    private void createGraphics(AisSettings aisSettings) {
         vessel = new VesselTargetTriangle(this.parentGraphic);
 
         int[] headingX = { 0, 0 };
@@ -85,6 +83,7 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
         this.speedVector = new SpeedVectorGraphic(ColorConstants.VESSEL_HEADING_COLOR);
         
         add(label);
+        this.label.setVisible(aisSettings.isShowNameLabels());
         add(0, vessel);
         this.add(this.speedVector);
         add(heading);
@@ -112,7 +111,7 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
             double lon = pos.getLongitude();
 
             if (size() == 0) {
-                createGraphics();
+                createGraphics(aisSettings);
             }
 
             double hdgR = Math.toRadians(trueHeading);
@@ -146,16 +145,17 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
                 name = "ID:" + mmsi.toString();
             }
             label.setData(name);
-            label.setVisible(showNameLabel);
         }
     }
 
     public void setShowNameLabel(boolean showNameLabel) {
-        this.showNameLabel = showNameLabel;
+        if(this.label != null) {
+            this.label.setVisible(showNameLabel);    
+        }
     }
 
     public boolean getShowNameLabel() {
-        return showNameLabel;
+        return this.label.isVisible();
     }
 
     @Override

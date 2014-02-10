@@ -22,7 +22,7 @@ import dk.dma.epd.shore.EPDShore;
 
 /**
  * Creates a menu item for the MapMenu pop-up. When the menu item is
- * clicked, the visiblity of vessel name labes will be updated.
+ * clicked, the visibility of vessel name labels will be updated.
  * @author adamduehansen
  */
 public class ToggleAisTargetNames extends JMenuItem implements IMapMenuAction {
