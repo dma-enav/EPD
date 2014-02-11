@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.shore.gui.views;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
@@ -290,12 +291,14 @@ public class MainFrame extends MainFrameCommon {
         } else {
             setSize(guiSettings.getAppDimensions());
         }
+        
+        this.setLayout(new BorderLayout(0, 0));
 
         desktop = new JMainDesktopPane(this);
         scrollPane = new JScrollPane();
 
         scrollPane.getViewport().add(desktop);
-        this.setContentPane(scrollPane);
+        this.getContentPane().add(scrollPane, BorderLayout.CENTER);
 
         desktop.setBackground(new Color(39, 39, 39));
 
@@ -303,7 +306,9 @@ public class MainFrame extends MainFrameCommon {
 
         topMenu = new JMenuWorkspaceBar(this);
         this.setJMenuBar(topMenu);
-
+        
+        BottomPanel bottomPanel = new BottomPanel();        
+        
         // Initiate the permanent window elements
         desktop.getManager().setStatusArea(statusArea);
         desktop.getManager().setNotificationArea(notificationArea);
@@ -322,6 +327,7 @@ public class MainFrame extends MainFrameCommon {
 
         beanHandler.add(notificationArea);
         beanHandler.add(this.setup);
+        beanHandler.add(bottomPanel);
         beanHandler.add(sendRouteDialog);
         beanHandler.add(sendVoyageDialog);
         // dtp.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
@@ -334,6 +340,8 @@ public class MainFrame extends MainFrameCommon {
         beanHandler.add(routeManagerDialog);
         beanHandler.add(routeManagerDialog.getRouteManager());
         // routeManagerDialog.setVisible(true);
+        
+        this.getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 
         setWorkSpace(workspace);
     }
