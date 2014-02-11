@@ -39,11 +39,8 @@ import dk.dma.epd.common.prototype.ais.VesselStaticData;
 /**
  * @author Janus Varmarken
  */
+@SuppressWarnings("serial")
 public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGraphic {
-
-    private static final long serialVersionUID = 1L;
-
-    public static final float STROKE_WIDTH = 1.0f;
 
     /**
      * Displays the ship outline
@@ -60,15 +57,30 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
      */
     private SpeedVectorGraphic speedVector;
 
+    /**
+     * Color to use for outline and PNT device when this graphic is NOT selected.
+     */
     private Color lineColor;
 
     /**
-     * Color used to draw ship outline when this graphic is selected.
+     * Color currently used for outline and PNT device.
+     * This reference swaps between {@link #lineColor} and {@link #selectionColor} according to selection status of this graphic.
+     */
+    private Color currentColor;
+    
+    /**
+     * Color to use for outline and PNT device when this graphic is selected.
      */
     private Color selectionColor = Color.GREEN;
     
+    /**
+     * Thickness of the line used for the vessel outline.
+     */
     private float lineThickness = 1.0f;
 
+    /**
+     * Stroke used to paint the vessel outline.
+     */
     private BasicStroke lineStroke;
 
     /**
@@ -81,6 +93,10 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
      * The VesselTargetGraphics which created this object.
      */
     private VesselTargetGraphic vesselTargetGraphic;
+    
+    /**
+     * Used to paint the name label for this vessel graphic.
+     */
     private OMText aisName;
     private boolean showNameLabel = true;
 
@@ -91,13 +107,13 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
         this.vesselTargetGraphic = vesselTargetGraphic;
         this.setVague(true);
         this.lineColor = lineColor;
+        this.currentColor = this.lineColor;
         this.lineThickness = lineThickness;
         this.lineStroke = new BasicStroke(this.lineThickness);
         this.parentLayer = parentLayer;
         
         this.font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
         this.aisName = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);
-        this.setLinePaint(Color.BLACK);
         this.add(aisName);
     }
 
@@ -163,7 +179,8 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
         // clear old PntDevice display
         this.remove(this.pntDevice);
         this.pntDevice = new OMCircle(lat, lon, 3, 3);
-        this.pntDevice.setFillPaint(this.lineColor);
+        this.pntDevice.setFillPaint(this.currentColor);
+        this.pntDevice.setLinePaint(this.currentColor);
         this.add(pntDevice);
 
         double[] shipCorners = new double[14];
@@ -189,14 +206,9 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
         // Fill the polygon with an invisible color - helps the AisLayer to keep showing the infopanel,
         // when mouse is hovering the outline of the vessel.
         this.shipOutline.setFillPaint(new Color(0, 0, 0, 1));
-
-        this.add(this.shipOutline);
-        this.setLinePaint(this.lineColor);
-        // this.setStroke(this.lineStroke);
         this.shipOutline.setStroke(this.lineStroke);
-        
-        
-        
+        this.shipOutline.setLinePaint(this.currentColor);
+        this.add(this.shipOutline);
         
         this.aisName.setLon(positionData.getPos().getLongitude());
         this.aisName.setLat(positionData.getPos().getLatitude());
@@ -274,10 +286,10 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
         if(this.shipOutline != null) {
             // Simply change the color of the outline when selected.
             if(selected) {
-                this.shipOutline.setLinePaint(this.selectionColor); 
+                this.currentColor = this.selectionColor;
             }
             else {
-                this.shipOutline.setLinePaint(this.lineColor);
+                this.currentColor = this.lineColor;
             }
         }
     }
