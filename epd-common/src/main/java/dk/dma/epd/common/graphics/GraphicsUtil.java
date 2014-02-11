@@ -108,11 +108,12 @@ public class GraphicsUtil {
      * @param comp the component to fix the size of
      * @param width the fixed width
      * @param height the fixed height
+     * @return the updated component
      */
-    public static void fixSize(JComponent comp, int width, int height) {
+    public static <T extends JComponent> T fixSize(T comp, int width, int height) {
         // Sanity check
         if (comp == null) {
-            return;
+            return null;
         }
         
         if (width == -1) {
@@ -126,6 +127,7 @@ public class GraphicsUtil {
         comp.setMaximumSize(dim);
         comp.setMinimumSize(dim);
         comp.setSize(dim);
+        return comp;
     }
 
     /**
@@ -135,9 +137,10 @@ public class GraphicsUtil {
      * 
      * @param comp the component to fix the size of
      * @param width the fixed width
+     * @return the updated component
      */
-    public static void fixSize(JComponent comp, int width) {
-        fixSize(comp, width, -1);
+    public static <T extends JComponent> T fixSize(T comp, int width) {
+        return fixSize(comp, width, -1);
     }
 
     /**

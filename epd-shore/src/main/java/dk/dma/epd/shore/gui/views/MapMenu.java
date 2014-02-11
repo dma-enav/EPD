@@ -411,6 +411,7 @@ public class MapMenu extends MapMenuCommon {
 
         routeProperties.setRouteManager(routeManager);
         routeProperties.setRouteIndex(routeIndex);
+        routeProperties.setChartPanel(EPDShore.getInstance().getMainFrame().getActiveMapWindow().getChartPanel());
         add(routeProperties);
 
         revalidate();

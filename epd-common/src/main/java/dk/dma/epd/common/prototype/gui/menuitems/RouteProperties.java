@@ -17,20 +17,46 @@ package dk.dma.epd.common.prototype.gui.menuitems;
 
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
+import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
 import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
+/**
+ * Opens the route properties dialog
+ */
 public class RouteProperties extends RouteMenuItem<RouteManagerCommon> {
     
     private static final long serialVersionUID = 1L;
 
+    CommonChartPanel chartPanel;    
+
+    /**
+     * Constructor
+     * @param text
+     */
     public RouteProperties(String text) {
         super();
         setText(text);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void doAction() {
-        RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(EPD.getInstance().getMainFrame(), routeManager, routeIndex);
+        RoutePropertiesDialogCommon routePropertiesDialog = 
+                new RoutePropertiesDialogCommon(
+                        EPD.getInstance().getMainFrame(), 
+                        chartPanel,
+                        routeManager, 
+                        routeIndex);
         routePropertiesDialog.setVisible(true);
+    }
+
+    /**
+     * Sets the current chart panel
+     * @param chartPanel
+     */
+    public void setChartPanel(CommonChartPanel chartPanel) {
+        this.chartPanel = chartPanel;
     }
 }
