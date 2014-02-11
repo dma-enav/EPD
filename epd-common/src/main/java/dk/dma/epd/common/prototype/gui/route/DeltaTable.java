@@ -84,11 +84,21 @@ public class DeltaTable extends JPanel {
     /**
      * Constructor
      * 
-     * @param rowClass
-     * @param deltaRowClass
+     * @param model the table model
+     * @param deltaStartColIndex the index of the first delta column 
      */
     public DeltaTable(TableModel model, int deltaStartColIndex) {
-        //super(new GridBagLayout());
+        this(model, deltaStartColIndex, null);
+    }
+    
+    /**
+     * Constructor
+     * 
+     * @param model the table model
+     * @param deltaStartColIndex the index of the first delta column 
+     * @param colMinWidths the minimum column widths
+     */
+    public DeltaTable(TableModel model, int deltaStartColIndex, int[] colMinWidths) {
 
         this.model = model;
         this.deltaStartColIndex = deltaStartColIndex;
@@ -134,14 +144,11 @@ public class DeltaTable extends JPanel {
         new SyncSelectionModel(table1, table2, true);
         new SyncSelectionModel(table2, table1, false);
 
-        //Insets insets  = new Insets(0, 0, 0, 0);
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         for (int x = 0; x < scrollPanes.length; x++) {
             scrollPanes[x].setBorder(BorderFactory.createEmptyBorder());
-            //add(scrollPanes[x], new GridBagConstraints(x, 0, 1, 1, 1.0, 1.0, GridBagConstraints.NORTH, GridBagConstraints.BOTH, insets, 0, 0));
+            add(scrollPanes[x]);
         }
-        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-        add(scrollPanes[0]);
-        add(scrollPanes[1]);
 
         // Let scrollPane2 scroll both tables
         scrollPane2.getVerticalScrollBar().setModel(scrollPane1.getVerticalScrollBar().getModel());
@@ -154,6 +161,13 @@ public class DeltaTable extends JPanel {
         ResizeTablesMouseAdapter tableResizer = new ResizeTablesMouseAdapter();
         table1.getTableHeader().addMouseListener(tableResizer);
         table1.getTableHeader().addMouseMotionListener(tableResizer);
+        
+        // Set the minimum column widths
+        if (colMinWidths != null && colMinWidths.length == model.getColumnCount()) {
+            for (int x = 0; x < colMinWidths.length; x++) {
+                getColumn(x).setMinWidth(colMinWidths[x]);
+            }
+        }
     }
 
 

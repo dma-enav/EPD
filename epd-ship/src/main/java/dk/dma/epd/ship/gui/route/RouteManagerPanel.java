@@ -412,7 +412,10 @@ ListSelectionListener, TableModelListener, MouseListener {
         int i = routeTable.getSelectedRow();
         if (i >= 0) {
             RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(
-                    routeManagerDialog, routeManager, i);
+                    routeManagerDialog, 
+                    EPDShip.getInstance().getMainFrame().getChartPanel(),
+                    routeManager, 
+                    i);
             routePropertiesDialog.setVisible(true);
         }
     }

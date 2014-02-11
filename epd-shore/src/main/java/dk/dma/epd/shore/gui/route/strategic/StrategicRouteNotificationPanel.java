@@ -406,9 +406,9 @@ public class StrategicRouteNotificationPanel extends JPanel {
                             .getMessages().get(currentSelection);
 
                     RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
-                            EPDShore.getInstance().getMainFrame(), new Route(message
-                                    .getRouteMessage().get(message
-                                            .getRouteMessage().size()-1).getRoute()));
+                            EPDShore.getInstance().getMainFrame(), 
+                            EPDShore.getInstance().getMainFrame().getActiveMapWindow().getChartPanel(),
+                            new Route(message.getRouteMessage().get(message.getRouteMessage().size()-1).getRoute()));
                     
                     routePropertiesDialog.setVisible(true);
 

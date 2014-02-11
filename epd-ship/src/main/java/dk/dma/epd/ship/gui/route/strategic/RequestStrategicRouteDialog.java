@@ -405,7 +405,10 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
         if (e.getSource() == btnViewRoute) {
 
             RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(
-                    EPDShip.getInstance().getMainFrame(), latestReceivedRoute, false);
+                    EPDShip.getInstance().getMainFrame(), 
+                    EPDShip.getInstance().getMainFrame().getChartPanel(),
+                    latestReceivedRoute, 
+                    false);
 
             routePropertiesDialog.setVisible(true);
 

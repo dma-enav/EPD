@@ -449,7 +449,11 @@ public class RouteManagerDialog extends ComponentFrame implements ActionListener
     private void properties() {
         int i = routeTable.getSelectedRow();
         if (i >= 0) {
-            RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(parent, routeManager, i);
+            RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
+                    parent, 
+                    EPDShore.getInstance().getMainFrame().getActiveMapWindow().getChartPanel(),
+                    routeManager, 
+                    i);
             routePropertiesDialog.setVisible(true);
         }
     }

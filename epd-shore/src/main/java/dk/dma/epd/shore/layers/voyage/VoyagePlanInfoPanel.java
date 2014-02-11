@@ -319,7 +319,10 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
             System.out.println(voyage.getId());
             
             RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
-                    EPDShore.getInstance().getMainFrame(), voyage.getRoute(), voyageHandlingLayer);
+                    EPDShore.getInstance().getMainFrame(), 
+                    chartPanel,
+                    voyage.getRoute(), 
+                    voyageHandlingLayer);
             routePropertiesDialog.setVisible(true);
             
         }

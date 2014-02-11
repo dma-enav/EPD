@@ -503,6 +503,7 @@ public class MapMenu extends MapMenuCommon {
 
         routeProperties.setRouteManager(routeManager);
         routeProperties.setRouteIndex(routeIndex);
+        routeProperties.setChartPanel(EPDShip.getInstance().getMainFrame().getChartPanel());
         add(routeProperties);
 
 //        generalMenu(false); //TODO: is this supposed to be commented out?
