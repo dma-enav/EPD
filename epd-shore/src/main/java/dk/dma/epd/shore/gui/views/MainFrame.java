@@ -73,7 +73,7 @@ public class MainFrame extends MainFrameCommon {
     private ToolBar toolbar = new ToolBar(this);
     private NotificationArea notificationArea = new NotificationArea(this);
     private NotificationCenter notificationCenter = new NotificationCenter();
-    private SetupDialogShore setup = new SetupDialogShore(EPDShore.getInstance().getMainFrame());
+    private SetupDialogShore setup = new SetupDialogShore(this);
     private RouteManagerDialog routeManagerDialog = new RouteManagerDialog(this);
     private SendRouteDialog sendRouteDialog = new SendRouteDialog();
     private SendStrategicRouteDialog sendVoyageDialog = new SendStrategicRouteDialog();
