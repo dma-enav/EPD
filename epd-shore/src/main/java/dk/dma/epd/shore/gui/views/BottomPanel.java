@@ -81,9 +81,13 @@ public class BottomPanel extends OMComponentPanel implements Runnable {
         
         if (this.aisHandler != null) {
             lblAisConnection.updateStatus(this.aisHandler);
-        } else if (this.shoreServices != null) {
+        } 
+        
+        if (this.shoreServices != null) {
             lblShoreServices.updateStatus(this.shoreServices);
-        } else if (this.maritimeCloudService != null) {
+        } 
+        
+        if (this.maritimeCloudService != null) {
             lblMaritimeCloud.updateStatus(this.maritimeCloudService);
         }
     }
