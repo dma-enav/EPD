@@ -23,21 +23,32 @@ import dk.dma.epd.common.prototype.model.route.IntendedRoute;
  */
 public interface IIntendedRouteListener {
 
-    /**
-     * Called when an intended route has been added
-     * @param intendedRoute the intended route
-     */
-    void intendedRouteAdded(IntendedRoute intendedRoute);
+//    /**
+//     * Called when an intended route has been added
+//     * @param intendedRoute the intended route
+//     */
+//    void intendedRouteAdded(IntendedRoute intendedRoute);
+//    
+//    /**
+//     * Called when an intended route has been updated
+//     * @param intendedRoute the intended route
+//     */
+//    void intendedRouteUpdated(IntendedRoute intendedRoute);
+//    
+//    /**
+//     * Called when an intended route has been removed
+//     * @param intendedRoute the intended route
+//     */
+//    void intendedRouteRemoved(IntendedRoute intendedRoute);
+    
+    
+    
+    
     
     /**
-     * Called when an intended route has been updated
+     * Called when an event regarding intended routes has occured
+     * such as added, removed or updated
      * @param intendedRoute the intended route
      */
-    void intendedRouteUpdated(IntendedRoute intendedRoute);
-    
-    /**
-     * Called when an intended route has been removed
-     * @param intendedRoute the intended route
-     */
-    void intendedRouteRemoved(IntendedRoute intendedRoute);
+    void intendedRouteEvent(IntendedRoute intendedRoute);
 }

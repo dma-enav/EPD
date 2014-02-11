@@ -43,7 +43,7 @@ public class IntendedRouteColor extends ColorMenuItem implements IMapMenuAction 
             @Override public void colorSelected(Color color) {
                 if (routeGraphics != null) {
                     routeGraphics.setRouteColor(color);
-                    intendedRouteHandler.fireIntendedRouteUpdated(routeGraphics.getIntendedRoute());
+                    intendedRouteHandler.fireIntendedEvent(routeGraphics.getIntendedRoute());
                 }
             }});
         }

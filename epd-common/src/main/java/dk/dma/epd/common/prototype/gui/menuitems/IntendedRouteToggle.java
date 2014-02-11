@@ -45,7 +45,7 @@ public class IntendedRouteToggle extends JMenuItem implements
     @Override
     public void doAction() {
         intendedRoute.setVisible(!intendedRoute.isVisible());
-        intendedRouteHandler.fireIntendedRouteUpdated(intendedRoute);
+        intendedRouteHandler.fireIntendedEvent(intendedRoute);
     }
     
     /**

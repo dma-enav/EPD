@@ -83,7 +83,6 @@ public class PlannedPositionGraphic extends OMGraphicList {
         vessel.setTextureMask(new TexturePaint(hatchFill, hatchFillRectangle));
         
         add(vessel);
-        this.setVague(true);
     }
 
     public void update(double lat, double lon, int units, double heading) {

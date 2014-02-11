@@ -21,8 +21,12 @@ public class IntendedRouteFilterMessage {
 
     Position position;
     String message;
-
-    public IntendedRouteFilterMessage(Position position, String message) {
+    int legStartIndex;
+    int legEndIndex;
+    
+    public IntendedRouteFilterMessage(Position position, String message, int legStartIndex, int legEndIndex) {
+        this.legStartIndex = legStartIndex;
+        this.legEndIndex = legEndIndex;
         this.position = position;
         this.message = message;
     }

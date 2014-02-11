@@ -18,8 +18,6 @@ package dk.dma.epd.ship.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import net.maritimecloud.net.MaritimeCloudClient;
@@ -29,18 +27,13 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bbn.openmap.geo.Geo;
-import com.bbn.openmap.geo.Intersection;
-
-import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.PartialRouteFilter;
-import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.util.Util;
@@ -68,6 +61,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     private DateTime lastSend = new DateTime(1);
     private RouteManager routeManager;
     private boolean running;
+    
+    private IntendedRouteLayerCommon intendedRouteLayerCommon;
 
     /**
      * Constructor
@@ -239,6 +234,13 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
             routeManager = (RouteManager) obj;
             routeManager.addListener(this);
         }
+        
+        
+        
+        if (obj instanceof IntendedRouteLayerCommon) {
+            intendedRouteLayerCommon = (IntendedRouteLayerCommon) obj;
+        }
+
     }
 
     /**
@@ -295,7 +297,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
             }
 
             //Call an update
-
+            intendedRouteLayerCommon.loadIntendedRoutes();
+            
         }
         
         
@@ -319,8 +322,9 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
             if (filter.getFilterMessages().size() == 0){
                 
                 //Remove it, if it exists
-                if (this.filteredIntendedRoutes.contains(route.getMmsi())){
+                if (this.filteredIntendedRoutes.containsKey(route.getMmsi())){
                     filteredIntendedRoutes.remove(route.getMmsi());
+                    System.out.println("Remove from filter");
                 }
                 
             }else{
@@ -337,61 +341,6 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
 
     }
 
-    private void filterTest() {
-
-        intersectPositions.clear();
-
-        // Compare all intended routes against our own active route
-
-        if (routeManager.getActiveRoute() != null) {
-
-            // The route we're comparing against
-            ActiveRoute route = routeManager.getActiveRoute();
-
-            Iterator it = intendedRoutes.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry pairs = (Map.Entry) it.next();
-
-                System.out.println("Examining intended route from " + pairs.getKey());
-
-                Route recievedRoute = (dk.dma.epd.common.prototype.model.route.Route) pairs.getValue();
-
-                // Compare all line segments
-                LinkedList<RouteWaypoint> waypoints = recievedRoute.getWaypoints();
-
-                // Our own waypoint list
-                LinkedList<RouteWaypoint> activeRouteWaypoints = route.getWaypoints();
-
-                Position previousPositionActiveRoute = activeRouteWaypoints.get(0).getPos();
-                for (int i = 1; i < activeRouteWaypoints.size(); i++) {
-
-                    Position activeA = previousPositionActiveRoute;
-                    Position activeB = activeRouteWaypoints.get(i).getPos();
-
-                    Position previousPositionIntendedRoute = waypoints.get(0).getPos();
-                    for (int j = 1; j < waypoints.size(); j++) {
-
-                        // Line segment
-                        Position intendedA = previousPositionIntendedRoute;
-                        Position intendedB = waypoints.get(j).getPos();
-
-//                        System.out.println(intersection(activeA, activeB, intendedA, intendedB));
-
-                        previousPositionIntendedRoute = intendedB;
-                    }
-
-                    previousPositionActiveRoute = activeB;
-
-                    System.out.println(pairs.getKey() + " = " + pairs.getValue());
-                    // it.remove(); // avoids a ConcurrentModificationException
-                }
-
-            }
-            // intendedRoutes.get
-
-        }
-
-    }
 
  
 

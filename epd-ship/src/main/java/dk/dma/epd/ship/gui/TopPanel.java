@@ -35,6 +35,7 @@ import dk.dma.epd.common.prototype.event.HistoryNavigationPanelInterface;
 import dk.dma.epd.common.prototype.gui.GoBackButton;
 import dk.dma.epd.common.prototype.gui.GoForwardButton;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.event.DragMouseMode;
@@ -87,6 +88,9 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             toolbarIcon("drag.png"));
     private final ToggleButtonLabel toggleIntendedRoute = new ToggleButtonLabel(
             toolbarIcon("direction.png"));
+    private final ToggleButtonLabel toggleIntendedRouteFilter = new ToggleButtonLabel(
+            toolbarIcon("road-sign.png"));
+
 
     /**
      * Toggle button to enable distance circle mode.
@@ -99,6 +103,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     private AisDialog aisDialog;
     private MenuBar menuBar;
     private RouteLayer routeLayer;
+    private IntendedRouteLayerCommon intendedRouteLayer;
 
     private MouseDelegator mouseDelegator;
     private final GoBackButton goBackBtn = new GoBackButton();
@@ -145,6 +150,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         aisToggleName.setToolTipText("Show/hide AIS Name Labels");
         encBtn.setToolTipText("Show/hide ENC");
         toggleIntendedRoute.setToolTipText("Show/hide intended routes");
+        toggleIntendedRouteFilter.setToolTipText("Toggle Intended Route Filter");
         
         goBackBtn.setToolTipText("Go back");
         goForwardBtn.setToolTipText("Go forward");
@@ -180,6 +186,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         add(wmsBtn);
         add(toggleSafeHaven);
         add(toggleIntendedRoute);
+        add(toggleIntendedRouteFilter);
 
         Component horizontalStrut = Box.createHorizontalStrut(5);
         horizontalStrut = Box.createHorizontalStrut(5);
@@ -211,6 +218,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         dragMouseMode.addMouseListener(this);
         toggleDistanceCircleMode.addMouseListener(this);
         toggleIntendedRoute.addMouseListener(this);
+        toggleIntendedRouteFilter.addMouseListener(this);
 
         updateButtons();
     }
@@ -277,6 +285,9 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         }
         if (obj instanceof RouteLayer) {
             routeLayer = (RouteLayer) obj;
+        }
+        if (obj instanceof IntendedRouteLayerCommon) {
+            intendedRouteLayer = (IntendedRouteLayerCommon) obj;
         }
     }
     
@@ -419,6 +430,11 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             EPDShip.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(visible);
             mainFrame.getChartPanel().setIntendedRouteLayerVisibility(visible);
             menuBar.getIntendedRouteLayer().setSelected(visible);
+        }
+        
+        else if (e.getSource() == toggleIntendedRouteFilter) {
+            boolean visible = toggleIntendedRouteFilter.isSelected();
+            intendedRouteLayer.toggleFilter(visible);
         }
     }
 

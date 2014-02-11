@@ -25,14 +25,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
+import net.maritimecloud.net.MaritimeCloudClient;
+import net.maritimecloud.net.broadcast.BroadcastListener;
+import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
+
 import org.joda.time.DateTime;
 
 import com.bbn.openmap.geo.Geo;
 import com.bbn.openmap.geo.Intersection;
 
-import net.maritimecloud.net.MaritimeCloudClient;
-import net.maritimecloud.net.broadcast.BroadcastListener;
-import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
@@ -45,7 +46,6 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.util.Converter;
-import dk.dma.epd.common.util.Util;
 
 /**
  * Intended route service implementation.
@@ -65,8 +65,6 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
     protected List<IIntendedRouteListener> listeners = new CopyOnWriteArrayList<>();
 
     private AisHandlerCommon aisHandler;
-
-    protected List<Position> intersectPositions = new ArrayList<>();
 
     /**
      * Constructor
@@ -144,32 +142,35 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
         if (!intendedRoute.hasRoute()) {
             if (intendedRoutes.containsKey(mmsi)) {
                 intendedRoutes.remove(mmsi);
-                fireIntendedRouteRemoved(intendedRoute);
+                // fireIntendedRouteRemoved(intendedRoute);
             }
-            return;
-        }
-
-        // The intended route is valid
-        intendedRoutes.put(mmsi, intendedRoute);
-
-        // Apply the filter to the route
-        applyFilter(intendedRoute);
-
-        // Sanity check
-        if (aisHandler != null) {
-            // Try to find exiting target
-            VesselTarget vesselTarget = aisHandler.getVesselTarget(mmsi);
-            if (vesselTarget != null) {
-                intendedRoute.update(vesselTarget.getPositionData());
+            if (filteredIntendedRoutes.containsKey(mmsi)) {
+                filteredIntendedRoutes.remove(mmsi);
             }
-        }
-
-        // Broadcast the happy occasion
-        if (oldIntendedRoute != null) {
-            fireIntendedRouteUpdated(intendedRoute);
+            // return;
         } else {
-            fireIntendedRouteAdded(intendedRoute);
+
+            // The intended route is valid
+            intendedRoutes.put(mmsi, intendedRoute);
+
+            // Apply the filter to the route
+            applyFilter(intendedRoute);
+
+            // Sanity check
+            if (aisHandler != null) {
+                // Try to find exiting target
+                VesselTarget vesselTarget = aisHandler.getVesselTarget(mmsi);
+                if (vesselTarget != null) {
+                    intendedRoute.update(vesselTarget.getPositionData());
+                }
+            }
+
         }
+
+        // Fire event
+        fireIntendedEvent(intendedRoute);
+
+        System.out.println("Did the route get put into the filter? " + filteredIntendedRoutes.size());
     }
 
     /**
@@ -182,7 +183,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
             if (now.getTime() - entry.getValue().getReceived().getTime() > ROUTE_TTL) {
                 // Remove the intended route
                 it.remove();
-                fireIntendedRouteRemoved(entry.getValue());
+                fireIntendedEvent(entry.getValue());
             }
         }
     }
@@ -205,7 +206,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
     public void hideAllIntendedRoutes() {
         for (IntendedRoute intendedRoute : intendedRoutes.values()) {
             intendedRoute.setVisible(false);
-            fireIntendedRouteUpdated(intendedRoute);
+            fireIntendedEvent(intendedRoute);
         }
     }
 
@@ -215,7 +216,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
     public void showAllIntendedRoutes() {
         for (IntendedRoute intendedRoute : intendedRoutes.values()) {
             intendedRoute.setVisible(true);
-            fireIntendedRouteUpdated(intendedRoute);
+            fireIntendedEvent(intendedRoute);
         }
     }
 
@@ -244,43 +245,15 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
     }
 
     /**
-     * Called when an intended route has been added
+     * Called when an intended route event has been recieved
      * 
      * @param intendedRoute
      *            the intended route
      */
-    public void fireIntendedRouteAdded(IntendedRoute intendedRoute) {
+    public void fireIntendedEvent(IntendedRoute intendedRoute) {
         for (IIntendedRouteListener listener : listeners) {
-            listener.intendedRouteAdded(intendedRoute);
+            listener.intendedRouteEvent(intendedRoute);
         }
-    }
-
-    /**
-     * Called when an intended route has been updated
-     * 
-     * @param intendedRoute
-     *            the intended route
-     */
-    public void fireIntendedRouteUpdated(IntendedRoute intendedRoute) {
-        for (IIntendedRouteListener listener : listeners) {
-            listener.intendedRouteUpdated(intendedRoute);
-        }
-    }
-
-    /**
-     * Called when an intended route has been removed
-     * 
-     * @param intendedRoute
-     *            the intended route
-     */
-    public void fireIntendedRouteRemoved(IntendedRoute intendedRoute) {
-        for (IIntendedRouteListener listener : listeners) {
-            listener.intendedRouteRemoved(intendedRoute);
-        }
-    }
-
-    public List<Position> getIntersectPositions() {
-        return intersectPositions;
     }
 
     /**
@@ -313,120 +286,43 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
         FilteredIntendedRoute filteredIntendedRoute = new FilteredIntendedRoute();
 
         // First route (active route in ship)
-        LinkedList<RouteWaypoint> activeRouteWaypoints = route1.getWaypoints();
+        LinkedList<RouteWaypoint> route1Waypoints = route1.getWaypoints();
 
         // Second route list
-        LinkedList<RouteWaypoint> waypoints = route2.getWaypoints();
+        LinkedList<RouteWaypoint> route2Waypoints = route2.getWaypoints();
 
-        Position previousPositionActiveRoute = activeRouteWaypoints.get(0).getPos();
-        for (int i = 1; i < activeRouteWaypoints.size(); i++) {
+        Position previousPositionActiveRoute = route1Waypoints.get(0).getPos();
+        for (int i = 1; i < route1Waypoints.size(); i++) {
 
-            Position activeA = previousPositionActiveRoute;
-            Position activeB = activeRouteWaypoints.get(i).getPos();
+            Position route1Waypoint1 = previousPositionActiveRoute;
+            Position route1Waypoint2 = route1Waypoints.get(i).getPos();
 
-            Position previousPositionIntendedRoute = waypoints.get(0).getPos();
-            for (int j = 1; j < waypoints.size(); j++) {
+            Position previousPositionIntendedRoute = route2Waypoints.get(0).getPos();
+            for (int j = 1; j < route2Waypoints.size(); j++) {
 
                 // Line segment
-                Position intendedA = previousPositionIntendedRoute;
-                Position intendedB = waypoints.get(j).getPos();
+                Position route2Waypoint1 = previousPositionIntendedRoute;
+                Position route2Waypoint2 = route2Waypoints.get(j).getPos();
 
                 // This is where we apply the actual filter, for now only checking on intersections
+                IntendedRouteFilterMessage intersectionResultMessage = intersectionFilter(route1, route2, i, j, route1Waypoint1,
+                        route1Waypoint2, route2Waypoint1, route2Waypoint2);
 
-                Position intersection = intersection(activeA, activeB, intendedA, intendedB);
-
-                if (intersection != null) {
-
-                    System.out.println("We have an intersection");
-
-                    // We have an intersection at the following indexes:
-                    // i and i-1
-                    // j and j-1
-
-                    // Now check if time is a factor
-
-                    // Compare two date ranges
-
-                    // Do we have an overlap?
-
-                    DateTime routeSegment1StartDate = new DateTime(route1.getEtas().get(i - 1));
-                    DateTime routeSegment1EndDate = new DateTime(route1.getEtas().get(i));
-
-                    DateTime routeSegment2StartDate = new DateTime(route2.getEtas().get(j - 1));
-                    DateTime routeSegment2EndDate = new DateTime(route2.getEtas().get(j));
-
-                    // If route1EndDate is before route2StartDate it's not an issue
-                    // Added 2 hours thus if route1 + 2 hours is before route2starts we can move on
-                    if (routeSegment1EndDate.plusHours(2).isBefore(routeSegment2StartDate)) {
-                        System.out.println("no 1");
-                        continue;
-                    }
-
-                    // Opposite way
-
-                    if (routeSegment2EndDate.plusHours(2).isBefore(routeSegment1StartDate)) {
-                        System.out.println("no 2");
-                        continue;
-                    }
-
-                    System.out.println("Time may be of importance");
-
-                    // Determine when intersection occurs
-                    // Interpolate the time for both route segments
-
-                    // Segment 1 - Determine what time the intersection happens
-                    // Speed for that segment in nautical miles pr. hour
-                    double segment1Speed = route1.getWaypoints().get(i - 1).getOutLeg().getSpeed();
-
-                    // Distance travelled in meters
-                    double distanceTravelledSegment1 = route1.getWaypoints().get(i).getPos()
-                            .distanceTo(intersection, CoordinateSystem.CARTESIAN);
-
-                    double hoursTravelledSegment1 = Converter.metersToNm(distanceTravelledSegment1) / segment1Speed;
-
-                    // Converter hours into miliseconds long (hours to minutes to seconds to miliseconds)
-                    long milisecondsTravelledSegment1 = ((long) hoursTravelledSegment1) * 60 * 60 * 1000;
-
-                    DateTime segment1IntersectionTime = routeSegment1StartDate.plus(milisecondsTravelledSegment1);
-
-                    // Segment 2 - Determine what time the intersection happens
-                    // Speed for that segment in nautical miles pr. hour
-                    double segment2Speed = route2.getWaypoints().get(j - 1).getOutLeg().getSpeed();
-
-                    // Distance travelled in meters
-                    double distanceTravelledSegment2 = route2.getWaypoints().get(j).getPos()
-                            .distanceTo(intersection, CoordinateSystem.CARTESIAN);
-
-                    double hoursTravelledSegment2 = Converter.metersToNm(distanceTravelledSegment2) / segment2Speed;
-
-                    // Converter hours into miliseconds long (hours to minutes to seconds to miliseconds)
-                    long milisecondsTravelledSegment2 = ((long) hoursTravelledSegment2) * 60 * 60 * 1000;
-
-                    DateTime segment2IntersectionTime = routeSegment2StartDate.plus(milisecondsTravelledSegment2);
-
-                    // Are segment1IntersectionTime and segment2IntersectionTime within three hour of each other in either way
-
-                    System.out.println("segment1IntersectionTime is" + segment1IntersectionTime);
-                    System.out.println("segment2IntersectionTime is " + segment2IntersectionTime);
-
-                    if (segment1IntersectionTime.plusHours(2).isBefore(segment2IntersectionTime)
-                            || segment1IntersectionTime.plusHours(3).isAfter(segment2IntersectionTime)) {
-
-                        IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(intersection,
-                                "Intersection occurs within 2 hour of eachother");
-                        
-                        System.out.println("Intersection occurs within 2 hour of eachother");
-                        
-                        filteredIntendedRoute.getFilterMessages().add(message);
-                        this.intersectPositions.add(intersection);
-                    }
-
+                if (intersectionResultMessage != null) {
+                    filteredIntendedRoute.getFilterMessages().add(intersectionResultMessage);
                 }
 
-                previousPositionIntendedRoute = intendedB;
+                
+                //Apply different filters here
+                
+                
+                
+                
+                
+                previousPositionIntendedRoute = route2Waypoint2;
             }
 
-            previousPositionActiveRoute = activeB;
+            previousPositionActiveRoute = route1Waypoint2;
 
             // it.remove(); // avoids a ConcurrentModificationException
         }
@@ -454,6 +350,113 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
         }
 
+    }
+
+    public ConcurrentHashMap<Long, IntendedRoute> getIntendedRoutes() {
+        return intendedRoutes;
+    }
+
+    public ConcurrentHashMap<Long, FilteredIntendedRoute> getFilteredIntendedRoutes() {
+        return filteredIntendedRoutes;
+    }
+
+    private IntendedRouteFilterMessage intersectionFilter(Route route1, Route route2, int i, int j, Position route1Waypoint1,
+            Position route1Waypoint2, Position route2Waypoint1, Position route2Waypoint2) {
+
+        Position intersection = intersection(route1Waypoint1, route1Waypoint2, route2Waypoint1, route2Waypoint2);
+
+        if (intersection != null) {
+
+            System.out.println("We have an intersection");
+
+            // We have an intersection at the following indexes:
+            // i and i-1
+            // j and j-1
+
+            // Now check if time is a factor
+
+            // Compare two date ranges
+
+            // Do we have an overlap?
+
+            DateTime routeSegment1StartDate = new DateTime(route1.getEtas().get(i - 1));
+            DateTime routeSegment1EndDate = new DateTime(route1.getEtas().get(i));
+
+            DateTime routeSegment2StartDate = new DateTime(route2.getEtas().get(j - 1));
+            DateTime routeSegment2EndDate = new DateTime(route2.getEtas().get(j));
+
+            // If route1EndDate is before route2StartDate it's not an issue
+            // Added 2 hours thus if route1 + 2 hours is before route2starts we can move on
+//            if (routeSegment1EndDate.plusHours(2).isBefore(routeSegment2StartDate)) {
+//                System.out.println("routesegment 1 end date plus 2 hours is before route sengment 2 start date");
+//                return null;
+//            }
+//
+//            // Opposite way
+//
+//            if (routeSegment2EndDate.plusHours(2).isBefore(routeSegment1StartDate)) {
+//                System.out.println("route segment 2 end date plus 2 hours is before route segment 1 start date");
+//                return null;
+//            }
+
+            System.out.println("Time may be of importance");
+
+            // Determine when intersection occurs
+            // Interpolate the time for both route segments
+
+            // Segment 1 - Determine what time the intersection happens
+            // Speed for that segment in nautical miles pr. hour
+            double segment1Speed = route1.getWaypoints().get(i - 1).getOutLeg().getSpeed();
+
+            // Distance travelled in meters
+            double distanceTravelledSegment1 = route1.getWaypoints().get(i).getPos()
+                    .distanceTo(intersection, CoordinateSystem.CARTESIAN);
+
+            double hoursTravelledSegment1 = Converter.metersToNm(distanceTravelledSegment1) / segment1Speed;
+
+            // Converter hours into miliseconds long (hours to minutes to seconds to miliseconds)
+            long milisecondsTravelledSegment1 = ((long) hoursTravelledSegment1) * 60 * 60 * 1000;
+
+            DateTime segment1IntersectionTime = routeSegment1StartDate.plus(milisecondsTravelledSegment1);
+
+            // Segment 2 - Determine what time the intersection happens
+            // Speed for that segment in nautical miles pr. hour
+            double segment2Speed = route2.getWaypoints().get(j - 1).getOutLeg().getSpeed();
+
+            // Distance travelled in meters
+            double distanceTravelledSegment2 = route2.getWaypoints().get(j).getPos()
+                    .distanceTo(intersection, CoordinateSystem.CARTESIAN);
+
+            double hoursTravelledSegment2 = Converter.metersToNm(distanceTravelledSegment2) / segment2Speed;
+
+            // Converter hours into miliseconds long (hours to minutes to seconds to miliseconds)
+            long milisecondsTravelledSegment2 = ((long) hoursTravelledSegment2) * 60 * 60 * 1000;
+
+            DateTime segment2IntersectionTime = routeSegment2StartDate.plus(milisecondsTravelledSegment2);
+
+            // Are segment1IntersectionTime and segment2IntersectionTime within three hour of each other in either way
+
+            System.out.println("segment1IntersectionTime is" + segment1IntersectionTime);
+            System.out.println("segment2IntersectionTime is " + segment2IntersectionTime);
+
+            if (segment1IntersectionTime.plusHours(2).isBefore(segment2IntersectionTime)
+                    || segment1IntersectionTime.minusHours(2).isBefore(segment2IntersectionTime)) {
+
+                IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(intersection,
+                        "Intersection occurs within 2 hour of eachother", j - 1, j);
+
+                System.out.println("Intersection occurs within 2 hour of eachother");
+                System.out.println("segment1IntersectionTime.plusHours(2).isBefore(segment2IntersectionTime) " + segment1IntersectionTime.plusHours(2).isBefore(segment2IntersectionTime));
+                System.out.println("segment1IntersectionTime.minusHours(2).isBefore(segment2IntersectionTime) " + segment1IntersectionTime.minusHours(2).isBefore(segment2IntersectionTime));
+
+                // filteredIntendedRoute.getFilterMessages().add(message);
+                // this.intersectPositions.add(intersection);
+                return message;
+            }
+
+        }
+
+        return null;
     }
 
 }
