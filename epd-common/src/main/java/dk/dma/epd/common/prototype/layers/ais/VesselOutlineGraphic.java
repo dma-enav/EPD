@@ -202,7 +202,7 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
         this.aisName.setLat(positionData.getPos().getLatitude());
         this.aisName.setY(-20);
         this.aisName.setData(AisMessage.trimText(staticData.getName()));
-        
+        this.aisName.setLinePaint(Color.BLACK);
     }
 
     /**
