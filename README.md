@@ -115,3 +115,7 @@ To use Navicon ENC layer with EPD-ship please follow the steps below
 
 1. Enter Setup -> Map and enable ENC. Restart.
 
+
+## Attribution
+
+Some icons by Yusuke Kamiyamane. Licensed under a Creative Commons Attribution 3.0 License.
