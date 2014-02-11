@@ -26,6 +26,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.common.prototype.settings.MapSettings;
+import javax.swing.JCheckBox;
 
 /**
  * 
@@ -44,6 +45,8 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     private JSpinner spinnerLatitude;
     private JSpinner spinnerLongitude;
     private JLabel lblWmsUrl;
+    private JCheckBox chckbxWmsIsUsed;
+    private JLabel lblenterTheUrl;
     
     /**
      * Constructs a new CommonMapSettingsPanel object.
@@ -105,21 +108,30 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         /************** WMS settings ***************/
         
         wmsSettings = new JPanel();
-        wmsSettings.setBounds(6, 163, 438, 85);
+        wmsSettings.setBounds(6, 163, 438, 175);
         wmsSettings.setLayout(null);
         wmsSettings.setBorder(new TitledBorder(null, "WMS Settings", TitledBorder.LEADING, 
                 TitledBorder.TOP, null, null));
 
         lblWmsUrl = new JLabel("WMS URL");
-        lblWmsUrl.setBounds(16, 20, 61, 16);
+        lblWmsUrl.setBounds(16, 70, 61, 16);
         wmsSettings.add(lblWmsUrl);
         
         textFieldWMSURL = new JTextField();
-        textFieldWMSURL.setBounds(16, 40, 405, 20);
+        textFieldWMSURL.setBounds(16, 95, 405, 20);
         wmsSettings.add(textFieldWMSURL);
         textFieldWMSURL.setColumns(10);
         
         this.add(wmsSettings);
+        
+        chckbxWmsIsUsed = new JCheckBox("WMS is used when dragging (disable for performance)");
+        chckbxWmsIsUsed.setFocusable(false);
+        chckbxWmsIsUsed.setBounds(16, 45, 369, 20);
+        wmsSettings.add(chckbxWmsIsUsed);
+        
+        lblenterTheUrl = new JLabel("<html>Enter the URL to the WMS service you wish to use, <br>enter everything except BBOX and height/width options.</html>");
+        lblenterTheUrl.setBounds(16, 120, 405, 37);
+        wmsSettings.add(lblenterTheUrl);
     }
     
     /**
@@ -159,6 +171,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
                 changed(this.settings.getCenter().getLongitude(), this.spinnerLongitude.getValue()) ||
                 
                 // Changes in WMS settings.
+                changed(this.settings.isUseWmsDragging(), this.chckbxWmsIsUsed.isSelected()) ||
                 changed(this.settings.getWmsQuery(), this.textFieldWMSURL.getText());
     }
 
@@ -178,6 +191,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         this.spinnerLongitude.setValue(longitude.doubleValue());
 
         // Load settings for WMS.
+        this.chckbxWmsIsUsed.setSelected(settings.isUseWmsDragging());
         this.textFieldWMSURL.setText(settings.getWmsQuery());
     }
 
@@ -195,6 +209,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         this.settings.setCenter(center);
         
         // Save settings for WMS.
+        this.settings.setUseWmsDragging(this.chckbxWmsIsUsed.isSelected());
         this.settings.setWmsQuery(textFieldWMSURL.getText());
     }
 

@@ -41,7 +41,6 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
     private JComboBox<String> comboBoxColorProfile;
     private JCheckBox chckbxUseEnc;
     private JCheckBox chckbxUseWms;
-    private JCheckBox chckbxDragWmsdisable;
     private EPDMapSettings mapSettings;
     private JSpinner spinnerShallowContour;
     private JSpinner spinnerSafetyContour;
@@ -63,12 +62,16 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
         this.getGeneralPanel().setLocation(6, 6);
         
         // Resize the panel to add spaces for ekstra ship options.
-        this.getGeneralPanel().setSize(438, 184);
+        this.getGeneralPanel().setSize(438, 160);
         this.getWMSPanel().setBounds(
                 super.getWMSPanel().getX(), 
-                super.getWMSPanel().getY()+268, 
+                super.getWMSPanel().getY()+248, 
                 super.getWMSPanel().getWidth(), 
                 super.getWMSPanel().getHeight());
+        
+        this.chckbxUseWms = new JCheckBox("Use WMS");
+        chckbxUseWms.setBounds(16, 20, 88, 23);
+        getWMSPanel().add(chckbxUseWms);
         
         
         /************** General settings ***************/
@@ -77,19 +80,11 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
         this.chckbxUseEnc.setBounds(16, 120, 85, 23);
         this.getGeneralPanel().add(chckbxUseEnc);
         
-        this.chckbxUseWms = new JCheckBox("Use WMS");
-        this.chckbxUseWms.setBounds(113, 120, 88, 23);
-        this.getGeneralPanel().add(chckbxUseWms);
-        
-        this.chckbxDragWmsdisable = new JCheckBox("Drag WMS (disable for performance)");
-        this.chckbxDragWmsdisable.setBounds(16, 145, 257, 23);
-        this.getGeneralPanel().add(this.chckbxDragWmsdisable);
-        
         
         /************** S52 settings ***************/
         
         JPanel s52Settings = new JPanel();
-        s52Settings.setBounds(6, 202, 438, 219);
+        s52Settings.setBounds(6, 178, 438, 219);
         s52Settings.setLayout(null);
         s52Settings.setBorder(new TitledBorder(
                 null, "S52 Layer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -157,8 +152,6 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
         
         JButton btnAdvancedOptions = new JButton("Advanced Options");
         
-        
-        
         if (!EPDShip.getInstance().getSettings().getMapSettings().isUseEnc()){
             btnAdvancedOptions.setEnabled(false);
         }
@@ -189,7 +182,6 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
         // Load extended generel settings.
         this.chckbxUseEnc.setSelected(mapSettings.isUseEnc());
         this.chckbxUseWms.setSelected(mapSettings.isUseWms());
-        this.chckbxDragWmsdisable.setSelected(mapSettings.isUseWmsDragging());
         
         // Load S52 settings.
         this.spinnerShallowContour.setValue(this.mapSettings.getS52ShallowContour());
@@ -212,7 +204,6 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
         // Save extended generel settings.
         this.mapSettings.setUseEnc(this.chckbxUseEnc.isSelected());
         this.mapSettings.setUseWms(this.chckbxUseWms.isSelected());
-        this.mapSettings.setUseWmsDragging(this.chckbxDragWmsdisable.isSelected());
         
         // Save S52 settings.
         this.mapSettings.setS52ShallowContour((Integer) spinnerShallowContour.getValue());
@@ -242,7 +233,6 @@ public class ShipMapSettingsPanel extends CommonMapSettingsPanel {
                     // Extended generel components changes.
                     changed(this.mapSettings.isUseEnc(), this.chckbxUseEnc.isSelected()) ||
                     changed(this.mapSettings.isUseWms(), this.chckbxUseWms.isSelected()) ||
-                    changed(this.mapSettings.isUseWmsDragging(), this.chckbxDragWmsdisable.isSelected()) ||
                     
                     // S52 panel changes.
                     changed(this.mapSettings.getS52ShallowContour(), this.spinnerShallowContour.getValue()) || 

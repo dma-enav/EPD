@@ -20,7 +20,6 @@ import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.settings.EPDMapSettings;
 
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 
 /**
  * 
@@ -31,29 +30,14 @@ public class ShoreMapSettingsPanel extends CommonMapSettingsPanel {
 
     private static final long serialVersionUID = 1L;
     private JCheckBox chckbxMapsStartWith;
-    private JCheckBox chckbxWmsIsUsed;
     private EPDMapSettings settings;
     
     public ShoreMapSettingsPanel() {
-        
-        
-        /************** WMS settings ***************/
-        
-        getLblWMSURL().setLocation(16, 70);
-        getTextFieldWMSURL().setLocation(16, 95);
         getWMSPanel().setBounds(6, 163, 438, 170);
         
         chckbxMapsStartWith = new JCheckBox("Maps start with WMS enabled");
         chckbxMapsStartWith.setBounds(16, 20, 215, 20);
         getWMSPanel().add(chckbxMapsStartWith);
-        
-        chckbxWmsIsUsed = new JCheckBox("WMS is used when dragging (disable for performance)");
-        chckbxWmsIsUsed.setBounds(16, 45, 369, 20);
-        getWMSPanel().add(chckbxWmsIsUsed);
-        
-        JLabel lblenterTheUrl = new JLabel("<html><body>Enter the URL to the WMS service you wish to use,<br>enter everything except BBOX and height/width options.");
-        lblenterTheUrl.setBounds(16, 120, 353, 32);
-        getWMSPanel().add(lblenterTheUrl);
     }
     
     public void doLoadSettings() {
@@ -65,7 +49,6 @@ public class ShoreMapSettingsPanel extends CommonMapSettingsPanel {
         
         // Load the extended WMS settings.
         this.chckbxMapsStartWith.setSelected(this.settings.isUseWms());
-        this.chckbxWmsIsUsed.setSelected(this.settings.isUseWmsDragging());
     }
     
     public void doSaveSettings() {
@@ -75,7 +58,6 @@ public class ShoreMapSettingsPanel extends CommonMapSettingsPanel {
         
         // Save settings for extended WMS settings.
         this.settings.setUseWms(this.chckbxMapsStartWith.isSelected());
-        this.settings.setUseWmsDragging(this.chckbxWmsIsUsed.isSelected());
     }
     
     public boolean checkSettingsChanged() {
@@ -91,8 +73,7 @@ public class ShoreMapSettingsPanel extends CommonMapSettingsPanel {
         if (!changesWereMade) {
             changesWereMade = 
                     // Check for changes in extended WMS settings.
-                    changed(this.settings.isUseWms(), this.chckbxMapsStartWith.isSelected()) ||
-                    changed(this.settings.isUseWmsDragging(), this.chckbxWmsIsUsed.isSelected());
+                    changed(this.settings.isUseWms(), this.chckbxMapsStartWith.isSelected());
         }
         
         return changesWereMade;
