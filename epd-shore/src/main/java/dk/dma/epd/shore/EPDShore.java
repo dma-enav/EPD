@@ -53,7 +53,6 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
-import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -114,9 +113,7 @@ public final class EPDShore extends EPD {
      * @param args
      */
     public static void main(String[] args) throws IOException {
-        String settingsFile = (args.length > 0) ? args[0] : null;
-        
-        new EPDShore(settingsFile);
+        new EPDShore();
     }
 
 
@@ -124,7 +121,7 @@ public final class EPDShore extends EPD {
      * Constructor
      * @throws IOException 
      */
-    private EPDShore(String settingsFile) throws IOException {
+    private EPDShore() throws IOException {
         super();
         
         homePath = determineHomePath(Paths.get(System.getProperty("user.home"), ".epd-shore"));
@@ -151,11 +148,7 @@ public final class EPDShore extends EPD {
         beanHandler = new BeanContextServicesSupport();
 
         // Load settings or get defaults and add to bean context
-        if (settingsFile != null) {
-            settings = new EPDSettings(settingsFile);
-        } else {
-            settings = new EPDSettings();
-        }
+        settings = new EPDSettings();
         LOG.info("Using settings file: " + getSettings().getSettingsFile());
         settings.loadFromFile();
         beanHandler.add(settings);
@@ -164,13 +157,11 @@ public final class EPDShore extends EPD {
 
         OneInstanceGuard guard = new OneInstanceGuard(getHomePath().resolve("esd.lock").toString());
         if (guard.isAlreadyRunning()) {
-            JOptionPane.showMessageDialog(null, "One application instance already running. Stop instance or restart computer.",
+            JOptionPane.showMessageDialog(null, 
+                    "One application instance already running.\n" + 
+                    "Restart the application with caps-lock on\nto select a different home folder.",
                     "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
-        } else if (guard.isAlreadyRunning()) {
-            JOptionPane.showMessageDialog(null, "One application instance already running.\nThis application will not persist settings changes.",
-                    "Warning", JOptionPane.WARNING_MESSAGE);
-            Settings.setReadOnly(true);
         }
 
         // Enable GPS timer by adding it to bean context
@@ -321,20 +312,18 @@ public final class EPDShore extends EPD {
 
         // Main application
 
-        if (!Settings.isReadOnly()) {
-            String filename = "temp.workspace";
-            mainFrame.saveWorkSpace(filename);
+        String filename = "temp.workspace";
+        mainFrame.saveWorkSpace(filename);
             
-            mainFrame.saveSettings();
-            settings.saveToFile();
+        mainFrame.saveSettings();
+        settings.saveToFile();
     
-            // GuiSettings
-            // Handler settings
-            voyageManager.saveToFile();
-            routeManager.saveToFile();
-            msiHandler.saveToFile();
-            aisHandler.saveView();
-        }
+        // GuiSettings
+        // Handler settings
+        voyageManager.saveToFile();
+        routeManager.saveToFile();
+        msiHandler.saveToFile();
+        aisHandler.saveView();
         transponderFrame.shutdown();
 
         maritimeCloudService.stop();

@@ -60,7 +60,6 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.sensor.rpnt.MultiSourcePntHandler;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.settings.SensorSettings.PntSourceSetting;
-import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -123,9 +122,7 @@ public final class EPDShip extends EPD {
      * @param args
      */
     public static void main(String[] args) throws IOException {
-        String settingsFile = (args.length > 0) ? args[0] : null;
-        
-        new EPDShip(settingsFile);
+        new EPDShip();
     }
 
 
@@ -133,7 +130,7 @@ public final class EPDShip extends EPD {
      * Constructor
      * @throws IOException 
      */
-    private EPDShip(String settingsFile) throws IOException {
+    private EPDShip() throws IOException {
         super();
 
         homePath = determineHomePath(Paths.get(System.getProperty("user.home"), ".epd-ship"));
@@ -160,26 +157,19 @@ public final class EPDShip extends EPD {
         mapHandler = new MapHandler();
 
         // Load settings or get defaults and add to bean context
-        if (settingsFile != null) {
-            settings = new EPDSettings(settingsFile);
-        } else {
-
-            settings = new EPDSettings(getHomePath().resolve("settings.properties").toString());
-        }
+        settings = new EPDSettings();
         LOG.info("Using settings file: " + getSettings().getSettingsFile());
         settings.loadFromFile();
         mapHandler.add(settings);
         
         // Determine if instance already running and if that is allowed
         OneInstanceGuard guard = new OneInstanceGuard(getHomePath().resolve("eeins.lock").toString());
-        if (!settings.getGuiSettings().isMultipleInstancesAllowed() && guard.isAlreadyRunning()) {
-            JOptionPane.showMessageDialog(null, "One application instance already running. Stop instance or restart computer.",
+        if (guard.isAlreadyRunning()) {
+            JOptionPane.showMessageDialog(null, 
+                    "One application instance already running.\n" + 
+                    "Restart the application with caps-lock on\nto select a different home folder.",
                     "Error", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
-        } else if (guard.isAlreadyRunning()) {
-            JOptionPane.showMessageDialog(null, "One application instance already running.\nThis application will not persist settings changes.",
-                    "Warning", JOptionPane.WARNING_MESSAGE);
-            Settings.setReadOnly(true);
         }
 
         // start riskHandler
@@ -673,14 +663,12 @@ public final class EPDShip extends EPD {
     public void closeApp(boolean restart) {
         // Shutdown routine
 
-        if (!Settings.isReadOnly()) {
-            mainFrame.saveSettings();
-            settings.saveToFile();
-            routeManager.saveToFile();
-            msiHandler.saveToFile();
-            aisHandler.saveView();
-            ownShipHandler.saveView();
-        }
+        mainFrame.saveSettings();
+        settings.saveToFile();
+        routeManager.saveToFile();
+        msiHandler.saveToFile();
+        aisHandler.saveView();
+        ownShipHandler.saveView();
         transponderFrame.shutdown();
 
         // Stop the Maritime Cloud connection
