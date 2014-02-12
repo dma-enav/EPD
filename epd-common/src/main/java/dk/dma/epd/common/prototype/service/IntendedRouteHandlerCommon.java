@@ -32,7 +32,11 @@ import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
 import org.joda.time.DateTime;
 
 import com.bbn.openmap.geo.Geo;
+import com.bbn.openmap.geo.GeoRegion;
+import com.bbn.openmap.geo.GeoSegment;
 import com.bbn.openmap.geo.Intersection;
+import com.bbn.openmap.geo.OMGeo.Line;
+import com.bbn.openmap.geo.OMGeo.Polygon;
 
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
@@ -312,6 +316,14 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
                     filteredIntendedRoute.getFilterMessages().add(intersectionResultMessage);
                 }
 
+                // Region filter
+                IntendedRouteFilterMessage regionResultMessage = regionFilter(route1, route2, i, j, route1Waypoint1,
+                        route1Waypoint2, route2Waypoint1, route2Waypoint2, 5.0);
+
+                if (regionResultMessage != null) {
+                    filteredIntendedRoute.getFilterMessages().add(regionResultMessage);
+                }
+
                 // Add more filters
 
                 previousPositionIntendedRoute = route2Waypoint2;
@@ -353,6 +365,20 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
     public ConcurrentHashMap<Long, FilteredIntendedRoute> getFilteredIntendedRoutes() {
         return filteredIntendedRoutes;
+    }
+
+    private IntendedRouteFilterMessage regionFilter(Route route1, Route route2, int i, int j, Position route1Waypoint1,
+            Position route1Waypoint2, Position route2Waypoint1, Position route2Waypoint2, double epsilon) {
+
+        // route1Waypoint1
+        // route1Waypoint2
+
+        // route2Waypoint1
+        // route2Waypoint2
+
+
+
+        return null;
     }
 
     private IntendedRouteFilterMessage intersectionFilter(Route route1, Route route2, int i, int j, Position route1Waypoint1,
@@ -403,7 +429,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
             // Segment 1
             double routeSegment1Length = Converter.metersToNm(route1.getWaypoints().get(i - 1).getPos()
                     .distanceTo(route1.getWaypoints().get(i).getPos(), CoordinateSystem.CARTESIAN));
-            
+
             long routeSegment1MilisecondsLength = routeSegment1EndDate.getMillis() - routeSegment1StartDate.getMillis();
 
             double routeSegment1SpeedMiliPrNm = routeSegment1Length / routeSegment1MilisecondsLength;
