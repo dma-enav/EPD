@@ -984,24 +984,23 @@ public class Route implements Serializable {
         this.etaCalculationType = etaCalculationType;
     }
     
+    /**
+     * Defines the ETA calculation type
+     */
     public enum EtaCalculationType {
-        PLANNED_SPEED {
-            @Override
-            public String toString() {
-                return "Planned speed"; 
-            }
-        },
-        DYNAMIC_SPEED {
-            @Override
-            public String toString() {
-                return "Current speed";
-            }  
-        },
-        HYBRID {
-            @Override
-            public String toString() {
-                return "Hybrid";
-            }
+        PLANNED_SPEED("Planned speed"), 
+        DYNAMIC_SPEED("Current speed"),
+        HYBRID("Hybrid");
+        
+        private String title;
+        
+        private EtaCalculationType(String title) {
+            this.title = title;
+        }
+        
+        @Override
+        public String toString() {
+            return title;
         }
     }
 }

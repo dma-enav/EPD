@@ -129,7 +129,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     private JXDatePicker arrivalPicker = new JXDatePicker();
     private JSpinner arrivalSpinner = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.HOUR_OF_DAY));
     private JTextField inrouteTxT = new JTextField();
-    private JComboBox<EtaCalculationType> ddlTtgData = new JComboBox<EtaCalculationType>(EtaCalculationType.values());
+    private JComboBox<EtaCalculationType> etaCalculationTime = new JComboBox<EtaCalculationType>(EtaCalculationType.values());
     
     // Route details table
     private DefaultTableModel routeTableModel;    
@@ -257,9 +257,9 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         routeProps.add(new JLabel("Estimated Time in-route:"), new GridBagConstraints(2, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets2, 0, 0));
         routeProps.add(fixSize(inrouteTxT, 180), new GridBagConstraints(3, gridY++, 2, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
 
-        ddlTtgData.addActionListener(this);
+        etaCalculationTime.addActionListener(this);
         routeProps.add(new JLabel("Calculate TTG/ETA using:"), new GridBagConstraints(2, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets6, 0, 0));
-        routeProps.add(fixSize(ddlTtgData, 180), new GridBagConstraints(3, gridY++, 2, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        routeProps.add(fixSize(etaCalculationTime, 180), new GridBagConstraints(3, gridY++, 2, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         
         routeProps.add(new JLabel(""), new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets2, 0, 0));
         
@@ -440,6 +440,10 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         ((DefaultFormatter)editor.getTextField().getFormatter()).setCommitsOnValidEdit(true);
         spinner.setEditor(editor);
         spinner.addChangeListener(new SpinnerChangeListener());
+        
+        // Set the enabled state
+        picker.setEnabled(!isActiveRoute);
+        spinner.setEnabled(!isActiveRoute);
     }
     
     /**
@@ -454,7 +458,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         originTxT.setText(route.getDeparture());
         destinationTxT.setText(route.getDestination());
         
-        ddlTtgData.setSelectedItem(route.getEtaCalculationType());        
+        etaCalculationTime.setSelectedItem(route.getEtaCalculationType());        
 
         // Update the route start time and the start time-related fields 
         adjustStartTime();
@@ -475,8 +479,6 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         btnZoomTo.setEnabled(wpSelected && chartPanel != null);
         
         boolean allRowsLocked = checkLockedRows();
-        departurePicker.setEnabled(!isActiveRoute);
-        departureSpinner.setEnabled(!isActiveRoute);
         arrivalPicker.setEnabled(!isActiveRoute && !allRowsLocked);
         arrivalSpinner.setEnabled(!isActiveRoute && !allRowsLocked);
     }
@@ -527,9 +529,9 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         } else if (evt.getSource() == btnClose) {
             dispose();
         
-        } else if (evt.getSource() == ddlTtgData) {
-            route.setEtaCalculationType((EtaCalculationType)ddlTtgData.getSelectedItem());
-            updateFields();
+        } else if (evt.getSource() == etaCalculationTime) {
+            route.setEtaCalculationType((EtaCalculationType)etaCalculationTime.getSelectedItem());
+            adjustStartTime();
         }
         
         routeUpdated();
@@ -733,7 +735,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
 
         // Special case if the arrival date is before the start time
         if (route.getStarttime().after(arrivalDate)) {
-            
+            // Reset arrival to a valid time
             arrivalPicker.setDate(route.getEta());
             arrivalSpinner.setValue(route.getEta());
             
@@ -743,16 +745,26 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
 
         // Total distance
         double distanceToTravel = route.getRouteDtg();
+        // And we want to get there in milliseconds:
+        long timeToTravel = arrivalDate.getTime() - route.getStarttime().getTime();
         
-        // Subtract the distance from the locked way points
-        for (int i = 0; i < route.getWaypoints().size(); i++) {
+        // Subtract the distance and time from the locked way points
+        for (int i = 0; i < route.getWaypoints().size() - 1; i++) {
             if (locked[i]) {
-                distanceToTravel = distanceToTravel - route.getWpRng(i);
+                distanceToTravel -= route.getWpRng(i);
+                timeToTravel -= route.getWpTtg(i + 1);
             }
         }
-
-        // And we want to get there in miliseconds:
-        long timeToTravel = arrivalDate.getTime() - route.getStarttime().getTime();
+        
+        // Ensure the remaining time is actually positive (say, more than a minute)
+        if (timeToTravel < 60 * 1000) {
+            // Reset arrival to a valid time
+            arrivalPicker.setDate(route.getEta());
+            arrivalSpinner.setValue(route.getEta());
+            
+            quiescent = wasQuiescent;
+            return;
+        }
 
         // So we need to travel how fast?
         double speed = distanceToTravel / (timeToTravel / 60 / 1000) * 60;
