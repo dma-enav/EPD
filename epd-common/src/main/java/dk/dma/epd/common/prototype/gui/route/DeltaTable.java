@@ -88,17 +88,6 @@ public class DeltaTable extends JPanel {
      * @param deltaStartColIndex the index of the first delta column 
      */
     public DeltaTable(TableModel model, int deltaStartColIndex) {
-        this(model, deltaStartColIndex, null);
-    }
-    
-    /**
-     * Constructor
-     * 
-     * @param model the table model
-     * @param deltaStartColIndex the index of the first delta column 
-     * @param colMinWidths the minimum column widths
-     */
-    public DeltaTable(TableModel model, int deltaStartColIndex, int[] colMinWidths) {
 
         this.model = model;
         this.deltaStartColIndex = deltaStartColIndex;
@@ -161,13 +150,6 @@ public class DeltaTable extends JPanel {
         ResizeTablesMouseAdapter tableResizer = new ResizeTablesMouseAdapter();
         table1.getTableHeader().addMouseListener(tableResizer);
         table1.getTableHeader().addMouseMotionListener(tableResizer);
-        
-        // Set the minimum column widths
-        if (colMinWidths != null && colMinWidths.length == model.getColumnCount()) {
-            for (int x = 0; x < colMinWidths.length; x++) {
-                getColumn(x).setMinWidth(colMinWidths[x]);
-            }
-        }
     }
 
 

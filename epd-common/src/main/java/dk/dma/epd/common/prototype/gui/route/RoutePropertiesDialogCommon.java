@@ -279,13 +279,18 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         // ********************************
         
         routeTableModel = createRouteTableModel();
-        routeDetailTable = new DeltaTable(routeTableModel, DELTA_START_COL_INDEX, COL_MIN_WIDTHS);
+        routeDetailTable = new DeltaTable(routeTableModel, DELTA_START_COL_INDEX);
         routeDetailTable.setTableFont(routeDetailTable.getTableFont().deriveFont(10.0f));
         routeDetailTable.setNonEditableBgColor(UIManager.getColor("Table.background").darker().darker());
         routeDetailTable.addListSelectionListener(this);
 
+        // Set the minimum column widths
+        for (int x = 0; x < COL_MIN_WIDTHS.length; x++) {
+            routeDetailTable.getColumn(x).setMinWidth(COL_MIN_WIDTHS[x]);
+        }
+        
         // Configure lock column
-        routeDetailTable.fixColumnWidth(0, 25);
+        routeDetailTable.fixColumnWidth(0, COL_MIN_WIDTHS[0]);
         routeDetailTable.getColumn(0).setCellRenderer(new LockTableCell.CustomBooleanCellRenderer());
         routeDetailTable.getColumn(0).setCellEditor(new LockTableCell.CustomBooleanCellEditor());
 
