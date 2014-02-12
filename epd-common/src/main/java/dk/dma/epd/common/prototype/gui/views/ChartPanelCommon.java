@@ -34,7 +34,7 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntData;
  * 
  * @author Jens Tuxen (mail@jenstuxen.com)
  */
-public abstract class CommonChartPanel extends OMComponentPanel {
+public abstract class ChartPanelCommon extends OMComponentPanel {
     protected MapHandler mapHandler;
     protected MapHandler dragMapHandler;
     protected LayerHandler layerHandler;

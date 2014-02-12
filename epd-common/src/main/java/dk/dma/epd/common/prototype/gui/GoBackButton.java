@@ -31,7 +31,7 @@ import javax.swing.border.EtchedBorder;
 import dk.dma.epd.common.prototype.event.GoBackMouseListener;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.route.ButtonLabelCommon;
-import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 
 /**
  * This class is a GUI component of going backwards in history.
@@ -46,7 +46,7 @@ public class GoBackButton extends ButtonLabelCommon {
     \****************/
     private static final long serialVersionUID = 1L;
     private HistoryListener historyListener;    // The history listener associated with this button. 
-    private CommonChartPanel chartPanel;        // The chart panel which controls projection.
+    private ChartPanelCommon chartPanel;        // The chart panel which controls projection.
     private GoForwardButton goForwardButton;    // The opposite button of this: the going forward button.
     
     public static Font defaultFont = new Font("Arial", Font.PLAIN, 11);
@@ -144,7 +144,7 @@ public class GoBackButton extends ButtonLabelCommon {
      * 
      * @param chartPanel
      */
-    public void setChartPanel(CommonChartPanel chartPanel) {
+    public void setChartPanel(ChartPanelCommon chartPanel) {
         this.chartPanel = chartPanel;
     }
     

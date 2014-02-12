@@ -40,7 +40,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
-import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
@@ -68,7 +68,7 @@ import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
  * 
  * @author David A. Camre (davidcamre@gmail.com)
  */
-public class ChartPanel extends CommonChartPanel {
+public class ChartPanel extends ChartPanelCommon {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);

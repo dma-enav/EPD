@@ -17,7 +17,7 @@ package dk.dma.epd.common.prototype.gui.menuitems;
 
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
-import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
 /**
@@ -27,7 +27,7 @@ public class RouteProperties extends RouteMenuItem<RouteManagerCommon> {
     
     private static final long serialVersionUID = 1L;
 
-    CommonChartPanel chartPanel;    
+    ChartPanelCommon chartPanel;    
 
     /**
      * Constructor
@@ -56,7 +56,7 @@ public class RouteProperties extends RouteMenuItem<RouteManagerCommon> {
      * Sets the current chart panel
      * @param chartPanel
      */
-    public void setChartPanel(CommonChartPanel chartPanel) {
+    public void setChartPanel(ChartPanelCommon chartPanel) {
         this.chartPanel = chartPanel;
     }
 }

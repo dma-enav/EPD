@@ -75,7 +75,7 @@ import org.slf4j.LoggerFactory;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.Route.EtaCalculationType;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
@@ -116,7 +116,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     private static final int DELTA_START_COL_INDEX = 8;
 
     private Window parent;
-    private CommonChartPanel chartPanel;
+    private ChartPanelCommon chartPanel;
     private RouteManagerCommon routeManager;
     protected Route route = new Route();
     protected boolean[] locked;
@@ -156,7 +156,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
      * @param routeManager the route manager
      * @param routeId the route index
      */
-    public RoutePropertiesDialogCommon(Window parent, CommonChartPanel chartPanel, RouteManagerCommon routeManager, int routeId) {
+    public RoutePropertiesDialogCommon(Window parent, ChartPanelCommon chartPanel, RouteManagerCommon routeManager, int routeId) {
         this(parent, 
              chartPanel, 
              routeManager.getRoute(routeId), 
@@ -171,7 +171,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
      * @param route the route
      * @param isActiveRoute whether the route is the active route or not
      */
-    public RoutePropertiesDialogCommon(Window parent, CommonChartPanel chartPanel, Route route, boolean isActiveRoute) {
+    public RoutePropertiesDialogCommon(Window parent, ChartPanelCommon chartPanel, Route route, boolean isActiveRoute) {
         super(parent, "Route Properties", Dialog.ModalityType.APPLICATION_MODAL);
         
         this.parent = parent;

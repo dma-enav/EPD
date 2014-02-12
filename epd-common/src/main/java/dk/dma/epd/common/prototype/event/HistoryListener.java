@@ -19,7 +19,7 @@ import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 
 /**
  * This class is a listener for projection changes and therefore implements
@@ -46,11 +46,11 @@ public class HistoryListener implements ProjectionListener {
     private Position position;    // The Position object created from positionX and positionY. 
     private float zoomScale;      // The zoom scale of the position.
     private HistoryPosition hpos; // The HistoryPosition object created from position and zoomScale.
-    private CommonChartPanel chartPanel;
+    private ChartPanelCommon chartPanel;
     private HistoryList historyList;
     private HistoryNavigationPanelInterface navigationPanel;
     
-    public HistoryListener(CommonChartPanel chartPanel) {
+    public HistoryListener(ChartPanelCommon chartPanel) {
         this.chartPanel  = chartPanel;
         this.historyList = new HistoryList();
         this.setShouldSave(false);

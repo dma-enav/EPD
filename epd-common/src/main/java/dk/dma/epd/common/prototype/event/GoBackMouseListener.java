@@ -20,7 +20,7 @@ import java.awt.event.MouseEvent;
 
 import dk.dma.epd.common.prototype.gui.GoBackButton;
 import dk.dma.epd.common.prototype.gui.GoForwardButton;
-import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 
 public class GoBackMouseListener extends MouseAdapter {
     
@@ -31,12 +31,12 @@ public class GoBackMouseListener extends MouseAdapter {
     private GoBackButton goBackButton;
     private GoForwardButton goForwardButton;
     private HistoryListener historyListener;
-    private CommonChartPanel chartPanel;
+    private ChartPanelCommon chartPanel;
     
     public GoBackMouseListener(GoBackButton goBackButton, 
             GoForwardButton goForwardButton, 
             HistoryListener historyListener,
-            CommonChartPanel chartPanel) {
+            ChartPanelCommon chartPanel) {
         this.goBackButton = goBackButton;
         this.goForwardButton = goForwardButton;
         this.historyListener = historyListener;
