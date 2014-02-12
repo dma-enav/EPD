@@ -15,123 +15,53 @@
  */
 package dk.dma.epd.shore.gui.views;
 
-import com.bbn.openmap.gui.OMComponentPanel;
-
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import dk.dma.epd.common.prototype.gui.StatusLabel;
+import dk.dma.epd.common.prototype.gui.views.BottomPanelCommon;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
-import dk.dma.epd.common.util.Util;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.ais.AisHandler;
-import dk.dma.epd.shore.service.MaritimeCloudService;
-import dk.dma.epd.shore.services.shore.ShoreServices;
 
-import javax.swing.Box;
-import javax.swing.JSeparator;
-import javax.swing.JToolBar;
-import javax.swing.SwingConstants;
-
-public class BottomPanel extends OMComponentPanel implements Runnable, MouseListener {
+/**
+ * Panel shown below the chart
+ */
+public class BottomPanel extends BottomPanelCommon {
     
-    /**
-     * Private fields.
-     */
     private static final long serialVersionUID = 1L;
-    private List<IStatusComponent> statusComponents;
-    private AisHandler aisHandler;
-    private ShoreServices shoreServices;
-    private StatusLabel lblAisConnection;
-    private StatusLabel lblShoreServices;
-    private MaritimeCloudService maritimeCloudService;
-    private StatusLabel lblMaritimeCloud;
+    
     private StatusLabel lblWms;
-    private JToolBar statusbar;
 
     /**
      * Constructor.
      */
     public BottomPanel() {
-        super();
-                
-        this.setLayout(new FlowLayout(FlowLayout.RIGHT));
-        
-        statusComponents = new ArrayList<IStatusComponent>();
-        statusbar = new JToolBar();
-        statusbar.setFloatable(false);
-        statusbar.addMouseListener(this);
-        
-        lblShoreServices = new StatusLabel("Shore Services");
-        lblShoreServices.addMouseListener(this);
-        statusbar.add(lblShoreServices);
-        
-        addSeparator();
-        
-        lblAisConnection = new StatusLabel("AIS");
-        lblAisConnection.addMouseListener(this);
-        statusbar.add(lblAisConnection);
-        
-        addSeparator();
-        
+        super();                
+    }
+    
+    /**
+     * Adds the status components
+     */
+    @Override
+    protected void addStatusComponents() {
         lblWms = new StatusLabel("WMS");
-        lblWms.addMouseListener(this);
-        statusbar.add(lblWms);
-        
+        addToolbarComponent(lblWms);
         addSeparator();
         
-        lblMaritimeCloud = new StatusLabel("Maritime Cloud");
-        lblMaritimeCloud.addMouseListener(this);
-        statusbar.add(lblMaritimeCloud);
-        
-        this.add(statusbar, BorderLayout.EAST);
-        
-        // Run to check for changes in status.
-        new Thread(this).start();
+        // Let super add the rest
+        super.addStatusComponents();
     }
     
     /**
-     * Adds a seperator to the statusbar.
+     * {@inheritDoc}
      */
-    private void addSeparator() {
-        Component horizontalStrut = Box.createHorizontalStrut(5);
-        JSeparator seperator = new JSeparator();
-        seperator.setOrientation(SwingConstants.VERTICAL);
-        this.statusbar.add(horizontalStrut);
-        this.statusbar.add(seperator);
-        this.statusbar.add(horizontalStrut);
-    }
-    
-    /**
-     * Update status of the status labels.
-     */
-    private void updateStatus() {
+    @Override
+    protected void updateStatus() {
         
-        // AIS connection status.
-        if (this.aisHandler != null) {
-            lblAisConnection.updateStatus(this.aisHandler);
-        }
-        
-        // Shore service status.
-        if (this.shoreServices != null) {
-            lblShoreServices.updateStatus(this.shoreServices);
-        } 
-        
-        // Maritime clound status.
-        if (this.maritimeCloudService != null) {
-            lblMaritimeCloud.updateStatus(this.maritimeCloudService);
-        }
-        
+        super.updateStatus();
         
         /********* WMS STATUS *********/
         
@@ -185,57 +115,6 @@ public class BottomPanel extends OMComponentPanel implements Runnable, MouseList
             e.printStackTrace();
         }
         
-        this.lblWms.updateStatus(status);
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void findAndInit(Object obj) {
-        
-        if (obj instanceof AisHandler) {
-            this.aisHandler = (AisHandler) obj;
-            this.statusComponents.add(this.aisHandler);
-        } else if (obj instanceof ShoreServices) {
-            this.shoreServices = (ShoreServices) obj;
-            this.statusComponents.add(this.shoreServices);
-        } else if (obj instanceof MaritimeCloudService) {
-            this.maritimeCloudService = (MaritimeCloudService) obj;
-            this.statusComponents.add(this.maritimeCloudService);
-
-        }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void run() {
-        while(true) {
-            updateStatus();
-            Util.sleep(3000);
-        }
-    }
-    
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        
-        // show the status dialog.
-        BottomPanelStatusDialog statusDialog = new BottomPanelStatusDialog();
-        statusDialog.updateStatusLabel(statusComponents);
-        statusDialog.setVisible(true);
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {}
-
-    @Override
-    public void mouseReleased(MouseEvent e) {}
-
-    @Override
-    public void mouseEntered(MouseEvent e) {}
-
-    @Override
-    public void mouseExited(MouseEvent e) {}
+        lblWms.updateStatus(status);
+    }    
 }

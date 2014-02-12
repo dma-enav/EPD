@@ -16,23 +16,35 @@
 package dk.dma.epd.common.prototype.gui;
 
 import java.awt.Font;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
+import dk.dma.epd.common.graphics.Resources;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 
+/**
+ * Used for displaying the status of services in the bottom panels
+ * of the EPD systems.
+ */
 public class StatusLabel extends JLabel {
 
-    /**
-     * Private fields.
-     */
     private static final long serialVersionUID = 1L;
-    private Map<ComponentStatus.Status, ImageIcon> imageMap;
+    
+    private static Map<ComponentStatus.Status, ImageIcon> imageMap = new ConcurrentHashMap<>();    
+    static {        
+        // Add the different status icons.
+        Resources statusRes = EPD.res().folder("images/status");
+        imageMap.put(ComponentStatus.Status.OK, statusRes.getCachedImageIcon("OK.png"));
+        imageMap.put(ComponentStatus.Status.ERROR, statusRes.getCachedImageIcon("ERROR.png"));
+        imageMap.put(ComponentStatus.Status.PARTIAL, statusRes.getCachedImageIcon("PARTIAL.png"));
+        imageMap.put(ComponentStatus.Status.UNKNOWN, statusRes.getCachedImageIcon("UNKNOWN.png"));
+    }
 
     /**
      * Constructor
@@ -41,28 +53,11 @@ public class StatusLabel extends JLabel {
     public StatusLabel(String name) {
         super(name);
         
-        this.setFont(new Font("tahoma", Font.PLAIN, 9));
-        this.setHorizontalTextPosition(SwingConstants.LEFT);
-        
-        // Add the different status icons.
-        this.imageMap = new HashMap<ComponentStatus.Status, ImageIcon>();
-        this.imageMap.put(ComponentStatus.Status.OK, this.getCachedStatusIcon("OK.png"));
-        this.imageMap.put(ComponentStatus.Status.ERROR, this.getCachedStatusIcon("ERROR.png"));
-        this.imageMap.put(ComponentStatus.Status.UNKNOWN, this.getCachedStatusIcon("UNKNOWN.png"));
-        this.imageMap.put(ComponentStatus.Status.PARTIAL, this.getCachedStatusIcon("PARTIAL.png"));
+        setFont(new Font("tahoma", Font.PLAIN, 9));
+        setHorizontalTextPosition(SwingConstants.LEFT);
         
         // Set default icon.
-        this.setIcon(imageMap.get(ComponentStatus.Status.UNKNOWN));
-    }
-    
-    /**
-     * Get the image icon of the given file.
-     * @param filename Name of File
-     * @return A new ImageIcon object.
-     */
-    private ImageIcon getCachedStatusIcon(String filename) {
-        
-        return new ImageIcon(StatusLabel.class.getResource("/images/status/"+filename));
+        setIcon(imageMap.get(ComponentStatus.Status.UNKNOWN));
     }
     
     /**
@@ -72,7 +67,7 @@ public class StatusLabel extends JLabel {
     public void updateStatus(IStatusComponent statusComponent) {
         
         ComponentStatus componentStatus = statusComponent.getStatus();
-        this.setIcon(this.imageMap.get(componentStatus.getStatus()));
-        this.setToolTipText(componentStatus.getShortStatusText());
+        setIcon(imageMap.get(componentStatus.getStatus()));
+        setToolTipText(componentStatus.getShortStatusText());
     }
 }

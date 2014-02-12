@@ -13,59 +13,65 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.views;
+package dk.dma.epd.common.prototype.gui.views;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
 import javax.swing.JDialog;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
-import dk.dma.epd.shore.EPDShore;
 
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.JButton;
+import javax.swing.WindowConstants;
 
+/**
+ * Displays the textual status of the services in the bottom panel
+ */
 public class BottomPanelStatusDialog extends JDialog implements ActionListener {
 
     /**
      * Private fields.
      */
     private static final long serialVersionUID = 1L;
-    private JLabel statusLabel;
+    private JLabel statusLabel = new JLabel("");
     
     /**
      * Constructor
      */
     public BottomPanelStatusDialog() {
+        super(EPD.getInstance().getMainFrame(), "Status", true);
         
-        super(EPDShore.getInstance().getMainFrame(), "Status", true);
-        this.setResizable(false);
-        this.setSize(250, 340);
-        this.setLocationRelativeTo(EPDShore.getInstance().getMainFrame());
-        getContentPane().setLayout(null);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setResizable(false);
+        setSize(300, 400);
+        setLocationRelativeTo(EPD.getInstance().getMainFrame());
+        getContentPane().setLayout(new BorderLayout(10, 10));
         
-        statusLabel = new JLabel("");
         statusLabel.setVerticalAlignment(SwingConstants.TOP);
-        statusLabel.setBounds(6, 6, 238, 266);
-        getContentPane().add(statusLabel);
+        JScrollPane scrollPanel = new JScrollPane(statusLabel);
+        getContentPane().add(scrollPanel, BorderLayout.CENTER);
         
         JButton btnClose = new JButton("Close");
         btnClose.addActionListener(this);
-        btnClose.setBounds(75, 283, 100, 29);
-        getContentPane().add(btnClose);
+        JPanel btnPanel = new JPanel();
+        btnPanel.add(btnClose);
+        getContentPane().add(btnPanel, BorderLayout.SOUTH);
     }
     
     /**
      * Update status text of each status component.
      * @param statusComponents
      */
-    public void updateStatusLabel(List<IStatusComponent> statusComponents) {
-        
-        System.out.println(statusComponents.size());
+    public void showStatus(List<IStatusComponent> statusComponents) {
         
         StringBuilder buf = new StringBuilder();
         buf.append("<html>");
@@ -79,8 +85,8 @@ public class BottomPanelStatusDialog extends JDialog implements ActionListener {
         }
         buf.append("</html>");
         
-        this.statusLabel.setText("");
-        this.statusLabel.setText(buf.toString());
+        statusLabel.setText("");
+        statusLabel.setText(buf.toString());
     }
 
     /**
@@ -90,6 +96,6 @@ public class BottomPanelStatusDialog extends JDialog implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         
         // Close the window.
-        this.dispose();
+        dispose();
     }
 }
