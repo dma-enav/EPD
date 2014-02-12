@@ -312,13 +312,8 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
                     filteredIntendedRoute.getFilterMessages().add(intersectionResultMessage);
                 }
 
-                
-                //Apply different filters here
-                
-                
-                
-                
-                
+                // Add more filters
+
                 previousPositionIntendedRoute = route2Waypoint2;
             }
 
@@ -387,71 +382,78 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
             // If route1EndDate is before route2StartDate it's not an issue
             // Added 2 hours thus if route1 + 2 hours is before route2starts we can move on
-//            if (routeSegment1EndDate.plusHours(2).isBefore(routeSegment2StartDate)) {
-//                System.out.println("routesegment 1 end date plus 2 hours is before route sengment 2 start date");
-//                return null;
-//            }
-//
-//            // Opposite way
-//
-//            if (routeSegment2EndDate.plusHours(2).isBefore(routeSegment1StartDate)) {
-//                System.out.println("route segment 2 end date plus 2 hours is before route segment 1 start date");
-//                return null;
-//            }
-
-            System.out.println("Time may be of importance");
+            // if (routeSegment1EndDate.plusHours(2).isBefore(routeSegment2StartDate)) {
+            // System.out.println("routesegment 1 end date plus 2 hours is before route sengment 2 start date");
+            // return null;
+            // }
+            //
+            // // Opposite way
+            //
+            // if (routeSegment2EndDate.plusHours(2).isBefore(routeSegment1StartDate)) {
+            // System.out.println("route segment 2 end date plus 2 hours is before route segment 1 start date");
+            // return null;
+            // }
 
             // Determine when intersection occurs
             // Interpolate the time for both route segments
 
-            // Segment 1 - Determine what time the intersection happens
-            // Speed for that segment in nautical miles pr. hour
-            double segment1Speed = route1.getWaypoints().get(i - 1).getOutLeg().getSpeed();
+            // Determine the speed used between the waypoints, as we cannot know how the sender is calculating their ETAS (planned
+            // vs. actual speed) we can't rely on leg speed
 
-            // Distance travelled in meters
-            double distanceTravelledSegment1 = route1.getWaypoints().get(i).getPos()
-                    .distanceTo(intersection, CoordinateSystem.CARTESIAN);
+            // Segment 1
+            double routeSegment1Length = Converter.metersToNm(route1.getWaypoints().get(i - 1).getPos()
+                    .distanceTo(route1.getWaypoints().get(i).getPos(), CoordinateSystem.CARTESIAN));
+            
+            long routeSegment1MilisecondsLength = routeSegment1EndDate.getMillis() - routeSegment1StartDate.getMillis();
 
-            double hoursTravelledSegment1 = Converter.metersToNm(distanceTravelledSegment1) / segment1Speed;
+            double routeSegment1SpeedMiliPrNm = routeSegment1Length / routeSegment1MilisecondsLength;
 
-            // Converter hours into miliseconds long (hours to minutes to seconds to miliseconds)
-            long milisecondsTravelledSegment1 = ((long) hoursTravelledSegment1) * 60 * 60 * 1000;
+            // Distance travelled in nautical miles
+            double distanceTravelledSegment1 = Converter.metersToNm(route1.getWaypoints().get(i).getPos()
+                    .distanceTo(intersection, CoordinateSystem.CARTESIAN));
 
-            DateTime segment1IntersectionTime = routeSegment1StartDate.plus(milisecondsTravelledSegment1);
+            long timeTravelledSegment1 = (long) (distanceTravelledSegment1 / routeSegment1SpeedMiliPrNm);
+            DateTime segment1IntersectionTime = routeSegment1StartDate.plus(timeTravelledSegment1);
 
-            // Segment 2 - Determine what time the intersection happens
-            // Speed for that segment in nautical miles pr. hour
-            double segment2Speed = route2.getWaypoints().get(j - 1).getOutLeg().getSpeed();
+            // Segment 2
+            double routeSegment2Length = Converter.metersToNm(route2.getWaypoints().get(j - 1).getPos()
+                    .distanceTo(route2.getWaypoints().get(j).getPos(), CoordinateSystem.CARTESIAN));
+            long routeSegment2MilisecondsLength = routeSegment2EndDate.getMillis() - routeSegment2StartDate.getMillis();
 
-            // Distance travelled in meters
-            double distanceTravelledSegment2 = route2.getWaypoints().get(j).getPos()
-                    .distanceTo(intersection, CoordinateSystem.CARTESIAN);
+            double routeSegment2SpeedMiliPrNm = routeSegment2Length / routeSegment2MilisecondsLength;
 
-            double hoursTravelledSegment2 = Converter.metersToNm(distanceTravelledSegment2) / segment2Speed;
+            // Distance travelled in nautical miles
+            double distanceTravelledSegment2 = Converter.metersToNm(route2.getWaypoints().get(j).getPos()
+                    .distanceTo(intersection, CoordinateSystem.CARTESIAN));
 
-            // Converter hours into miliseconds long (hours to minutes to seconds to miliseconds)
-            long milisecondsTravelledSegment2 = ((long) hoursTravelledSegment2) * 60 * 60 * 1000;
+            long timeTravelledSegment2 = (long) (distanceTravelledSegment2 / routeSegment2SpeedMiliPrNm);
+            DateTime segment2IntersectionTime = routeSegment2StartDate.plus(timeTravelledSegment2);
 
-            DateTime segment2IntersectionTime = routeSegment2StartDate.plus(milisecondsTravelledSegment2);
-
-            // Are segment1IntersectionTime and segment2IntersectionTime within three hour of each other in either way
+            // Are segment1IntersectionTime and segment2IntersectionTime within X hour of each other in either way
 
             System.out.println("segment1IntersectionTime is" + segment1IntersectionTime);
             System.out.println("segment2IntersectionTime is " + segment2IntersectionTime);
 
-            if (segment1IntersectionTime.plusHours(2).isBefore(segment2IntersectionTime)
-                    || segment1IntersectionTime.minusHours(2).isBefore(segment2IntersectionTime)) {
+            // Is segment2 within +&- x hours
+
+            // Is segment2 larger than segment1 minus 2 and smaller than segment1 plus 2
+
+            if (segment2IntersectionTime.isAfter(segment1IntersectionTime.minusHours(2))
+                    && segment2IntersectionTime.isBefore(segment1IntersectionTime.plusHours(2))) {
 
                 IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(intersection,
                         "Intersection occurs within 2 hour of eachother", j - 1, j);
 
                 System.out.println("Intersection occurs within 2 hour of eachother");
-                System.out.println("segment1IntersectionTime.plusHours(2).isBefore(segment2IntersectionTime) " + segment1IntersectionTime.plusHours(2).isBefore(segment2IntersectionTime));
-                System.out.println("segment1IntersectionTime.minusHours(2).isBefore(segment2IntersectionTime) " + segment1IntersectionTime.minusHours(2).isBefore(segment2IntersectionTime));
 
                 // filteredIntendedRoute.getFilterMessages().add(message);
                 // this.intersectPositions.add(intersection);
                 return message;
+            }
+
+            if (segment1IntersectionTime.plusHours(2).isAfter(segment2IntersectionTime)
+                    || segment1IntersectionTime.minusHours(2).isBefore(segment2IntersectionTime)) {
+
             }
 
         }
