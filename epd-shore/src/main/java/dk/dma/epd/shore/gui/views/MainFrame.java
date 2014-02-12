@@ -326,7 +326,6 @@ public class MainFrame extends MainFrameCommon {
         desktop.add(sendVoyageDialog, true);
 
         beanHandler.add(notificationArea);
-        beanHandler.add(this.setup);
         beanHandler.add(bottomPanel);
         beanHandler.add(sendRouteDialog);
         beanHandler.add(sendVoyageDialog);
