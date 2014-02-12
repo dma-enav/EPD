@@ -85,6 +85,12 @@ import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.ParseUtils;
+import dk.dma.epd.common.util.TypedValue.Dist;
+import dk.dma.epd.common.util.TypedValue.DistType;
+import dk.dma.epd.common.util.TypedValue.Speed;
+import dk.dma.epd.common.util.TypedValue.SpeedType;
+import dk.dma.epd.common.util.TypedValue.Time;
+import dk.dma.epd.common.util.TypedValue.TimeType;
 
 /**
  * Dialog used for viewing and editing route properties
@@ -357,7 +363,10 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                 case 12: return Formatter.formatMeters(wp.getOutLeg().getXtdStarboardMeters());
                 case 13: return Formatter.formatMeters(wp.getOutLeg().getXtdPortMeters());
                 case 14: return Formatter.formatMeters(wp.getOutLeg().getSFWidth());
-                case 15: return Formatter.formatTime((long)(wp.getOutLeg().getSFLenInMinutes() * 60 * 1000));
+                case 15: return Formatter.formatTime(
+                        new Dist(DistType.METERS, wp.getOutLeg().getSFLen())
+                            .withSpeed(new Speed(SpeedType.KNOTS, wp.getOutLeg().getSpeed()))
+                                .in(TimeType.MILLISECONDS).longValue());
                 default: return null;
                 }
             }
@@ -407,7 +416,10 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                         wp.getOutLeg().setSFWidth(parseDouble(value.toString()));
                         break;
                     case 15: 
-                        wp.getOutLeg().setSFLenInMinutes(parseMinutes(value.toString()));
+                        wp.getOutLeg().setSFLen(
+                                new Time(TimeType.MINUTES, parseMinutes(value.toString()))
+                                        .withSpeed(new Speed(SpeedType.KNOTS, wp.getOutLeg().getSpeed()))
+                                        .in(DistType.METERS).longValue());
                         break;
                     default:
                     }
