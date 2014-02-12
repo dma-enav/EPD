@@ -98,7 +98,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
             " ", "Name", "Latutide", "Longtitude", 
             "Rad", "Rot", "TTG", "ETA", 
             "RNG", "BRG", "Head.", "SOG", 
-            "XTDS", "XTD P", "SF Width", "SFLen" };
+            "XTDS", "XTD P", "SF Width", "SF Len" };
 
     private static final int[] COL_MIN_WIDTHS = {
         25, 60, 70, 70,
@@ -357,7 +357,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                 case 12: return Formatter.formatMeters(wp.getOutLeg().getXtdStarboardMeters());
                 case 13: return Formatter.formatMeters(wp.getOutLeg().getXtdPortMeters());
                 case 14: return Formatter.formatMeters(wp.getOutLeg().getSFWidth());
-                case 15: return Formatter.formatMeters(wp.getOutLeg().getSFLen());
+                case 15: return Formatter.formatTime((long)(wp.getOutLeg().getSFLenInMinutes() * 60 * 1000));
                 default: return null;
                 }
             }
@@ -407,7 +407,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                         wp.getOutLeg().setSFWidth(parseDouble(value.toString()));
                         break;
                     case 15: 
-                        wp.getOutLeg().setSFLen(parseDouble(value.toString()));
+                        wp.getOutLeg().setSFLenInMinutes(parseMinutes(value.toString()));
                         break;
                     default:
                     }
@@ -835,6 +835,18 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         str = str.replaceAll(",", ".");
         String[] parts = StringUtils.split(str, " ");
         return ParseUtils.parseDouble(parts[0]);
+    }
+    
+    /**
+     * Parses the text, which has the time format hh:mm:ss, into minutes.
+     * @param str the string to parse
+     * @return the minutes
+     */
+    private static double parseMinutes(String str)  throws Exception {
+        String[] parts = str.split(":");
+        return  Double.valueOf(parts[0]) * 60.0 +  
+                Double.valueOf(parts[1]) + 
+                Double.valueOf(parts[2]) / 60.0;
     }
     
     /***************************************************/

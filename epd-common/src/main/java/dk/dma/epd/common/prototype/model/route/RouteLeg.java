@@ -94,6 +94,14 @@ public class RouteLeg implements Serializable {
         SFLen = sFLen;
     }
 
+    public double getSFLenInMinutes() {
+        double speedInMetersPerMinute = speed * 1852 / 60;
+        return (speedInMetersPerMinute == 0) ? 0 : SFLen / speedInMetersPerMinute;
+    }
+    
+    public void setSFLenInMinutes(double sfLenInMinutes) {
+        SFLen = sfLenInMinutes / 60 * speed * 1852;
+    }
     
     /**
      * Speed in nautical miles pr. hour
