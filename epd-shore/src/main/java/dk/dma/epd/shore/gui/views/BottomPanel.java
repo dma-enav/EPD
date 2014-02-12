@@ -17,50 +17,175 @@ package dk.dma.epd.shore.gui.views;
 
 import com.bbn.openmap.gui.OMComponentPanel;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import dk.dma.epd.common.prototype.gui.StatusLabel;
+import dk.dma.epd.common.prototype.status.ComponentStatus;
+import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.util.Util;
+import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.service.MaritimeCloudService;
 import dk.dma.epd.shore.services.shore.ShoreServices;
 
-public class BottomPanel extends OMComponentPanel implements Runnable {
+import javax.swing.Box;
+import javax.swing.JSeparator;
+import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
+
+public class BottomPanel extends OMComponentPanel implements Runnable, MouseListener {
     
     /**
      * Private fields.
      */
     private static final long serialVersionUID = 1L;
+    private List<IStatusComponent> statusComponents;
     private AisHandler aisHandler;
     private ShoreServices shoreServices;
     private StatusLabel lblAisConnection;
     private StatusLabel lblShoreServices;
     private MaritimeCloudService maritimeCloudService;
     private StatusLabel lblMaritimeCloud;
+    private StatusLabel lblWms;
+    private JToolBar statusbar;
 
     /**
      * Constructor.
      */
     public BottomPanel() {
         super();
+                
+        this.setLayout(new FlowLayout(FlowLayout.RIGHT));
         
-        FlowLayout flowLayout = new FlowLayout();
-        flowLayout.setAlignment(FlowLayout.RIGHT);
-        this.setLayout(flowLayout);
+        statusComponents = new ArrayList<IStatusComponent>();
+        statusbar = new JToolBar();
+        statusbar.setFloatable(false);
+        statusbar.addMouseListener(this);
         
         lblShoreServices = new StatusLabel("Shore Services");
-        this.add(lblShoreServices);
+        lblShoreServices.addMouseListener(this);
+        statusbar.add(lblShoreServices);
+        
+        addSeparator();
         
         lblAisConnection = new StatusLabel("AIS");
-        this.add(lblAisConnection);
+        lblAisConnection.addMouseListener(this);
+        statusbar.add(lblAisConnection);
         
-        StatusLabel lblWms = new StatusLabel("WMS");
-        this.add(lblWms);
+        addSeparator();
+        
+        lblWms = new StatusLabel("WMS");
+        lblWms.addMouseListener(this);
+        statusbar.add(lblWms);
+        
+        addSeparator();
         
         lblMaritimeCloud = new StatusLabel("Maritime Cloud");
-        this.add(lblMaritimeCloud);
+        lblMaritimeCloud.addMouseListener(this);
+        statusbar.add(lblMaritimeCloud);
         
+        this.add(statusbar, BorderLayout.EAST);
+        
+        // Run to check for changes in status.
         new Thread(this).start();
+    }
+    
+    /**
+     * Adds a seperator to the statusbar.
+     */
+    private void addSeparator() {
+        Component horizontalStrut = Box.createHorizontalStrut(5);
+        JSeparator seperator = new JSeparator();
+        seperator.setOrientation(SwingConstants.VERTICAL);
+        this.statusbar.add(horizontalStrut);
+        this.statusbar.add(seperator);
+        this.statusbar.add(horizontalStrut);
+    }
+    
+    /**
+     * Update status of the status labels.
+     */
+    private void updateStatus() {
+        
+        // AIS connection status.
+        if (this.aisHandler != null) {
+            lblAisConnection.updateStatus(this.aisHandler);
+        }
+        
+        // Shore service status.
+        if (this.shoreServices != null) {
+            lblShoreServices.updateStatus(this.shoreServices);
+        } 
+        
+        // Maritime clound status.
+        if (this.maritimeCloudService != null) {
+            lblMaritimeCloud.updateStatus(this.maritimeCloudService);
+        }
+        
+        
+        /********* WMS STATUS *********/
+        
+        // WMS connection status.
+        HttpURLConnection connection = null;
+        
+        // Do a bit of hack to update status.
+        final ComponentStatus wmsStatus = new ComponentStatus("WMS") {
+            
+            @Override
+            public String getStatusHtml() {
+                return "";
+            }
+            
+            @Override
+            public synchronized String getShortStatusText() {
+                return "Status: "+getStatus().toString();
+            }
+        };
+        
+        IStatusComponent status = new IStatusComponent() {
+            
+            @Override
+            public ComponentStatus getStatus() {
+                return wmsStatus;
+            }
+        };
+        
+        try {
+            // Create URL
+            URL urlToWms = new URL(
+                    EPDShore.getInstance().getSettings().getMapSettings().getWmsQuery());
+            
+            // Open connection to the url.
+            connection = (HttpURLConnection) urlToWms.openConnection();
+            connection.connect();
+            
+            // A file was found.
+            if (connection.getResponseCode() == 200) {
+                
+                // TODO: Should be checking if the parsed url contains wms.
+                wmsStatus.setStatus(ComponentStatus.Status.OK);                
+            }
+            
+            // A file was not found.
+        } catch (MalformedURLException e) {
+            
+            wmsStatus.setStatus(ComponentStatus.Status.ERROR);
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        this.lblWms.updateStatus(status);
     }
     
     /**
@@ -71,10 +196,14 @@ public class BottomPanel extends OMComponentPanel implements Runnable {
         
         if (obj instanceof AisHandler) {
             this.aisHandler = (AisHandler) obj;
+            this.statusComponents.add(this.aisHandler);
         } else if (obj instanceof ShoreServices) {
             this.shoreServices = (ShoreServices) obj;
+            this.statusComponents.add(this.shoreServices);
         } else if (obj instanceof MaritimeCloudService) {
-            maritimeCloudService = (MaritimeCloudService) obj;
+            this.maritimeCloudService = (MaritimeCloudService) obj;
+            this.statusComponents.add(this.maritimeCloudService);
+
         }
     }
     
@@ -89,21 +218,24 @@ public class BottomPanel extends OMComponentPanel implements Runnable {
         }
     }
     
-    /**
-     * Update status of the status labels.
-     */
-    private void updateStatus() {
+    @Override
+    public void mouseClicked(MouseEvent e) {
         
-        if (this.aisHandler != null) {
-            lblAisConnection.updateStatus(this.aisHandler);
-        } 
-        
-        if (this.shoreServices != null) {
-            lblShoreServices.updateStatus(this.shoreServices);
-        } 
-        
-        if (this.maritimeCloudService != null) {
-            lblMaritimeCloud.updateStatus(this.maritimeCloudService);
-        }
+        // show the status dialog.
+        BottomPanelStatusDialog statusDialog = new BottomPanelStatusDialog();
+        statusDialog.updateStatusLabel(statusComponents);
+        statusDialog.setVisible(true);
     }
+
+    @Override
+    public void mousePressed(MouseEvent e) {}
+
+    @Override
+    public void mouseReleased(MouseEvent e) {}
+
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+
+    @Override
+    public void mouseExited(MouseEvent e) {}
 }
