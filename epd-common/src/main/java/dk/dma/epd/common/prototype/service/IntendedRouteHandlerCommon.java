@@ -32,11 +32,7 @@ import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
 import org.joda.time.DateTime;
 
 import com.bbn.openmap.geo.Geo;
-import com.bbn.openmap.geo.GeoRegion;
-import com.bbn.openmap.geo.GeoSegment;
 import com.bbn.openmap.geo.Intersection;
-import com.bbn.openmap.geo.OMGeo.Line;
-import com.bbn.openmap.geo.OMGeo.Polygon;
 
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
@@ -49,6 +45,7 @@ import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 
 /**
@@ -309,12 +306,12 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
                 Position route2Waypoint2 = route2Waypoints.get(j).getPos();
 
                 // This is where we apply the actual filter, for now only checking on intersections
-                IntendedRouteFilterMessage intersectionResultMessage = intersectionFilter(route1, route2, i, j, route1Waypoint1,
-                        route1Waypoint2, route2Waypoint1, route2Waypoint2);
-
-                if (intersectionResultMessage != null) {
-                    filteredIntendedRoute.getFilterMessages().add(intersectionResultMessage);
-                }
+//                IntendedRouteFilterMessage intersectionResultMessage = intersectionFilter(route1, route2, i, j, route1Waypoint1,
+//                        route1Waypoint2, route2Waypoint1, route2Waypoint2);
+//
+//                if (intersectionResultMessage != null) {
+//                    filteredIntendedRoute.getFilterMessages().add(intersectionResultMessage);
+//                }
 
                 // Region filter
                 IntendedRouteFilterMessage regionResultMessage = regionFilter(route1, route2, i, j, route1Waypoint1,
@@ -375,7 +372,140 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
         // route2Waypoint1
         // route2Waypoint2
+        
+        
+        //Calculate shorest path between two lines. The one of the end points must be the closest
+        
+        double distanceWP1Segment1 = Calculator.crossTrackDistance(route1Waypoint1, route1Waypoint2, route2Waypoint1);
+        double distanceWP2Segment1 = Calculator.crossTrackDistance(route1Waypoint1, route1Waypoint2, route2Waypoint2);
 
+        double distanceWP1Segment2 = Calculator.crossTrackDistance(route2Waypoint1, route2Waypoint2, route1Waypoint1);
+        double distanceWP2Segment2 = Calculator.crossTrackDistance(route2Waypoint1, route2Waypoint2, route1Waypoint2);
+        
+        
+        System.out.println("distanceWP1Segment1 is " + distanceWP1Segment1);
+        System.out.println("distanceWP2Segment1 is " + distanceWP2Segment1);
+        System.out.println("distanceWP1Segment2 is " + distanceWP1Segment2);
+        System.out.println("distanceWP2Segment2 is " + distanceWP2Segment2);
+        
+        double shorestDistanceSegment1 = distanceWP1Segment1;
+        double shorestDistanceSegment2 = distanceWP1Segment2;
+        
+        
+        if (distanceWP1Segment1 > distanceWP2Segment1){
+            shorestDistanceSegment1 = distanceWP2Segment1;
+        }
+
+        
+        if (distanceWP1Segment2 > distanceWP2Segment2){
+            shorestDistanceSegment2= distanceWP2Segment2;
+        }
+        
+        double shortestDistance = shorestDistanceSegment1;
+        
+        if (shorestDistanceSegment1 > shorestDistanceSegment2){
+            shortestDistance= shorestDistanceSegment2;
+        }
+        
+        System.out.println("The shorest distance is " + shortestDistance);
+//        
+//        if (shortestDistance <= epsilon){
+//            IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(null,
+//                    "Intersection occurs within 2 hour of eachother", j - 1, j);
+//            
+//            return message;
+//        }
+
+        
+        
+        //Binary Search
+        
+        //Find midpoint of one line
+        //Searching from route segment 1
+        
+        //Find center position of segment2
+        
+        Position centerSegment2 = Calculator.findCenterPosition(route2Waypoint1, route2Waypoint2);
+        
+        //Start Calculating for route1Waypoint1
+        
+        
+        
+        
+        //d13 is distance from start point to third point
+//        θ13 is (initial) bearing from start point to third point
+//        θ12 is (initial) bearing from start point to end point
+//        R is the earth’s radius
+        double d13 = route2Waypoint1.distanceTo(route1Waypoint1, CoordinateSystem.GEODETIC) ;
+        double R = 6371000; //in meters
+        double brng13 = Math.toRadians(route2Waypoint1.geodesicInitialBearingTo(route1Waypoint1));
+        double brng12 = Math.toRadians(route2Waypoint1.geodesicInitialBearingTo(route2Waypoint2));
+        
+        double distance =       Math.asin( //
+                Math.sin(d13/R) //
+                * Math.sin(brng13 - brng12) //
+                ) * R; //
+
+        
+//        double alongTrackDistance = Math.acos(Math.cos(Math.toRadians(d13/R))/Math.cos(distance/R)) * R;
+        
+        System.out.println("Distance 1 is " + Converter.metersToNm(distance) + " NM");
+        
+         d13 = route2Waypoint1.distanceTo(route1Waypoint2, CoordinateSystem.GEODETIC) ;
+         brng13 =  Math.toRadians(route2Waypoint1.geodesicInitialBearingTo(route1Waypoint2));
+         brng12 =  Math.toRadians(route2Waypoint1.geodesicInitialBearingTo(route2Waypoint2));
+        
+         distance =         Math.asin( //
+                 Math.sin(d13/R) //
+                 * Math.sin(brng13 - brng12) //
+                 ) * R; //
+
+         
+//         alongTrackDistance = Math.acos(Math.cos(Math.toRadians(d13/R))/Math.cos(distance/R)) * R;
+         
+         System.out.println("Distance 2 is " + Converter.metersToNm(distance) + " NM");
+         
+        System.out.println("Distances from point 1: " + Converter.metersToNm(route1Waypoint1.distanceTo(route2Waypoint1, CoordinateSystem.GEODETIC))
+                + " and " + Converter.metersToNm(route1Waypoint1.distanceTo(route2Waypoint2, CoordinateSystem.GEODETIC)));
+        
+        
+        System.out.println("Distances from point 2: " + Converter.metersToNm(route1Waypoint2.distanceTo(route2Waypoint1, CoordinateSystem.GEODETIC))
+                + " and " + Converter.metersToNm(route1Waypoint2.distanceTo(route2Waypoint2, CoordinateSystem.GEODETIC)));
+        
+        
+        
+//        Geodesic geod = Geodesic.WGS84;
+//        double
+//          lat1 = 40.640, lon1 = -73.779, // JFK
+//          lat2 =  1.359, lon2 = 103.989; // SIN
+//        GeodesicData g = geod.Inverse(lat1, lon1, lat2, lon2,
+//                     GeodesicMask.DISTANCE | GeodesicMask.AZIMUTH);
+//        GeodesicLine line = new GeodesicLine(geod, lat1, lon1, g.azi1,
+//                     GeodesicMask.DISTANCE_IN | GeodesicMask.LONGITUDE);
+//        double
+//          s12 = g.s12,
+//          a12 = g.a12,
+//          ds0 = 500e3;        // Nominal distance between points = 500 km
+//        int num = (int)(Math.ceil(s12 / ds0)); // The number of intervals
+//        {
+//          // Use intervals of equal length
+//          double ds = s12 / num;
+//          for (int i = 0; i <= num; ++i) {
+//            g = line.Position(i * ds,
+//                     GeodesicMask.LATITUDE | GeodesicMask.LONGITUDE);
+//            System.out.println(i + " " + g.lat2 + " " + g.lon2);
+//          }
+//        }
+//        {
+//          // Slightly faster, use intervals of equal arc length
+//          double da = a12 / num;
+//          for (int i = 0; i <= num; ++i) {
+//            g = line.ArcPosition(i * da,
+//                     GeodesicMask.LATITUDE | GeodesicMask.LONGITUDE);
+//            System.out.println(i + " " + g.lat2 + " " + g.lon2);
+//          }
+//        }
+        
 
 
         return null;
