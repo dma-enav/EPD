@@ -145,6 +145,11 @@ public class BottomPanel extends OMComponentPanel implements Runnable, MouseList
             public String getStatusHtml() {
                 return "";
             }
+            
+            @Override
+            public synchronized String getShortStatusText() {
+                return "Status: "+getStatus().toString();
+            }
         };
         
         IStatusComponent status = new IStatusComponent() {
