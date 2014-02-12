@@ -243,22 +243,12 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         // Column 2 widgets
         gridY = 0;
         int h = (int)departurePicker.getPreferredSize().getHeight();
-        departurePicker.setFormats(new SimpleDateFormat("E dd/MM/yyyy"));
-        departurePicker.addPropertyChangeListener("date", this);
-        DateEditor departureEditor = new JSpinner.DateEditor(departureSpinner, "HH:mm");
-        ((DefaultFormatter)departureEditor.getTextField().getFormatter()).setCommitsOnValidEdit(true);
-        departureSpinner.setEditor(departureEditor);
-        departureSpinner.addChangeListener(new SpinnerChangeListener());
+        initDatePicker(departurePicker, departureSpinner);
         routeProps.add(new JLabel("Estimated Time of Departure:"), new GridBagConstraints(2, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets2, 0, 0));
         routeProps.add(fixSize(departurePicker, 120), new GridBagConstraints(3, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets3, 0, 0));
         routeProps.add(fixSize(departureSpinner, 60, h), new GridBagConstraints(4, gridY++, 1, 1, 0.0, 0.0, WEST, NONE, insets4, 0, 0));
         
-        arrivalPicker.setFormats(new SimpleDateFormat("E dd/MM/yyyy"));
-        arrivalPicker.addPropertyChangeListener("date", this);
-        DateEditor arrivalEditor = new JSpinner.DateEditor(arrivalSpinner, "HH:mm");
-        ((DefaultFormatter)arrivalEditor.getTextField().getFormatter()).setCommitsOnValidEdit(true);
-        arrivalSpinner.setEditor(arrivalEditor);
-        arrivalSpinner.addChangeListener(new SpinnerChangeListener());
+        initDatePicker(arrivalPicker, arrivalSpinner);
         routeProps.add(new JLabel("Estimated Time of Arrival:"), new GridBagConstraints(2, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets2, 0, 0));
         routeProps.add(fixSize(arrivalPicker, 120), new GridBagConstraints(3, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets3, 0, 0));
         routeProps.add(fixSize(arrivalSpinner, 60, h), new GridBagConstraints(4, gridY++, 1, 1, 0.0, 0.0, WEST, NONE, insets4, 0, 0));
@@ -436,6 +426,20 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                         !(columnIndex == 4 && rowIndex == 0);
             }   
         };
+    }
+    
+    /**
+     * Configures the given date picker and associated time spinner
+     * @param picker the date picker
+     * @param spinner the time spinner
+     */
+    private void initDatePicker(JXDatePicker picker, JSpinner spinner) {
+        picker.setFormats(new SimpleDateFormat("E dd/MM/yyyy"));
+        picker.addPropertyChangeListener("date", this);
+        DateEditor editor = new JSpinner.DateEditor(spinner, "HH:mm");
+        ((DefaultFormatter)editor.getTextField().getFormatter()).setCommitsOnValidEdit(true);
+        spinner.setEditor(editor);
+        spinner.addChangeListener(new SpinnerChangeListener());
     }
     
     /**
