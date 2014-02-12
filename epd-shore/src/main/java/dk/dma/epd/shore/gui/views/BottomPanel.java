@@ -20,10 +20,14 @@ import com.bbn.openmap.gui.OMComponentPanel;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import dk.dma.epd.common.prototype.gui.StatusLabel;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
@@ -39,12 +43,13 @@ import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 
-public class BottomPanel extends OMComponentPanel implements Runnable {
+public class BottomPanel extends OMComponentPanel implements Runnable, MouseListener {
     
     /**
      * Private fields.
      */
     private static final long serialVersionUID = 1L;
+    private List<IStatusComponent> statusComponents;
     private AisHandler aisHandler;
     private ShoreServices shoreServices;
     private StatusLabel lblAisConnection;
@@ -59,28 +64,34 @@ public class BottomPanel extends OMComponentPanel implements Runnable {
      */
     public BottomPanel() {
         super();
-        
+                
         this.setLayout(new FlowLayout(FlowLayout.RIGHT));
         
+        statusComponents = new ArrayList<IStatusComponent>();
         statusbar = new JToolBar();
         statusbar.setFloatable(false);
+        statusbar.addMouseListener(this);
         
         lblShoreServices = new StatusLabel("Shore Services");
+        lblShoreServices.addMouseListener(this);
         statusbar.add(lblShoreServices);
         
         addSeparator();
         
         lblAisConnection = new StatusLabel("AIS");
+        lblAisConnection.addMouseListener(this);
         statusbar.add(lblAisConnection);
         
         addSeparator();
         
         lblWms = new StatusLabel("WMS");
+        lblWms.addMouseListener(this);
         statusbar.add(lblWms);
         
         addSeparator();
         
         lblMaritimeCloud = new StatusLabel("Maritime Cloud");
+        lblMaritimeCloud.addMouseListener(this);
         statusbar.add(lblMaritimeCloud);
         
         this.add(statusbar, BorderLayout.EAST);
@@ -180,10 +191,14 @@ public class BottomPanel extends OMComponentPanel implements Runnable {
         
         if (obj instanceof AisHandler) {
             this.aisHandler = (AisHandler) obj;
+            this.statusComponents.add(this.aisHandler);
         } else if (obj instanceof ShoreServices) {
             this.shoreServices = (ShoreServices) obj;
+            this.statusComponents.add(this.shoreServices);
         } else if (obj instanceof MaritimeCloudService) {
-            maritimeCloudService = (MaritimeCloudService) obj;
+            this.maritimeCloudService = (MaritimeCloudService) obj;
+            this.statusComponents.add(this.maritimeCloudService);
+
         }
     }
     
@@ -197,4 +212,25 @@ public class BottomPanel extends OMComponentPanel implements Runnable {
             Util.sleep(3000);
         }
     }
+    
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        
+        // show the status dialog.
+        BottomPanelStatusDialog statusDialog = new BottomPanelStatusDialog();
+        statusDialog.updateStatusLabel(statusComponents);
+        statusDialog.setVisible(true);
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {}
+
+    @Override
+    public void mouseReleased(MouseEvent e) {}
+
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+
+    @Override
+    public void mouseExited(MouseEvent e) {}
 }

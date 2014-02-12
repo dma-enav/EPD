@@ -28,13 +28,19 @@ import dk.dma.epd.shore.gui.settingtabs.ShoreMapFramesSettingsPanel;
 
 public class SetupDialogShore extends SetupDialogCommon {
 
+    /**
+     * Private fields.
+     */
     private static final long serialVersionUID = 1L;
-
     private ShoreCloudSettingsPanel shoreSettings;
     private ShoreMapSettingsPanel mapSettings;
     private ShoreAisSettingsPanel aisSettings;
     private ShoreMapFramesSettingsPanel windowsSettings;
 
+    /**
+     * Constructor
+     * @param mainFrame The mainframe.
+     */
     public SetupDialogShore(JFrame mainFrame) {
 
         super(mainFrame, "Setup", JTabbedPane.LEFT);
