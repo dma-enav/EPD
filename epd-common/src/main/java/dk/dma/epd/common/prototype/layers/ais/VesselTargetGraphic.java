@@ -32,19 +32,13 @@ import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 /**
  * Graphic for vessel target
  */
+@SuppressWarnings("serial")
 public class VesselTargetGraphic extends TargetGraphic implements ISelectableGraphic {
-
-    private static final long serialVersionUID = 1L;
-
-    public static final float STROKE_WIDTH = 1.5f;
 
     private VesselTarget vesselTarget;
 
-    // VesselTriangleGraphic
     private VesselTriangleGraphic vesselTriangleGraphic;
-    // VesselOutlineGraphic
     private VesselOutlineGraphic vesselOutlineGraphic;
-    // VesselDotGraphic
     private VesselDotGraphic vesselDotGraphic;
 
     private PastTrackGraphic pastTrackGraphic = new PastTrackGraphic();

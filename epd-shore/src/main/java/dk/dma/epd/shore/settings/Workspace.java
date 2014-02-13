@@ -109,6 +109,7 @@ public class Workspace implements Serializable {
      */
     public void readProperties(Properties props) {
 
+        // Load properties which require a try/catch.
         try {
             Collections.addAll(name, props.getProperty(PREFIX + "name").split("//"));
 
@@ -153,24 +154,26 @@ public class Workspace implements Serializable {
                 scale.add(Float.parseFloat(element));
             }
 
-            double x_pos = PropUtils.doubleFromProperties(props, PREFIX + "toolbar_pos_x", toolbarPosition.getX());
-            double y_pos = PropUtils.doubleFromProperties(props, PREFIX + "toolbar_pos_y", toolbarPosition.getY());
-            toolbarPosition.setLocation(x_pos, y_pos);
-
-            x_pos = PropUtils.doubleFromProperties(props, PREFIX + "notification_pos_x",
-                    notificationAreaPosition.getX());
-            y_pos = PropUtils.doubleFromProperties(props, PREFIX + "notification_pos_y",
-                    notificationAreaPosition.getY());
-            notificationAreaPosition.setLocation(x_pos, y_pos);
-
-            x_pos = PropUtils.doubleFromProperties(props, PREFIX + "status_pos_x", statusPosition.getX());
-            y_pos = PropUtils.doubleFromProperties(props, PREFIX + "status_pos_y", statusPosition.getY());
-            statusPosition.setLocation(x_pos, y_pos);
-
             validWorkspace = true;
+            
         } catch (Exception e) {
-//            System.out.println(e.getMessage());
+//            e.printStackTrace();
         }
+        
+        // Load properties for toolbar, notification frame, and status panel.
+        double x_pos = PropUtils.doubleFromProperties(props, PREFIX + "toolbar_pos_x", toolbarPosition.getX());
+        double y_pos = PropUtils.doubleFromProperties(props, PREFIX + "toolbar_pos_y", toolbarPosition.getY());
+        toolbarPosition.setLocation(x_pos, y_pos);
+        
+        x_pos = PropUtils.doubleFromProperties(props, PREFIX + "notification_pos_x",
+                notificationAreaPosition.getX());
+        y_pos = PropUtils.doubleFromProperties(props, PREFIX + "notification_pos_y",
+                notificationAreaPosition.getY());
+        notificationAreaPosition.setLocation(x_pos, y_pos);
+        
+        x_pos = PropUtils.doubleFromProperties(props, PREFIX + "status_pos_x", statusPosition.getX());
+        y_pos = PropUtils.doubleFromProperties(props, PREFIX + "status_pos_y", statusPosition.getY());
+        statusPosition.setLocation(x_pos, y_pos);
 
     }
 
