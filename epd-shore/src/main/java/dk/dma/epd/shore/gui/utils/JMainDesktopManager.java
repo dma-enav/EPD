@@ -161,37 +161,41 @@ public class JMainDesktopManager extends DefaultDesktopManager {
     /**
      * Resize desktop
      */
-    public void resizeDesktop() {
-        int x = 0;
-        int y = 0;
-        JScrollPane scrollPane = getScrollPane();
-        Insets scrollInsets = getScrollPaneInsets();
-
-        if (scrollPane != null) {
-            JInternalFrame[] allFrames = desktop.getAllFrames();
-            for (int i = 0; i < allFrames.length; i++) {
-                if (allFrames[i].getX() + allFrames[i].getWidth() > x) {
-                    x = allFrames[i].getX() + allFrames[i].getWidth();
-                }
-                if (allFrames[i].getY() + allFrames[i].getHeight() > y) {
-                    y = allFrames[i].getY() + allFrames[i].getHeight();
-                }
+    public void resizeDesktop() {   
+        
+        // Get the scroll pane of the desktop pane.
+        JScrollPane scrollPane = this.getScrollPane();
+        
+        // These booleans will be true if a frame has crossed the desktop pane window.
+        boolean horizontalCrossed = false;
+        boolean verticalCrossed = false;
+        
+        // Check for each frame in the desktop panel if it has been 
+        for (JInternalFrame frame : this.desktop.getAllFrames()) {
+            
+            // Variables for distance between right border and bottom.
+            int frmHorizontalDistanceFromLeft = (int) (frame.getLocation().x+frame.getSize().getWidth());
+            int frmVerticalDistanceFromUpper  = (int) (frame.getLocation().y+frame.getSize().getHeight());
+            
+            // Set boolean if a frame has crossed out from the rigt
+            if ((frame.isVisible()) && frmHorizontalDistanceFromLeft > this.desktop.getSize().getWidth()) {
+                horizontalCrossed = true;
             }
-            Dimension d = scrollPane.getVisibleRect().getSize();
-            if (scrollPane.getBorder() != null) {
-                d.setSize(d.getWidth() - scrollInsets.left - scrollInsets.right, d.getHeight() - scrollInsets.top
-                        - scrollInsets.bottom);
+            
+            // Set boolean if a frame has crossed out from the bottom.
+            if ((frame.isVisible()) && frmVerticalDistanceFromUpper > this.desktop.getSize().getHeight()) {
+                verticalCrossed = true;
             }
-
-            if (x <= d.getWidth()) {
-                x = ((int) d.getWidth()) - 20;
-            }
-            if (y <= d.getHeight()) {
-                y = ((int) d.getHeight()) - 20;
-            }
-            desktop.setAllSize(x, y);
+            
+            // Show scroll bars.
+            this.desktop.setAllSize(frmHorizontalDistanceFromLeft, frmVerticalDistanceFromUpper);
             scrollPane.invalidate();
             scrollPane.validate();
+            
+            // Stop the loop if a frame has crossed out of the desktop pane.
+            if (verticalCrossed || horizontalCrossed) {
+                return;
+            }
         }
     }
 
