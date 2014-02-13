@@ -17,12 +17,17 @@ package dk.dma.epd.common.prototype.gui.views;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Rectangle;
+import java.awt.TrayIcon.MessageType;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
@@ -30,8 +35,11 @@ import javax.swing.SwingConstants;
 
 import com.bbn.openmap.gui.OMComponentPanel;
 
+import dk.dma.epd.common.graphics.GraphicsUtil;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.gui.StatusLabel;
+import dk.dma.epd.common.prototype.gui.notification.PopUpNotification;
 import dk.dma.epd.common.prototype.service.MaritimeCloudServiceCommon;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
@@ -56,6 +64,8 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
     private JToolBar statusToolBar = new JToolBar();
     private JPanel statusIcons = new JPanel();
     
+    private JPanel notificationPanel = new JPanel();
+    
     /**
      * Constructor
      */
@@ -63,12 +73,29 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
         super();
         setLayout(new BorderLayout());
 
+        // Set up notification panel
+        add(notificationPanel, BorderLayout.WEST);
+        
+        JButton btn = new JButton("TEST");
+        notificationPanel.add(btn);
+
+        btn.addActionListener(new ActionListener() {
+            @Override public void actionPerformed(ActionEvent e) {
+                EPD.getInstance().getSystemTray().displayMessage("HELLO", "absdfj<p>jhf", MessageType.ERROR);
+                Rectangle bounds = new Rectangle(100, BottomPanelCommon.this.getLocation().y - 200, 200, 200);
+                PopUpNotification notification = new PopUpNotification();
+                notification.installInLayeredPane(
+                        GraphicsUtil.getTopLevelContainer(notificationPanel),
+                        SwingConstants.SOUTH_WEST,
+                        bounds);
+            }
+        });
+        
+        // Set up status panel
         add(statusIcons, BorderLayout.EAST);
         statusIcons.add(statusToolBar);
         statusToolBar.setFloatable(false);
-        statusToolBar.addMouseListener(this);
-
-        
+        statusToolBar.addMouseListener(this);        
         // Add the status components
         addStatusComponents();
         

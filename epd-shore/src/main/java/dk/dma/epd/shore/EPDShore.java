@@ -43,6 +43,7 @@ import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.Bootstrap;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
@@ -331,6 +332,9 @@ public final class EPDShore extends EPD {
         routeSuggestionHandler.shutdown();
         intendedRouteHandler.shutdown();
 
+        // Stop the system tray
+        systemTray.shutdown();
+        
         // Stop sensors
         stopSensors();
         
@@ -352,6 +356,9 @@ public final class EPDShore extends EPD {
         mainFrame = new MainFrame();
         mainFrame.setVisible(true);
 
+        // Create the system tray
+        systemTray = new SystemTrayCommon();
+        beanHandler.add(systemTray);
     }
 
     /**
