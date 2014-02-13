@@ -36,7 +36,8 @@ import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 public class VesselTargetGraphic extends TargetGraphic implements ISelectableGraphic {
 
     /*
-     * Testing branching... 
+     * Testing branching...
+     * More testing... 
      */
     
     
