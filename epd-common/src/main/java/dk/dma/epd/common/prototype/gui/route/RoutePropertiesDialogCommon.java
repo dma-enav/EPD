@@ -87,7 +87,6 @@ import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.ParseUtils;
 import dk.dma.epd.common.util.TypedValue.Dist;
 import dk.dma.epd.common.util.TypedValue.DistType;
-import dk.dma.epd.common.util.TypedValue.Speed;
 import dk.dma.epd.common.util.TypedValue.SpeedType;
 import dk.dma.epd.common.util.TypedValue.Time;
 import dk.dma.epd.common.util.TypedValue.TimeType;
@@ -363,10 +362,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                 case 12: return Formatter.formatMeters(wp.getOutLeg().getXtdStarboardMeters());
                 case 13: return Formatter.formatMeters(wp.getOutLeg().getXtdPortMeters());
                 case 14: return Formatter.formatMeters(wp.getOutLeg().getSFWidth());
-                case 15: return Formatter.formatTime(
-                        new Dist(DistType.METERS, wp.getOutLeg().getSFLen())
-                            .withSpeed(new Speed(SpeedType.KNOTS, wp.getOutLeg().getSpeed()))
-                                .in(TimeType.MILLISECONDS).longValue());
+                case 15: return Formatter.formatTime(wp.getOutLeg().getSFLenInMilleseconds());
                 default: return null;
                 }
             }
@@ -416,10 +412,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                         wp.getOutLeg().setSFWidth(parseDouble(value.toString()));
                         break;
                     case 15: 
-                        wp.getOutLeg().setSFLen(
-                                new Time(TimeType.MINUTES, parseMinutes(value.toString()))
-                                        .withSpeed(new Speed(SpeedType.KNOTS, wp.getOutLeg().getSpeed()))
-                                        .in(DistType.METERS).longValue());
+                        wp.getOutLeg().setSFLenInMilliseconds(parseTime(value.toString()));
                         break;
                     default:
                     }
@@ -756,20 +749,22 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         }
 
         // Total distance
-        double distanceToTravel = route.getRouteDtg();
+        Dist distanceToTravel = new Dist(DistType.NAUTICAL_MILES, route.getRouteDtg());
         // And we want to get there in milliseconds:
-        long timeToTravel = arrivalDate.getTime() - route.getStarttime().getTime();
+        Time timeToTravel = new Time(TimeType.MILLISECONDS, arrivalDate.getTime() - route.getStarttime().getTime());
         
         // Subtract the distance and time from the locked way points
         for (int i = 0; i < route.getWaypoints().size() - 1; i++) {
             if (locked[i]) {
-                distanceToTravel -= route.getWpRng(i);
-                timeToTravel -= route.getWpTtg(i + 1);
+                distanceToTravel = distanceToTravel
+                        .subtract(new Dist(DistType.NAUTICAL_MILES, route.getWpRng(i)));
+                timeToTravel = timeToTravel
+                        .subtract(new Time(TimeType.MILLISECONDS, route.getWpTtg(i + 1)));
             }
         }
         
         // Ensure the remaining time is actually positive (say, more than a minute)
-        if (timeToTravel < 60 * 1000) {
+        if (timeToTravel.in(TimeType.MINUTES).doubleValue() < 1.0) {
             // Reset arrival to a valid time
             arrivalPicker.setDate(route.getEta());
             arrivalSpinner.setValue(route.getEta());
@@ -779,7 +774,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         }
 
         // So we need to travel how fast?
-        double speed = distanceToTravel / (timeToTravel / 60 / 1000) * 60;
+        double speed = distanceToTravel.inTime(timeToTravel).in(SpeedType.KNOTS).doubleValue();
 
         for (int i = 0; i < route.getWaypoints().size(); i++) {
             if (!locked[i]) {
@@ -850,15 +845,16 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     }
     
     /**
-     * Parses the text, which has the time format hh:mm:ss, into minutes.
+     * Parses the text, which has the time format hh:mm:ss, into milliseconds.
      * @param str the string to parse
-     * @return the minutes
+     * @return the time in milliseconds
      */
-    private static double parseMinutes(String str)  throws Exception {
+    private static long parseTime(String str)  throws Exception {
         String[] parts = str.split(":");
-        return  Double.valueOf(parts[0]) * 60.0 +  
-                Double.valueOf(parts[1]) + 
-                Double.valueOf(parts[2]) / 60.0;
+        return new Time(TimeType.HOURS, Long.valueOf(parts[0]))
+          .add(new Time(TimeType.MINUTES, Long.valueOf(parts[1])))
+          .add(new Time(TimeType.SECONDS, Long.valueOf(parts[2])))
+          .in(TimeType.MILLISECONDS).longValue();
     }
     
     /***************************************************/

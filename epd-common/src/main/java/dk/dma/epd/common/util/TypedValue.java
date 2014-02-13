@@ -15,10 +15,11 @@
  */
 package dk.dma.epd.common.util;
 
+import java.io.Serializable;
 import java.util.Locale;
 
 /**
- * This classes and its sub-classes implements support 
+ * This immutable class and its sub-classes implements support 
  * for converting between and within distance, time and 
  * speed based values.
  * <p>
@@ -34,8 +35,10 @@ import java.util.Locale;
  *                   .in(TimeType.MILLISECONDS).longValue();
  * </pre>
  */
-public abstract class TypedValue<T extends TypedValue.Type> {
+public abstract class TypedValue<T extends TypedValue.Type> implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+    
     double value;
     T type;
 
@@ -75,6 +78,32 @@ public abstract class TypedValue<T extends TypedValue.Type> {
     }
     
     /**
+     * Adds this value to the other and returns the result
+     * @param other the value to add
+     * @return the result
+     */
+    public <TV extends TypedValue<T>> TV add(TV other) {
+        return newInstance(type, value + other.in(type).doubleValue());
+    }
+    
+    /**
+     * Subtracts the other value from this value and returns the result
+     * @param other the value to subtract
+     * @return the result
+     */
+    public <TV extends TypedValue<T>> TV subtract(TV other) {
+        return newInstance(type, value - other.in(type).doubleValue());
+    }
+    
+    /**
+     * Returns a new instance with the given type and value
+     * @param type the value type
+     * @param value the value
+     * @return the new instance
+     */
+    public abstract <TV extends TypedValue<T>> TV newInstance(T type, double value);
+    
+    /**
      * Converts the value from one type to another
      * @param type the type to convert to
      * @return the converted value
@@ -111,7 +140,9 @@ public abstract class TypedValue<T extends TypedValue.Type> {
     /**
      * Base class for all types
      */
-    protected abstract static class Type {
+    protected abstract static class Type implements Serializable {
+        private static final long serialVersionUID = 1L;
+        
         String typeShort;
         String typeLong;
 
@@ -140,6 +171,7 @@ public abstract class TypedValue<T extends TypedValue.Type> {
      * Represents a distance-based type
      */
     public static class DistType extends Type {
+        private static final long serialVersionUID = 1L;
                 
         public static final DistType METERS = new DistType("m", "meters", 1);
         public static final DistType KILOMETERS = new DistType("km", "kilometers", 1000);
@@ -173,6 +205,7 @@ public abstract class TypedValue<T extends TypedValue.Type> {
      * Represents a time-based type
      */
     public static class TimeType extends Type {
+        private static final long serialVersionUID = 1L;
         
         public static final TimeType MILLISECONDS = new TimeType("ms", "milliseconds", 1.0 / 1000.0);
         public static final TimeType SECONDS = new TimeType("s", "seconds", 1);
@@ -206,6 +239,7 @@ public abstract class TypedValue<T extends TypedValue.Type> {
      * Represents a speed-based type
      */
     public static class SpeedType extends Type {
+        private static final long serialVersionUID = 1L;
         
         public static final SpeedType KNOTS = new SpeedType(DistType.NAUTICAL_MILES, TimeType.HOURS);
         public static final SpeedType KMH = new SpeedType(DistType.KILOMETERS, TimeType.HOURS);
@@ -267,6 +301,7 @@ public abstract class TypedValue<T extends TypedValue.Type> {
      * Represents a distance value
      */
     public static class Dist extends TypedValue<DistType> {
+        private static final long serialVersionUID = 1L;
         
         /**
          * Constructor
@@ -278,6 +313,15 @@ public abstract class TypedValue<T extends TypedValue.Type> {
             super(type, value);
         }
 
+        /**
+         * {@inheritDoc}
+         */
+       @Override
+       @SuppressWarnings("unchecked")
+       public Dist newInstance(DistType type, double value) {
+            return new Dist(type, value);
+        }
+        
         /**
          * {@inheritDoc}
          */
@@ -325,6 +369,7 @@ public abstract class TypedValue<T extends TypedValue.Type> {
      * Represents a time value
      */
     public static class Time extends TypedValue<TimeType> {
+        private static final long serialVersionUID = 1L;
         
         /**
          * Constructor
@@ -336,6 +381,15 @@ public abstract class TypedValue<T extends TypedValue.Type> {
             super(type, value);
         }
 
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        @SuppressWarnings("unchecked")
+        public Time newInstance(TimeType type, double value) {
+            return new Time(type, value);
+        }
+        
         /**
          * {@inheritDoc}
          */
@@ -382,6 +436,7 @@ public abstract class TypedValue<T extends TypedValue.Type> {
      * Represents a speed value
      */
     public static class Speed extends TypedValue<SpeedType> {
+        private static final long serialVersionUID = 1L;
         
         /**
          * Constructor
@@ -393,6 +448,15 @@ public abstract class TypedValue<T extends TypedValue.Type> {
             super(type, value);
         }
 
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        @SuppressWarnings("unchecked")
+        public Speed newInstance(SpeedType type, double value) {
+            return new Speed(type, value);
+        }
+        
         /**
          * {@inheritDoc}
          */
