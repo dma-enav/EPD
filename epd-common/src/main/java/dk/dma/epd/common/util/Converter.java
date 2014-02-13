@@ -15,25 +15,23 @@
  */
 package dk.dma.epd.common.util;
 
+import dk.dma.epd.common.util.TypedValue.Dist;
+import dk.dma.epd.common.util.TypedValue.DistType;
+
 /**
  * Class for doing different conversions
  */
 public class Converter {
     
-    private static final int NM_IN_METERS = 1852;
-    private static final double M_IN_NM = 0.868976242;
-
     public static double metersToNm(double meters) {
-        return meters / NM_IN_METERS;
+        return new Dist(DistType.METERS, meters).in(DistType.NAUTICAL_MILES).doubleValue();
     }
     
     public static double nmToMeters(double nm) {
-        return nm * NM_IN_METERS;
+        return new Dist(DistType.NAUTICAL_MILES, nm).in(DistType.METERS).doubleValue();
     }
     
     public static double milesToNM(double m) {
-        return m * M_IN_NM;
+        return new Dist(DistType.MILES, m).in(DistType.NAUTICAL_MILES).doubleValue();
     }
-    
-    
 }

@@ -41,7 +41,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
-import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
@@ -73,7 +73,7 @@ import dk.dma.epd.ship.settings.EPDMapSettings;
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
  */
-public class ChartPanel extends CommonChartPanel implements IPntDataListener,
+public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         MouseWheelListener {
 
     private static final long serialVersionUID = 1L;

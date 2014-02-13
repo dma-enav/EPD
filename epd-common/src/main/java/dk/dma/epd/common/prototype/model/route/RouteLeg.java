@@ -21,6 +21,12 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
+import dk.dma.epd.common.util.TypedValue.Dist;
+import dk.dma.epd.common.util.TypedValue.DistType;
+import dk.dma.epd.common.util.TypedValue.Speed;
+import dk.dma.epd.common.util.TypedValue.SpeedType;
+import dk.dma.epd.common.util.TypedValue.Time;
+import dk.dma.epd.common.util.TypedValue.TimeType;
 
 /**
  * Route leg class
@@ -94,13 +100,27 @@ public class RouteLeg implements Serializable {
         SFLen = sFLen;
     }
 
-    public double getSFLenInMinutes() {
-        double speedInMetersPerMinute = speed * 1852 / 60;
-        return (speedInMetersPerMinute == 0) ? 0 : SFLen / speedInMetersPerMinute;
+    public long getSFLenInMilleseconds() {
+        // Handle speed == 0 (approximately)
+        if (speed < 0.000000001) {
+            return 0;
+        }
+        
+        return new Dist(DistType.METERS, getSFLen())
+            .withSpeed(new Speed(SpeedType.KNOTS, getSpeed()))
+                .in(TimeType.MILLISECONDS).longValue();   
     }
     
-    public void setSFLenInMinutes(double sfLenInMinutes) {
-        SFLen = sfLenInMinutes / 60 * speed * 1852;
+    public void setSFLenInMilliseconds(long lenMs) {
+        // Handle speed == 0 (approximately)
+        if (speed < 0.000000001) {
+            return;
+        }
+        
+        setSFLen(
+            new Time(TimeType.MILLISECONDS, lenMs)
+                .withSpeed(new Speed(SpeedType.KNOTS, getSpeed()))
+                    .in(DistType.METERS).doubleValue());        
     }
     
     /**

@@ -31,7 +31,7 @@ import javax.swing.border.EtchedBorder;
 import dk.dma.epd.common.prototype.event.GoForwardMouseListener;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.route.ButtonLabelCommon;
-import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 
 /**
  * This class is a GUI component of going forward in history.
@@ -46,7 +46,7 @@ public class GoForwardButton extends ButtonLabelCommon {
     \****************/
     private static final long serialVersionUID = 1L;
     private HistoryListener historyListener;
-    private CommonChartPanel chartPanel;
+    private ChartPanelCommon chartPanel;
     private GoBackButton goBackButton;
     
     public static Font defaultFont = new Font("Arial", Font.PLAIN, 11);
@@ -145,7 +145,7 @@ public class GoForwardButton extends ButtonLabelCommon {
      * 
      * @param chartPanel
      */
-    public void setChartPanel(CommonChartPanel chartPanel) {
+    public void setChartPanel(ChartPanelCommon chartPanel) {
         this.chartPanel = chartPanel;
     }
     

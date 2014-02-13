@@ -75,7 +75,7 @@ import org.slf4j.LoggerFactory;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.Route.EtaCalculationType;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
@@ -85,6 +85,11 @@ import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.ParseUtils;
+import dk.dma.epd.common.util.TypedValue.Dist;
+import dk.dma.epd.common.util.TypedValue.DistType;
+import dk.dma.epd.common.util.TypedValue.SpeedType;
+import dk.dma.epd.common.util.TypedValue.Time;
+import dk.dma.epd.common.util.TypedValue.TimeType;
 
 /**
  * Dialog used for viewing and editing route properties
@@ -110,7 +115,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     private static final int DELTA_START_COL_INDEX = 8;
 
     private Window parent;
-    private CommonChartPanel chartPanel;
+    private ChartPanelCommon chartPanel;
     private RouteManagerCommon routeManager;
     protected Route route = new Route();
     protected boolean[] locked;
@@ -150,7 +155,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
      * @param routeManager the route manager
      * @param routeId the route index
      */
-    public RoutePropertiesDialogCommon(Window parent, CommonChartPanel chartPanel, RouteManagerCommon routeManager, int routeId) {
+    public RoutePropertiesDialogCommon(Window parent, ChartPanelCommon chartPanel, RouteManagerCommon routeManager, int routeId) {
         this(parent, 
              chartPanel, 
              routeManager.getRoute(routeId), 
@@ -165,7 +170,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
      * @param route the route
      * @param isActiveRoute whether the route is the active route or not
      */
-    public RoutePropertiesDialogCommon(Window parent, CommonChartPanel chartPanel, Route route, boolean isActiveRoute) {
+    public RoutePropertiesDialogCommon(Window parent, ChartPanelCommon chartPanel, Route route, boolean isActiveRoute) {
         super(parent, "Route Properties", Dialog.ModalityType.APPLICATION_MODAL);
         
         this.parent = parent;
@@ -357,7 +362,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                 case 12: return Formatter.formatMeters(wp.getOutLeg().getXtdStarboardMeters());
                 case 13: return Formatter.formatMeters(wp.getOutLeg().getXtdPortMeters());
                 case 14: return Formatter.formatMeters(wp.getOutLeg().getSFWidth());
-                case 15: return Formatter.formatTime((long)(wp.getOutLeg().getSFLenInMinutes() * 60 * 1000));
+                case 15: return Formatter.formatTime(wp.getOutLeg().getSFLenInMilleseconds());
                 default: return null;
                 }
             }
@@ -407,7 +412,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                         wp.getOutLeg().setSFWidth(parseDouble(value.toString()));
                         break;
                     case 15: 
-                        wp.getOutLeg().setSFLenInMinutes(parseMinutes(value.toString()));
+                        wp.getOutLeg().setSFLenInMilliseconds(parseTime(value.toString()));
                         break;
                     default:
                     }
@@ -744,20 +749,22 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         }
 
         // Total distance
-        double distanceToTravel = route.getRouteDtg();
+        Dist distanceToTravel = new Dist(DistType.NAUTICAL_MILES, route.getRouteDtg());
         // And we want to get there in milliseconds:
-        long timeToTravel = arrivalDate.getTime() - route.getStarttime().getTime();
+        Time timeToTravel = new Time(TimeType.MILLISECONDS, arrivalDate.getTime() - route.getStarttime().getTime());
         
         // Subtract the distance and time from the locked way points
         for (int i = 0; i < route.getWaypoints().size() - 1; i++) {
             if (locked[i]) {
-                distanceToTravel -= route.getWpRng(i);
-                timeToTravel -= route.getWpTtg(i + 1);
+                distanceToTravel = distanceToTravel
+                        .subtract(new Dist(DistType.NAUTICAL_MILES, route.getWpRng(i)));
+                timeToTravel = timeToTravel
+                        .subtract(new Time(TimeType.MILLISECONDS, route.getWpTtg(i + 1)));
             }
         }
         
         // Ensure the remaining time is actually positive (say, more than a minute)
-        if (timeToTravel < 60 * 1000) {
+        if (timeToTravel.in(TimeType.MINUTES).doubleValue() < 1.0) {
             // Reset arrival to a valid time
             arrivalPicker.setDate(route.getEta());
             arrivalSpinner.setValue(route.getEta());
@@ -767,7 +774,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         }
 
         // So we need to travel how fast?
-        double speed = distanceToTravel / (timeToTravel / 60 / 1000) * 60;
+        double speed = distanceToTravel.inTime(timeToTravel).in(SpeedType.KNOTS).doubleValue();
 
         for (int i = 0; i < route.getWaypoints().size(); i++) {
             if (!locked[i]) {
@@ -838,15 +845,16 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     }
     
     /**
-     * Parses the text, which has the time format hh:mm:ss, into minutes.
+     * Parses the text, which has the time format hh:mm:ss, into milliseconds.
      * @param str the string to parse
-     * @return the minutes
+     * @return the time in milliseconds
      */
-    private static double parseMinutes(String str)  throws Exception {
+    private static long parseTime(String str)  throws Exception {
         String[] parts = str.split(":");
-        return  Double.valueOf(parts[0]) * 60.0 +  
-                Double.valueOf(parts[1]) + 
-                Double.valueOf(parts[2]) / 60.0;
+        return new Time(TimeType.HOURS, Long.valueOf(parts[0]))
+          .add(new Time(TimeType.MINUTES, Long.valueOf(parts[1])))
+          .add(new Time(TimeType.SECONDS, Long.valueOf(parts[2])))
+          .in(TimeType.MILLISECONDS).longValue();
     }
     
     /***************************************************/

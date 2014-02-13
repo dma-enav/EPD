@@ -31,7 +31,7 @@ import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.util.PropUtils;
 
-import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 
@@ -69,7 +69,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
     Cursor dragCursor;
 
     private BufferedImage onScreenMap;
-    private CommonChartPanel chartPanel;
+    private ChartPanelCommon chartPanel;
 
     private JMapFrame jMapFrame;
 
@@ -341,13 +341,13 @@ public class DragMouseMode extends AbstractCoordMouseMode {
         }
     }
     
-    public CommonChartPanel findChartPanel(Container parent) {
+    public ChartPanelCommon findChartPanel(Container parent) {
         for (int i=0; i<10; i++) {
             System.out.println("parent = "+parent.getClass());
-            if (parent instanceof CommonChartPanel){
-                chartPanel = (CommonChartPanel)parent;
+            if (parent instanceof ChartPanelCommon){
+                chartPanel = (ChartPanelCommon)parent;
                 
-                return (CommonChartPanel) parent;
+                return (ChartPanelCommon) parent;
             } else {
                 parent = parent.getParent();
             }

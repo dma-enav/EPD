@@ -32,7 +32,7 @@ import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
-import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.service.IIntendedRouteListener;
@@ -53,7 +53,7 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
 
     protected IntendedRouteInfoPanel intendedRouteInfoPanel = new IntendedRouteInfoPanel();
 
-    private CommonChartPanel chartPanel;
+    private ChartPanelCommon chartPanel;
     private AisHandlerCommon aisHandler;
     private IntendedRouteHandlerCommon intendedRouteHandler;
     private OMCircle dummyCircle = new OMCircle();
@@ -238,8 +238,8 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
             intendedRouteHandler.addListener(this);
             // Loads the existing intended routes
             loadIntendedRoutes();
-        } else if (obj instanceof CommonChartPanel) {
-            this.chartPanel = (CommonChartPanel) obj;
+        } else if (obj instanceof ChartPanelCommon) {
+            this.chartPanel = (ChartPanelCommon) obj;
         }
     }
 

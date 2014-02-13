@@ -29,7 +29,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.gui.views.CommonChartPanel;
+import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.layers.common.WpCircle;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
@@ -42,7 +42,7 @@ public class RouteEditLayerCommon extends EPDLayerCommon {
 
     private static final long serialVersionUID = 1L;
     
-    private CommonChartPanel chartPanel;
+    private ChartPanelCommon chartPanel;
     private LinkedList<RouteWaypoint> waypoints;
     private WpCircle wpCircle;
     private OMLine wpLeg;
@@ -101,8 +101,8 @@ public class RouteEditLayerCommon extends EPDLayerCommon {
             routeContainerLayer = (NewRouteContainerLayer) obj;
             waypoints = routeContainerLayer.getWaypoints();
         }
-        if (obj instanceof CommonChartPanel) {
-            chartPanel = (CommonChartPanel) obj;
+        if (obj instanceof ChartPanelCommon) {
+            chartPanel = (ChartPanelCommon) obj;
         }
         if (obj instanceof PanListener) {
             addPanListener((PanListener) obj);
