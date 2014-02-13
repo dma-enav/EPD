@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.EPD;
@@ -64,10 +65,13 @@ public class StatusLabel extends JLabel {
      * Update the status.
      * @param statusComponent The update to update to.
      */
-    public void updateStatus(IStatusComponent statusComponent) {
-        
-        ComponentStatus componentStatus = statusComponent.getStatus();
-        setIcon(imageMap.get(componentStatus.getStatus()));
-        setToolTipText(componentStatus.getShortStatusText());
+    public void updateStatus(final IStatusComponent statusComponent) {
+        SwingUtilities.invokeLater(new Runnable() {            
+            @Override public void run() {
+                ComponentStatus componentStatus = statusComponent.getStatus();
+                setIcon(imageMap.get(componentStatus.getStatus()));
+                setToolTipText(componentStatus.getShortStatusText());
+            }
+        });
     }
 }

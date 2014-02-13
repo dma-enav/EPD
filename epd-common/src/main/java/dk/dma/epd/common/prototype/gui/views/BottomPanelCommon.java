@@ -63,7 +63,6 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
         super();
         setLayout(new BorderLayout());
 
-        
         add(statusIcons, BorderLayout.EAST);
         statusIcons.add(statusToolBar);
         statusToolBar.setFloatable(false);
@@ -75,7 +74,7 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
         
         new Thread(this).start();
     }
-
+    
     /**
      * Adds the status components
      */
@@ -100,12 +99,9 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
      * Adds a separator to the toolbar
      */
     protected void addSeparator() {
-        Component horizontalStrut = Box.createHorizontalStrut(5);
-        JSeparator separator = new JSeparator();
-        separator.setOrientation(SwingConstants.VERTICAL);        
-        statusToolBar.add(horizontalStrut);
-        statusToolBar.add(separator);
-        statusToolBar.add(horizontalStrut);
+        statusToolBar.add(Box.createHorizontalStrut(5));
+        statusToolBar.add( new JSeparator(SwingConstants.VERTICAL));
+        statusToolBar.add(Box.createHorizontalStrut(5));
     }
     
     /**
