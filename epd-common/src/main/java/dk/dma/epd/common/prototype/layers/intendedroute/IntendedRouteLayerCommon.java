@@ -18,6 +18,7 @@ package dk.dma.epd.common.prototype.layers.intendedroute;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.bbn.openmap.event.ProjectionEvent;
@@ -194,13 +195,23 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
         for (IntendedRouteGraphic intendedRouteGraphic : intendedRoutes.values()) {
             intendedRouteGraphic.updateIntendedRoute();
 
+            /**
+             * Temp code to visualize where filters are being applied
+             */
+            for (Iterator<OMGraphic> iterator = intendedRouteGraphic.iterator(); iterator.hasNext();) {
+                OMGraphic omGraphic = (OMGraphic) iterator.next();
+                if (omGraphic instanceof IntendedRouteIntersectionGraphic) {
+                    graphics.remove(omGraphic);
+                }
+            }
+
             // Display icon at intersection
-            // for (int i = 0; i < intendedRouteHandler.getIntersectPositions().size(); i++) {
-            //
-            // System.out.println("Adding graphics");
-            // graphics.add(new IntendedRouteIntersectionGraphic(intendedRouteHandler.getIntersectPositions().get(i)));
-            //
-            // }
+            for (int i = 0; i < intendedRouteHandler.getIntersectPositions().size(); i++) {
+
+                // System.out.println("Adding graphics");
+                graphics.add(new IntendedRouteIntersectionGraphic(intendedRouteHandler.getIntersectPositions().get(i)));
+
+            }
 
         }
         doPrepare();

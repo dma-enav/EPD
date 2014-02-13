@@ -33,36 +33,34 @@ public class Calculator {
      *            Line end position
      * @param point
      *            The point
-     * @return shorest distance in nautical miles           
+     * @return shorest distance in nautical miles
      */
     public static double crossTrackDistance(Position lineStart, Position lineEnd, Position point) {
 
-        double d13 = lineStart.distanceTo(point, CoordinateSystem.GEODETIC);
-        double R = 6371000; // in meters
+        double d13 = lineStart.distanceTo(point, CoordinateSystem.CARTESIAN); //In meters
+        double R = 6371000; // radius of earth in meters
         double brng13 = Math.toRadians(lineStart.geodesicInitialBearingTo(point));
         double brng12 = Math.toRadians(lineStart.geodesicInitialBearingTo(lineEnd));
 
-        double distance = Math.asin( //
-                Math.sin(d13 / R) //
-                        * Math.sin(brng13 - brng12) //
-                ) * R; //
+        double distance = Math.asin(Math.sin(d13 / R) * Math.sin(brng13 - brng12)) * R;
+//        double distance = Math.asin(Math.sin(distAD) * Math.sin(brng13 - brng12));
 
         return Converter.metersToNm(Math.abs(distance));
 
     }
 
     /**
-     * Find the center position between two positions Uses Rhumbline
+     * Find the center position between two positions
      * 
      * @param A
      *            Position A
      * @param B
      *            Position B
      */
-    public static Position findCenterPosition(Position A, Position B) {
+    public static Position findCenterPosition(Position A, Position B, CoordinateSystem system) {
 
         double bearing = A.rhumbLineBearingTo(B);
-        double distance = A.distanceTo(B, CoordinateSystem.CARTESIAN);
+        double distance = A.distanceTo(B, system);
 
         return findPosition(A, bearing, distance / 2);
 
@@ -112,7 +110,7 @@ public class Calculator {
         // Starting point
         // Bearing
         // Distance
-        Ellipsoid reference = Ellipsoid.WGS84;
+        Ellipsoid reference = Ellipsoid.SPHERE;
         double startBearing = bearing;
         double distance = distanceTravelled;
         double[] endBearing = new double[1];

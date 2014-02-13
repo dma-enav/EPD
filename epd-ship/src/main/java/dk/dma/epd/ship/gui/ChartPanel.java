@@ -153,6 +153,8 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         // mapSettings.getCenter(), mapSettings.getScale(), 1000, 1000);
         // map.setProjection(test);
 
+        
+        
         mouseDelegator = new MouseDelegator();
         mapHandler.add(mouseDelegator);
 
