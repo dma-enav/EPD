@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
     private static final Logger LOG = LoggerFactory.getLogger(ChatServiceHandlerCommon.class);
     
     private List<ServiceEndpoint<ChatServiceMessage, Void>> chatServiceList = new ArrayList<>();
+    protected List<IChatServiceListener> listeners = new CopyOnWriteArrayList<>();
     
     /**
      * Constructor
@@ -142,12 +144,48 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
     }
     
     /**
-     * Called upon receiving a new chat message
+     * Called upon receiving a new chat message.
+     * Broadcasts the message to all listeners.
      * 
      * @param senderId the id of the sender
      * @param message the message
      */
     protected void receiveChatMessage(MaritimeId senderId, ChatServiceMessage message) {
-        System.out.println("*** RECEIVED MESSAGE " + message);
+        for (IChatServiceListener listener : listeners) {
+            listener.chatMessageReceived(senderId, message);
+        }
     }
+
+    /**
+     * Adds an chat service listener
+     * 
+     * @param listener the listener to add
+     */
+    public void addListener(IChatServiceListener listener) {
+        listeners.add(listener);
+    }
+
+    /**
+     * Removes an chat service listener
+     * 
+     * @param listener the listener to remove
+     */
+    public void removeListener(IChatServiceListener listener) {
+        listeners.remove(listener);
+    }
+    
+    /**
+     * Interface implemented by chat service listeners
+     */
+    public interface IChatServiceListener {
+        
+        /**
+         * Called upon receiving a new chat message
+         * 
+         * @param senderId the id of the sender
+         * @param message the message
+         */
+        void chatMessageReceived(MaritimeId senderId, ChatServiceMessage message);
+    }
+    
 }
