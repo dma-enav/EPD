@@ -321,15 +321,20 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
                 if (intersectionResultMessage != null) {
                     filteredIntendedRoute.getFilterMessages().add(intersectionResultMessage);
+                }else{
+                    
+                    // Region filter - do not apply if we have an intersection of line segments/
+                    IntendedRouteFilterMessage regionResultMessage = proxmityFilter(route1, route2, i, j, route1Waypoint1,
+                            route1Waypoint2, route2Waypoint1, route2Waypoint2, 1.0);
+
+                    if (regionResultMessage != null) {
+                        filteredIntendedRoute.getFilterMessages().add(regionResultMessage);
+                    }
                 }
 
-                // Region filter
-                IntendedRouteFilterMessage regionResultMessage = regionFilter(route1, route2, i, j, route1Waypoint1,
-                        route1Waypoint2, route2Waypoint1, route2Waypoint2, 1.0);
+                
+                
 
-                if (regionResultMessage != null) {
-                    filteredIntendedRoute.getFilterMessages().add(regionResultMessage);
-                }
 
                 // Add more filters
 
@@ -396,7 +401,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
         return dest;
     }
 
-    private IntendedRouteFilterMessage regionFilter(Route route1, Route route2, int i, int j, Position route1Waypoint1,
+    private IntendedRouteFilterMessage proxmityFilter(Route route1, Route route2, int i, int j, Position route1Waypoint1,
             Position route1Waypoint2, Position route2Waypoint1, Position route2Waypoint2, double epsilon) {
 
         Position A = route1Waypoint1;
@@ -405,6 +410,11 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
         Position C = route2Waypoint1;
         Position D = route2Waypoint2;
 
+        
+        
+        
+        
+        
         Projection projection = mapBean.getProjection();
 
         // projection = new LambertConformal((LatLonPoint) projection.getCenter(), projection.getScale(), projection.getWidth(),
@@ -451,10 +461,10 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
         // intersectPositions.add(Position.create(thirdProjected.getLatitude(), thirdProjected.getLongitude()));
         // intersectPositions.add(Position.create(fouthProjected.getLatitude(), fouthProjected.getLongitude()));
 
-        System.out.println("distanceWP1Segment1 is " + distanceWP1Segment1);
-        System.out.println("distanceWP2Segment1 is " + distanceWP2Segment1);
-        System.out.println("distanceWP1Segment2 is " + distanceWP1Segment2);
-        System.out.println("distanceWP2Segment2 is " + distanceWP2Segment2);
+//        System.out.println("distanceWP1Segment1 is " + distanceWP1Segment1);
+//        System.out.println("distanceWP2Segment1 is " + distanceWP2Segment1);
+//        System.out.println("distanceWP1Segment2 is " + distanceWP1Segment2);
+//        System.out.println("distanceWP2Segment2 is " + distanceWP2Segment2);
 
         double shorestDistanceSegment1 = distanceWP1Segment1;
         double shorestDistanceSegment2 = distanceWP1Segment2;
@@ -480,12 +490,19 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
             // shortestDistancePosition = shortestDistanceSegment2Position;
         }
 
+        System.out.println("The shorest distance is " +  Converter.metersToNm(shortestDistance));
+        
+        
         // intersectPositions.add(shortestDistancePosition);
 
         if (Converter.metersToNm(shortestDistance) <= epsilon) {
 
+            System.out.println("Checking time");
+            
             if (checkDateInterval(shortestDistanceSegment1Position, shortestDistanceSegment2Position, route1, route2, i, j)) {
 
+                System.out.println("Adding shortest distance is " + Converter.metersToNm(shortestDistance) + " at " + shortestDistanceSegment2Position);        
+                
                 intersectPositions.add(shortestDistanceSegment2Position);
 
                 IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(shortestDistanceSegment2Position,
@@ -495,9 +512,12 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
         }
 
-        // intersectPositions.add(Calculator.findCenterPosition(A, B, CoordinateSystem.GEODETIC));
-        // intersectPositions.add(Calculator.findCenterPosition(C, D, CoordinateSystem.GEODETIC));
+//         intersectPositions.add(Calculator.findCenterPosition(A, B, CoordinateSystem.GEODETIC));
+//         intersectPositions.add(Calculator.findCenterPosition(C, D, CoordinateSystem.GEODETIC));
 
+        
+        
+        
         // U = (x3-x1) * (x2 -x1 ) + (y3 - y1) * (y2 - y1)
 
         //
@@ -548,7 +568,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
         // shortestDistance = shorestDistanceSegment2;
         // }
 
-        System.out.println("The shorest distance is " + shortestDistance);
+        
         //
         // if (shortestDistance <= epsilon){
         // IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(null,
@@ -677,10 +697,13 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
         long timeTravelledSegment2 = (long) (distanceTravelledSegment2 / routeSegment2SpeedMiliPrNm);
         DateTime segment2IntersectionTime = routeSegment2StartDate.plus(timeTravelledSegment2);
 
+        
         if (segment2IntersectionTime.isAfter(segment1IntersectionTime.minusHours(2))
                 && segment2IntersectionTime.isBefore(segment1IntersectionTime.plusHours(2))) {
             return true;
         }
+        
+        System.out.println("Time check failed Segment1: " + segment1IntersectionTime + " vs Segment2: "+ segment2IntersectionTime );
         return false;
     }
 

@@ -15,6 +15,9 @@
  */
 package dk.dma.epd.common.util;
 
+import com.bbn.openmap.proj.GreatCircle;
+import com.bbn.openmap.proj.coords.LatLonPoint;
+
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
@@ -37,13 +40,13 @@ public class Calculator {
      */
     public static double crossTrackDistance(Position lineStart, Position lineEnd, Position point) {
 
-        double d13 = lineStart.distanceTo(point, CoordinateSystem.CARTESIAN); //In meters
+        double d13 = lineStart.distanceTo(point, CoordinateSystem.CARTESIAN); // In meters
         double R = 6371000; // radius of earth in meters
         double brng13 = Math.toRadians(lineStart.geodesicInitialBearingTo(point));
         double brng12 = Math.toRadians(lineStart.geodesicInitialBearingTo(lineEnd));
 
         double distance = Math.asin(Math.sin(d13 / R) * Math.sin(brng13 - brng12)) * R;
-//        double distance = Math.asin(Math.sin(distAD) * Math.sin(brng13 - brng12));
+        // double distance = Math.asin(Math.sin(distAD) * Math.sin(brng13 - brng12));
 
         return Converter.metersToNm(Math.abs(distance));
 
@@ -59,11 +62,12 @@ public class Calculator {
      */
     public static Position findCenterPosition(Position A, Position B, CoordinateSystem system) {
 
-        double bearing = A.rhumbLineBearingTo(B);
-        double distance = A.distanceTo(B, system);
+        double distance = A.distanceTo(B, CoordinateSystem.GEODETIC);
+        distance= distance/6371000;
 
-        return findPosition(A, bearing, distance / 2);
-
+        LatLonPoint result = GreatCircle.pointAtDistanceBetweenPoints(Math.toRadians(A.getLatitude()), Math.toRadians(A.getLongitude()), Math.toRadians(B.getLatitude()), Math.toRadians(B.getLongitude()), distance/2, 512);
+        
+        return Position.create(result.getLatitude(), result.getLongitude());
     }
 
     /**
@@ -106,6 +110,16 @@ public class Calculator {
         return seconds * milesPrSecond;
     }
 
+    
+    
+    public static Position findPosition(Position startingLocation, Position endLocation, double distanceTravelled){
+        double distance = distanceTravelled/6371000;
+
+        LatLonPoint result = GreatCircle.pointAtDistanceBetweenPoints(Math.toRadians(startingLocation.getLatitude()), Math.toRadians(startingLocation.getLongitude()), Math.toRadians(endLocation.getLatitude()), Math.toRadians(endLocation.getLongitude()), distance/2, 512);
+        
+        return Position.create(result.getLatitude(), result.getLongitude());
+    }
+    
     public static Position findPosition(Position startingLocation, double bearing, double distanceTravelled) {
         // Starting point
         // Bearing
@@ -115,9 +129,9 @@ public class Calculator {
         double distance = distanceTravelled;
         double[] endBearing = new double[1];
 
-        Position dest = calculateEndingGlobalCoordinates(reference, startingLocation, startBearing, distance, endBearing);
+         Position dest = calculateEndingGlobalCoordinates(reference, startingLocation, startBearing, distance, endBearing);
 
-        return dest;
+         return dest;
     }
 
     public static Position calculateEndingGlobalCoordinates(Ellipsoid ellipsoid, Position start, double startBearing,
