@@ -19,7 +19,6 @@ import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.proj.Proj;
@@ -196,12 +195,9 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
         Proj p = (Proj) projection;
 
         synchronized (this) {
-            if (!chartPanel.getNogoMode()) {
                 point2 = getRatioPoint((MapBean) e.getSource(), point1,
                         e.getPoint());
-            } else {
-                point2 = e.getPoint();
-            }
+
             int dx = Math.abs(point2.x - point1.x);
             int dy = Math.abs(point2.y - point1.y);
 
@@ -218,28 +214,28 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
             }
 
             // Are we in a nogo selection mode?
-            if (chartPanel.getNogoMode()) {
-                // System.out.println("Mouse has been dragged in NoGo mode!");
-                // System.out.println("The selected points are: " +
-                // point1.getX() + " : " + point1.getY());
-
-                Point2D value1 = projection.inverse(point1);
-                Point2D value2 = projection.inverse(point2);
-
-                Point2D[] points = new Point2D[2];
-
-                points[0] = value1;
-                points[1] = value2;
-
-                chartPanel.getNogoDialog().setSelectedArea(points);
-                chartPanel.setNogoMode(false);
-                chartPanel.getNogoDialog().setVisible(true);
-
-                paintRectangle((MapBean) e.getSource(), point1, point2);
-                point2 = null;
-
-                return;
-            }
+//            if (chartPanel.getNogoMode()) {
+//                // System.out.println("Mouse has been dragged in NoGo mode!");
+//                // System.out.println("The selected points are: " +
+//                // point1.getX() + " : " + point1.getY());
+//
+//                Point2D value1 = projection.inverse(point1);
+//                Point2D value2 = projection.inverse(point2);
+//
+//                Point2D[] points = new Point2D[2];
+//
+//                points[0] = value1;
+//                points[1] = value2;
+//
+//                chartPanel.getNogoDialog().setSelectedArea(points);
+//                chartPanel.setNogoMode(false);
+//                chartPanel.getNogoDialog().setVisible(true);
+//
+//                paintRectangle((MapBean) e.getSource(), point1, point2);
+//                point2 = null;
+//
+//                return;
+//            }
 
             // Figure out the new scale
             float newScale;
@@ -368,12 +364,9 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
                 paintRectangle((MapBean) e.getSource(), point1, point2);
                 // paint new rectangle
                 // point2 = e.getPoint();
-                if (!chartPanel.getNogoMode()) {
                     point2 = getRatioPoint((MapBean) e.getSource(), point1,
                             e.getPoint());
-                } else {
-                    point2 = e.getPoint();
-                }
+                
                 paintRectangle((MapBean) e.getSource(), point1, point2);
             }
         }

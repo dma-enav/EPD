@@ -53,6 +53,7 @@ import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.MSIFilterMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
+import dk.dma.epd.ship.event.NoGoMouseMode;
 import dk.dma.epd.ship.event.RouteEditMouseMode;
 import dk.dma.epd.ship.gui.component_panels.ActiveWaypointComponentPanel;
 import dk.dma.epd.ship.gui.nogo.NogoDialog;
@@ -103,12 +104,11 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
 
     private DistanceCircleMouseMode rangeCirclesMouseMode;
 
-    private boolean nogoMode;
-
     private ActiveWaypointComponentPanel activeWaypointPanel;
 
     private NogoDialog nogoDialog;
     private RulerLayer rulerLayer;
+    private NoGoMouseMode noGoMouseMode;
     
     public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel) {
         super();
@@ -161,12 +161,14 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         // Adding NavMouseMode first makes it active.
         // mapHandler.add(new NavMouseMode());
         mapNavMouseMode = new NavigationMouseMode(this);
+        noGoMouseMode = new NoGoMouseMode(this);
         routeEditMouseMode = new RouteEditMouseMode();
         msiFilterMouseMode = new MSIFilterMouseMode();
         dragMouseMode = new DragMouseMode();
         this.rangeCirclesMouseMode = new DistanceCircleMouseMode(false);
 
         mouseDelegator.addMouseMode(mapNavMouseMode);
+        mouseDelegator.addMouseMode(noGoMouseMode);
         mouseDelegator.addMouseMode(routeEditMouseMode);
         mouseDelegator.addMouseMode(msiFilterMouseMode);
         mouseDelegator.addMouseMode(dragMouseMode);
@@ -179,6 +181,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
                 .setPreviousMouseModeModeID(NavigationMouseMode.MODE_ID);
 
         mapHandler.add(mapNavMouseMode);
+        mapHandler.add(noGoMouseMode);
         mapHandler.add(routeEditMouseMode);
         mapHandler.add(msiFilterMouseMode);
         mapHandler.add(activeWaypointPanel);
@@ -520,26 +523,15 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
             // hide ruler layer when not in "distance circles mode"
             this.rulerLayer.setVisible(false);
         }
+        
+        // Request NoGo Area.
+        if (modeID.equals(NoGoMouseMode.MODE_ID)) {
+            System.out.println("Setting NoGo Mouse Mode");
+            
+            // Set the mouse mode.
+            this.mouseDelegator.setActive(this.noGoMouseMode);
+        }
     }
-
-    // public void editMode(boolean enable) {
-    // if (enable) {
-    // mouseDelegator.setActive(routeEditMouseMode);
-    // routeEditLayer.setVisible(true);
-    // routeEditLayer.setEnabled(true);
-    // newRouteContainerLayer.setVisible(true);
-    // } else {
-    // mouseDelegator.setActive(mapNavMouseMode);
-    // routeEditLayer.setVisible(false);
-    // routeEditLayer.doPrepare();
-    // newRouteContainerLayer.setVisible(false);
-    // newRouteContainerLayer.getWaypoints().clear();
-    // newRouteContainerLayer.getRouteGraphics().clear();
-    // newRouteContainerLayer.doPrepare();
-    // EPDShip.getInstance().getMainFrame().getTopPanel().getNewRouteBtn().setSelected(false);
-    // EPDShip.getInstance().getMainFrame().getEeINSMenuBar().getNewRoute().setSelected(false);
-    // }
-    // }
 
     public void autoFollow() {
         // Do auto follow
@@ -687,14 +679,6 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         // float newScale = ProjMath.getScaleFromProjected(pixelminlatlon,
         // pixelmaxlatlon, map.getProjection());
 
-        /*
-         * System.out.println("Scale: " + newScale + "\n");
-         * System.out.println("geomin: " + minlatlon + "\n");
-         * System.out.println("geomax: " + maxlatlon + "\n");
-         * System.out.println("pixelmin: " + pixelminlatlon + "\n");
-         * System.out.println("pixelmax: " + pixelmaxlatlon);
-         */
-
         // map.setScale(newScale*5);
     }
 
@@ -752,15 +736,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
     public int getMaxScale() {
         return maxScale;
     }
-
-    public void setNogoMode(boolean value) {
-        nogoMode = value;
-    }
-
-    public boolean getNogoMode() {
-        return nogoMode;
-    }
-
+    
     public void setNogoDialog(NogoDialog dialog) {
         this.nogoDialog = dialog;
     }
