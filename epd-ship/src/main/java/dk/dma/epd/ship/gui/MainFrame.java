@@ -28,6 +28,7 @@ import com.bbn.openmap.MapHandler;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.IMapFrame;
+import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.ais.AisDialog;
@@ -202,6 +203,9 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         routeSuggestionDialog = new RouteSuggestionDialog(this);
         mapHandler.add(routeSuggestionDialog);
 
+        // Init the chat service dialog
+        chatServiceDialog = new ChatServiceDialog(this);
+        
         // Init the map right click menu
         mapMenu = new MapMenu();
         mapHandler.add(mapMenu);

@@ -82,6 +82,8 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
         btn.addActionListener(new ActionListener() {
             @Override public void actionPerformed(ActionEvent e) {
                 EPD.getInstance().getSystemTray().displayMessage("HELLO", "absdfj<p>jhf", MessageType.ERROR);
+                EPD.getInstance().getMainFrame().getChatServiceDialog().init();
+                
                 Rectangle bounds = new Rectangle(100, BottomPanelCommon.this.getLocation().y - 200, 200, 200);
                 PopUpNotification notification = new PopUpNotification();
                 notification.installInLayeredPane(

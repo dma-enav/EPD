@@ -52,6 +52,7 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensorFactory;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
@@ -85,7 +86,6 @@ public final class EPDShore extends EPD {
     private MainFrame mainFrame;
     private BeanContextServicesSupport beanHandler;
     private NmeaSensor aisSensor;
-    private AisHandler aisHandler;
     private MsiHandler msiHandler;
     private AisReader aisReader;
     private ShoreServicesCommon shoreServicesCommon;
@@ -213,6 +213,10 @@ public final class EPDShore extends EPD {
         routeSuggestionHandler = new RouteSuggestionHandler();
         beanHandler.add(routeSuggestionHandler);
         
+        // Create a chat service handler
+        chatServiceHandler = new ChatServiceHandlerCommon();
+        beanHandler.add(chatServiceHandler);
+        
         // Create MSI handler
         msiHandler = new MsiHandler(getSettings().getEnavSettings());
         beanHandler.add(msiHandler);
@@ -327,10 +331,12 @@ public final class EPDShore extends EPD {
         aisHandler.saveView();
         transponderFrame.shutdown();
 
+        // Maritime cloud services
         maritimeCloudService.stop();
         strategicRouteHandler.shutdown();
         routeSuggestionHandler.shutdown();
         intendedRouteHandler.shutdown();
+        chatServiceHandler.shutdown();
 
         // Stop the system tray
         systemTray.shutdown();
@@ -407,12 +413,12 @@ public final class EPDShore extends EPD {
     }
 
     /**
-     * Return the AisHandlerCommon
-     * 
-     * @return - aisHandler
+     * Returns a reference to the AIS handler
+     * @return a reference to the AIS handler
      */
+    @Override
     public AisHandler getAisHandler() {
-        return aisHandler;
+        return (AisHandler)aisHandler;
     }
 
     /**

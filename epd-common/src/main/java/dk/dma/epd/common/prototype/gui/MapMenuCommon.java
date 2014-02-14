@@ -59,6 +59,7 @@ import dk.dma.epd.common.prototype.gui.menuitems.RouteReverse;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteShowMetocToggle;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteWaypointActivateToggle;
 import dk.dma.epd.common.prototype.gui.menuitems.RouteWaypointDelete;
+import dk.dma.epd.common.prototype.gui.menuitems.SendChatMessage;
 import dk.dma.epd.common.prototype.gui.menuitems.ShowAllIntendedRoutes;
 import dk.dma.epd.common.prototype.gui.menuitems.IntendedRouteToggle;
 import dk.dma.epd.common.prototype.gui.menuitems.MsiAcknowledge;
@@ -109,6 +110,8 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
     protected MsiAcknowledge msiAcknowledge;
 
     protected CenterVesselTarget centerVesselTarget;
+    
+    protected SendChatMessage sendChatMessage;
     
     protected JMenu scaleMenu;
     protected Map<Integer, String> map;
@@ -183,6 +186,9 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
         
         centerVesselTarget = new CenterVesselTarget("Jump to ship");
         centerVesselTarget.addActionListener(this);
+        
+        sendChatMessage = new SendChatMessage();
+        sendChatMessage.addActionListener(this);
         
         // using treemap so scale levels are always sorted
         map = new TreeMap<Integer, String>();

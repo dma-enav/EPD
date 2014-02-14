@@ -272,6 +272,12 @@ public class MapMenu extends MapMenuCommon {
         aisClearPastTrack.setAisLayer(aisLayer);
         aisClearPastTrack.setText("Clear past-track");
         add(aisClearPastTrack);
+        
+        // Send chat message
+        addSeparator();
+        sendChatMessage.setVesselTarget(vesselTarget);
+        sendChatMessage.checkEnabled();
+        add(sendChatMessage);
                 
         generalMenu(false);
         revalidate();

@@ -154,6 +154,20 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
     }
     
     /**
+     * Checks if the lock-position is one of the given values
+     * @param values the values to check
+     * @return if the lock-position is one of the given values
+     */
+    private boolean lockPositionIn(int... values) {
+        for (int val : values) {
+            if (val == lockPosition) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
      * Test method
      */
     public static void main(String[] args) {
@@ -208,21 +222,7 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
             
             setLocation(location.x + dx, location.y + dy);
         }        
-    }
-    
-    /**
-     * Checks if the lock-position is one of the given values
-     * @param values the values to check
-     * @return if the lock-position is one of the given values
-     */
-    private boolean lockPositionIn(int... values) {
-        for (int val : values) {
-            if (val == lockPosition) {
-                return true;
-            }
-        }
-        return false;
-    }
+    }    
 }
 
 /**

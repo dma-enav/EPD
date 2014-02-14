@@ -41,12 +41,12 @@ import javax.swing.event.ListSelectionListener;
 
 import org.apache.commons.lang.StringUtils;
 
+import dk.dma.epd.common.prototype.gui.ComponentFrame;
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.gui.ComponentFrame;
 import dk.dma.epd.ship.layers.msi.MsiLayer;
 import dk.frv.enav.common.xml.msi.MsiLocation;
 import dk.frv.enav.common.xml.msi.MsiMessage;

@@ -35,7 +35,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
-import dk.dma.epd.common.prototype.gui.ComponentFrame;
+import dk.dma.epd.common.prototype.gui.InternalComponentFrame;
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
@@ -47,7 +47,7 @@ import dk.dma.epd.shore.service.StrategicRouteHandler.StrategicRouteListener;
 /**
  * Class for setting up the notification area of the application
  */
-public class NotificationArea extends ComponentFrame implements
+public class NotificationArea extends InternalComponentFrame implements
         IMsiUpdateListener, 
         RouteSuggestionListener,
         StrategicRouteListener {

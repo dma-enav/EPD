@@ -22,10 +22,12 @@ import java.util.Properties;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.Resources;
+import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
+import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
 
@@ -39,6 +41,10 @@ public abstract class EPD implements ISettingsListener {
     protected Settings settings;
     protected SystemTrayCommon systemTray;
     protected Properties properties = new Properties();
+    
+    // Common services
+    protected ChatServiceHandlerCommon chatServiceHandler;
+    protected AisHandlerCommon aisHandler;
     
     /**
      * Constructor
@@ -156,6 +162,22 @@ public abstract class EPD implements ISettingsListener {
      */
     public SystemTrayCommon getSystemTray() {
         return systemTray;
+    }
+
+    /**
+     * Returns a reference to the chat service
+     * @return a reference to the chat service
+     */
+    public ChatServiceHandlerCommon getChatServiceHandler() {
+        return chatServiceHandler;
+    }
+
+    /**
+     * Returns a reference to the AIS handler
+     * @return a reference to the AIS handler
+     */
+    public AisHandlerCommon getAisHandler() {
+        return aisHandler;
     }
     
     /**

@@ -89,7 +89,7 @@ public class SystemTrayCommon extends MapHandlerChild {
      * @return if the system tray is supported or not
      */
     public boolean isSupported() {
-        return (tray != null);
+        return tray != null;
     }
 
     /**

@@ -51,9 +51,9 @@ import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget.AisClass;
+import dk.dma.epd.common.prototype.gui.ComponentFrame;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.ais.AisHandler;
-import dk.dma.epd.ship.gui.ComponentFrame;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 
 /**

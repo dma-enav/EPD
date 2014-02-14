@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 
 
 /**
@@ -42,6 +43,9 @@ public abstract class MainFrameCommon extends JFrame {
     private static final Logger LOG = LoggerFactory.getLogger(MainFrameCommon.class);
 
     protected JPanel glassPanel;
+    
+    // Common dialogs
+    protected ChatServiceDialog chatServiceDialog;
         
     /**
      * Constructor
@@ -95,4 +99,13 @@ public abstract class MainFrameCommon extends JFrame {
     public JPanel getGlassPanel() {
         return glassPanel;
     }    
+    
+    /**
+     * Returns the chat service dialog
+     * @return the chat service dialog
+     * @return
+     */
+    public ChatServiceDialog getChatServiceDialog() {
+        return chatServiceDialog;
+    }
 }

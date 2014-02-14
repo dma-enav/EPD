@@ -49,6 +49,7 @@ import com.bbn.openmap.PropertyConsumer;
 import com.bbn.openmap.gui.WindowSupport;
 
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
@@ -336,6 +337,17 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
                 msiHandler.notifyUpdate();
             }
         });
+
+        // Add a "Send message" menu item
+        tools.add(new JSeparator());
+        JMenuItem chatMenuItem = new JMenuItem("Send message...");
+        chatMenuItem.addActionListener(new ActionListener() {            
+            @Override public void actionPerformed(ActionEvent e) {
+                EPD.getInstance().getMainFrame().getChatServiceDialog().init();
+            }
+        });
+        tools.add(chatMenuItem);
+        
 
         /*****************************************/
         /** Layouts menu                        **/

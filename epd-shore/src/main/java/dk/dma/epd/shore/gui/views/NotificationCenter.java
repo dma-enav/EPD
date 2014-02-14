@@ -44,7 +44,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import dk.dma.epd.common.prototype.gui.ComponentFrame;
+import dk.dma.epd.common.prototype.gui.InternalComponentFrame;
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
@@ -62,7 +62,7 @@ import dk.dma.epd.shore.service.StrategicRouteHandler.StrategicRouteListener;
 import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
-public class NotificationCenter extends ComponentFrame implements
+public class NotificationCenter extends InternalComponentFrame implements
         ListSelectionListener, 
         ActionListener, 
         IMsiUpdateListener,

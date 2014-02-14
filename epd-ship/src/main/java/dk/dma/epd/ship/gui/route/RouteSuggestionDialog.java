@@ -36,6 +36,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.gui.ComponentFrame;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
@@ -43,7 +44,6 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.gui.ChartPanel;
-import dk.dma.epd.ship.gui.ComponentFrame;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.SuggestedRoute;

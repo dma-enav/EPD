@@ -59,6 +59,7 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaUdpSensor;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.sensor.rpnt.MultiSourcePntHandler;
+import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.settings.SensorSettings.PntSourceSetting;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
@@ -99,7 +100,6 @@ public final class EPDShip extends EPD {
     private NmeaSensor msPntSensor;
     private PntHandler pntHandler;
     private MultiSourcePntHandler msPntHandler;
-    private AisHandler aisHandler;
     private OwnShipHandler ownShipHandler;
     private RiskHandler riskHandler;
     private RouteManager routeManager;
@@ -240,6 +240,10 @@ public final class EPDShip extends EPD {
         // Create the route suggestion handler
         routeSuggestionHandler = new RouteSuggestionHandler();
         mapHandler.add(routeSuggestionHandler);
+        
+        // Create a chat service handler
+        chatServiceHandler = new ChatServiceHandlerCommon();
+        mapHandler.add(chatServiceHandler);
         
         // Create voyage event dispatcher
         voyageEventDispatcher = new VoyageEventDispatcher();
@@ -681,6 +685,7 @@ public final class EPDShip extends EPD {
         strategicRouteHandler.shutdown();
         routeSuggestionHandler.shutdown();
         intendedRouteHandler.shutdown();
+        chatServiceHandler.shutdown();
 
         // Stop the system tray
         systemTray.shutdown();
@@ -748,8 +753,13 @@ public final class EPDShip extends EPD {
         return getPntHandler().getCurrentData().getPosition();
     }
     
+    /**
+     * Returns a reference to the AIS handler
+     * @return a reference to the AIS handler
+     */
+    @Override
     public AisHandler getAisHandler() {
-        return aisHandler;
+        return (AisHandler)aisHandler;
     }
 
     public OwnShipHandler getOwnShipHandler() {
