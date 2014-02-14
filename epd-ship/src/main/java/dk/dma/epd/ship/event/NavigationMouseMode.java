@@ -45,7 +45,7 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
     protected Point point1, point2;
     protected boolean autoZoom;
 
-    private boolean mouseDragged;
+//    private boolean mouseDragged;
     boolean layerMouseDrag;
     private int maxScale;
     private ChartPanel chartPanel;
@@ -191,7 +191,7 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
                 return;
             }
             
-            mouseDragged = false;
+//            mouseDragged = false;
             layerMouseDrag = false;
             
             MapBean map = (MapBean) obj;
@@ -324,7 +324,7 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
                 if (!javax.swing.SwingUtilities.isLeftMouseButton(e)) {
                     return;
                 }
-                mouseDragged = true;
+//                mouseDragged = true;
 
                 if (!autoZoom) {
                     return;
