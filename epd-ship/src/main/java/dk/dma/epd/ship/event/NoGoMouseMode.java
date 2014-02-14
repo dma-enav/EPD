@@ -163,9 +163,6 @@ public class NoGoMouseMode extends AbstractCoordMouseMode {
             
             paintRectangle(map, this.pressedPoint, this.draggedPoint);
             this.draggedPoint = null;
-
-            // Set the mouse mode back to navigation.
-            this.chartPanel.setMouseMode(NavigationMouseMode.MODE_ID);
         }
     }
     

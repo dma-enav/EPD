@@ -42,6 +42,7 @@ import javax.swing.event.ChangeListener;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.event.NoGoMouseMode;
 import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.MainFrame;
@@ -169,9 +170,6 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
         spinnerTimeEnd.setModel(new SpinnerDateModel(date, null, date48hour, Calendar.HOUR));
         spinnerTimeEnd.setBounds(10, 64, 98, 20);
 
-        // spinnerTimeStart.setEditor(new JSpinner.DateEditor(spinnerTimeStart,
-        // "HH-mm - dd:MM"));
-
         panel_1.add(spinnerTimeStart);
         panel_1.add(spinnerTimeEnd);
 
@@ -292,6 +290,9 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
                 nwPtlbl.setText("You must select an area");
             }
 
+            // Set the mouse mode back to navigation.
+            this.chartPanel.setMouseMode(NavigationMouseMode.MODE_ID);
+
         }
         if (e.getSource() == cancelButton) {
             // Cancel the request
@@ -300,6 +301,7 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
         if (e.getSource() == btnSelectArea) {
             // Make a selection on the chartmap
             this.setVisible(false);
+            
             chartPanel.setNogoDialog(this);
             chartPanel.setMouseMode(NoGoMouseMode.MODE_ID);
         }

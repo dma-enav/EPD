@@ -453,6 +453,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
      *            DistanceCircleMouseMode.MODE_ID).
      */
     public void setMouseMode(String modeID) {
+        
         // Switching to RouteEditMouseMode
         if (modeID.equals(RouteEditMouseMode.MODE_ID)) {
             mouseDelegator.setActive(routeEditMouseMode);
@@ -530,7 +531,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
             
             // Set the mouse mode.
             this.mouseDelegator.setActive(this.noGoMouseMode);
-        }
+        }     
     }
 
     public void autoFollow() {

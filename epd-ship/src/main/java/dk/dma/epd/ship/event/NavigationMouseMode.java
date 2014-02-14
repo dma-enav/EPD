@@ -20,6 +20,8 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 
+import javax.swing.SwingUtilities;
+
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.Projection;
@@ -173,118 +175,87 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
      */
     @Override
     public void mouseReleased(MouseEvent e) {
-        Object obj = e.getSource();
-
-        if (layerMouseDrag && obj instanceof MapBean) {
-            mouseSupport.fireMapMouseReleased(e);
-        }
-
-        if (!(obj instanceof MapBean) || !autoZoom || point1 == null
-                || point2 == null) {
-            if (clickTimer.isIntervalExceeded() && !layerMouseDrag) {
+        
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            Object obj = e.getSource();
+            
+            if (layerMouseDrag && obj instanceof MapBean) {
                 mouseSupport.fireMapMouseReleased(e);
             }
-            return;
-        }
-
-        mouseDragged = false;
-        layerMouseDrag = false;
-
-        MapBean map = (MapBean) obj;
-        Projection projection = map.getProjection();
-        Proj p = (Proj) projection;
-
-        synchronized (this) {
-                point2 = getRatioPoint((MapBean) e.getSource(), point1,
-                        e.getPoint());
-
-            int dx = Math.abs(point2.x - point1.x);
-            int dy = Math.abs(point2.y - point1.y);
-
-            // Don't bother redrawing if the rectangle is too small
-            if (dx < 10 || dy < 10) {
-                // clean up the rectangle, since point2 has the old
-                // value.
-                paintRectangle(map, point1, point2);
-
-                point1 = null;
-                point2 = null;
-
+            
+            if (!(obj instanceof MapBean) || !autoZoom || point1 == null
+                    || point2 == null) {
+                if (clickTimer.isIntervalExceeded() && !layerMouseDrag) {
+                    mouseSupport.fireMapMouseReleased(e);
+                }
                 return;
             }
+            
+            mouseDragged = false;
+            layerMouseDrag = false;
+            
+            MapBean map = (MapBean) obj;
+            Projection projection = map.getProjection();
+            Proj p = (Proj) projection;
+            
+            synchronized (this) {
+                point2 = getRatioPoint((MapBean) e.getSource(), point1,
+                        e.getPoint());
+                
+                int dx = Math.abs(point2.x - point1.x);
+                int dy = Math.abs(point2.y - point1.y);
+                
+                // Don't bother redrawing if the rectangle is too small
+                if (dx < 10 || dy < 10) {
+                    // clean up the rectangle, since point2 has the old
+                    // value.
+                    paintRectangle(map, point1, point2);
+                    
+                    point1 = null;
+                    point2 = null;
+                    
+                    return;
+                }
+                
+                // Figure out the new scale
+                float newScale;
+                if (point1.x < point2.x) {
+                    newScale = com.bbn.openmap.proj.ProjMath.getScale(point1,
+                            point2, projection);
+                } else {
+                    newScale = com.bbn.openmap.proj.ProjMath.getScale(point2,
+                            point1, projection);
+                }
+                
+                // Figure out the center of the rectangle
+                int centerx = Math.min(point1.x, point2.x) + dx / 2;
+                int centery = Math.min(point1.y, point2.y) + dy / 2;
+                LatLonPoint center = projection.inverse(centerx, centery);
 
-            // Are we in a nogo selection mode?
-//            if (chartPanel.getNogoMode()) {
-//                // System.out.println("Mouse has been dragged in NoGo mode!");
-//                // System.out.println("The selected points are: " +
-//                // point1.getX() + " : " + point1.getY());
-//
-//                Point2D value1 = projection.inverse(point1);
-//                Point2D value2 = projection.inverse(point2);
-//
-//                Point2D[] points = new Point2D[2];
-//
-//                points[0] = value1;
-//                points[1] = value2;
-//
-//                chartPanel.getNogoDialog().setSelectedArea(points);
-//                chartPanel.setNogoMode(false);
-//                chartPanel.getNogoDialog().setVisible(true);
-//
-//                paintRectangle((MapBean) e.getSource(), point1, point2);
-//                point2 = null;
-//
-//                return;
-//            }
-
-            // Figure out the new scale
-            float newScale;
-            if (point1.x < point2.x) {
-                newScale = com.bbn.openmap.proj.ProjMath.getScale(point1,
-                        point2, projection);
-            } else {
-                newScale = com.bbn.openmap.proj.ProjMath.getScale(point2,
-                        point1, projection);
+                if (newScale < maxScale) {
+                    newScale = maxScale;
+                }
+                
+                // on the repaint.
+                point1 = null;
+                point2 = null;
+                
+                
+                // Save the scaling to history.
+                // ----------------------------
+                
+                EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().setShouldSave(true);
+                EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().saveToHistoryBeforeMoving();
+                
+                // Move to the new view.
+                p.setScale(newScale);
+                p.setCenter(center);
+                map.setProjection(p);
+                chartPanel.manualProjChange();
+                
+                // Toggle buttons for navigation.
+            
             }
-
-            // Figure out the center of the rectangle
-            int centerx = Math.min(point1.x, point2.x) + dx / 2;
-            int centery = Math.min(point1.y, point2.y) + dy / 2;
-            LatLonPoint center = projection.inverse(centerx, centery);
-
-            // Fire events on main map to change view to match rect1
-            // Debug.output("point1: " +point1);
-            // Debug.output("point2: " +point2);
-            // Debug.output("Centerx: " +centerx +
-            // " Centery: " + centery);
-            // Debug.output("New Scale: " + newScale);
-            // Debug.output("New Center: " +center);
-
-            // Set the parameters of the projection and then set
-            // the projection of the map. This way we save having
-            // the MapBean fire two ProjectionEvents.
-            if (newScale < maxScale) {
-                newScale = maxScale;
-            }
-            
-            // on the repaint.
-            point1 = null;
-            point2 = null;
-            
-            
-            // Save the scaling to history.
-            // ----------------------------
-            
-            EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().setShouldSave(true);
-            EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().saveToHistoryBeforeMoving();
-            
-            // Move to the new view.
-            p.setScale(newScale);
-            p.setCenter(center);
-            map.setProjection(p);
-            chartPanel.manualProjChange();
-            
-            // Toggle buttons for navigation.
         }
     }
 
@@ -346,9 +317,9 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
     public void mouseDragged(MouseEvent e) {
         if (e.getSource() instanceof MapBean) {
             super.mouseDragged(e);
-            if (!mouseDragged) {
-                layerMouseDrag = mouseSupport.fireMapMouseDragged(e);
-            }
+//            if (!mouseDragged) {
+//                layerMouseDrag = mouseSupport.fireMapMouseDragged(e);
+//            }
             if (!layerMouseDrag) {
                 if (!javax.swing.SwingUtilities.isLeftMouseButton(e)) {
                     return;
@@ -368,6 +339,7 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
                             e.getPoint());
                 
                 paintRectangle((MapBean) e.getSource(), point1, point2);
+                
             }
         }
     }
