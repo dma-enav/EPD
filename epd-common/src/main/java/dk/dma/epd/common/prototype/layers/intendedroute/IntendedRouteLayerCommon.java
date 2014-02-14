@@ -18,13 +18,16 @@ package dk.dma.epd.common.prototype.layers.intendedroute;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
+import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.EPD;
@@ -194,24 +197,37 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
     protected void timerAction() {
         for (IntendedRouteGraphic intendedRouteGraphic : intendedRoutes.values()) {
             intendedRouteGraphic.updateIntendedRoute();
-
-            /**
-             * Temp code to visualize where filters are being applied
-             */
-            for (Iterator<OMGraphic> iterator = intendedRouteGraphic.iterator(); iterator.hasNext();) {
-                OMGraphic omGraphic = (OMGraphic) iterator.next();
-                if (omGraphic instanceof IntendedRouteIntersectionGraphic) {
-                    graphics.remove(omGraphic);
-                }
+        }
+        
+        /**
+         * Temp code to visualize where filters are being applied
+         */
+        
+        
+        for (int i = graphics.size()-1; i >= 0 ; i--) {
+            if (graphics.get(i) instanceof IntendedRouteIntersectionGraphic) {
+                System.out.println("Removing graphics");
+                graphics.remove(i);
             }
+               
+        }
+        
+//        OMGraphicList graphicsClone = (OMGraphicList) graphics.clone();
+//        for (Iterator<OMGraphic> iterator = graphicsClone.iterator(); iterator.hasNext();) {
+//            OMGraphic omGraphic = (OMGraphic) iterator.next();
+//            
+//            if (omGraphic instanceof IntendedRouteIntersectionGraphic) {
+//                System.out.println("Removing graphics");
+//                graphics.remove(omGraphic);
+//            }else{
+//                System.out.println("Wrong type: " + omGraphic.getClass());
+//            }
+//        }
 
-            // Display icon at intersection
-            for (int i = 0; i < intendedRouteHandler.getIntersectPositions().size(); i++) {
-
-                // System.out.println("Adding graphics");
-                graphics.add(new IntendedRouteIntersectionGraphic(intendedRouteHandler.getIntersectPositions().get(i)));
-
-            }
+        // Display icon at intersection
+        for (int i = 0; i < intendedRouteHandler.getIntersectPositions().size(); i++) {
+            // System.out.println("Adding graphics");
+            graphics.add(new IntendedRouteIntersectionGraphic(intendedRouteHandler.getIntersectPositions().get(i)));
 
         }
         doPrepare();

@@ -41,6 +41,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
@@ -291,6 +292,8 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
      */
     protected FilteredIntendedRoute compareRoutes(Route route1, Route route2) {
 
+        intersectPositions.clear();
+        
         System.out.println("Comparing routes");
 
         // The returned FilteredIntendedRoute is connected to route2
@@ -410,6 +413,16 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
         Position C = route2Waypoint1;
         Position D = route2Waypoint2;
 
+        
+        
+        //If all headins are RL use first method
+        //Otherwise us GC method
+        //If they are different - use hybrid
+        if (route1.getWaypoints().get(i).getOutLeg().getHeading() == Heading.RL){
+            
+        }
+        
+        
         
         
         
