@@ -116,7 +116,7 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
 
             double hdgR = Math.toRadians(trueHeading);
 
-            vessel.update(lat, lon, OMGraphicConstants.DECIMAL_DEGREES, hdgR);
+            vessel.updateGraphic(this.vesselTarget, mapScale);
             heading.setLocation(lat, lon, OMGraphicConstants.DECIMAL_DEGREES, hdgR);
             if (noHeading) {
                 heading.setVisible(false);

@@ -20,14 +20,17 @@ import java.awt.Color;
 import java.awt.Paint;
 import java.awt.Stroke;
 
-import com.bbn.openmap.omGraphics.OMGraphicList;
+import com.bbn.openmap.omGraphics.OMGraphicConstants;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.RotationalPoly;
+import dk.dma.epd.common.prototype.ais.VesselPositionData;
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 
 /**
  * Graphic for vessel target shown as triangle
  */
-public class VesselTargetTriangle extends OMGraphicList {
+public class VesselTargetTriangle extends VesselGraphic {
     private static final long serialVersionUID = 1L;
 
     private RotationalPoly vessel;
@@ -35,19 +38,33 @@ public class VesselTargetTriangle extends OMGraphicList {
     private Stroke stroke = new BasicStroke(2.0f);
 
     public VesselTargetTriangle() {
+        super();
         int[] vesselX = { 0, 5, -5, 0 };
         int[] vesselY = { -10, 5, 5, -10 };
-        vessel = new RotationalPoly(vesselX, vesselY, stroke, paint);
-        add(vessel);
-        this.setVague(true);
-    }
-
-    public void update(double lat, double lon, int units, double heading) {
-        vessel.setLocation(lat, lon, units, heading);
+        this.vessel = new RotationalPoly(vesselX, vesselY, stroke, paint);
+        this.add(vessel);
     }
 
     @Override
     public void setLinePaint(Paint paint) {
         vessel.setLinePaint(paint);
+    }
+
+    @Override
+    public void updateGraphic(VesselTarget vesselTarget, float mapScale) {
+        VesselPositionData posData = vesselTarget.getPositionData();
+        if(posData == null) {
+            return;
+        }
+        Position pos = posData.getPos();
+        if(pos == null) {
+            return;
+        }
+        float trueHeading = posData.getTrueHeading();
+        if (trueHeading == 511f) {
+            trueHeading = vesselTarget.getPositionData().getCog();
+        }
+        double hdgR = Math.toRadians(trueHeading);
+        vessel.setLocation(pos.getLatitude(), pos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, hdgR);
     }
 }
