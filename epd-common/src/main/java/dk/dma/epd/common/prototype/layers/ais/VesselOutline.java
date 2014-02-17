@@ -40,30 +40,17 @@ public class VesselOutline extends VesselGraphic {
     private OMPoly shipOutline;
     
     /**
-     * Color to use for the vessel outline.
-     */
-    private Color lineColor;
-    
-    /**
-     * Stroke used to paint the vessel outline.
-     */
-    private BasicStroke lineStroke;
-    
-    /**
-     * Thickness of the line used for the vessel outline.
-     */
-    private float lineThickness = 1.0f;
-    
-    /**
      * Creates a new {@code VesselOutline} graphic.
      * @param lineColor Color of the stroke used for the vessel outline.
      * @param lineThickness Thickness of the stroke used for the vessel outline.
      */
     public VesselOutline(Color lineColor, float lineThickness) {
         super();
-        this.lineColor = lineColor;
-        this.lineThickness = lineThickness;
-        this.lineStroke = new BasicStroke(this.lineThickness);
+        this.setLinePaint(lineColor);
+        this.setStroke(new BasicStroke(lineThickness));
+        // Fill the polygon with an invisible color - helps the AisLayer to keep showing the infopanel,
+        // when mouse is hovering the outline of the vessel.
+        this.setFillPaint(new Color(0, 0, 0, 1));
     }
     
     /**
@@ -151,11 +138,6 @@ public class VesselOutline extends VesselGraphic {
         this.remove(this.shipOutline);
         // create and add new shape
         this.shipOutline = new OMPoly(shipCorners, OMGraphic.DECIMAL_DEGREES, OMGraphic.LINETYPE_RHUMB);
-        // Fill the polygon with an invisible color - helps the AisLayer to keep showing the infopanel,
-        // when mouse is hovering the outline of the vessel.
-        this.shipOutline.setFillPaint(new Color(0, 0, 0, 1));
-        this.shipOutline.setStroke(this.lineStroke);
-        this.shipOutline.setLinePaint(this.lineColor);
         this.add(this.shipOutline);
     }
     
