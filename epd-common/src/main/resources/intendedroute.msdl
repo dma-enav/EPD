@@ -23,8 +23,8 @@ enum HeadingType {
 service IntendedRoute {
    brodcast IntendedRouteBroadcast {
         required int32 activeWpIndex = 1;
-	    required DateTime[] plannedEtas = 2;
-	    required Waypoint[] waypoints = 3;
+	required DateTime[] plannedEtas = 2;
+	required Waypoint[] waypoints = 3;
    } = 1;
 } 
 	// Broadcast vs addressed?
