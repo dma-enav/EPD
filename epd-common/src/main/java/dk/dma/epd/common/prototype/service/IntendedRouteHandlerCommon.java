@@ -326,11 +326,11 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
                 } else {
 
                     // Region filter - do not apply if we have an intersection of line segments/
-                    IntendedRouteFilterMessage regionResultMessage = proxmityFilter(route1, route2, i - 1, j - 1, route1Waypoint1,
-                            route1Waypoint2, route2Waypoint1, route2Waypoint2, 1.0);
+                    List<IntendedRouteFilterMessage> regionResultMessage = proxmityFilter(route1, route2, i - 1, j - 1,
+                            route1Waypoint1, route1Waypoint2, route2Waypoint1, route2Waypoint2, 1.0);
 
-                    if (regionResultMessage != null) {
-                        filteredIntendedRoute.getFilterMessages().add(regionResultMessage);
+                    if (regionResultMessage.size() > 0) {
+                        filteredIntendedRoute.getFilterMessages().addAll(regionResultMessage);
                     }
                 }
 
@@ -399,8 +399,10 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
         return dest;
     }
 
-    private IntendedRouteFilterMessage proximityFilterRhumbLine(Route route1, Route route2, int i, int j, Position A, Position B,
-            Position C, Position D, double epsilon) {
+    private List<IntendedRouteFilterMessage> proximityFilterRhumbLine(Route route1, Route route2, int i, int j, Position A,
+            Position B, Position C, Position D, double epsilon) {
+
+        List<IntendedRouteFilterMessage> messageList = new ArrayList<>();
 
         Projection projection = mapBean.getProjection();
 
@@ -494,26 +496,43 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
                 IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(shortestDistanceSegment2Position,
                         "Route Segments proximity warning", j - 1, j);
-                return message;
+                messageList.add(message);
             }
 
         }
-        return null;
+        return messageList;
 
     }
 
-    private IntendedRouteFilterMessage proximityFilterGreatCircle(Route route1, Route route2, int i, int j, Position A, Position B,
-            Position C, Position D, double epsilon) {
+    private double determineSegmentSize(double distance) {
 
+        double lineSegmentSize;
         int iterations = 512;
+
+        // If the segment is larger than 300 nautical miles
+        if (distance / 1000 > 555.6) {
+            lineSegmentSize = distance / iterations;
+            System.out.println("Split into iterations " + distance);
+        } else {
+            // Line segment of 1 nautical mile
+            lineSegmentSize = 1852;
+            System.out.println("Set size");
+        }
+
+        return lineSegmentSize;
+    }
+
+    private List<IntendedRouteFilterMessage> proximityFilterGreatCircle(Route route1, Route route2, int i, int j, Position A,
+            Position B, Position C, Position D, double epsilon) {
+
+        List<IntendedRouteFilterMessage> proximityFilterMessages = new ArrayList();
+
+        // int iterations = 512;
 
         // Get x points from GC between A and B
         double distance = A.distanceTo(B, CoordinateSystem.GEODETIC);
 
-        // distance= distance/iterations/6371000;
-
-        double lineSegmentSize = distance / iterations;
-//        double lineSegmentSize = 1000;
+        double lineSegmentSize = determineSegmentSize(distance);
         double segmentAccumulated = 0;
 
         List<Position> segment1Positions = new ArrayList<Position>();
@@ -528,28 +547,23 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
             if (result != null) {
                 segment1Positions.add(Position.create(result.getLatitude(), result.getLongitude()));
 
-                intersectPositions.add(Position.create(result.getLatitude(), result.getLongitude()));
+                // intersectPositions.add(Position.create(result.getLatitude(), result.getLongitude()));
 
-            } else {
-                // Add the last waypoint
-                segment1Positions.add(B);
-                intersectPositions.add(B);
             }
 
             segmentAccumulated = segmentAccumulated + lineSegmentSize;
 
         }
+        // Add the last waypoint
+        segment1Positions.add(B);
+        // intersectPositions.add(B);
 
         System.out.println("Done with segment1, Elapsed miliseconds: " + (System.currentTimeMillis() - currentTime));
 
         // Get x points from GC between C and D
 
         distance = C.distanceTo(D, CoordinateSystem.GEODETIC);
-
-        // distance= distance/iterations/6371000;
-
-        lineSegmentSize = distance / iterations;
-//        lineSegmentSize = 1000;
+        lineSegmentSize = determineSegmentSize(distance);
         segmentAccumulated = 0;
 
         List<Position> segment2Positions = new ArrayList<Position>();
@@ -564,17 +578,16 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
             if (result != null) {
                 segment2Positions.add(Position.create(result.getLatitude(), result.getLongitude()));
 
-                intersectPositions.add(Position.create(result.getLatitude(), result.getLongitude()));
+                // intersectPositions.add(Position.create(result.getLatitude(), result.getLongitude()));
 
-            } else {
-                // Add the last waypoint
-                segment2Positions.add(D);
-                intersectPositions.add(D);
             }
 
             segmentAccumulated = segmentAccumulated + lineSegmentSize;
 
         }
+        // Add the last waypoint
+        segment2Positions.add(D);
+        // intersectPositions.add(D);
 
         System.out.println("Done with segment2, Elapsed miliseconds: " + (System.currentTimeMillis() - currentTime));
 
@@ -584,7 +597,19 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
             for (int k2 = 0; k2 < segment2Positions.size(); k2++) {
 
-                if (segment1Positions.get(k).distanceTo(segment2Positions.get(k2), CoordinateSystem.CARTESIAN) <= epsilon) {
+                if (Converter
+                        .metersToNm(segment1Positions.get(k).distanceTo(segment2Positions.get(k2), CoordinateSystem.CARTESIAN)) <= epsilon) {
+
+                    System.out.println("Checking time");
+
+                    if (checkDateInterval(segment1Positions.get(k), segment2Positions.get(k2), route1, route2, i, j)) {
+
+                        IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(segment2Positions.get(k2),
+                                "Route Segments proximity warning", j - 1, j);
+                        proximityFilterMessages.add(message);
+
+                    }
+
                     System.out.println("Problem area - check date time");
                 }
             }
@@ -592,16 +617,163 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
         // Compare distances for all
         System.out.println("Done with comparisons, Elapsed miliseconds: " + (System.currentTimeMillis() - currentTime));
-        
-        return null;
+
+        return proximityFilterMessages;
     }
 
-    private IntendedRouteFilterMessage proximityFilterMix(Route route1, Route route2, int i, int j, Position A, Position B,
+    private List<IntendedRouteFilterMessage> proximityFilterMix(Route route1, Route route2, int i, int j, Position A, Position B,
             Position C, Position D, double epsilon) {
-        return null;
+
+        List<IntendedRouteFilterMessage> messageList = new ArrayList<IntendedRouteFilterMessage>();
+
+        // We need to determine which is RL and which is GC
+
+        // The returned area needs to be for route2
+
+        // route1 is the GC
+        if (route1.getWaypoints().get(i).getOutLeg().getHeading() == Heading.GC) {
+
+            // Sample route1
+            // Get x points from GC between A and B
+            double distance = A.distanceTo(B, CoordinateSystem.GEODETIC);
+
+            double lineSegmentSize = determineSegmentSize(distance);
+            double segmentAccumulated = 0;
+
+            List<Position> segment1Positions = new ArrayList<Position>();
+
+            while (segmentAccumulated <= distance) {
+
+                LatLonPoint result = GreatCircle.pointAtDistanceBetweenPoints(Math.toRadians(A.getLatitude()),
+                        Math.toRadians(A.getLongitude()), Math.toRadians(B.getLatitude()), Math.toRadians(B.getLongitude()),
+                        segmentAccumulated / 6371000, 256);
+
+                if (result != null) {
+                    segment1Positions.add(Position.create(result.getLatitude(), result.getLongitude()));
+
+                    // intersectPositions.add(Position.create(result.getLatitude(), result.getLongitude()));
+
+                }
+
+                segmentAccumulated = segmentAccumulated + lineSegmentSize;
+
+            }
+            // Add the last waypoint
+            segment1Positions.add(B);
+            // intersectPositions.add(B);
+
+            // Project all points into 2d space and compare against the RL line
+            // The returned point will be on route2 line
+
+            Projection projection = mapBean.getProjection();
+
+            Point2D pointC = projection.forward(C.getLatitude(), C.getLongitude());
+            Point2D pointD = projection.forward(D.getLatitude(), D.getLongitude());
+
+            // External points are all those created from segment1Positions list
+
+            for (int k = 0; k < segment1Positions.size(); k++) {
+                Point2D GCPoint = projection.forward(segment1Positions.get(k).getLatitude(), segment1Positions.get(k)
+                        .getLongitude());
+                // Calculations when looking at route going from C to D with external segment1Positions
+                Point2D third = nearestPointOnLine(pointC.getX(), pointC.getY(), pointD.getX(), pointD.getY(), GCPoint.getX(),
+                        GCPoint.getY(), true);
+                LatLonPoint thirdProjected = projection.inverse(third);
+                Position route1SegmentExternalPoint = Position.create(thirdProjected.getLatitude(), thirdProjected.getLongitude());
+
+                double distanceRoute1SegmentExternal = segment1Positions.get(k).distanceTo(route1SegmentExternalPoint,
+                        CoordinateSystem.CARTESIAN);
+
+                if (Converter.metersToNm(distanceRoute1SegmentExternal) <= epsilon) {
+
+                    System.out.println("Checking time");
+
+                    if (checkDateInterval(route1SegmentExternalPoint, segment1Positions.get(k), route1, route2, i, j)) {
+                        IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(route1SegmentExternalPoint,
+                                "Route Segments proximity warning", j - 1, j);
+                        messageList.add(message);
+                    }
+
+                }
+            }
+
+        } else {
+            // route2 is the GC
+            
+            
+            
+            double distance = C.distanceTo(D, CoordinateSystem.GEODETIC);
+
+            double lineSegmentSize = determineSegmentSize(distance);
+            double segmentAccumulated = 0;
+
+            List<Position> segment2Positions = new ArrayList<Position>();
+
+            while (segmentAccumulated <= distance) {
+
+                LatLonPoint result = GreatCircle.pointAtDistanceBetweenPoints(Math.toRadians(C.getLatitude()),
+                        Math.toRadians(C.getLongitude()), Math.toRadians(D.getLatitude()), Math.toRadians(D.getLongitude()),
+                        segmentAccumulated / 6371000, 256);
+
+                if (result != null) {
+                    segment2Positions.add(Position.create(result.getLatitude(), result.getLongitude()));
+
+                    // intersectPositions.add(Position.create(result.getLatitude(), result.getLongitude()));
+
+                }
+
+                segmentAccumulated = segmentAccumulated + lineSegmentSize;
+
+            }
+            // Add the last waypoint
+            segment2Positions.add(D);
+            
+            
+            
+            
+            
+            // Project all points into 2d space and compare against the RL line
+            // The returned point will be on route1 line
+
+            Projection projection = mapBean.getProjection();
+
+            Point2D pointA = projection.forward(A.getLatitude(), A.getLongitude());
+            Point2D pointB = projection.forward(B.getLatitude(), B.getLongitude());
+
+            // External points are all those created from segment1Positions list
+
+            for (int k = 0; k < segment2Positions.size(); k++) {
+                Point2D GCPoint = projection.forward(segment2Positions.get(k).getLatitude(), segment2Positions.get(k)
+                        .getLongitude());
+                // Calculations when looking at route going from A to B with external point from segment2Positions
+                Point2D third = nearestPointOnLine(pointA.getX(), pointA.getY(), pointB.getX(), pointB.getY(), GCPoint.getX(),
+                        GCPoint.getY(), true);
+                LatLonPoint thirdProjected = projection.inverse(third);
+                Position route2SegmentExternalPoint = Position.create(thirdProjected.getLatitude(), thirdProjected.getLongitude());
+
+                double distanceRoute2SegmentExternal = segment2Positions.get(k).distanceTo(route2SegmentExternalPoint,
+                        CoordinateSystem.CARTESIAN);
+
+                if (Converter.metersToNm(distanceRoute2SegmentExternal) <= epsilon) {
+
+                    System.out.println("Checking time");
+
+                    if (checkDateInterval(route2SegmentExternalPoint, segment2Positions.get(k), route1, route2, i, j)) {
+                        IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(segment2Positions.get(k),
+                                "Route Segments proximity warning", j - 1, j);
+                        messageList.add(message);
+                    }
+
+                }
+            }
+            
+  
+        }
+
+        return messageList;
     }
 
-    private IntendedRouteFilterMessage proxmityFilter(Route route1, Route route2, int i, int j, Position route1Waypoint1,
+    private List<IntendedRouteFilterMessage> proxmityFilter(Route route1, Route route2, int i, int j, Position route1Waypoint1,
             Position route1Waypoint2, Position route2Waypoint1, Position route2Waypoint2, double epsilon) {
 
         Position A = route1Waypoint1;
@@ -613,6 +785,8 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
         // If all headins are RL use first method
         // Otherwise us GC method
         // If they are different - use hybrid
+
+        // Should we even compare?
 
         if (route1.getWaypoints().get(i).getOutLeg() != null && route2.getWaypoints().get(j).getOutLeg() != null) {
 
@@ -641,43 +815,43 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
             return proximityFilterMix(route1, route2, i, j, A, B, C, D, epsilon);
         }
 
-        System.out.println("Not doing anything");
+        System.out.println("Not doing anything - why?");
 
-        return null;
+        return new ArrayList<IntendedRouteFilterMessage>();
     }
 
     private boolean checkDateInterval(Position positionRoute1, Position positionRoute2, Route route1, Route route2, int i, int j) {
 
-        DateTime routeSegment1StartDate = new DateTime(route1.getEtas().get(i - 1));
-        DateTime routeSegment1EndDate = new DateTime(route1.getEtas().get(i));
+        DateTime routeSegment1StartDate = new DateTime(route1.getEtas().get(i));
+        DateTime routeSegment1EndDate = new DateTime(route1.getEtas().get(i + 1));
 
-        DateTime routeSegment2StartDate = new DateTime(route2.getEtas().get(j - 1));
-        DateTime routeSegment2EndDate = new DateTime(route2.getEtas().get(j));
+        DateTime routeSegment2StartDate = new DateTime(route2.getEtas().get(j));
+        DateTime routeSegment2EndDate = new DateTime(route2.getEtas().get(j + 1));
 
         // Segment 1
-        double routeSegment1Length = Converter.metersToNm(route1.getWaypoints().get(i - 1).getPos()
-                .distanceTo(route1.getWaypoints().get(i).getPos(), CoordinateSystem.CARTESIAN));
+        double routeSegment1Length = Converter.metersToNm(route1.getWaypoints().get(i).getPos()
+                .distanceTo(route1.getWaypoints().get(i + 1).getPos(), CoordinateSystem.CARTESIAN));
 
         long routeSegment1MilisecondsLength = routeSegment1EndDate.getMillis() - routeSegment1StartDate.getMillis();
 
         double routeSegment1SpeedMiliPrNm = routeSegment1Length / routeSegment1MilisecondsLength;
 
         // Distance travelled in nautical miles
-        double distanceTravelledSegment1 = Converter.metersToNm(route1.getWaypoints().get(i).getPos()
+        double distanceTravelledSegment1 = Converter.metersToNm(route1.getWaypoints().get(i + 1).getPos()
                 .distanceTo(positionRoute1, CoordinateSystem.CARTESIAN));
 
         long timeTravelledSegment1 = (long) (distanceTravelledSegment1 / routeSegment1SpeedMiliPrNm);
         DateTime segment1IntersectionTime = routeSegment1StartDate.plus(timeTravelledSegment1);
 
         // Segment 2
-        double routeSegment2Length = Converter.metersToNm(route2.getWaypoints().get(j - 1).getPos()
-                .distanceTo(route2.getWaypoints().get(j).getPos(), CoordinateSystem.CARTESIAN));
+        double routeSegment2Length = Converter.metersToNm(route2.getWaypoints().get(j).getPos()
+                .distanceTo(route2.getWaypoints().get(j + 1).getPos(), CoordinateSystem.CARTESIAN));
         long routeSegment2MilisecondsLength = routeSegment2EndDate.getMillis() - routeSegment2StartDate.getMillis();
 
         double routeSegment2SpeedMiliPrNm = routeSegment2Length / routeSegment2MilisecondsLength;
 
         // Distance travelled in nautical miles
-        double distanceTravelledSegment2 = Converter.metersToNm(route2.getWaypoints().get(j).getPos()
+        double distanceTravelledSegment2 = Converter.metersToNm(route2.getWaypoints().get(j + 1).getPos()
                 .distanceTo(positionRoute2, CoordinateSystem.CARTESIAN));
 
         long timeTravelledSegment2 = (long) (distanceTravelledSegment2 / routeSegment2SpeedMiliPrNm);
@@ -703,7 +877,8 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
             if (checkDateInterval(intersection, intersection, route1, route2, i, j)) {
                 IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(intersection,
-                        "Intersection occurs within 2 hour of eachother", j - 1, j);
+                        "Intersection occurs within 2 hour of eachother", j, j + 1);
+                intersectPositions.add(intersection);
                 return message;
             }
 
