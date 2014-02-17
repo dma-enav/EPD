@@ -43,7 +43,7 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
 
     private VesselTarget vesselTarget;
 
-    private VesselTargetTriangle vessel;
+    private VesselTriangle vessel;
     private RotationalPoly heading;
 
     private Font font;
@@ -68,7 +68,7 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
     }
 
     private void createGraphics(AisSettings aisSettings) {
-        vessel = new VesselTargetTriangle();
+        vessel = new VesselTriangle();
 
         int[] headingX = { 0, 0 };
         int[] headingY = { 0, -100 };
