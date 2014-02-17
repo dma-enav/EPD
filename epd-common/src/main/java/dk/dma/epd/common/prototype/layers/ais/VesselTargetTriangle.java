@@ -52,6 +52,7 @@ public class VesselTargetTriangle extends VesselGraphic {
 
     @Override
     public void updateGraphic(VesselTarget vesselTarget, float mapScale) {
+        super.updateGraphic(vesselTarget, mapScale);
         VesselPositionData posData = vesselTarget.getPositionData();
         if(posData == null) {
             return;
