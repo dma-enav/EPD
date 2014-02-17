@@ -34,8 +34,8 @@ import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
  * into account in this display).
  * </p>
  */
+@SuppressWarnings("serial")
 public class VesselTargetTriangle extends VesselGraphic {
-    private static final long serialVersionUID = 1L;
 
     /**
      * A triangle used to display the vessel.
