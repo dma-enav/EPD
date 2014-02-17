@@ -35,7 +35,7 @@ import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
  * </p>
  */
 @SuppressWarnings("serial")
-public class VesselTargetTriangle extends VesselGraphic {
+public class VesselTriangle extends VesselGraphic {
 
     /**
      * A triangle used to display the vessel.
@@ -54,11 +54,11 @@ public class VesselTargetTriangle extends VesselGraphic {
     private Stroke stroke = new BasicStroke(2.0f);
 
     /**
-     * Creates a new {@code VesselTargetTriangle} at a default location. Clients
+     * Creates a new {@code VesselTriangle} at a default location. Clients
      * should subsequently call {@link #updateGraphic(VesselTarget, float)} to
-     * update the position of the new {@code VesselTargetTriangle}.
+     * update the position of the new {@code VesselTriangle}.
      */
-    public VesselTargetTriangle() {
+    public VesselTriangle() {
         super();
         int[] vesselX = { 0, 5, -5, 0 };
         int[] vesselY = { -10, 5, 5, -10 };
@@ -77,7 +77,7 @@ public class VesselTargetTriangle extends VesselGraphic {
 
     /**
      * <p>
-     * Updates the position of this {@code VesselTargetTriangle}.
+     * Updates the position of this {@code VesselTriangle}.
      * </p>
      * This method calls the super implementation as part of the update process:<br/>
      * {@inheritDoc}
