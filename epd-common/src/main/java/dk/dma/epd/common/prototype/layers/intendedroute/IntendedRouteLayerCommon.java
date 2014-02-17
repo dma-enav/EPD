@@ -18,16 +18,12 @@ package dk.dma.epd.common.prototype.layers.intendedroute;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
-import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.EPD;
@@ -206,7 +202,7 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
         
         for (int i = graphics.size()-1; i >= 0 ; i--) {
             if (graphics.get(i) instanceof IntendedRouteIntersectionGraphic) {
-                System.out.println("Removing graphics");
+//                System.out.println("Removing graphics");
                 graphics.remove(i);
             }
                
