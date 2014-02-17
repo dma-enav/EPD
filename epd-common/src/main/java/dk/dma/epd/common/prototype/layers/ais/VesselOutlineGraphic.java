@@ -88,11 +88,6 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
      * top level graphic's parent layer.
      */
     private OMGraphicHandlerLayer parentLayer;
-
-    /**
-     * The VesselTargetGraphics which created this object.
-     */
-    private VesselTargetGraphic vesselTargetGraphic;
     
     /**
      * Used to paint the name label for this vessel graphic.
@@ -102,9 +97,7 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
 
     private Font font;
 
-    public VesselOutlineGraphic(Color lineColor, float lineThickness, OMGraphicHandlerLayer parentLayer,
-            VesselTargetGraphic vesselTargetGraphic) {
-        this.vesselTargetGraphic = vesselTargetGraphic;
+    public VesselOutlineGraphic(Color lineColor, float lineThickness, OMGraphicHandlerLayer parentLayer) {
         this.setVague(true);
         this.lineColor = lineColor;
         this.currentColor = this.lineColor;
@@ -263,11 +256,6 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
         Graphics2D image = (Graphics2D) g;
         image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         super.render(image);
-    }
-
-    public VesselTargetGraphic getVesselTargetGraphic() {
-        return vesselTargetGraphic;
-
     }
     
     public void setShowNameLabel(boolean showNameLabel) {
