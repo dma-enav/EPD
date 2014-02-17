@@ -21,8 +21,8 @@ import com.bbn.openmap.omGraphics.OMGraphicConstants;
  * Enumeration for heading rhumb line or great circle
  */
 public enum Heading {
-    RL(OMGraphicConstants.LINETYPE_GREATCIRCLE), 
-    GC(OMGraphicConstants.LINETYPE_RHUMB);
+    RL(OMGraphicConstants.LINETYPE_RHUMB), 
+    GC(OMGraphicConstants.LINETYPE_GREATCIRCLE);
     
     private int omLineType;
     
