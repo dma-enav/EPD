@@ -16,7 +16,6 @@
 package dk.dma.epd.common.prototype.layers.ais;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Paint;
 import java.awt.Stroke;
 
@@ -26,17 +25,39 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 
 /**
- * Graphic for vessel target shown as triangle
+ * <p>
+ * Graphic for displaying a vessel target. This graphic class displays the
+ * vessel using a fixed size triangle (i.e. map scale and ship size is not taken
+ * into account in this display).
+ * </p>
  */
 public class VesselTargetTriangle extends VesselGraphic {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * A triangle used to display the vessel.
+     */
     private RotationalPoly vessel;
-    private Paint paint = new Color(74, 97, 205, 255);
+
+    /**
+     * Color of the edges of the triangle used to display the vessel.
+     */
+    private Paint paint = ColorConstants.VESSEL_COLOR;
+
+    /**
+     * Stroke defining the thickness of the edges of the triangle used to
+     * display the vessel.
+     */
     private Stroke stroke = new BasicStroke(2.0f);
 
+    /**
+     * Creates a new {@code VesselTargetTriangle} at a default location. Clients
+     * should subsequently call {@link #updateGraphic(VesselTarget, float)} to
+     * update the position of the new {@code VesselTargetTriangle}.
+     */
     public VesselTargetTriangle() {
         super();
         int[] vesselX = { 0, 5, -5, 0 };
@@ -45,20 +66,31 @@ public class VesselTargetTriangle extends VesselGraphic {
         this.add(vessel);
     }
 
+    /**
+     * Updates the color used to draw the edges of the triangle that displays
+     * the vessel.
+     */
     @Override
     public void setLinePaint(Paint paint) {
         vessel.setLinePaint(paint);
     }
 
+    /**
+     * <p>
+     * Updates the position of this {@code VesselTargetTriangle}.
+     * </p>
+     * This method calls the super implementation as part of the update process:<br/>
+     * {@inheritDoc}
+     */
     @Override
     public void updateGraphic(VesselTarget vesselTarget, float mapScale) {
         super.updateGraphic(vesselTarget, mapScale);
         VesselPositionData posData = vesselTarget.getPositionData();
-        if(posData == null) {
+        if (posData == null) {
             return;
         }
         Position pos = posData.getPos();
-        if(pos == null) {
+        if (pos == null) {
             return;
         }
         float trueHeading = posData.getTrueHeading();
@@ -66,6 +98,7 @@ public class VesselTargetTriangle extends VesselGraphic {
             trueHeading = vesselTarget.getPositionData().getCog();
         }
         double hdgR = Math.toRadians(trueHeading);
-        vessel.setLocation(pos.getLatitude(), pos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, hdgR);
+        vessel.setLocation(pos.getLatitude(), pos.getLongitude(),
+                OMGraphicConstants.DECIMAL_DEGREES, hdgR);
     }
 }
