@@ -27,19 +27,19 @@ public interface IIntendedRouteListener {
 //     * Called when an intended route has been added
 //     * @param intendedRoute the intended route
 //     */
-//    void intendedRouteAdded(IntendedRoute intendedRoute);
+//    void intendedRouteAdded(IntendedRouteMessage intendedRoute);
 //    
 //    /**
 //     * Called when an intended route has been updated
 //     * @param intendedRoute the intended route
 //     */
-//    void intendedRouteUpdated(IntendedRoute intendedRoute);
+//    void intendedRouteUpdated(IntendedRouteMessage intendedRoute);
 //    
 //    /**
 //     * Called when an intended route has been removed
 //     * @param intendedRoute the intended route
 //     */
-//    void intendedRouteRemoved(IntendedRoute intendedRoute);
+//    void intendedRouteRemoved(IntendedRouteMessage intendedRoute);
     
     
     
