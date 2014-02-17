@@ -98,7 +98,6 @@ public class IntendedRoute extends Route {
                 leg.setEndWp(waypoint);
             }
 
-
             routeWaypoints.add(waypoint);
 
         }
@@ -145,7 +144,7 @@ public class IntendedRoute extends Route {
                     if (cloudWaypoint.getRouteLeg().getSFLen() != null) {
                         waypoint.getOutLeg().setSFLen(cloudWaypoint.getRouteLeg().getSFLen());
                     }
-                    
+
                     // Heading
                     if (cloudWaypoint.getRouteLeg().getHeading() == dk.dma.enav.model.voyage.RouteLeg.Heading.GC) {
                         waypoint.getOutLeg().setHeading(Heading.GC);
@@ -316,7 +315,7 @@ public class IntendedRoute extends Route {
                 if (i == getWaypoints().size() - 1) {
                     plannedPositionBearing = 0;
                     return null;
-                    
+
                 } else {
 
                     // We should be beyond this
@@ -331,11 +330,21 @@ public class IntendedRoute extends Route {
                         double distanceTravelledNauticalMiles = Converter.milesToNM(Calculator.distanceAfterTimeMph(getWaypoints()
                                 .get(i).getOutLeg().getSpeed(), secondsSailTime));
 
-                        plannedPosition = Calculator.findPosition(this.getWaypoints().get(i).getPos(), this.getWaypoints().get(i)
-                                .getOutLeg().calcBrg(), Converter.nmToMeters(distanceTravelledNauticalMiles));
+                        if (this.getWaypoints().get(i).getOutLeg().getHeading() == Heading.GC) {
+                            plannedPosition = Calculator.findPosition(this.getWaypoints().get(i).getPos(),
+                                    this.getWaypoints().get(i + 1).getPos(), Converter.nmToMeters(distanceTravelledNauticalMiles));
+                        } else {
+                            plannedPosition = Calculator.findPosition(this.getWaypoints().get(i).getPos(),
+                                    this.getWaypoints().get(i).getOutLeg().calcBrg(),
+                                    Converter.nmToMeters(distanceTravelledNauticalMiles));
+                        }
+
+                        // plannedPosition = Calculator.findPosition(this.getWaypoints().get(i).getPos(), this.getWaypoints().get(i)
+                        // .getOutLeg().calcBrg(), Converter.nmToMeters(distanceTravelledNauticalMiles));
 
                         RouteLeg leg = getWaypoints().get(i).getOutLeg();
-                        plannedPositionBearing = Calculator.bearing(leg.getStartWp().getPos(), leg.getEndWp().getPos(), leg.getHeading());
+                        plannedPositionBearing = Calculator.bearing(leg.getStartWp().getPos(), leg.getEndWp().getPos(),
+                                leg.getHeading());
 
                         return plannedPosition;
                     }
