@@ -2,8 +2,8 @@ namespace imo.route.broadcast.intendedroute;
 
 message IntendedRoute {
     required int32 activeWpIndex = 1;
-	required DateTime[] plannedEtas = 2;
-	required Waypoint[] waypoints = 3;
+    required DateTime[] plannedEtas = 2;
+    required Waypoint[] waypoints = 3;
 }
 message Waypoint {
     required Position start = 1;
