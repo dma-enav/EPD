@@ -15,8 +15,6 @@
  */
 package dk.dma.epd.ship.service;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -27,7 +25,8 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
+import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteBroadcast;
+import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteMessage;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
@@ -171,7 +170,6 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
      * Broadcast intended route
      */
     public void broadcastIntendedRoute() {
-        System.out.println("Broadcast intended route");
         // Sanity check
         if (!running || routeManager == null || getMaritimeCloudConnection() == null) {
             return;
@@ -187,8 +185,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
             lastTransmitActiveWp = new DateTime(routeManager.getActiveRoute().getActiveWaypointEta());
 
         } else {
-            message.setIntendedRoute(new dk.dma.enav.model.voyage.Route());
-            message.setOriginalEtas(new ArrayList<Date>());
+            message.setRoute(new IntendedRouteMessage());
         }
 
         // send message

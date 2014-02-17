@@ -22,7 +22,8 @@ import java.util.List;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.voyage.Waypoint;
 import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
+import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteBroadcast;
+import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteMessage;
 import dk.dma.epd.common.prototype.model.route.PartialRouteFilter.FilterType;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
@@ -511,24 +512,17 @@ public class ActiveRoute extends Route {
     /**
      * Returns the intended route broadcast, based on the parameters passed along
      * 
-     * @param filter
-     *            the filter to apply to extract the partial route
-     * @param result
-     *            the result to update. If null, a new instance is created.
+     * @param filter the filter to apply to extract the partial route
+     * @param broadcast the result to update. If null, a new instance is created.
      * @return the partial route
      */
-    public synchronized IntendedRouteBroadcast getPartialRouteData(PartialRouteFilter filter, IntendedRouteBroadcast result) {
-
+    public synchronized IntendedRouteBroadcast getPartialRouteData(PartialRouteFilter filter, IntendedRouteBroadcast broadcast) {
+        
         dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
         List<Date> originalEtas = new ArrayList<>();
-
-        if (result == null) {
-            result = new IntendedRouteBroadcast();
-        }
-        result.setIntendedRoute(voyageRoute);
-        result.setOriginalEtas(originalEtas);
-
-        // Pre-compute the start and end ETA's for the partial route
+        int activeWpIndex = 0;
+        
+        // Pre-compute the start and end ETA's for the partial route 
         Date startDate = null, endDate = null;
         if (filter.getType() == FilterType.MINUTES) {
             startDate = new Date(getActiveWaypointEta().getTime() - filter.getBackward() * 1000L * 60L);
@@ -576,9 +570,8 @@ public class ActiveRoute extends Route {
             }
 
             // Check if we have reached the active way point
-            if (i == activeWaypointIndex) {
-                int activeWPIndex = result.getIntendedRoute().getWaypoints().size();
-                result.setActiveWPIndex(activeWPIndex);
+            if  (i == activeWaypointIndex) {
+                activeWpIndex = voyageRoute.getWaypoints().size();                
             }
             // Add the original ETA for the current way point
             originalEtas.add(originalRoute.getEtas().get(i));
@@ -618,7 +611,16 @@ public class ActiveRoute extends Route {
                 lastWaypoint.setRouteLeg(null);
             }
         }
-
-        return result;
+        
+        // Make the broadcast message
+        if (broadcast == null) {
+            broadcast = new IntendedRouteBroadcast();
+        }
+        IntendedRouteMessage irm = IntendedRoute.fromRoute(voyageRoute);
+        irm.setPlannedEtas(originalEtas);
+        irm.setActiveWpIndex(activeWpIndex);
+        broadcast.setRoute(irm);
+        
+        return broadcast;
     }
 }

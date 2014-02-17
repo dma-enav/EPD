@@ -45,7 +45,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.enavcloud.IntendedRouteBroadcast;
+import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteBroadcast;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
 import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
@@ -138,10 +138,8 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
      */
     private synchronized void updateIntendedRoute(long mmsi, IntendedRouteBroadcast r) {
 
-        IntendedRoute intendedRoute = new IntendedRoute(r.getIntendedRoute());
+        IntendedRoute intendedRoute = new IntendedRoute(r.getRoute());
         intendedRoute.setMmsi(mmsi);
-        intendedRoute.setActiveWpIndex(r.getActiveWPIndex());
-        intendedRoute.setPlannedEtas(r.getOriginalEtas());
 
         IntendedRoute oldIntendedRoute = intendedRoutes.get(mmsi);
         if (oldIntendedRoute != null) {

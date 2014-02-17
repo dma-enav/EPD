@@ -24,6 +24,9 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.voyage.Waypoint;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
+import dk.dma.epd.common.prototype.enavcloud.intendedroute.HeadingType;
+import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteMessage;
+import dk.dma.epd.common.prototype.enavcloud.intendedroute.Leg;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
@@ -52,27 +55,28 @@ public class IntendedRoute extends Route {
     /**
      * Initializes the intended route from route data received over the cloud
      * 
-     * @param cloudRouteData
+     * @param intendedRouteMessage
      *            route data received over the cloud
      */
-    public IntendedRoute(dk.dma.enav.model.voyage.Route cloudRouteData) {
+    public IntendedRoute(IntendedRouteMessage intendedRouteMessage) {
         super();
         received = PntTime.getInstance().getDate();
-        parseRoute(cloudRouteData);
-
-        // Temporary hack - needs to be seperate
-        plannedEtas = etas;
+        parseRoute(intendedRouteMessage);
+        setActiveWpIndex(intendedRouteMessage.getActiveWpIndex());
+        setPlannedEtas(intendedRouteMessage.getPlannedEtas());
     }
 
     /**
      * Parses the route data received over the cloud as an EPD route
      * 
-     * @param cloudRouteData
+     * @param intendedRouteMessage
      *            route data received over the cloud
      */
-    private void parseRoute(dk.dma.enav.model.voyage.Route cloudRouteData) {
-        this.setName(cloudRouteData.getName());
-        List<Waypoint> cloudRouteWaypoints = cloudRouteData.getWaypoints();
+    private void parseRoute(IntendedRouteMessage intendedRouteMessage) {
+        
+        List<Waypoint> cloudRouteWaypoints = wpsFromIntendedRouteMessage(intendedRouteMessage);
+        
+        
         LinkedList<RouteWaypoint> routeWaypoints = this.getWaypoints();
 
         for (int i = 0; i < cloudRouteWaypoints.size(); i++) {
@@ -361,4 +365,64 @@ public class IntendedRoute extends Route {
         this.plannedEtas = plannedEtas;
     }
 
+    /**
+     * Create an IntendedRouteMessage from a route model instance
+     * @param route
+     * @return
+     */
+    public static IntendedRouteMessage fromRoute(dk.dma.enav.model.voyage.Route route) {
+        IntendedRouteMessage irm = new IntendedRouteMessage();
+        ArrayList<dk.dma.epd.common.prototype.enavcloud.intendedroute.Waypoint> wps = new ArrayList<>();
+        for (Waypoint wp : route.getWaypoints()) {
+            dk.dma.epd.common.prototype.enavcloud.intendedroute.Waypoint iwp = new dk.dma.epd.common.prototype.enavcloud.intendedroute.Waypoint();
+            iwp.setLatitude(wp.getLatitude());
+            iwp.setLongitude(wp.getLongitude());
+            iwp.setEta(wp.getEta());
+            iwp.setRot(wp.getRot());
+            iwp.setTurnRad(wp.getTurnRad());
+            if (wp.getRouteLeg() != null) {
+                Leg leg = new Leg();
+                leg.setSpeed(wp.getRouteLeg().getSpeed());
+                leg.setXtdStarboard(wp.getRouteLeg().getXtdStarboard());
+                leg.setXtdPort(wp.getRouteLeg().getXtdPort());
+                if (wp.getRouteLeg().getHeading() == dk.dma.enav.model.voyage.RouteLeg.Heading.RL) {
+                    leg.setHeadingType(HeadingType.RL);
+                } else {
+                    leg.setHeadingType(HeadingType.GC);
+                }
+                iwp.setOutLeg(leg);
+            }
+            wps.add(iwp);            
+        }
+        irm.setWaypoints(wps);
+        return irm;
+    }
+    
+    public static List<Waypoint> wpsFromIntendedRouteMessage(IntendedRouteMessage message) {
+        List<Waypoint> wps = new ArrayList<>();        
+        for (dk.dma.epd.common.prototype.enavcloud.intendedroute.Waypoint iwp : message.getWaypoints()) {
+            Waypoint wp = new Waypoint();
+            wp.setLatitude(iwp.getLatitude());
+            wp.setLongitude(iwp.getLongitude());
+            wp.setEta(iwp.getEta());
+            wp.setRot(iwp.getRot());
+            wp.setTurnRad(iwp.getTurnRad());
+            if (iwp.getOutLeg() != null) {
+                Leg leg = iwp.getOutLeg();
+                dk.dma.enav.model.voyage.RouteLeg rleg = new dk.dma.enav.model.voyage.RouteLeg();                
+                rleg.setSpeed(leg.getSpeed());
+                rleg.setXtdStarboard(leg.getXtdStarboard());
+                rleg.setXtdPort(leg.getXtdPort());
+                if (leg.getHeadingType() == HeadingType.GC) {
+                    rleg.setHeading(dk.dma.enav.model.voyage.RouteLeg.Heading.GC);
+                } else {
+                    rleg.setHeading(dk.dma.enav.model.voyage.RouteLeg.Heading.RL);
+                }
+                wp.setRouteLeg(rleg);
+            }
+            wps.add(wp);            
+        }        
+        return wps;        
+    }
+    
 }
