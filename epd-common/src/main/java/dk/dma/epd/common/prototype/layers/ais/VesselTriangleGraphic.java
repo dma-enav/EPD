@@ -43,8 +43,6 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
 
     private VesselTarget vesselTarget;
 
-    private VesselTargetGraphic parentGraphic;
-
     private VesselTargetTriangle vessel;
     private RotationalPoly heading;
 
@@ -65,13 +63,12 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
      */
     private OMGraphicHandlerLayer parentLayer;
     
-    public VesselTriangleGraphic(VesselTargetGraphic parentGraphic, OMGraphicHandlerLayer parentLayer) {
-        this.parentGraphic = parentGraphic;
+    public VesselTriangleGraphic(OMGraphicHandlerLayer parentLayer) {
         this.parentLayer = parentLayer;
     }
 
     private void createGraphics(AisSettings aisSettings) {
-        vessel = new VesselTargetTriangle(this.parentGraphic);
+        vessel = new VesselTargetTriangle();
 
         int[] headingX = { 0, 0 };
         int[] headingY = { 0, -100 };
