@@ -362,7 +362,7 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
                 double ratio = 0;
                 
                 // If the selected area is more wider than higher.
-                if ( (Math.abs(e.getPoint().x - this.point1.x)) > Math.abs((e.getPoint().y - this.point1.y) )) {
+                if ( Math.abs(e.getPoint().x - this.point1.x) > Math.abs(e.getPoint().y - this.point1.y) ) {
                                         
                     // Calculate the ratio with the help of the frame and the selected area.
                     double frameWidth = this.chartPanel.getMap().getWidth();
@@ -379,7 +379,7 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
                     offsetPoint = new Point((int) (this.point1.x - boxWidth/this.point2.x), (int) (e.getPoint().y - boxHeight/2));
                     
                 // If the selected area is more higher than wider.
-                } else if ( Math.abs((e.getPoint().x - this.point1.x)) < Math.abs((e.getPoint().y - this.point1.y)) ) {
+                } else if ( Math.abs(e.getPoint().x - this.point1.x) < Math.abs(e.getPoint().y - this.point1.y) ) {
                                         
                     // Calculate the ratio with the help of the frame and the selected area.
                     double frameHeight = this.chartPanel.getMap().getHeight();
