@@ -42,6 +42,8 @@ import javax.swing.event.ChangeListener;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.ship.event.NavigationMouseMode;
+import dk.dma.epd.ship.event.NoGoMouseMode;
 import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.nogo.NogoHandler;
@@ -154,18 +156,9 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
             @Override
             public void stateChanged(ChangeEvent arg0) {
 
-                // System.out.println("timeStart is :" + ((Date)
-                // spinnerTimeStart.getValue()));
-                // System.out.println("timeEnd is :" + ((Date)
-                // spinnerTimeEnd.getValue()));
-
                 if (((Date) spinnerTimeEnd.getValue()).getTime() < ((Date) spinnerTimeStart.getValue()).getTime()) {
 
-                    // Update timespinnerend with timespinnerstart
                     spinnerTimeEnd.setValue(spinnerTimeStart.getValue());
-
-                    //
-                    // System.out.println("Update timeEnd");
                 }
 
             }
@@ -176,9 +169,6 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
 
         spinnerTimeEnd.setModel(new SpinnerDateModel(date, null, date48hour, Calendar.HOUR));
         spinnerTimeEnd.setBounds(10, 64, 98, 20);
-
-        // spinnerTimeStart.setEditor(new JSpinner.DateEditor(spinnerTimeStart,
-        // "HH-mm - dd:MM"));
 
         panel_1.add(spinnerTimeStart);
         panel_1.add(spinnerTimeEnd);
@@ -208,12 +198,8 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
         
         
         spinnerDraught = new JSpinner(m_numberSpinnerModel);
-//        spinnerDraught.setModel(new SpinnerNumberModel(5.0, 0.0, 1000.0, 1.0));
         spinnerDraught.setBounds(151, 24, 38, 20);
-
-//        JFormattedTextField txt = ((JSpinner.NumberEditor) spinnerDraught.getEditor()).getTextField();
-//        ((NumberFormatter) txt.getFormatter()).setAllowsInvalid(false);
-
+        
         panel_2.add(spinnerDraught);
         {
             JPanel buttonPane = new JPanel();
@@ -304,6 +290,9 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
                 nwPtlbl.setText("You must select an area");
             }
 
+            // Set the mouse mode back to navigation.
+            this.chartPanel.setMouseMode(NavigationMouseMode.MODE_ID);
+
         }
         if (e.getSource() == cancelButton) {
             // Cancel the request
@@ -312,8 +301,9 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
         if (e.getSource() == btnSelectArea) {
             // Make a selection on the chartmap
             this.setVisible(false);
+            
             chartPanel.setNogoDialog(this);
-            chartPanel.setNogoMode(true);
+            chartPanel.setMouseMode(NoGoMouseMode.MODE_ID);
         }
     }
 
