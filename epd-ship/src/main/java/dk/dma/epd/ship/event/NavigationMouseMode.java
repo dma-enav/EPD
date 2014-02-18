@@ -24,6 +24,7 @@ import javax.swing.SwingUtilities;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.proj.Proj;
+import com.bbn.openmap.proj.ProjMath;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
@@ -199,6 +200,75 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
             Proj p = (Proj) projection;
             
             synchronized (this) {
+                
+                // If control was held down when the mouse was release, resize to fit the points.
+                if ( e.isControlDown() ) {
+                    
+                    Point fakeRatioPoint = null;
+                    Point offsetPoint = null;
+                    double boxWidth = 0;
+                    double boxHeight = 0;
+                    double ratio = 0;
+                    
+                    // If the selected area is more wider than higher.
+                    if ( Math.abs(e.getPoint().x - this.point1.x) > Math.abs(e.getPoint().y - this.point1.y) ) {
+                                            
+                        // Calculate the ratio with the help of the frame and the selected area.
+                        double frameWidth = this.chartPanel.getMap().getWidth();
+                        boxWidth          = e.getPoint().x - this.point1.x;
+                        ratio             = frameWidth / boxWidth;
+                        
+                        // Calculate the hight of the box, if it had been a ratio point.
+                        boxHeight = this.chartPanel.getMap().getHeight() / ratio;
+                        
+                        // Create a fake ratio point.
+                        fakeRatioPoint = this.getRatioPoint(
+                                (MapBean) e.getSource(), this.point1, new Point(e.getPoint().x, (int) (this.point1.y+boxHeight)));
+                                                
+                        offsetPoint = new Point((int) (this.point1.x - boxWidth/this.point2.x), (int) (e.getPoint().y - boxHeight/2));
+                    
+                    // If the selected area is more higher than wider.
+                    } else if ( Math.abs(e.getPoint().x - this.point1.x) < Math.abs(e.getPoint().y - this.point1.y) ) {
+                                            
+                        // Calculate the ratio with the help of the frame and the selected area.
+                        double frameHeight = this.chartPanel.getMap().getHeight();
+                        boxHeight          = e.getPoint().y - this.point1.y;
+                        ratio              = frameHeight / boxHeight;
+                        
+                        // Calculate the width of the box, if had it been a ratio point.
+                        boxWidth = this.chartPanel.getMap().getWidth() / ratio;
+                        
+                        fakeRatioPoint = this.getRatioPoint(
+                                (MapBean) e.getSource(), this.point1, new Point((int) (this.point1.x+boxWidth), e.getPoint().y));
+
+                        offsetPoint = new Point((int) (this.point1.x - boxWidth / 2), (int) (e.getPoint().y - boxHeight));
+                    }
+                    
+                    int centerX = (int) (offsetPoint.x + boxWidth / 2);
+                    int centerY = (int) (offsetPoint.y + boxHeight / 2);
+                    
+                    LatLonPoint center = projection.inverse(centerX, centerY);
+                    
+                    float newScale;
+                    if (this.point1.x < e.getPoint().x) {
+                        newScale = ProjMath.getScale(offsetPoint, fakeRatioPoint, projection);                    
+                    } else {
+                        newScale = ProjMath.getScale(fakeRatioPoint, offsetPoint, projection);
+                    }
+                    
+                    p.setScale(newScale);
+                    p.setCenter(center);
+                    map.setProjection(p);
+                    
+                    
+                    // Reset points.
+                    this.point1 = null;
+                    this.point2 = null;
+                    
+                    
+                    return;
+                }
+                
                 point2 = getRatioPoint((MapBean) e.getSource(), point1,
                         e.getPoint());
                 
@@ -335,11 +405,13 @@ public class NavigationMouseMode extends AbstractCoordMouseMode {
                 paintRectangle((MapBean) e.getSource(), point1, point2);
                 // paint new rectangle
                 // point2 = e.getPoint();
-                    point2 = getRatioPoint((MapBean) e.getSource(), point1,
-                            e.getPoint());
+                if (!e.isControlDown()) {
+                    point2 = getRatioPoint((MapBean) e.getSource(), point1, e.getPoint());
+                } else {
+                    this.point2 = e.getPoint();
+                }
                 
                 paintRectangle((MapBean) e.getSource(), point1, point2);
-                
             }
         }
     }
