@@ -36,11 +36,11 @@ public class PartialRouteFilter {
     /**
      * Constructor
      */
-    public PartialRouteFilter(FilterType type, int backward, int forward) {
+    public PartialRouteFilter(FilterType type, int forward, int backward) {
         super();
         this.type = type;
-        this.backward = backward;
         this.forward = forward;
+        this.backward = backward;
     }
     
     /**

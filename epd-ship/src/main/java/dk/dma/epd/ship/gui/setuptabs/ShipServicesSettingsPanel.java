@@ -23,6 +23,7 @@ import javax.swing.ImageIcon;
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.common.prototype.model.route.PartialRouteFilter.FilterType;
+import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.settings.EPDCloudSettings;
 
@@ -130,6 +131,7 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         intendedRouteFilterPanel.add(comboBoxSelectMethod);
         comboBoxSelectMethod.addActionListener(this);
         
+        // Update gui.
         this.updateGui();
     }
     
@@ -138,12 +140,14 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
      */
     private void updateGui() {
 
-        String measurement = "";
-        selectedType = null;
+        String measurement = ""; // The unit which the filter type is useing.
+        selectedType = null;     // The selected filter type.
         
+        // Set measurement unit and selected filter type based on what
+        // index is chosen in the combobox.
         if (this.comboBoxSelectMethod.getSelectedIndex() == 0) {
             
-            measurement = "(kn)";
+            measurement = "(nm)";
             selectedType = FilterType.METERS;
             
         } else if (this.comboBoxSelectMethod.getSelectedIndex() == 1) {
@@ -157,7 +161,10 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
             selectedType = FilterType.COUNT;
         }
         
+        // Update measurement.
         this.setMeasurementLabels(measurement);
+        
+        // Update spinner values based on what filter type is selected in the combobox.
         this.setSpinnerValues(selectedType);
     }
 
@@ -167,12 +174,37 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
      * @param type The selected FilterType Enum.
      */
     private void setSpinnerValues(FilterType type) {
+        // If the filter type is set to distance, set the forward and backward spinner models to
+        // a double model, since nm is measured in double values.
+        if (type.equals(FilterType.METERS)) {
+            this.spinnerForward.setModel(new SpinnerNumberModel(new Double(1), new Double(0.001), null, new Double(0.001)));
+            this.spinnerBackward.setModel(new SpinnerNumberModel(new Double(1), new Double(0.001), null, new Double(0.001)));
         
-        if (this.filterType != null) {
-            
-            if (this.filterType.equals(type)) {
+        // If the filter type is set to any other than distance, set the forward and backward
+        // spinner models to a reguler integer model.
+        } else {
+
+            this.spinnerForward.setModel(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
+            this.spinnerBackward.setModel(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
+        }
+        
+        // If the selected filter type is the same as the one stored in the settings,
+        // load the values into the forward and backward spinners.
+        if (type.equals(this.filterType)) {
+            if (this.comboBoxSelectMethod.getSelectedIndex() == 0) {
+                this.spinnerForward.setValue(Converter.metersToNm(this.cloudSettings.getIntendedRouteFilter().getForward()));
+                this.spinnerBackward.setValue(Converter.metersToNm(this.cloudSettings.getIntendedRouteFilter().getBackward()));                
+            } else {
                 this.spinnerForward.setValue(this.cloudSettings.getIntendedRouteFilter().getForward());
                 this.spinnerBackward.setValue(this.cloudSettings.getIntendedRouteFilter().getBackward());
+            }
+
+        // If the selected filter type is not the same as the one stored in the settings,
+        // just load 0 into the spinners, to show that the user should init new values.
+        } else {
+            if (this.comboBoxSelectMethod.getSelectedIndex() == 0) {
+                this.spinnerForward.setValue(0.001);
+                this.spinnerBackward.setValue(0.001);
             } else {
                 this.spinnerForward.setValue(0);
                 this.spinnerBackward.setValue(0);
@@ -195,6 +227,7 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
     @Override
     public void actionPerformed(ActionEvent e) {
         
+        // Update gui everytime a filter type is selected.
         updateGui();
     }
 
@@ -204,13 +237,31 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
     @Override
     protected boolean checkSettingsChanged() {
         
+        // Check for changes in generel settings.
         boolean changesWereMade = 
                 changed(this.cloudSettings.isBroadcastIntendedRoute(), this.chckbxBroadcastIntendedRoute.isSelected()) ||
                 changed(this.cloudSettings.getTimeBetweenBroadCast(), this.spinnerTimeBetweenBroadcast.getValue()) ||
                 changed(this.cloudSettings.getAdaptionTime(), this.spinnerAdaptionTime.getValue()) ||
-                changed(this.cloudSettings.getIntendedRouteFilter().getType(), this.selectedType) ||
-                changed(this.cloudSettings.getIntendedRouteFilter().getForward(), this.spinnerForward.getValue()) ||
-                changed(this.cloudSettings.getIntendedRouteFilter().getBackward(), this.spinnerBackward.getValue());
+                changed(this.cloudSettings.getIntendedRouteFilter().getType(), this.selectedType);
+        
+        // If no changes were made to the other settings, check if changes were
+        // made to the intended router filter settings.
+        if (!changesWereMade) {
+            // If the filter type is set to distance, convert the forward and backward 
+            // values to meter and compare them to what is stored in the settings.
+            if (this.filterType.equals(FilterType.METERS)) {
+                changesWereMade = 
+                        changed(this.cloudSettings.getIntendedRouteFilter().getForward(), Math.round(Converter.nmToMeters((double) this.spinnerForward.getValue()))) ||
+                        changed(this.cloudSettings.getIntendedRouteFilter().getBackward(), Math.round(Converter.nmToMeters((double) this.spinnerBackward.getValue())));
+            
+            // If the filter type is set to any other type, compare the forward and backward
+            // values to what is stored in the settings.
+            } else {
+                changesWereMade =
+                        changed(this.cloudSettings.getIntendedRouteFilter().getForward(), this.spinnerForward.getValue()) ||
+                        changed(this.cloudSettings.getIntendedRouteFilter().getBackward(), this.spinnerBackward.getValue());
+            }
+        }
 
         return changesWereMade;
     }
@@ -229,7 +280,7 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         this.spinnerTimeBetweenBroadcast.setValue(this.cloudSettings.getTimeBetweenBroadCast());
         this.spinnerAdaptionTime.setValue(this.cloudSettings.getAdaptionTime());
         
-        filterType = this.cloudSettings.getIntendedRouteFilter().getType();
+        this.filterType = this.cloudSettings.getIntendedRouteFilter().getType();
         
         // Set combobox selection.
         if (filterType.equals(FilterType.METERS)) {
@@ -241,8 +292,13 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         }
         
         // Set value of backward and forward.
-        this.spinnerForward.setValue(this.cloudSettings.getIntendedRouteFilter().getForward());
-        this.spinnerBackward.setValue(this.cloudSettings.getIntendedRouteFilter().getBackward());
+        if (filterType.equals(FilterType.METERS)) {
+            this.spinnerForward.setValue(Converter.metersToNm(this.cloudSettings.getIntendedRouteFilter().getForward()));
+            this.spinnerBackward.setValue(Converter.metersToNm(this.cloudSettings.getIntendedRouteFilter().getBackward())); 
+        } else {
+            this.spinnerForward.setValue(this.cloudSettings.getIntendedRouteFilter().getForward());
+            this.spinnerBackward.setValue(this.cloudSettings.getIntendedRouteFilter().getBackward()); 
+        }
     }
 
     /**
@@ -250,9 +306,7 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
      */
     @Override
     protected void doSaveSettings() {
-        
-        System.out.println(this.chckbxBroadcastIntendedRoute.isSelected());
-        
+                
         // Save cloud Intended Route Settings.
         this.cloudSettings.setBroadcastIntendedRoute(this.chckbxBroadcastIntendedRoute.isSelected());
         this.cloudSettings.setTimeBetweenBroadCast((Integer) this.spinnerTimeBetweenBroadcast.getValue());
@@ -260,8 +314,18 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         
         // Save Intended route filter settings.
         this.cloudSettings.getIntendedRouteFilter().setType(this.selectedType);
-        this.cloudSettings.getIntendedRouteFilter().setForward((Integer) this.spinnerForward.getValue());
-        this.cloudSettings.getIntendedRouteFilter().setBackward((Integer) this.spinnerBackward.getValue());
+        
+        // If the filter type is set to distance, the forward and backward values are
+        // converted to meters and stored in the settings.
+        if (this.comboBoxSelectMethod.getSelectedIndex() == 0) {
+            this.cloudSettings.getIntendedRouteFilter().setForward((int) Math.round(Converter.nmToMeters((double) this.spinnerForward.getValue())));
+            this.cloudSettings.getIntendedRouteFilter().setBackward((int) Math.round(Converter.nmToMeters((double) this.spinnerBackward.getValue())));
+        // If the filter tupe is set to any other than distance, just save the
+        // forward and backward values to the settings.
+        } else {
+            this.cloudSettings.getIntendedRouteFilter().setForward((int) this.spinnerForward.getValue());
+            this.cloudSettings.getIntendedRouteFilter().setBackward((int) this.spinnerBackward.getValue());
+        }
     }
 
     /**
