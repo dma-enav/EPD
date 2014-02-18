@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -48,6 +49,7 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteBroadcast;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
 import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
+import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
@@ -272,6 +274,46 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
      */
     protected void updateFilter() {
 
+        // Clear existing filture and recalculate everything
+        // Compare all routes to current active route
+
+        filteredIntendedRoutes.clear();
+
+        // Compare all intended routes against all other intended routes
+
+        Iterator<Entry<Long, IntendedRoute>> outerIterator = intendedRoutes.entrySet().iterator();
+        while (outerIterator.hasNext()) {
+            Entry<Long, IntendedRoute> intendedRoute = outerIterator.next();
+
+            IntendedRoute route1 = intendedRoute.getValue();
+
+            Iterator<Entry<Long, IntendedRoute>> innerIterator = intendedRoutes.entrySet().iterator();
+            while (innerIterator.hasNext()) {
+                Entry<Long, IntendedRoute> intendedRoute2 = innerIterator.next();
+
+                IntendedRoute route2 = intendedRoute2.getValue();
+
+                if (route1.getMmsi() != route2.getMmsi()) {
+                    FilteredIntendedRoute filter = compareRoutes(route1, route2);
+
+                    // No warnings, ignore it
+                    if (filter.getFilterMessages().size() != 0) {
+
+                        // Add the intended route to the filter
+                        filter.setIntendedRoute(route2);
+                        // Add the filtered route to the list
+                        filteredIntendedRoutes.put(route2.getMmsi(), filter);
+
+                    }
+                }
+
+            }
+
+        }
+
+        // Call an update
+//         intendedRouteLayerCommon.loadIntendedRoutes();
+
     }
 
     /**
@@ -280,7 +322,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
      * @param route
      */
     protected void applyFilter(IntendedRoute route) {
-
+        updateFilter();
     }
 
     /**
@@ -525,7 +567,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
     private List<IntendedRouteFilterMessage> proximityFilterGreatCircle(Route route1, Route route2, int i, int j, Position A,
             Position B, Position C, Position D, double epsilon) {
 
-        List<IntendedRouteFilterMessage> proximityFilterMessages = new ArrayList();
+        List<IntendedRouteFilterMessage> proximityFilterMessages = new ArrayList<IntendedRouteFilterMessage>();
 
         // int iterations = 512;
 
@@ -699,9 +741,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
         } else {
             // route2 is the GC
-            
-            
-            
+
             double distance = C.distanceTo(D, CoordinateSystem.GEODETIC);
 
             double lineSegmentSize = determineSegmentSize(distance);
@@ -727,11 +767,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
             }
             // Add the last waypoint
             segment2Positions.add(D);
-            
-            
-            
-            
-            
+
             // Project all points into 2d space and compare against the RL line
             // The returned point will be on route1 line
 
@@ -766,8 +802,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
                 }
             }
-            
-  
+
         }
 
         return messageList;
