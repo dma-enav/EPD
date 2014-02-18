@@ -53,6 +53,7 @@ public abstract class AbstractWMSService extends Observable {
     protected final CopyOnWriteArrayList<WMSEventListener> listeners;
 
     public AbstractWMSService(String wmsQuery) {
+
         this.LOG = LoggerFactory.getLogger(this.getClass());
         this.wmsQuery = wmsQuery;
         this.listeners = new CopyOnWriteArrayList<>();
@@ -70,10 +71,8 @@ public abstract class AbstractWMSService extends Observable {
     }
 
     protected void setWMSPosition(Projection p) {
-        setWMSPosition(p.getUpperLeft().getX(), p.getUpperLeft().getY(), p
-                .getUpperLeft().getX(), p.getUpperLeft().getY(), p
-                .getLowerRight().getX(), p.getLowerRight().getY(),
-                p.getWidth(), p.getHeight());
+        setWMSPosition(p.getUpperLeft().getX(), p.getUpperLeft().getY(), p.getUpperLeft().getX(), p.getUpperLeft().getY(), p
+                .getLowerRight().getX(), p.getLowerRight().getY(), p.getWidth(), p.getHeight());
     }
 
     protected void setZoomLevel(float zoom) {
@@ -92,8 +91,7 @@ public abstract class AbstractWMSService extends Observable {
      * @param w
      * @param h
      */
-    protected void setWMSPosition(Double ullon, Double ullat,
-            Double upperLeftLon, Double upperLeftLat, Double lowerRightLon,
+    protected void setWMSPosition(Double ullon, Double ullat, Double upperLeftLon, Double upperLeftLat, Double lowerRightLon,
             Double lowerRightLat, int w, int h) {
 
         this.wmsWidth = w;
@@ -119,54 +117,53 @@ public abstract class AbstractWMSService extends Observable {
     protected String getQueryString() {
         String queryString = "";
 
-        if (wmsQuery.indexOf("kortforsyningen.kms.dk/soe_enc_primar") > 0) {
-
-            String[] splittedUrl = wmsQuery.split("&");
-            String newUrl = "";
-
-            String styleReplacer = "";
-
-            // 3428460
-            // Do style 244
-            if (zoomLevel > 727875) {
-                styleReplacer = "STYLES=style-id-244";
-            }
-
-            // Do style 200
-            if (zoomLevel <= 727875) {
-                styleReplacer = "STYLES=style-id-200";
-            }
-
-            // Do style 246
-            if (zoomLevel <= 363937) {
-                styleReplacer = "STYLES=style-id-246";
-            }
-
-            // //Do style 245
-            // if (zoomLevel <= 181968){
-            // styleReplacer = "STYLES=style-id-245";
-            // }
-
-            for (int i = 0; i < splittedUrl.length; i++) {
-
-                if (splittedUrl[i].startsWith("STYLES=")) {
-                    splittedUrl[i] = styleReplacer;
-                }
-
-                if (i != splittedUrl.length - 1) {
-
-                    newUrl = newUrl + splittedUrl[i] + "&";
-                } else {
-                    newUrl = newUrl + splittedUrl[i];
-                }
-
-            }
-            queryString = newUrl + "&BBOX=" + getBbox() + "&WIDTH=" + width
-                    + "&HEIGHT=" + height;
-        } else {
-            queryString = wmsQuery + "&BBOX=" + getBbox() + "&WIDTH=" + width
-                    + "&HEIGHT=" + height;
-        }
+        // if (wmsQuery.indexOf("kortforsyningen.kms.dk/soe_enc_primar") > 0) {
+        //
+        // String[] splittedUrl = wmsQuery.split("&");
+        // String newUrl = "";
+        //
+        // String styleReplacer = "";
+        //
+        // // 3428460
+        // // Do style 244
+        // if (zoomLevel > 727875) {
+        // styleReplacer = "STYLES=style-id-244";
+        // }
+        //
+        // // Do style 200
+        // if (zoomLevel <= 727875) {
+        // styleReplacer = "STYLES=style-id-200";
+        // }
+        //
+        // // Do style 246
+        // if (zoomLevel <= 363937) {
+        // styleReplacer = "STYLES=style-id-246";
+        // }
+        //
+        // // //Do style 245
+        // // if (zoomLevel <= 181968){
+        // // styleReplacer = "STYLES=style-id-245";
+        // // }
+        //
+        // for (int i = 0; i < splittedUrl.length; i++) {
+        //
+        // if (splittedUrl[i].startsWith("STYLES=")) {
+        // splittedUrl[i] = styleReplacer;
+        // }
+        //
+        // if (i != splittedUrl.length - 1) {
+        //
+        // newUrl = newUrl + splittedUrl[i] + "&";
+        // } else {
+        // newUrl = newUrl + splittedUrl[i];
+        // }
+        //
+        // }
+        // queryString = newUrl + "&BBOX=" + getBbox() + "&WIDTH=" + width
+        // + "&HEIGHT=" + height;
+        // } else {
+        queryString = wmsQuery + "&BBOX=" + getBbox() + "&WIDTH=" + width + "&HEIGHT=" + height;
+        // }
 
         return queryString;
     }
@@ -176,8 +173,7 @@ public abstract class AbstractWMSService extends Observable {
     }
 
     /**
-     * After the query has been generated this completes it and returns a
-     * OMGraphiclist of the graphics
+     * After the query has been generated this completes it and returns a OMGraphiclist of the graphics
      * 
      * @return
      */
@@ -186,15 +182,13 @@ public abstract class AbstractWMSService extends Observable {
     public String getBbox() {
         // @author Renoud Because finished education and 10 years of experince
         // we know to add the delta values
-        return Double.toString(upperLeftLon + deltaX) + ","
-                + Double.toString(lowerRightLat + deltaY) + ","
-                + Double.toString(lowerRightLon + deltaX) + ","
-                + Double.toString(upperLeftLat + deltaY);
+        return Double.toString(upperLeftLon + deltaX) + "," + Double.toString(lowerRightLat + deltaY) + ","
+                + Double.toString(lowerRightLon + deltaX) + "," + Double.toString(upperLeftLat + deltaY);
 
     }
 
     public static Projection normalizeProjection(Projection p) {
-        //TODO: implement
+        // TODO: implement
         return (Projection) p.makeClone();
 
     }

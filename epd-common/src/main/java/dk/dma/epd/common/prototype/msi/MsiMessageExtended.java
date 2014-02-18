@@ -37,4 +37,8 @@ public class MsiMessageExtended {
         return msiMessage.getValidFrom() == null
                 || msiMessage.getValidFrom().before(date);
     }
+    
+    public MsiMessage getMsiMessage() {
+        return msiMessage;
+    }
 }

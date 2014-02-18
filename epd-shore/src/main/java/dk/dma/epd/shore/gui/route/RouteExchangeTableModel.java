@@ -22,10 +22,10 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.AIS_STATUS;
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.service.RouteSuggestionData;
+import dk.dma.epd.shore.service.RouteSuggestionHandler;
 
 /**
  * Table model for Route Exchange Notifications
@@ -39,7 +39,7 @@ public class RouteExchangeTableModel extends AbstractTableModel {
     private static final String[] COLUMN_NAMES = { "ID", "MMSI", "Route Name",
             "Status" };
 
-    private EnavServiceHandler enavServiceHandler;
+    private RouteSuggestionHandler routeSuggestionHandler;
 
     private List<RouteSuggestionData> messages = new ArrayList<RouteSuggestionData>();
 
@@ -48,9 +48,9 @@ public class RouteExchangeTableModel extends AbstractTableModel {
      * 
      * @param msiHandler
      */
-    public RouteExchangeTableModel(EnavServiceHandler enavServiceHandler) {
+    public RouteExchangeTableModel(RouteSuggestionHandler routeSuggestionHandler) {
         super();
-        this.enavServiceHandler = enavServiceHandler;
+        this.routeSuggestionHandler = routeSuggestionHandler;
         updateMessages();
     }
 
@@ -134,28 +134,28 @@ public class RouteExchangeTableModel extends AbstractTableModel {
         }
     }
 
-    public String interpetStatusShort(AIS_STATUS status) {
+    public String interpetStatusShort(RouteSuggestionStatus status) {
 
-        if (status == AIS_STATUS.RECIEVED_APP_ACK) {
+        if (status == RouteSuggestionStatus.RECEIVED_APP_ACK) {
             return "Sent";
         } else {
-            if (status == AIS_STATUS.FAILED) {
+            if (status == RouteSuggestionStatus.FAILED) {
                 return "Failed";
             } else {
-                if (status == AIS_STATUS.NOT_SENT) {
+                if (status == RouteSuggestionStatus.NOT_SENT) {
                     return "Not sent";
                 } else {
-                    if (status == AIS_STATUS.RECIEVED_ACCEPTED) {
+                    if (status == RouteSuggestionStatus.RECEIVED_ACCEPTED) {
                         return "Accepted";
                     } else {
-                        if (status == AIS_STATUS.RECIEVED_NOTED) {
+                        if (status == RouteSuggestionStatus.RECEIVED_NOTED) {
                             return "Noted";
                         } else {
-                            if (status == AIS_STATUS.RECIEVED_REJECTED) {
+                            if (status == RouteSuggestionStatus.RECEIVED_REJECTED) {
                                 return "Rejected";
                             } else {
-                                if (status == AIS_STATUS.SENT_NOT_ACK) {
-                                    return "Sent but not recieved";
+                                if (status == RouteSuggestionStatus.SENT_NOT_ACK) {
+                                    return "Sent but not received";
                                 } else {
                                     return "Unknown: " + status;
                                 }
@@ -167,27 +167,27 @@ public class RouteExchangeTableModel extends AbstractTableModel {
         }
     }
 
-    public String interpetStatusLong(AIS_STATUS status) {
+    public String interpetStatusLong(RouteSuggestionStatus status) {
 
-        if (status == AIS_STATUS.RECIEVED_APP_ACK) {
+        if (status == RouteSuggestionStatus.RECEIVED_APP_ACK) {
             return "Sent and acknowleged by application but not user";
         } else {
-            if (status == AIS_STATUS.FAILED) {
+            if (status == RouteSuggestionStatus.FAILED) {
                 return "Failed to send to target";
             } else {
-                if (status == AIS_STATUS.NOT_SENT) {
+                if (status == RouteSuggestionStatus.NOT_SENT) {
                     return "Not sent - check network status";
                 } else {
-                    if (status == AIS_STATUS.RECIEVED_ACCEPTED) {
+                    if (status == RouteSuggestionStatus.RECEIVED_ACCEPTED) {
                         return "Route Suggestion Accepted by ship";
                     } else {
-                        if (status == AIS_STATUS.RECIEVED_NOTED) {
+                        if (status == RouteSuggestionStatus.RECEIVED_NOTED) {
                             return "Route Suggestion Noted by user";
                         } else {
-                            if (status == AIS_STATUS.RECIEVED_REJECTED) {
+                            if (status == RouteSuggestionStatus.RECEIVED_REJECTED) {
                                 return "Route Suggestion Rejected by user";
                             } else {
-                                if (status == AIS_STATUS.SENT_NOT_ACK) {
+                                if (status == RouteSuggestionStatus.SENT_NOT_ACK) {
                                     return "Sent but no answer from route aplication";
                                 } else {
                                     return "Unknown: " + status;
@@ -227,13 +227,13 @@ public class RouteExchangeTableModel extends AbstractTableModel {
                 return Formatter.formatShortDateTime(new Date(message
                         .getReply().getSendDate()));
             } else {
-                return "No reply recieved yet";
+                return "No reply received yet";
             }
         case 8:
             if (message.getReply() != null){
                 return message.getReply().getMessage();
             }else{
-                return "No reply recieved yet";
+                return "No reply received yet";
             }
         default:
             return "";
@@ -246,7 +246,7 @@ public class RouteExchangeTableModel extends AbstractTableModel {
     public void updateMessages() {
         messages.clear();
 
-        for (Iterator<RouteSuggestionData> it = enavServiceHandler
+        for (Iterator<RouteSuggestionData> it = routeSuggestionHandler
                 .getRouteSuggestions().values().iterator(); it.hasNext();) {
             messages.add(it.next());
         }

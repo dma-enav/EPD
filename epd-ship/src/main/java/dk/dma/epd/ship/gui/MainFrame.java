@@ -16,22 +16,18 @@
 package dk.dma.epd.ship.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.WindowConstants;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.MapHandler;
 
+import dk.dma.epd.common.prototype.event.HistoryListener;
+import dk.dma.epd.common.prototype.gui.MainFrameCommon;
+import dk.dma.epd.common.prototype.gui.IMapFrame;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.ais.AisDialog;
@@ -54,12 +50,11 @@ import dk.dma.epd.ship.settings.EPDGuiSettings;
 /**
  * The main frame containing map and panels
  */
-public class MainFrame extends JFrame implements WindowListener {
+public class MainFrame extends MainFrameCommon implements IMapFrame {
 
     private static final String TITLE = "EPD-ship " + VersionInfo.getVersion();
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(MainFrame.class);
 
     protected static final int SENSOR_PANEL_WIDTH = 190;
 
@@ -80,9 +75,11 @@ public class MainFrame extends JFrame implements WindowListener {
     private SARComponentPanel sarPanel;
 
     private MultiSourcePntComponentPanel msPntComponentPanel;
+
     // private MonaLisaCommunicationComponentPanel monaLisaPanel;
 
     private JPanel glassPanel;
+
     private MsiDialog msiDialog;
     private AisDialog aisDialog;
     private RouteSuggestionDialog routeSuggestionDialog;
@@ -91,21 +88,38 @@ public class MainFrame extends JFrame implements WindowListener {
 
     private MapMenu mapMenu;
     private MenuBar menuBar;
-
-    private RequestStrategicRouteDialog monaLisaSTCCDialog;
+    private RequestStrategicRouteDialog strategicRouteSTCCDialog;
 
     public MainFrame() {
-        super();
+        super(TITLE);
         initGUI();
+    }
+
+    /**
+     * Initializes the glass pane of the frame
+     */
+    @Override
+    protected void initGlassPane() {
+        glassPanel = (JPanel) getGlassPane();
+        glassPanel.setLayout(null);
+        glassPanel.setVisible(false);
+    }
+
+    /**
+     * Returns a reference to the map frame cast as a component
+     * 
+     * @return a reference to the map frame cast as a component
+     */
+    @Override
+    public Component asComponent() {
+        return this;
     }
 
     private void initGUI() {
         MapHandler mapHandler = EPDShip.getInstance().getMapHandler();
         // Get settings
-        EPDGuiSettings guiSettings = EPDShip.getInstance().getSettings()
-                .getGuiSettings();
+        EPDGuiSettings guiSettings = EPDShip.getInstance().getSettings().getGuiSettings();
 
-        setTitle(TITLE);
         // Set location and size
         if (guiSettings.isMaximized()) {
             setExtendedState(getExtendedState() | MAXIMIZED_BOTH);
@@ -113,9 +127,6 @@ public class MainFrame extends JFrame implements WindowListener {
             setLocation(guiSettings.getAppLocation());
             setSize(guiSettings.getAppDimensions());
         }
-        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        setIconImage(getAppIcon());
-        addWindowListener(this);
 
         // Create panels
         Container pane = getContentPane();
@@ -134,10 +145,9 @@ public class MainFrame extends JFrame implements WindowListener {
         nogoPanel = new NoGoComponentPanel();
         sarPanel = new SARComponentPanel();
         msPntComponentPanel = new MultiSourcePntComponentPanel();
-        // monaLisaPanel = new MonaLisaCommunicationComponentPanel();
 
         // Mona Lisa Dialog
-        monaLisaSTCCDialog = new RequestStrategicRouteDialog(this);
+        strategicRouteSTCCDialog = new RequestStrategicRouteDialog(this);
 
         // Unmovable panels
         bottomPanel = new BottomPanel();
@@ -180,7 +190,6 @@ public class MainFrame extends JFrame implements WindowListener {
         mapHandler.add(sarPanel);
 
         mapHandler.add(msPntComponentPanel);
-        // mapHandler.add(monaLisaPanel);
 
         // Create top menubar
         menuBar = new MenuBar();
@@ -211,7 +220,13 @@ public class MainFrame extends JFrame implements WindowListener {
         mapMenu = new MapMenu();
         mapHandler.add(mapMenu);
 
+        // Add a history listener to the chart panel.
+        this.chartPanel.setHistoryListener(new HistoryListener(this.chartPanel));
+        this.chartPanel.getMap().addProjectionListener(this.chartPanel.getHistoryListener());
+        chartPanel.getHistoryListener().setNavigationPanel(topPanel);
+
         if (EPDShip.getInstance().getSettings().getGuiSettings().isFullscreen()) {
+
             doFullScreen();
         } else {
             doNormal();
@@ -227,46 +242,24 @@ public class MainFrame extends JFrame implements WindowListener {
 
     }
 
-    public RequestStrategicRouteDialog getMonaLisaSTCCDialog() {
-        return monaLisaSTCCDialog;
+    public RequestStrategicRouteDialog getStrategicRouteSTCCDialog() {
+        return strategicRouteSTCCDialog;
     }
 
-    private void initGlassPane() {
-        glassPanel = (JPanel) getGlassPane();
-        glassPanel.setLayout(null);
-        glassPanel.setVisible(false);
-    }
-
-    public static Image getAppIcon() {
-        java.net.URL imgURL = EPDShip.class.getResource("/images/appicon.png");
-        if (imgURL != null) {
-            return new ImageIcon(imgURL).getImage();
-        }
-        LOG.error("Could not find app icon");
-        return null;
-    }
-
+    /**
+     * Called when the window is closing
+     */
     @Override
-    public void windowActivated(WindowEvent we) {
-    }
-
-    @Override
-    public void windowClosed(WindowEvent we) {
-    }
-
-    @Override
-    public void windowClosing(WindowEvent we) {
-
+    public void onWindowClosing() {
         // Close routine
         dockableComponents.saveLayout();
 
-        EPDShip.closeApp();
+        super.onWindowClosing();
     }
 
     public void saveSettings() {
         // Save gui settings
-        EPDGuiSettings guiSettings = EPDShip.getInstance().getSettings()
-                .getGuiSettings();
+        EPDGuiSettings guiSettings = EPDShip.getInstance().getSettings().getGuiSettings();
         guiSettings.setMaximized((getExtendedState() & MAXIMIZED_BOTH) > 0);
         guiSettings.setAppLocation(getLocation());
         guiSettings.setAppDimensions(getSize());
@@ -274,28 +267,8 @@ public class MainFrame extends JFrame implements WindowListener {
         chartPanel.saveSettings();
     }
 
-    @Override
-    public void windowDeactivated(WindowEvent we) {
-    }
-
-    @Override
-    public void windowDeiconified(WindowEvent we) {
-    }
-
-    @Override
-    public void windowIconified(WindowEvent we) {
-    }
-
-    @Override
-    public void windowOpened(WindowEvent we) {
-    }
-
     public ChartPanel getChartPanel() {
         return chartPanel;
-    }
-
-    public JPanel getGlassPanel() {
-        return glassPanel;
     }
 
     public TopPanel getTopPanel() {
@@ -350,57 +323,27 @@ public class MainFrame extends JFrame implements WindowListener {
         return msPntComponentPanel;
     }
 
-    // public MonaLisaCommunicationComponentPanel getMonaLisaPanel() {
-    // return monaLisaPanel;
-    // }
-
     public void doFullScreen() {
         setVisible(false);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         dispose();
         setUndecorated(true);
-        // setVisible(true);
         setVisible(true);
-        //
-        // if
-        // (EPDShip.getInstance().getSettings().getGuiSettings().isFullscreen())
-        // {
-        // setVisible(false);
-        // setExtendedState(JFrame.MAXIMIZED_BOTH);
-        // dispose();
-        // setUndecorated(true);
-        // // setVisible(true);
-        // setVisible(true);
-        // EPDShip.getInstance().getSettings().getGuiSettings().setFullscreen(false);
-        // } else {
-        //
-        // setVisible(false);
-        // setExtendedState(JFrame.NORMAL);
-        //
-        EPDShip.getInstance().getSettings().getGuiSettings()
-                .setFullscreen(true);
-        // setSize(new Dimension(1000, 700));
-        //
-        // dispose();
-        // setUndecorated(false);
-        // setVisible(true);
-        // }
+        EPDShip.getInstance().getSettings().getGuiSettings().setFullscreen(true);
     }
 
     public void doNormal() {
         setVisible(false);
         setExtendedState(JFrame.NORMAL);
 
-        EPDShip.getInstance().getSettings().getGuiSettings()
-                .setFullscreen(true);
+        EPDShip.getInstance().getSettings().getGuiSettings().setFullscreen(true);
         setSize(new Dimension(1000, 700));
 
         dispose();
         setUndecorated(false);
         setVisible(true);
 
-        EPDShip.getInstance().getSettings().getGuiSettings()
-                .setFullscreen(false);
+        EPDShip.getInstance().getSettings().getGuiSettings().setFullscreen(false);
     }
 
     /**
@@ -408,6 +351,20 @@ public class MainFrame extends JFrame implements WindowListener {
      */
     public SARComponentPanel getSarPanel() {
         return sarPanel;
+    }
+
+    /**
+     * Save the centering of the ship in history.
+     */
+    public void saveCentreOnShip() {
+        // Save the centering of ship to history.
+        // ----------------------------
+
+        EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().setShouldSave(true);
+        EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().saveToHistoryBeforeMoving();
+
+        // Move view to centre on ship.
+        this.getChartPanel().centreOnShip();
     }
 
 }

@@ -78,12 +78,9 @@ public class RouteHttp {
 
         if (resCode != 200) {
             method.releaseConnection();
-            // throw new
-            // ShoreServiceException(ShoreServiceErrorCode.SERVER_ERROR);
         }
 
         try {
-            // System.out.println("Message recieved:");
             responseBody = method.getResponseBodyAsString();
             // System.out.println(responseBody);
         } catch (IOException e) {

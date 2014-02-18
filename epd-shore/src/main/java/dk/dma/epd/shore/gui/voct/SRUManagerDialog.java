@@ -52,11 +52,11 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
+import dk.dma.epd.common.prototype.gui.ComponentFrame;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
-import dk.dma.epd.shore.gui.utils.ComponentFrame;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.SRUUpdateEvent;

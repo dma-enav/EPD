@@ -27,10 +27,10 @@ import dk.dma.epd.common.graphics.CenterRaster;
  */
 public class AisTargetSelectionGraphic extends OMGraphicList {
     private static final long serialVersionUID = 1L;
-    CenterRaster selectionGraphics;
-    ImageIcon targetImage;
-    int imageWidth;
-    int imageHeight;
+    private CenterRaster selectionGraphics;
+    private ImageIcon targetImage;
+    private int imageWidth;
+    private int imageHeight;
 
     public AisTargetSelectionGraphic() {
         super();

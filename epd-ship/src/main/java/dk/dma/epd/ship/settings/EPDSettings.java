@@ -15,21 +15,11 @@
  */
 package dk.dma.epd.ship.settings;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Properties;
-import java.util.TreeSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.prototype.settings.Settings;
-import dk.dma.epd.ship.EPDShip;
 
 
 /**
@@ -38,9 +28,8 @@ import dk.dma.epd.ship.EPDShip;
 public class EPDSettings extends Settings implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(EPDSettings.class);
 
-    private final String settingsFile;
+    private final String settingsFile = "settings.properties";
 
     private final EPDGuiSettings guiSettings = new EPDGuiSettings();
     private final EPDMapSettings mapSettings = new EPDMapSettings();
@@ -49,29 +38,20 @@ public class EPDSettings extends Settings implements Serializable {
     private final EPDAisSettings aisSettings = new EPDAisSettings();
     private final EPDEnavSettings enavSettings = new EPDEnavSettings();
     private final EPDS57LayerSettings s57Settings = new EPDS57LayerSettings();
+    private final EPDCloudSettings cloudSettings = new EPDCloudSettings();
 
     public EPDSettings() {
-        this("settings.properties");
+        super();
     }
 
-    public EPDSettings(String settingsFile) {
-        this.settingsFile = settingsFile;
-    }
-
+    /**
+     * Load the settings files as well as the workspace files
+     */
+    @Override
     public void loadFromFile() {
         // Open properties file
         Properties props = new Properties();
-        //
-        try {
-            props.load(new FileInputStream(settingsFile));
-        } catch (FileNotFoundException e) {
-            LOG.error("No settings file found");
-            return;
-        } catch (IOException e) {
-            LOG.error("Settings file could not be loaded");
-            return;
-        }
-        LOG.info("Settings file loaded, path=" + settingsFile);
+        loadProperties(props, settingsFile);
 
         aisSettings.readProperties(props);
         enavSettings.readProperties(props);
@@ -79,10 +59,15 @@ public class EPDSettings extends Settings implements Serializable {
         mapSettings.readProperties(props);
         navSettings.readProperties(props);
         sensorSettings.readProperties(props);
+        cloudSettings.readProperties(props);
         
-        s57Settings.readSettings(EPDShip.getInstance().getHomePath().resolve("s57Props.properties").toString());
+        s57Settings.readSettings(resolve("s57Props.properties").toString());
     }
 
+    /**
+     * Save the settings to the files
+     */
+    @Override
     public void saveToFile() {
         Properties props = new Properties();
         aisSettings.setProperties(props);
@@ -91,25 +76,11 @@ public class EPDSettings extends Settings implements Serializable {
         mapSettings.setProperties(props);
         navSettings.setProperties(props);
         sensorSettings.setProperties(props);
-        try (
-            FileWriter outFile = new FileWriter(settingsFile);
-            PrintWriter out = new PrintWriter(outFile);) {
-            out.println("# EPD-ship settings saved: " + new Date());
-            TreeSet<String> keys = new TreeSet<>();
-            for (Object key : props.keySet()) {
-                keys.add((String) key);
-            }
-            for (String key : keys) {
-                out.println(key + "=" + props.getProperty(key));
-            }
-            LOG.error("Settings file updated, path=" + settingsFile);
-        } catch (IOException e) {
-            LOG.error("Failed to save settings file");
-        }
+        cloudSettings.setProperties(props);
         
+        saveProperties(props, settingsFile, "# EPD-ship settings saved: " + new Date());
         
-        
-        s57Settings.saveSettings(EPDShip.getInstance().getHomePath().resolve("s57Props.properties").toString());
+        s57Settings.saveSettings(resolve("s57Props.properties").toString());
     }
 
     @Override
@@ -147,6 +118,11 @@ public class EPDSettings extends Settings implements Serializable {
         return s57Settings;
     }
 
+    @Override
+    public EPDCloudSettings getCloudSettings() {
+        return cloudSettings;
+    }
+    
     public String getSettingsFile() {
         return settingsFile;
     }

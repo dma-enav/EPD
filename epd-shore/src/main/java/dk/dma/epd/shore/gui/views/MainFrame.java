@@ -15,36 +15,29 @@
  */
 package dk.dma.epd.shore.gui.views;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
 import java.beans.beancontext.BeanContextServicesSupport;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.WindowConstants;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
-import dk.dma.epd.shore.gui.views.strategicRouteExchange.SendStrategicRouteDialog;
 import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
+import dk.dma.epd.shore.gui.route.strategic.SendStrategicRouteDialog;
 import dk.dma.epd.shore.settings.EPDGuiSettings;
 import dk.dma.epd.shore.settings.EPDMapSettings;
 import dk.dma.epd.shore.settings.Workspace;
@@ -56,21 +49,11 @@ import dk.dma.epd.shore.voyage.Voyage;
  * 
  * @author David A. Camre (davidcamre@gmail.com)
  */
-public class MainFrame extends JFrame implements WindowListener {
+public class MainFrame extends MainFrameCommon {
 
     private static final String TITLE = "EPD-shore " + VersionInfo.getVersion();
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(MainFrame.class);
-
-    private static Image getAppIcon() {
-        java.net.URL imgURL = EPDShore.class.getResource("/images/appicon.png");
-        if (imgURL != null) {
-            return new ImageIcon(imgURL).getImage();
-        }
-        LOG.error("Could not find app icon");
-        return null;
-    }
 
     private int windowCount;
     private Dimension size = new Dimension(1000, 700);
@@ -92,7 +75,7 @@ public class MainFrame extends JFrame implements WindowListener {
     private ToolBar toolbar = new ToolBar(this);
     private NotificationArea notificationArea = new NotificationArea(this);
     private NotificationCenter notificationCenter = new NotificationCenter();
-    private JSettingsWindow settingsWindow = new JSettingsWindow();
+    private SetupDialogShore setup = new SetupDialogShore(this);
     private RouteManagerDialog routeManagerDialog = new RouteManagerDialog(this);
     private SendRouteDialog sendRouteDialog = new SendRouteDialog();
     private SRUManagerDialog sruManagerDialog = new SRUManagerDialog(this);
@@ -101,17 +84,25 @@ public class MainFrame extends JFrame implements WindowListener {
     private StatusArea statusArea = new StatusArea(this);
     private JMapFrame activeMapWindow;
     private long selectedMMSI = -1;
-    
+
     private boolean sarCreated;
 
     /**
      * Constructor
      */
     public MainFrame() {
-        super();
+        super(TITLE);
         // System.out.println("before init gui");
         initGUI();
 
+    }
+
+    /**
+     * Initializes the glass pane of the frame
+     */
+    @Override
+    protected void initGlassPane() {
+        // Do nothing. EPDShore uses MapFrames for the various maps
     }
 
     public synchronized void increaseWindowCount() {
@@ -142,43 +133,39 @@ public class MainFrame extends JFrame implements WindowListener {
     public void addMapWindow() {
 
         new Thread(new ThreadedMapCreator(this)).run();
-        
 
     }
-
 
     /**
      * 
      */
     public void addSARWindow(MapFrameType type) {
-        
-        if (sarCreated){
-            //Warning message about one SAR operation being underway?
-        }else{
+
+        if (sarCreated) {
+            // Warning message about one SAR operation being underway?
+        } else {
             (new ThreadedMapCreator(this, sarCreated, type)).run();
-//            SwingUtilities.invokeLater(new ThreadedMapCreator(this, sarCreated, type));
-            
+            // SwingUtilities.invokeLater(new ThreadedMapCreator(this, sarCreated, type));
+
         }
-        
-        //When creating a SAR window it displays map but also input boxes for starting it.
-        
-    }
-    
 
-    public void addStrategicRouteExchangeHandlingWindow(Route originalRoute, String shipName,
-            Voyage voyage, boolean renegotiate) {
-        new ThreadedMapCreator(this, shipName, voyage, originalRoute,
-                renegotiate).run();
+        // When creating a SAR window it displays map but also input boxes for starting it.
+
     }
 
-    
+    public void addStrategicRouteExchangeHandlingWindow(Route originalRoute, String shipName, Voyage voyage, boolean renegotiate) {
+        new ThreadedMapCreator(this, shipName, voyage, originalRoute, renegotiate).run();
+    }
 
-
-
-    
     /**
-     * Add a new mapWindow with specific parameters, usually called when loading
-     * a workspace
+     * Add a new mapWindow with specific parameters, usually called when loading a workspace ======= new
+     * ThreadedMapCreator(this).run(); }
+     * 
+     * public void addStrategicRouteHandlingWindow(Route originalRoute, String shipName, Voyage voyage, boolean renegotiate) { new
+     * ThreadedMapCreator(this, shipName, voyage, originalRoute, renegotiate).run(); }
+     * 
+     * /** Add a new mapWindow with specific parameters, usually called when loading a workspace >>>>>>>
+     * 70dcfc231d7d05f4c850ee37d75d3e74bb7cea56
      * 
      * @param workspace
      * @param center
@@ -191,33 +178,22 @@ public class MainFrame extends JFrame implements WindowListener {
      * @param string
      * @return
      */
-    public void addMapWindow(boolean workspace, boolean locked,
-            boolean alwaysInFront, Point2D center, float scale, String title,
+    public void addMapWindow(boolean workspace, boolean locked, boolean alwaysInFront, Point2D center, float scale, String title,
             Dimension size, Point location, Boolean maximized) {
 
-        ThreadedMapCreator windowCreator = new ThreadedMapCreator(this,
-                workspace, locked, alwaysInFront, center, scale, title, size,
-                location, maximized);
+        ThreadedMapCreator windowCreator = new ThreadedMapCreator(this, workspace, locked, alwaysInFront, center, scale, title,
+                size, location, maximized);
 
         windowCreator.run();
-
 
         if (this.getMapWindows().size() > 0) {
             if (this.getMapWindows().get(0).getChartPanel().getEncLayer() != null && !this.getToolbar().isEncButtonEnabled()) {
                 this.getToolbar().enableEncButton();
             }
-            
-//            else{
-//                //Disabling ENC
-//                useEnc = false;
-////            this.setEncLayerEnabled(false);
-//            }
         }
 
     }
 
-    
-    
     public boolean isUseEnc() {
         return useEnc;
     }
@@ -262,8 +238,7 @@ public class MainFrame extends JFrame implements WindowListener {
         int width = 0;
         int height = 0;
 
-        GraphicsEnvironment ge = GraphicsEnvironment
-                .getLocalGraphicsEnvironment();
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice[] gs = ge.getScreenDevices();
 
         for (GraphicsDevice curGs : gs) {
@@ -330,14 +305,10 @@ public class MainFrame extends JFrame implements WindowListener {
         // System.out.println("Setting wmslayer enabled to:" +
         // guiSettings.useWMS());
         wmsLayerEnabled = mapSettings.isUseWms();
-        encLayerEnabled = EPDShore.getInstance().getSettings().getMapSettings()
-                .isEncVisible();
+        encLayerEnabled = EPDShore.getInstance().getSettings().getMapSettings().isEncVisible();
         useEnc = EPDShore.getInstance().getSettings().getMapSettings().isUseEnc();
-        
-        
-        Workspace workspace = EPDShore.getInstance().getSettings().getWorkspace();
 
-        setTitle(TITLE);
+        Workspace workspace = EPDShore.getInstance().getSettings().getWorkspace();
 
         // Set location and size
         if (guiSettings.isMaximized()) {
@@ -351,15 +322,13 @@ public class MainFrame extends JFrame implements WindowListener {
             setSize(guiSettings.getAppDimensions());
         }
 
-        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        setIconImage(getAppIcon());
-        addWindowListener(this);
+        this.setLayout(new BorderLayout(0, 0));
 
         desktop = new JMainDesktopPane(this);
         scrollPane = new JScrollPane();
 
         scrollPane.getViewport().add(desktop);
-        this.setContentPane(scrollPane);
+        this.getContentPane().add(scrollPane, BorderLayout.CENTER);
 
         desktop.setBackground(new Color(39, 39, 39));
 
@@ -368,12 +337,13 @@ public class MainFrame extends JFrame implements WindowListener {
         topMenu = new JMenuWorkspaceBar(this);
         this.setJMenuBar(topMenu);
 
+        BottomPanel bottomPanel = new BottomPanel();
+
         // Initiate the permanent window elements
         desktop.getManager().setStatusArea(statusArea);
         desktop.getManager().setNotificationArea(notificationArea);
         desktop.getManager().setToolbar(toolbar);
         desktop.getManager().setNotCenter(notificationCenter);
-        desktop.getManager().setSettings(settingsWindow);
         desktop.getManager().setRouteManager(routeManagerDialog);
         desktop.getManager().setRouteExchangeDialog(sendRouteDialog);
         desktop.getManager().setSendVoyageDialog(sendVoyageDialog);
@@ -383,12 +353,11 @@ public class MainFrame extends JFrame implements WindowListener {
         desktop.add(notificationCenter, true);
         desktop.add(toolbar, true);
         desktop.add(notificationArea, true);
-        desktop.add(settingsWindow, true);
         desktop.add(sendRouteDialog, true);
         desktop.add(sendVoyageDialog, true);
 
         beanHandler.add(notificationArea);
-        beanHandler.add(settingsWindow);
+        beanHandler.add(bottomPanel);
         beanHandler.add(sendRouteDialog);
         beanHandler.add(sendVoyageDialog);
         // dtp.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
@@ -400,12 +369,15 @@ public class MainFrame extends JFrame implements WindowListener {
         desktop.add(routeManagerDialog, true);
         beanHandler.add(routeManagerDialog);
         beanHandler.add(routeManagerDialog.getRouteManager());
-        
+
         desktop.add(sruManagerDialog, true);
         beanHandler.add(sruManagerDialog);
 
+        // routeManagerDialog.setVisible(true);
+
+        this.getContentPane().add(bottomPanel, BorderLayout.SOUTH);
+
         setWorkSpace(workspace);
-        
 
     }
 
@@ -425,8 +397,7 @@ public class MainFrame extends JFrame implements WindowListener {
      * @param filename
      */
     public void loadNewWorkspace(String parent, String filename) {
-        Workspace workspace = EPDShore.getInstance().getSettings().loadWorkspace(parent,
-                filename);
+        Workspace workspace = EPDShore.getInstance().getSettings().loadWorkspace(parent, filename);
         setWorkSpace(workspace);
     }
 
@@ -491,25 +462,22 @@ public class MainFrame extends JFrame implements WindowListener {
      * @param filename
      */
     public void saveWorkSpace(String filename) {
-        EPDShore.getInstance().getSettings().getWorkspace()
-                .setToolbarPosition(toolbar.getLocation());
-        EPDShore.getInstance().getSettings().getWorkspace()
-                .setNotificationAreaPosition(notificationArea.getLocation());
-        EPDShore.getInstance().getSettings().getWorkspace()
-                .setStatusPosition(statusArea.getLocation());
+
+        EPDShore.getInstance().getSettings().getWorkspace().setToolbarPosition(toolbar.getLocation());
+        EPDShore.getInstance().getSettings().getWorkspace().setNotificationAreaPosition(notificationArea.getLocation());
+        EPDShore.getInstance().getSettings().getWorkspace().setStatusPosition(statusArea.getLocation());
 
         List<JMapFrame> windowsToSave = new ArrayList<JMapFrame>();
-        
+
         System.out.println("Saving " + mapWindows.size() + " map windows to workspace");
         for (int i = 0; i < mapWindows.size(); i++) {
             System.out.println(mapWindows.get(i).getType() + " id " + i);
-//            System.out.println("With type " + mapWindows.get(i).getType());
-            if (mapWindows.get(i).getType() == MapFrameType.standard){
+            // System.out.println("With type " + mapWindows.get(i).getType());
+            if (mapWindows.get(i).getType() == MapFrameType.standard) {
                 windowsToSave.add(mapWindows.get(i));
             }
         }
-        
-       
+
         EPDShore.getInstance().getSettings().saveCurrentWorkspace(windowsToSave, filename);
 
     }
@@ -547,13 +515,11 @@ public class MainFrame extends JFrame implements WindowListener {
         if (workspace.isValidWorkspace()) {
             for (int i = 0; i < workspace.getName().size(); i++) {
                 // JMapFrame window =
-                addMapWindow(true, workspace.isLocked().get(i), workspace
-                        .getAlwaysInFront().get(i), workspace.getCenter()
-                        .get(i), workspace.getScale().get(i),
+                addMapWindow(true, workspace.isLocked().get(i), workspace.getAlwaysInFront().get(i), workspace.getCenter().get(i),
+                        workspace.getScale().get(i),
 
-                workspace.getName().get(i), workspace.getSize().get(i),
-                        workspace.getPosition().get(i), workspace.isMaximized()
-                                .get(i)
+                        workspace.getName().get(i), workspace.getSize().get(i), workspace.getPosition().get(i), workspace
+                                .isMaximized().get(i)
 
                 );
 
@@ -580,12 +546,6 @@ public class MainFrame extends JFrame implements WindowListener {
     public void toggleBarsLock() {
         toolbarsLocked = !toolbarsLocked;
 
-        // if (toolbarsLocked) {
-        // toolbarsLocked = false;
-        // } else {
-        // toolbarsLocked = true;
-        // }
-
         toolbar.toggleLock();
         notificationArea.toggleLock();
         statusArea.toggleLock();
@@ -595,9 +555,6 @@ public class MainFrame extends JFrame implements WindowListener {
      * Set the maindow in fullscreen mode
      */
     public void toggleFullScreen() {
-
-        // System.out.println(this.getLocationOnScreen());
-        // System.out.println("fullscreen toggle");
 
         if (!fullscreen) {
             location = this.getLocation();
@@ -636,40 +593,6 @@ public class MainFrame extends JFrame implements WindowListener {
     public void toggleNotificationCenter(int service) {
         System.out.println("Toggle service: " + service);
         notificationCenter.toggleVisibility(service);
-    }
-
-    @Override
-    public void windowActivated(WindowEvent we) {
-    }
-
-    @Override
-    public void windowClosed(WindowEvent we) {
-    }
-
-    /**
-     * Function called on close event, saves the settings on close
-     */
-    @Override
-    public void windowClosing(WindowEvent we) {
-
-        // Close routine
-        EPDShore.closeApp();
-    }
-
-    @Override
-    public void windowDeactivated(WindowEvent we) {
-    }
-
-    @Override
-    public void windowDeiconified(WindowEvent we) {
-    }
-
-    @Override
-    public void windowIconified(WindowEvent we) {
-    }
-
-    @Override
-    public void windowOpened(WindowEvent we) {
     }
 
     /**
@@ -723,10 +646,6 @@ public class MainFrame extends JFrame implements WindowListener {
         this.msiLayerEnabled = msiLayerEnabled;
     }
 
-    public JSettingsWindow getSettingsWindow() {
-        return settingsWindow;
-    }
-
     public synchronized long getSelectedMMSI() {
         return selectedMMSI;
     }
@@ -734,7 +653,7 @@ public class MainFrame extends JFrame implements WindowListener {
     public synchronized void setSelectedMMSI(long selectedMMSI) {
         this.selectedMMSI = selectedMMSI;
         for (int i = 0; i < mapWindows.size(); i++) {
-            mapWindows.get(i).getChartPanel().forceAisLayerUpdate();
+            mapWindows.get(i).getChartPanel().getAisLayer().setSelectedTarget(selectedMMSI, true);
         }
     }
 
@@ -757,6 +676,8 @@ public class MainFrame extends JFrame implements WindowListener {
         return sruManagerDialog;
     }
 
-    
-    
+    public SetupDialogShore getSetupDialog() {
+        return this.setup;
+    }
+
 }

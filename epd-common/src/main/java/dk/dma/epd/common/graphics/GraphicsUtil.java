@@ -16,13 +16,18 @@
 package dk.dma.epd.common.graphics;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.TexturePaint;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.image.BufferedImage;
+
+import javax.swing.JComponent;
 
 /**
  * Graphics-related utility methods
@@ -55,4 +60,97 @@ public class GraphicsUtil {
                 fm.getAscent() + (height - (fm.getAscent() + fm.getDescent())) / 2);
         return new TexturePaint(bi, new Rectangle(0, 0, width, height));        
     }    
-}
+
+    /**
+     * Creates a copy of the given color with the specified transparency
+     * 
+     * @param color the color to create a transparent copy of
+     * @param transparency the transparency, between 0 and 255.
+     * @return the transparent version of the color
+     */
+    public static Color transparentColor(Color color, int transparency) {
+        if (color == null) {
+            return null;
+        }
+        transparency = Math.min(Math.max(0, transparency), 255);
+        return new Color(
+                color.getRed(),
+                color.getGreen(),
+                color.getBlue(),
+                transparency);
+    }
+    
+    /**
+     * Blends two colors and returns the result
+     * 
+     * @param c0 the first color
+     * @param c1 the second color
+     * @return the blended result
+     */
+    public static Color blendColors(Color c0, Color c1) {
+        double totalAlpha = c0.getAlpha() + c1.getAlpha();
+        double weight0 = c0.getAlpha() / totalAlpha;
+        double weight1 = c1.getAlpha() / totalAlpha;
+
+        double r = weight0 * c0.getRed() + weight1 * c1.getRed();
+        double g = weight0 * c0.getGreen() + weight1 * c1.getGreen();
+        double b = weight0 * c0.getBlue() + weight1 * c1.getBlue();
+        double a = Math.max(c0.getAlpha(), c1.getAlpha());
+
+        return new Color((int) r, (int) g, (int) b, (int) a);
+    }
+    
+    /**
+     * Fixes the size of a {@linkplain JComponent} to the given width and height.
+     * <p>
+     * If a value of -1 is passed along, the preferred size is used instead.
+     * 
+     * @param comp the component to fix the size of
+     * @param width the fixed width
+     * @param height the fixed height
+     * @return the updated component
+     */
+    public static <T extends JComponent> T fixSize(T comp, int width, int height) {
+        // Sanity check
+        if (comp == null) {
+            return null;
+        }
+        
+        if (width == -1) {
+            width = (int)comp.getPreferredSize().getWidth();
+        }
+        if (height == -1) {
+            height = (int)comp.getPreferredSize().getHeight();
+        }
+        Dimension dim = new Dimension(width, height);
+        comp.setPreferredSize(dim);
+        comp.setMaximumSize(dim);
+        comp.setMinimumSize(dim);
+        comp.setSize(dim);
+        return comp;
+    }
+
+    /**
+     * Fixes the size of a {@linkplain JComponent} to the given width
+     * <p>
+     * If a value of -1 is passed along, the preferred size is used instead.
+     * 
+     * @param comp the component to fix the size of
+     * @param width the fixed width
+     * @return the updated component
+     */
+    public static <T extends JComponent> T fixSize(T comp, int width) {
+        return fixSize(comp, width, -1);
+    }
+
+    /**
+     * Centers the given window on the main screen
+     * 
+     * @param frame the window to center
+     */
+    public static void centerWindow(Window frame) {
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);
+        int y = (int) ((dimension.getHeight() - frame.getHeight()) / 2);
+        frame.setLocation(x, y);
+    }}

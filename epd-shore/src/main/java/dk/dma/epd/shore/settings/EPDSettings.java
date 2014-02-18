@@ -15,16 +15,10 @@
  */
 package dk.dma.epd.shore.settings;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Serializable;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +39,8 @@ public class EPDSettings extends Settings implements Serializable {
     private static final Logger LOG = LoggerFactory
             .getLogger(EPDSettings.class);
 
-    private String settingsFile = Paths.get("settings.properties").toString();
-    private String defaultWorkSpace = Paths.get("workspaces/default.workspace").toString();
+    private String settingsFile = "settings.properties";
+    private String defaultWorkSpace ="workspaces/default.workspace";
     private String workspaceFile = "";
 
     private EPDGuiSettings guiSettings = new EPDGuiSettings();
@@ -57,37 +51,30 @@ public class EPDSettings extends Settings implements Serializable {
 
     private EPDAisSettings aisSettings = new EPDAisSettings();
     private EPDEnavSettings enavSettings = new EPDEnavSettings();
+    private EPDCloudSettings cloudSettings = new EPDCloudSettings();
+    
     private Workspace workspace = new Workspace();
 
     public EPDSettings() {
-
-    }
-
-    public EPDSettings(String settingsFile) {
-        this.settingsFile = settingsFile;
+        super();
     }
 
     /**
      * Load the settings files as well as the workspace files
      */
+    @Override
     public void loadFromFile() {
         // Open properties file
         Properties props = new Properties();
+        loadProperties(props, settingsFile);
 
-        Path loadPathSettingsFile = Paths.get(EPDShore.getInstance().getHomePath().toString() + "/"
-                + settingsFile); 
-        LOG.info("Trying to load " + loadPathSettingsFile.toString());
-        if (!PropUtils.loadProperties(props, Paths.get(EPDShore.getInstance().getHomePath().toString()
-                + "/").toString(), settingsFile)) {
-            LOG.info("No settings file found");
-            return;
-        }
         aisSettings.readProperties(props);
         enavSettings.readProperties(props);
         guiSettings.readProperties(props);
         mapSettings.readProperties(props);
         navSettings.readProperties(props);
         sensorSettings.readProperties(props);
+        cloudSettings.readProperties(props);
 
         workspaceFile = guiSettings.getWorkspace();
 
@@ -95,13 +82,12 @@ public class EPDSettings extends Settings implements Serializable {
 
             // Load default workspace - will ALWAYS load from workspaces folder
             Properties workspaceProp = new Properties();
-            if (!PropUtils.loadProperties(workspaceProp, EPDShore.getInstance().getHomePath()
-                    .toString(), workspaceFile)) {
+            
+            if (!loadProperties(workspaceProp, workspaceFile)) {
                 // LOG.info("No workspace file found - reverting to default");
                 LOG.error("No workspace file found - reverting to default - "
                         + workspaceFile + " was invalid");
-                PropUtils.loadProperties(workspaceProp, EPDShore.getInstance().getHomePath()
-                        .toString(), defaultWorkSpace);
+                loadProperties(workspaceProp, defaultWorkSpace);
                 guiSettings.setWorkspace(defaultWorkSpace);
             }
             workspace.readProperties(workspaceProp);
@@ -134,6 +120,7 @@ public class EPDSettings extends Settings implements Serializable {
     /**
      * Save the settings to the files
      */
+    @Override
     public void saveToFile() {
         Properties props = new Properties();
 
@@ -143,25 +130,9 @@ public class EPDSettings extends Settings implements Serializable {
         mapSettings.setProperties(props);
         navSettings.setProperties(props);
         sensorSettings.setProperties(props);
+        cloudSettings.setProperties(props);
 
-        // navSettings.setProperties(props);
-
-        try {
-            FileWriter outFile = new FileWriter(Paths.get(EPDShore.getInstance().getHomePath()
-                    .toString() + "/" + settingsFile).toString());
-            PrintWriter out = new PrintWriter(outFile);
-            out.println("# esd settings saved: " + new Date());
-            TreeSet<String> keys = new TreeSet<String>();
-            for (Object key : props.keySet()) {
-                keys.add((String) key);
-            }
-            for (String key : keys) {
-                out.println(key + "=" + props.getProperty(key));
-            }
-            out.close();
-        } catch (IOException e) {
-            LOG.error("Failed to save settings file");
-        }
+        saveProperties(props, settingsFile, "# esd settings saved: " + new Date());
     }
 
     /**
@@ -173,30 +144,8 @@ public class EPDSettings extends Settings implements Serializable {
     public void saveCurrentWorkspace(List<JMapFrame> mapWindows, String filename) {
         Properties props = new Properties();
         workspace.setProperties(props, mapWindows);
-        try {
-            String filepath = Paths.get(EPDShore.getInstance().getHomePath().toString() + "/workspaces/"
-                    + filename).toString();
-            
-            filename = "workspaces/"
-                  + filename.toString();
-            
-            // System.out.println("Trying to save to: " + filename);
-            FileWriter outFile = new FileWriter(filepath);
-            PrintWriter out = new PrintWriter(outFile);
-            out.println("# workspace settings saved: " + new Date());
-            TreeSet<String> keys = new TreeSet<String>();
-            for (Object key : props.keySet()) {
-                keys.add((String) key);
-            }
-            for (String key : keys) {
-                out.println(key + "=" + props.getProperty(key));
-            }
-            out.close();
-            guiSettings.setWorkspace(filename);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            LOG.error("Failed to save settings file");
-        }
+        saveProperties(props, "workspaces/" + filename, "# workspace settings saved: " + new Date());
+        guiSettings.setWorkspace("/workspaces/" + filename);
     }
 
     @Override
@@ -234,6 +183,11 @@ public class EPDSettings extends Settings implements Serializable {
         return null;
     }
     
+    @Override
+    public EPDCloudSettings getCloudSettings() {
+        return cloudSettings;
+    }
+
     public Workspace getWorkspace() {
         return workspace;
     }

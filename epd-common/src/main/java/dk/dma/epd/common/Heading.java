@@ -15,7 +15,30 @@
  */
 package dk.dma.epd.common;
 
+import com.bbn.openmap.omGraphics.OMGraphicConstants;
+
 /**
  * Enumeration for heading rhumb line or great circle
  */
-public enum Heading {RL, GC};
+public enum Heading {
+    RL(OMGraphicConstants.LINETYPE_RHUMB), 
+    GC(OMGraphicConstants.LINETYPE_GREATCIRCLE);
+    
+    private int omLineType;
+    
+    /**
+     * Constructor
+     * @param omLineType
+     */
+    private Heading(int omLineType) {
+        this.omLineType = omLineType;
+    }
+    
+    /**
+     * Return the OpenMap graphics constant for the heading
+     * @return  the OpenMap graphics constant for the heading
+     */
+    public int getOMLineType() {
+        return omLineType;
+    }
+}

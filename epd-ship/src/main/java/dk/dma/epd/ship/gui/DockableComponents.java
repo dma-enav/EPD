@@ -82,7 +82,6 @@ public class DockableComponents {
     private NoGoComponentPanel nogoPanel;
     private SARComponentPanel sarPanel;
     private MultiSourcePntComponentPanel msPntPanel;
-    // private MonaLisaCommunicationComponentPanel monaLisaPanel;
 
     private boolean locked;
 
@@ -103,7 +102,7 @@ public class DockableComponents {
         nogoPanel = mainFrame.getNogoPanel();
         sarPanel = mainFrame.getSarPanel();
         msPntPanel = mainFrame.getMsPntComponentPanel();
-        // monaLisaPanel = mainFrame.getMonaLisaPanel();
+
 
         factory = new DockableFactory(chartPanel, scalePanel, ownShipPanel,
                 gpsPanel, cursorPanel, activeWaypointPanel, msiPanel, aisPanel,
@@ -479,7 +478,6 @@ public class DockableComponents {
         SARComponentPanel sarPanel;
         MultiSourcePntComponentPanel msPntPanel;
 
-        // MonaLisaCommunicationComponentPanel monaLisaPanel;
 
         public DockableFactory(ChartPanel chartPanel,
                 ScaleComponentPanel scalePanel,
@@ -507,7 +505,7 @@ public class DockableComponents {
             this.nogoPanel = nogoPanel;
             this.sarPanel = sarPanel;
             this.msPntPanel = msPntPanel;
-            // this.monaLisaPanel = monaLisaPanel;
+
 
         }
 
@@ -560,9 +558,6 @@ public class DockableComponents {
                 return new PanelDockable(id, msPntPanel);
             }
 
-            // if (id.equals("Mona Lisa Communication")) {
-            // return new PanelDockable(id, monaLisaPanel);
-            // }
 
             return new PanelDockable(id, new JPanel());
 

@@ -26,10 +26,9 @@ import net.jcip.annotations.ThreadSafe;
 @ThreadSafe
 public class VesselTargetSettings implements Serializable {
     
-    private static final long serialVersionUID = 2382827951614735277L;
+    private static final long serialVersionUID = 1919231736214081361L;
     
     @GuardedBy("this") private boolean hide;
-    @GuardedBy("this") private boolean showRoute;
     @GuardedBy("this") private boolean showPastTrack;
     @GuardedBy("this") private int pastTrackDisplayTime;
     @GuardedBy("this") private int pastTrackMinDist;
@@ -46,7 +45,6 @@ public class VesselTargetSettings implements Serializable {
      */
     public VesselTargetSettings(VesselTargetSettings settings) {
         this.hide = settings.hide;
-        this.showRoute = settings.showRoute;
         this.showPastTrack = settings.showPastTrack;
         this.pastTrackDisplayTime = settings.pastTrackDisplayTime;
         this.pastTrackMinDist = settings.pastTrackMinDist;
@@ -68,22 +66,6 @@ public class VesselTargetSettings implements Serializable {
         this.hide = hide;
     }
 
-    /**
-     * Will the intended route be shown for the target if it is available
-     * @return
-     */
-    public synchronized boolean isShowRoute() {
-        return showRoute;
-    }
-
-    /**
-     * Set visibility of intended route
-     * @param showRoute
-     */
-    public synchronized void setShowRoute(boolean showRoute) {
-        this.showRoute = showRoute;
-    }
-    
     /**
      * Will the past-track be shown for the target 
      * @return

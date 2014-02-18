@@ -289,15 +289,20 @@ public class DragMouseMode extends AbstractCoordMouseMode {
 
             
             center.setLocation(center.getX() - x + oX, center.getY() - y + oY);
-
+            
+            // Save new position to the history
+            // --------------------------------
+            
+            EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().setShouldSave(true);
+            EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().saveToHistoryBeforeMoving();
+            
             //this will trigger "projection changed" in SimpleOffScreenMapRenderer
             //which listens to mb
             mb.setCenter(proj.inverse(center));
 
             isPanning = false;
             EPDShip.getInstance().getMainFrame().getChartPanel().getMap().setVisible(true);
-            mouseDragged = false;
-
+            mouseDragged = false;            
         }
         super.mouseReleased(arg0);
     }

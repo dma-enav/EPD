@@ -53,7 +53,7 @@ public class CursorComponentPanel extends OMComponentPanel implements IPntDataLi
      * Receive mouse location
      */
     @Override
-    public void recieveCoord(LatLonPoint llp) {
+    public void receiveCoord(LatLonPoint llp) {
         cursorPanel.getCurLatLabel().setText(Formatter.latToPrintable(llp.getLatitude()));
         cursorPanel.getCurLonLabel().setText(Formatter.lonToPrintable(llp.getLongitude()));
         PntData pntData = this.getPntData();

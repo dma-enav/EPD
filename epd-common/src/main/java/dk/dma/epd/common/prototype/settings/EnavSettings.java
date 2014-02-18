@@ -67,16 +67,14 @@ public class EnavSettings implements Serializable {
     private int monaLisaPort = 80;
     
     
-    /**
-     * Cloud server configuration
-     */
-    private String cloudServerHost = "test.maritimecloud.net";
-    private int cloudServerPort = 43234;
-    
     public EnavSettings() {
         
     }
 
+    public static String getPrefix() {
+        return PREFIX;
+    }
+    
     public void readProperties(Properties props) {
         defaultWindWarnLimit = PropUtils.doubleFromProperties(props, PREFIX + "defaultWindWarnLimit", defaultWindWarnLimit);
         defaultCurrentWarnLimit = PropUtils.doubleFromProperties(props, PREFIX + "defaultCurrentWarnLimit", defaultCurrentWarnLimit);
@@ -104,8 +102,6 @@ public class EnavSettings implements Serializable {
             serverName = "service.e-navigation.net";
         }
         
-        cloudServerHost = props.getProperty(PREFIX + "cloudServerHost", cloudServerHost);
-        cloudServerPort = PropUtils.intFromProperties(props, PREFIX + "cloudServerPort", cloudServerPort);                    
         monaLisaServer = props.getProperty(PREFIX + "monaLisaServer", monaLisaServer);
         monaLisaPort = PropUtils.intFromProperties(props, PREFIX + "monaLisaPort", monaLisaPort);    
     }
@@ -131,8 +127,6 @@ public class EnavSettings implements Serializable {
         props.put(PREFIX + "msiRelevanceFromOwnShipRange", Double.toString(msiRelevanceFromOwnShipRange));
         props.put(PREFIX + "msiVisibilityFromNewWaypoint", Double.toString(msiVisibilityFromNewWaypoint));
         props.put(PREFIX + "msiFilter", Boolean.toString(msiFilter));
-        props.put(PREFIX + "cloudServerHost", cloudServerHost);
-        props.put(PREFIX + "cloudServerPort", Integer.toString(cloudServerPort));
         props.put(PREFIX + "monaLisaServer", monaLisaServer);
         props.put(PREFIX + "monaLisaPort", Integer.toString(monaLisaPort));
     }
@@ -279,22 +273,6 @@ public class EnavSettings implements Serializable {
 
     public void setMsiVisibilityFromNewWaypoint(double msiVisibilityFromNewWaypoint) {
         this.msiVisibilityFromNewWaypoint = msiVisibilityFromNewWaypoint;
-    }
-
-    public String getCloudServerHost() {
-        return cloudServerHost;
-    }
-
-    public void setCloudServerHost(String cloudServerHost) {
-        this.cloudServerHost = cloudServerHost;
-    }
-
-    public int getCloudServerPort() {
-        return cloudServerPort;
-    }
-
-    public void setCloudServerPort(int cloudServerPort) {
-        this.cloudServerPort = cloudServerPort;
     }
 
     public void setDefaultCurrentLow(double defaultCurrentLow) {

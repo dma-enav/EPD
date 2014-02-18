@@ -307,7 +307,7 @@ public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
                 / routeResponse.getMonaLisaResponse().getFuelRequested() * 100;
 
         return new MonaLisaOptimizationResponse(
-                "Succesfully recieved optimized route",
+                "Succesfully received optimized route",
 
                 "\nInitial route consumption is "
                         + routeResponse.getMonaLisaResponse()

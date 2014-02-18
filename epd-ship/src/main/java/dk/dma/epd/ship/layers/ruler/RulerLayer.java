@@ -19,15 +19,18 @@ import java.awt.event.MouseEvent;
 
 import com.bbn.openmap.event.MapMouseMode;
 import com.bbn.openmap.event.ProjectionEvent;
-import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.gui.ChartPanel;
-import dk.dma.epd.ship.layers.GeneralLayer;
 
-public class RulerLayer extends GeneralLayer {
+/**
+ * Implementation of the ruler layer which allows
+ * the user to measure distances and angles in the map
+ */
+public class RulerLayer extends EPDLayerCommon {
 
     // TODO update from defaulT?
     private static final long serialVersionUID = 1L;
@@ -35,58 +38,70 @@ public class RulerLayer extends GeneralLayer {
     private ChartPanel chartPanel;
     private RulerGraphic rulerGraphic;
 
+    /**
+     * Constructor
+     */
+    public RulerLayer() {
+        super();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void findAndInit(Object obj) {
         if (obj instanceof ChartPanel) {
-            this.chartPanel = (ChartPanel) obj;
+            chartPanel = (ChartPanel) obj;
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String[] getMouseModeServiceList() {
-        /*
-         * String[] ret = new String[2]; ret[0] = NavigationMouseMode.MODE_ID;
-         * // "Gestures" ret[1] = DragMouseMode.MODE_ID; return ret;
-         */
         String[] serviceList = new String[1];
         serviceList[0] = DistanceCircleMouseMode.MODE_ID;
         return serviceList;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean mouseClicked(MouseEvent e) {
         switch (e.getButton()) {
         case MouseEvent.BUTTON1:
             // Clear any old range circle from graphics.
-            if (this.rulerGraphic != null) {
-                this.graphics.remove(this.rulerGraphic);
+            if (rulerGraphic != null) {
+                graphics.remove(rulerGraphic);
             }
             // LatLon representation of point clicked.
-            LatLonPoint ptClicked = this.chartPanel.getMap().getProjection()
+            LatLonPoint ptClicked = chartPanel.getMap().getProjection()
                     .inverse(e.getPoint());
             // Transform to internal position representation.
             // The point clicked is the center of the range circle.
             Position circleCenter = Position.create(ptClicked.getLatitude(),
                     ptClicked.getLongitude());
             rulerGraphic = new RulerGraphic(circleCenter);
-            this.graphics.add(this.rulerGraphic);
+            graphics.add(rulerGraphic);
             // Repaint
-            this.doPrepare();
+            doPrepare();
             // Event has been handled.
             return true;
         case MouseEvent.BUTTON3:
             // Right click means exit this mouse mode...
             // Clear all graphics from this mode
-            this.graphics.clear();
+            graphics.clear();
             // Put chart panel back to previous mouse mode
             // TODO this could be cleaner
-            MapMouseMode mode = this.chartPanel.getMouseDelegator()
+            MapMouseMode mode = chartPanel.getMouseDelegator()
                     .getActiveMouseMode();
             if (mode instanceof DistanceCircleMouseMode) {
-                String prevModeID = ((DistanceCircleMouseMode) this.chartPanel
+                String prevModeID = ((DistanceCircleMouseMode) chartPanel
                         .getMouseDelegator().getActiveMouseMode())
                         .getPreviousMouseMode();
-                this.chartPanel.setMouseMode(prevModeID);
+                chartPanel.setMouseMode(prevModeID);
             }
             // Event has been handled.
             return true;
@@ -97,6 +112,9 @@ public class RulerLayer extends GeneralLayer {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void projectionChanged(ProjectionEvent e) {
         doPrepare();
@@ -104,28 +122,25 @@ public class RulerLayer extends GeneralLayer {
 
     }
 
-    @Override
-    public synchronized OMGraphicList prepare() {
-        this.graphics.project(getProjection());
-        return graphics;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean mouseMoved(MouseEvent e) {
-        if (this.rulerGraphic != null) {
+        if (rulerGraphic != null) {
             // if the user has provided a center location
             // we need to draw the distance line as well
             // as the outer circle.
             // First find mouse position in lat-lon.
-            LatLonPoint llp = this.chartPanel.getMap().getProjection()
+            LatLonPoint llp = chartPanel.getMap().getProjection()
                     .inverse(e.getPoint());
             // Convert to internal position representation.
             Position mousePos = Position.create(llp.getLatitude(),
                     llp.getLongitude());
             // Call the rg to draw the distancel ine and the circle
-            this.rulerGraphic.updateOutside(mousePos);
+            rulerGraphic.updateOutside(mousePos);
             // repaint
-            this.doPrepare();
+            doPrepare();
             return true;
         }
         return false;

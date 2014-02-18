@@ -22,6 +22,7 @@ import java.awt.Toolkit;
 
 import javax.swing.ImageIcon;
 
+import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.shore.EPDShore;
 
 public class StaticImages {
@@ -45,33 +46,34 @@ public class StaticImages {
 
 //      //Get the default toolkit
       Toolkit toolkit = Toolkit.getDefaultToolkit();
+      Resources toolbarRes = EPDShore.res().folder("images/toolbar");
 
       //Load an image for the cursor
 
-      Image image = toolkit.getImage(EPDShore.class.getClassLoader().getResource("images/toolbar/drag_mouse.png"));
+      Image image = toolkit.getImage(toolbarRes.getResource("drag_mouse.png"));
       dragCursor = toolkit.createCustomCursor(image, new Point(0,0), "Drag");
-      Image image2 = toolkit.getImage(EPDShore.class.getClassLoader().getResource("images/toolbar/drag_on_mouse.png"));
+      Image image2 = toolkit.getImage(toolbarRes.getResource("drag_on_mouse.png"));
       dragCursorMouseClicked = toolkit.createCustomCursor(image2, new Point(0,0), "Drag_on_mouse");
 
-
-      Image image3 = toolkit.getImage(EPDShore.class.getClassLoader().getResource("images/toolbar/zoom_mouse.png"));
+      Image image3 = toolkit.getImage(toolbarRes.getResource("zoom_mouse.png"));
       navCursor = toolkit.createCustomCursor(image3, new Point(0,0), "Zoom");
 
 
-      Image image4 = toolkit.getImage(EPDShore.class.getClassLoader().getResource("images/toolbar/zoom_on_mouse.png"));
+      Image image4 = toolkit.getImage(toolbarRes.getResource("zoom_on_mouse.png"));
       navCursorMouseClicked = toolkit.createCustomCursor(image4, new Point(0,0), "Zoom_on_mouse");
 
-      highlightIcon = new ImageIcon(EPDShore.class.getClassLoader().getResource("images/ais/highlight.png"));
+      highlightIcon = EPDShore.res().getCachedImageIcon("images/ais/highlight.png");
 
-      vesselWhite = new ImageIcon(EPDShore.class.getClassLoader().getResource("images/vesselIcons/white1_90.png"));
-      vesselBlue = new ImageIcon(EPDShore.class.getClassLoader().getResource("images/vesselIcons/blue1_90.png"));
-      vesselLightgreen = new ImageIcon(EPDShore.class.getClassLoader().getResource("images/vesselIcons/lightgreen1_90.png"));
-      vesselCyan = new ImageIcon(EPDShore.class.getClassLoader().getResource("images/vesselIcons/cyan1_90.png"));
-      vesselRed = new ImageIcon(EPDShore.class.getClassLoader().getResource("images/vesselIcons/red1_90.png"));
-      vesselWhite0 = new ImageIcon(EPDShore.class.getClassLoader().getResource("images/vesselIcons/white0.png"));
-      vesselBrown = new ImageIcon(EPDShore.class.getClassLoader().getResource("images/vesselIcons/brown1_90.png"));
-      vesselMagenta = new ImageIcon(EPDShore.class.getClassLoader().getResource("images/vesselIcons/magenta1_90.png"));
-      vesselLightgray = new ImageIcon(EPDShore.class.getClassLoader().getResource("images/vesselIcons/lightgray1_90.png"));
+      Resources vesselRes = EPDShore.res().folder("images/vesselIcons");
+      vesselWhite = vesselRes.getCachedImageIcon("white1_90.png");
+      vesselBlue = vesselRes.getCachedImageIcon("blue1_90.png");
+      vesselLightgreen = vesselRes.getCachedImageIcon("lightgreen1_90.png");
+      vesselCyan = vesselRes.getCachedImageIcon("cyan1_90.png");
+      vesselRed = vesselRes.getCachedImageIcon("red1_90.png");
+      vesselWhite0 = vesselRes.getCachedImageIcon("white0.png");
+      vesselBrown = vesselRes.getCachedImageIcon("brown1_90.png");
+      vesselMagenta = vesselRes.getCachedImageIcon("magenta1_90.png");
+      vesselLightgray = vesselRes.getCachedImageIcon("lightgray1_90.png");
 
     }
 

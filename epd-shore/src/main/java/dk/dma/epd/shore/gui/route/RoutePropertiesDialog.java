@@ -17,10 +17,9 @@ package dk.dma.epd.shore.gui.route;
 
 import java.awt.Window;
 
-import javax.swing.event.DocumentEvent;
-
 import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.route.RouteManager;
 
@@ -32,24 +31,23 @@ public class RoutePropertiesDialog extends RoutePropertiesDialogCommon {
     private static final long serialVersionUID = 1L;
     VoyageHandlingLayer voyageHandlingLayer;
 
-    public RoutePropertiesDialog(Window parent, RouteManager routeManager,
+    public RoutePropertiesDialog(Window parent, ChartPanel chartPanel, RouteManager routeManager,
             int routeId) {
 
-        super(parent, routeManager, routeId);
-        // TODO Auto-generated constructor stub
+        super(parent, chartPanel, routeManager, routeId);
     }
 
-    public RoutePropertiesDialog(Window mainFrame, Route route,
+    public RoutePropertiesDialog(Window mainFrame, ChartPanel chartPanel, Route route,
             VoyageHandlingLayer voyageHandlingLayer) {
-        super(mainFrame, route, true);
+        super(mainFrame, chartPanel, route, true);
         this.voyageHandlingLayer = voyageHandlingLayer;
         btnActivate.setVisible(false);
 
     }
     
-    public RoutePropertiesDialog(Window mainFrame, Route route
+    public RoutePropertiesDialog(Window mainFrame, ChartPanel chartPanel, Route route
              ) {
-        super(mainFrame, route, false);
+        super(mainFrame, chartPanel, route, false);
 
         btnActivate.setVisible(false);
 
@@ -57,13 +55,13 @@ public class RoutePropertiesDialog extends RoutePropertiesDialogCommon {
     
     
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void insertUpdate(DocumentEvent e) {
-        super.insertUpdate(e);
-
+    protected void routeUpdated() {
         if (voyageHandlingLayer != null) {
             voyageHandlingLayer.updateVoyages();
-
         }
     }
 

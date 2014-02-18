@@ -9,9 +9,9 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 package dk.dma.epd.shore.gui.utils;
 
@@ -29,16 +29,15 @@ import javax.swing.JViewport;
 
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
+import dk.dma.epd.shore.gui.route.strategic.SendStrategicRouteDialog;
 import dk.dma.epd.shore.gui.views.JMainDesktopPane;
 import dk.dma.epd.shore.gui.views.JMapFrame;
-import dk.dma.epd.shore.gui.views.JSettingsWindow;
 import dk.dma.epd.shore.gui.views.NotificationArea;
 import dk.dma.epd.shore.gui.views.NotificationCenter;
 import dk.dma.epd.shore.gui.views.SendRouteDialog;
 import dk.dma.epd.shore.gui.views.StatusArea;
 import dk.dma.epd.shore.gui.views.ToolBar;
 import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
-import dk.dma.epd.shore.gui.views.strategicRouteExchange.SendStrategicRouteDialog;
 
 public class JMainDesktopManager extends DefaultDesktopManager {
     /**
@@ -51,11 +50,10 @@ public class JMainDesktopManager extends DefaultDesktopManager {
     private NotificationCenter notCenter;
     private NotificationArea notificationArea;
     private StatusArea statusArea;
-    private JSettingsWindow settings;
     private RouteManagerDialog routeManager;
     private SendRouteDialog routeDialog;
-    private SRUManagerDialog sruManagerDialog;
     private SendStrategicRouteDialog sendVoyageDialog;
+    private SRUManagerDialog sruManagerDialog;
 
     /**
      * Constructor for desktopmanager
@@ -75,9 +73,7 @@ public class JMainDesktopManager extends DefaultDesktopManager {
         if (f instanceof JMapFrame) {
 
             if (EPDShore.getInstance().getMainFrame() != null) {
-                EPDShore.getInstance().getMainFrame()
-                        .setActiveMapWindow((JMapFrame) f);
-
+                EPDShore.getInstance().getMainFrame().setActiveMapWindow((JMapFrame) f);
             }
 
             if (toFront.size() == 0) {
@@ -87,8 +83,7 @@ public class JMainDesktopManager extends DefaultDesktopManager {
                     super.activateFrame(f);
                 } else {
                     super.activateFrame(f);
-                    Iterator<Map.Entry<Integer, JInternalFrame>> it = toFront
-                            .entrySet().iterator();
+                    Iterator<Map.Entry<Integer, JInternalFrame>> it = toFront.entrySet().iterator();
                     while (it.hasNext()) {
                         Map.Entry<Integer, JInternalFrame> pairs = it.next();
                         super.activateFrame(pairs.getValue());
@@ -101,7 +96,6 @@ public class JMainDesktopManager extends DefaultDesktopManager {
         super.activateFrame(notificationArea);
         super.activateFrame(toolbar);
         super.activateFrame(notCenter);
-        super.activateFrame(settings);
         super.activateFrame(routeManager);
         super.activateFrame(routeDialog);
         super.activateFrame(sendVoyageDialog);
@@ -175,37 +169,40 @@ public class JMainDesktopManager extends DefaultDesktopManager {
      * Resize desktop
      */
     public void resizeDesktop() {
-        int x = 0;
-        int y = 0;
-        JScrollPane scrollPane = getScrollPane();
-        Insets scrollInsets = getScrollPaneInsets();
 
-        if (scrollPane != null) {
-            JInternalFrame[] allFrames = desktop.getAllFrames();
-            for (int i = 0; i < allFrames.length; i++) {
-                if (allFrames[i].getX() + allFrames[i].getWidth() > x) {
-                    x = allFrames[i].getX() + allFrames[i].getWidth();
-                }
-                if (allFrames[i].getY() + allFrames[i].getHeight() > y) {
-                    y = allFrames[i].getY() + allFrames[i].getHeight();
-                }
-            }
-            Dimension d = scrollPane.getVisibleRect().getSize();
-            if (scrollPane.getBorder() != null) {
-                d.setSize(
-                        d.getWidth() - scrollInsets.left - scrollInsets.right,
-                        d.getHeight() - scrollInsets.top - scrollInsets.bottom);
+        // Get the scroll pane of the desktop pane.
+        JScrollPane scrollPane = this.getScrollPane();
+
+        // These booleans will be true if a frame has crossed the desktop pane window.
+        boolean horizontalCrossed = false;
+        boolean verticalCrossed = false;
+
+        // Check for each frame in the desktop panel if it has been
+        for (JInternalFrame frame : this.desktop.getAllFrames()) {
+
+            // Variables for distance between right border and bottom.
+            int frmHorizontalDistanceFromLeft = (int) (frame.getLocation().x + frame.getSize().getWidth());
+            int frmVerticalDistanceFromUpper = (int) (frame.getLocation().y + frame.getSize().getHeight());
+
+            // Set boolean if a frame has crossed out from the rigt
+            if ((frame.isVisible()) && frmHorizontalDistanceFromLeft > this.desktop.getSize().getWidth()) {
+                horizontalCrossed = true;
             }
 
-            if (x <= d.getWidth()) {
-                x = ((int) d.getWidth()) - 20;
+            // Set boolean if a frame has crossed out from the bottom.
+            if ((frame.isVisible()) && frmVerticalDistanceFromUpper > this.desktop.getSize().getHeight()) {
+                verticalCrossed = true;
             }
-            if (y <= d.getHeight()) {
-                y = ((int) d.getHeight()) - 20;
-            }
-            desktop.setAllSize(x, y);
+
+            // Show scroll bars.
+            this.desktop.setAllSize(frmHorizontalDistanceFromLeft, frmVerticalDistanceFromUpper);
             scrollPane.invalidate();
             scrollPane.validate();
+
+            // Stop the loop if a frame has crossed out of the desktop pane.
+            if (verticalCrossed || horizontalCrossed) {
+                return;
+            }
         }
     }
 
@@ -221,9 +218,8 @@ public class JMainDesktopManager extends DefaultDesktopManager {
         if (scrollPane != null) {
             Dimension d = scrollPane.getVisibleRect().getSize();
             if (scrollPane.getBorder() != null) {
-                d.setSize(
-                        d.getWidth() - scrollInsets.left - scrollInsets.right,
-                        d.getHeight() - scrollInsets.top - scrollInsets.bottom);
+                d.setSize(d.getWidth() - scrollInsets.left - scrollInsets.right, d.getHeight() - scrollInsets.top
+                        - scrollInsets.bottom);
             }
 
             d.setSize(d.getWidth() - 20, d.getHeight() - 20);
@@ -240,15 +236,6 @@ public class JMainDesktopManager extends DefaultDesktopManager {
      */
     public void setNotCenter(NotificationCenter notCenter) {
         this.notCenter = notCenter;
-    }
-
-    /**
-     * Set Settings Window
-     * 
-     * @param notCenter
-     */
-    public void setSettings(JSettingsWindow settings) {
-        this.settings = settings;
     }
 
     /**

@@ -47,7 +47,7 @@ public class ThreadedMapCreator implements Runnable {
     private Boolean maximized;
 
     private boolean loadFromWorkspace;
-    private boolean monaLisaHandling;
+    private boolean strategicRouteHandling;
     private boolean renegotiate;
 
     private String shipName;
@@ -76,20 +76,20 @@ public class ThreadedMapCreator implements Runnable {
         this.maximized = maximized;
 
         loadFromWorkspace = true;
-        monaLisaHandling = false;
+        strategicRouteHandling = false;
     }
 
     public ThreadedMapCreator(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         loadFromWorkspace = false;
-        monaLisaHandling = false;
+        strategicRouteHandling = false;
     }
 
     public ThreadedMapCreator(MainFrame mainFrame, boolean SAR,
             MapFrameType type) {
         this.mainFrame = mainFrame;
         loadFromWorkspace = false;
-        monaLisaHandling = false;
+        strategicRouteHandling = false;
         this.SAR = true;
         this.type = type;
     }
@@ -101,16 +101,16 @@ public class ThreadedMapCreator implements Runnable {
         this.voyage = voyage;
         this.originalRoute = originalRoute;
         loadFromWorkspace = false;
-        monaLisaHandling = true;
+        strategicRouteHandling = true;
         this.renegotiate = renegotiate;
     }
 
-    private JMapFrame addMonaLisaHandlingWindow(String shipName, Voyage voyage,
+    private JMapFrame addStrategicRouteHandlingWindow(String shipName, Voyage voyage,
             Route originalRoute, boolean renegotiate) {
         mainFrame.increaseWindowCount();
 
         JMapFrame window = new JMapFrame(mainFrame.getWindowCount(), mainFrame,
-                MapFrameType.monaLisa);
+                MapFrameType.suggestedRoute);
 
         mainFrame.getDesktop().add(window);
 
@@ -312,8 +312,8 @@ public class ThreadedMapCreator implements Runnable {
             return;
         }
 
-        if (monaLisaHandling) {
-            JMapFrame mapFrame = addMonaLisaHandlingWindow(shipName, voyage,
+        if (strategicRouteHandling) {
+            JMapFrame mapFrame = addStrategicRouteHandlingWindow(shipName, voyage,
                     originalRoute, renegotiate);
             setupSharedLayers(mapFrame);
             return;

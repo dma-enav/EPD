@@ -267,7 +267,7 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSen
     public void loadView() {
         try (FileInputStream fileIn = new FileInputStream(OWN_SHIP_FILE);
                 ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
-            aisTarget = (VesselTarget) objectIn.readObject();
+                aisTarget = (VesselTarget) objectIn.readObject();
         } catch (FileNotFoundException e) {
             // Not an error
         } catch (Exception e) {

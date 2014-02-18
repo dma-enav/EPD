@@ -54,12 +54,6 @@ public class SARComponentPanel extends OMComponentPanel implements
     }
 
     @Override
-    public void recieveCoord(LatLonPoint llp) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public void projectionChanged(ProjectionEvent e) {
         // TODO Auto-generated method stub
 
@@ -131,6 +125,12 @@ public class SARComponentPanel extends OMComponentPanel implements
             }
 
         }
+    }
+
+    @Override
+    public void receiveCoord(LatLonPoint llp) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

@@ -327,27 +327,27 @@ public class VOCTCommunicationWindow extends JDialog implements
                 // Send
                 if ((boolean) sruTable.getValueAt(i, 0)) {
 
-                    try {
-                        voctManager.updateEffectiveAreaLocation();
-
-                        sruManager.setSRUStatus(i, sru_status.INVITED);
-
-                        EPDShore.getInstance().getEnavServiceHandler().sendVOCTMessage(
-                                sruList.get(i).getMmsi(),
-                                voctManager.getSarData(), "OSC", "Please Join",
-                                i, (boolean) sruTable.getValueAt(i, 4),
-                                (boolean) sruTable.getValueAt(i, 5));
-
-                    } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (TimeoutException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
+//                    try {
+//                        voctManager.updateEffectiveAreaLocation();
+//
+//                        sruManager.setSRUStatus(i, sru_status.INVITED);
+//
+//                        EPDShore.getInstance().getEnavServiceHandler().sendVOCTMessage(
+//                                sruList.get(i).getMmsi(),
+//                                voctManager.getSarData(), "OSC", "Please Join",
+//                                i, (boolean) sruTable.getValueAt(i, 4),
+//                                (boolean) sruTable.getValueAt(i, 5));
+//
+//                    } catch (InterruptedException e) {
+//                        // TODO Auto-generated catch block
+//                        e.printStackTrace();
+//                    } catch (ExecutionException e) {
+//                        // TODO Auto-generated catch block
+//                        e.printStackTrace();
+//                    } catch (TimeoutException e) {
+//                        // TODO Auto-generated catch block
+//                        e.printStackTrace();
+//                    }
 
                 }
 

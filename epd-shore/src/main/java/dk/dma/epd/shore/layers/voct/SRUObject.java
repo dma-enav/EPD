@@ -19,8 +19,6 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.ais.PastTrackSortedSet;
-import dk.dma.epd.common.prototype.enavcloud.CloudIntendedRoute;
-import dk.dma.epd.common.prototype.layers.ais.IntendedRouteGraphic;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackGraphic;
 import dk.dma.epd.shore.voct.SRUCommunicationObject;
 
@@ -30,7 +28,7 @@ public class SRUObject extends OMGraphicList {
 
     private SRUVesselGraphic sruVesselGraphic;
     private PastTrackGraphic pastTrackGraphic = new PastTrackGraphic();
-    private IntendedRouteGraphic routeGraphic = new IntendedRouteGraphic();
+//    private IntendedRouteGraphic routeGraphic = new IntendedRouteGraphic();
 
     private SRUCommunicationObject sruCommunicationObject;
     PastTrackSortedSet pastTrack = new PastTrackSortedSet();
@@ -51,7 +49,7 @@ public class SRUObject extends OMGraphicList {
                 .getMmsi());
 
         this.add(sruVesselGraphic);
-        this.add(routeGraphic);
+//        this.add(routeGraphic);
         this.add(pastTrackGraphic);
         
         
@@ -84,11 +82,11 @@ public class SRUObject extends OMGraphicList {
             sruVesselGraphic.setHeading(sruCommunicationObject.getHeading());
         }
 
-        if (sruCommunicationObject.getIntendedSearchPattern() != null) {
-            routeGraphic.update(null, "", new CloudIntendedRoute(
-                    sruCommunicationObject.getIntendedSearchPattern()
-                            .getFullRouteData()), latestPosition);
-        }
+//        if (sruCommunicationObject.getIntendedSearchPattern() != null) {
+//            routeGraphic.update(null, "", new CloudIntendedRoute(
+//                    sruCommunicationObject.getIntendedSearchPattern()
+//                            .getFullRouteData()), latestPosition);
+//        }
 
         // if (sruVesselGraphic.getLat() ==)
 

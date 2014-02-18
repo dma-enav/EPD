@@ -132,7 +132,7 @@ public class NoGoComponentPanel extends OMComponentPanel {
             
             draught = -draught;
             
-            int draughtInt = (int) Math.round(draught);
+//            int draughtInt = (int) Math.round(draught);
             
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM , HH:mm");
             
@@ -164,7 +164,7 @@ public class NoGoComponentPanel extends OMComponentPanel {
                 statLabel5.setText("");
                 statLabel1.setText("N/A");
                 statLabel2.setText("N/A");
-                statLabel3.setText(Integer.toString(draughtInt)  + " meters");
+                statLabel3.setText(Double.toString(draught)  + " meters");
                 return;
             }
 
@@ -173,7 +173,7 @@ public class NoGoComponentPanel extends OMComponentPanel {
                 statusLabel.setForeground(Color.GREEN);
                 statLabel1.setText(validFromStr);
                 statLabel2.setText(validToStr);
-                statLabel3.setText(Integer.toString(draughtInt)  + " meters");
+                statLabel3.setText(Double.toString(draught)  + " meters");
                 statLabel4.setText("");
                 statLabel5.setText("");
                 
@@ -188,7 +188,7 @@ public class NoGoComponentPanel extends OMComponentPanel {
                 statusLabel.setForeground(Color.GREEN);
                 statLabel1.setText(validFromStr);
                 statLabel2.setText(validToStr);
-                statLabel3.setText(Integer.toString(draughtInt)  + " meters");
+                statLabel3.setText(Double.toString(draught)  + " meters");
                 statLabel4.setText("Entire region is Go");
                 
                 statLabel1.setEnabled(true);

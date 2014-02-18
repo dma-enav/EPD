@@ -30,7 +30,6 @@ import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidRespon
 import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.layers.voct.VoctLayerTracking;
-import dk.dma.epd.shore.service.EnavServiceHandler;
 import dk.dma.epd.shore.voct.SRU.sru_status;
 
 public class SRUManager extends MapHandlerChild implements Runnable {
@@ -38,7 +37,7 @@ public class SRUManager extends MapHandlerChild implements Runnable {
     private List<SRU> srus = new LinkedList<SRU>();
 
     private VOCTManager voctManager;
-    private EnavServiceHandler enavServiceHandler;
+//    private EnavServiceHandler enavServiceHandler;
 
     private LinkedHashMap<Long, SRUCommunicationObject> sRUCommunication = new LinkedHashMap<Long, SRUCommunicationObject>();
     private VoctLayerTracking voctLayerTracking;
@@ -85,42 +84,42 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
     private void updateSRUsStatus() {
 
-        for (int i = 0; i < enavServiceHandler.getVoctMessageList().size(); i++) {
-
-            long mmsi = Long.parseLong(enavServiceHandler.getVoctMessageList()
-                    .get(i).getId().toString().split("//")[1]);
-
-            // System.out.println("Is mmsi " + mmsi + " a SRU?");
-            for (int j = 0; j < srus.size(); j++) {
-                // System.out.println("Comparing " + srus.get(j).getMmsi() +
-                // " with " + mmsi);
-                if (srus.get(j).getMmsi() == mmsi) {
-                    // System.out.println("Yes " + srus.get(j).getMmsi() +
-                    // " found");
-
-                    // System.out.println("SRU Name: " + srus.get(j).getName()
-                    // + " : " + srus.get(j).getStatus());
-
-                    // Change the status
-                    if (srus.get(j).getStatus() != sru_status.ACCEPTED
-                            && srus.get(j).getStatus() != sru_status.AVAILABLE
-                            && srus.get(j).getStatus() != sru_status.INVITED) {
-                        System.out.println("Updating status WHY");
-                        srus.get(j).setStatus(sru_status.AVAILABLE);
-                    }
-
-                    // && (srus.get(i).getStatus() == sru_status.ACCEPTED
-                    // || srus.get(i).getStatus() == sru_status.AVAILABLE ||
-                    // srus
-                    // .get(i).getStatus() == sru_status.INVITED)) {
-
-                    // System.out.println("Adding SRU to list");
-                    // availableSRUs.add(srus.get(i));
-
-                }
-            }
-
-        }
+//        for (int i = 0; i < enavServiceHandler.getVoctMessageList().size(); i++) {
+//
+//            long mmsi = Long.parseLong(enavServiceHandler.getVoctMessageList()
+//                    .get(i).getId().toString().split("//")[1]);
+//
+//            // System.out.println("Is mmsi " + mmsi + " a SRU?");
+//            for (int j = 0; j < srus.size(); j++) {
+//                // System.out.println("Comparing " + srus.get(j).getMmsi() +
+//                // " with " + mmsi);
+//                if (srus.get(j).getMmsi() == mmsi) {
+//                    // System.out.println("Yes " + srus.get(j).getMmsi() +
+//                    // " found");
+//
+//                    // System.out.println("SRU Name: " + srus.get(j).getName()
+//                    // + " : " + srus.get(j).getStatus());
+//
+//                    // Change the status
+//                    if (srus.get(j).getStatus() != sru_status.ACCEPTED
+//                            && srus.get(j).getStatus() != sru_status.AVAILABLE
+//                            && srus.get(j).getStatus() != sru_status.INVITED) {
+//                        System.out.println("Updating status WHY");
+//                        srus.get(j).setStatus(sru_status.AVAILABLE);
+//                    }
+//
+//                    // && (srus.get(i).getStatus() == sru_status.ACCEPTED
+//                    // || srus.get(i).getStatus() == sru_status.AVAILABLE ||
+//                    // srus
+//                    // .get(i).getStatus() == sru_status.INVITED)) {
+//
+//                    // System.out.println("Adding SRU to list");
+//                    // availableSRUs.add(srus.get(i));
+//
+//                }
+//            }
+//
+//        }
 
     }
 
@@ -221,10 +220,10 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
         
 
-        if (!EPDShore.getInstance().getEnavServiceHandler().isListeningToVoct()) {
-            System.out.println("Starting voct listening");
-            EPDShore.getInstance().getEnavServiceHandler().listenToSAR();
-        }
+//        if (!EPDShore.getInstance().getEnavServiceHandler().isListeningToVoct()) {
+//            System.out.println("Starting voct listening");
+//            EPDShore.getInstance().getEnavServiceHandler().listenToSAR();
+//        }
 
     }
     
@@ -299,10 +298,10 @@ public class SRUManager extends MapHandlerChild implements Runnable {
 
         
 
-        if (!EPDShore.getInstance().getEnavServiceHandler().isListeningToVoct()) {
-            System.out.println("Starting voct listening");
-            EPDShore.getInstance().getEnavServiceHandler().listenToSAR();
-        }
+//        if (!EPDShore.getInstance().getEnavServiceHandler().isListeningToVoct()) {
+//            System.out.println("Starting voct listening");
+//            EPDShore.getInstance().getEnavServiceHandler().listenToSAR();
+//        }
 
     }
 
@@ -312,9 +311,9 @@ public class SRUManager extends MapHandlerChild implements Runnable {
             voctManager = (VOCTManager) obj;
         }
 
-        if (obj instanceof EnavServiceHandler) {
-            enavServiceHandler = (EnavServiceHandler) obj;
-        }
+//        if (obj instanceof EnavServiceHandler) {
+//            enavServiceHandler = (EnavServiceHandler) obj;
+//        }
     }
 
     public void toggleSRUVisiblity(int i, boolean visible) {

@@ -17,47 +17,22 @@ package dk.dma.epd.shore.layers;
 
 import java.awt.event.MouseEvent;
 
-import com.bbn.openmap.MapBean;
-
-import dk.dma.epd.common.prototype.layers.GeneralLayerCommon;
-import dk.dma.epd.shore.event.DragMouseMode;
-import dk.dma.epd.shore.event.NavigationMouseMode;
-import dk.dma.epd.shore.event.SelectMouseMode;
-import dk.dma.epd.shore.gui.views.JMapFrame;
+import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.gui.views.MapMenu;
 
 
 /**
- * General layer that may be sub-classed by other layers.
- * <p>
- * Contains default functionality for handling mouse right click
+ * General layer for EPDShore that may be sub-classed by other layers.
  */
-public class GeneralLayer extends GeneralLayerCommon {
+public class GeneralLayer extends EPDLayerCommon {
 
     private static final long serialVersionUID = 1L;
-
-    protected MainFrame mainFrame;
-    protected JMapFrame jMapFrame;
-    protected MapMenu mapMenu;
-    protected MapBean mapBean;
     
-    /**
-     * Returns the mouse mode service list
-     * @return the mouse mode service list
-     */
-    @Override
-    public String[] getMouseModeServiceList() {
-        String[] ret = new String[3];
-        ret[0] = DragMouseMode.MODEID; // "DragMouseMode"
-        ret[1] = NavigationMouseMode.MODEID; // "ZoomMouseMode"
-        ret[2] = SelectMouseMode.MODEID; // "SelectMouseMode"
-        return ret;
-    }
-
     /**
      * Provides default behavior for right-clicks by
      * showing the general menu.
+     * 
      * @param evt the mouse event
      */
     @Override
@@ -65,41 +40,33 @@ public class GeneralLayer extends GeneralLayerCommon {
         if (evt.getButton() == MouseEvent.BUTTON3) {
             mapMenu.generalMenu(true);
             mapMenu.setVisible(true);
-            mapMenu.show(this, evt.getX() - 2, evt.getY() - 2);
+
+            if (mainFrame.getHeight() < evt.getYOnScreen() + mapMenu.getHeight()) {
+                mapMenu.show(this, evt.getX() - 2, evt.getY() - mapMenu.getHeight());
+            } else {
+                mapMenu.show(this, evt.getX() - 2, evt.getY() - 2);
+            }
             return true;
         }
+
         return false;
-    }
-    
-    /**
-     * Called when a bean is added to the bean context
-     * @param obj the bean being added
-     */
-    @Override
-    public void findAndInit(Object obj) {
-        if (obj instanceof MapMenu) {
-            mapMenu = (MapMenu) obj;
-        } else if (obj instanceof JMapFrame) {
-            jMapFrame = (JMapFrame) obj;
-        } else if (obj instanceof MainFrame) {
-            mainFrame = (MainFrame) obj;
-        } else if (obj instanceof MapBean) {
-            mapBean = (MapBean) obj;
-        }
     }
 
     /**
-     * Called when a bean is removed from the bean context
-     * @param obj the bean being removed
+     * Returns a reference to the main frame
+     * @return a reference to the main frame
      */
     @Override
-    public void findAndUndo(Object obj) {
-        // Important notice:
-        // The mechanism for adding and removing beans has been used in 
-        // a wrong way in epd-shore, which has multiple ChartPanels.
-        // When the "global" beans are added to a new ChartPanel, they
-        // will be removed from the other ChartPanels using findAndUndo.
-        // Hence, we do not reset the references to mapMenu, jMapFrame and mainFrame
-        super.findAndUndo(obj);
-    }
+    public MainFrame getMainFrame() {
+        return (MainFrame)mainFrame;
+    }   
+
+    /**
+     * Returns a reference to the map menu
+     * @return a reference to the map menu
+     */
+    @Override
+    public MapMenu getMapMenu() {
+        return (MapMenu)mapMenu;
+    }   
 }

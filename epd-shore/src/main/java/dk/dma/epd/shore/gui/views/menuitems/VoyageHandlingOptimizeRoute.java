@@ -17,9 +17,9 @@ package dk.dma.epd.shore.gui.views.menuitems;
 
 import javax.swing.JMenuItem;
 
+import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.monalisa.MonaLisaSSPAOptionsDialog;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 
@@ -31,7 +31,7 @@ public class VoyageHandlingOptimizeRoute extends JMenuItem implements IMapMenuAc
 
     private VoyageHandlingLayer voyageHandlingLayer;
     private Route route;
-    private AisHandler aisHandler;
+    private AisHandlerCommon aisHandler;
     private long mmsi;
     
 
@@ -84,7 +84,7 @@ public class VoyageHandlingOptimizeRoute extends JMenuItem implements IMapMenuAc
     /**
      * @return the aisHandler
      */
-    public AisHandler getAisHandler() {
+    public AisHandlerCommon getAisHandler() {
         return aisHandler;
     }
 
@@ -94,7 +94,7 @@ public class VoyageHandlingOptimizeRoute extends JMenuItem implements IMapMenuAc
     /**
      * @param aisHandler the aisHandler to set
      */
-    public void setAisHandler(AisHandler aisHandler) {
+    public void setAisHandler(AisHandlerCommon aisHandler) {
         this.aisHandler = aisHandler;
     }
 

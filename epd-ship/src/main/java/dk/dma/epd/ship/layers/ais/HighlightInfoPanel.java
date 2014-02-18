@@ -15,10 +15,6 @@
  */
 package dk.dma.epd.ship.layers.ais;
 
-import java.net.URL;
-
-import javax.swing.ImageIcon;
-
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.ship.EPDShip;
 
@@ -30,7 +26,7 @@ public class HighlightInfoPanel extends InfoPanel {
     private static final long serialVersionUID = 1L;
 
     public HighlightInfoPanel() {
-        super(load("images/ais/highlight.png"));
+        super(EPDShip.res().getCachedImageIcon("images/ais/highlight.png"));
     }
 
     /**
@@ -39,10 +35,5 @@ public class HighlightInfoPanel extends InfoPanel {
     public void displayHighlight(int x, int y) {
         setPos(x, y);
         showImage();
-    }
-
-    static ImageIcon load(String imgpath) {
-        URL url = EPDShip.class.getClassLoader().getResource(imgpath);
-        return new ImageIcon(url);
     }
 }

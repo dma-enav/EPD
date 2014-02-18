@@ -27,6 +27,7 @@ import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMPoly;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.util.Calculator;
@@ -39,18 +40,18 @@ public class ActiveRouteLegGraphic extends RouteLegGraphic {
     private static final long serialVersionUID = 1L;
 
     public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor,
-            float[] broadLineDash) {
-        super(routeLeg, routeIndex, color, stroke, broadLineColor, broadLineDash);
+            float[] broadLineDash, float scale) {
+        super(routeLeg, routeIndex, color, stroke, broadLineColor, broadLineDash, scale);
         addCrossTrack();
     }
 
-    public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor) {
-        super(routeLeg, routeIndex, color, stroke, broadLineColor);
+    public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor, float scale) {
+        super(routeLeg, routeIndex, color, stroke, broadLineColor, scale);
         addCrossTrack();
     }
 
-    public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke) {
-        super(routeLeg, routeIndex, color, stroke);
+    public ActiveRouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, float scale) {
+        super(routeLeg, routeIndex, color, stroke, scale);
         addCrossTrack();
 
     }
@@ -117,7 +118,15 @@ public class ActiveRouteLegGraphic extends RouteLegGraphic {
 
             polyPoints[j] = polyPoints[0];
             polyPoints[j + 1] = polyPoints[1];
-            OMPoly poly = new OMPoly(polyPoints, OMGraphicConstants.DECIMAL_DEGREES, OMGraphicConstants.LINETYPE_RHUMB, 1);
+            
+            int headingType = OMGraphicConstants.LINETYPE_RHUMB;
+            
+            if (this.getRouteLeg().getHeading() == Heading.GC){
+                headingType = OMGraphicConstants.LINETYPE_GREATCIRCLE;
+            }
+            
+            OMPoly poly = new OMPoly(polyPoints, OMGraphicConstants.DECIMAL_DEGREES, headingType, 0);
+            poly.setIsPolygon(true);
             poly.setLinePaint(clear);
             poly.setFillPaint(new Color(0, 0, 0, 1));
             poly.setTextureMask(new TexturePaint(hatchFill, hatchFillRectangle));

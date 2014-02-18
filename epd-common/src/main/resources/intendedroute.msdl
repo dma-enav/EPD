@@ -1,0 +1,34 @@
+namespace imo.route.broadcast.intendedroute;
+
+message IntendedRoute {
+    required int32 activeWpIndex = 1;
+    required DateTime[] plannedEtas = 2;
+    required Waypoint[] waypoints = 3;
+}
+message Waypoint {
+    required Position start = 1;
+    float rot = 2;
+    float turnRadius = 3;
+    required DateTime eta = 4;
+    Leg outLeg = 5;
+}
+
+message Leg {
+    float speed = 1;
+    float xtdStarboard = 2;
+    float xtdPort = 3;
+    HeadingType headingType = 4;
+}
+
+enum HeadingType {
+    RhumbLine = 1;
+    GreatCircle = 2;
+}
+
+service IntendedRouteService {
+   brodcast IntendedRouteBroadcast {
+      IntendedRoute indendedRoute = 1;
+   } = 1;
+} 
+	// Broadcast vs addressed?
+	// Messages in service?

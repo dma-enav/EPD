@@ -16,5 +16,7 @@
 package dk.dma.epd.shore.gui.views;
 
 public enum MapFrameType{
-    standard, monaLisa, SAR_Tracking, SAR_Planning;
+
+    standard, SAR_Tracking, SAR_Planning, suggestedRoute;
+
 };

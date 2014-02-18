@@ -33,7 +33,7 @@ import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.communication.webservice.ShoreServiceException;
-import dk.dma.epd.common.prototype.layers.msi.MsiLayer;
+import dk.dma.epd.common.prototype.layers.msi.MsiLayerCommon;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.route.RouteManagerCommon;
@@ -59,7 +59,7 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
     private ShoreServicesCommon shoreServices;
     private RouteManagerCommon routeManager;
     
-    private MsiLayer msiLayer;
+    private MsiLayerCommon msiLayer;
 
     private MsiStore msiStore;
     private Date lastUpdate;
@@ -437,10 +437,9 @@ public class MsiHandler extends MapHandlerChild implements Runnable,
         }
         if (obj instanceof RouteManagerCommon) {
             routeManager = (RouteManagerCommon) obj;
-            routeManager.addListener(this);
         }
-        if (obj instanceof MsiLayer) {
-            msiLayer = (MsiLayer) obj;
+        if (obj instanceof MsiLayerCommon) {
+            msiLayer = (MsiLayerCommon) obj;
         }
         if (obj instanceof IMsiUpdateListener) {
             addListener((IMsiUpdateListener) obj);

@@ -96,7 +96,14 @@ public class SARFrame extends JMapFrame {
         moveHandler = new JLabel("New Window " + id, SwingConstants.CENTER);
         moveHandler.setFont(new Font("Arial", Font.BOLD, 9));
         moveHandler.setForeground(new Color(200, 200, 200));
-        moveHandler.addMouseListener(this);
+        moveHandler.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent arg0) {
+                if (arg0.getClickCount() == 2) {
+                    rename();
+                }
+            }
+        });
         moveHandler.addMouseListener(mml);
         moveHandler.addMouseMotionListener(mml);
         actions = moveHandler.getListeners(MouseMotionListener.class);

@@ -26,7 +26,6 @@ import com.bbn.openmap.omGraphics.OMArrowHead;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
 
-import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 
@@ -39,13 +38,13 @@ public class RouteLegGraphic extends OMGraphicList {
 
     protected RouteLeg routeLeg;
     private OMLine line;
-    private OMArrowHead arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, 5, 15);
+    private OMArrowHead arrow;
     protected Color color;
 
     private OMLine animationLine;
     private OMLine broadLine;
 
-    float[] dash = { 35.0f, 35.0f };
+    float[] dash;
     private int routeIndex;
 
     float dashPhase = 5000;
@@ -62,12 +61,14 @@ public class RouteLegGraphic extends OMGraphicList {
      * @param stroke
      *            Stroke type of the route leg
      */
-    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke) {
+    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, float scale) {
         super();
         this.routeIndex = routeIndex;
         this.routeLeg = routeLeg;
         this.color = color;
         this.stroke = stroke;
+        dash = new float[]{ scale*35.0f, scale*35.0f };
+        arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, (int) (scale*5.0), (int) (scale*15.0));
         this.setVague(true);
         initGraphics();
     }
@@ -85,26 +86,30 @@ public class RouteLegGraphic extends OMGraphicList {
      *            Stroke type of the route leg
      */
     public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor,
-            float[] broadLineDash) {
+            float[] broadLineDash, float scale) {
         super();
         this.routeIndex = routeIndex;
         this.routeLeg = routeLeg;
         this.color = color;
         this.stroke = stroke;
         this.setVague(true);
+        dash = new float[]{ scale*35.0f, scale*35.0f };
+        arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, (int) (scale*5.0), (int) (scale*15.0));
         initGraphics();
         addBroadLine(broadLineColor, broadLineDash);
     }
 
-    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor) {
+    public RouteLegGraphic(RouteLeg routeLeg, int routeIndex, Color color, Stroke stroke, Color broadLineColor,  float scale) {
         super();
         this.routeIndex = routeIndex;
         this.routeLeg = routeLeg;
         this.color = color;
         this.stroke = stroke;
+        dash = new float[]{ scale*35.0f, scale*35.0f };
+        arrow = new OMArrowHead(OMArrowHead.ARROWHEAD_DIRECTION_FORWARD, 55, (int) (scale*5.0), (int) (scale*15.0));
         this.setVague(true);
         initGraphics();
-        addBroadLine(broadLineColor, new float[] { 40.0f, 15.0f });
+        addBroadLine(broadLineColor, new float[] { scale*40.0f, scale * 15.0f });
     }
 
     private void addBroadLine(Color color, float[] broadLineDash) {
@@ -119,7 +124,7 @@ public class RouteLegGraphic extends OMGraphicList {
             double endLat = legEnd.getPos().getLatitude();
             double endLon = legEnd.getPos().getLongitude();
 
-            broadLine = new OMLine(startLat, startLon, endLat, endLon, lineType);
+            broadLine = new OMLine(startLat, startLon, endLat, endLon, routeLeg.getHeading().getOMLineType());
             broadLine.setLinePaint(color);
             broadLine.setStroke(new BasicStroke(12.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, broadLineDash, 0.0f));
 
@@ -138,13 +143,7 @@ public class RouteLegGraphic extends OMGraphicList {
             double endLat = legEnd.getPos().getLatitude();
             double endLon = legEnd.getPos().getLongitude();
 
-            if (routeLeg.getHeading() == Heading.GC) {
-                lineType = LINETYPE_GREATCIRCLE;
-            } else if (routeLeg.getHeading() == Heading.RL) {
-                lineType = LINETYPE_RHUMB;
-            }
-
-            line = new OMLine(startLat, startLon, endLat, endLon, lineType);
+            line = new OMLine(startLat, startLon, endLat, endLon, routeLeg.getHeading().getOMLineType());
             line.setLinePaint(color);
             line.setStroke(stroke);
 
@@ -164,7 +163,7 @@ public class RouteLegGraphic extends OMGraphicList {
             double endLat = legEnd.getPos().getLatitude();
             double endLon = legEnd.getPos().getLongitude();
 
-            animationLine = new OMLine(startLat, startLon, endLat, endLon, lineType);
+            animationLine = new OMLine(startLat, startLon, endLat, endLon, routeLeg.getHeading().getOMLineType());
             animationLine.setLinePaint(new Color(1f, 1f, 0, 0.6f));
             animationLine.setStroke(new BasicStroke(10.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dash, dashPhase));
 

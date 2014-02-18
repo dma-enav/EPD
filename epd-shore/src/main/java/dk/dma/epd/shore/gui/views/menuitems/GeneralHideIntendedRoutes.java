@@ -18,16 +18,14 @@ package dk.dma.epd.shore.gui.views.menuitems;
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.shore.ais.AisHandler;
+import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 
 
 public class GeneralHideIntendedRoutes extends JMenuItem implements IMapMenuAction {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
-    private AisHandler aisHandler;
+    
+    private IntendedRouteHandlerCommon intendedRouteHandler;
 
     public GeneralHideIntendedRoutes(String text) {
         super();
@@ -36,11 +34,11 @@ public class GeneralHideIntendedRoutes extends JMenuItem implements IMapMenuActi
 
     @Override
     public void doAction() {
-        aisHandler.hideAllIntendedRoutes();
+        intendedRouteHandler.hideAllIntendedRoutes();
     }
 
-    public void setAisHandler(AisHandler aisHandler) {
-        this.aisHandler = aisHandler;
+    public void setIntendedRouteHandler(IntendedRouteHandlerCommon intendedRouteHandler) {
+        this.intendedRouteHandler = intendedRouteHandler;
     }
 
 }

@@ -15,18 +15,27 @@
  */
 package dk.dma.epd.common.prototype;
 
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import javax.swing.JFrame;
-
+import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.graphics.Resources;
+import dk.dma.epd.common.prototype.gui.MainFrameCommon;
+import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
+import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
+import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
 
-
-public abstract class EPD<S extends Settings> {
+/**
+ * Abstract super class for the main system, i.e either 
+ * {@code EPDShore} or {@code EPDShip}
+ */
+public abstract class EPD implements ISettingsListener {
     
-    protected static EPD<?> instance;    
-    protected S settings;
+    protected static EPD instance;    
+    protected Settings settings;
     protected Properties properties = new Properties();
     
     /**
@@ -36,17 +45,38 @@ public abstract class EPD<S extends Settings> {
         instance = this;
     }
     
-    public static EPD<?> getInstance() {
+    /**
+     * Factory method that returns a reference to the current {@code EPD}
+     * system, i.e. either {@code EPDShore} or {@code EPDShip}.
+     * 
+     * @return a reference to the current {@code EPD} system
+     */
+    public static EPD getInstance() {
         return instance;
     }
     
+    /**
+     * Returns a {@linkplain Resource} instance which loads resource from
+     * the same class-loader/jar-file as the {@code EPD} class.
+     * 
+     * @return a new {@linkplain Resource} instance
+     */
+    public static Resources res() {
+       return Resources.get(EPD.class); 
+    }
+    
+    /**
+     * Returns the path to the home folder, used for settings,
+     * persisted data, etc.
+     * @return the path to the home folder
+     */
     public abstract Path getHomePath();
     
     /**
      * Returns the settings associated with the EPD system
      * @return the settings associated with the EPD system
      */
-    public S getSettings() {
+    public Settings getSettings() {
         return settings;
     }
     
@@ -78,7 +108,78 @@ public abstract class EPD<S extends Settings> {
         return thread;
     }
 
-    public JFrame getMainFrame() {
-        return null;
+    /**
+     * Starts the sensors as defined in the {@linkplain SensorSettings} and hook up listeners
+     */
+    protected abstract void startSensors();
+    
+    /**
+     * Stops all sensors and remove listeners
+     */
+    protected abstract void stopSensors();
+    
+    /**
+     * Stop {@code sensor} and wait at most {@code timeout} ms for it to terminate.
+     * 
+     * @param sensor the sensor to stop
+     * @param timeout the time in ms to wait for the sensor to termine
+     * @return if the sensor was terminated
+     */
+    protected boolean stopSensor(NmeaSensor sensor, long timeout) {
+        // Sanity check
+        if (sensor == null) {
+            return true;
+        }
+    
+        sensor.stop();
+        long t0 = System.currentTimeMillis();
+        while (!sensor.hasTerminated() && System.currentTimeMillis() - t0 < timeout) {
+            try { 
+                Thread.sleep(100); 
+            } catch (Exception ex) {
+            }
+        }
+        return sensor.hasTerminated();
+    }
+   
+    /**
+     * Returns a reference to the main frame of the application
+     * @return a reference to the main frame of the application
+     */
+    public abstract MainFrameCommon getMainFrame();
+    
+    /**
+     * Returns the current position of the EPD system
+     * @return the current position of the EPD system
+     */
+    public abstract Position getPosition();
+    
+    /**
+     * Returns the default shore mouse mode service list
+     * @return the default shore mouse mode service list
+     */
+    public abstract String[] getDefaultMouseModeServiceList();
+    
+    /**
+     * Call this method to terminate the application
+     * @param restart whether to restart or not
+     */
+    public abstract void closeApp(boolean restart);
+    
+    
+    /**
+     * If Key caps is pressed during start up, and if so,
+     * asks the user for a home path.<br>
+     * Otherwise, the {@code defaultHomePath} is returned
+     * 
+     * @param defaultHomePath the default home path
+     * @return the chosen home path
+     */
+    protected Path determineHomePath(Path defaultHomePath) {
+        if (Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_CAPS_LOCK)) {
+            return HomePathDialog.determineHomePath(defaultHomePath);
+        }
+        // Caps-lock not on, return default home path
+        return defaultHomePath;  
     }
 }
