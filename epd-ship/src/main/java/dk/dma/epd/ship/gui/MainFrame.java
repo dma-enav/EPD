@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 
 import com.bbn.openmap.MapHandler;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.IMapFrame;
@@ -107,6 +108,15 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     @Override
     public Component asComponent() {
         return this;
+    }
+
+    /**
+     * Zooms the active map to the given position
+     * @param pos the position to zoom to
+     */
+    @Override
+    public void zoomToPosition(Position pos) {
+        getChartPanel().zoomToPosition(pos);
     }
     
     private void initGUI() {

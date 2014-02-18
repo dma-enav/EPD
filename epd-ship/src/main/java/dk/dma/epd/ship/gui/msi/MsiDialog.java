@@ -191,6 +191,7 @@ public class MsiDialog extends ComponentFrame implements ListSelectionListener, 
     }
     
     private void updateButtons() {
+        try {
         int selected = msiTable.getSelectedRow();
         boolean ackAble = false;
         if (selected >= 0 && msiTableModel.getMessages().size() > 0) {
@@ -205,11 +206,18 @@ public class MsiDialog extends ComponentFrame implements ListSelectionListener, 
         ackButton.setEnabled(ackAble);
         gotoBtn.setEnabled(selected >= 0);
         deleteBtn.setEnabled(selected >= 0);
+        } catch (Exception ex) {
+            
+        }
     }
     
     private void setSelected(int selectedRow) {
-        msiSelectionModel.setSelectionInterval(selectedRow, selectedRow);
-        msiTable.scrollRectToVisible(msiTable.getCellRect(selectedRow, -1, true));
+        try {
+            msiSelectionModel.setSelectionInterval(selectedRow, selectedRow);
+            msiTable.scrollRectToVisible(msiTable.getCellRect(selectedRow, -1, true));
+        } catch (Exception ex) {
+            
+        }
     }
     
     private void updateTable() {

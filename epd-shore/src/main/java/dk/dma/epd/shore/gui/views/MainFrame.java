@@ -31,6 +31,7 @@ import java.util.List;
 
 import javax.swing.JScrollPane;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
@@ -102,6 +103,24 @@ public class MainFrame extends MainFrameCommon {
         // Do nothing. EPDShore uses MapFrames for the various maps
     }
 
+    /**
+     * Zooms the active map to the given position
+     * @param pos the position to zoom to
+     */
+    @Override
+    public void zoomToPosition(Position pos) {
+        if (getActiveMapWindow() != null) {
+            getActiveMapWindow()
+                .getChartPanel()
+                .zoomToPoint(pos);
+        } else if (getMapWindows().size() > 0) {
+            getMapWindows()
+                .get(0)
+                .getChartPanel()
+                .zoomToPoint(pos);
+        }
+    }
+    
     public synchronized void increaseWindowCount() {
         windowCount++;
     }

@@ -27,6 +27,7 @@ import javax.swing.WindowConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
@@ -71,6 +72,12 @@ public abstract class MainFrameCommon extends JFrame {
      */
     protected abstract void initGlassPane();
 
+    /**
+     * Zooms the active map to the given position
+     * @param pos the position to zoom to
+     */
+    public abstract void zoomToPosition(Position pos);
+    
     /**
      * Called when the window is closing
      */

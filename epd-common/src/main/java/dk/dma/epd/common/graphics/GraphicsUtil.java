@@ -154,6 +154,18 @@ public class GraphicsUtil {
     }
     
     /**
+     * Converts the color into a Hex representation
+     * suitable for HTML color attributes.
+     * 
+     * @param color the color to convert
+     * @return the HTML Hex version of the color
+     */
+    public static String toHtmlColor(Color color) {
+        String rgb = Integer.toHexString(color.getRGB());
+        return "#" + rgb.substring(2, rgb.length());
+    }
+    
+    /**
      * Fixes the size of a {@linkplain JComponent} to the given width and height.
      * <p>
      * If a value of -1 is passed along, the preferred size is used instead.

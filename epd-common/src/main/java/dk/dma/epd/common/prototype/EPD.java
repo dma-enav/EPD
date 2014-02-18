@@ -25,7 +25,9 @@ import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
+import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
+import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
@@ -45,6 +47,8 @@ public abstract class EPD implements ISettingsListener {
     // Common services
     protected ChatServiceHandlerCommon chatServiceHandler;
     protected AisHandlerCommon aisHandler;
+    protected MsiHandler msiHandler;
+    protected NotificationCenterCommon notificationCenter;
     
     /**
      * Constructor
@@ -178,6 +182,22 @@ public abstract class EPD implements ISettingsListener {
      */
     public AisHandlerCommon getAisHandler() {
         return aisHandler;
+    }
+
+    /**
+     * Return the msiHandker
+     * @return - MsiHandler
+     */
+    public MsiHandler getMsiHandler() {
+        return msiHandler;
+    }
+    
+    /**
+     * Returns a reference to the notification center
+     * @return a reference to the notification center
+     */
+    public NotificationCenterCommon getNotificationCenter() {
+        return notificationCenter;
     }
     
     /**

@@ -16,30 +16,17 @@
 package dk.dma.epd.common.prototype.notification;
 
 /**
- * Enumerates the notification types
+ * Class that can be used for general notifications
  */
-public enum NotificationType {
-    MSI("MSI"),
-    TACTICAL_ROUTE("Tactital Route"),
-    STRATEGIC_ROUTE("Strategic Route"),
-    NOTIFICATION("Notifications");
+public class GeneralNotification extends Notification<Void, Long> {
     
-    private String title;
-    
+    private static final long serialVersionUID = 1L;
+
     /**
      * Constructor
-     * 
-     * @param title the notification type title
      */
-    private NotificationType(String title) {
-        this.title = title;
+    public GeneralNotification() {
+        super(null, System.currentTimeMillis(), NotificationType.NOTIFICATION);
     }
-    
-    /**
-     * Returns the notification type title
-     * @return the notification type title
-     */
-    public String getTitle() {
-        return title;
-    }
+
 }

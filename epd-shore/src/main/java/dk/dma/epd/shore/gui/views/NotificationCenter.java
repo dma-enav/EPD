@@ -62,6 +62,9 @@ import dk.dma.epd.shore.service.StrategicRouteHandler.StrategicRouteListener;
 import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
+/**
+ * The main notification center
+ */
 public class NotificationCenter extends InternalComponentFrame implements
         ListSelectionListener, 
         ActionListener, 

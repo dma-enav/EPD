@@ -61,6 +61,7 @@ import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
+import dk.dma.epd.shore.gui.notification.NotificationCenter;
 import dk.dma.epd.shore.gui.utils.StaticImages;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.route.RouteManager;
@@ -86,7 +87,6 @@ public final class EPDShore extends EPD {
     private MainFrame mainFrame;
     private BeanContextServicesSupport beanHandler;
     private NmeaSensor aisSensor;
-    private MsiHandler msiHandler;
     private AisReader aisReader;
     private ShoreServicesCommon shoreServicesCommon;
     private StaticImages staticImages;
@@ -213,13 +213,13 @@ public final class EPDShore extends EPD {
         routeSuggestionHandler = new RouteSuggestionHandler();
         beanHandler.add(routeSuggestionHandler);
         
-        // Create a chat service handler
-        chatServiceHandler = new ChatServiceHandlerCommon();
-        beanHandler.add(chatServiceHandler);
-        
         // Create MSI handler
         msiHandler = new MsiHandler(getSettings().getEnavSettings());
         beanHandler.add(msiHandler);
+        
+        // Create a chat service handler
+        chatServiceHandler = new ChatServiceHandlerCommon();
+        beanHandler.add(chatServiceHandler);
         
         // Start sensors
         startSensors();
@@ -365,6 +365,11 @@ public final class EPDShore extends EPD {
         // Create the system tray
         systemTray = new SystemTrayCommon();
         beanHandler.add(systemTray);
+
+        // Create the notification center
+        notificationCenter = new NotificationCenter(getMainFrame());
+        beanHandler.add(notificationCenter);
+        
     }
 
     /**
@@ -467,15 +472,6 @@ public final class EPDShore extends EPD {
     
     public RouteManager getRouteManager() {
         return routeManager;
-    }
-
-    /**
-     * Return the msiHandker
-     * 
-     * @return - MsiHandler
-     */
-    public MsiHandler getMsiHandler() {
-        return msiHandler;
     }
 
     /**

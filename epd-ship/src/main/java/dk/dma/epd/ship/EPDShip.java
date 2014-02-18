@@ -49,6 +49,7 @@ import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.Bootstrap;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
+import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
@@ -105,7 +106,6 @@ public final class EPDShip extends EPD {
     private RouteManager routeManager;
     private ShoreServicesCommon shoreServices;
     private MonaLisaRouteOptimization monaLisaRouteExchange;
-    private MsiHandler msiHandler;
     private NogoHandler nogoHandler;
     private DynamicNogoHandler dynamicNoGoHandler;
     private TransponderFrame transponderFrame;
@@ -502,11 +502,15 @@ public final class EPDShip extends EPD {
         // Create and set up the main window
         mainFrame = new MainFrame();
         mainFrame.setVisible(true);
-
+        
         // Create the system tray
         systemTray = new SystemTrayCommon();
         mapHandler.add(systemTray);
-        
+
+        // Create the notification center
+        notificationCenter = new NotificationCenterCommon(getMainFrame());
+        mapHandler.add(notificationCenter);
+                
         // Create keybinding shortcuts
         makeKeyBindings();
 

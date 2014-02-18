@@ -15,102 +15,243 @@
  */
 package dk.dma.epd.common.prototype.notification;
 
+import java.io.Serializable;
+import java.util.Date;
+
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.text.Formatter;
 
 /**
- * This interface returns information about a notification.
- * <p>
- * The notification will be as associated with some entity
- * of type {@code T} which can be accessed using the
- * {@linkplain #getValue()} method.
+ * Implementation of a notification.
  */
-public interface Notification<I,T> {
+public class Notification<T, I> implements Serializable {
 
     /**
      * Defines the notification severity
      */
-    enum NotificationSeverity {
+    public enum NotificationSeverity {
         MESSAGE, WARNING, ALERT;
     }
 
     /**
      * Defines the type of alert that the service can cause
      */
-    enum NotificationAlert {
+    public enum NotificationAlert {
         POPUP, SYSTEM_TRAY, BEEP;
     }
 
+    private static final long serialVersionUID = 1L;
+    
+    protected NotificationType notificationType = NotificationType.NOTIFICATION;
+    protected NotificationSeverity notificationSeverity = NotificationSeverity.MESSAGE;
+    protected NotificationAlert[] notificationAlerts = {};
+    protected T value;
+    protected I id;
+    protected String title;
+    protected String description;
+    protected Position location;
+    protected boolean read;
+    protected boolean acknowledged;
+    protected Date date = new Date();
+    
     /**
-     * Defines the type of actions associated with a notification.
+     * Constructor
+     * 
+     * @param value
+     * @param id
+     * @param notificationType
      */
-    enum NotificationAction {
-        READ, GOTO, DELETE, ACKNOWLEDGE
+    public Notification(T value, I id, NotificationType notificationType) {
+        this.value = value;
+        this.id = id;
+        this.notificationType = notificationType;
     }
     
     /**
      * Returns the notification type of this notification
      * @return the notification type
      */
-    NotificationType getNotificationType();
-    
+    public NotificationType getNotificationType() {
+        return notificationType;
+    }
+
+    /**
+     * Sets the notification type
+     * @param notificationType the notification type
+     */
+    public void setNotificationType(NotificationType notificationType) {
+        this.notificationType = notificationType;
+    }
+
     /**
      * Returns the notification severity
      * @return the notification severity
      */
-    NotificationSeverity getNotificaitonSeverity();
+    public NotificationSeverity getNotificaitonSeverity() {
+        return notificationSeverity;
+    }
     
+    /**
+     * Sets the notification severity
+     * @param notificationSeverity the notification severity
+     */
+    public void setNotificationSeverity(NotificationSeverity notificationSeverity) {
+        this.notificationSeverity = notificationSeverity;
+    }
+
     /**
      * Returns the list of notification alerts associated with this notification
      * @return the list of notification alerts associated with this notification
      */
-    NotificationAlert[] getNotificationAlerts();
+    public NotificationAlert[] getNotificationAlerts() {
+        return notificationAlerts;
+    }
     
     /**
-     * Returns the actions associates with this notification
-     * @return the actions associates with this notification
+     * Sets the notification alerts
+     * @param notificationAlerts the notification alerts
      */
-    NotificationAction[] getNotificaitonActions();
-    
+    public void setNotificationAlerts(NotificationAlert[] notificationAlerts) {
+        this.notificationAlerts = notificationAlerts;
+    }
+
     /**
      * Returns the entity associated with the notification
      * @return the entity associated with the notification
      */
-    T getValue();
+    public T get() {
+        return value;
+    }
 
     /**
      * Returns a unique id for the notification
      * @return a unique id for the notification
      */
-    I getId();
+    public I getId() {
+        return id;
+    }
+    
+    /**
+     * Sets a unique id for the notification
+     * @param id a unique id for the notification
+     */
+    public void setId(I id) {
+        this.id = id;
+    }
+    
+    /**
+     * Sets the entity associated with the notification
+     * @param value the entity associated with the notification
+     */    
+    public void setValue(T value) {
+        this.value = value;
+    }
+
+    /**
+     * Returns a title for the notification
+     * @return a title for the notification
+     */
+    public String getTitle() {
+        return title;
+    }
     
     /**
      * Returns a title for the notification
      * @return a title for the notification
      */
-    String getTitle();
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    /**
+     * Returns a description for the notification
+     * @return a description for the notification
+     */
+    public String getDescription() {
+        return description;
+    }
     
     /**
      * Returns a description for the notification
      * @return a description for the notification
      */
-    String getDescription();
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * Returns a location associated with the notification
+     * @return a location associated with the notification
+     */
+    public Position getLocation() {
+        return location;
+    }
     
     /**
      * Returns a location associated with the notification
      * @return a location associated with the notification
      */
-    Position getLocation();
+    public void setLocation(Position location) {
+        this.location = location;
+    }
+
+    /**
+     * Returns whether the notification has been read or not
+     * @return whether the notification has been read or not
+     */
+    public boolean isRead() {
+        return read;
+    }
     
     /**
      * Returns whether the notification has been read or not
      * @return whether the notification has been read or not
      */
-    boolean isRead();
-    
+    public void setRead(boolean read) {
+        this.read = read;
+    }
+
     /**
      * Returns whether the notification has been acknowledged or not
      * @return whether the notification has been acknowledged or not
      */
-    boolean isAcknowledged();
+    public boolean isAcknowledged() {
+        return acknowledged;
+    }
+
+    /**
+     * Returns whether the notification has been acknowledged or not
+     * @return whether the notification has been acknowledged or not
+     */
+    public void setAcknowledged(boolean acknowledged) {
+        this.acknowledged = acknowledged;
+    }
+
+    /**
+     * Returns the date of the notification
+     * @return the date of the notification
+     */
+    public Date getDate() {
+        return date;
+    }
+
+    /**
+     * Sets the date of the notification
+     * @param date the date of the notification
+     */
+    public void setDate(Date date) {
+        this.date = date;
+    }
     
+    /**
+     * Returns a HTML description of this notification
+     * @return a HTML description of this notification
+     */
+    public String toHtml() {
+        StringBuilder html = new StringBuilder("<html>");
+        html.append(String.format("<h2>%s</h2>", title));
+        html.append(String.format("Date: %s <p/>", Formatter.formatShortDateTime(date)));            
+        html.append(String.format("Description:<br> %s <p/>", description));            
+        return html.append("</html>").toString();
+    }
 }
