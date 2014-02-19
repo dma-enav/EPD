@@ -37,7 +37,7 @@ import dk.dma.epd.common.prototype.settings.NavSettings;
 /**
  * @author Janus Varmarken
  */
-public class VesselTriangleGraphic extends TargetGraphic implements ISelectableGraphic {
+public class VesselTriangleGraphic extends TargetGraphic {
 
     private static final long serialVersionUID = 1L;
 
@@ -155,12 +155,5 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
 
     public boolean getShowNameLabel() {
         return this.label.isVisible();
-    }
-
-    @Override
-    public void setSelection(boolean selected) {
-        // Get the latest position data
-        Position centerPos = this.vesselTarget != null ? this.vesselTarget.getPositionData() != null ? this.vesselTarget.getPositionData().getPos() : null : null;
-        this.circleSelectionGraphic.updateSelection(selected, centerPos);
     }
 }
