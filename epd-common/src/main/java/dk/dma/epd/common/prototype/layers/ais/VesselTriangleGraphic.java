@@ -52,11 +52,6 @@ public class VesselTriangleGraphic extends TargetGraphic {
     private SpeedVectorGraphic speedVector;
     
     /**
-     * Manages visualization of selection of this graphic.
-     */
-    private CircleSelectionGraphic circleSelectionGraphic;
-    
-    /**
      * The layer that displays this graphic object.
      * If this graphic is a subgraphic of another graphic,
      * use the top level graphic's parent layer.
@@ -84,8 +79,6 @@ public class VesselTriangleGraphic extends TargetGraphic {
         add(0, vessel);
         this.add(this.speedVector);
         add(heading);
-        // create the selection graphic
-        this.circleSelectionGraphic = new CircleSelectionGraphic(this);
     }
 
     @Override
@@ -123,8 +116,6 @@ public class VesselTriangleGraphic extends TargetGraphic {
             if (this.parentLayer != null && this.parentLayer.getProjection() != null) {
                 this.speedVector.update(posData, this.parentLayer.getProjection().getScale());
             }
-            // update position of selection marker
-            this.circleSelectionGraphic.updatePosition(pos);
             
             // Set label
             label.setLat(lat);
