@@ -73,7 +73,7 @@ public abstract class VesselGraphic extends OMGraphicList implements
      * Update this {@code VesselGraphic} with position data, static data and map
      * scale.
      * <p>
-     * <b>Sub classes should always all the super implementation of this
+     * <b>Sub classes should always call the super implementation of this
      * method.</b> The base implementation simply stores the vessel target
      * received in the update such that it can be accessed later via
      * {@link #getMostRecentVesselTarget()}.
