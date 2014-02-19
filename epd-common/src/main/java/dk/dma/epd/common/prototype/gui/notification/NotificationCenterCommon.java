@@ -24,7 +24,11 @@ import java.awt.Dialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.TrayIcon.MessageType;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -34,16 +38,25 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.maritimecloud.core.id.MaritimeId;
 import dk.dma.epd.common.prototype.enavcloud.ChatService.ChatServiceMessage;
 import dk.dma.epd.common.prototype.gui.ComponentDialog;
+import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
+import dk.dma.epd.common.prototype.gui.views.BottomPanelCommon;
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.notification.GeneralNotification;
+import dk.dma.epd.common.prototype.notification.Notification;
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatServiceListener;
@@ -59,13 +72,19 @@ import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatService
  * </ul>
  */
 public class NotificationCenterCommon extends ComponentDialog implements 
+    ActionListener,
     IMsiUpdateListener,
     IChatServiceListener
 {
     private static final long serialVersionUID = 1L;
-
+    private static final Logger LOG = LoggerFactory.getLogger(NotificationCenterCommon.class);
+    
+    protected Timer alertTimer = new Timer(5 * 1000, this); // Every 5 seconds
+    
     protected MsiHandler msiHandler;
     protected ChatServiceHandlerCommon chatServiceHandler;
+    protected SystemTrayCommon systemTray;
+    protected BottomPanelCommon bottomPanel;
     
     protected JPanel contentPanel = new JPanel(new BorderLayout());
     protected GeneralNotificationPanel generalPanel = new GeneralNotificationPanel();
@@ -89,6 +108,10 @@ public class NotificationCenterCommon extends ComponentDialog implements
         registerPanels();
         initGUI();
         setActiveType(NotificationType.NOTIFICATION);
+        
+        alertTimer.setCoalesce(true);
+        alertTimer.setRepeats(true);
+        alertTimer.start();
     }
     
     /**
@@ -100,7 +123,66 @@ public class NotificationCenterCommon extends ComponentDialog implements
         panels.add(msiPanel);        
     }
     
+    /**
+     * Called periodically by the alert timer
+     * @param ae the action event
+     */
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+        // Run through all alerts of all notifications of all panels
+        // and check if they should be triggered
+        for (NotificationPanel<?> panel : panels) {
+            for (Notification<?, ?> notification : panel.getNotifications()) {
+                for (NotificationAlert alert : notification.getAlerts()) {
+                    if (alert.shouldTrigger(notification)) {
+                        triggerAlert(panel.getNotitficationType(), notification, alert);
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Trigger the given alert for the given notification
+     * 
+     * @param type the notification type
+     * @param notification the notification
+     * @param alert the alert
+     */
+    protected void triggerAlert(NotificationType type, Notification<?, ?> notification, NotificationAlert alert) {
+        try {
+            LOG.info("Triggering alert " + alert + " for notification " + notification.getId());
+            
+            // Handle beep alerts
+            if (alert.hasAlertType(AlertType.BEEP)) {
+                Toolkit.getDefaultToolkit().beep();
+            }
 
+            // Handle system tray alerts
+            if (systemTray != null && alert.hasAlertType(AlertType.SYSTEM_TRAY)) {
+                MessageType msgType;
+                switch (notification.getSeverity()) {
+                case ALERT:     msgType = MessageType.ERROR;   break;
+                case WARNING:   msgType = MessageType.WARNING; break;
+                case MESSAGE:   msgType = MessageType.INFO;    break;
+                default:        msgType = MessageType.NONE;
+                }
+                systemTray.displayMessage(notification.getTitle(), notification.getDescription(), msgType);
+            }
+            
+            // Handle pop-up alerts
+            if (bottomPanel != null && alert.hasAlertType(AlertType.POPUP)) {
+                bottomPanel.triggerAlert(type, notification, alert);
+            }
+            
+        } catch (Exception ex) {
+            LOG.error("Failed triggering alert for notification " + notification.getId(), ex);
+        }
+        
+        // Flag the the alert has been triggered
+        alert.flagTriggered();
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -114,6 +196,12 @@ public class NotificationCenterCommon extends ComponentDialog implements
         } else if (obj instanceof ChatServiceHandlerCommon && chatServiceHandler == null) {
             chatServiceHandler = (ChatServiceHandlerCommon)obj;
             chatServiceHandler.addListener(this);
+
+        } else if (obj instanceof SystemTrayCommon && systemTray == null) {
+            systemTray = (SystemTrayCommon)obj;
+
+        } else if (obj instanceof BottomPanelCommon && bottomPanel == null) {
+            bottomPanel = (BottomPanelCommon)obj;
         }
     }
     
@@ -237,6 +325,8 @@ public class NotificationCenterCommon extends ComponentDialog implements
         notification.setDate(new Date(message.getSendDate()));
         notification.setTitle("Message from " + message.getSenderName());
         notification.setDescription(message.getMessage());
+        notification.setSeverity(message.getSeverity());
+        notification.setAlerts(message.getAlerts());
         generalPanel.addNotification(notification);
     }
     
@@ -251,7 +341,7 @@ public class NotificationCenterCommon extends ComponentDialog implements
         NotificationCenterCommon n = new NotificationCenterCommon(null);
         GeneralNotification not1 = new GeneralNotification();
         not1.setTitle("hkjdfhg");
-        not1.setNotificationSeverity(NotificationSeverity.ALERT);
+        not1.setSeverity(NotificationSeverity.ALERT);
         n.generalPanel.tableModel.notifications.add(not1);
         GeneralNotification not2 = new GeneralNotification();
         not2.setTitle("ddd");

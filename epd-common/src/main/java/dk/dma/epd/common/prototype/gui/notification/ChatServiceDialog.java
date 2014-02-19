@@ -29,8 +29,11 @@ import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -50,6 +53,9 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.ChatService.ChatServiceMessage;
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 
 /**
@@ -64,6 +70,11 @@ public class ChatServiceDialog extends JDialog implements ActionListener {
     JTextArea messageTxt = new JTextArea();
     JButton sendBtn = new JButton("Send");
     JButton cancelBtn = new JButton("Cancel");
+    
+    JComboBox<NotificationSeverity> severityComboBox = new JComboBox<>(NotificationSeverity.values());
+    JCheckBox alertPopUp = new JCheckBox("Pop-up");
+    JCheckBox alertSystemTray = new JCheckBox("System tray");
+    JCheckBox alertBeep = new JCheckBox("Beep");
 
     /**
      * Constructor
@@ -71,9 +82,8 @@ public class ChatServiceDialog extends JDialog implements ActionListener {
     public ChatServiceDialog(Window parent) {
         super(parent, "Send Message", Dialog.ModalityType.APPLICATION_MODAL);
 
-        setBounds(100, 100, 300, 350);
+        setBounds(100, 100, 320, 350);
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-        setAlwaysOnTop(true);
         
         // Support of test mode
         if (EPD.getInstance() != null) {
@@ -100,7 +110,15 @@ public class ChatServiceDialog extends JDialog implements ActionListener {
         Insets insets5  = new Insets(5, 5, 5, 5);
         int gridY = 0;        
         targetPanel.add(new JLabel("MMSI:"), new GridBagConstraints(0, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        targetPanel.add(targetComboBox, new GridBagConstraints(1, gridY++, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        targetPanel.add(targetComboBox, new GridBagConstraints(1, gridY++, 3, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+
+        targetPanel.add(new JLabel("Type:"), new GridBagConstraints(0, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        targetPanel.add(severityComboBox, new GridBagConstraints(1, gridY++, 3, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+
+        targetPanel.add(new JLabel("Action:"), new GridBagConstraints(0, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        targetPanel.add(alertPopUp, new GridBagConstraints(1, gridY, 1, 1, 1.0, 0.0, WEST, NONE, insets5, 0, 0));
+        targetPanel.add(alertBeep, new GridBagConstraints(2, gridY, 1, 1, 1.0, 0.0, WEST, NONE, insets5, 0, 0));
+        targetPanel.add(alertSystemTray, new GridBagConstraints(3, gridY++, 1, 1, 1.0, 0.0, WEST, NONE, insets5, 0, 0));
         
         // *** Message panel
         JPanel messagePanel = new JPanel(new GridBagLayout());
@@ -196,19 +214,31 @@ public class ChatServiceDialog extends JDialog implements ActionListener {
         messageTxt.setText("");
     }
     
-    
     /**
      * Called when a button is clicked
      */
     public void actionPerformed(ActionEvent ae) {
         if (ae.getSource() == sendBtn) {
             
+            List<NotificationAlert> alerts = new ArrayList<>();
+            if (alertBeep.isSelected()) {
+                alerts.add(new NotificationAlert(AlertType.BEEP));
+            }
+            if (alertSystemTray.isSelected()) {
+                alerts.add(new NotificationAlert(AlertType.SYSTEM_TRAY));
+            }
+            if (alertPopUp.isSelected()) {
+                alerts.add(new NotificationAlert(AlertType.POPUP));
+            }
+            
             if (targetComboBox.getSelectedItem() != null) {
                 ChatServiceTarget target = (ChatServiceTarget)targetComboBox.getSelectedItem();
                 EPD.getInstance().getChatServiceHandler().sendChatMessage(
                         target.getId(), 
                         messageTxt.getText(), 
-                        senderNameTxt.getText());
+                        senderNameTxt.getText(),
+                        (NotificationSeverity)severityComboBox.getSelectedItem(),
+                        alerts);
             }
             
             setVisible(false);

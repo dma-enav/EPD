@@ -81,7 +81,7 @@ public abstract class NotificationTableModel<N extends Notification<?,?>> extend
      * @param row the row
      * @return the notification at the given row
      */
-    N getNotification(int row) {
+    public N getNotification(int row) {
         if (row < 0 || row >= notifications.size()) {
             return null;
         }

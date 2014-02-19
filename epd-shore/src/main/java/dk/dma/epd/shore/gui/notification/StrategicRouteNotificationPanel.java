@@ -13,36 +13,36 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.gui.notification;
+package dk.dma.epd.shore.gui.notification;
 
 import javax.swing.ImageIcon;
 
-import dk.dma.epd.common.prototype.notification.GeneralNotification;
-import dk.dma.epd.common.prototype.notification.Notification;
+import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
+import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
+import dk.dma.epd.common.prototype.gui.notification.NotificationTableModel;
 import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
 import dk.dma.epd.common.text.Formatter;
 
 /**
- * A panel for general notifications
+ * A strategic route implementation of the {@linkplain NotificationPanel} class
  */
-public class GeneralNotificationPanel extends NotificationPanel<GeneralNotification> {
+public class StrategicRouteNotificationPanel extends NotificationPanel<StrategicRouteNotification> {
 
     private static final long serialVersionUID = 1L;
-
+    
     private static final String[] NAMES = {
         "", "", "Date", "Title"
     };
-    
+
     /**
      * Constructor
      */
-    public GeneralNotificationPanel() {
+    public StrategicRouteNotificationPanel() {
         super();
         
         table.getColumnModel().getColumn(0).setMaxWidth(18);
         table.getColumnModel().getColumn(1).setMaxWidth(18);
-        table.getColumnModel().getColumn(2).setPreferredWidth(60);
     }
     
     /**
@@ -50,15 +50,15 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
      */
     @Override
     public NotificationType getNotitficationType() {
-        return NotificationType.NOTIFICATION;
+        return NotificationType.STRATEGIC_ROUTE;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    protected NotificationTableModel<GeneralNotification> initTableModel() {
-        return new NotificationTableModel<GeneralNotification>() {
+    protected NotificationTableModel<StrategicRouteNotification> initTableModel() {
+        return new NotificationTableModel<StrategicRouteNotification>() {
             private static final long serialVersionUID = 1L;
             
             @Override 
@@ -77,7 +77,7 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
             
             @Override 
             public Object getValueAt(int rowIndex, int columnIndex) {
-                Notification<Void,Long> notification = getNotification(rowIndex);
+                StrategicRouteNotification notification = getNotification(rowIndex);
                 
                 switch (columnIndex) {
                 case 0: return !notification.isRead() 
@@ -99,9 +99,10 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
      * {@inheritDoc}
      */
     @Override
-    protected NotificationDetailPanel<GeneralNotification> initNotificationDetailPanel() {
-        NotificationDetailPanel<GeneralNotification> panel = new NotificationDetailPanel<GeneralNotification>();
+    protected NotificationDetailPanel<StrategicRouteNotification> initNotificationDetailPanel() {
+        NotificationDetailPanel<StrategicRouteNotification> panel = new NotificationDetailPanel<StrategicRouteNotification>();
         return panel;
     }
+    
     
 }

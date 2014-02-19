@@ -164,7 +164,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         topPanel.setPreferredSize(new Dimension(0, 30));
         pane.add(topPanel, BorderLayout.PAGE_START);
         
-        bottomPanel.setPreferredSize(new Dimension(0, 25));
+        //bottomPanel.setPreferredSize(new Dimension(0, 25));
         pane.add(bottomPanel, BorderLayout.PAGE_END);
 
         // Set up the chart panel with layers etc

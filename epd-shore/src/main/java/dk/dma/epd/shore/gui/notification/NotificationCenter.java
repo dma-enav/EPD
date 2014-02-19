@@ -35,6 +35,23 @@ public class NotificationCenter extends NotificationCenterCommon implements
     private RouteSuggestionHandler routeSuggestionHandler;
     private StrategicRouteHandler strategicRouteHandler;
     
+    private StrategicRouteNotificationPanel strategicRoutePanel;
+    private RouteSuggestionNotificationPanel routeSuggestionPanel;
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void registerPanels() {
+        super.registerPanels();
+        
+        // Add the shore specific panels
+        routeSuggestionPanel = new RouteSuggestionNotificationPanel();
+        strategicRoutePanel = new StrategicRouteNotificationPanel();
+        panels.add(routeSuggestionPanel);
+        panels.add(strategicRoutePanel);
+    }
+    
     /**
      * Constructor
      * 
@@ -49,6 +66,7 @@ public class NotificationCenter extends NotificationCenterCommon implements
      */
     @Override
     public void strategicRouteUpdate() {
+        strategicRoutePanel.refreshNotifications();
     }
 
     /**
@@ -56,6 +74,7 @@ public class NotificationCenter extends NotificationCenterCommon implements
      */
     @Override
     public void routeUpdate() {
+        routeSuggestionPanel.refreshNotifications();
     }
     
     /**
@@ -65,10 +84,10 @@ public class NotificationCenter extends NotificationCenterCommon implements
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
         
-        if (obj instanceof RouteSuggestionHandler && routeSuggestionHandler != null) {
+        if (obj instanceof RouteSuggestionHandler && routeSuggestionHandler == null) {
             routeSuggestionHandler = (RouteSuggestionHandler) obj;
             routeSuggestionHandler.addRouteSuggestionListener(this);
-        } else if (obj instanceof StrategicRouteHandler && strategicRouteHandler != null){
+        } else if (obj instanceof StrategicRouteHandler && strategicRouteHandler == null){
             strategicRouteHandler = (StrategicRouteHandler) obj;
             strategicRouteHandler.addStrategicRouteListener(this);
         }

@@ -118,6 +118,14 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
      * @return the table model
      */
     protected abstract NotificationTableModel<N> initTableModel();
+
+    /**
+     * Returns the list of notifications
+     * @return the list of notifications
+     */
+    public List<N> getNotifications() {
+        return tableModel.getNotifications();
+    }
     
     /**
      * Adds the buttons to the button panel.
@@ -416,10 +424,10 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
             stats.count++;
             if (!n.isRead()) { stats.unreadCount++; }
             if (!n.isAcknowledged()) { stats.unacknowledgedCount++; }
-            if (n.getNotificaitonSeverity() == NotificationSeverity.WARNING) { stats.warningCount++; }
-            if (n.getNotificaitonSeverity() == NotificationSeverity.WARNING && !n.isAcknowledged()) { stats.unacknowledgedWarningCount++; }
-            if (n.getNotificaitonSeverity() == NotificationSeverity.ALERT) { stats.alertCount++; }
-            if (n.getNotificaitonSeverity() == NotificationSeverity.ALERT && !n.isAcknowledged()) { stats.unacknowledgedAlertCount++; }
+            if (n.getSeverity() == NotificationSeverity.WARNING) { stats.warningCount++; }
+            if (n.getSeverity() == NotificationSeverity.WARNING && !n.isAcknowledged()) { stats.unacknowledgedWarningCount++; }
+            if (n.getSeverity() == NotificationSeverity.ALERT) { stats.alertCount++; }
+            if (n.getSeverity() == NotificationSeverity.ALERT && !n.isAcknowledged()) { stats.unacknowledgedAlertCount++; }
         }
         
         // Notify listeners

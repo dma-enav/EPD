@@ -16,7 +16,9 @@
 package dk.dma.epd.common.prototype.notification;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.text.Formatter;
@@ -33,18 +35,11 @@ public class Notification<T, I> implements Serializable {
         MESSAGE, WARNING, ALERT;
     }
 
-    /**
-     * Defines the type of alert that the service can cause
-     */
-    public enum NotificationAlert {
-        POPUP, SYSTEM_TRAY, BEEP;
-    }
-
     private static final long serialVersionUID = 1L;
     
-    protected NotificationType notificationType = NotificationType.NOTIFICATION;
-    protected NotificationSeverity notificationSeverity = NotificationSeverity.MESSAGE;
-    protected NotificationAlert[] notificationAlerts = {};
+    protected NotificationType type = NotificationType.NOTIFICATION;
+    protected NotificationSeverity severity = NotificationSeverity.MESSAGE;
+    protected List<NotificationAlert> alerts = new ArrayList<>();
     protected T value;
     protected I id;
     protected String title;
@@ -59,60 +54,70 @@ public class Notification<T, I> implements Serializable {
      * 
      * @param value
      * @param id
-     * @param notificationType
+     * @param type
      */
-    public Notification(T value, I id, NotificationType notificationType) {
+    public Notification(T value, I id, NotificationType type) {
         this.value = value;
         this.id = id;
-        this.notificationType = notificationType;
+        this.type = type;
     }
     
     /**
-     * Returns the notification type of this notification
-     * @return the notification type
+     * Returns the type of this notification
+     * @return the type
      */
-    public NotificationType getNotificationType() {
-        return notificationType;
+    public NotificationType getType() {
+        return type;
     }
 
     /**
      * Sets the notification type
-     * @param notificationType the notification type
+     * @param type the notification type
      */
-    public void setNotificationType(NotificationType notificationType) {
-        this.notificationType = notificationType;
+    public void setType(NotificationType type) {
+        this.type = type;
     }
 
     /**
      * Returns the notification severity
      * @return the notification severity
      */
-    public NotificationSeverity getNotificaitonSeverity() {
-        return notificationSeverity;
+    public NotificationSeverity getSeverity() {
+        return severity;
     }
     
     /**
      * Sets the notification severity
-     * @param notificationSeverity the notification severity
+     * @param severity the notification severity
      */
-    public void setNotificationSeverity(NotificationSeverity notificationSeverity) {
-        this.notificationSeverity = notificationSeverity;
+    public void setSeverity(NotificationSeverity severity) {
+        this.severity = severity;
     }
 
     /**
      * Returns the list of notification alerts associated with this notification
      * @return the list of notification alerts associated with this notification
      */
-    public NotificationAlert[] getNotificationAlerts() {
-        return notificationAlerts;
+    public List<NotificationAlert> getAlerts() {
+        return alerts;
     }
     
     /**
      * Sets the notification alerts
-     * @param notificationAlerts the notification alerts
+     * @param alerts the notification alerts
      */
-    public void setNotificationAlerts(NotificationAlert[] notificationAlerts) {
-        this.notificationAlerts = notificationAlerts;
+    public void setAlerts(List<NotificationAlert> alerts) {
+        this.alerts = alerts;
+    }
+    
+    /**
+     * Adds notification alerts
+     * @param alerts the notification alerts to add
+     */
+    public void addAlerts(NotificationAlert... alerts) {
+        for (NotificationAlert alert : alerts) {
+            this.alerts.add(alert);
+        }
     }
 
     /**

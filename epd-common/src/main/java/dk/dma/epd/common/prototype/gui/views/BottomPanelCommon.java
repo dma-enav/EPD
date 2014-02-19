@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.gui.views;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -30,11 +31,15 @@ import javax.swing.SwingConstants;
 
 import com.bbn.openmap.gui.OMComponentPanel;
 
+import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.gui.StatusLabel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.gui.notification.NotificationLabel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
+import dk.dma.epd.common.prototype.gui.notification.PopUpNotification;
+import dk.dma.epd.common.prototype.notification.Notification;
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.service.MaritimeCloudServiceCommon;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
@@ -156,6 +161,22 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
         } else if (obj instanceof NotificationCenterCommon) {
             addNotificationCenter((NotificationCenterCommon) obj);
         }
+    }
+    
+    /**
+     * Trigger the given alert for the given notification
+     * 
+     * @param type the notification type
+     * @param notification the notification
+     * @param alert the alert
+     */
+    public void triggerAlert(NotificationType type, Notification<?, ?> notification, NotificationAlert alert) {
+        Rectangle bounds = new Rectangle(100, BottomPanelCommon.this.getLocation().y - 200, 200, 200);
+        PopUpNotification popup = new PopUpNotification();
+        popup.installInLayeredPane(
+                GraphicsUtil.getTopLevelContainer(notificationPanel),
+                SwingConstants.SOUTH_WEST,
+                bounds);
     }
     
     /**

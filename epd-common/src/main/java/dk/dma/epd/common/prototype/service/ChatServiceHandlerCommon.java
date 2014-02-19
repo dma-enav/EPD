@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import dk.dma.epd.common.prototype.enavcloud.ChatService;
 import dk.dma.epd.common.prototype.enavcloud.ChatService.ChatServiceMessage;
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import net.maritimecloud.core.id.MaritimeId;
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.service.ServiceEndpoint;
@@ -120,7 +122,7 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
      * @param message the message
      * @param sender the sender
      */
-    public void sendChatMessage(MaritimeId targetId, String message, String sender)  {
+    public void sendChatMessage(MaritimeId targetId, String message, String sender, NotificationSeverity severity, List<NotificationAlert> alerts)  {
 
         Integer mmsi = MaritimeCloudUtils.toMmsi(targetId);
         long id = System.currentTimeMillis();
@@ -131,6 +133,8 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
 
         // Create a new chat message
         ChatServiceMessage chatMessage = new ChatServiceMessage(message, id, System.currentTimeMillis(), sender);
+        chatMessage.setSeverity(severity);
+        chatMessage.setAlerts(alerts);
 
         LOG.info("Sending chat messasge to mmsi: " + mmsi + " with ID: " + chatMessage.getId());
 

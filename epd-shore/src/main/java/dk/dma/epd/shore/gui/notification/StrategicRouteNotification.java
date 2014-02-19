@@ -13,33 +13,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.prototype.notification;
+package dk.dma.epd.shore.gui.notification;
+
+import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
+import dk.dma.epd.common.prototype.notification.Notification;
+import dk.dma.epd.common.prototype.notification.NotificationType;
+import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 
 /**
- * Enumerates the notification types
+ * An strategic route implementation of the {@linkplain NotificationPanel} class
  */
-public enum NotificationType {
-    MSI("MSI"),
-    TACTICAL_ROUTE("Tactical Route"),
-    STRATEGIC_ROUTE("Strategic Route"),
-    NOTIFICATION("Notifications");
-    
-    private String title;
-    
+public class StrategicRouteNotification extends Notification<StrategicRouteNegotiationData, Long>{
+
+    private static final long serialVersionUID = 1L;
+
+
     /**
      * Constructor
      * 
-     * @param title the notification type title
+     * @param routeData the strategic route data
      */
-    private NotificationType(String title) {
-        this.title = title;
+    public StrategicRouteNotification(StrategicRouteNegotiationData routeData) {
+        super(routeData, routeData.getId(), NotificationType.STRATEGIC_ROUTE);
+        
+        
     }
     
-    /**
-     * Returns the notification type title
-     * @return the notification type title
-     */
-    public String getTitle() {
-        return title;
-    }
+    
 }

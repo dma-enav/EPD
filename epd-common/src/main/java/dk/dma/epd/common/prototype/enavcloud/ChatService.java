@@ -15,6 +15,10 @@
  */
 package dk.dma.epd.common.prototype.enavcloud;
 
+import java.util.List;
+
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
 import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
 import net.maritimecloud.net.service.spi.ServiceMessage;
 
@@ -37,6 +41,8 @@ public class ChatService {
         private long id;
         private String senderName;
         private long sendDate;
+        private NotificationSeverity severity;
+        private List<NotificationAlert> alerts;
         
         public ChatServiceMessage() {
         }
@@ -81,6 +87,22 @@ public class ChatService {
 
         public void setSendDate(long sendDate) {
             this.sendDate = sendDate;
-        }        
+        }
+        
+        public NotificationSeverity getSeverity() {
+            return severity;
+        }
+
+        public void setSeverity(NotificationSeverity severity) {
+            this.severity = severity;
+        }
+
+        public List<NotificationAlert> getAlerts() {
+            return alerts;
+        }
+
+        public void setAlerts(List<NotificationAlert> alerts) {
+            this.alerts = alerts;
+        }
     }
 }
