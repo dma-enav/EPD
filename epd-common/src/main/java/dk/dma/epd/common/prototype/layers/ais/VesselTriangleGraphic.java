@@ -37,9 +37,8 @@ import dk.dma.epd.common.prototype.settings.NavSettings;
 /**
  * @author Janus Varmarken
  */
+@SuppressWarnings("serial")
 public class VesselTriangleGraphic extends TargetGraphic {
-
-    private static final long serialVersionUID = 1L;
 
     private VesselTarget vesselTarget;
 
