@@ -242,7 +242,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         // Create and insert
         if (targetGraphic == null) {
             if (aisTarget instanceof VesselTarget) {
-                targetGraphic = new VesselTargetGraphic(this.aisSettings.isShowNameLabels(), this);
+                targetGraphic = new VesselTargetGraphic(this.aisSettings.isShowNameLabels());
                 // TODO this causes problems in EPDShip with regards to mouse
                 // clicks and mouse over as EPDShip does instanceof checks on
                 // sub graphics of VesselTargetGraphic

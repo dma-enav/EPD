@@ -43,7 +43,7 @@ public class VesselTargetGraphic extends TargetGraphic implements ISelectableGra
 
     private PastTrackGraphic pastTrackGraphic = new PastTrackGraphic();
 
-    public VesselTargetGraphic(boolean showName, OMGraphicHandlerLayer parentLayer) {
+    public VesselTargetGraphic(boolean showName) {
         super();
         this.vesselTriangleGraphic = new VesselTriangleGraphic();
         this.vesselTriangleGraphic.setShowNameLabel(showName);
