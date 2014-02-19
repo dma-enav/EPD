@@ -40,6 +40,16 @@ public class VesselOutline extends VesselGraphic {
     private OMPoly shipOutline;
     
     /**
+     * Color to use for outline when this graphic <b>is</b> selected.
+     */
+    private Color selectionColor = Color.GREEN;
+    
+    /**
+     * Color to use for outline when this graphic <b>is not</b> selected.
+     */
+    private Color lineColor;
+    
+    /**
      * Creates a new {@code VesselOutline} graphic.
      * @param lineColor Color of the stroke used for the vessel outline.
      * @param lineThickness Thickness of the stroke used for the vessel outline.
@@ -47,6 +57,7 @@ public class VesselOutline extends VesselGraphic {
     public VesselOutline(Color lineColor, float lineThickness) {
         super();
         this.setLinePaint(lineColor);
+        this.lineColor = lineColor;
         this.setStroke(new BasicStroke(lineThickness));
         // Fill the polygon with an invisible color - helps the AisLayer to keep showing the infopanel,
         // when mouse is hovering the outline of the vessel.
@@ -70,6 +81,24 @@ public class VesselOutline extends VesselGraphic {
         // Let super store reference to the updated VesselTarget.
         super.updateGraphic(vesselTarget, mapScale);
         this.producePolygon(positionData, staticData);
+    }
+    
+    /**
+     * Updates selection status of this graphic. Selection is visualized by
+     * changing the line color of this graphic.
+     * 
+     * @param selected
+     *            True if the graphic is now selected, false if the graphic is
+     *            no longer selected.
+     */
+    @Override
+    public void setSelection(boolean selected) {
+        // Simply change the color of the outline when selected.
+        if (selected) {
+            this.setLinePaint(this.selectionColor);
+        } else {
+            this.setLinePaint(this.lineColor);
+        }
     }
     
     /**

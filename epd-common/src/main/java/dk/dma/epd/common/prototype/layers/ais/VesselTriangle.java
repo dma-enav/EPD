@@ -26,6 +26,7 @@ import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
+import dk.dma.epd.common.prototype.layers.CircleSelectionGraphic;
 
 /**
  * <p>
@@ -54,6 +55,11 @@ public class VesselTriangle extends VesselGraphic {
     private Stroke stroke = new BasicStroke(2.0f);
 
     /**
+     * Manages visualization of selection of this graphic.
+     */
+    private CircleSelectionGraphic circleSelectionGraphic;
+
+    /**
      * Creates a new {@code VesselTriangle} at a default location. Clients
      * should subsequently call {@link #updateGraphic(VesselTarget, float)} to
      * update the position of the new {@code VesselTriangle}.
@@ -64,6 +70,7 @@ public class VesselTriangle extends VesselGraphic {
         int[] vesselY = { -10, 5, 5, -10 };
         this.vessel = new RotationalPoly(vesselX, vesselY, stroke, paint);
         this.add(vessel);
+        this.circleSelectionGraphic = new CircleSelectionGraphic(this);
     }
 
     /**
@@ -100,5 +107,24 @@ public class VesselTriangle extends VesselGraphic {
         double hdgR = Math.toRadians(trueHeading);
         vessel.setLocation(pos.getLatitude(), pos.getLongitude(),
                 OMGraphicConstants.DECIMAL_DEGREES, hdgR);
+        // update selection marker with new vessel position
+        this.circleSelectionGraphic.updatePosition(pos);
+    }
+
+    /**
+     * {@inheritDoc} Selection of this {@code VesselTriangle} is visualized using a
+     * {@link CircleSelectionGraphic}.
+     */
+    @Override
+    public void setSelection(boolean selected) {
+        VesselTarget vt = null;
+        synchronized (vt = this.getMostRecentVesselTarget()) {
+            VesselPositionData posData = vt != null ? vt.getPositionData()
+                    : null;
+            Position centerPos = posData != null ? posData.getPos() : null;
+            // Add or remove the selection marker from this graphic based on
+            // value of selected
+            this.circleSelectionGraphic.updateSelection(selected, centerPos);
+        }
     }
 }

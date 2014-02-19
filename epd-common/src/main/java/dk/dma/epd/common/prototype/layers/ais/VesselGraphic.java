@@ -17,24 +17,26 @@ package dk.dma.epd.common.prototype.layers.ais;
 
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
+import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 
 /**
  * <p>
- * Base class for graphics that visualize a vessel - and nothing more than a
- * vessel! In other words: it is NOT intended that sub classes of this class add
+ * Base class for graphics that visualize a vessel and its current selection
+ * status. In other words: it is <b>NOT</b> intended that sub classes of this class add
  * graphics that are visual representations of items related to a vessel (e.g.
  * past track display, COG vector). If you want to create a graphic item that
  * wraps all graphics related to an AIS target or similar, make use of
- * {@link TargetGraphic}. You can then wrap a sub class of {@code VesselGraphic}
- * inside your {@link TargetGraphic} which can be in charge of visualizing the
- * vessel part.
+ * {@link TargetGraphic}. Using composition, you can then wrap a sub class of
+ * {@code VesselGraphic} inside your {@link TargetGraphic} which can be in
+ * charge of visualizing the vessel part.
  * </p>
  * 
  * @author Janus Varmarken
  */
 @SuppressWarnings("serial")
-public abstract class VesselGraphic extends OMGraphicList {
+public abstract class VesselGraphic extends OMGraphicList implements
+        ISelectableGraphic {
 
     /**
      * The {@link VesselTarget} received in the most recent call to
@@ -48,7 +50,7 @@ public abstract class VesselGraphic extends OMGraphicList {
      * true such that this graphic behaves as a single unit.
      */
     public VesselGraphic() {
-        this.setVague(true);
+//        this.setVague(true);
     }
 
     /**
