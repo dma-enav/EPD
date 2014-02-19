@@ -40,6 +40,7 @@ import dk.dma.epd.ship.gui.component_panels.PntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.MSIComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.SARComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
 import dk.dma.epd.ship.gui.msi.MsiDialog;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
@@ -71,8 +72,14 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     private AisComponentPanel aisComponentPanel;
     private DynamicNoGoComponentPanel dynamicNoGoPanel;
     private NoGoComponentPanel nogoPanel;
+    private SARComponentPanel sarPanel;
+
     private MultiSourcePntComponentPanel msPntComponentPanel;
+
+    // private MonaLisaCommunicationComponentPanel monaLisaPanel;
+
     
+
     private MsiDialog msiDialog;
     private AisDialog aisDialog;
     private RouteSuggestionDialog routeSuggestionDialog;
@@ -81,15 +88,14 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
 
     private MapMenu mapMenu;
     private MenuBar menuBar;
-
     private RequestStrategicRouteDialog strategicRouteSTCCDialog;
-        
+
     public MainFrame() {
         super(TITLE);
         initGUI();
     }
 
-    /** 
+    /**
      * Initializes the glass pane of the frame
      */
     @Override
@@ -98,16 +104,17 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         glassPanel.setLayout(null);
         glassPanel.setVisible(false);
     }
-    
+
     /**
      * Returns a reference to the map frame cast as a component
+     * 
      * @return a reference to the map frame cast as a component
      */
     @Override
     public Component asComponent() {
         return this;
     }
-    
+
     private void initGUI() {
         MapHandler mapHandler = EPDShip.getInstance().getMapHandler();
         // Get settings
@@ -136,11 +143,12 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         aisComponentPanel = new AisComponentPanel();
         dynamicNoGoPanel = new DynamicNoGoComponentPanel();
         nogoPanel = new NoGoComponentPanel();
+        sarPanel = new SARComponentPanel();
         msPntComponentPanel = new MultiSourcePntComponentPanel();
-        
-        //Mona Lisa Dialog
+
+        // Mona Lisa Dialog
         strategicRouteSTCCDialog = new RequestStrategicRouteDialog(this);
-        
+
         // Unmovable panels
         bottomPanel = new BottomPanel();
 
@@ -152,13 +160,13 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         // Add panels
         topPanel.setPreferredSize(new Dimension(0, 30));
         pane.add(topPanel, BorderLayout.PAGE_START);
-        
+
         bottomPanel.setPreferredSize(new Dimension(0, 25));
         pane.add(bottomPanel, BorderLayout.PAGE_END);
 
         // Set up the chart panel with layers etc
         chartPanel.initChart();
-        
+
         // Add top panel to map handler
         mapHandler.add(topPanel);
 
@@ -178,16 +186,22 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         mapHandler.add(aisComponentPanel);
         mapHandler.add(dynamicNoGoPanel);
         mapHandler.add(nogoPanel);
+
+        mapHandler.add(sarPanel);
+
         mapHandler.add(msPntComponentPanel);
-        
+
         // Create top menubar
         menuBar = new MenuBar();
         this.setJMenuBar(menuBar);
-        
+
+        // Init glass pane
+        initGlassPane();
+
         // Add self to map map handler
         mapHandler.add(this);
-        
-        //Add menubar to map handler
+
+        // Add menubar to map handler
         mapHandler.add(menuBar);
 
         // Init MSI dialog
@@ -210,12 +224,22 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         this.chartPanel.setHistoryListener(new HistoryListener(this.chartPanel));
         this.chartPanel.getMap().addProjectionListener(this.chartPanel.getHistoryListener());
         chartPanel.getHistoryListener().setNavigationPanel(topPanel);
-        
-        if (EPDShip.getInstance().getSettings().getGuiSettings().isFullscreen()){
+
+        if (EPDShip.getInstance().getSettings().getGuiSettings().isFullscreen()) {
+
             doFullScreen();
-        }else{
+        } else {
             doNormal();
         }
+
+        // EffortAllocationWindow dialog = new EffortAllocationWindow();
+        // dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        // dialog.setVisible(true);
+
+        // SARInvitationRequest dialog = new SARInvitationRequest(this);
+        // dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        // dialog.setVisible(true);
+
     }
 
     public RequestStrategicRouteDialog getStrategicRouteSTCCDialog() {
@@ -229,7 +253,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     public void onWindowClosing() {
         // Close routine
         dockableComponents.saveLayout();
-        
+
         super.onWindowClosing();
     }
 
@@ -294,12 +318,11 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     public NoGoComponentPanel getNogoPanel() {
         return nogoPanel;
     }
-    
+
     public MultiSourcePntComponentPanel getMsPntComponentPanel() {
         return msPntComponentPanel;
     }
 
-    
     public void doFullScreen() {
         setVisible(false);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -308,21 +331,28 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         setVisible(true);
         EPDShip.getInstance().getSettings().getGuiSettings().setFullscreen(true);
     }
-    
-    public void doNormal(){
-      setVisible(false);
-      setExtendedState(JFrame.NORMAL);
 
-      EPDShip.getInstance().getSettings().getGuiSettings().setFullscreen(true);
-      setSize(new Dimension(1000, 700));
+    public void doNormal() {
+        setVisible(false);
+        setExtendedState(JFrame.NORMAL);
 
-      dispose();
-      setUndecorated(false);
-      setVisible(true);
-      
-      EPDShip.getInstance().getSettings().getGuiSettings().setFullscreen(false);
+        EPDShip.getInstance().getSettings().getGuiSettings().setFullscreen(true);
+        setSize(new Dimension(1000, 700));
+
+        dispose();
+        setUndecorated(false);
+        setVisible(true);
+
+        EPDShip.getInstance().getSettings().getGuiSettings().setFullscreen(false);
     }
-    
+
+    /**
+     * @return the sarPanel
+     */
+    public SARComponentPanel getSarPanel() {
+        return sarPanel;
+    }
+
     /**
      * Save the centering of the ship in history.
      */
@@ -330,12 +360,11 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         // Save the centering of ship to history.
         // ----------------------------
 
-        
-        
         EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().setShouldSave(true);
         EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().saveToHistoryBeforeMoving();
 
         // Move view to centre on ship.
         this.getChartPanel().centreOnShip();
     }
+
 }

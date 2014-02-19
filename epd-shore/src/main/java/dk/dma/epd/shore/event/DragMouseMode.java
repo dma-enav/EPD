@@ -169,6 +169,7 @@ public class DragMouseMode extends AbstractCoordMouseMode {
             setCursors();
             glassFrame = ((JMapFrame) someObj).getGlassPanel();
             glassFrame.setCursor(dragCursor);
+            glassFrame.setVisible(true);
         }
 
         super.findAndInit(someObj);

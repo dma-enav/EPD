@@ -31,8 +31,8 @@ import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 
 
 /**
- * Manager for handling a collection of routes and active route
- */
+* Manager for handling a collection of routes and active route
+*/
 public class RouteManager extends RouteManagerCommon {
 
     private static final long serialVersionUID = -8815260482774695988L;
@@ -40,21 +40,21 @@ public class RouteManager extends RouteManagerCommon {
     private static final Logger LOG = LoggerFactory.getLogger(RouteManager.class);
 
     /**
-     * Constructor
-     */
+* Constructor
+*/
     public RouteManager() {
         super();
     }
 
     /**************************************/
-    /** Life cycle operations            **/
+    /** Life cycle operations **/
     /**************************************/
     
     /**
-     * Loads and instantiates a {@code RouteManager} from the 
-     * default routes file.
-     * @return the new route manager
-     */
+* Loads and instantiates a {@code RouteManager} from the
+* default routes file.
+* @return the new route manager
+*/
     public static RouteManager loadRouteManager() {
         RouteManager manager = new RouteManager();
         try {
@@ -77,8 +77,8 @@ public class RouteManager extends RouteManagerCommon {
     }
 
     /**
-     * {@inheritDoc}
-     */
+* {@inheritDoc}
+*/
     @Override
     public void saveToFile() {
         synchronized (routes) {

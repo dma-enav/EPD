@@ -36,6 +36,7 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
+import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
 import dk.dma.epd.shore.gui.route.strategic.SendStrategicRouteDialog;
 import dk.dma.epd.shore.settings.EPDGuiSettings;
 import dk.dma.epd.shore.settings.EPDMapSettings;
@@ -77,11 +78,14 @@ public class MainFrame extends MainFrameCommon {
     private SetupDialogShore setup = new SetupDialogShore(this);
     private RouteManagerDialog routeManagerDialog = new RouteManagerDialog(this);
     private SendRouteDialog sendRouteDialog = new SendRouteDialog();
+    private SRUManagerDialog sruManagerDialog = new SRUManagerDialog(this);
     private SendStrategicRouteDialog sendVoyageDialog = new SendStrategicRouteDialog();
 
     private StatusArea statusArea = new StatusArea(this);
     private JMapFrame activeMapWindow;
     private long selectedMMSI = -1;
+
+    private boolean sarCreated;
 
     /**
      * Constructor
@@ -127,15 +131,41 @@ public class MainFrame extends MainFrameCommon {
      * @return
      */
     public void addMapWindow() {
-        new ThreadedMapCreator(this).run();
+
+        new Thread(new ThreadedMapCreator(this)).run();
+
     }
 
-    public void addStrategicRouteHandlingWindow(Route originalRoute, String shipName, Voyage voyage, boolean renegotiate) {
+    /**
+     * 
+     */
+    public void addSARWindow(MapFrameType type) {
+
+        if (sarCreated) {
+            // Warning message about one SAR operation being underway?
+        } else {
+            (new ThreadedMapCreator(this, sarCreated, type)).run();
+            // SwingUtilities.invokeLater(new ThreadedMapCreator(this, sarCreated, type));
+
+        }
+
+        // When creating a SAR window it displays map but also input boxes for starting it.
+
+    }
+
+    public void addStrategicRouteExchangeHandlingWindow(Route originalRoute, String shipName, Voyage voyage, boolean renegotiate) {
         new ThreadedMapCreator(this, shipName, voyage, originalRoute, renegotiate).run();
     }
 
     /**
-     * Add a new mapWindow with specific parameters, usually called when loading a workspace
+     * Add a new mapWindow with specific parameters, usually called when loading a workspace ======= new
+     * ThreadedMapCreator(this).run(); }
+     * 
+     * public void addStrategicRouteHandlingWindow(Route originalRoute, String shipName, Voyage voyage, boolean renegotiate) { new
+     * ThreadedMapCreator(this, shipName, voyage, originalRoute, renegotiate).run(); }
+     * 
+     * /** Add a new mapWindow with specific parameters, usually called when loading a workspace >>>>>>>
+     * 70dcfc231d7d05f4c850ee37d75d3e74bb7cea56
      * 
      * @param workspace
      * @param center
@@ -291,7 +321,7 @@ public class MainFrame extends MainFrameCommon {
         } else {
             setSize(guiSettings.getAppDimensions());
         }
-        
+
         this.setLayout(new BorderLayout(0, 0));
 
         desktop = new JMainDesktopPane(this);
@@ -306,9 +336,9 @@ public class MainFrame extends MainFrameCommon {
 
         topMenu = new JMenuWorkspaceBar(this);
         this.setJMenuBar(topMenu);
-        
-        BottomPanel bottomPanel = new BottomPanel();        
-        
+
+        BottomPanel bottomPanel = new BottomPanel();
+
         // Initiate the permanent window elements
         desktop.getManager().setStatusArea(statusArea);
         desktop.getManager().setNotificationArea(notificationArea);
@@ -317,6 +347,7 @@ public class MainFrame extends MainFrameCommon {
         desktop.getManager().setRouteManager(routeManagerDialog);
         desktop.getManager().setRouteExchangeDialog(sendRouteDialog);
         desktop.getManager().setSendVoyageDialog(sendVoyageDialog);
+        desktop.getManager().setSRUManagerDialog(sruManagerDialog);
 
         desktop.add(statusArea, true);
         desktop.add(notificationCenter, true);
@@ -338,11 +369,16 @@ public class MainFrame extends MainFrameCommon {
         desktop.add(routeManagerDialog, true);
         beanHandler.add(routeManagerDialog);
         beanHandler.add(routeManagerDialog.getRouteManager());
+
+        desktop.add(sruManagerDialog, true);
+        beanHandler.add(sruManagerDialog);
+
         // routeManagerDialog.setVisible(true);
-        
+
         this.getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 
         setWorkSpace(workspace);
+
     }
 
     /**
@@ -426,10 +462,24 @@ public class MainFrame extends MainFrameCommon {
      * @param filename
      */
     public void saveWorkSpace(String filename) {
+
         EPDShore.getInstance().getSettings().getWorkspace().setToolbarPosition(toolbar.getLocation());
         EPDShore.getInstance().getSettings().getWorkspace().setNotificationAreaPosition(notificationArea.getLocation());
         EPDShore.getInstance().getSettings().getWorkspace().setStatusPosition(statusArea.getLocation());
-        EPDShore.getInstance().getSettings().saveCurrentWorkspace(mapWindows, filename);
+
+        List<JMapFrame> windowsToSave = new ArrayList<JMapFrame>();
+
+        System.out.println("Saving " + mapWindows.size() + " map windows to workspace");
+        for (int i = 0; i < mapWindows.size(); i++) {
+            System.out.println(mapWindows.get(i).getType() + " id " + i);
+            // System.out.println("With type " + mapWindows.get(i).getType());
+            if (mapWindows.get(i).getType() == MapFrameType.standard) {
+                windowsToSave.add(mapWindows.get(i));
+            }
+        }
+
+        EPDShore.getInstance().getSettings().saveCurrentWorkspace(windowsToSave, filename);
+
     }
 
     /**
@@ -617,6 +667,13 @@ public class MainFrame extends MainFrameCommon {
 
     public JMenuWorkspaceBar getTopMenu() {
         return topMenu;
+    }
+
+    /**
+     * @return the sruManagerDialog
+     */
+    public SRUManagerDialog getSruManagerDialog() {
+        return sruManagerDialog;
     }
 
     public SetupDialogShore getSetupDialog() {

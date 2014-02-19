@@ -110,7 +110,7 @@ public class Calculator {
         return seconds * milesPrSecond;
     }
 
-    
+
     
     public static Position findPosition(Position startingLocation, Position endLocation, double distanceTravelled){
         double distance = distanceTravelled/6371000;
@@ -133,7 +133,7 @@ public class Calculator {
 
          return dest;
     }
-
+    
     public static Position calculateEndingGlobalCoordinates(Ellipsoid ellipsoid, Position start, double startBearing,
             double distance, double[] endBearing) {
         double a = ellipsoid.getSemiMajorAxis();
@@ -275,4 +275,19 @@ public class Calculator {
         return newDirection;
     }
 
+    
+    public static double reverseDirection(double direction){
+        double newDirection = direction + 180;
+
+        if (newDirection > 360){
+            newDirection = newDirection - 360;
+        }
+        
+        if (newDirection < -0 ){
+            newDirection = newDirection + 360;
+        }
+        
+        return newDirection;
+    }
+ 
 }

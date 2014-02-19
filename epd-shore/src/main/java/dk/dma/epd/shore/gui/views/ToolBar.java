@@ -301,7 +301,8 @@ public class ToolBar extends JInternalFrame {
 
         try {
 
-            if (EPDShore.getInstance().getSettings().getMapSettings().isUseEnc()) {
+            if (EPDShore.getInstance().getSettings().getMapSettings()
+                    .isUseEnc()) {
 
                 // Tool: ENC layer
 
@@ -343,7 +344,8 @@ public class ToolBar extends JInternalFrame {
                 // disable bg or wms or enc?
 
                 layerToolItems.addToolItem(enc);
-                if (EPDShore.getInstance().getSettings().getMapSettings().isEncVisible()) {
+                if (EPDShore.getInstance().getSettings().getMapSettings()
+                        .isEncVisible()) {
                     setActiveToolItem(enc, layerToolItems);
                 }
 
@@ -500,8 +502,8 @@ public class ToolBar extends JInternalFrame {
 
     public void endRoute() {
 
-        NewRouteContainerLayer newRouteLayer = EPDShore.getInstance().getMainFrame()
-                .getActiveMapWindow().getChartPanel()
+        NewRouteContainerLayer newRouteLayer = EPDShore.getInstance()
+                .getMainFrame().getActiveMapWindow().getChartPanel()
                 .getNewRouteContainerLayer();
 
         // Route saved
@@ -514,13 +516,13 @@ public class ToolBar extends JInternalFrame {
                 if (routeWaypoint.getOutLeg() != null) {
                     RouteLeg outLeg = routeWaypoint.getOutLeg();
 
-                    double xtd = EPDShore.getInstance().getSettings().getNavSettings()
-                            .getDefaultXtd();
+                    double xtd = EPDShore.getInstance().getSettings()
+                            .getNavSettings().getDefaultXtd();
                     outLeg.setXtdPort(xtd);
                     outLeg.setXtdStarboard(xtd);
                     outLeg.setHeading(Heading.RL);
-                    outLeg.setSpeed(EPDShore.getInstance().getSettings().getNavSettings()
-                            .getDefaultSpeed());
+                    outLeg.setSpeed(EPDShore.getInstance().getSettings()
+                            .getNavSettings().getDefaultSpeed());
                 }
                 routeWaypoint.setTurnRad(EPDShore.getInstance().getSettings()
                         .getNavSettings().getDefaultTurnRad());
@@ -529,21 +531,24 @@ public class ToolBar extends JInternalFrame {
             }
             route.calcValues(true);
 
-            EPDShore.getInstance().getMainFrame().getRouteManagerDialog().getRouteManager()
-                    .addRoute(route);
-            EPDShore.getInstance().getMainFrame().getRouteManagerDialog().getRouteManager()
-                    .notifyListeners(null);
+            EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
+                    .getRouteManager().addRoute(route);
+            EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
+                    .getRouteManager().notifyListeners(null);
         }
 
-        for (int i = 0; i < EPDShore.getInstance().getMainFrame().getMapWindows().size(); i++) {
-            EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getChartPanel()
-                    .getRouteEditLayer().doPrepare();
-            EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getChartPanel()
-                    .getNewRouteContainerLayer().getWaypoints().clear();
-            EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getChartPanel()
-                    .getNewRouteContainerLayer().getRouteGraphics().clear();
-            EPDShore.getInstance().getMainFrame().getMapWindows().get(i).getChartPanel()
-                    .getNewRouteContainerLayer().doPrepare();
+        for (int i = 0; i < EPDShore.getInstance().getMainFrame()
+                .getMapWindows().size(); i++) {
+            EPDShore.getInstance().getMainFrame().getMapWindows().get(i)
+                    .getChartPanel().getRouteEditLayer().doPrepare();
+            EPDShore.getInstance().getMainFrame().getMapWindows().get(i)
+                    .getChartPanel().getNewRouteContainerLayer().getWaypoints()
+                    .clear();
+            EPDShore.getInstance().getMainFrame().getMapWindows().get(i)
+                    .getChartPanel().getNewRouteContainerLayer()
+                    .getRouteGraphics().clear();
+            EPDShore.getInstance().getMainFrame().getMapWindows().get(i)
+                    .getChartPanel().getNewRouteContainerLayer().doPrepare();
         }
 
     }

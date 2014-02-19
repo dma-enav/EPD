@@ -50,64 +50,97 @@ import dk.dma.epd.common.prototype.gui.IMapFrame;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 
-
-
-
 /**
  * Class for setting up a map frame
+ * 
  * @author Steffen D. Sommer (steffendsommer@gmail.com), David A. Camre (davidcamre@gmail.com)
  */
 public class JMapFrame extends ComponentFrame implements IMapFrame {
-    
+
     private static final long serialVersionUID = 1L;
-    private ChartPanel chartPanel;
+    protected ChartPanel chartPanel;
     boolean locked;
     boolean alwaysInFront;
     MouseMotionListener[] actions;
-    private int id;
-    private final MainFrame mainFrame;
-    private JLabel moveHandler;
-    private JPanel mapPanel;
-    private JPanel masterPanel;
-    private JLabel maximize;
-    private MapMenu mapMenu;
+    protected int id;
+    protected final MainFrame mainFrame;
+    protected JLabel moveHandler;
+    protected JPanel mapPanel;
+    protected JPanel masterPanel;
+    protected JLabel maximize;
+    protected MapMenu mapMenu;
 
-    private static int moveHandlerHeight = 18;
-    private boolean maximized;
+    protected static int moveHandlerHeight = 18;
+    protected boolean maximized;
     public int width;
     public int height;
-    private static int chartPanelOffset = 12;
+    protected static int chartPanelOffset = 12;
     JInternalFrame mapFrame;
-    private JPanel glassPanel;
+    protected JPanel glassPanel;
+
+    MapFrameType type = MapFrameType.standard;
 
     /**
      * Constructor for setting up the map frame
-     * @param id        id number for this map frame
-     * @param mainFrame    reference to the mainframe
+     * 
+     * @param id
+     *            id number for this map frame
+     * @param mainFrame
+     *            reference to the mainframe
      */
-    public JMapFrame(int id, MainFrame mainFrame, MapFrameType type) {
+    public JMapFrame(int id, MainFrame mainFrame, final MapFrameType type) {
         super("New Window " + id, true, true, true, true);
 
         this.mainFrame = mainFrame;
         this.id = id;
+        this.type = type;
+
+        long startTime = System.currentTimeMillis();
 
         // Initialize the glass pane
         initGlassPane();
 
         chartPanel = new ChartPanel(mainFrame, this);
+
+        System.out.println("Time elapsed 1: " + (System.currentTimeMillis() - startTime));
+
+        startTime = System.currentTimeMillis();
+
         this.setContentPane(chartPanel);
+        
+        System.out.println("Time elapsed 2: " + (System.currentTimeMillis() - startTime));
+        startTime = System.currentTimeMillis();
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                chartPanel.initChart(type);
+            }
+        }).run();
+
+        System.out.println("Time elapsed 3: " + (System.currentTimeMillis() - startTime));
+        startTime = System.currentTimeMillis();
+
+        initGUI();
+
+        System.out.println("Time elapsed 4: " + (System.currentTimeMillis() - startTime));
+
         this.setVisible(true);
 
-        chartPanel.initChart(type);
-        initGUI();
     }
 
     /**
      * Overloaded constructor for setting up the map frame
-     * @param id        id number for this map frame
-     * @param mainFrame    reference to the map frame
-     * @param center    where to center map
-     * @param scale        map zoom level
+     * 
+     * @param id
+     *            id number for this map frame
+     * @param mainFrame
+     *            reference to the map frame
+     * @param center
+     *            where to center map
+     * @param scale
+     *            map zoom level
      */
     public JMapFrame(int id, MainFrame mainFrame, Point2D center, float scale) {
 
@@ -115,10 +148,10 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
 
         this.mainFrame = mainFrame;
         this.id = id;
-        
+
         // Initialize the glass pane
         initGlassPane();
-        
+
         chartPanel = new ChartPanel(mainFrame, this);
         this.setContentPane(chartPanel);
         this.setVisible(true);
@@ -127,7 +160,7 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
         initGUI();
 
     }
-    
+
     /**
      * Function for initializing the glasspane
      */
@@ -139,6 +172,7 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
 
     /**
      * Function for getting the glassPanel of the map frame
+     * 
      * @return glassPanel the glassPanel of the map frame
      */
     @Override
@@ -148,6 +182,7 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
 
     /**
      * Returns a reference to the map frame cast as a component
+     * 
      * @return a reference to the map frame cast as a component
      */
     @Override
@@ -171,6 +206,7 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
 
     /**
      * Function for getting the chartpanel(map) of the map frame
+     * 
      * @return
      */
     public ChartPanel getChartPanel() {
@@ -179,6 +215,7 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
 
     /**
      * Function for getting the id of the map frame
+     * 
      * @return id id of the map frame
      */
     public int getId() {
@@ -188,7 +225,7 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
     /**
      * Function for setting up custom GUI for the map frame
      */
-    public void initGUI(){
+    public void initGUI() {
         makeKeyBindings();
 
         mapFrame = this;
@@ -202,11 +239,11 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
 
         // Strip off
         setRootPaneCheckingEnabled(false);
-        ((javax.swing.plaf.basic.BasicInternalFrameUI)this.getUI()).setNorthPane(null);
-        this.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+        ((javax.swing.plaf.basic.BasicInternalFrameUI) this.getUI()).setNorthPane(null);
+        this.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
         // Map tools
-        mapPanel = new JPanel(new GridLayout(1,3));
+        mapPanel = new JPanel(new GridLayout(1, 3));
         mapPanel.setPreferredSize(new Dimension(500, moveHandlerHeight));
         mapPanel.setOpaque(true);
         mapPanel.setBackground(Color.DARK_GRAY);
@@ -220,22 +257,23 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
         mapPanel.add(new JLabel());
 
         // Movehandler/Title dragable)
-        moveHandler = new JLabel("New Window "+id, SwingConstants.CENTER);
+        moveHandler = new JLabel("New Window " + id, SwingConstants.CENTER);
         moveHandler.setFont(new Font("Arial", Font.BOLD, 9));
         moveHandler.setForeground(new Color(200, 200, 200));
         moveHandler.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent arg0) {
-                if (arg0.getClickCount() == 2){
+            @Override
+            public void mouseClicked(MouseEvent arg0) {
+                if (arg0.getClickCount() == 2) {
                     rename();
                 }
-            }});
+            }
+        });
         moveHandler.addMouseListener(mml);
         moveHandler.addMouseMotionListener(mml);
         actions = moveHandler.getListeners(MouseMotionListener.class);
         mapPanel.add(moveHandler);
 
-
-     // The tools (minimize, maximize and close)
+        // The tools (minimize, maximize and close)
         JPanel mapToolsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         mapToolsPanel.setOpaque(false);
         mapToolsPanel.setPreferredSize(new Dimension(60, 50));
@@ -261,7 +299,7 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
 
             public void mouseReleased(MouseEvent e) {
                 try {
-                    if(maximized) {
+                    if (maximized) {
                         mapFrame.setMaximum(false);
                         maximized = false;
                         maximize.setIcon(windowRes.getCachedImageIcon("maximize.png"));
@@ -296,7 +334,6 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
         mapToolsPanel.add(close);
         mapPanel.add(mapToolsPanel);
 
-
         // Create the masterpanel for aligning
         masterPanel = new JPanel(new BorderLayout());
         masterPanel.add(mapPanel, BorderLayout.NORTH);
@@ -307,20 +344,20 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
         this.setContentPane(masterPanel);
         repaintMapWindow();
 
-
-//         Init the map right click menu
+        // Init the map right click menu
         setMapMenu(new MapMenu());
         chartPanel.getMapHandler().add(getMapMenu());
 
     }
 
-    public void setMaximizedIcon(){
+    public void setMaximizedIcon() {
         maximized = true;
         maximize.setIcon(EPDShore.res().getCachedImageIcon("images/window/restore.png"));
     }
 
     /**
      * Function for getting the status of map frame in terms of in front
+     * 
      * @return
      */
     public boolean isInFront() {
@@ -328,7 +365,15 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
     }
 
     /**
+     * @return the type
+     */
+    public MapFrameType getType() {
+        return type;
+    }
+
+    /**
      * Function for getting the status of map frame in terms of locked/unlocked
+     * 
      * @return
      */
     public boolean isLocked() {
@@ -338,18 +383,16 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
     /**
      * Function for locking/unlocking the map frame
      */
-    public void lockUnlockWindow(){
+    public void lockUnlockWindow() {
 
+        if (locked) {
 
-
-        if(locked) {
-
-            this.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+            this.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
             masterPanel.add(mapPanel, BorderLayout.NORTH);
-            masterPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45, 45)));
+            masterPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45,
+                    45)));
             locked = false;
             mapFrame.setResizable(true);
-
 
         } else {
             setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45, 45)));
@@ -366,7 +409,7 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
     /**
      * Function for setting the key bindings for the map frame
      */
-    private void makeKeyBindings() {
+    protected void makeKeyBindings() {
 
         JPanel content = (JPanel) getContentPane();
         InputMap inputMap = content.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -436,12 +479,11 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
     /**
      * Function for renaming the map frame
      */
-    public void rename(){
+    public void rename() {
 
-        String title =
-            JOptionPane.showInputDialog(this, "Enter a new title:", this.getTitle());
+        String title = JOptionPane.showInputDialog(this, "Enter a new title:", this.getTitle());
 
-        if (title != null){
+        if (title != null) {
 
             this.setTitle(title);
             mainFrame.renameMapWindow(this);
@@ -458,8 +500,7 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
         int innerHeight = mapFrame.getSize().height - moveHandlerHeight - chartPanelOffset;
         height = mapFrame.getSize().height;
 
-        if(locked)
-         {
+        if (locked) {
             innerHeight = mapFrame.getSize().height - 4; // 4 for border
         }
 
@@ -473,7 +514,7 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
     }
 
     @Override
-    public void setTitle(String title){
+    public void setTitle(String title) {
         super.setTitle(title);
         moveHandler.setText(title);
     }

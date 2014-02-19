@@ -22,16 +22,23 @@ import dk.dma.epd.common.util.TypedValue.DistType;
  * Class for doing different conversions
  */
 public class Converter {
-    
+
+    private static final double M_IN_FEET = 3.2808;
+
     public static double metersToNm(double meters) {
         return new Dist(DistType.METERS, meters).in(DistType.NAUTICAL_MILES).doubleValue();
     }
-    
+
     public static double nmToMeters(double nm) {
         return new Dist(DistType.NAUTICAL_MILES, nm).in(DistType.METERS).doubleValue();
     }
-    
+
     public static double milesToNM(double m) {
         return new Dist(DistType.MILES, m).in(DistType.NAUTICAL_MILES).doubleValue();
     }
+
+    public static double metersToFeet(double m) {
+        return m * M_IN_FEET;
+    }
+
 }

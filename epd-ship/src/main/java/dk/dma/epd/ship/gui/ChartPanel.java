@@ -21,6 +21,7 @@ import java.awt.Point;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -46,8 +47,13 @@ import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
+import dk.dma.epd.common.prototype.model.voct.sardata.DatumPointData;
+import dk.dma.epd.common.prototype.model.voct.sardata.RapidResponseData;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateEvent;
+import dk.dma.epd.common.prototype.voct.VOCTUpdateListener;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.event.DistanceCircleMouseMode;
 import dk.dma.epd.ship.event.DragMouseMode;
@@ -66,16 +72,20 @@ import dk.dma.epd.ship.layers.nogo.DynamicNogoLayer;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.layers.ownship.OwnShipLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
-import dk.dma.epd.ship.layers.routeedit.RouteEditLayer;
 import dk.dma.epd.ship.layers.ruler.RulerLayer;
+import dk.dma.epd.ship.layers.voct.VoctLayer;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
+import dk.dma.epd.ship.service.voct.VOCTManager;
 import dk.dma.epd.ship.settings.EPDMapSettings;
+import dk.dma.epd.ship.layers.routeedit.RouteEditLayer;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
  */
+
 public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
-        MouseWheelListener {
+        MouseWheelListener, VOCTUpdateListener {
+
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
@@ -93,14 +103,15 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
     private MsiLayer msiLayer;
     private NogoLayer nogoLayer;
     private DynamicNogoLayer dynamicNogoLayer;
+    private VoctLayer voctLayer;
     private IntendedRouteLayerCommon intendedRouteLayer;
     private NewRouteContainerLayer newRouteContainerLayer;
-    
     private TopPanel topPanel;
     private RouteEditMouseMode routeEditMouseMode;
     private RouteEditLayer routeEditLayer;
     public int maxScale = 5000;
     private MSIFilterMouseMode msiFilterMouseMode;
+    private VOCTManager voctManager;
 
     private DistanceCircleMouseMode rangeCirclesMouseMode;
 
@@ -108,8 +119,10 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
 
     private NogoDialog nogoDialog;
     private RulerLayer rulerLayer;
+
     private NoGoMouseMode noGoMouseMode;
     
+
     public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel) {
         super();
         // Set map handler
@@ -121,7 +134,8 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         setBorder(BorderFactory.createLineBorder(Color.GRAY));
         this.activeWaypointPanel = activeWaypointPanel;
         // Max scale
-        this.maxScale = EPDShip.getInstance().getSettings().getMapSettings().getMaxScale();
+        this.maxScale = EPDShip.getInstance().getSettings().getMapSettings()
+                .getMaxScale();
 
         setBackground(new Color(0.1f, 0.1f, 0.1f, 0.1f));
     }
@@ -131,12 +145,13 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
      */
     public void initChart() {
 
-        EPDMapSettings mapSettings = EPDShip.getInstance().getSettings().getMapSettings();
+        EPDMapSettings mapSettings = EPDShip.getInstance().getSettings()
+                .getMapSettings();
         Properties props = EPDShip.getInstance().getProperties();
 
         // Try to create ENC layer
-        EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShip.getInstance()
-                .getSettings().getMapSettings());
+        EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShip
+                .getInstance().getSettings().getMapSettings());
         encLayer = encLayerFactory.getEncLayer();
 
         // Add WMS Layer
@@ -188,9 +203,10 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         mapHandler.add(msiFilterMouseMode);
         mapHandler.add(activeWaypointPanel);
         mapHandler.add(rangeCirclesMouseMode);
-        // added this to fix bug where cursor panel was not updated when in drag mode
+        // added this to fix bug where cursor panel was not updated when in drag
+        // mode
         mapHandler.add(dragMouseMode);
-        
+
         // Use the LayerHandler to manage all layers, whether they are
         // on the map or not. You can add a layer to the map by
         // setting layer.setVisible(true).
@@ -205,6 +221,11 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         generalLayer = new GeneralLayer();
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
+
+        // Create VOCT Layer
+        voctLayer = new VoctLayer();
+        voctLayer.setVisible(true);
+        mapHandler.add(voctLayer);
 
         // Create route layer
         routeLayer = new RouteLayer();
@@ -257,7 +278,19 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         intendedRouteLayer = new IntendedRouteLayerCommon();
         intendedRouteLayer.setVisible(true);
         mapHandler.add(intendedRouteLayer);
-        
+
+        // Create a esri shape layer
+        // URL dbf = EeINS.class.getResource("/shape/urbanap020.dbf");
+        // URL shp = EeINS.class.getResource("/shape/urbanap020.shp");
+        // URL shx = EeINS.class.getResource("/shape/urbanap020.shx");
+        //
+        // DrawingAttributes da = new DrawingAttributes();
+        // da.setFillPaint(Color.blue);
+        // da.setLinePaint(Color.black);
+        //
+        // EsriLayer esriLayer = new EsriLayer("Drogden", dbf, shp, shx, da);
+        // mapHandler.add(esriLayer);
+
         // Create background layer
         String layerName = "background";
         coastalOutlineLayer = new CoastalOutlineLayer();
@@ -328,12 +361,15 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         // encLayerFactory2.reapplySettings();
 
         // Show AIS or not
-        aisVisible(EPDShip.getInstance().getSettings().getAisSettings().isVisible());
+        aisVisible(EPDShip.getInstance().getSettings().getAisSettings()
+                .isVisible());
         // Show ENC or not
-        encVisible(EPDShip.getInstance().getSettings().getMapSettings().isEncVisible());
+        encVisible(EPDShip.getInstance().getSettings().getMapSettings()
+                .isEncVisible());
 
         // Show WMS or not
-        wmsVisible(EPDShip.getInstance().getSettings().getMapSettings().isWmsVisible());
+        wmsVisible(EPDShip.getInstance().getSettings().getMapSettings()
+                .isWmsVisible());
 
         // Show intended routes or not
         setIntendedRouteLayerVisibility(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
@@ -343,7 +379,8 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
     }
 
     protected void initDragMap() {
-        EPDMapSettings mapSettings = EPDShip.getInstance().getSettings().getMapSettings();
+        EPDMapSettings mapSettings = EPDShip.getInstance().getSettings()
+                .getMapSettings();
         // TODO: CLEANUP
         // dragMap
         dragMap = new BufferedLayerMapBean();
@@ -365,7 +402,8 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
     }
 
     public void saveSettings() {
-        EPDMapSettings mapSettings = EPDShip.getInstance().getSettings().getMapSettings();
+        EPDMapSettings mapSettings = EPDShip.getInstance().getSettings()
+                .getMapSettings();
         mapSettings.setCenter((LatLonPoint) map.getCenter());
         mapSettings.setScale(map.getScale());
     }
@@ -392,7 +430,8 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
 
     public void centreOnShip() {
         // Get current position
-        PntData gpsData = EPDShip.getInstance().getPntHandler().getCurrentData();
+        PntData gpsData = EPDShip.getInstance().getPntHandler()
+                .getCurrentData();
         if (gpsData == null) {
             return;
         }
@@ -467,10 +506,10 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
             // by exiting DistanceCircleMouseMode
             this.topPanel.getNewRouteBtn().setSelected(true);
 
-            EPDShip.getInstance().getMainFrame().getTopPanel().getNavigationMouseMode()
-                    .setSelected(false);
-            EPDShip.getInstance().getMainFrame().getTopPanel().getDragMouseMode()
-                    .setSelected(false);
+            EPDShip.getInstance().getMainFrame().getTopPanel()
+                    .getNavigationMouseMode().setSelected(false);
+            EPDShip.getInstance().getMainFrame().getTopPanel()
+                    .getDragMouseMode().setSelected(false);
         }
         if (modeID.equals(NavigationMouseMode.MODE_ID)
                 || modeID.equals(DragMouseMode.MODE_ID)
@@ -484,21 +523,23 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
             newRouteContainerLayer.doPrepare();
             EPDShip.getInstance().getMainFrame().getTopPanel().getNewRouteBtn()
                     .setSelected(false);
-            EPDShip.getInstance().getMainFrame().getEeINSMenuBar().getNewRoute()
-                    .setSelected(false);
+            EPDShip.getInstance().getMainFrame().getEeINSMenuBar()
+                    .getNewRoute().setSelected(false);
             if (modeID.equals(NavigationMouseMode.MODE_ID)) {
                 System.out.println("Setting nav mouse mode");
                 mouseDelegator.setActive(mapNavMouseMode);
-                EPDShip.getInstance().getMainFrame().getTopPanel().getNavigationMouseMode()
-                        .setSelected(true);
-                EPDShip.getInstance().getMainFrame().getTopPanel().getDragMouseMode()
-                        .setSelected(false);
+                EPDShip.getInstance().getMainFrame().getTopPanel()
+                        .getNavigationMouseMode().setSelected(true);
+                EPDShip.getInstance().getMainFrame().getTopPanel()
+                        .getDragMouseMode().setSelected(false);
             }
             if (modeID.equals(DragMouseMode.MODE_ID)) {
                 mouseDelegator.setActive(dragMouseMode);
-                this.topPanel.getNavigationMouseMode()
-                        .setSelected(false);
-                EPDShip.getInstance().getMainFrame().getTopPanel().getDragMouseMode()
+
+                this.topPanel.getNavigationMouseMode().setSelected(false);
+                EPDShip.getInstance().getMainFrame().getTopPanel()
+                        .getDragMouseMode()
+
                         .setSelected(true);
                 System.out.println("Setting drag mouse mode");
             }
@@ -538,17 +579,18 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
 
     public void autoFollow() {
         // Do auto follow
-        if (!EPDShip.getInstance().getSettings().getNavSettings().isAutoFollow()) {
+        if (!EPDShip.getInstance().getSettings().getNavSettings()
+                .isAutoFollow()) {
             return;
         }
-        
+
         // Only do auto follow if not bad position
         if (pntData == null || pntData.isBadPosition()) {
             return;
         }
 
-        boolean lookahead = EPDShip.getInstance().getSettings().getNavSettings()
-                .isLookAhead();
+        boolean lookahead = EPDShip.getInstance().getSettings()
+                .getNavSettings().isLookAhead();
 
         // Find desired location (depends on look-ahead or not)
 
@@ -638,7 +680,8 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         }
 
         // Disable auto follow
-        EPDShip.getInstance().getSettings().getNavSettings().setAutoFollow(false);
+        EPDShip.getInstance().getSettings().getNavSettings()
+                .setAutoFollow(false);
         topPanel.updateButtons();
 
         if (waypoints.size() == 1) {
@@ -760,6 +803,10 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
                 topPanel.setWMSDisabled();
             }
         }
+        if (obj instanceof VOCTManager) {
+            voctManager = (VOCTManager) obj;
+            voctManager.addListener(this);
+        }
     }
 
     /**
@@ -804,6 +851,68 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         p.setCenter(llp);
         map.setProjection(p);
         manualProjChange();
+    }
+
+    @Override
+    public void voctUpdated(VOCTUpdateEvent e) {
+        if (e == VOCTUpdateEvent.SAR_RECEIVED_CLOUD) {
+            if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
+
+                RapidResponseData data = (RapidResponseData) voctManager
+                        .getSarData();
+
+                if (data.getEffortAllocationData().size() > 0) {
+                    List<Position> waypoints = new ArrayList<Position>();
+                    waypoints.add(data.getA());
+                    waypoints.add(data.getB());
+                    waypoints.add(data.getC());
+                    waypoints.add(data.getD());
+
+                    this.zoomTo(waypoints);
+                    return;
+
+                } else {
+                    List<Position> waypoints = new ArrayList<Position>();
+
+                    waypoints.add(data.getDatum());
+                    this.zoomTo(waypoints);
+                    return;
+
+                }
+
+            }
+        }
+
+        if (e == VOCTUpdateEvent.SAR_DISPLAY) {
+
+            if (voctManager.getSarType() == SAR_TYPE.RAPID_RESPONSE) {
+                RapidResponseData data = (RapidResponseData) voctManager
+                        .getSarData();
+
+                List<Position> waypoints = new ArrayList<Position>();
+                waypoints.add(data.getA());
+                waypoints.add(data.getB());
+                waypoints.add(data.getC());
+                waypoints.add(data.getD());
+
+                this.zoomTo(waypoints);
+                return;
+            }
+
+            if (voctManager.getSarType() == SAR_TYPE.DATUM_POINT) {
+                DatumPointData data = (DatumPointData) voctManager.getSarData();
+
+                List<Position> waypoints = new ArrayList<Position>();
+                waypoints.add(data.getA());
+                waypoints.add(data.getB());
+                waypoints.add(data.getC());
+                waypoints.add(data.getD());
+
+                this.zoomTo(waypoints);
+                return;
+            }
+
+        }
     }
 
 }

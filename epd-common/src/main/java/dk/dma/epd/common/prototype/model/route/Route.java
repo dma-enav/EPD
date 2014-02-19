@@ -138,7 +138,16 @@ public class Route implements Serializable {
         parseRoute(cloudRouteData);
     }
 
+
+
     // Methods
+
+    public void setSpeed(double SOG) {
+        for (int i = 0; i < waypoints.size(); i++) {
+            waypoints.get(i).setSpeed(SOG);
+        }
+        this.calcAllWpEta();
+    }
 
     /**
      * Performs a deep copy of a route.
@@ -916,7 +925,8 @@ public class Route implements Serializable {
                 Waypoint cloudWaypoint = cloudRouteWaypoints.get(i);
 
                 // Leg
-                if (cloudWaypoint.getRouteLeg() != null && waypoint.getOutLeg() != null) {
+                if (cloudWaypoint.getRouteLeg() != null
+                        && waypoint.getOutLeg() != null) {
 
                     // SOG
                     if (cloudWaypoint.getRouteLeg().getSpeed() != null) {

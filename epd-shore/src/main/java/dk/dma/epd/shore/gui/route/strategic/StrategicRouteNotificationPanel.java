@@ -440,7 +440,7 @@ public class StrategicRouteNotificationPanel extends JPanel {
 
                     Route originalRoute = new Route(message.getRouteMessage().get(0).getRoute());
                     
-                    EPDShore.getInstance().getMainFrame().addStrategicRouteHandlingWindow(originalRoute,
+                    EPDShore.getInstance().getMainFrame().addStrategicRouteExchangeHandlingWindow(originalRoute,
                             shipName, voyage, false);
 
                     notCenter.setVisible(false);

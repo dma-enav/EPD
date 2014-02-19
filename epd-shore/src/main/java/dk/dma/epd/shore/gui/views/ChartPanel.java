@@ -57,11 +57,13 @@ import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
 import dk.dma.epd.shore.layers.route.RouteLayer;
 import dk.dma.epd.shore.layers.routeedit.RouteEditLayer;
+import dk.dma.epd.shore.layers.voct.VoctLayerCommon;
+import dk.dma.epd.shore.layers.voct.VoctLayerPlanning;
+import dk.dma.epd.shore.layers.voct.VoctLayerTracking;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.settings.EPDMapSettings;
-import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
 
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
@@ -83,7 +85,7 @@ public class ChartPanel extends ChartPanelCommon {
     private SelectMouseMode selectMouseMode;
 
     private RouteEditMouseMode routeEditMouseMode;
-    
+
     public int maxScale = 5000;
     private AisLayer aisLayer;
     private MsiLayer msiLayer;
@@ -94,13 +96,14 @@ public class ChartPanel extends ChartPanelCommon {
     private VoyageHandlingLayer voyageHandlingLayer;
     private IntendedRouteLayerCommon intendedRouteLayer;
 
+    private VoctLayerCommon voctLayer;
+
     private MainFrame mainFrame;
     private Color background = new Color(168, 228, 255);
     // private Point2D center;
     // private float scale;
 
-    protected transient ProjectionSupport projectionSupport = new ProjectionSupport(
-            this, false);
+    protected transient ProjectionSupport projectionSupport = new ProjectionSupport(this, false);
     private BufferedLayerMapBean dragMap;
 
     /**
@@ -127,8 +130,6 @@ public class ChartPanel extends ChartPanelCommon {
         mapHandler.add(mainFrame);
         mapHandler.add(mainFrame.getStatusArea());
         mapHandler.add(jmapFrame);
-        
-
 
         // Set layout
         // setLayout(new BorderLayout());
@@ -176,8 +177,7 @@ public class ChartPanel extends ChartPanelCommon {
             } catch (java.lang.ClassNotFoundException e) {
                 LOG.error("Layer class not found: \"" + className + "\"");
             } catch (java.io.IOException e) {
-                LOG.error("IO Exception instantiating class \"" + className
-                        + "\"");
+                LOG.error("IO Exception instantiating class \"" + className + "\"");
             }
         }
     }
@@ -210,7 +210,9 @@ public class ChartPanel extends ChartPanelCommon {
 
     /**
      * Sets the visibility of the intended route layer
-     * @param visible the visibility of the intended route layer
+     * 
+     * @param visible
+     *            the visibility of the intended route layer
      */
     public void setIntendedRouteLayerVisibility(boolean visible) {
         if (intendedRouteLayer != null) {
@@ -218,7 +220,6 @@ public class ChartPanel extends ChartPanelCommon {
         }
     }
 
-    
     @Override
     public void findAndInit(Object obj) {
 
@@ -234,9 +235,10 @@ public class ChartPanel extends ChartPanelCommon {
     }
 
     public void forceAisLayerUpdate() {
-        this.aisLayer.forceLayerUpdate();
+        if (aisLayer != null) {
+            this.aisLayer.forceLayerUpdate();
+        }
     }
-
 
     public Layer getBgLayer() {
         return bgLayer;
@@ -250,8 +252,6 @@ public class ChartPanel extends ChartPanelCommon {
     public Layer getEncLayer() {
         return encLayer;
     }
-
- 
 
     /**
      * Return the maxScale set for the map
@@ -309,7 +309,7 @@ public class ChartPanel extends ChartPanelCommon {
         map.setScale(mapSettings.getScale());
 
         add(map);
-        
+
         initDragMap();
 
     }
@@ -337,21 +337,22 @@ public class ChartPanel extends ChartPanelCommon {
 
         initDragMap();
 
-
     }
-    
+
     /**
      * Initiate dragmap with mapsettings
      */
     protected void initDragMap() {
+
         EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
-        //TODO: CLEANUP
-        //dragMap
+        // TODO: CLEANUP
+        // dragMap
+
         dragMap = new BufferedLayerMapBean();
         dragMap.setDoubleBuffered(true);
         dragMap.setCenter(mapSettings.getCenter());
         dragMap.setScale(mapSettings.getScale());
-        
+
         dragMapHandler.add(new LayerHandler());
         if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
             dragMapHandler.add(dragMap);
@@ -360,8 +361,8 @@ public class ChartPanel extends ChartPanelCommon {
             dragMapHandler.add(wmsDragLayer);
             dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
         } else {
-            //create dummy map dragging
-            dragMapRenderer = new SimpleOffScreenMapRenderer(map,dragMap,true);
+            // create dummy map dragging
+            dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, true);
         }
         dragMapRenderer.start();
     }
@@ -372,15 +373,13 @@ public class ChartPanel extends ChartPanelCommon {
      * @param voyageLayer2
      */
     public void initChartDefault(MapFrameType type) {
+
         Properties props = EPDShore.getInstance().getProperties();
         EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
-        
 
-        if (EPDShore.getInstance().getSettings().getMapSettings().isUseEnc()
-                && mainFrame.isUseEnc()) {
+        if (EPDShore.getInstance().getSettings().getMapSettings().isUseEnc() && mainFrame.isUseEnc()) {
             // Try to create ENC layer
-            EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore.getInstance()
-                    .getSettings().getMapSettings());
+            EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore.getInstance().getSettings().getMapSettings());
             encLayer = encLayerFactory.getEncLayer();
         }
 
@@ -399,7 +398,9 @@ public class ChartPanel extends ChartPanelCommon {
         mouseDelegator.addMouseMode(selectMouseMode);
         mouseDelegator.addMouseMode(routeEditMouseMode);
 
-        setMouseMode(mainFrame.getMouseMode());
+        if (type != MapFrameType.SAR_Planning || type != MapFrameType.SAR_Tracking) {
+            setMouseMode(mainFrame.getMouseMode());
+        }
 
         mapHandler.add(dragMouseMode);
         mapHandler.add(mapNavMouseMode);
@@ -415,31 +416,49 @@ public class ChartPanel extends ChartPanelCommon {
         // Add layer handler to map handler
         mapHandler.add(layerHandler);
 
-
         // Create the general layer
         generalLayer = new GeneralLayer();
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
-        
-        
-        
-        
+
         wmsLayer = new WMSLayer(EPDShore.getInstance().getSettings().getMapSettings().getWmsQuery());
-        //Add WMS Layer
+        // Add WMS Layer
+
         if (mapSettings.getWmsQuery().length() > 12 && mapSettings.isUseWms()) {
             wmsLayer.setVisible(true);
-            mapHandler.add(wmsLayer);    
+            mapHandler.add(wmsLayer);
         }
 
-        // Add MSI Layer
-        msiLayer = new MsiLayer();
-        msiLayer.setVisible(true);
-        mapHandler.add(msiLayer);
+        if (type == MapFrameType.standard) {
+            // Add Voyage Layer
+            voyageLayer = new VoyageLayer();
+            voyageLayer.setVisible(true);
+            mapHandler.add(voyageLayer);
 
-        // Add Route Layer
-        routeLayer = new RouteLayer();
-        routeLayer.setVisible(true);
-        mapHandler.add(routeLayer);
+            // Add AIS Layer
+            aisLayer = new AisLayer(EPD.getInstance().getSettings().getAisSettings().getMinRedrawInterval() * 1000);
+            aisLayer.setVisible(true);
+            mapHandler.add(aisLayer);
+
+            // Add MSI Layer
+            msiLayer = new MsiLayer();
+            msiLayer.setVisible(true);
+            mapHandler.add(msiLayer);
+
+            // Add Route Layer
+            routeLayer = new RouteLayer();
+            routeLayer.setVisible(true);
+            mapHandler.add(routeLayer);
+
+            // Create route editing layer
+            newRouteContainerLayer = new NewRouteContainerLayer();
+            newRouteContainerLayer.setVisible(true);
+            mapHandler.add(newRouteContainerLayer);
+            routeEditLayer = new RouteEditLayer();
+            routeEditLayer.setVisible(true);
+            mapHandler.add(routeEditLayer);
+
+        }
 
         if (type == MapFrameType.suggestedRoute) {
 
@@ -452,27 +471,60 @@ public class ChartPanel extends ChartPanelCommon {
             voyageHandlingLayer.setVisible(true);
             mapHandler.add(voyageHandlingLayer);
 
+            // Add AIS Layer
+            aisLayer = new AisLayer(EPD.getInstance().getSettings().getAisSettings().getMinRedrawInterval() * 1000);
+            aisLayer.setVisible(true);
+            mapHandler.add(aisLayer);
+
+            // Add Route Layer
+            routeLayer = new RouteLayer();
+            routeLayer.setVisible(true);
+            mapHandler.add(routeLayer);
+
+            // Create route editing layer
+            newRouteContainerLayer = new NewRouteContainerLayer();
+            newRouteContainerLayer.setVisible(true);
+            mapHandler.add(newRouteContainerLayer);
+            routeEditLayer = new RouteEditLayer();
+            routeEditLayer.setVisible(true);
+            mapHandler.add(routeEditLayer);
+
         }
 
-        if (type == MapFrameType.standard) {
-            // Add Voyage Layer
-            voyageLayer = new VoyageLayer();
-            voyageLayer.setVisible(true);
-            mapHandler.add(voyageLayer);
+        if (type == MapFrameType.SAR_Planning) {
+            voctLayer = new VoctLayerPlanning();
+            voctLayer.setVisible(true);
+            mapHandler.add(voctLayer);
+            mapHandler.add(EPDShore.getInstance().getVoctManager());
+            mapHandler.add(EPDShore.getInstance().getSRUManager());
+
+            // Add AIS Layer
+            aisLayer = new AisLayer(EPD.getInstance().getSettings().getAisSettings().getMinRedrawInterval() * 1000);
+            aisLayer.setVisible(true);
+            mapHandler.add(aisLayer);
+
+            // Add Route Layer
+            routeLayer = new RouteLayer();
+            routeLayer.setVisible(true);
+            mapHandler.add(routeLayer);
+
+            // Create route editing layer
+            newRouteContainerLayer = new NewRouteContainerLayer();
+            newRouteContainerLayer.setVisible(true);
+            mapHandler.add(newRouteContainerLayer);
+            routeEditLayer = new RouteEditLayer();
+            routeEditLayer.setVisible(true);
+            mapHandler.add(routeEditLayer);
+
         }
 
-        // Add AIS Layer
-        aisLayer = new AisLayer(EPD.getInstance().getSettings().getAisSettings().getMinRedrawInterval() * 1000);
-        aisLayer.setVisible(true);
-        mapHandler.add(aisLayer);
-
-        // Create route editing layer
-        newRouteContainerLayer = new NewRouteContainerLayer();
-        newRouteContainerLayer.setVisible(true);
-        mapHandler.add(newRouteContainerLayer);
-        routeEditLayer = new RouteEditLayer();
-        routeEditLayer.setVisible(true);
-        mapHandler.add(routeEditLayer);
+        if (type == MapFrameType.SAR_Tracking) {
+            voctLayer = new VoctLayerTracking();
+            voctLayer.setVisible(true);
+            mapHandler.add(voctLayer);
+            mapHandler.add(EPDShore.getInstance().getVoctManager());
+            mapHandler.add(EPDShore.getInstance().getSRUManager());
+        }
 
         // Create MSI handler
         msiHandler = EPDShore.getInstance().getMsiHandler();
@@ -485,7 +537,7 @@ public class ChartPanel extends ChartPanelCommon {
         intendedRouteLayer = new IntendedRouteLayerCommon();
         intendedRouteLayer.setVisible(EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
         mapHandler.add(intendedRouteLayer);
-        
+
         // Create background layer
         String layerName = "background";
         bgLayer = new MultiShapeLayer();
@@ -501,15 +553,16 @@ public class ChartPanel extends ChartPanelCommon {
         // Add map to map handler
         mapHandler.add(map);
 
-        // Force a MSI layer update
-        msiLayer.doUpdate();
+        if (routeLayer != null) {
+            // Force a route layer update
+            routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
 
-        // Force a route layer update
-        routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
+        }
 
-        // Force a voyage layer update
-        voyageLayer.voyagesChanged(VoyageUpdateEvent.VOYAGE_ADDED);
-        
+        if (wmsLayer.isVisible()) {
+            // System.out.println("wms is visible");
+            bgLayer.setVisible(false);
+        }
 
     }
 
@@ -593,8 +646,7 @@ public class ChartPanel extends ChartPanelCommon {
     }
 
     /**
-     * Given a set of points scale and center so that all points are contained
-     * in the view
+     * Given a set of points scale and center so that all points are contained in the view
      * 
      * @param waypoints
      */
@@ -604,8 +656,7 @@ public class ChartPanel extends ChartPanelCommon {
         }
 
         if (waypoints.size() == 1) {
-            map.setCenter(waypoints.get(0).getLatitude(), waypoints.get(0)
-                    .getLongitude());
+            map.setCenter(waypoints.get(0).getLatitude(), waypoints.get(0).getLongitude());
             forceAisLayerUpdate();
             return;
         }

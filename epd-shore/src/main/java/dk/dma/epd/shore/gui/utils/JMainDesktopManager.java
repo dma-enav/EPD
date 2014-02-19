@@ -37,6 +37,7 @@ import dk.dma.epd.shore.gui.views.NotificationCenter;
 import dk.dma.epd.shore.gui.views.SendRouteDialog;
 import dk.dma.epd.shore.gui.views.StatusArea;
 import dk.dma.epd.shore.gui.views.ToolBar;
+import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
 
 public class JMainDesktopManager extends DefaultDesktopManager {
     /**
@@ -52,9 +53,11 @@ public class JMainDesktopManager extends DefaultDesktopManager {
     private RouteManagerDialog routeManager;
     private SendRouteDialog routeDialog;
     private SendStrategicRouteDialog sendVoyageDialog;
-    
+    private SRUManagerDialog sruManagerDialog;
+
     /**
      * Constructor for desktopmanager
+     * 
      * @param desktop
      */
     public JMainDesktopManager(JMainDesktopPane desktop) {
@@ -69,10 +72,10 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
         if (f instanceof JMapFrame) {
 
-            if (EPDShore.getInstance().getMainFrame() != null){
-            EPDShore.getInstance().getMainFrame().setActiveMapWindow((JMapFrame) f);
+            if (EPDShore.getInstance().getMainFrame() != null) {
+                EPDShore.getInstance().getMainFrame().setActiveMapWindow((JMapFrame) f);
             }
-            
+
             if (toFront.size() == 0) {
                 super.activateFrame(f);
             } else {
@@ -96,14 +99,16 @@ public class JMainDesktopManager extends DefaultDesktopManager {
         super.activateFrame(routeManager);
         super.activateFrame(routeDialog);
         super.activateFrame(sendVoyageDialog);
+        super.activateFrame(sruManagerDialog);
     }
-    
-    public void clearToFront(){
+
+    public void clearToFront() {
         toFront.clear();
     }
 
     /**
      * Set an internalframe to be infront
+     * 
      * @param id
      * @param f
      */
@@ -133,6 +138,7 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
     /**
      * return the scrollPane
+     * 
      * @return
      */
     private JScrollPane getScrollPane() {
@@ -147,6 +153,7 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
     /**
      * Get scrollPane insets
+     * 
      * @return
      */
     private Insets getScrollPaneInsets() {
@@ -161,37 +168,37 @@ public class JMainDesktopManager extends DefaultDesktopManager {
     /**
      * Resize desktop
      */
-    public void resizeDesktop() {   
-        
+    public void resizeDesktop() {
+
         // Get the scroll pane of the desktop pane.
         JScrollPane scrollPane = this.getScrollPane();
-        
+
         // These booleans will be true if a frame has crossed the desktop pane window.
         boolean horizontalCrossed = false;
         boolean verticalCrossed = false;
-        
-        // Check for each frame in the desktop panel if it has been 
+
+        // Check for each frame in the desktop panel if it has been
         for (JInternalFrame frame : this.desktop.getAllFrames()) {
-            
+
             // Variables for distance between right border and bottom.
-            int frmHorizontalDistanceFromLeft = (int) (frame.getLocation().x+frame.getSize().getWidth());
-            int frmVerticalDistanceFromUpper  = (int) (frame.getLocation().y+frame.getSize().getHeight());
-            
+            int frmHorizontalDistanceFromLeft = (int) (frame.getLocation().x + frame.getSize().getWidth());
+            int frmVerticalDistanceFromUpper = (int) (frame.getLocation().y + frame.getSize().getHeight());
+
             // Set boolean if a frame has crossed out from the rigt
             if ((frame.isVisible()) && frmHorizontalDistanceFromLeft > this.desktop.getSize().getWidth()) {
                 horizontalCrossed = true;
             }
-            
+
             // Set boolean if a frame has crossed out from the bottom.
             if ((frame.isVisible()) && frmVerticalDistanceFromUpper > this.desktop.getSize().getHeight()) {
                 verticalCrossed = true;
             }
-            
+
             // Show scroll bars.
             this.desktop.setAllSize(frmHorizontalDistanceFromLeft, frmVerticalDistanceFromUpper);
             scrollPane.invalidate();
             scrollPane.validate();
-            
+
             // Stop the loop if a frame has crossed out of the desktop pane.
             if (verticalCrossed || horizontalCrossed) {
                 return;
@@ -224,14 +231,16 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
     /**
      * Set notification center
+     * 
      * @param notCenter
      */
     public void setNotCenter(NotificationCenter notCenter) {
         this.notCenter = notCenter;
     }
-    
+
     /**
      * Set RouteManager Window
+     * 
      * @param notCenter
      */
     public void setRouteManager(RouteManagerDialog routeManager) {
@@ -240,6 +249,7 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
     /**
      * Set RouteExchange Dialog
+     * 
      * @param notCenter
      */
     public void setRouteExchangeDialog(SendRouteDialog routeDialog) {
@@ -248,14 +258,16 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
     /**
      * Set Voyage Send Dialog
+     * 
      * @param notCenter
      */
     public void setSendVoyageDialog(SendStrategicRouteDialog sendVoyageDialog) {
         this.sendVoyageDialog = sendVoyageDialog;
     }
-    
+
     /**
      * Set notification area
+     * 
      * @param notificationArea
      */
     public void setNotificationArea(NotificationArea notificationArea) {
@@ -264,6 +276,7 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
     /**
      * Set status area
+     * 
      * @param statusArea
      */
     public void setStatusArea(StatusArea statusArea) {
@@ -272,9 +285,15 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
     /**
      * Set toolbar
+     * 
      * @param toolbar
      */
     public void setToolbar(ToolBar toolbar) {
         this.toolbar = toolbar;
+    }
+
+    public void setSRUManagerDialog(SRUManagerDialog sruManagerDialog) {
+        this.sruManagerDialog = sruManagerDialog;
+
     }
 }

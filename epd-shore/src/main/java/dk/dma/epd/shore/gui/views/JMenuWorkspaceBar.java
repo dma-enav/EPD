@@ -124,8 +124,20 @@ public class JMenuWorkspaceBar extends JMenuBar {
         JMenuItem saveWorkspace = new JMenuItem("Save workspace");
         workspace.add(saveWorkspace);
 
-        // Action listeners
+        //SAR
+        JMenu sarMenu = new JMenu("Search and Rescue");
+        this.add(sarMenu);
+        
+        final JMenuItem newSar = new JMenuItem("Inititate SAR Operation");
+        sarMenu.add(newSar);
+        
+        JMenuItem sruList = new JMenuItem("View Search Rescue Units");
+        sarMenu.add(sruList);
+        
+        JMenuItem probabilityOfDetection = new JMenuItem("Effort Allocation");
+        sarMenu.add(probabilityOfDetection);
 
+        //Action listeners
         transponder.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -221,6 +233,38 @@ public class JMenuWorkspaceBar extends JMenuBar {
             }
         });
 
+
+//        lockMaps.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                List<JMapFrame> mapWindows = mainFrame.getMapWindows();
+//                for (int i = 0; i < mapWindows.size(); i++) {
+//                    mapWindows.get(i).lockUnlockWindow();
+//                }
+//            }
+//        });
+
+
+        
+        //SAR
+        
+        newSar.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+//                mainFrame.addSARWindow();
+                EPDShore.getInstance().getVoctManager().showSarInput();
+                newSar.setEnabled(false);
+            }
+        });
+
+        
+        sruList.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                mainFrame.getSruManagerDialog().setVisible(true);
+                System.out.println(mainFrame.getSruManagerDialog().isVisible());
+            }
+        });
+
+
+
         // lockMaps.addActionListener(new ActionListener() {
         // public void actionPerformed(ActionEvent e) {
         // List<JMapFrame> mapWindows = mainFrame.getMapWindows();
@@ -229,6 +273,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
         // }
         // }
         // });
+
 
     }
 
@@ -329,7 +374,10 @@ public class JMenuWorkspaceBar extends JMenuBar {
      */
     public void removeMapMenu(final JMapFrame window) {
         JMenu menuItem = mapMenus.get(window.getId());
-        maps.remove(menuItem);
+        if (menuItem != null){
+            maps.remove(menuItem);    
+        }
+        
     }
 
     public void lockMapMenu(final JMapFrame window, boolean locked) {

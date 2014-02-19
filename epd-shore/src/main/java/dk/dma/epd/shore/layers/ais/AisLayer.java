@@ -51,10 +51,10 @@ import dk.dma.epd.shore.gui.views.MapMenu;
 import dk.dma.epd.shore.gui.views.StatusArea;
 
 /**
- * The class AisLayer is the layer containing all AIS targets. The class handles the drawing of vessels on the chartPanel.
- * 
- * SuppressWarnings("serial") as a layer should never be serialized.
- */
+* The class AisLayer is the layer containing all AIS targets. The class handles the drawing of vessels on the chartPanel.
+*
+* SuppressWarnings("serial") as a layer should never be serialized.
+*/
 @SuppressWarnings("serial")
 @ThreadSafe
 public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetListener {
@@ -65,9 +65,9 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     private final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
 
     /**
-     * Create a new AisLayer that is redrawn repeatedly at a given interval.
-     * @param redrawIntervalMillis The interval at which the AisLayer will redraw itself.
-     */
+* Create a new AisLayer that is redrawn repeatedly at a given interval.
+* @param redrawIntervalMillis The interval at which the AisLayer will redraw itself.
+*/
     public AisLayer(int redrawIntervalMillis) {
         super(redrawIntervalMillis);
         // Register mouse over of VesselTargetGraphics to invoke the AisTargetInfoPanel
@@ -77,11 +77,11 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     }
 
     /**
-     * Check if vessel is near map coordinates or it's
-     * sending an intended route
-     * @param mobileTarget
-     * @return if the target should be included
-     */
+* Check if vessel is near map coordinates or it's
+* sending an intended route
+* @param mobileTarget
+* @return if the target should be included
+*/
     @SuppressWarnings("unused")
     private boolean drawTarget(MobileTarget mobileTarget) {
         Point2D lr = chartPanel.getMap().getProjection().getLowerRight();
@@ -103,8 +103,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     }
 
     /**
-     * {@inheritDoc}
-     */
+* {@inheritDoc}
+*/
     @Override
     public void forceLayerUpdate() {
         // Repaint
@@ -136,9 +136,9 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     }
     
     /**
-     * {@inheritDoc} <br/>
-     * In addition, this sub class implementation updates the status area text to reflect any new selection. Furthermore the {@code MainFrame} is notified about the change in selection such that it can pass this info to {@code AisLayer}s in other frames.
-     */
+* {@inheritDoc} <br/>
+* In addition, this sub class implementation updates the status area text to reflect any new selection. Furthermore the {@code MainFrame} is notified about the change in selection such that it can pass this info to {@code AisLayer}s in other frames.
+*/
     @Override
     protected void handleMouseClick(OMGraphic clickedGraphics, MouseEvent evt) {
         super.handleMouseClick(clickedGraphics, evt);
@@ -162,8 +162,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     
     
     /**
-     * Event handler for right click on the map.
-     */
+* Event handler for right click on the map.
+*/
     @Override
     protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {
         // Should only handle right clicks
@@ -185,7 +185,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest,
             MouseEvent evt, Point containerPoint) {
         if(infoPanel == this.aisTargetInfoPanel && newClosest instanceof VesselTargetGraphic) {
-            VesselTarget vt = ((VesselTargetGraphic)newClosest).getVesselTarget(); 
+            VesselTarget vt = ((VesselTargetGraphic)newClosest).getVesselTarget();
             // TODO: need to put call below in a synchronized(targets) block ?
             this.aisTargetInfoPanel.showAisInfoLabel(vt);
             // adjust info panel such that it fits in the frame
@@ -296,8 +296,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     }
     
     /**
-     * This method is called repeatedly as specified by the {@code LazyLayerCommon} and signals that this AisLayer should repaint itself.
-     */
+* This method is called repeatedly as specified by the {@code LazyLayerCommon} and signals that this AisLayer should repaint itself.
+*/
     @Override
     public void actionPerformed(ActionEvent e) {
         super.actionPerformed(e);
@@ -306,15 +306,15 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     }
     
     /**
-     * Set if this AIS layer should show name labels for the AIS targets it
-     * displays. Use this method to toggle AIS target labels on a per layer
-     * basis. Modify the application wide AisSettings object to toggle AIS
-     * label visibility for all AIS layers (if more map windows are open).
-     * 
-     * @param showLabels
-     *            Use true to show name labels, and use false to hide name
-     *            labels.
-     */
+* Set if this AIS layer should show name labels for the AIS targets it
+* displays. Use this method to toggle AIS target labels on a per layer
+* basis. Modify the application wide AisSettings object to toggle AIS
+* label visibility for all AIS layers (if more map windows are open).
+*
+* @param showLabels
+* Use true to show name labels, and use false to hide name
+* labels.
+*/
     public void setShowNameLabels(boolean showLabels) {
         synchronized(this.graphics) {
             for(OMGraphic og : this.graphics) {

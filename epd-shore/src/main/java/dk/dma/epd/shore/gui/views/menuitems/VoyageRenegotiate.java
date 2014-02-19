@@ -104,7 +104,7 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
 
         Route originalRoute = new Route(message.getRouteMessage().get(0).getRoute());
         
-        EPDShore.getInstance().getMainFrame().addStrategicRouteHandlingWindow(originalRoute,
+        EPDShore.getInstance().getMainFrame().addStrategicRouteExchangeHandlingWindow(originalRoute,
                 shipName, voyage, true);
     }
     }

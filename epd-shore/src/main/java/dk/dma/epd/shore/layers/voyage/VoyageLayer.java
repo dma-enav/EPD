@@ -50,10 +50,7 @@ import dk.dma.epd.shore.voyage.VoyageUpdateListener;
 /**
  * Layer for showing routes
  */
-public class VoyageLayer extends EPDLayerCommon implements
-        VoyageUpdateListener, 
-        StrategicRouteListener,
-        IAisTargetListener, 
+public class VoyageLayer extends EPDLayerCommon implements VoyageUpdateListener, StrategicRouteListener, IAisTargetListener,
         ProjectionListener {
 
     private static final long serialVersionUID = 1L;
@@ -81,15 +78,15 @@ public class VoyageLayer extends EPDLayerCommon implements
     public VoyageLayer(boolean windowHandling) {
         super();
         this.windowHandling = windowHandling;
-        
+
         // Automatically add info panels
-        registerInfoPanel(voyageInfoPanel, VoyageLegGraphic.class);        
-        
+        registerInfoPanel(voyageInfoPanel, VoyageLegGraphic.class);
+
         // Register the classes the will trigger the map menu
         registerMapMenuClasses(VoyageWaypointCircle.class, VoyageLegGraphic.class);
-        
+
         voyageManager = EPDShore.getInstance().getVoyageManager();
-        voyageManager.addListener(this);        
+        voyageManager.addListener(this);
     }
 
     /**
@@ -98,7 +95,7 @@ public class VoyageLayer extends EPDLayerCommon implements
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
-        
+
         if (obj instanceof StrategicRouteHandler) {
             strategicRouteHandler = (StrategicRouteHandler) obj;
             strategicRouteHandler.addStrategicRouteListener(this);
@@ -127,21 +124,17 @@ public class VoyageLayer extends EPDLayerCommon implements
      * {@inheritDoc}
      */
     protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {
-        
+
         if (clickedGraphics instanceof VoyageLegGraphic) {
             VoyageLegGraphic rlg = (VoyageLegGraphic) clickedGraphics;
             int voyageIndex = rlg.getVoyageIndex();
 
             if (voyageManager.getVoyageCount() > voyageIndex) {
                 Voyage currentVoyage = voyageManager.getVoyage(voyageIndex);
-                getMapMenu().voyageGeneralMenu(
-                        currentVoyage.getId(),
-                        currentVoyage.getMmsi(), currentVoyage.getRoute(),
-                        mapBean);
+                getMapMenu().voyageGeneralMenu(currentVoyage.getId(), currentVoyage.getMmsi(), currentVoyage.getRoute(), mapBean);
             }
         }
     }
-    
 
     /**
      * {@inheritDoc}
@@ -149,8 +142,8 @@ public class VoyageLayer extends EPDLayerCommon implements
     @Override
     public void mouseMoved() {
         // TODO: Is this really necessary?
-        //graphics.deselect();
-        //repaint();
+        // graphics.deselect();
+        // repaint();
     }
 
     /**
@@ -159,11 +152,11 @@ public class VoyageLayer extends EPDLayerCommon implements
     @Override
     protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
         if (newClosest instanceof VoyageLegGraphic) {
-            
+
             // Re-position the menu
             containerPoint = SwingUtilities.convertPoint(chartPanel, evt.getPoint(), mapFrame.asComponent());
-            voyageInfoPanel.setPos((int)containerPoint.getX(), (int)containerPoint.getY() - 10);
-            
+            voyageInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
+
             VoyageLegGraphic wpLeg = (VoyageLegGraphic) newClosest;
             int voyageIndex = wpLeg.getVoyageIndex();
             Voyage currentVoyage = voyageManager.getVoyage(voyageIndex);
@@ -174,15 +167,17 @@ public class VoyageLayer extends EPDLayerCommon implements
                     name = ship.getStaticData().getName();
                 }
             }
-            voyageInfoPanel.showVoyageInfo(currentVoyage, name);            
+            voyageInfoPanel.showVoyageInfo(currentVoyage, name);
             return true;
         }
         return false;
     }
-    
+
     /**
      * Called by the {@linkplain VoyageManager} when the voyage is changed
-     * @param e the voyage update event
+     * 
+     * @param e
+     *            the voyage update event
      */
     @Override
     public void voyagesChanged(VoyageUpdateEvent e) {
@@ -195,8 +190,7 @@ public class VoyageLayer extends EPDLayerCommon implements
             // System.out.println(route);
             if (voyage.getRoute().isVisible()) {
                 System.out.println("Adding Voyage");
-                VoyageGraphic voyageGraphic = new VoyageGraphic(voyage, i,
-                        new Color(0.4f, 0.8f, 0.5f, 0.5f));
+                VoyageGraphic voyageGraphic = new VoyageGraphic(voyage, i, new Color(0.4f, 0.8f, 0.5f, 0.5f));
                 graphics.add(voyageGraphic);
             }
 
@@ -208,41 +202,34 @@ public class VoyageLayer extends EPDLayerCommon implements
     }
 
     /**
-     * Adjusts the position of the ship indicator that is displayed
-     * for ships with unhandled transactions
+     * Adjusts the position of the ship indicator that is displayed for ships with unhandled transactions
      */
     private synchronized void updateDialogLocations() {
 
         if (strategicRouteHandler != null && !windowHandling) {
 
-            List<Long> unhandledTransactions = strategicRouteHandler
-                    .getUnhandledTransactions();
+            List<Long> unhandledTransactions = strategicRouteHandler.getUnhandledTransactions();
 
             if (unhandledTransactions.size() > 0) {
 
                 for (int j = 0; j < unhandledTransactions.size(); j++) {
-                    long mmsi = strategicRouteHandler
-                            .getStrategicNegotiationData()
-                            .get(strategicRouteHandler.getUnhandledTransactions()
-                                    .get(j)).getRouteMessage().get(0).getMmsi();
+                    long mmsi = strategicRouteHandler.getStrategicNegotiationData()
+                            .get(strategicRouteHandler.getUnhandledTransactions().get(j)).getRouteMessage().get(0).getMmsi();
 
                     ShipIndicatorPanel shipIndicatorPanel;
 
                     if (shipIndicatorPanels.containsKey(mmsi)) {
                         shipIndicatorPanel = shipIndicatorPanels.get(mmsi);
                     } else {
-                        shipIndicatorPanel = new ShipIndicatorPanel(
-                                unhandledTransactions.get(j));
+                        shipIndicatorPanel = new ShipIndicatorPanel(unhandledTransactions.get(j));
                     }
 
                     VesselTarget ship = aisHandler.getVesselTarget(mmsi);
                     Position position = ship.getPositionData().getPos();
 
-                    Point2D resultPoint = this.getProjection().forward(
-                            position.getLatitude(), position.getLongitude());
+                    Point2D resultPoint = this.getProjection().forward(position.getLatitude(), position.getLongitude());
 
-                    Point newPoint = new Point((int) resultPoint.getX(),
-                            (int) resultPoint.getY());
+                    Point newPoint = new Point((int) resultPoint.getX(), (int) resultPoint.getY());
 
                     shipIndicatorPanel.setLocation(newPoint);
 
@@ -250,8 +237,7 @@ public class VoyageLayer extends EPDLayerCommon implements
                     mapFrame.getGlassPanel().remove(shipIndicatorPanel);
                     mapFrame.getGlassPanel().add(shipIndicatorPanel);
 
-                    shipIndicatorPanel.paintAll(shipIndicatorPanel
-                            .getGraphics());
+                    shipIndicatorPanel.paintAll(shipIndicatorPanel.getGraphics());
 
                 }
             } else {
@@ -266,8 +252,7 @@ public class VoyageLayer extends EPDLayerCommon implements
     }
 
     /**
-     * Called by the {@linkplain StrategicRouteHandler} upon updates
-     * to the strategic routes
+     * Called by the {@linkplain StrategicRouteHandler} upon updates to the strategic routes
      */
     @Override
     public void strategicRouteUpdate() {
@@ -276,14 +261,15 @@ public class VoyageLayer extends EPDLayerCommon implements
 
     /**
      * Called by the {@linkplain AisHandler} when an AIS target has been updated
-     * @param aisTarget the AIS target that has been updated
+     * 
+     * @param aisTarget
+     *            the AIS target that has been updated
      */
     @Override
     public void targetUpdated(AisTarget aisTarget) {
-        if (strategicRouteHandler != null && 
-            strategicRouteHandler.getStrategicNegotiationData() != null) {
-            for (StrategicRouteNegotiationData data : strategicRouteHandler
-                    .getStrategicNegotiationData().values()) {
+
+        if (strategicRouteHandler != null && strategicRouteHandler.getStrategicNegotiationData() != null) {
+            for (StrategicRouteNegotiationData data : strategicRouteHandler.getStrategicNegotiationData().values()) {
                 if (data.getMmsi() == aisTarget.getMmsi()) {
                     // only run update if this vessel has negotiation data
                     this.updateDialogLocations();
@@ -304,10 +290,11 @@ public class VoyageLayer extends EPDLayerCommon implements
 
     /**
      * Returns the map menu cast as {@linkplain MapMenu}
+     * 
      * @return the map menu
      */
     @Override
     public MapMenu getMapMenu() {
-        return (MapMenu)mapMenu;
+        return (MapMenu) mapMenu;
     }
 }
