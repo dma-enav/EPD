@@ -235,7 +235,9 @@ public class ChartPanel extends ChartPanelCommon {
     }
 
     public void forceAisLayerUpdate() {
-        this.aisLayer.forceLayerUpdate();
+        if (aisLayer != null) {
+            this.aisLayer.forceLayerUpdate();
+        }
     }
 
     public Layer getBgLayer() {
@@ -442,8 +444,7 @@ public class ChartPanel extends ChartPanelCommon {
             msiLayer = new MsiLayer();
             msiLayer.setVisible(true);
             mapHandler.add(msiLayer);
-            
-            
+
             // Add Route Layer
             routeLayer = new RouteLayer();
             routeLayer.setVisible(true);
@@ -474,9 +475,7 @@ public class ChartPanel extends ChartPanelCommon {
             aisLayer = new AisLayer(EPD.getInstance().getSettings().getAisSettings().getMinRedrawInterval() * 1000);
             aisLayer.setVisible(true);
             mapHandler.add(aisLayer);
-            
-            
-            
+
             // Add Route Layer
             routeLayer = new RouteLayer();
             routeLayer.setVisible(true);
@@ -503,8 +502,7 @@ public class ChartPanel extends ChartPanelCommon {
             aisLayer = new AisLayer(EPD.getInstance().getSettings().getAisSettings().getMinRedrawInterval() * 1000);
             aisLayer.setVisible(true);
             mapHandler.add(aisLayer);
-            
-            
+
             // Add Route Layer
             routeLayer = new RouteLayer();
             routeLayer.setVisible(true);
@@ -527,7 +525,6 @@ public class ChartPanel extends ChartPanelCommon {
             mapHandler.add(EPDShore.getInstance().getVoctManager());
             mapHandler.add(EPDShore.getInstance().getSRUManager());
         }
-
 
         // Create MSI handler
         msiHandler = EPDShore.getInstance().getMsiHandler();
