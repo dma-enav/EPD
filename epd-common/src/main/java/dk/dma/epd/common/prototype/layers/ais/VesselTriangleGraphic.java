@@ -40,8 +40,6 @@ import dk.dma.epd.common.prototype.settings.NavSettings;
 @SuppressWarnings("serial")
 public class VesselTriangleGraphic extends TargetGraphic {
 
-    private VesselTarget vesselTarget;
-
     private VesselTriangle vessel;
     private RotationalPoly heading;
 
@@ -49,27 +47,16 @@ public class VesselTriangleGraphic extends TargetGraphic {
     private OMText label;
 
     private SpeedVectorGraphic speedVector;
-    
-    /**
-     * The layer that displays this graphic object.
-     * If this graphic is a subgraphic of another graphic,
-     * use the top level graphic's parent layer.
-     */
-    private OMGraphicHandlerLayer parentLayer;
-    
-    public VesselTriangleGraphic(OMGraphicHandlerLayer parentLayer) {
-        this.parentLayer = parentLayer;
-    }
 
     private void createGraphics(AisSettings aisSettings) {
-        vessel = new VesselTriangle();
+        this.vessel = new VesselTriangle();
 
         int[] headingX = { 0, 0 };
         int[] headingY = { 0, -100 };
-        heading = new RotationalPoly(headingX, headingY, null, ColorConstants.VESSEL_HEADING_COLOR);
+        this.heading = new RotationalPoly(headingX, headingY, null, ColorConstants.VESSEL_HEADING_COLOR);
 
-        font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
-        label = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);
+        this.font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
+        this.label = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);
 
         this.speedVector = new SpeedVectorGraphic(ColorConstants.VESSEL_HEADING_COLOR);
         
@@ -84,7 +71,7 @@ public class VesselTriangleGraphic extends TargetGraphic {
     public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale) {
         if (aisTarget instanceof VesselTarget) {
 
-            vesselTarget = (VesselTarget) aisTarget;
+            VesselTarget vesselTarget = (VesselTarget) aisTarget;
             VesselPositionData posData = vesselTarget.getPositionData();
             VesselStaticData staticData = vesselTarget.getStaticData();
 
@@ -105,16 +92,14 @@ public class VesselTriangleGraphic extends TargetGraphic {
 
             double hdgR = Math.toRadians(trueHeading);
 
-            vessel.updateGraphic(this.vesselTarget, mapScale);
-            heading.setLocation(lat, lon, OMGraphicConstants.DECIMAL_DEGREES, hdgR);
+            this.vessel.updateGraphic(vesselTarget, mapScale);
+            this.heading.setLocation(lat, lon, OMGraphicConstants.DECIMAL_DEGREES, hdgR);
             if (noHeading) {
-                heading.setVisible(false);
+                this.heading.setVisible(false);
             }
             
             // update the speed vector with the new data
-            if (this.parentLayer != null && this.parentLayer.getProjection() != null) {
-                this.speedVector.update(posData, this.parentLayer.getProjection().getScale());
-            }
+            this.speedVector.update(posData, mapScale);
             
             // Set label
             label.setLat(lat);

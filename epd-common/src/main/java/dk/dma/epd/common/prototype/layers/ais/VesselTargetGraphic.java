@@ -45,9 +45,9 @@ public class VesselTargetGraphic extends TargetGraphic implements ISelectableGra
 
     public VesselTargetGraphic(boolean showName, OMGraphicHandlerLayer parentLayer) {
         super();
-        this.vesselTriangleGraphic = new VesselTriangleGraphic(parentLayer);
+        this.vesselTriangleGraphic = new VesselTriangleGraphic();
         this.vesselTriangleGraphic.setShowNameLabel(showName);
-        this.vesselOutlineGraphic = new VesselOutlineGraphic(ColorConstants.VESSEL_COLOR, 2.0f, parentLayer);
+        this.vesselOutlineGraphic = new VesselOutlineGraphic(ColorConstants.VESSEL_COLOR, 2.0f);
         this.vesselOutlineGraphic.setShowNameLabel(showName);
         this.vesselDotGraphic = new VesselDotGraphic();
     }
