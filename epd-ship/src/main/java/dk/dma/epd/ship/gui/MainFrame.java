@@ -78,7 +78,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
 
     // private MonaLisaCommunicationComponentPanel monaLisaPanel;
 
-    private JPanel glassPanel;
+    
 
     private MsiDialog msiDialog;
     private AisDialog aisDialog;
