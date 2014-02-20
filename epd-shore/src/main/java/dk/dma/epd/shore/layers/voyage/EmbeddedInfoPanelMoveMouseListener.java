@@ -28,9 +28,9 @@ import dk.dma.epd.shore.EPDShore;
 /**
  * Class for setting up a component to use for dragging the frame
  */
-public class VoyageInfoPlanMoveMouseListener implements MouseListener, MouseMotionListener {
+public class EmbeddedInfoPanelMoveMouseListener implements MouseListener, MouseMotionListener {
     JPanel target;
-    JInternalFrame frame;
+    JInternalFrame parent;
     Point start_drag;
     Point start_loc;
 
@@ -39,9 +39,9 @@ public class VoyageInfoPlanMoveMouseListener implements MouseListener, MouseMoti
      * @param toolBar     reference to the frame which will be dragged
      * @param frame        reference to the mainframe
      */
-    public VoyageInfoPlanMoveMouseListener(JPanel toolBar, JInternalFrame frame) {
+    public EmbeddedInfoPanelMoveMouseListener(JPanel toolBar, JInternalFrame parent) {
         this.target = toolBar;
-        this.frame = frame;
+        this.parent = parent;
     }
     /**
      * Function for getting the current mouse location
@@ -93,6 +93,34 @@ public class VoyageInfoPlanMoveMouseListener implements MouseListener, MouseMoti
             */
 
             Point new_location = new Point(newX, newY);
+            
+            
+            if (parent.getSize().getWidth() > new_location.getX() + frame.getWidth()){
+//                System.out.println("OK width");
+            }else{
+                return;
+            }
+            
+            
+            if (parent.getSize().getHeight() > new_location.getY() + frame.getHeight() ){
+//                System.out.println("OK Height");
+            }else{
+//                System.out.println("ERROR Height");
+                return;
+            }
+            
+            
+            if (new_location.getX() < 0 || new_location.getY() < 18){
+                return;
+            }
+            
+//            if (frame.getWidth())
+//            frame.getHeight()
+            
+//            System.out.println("Size of frame is : " + parent.getSize() + " name " + parent.getName());
+//            System.out.println("New position is " + new_location);
+//            if (frame.getSize().getWidth())
+            
             frame.setLocation(new_location);
 
             if (EPDShore.getInstance().getMainFrame() != null){

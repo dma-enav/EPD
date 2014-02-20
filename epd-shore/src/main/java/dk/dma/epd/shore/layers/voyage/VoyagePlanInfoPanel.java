@@ -208,7 +208,7 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
     public void setParent(JMapFrame parent) {
 //        this.parent = parent;
 
-        VoyageInfoPlanMoveMouseListener mml = new VoyageInfoPlanMoveMouseListener(
+        EmbeddedInfoPanelMoveMouseListener mml = new EmbeddedInfoPanelMoveMouseListener(
                 this, parent);
         moveHandler.addMouseListener(mml);
         moveHandler.addMouseMotionListener(mml);

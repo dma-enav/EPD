@@ -30,6 +30,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
+import java.util.Iterator;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -47,6 +48,7 @@ import javax.swing.border.EtchedBorder;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.gui.ComponentFrame;
 import dk.dma.epd.common.prototype.gui.IMapFrame;
+import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 
@@ -80,6 +82,8 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
 
     MapFrameType type = MapFrameType.standard;
 
+    LayerTogglingPanel layerTogglingPanel = new LayerTogglingPanel();
+
     /**
      * Constructor for setting up the map frame
      * 
@@ -107,7 +111,7 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
         startTime = System.currentTimeMillis();
 
         this.setContentPane(chartPanel);
-        
+
         System.out.println("Time elapsed 2: " + (System.currentTimeMillis() - startTime));
         startTime = System.currentTimeMillis();
 
@@ -168,6 +172,14 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
         glassPanel = (JPanel) getGlassPane();
         glassPanel.setLayout(null);
         glassPanel.setVisible(false);
+
+        layerTogglingPanel.setParent(this);
+        // layerTogglingPanel.setBounds(0, 20, 208, 300);
+
+        glassPanel.add(layerTogglingPanel);
+        glassPanel.setVisible(true);
+        layerTogglingPanel.setVisible(true);
+
     }
 
     /**
@@ -507,7 +519,10 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
         // And finally set the size and repaint it
         chartPanel.setSize(width, innerHeight);
         chartPanel.setPreferredSize(new Dimension(width, innerHeight));
+
         this.setSize(width, height);
+
+        layerTogglingPanel.checkPosition();
         this.revalidate();
         this.repaint();
 
@@ -527,4 +542,26 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
         this.mapMenu = mapMenu;
     }
 
+    /**
+     * Find and init bean function used in initializing other classes
+     */
+    public void findAndInit(Iterator<?> it) {
+        while (it.hasNext()) {
+            Object object = it.next();
+            findAndInit(object);
+
+            if (object instanceof EPDLayerCommon) {
+                layerTogglingPanel.addLayerFunctionality((EPDLayerCommon) object);
+            }
+
+        }
+    }
+
+    public LayerTogglingPanel getLayerTogglingPanel() {
+        return layerTogglingPanel;
+    }
+    
+    
+    
+    
 }

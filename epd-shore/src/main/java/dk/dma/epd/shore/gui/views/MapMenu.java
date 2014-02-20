@@ -35,6 +35,7 @@ import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralNewRoute;
+import dk.dma.epd.shore.gui.views.menuitems.LayerToggleWindow;
 import dk.dma.epd.shore.gui.views.menuitems.MsiDetails;
 import dk.dma.epd.shore.gui.views.menuitems.MsiZoomTo;
 import dk.dma.epd.shore.gui.views.menuitems.RouteEditEndRoute;
@@ -108,7 +109,11 @@ public class MapMenu extends MapMenuCommon {
     private ToggleAisTargetNames aisNames;
 
     private ToggleAisTargetName hideAisTargetName;
-
+    
+    private JMapFrame jMapFrame;
+    private LayerToggleWindow layerTogglingWindow;
+    
+    
     // private NogoHandler nogoHandler;
 
     public MapMenu() {
@@ -188,6 +193,11 @@ public class MapMenu extends MapMenuCommon {
         getAisNames().addActionListener(this);
         hideAisTargetName = new ToggleAisTargetName();
         hideAisTargetName.addActionListener(this);
+        
+        
+        //Layer Toggling Window
+        layerTogglingWindow = new LayerToggleWindow("Show Layer Menu");
+        layerTogglingWindow.addActionListener(this);
     }
 
     /**
@@ -226,18 +236,36 @@ public class MapMenu extends MapMenuCommon {
             addSeparator();
             add(scaleMenu);
             
-            voyageHideAll.setVoyageLayer(voyageLayer);
-            add(voyageHideAll);
+
+            
+            if (jMapFrame.getLayerTogglingPanel() != null){
+                add(layerTogglingWindow);
+            }
+            
+            
+//            voyageHideAll.setVoyageLayer(voyageLayer);
+//            add(voyageHideAll);
             return;
         }
 
         addSeparator();
         add(hideIntendedRoutes);
         add(scaleMenu);
+        
+        if (jMapFrame.getLayerTogglingPanel() != null){
+            add(layerTogglingWindow);
+//            addLayerToggle();
+        }
                 
         revalidate();
     }
 
+//    private void addLayerToggle(){
+////        layerTogglingWindow.setPosition(position);
+//        
+//        
+//    }
+    
     /**
      * Builds ais target menu
      * @param vesselTargetGraphic 
@@ -618,6 +646,11 @@ public class MapMenu extends MapMenuCommon {
         }
         if (obj instanceof VoyageLayer) {
             voyageLayer = (VoyageLayer) obj;
+        }
+        
+        if (obj instanceof JMapFrame) {
+            jMapFrame = (JMapFrame) obj;
+            layerTogglingWindow.setLayerToggling(jMapFrame.getLayerTogglingPanel());
         }
     }
 
