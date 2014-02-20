@@ -15,13 +15,9 @@
  */
 package dk.dma.epd.common.prototype.layers.ais;
 
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.proj.Projection;
 
-import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.prototype.ais.AisTarget;
-import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
@@ -33,7 +29,7 @@ import dk.dma.epd.common.prototype.zoom.ZoomLevel;
  * Graphic for vessel target
  */
 @SuppressWarnings("serial")
-public class VesselTargetGraphic extends TargetGraphic implements ISelectableGraphic {
+public class VesselTargetGraphic extends TargetGraphic  {
     
     private VesselTarget vesselTarget;
 
@@ -65,25 +61,19 @@ public class VesselTargetGraphic extends TargetGraphic implements ISelectableGra
         if (aisTarget instanceof VesselTarget) {
 
             vesselTarget = (VesselTarget) aisTarget;
-            VesselPositionData posData = vesselTarget.getPositionData();
-
-            Position pos = posData.getPos();
-
+            // Initialize if this is the first update we receive
             if (size() == 0) {
                 createGraphics();
             }
-            // update sub graphic
+            // update the sub graphics that manages the different vessel and vessel metadata displays
+            this.vesselOutlineGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
             this.vesselTriangleGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
-            
-            if (pos != null) {
-                this.vesselDotGraphic.updateLocation(posData);
-            }
+            this.vesselDotGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
 
-            // Past-track graphics
+            // Update the past-track graphic
             pastTrackGraphic.update(vesselTarget);
-
-            ZoomLevel zl = ZoomLevel.getFromScale(mapScale);
-            this.drawAccordingToScale(zl);
+            // redraw according to scale and data availability
+            this.drawAccordingToScale(mapScale);
         }
     }
     
@@ -96,11 +86,11 @@ public class VesselTargetGraphic extends TargetGraphic implements ISelectableGra
         this.remove(this.vesselOutlineGraphic);
     }
 
-    private void drawOutline() {
+    private void drawOutline(float mapScale) {
         // clear vessel displays
         this.removeVesselGraphics();
-        // update data
-        this.vesselOutlineGraphic.setLocation(vesselTarget.getPositionData(), vesselTarget.getStaticData());
+//        // update data TODO is this needed?
+//        this.vesselOutlineGraphic.update(this.vesselTarget, null, null, mapScale);
         // add outline graphic for display
         this.add(this.vesselOutlineGraphic);
 
@@ -145,20 +135,20 @@ public class VesselTargetGraphic extends TargetGraphic implements ISelectableGra
         return pastTrackGraphic;
     }
 
-    private void drawAccordingToScale(ZoomLevel zl) {
+    private void drawAccordingToScale(float mapScale) {
         if (this.vesselTarget == null || this.vesselTarget.getPositionData() == null) {
             // cannot draw when we have no vessel data
             return;
         }
+        ZoomLevel zl = ZoomLevel.getFromScale(mapScale);
         switch (zl) {
         case VESSEL_OUTLINE:
             VesselStaticData vsd = this.vesselTarget.getStaticData();
             if (vsd != null && (vsd.getDimBow() + vsd.getDimStern()) > 0 && (vsd.getDimPort() + vsd.getDimStarboard()) > 0) {
                 // can only draw outline if static data is available
-                this.drawOutline();
+                this.drawOutline(mapScale);
             } else {
                 // draw standard triangle if we do not have static data
-                // System.out.println(this.vesselTarget.getMmsi() + " has static data = null");
                 this.drawTriangle();
             }
             break;
@@ -181,15 +171,7 @@ public class VesselTargetGraphic extends TargetGraphic implements ISelectableGra
         // Generate is called every time the layer's projection changes.
         // A projection change might impose a need for changing the current draw mode for this graphic.
         // Hence recompute how this graphic should visualize itself with the new projection.
-        this.drawAccordingToScale(ZoomLevel.getFromScale(p.getScale()));
+        this.drawAccordingToScale(p.getScale());
         return super.generate(p, forceProjectAll);
-    }
-
-    @Override
-    public void setSelection(boolean selected) {
-        // Simply delegate call to sub graphics
-        this.vesselOutlineGraphic.setSelection(selected);
-        this.vesselTriangleGraphic.setSelection(selected);
-        this.vesselDotGraphic.setSelection(selected);
     }
 }
