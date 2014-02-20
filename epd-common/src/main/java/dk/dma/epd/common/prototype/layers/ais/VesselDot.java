@@ -73,11 +73,9 @@ public class VesselDot extends VesselGraphic {
         if(this.circleSelectionGraphic == null) {
             this.circleSelectionGraphic = new CircleSelectionGraphic(this);
         }
-        VesselTarget vt = null;
-        synchronized(vt = this.getMostRecentVesselTarget()) {
-            this.circleSelectionGraphic.updateSelection(selected, vt.getPositionData().getPos());
-        }
-        
+        // TODO consider if locking is needed - add a dummy Object instance as mutex if it is
+        VesselTarget vt = this.getMostRecentVesselTarget();
+        this.circleSelectionGraphic.updateSelection(selected, vt.getPositionData().getPos());
     }
 
 }

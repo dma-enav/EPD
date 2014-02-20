@@ -117,14 +117,13 @@ public class VesselTriangle extends VesselGraphic {
      */
     @Override
     public void setSelection(boolean selected) {
-        VesselTarget vt = null;
-        synchronized (vt = this.getMostRecentVesselTarget()) {
-            VesselPositionData posData = vt != null ? vt.getPositionData()
-                    : null;
-            Position centerPos = posData != null ? posData.getPos() : null;
-            // Add or remove the selection marker from this graphic based on
-            // value of selected
-            this.circleSelectionGraphic.updateSelection(selected, centerPos);
-        }
+        // TODO consider if locking is needed - add a dummy Object instance as mutex if it is
+        VesselTarget vt = this.getMostRecentVesselTarget();
+        VesselPositionData posData = vt != null ? vt.getPositionData()
+                : null;
+        Position centerPos = posData != null ? posData.getPos() : null;
+        // Add or remove the selection marker from this graphic based on
+        // value of selected
+        this.circleSelectionGraphic.updateSelection(selected, centerPos);
     }
 }

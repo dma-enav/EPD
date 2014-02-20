@@ -50,7 +50,7 @@ public abstract class VesselGraphic extends OMGraphicList implements
      * true such that this graphic behaves as a single unit.
      */
     public VesselGraphic() {
-//        this.setVague(true);
+        this.setVague(true);
     }
 
     /**
@@ -64,9 +64,8 @@ public abstract class VesselGraphic extends OMGraphicList implements
      *         method).
      */
     public VesselTarget getMostRecentVesselTarget() {
-        synchronized (this.mostRecentUpdate) {
-            return this.mostRecentUpdate;
-        }
+        // TODO consider if locking is needed - add a dummy Object instance as mutex if it is
+        return this.mostRecentUpdate;
     }
 
     /**
@@ -87,8 +86,7 @@ public abstract class VesselGraphic extends OMGraphicList implements
      *            {@code VesselGraphic}.
      */
     public void updateGraphic(VesselTarget vesselTarget, float mapScale) {
-        synchronized (this.mostRecentUpdate) {
-            this.mostRecentUpdate = vesselTarget;
-        }
+        // TODO consider if locking is needed - add a dummy Object instance as mutex if it is
+        this.mostRecentUpdate = vesselTarget;
     }
 }
