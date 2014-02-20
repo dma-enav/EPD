@@ -157,7 +157,12 @@ public class VesselOutlineGraphic extends TargetGraphic {
             this.aisName.setLon(positionData.getPos().getLongitude());
             this.aisName.setLat(positionData.getPos().getLatitude());
             this.aisName.setY(-20);
-            this.aisName.setData(AisMessage.trimText(staticData.getName()));
+            if(staticData != null) {
+                this.aisName.setData(AisMessage.trimText(staticData.getName()));
+            }
+            else {
+                this.aisName.setData("ID: " + vesselTarget.getMmsi());
+            }
             this.aisName.setLinePaint(Color.BLACK);
         }
     }
