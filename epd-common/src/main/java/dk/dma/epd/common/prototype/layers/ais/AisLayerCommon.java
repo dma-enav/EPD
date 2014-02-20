@@ -81,9 +81,9 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         // register self as listener for changes to the AIS settings
         this.aisSettings.addPropertyChangeListener(this);
         // receive left-click events for the following set of classes.
-        this.registerMouseClickClasses(VesselTargetGraphic.class);
+        this.registerMouseClickClasses(VesselGraphic.class);
         // receive right-click events for the following set of classes.
-        this.registerMapMenuClasses(VesselTargetGraphic.class, SartGraphic.class);
+        this.registerMapMenuClasses(VesselGraphic.class, SartGraphic.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -243,10 +243,6 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         if (targetGraphic == null) {
             if (aisTarget instanceof VesselTarget) {
                 targetGraphic = new VesselTargetGraphic(this.aisSettings.isShowNameLabels());
-                // TODO this causes problems in EPDShip with regards to mouse
-                // clicks and mouse over as EPDShip does instanceof checks on
-                // sub graphics of VesselTargetGraphic
-                targetGraphic.setVague(true);
             } else if (aisTarget instanceof SarTarget) {
                 targetGraphic = new SarTargetGraphic();
             } else if (aisTarget instanceof AtoNTarget) {
