@@ -29,10 +29,15 @@ import dk.dma.epd.common.prototype.zoom.ZoomLevel;
  * Graphic for vessel target
  */
 @SuppressWarnings("serial")
-public class VesselTargetGraphic extends TargetGraphic  {
+public class VesselTargetGraphic extends VesselGraphicComponent  {
     
     private VesselTarget vesselTarget;
 
+    /**
+     * The current display mode for this graphic (i.e. Outline, Dot or Triangle).
+     */
+    private VesselGraphicComponent currentDisplay;
+    
     private VesselTriangleGraphic vesselTriangleGraphic;
     private VesselOutlineGraphic vesselOutlineGraphic;
     private VesselDotGraphic vesselDotGraphic;
@@ -50,9 +55,6 @@ public class VesselTargetGraphic extends TargetGraphic  {
 
     private void createGraphics() {
         this.add(this.pastTrackGraphic);
-        this.add(this.vesselTriangleGraphic);
-        this.add(this.vesselOutlineGraphic);
-        this.add(this.vesselDotGraphic);
     }
 
     @Override
@@ -78,36 +80,28 @@ public class VesselTargetGraphic extends TargetGraphic  {
     }
     
     /**
-     * Removes all graphics that represent a vessel from this {@code OMGraphicList}.
+     * Set the current display mode.
+     * @param newDisplay The {@link VesselGraphicComponent} to be displayed by this graphic.
      */
-    private void removeVesselGraphics() {
-        this.remove(this.vesselTriangleGraphic);
-        this.remove(this.vesselDotGraphic);
-        this.remove(this.vesselOutlineGraphic);
+    private void updateCurrentDisplay(VesselGraphicComponent newDisplay) {
+        // Remove previous display
+        this.remove(this.currentDisplay);
+        // Log new display
+        this.currentDisplay = newDisplay;
+        // Update display
+        this.add(this.currentDisplay);
     }
 
-    private void drawOutline(float mapScale) {
-        // clear vessel displays
-        this.removeVesselGraphics();
-//        // update data TODO is this needed?
-//        this.vesselOutlineGraphic.update(this.vesselTarget, null, null, mapScale);
-        // add outline graphic for display
-        this.add(this.vesselOutlineGraphic);
-
+    private void drawOutline() {
+        this.updateCurrentDisplay(this.vesselOutlineGraphic);
     }
 
     private void drawTriangle() {
-        // clear vessel displays
-        this.removeVesselGraphics();
-        // add triangle graphic for display
-        this.add(this.vesselTriangleGraphic);
+        this.updateCurrentDisplay(this.vesselTriangleGraphic);
     }
 
     private void drawDot() {
-        // clear vessel displays
-        this.removeVesselGraphics();
-        // add dot graphic for display 
-        this.add(this.vesselDotGraphic);
+        this.updateCurrentDisplay(this.vesselDotGraphic);
     }
 
     public VesselTarget getVesselTarget() {
@@ -146,7 +140,7 @@ public class VesselTargetGraphic extends TargetGraphic  {
             VesselStaticData vsd = this.vesselTarget.getStaticData();
             if (vsd != null && (vsd.getDimBow() + vsd.getDimStern()) > 0 && (vsd.getDimPort() + vsd.getDimStarboard()) > 0) {
                 // can only draw outline if static data is available
-                this.drawOutline(mapScale);
+                this.drawOutline();
             } else {
                 // draw standard triangle if we do not have static data
                 this.drawTriangle();
@@ -173,5 +167,10 @@ public class VesselTargetGraphic extends TargetGraphic  {
         // Hence recompute how this graphic should visualize itself with the new projection.
         this.drawAccordingToScale(p.getScale());
         return super.generate(p, forceProjectAll);
+    }
+
+    @Override
+    VesselGraphic getVesselGraphic() {
+        return this.currentDisplay != null ? this.currentDisplay.getVesselGraphic() : null;
     }
 }
