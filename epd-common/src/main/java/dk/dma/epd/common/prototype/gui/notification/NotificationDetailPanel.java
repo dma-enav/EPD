@@ -42,8 +42,6 @@ public class NotificationDetailPanel<N extends Notification<?,?>> extends JPanel
     */
    public NotificationDetailPanel() {
        super();
-       
-       buildGUI();
    }
    
    /**

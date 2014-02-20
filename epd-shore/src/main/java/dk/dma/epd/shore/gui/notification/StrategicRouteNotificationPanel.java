@@ -15,14 +15,30 @@
  */
 package dk.dma.epd.shore.gui.notification;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationTableModel;
 import dk.dma.epd.common.prototype.notification.NotificationType;
-import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.gui.route.RoutePropertiesDialog;
+import dk.dma.epd.shore.service.StrategicRouteHandler;
+import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
+import dk.dma.epd.shore.voyage.Voyage;
 
 /**
  * A strategic route implementation of the {@linkplain NotificationPanel} class
@@ -32,9 +48,12 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
     private static final long serialVersionUID = 1L;
     
     private static final String[] NAMES = {
-        "", "", "Date", "Title"
-    };
+        "", "Name", "Callsign", "Called", "Status" };
 
+    protected JButton routeDetailsBtn;
+    protected JButton handleRequestBtn;
+
+    
     /**
      * Constructor
      */
@@ -42,7 +61,95 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         super();
         
         table.getColumnModel().getColumn(0).setMaxWidth(18);
-        table.getColumnModel().getColumn(1).setMaxWidth(18);
+        table.getColumnModel().getColumn(1).setPreferredWidth(80);
+        table.getColumnModel().getColumn(2).setPreferredWidth(60);
+        table.getColumnModel().getColumn(3).setPreferredWidth(90);
+        table.getColumnModel().getColumn(4).setPreferredWidth(85);
+        splitPane.setDividerLocation(350);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected JPanel initButtonPanel() {
+        JPanel btnPanel = new JPanel();
+        btnPanel.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createMatteBorder(0, 0, 2, 0, UIManager.getColor("Separator.shadow")),
+                        BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+
+        routeDetailsBtn = new JButton(
+                "Route Details", 
+                EPDShore.res().getCachedImageIcon("images/notificationcenter/routes.png"));
+        handleRequestBtn = new JButton(
+                "Handle Request", 
+                EPDShore.res().getCachedImageIcon("images/notificationcenter/arrow-circle-315.png"));
+        
+        btnPanel.add(routeDetailsBtn);
+        btnPanel.add(handleRequestBtn);
+        
+        routeDetailsBtn.addActionListener(new ActionListener() {            
+            @Override public void actionPerformed(ActionEvent e) {
+                showRouteDetails();
+            }});
+        
+        handleRequestBtn.addActionListener(new ActionListener() {            
+            @Override public void actionPerformed(ActionEvent e) {
+                handleRouteRequest();
+            }});
+        
+        return btnPanel;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void updateButtonEnabledState() {
+        StrategicRouteNotification n = getSelectedNotification();
+        routeDetailsBtn.setEnabled(n != null);
+        handleRequestBtn.setEnabled(n != null && !n.isAcknowledged());
+    }
+    
+    /**
+     * Show the route details for the selected route
+     */
+    private void showRouteDetails() {
+        StrategicRouteNotification notification = getSelectedNotification();
+        if (notification != null) {
+            
+            // Open the route properties dialog
+            RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
+                    EPDShore.getInstance().getMainFrame(), 
+                    EPDShore.getInstance().getMainFrame().getActiveChartPanel(),
+                    notification.getLatestRoute());
+            
+            routePropertiesDialog.setVisible(true);
+        }
+    }
+    
+    /**
+     * Handle the selected route request
+     */
+    private void handleRouteRequest() {
+        StrategicRouteNotification notification = getSelectedNotification();
+        if (notification != null) {
+            
+            Voyage voyage = new Voyage(
+                    notification.get().getMmsi(), 
+                    notification.getLatestRoute(),
+                    notification.getId());
+
+            EPDShore.getInstance().getMainFrame().addStrategicRouteHandlingWindow(
+                notification.getOriginalRoute(),
+                notification.getVesselName(), 
+                voyage, 
+                false);
+
+            // Hide the notification center
+            SwingUtilities.getWindowAncestor(this).setVisible(false);
+        }
     }
     
     /**
@@ -68,7 +175,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
             
             @Override 
             public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex <= 1) {
+                if (columnIndex == 0) {
                     return ImageIcon.class;
                 } else {
                     return super.getColumnClass(columnIndex);
@@ -81,13 +188,12 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
                 
                 switch (columnIndex) {
                 case 0: return !notification.isRead() 
-                                ? ICON_UNREAD 
-                                : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
-                case 1: return notification.getSeverity() == NotificationSeverity.ALERT
-                                ? ICON_ALERT
-                                : (notification.getSeverity() == NotificationSeverity.WARNING ? ICON_WARNING : null);
-                case 2: return Formatter.formatShortDateTime(notification.getDate());
-                case 3: return notification.getTitle();
+                        ? ICON_UNREAD 
+                        : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
+                case 1: return notification.getVesselName();
+                case 2: return notification.getVesselCallsign();
+                case 3: return Formatter.formatShortDateTime(notification.getDate());
+                case 4: return notification.get().getStatus();
                 default:
                 }
                 return null; 
@@ -100,9 +206,37 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
      */
     @Override
     protected NotificationDetailPanel<StrategicRouteNotification> initNotificationDetailPanel() {
-        NotificationDetailPanel<StrategicRouteNotification> panel = new NotificationDetailPanel<StrategicRouteNotification>();
-        return panel;
+        return new StrategicRouteNotificationDetailPanel();
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void doRefreshNotifications() {
+        StrategicRouteHandler strategicRouteHandler = EPDShore.getInstance().getStrategicRouteHandler();
+        
+        // The back-end does not support the "read" flag, so, we store it
+        Set<Long> readNotificationIds = new HashSet<>();
+        for (StrategicRouteNotification notificaiton : tableModel.getNotifications()) {
+            if (notificaiton.isRead()) {
+                readNotificationIds.add(notificaiton.getId());
+            }
+        }
+        
+        List<StrategicRouteNotification> notifications = new ArrayList<>();
+        for (StrategicRouteNegotiationData routeData : strategicRouteHandler.getStrategicNegotiationData().values()) {
+            StrategicRouteNotification notification = new StrategicRouteNotification(routeData);
+            
+            // Restore the "read" flag
+            if (readNotificationIds.contains(notification.getId())) {
+                notification.setRead(true);
+            }
+            notifications.add(notification);
+        }
+        tableModel.setNotifications(notifications);
+        refreshTableData();
+        notifyListeners();
+    }
     
 }

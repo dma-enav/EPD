@@ -18,6 +18,7 @@ package dk.dma.epd.shore.gui.notification;
 import java.awt.Window;
 
 import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
+import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.service.RouteSuggestionHandler;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.service.RouteSuggestionHandler.RouteSuggestionListener;
@@ -39,6 +40,20 @@ public class NotificationCenter extends NotificationCenterCommon implements
     private RouteSuggestionNotificationPanel routeSuggestionPanel;
     
     /**
+     * Constructor
+     * 
+     * @param window the parent window
+     */
+    public NotificationCenter(Window window) {
+        super(window);
+        
+        routeSuggestionHandler = EPDShore.getInstance().getRouteSuggestionHandler();
+        routeSuggestionHandler.addRouteSuggestionListener(this);
+        strategicRouteHandler = EPDShore.getInstance().getStrategicRouteHandler();
+        strategicRouteHandler.addStrategicRouteListener(this);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -52,15 +67,6 @@ public class NotificationCenter extends NotificationCenterCommon implements
         panels.add(strategicRoutePanel);
     }
     
-    /**
-     * Constructor
-     * 
-     * @param window the parent window
-     */
-    public NotificationCenter(Window window) {
-        super(window);
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -76,21 +82,5 @@ public class NotificationCenter extends NotificationCenterCommon implements
     public void routeUpdate() {
         routeSuggestionPanel.refreshNotifications();
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void findAndInit(Object obj) {
-        super.findAndInit(obj);
-        
-        if (obj instanceof RouteSuggestionHandler && routeSuggestionHandler == null) {
-            routeSuggestionHandler = (RouteSuggestionHandler) obj;
-            routeSuggestionHandler.addRouteSuggestionListener(this);
-        } else if (obj instanceof StrategicRouteHandler && strategicRouteHandler == null){
-            strategicRouteHandler = (StrategicRouteHandler) obj;
-            strategicRouteHandler.addStrategicRouteListener(this);
-        }
-    }    
 }
 

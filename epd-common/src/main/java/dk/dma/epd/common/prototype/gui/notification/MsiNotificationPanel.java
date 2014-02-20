@@ -198,6 +198,15 @@ class MsiDetailPanel extends NotificationDetailPanel<MsiNotification> {
     private static final long serialVersionUID = 1L;
 
     /**
+     * Constructor
+     */
+    public MsiDetailPanel() {
+        super();
+        
+        buildGUI();
+    }
+    
+    /**
      * {@inheritDoc}
      */
     @Override

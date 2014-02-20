@@ -104,20 +104,29 @@ public class MainFrame extends MainFrameCommon {
     }
 
     /**
+     * Returns the chart panel of the active map window
+     * @return the chart panel of the active map window
+     */
+    public ChartPanel getActiveChartPanel() {
+        if (getActiveMapWindow() != null) {
+            return getActiveMapWindow()
+                .getChartPanel();
+        } else if (getMapWindows().size() > 0) {
+            getMapWindows()
+                .get(0)
+                .getChartPanel();
+        }
+        return null;
+    }
+    
+    /**
      * Zooms the active map to the given position
      * @param pos the position to zoom to
      */
     @Override
     public void zoomToPosition(Position pos) {
-        if (getActiveMapWindow() != null) {
-            getActiveMapWindow()
-                .getChartPanel()
-                .zoomToPoint(pos);
-        } else if (getMapWindows().size() > 0) {
-            getMapWindows()
-                .get(0)
-                .getChartPanel()
-                .zoomToPoint(pos);
+        if (getActiveChartPanel() != null) {
+            getActiveChartPanel().zoomToPoint(pos);
         }
     }
     

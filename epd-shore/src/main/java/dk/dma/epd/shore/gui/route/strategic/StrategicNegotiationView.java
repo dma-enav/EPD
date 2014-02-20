@@ -47,13 +47,13 @@ public class StrategicNegotiationView extends JPanel {
     public StrategicNegotiationView(
             StrategicRouteRequestMessage strategicRouteRequestMessage) {
 
-        this.setBackground(GuiStyler.backgroundColor);
+        //this.setBackground(GuiStyler.backgroundColor);
         setLayout(null);
 
         JPanel requestPanel = new JPanel();
         requestPanel.setBounds(10, 11, 263, 147);
 
-        requestPanel.setBackground(GuiStyler.backgroundColor);
+        //requestPanel.setBackground(GuiStyler.backgroundColor);
         requestPanel.setBorder(new TitledBorder(new MatteBorder(1, 1, 1, 1,
                 new Color(70, 70, 70)), "Voyage Request", TitledBorder.LEADING,
                 TitledBorder.TOP, GuiStyler.defaultFont, GuiStyler.textColor));
@@ -112,7 +112,7 @@ public class StrategicNegotiationView extends JPanel {
         add(replyPanel);
         replyPanel.setLayout(null);
 
-        replyPanel.setBackground(GuiStyler.backgroundColor);
+        //replyPanel.setBackground(GuiStyler.backgroundColor);
         replyPanel.setBorder(new TitledBorder(new MatteBorder(1, 1, 1, 1,
                 new Color(70, 70, 70)), "STCC Reply", TitledBorder.LEADING,
                 TitledBorder.TOP, GuiStyler.defaultFont, GuiStyler.textColor));

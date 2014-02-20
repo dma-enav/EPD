@@ -138,12 +138,6 @@ public class NotificationLabel extends JPanel implements NotificationPanelListen
         }
         g2.fillRect(0, 0, w, getHeight());        
 
-        // Draw the blink area
-        if (count > 0) {
-            g.setColor(blinks % 2 == 0 ? BLINK0_COLOR : BLINK1_COLOR);
-        }
-        g2.fillRect(w, 0, BLINK_WIDTH, getHeight());        
-        
         // Paint the selected pointer
         if (drawSelectionPointer && selected) {
             Polygon pointer = new Polygon();
@@ -152,6 +146,13 @@ public class NotificationLabel extends JPanel implements NotificationPanelListen
             pointer.addPoint(getWidth(), getHeight() / 2);
             g2.fill(pointer);
         }
+
+        // Draw the blink area
+        if (count > 0) {
+            g.setColor(blinks % 2 == 0 ? BLINK0_COLOR : BLINK1_COLOR);
+        }
+        g2.fillRect(w, 0, BLINK_WIDTH, getHeight());        
+        
         
         // Let super do the normal painting
         super.paintComponent(g2);
@@ -209,8 +210,9 @@ public class NotificationLabel extends JPanel implements NotificationPanelListen
         // start blinking
         if (stats.unacknowledgedCount > lastUnacknowledgedCount) {
             startBlinking(BLINK_COUNT);
-            lastUnacknowledgedCount = stats.unacknowledgedCount;
         }
+        lastUnacknowledgedCount = stats.unacknowledgedCount;
+        
         repaint();
     }
 

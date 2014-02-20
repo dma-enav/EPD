@@ -103,7 +103,10 @@ public class NotificationCenterCommon extends ComponentDialog implements
         super(window, "Notification Center", Dialog.ModalityType.MODELESS);
         
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-        setBounds(100, 100, 800, 600);
+        setBounds(100, 100, 900, 600);
+        if (window != null) {
+            setLocationRelativeTo(window); 
+        }
         
         registerPanels();
         initGUI();
@@ -262,7 +265,7 @@ public class NotificationCenterCommon extends ComponentDialog implements
         activeType = type;
         contentPanel.add(getPanel(activeType), BorderLayout.CENTER);
         labels.get(activeType).setSelected(true);
-        pack();
+        revalidate();
         repaint();
     }
     

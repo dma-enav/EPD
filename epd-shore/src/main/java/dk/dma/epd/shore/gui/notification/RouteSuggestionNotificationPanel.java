@@ -253,6 +253,15 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
     private static final long serialVersionUID = 1L;
 
     /**
+     * Constructor
+     */
+    public RouteSuggestionDetailPanel() {
+        super();
+        
+        buildGUI();
+    }
+    
+    /**
      * {@inheritDoc}
      */
     @Override

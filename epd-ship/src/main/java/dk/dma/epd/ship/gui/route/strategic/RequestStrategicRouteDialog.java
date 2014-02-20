@@ -96,7 +96,6 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
         super(mainFrame, "STCC Info", false);
          this.mainFrame = mainFrame;
 
-        setAlwaysOnTop(true);
         setResizable(false);
 
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
