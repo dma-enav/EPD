@@ -41,6 +41,7 @@ import dk.dma.epd.common.prototype.layers.ais.AisTargetInfoPanelCommon;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
+import dk.dma.epd.common.prototype.layers.ais.VesselGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -70,8 +71,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
      */
     public AisLayer(int redrawIntervalMillis) {
         super(redrawIntervalMillis);
-        // Register mouse over of VesselTargetGraphics to invoke the AisTargetInfoPanel
-        this.registerInfoPanel(this.aisTargetInfoPanel, VesselTargetGraphic.class);
+        // Register mouse over of VesselGraphics to invoke the AisTargetInfoPanel
+        this.registerInfoPanel(this.aisTargetInfoPanel, VesselGraphic.class);
         // Register mouse over of PastTrackWpCircle to invoke the PastTrackInfoPanel
         this.registerInfoPanel(this.pastTrackInfoPanel, PastTrackWpCircle.class);
     }
@@ -149,8 +150,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             // Inform other AisLayers about the deselection
             this.getMainFrame().setSelectedMMSI(-1);
         }
-        else if(clickedGraphics instanceof ISelectableGraphic && clickedGraphics instanceof VesselTargetGraphic) {
-            VesselTarget vt = ((VesselTargetGraphic)clickedGraphics).getVesselTarget();
+        else if(clickedGraphics instanceof ISelectableGraphic && clickedGraphics instanceof VesselGraphic) {
+            VesselTarget vt = ((VesselGraphic)clickedGraphics).getMostRecentVesselTarget();
             if(vt != null) {
                 // Update status text if clicked graphic is a vessel
                 setStatusAreaTxt(vt);
@@ -168,11 +169,12 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {
         // Should only handle right clicks
         assert evt.getButton() == MouseEvent.BUTTON3;
-        if (clickedGraphics instanceof VesselTargetGraphic) {
-            VesselTargetGraphic vesselTargetGraphic = (VesselTargetGraphic) clickedGraphics;
-            VesselTarget vt = ((VesselTargetGraphic) clickedGraphics).getVesselTarget();
+        if (clickedGraphics instanceof VesselGraphic) {
+            VesselGraphic vesselGraphic = (VesselGraphic) clickedGraphics;
+            VesselTarget vt = vesselGraphic.getMostRecentVesselTarget();
             // Pass data to the pop up menu that is to be displayed.
-            this.getMapMenu().aisMenu(vt, vesselTargetGraphic);
+            // TODO this is NOT pretty. Update aisMenu to take VesselGraphic arg?
+            this.getMapMenu().aisMenu(vt, (VesselTargetGraphic) this.getTargetGraphic(vt.getMmsi()));
         } else if (clickedGraphics instanceof SartGraphic) {
             SartGraphic sartGraphic = (SartGraphic) clickedGraphics;
             SarTarget sarTarget = sartGraphic.getSarTargetGraphic().getSarTarget();
@@ -184,8 +186,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     @Override
     protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest,
             MouseEvent evt, Point containerPoint) {
-        if(infoPanel == this.aisTargetInfoPanel && newClosest instanceof VesselTargetGraphic) {
-            VesselTarget vt = ((VesselTargetGraphic)newClosest).getVesselTarget(); 
+        if(infoPanel == this.aisTargetInfoPanel && newClosest instanceof VesselGraphic) {
+            VesselTarget vt = ((VesselGraphic)newClosest).getMostRecentVesselTarget(); 
             // TODO: need to put call below in a synchronized(targets) block ?
             this.aisTargetInfoPanel.showAisInfoLabel(vt);
             // adjust info panel such that it fits in the frame
