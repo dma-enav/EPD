@@ -41,12 +41,12 @@ import javax.swing.event.ListSelectionListener;
 
 import org.apache.commons.lang.StringUtils;
 
+import dk.dma.epd.common.prototype.gui.ComponentFrame;
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.gui.ComponentFrame;
 import dk.dma.epd.ship.layers.msi.MsiLayer;
 import dk.frv.enav.common.xml.msi.MsiLocation;
 import dk.frv.enav.common.xml.msi.MsiMessage;
@@ -191,6 +191,7 @@ public class MsiDialog extends ComponentFrame implements ListSelectionListener, 
     }
     
     private void updateButtons() {
+        try {
         int selected = msiTable.getSelectedRow();
         boolean ackAble = false;
         if (selected >= 0 && msiTableModel.getMessages().size() > 0) {
@@ -205,11 +206,18 @@ public class MsiDialog extends ComponentFrame implements ListSelectionListener, 
         ackButton.setEnabled(ackAble);
         gotoBtn.setEnabled(selected >= 0);
         deleteBtn.setEnabled(selected >= 0);
+        } catch (Exception ex) {
+            
+        }
     }
     
     private void setSelected(int selectedRow) {
-        msiSelectionModel.setSelectionInterval(selectedRow, selectedRow);
-        msiTable.scrollRectToVisible(msiTable.getCellRect(selectedRow, -1, true));
+        try {
+            msiSelectionModel.setSelectionInterval(selectedRow, selectedRow);
+            msiTable.scrollRectToVisible(msiTable.getCellRect(selectedRow, -1, true));
+        } catch (Exception ex) {
+            
+        }
     }
     
     private void updateTable() {

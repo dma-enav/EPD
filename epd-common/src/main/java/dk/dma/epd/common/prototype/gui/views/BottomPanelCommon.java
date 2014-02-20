@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.gui.views;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -30,8 +31,16 @@ import javax.swing.SwingConstants;
 
 import com.bbn.openmap.gui.OMComponentPanel;
 
+import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.gui.StatusLabel;
+import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
+import dk.dma.epd.common.prototype.gui.notification.NotificationLabel;
+import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
+import dk.dma.epd.common.prototype.gui.notification.PopUpNotification;
+import dk.dma.epd.common.prototype.notification.Notification;
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
+import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.service.MaritimeCloudServiceCommon;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
@@ -56,19 +65,20 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
     private JToolBar statusToolBar = new JToolBar();
     private JPanel statusIcons = new JPanel();
     
+    private JPanel notificationPanel = new JPanel();
+    
     /**
      * Constructor
      */
     public BottomPanelCommon() {
         super();
         setLayout(new BorderLayout());
-
+        
+        // Set up status panel
         add(statusIcons, BorderLayout.EAST);
         statusIcons.add(statusToolBar);
         statusToolBar.setFloatable(false);
-        statusToolBar.addMouseListener(this);
-
-        
+        statusToolBar.addMouseListener(this);        
         // Add the status components
         addStatusComponents();
         
@@ -85,6 +95,36 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
         addSeparator();
         addToolbarComponent(cloudStatus);        
     }
+    
+    /**
+     * Called when the notification center has been initialized
+     * @param notifcationCenter the notification center
+     */
+    protected void addNotificationCenter(final NotificationCenterCommon notifcationCenter) {
+
+        // Add a label for each notification panel in the center
+        for (NotificationPanel<?> panel : notifcationCenter.getPanels()) {
+            NotificationLabel label = new NotificationLabel(panel) {
+                private static final long serialVersionUID = 1L;
+                @Override public void labelClicked(NotificationType type) {
+                    notifcationCenter.setActiveType(type);
+                    notifcationCenter.setVisible(true);
+                }
+            };
+            notificationPanel.add(label);
+        }
+        add(notificationPanel, BorderLayout.WEST);
+        
+        /*
+        Rectangle bounds = new Rectangle(100, BottomPanelCommon.this.getLocation().y - 200, 200, 200);
+        PopUpNotification notification = new PopUpNotification();
+        notification.installInLayeredPane(
+                GraphicsUtil.getTopLevelContainer(notificationPanel),
+                SwingConstants.SOUTH_WEST,
+                bounds);
+        */
+    }
+
     
     /**
      * Adds the given component to the toolbar
@@ -118,8 +158,25 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
         } else if (obj instanceof MaritimeCloudServiceCommon) {
             maritimeCloudService = (MaritimeCloudServiceCommon) obj;
             statusComponents.add(maritimeCloudService);
+        } else if (obj instanceof NotificationCenterCommon) {
+            addNotificationCenter((NotificationCenterCommon) obj);
         }
-
+    }
+    
+    /**
+     * Trigger the given alert for the given notification
+     * 
+     * @param type the notification type
+     * @param notification the notification
+     * @param alert the alert
+     */
+    public void triggerAlert(NotificationType type, Notification<?, ?> notification, NotificationAlert alert) {
+        Rectangle bounds = new Rectangle(100, BottomPanelCommon.this.getLocation().y - 200, 200, 200);
+        PopUpNotification popup = new PopUpNotification();
+        popup.installInLayeredPane(
+                GraphicsUtil.getTopLevelContainer(notificationPanel),
+                SwingConstants.SOUTH_WEST,
+                bounds);
     }
     
     /**

@@ -27,8 +27,10 @@ import javax.swing.WindowConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 
 
 /**
@@ -42,6 +44,9 @@ public abstract class MainFrameCommon extends JFrame {
     private static final Logger LOG = LoggerFactory.getLogger(MainFrameCommon.class);
 
     protected JPanel glassPanel;
+    
+    // Common dialogs
+    protected ChatServiceDialog chatServiceDialog;
         
     /**
      * Constructor
@@ -67,6 +72,12 @@ public abstract class MainFrameCommon extends JFrame {
      */
     protected abstract void initGlassPane();
 
+    /**
+     * Zooms the active map to the given position
+     * @param pos the position to zoom to
+     */
+    public abstract void zoomToPosition(Position pos);
+    
     /**
      * Called when the window is closing
      */
@@ -95,4 +106,13 @@ public abstract class MainFrameCommon extends JFrame {
     public JPanel getGlassPanel() {
         return glassPanel;
     }    
+    
+    /**
+     * Returns the chat service dialog
+     * @return the chat service dialog
+     * @return
+     */
+    public ChatServiceDialog getChatServiceDialog() {
+        return chatServiceDialog;
+    }
 }

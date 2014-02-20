@@ -45,7 +45,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
 
 import dk.dma.epd.common.graphics.Resources;
-import dk.dma.epd.common.prototype.gui.ComponentFrame;
+import dk.dma.epd.common.prototype.gui.InternalComponentFrame;
 import dk.dma.epd.common.prototype.gui.IMapFrame;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
@@ -55,8 +55,8 @@ import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
  * 
  * @author Steffen D. Sommer (steffendsommer@gmail.com), David A. Camre (davidcamre@gmail.com)
  */
-public class JMapFrame extends ComponentFrame implements IMapFrame {
-
+public class JMapFrame extends InternalComponentFrame implements IMapFrame {
+    
     private static final long serialVersionUID = 1L;
     protected ChartPanel chartPanel;
     boolean locked;

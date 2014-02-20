@@ -43,7 +43,7 @@ import javax.swing.border.TitledBorder;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
-import dk.dma.epd.common.prototype.gui.ComponentFrame;
+import dk.dma.epd.common.prototype.gui.InternalComponentFrame;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
@@ -53,7 +53,7 @@ import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
-public class SendStrategicRouteDialog extends ComponentFrame implements MouseListener,
+public class SendStrategicRouteDialog extends InternalComponentFrame implements MouseListener,
         ActionListener {
     /**
      *

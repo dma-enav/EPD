@@ -31,7 +31,9 @@ import java.util.List;
 
 import javax.swing.JScrollPane;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
+import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
@@ -105,6 +107,33 @@ public class MainFrame extends MainFrameCommon {
         // Do nothing. EPDShore uses MapFrames for the various maps
     }
 
+    /**
+     * Returns the chart panel of the active map window
+     * @return the chart panel of the active map window
+     */
+    public ChartPanel getActiveChartPanel() {
+        if (getActiveMapWindow() != null) {
+            return getActiveMapWindow()
+                .getChartPanel();
+        } else if (getMapWindows().size() > 0) {
+            getMapWindows()
+                .get(0)
+                .getChartPanel();
+        }
+        return null;
+    }
+    
+    /**
+     * Zooms the active map to the given position
+     * @param pos the position to zoom to
+     */
+    @Override
+    public void zoomToPosition(Position pos) {
+        if (getActiveChartPanel() != null) {
+            getActiveChartPanel().zoomToPoint(pos);
+        }
+    }
+    
     public synchronized void increaseWindowCount() {
         windowCount++;
     }
@@ -360,8 +389,9 @@ public class MainFrame extends MainFrameCommon {
         beanHandler.add(bottomPanel);
         beanHandler.add(sendRouteDialog);
         beanHandler.add(sendVoyageDialog);
-        // dtp.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
 
+        chatServiceDialog = new ChatServiceDialog(this);
+        
         // Add self to bean handler
         beanHandler.add(this);
         beanHandler.add(notificationCenter);

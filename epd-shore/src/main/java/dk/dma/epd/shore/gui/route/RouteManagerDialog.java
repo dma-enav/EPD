@@ -56,7 +56,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
-import dk.dma.epd.common.prototype.gui.ComponentFrame;
+import dk.dma.epd.common.prototype.gui.InternalComponentFrame;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLoadException;
 import dk.dma.epd.common.prototype.model.route.RouteLoader;
@@ -70,7 +70,7 @@ import dk.dma.epd.shore.route.RouteManager;
 /**
  * Route manager dialog
  */
-public class RouteManagerDialog extends ComponentFrame implements ActionListener, ListSelectionListener,
+public class RouteManagerDialog extends InternalComponentFrame implements ActionListener, ListSelectionListener,
         TableModelListener, MouseListener {
 
     private static final long serialVersionUID = 1L;

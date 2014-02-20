@@ -25,9 +25,11 @@ import javax.swing.JPanel;
 
 import com.bbn.openmap.MapHandler;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.IMapFrame;
+import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.ais.AisDialog;
@@ -115,6 +117,15 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         return this;
     }
 
+    /**
+     * Zooms the active map to the given position
+     * @param pos the position to zoom to
+     */
+    @Override
+    public void zoomToPosition(Position pos) {
+        getChartPanel().zoomToPosition(pos);
+    }
+    
     private void initGUI() {
         MapHandler mapHandler = EPDShip.getInstance().getMapHandler();
         // Get settings
@@ -161,7 +172,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         topPanel.setPreferredSize(new Dimension(0, 30));
         pane.add(topPanel, BorderLayout.PAGE_START);
 
-        bottomPanel.setPreferredSize(new Dimension(0, 25));
         pane.add(bottomPanel, BorderLayout.PAGE_END);
 
         // Set up the chart panel with layers etc
@@ -216,6 +226,9 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         routeSuggestionDialog = new RouteSuggestionDialog(this);
         mapHandler.add(routeSuggestionDialog);
 
+        // Init the chat service dialog
+        chatServiceDialog = new ChatServiceDialog(this);
+        
         // Init the map right click menu
         mapMenu = new MapMenu();
         mapHandler.add(mapMenu);

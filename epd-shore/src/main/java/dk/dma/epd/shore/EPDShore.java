@@ -43,6 +43,7 @@ import dk.dma.epd.common.ExceptionHandler;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.Bootstrap;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
@@ -51,6 +52,7 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaSerialSensorFactory;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaStdinSensor;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
@@ -59,6 +61,7 @@ import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.DragMouseMode;
 import dk.dma.epd.shore.event.NavigationMouseMode;
 import dk.dma.epd.shore.event.SelectMouseMode;
+import dk.dma.epd.shore.gui.notification.NotificationCenter;
 import dk.dma.epd.shore.gui.utils.StaticImages;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.route.RouteManager;
@@ -86,8 +89,6 @@ public final class EPDShore extends EPD {
     private MainFrame mainFrame;
     private BeanContextServicesSupport beanHandler;
     private NmeaSensor aisSensor;
-    private AisHandler aisHandler;
-    private MsiHandler msiHandler;
     private AisReader aisReader;
     private ShoreServicesCommon shoreServicesCommon;
     private StaticImages staticImages;
@@ -222,6 +223,10 @@ public final class EPDShore extends EPD {
         // Create MSI handler
         msiHandler = new MsiHandler(getSettings().getEnavSettings());
         beanHandler.add(msiHandler);
+        
+        // Create a chat service handler
+        chatServiceHandler = new ChatServiceHandlerCommon();
+        beanHandler.add(chatServiceHandler);
 
         // Start sensors
         startSensors();
@@ -342,11 +347,16 @@ public final class EPDShore extends EPD {
         aisHandler.saveView();
         transponderFrame.shutdown();
 
+        // Maritime cloud services
         maritimeCloudService.stop();
         strategicRouteHandler.shutdown();
         routeSuggestionHandler.shutdown();
         intendedRouteHandler.shutdown();
+        chatServiceHandler.shutdown();
 
+        // Stop the system tray
+        systemTray.shutdown();
+        
         // Stop sensors
         stopSensors();
 
@@ -368,6 +378,14 @@ public final class EPDShore extends EPD {
         mainFrame = new MainFrame();
         mainFrame.setVisible(true);
 
+        // Create the system tray
+        systemTray = new SystemTrayCommon();
+        beanHandler.add(systemTray);
+
+        // Create the notification center
+        notificationCenter = new NotificationCenter(getMainFrame());
+        beanHandler.add(notificationCenter);
+        
     }
 
     /**
@@ -416,12 +434,12 @@ public final class EPDShore extends EPD {
     }
 
     /**
-     * Return the AisHandlerCommon
-     * 
-     * @return - aisHandler
+     * Returns a reference to the AIS handler
+     * @return a reference to the AIS handler
      */
+    @Override
     public AisHandler getAisHandler() {
-        return aisHandler;
+        return (AisHandler)aisHandler;
     }
 
     /**
@@ -476,15 +494,6 @@ public final class EPDShore extends EPD {
 
     public SRUManager getSRUManager() {
         return sruManager;
-    }
-
-    /**
-     * Return the msiHandker
-     * 
-     * @return - MsiHandler
-     */
-    public MsiHandler getMsiHandler() {
-        return msiHandler;
     }
 
     /**

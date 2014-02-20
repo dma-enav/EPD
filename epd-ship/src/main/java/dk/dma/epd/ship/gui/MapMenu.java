@@ -254,6 +254,12 @@ public class MapMenu extends MapMenuCommon {
         } else {
             aisTargetLabelToggle.setText("Show AIS target label");
         }
+        
+        // Send chat message
+        addSeparator();
+        sendChatMessage.setVesselTarget(vesselTarget);
+        sendChatMessage.checkEnabled();
+        
 
         revalidate();
         generalMenu(false);
