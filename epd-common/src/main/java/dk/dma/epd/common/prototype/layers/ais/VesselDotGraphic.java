@@ -52,6 +52,7 @@ public class VesselDotGraphic extends TargetGraphic {
             if (this.vessel == null) {
                 // lazy initialization
                 this.vessel = new VesselDot();
+                this.add(this.vessel);
             }
             // Update vessel graphic
             this.vessel.updateGraphic(vesselTarget, mapScale);
