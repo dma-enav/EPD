@@ -35,7 +35,7 @@ import dk.dma.epd.common.prototype.settings.NavSettings;
  * @author Janus Varmarken
  */
 @SuppressWarnings("serial")
-public class VesselTriangleGraphic extends TargetGraphic {
+public class VesselTriangleGraphic extends VesselGraphicComponent {
 
     private VesselTriangle vessel;
     private RotationalPoly heading;
@@ -127,5 +127,14 @@ public class VesselTriangleGraphic extends TargetGraphic {
 
     public boolean getShowNameLabel() {
         return this.label.isVisible();
+    }
+
+    /**
+     * Get the {@link VesselTriangle} that this {@code VesselTriangleGraphic} uses to display the vessel.
+     * @return The {@link VesselTriangle} that this {@code VesselTriangleGraphic} uses to display the vessel.
+     */
+    @Override
+    VesselTriangle getVesselGraphic() {
+        return this.vessel;
     }
 }

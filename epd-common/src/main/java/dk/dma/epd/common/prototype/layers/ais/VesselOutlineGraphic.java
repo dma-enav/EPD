@@ -42,7 +42,7 @@ import dk.dma.epd.common.prototype.settings.NavSettings;
  * @author Janus Varmarken
  */
 @SuppressWarnings("serial")
-public class VesselOutlineGraphic extends TargetGraphic {
+public class VesselOutlineGraphic extends VesselGraphicComponent {
 
     /**
      * Handles display of the vessel outline.
@@ -165,5 +165,14 @@ public class VesselOutlineGraphic extends TargetGraphic {
             }
             this.aisName.setLinePaint(Color.BLACK);
         }
+    }
+
+    /**
+     * Get the {@link VesselOutline} that this {@code VesselOutlineGraphic} uses to display the vessel.
+     * @return The {@link VesselOutline} that this {@code VesselOutlineGraphic} uses to display the vessel.
+     */
+    @Override
+    VesselOutline getVesselGraphic() {
+        return this.vesselOutline;
     }
 }

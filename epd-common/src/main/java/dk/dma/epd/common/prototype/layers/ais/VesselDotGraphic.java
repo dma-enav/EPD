@@ -31,7 +31,7 @@ import dk.dma.epd.common.prototype.settings.NavSettings;
  * @author Janus Varmarken
  */
 @SuppressWarnings("serial")
-public class VesselDotGraphic extends TargetGraphic {
+public class VesselDotGraphic extends VesselGraphicComponent {
 
     /**
      * Paints a circle representing the vessel.
@@ -71,5 +71,17 @@ public class VesselDotGraphic extends TargetGraphic {
                     OMGraphicConstants.DECIMAL_DEGREES,
                     Math.toRadians(vesselTarget.getPositionData().getCog()));
         }
+    }
+
+    /**
+     * Get the {@link VesselDot} that this {@code VesselDotGraphic} uses to
+     * display the vessel.
+     * 
+     * @return The {@link VesselDot} that this {@code VesselDotGraphic} uses to
+     *         display the vessel.
+     */
+    @Override
+    VesselDot getVesselGraphic() {
+        return this.vessel;
     }
 }
