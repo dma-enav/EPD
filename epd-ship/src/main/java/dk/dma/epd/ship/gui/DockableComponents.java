@@ -53,7 +53,6 @@ import dk.dma.epd.ship.gui.component_panels.CursorComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.MultiSourcePntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.PntComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.MSIComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.SARComponentPanel;
@@ -62,7 +61,7 @@ import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
 public class DockableComponents {
 
     private static final String[] PANEL_NAMES = { "Chart", "Scale", "Own Ship",
-            "GPS", "Cursor", "Active Waypoint", "MSI", "AIS Target",
+            "GPS", "Cursor", "Active Waypoint", "AIS Target",
             "Dynamic NoGo", "NoGo", "SAR", "Resilient PNT" };
 
     Map<String, PanelDockable> dmap;
@@ -76,7 +75,6 @@ public class DockableComponents {
     private PntComponentPanel gpsPanel;
     private CursorComponentPanel cursorPanel;
     private ActiveWaypointComponentPanel activeWaypointPanel;
-    private MSIComponentPanel msiPanel;
     private AisComponentPanel aisPanel;
     private DynamicNoGoComponentPanel dynamicNoGoPanel;
     private NoGoComponentPanel nogoPanel;
@@ -96,7 +94,6 @@ public class DockableComponents {
         gpsPanel = mainFrame.getGpsPanel();
         cursorPanel = mainFrame.getCursorPanel();
         activeWaypointPanel = mainFrame.getActiveWaypointPanel();
-        msiPanel = mainFrame.getMsiComponentPanel();
         aisPanel = mainFrame.getAisComponentPanel();
         dynamicNoGoPanel = mainFrame.getDynamicNoGoPanel();
         nogoPanel = mainFrame.getNogoPanel();
@@ -105,7 +102,7 @@ public class DockableComponents {
 
 
         factory = new DockableFactory(chartPanel, scalePanel, ownShipPanel,
-                gpsPanel, cursorPanel, activeWaypointPanel, msiPanel, aisPanel,
+                gpsPanel, cursorPanel, activeWaypointPanel, aisPanel,
                 dynamicNoGoPanel, nogoPanel, msPntPanel, sarPanel);
 
         CContentArea contentArea = control.getContentArea();
@@ -352,7 +349,6 @@ public class DockableComponents {
         PanelDockable cursorDock = new PanelDockable("Cursor", cursorPanel);
         PanelDockable activeWaypointDock = new PanelDockable("Active Waypoint",
                 activeWaypointPanel);
-        PanelDockable msiDock = new PanelDockable("MSI", msiPanel);
         PanelDockable msPntDock = new PanelDockable("Resilient PNT", msPntPanel);
 
         // PanelDockable aisDock = new PanelDockable("AIS Target", aisPanel);
@@ -365,7 +361,6 @@ public class DockableComponents {
         grid.add(90, 23, 10, 10, gpsDock);
         grid.add(90, 33, 10, 10, cursorDock);
         grid.add(90, 43, 10, 10, activeWaypointDock);
-        grid.add(90, 53, 10, 10, msiDock);
         grid.add(90, 25, 10, 10, msPntDock);
         // grid.add(90, 63, 10, 10, aisDock);
 
@@ -471,7 +466,6 @@ public class DockableComponents {
         PntComponentPanel gpsPanel;
         CursorComponentPanel cursorPanel;
         ActiveWaypointComponentPanel activeWaypointPanel;
-        MSIComponentPanel msiPanel;
         AisComponentPanel aisPanel;
         DynamicNoGoComponentPanel dynamicNoGoPanel;
         NoGoComponentPanel nogoPanel;
@@ -484,7 +478,7 @@ public class DockableComponents {
                 OwnShipComponentPanel ownShipPanel, PntComponentPanel gpsPanel,
                 CursorComponentPanel cursorPanel,
                 ActiveWaypointComponentPanel activeWaypointPanel,
-                MSIComponentPanel msiPanel, AisComponentPanel aisPanel,
+                AisComponentPanel aisPanel,
                 DynamicNoGoComponentPanel dynamicNoGoPanel,
                 NoGoComponentPanel nogoPanel,
                 MultiSourcePntComponentPanel msPntPanel,
@@ -499,7 +493,6 @@ public class DockableComponents {
             this.gpsPanel = gpsPanel;
             this.cursorPanel = cursorPanel;
             this.activeWaypointPanel = activeWaypointPanel;
-            this.msiPanel = msiPanel;
             this.aisPanel = aisPanel;
             this.dynamicNoGoPanel = dynamicNoGoPanel;
             this.nogoPanel = nogoPanel;
@@ -535,9 +528,6 @@ public class DockableComponents {
             }
             if (id.equals("Active Waypoint")) {
                 return new PanelDockable(id, activeWaypointPanel);
-            }
-            if (id.equals("MSI")) {
-                return new PanelDockable(id, msiPanel);
             }
             if (id.equals("AIS Target")) {
                 return new PanelDockable(id, aisPanel);

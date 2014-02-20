@@ -15,25 +15,39 @@
  */
 package dk.dma.epd.common.graphics;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Paint;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.TexturePaint;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
+import javax.swing.JWindow;
+import javax.swing.SwingUtilities;
 
 /**
  * Graphics-related utility methods
  */
 public class GraphicsUtil {
 
+    public static RenderingHints ANTIALIAS_HINT = new RenderingHints(
+            RenderingHints.KEY_ANTIALIASING,
+            RenderingHints.VALUE_ANTIALIAS_ON);
+    
     /**
      * Generates a {@linkplain TexturePaint} of the given size, using
      * the given text as a pattern.
@@ -61,6 +75,45 @@ public class GraphicsUtil {
         return new TexturePaint(bi, new Rectangle(0, 0, width, height));        
     }    
 
+    /**
+     * Resizes the image down (not up) so that it fits proportionally 
+     * within the given bounds
+     * 
+     * @param originalImage
+     * @param type the image type
+     * @param width the maximum image width
+     * @param height the maximum image height
+     * @return the scaled image
+     */
+    public static Image resizeImage(Image originalImage, int type, int width, int height){
+        // Value of 0 means we don't care
+        width = (width == 0) ? originalImage.getWidth(null) : width;
+        height = (height == 0) ? originalImage.getHeight(null) : height;
+        
+        // Check if we need to scale at all
+        if (originalImage.getWidth(null) <= width && originalImage.getHeight(null) <= height) {
+            return originalImage;
+        }
+        
+        float scaleW = (float)originalImage.getWidth(null) / (float)width;
+        float scaleH = (float)originalImage.getHeight(null) / (float)height;
+        float scale = Math.max(scaleW, scaleH);
+        
+        int newWidth = (int)((float)originalImage.getWidth(null) / scale);
+        int newHeight = (int)((float)originalImage.getHeight(null) / scale);
+        
+        BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, type);
+        Graphics2D g = resizedImage.createGraphics();
+        g.setComposite(AlphaComposite.Src);        
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
+        g.dispose();    
+     
+        return resizedImage;
+    }    
+    
     /**
      * Creates a copy of the given color with the specified transparency
      * 
@@ -98,6 +151,18 @@ public class GraphicsUtil {
         double a = Math.max(c0.getAlpha(), c1.getAlpha());
 
         return new Color((int) r, (int) g, (int) b, (int) a);
+    }
+    
+    /**
+     * Converts the color into a Hex representation
+     * suitable for HTML color attributes.
+     * 
+     * @param color the color to convert
+     * @return the HTML Hex version of the color
+     */
+    public static String toHtmlColor(Color color) {
+        String rgb = Integer.toHexString(color.getRGB());
+        return "#" + rgb.substring(2, rgb.length());
     }
     
     /**
@@ -153,4 +218,43 @@ public class GraphicsUtil {
         int x = (int) ((dimension.getWidth() - frame.getWidth()) / 2);
         int y = (int) ((dimension.getHeight() - frame.getHeight()) / 2);
         frame.setLocation(x, y);
-    }}
+    }
+
+    /**
+     * Returns the layered pane that is the top level container for the 
+     * given component
+     * 
+     * @param component the component to fetch the top level container for
+     * @return the top level container
+     */
+    public static JLayeredPane getTopLevelContainer(JComponent component) {
+        Window window = SwingUtilities.windowForComponent(component);
+        if (window instanceof JWindow) {
+            return ((JWindow)window).getLayeredPane();
+        } else if (window instanceof JFrame) {
+            return ((JFrame)window).getLayeredPane();
+        } else if (window instanceof JDialog) {
+            return ((JDialog)window).getLayeredPane();
+        }
+        return null;
+    }
+    
+    /**
+     * Recursively sets the enabled state of the component and its child components
+     * 
+     * @param component the component to set the enabled state of
+     * @param enabled the enabled state
+     */
+    public static void setEnabled(Component component, boolean enabled) {
+        if (component != null) {
+            component.setEnabled(enabled);
+            if (component instanceof Container) {
+                Container container = (Container)component;
+                for (Component child : container.getComponents()) {
+                    setEnabled(child, enabled);
+                }
+            }
+        }
+    }
+}
+

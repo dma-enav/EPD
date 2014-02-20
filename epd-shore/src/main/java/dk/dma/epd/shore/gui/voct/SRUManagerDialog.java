@@ -52,7 +52,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
-import dk.dma.epd.common.prototype.gui.ComponentFrame;
+import dk.dma.epd.common.prototype.gui.InternalComponentFrame;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
@@ -65,7 +65,7 @@ import dk.dma.epd.shore.voct.SRUUpdateListener;
 /**
  * Route manager dialog
  */
-public class SRUManagerDialog extends ComponentFrame implements ActionListener,
+public class SRUManagerDialog extends InternalComponentFrame implements ActionListener,
         ListSelectionListener, TableModelListener, MouseListener, SRUUpdateListener {
 
     private static final long serialVersionUID = 1L;

@@ -25,9 +25,11 @@ import javax.swing.JPanel;
 
 import com.bbn.openmap.MapHandler;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.IMapFrame;
+import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.ais.AisDialog;
@@ -37,12 +39,10 @@ import dk.dma.epd.ship.gui.component_panels.CursorComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.MultiSourcePntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.PntComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.MSIComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.SARComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
-import dk.dma.epd.ship.gui.msi.MsiDialog;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.gui.route.strategic.RequestStrategicRouteDialog;
 import dk.dma.epd.ship.settings.EPDGuiSettings;
@@ -68,7 +68,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     private PntComponentPanel gpsPanel;
     private CursorComponentPanel cursorPanel;
     private ActiveWaypointComponentPanel activeWaypointPanel;
-    private MSIComponentPanel msiComponentPanel;
     private AisComponentPanel aisComponentPanel;
     private DynamicNoGoComponentPanel dynamicNoGoPanel;
     private NoGoComponentPanel nogoPanel;
@@ -80,7 +79,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
 
     
 
-    private MsiDialog msiDialog;
     private AisDialog aisDialog;
     private RouteSuggestionDialog routeSuggestionDialog;
 
@@ -115,6 +113,15 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         return this;
     }
 
+    /**
+     * Zooms the active map to the given position
+     * @param pos the position to zoom to
+     */
+    @Override
+    public void zoomToPosition(Position pos) {
+        getChartPanel().zoomToPosition(pos);
+    }
+    
     private void initGUI() {
         MapHandler mapHandler = EPDShip.getInstance().getMapHandler();
         // Get settings
@@ -139,7 +146,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         cursorPanel = new CursorComponentPanel();
         activeWaypointPanel = new ActiveWaypointComponentPanel();
         chartPanel = new ChartPanel(activeWaypointPanel);
-        msiComponentPanel = new MSIComponentPanel();
         aisComponentPanel = new AisComponentPanel();
         dynamicNoGoPanel = new DynamicNoGoComponentPanel();
         nogoPanel = new NoGoComponentPanel();
@@ -161,7 +167,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         topPanel.setPreferredSize(new Dimension(0, 30));
         pane.add(topPanel, BorderLayout.PAGE_START);
 
-        bottomPanel.setPreferredSize(new Dimension(0, 25));
         pane.add(bottomPanel, BorderLayout.PAGE_END);
 
         // Set up the chart panel with layers etc
@@ -182,7 +187,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         mapHandler.add(gpsPanel);
         mapHandler.add(cursorPanel);
         mapHandler.add(activeWaypointPanel);
-        mapHandler.add(msiComponentPanel);
         mapHandler.add(aisComponentPanel);
         mapHandler.add(dynamicNoGoPanel);
         mapHandler.add(nogoPanel);
@@ -204,11 +208,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         // Add menubar to map handler
         mapHandler.add(menuBar);
 
-        // Init MSI dialog
-        msiDialog = new MsiDialog(this);
-        mapHandler.add(msiDialog);
-
-        // Init MSI dialog
+        // Init AIS dialog
         aisDialog = new AisDialog(this);
         mapHandler.add(aisDialog);
 
@@ -216,6 +216,9 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         routeSuggestionDialog = new RouteSuggestionDialog(this);
         mapHandler.add(routeSuggestionDialog);
 
+        // Init the chat service dialog
+        chatServiceDialog = new ChatServiceDialog(this);
+        
         // Init the map right click menu
         mapMenu = new MapMenu();
         mapHandler.add(mapMenu);
@@ -297,10 +300,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
 
     public DockableComponents getDockableComponents() {
         return dockableComponents;
-    }
-
-    public MSIComponentPanel getMsiComponentPanel() {
-        return msiComponentPanel;
     }
 
     public MenuBar getEeINSMenuBar() {

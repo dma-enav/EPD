@@ -75,8 +75,7 @@ public class StatusArea extends JInternalFrame implements IMapCoordListener, Bea
     public StatusArea(MainFrame mainFrame) {
 
         // Setup location
-        this.setLocation(10 + moveHandlerHeight, 80 + mainFrame.getToolbar().getHeight() + mainFrame
-                .getNotificationArea().getHeight());
+        this.setLocation(10 + moveHandlerHeight, 80 + mainFrame.getToolbar().getHeight());
         this.setVisible(true);
         this.setResizable(false);
 

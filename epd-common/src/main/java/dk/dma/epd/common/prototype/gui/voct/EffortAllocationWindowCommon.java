@@ -24,23 +24,19 @@ import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 
 public class EffortAllocationWindowCommon extends JDialog implements ActionListener {
 
+    private static final long serialVersionUID = 1L;
+
     @Override
     public void actionPerformed(ActionEvent arg0) {
-        // TODO Auto-generated method stub
         
     }
 
     public void setVoctManager(VOCTManagerCommon voctManager) {
-        // TODO Auto-generated method stub
         
     }
 
     public void setValues() {
-        // TODO Auto-generated method stub
         
     }
-
-   
-  
 
 }

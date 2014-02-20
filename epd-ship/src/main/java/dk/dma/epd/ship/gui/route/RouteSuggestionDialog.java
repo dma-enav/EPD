@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.ship.gui.route;
 
+import java.awt.Dialog;
 import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -36,6 +37,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.gui.ComponentDialog;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
@@ -43,7 +45,6 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.gui.ChartPanel;
-import dk.dma.epd.ship.gui.ComponentFrame;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.SuggestedRoute;
@@ -52,7 +53,7 @@ import dk.dma.epd.ship.service.SuggestedRoute.SuggestedRouteStatus;
 /**
  * Dialog shown when route suggestion is received
  */
-public class RouteSuggestionDialog extends ComponentFrame implements ActionListener, Runnable {
+public class RouteSuggestionDialog extends ComponentDialog implements ActionListener, Runnable {
     private static final long serialVersionUID = 1L;
     
     private MainFrame mainFrame;
@@ -78,14 +79,12 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
     private JTextArea textArea;
     
     public RouteSuggestionDialog(MainFrame mainFrame) {
-        super();
+        super(mainFrame, "AIS Route Suggestion", Dialog.ModalityType.MODELESS);
         this.mainFrame = mainFrame;
         setResizable(false);
-        setTitle("AIS Route Suggestion");
         
         setSize(380, 500);
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-        setAlwaysOnTop(true);
         setLocationRelativeTo(mainFrame);        
 
         initGui();
@@ -189,7 +188,7 @@ public class RouteSuggestionDialog extends ComponentFrame implements ActionListe
         int y = (int)rect.getMaxY() - getHeight() - 20;
         setLocation(x, y);        
         setVisible(true);
-        setState(java.awt.Frame.NORMAL);
+        //setState(java.awt.Frame.NORMAL);
     }
     
     private void close() {

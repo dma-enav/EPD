@@ -21,13 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import dk.dma.epd.common.prototype.model.voct.sardata.EffortAllocationData;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.shore.voct.SRU;
 import dk.dma.epd.shore.voct.SRUCommunicationObject;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.VOCTManager;
-import dk.dma.epd.shore.voct.SRU.sru_status;
 
 
 
@@ -42,12 +39,10 @@ public class SARTrackingTableModel extends AbstractTableModel {
     private static final String[] COLUMN_NAMES = {"Name", "Status", "Last Msg", "Visible"};
 
     private SRUManager sruManager;
-    private VOCTManager voctManager;
 
     public SARTrackingTableModel(SRUManager sruManager, VOCTManager voctManager) {
         super();
         this.sruManager = sruManager;
-        this.voctManager = voctManager;
     }
 
     @Override

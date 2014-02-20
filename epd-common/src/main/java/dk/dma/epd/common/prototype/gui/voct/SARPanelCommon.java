@@ -48,9 +48,6 @@ import dk.dma.epd.common.util.Converter;
 
 import javax.swing.JSlider;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-
 /**
  * Active waypoint panel in sensor panel.
  */

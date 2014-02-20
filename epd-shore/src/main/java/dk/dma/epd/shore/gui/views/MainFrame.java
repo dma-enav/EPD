@@ -31,7 +31,9 @@ import java.util.List;
 
 import javax.swing.JScrollPane;
 
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
+import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
@@ -73,8 +75,6 @@ public class MainFrame extends MainFrameCommon {
     private JScrollPane scrollPane;
     private boolean toolbarsLocked;
     private ToolBar toolbar = new ToolBar(this);
-    private NotificationArea notificationArea = new NotificationArea(this);
-    private NotificationCenter notificationCenter = new NotificationCenter();
     private SetupDialogShore setup = new SetupDialogShore(this);
     private RouteManagerDialog routeManagerDialog = new RouteManagerDialog(this);
     private SendRouteDialog sendRouteDialog = new SendRouteDialog();
@@ -105,16 +105,39 @@ public class MainFrame extends MainFrameCommon {
         // Do nothing. EPDShore uses MapFrames for the various maps
     }
 
+    /**
+     * Returns the chart panel of the active map window
+     * @return the chart panel of the active map window
+     */
+    public ChartPanel getActiveChartPanel() {
+        if (getActiveMapWindow() != null) {
+            return getActiveMapWindow()
+                .getChartPanel();
+        } else if (getMapWindows().size() > 0) {
+            getMapWindows()
+                .get(0)
+                .getChartPanel();
+        }
+        return null;
+    }
+    
+    /**
+     * Zooms the active map to the given position
+     * @param pos the position to zoom to
+     */
+    @Override
+    public void zoomToPosition(Position pos) {
+        if (getActiveChartPanel() != null) {
+            getActiveChartPanel().zoomToPoint(pos);
+        }
+    }
+    
     public synchronized void increaseWindowCount() {
         windowCount++;
     }
 
     public int getWindowCount() {
         return windowCount;
-    }
-
-    public NotificationCenter getNotificationCenter() {
-        return notificationCenter;
     }
 
     public JMapFrame getActiveMapWindow() {
@@ -266,15 +289,6 @@ public class MainFrame extends MainFrameCommon {
     }
 
     /**
-     * Return the notification area
-     * 
-     * @return
-     */
-    public NotificationArea getNotificationArea() {
-        return notificationArea;
-    }
-
-    /**
      * Return the status area
      * 
      * @return
@@ -341,30 +355,25 @@ public class MainFrame extends MainFrameCommon {
 
         // Initiate the permanent window elements
         desktop.getManager().setStatusArea(statusArea);
-        desktop.getManager().setNotificationArea(notificationArea);
         desktop.getManager().setToolbar(toolbar);
-        desktop.getManager().setNotCenter(notificationCenter);
         desktop.getManager().setRouteManager(routeManagerDialog);
         desktop.getManager().setRouteExchangeDialog(sendRouteDialog);
         desktop.getManager().setSendVoyageDialog(sendVoyageDialog);
         desktop.getManager().setSRUManagerDialog(sruManagerDialog);
 
         desktop.add(statusArea, true);
-        desktop.add(notificationCenter, true);
         desktop.add(toolbar, true);
-        desktop.add(notificationArea, true);
         desktop.add(sendRouteDialog, true);
         desktop.add(sendVoyageDialog, true);
 
-        beanHandler.add(notificationArea);
         beanHandler.add(bottomPanel);
         beanHandler.add(sendRouteDialog);
         beanHandler.add(sendVoyageDialog);
-        // dtp.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
 
+        chatServiceDialog = new ChatServiceDialog(this);
+        
         // Add self to bean handler
         beanHandler.add(this);
-        beanHandler.add(notificationCenter);
 
         desktop.add(routeManagerDialog, true);
         beanHandler.add(routeManagerDialog);
@@ -464,7 +473,6 @@ public class MainFrame extends MainFrameCommon {
     public void saveWorkSpace(String filename) {
 
         EPDShore.getInstance().getSettings().getWorkspace().setToolbarPosition(toolbar.getLocation());
-        EPDShore.getInstance().getSettings().getWorkspace().setNotificationAreaPosition(notificationArea.getLocation());
         EPDShore.getInstance().getSettings().getWorkspace().setStatusPosition(statusArea.getLocation());
 
         List<JMapFrame> windowsToSave = new ArrayList<JMapFrame>();
@@ -528,14 +536,12 @@ public class MainFrame extends MainFrameCommon {
             }
 
         }
-        notificationArea.setLocation(workspace.getNotificationAreaPosition());
         statusArea.setLocation(workspace.getStatusPosition());
         toolbar.setLocation(workspace.getToolbarPosition());
 
         // Bring toolbar elements to the front
         statusArea.toFront();
         toolbar.toFront();
-        notificationArea.toFront();
     }
 
     /**
@@ -547,7 +553,6 @@ public class MainFrame extends MainFrameCommon {
         toolbarsLocked = !toolbarsLocked;
 
         toolbar.toggleLock();
-        notificationArea.toggleLock();
         statusArea.toggleLock();
     }
 
@@ -581,18 +586,6 @@ public class MainFrame extends MainFrameCommon {
             this.setUndecorated(false);
             setVisible(true);
         }
-    }
-
-    /**
-     * Show or hide the notificationCenter
-     */
-    public void toggleNotificationCenter() {
-        notificationCenter.toggleVisibility();
-    }
-
-    public void toggleNotificationCenter(int service) {
-        System.out.println("Toggle service: " + service);
-        notificationCenter.toggleVisibility(service);
     }
 
     /**

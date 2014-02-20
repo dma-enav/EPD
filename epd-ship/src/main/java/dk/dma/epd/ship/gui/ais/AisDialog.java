@@ -30,7 +30,6 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -51,9 +50,9 @@ import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.ais.VesselTarget.AisClass;
+import dk.dma.epd.common.prototype.gui.ComponentFrame;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.ais.AisHandler;
-import dk.dma.epd.ship.gui.ComponentFrame;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 
 /**
@@ -76,8 +75,6 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
     
     private AisTableModel aisTableModel ;
     private ListSelectionModel aisSelectionModel;
-    
-    private JPanel detailsPanel;
     
     
     
@@ -102,9 +99,6 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         gotoBtn.addActionListener(this);
         
 
-        
-        detailsPanel = new JPanel();
-        //detailsPanel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
         
         String[] columnNames = {"Type", "Details"};
         

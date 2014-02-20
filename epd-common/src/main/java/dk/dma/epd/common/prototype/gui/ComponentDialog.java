@@ -13,8 +13,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui;
+package dk.dma.epd.common.prototype.gui;
 
+import java.awt.Window;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.beans.beancontext.BeanContext;
@@ -25,7 +26,7 @@ import java.beans.beancontext.BeanContextMembershipListener;
 import java.util.Iterator;
 import java.util.Properties;
 
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.SwingConstants;
 
 import com.bbn.openmap.Environment;
@@ -35,10 +36,12 @@ import com.bbn.openmap.PropertyConsumer;
 import com.bbn.openmap.gui.WindowSupport;
 
 /**
- * Abstract base class for frames that are also components 
+ * Base class for bean-context enabled dialogs.
+ * <p>
+ * The funcitonality is copied more or less verbatim from {@linkplain ComponentFrame}.
  */
-public abstract class ComponentFrame extends JFrame implements PropertyConsumer, BeanContextChild, BeanContextMembershipListener,
-        LightMapHandlerChild {
+public abstract class ComponentDialog extends JDialog 
+    implements PropertyConsumer, BeanContextChild, BeanContextMembershipListener, LightMapHandlerChild {
 
     private static final long serialVersionUID = 1L;
 
@@ -50,8 +53,13 @@ public abstract class ComponentFrame extends JFrame implements PropertyConsumer,
 
     protected BeanContextChildSupport beanContextChildSupport = new BeanContextChildSupport(this);
 
-    protected ComponentFrame() {
-        super();
+    /**
+     * Constructor
+     * @param window
+     * @param title the title
+     */
+    protected ComponentDialog(Window window, String title, ModalityType type) {
+        super(window, title, type);
     }
 
     protected WindowSupport windowSupport;
@@ -74,9 +82,6 @@ public abstract class ComponentFrame extends JFrame implements PropertyConsumer,
     @Override
     public void setProperties(String prefix, java.util.Properties props) {
         setPropertyPrefix(prefix);
-
-        // String realPrefix =
-        // PropUtils.getScopedPropertyPrefix(prefix);
     }
 
     @Override
@@ -180,4 +185,5 @@ public abstract class ComponentFrame extends JFrame implements PropertyConsumer,
     public void setIsolated(boolean isolated) {
         this.isolated = isolated;
     }
+    
 }
