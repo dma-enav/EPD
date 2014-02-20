@@ -39,7 +39,6 @@ import dk.dma.epd.ship.gui.component_panels.CursorComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.MultiSourcePntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.PntComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.MSIComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.SARComponentPanel;
@@ -69,7 +68,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     private PntComponentPanel gpsPanel;
     private CursorComponentPanel cursorPanel;
     private ActiveWaypointComponentPanel activeWaypointPanel;
-    private MSIComponentPanel msiComponentPanel;
     private AisComponentPanel aisComponentPanel;
     private DynamicNoGoComponentPanel dynamicNoGoPanel;
     private NoGoComponentPanel nogoPanel;
@@ -148,7 +146,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         cursorPanel = new CursorComponentPanel();
         activeWaypointPanel = new ActiveWaypointComponentPanel();
         chartPanel = new ChartPanel(activeWaypointPanel);
-        msiComponentPanel = new MSIComponentPanel();
         aisComponentPanel = new AisComponentPanel();
         dynamicNoGoPanel = new DynamicNoGoComponentPanel();
         nogoPanel = new NoGoComponentPanel();
@@ -190,7 +187,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         mapHandler.add(gpsPanel);
         mapHandler.add(cursorPanel);
         mapHandler.add(activeWaypointPanel);
-        mapHandler.add(msiComponentPanel);
         mapHandler.add(aisComponentPanel);
         mapHandler.add(dynamicNoGoPanel);
         mapHandler.add(nogoPanel);
@@ -304,10 +300,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
 
     public DockableComponents getDockableComponents() {
         return dockableComponents;
-    }
-
-    public MSIComponentPanel getMsiComponentPanel() {
-        return msiComponentPanel;
     }
 
     public MenuBar getEeINSMenuBar() {
