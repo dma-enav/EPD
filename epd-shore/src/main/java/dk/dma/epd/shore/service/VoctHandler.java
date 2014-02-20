@@ -18,7 +18,6 @@ package dk.dma.epd.shore.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import net.maritimecloud.net.ConnectionFuture;
@@ -26,7 +25,6 @@ import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.broadcast.BroadcastListener;
 import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
 import net.maritimecloud.net.service.ServiceEndpoint;
-import net.maritimecloud.net.service.invocation.InvocationCallback;
 import net.maritimecloud.util.function.BiConsumer;
 import dk.dma.enav.model.voct.DatumPointDTO;
 import dk.dma.enav.model.voct.EffortAllocationDTO;
@@ -34,8 +32,6 @@ import dk.dma.enav.model.voct.RapidResponseDTO;
 import dk.dma.enav.model.voyage.Route;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint;
 import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.VOCTCommunicationReplyDatumPoint;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse;
@@ -59,6 +55,7 @@ import dk.dma.epd.common.util.Util;
  * <li>Use a worker pool rather than spawning a new thread for each broadcast.</li>
  * </ul>
  */
+@SuppressWarnings("unused")
 public class VoctHandler extends VoctHandlerCommon implements Runnable {
 
     private boolean listenToSAR;

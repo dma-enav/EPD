@@ -27,8 +27,8 @@ import dk.dma.epd.common.prototype.model.voct.LeewayValues;
 
 public class DatumLineData extends SARData {
 
-    
-    
+    private static final long serialVersionUID = 1L;
+
     List<DatumPointData> datumPointDataSets = new ArrayList<DatumPointData>();
     
     List<Position> datumLinePolygon = new ArrayList<Position>();

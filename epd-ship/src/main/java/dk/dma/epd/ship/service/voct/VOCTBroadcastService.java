@@ -15,20 +15,6 @@
  */
 package dk.dma.epd.ship.service.voct;
 
-import net.maritimecloud.net.broadcast.BroadcastOptions;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.enavcloud.VOCTSARBroadCast;
-import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
-import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
-import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
-import dk.dma.epd.common.prototype.sensor.pnt.PntData;
-import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
-import dk.dma.epd.ship.route.RouteManager;
-
 ///**
 // * Intended route service implementation
 // */

@@ -30,7 +30,6 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -77,8 +76,6 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
     private AisTableModel aisTableModel ;
     private ListSelectionModel aisSelectionModel;
     
-    private JPanel detailsPanel;
-    
     
     
     public AisDialog(Window parent) {
@@ -102,9 +99,6 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         gotoBtn.addActionListener(this);
         
 
-        
-        detailsPanel = new JPanel();
-        //detailsPanel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
         
         String[] columnNames = {"Type", "Details"};
         

@@ -41,6 +41,8 @@ import dk.dma.epd.common.prototype.voct.VOCTManagerCommon;
 import dk.dma.epd.common.util.ParseUtils;
 
 public class SearchPatternDialog extends SearchPatternDialogCommon{
+    private static final long serialVersionUID = 1L;
+    
     private final JPanel contentPanel = new JPanel();
     private JTextField cssFirstLat;
     private JTextField cssSecondLat;

@@ -38,6 +38,7 @@ import dk.dma.epd.common.util.Util;
  * <li>Use a worker pool rather than spawning a new thread for each broadcast.</li>
  * </ul>
  */
+@SuppressWarnings("unused")
 public class VoctHandler extends VoctHandlerCommon implements Runnable {
 
     /**

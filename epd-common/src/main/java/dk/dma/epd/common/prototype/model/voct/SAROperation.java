@@ -649,6 +649,7 @@ public class SAROperation {
         widthCenter = Calculator.findPosition(dst3.getA(), bearingwidth,
                 width / 2);
 
+        @SuppressWarnings("unused")
         Position dst3Center = Calculator.findPosition(widthCenter,
                 bearingheight, height / 2);
 

@@ -20,7 +20,6 @@ import java.awt.event.MouseEvent;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseListener;
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMList;
@@ -109,7 +108,6 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
     @Override
     public boolean mousePressed(MouseEvent paramMouseEvent) {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -162,14 +160,10 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
     @Override
     public void mouseEntered(MouseEvent paramMouseEvent) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseExited(MouseEvent paramMouseEvent) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
