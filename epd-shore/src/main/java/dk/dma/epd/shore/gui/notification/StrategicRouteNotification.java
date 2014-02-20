@@ -42,6 +42,11 @@ public class StrategicRouteNotification extends Notification<StrategicRouteNegot
     public StrategicRouteNotification(StrategicRouteNegotiationData routeData) {
         super(routeData, routeData.getId(), NotificationType.STRATEGIC_ROUTE);
 
+        title = description = String.format(
+                    "Route request from %s with status %s", 
+                    getVesselName(), 
+                    routeData.getStatus());
+        severity = NotificationSeverity.MESSAGE;
         acknowledged = read = routeData.isHandled();
         date = routeData.getRouteMessage().get(0).getSent();
     }

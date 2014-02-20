@@ -146,7 +146,7 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> {
             MsiHandler msiHandler = EPD.getInstance().getMsiHandler();
             // NB: msiHandler.deleteMessage() will automatically trigger a table refresh
             msiHandler.deleteMessage(notification.get().getMsiMessage());
-            setSelectRow(row - 1);
+            setSelectedRow(row - 1);
             notifyListeners();
         }
     }

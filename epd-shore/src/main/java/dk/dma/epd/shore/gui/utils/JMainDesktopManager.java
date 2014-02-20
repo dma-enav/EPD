@@ -32,8 +32,6 @@ import dk.dma.epd.shore.gui.route.RouteManagerDialog;
 import dk.dma.epd.shore.gui.route.strategic.SendStrategicRouteDialog;
 import dk.dma.epd.shore.gui.views.JMainDesktopPane;
 import dk.dma.epd.shore.gui.views.JMapFrame;
-import dk.dma.epd.shore.gui.views.NotificationArea;
-import dk.dma.epd.shore.gui.views.NotificationCenter;
 import dk.dma.epd.shore.gui.views.SendRouteDialog;
 import dk.dma.epd.shore.gui.views.StatusArea;
 import dk.dma.epd.shore.gui.views.ToolBar;
@@ -47,8 +45,6 @@ public class JMainDesktopManager extends DefaultDesktopManager {
     private JMainDesktopPane desktop;
     private HashMap<Integer, JInternalFrame> toFront;
     private ToolBar toolbar;
-    private NotificationCenter notCenter;
-    private NotificationArea notificationArea;
     private StatusArea statusArea;
     private RouteManagerDialog routeManager;
     private SendRouteDialog routeDialog;
@@ -93,9 +89,7 @@ public class JMainDesktopManager extends DefaultDesktopManager {
 
         }
         super.activateFrame(statusArea);
-        super.activateFrame(notificationArea);
         super.activateFrame(toolbar);
-        super.activateFrame(notCenter);
         super.activateFrame(routeManager);
         super.activateFrame(routeDialog);
         super.activateFrame(sendVoyageDialog);
@@ -230,15 +224,6 @@ public class JMainDesktopManager extends DefaultDesktopManager {
     }
 
     /**
-     * Set notification center
-     * 
-     * @param notCenter
-     */
-    public void setNotCenter(NotificationCenter notCenter) {
-        this.notCenter = notCenter;
-    }
-
-    /**
      * Set RouteManager Window
      * 
      * @param notCenter
@@ -263,15 +248,6 @@ public class JMainDesktopManager extends DefaultDesktopManager {
      */
     public void setSendVoyageDialog(SendStrategicRouteDialog sendVoyageDialog) {
         this.sendVoyageDialog = sendVoyageDialog;
-    }
-
-    /**
-     * Set notification area
-     * 
-     * @param notificationArea
-     */
-    public void setNotificationArea(NotificationArea notificationArea) {
-        this.notificationArea = notificationArea;
     }
 
     /**

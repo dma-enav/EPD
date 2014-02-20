@@ -28,20 +28,15 @@ import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
 import dk.dma.epd.common.prototype.gui.menuitems.ToggleAisTargetName;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
-import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
-import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
-import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.menuitems.AisTargetDetails;
 import dk.dma.epd.ship.gui.menuitems.GeneralNewRoute;
 import dk.dma.epd.ship.gui.menuitems.MonaLisaRouteRequest;
-import dk.dma.epd.ship.gui.menuitems.MsiDetails;
-import dk.dma.epd.ship.gui.menuitems.MsiZoomTo;
 import dk.dma.epd.ship.gui.menuitems.NogoRequest;
 import dk.dma.epd.ship.gui.menuitems.RouteActivateToggle;
 import dk.dma.epd.ship.gui.menuitems.RouteEditEndRoute;
@@ -51,7 +46,6 @@ import dk.dma.epd.ship.gui.menuitems.VoyageAppendWaypoint;
 import dk.dma.epd.ship.gui.menuitems.VoyageHandlingWaypointDelete;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.layers.ais.AisLayer;
-import dk.dma.epd.ship.layers.msi.MsiLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
@@ -65,8 +59,6 @@ public class MapMenu extends MapMenuCommon {
 
     private static final long serialVersionUID = 1L;
 
-    private MsiHandler msiHandler;
-
     // menu items
     private GeneralClearMap clearMap;
     private GeneralNewRoute newRoute;
@@ -75,8 +67,6 @@ public class MapMenu extends MapMenuCommon {
     private SarTargetDetails sarTargetDetails;
     private ToggleAisTargetName aisTargetLabelToggle;
     private NogoRequest nogoRequest;
-    private MsiDetails msiDetails;
-    private MsiZoomTo msiZoomTo;
     
     private RouteActivateToggle routeActivateToggle;
     private MonaLisaRouteRequest monaLisaRouteRequest;
@@ -126,12 +116,6 @@ public class MapMenu extends MapMenuCommon {
         // SART menu items
         sarTargetDetails = new SarTargetDetails("SART details");
         sarTargetDetails.addActionListener(this);
-
-        // msi menu items
-        msiDetails = new MsiDetails("Show MSI details");
-        msiDetails.addActionListener(this);
-        msiZoomTo = new MsiZoomTo("Zoom to MSI");
-        msiZoomTo.addActionListener(this);
 
         // route general items
         sendToSTCC = new SendToSTCC("Send to STCC");
@@ -318,48 +302,6 @@ public class MapMenu extends MapMenuCommon {
         add(aisClearPastTrack);
         revalidate();
         
-        generalMenu(false);
-    }
-
-    /**
-     * Builds the maritime safety information menu
-     * 
-     * @param topPanel
-     *            Reference to the top panel to get the msi dialog
-     * @param selectedGraphic
-     *            The selected graphic (containing the msi message)
-     */
-    public void msiMenu(TopPanel topPanel, MsiSymbolGraphic selectedGraphic) {
-        removeAll();
-
-        msiDetails.setTopPanel(topPanel);
-        msiDetails.setMsiMessage(selectedGraphic.getMsiMessage());
-        add(msiDetails);
-
-        Boolean isAcknowledged = msiHandler.isAcknowledged(selectedGraphic
-                .getMsiMessage().getMessageId());
-        msiAcknowledge.setMsiHandler(msiHandler);
-        msiAcknowledge.setEnabled(!isAcknowledged);
-        msiAcknowledge.setMsiMessage(selectedGraphic.getMsiMessage());
-        add(msiAcknowledge);
-
-        revalidate();
-        generalMenu(false);
-    }
-
-    public void msiDirectionalMenu(TopPanel topPanel,
-            MsiDirectionalIcon selectedGraphic, MsiLayer msiLayer) {
-        removeAll();
-
-        msiDetails.setTopPanel(topPanel);
-        msiDetails.setMsiMessage(selectedGraphic.getMessage().msiMessage);
-        add(msiDetails);
-
-        msiZoomTo.setMsiLayer(msiLayer);
-        msiZoomTo.setMsiMessageExtended(selectedGraphic.getMessage());
-        add(msiZoomTo);
-
-        revalidate();
         generalMenu(false);
     }
 
@@ -607,9 +549,6 @@ public class MapMenu extends MapMenuCommon {
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
         
-        if (obj instanceof MsiHandler) {
-            msiHandler = (MsiHandler) obj;
-        }
         if (obj instanceof RouteManager) {
             routeManager = (RouteManager) obj;
         }

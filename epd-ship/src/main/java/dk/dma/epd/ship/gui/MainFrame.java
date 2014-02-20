@@ -44,7 +44,6 @@ import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.SARComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
-import dk.dma.epd.ship.gui.msi.MsiDialog;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.gui.route.strategic.RequestStrategicRouteDialog;
 import dk.dma.epd.ship.settings.EPDGuiSettings;
@@ -82,7 +81,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
 
     
 
-    private MsiDialog msiDialog;
     private AisDialog aisDialog;
     private RouteSuggestionDialog routeSuggestionDialog;
 
@@ -214,11 +212,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         // Add menubar to map handler
         mapHandler.add(menuBar);
 
-        // Init MSI dialog
-        msiDialog = new MsiDialog(this);
-        mapHandler.add(msiDialog);
-
-        // Init MSI dialog
+        // Init AIS dialog
         aisDialog = new AisDialog(this);
         mapHandler.add(aisDialog);
 

@@ -306,6 +306,17 @@ public class NotificationCenterCommon extends ComponentDialog implements
         setVisible(!isVisible());
     }
 
+    /**
+     * Selects the notification with the given id
+     * 
+     * @param notificationType the notification type
+     * @param id the id of the notification
+     */
+    public void selectNotification(NotificationType notificationType, Object id) {
+        setActiveType(notificationType);
+        getPanel(notificationType).setSelectedId(id);
+    }
+    
     /*************************************/
     /** Listener methods                **/
     /*************************************/

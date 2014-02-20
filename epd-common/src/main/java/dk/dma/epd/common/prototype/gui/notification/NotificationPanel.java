@@ -240,12 +240,25 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
      * Selects the given row index
      * @param rowIndex the row to select
      */
-    public void setSelectRow(int rowIndex) {
+    public void setSelectedRow(int rowIndex) {
         rowIndex = Math.min(Math.max(rowIndex, 0), table.getRowCount() - 1);
         table.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
         table.scrollRectToVisible(table.getCellRect(rowIndex, -1, true));
     }
-       
+
+    /**
+     * Selects the notification with the given id
+     * @param id the id of the notification to select
+     */
+    public void setSelectedId(Object id) {
+        for (int row = 0; row < tableModel.getNotifications().size(); row++) {
+            if (id.equals(tableModel.getNotification(row).getId())) {
+                setSelectedRow(row);
+                return;
+            }
+        }
+    }
+    
     /**
      * Selects the first unacknowledged row.
      * If none are found, the selection does not change.
@@ -254,7 +267,7 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
         // Change the selection to the next unacknowledged
         for (int row = 0; row < tableModel.getNotifications().size(); row++) {
             if (!tableModel.getNotification(row).isAcknowledged()) {
-                setSelectRow(row);
+                setSelectedRow(row);
                 return;
             }
         }

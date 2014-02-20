@@ -75,8 +75,6 @@ public class MainFrame extends MainFrameCommon {
     private JScrollPane scrollPane;
     private boolean toolbarsLocked;
     private ToolBar toolbar = new ToolBar(this);
-    private NotificationArea notificationArea = new NotificationArea(this);
-    private NotificationCenter notificationCenter = new NotificationCenter();
     private SetupDialogShore setup = new SetupDialogShore(this);
     private RouteManagerDialog routeManagerDialog = new RouteManagerDialog(this);
     private SendRouteDialog sendRouteDialog = new SendRouteDialog();
@@ -140,10 +138,6 @@ public class MainFrame extends MainFrameCommon {
 
     public int getWindowCount() {
         return windowCount;
-    }
-
-    public NotificationCenter getNotificationCenter() {
-        return notificationCenter;
     }
 
     public JMapFrame getActiveMapWindow() {
@@ -295,15 +289,6 @@ public class MainFrame extends MainFrameCommon {
     }
 
     /**
-     * Return the notification area
-     * 
-     * @return
-     */
-    public NotificationArea getNotificationArea() {
-        return notificationArea;
-    }
-
-    /**
      * Return the status area
      * 
      * @return
@@ -370,22 +355,17 @@ public class MainFrame extends MainFrameCommon {
 
         // Initiate the permanent window elements
         desktop.getManager().setStatusArea(statusArea);
-        desktop.getManager().setNotificationArea(notificationArea);
         desktop.getManager().setToolbar(toolbar);
-        desktop.getManager().setNotCenter(notificationCenter);
         desktop.getManager().setRouteManager(routeManagerDialog);
         desktop.getManager().setRouteExchangeDialog(sendRouteDialog);
         desktop.getManager().setSendVoyageDialog(sendVoyageDialog);
         desktop.getManager().setSRUManagerDialog(sruManagerDialog);
 
         desktop.add(statusArea, true);
-        desktop.add(notificationCenter, true);
         desktop.add(toolbar, true);
-        desktop.add(notificationArea, true);
         desktop.add(sendRouteDialog, true);
         desktop.add(sendVoyageDialog, true);
 
-        beanHandler.add(notificationArea);
         beanHandler.add(bottomPanel);
         beanHandler.add(sendRouteDialog);
         beanHandler.add(sendVoyageDialog);
@@ -394,7 +374,6 @@ public class MainFrame extends MainFrameCommon {
         
         // Add self to bean handler
         beanHandler.add(this);
-        beanHandler.add(notificationCenter);
 
         desktop.add(routeManagerDialog, true);
         beanHandler.add(routeManagerDialog);
@@ -494,7 +473,6 @@ public class MainFrame extends MainFrameCommon {
     public void saveWorkSpace(String filename) {
 
         EPDShore.getInstance().getSettings().getWorkspace().setToolbarPosition(toolbar.getLocation());
-        EPDShore.getInstance().getSettings().getWorkspace().setNotificationAreaPosition(notificationArea.getLocation());
         EPDShore.getInstance().getSettings().getWorkspace().setStatusPosition(statusArea.getLocation());
 
         List<JMapFrame> windowsToSave = new ArrayList<JMapFrame>();
@@ -558,14 +536,12 @@ public class MainFrame extends MainFrameCommon {
             }
 
         }
-        notificationArea.setLocation(workspace.getNotificationAreaPosition());
         statusArea.setLocation(workspace.getStatusPosition());
         toolbar.setLocation(workspace.getToolbarPosition());
 
         // Bring toolbar elements to the front
         statusArea.toFront();
         toolbar.toFront();
-        notificationArea.toFront();
     }
 
     /**
@@ -577,7 +553,6 @@ public class MainFrame extends MainFrameCommon {
         toolbarsLocked = !toolbarsLocked;
 
         toolbar.toggleLock();
-        notificationArea.toggleLock();
         statusArea.toggleLock();
     }
 
@@ -611,18 +586,6 @@ public class MainFrame extends MainFrameCommon {
             this.setUndecorated(false);
             setVisible(true);
         }
-    }
-
-    /**
-     * Show or hide the notificationCenter
-     */
-    public void toggleNotificationCenter() {
-        notificationCenter.toggleVisibility();
-    }
-
-    public void toggleNotificationCenter(int service) {
-        System.out.println("Toggle service: " + service);
-        notificationCenter.toggleVisibility(service);
     }
 
     /**

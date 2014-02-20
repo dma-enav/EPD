@@ -570,14 +570,6 @@ public final class EPDShip extends EPD {
         };
 
         @SuppressWarnings("serial")
-        Action msi = new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                mainFrame.getTopPanel().getMsiDialog().setVisible(true);
-            }
-        };
-
-        @SuppressWarnings("serial")
         Action ais = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -636,7 +628,6 @@ public final class EPDShip extends EPD {
         content.getActionMap().put("centre", centreOnShip);
         content.getActionMap().put("newRoute", newRoute);
         content.getActionMap().put("routes", routes);
-        content.getActionMap().put("msi", msi);
         content.getActionMap().put("ais", ais);
         content.getActionMap().put("panUp", panUp);
         content.getActionMap().put("panDown", panDown);

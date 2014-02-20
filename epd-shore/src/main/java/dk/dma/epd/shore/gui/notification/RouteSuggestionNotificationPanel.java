@@ -187,7 +187,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
             routeSuggestionHandler.removeSuggestion(
                     routeSuggestion.getMmsi(),  
                     routeSuggestion.getId());
-            setSelectRow(row - 1);
+            setSelectedRow(row - 1);
             notifyListeners();
         }
     }

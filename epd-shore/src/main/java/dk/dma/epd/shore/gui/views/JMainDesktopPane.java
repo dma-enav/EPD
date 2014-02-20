@@ -168,14 +168,7 @@ public class JMainDesktopPane extends JDesktopPane {
             ((JMapFrame) c).getChartPanel().getWmsLayer().stop();
         }
 
-        if (c instanceof NotificationCenter) {
-            mainFrame.toggleNotificationCenter();
-            return;
-        }
-
         super.remove(c);
-
-        // manager.setFramesAlwaysOnTop();
 
     }
 

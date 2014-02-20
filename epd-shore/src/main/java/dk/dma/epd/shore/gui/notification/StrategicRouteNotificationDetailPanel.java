@@ -38,7 +38,6 @@ import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
-import dk.dma.epd.shore.gui.route.strategic.StrategicNegotiationView;
 import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 
 /**

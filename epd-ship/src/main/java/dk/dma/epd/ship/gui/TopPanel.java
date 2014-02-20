@@ -42,7 +42,6 @@ import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.event.RouteEditMouseMode;
 import dk.dma.epd.ship.gui.ais.AisDialog;
-import dk.dma.epd.ship.gui.msi.MsiDialog;
 import dk.dma.epd.ship.gui.route.RouteManagerDialog;
 import dk.dma.epd.ship.layers.route.RouteLayer;
 
@@ -66,8 +65,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             toolbarIcon("wrench.png"));
     private final ButtonLabel routeManagerBtn = new ButtonLabel(
             toolbarIcon("marker.png"));
-    private final ButtonLabel msiButton = new ButtonLabel(
-            toolbarIcon("msi_symbol_16.png"));
     private final ButtonLabel aisButton = new ButtonLabel(
             toolbarIcon("radar.png"));
     private final ToggleButtonLabel aisToggleName = new ToggleButtonLabel(
@@ -99,7 +96,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             toolbarIcon("ruler-triangle.png"));
 
     private MainFrame mainFrame;
-    private MsiDialog msiDialog;
     private AisDialog aisDialog;
     private MenuBar menuBar;
     private RouteLayer routeLayer;
@@ -143,8 +139,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         setupBtn.setToolTipText("Setup");
         newRouteBtn.setToolTipText("Add a new route : Shortcut Ctrl N");
         routeManagerBtn.setToolTipText("Routes Manager : Shortcut Ctrl R");
-        msiButton
-                .setToolTipText("Maritime Safety Information : Shortcut Ctrl M");
         aisButton.setToolTipText("Show nearby vessels : Shortcut Ctrl A");
         aisBtn.setToolTipText("Show/hide AIS targets");
         aisToggleName.setToolTipText("Show/hide AIS Name Labels");
@@ -177,7 +171,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         add(setupBtn);
         add(newRouteBtn);
         add(routeManagerBtn);
-        add(msiButton);
         add(aisButton);
         add(new JSeparator());
         add(aisBtn);
@@ -205,7 +198,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         setupBtn.addMouseListener(this);
         newRouteBtn.addMouseListener(this);
         routeManagerBtn.addMouseListener(this);
-        msiButton.addMouseListener(this);
         aisButton.addMouseListener(this);
         aisBtn.addMouseListener(this);
         encBtn.addMouseListener(this);
@@ -271,9 +263,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         if (obj instanceof MainFrame) {
             mainFrame = (MainFrame) obj;
         }
-        if (obj instanceof MsiDialog) {
-            msiDialog = (MsiDialog) obj;
-        }
         if (obj instanceof MouseDelegator) {
             mouseDelegator = (MouseDelegator) obj;
         }
@@ -297,10 +286,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
     
     public GoForwardButton getGoForwardButton() {
         return this.goForwardBtn;
-    }
-
-    public MsiDialog getMsiDialog() {
-        return msiDialog;
     }
 
     public AisDialog getAisDialog() {
@@ -381,8 +366,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             SetupDialogShip setup = new SetupDialogShip(mainFrame);
             setup.loadSettings(EPDShip.getInstance().getSettings());
             setup.setVisible(true);
-        } else if (e.getSource() == msiButton) {
-            msiDialog.setVisible(true);
         } else if (e.getSource() == aisButton) {
             aisDialog.setVisible(true);
             aisDialog.setSelection(-1, true);
@@ -448,10 +431,6 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
 
     public ToggleButtonLabel getToggleButtonDistanceCircleMouseMode() {
         return this.toggleDistanceCircleMode;
-    }
-
-    public ButtonLabel getMsiButton() {
-        return msiButton;
     }
 
     public ToggleButtonLabel getAisBtn() {

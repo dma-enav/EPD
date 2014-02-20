@@ -17,8 +17,9 @@ package dk.dma.epd.shore.gui.views.menuitems;
 
 import javax.swing.JMenuItem;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.common.prototype.notification.NotificationType;
 
 
 public class VoyageShowTransaction extends JMenuItem implements IMapMenuAction {
@@ -36,7 +37,8 @@ public class VoyageShowTransaction extends JMenuItem implements IMapMenuAction {
 
     @Override
     public void doAction() {
-        EPDShore.getInstance().getMainFrame().getNotificationCenter().showStrategicRouteMsg(2, transactionID);
+        EPD.getInstance().getNotificationCenter()
+            .selectNotification(NotificationType.STRATEGIC_ROUTE, transactionID);
     }
 
     /**

@@ -192,7 +192,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
         notCenter.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                mainFrame.toggleNotificationCenter();
+                EPD.getInstance().getNotificationCenter().toggleVisibility();
             }
         });
 

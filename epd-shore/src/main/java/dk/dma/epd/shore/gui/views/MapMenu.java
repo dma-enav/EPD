@@ -27,16 +27,11 @@ import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
 import dk.dma.epd.common.prototype.gui.menuitems.ToggleAisTargetName;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
-import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
-import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
-import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralNewRoute;
-import dk.dma.epd.shore.gui.views.menuitems.MsiDetails;
-import dk.dma.epd.shore.gui.views.menuitems.MsiZoomTo;
 import dk.dma.epd.shore.gui.views.menuitems.RouteEditEndRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteFromRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteToShip;
@@ -53,7 +48,6 @@ import dk.dma.epd.shore.gui.views.menuitems.VoyageRenegotiate;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageShowTransaction;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageZoomToShip;
 import dk.dma.epd.shore.layers.ais.AisLayer;
-import dk.dma.epd.shore.layers.msi.MsiLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.layers.voyage.VoyagePlanInfoPanel;
@@ -68,15 +62,10 @@ public class MapMenu extends MapMenuCommon {
 
     private static final long serialVersionUID = 1L;
 
-    private MsiHandler msiHandler;
-
     // menu items
     private GeneralNewRoute newRoute;
 
     private SarTargetDetails sarTargetDetails;
-    // private NogoRequest nogoRequest;
-    private MsiDetails msiDetails;
-    private MsiZoomTo msiZoomTo;
 
     private RouteEditEndRoute routeEditEndRoute;
     private SendRouteToShip sendRouteToShip;
@@ -121,12 +110,6 @@ public class MapMenu extends MapMenuCommon {
         // SART menu items
         sarTargetDetails = new SarTargetDetails("SART details");
         sarTargetDetails.addActionListener(this);
-
-        // msi menu items
-        msiDetails = new MsiDetails("Show MSI details");
-        msiDetails.addActionListener(this);
-        msiZoomTo = new MsiZoomTo("Zoom to MSI");
-        msiZoomTo.addActionListener(this);
 
         // route general items
         setRouteExchangeRoute = new SendRouteFromRoute("Send Route");
@@ -312,47 +295,6 @@ public class MapMenu extends MapMenuCommon {
         aisClearPastTrack.setText("Clear past-track");
         add(aisClearPastTrack);
         
-        revalidate();
-        generalMenu(false);
-    }
-
-    /**
-     * Builds the maritime safety information menu
-     * 
-     * @param selectedGraphic
-     *            The selected graphic (containing the msi message)
-     */
-    public void msiMenu(MsiSymbolGraphic selectedGraphic) {
-        removeAll();
-
-        msiDetails.setMsiMessage(selectedGraphic.getMsiMessage());
-        msiDetails
-                .setNotCenter(EPDShore.getInstance().getMainFrame().getNotificationCenter());
-
-        add(msiDetails);
-
-        Boolean isAcknowledged = msiHandler.isAcknowledged(selectedGraphic
-                .getMsiMessage().getMessageId());
-        msiAcknowledge.setMsiHandler(msiHandler);
-        msiAcknowledge.setEnabled(!isAcknowledged);
-        msiAcknowledge.setMsiMessage(selectedGraphic.getMsiMessage());
-        add(msiAcknowledge);
-
-        revalidate();
-        generalMenu(false);
-    }
-
-    public void msiDirectionalMenu(MsiDirectionalIcon selectedGraphic,
-            MsiLayer msiLayer) {
-        removeAll();
-
-        msiDetails.setMsiMessage(selectedGraphic.getMessage().msiMessage);
-        add(msiDetails);
-
-        msiZoomTo.setMsiLayer(msiLayer);
-        msiZoomTo.setMsiMessageExtended(selectedGraphic.getMessage());
-        add(msiZoomTo);
-
         revalidate();
         generalMenu(false);
     }
@@ -610,9 +552,6 @@ public class MapMenu extends MapMenuCommon {
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
         
-        if (obj instanceof MsiHandler) {
-            msiHandler = (MsiHandler) obj;
-        }
         if (obj instanceof NewRouteContainerLayer) {
             // newRouteLayer = (NewRouteContainerLayer) obj;
         }
