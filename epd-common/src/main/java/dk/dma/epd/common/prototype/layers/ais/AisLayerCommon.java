@@ -112,10 +112,9 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      * Updates which AIS target this layer should display as the selected
      * target. If the provided {@code mmsi} does not have a graphical
      * representation in this layer, this method will remove the current
-     * selection. Furthermore, if a {@code TargetGraphic} matching the
-     * {@code mmsi} is found, this object needs to implement
-     * {@code ISelectableGraphic} for the selection to be valid. If this is not
-     * the case, this method will remove the current selection.
+     * selection. For a selection to be valid, the graphic matching the MMSI
+     * must either be a sub class of {@link VesselGraphicComponent} or an
+     * implementation of {@link ISelectableGraphic}.
      * 
      * @param mmsi
      *            The MMSI of an AIS target that is now the selected AIS target.
@@ -124,7 +123,10 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      */
     public final void setSelectedTarget(long mmsi, boolean repaintImmediately) {
         TargetGraphic tg = this.targets.get(mmsi);
-        if (tg instanceof ISelectableGraphic) {
+        if(tg instanceof VesselGraphicComponent) {
+            VesselGraphicComponent vgc = (VesselGraphicComponent) tg;
+            this.setSelectedGraphic(vgc.getVesselGraphic(), repaintImmediately);
+        } else if(tg instanceof ISelectableGraphic) {
             this.setSelectedGraphic((ISelectableGraphic) tg, repaintImmediately);
         } else {
             this.setSelectedGraphic(null, repaintImmediately);
