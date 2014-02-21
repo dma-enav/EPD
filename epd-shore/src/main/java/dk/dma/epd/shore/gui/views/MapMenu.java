@@ -32,6 +32,7 @@ import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.menuitems.GeneralNewRoute;
+import dk.dma.epd.shore.gui.views.menuitems.LayerToggleWindow;
 import dk.dma.epd.shore.gui.views.menuitems.RouteEditEndRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteFromRoute;
 import dk.dma.epd.shore.gui.views.menuitems.SendRouteToShip;
@@ -88,7 +89,7 @@ public class MapMenu extends MapMenuCommon {
 
     private RouteManager routeManager;
     private Route route;
-    
+
     private VoyageLayer voyageLayer;
 
     private AisLayer aisLayer;
@@ -97,6 +98,9 @@ public class MapMenu extends MapMenuCommon {
     private ToggleAisTargetNames aisNames;
 
     private ToggleAisTargetName hideAisTargetName;
+
+    private JMapFrame jMapFrame;
+    private LayerToggleWindow layerTogglingWindow;
 
     // private NogoHandler nogoHandler;
 
@@ -135,18 +139,16 @@ public class MapMenu extends MapMenuCommon {
 
         this.voyageDelete = new VoyageDeleteMenuItem("Delete Voyage");
         this.voyageDelete.addActionListener(this);
-        
+
         // voyage leg menu
-        voyageHandlingLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint(
-                "Insert waypoint here", EPDShore.getInstance().getVoyageEventDispatcher());
+        voyageHandlingLegInsertWaypoint = new VoyageHandlingLegInsertWaypoint("Insert waypoint here", EPDShore.getInstance()
+                .getVoyageEventDispatcher());
         voyageHandlingLegInsertWaypoint.addActionListener(this);
 
-        voyageHandlingWaypointDelete = new VoyageHandlingWaypointDelete(
-                "Delete waypoint");
+        voyageHandlingWaypointDelete = new VoyageHandlingWaypointDelete("Delete waypoint");
         voyageHandlingWaypointDelete.addActionListener(this);
 
-        voyageHandlingAppendWaypoint = new VoyageHandlingAppendWaypoint(
-                "Append waypoint");
+        voyageHandlingAppendWaypoint = new VoyageHandlingAppendWaypoint("Append waypoint");
         voyageHandlingAppendWaypoint.addActionListener(this);
 
         voyageProperties = new VoyageProperties("Show Voyage Plan");
@@ -160,22 +162,25 @@ public class MapMenu extends MapMenuCommon {
 
         voyageZoomToShip = new VoyageZoomToShip("Zoom to Ship");
         voyageZoomToShip.addActionListener(this);
-        
+
         voyageHandlingOptimizeRoute = new VoyageHandlingOptimizeRoute("Optimize Voyage via. SSPA");
         voyageHandlingOptimizeRoute.addActionListener(this);
-        
+
         voyageHideAll = new VoyageHideAll("Toggle Voyage Layer");
         voyageHideAll.addActionListener(this);
-        
+
         setAisNames(new ToggleAisTargetNames());
         getAisNames().addActionListener(this);
         hideAisTargetName = new ToggleAisTargetName();
         hideAisTargetName.addActionListener(this);
+
+        // Layer Toggling Window
+        layerTogglingWindow = new LayerToggleWindow("Show Layer Menu");
+        layerTogglingWindow.addActionListener(this);
     }
 
     /**
-     * Adds the general menu to the right-click menu. Remember to always add
-     * this first, when creating specific menus.
+     * Adds the general menu to the right-click menu. Remember to always add this first, when creating specific menus.
      * 
      * @param alone
      */
@@ -187,12 +192,12 @@ public class MapMenu extends MapMenuCommon {
         hideIntendedRoutes.setIntendedRouteHandler(intendedRouteHandler);
         showIntendedRoutes.setIntendedRouteHandler(intendedRouteHandler);
         checkIntendedRouteItems(hideIntendedRoutes, showIntendedRoutes);
-        
+
         newRoute.setToolBar(EPDShore.getInstance().getMainFrame().getToolbar());
 
         showPastTracks.setAisHandler(aisHandler);
         hidePastTracks.setAisHandler(aisHandler);
-        
+
         // newRoute.setMouseDelegator(mouseDelegator);
         // newRoute.setMainFrame(mainFrame);
 
@@ -208,37 +213,52 @@ public class MapMenu extends MapMenuCommon {
             add(getAisNames());
             addSeparator();
             add(scaleMenu);
-            
-            voyageHideAll.setVoyageLayer(voyageLayer);
-            add(voyageHideAll);
+
+            if (jMapFrame.getLayerTogglingPanel() != null) {
+                add(layerTogglingWindow);
+            }
+
+            // voyageHideAll.setVoyageLayer(voyageLayer);
+            // add(voyageHideAll);
             return;
         }
 
         addSeparator();
         add(hideIntendedRoutes);
         add(scaleMenu);
-                
+
+        if (jMapFrame.getLayerTogglingPanel() != null) {
+            add(layerTogglingWindow);
+            // addLayerToggle();
+        }
+
         revalidate();
     }
 
+    // private void addLayerToggle(){
+    // // layerTogglingWindow.setPosition(position);
+    //
+    //
+    // }
+
     /**
      * Builds ais target menu
-     * @param vesselTargetGraphic 
+     * 
+     * @param vesselTargetGraphic
      */
     public void aisMenu(VesselTarget vesselTarget, VesselTargetGraphic vesselTargetGraphic) {
         removeAll();
 
         sendRouteToShip.setMSSI(vesselTarget.getMmsi());
-        sendRouteToShip.setSendRouteDialog(EPDShore.getInstance().getMainFrame()
-                .getSendRouteDialog());
+        sendRouteToShip.setSendRouteDialog(EPDShore.getInstance().getMainFrame().getSendRouteDialog());
         sendRouteToShip.setEnabled(EPDShore.getInstance().getRouteSuggestionHandler()
                 .shipAvailableForRouteSuggestion(vesselTarget.getMmsi()));
 
         add(sendRouteToShip);
-        
+
         hideAisTargetName.setVesselTargetGraphic(vesselTargetGraphic);
         hideAisTargetName.setIAisTargetListener(this.aisLayer);
-        
+
         add(hideAisTargetName);
 
         // Toggle show intended route
@@ -249,19 +269,19 @@ public class MapMenu extends MapMenuCommon {
         aisTogglePastTrack.setAisLayer(aisLayer);
         aisTogglePastTrack.setText((vesselTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
         add(aisTogglePastTrack);
-        
+
         // Clear past-track
         aisClearPastTrack.setMobileTarget(vesselTarget);
         aisClearPastTrack.setAisLayer(aisLayer);
         aisClearPastTrack.setText("Clear past-track");
         add(aisClearPastTrack);
-        
+
         // Send chat message
         addSeparator();
         sendChatMessage.setVesselTarget(vesselTarget);
         sendChatMessage.checkEnabled();
         add(sendChatMessage);
-                
+
         generalMenu(false);
         revalidate();
     }
@@ -282,27 +302,26 @@ public class MapMenu extends MapMenuCommon {
         add(sarTargetDetails);
 
         addSeparator();
-        
+
         // Toggle show past-track
         aisTogglePastTrack.setMobileTarget(sarTarget);
         aisTogglePastTrack.setAisLayer(aisLayer);
         aisTogglePastTrack.setText((sarTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
         add(aisTogglePastTrack);
-        
+
         // Clear past-track
         aisClearPastTrack.setMobileTarget(sarTarget);
         aisClearPastTrack.setAisLayer(aisLayer);
         aisClearPastTrack.setText("Clear past-track");
         add(aisClearPastTrack);
-        
+
         revalidate();
         generalMenu(false);
     }
 
     public void generalRouteMenu(int routeIndex) {
 
-        routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
-                .getRouteManager();
+        routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog().getRouteManager();
         route = routeManager.getRoute(routeIndex);
 
         routeAppendWaypoint.setRouteManager(routeManager);
@@ -312,8 +331,7 @@ public class MapMenu extends MapMenuCommon {
         addSeparator();
 
         setRouteExchangeRoute.setRoute(route);
-        setRouteExchangeRoute.setSendRouteDialog(EPDShore.getInstance().getMainFrame()
-                .getSendRouteDialog());
+        setRouteExchangeRoute.setSendRouteDialog(EPDShore.getInstance().getMainFrame().getSendRouteDialog());
         add(setRouteExchangeRoute);
 
         routeHide.setRouteManager(routeManager);
@@ -342,8 +360,7 @@ public class MapMenu extends MapMenuCommon {
             routeShowMetocToggle.setEnabled(false);
         }
 
-        if (route.getRouteMetocSettings().isShowRouteMetoc()
-                && routeManager.hasMetoc(route)) {
+        if (route.getRouteMetocSettings().isShowRouteMetoc() && routeManager.hasMetoc(route)) {
             routeShowMetocToggle.setText("Hide METOC");
         } else {
             routeShowMetocToggle.setText("Show METOC");
@@ -368,14 +385,17 @@ public class MapMenu extends MapMenuCommon {
 
     /**
      * Creates the route leg menu
-     * @param routeIndex the route index
-     * @param routeLeg the route leg
-     * @param point the mouse location
+     * 
+     * @param routeIndex
+     *            the route index
+     * @param routeLeg
+     *            the route leg
+     * @param point
+     *            the mouse location
      */
     @Override
     public void routeLegMenu(int routeIndex, RouteLeg routeLeg, Point point) {
-        routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
-                .getRouteManager();
+        routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog().getRouteManager();
 
         removeAll();
 
@@ -395,13 +415,15 @@ public class MapMenu extends MapMenuCommon {
 
     /**
      * Creates the route way point menu
-     * @param routeIndex the route index
-     * @param routeWaypointIndex the route way point index
+     * 
+     * @param routeIndex
+     *            the route index
+     * @param routeWaypointIndex
+     *            the route way point index
      */
     @Override
     public void routeWaypointMenu(int routeIndex, int routeWaypointIndex) {
-        routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
-                .getRouteManager();
+        routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog().getRouteManager();
 
         removeAll();
 
@@ -416,8 +438,7 @@ public class MapMenu extends MapMenuCommon {
         revalidate();
     }
 
-    public void voyageGeneralMenu(long transactionID, long mmsi, Route route,
-            MapBean mapBean) {
+    public void voyageGeneralMenu(long transactionID, long mmsi, Route route, MapBean mapBean) {
         removeAll();
 
         VesselTarget vesselTarget = aisHandler.getVesselTarget(mmsi);
@@ -430,8 +451,7 @@ public class MapMenu extends MapMenuCommon {
             voyageZoomToShip.setEnabled(false);
         }
 
-        if (strategicRouteHandler.getStrategicNegotiationData().containsKey(
-                transactionID)) {
+        if (strategicRouteHandler.getStrategicNegotiationData().containsKey(transactionID)) {
             voyageShowTransaction.setEnabled(true);
             voyageShowTransaction.setTransactionID(transactionID);
         } else {
@@ -446,15 +466,14 @@ public class MapMenu extends MapMenuCommon {
 
         voyageRenegotiate.setEnabled(EPDShore.getInstance().getStrategicRouteHandler()
                 .shipAvailableForStrategicRouteTransaction(mmsi)
-                && strategicRouteHandler.getStrategicNegotiationData().containsKey(
-                        transactionID));
+                && strategicRouteHandler.getStrategicNegotiationData().containsKey(transactionID));
 
         add(voyageZoomToShip);
         add(voyageShowTransaction);
 
         add(voyageProperties);
         add(voyageRenegotiate);
-        
+
         // Set ID of voyage to be deleted when this menu item is invoked.
         this.voyageDelete.setVoyageId(transactionID);
         this.add(this.voyageDelete);
@@ -462,15 +481,14 @@ public class MapMenu extends MapMenuCommon {
         // Show transaction
         // Show voyage plan
         // Renegotiate Voyage
-        
+
         revalidate();
     }
 
-    public void voyageWaypointMenu(VoyageHandlingLayer voyageHandlingLayer,
-            MapBean mapBean, Voyage voyage, boolean modified, JMapFrame parent,
-            VoyagePlanInfoPanel voyagePlanInfoPanel, boolean waypoint,
-            Route route, RouteLeg routeLeg, Point point, int routeWayPointIndex, boolean renegotiate) {
-        
+    public void voyageWaypointMenu(VoyageHandlingLayer voyageHandlingLayer, MapBean mapBean, Voyage voyage, boolean modified,
+            JMapFrame parent, VoyagePlanInfoPanel voyagePlanInfoPanel, boolean waypoint, Route route, RouteLeg routeLeg,
+            Point point, int routeWayPointIndex, boolean renegotiate) {
+
         removeAll();
 
         openVoyagePlan.setVoyagePlanInfoPanel(voyagePlanInfoPanel);
@@ -478,8 +496,7 @@ public class MapMenu extends MapMenuCommon {
         sendVoyage.setRenegotiate(renegotiate);
         sendVoyage.setVoyage(voyage);
         sendVoyage.setModifiedRoute(modified);
-        sendVoyage.setSendVoyageDialog(EPDShore.getInstance().getMainFrame()
-                .getSendVoyageDialog());
+        sendVoyage.setSendVoyageDialog(EPDShore.getInstance().getMainFrame().getSendVoyageDialog());
         sendVoyage.setParent(parent);
 
         add(openVoyagePlan);
@@ -491,19 +508,17 @@ public class MapMenu extends MapMenuCommon {
 
             // Delete waypoint
             voyageHandlingWaypointDelete.setEnabled(true);
-            voyageHandlingWaypointDelete
-                    .setRouteWaypointIndex(routeWayPointIndex);
+            voyageHandlingWaypointDelete.setRouteWaypointIndex(routeWayPointIndex);
             voyageHandlingWaypointDelete.setRoute(route);
-            voyageHandlingWaypointDelete
-                    .setVoyageHandlingLayer(voyageHandlingLayer);
+            voyageHandlingWaypointDelete.setVoyageHandlingLayer(voyageHandlingLayer);
 
             add(voyageHandlingWaypointDelete);
 
         } else {
 
             voyageHandlingLegInsertWaypoint.setMapBean(mapBean);
-//            voyageHandlingLegInsertWaypoint
-//                    .setVoyageHandlingLayer(voyageHandlingLayer);
+            // voyageHandlingLegInsertWaypoint
+            // .setVoyageHandlingLayer(voyageHandlingLayer);
             voyageHandlingLegInsertWaypoint.setRoute(route);
             voyageHandlingLegInsertWaypoint.setRouteLeg(routeLeg);
             voyageHandlingLegInsertWaypoint.setPoint(point);
@@ -512,20 +527,18 @@ public class MapMenu extends MapMenuCommon {
 
         }
 
-        voyageHandlingAppendWaypoint
-                .setVoyageHandlingLayer(voyageHandlingLayer);
+        voyageHandlingAppendWaypoint.setVoyageHandlingLayer(voyageHandlingLayer);
         voyageHandlingAppendWaypoint.setRoute(route);
         add(voyageHandlingAppendWaypoint);
         // Right click, hide voyages and intended routes maybe?
-        
+
         addSeparator();
-        
+
         voyageHandlingOptimizeRoute.setVoyageHandlingLayer(voyageHandlingLayer);
         voyageHandlingOptimizeRoute.setAisHandler(aisHandler);
         voyageHandlingOptimizeRoute.setRoute(route);
         voyageHandlingOptimizeRoute.setMmsi(voyage.getMmsi());
-        
-        
+
         add(voyageHandlingOptimizeRoute);
         revalidate();
     }
@@ -534,10 +547,9 @@ public class MapMenu extends MapMenuCommon {
      * Creates the route edit menu
      */
     @Override
-   public void routeEditMenu() {
+    public void routeEditMenu() {
         removeAll();
-        routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog()
-                .getRouteManager();
+        routeManager = EPDShore.getInstance().getMainFrame().getRouteManagerDialog().getRouteManager();
 
         routeEditEndRoute.setToolBar(EPDShore.getInstance().getMainFrame().getToolbar());
 
@@ -551,7 +563,7 @@ public class MapMenu extends MapMenuCommon {
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
-        
+
         if (obj instanceof NewRouteContainerLayer) {
             // newRouteLayer = (NewRouteContainerLayer) obj;
         }
@@ -563,6 +575,11 @@ public class MapMenu extends MapMenuCommon {
         }
         if (obj instanceof VoyageLayer) {
             voyageLayer = (VoyageLayer) obj;
+        }
+
+        if (obj instanceof JMapFrame) {
+            jMapFrame = (JMapFrame) obj;
+            layerTogglingWindow.setLayerToggling(jMapFrame.getLayerTogglingPanel());
         }
     }
 
