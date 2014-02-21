@@ -167,7 +167,9 @@ public class ChatServiceDialog extends JDialog implements ActionListener {
      * use this method to initialize and display the dialog
      */
     public void init() {
-        init(null);
+        ChatServiceTarget target = (ChatServiceTarget)targetComboBox.getSelectedItem();
+        MaritimeId id = (target == null) ? null : target.getId();
+        init(id);
     }
     
     /**
@@ -210,7 +212,6 @@ public class ChatServiceDialog extends JDialog implements ActionListener {
             targetComboBox.addItem(new ChatServiceTarget(service.getId(), name));
         }
         
-        senderNameTxt.setText("");
         messageTxt.setText("");
     }
     

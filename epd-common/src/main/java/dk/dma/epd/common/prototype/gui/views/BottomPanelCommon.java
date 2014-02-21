@@ -40,7 +40,9 @@ import dk.dma.epd.common.prototype.gui.StatusLabel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.gui.notification.NotificationLabel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
+import dk.dma.epd.common.prototype.gui.notification.NotificationPanel.NotificationStatistics;
 import dk.dma.epd.common.prototype.gui.notification.PopUpNotification;
+import dk.dma.epd.common.prototype.gui.notification.NotificationPanel.NotificationPanelListener;
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.NotificationType;
@@ -51,7 +53,7 @@ import dk.dma.epd.common.prototype.status.IStatusComponent;
 /**
  * Panel shown below the chart
  */
-public class BottomPanelCommon extends OMComponentPanel implements MouseListener, ActionListener {
+public class BottomPanelCommon extends OMComponentPanel implements MouseListener, ActionListener, NotificationPanelListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -70,6 +72,7 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
     private JPanel statusIcons = new JPanel();
     
     private JPanel notificationPanel = new JPanel();
+    PopUpNotification notificationPopUp;
     
     /**
      * Constructor
@@ -120,14 +123,13 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
         }
         add(notificationPanel, BorderLayout.WEST);
         
-        /*
-        Rectangle bounds = new Rectangle(100, BottomPanelCommon.this.getLocation().y - 200, 200, 200);
-        PopUpNotification notification = new PopUpNotification();
-        notification.installInLayeredPane(
+        
+        // Set up the notification panel
+        Rectangle bounds = new Rectangle(100, BottomPanelCommon.this.getLocation().y - 200, 300, 200);
+        notificationPopUp = new PopUpNotification(
                 GraphicsUtil.getTopLevelContainer(notificationPanel),
                 SwingConstants.SOUTH_WEST,
                 bounds);
-        */
     }
 
     
@@ -176,12 +178,15 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
      * @param alert the alert
      */
     public void triggerAlert(NotificationType type, Notification<?, ?> notification, NotificationAlert alert) {
-        Rectangle bounds = new Rectangle(100, BottomPanelCommon.this.getLocation().y - 200, 200, 200);
-        PopUpNotification popup = new PopUpNotification();
-        popup.installInLayeredPane(
-                GraphicsUtil.getTopLevelContainer(notificationPanel),
-                SwingConstants.SOUTH_WEST,
-                bounds);
+        notificationPopUp.addNotification(notification);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void notificationsUpdated(NotificationStatistics stats) {
+        
     }
     
     /**

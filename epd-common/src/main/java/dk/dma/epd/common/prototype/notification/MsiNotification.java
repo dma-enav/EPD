@@ -34,7 +34,7 @@ public class MsiNotification extends Notification<MsiMessageExtended, Integer>{
         
         // Update the notification data from the MSI message
         title = message.getMsiMessage().getMessage();
-        severity = NotificationSeverity.WARNING;
+        severity = NotificationSeverity.MESSAGE;
         read = acknowledged = message.acknowledged;
         if (message.getMsiMessage().getUpdated() == null) {
             date = message.getMsiMessage().getCreated();
