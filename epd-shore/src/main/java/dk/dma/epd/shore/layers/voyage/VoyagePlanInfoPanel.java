@@ -28,8 +28,10 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
@@ -37,7 +39,6 @@ import dk.dma.epd.shore.gui.route.RoutePropertiesDialog;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
-import dk.dma.epd.shore.gui.views.NotificationCenter;
 import dk.dma.epd.shore.voyage.Voyage;
 
 public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
@@ -48,7 +49,6 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
     private JPanel masterPanel;
     private JPanel notificationPanel;
     private static int moveHandlerHeight = 18;
-//    private JMapFrame parent;
     private Voyage voyage;
     private AisHandler aisHandler;
 
@@ -69,7 +69,6 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
     
     ChartPanel chartPanel;
     
-    NotificationCenter notificationCenter;
     VoyageHandlingLayer voyageHandlingLayer;
     
     /**
@@ -81,7 +80,6 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
         super();
 
         this.voyageHandlingLayer = voyageHandlingLayer;
-        this.notificationCenter = EPDShore.getInstance().getMainFrame().getNotificationCenter();
         
         // setBorder(BorderFactory.createLineBorder(Color.BLACK));
         setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED,
@@ -267,26 +265,18 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
     public void mouseEntered(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
     public void mouseExited(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
     public void mousePressed(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
@@ -304,12 +294,8 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
         
         if (arg0.getSource() == OpenShipDetailstextBtn && OpenShipDetailstextBtn.isEnabled()) {
             
-            notificationCenter.showStrategicRouteMsg(2, voyage.getId());
-            
-            //Notification Center
-            
-            
-            
+            EPD.getInstance().getNotificationCenter()
+                .selectNotification(NotificationType.STRATEGIC_ROUTE, voyage.getId());
             
         }
  

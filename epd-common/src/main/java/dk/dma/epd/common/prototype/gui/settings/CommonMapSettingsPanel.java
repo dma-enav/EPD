@@ -47,6 +47,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     private JLabel lblWmsUrl;
     private JCheckBox chckbxWmsIsUsed;
     private JLabel lblenterTheUrl;
+    private JCheckBox chckbxUseEnc;
     
     /**
      * Constructs a new CommonMapSettingsPanel object.
@@ -60,7 +61,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         /************** General settings ***************/
         
         generalMapSettings = new JPanel();
-        generalMapSettings.setBounds(6, 6, 438, 145);
+        generalMapSettings.setBounds(6, 6, 438, 160);
         generalMapSettings.setLayout(null);
         generalMapSettings.setBorder(new TitledBorder(null, "General", TitledBorder.LEADING, 
                 TitledBorder.TOP, null, null));
@@ -104,11 +105,15 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         
         this.add(generalMapSettings);
         
+        chckbxUseEnc = new JCheckBox("use ENC");
+        chckbxUseEnc.setBounds(16, 123, 84, 20);
+        generalMapSettings.add(chckbxUseEnc);
+        
         
         /************** WMS settings ***************/
         
         wmsSettings = new JPanel();
-        wmsSettings.setBounds(6, 163, 438, 175);
+        wmsSettings.setBounds(6, 176, 438, 175);
         wmsSettings.setLayout(null);
         wmsSettings.setBorder(new TitledBorder(null, "WMS Settings", TitledBorder.LEADING, 
                 TitledBorder.TOP, null, null));
@@ -169,6 +174,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
                 changed(this.settings.getMaxScale(), this.spinnerMaximumScale.getValue()) ||
                 changed(this.settings.getCenter().getLatitude(), this.spinnerLatitude.getValue()) ||
                 changed(this.settings.getCenter().getLongitude(), this.spinnerLongitude.getValue()) ||
+                changed(this.settings.isUseEnc(), this.chckbxUseEnc.isSelected()) ||
                 
                 // Changes in WMS settings.
                 changed(this.settings.isUseWmsDragging(), this.chckbxWmsIsUsed.isSelected()) ||
@@ -189,10 +195,12 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         Float longitude = this.settings.getCenter().getLongitude();
         this.spinnerLatitude.setValue(latitude.doubleValue());
         this.spinnerLongitude.setValue(longitude.doubleValue());
+        this.chckbxUseEnc.setSelected(this.settings.isUseEnc());
 
         // Load settings for WMS.
         this.chckbxWmsIsUsed.setSelected(settings.isUseWmsDragging());
         this.textFieldWMSURL.setText(settings.getWmsQuery());
+        
     }
 
     /**
@@ -207,6 +215,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         LatLonPoint center = new LatLonPoint.Double(
                 (Double) this.spinnerLatitude.getValue(), (Double) this.spinnerLongitude.getValue());
         this.settings.setCenter(center);
+        this.settings.setUseEnc(this.chckbxUseEnc.isSelected());
         
         // Save settings for WMS.
         this.settings.setUseWmsDragging(this.chckbxWmsIsUsed.isSelected());

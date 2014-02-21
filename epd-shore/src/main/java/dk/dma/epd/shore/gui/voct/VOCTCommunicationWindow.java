@@ -25,8 +25,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -50,7 +48,6 @@ import javax.swing.table.TableCellRenderer;
 
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.voct.SRU;
-import dk.dma.epd.shore.voct.SRU.sru_status;
 import dk.dma.epd.shore.voct.SRUManager;
 import dk.dma.epd.shore.voct.SRUUpdateEvent;
 import dk.dma.epd.shore.voct.SRUUpdateListener;
@@ -63,7 +60,6 @@ public class VOCTCommunicationWindow extends JDialog implements
 
     private final JPanel initPanel = new JPanel();
     private JButton sendSAR;
-    private VOCTManager voctManager;
     private SRUManager sruManager;
 
     private JLabel noSRUs;
@@ -140,7 +136,6 @@ public class VOCTCommunicationWindow extends JDialog implements
     // }
 
     public void setVoctManager(VOCTManager voctManager) {
-        this.voctManager = voctManager;
         sruManager = voctManager.getSruManager();
         sruManager.addListener(this);
     }
@@ -359,6 +354,7 @@ public class VOCTCommunicationWindow extends JDialog implements
 
     }
 
+    @SuppressWarnings("unused")
     private void displayMissingField(String fieldname) {
         // Missing or incorrect value in
         JOptionPane.showMessageDialog(this, "Missing or incorrect value in "

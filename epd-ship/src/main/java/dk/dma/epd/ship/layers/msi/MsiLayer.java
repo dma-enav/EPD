@@ -36,7 +36,6 @@ import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.event.RouteEditMouseMode;
 import dk.dma.epd.ship.gui.MapMenu;
-import dk.dma.epd.ship.gui.TopPanel;
 import dk.frv.enav.common.xml.msi.MsiPoint;
 
 /**
@@ -46,7 +45,6 @@ public class MsiLayer extends MsiLayerCommon {
     
     private static final long serialVersionUID = 1L;
 
-    private TopPanel topPanel;
     private MouseDelegator mouseDelegator;
     private LatLonPoint mousePosition;
     private NewRouteContainerLayer newRouteLayer;
@@ -163,9 +161,6 @@ public class MsiLayer extends MsiLayerCommon {
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
         
-        if (obj instanceof TopPanel) {
-            topPanel = (TopPanel) obj;
-        }
         if (obj instanceof MouseDelegator) {
             mouseDelegator = (MouseDelegator) obj;
         }
@@ -193,11 +188,11 @@ public class MsiLayer extends MsiLayerCommon {
     protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {        
         if(clickedGraphics instanceof MsiSymbolGraphic){
             MsiSymbolGraphic msi = (MsiSymbolGraphic) clickedGraphics;
-            getMapMenu().msiMenu(topPanel, msi);
+            getMapMenu().msiMenu(msi);
         
         } else if(clickedGraphics instanceof MsiDirectionalIcon) {
             MsiDirectionalIcon direction = (MsiDirectionalIcon) clickedGraphics;
-            getMapMenu().msiDirectionalMenu(topPanel, direction, this);
+            getMapMenu().msiDirectionalMenu(direction, this);
         }
     }
     

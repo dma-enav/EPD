@@ -27,7 +27,8 @@ import java.awt.event.MouseListener;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 
 public class ShipIndicatorPanel extends JPanel implements MouseListener {
@@ -108,12 +109,8 @@ public class ShipIndicatorPanel extends JPanel implements MouseListener {
 
     @Override
     public void mouseReleased(MouseEvent arg0) {
-//        if (arg0.getSource() == lblRouteRequestPending && lblRouteRequestPending.isEnabled()) {
         setBackground(new Color(83, 83, 83));
-            EPDShore.getInstance().getMainFrame().getNotificationCenter().showStrategicRouteMsg(2, id);
-            
-//        }
-        
-
+            EPD.getInstance().getNotificationCenter()
+                .selectNotification(NotificationType.STRATEGIC_ROUTE, id);            
     }
 }

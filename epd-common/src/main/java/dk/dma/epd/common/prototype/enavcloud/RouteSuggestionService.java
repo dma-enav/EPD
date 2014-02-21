@@ -44,13 +44,28 @@ public class RouteSuggestionService {
      * Status of the route suggestion
      */
     public enum RouteSuggestionStatus {
-        NOT_SENT, 
-        FAILED, 
-        SENT_NOT_ACK, 
-        RECEIVED_APP_ACK, 
-        RECEIVED_ACCEPTED, 
-        RECEIVED_REJECTED, 
-        RECEIVED_NOTED
+        NOT_SENT("Not sent", "Not sent - check network status"), 
+        FAILED("Failed", "Failed to send to target"), 
+        SENT_NOT_ACK("Sent but not received", "Sent but no answer from route aplication"), 
+        RECEIVED_APP_ACK("Sent", "Sent and acknowleged by application but not user"), 
+        RECEIVED_ACCEPTED("Accepted", "Route Suggestion Accepted by ship"), 
+        RECEIVED_REJECTED("Rejected", "Route Suggestion Rejected by user"), 
+        RECEIVED_NOTED("Noted", "Route Suggestion Noted by user");
+        
+        private String descShort, descLong;
+        
+        private RouteSuggestionStatus(String descShort, String descLong) {
+            this.descShort = descShort;
+            this.descLong = descLong;
+        }
+
+        public String getDescShort() {
+            return descShort;
+        }
+
+        public String getDescLong() {
+            return descLong;
+        }
     }
     
     /**

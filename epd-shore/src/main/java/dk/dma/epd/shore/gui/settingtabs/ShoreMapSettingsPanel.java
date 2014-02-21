@@ -33,11 +33,10 @@ public class ShoreMapSettingsPanel extends CommonMapSettingsPanel {
     private EPDMapSettings settings;
     
     public ShoreMapSettingsPanel() {
-        getWMSPanel().setBounds(6, 163, 438, 170);
         
         chckbxMapsStartWith = new JCheckBox("Maps start with WMS enabled");
         chckbxMapsStartWith.setBounds(16, 20, 215, 20);
-        getWMSPanel().add(chckbxMapsStartWith);
+        super.getWMSPanel().add(chckbxMapsStartWith);
     }
     
     public void doLoadSettings() {

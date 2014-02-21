@@ -46,7 +46,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
 
 import dk.dma.epd.common.graphics.Resources;
-import dk.dma.epd.common.prototype.gui.ComponentFrame;
+import dk.dma.epd.common.prototype.gui.InternalComponentFrame;
 import dk.dma.epd.common.prototype.gui.IMapFrame;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.shore.EPDShore;
@@ -57,7 +57,7 @@ import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
  * 
  * @author Steffen D. Sommer (steffendsommer@gmail.com), David A. Camre (davidcamre@gmail.com)
  */
-public class JMapFrame extends ComponentFrame implements IMapFrame {
+public class JMapFrame extends InternalComponentFrame implements IMapFrame {
 
     private static final long serialVersionUID = 1L;
     protected ChartPanel chartPanel;
@@ -99,21 +99,13 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
         this.id = id;
         this.type = type;
 
-        long startTime = System.currentTimeMillis();
-
         // Initialize the glass pane
         initGlassPane();
 
         chartPanel = new ChartPanel(mainFrame, this);
-
-        System.out.println("Time elapsed 1: " + (System.currentTimeMillis() - startTime));
-
-        startTime = System.currentTimeMillis();
-
         this.setContentPane(chartPanel);
 
-        System.out.println("Time elapsed 2: " + (System.currentTimeMillis() - startTime));
-        startTime = System.currentTimeMillis();
+        setContentPane(chartPanel);
 
         new Thread(new Runnable() {
 
@@ -123,19 +115,13 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
             }
         }).run();
 
-        System.out.println("Time elapsed 3: " + (System.currentTimeMillis() - startTime));
-        startTime = System.currentTimeMillis();
-
         initGUI();
 
-        System.out.println("Time elapsed 4: " + (System.currentTimeMillis() - startTime));
-
         layerTogglingPanel.setChartPanel(chartPanel);
-        
-        this.setVisible(true);
-        
-        
 
+        this.setVisible(true);
+
+        setVisible(true);
 
     }
 
@@ -566,8 +552,5 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
     public LayerTogglingPanel getLayerTogglingPanel() {
         return layerTogglingPanel;
     }
-    
-    
-    
-    
+
 }

@@ -22,9 +22,14 @@ import java.util.Properties;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.Resources;
+import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
+import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
+import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
+import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
+import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
 
@@ -36,7 +41,14 @@ public abstract class EPD implements ISettingsListener {
     
     protected static EPD instance;    
     protected Settings settings;
+    protected SystemTrayCommon systemTray;
     protected Properties properties = new Properties();
+    
+    // Common services
+    protected ChatServiceHandlerCommon chatServiceHandler;
+    protected AisHandlerCommon aisHandler;
+    protected MsiHandler msiHandler;
+    protected NotificationCenterCommon notificationCenter;
     
     /**
      * Constructor
@@ -147,6 +159,46 @@ public abstract class EPD implements ISettingsListener {
      * @return a reference to the main frame of the application
      */
     public abstract MainFrameCommon getMainFrame();
+    
+    /**
+     * Returns the system tray
+     * @return the system tray
+     */
+    public SystemTrayCommon getSystemTray() {
+        return systemTray;
+    }
+
+    /**
+     * Returns a reference to the chat service
+     * @return a reference to the chat service
+     */
+    public ChatServiceHandlerCommon getChatServiceHandler() {
+        return chatServiceHandler;
+    }
+
+    /**
+     * Returns a reference to the AIS handler
+     * @return a reference to the AIS handler
+     */
+    public AisHandlerCommon getAisHandler() {
+        return aisHandler;
+    }
+
+    /**
+     * Return the msiHandker
+     * @return - MsiHandler
+     */
+    public MsiHandler getMsiHandler() {
+        return msiHandler;
+    }
+    
+    /**
+     * Returns a reference to the notification center
+     * @return a reference to the notification center
+     */
+    public NotificationCenterCommon getNotificationCenter() {
+        return notificationCenter;
+    }
     
     /**
      * Returns the current position of the EPD system

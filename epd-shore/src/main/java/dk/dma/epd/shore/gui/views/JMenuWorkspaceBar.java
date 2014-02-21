@@ -29,8 +29,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
 
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.fileselection.WorkspaceFileFilter;
 
@@ -115,6 +117,17 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
         JMenuItem notCenter = new JMenuItem("Notification Center");
         notifications.add(notCenter);
+        
+        // Add a "Send message" menu item
+        notifications.add(new JSeparator());
+        JMenuItem chatMenuItem = new JMenuItem("Send message...");
+        chatMenuItem.addActionListener(new ActionListener() {            
+            @Override public void actionPerformed(ActionEvent e) {
+                EPD.getInstance().getMainFrame().getChatServiceDialog().init();
+            }
+        });
+        notifications.add(chatMenuItem);
+        
 
         workspace.addSeparator();
 
@@ -179,7 +192,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
         notCenter.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                mainFrame.toggleNotificationCenter();
+                EPD.getInstance().getNotificationCenter().toggleVisibility();
             }
         });
 

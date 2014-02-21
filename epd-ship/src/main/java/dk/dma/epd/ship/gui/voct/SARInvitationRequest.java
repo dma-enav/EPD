@@ -33,9 +33,9 @@ import javax.swing.border.TitledBorder;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint.VOCTCommunicationMessageDatumPoint;
 import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse.VOCTCommunicationMessageRapidResponse;
+import dk.dma.epd.common.prototype.gui.ComponentFrame;
 import dk.dma.epd.common.prototype.model.voct.SAR_TYPE;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.gui.ComponentFrame;
 import dk.dma.epd.ship.service.voct.VOCTManager;
 
 /**

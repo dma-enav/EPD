@@ -15,52 +15,15 @@
  */
 package dk.dma.epd.common.prototype.service;
 
-import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import net.maritimecloud.net.MaritimeCloudClient;
-import net.maritimecloud.net.broadcast.BroadcastListener;
-import net.maritimecloud.net.broadcast.BroadcastMessageHeader;
-import net.maritimecloud.net.service.invocation.InvocationCallback;
-import net.maritimecloud.net.service.invocation.InvocationCallback.Context;
 
-import org.joda.time.DateTime;
-
-import com.bbn.openmap.MapBean;
-import com.bbn.openmap.geo.Geo;
-import com.bbn.openmap.geo.Intersection;
-import com.bbn.openmap.proj.GreatCircle;
-import com.bbn.openmap.proj.Projection;
-import com.bbn.openmap.proj.coords.LatLonPoint;
-
-import dk.dma.enav.model.geometry.CoordinateSystem;
-import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.Heading;
-import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
-import dk.dma.epd.common.prototype.ais.VesselTarget;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceDatumPoint;
-import dk.dma.epd.common.prototype.enavcloud.VOCTCommunicationServiceRapidResponse;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
-import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
-import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteBroadcast;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
-import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
-import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
-import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
-import dk.dma.epd.common.util.Converter;
 
 /**
  * Intended route service implementation.
@@ -78,11 +41,6 @@ public class VoctHandlerCommon extends EnavServiceHandlerCommon {
     protected ConcurrentHashMap<Long, FilteredIntendedRoute> filteredIntendedRoutes = new ConcurrentHashMap<>();
 
     protected List<IIntendedRouteListener> listeners = new CopyOnWriteArrayList<>();
-
-    private List<Position> intersectPositions = new ArrayList<Position>();
-
-    private AisHandlerCommon aisHandler;
-    private MapBean mapBean;
 
     /**
      * Constructor
@@ -105,21 +63,6 @@ public class VoctHandlerCommon extends EnavServiceHandlerCommon {
     @Override
     public void cloudConnected(MaritimeCloudClient connection) {
 
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void findAndInit(Object obj) {
-        super.findAndInit(obj);
-
-        if (obj instanceof AisHandlerCommon) {
-            aisHandler = (AisHandlerCommon) obj;
-        }
-        if (obj instanceof MapBean) {
-            mapBean = (MapBean) obj;
-        }
     }
 
 }

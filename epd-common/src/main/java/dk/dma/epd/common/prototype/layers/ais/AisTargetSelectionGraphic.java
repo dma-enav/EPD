@@ -21,6 +21,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.CenterRaster;
+import dk.dma.epd.common.prototype.EPD;
 
 /**
  * Defines the outline of the selected target
@@ -41,8 +42,7 @@ public class AisTargetSelectionGraphic extends OMGraphicList {
 
     private void createGraphics() {
 
-        targetImage = new ImageIcon(
-                AisTargetSelectionGraphic.class.getResource("/images/ais/highlight.png"));
+        targetImage = EPD.res().getCachedImageIcon("images/ais/highlight.png");
         imageWidth = targetImage.getIconWidth();
         imageHeight = targetImage.getIconHeight();
 

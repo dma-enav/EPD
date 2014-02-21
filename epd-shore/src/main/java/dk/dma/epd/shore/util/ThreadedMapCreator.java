@@ -290,8 +290,6 @@ public class ThreadedMapCreator implements Runnable {
 
         mainFrame.getMapWindows().add(window);
 
-        // mainFrame.getTopMenu().addMap(window, false, false);
-
         window.alwaysFront();
 
         window.getChartPanel().zoomToPoint(
@@ -330,16 +328,11 @@ public class ThreadedMapCreator implements Runnable {
         // long startTime = System.currentTimeMillis();
         JMapFrame mapFrame = addMapWindow();
         setupSharedLayers(mapFrame);
-
-        // System.out.println("Time elapsed: " + (System.currentTimeMillis() -
-        // startTime)/1000 );
-
     }
 
     private JMapFrame setupSharedLayers(JMapFrame window) {
 
         if (!mainFrame.isWmsLayerEnabled()) {
-            // System.out.println("wmslayer is not enabled");
             window.getChartPanel().getWmsLayer().setVisible(false);
             window.getChartPanel().getBgLayer().setVisible(true);
         } else {

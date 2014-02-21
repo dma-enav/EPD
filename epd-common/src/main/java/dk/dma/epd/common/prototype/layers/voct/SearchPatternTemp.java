@@ -25,7 +25,6 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.layers.voct.EffectiveSRUAreaGraphics.LineType;
 
 public class SearchPatternTemp extends OMGraphicList{
 

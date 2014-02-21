@@ -13,41 +13,54 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.gui.menuitems;
+package dk.dma.epd.common.prototype.gui.menuitems;
 
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.ship.gui.TopPanel;
-import dk.frv.enav.common.xml.msi.MsiMessage;
+import dk.dma.epd.common.prototype.layers.msi.MsiLayerCommon;
+import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 
-public class MsiDetails extends JMenuItem implements IMapMenuAction {
+/**
+ * Zooms to an MSI thingy
+ */
+public class MsiZoomTo extends JMenuItem implements IMapMenuAction {
+
+    private static final long serialVersionUID = 1L;
+    private MsiLayerCommon msiLayer;
+    private MsiMessageExtended msiMessageExtended;
 
     /**
-     * 
+     * Constructor
+     * @param text
      */
-    private static final long serialVersionUID = 1L;
-    private TopPanel topPanel;
-    private MsiMessage message;
-
-    public MsiDetails(String text) {
+    public MsiZoomTo(String text) {
         super();
         setText(text);
     }
-    
+
+    /**
+     * Called when the menu item is enacted
+     */
     @Override
     public void doAction() {
-        if (topPanel != null && topPanel.getMsiDialog() != null) {
-            topPanel.getMsiDialog().showMessage(message.getMessageId());
-        }
+        msiLayer.zoomTo(msiMessageExtended.msiMessage);
     }
 
-    public void setTopPanel(TopPanel topPanel) {
-        this.topPanel = topPanel;
+    /**
+     * Sets the MSI layer
+     * @param msiLayer the MSI layer
+     */
+    public void setMsiLayer(MsiLayerCommon msiLayer) {
+        this.msiLayer = msiLayer;
     }
-    
-    public void setMsiMessage(MsiMessage message) {
-        this.message = message;
+
+    /**
+     * Sets the MSI message
+     * @param msiMessageExtended the MSI message
+     */
+    public void setMsiMessageExtended(MsiMessageExtended msiMessageExtended) {
+        this.msiMessageExtended = msiMessageExtended;
     }
-    
+
 }
