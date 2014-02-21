@@ -18,6 +18,8 @@ package dk.dma.epd.common.prototype.gui.views;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -28,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 
 import com.bbn.openmap.gui.OMComponentPanel;
 
@@ -44,15 +47,16 @@ import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.service.MaritimeCloudServiceCommon;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
-import dk.dma.epd.common.util.Util;
 
 /**
  * Panel shown below the chart
  */
-public class BottomPanelCommon extends OMComponentPanel implements MouseListener, Runnable {
+public class BottomPanelCommon extends OMComponentPanel implements MouseListener, ActionListener {
 
     private static final long serialVersionUID = 1L;
 
+    Timer statusTimer;
+    
     private ShoreServicesCommon shoreServices;
     private AisHandlerCommon aisHandler;
     private MaritimeCloudServiceCommon maritimeCloudService;
@@ -82,7 +86,8 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
         // Add the status components
         addStatusComponents();
         
-        new Thread(this).start();
+        statusTimer = new Timer(3000, this);
+        statusTimer.start();
     }
     
     /**
@@ -180,14 +185,11 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
     }
     
     /**
-     * Main thread run method. Updates the status
+     * Called by the status update timer every 3 seconds.
      */
     @Override
-    public void run() {
-        while (true) {
-            updateStatus();
-            Util.sleep(3000);
-        }
+    public void actionPerformed(ActionEvent ae) {
+        updateStatus();
     }
 
     /**
