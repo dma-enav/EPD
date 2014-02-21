@@ -289,8 +289,6 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
     private void activateDefaultLayout() {
         setSize(defaultSize);
 
-        System.out.println("Activating normal");
-
         lblMessages.setText("");
         chatMessages.setText("");
 
@@ -388,8 +386,6 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
 
         if (e.getSource() == btnAccept) {
 
-            System.out.println("btn accept");
-
             strategicRouteHandler.sendReply(chatMessages.getText());
             // this.setVisible(false);
             btnAccept.setText("Accept");
@@ -446,8 +442,6 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
 
             for (int i = 0; i < latestReceivedRoute.getWaypoints().size(); i++) {
 
-                // System.out.println("Looking at index " + i);
-
                 double originalLat = originalRoute.getWaypoints().get(i)
                         .getPos().getLatitude();
                 double originalLon = originalRoute.getWaypoints().get(i)
@@ -462,12 +456,7 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
                     changes = changes + "Waypoint " + (i + 1)
                             + " new position\n";
                 }
-                System.out.println(originalRoute.getEtas().get(i).getTime()
-                        + " vs "
-                        + latestReceivedRoute.getEtas().get(i).getTime());
 
-                // System.out.println("new position " + changes);
-                // } else {
                 if (latestReceivedRoute.getEtas().get(i).getTime() != originalRoute
                         .getEtas().get(i).getTime()) {
                     changes = changes
@@ -481,7 +470,6 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
                                     .formatShortDateTimeNoTz(latestReceivedRoute
                                             .getEtas().get(i)) + "\n";
 
-                    // System.out.println("new eta" + changes);
                 }
 
             }
@@ -505,10 +493,6 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
         if (changes.equals("")) {
             changes = "No changes in receieved route";
         }
-
-        // changes = changes + "</html>";
-
-        System.out.println("Returning: " + changes);
 
         return changes;
     }
