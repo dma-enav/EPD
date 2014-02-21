@@ -25,10 +25,16 @@ import net.jcip.annotations.ThreadSafe;
 
 import com.bbn.openmap.MapHandlerChild;
 
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.notification.GeneralNotification;
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
+import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.sensor.nmea.IPntSensorListener;
 import dk.dma.epd.common.prototype.sensor.nmea.IResilientPntSensorListener;
 import dk.dma.epd.common.prototype.sensor.nmea.PntMessage;
 import dk.dma.epd.common.prototype.sensor.nmea.PntSource;
+import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 
 /**
  * Component to handle multi-source PNT messages
@@ -65,15 +71,36 @@ public class MultiSourcePntHandler extends MapHandlerChild implements IResilient
     public synchronized void receive(ResilientPntData rpntData) {
         // Log significant changes
         if (this.rpntData != null && this.rpntData.getPntSource() != rpntData.getPntSource()) {
-            LOG.warn("******** Changed PNT source from " + this.rpntData.getPntSource() + " to " + rpntData.getPntSource());
+            String desc = String.format("Changed PNT source from %s to %s", this.rpntData.getPntSource(), rpntData.getPntSource());
+            LOG.warn("******** " + desc);
+            sendNotification(NotificationSeverity.ALERT, "PNT Source Changed", desc);
         }
         if (this.rpntData != null && this.rpntData.getJammingFlag() != rpntData.getJammingFlag()) {
-            LOG.warn("******** Changed GPS jamming state from " + this.rpntData.getJammingFlag() + " to " + rpntData.getJammingFlag());
+            String desc = String.format("Changed GPS jamming state from %s to %s", this.rpntData.getJammingFlag(), rpntData.getJammingFlag());
+            LOG.warn("******** " + desc);
+            sendNotification(NotificationSeverity.WARNING, "GPS Jamming Change", desc);
         }
         this.rpntData = rpntData;
         
         // Publish the update to all listeners
         publishResilientPntDataUpdated();
+    }
+    
+    /**
+     * Sends a new notification to the notification center with the given parameters
+     * 
+     * @param severity the notification severity
+     * @param title the title
+     * @param desc the description
+     */
+    private void sendNotification(NotificationSeverity severity, String title, String desc) {
+        GeneralNotification notification = new GeneralNotification();
+        notification.setSeverity(severity);
+        notification.setTitle(title);
+        notification.setDescription(desc);
+        notification.setDate(PntTime.getInstance().getDate());
+        notification.addAlerts(new NotificationAlert(AlertType.POPUP, AlertType.SYSTEM_TRAY, AlertType.BEEP));
+        EPD.getInstance().getNotificationCenter().addNotification(notification);
     }
     
     /**

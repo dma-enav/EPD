@@ -18,6 +18,7 @@ package dk.dma.epd.shore.gui.notification;
 import java.awt.Window;
 
 import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
+import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.service.RouteSuggestionHandler;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
@@ -65,6 +66,22 @@ public class NotificationCenter extends NotificationCenterCommon implements
         strategicRoutePanel = new StrategicRouteNotificationPanel();
         panels.add(routeSuggestionPanel);
         panels.add(strategicRoutePanel);
+    }
+
+    /**
+     * Adds a notification of the given type.
+     * 
+     * @param notification the notification to add
+     */
+    @Override
+    public void addNotification(Notification<?, ?> notification) {
+        if (notification instanceof RouteSuggestionNotification) {
+            routeSuggestionPanel.addNotification((RouteSuggestionNotification)notification);
+        } else if (notification instanceof StrategicRouteNotification) {
+            strategicRoutePanel.addNotification((StrategicRouteNotification)notification);
+        } else {
+            super.addNotification(notification);
+        }
     }
     
     /**
