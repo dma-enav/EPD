@@ -19,25 +19,20 @@ import dk.dma.enav.model.geometry.Position;
 
 public class IntendedRouteFilterMessage {
 
-    Position position;
+    Position position1;
+    Position position2;
     String message;
     int legStartIndex;
     int legEndIndex;
     
-    public IntendedRouteFilterMessage(Position position, String message, int legStartIndex, int legEndIndex) {
+    public IntendedRouteFilterMessage(Position position1, Position position2, String message, int legStartIndex, int legEndIndex) {
         this.legStartIndex = legStartIndex;
         this.legEndIndex = legEndIndex;
-        this.position = position;
+        this.position1 = position1;
+        this.position2 = position2;
         this.message = message;
     }
 
-    public Position getPosition() {
-        return position;
-    }
-
-    public void setPosition(Position position) {
-        this.position = position;
-    }
 
     public String getMessage() {
         return message;
@@ -47,8 +42,30 @@ public class IntendedRouteFilterMessage {
         this.message = message;
     }
 
+
+    public Position getPosition1() {
+        return position1;
+    }
+
+
+    public void setPosition1(Position position1) {
+        this.position1 = position1;
+    }
+
+
+    public Position getPosition2() {
+        return position2;
+    }
+
+
+    public void setPosition2(Position position2) {
+        this.position2 = position2;
+    }
+
     // Severity?
     // Type?
     // Possibly options is Intersection or Proximity Alert?
 
+    
+    
 }

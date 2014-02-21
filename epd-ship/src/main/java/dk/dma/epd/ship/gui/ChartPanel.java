@@ -44,6 +44,7 @@ import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteTCPALayer;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -105,6 +106,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
     private DynamicNogoLayer dynamicNogoLayer;
     private VoctLayer voctLayer;
     private IntendedRouteLayerCommon intendedRouteLayer;
+    private IntendedRouteTCPALayer intendedRouteTCPALayer;
     private NewRouteContainerLayer newRouteContainerLayer;
     private TopPanel topPanel;
     private RouteEditMouseMode routeEditMouseMode;
@@ -279,6 +281,12 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         intendedRouteLayer.setVisible(true);
         mapHandler.add(intendedRouteLayer);
 
+        
+        //Create TCPA Graphics
+        intendedRouteTCPALayer = new  IntendedRouteTCPALayer();
+        intendedRouteTCPALayer.setVisible(true);
+        mapHandler.add(intendedRouteTCPALayer);
+        
         // Create a esri shape layer
         // URL dbf = EeINS.class.getResource("/shape/urbanap020.dbf");
         // URL shp = EeINS.class.getResource("/shape/urbanap020.shp");
