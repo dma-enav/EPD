@@ -332,4 +332,9 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
         loadIntendedRoutes();
     }
 
+    public boolean isUseFilter() {
+        return useFilter;
+    }
+
+    
 }

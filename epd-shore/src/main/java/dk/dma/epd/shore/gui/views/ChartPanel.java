@@ -245,15 +245,6 @@ public class ChartPanel extends ChartPanelCommon {
     }
 
     /**
-     * Return the encLayer
-     * 
-     * @return
-     */
-    public Layer getEncLayer() {
-        return encLayer;
-    }
-
-    /**
      * Return the maxScale set for the map
      * 
      * @return maxScale
@@ -381,6 +372,7 @@ public class ChartPanel extends ChartPanelCommon {
             // Try to create ENC layer
             EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore.getInstance().getSettings().getMapSettings());
             encLayer = encLayerFactory.getEncLayer();
+            System.out.println("enclayer set " + encLayer);
         }
 
         map = new BufferedLayerMapBean();

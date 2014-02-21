@@ -130,7 +130,12 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
 
         System.out.println("Time elapsed 4: " + (System.currentTimeMillis() - startTime));
 
+        layerTogglingPanel.setChartPanel(chartPanel);
+        
         this.setVisible(true);
+        
+        
+
 
     }
 
@@ -163,6 +168,7 @@ public class JMapFrame extends ComponentFrame implements IMapFrame {
         chartPanel.initChart(center, scale);
         initGUI();
 
+        layerTogglingPanel.setChartPanel(chartPanel);
     }
 
     /**
