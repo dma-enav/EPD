@@ -95,22 +95,12 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
         this.id = id;
         this.type = type;
 
-        long startTime = System.currentTimeMillis();
-
         // Initialize the glass pane
         initGlassPane();
 
         chartPanel = new ChartPanel(mainFrame, this);
-
-        System.out.println("Time elapsed 1: " + (System.currentTimeMillis() - startTime));
-
-        startTime = System.currentTimeMillis();
-
-        this.setContentPane(chartPanel);
+        setContentPane(chartPanel);
         
-        System.out.println("Time elapsed 2: " + (System.currentTimeMillis() - startTime));
-        startTime = System.currentTimeMillis();
-
         new Thread(new Runnable() {
 
             @Override
@@ -119,15 +109,8 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
             }
         }).run();
 
-        System.out.println("Time elapsed 3: " + (System.currentTimeMillis() - startTime));
-        startTime = System.currentTimeMillis();
-
         initGUI();
-
-        System.out.println("Time elapsed 4: " + (System.currentTimeMillis() - startTime));
-
-        this.setVisible(true);
-
+        setVisible(true);
     }
 
     /**
