@@ -22,6 +22,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -42,6 +44,7 @@ import com.bbn.openmap.Layer;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
+import dk.dma.epd.common.prototype.layers.util.LayerVisiblityListener;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
@@ -52,7 +55,7 @@ import dk.dma.epd.shore.layers.route.RouteLayer;
 import dk.dma.epd.shore.layers.voyage.EmbeddedInfoPanelMoveMouseListener;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 
-public class LayerTogglingPanel extends JPanel implements MouseListener {
+public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVisiblityListener, ComponentListener {
 
     private static final long serialVersionUID = 1L;
     private JLabel moveHandler;
@@ -85,6 +88,14 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
     private ToolItemGroup functionItemGroups = new ToolItemGroup();
 
     JMapFrame parent;
+
+    JLabel wms;
+    JLabel enc;
+    JLabel msi;
+    JLabel ais;
+    JLabel intendedRoutes;
+    JLabel routes;
+    JLabel voyages;
 
     /**
      * Create the panel.
@@ -178,7 +189,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
         //
         // closeBtn.addMouseListener(this);
 
-        addToolButtons();
+        
     }
 
     private void toggleLayerButton(Layer layer, JLabel label) {
@@ -192,7 +203,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
 
     private void addWMS(final Layer wmsLayer) {
         // Tool: WMS layer
-        final JLabel wms = new JLabel(toolbarIcon("images/toolbar/wms_small.png"));
+        wms = new JLabel(toolbarIcon("images/toolbar/wms_small.png"));
         wms.setName("wms");
         wms.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
@@ -228,7 +239,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
 
     private void addEnc() {
 
-        final JLabel enc = new JLabel(toolbarIcon("images/toolbar/map-medium.png"));
+        enc = new JLabel(toolbarIcon("images/toolbar/map-medium.png"));
 
         // // Set active tool
         // enc.setBackground(new Color(55, 55, 55));
@@ -262,11 +273,14 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
         setActiveToolItem(enc);
 
         toolItemGroups.addToolItem(enc);
+        
+        
+        repaintToolbar();
     }
 
     private void addMSI(final Layer msiLayer) {
         // Tool: MSI layer
-        final JLabel msi = new JLabel(toolbarIcon("images/toolbar/msi_symbol_16.png"));
+        msi = new JLabel(toolbarIcon("images/toolbar/msi_symbol_16.png"));
         msi.setName("msi");
         msi.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
@@ -303,7 +317,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
 
     private void addAIS(final AisLayer aisLayer) {
         // Tool: AIS Layer
-        final JLabel ais = new JLabel(toolbarIcon("images/toolbar/board-game.png"));
+        ais = new JLabel(toolbarIcon("images/toolbar/board-game.png"));
         ais.setName("ais");
         ais.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
@@ -323,7 +337,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
 
     private void addIntendedRoutes(final Layer intendedRouteLayer) {
         // Tool: Intended Routes Layer
-        final JLabel intendedRoutes = new JLabel(toolbarIcon("images/toolbar/direction.png"));
+        intendedRoutes = new JLabel(toolbarIcon("images/toolbar/direction.png"));
         intendedRoutes.setName("intendedroutes");
         intendedRoutes.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
@@ -344,7 +358,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
 
     private void addRoutes(final Layer routeLayer) {
         // Tool: Routes Layer
-        final JLabel routes = new JLabel(toolbarIcon("images/toolbar/marker.png"));
+        routes = new JLabel(toolbarIcon("images/toolbar/marker.png"));
         routes.setName("routes");
         routes.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
@@ -365,7 +379,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
 
     private void addVoyages(final Layer voyageLayer) {
         // Tool: voyage Layer
-        final JLabel voyages = new JLabel(toolbarIcon("images/toolbar/marker_green.png"));
+        voyages = new JLabel(toolbarIcon("images/toolbar/marker_green.png"));
         voyages.setName("voyages");
         voyages.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
@@ -389,9 +403,8 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
         aisNameLabels.setName("aisnamelabels");
         aisNameLabels.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-                
-                
-                //Toggle namelabels
+
+                // Toggle namelabels
                 layer.setShowNameLabels(!aisNameLabels.isOpaque());
 
                 if (!aisNameLabels.isOpaque()) {
@@ -402,15 +415,12 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
                     System.out.println("Deactivating");
                 }
 
-                
-                
             }
         });
         aisNameLabels.setToolTipText("Show/hide AIS Name Labels");
-        
+
         setActiveToolItem(aisNameLabels);
-        
-        
+
         functionItemGroups.addToolItem(aisNameLabels);
     }
 
@@ -420,38 +430,35 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
         aisNameLabels.setName("aisnamelabels");
         aisNameLabels.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-                
-                
-                if (layer.isUseFilter()){
+
+                if (layer.isUseFilter()) {
                     layer.toggleFilter(false);
                     setInactiveToolItem(aisNameLabels);
-                }else{
+                } else {
                     layer.toggleFilter(true);
                     setActiveToolItem(aisNameLabels);
                 }
-                
-                
-//              //Toggle namelabels
-//              aisLayer.setShowNameLabels(!aisNameLabels.isOpaque());
-//
-//              if (!aisNameLabels.isOpaque()) {
-//                  setActiveToolItem(aisNameLabels);
-//                  System.out.println("Activating");
-//              } else {
-//                  setInactiveToolItem(aisNameLabels);
-//                  System.out.println("Deactivating");
-//              }
+
+                // //Toggle namelabels
+                // aisLayer.setShowNameLabels(!aisNameLabels.isOpaque());
+                //
+                // if (!aisNameLabels.isOpaque()) {
+                // setActiveToolItem(aisNameLabels);
+                // System.out.println("Activating");
+                // } else {
+                // setInactiveToolItem(aisNameLabels);
+                // System.out.println("Deactivating");
+                // }
             }
         });
         aisNameLabels.setToolTipText("Toggle Intended Route Filter");
 
-        if (!layer.isUseFilter()){
+        if (!layer.isUseFilter()) {
             setInactiveToolItem(aisNameLabels);
-        }else{
+        } else {
             setActiveToolItem(aisNameLabels);
         }
-        
-        
+
         functionItemGroups.addToolItem(aisNameLabels);
     }
 
@@ -462,20 +469,17 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
         aisNameLabels.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
 
-                
-                
-//                //Toggle namelabels
-//                aisLayer.setShowNameLabels(!aisNameLabels.isOpaque());
-//
-//                if (!aisNameLabels.isOpaque()) {
-//                    setActiveToolItem(aisNameLabels);
-//                    System.out.println("Activating");
-//                } else {
-//                    setInactiveToolItem(aisNameLabels);
-//                    System.out.println("Deactivating");
-//                }
+                // //Toggle namelabels
+                // aisLayer.setShowNameLabels(!aisNameLabels.isOpaque());
+                //
+                // if (!aisNameLabels.isOpaque()) {
+                // setActiveToolItem(aisNameLabels);
+                // System.out.println("Activating");
+                // } else {
+                // setInactiveToolItem(aisNameLabels);
+                // System.out.println("Deactivating");
+                // }
 
-                
             }
         });
         aisNameLabels.setToolTipText("Show/hide Past Track");
@@ -505,12 +509,6 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
         }
     }
 
-    private void addToolButtons() {
-
-        if (EPDShore.getInstance().getSettings().getMapSettings().isUseEnc()) {
-            addEnc();
-        }
-    }
 
     public void setParent(JMapFrame parent) {
         this.parent = parent;
@@ -548,6 +546,12 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
         // TODO Auto-generated method stub
 
     }
+    
+    
+    public void addEncLayer(Layer encLayer){
+        addEnc();
+        encLayer.addComponentListener(this);
+    }
 
     public void addLayerFunctionality(EPDLayerCommon layer) {
         // System.out.println(layer);
@@ -557,27 +561,34 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
             addAISNameLabels((AisLayer) layer);
             addPastTrack((AisLayer) layer);
 
+            // Add listener
+            layer.addVisibilityListener(this);
         }
 
         if (layer instanceof WMSLayer) {
             addWMS(layer);
+            layer.addVisibilityListener(this);
         }
 
         if (layer instanceof MsiLayer) {
             addMSI(layer);
+            layer.addVisibilityListener(this);
         }
 
         if (layer instanceof RouteLayer) {
             addRoutes(layer);
+            layer.addVisibilityListener(this);
         }
 
         if (layer instanceof IntendedRouteLayerCommon) {
             addIntendedRoutes(layer);
             addIntendedRoutesFilter((IntendedRouteLayerCommon) layer);
+            layer.addVisibilityListener(this);
         }
 
         if (layer instanceof VoyageLayer) {
             addVoyages(layer);
+            layer.addVisibilityListener(this);
         }
 
         repaintToolbar();
@@ -718,5 +729,55 @@ public class LayerTogglingPanel extends JPanel implements MouseListener {
         toolItem.setBackground(new Color(55, 55, 55));
         toolItem.setBorder(BorderFactory.createCompoundBorder(toolPaddingBorder, toolInnerEtchedBorder));
         toolItem.setOpaque(true);
+    }
+
+    @Override
+    public void visibilityChanged(Layer layer) {
+        // Handle the toggling of buttons based on global changes
+        if (layer instanceof WMSLayer) {
+            toggleLayerButton(layer, wms);
+        }
+
+        if (layer instanceof MsiLayer) {
+            toggleLayerButton(layer, msi);
+        }
+        if (layer instanceof AisLayer) {
+            toggleLayerButton(layer, ais);
+        }
+        if (layer instanceof IntendedRouteLayerCommon) {
+            toggleLayerButton(layer, intendedRoutes);
+        }
+
+        if (layer instanceof RouteLayer) {
+            toggleLayerButton(layer, routes);
+        }
+        if (layer instanceof VoyageLayer) {
+            toggleLayerButton(layer, voyages);
+        }
+
+        // JLabel enc;
+
+    }
+
+    @Override
+    public void componentHidden(ComponentEvent arg0) {
+        setInactiveToolItem(enc);
+    }
+
+    @Override
+    public void componentMoved(ComponentEvent arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void componentResized(ComponentEvent arg0) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void componentShown(ComponentEvent arg0) {
+        setActiveToolItem(enc);
     }
 }
