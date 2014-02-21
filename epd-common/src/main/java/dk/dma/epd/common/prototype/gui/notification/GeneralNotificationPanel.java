@@ -100,8 +100,23 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
      */
     @Override
     protected NotificationDetailPanel<GeneralNotification> initNotificationDetailPanel() {
-        NotificationDetailPanel<GeneralNotification> panel = new NotificationDetailPanel<GeneralNotification>();
-        return panel;
+        return new GeneralNotificationDetailPanel();
     }
     
+}
+
+/**
+ * The detail panel for general notifications
+ */
+class GeneralNotificationDetailPanel extends NotificationDetailPanel<GeneralNotification> {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Constructor
+     */
+    public GeneralNotificationDetailPanel() {
+        super();
+        buildGUI();
+    }
 }
