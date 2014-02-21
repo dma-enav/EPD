@@ -20,24 +20,36 @@ import static java.awt.GridBagConstraints.BOTH;
 import static java.awt.GridBagConstraints.HORIZONTAL;
 import static java.awt.GridBagConstraints.WEST;
 import static dk.dma.epd.common.graphics.GraphicsUtil.fixSize;
+import static dk.dma.epd.common.graphics.GraphicsUtil.minSize;
+import static dk.dma.epd.common.graphics.GraphicsUtil.bold;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
+import javax.swing.border.MatteBorder;
+import javax.swing.border.TitledBorder;
 
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
+import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 
 /**
@@ -106,7 +118,7 @@ public class StrategicRouteNotificationDetailPanel extends NotificationDetailPan
         for (int col = 0, index = 0; col < infoCols.length; col++) {
             for (int row = 0; row < infoCols[col]; row++, index++) {
                 infoPanel.add(bold(new JLabel(infoTitles[index])), new GridBagConstraints(col * 2, row, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-                infoPanel.add(fixSize(infoLabels[index], 60), new GridBagConstraints(col * 2 + 1, row, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+                infoPanel.add(minSize(infoLabels[index], 40), new GridBagConstraints(col * 2 + 1, row, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
             }
         }
         add(infoPanel, new GridBagConstraints(0, 1, 4, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
@@ -118,16 +130,6 @@ public class StrategicRouteNotificationDetailPanel extends NotificationDetailPan
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         tabbedPane.setOpaque(false);
         add(tabPanel, new GridBagConstraints(0, 2, 4, 1, 1.0, 1.0, WEST, BOTH, insets5, 0, 0));   
-    }
-    
-    /**
-     * Turns the given label bold
-     * @param label the label to turn bold
-     * @return the updated label
-     */
-    private JLabel bold(JLabel label) {
-        label.setFont(label.getFont().deriveFont(Font.BOLD));
-        return label;
     }
     
     /**
@@ -196,13 +198,14 @@ public class StrategicRouteNotificationDetailPanel extends NotificationDetailPan
         // for each route message
         for (int i = message.getRouteMessage().size() - 1; i >= 0; i--) {
             
-            StrategicNegotiationView negotiation = new StrategicNegotiationView(
-                    message.getRouteMessage().get(i));
-
-            if (message.getRouteReply().size() > i) {
-                negotiation.handleReply(message.getRouteReply().get(i));
-            }
+            StrategicRouteRequestMessage request = message.getRouteMessage().get(i);
+            StrategicRouteRequestReply reply = (message.getRouteReply().size() > i)
+                    ? message.getRouteReply().get(i)
+                    : null;
             
+            StrategicNegotiationView negotiation = 
+                    new StrategicNegotiationView(request, reply);
+
             negotiation.setOpaque(false);
             tabbedPane.addTab("Message " + (i + 1), null, negotiation, null);            
         }
@@ -224,3 +227,118 @@ public class StrategicRouteNotificationDetailPanel extends NotificationDetailPan
         return Color.LIGHT_GRAY;
     }
 }
+
+
+/**
+ * Displays the messages associated with a strategic route request
+ */
+class StrategicNegotiationView extends JPanel {
+
+    private static final long serialVersionUID = 1L;
+
+    JLabel lblNoReply;
+    JPanel replyPanel;
+
+    /**
+     * Create the panel.
+     * 
+     * @param requestMsg the request message
+     * @param replyMsg the reply message
+     */
+    public StrategicNegotiationView(
+            StrategicRouteRequestMessage requestMsg,
+            StrategicRouteRequestReply replyMsg) {
+
+        super(new GridBagLayout());
+        setOpaque(false);
+        
+        Insets insets1  = new Insets(5, 5, 5, 5);
+        Insets insets2  = new Insets(5, 5, 2, 5);
+        
+        // *************************
+        // Create the request panel
+        // *************************
+        JPanel requestPanel = new JPanel(new GridBagLayout());
+        requestPanel.setBorder(new TitledBorder("Voyage Request"));
+        add(requestPanel, 
+                new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets1, 0, 0));
+
+        requestPanel.add(bold(new JLabel("Request Message:")), 
+                new GridBagConstraints(0, 0, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets2, 0, 0));
+        requestPanel.add(createTextArea(requestMsg.getMessage()), 
+                new GridBagConstraints(0, 1, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets1, 0, 0));
+        requestPanel.add(bold(new JLabel("Sent:")), 
+                new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
+        requestPanel.add(new JLabel(Formatter.formatLongDateTime(requestMsg.getSent())), 
+                new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
+        requestPanel.add(bold(new JLabel("Route Name:")), 
+                new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
+        requestPanel.add(new JLabel(requestMsg.getRoute().getName()), 
+                new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
+        
+        
+        // **********************
+        // Create the reply panel
+        // **********************
+        
+        JPanel replyPanel = new JPanel(new GridBagLayout());
+        replyPanel.setBorder(new TitledBorder("STCC Reply"));
+        add(replyPanel, 
+                new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets1, 0, 0));
+        
+        // Handle no-reply case
+        if (replyMsg == null) {
+            replyPanel.add(new JLabel("No reply sent"), 
+                    new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets1, 0, 0));
+        } else {
+        
+            // Format the reply
+            String type = "";
+            if (replyMsg.getStatus() == StrategicRouteStatus.AGREED) {
+                type = "Route Approved";
+            } else if (replyMsg.getStatus() == StrategicRouteStatus.NEGOTIATING) {
+                type = "Route modified and sent for negotiation";
+            }
+            
+            replyPanel.add(bold(new JLabel("Reply Message:")), 
+                    new GridBagConstraints(0, 0, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets2, 0, 0));
+            replyPanel.add(createTextArea(replyMsg.getMessage()), 
+                    new GridBagConstraints(0, 1, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets1, 0, 0));
+            replyPanel.add(bold(new JLabel("Sent:")), 
+                    new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
+            replyPanel.add(new JLabel(Formatter.formatLongDateTime(new Date(replyMsg.getSendDate()))), 
+                    new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
+            replyPanel.add(bold(new JLabel("Type:")), 
+                    new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
+            replyPanel.add(new JLabel(type), 
+                    new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
+        }
+
+        // Add filler
+        add(new JLabel(""), 
+                new GridBagConstraints(0, 10, 1, 1, 1.0, 1.0, WEST, BOTH, insets1, 0, 0));
+    }
+    
+    /**
+     * Creates a text area wrapped in scroll pane
+     * @param text the text to display in the text area
+     * @return the text area wrapped in a scroll pane
+     */
+    private JScrollPane createTextArea(String text) {
+        JTextArea textArea = new JTextArea(text);
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 11));
+        textArea.setBackground(Color.GRAY);
+        textArea.setLineWrap(true);
+        textArea.setEditable(false);
+        
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setMinimumSize(new Dimension(100, 40));
+        scrollPane.setPreferredSize(new Dimension(100, 40));
+        scrollPane.setBorder(new MatteBorder(1, 1, 1, 1, UIManager.getColor("Separator.shadow")));
+        
+        return scrollPane;
+    }
+}
+

@@ -209,6 +209,33 @@ public class GraphicsUtil {
     }
 
     /**
+     * Sets the minimum size of the {@linkplain JComponent}
+     * 
+     * @param comp the component to fix the size of
+     * @return the updated component
+     */
+    public static <T extends JComponent> T minSize(T comp, int width) {
+        // Sanity check
+        if (comp == null) {
+            return null;
+        }
+        
+        comp.setMinimumSize(new Dimension(width, comp.getMinimumSize().height));
+        return comp;
+    }
+    
+    /**
+     * Turns the font of given {@linkplain JComponent} into bold
+     * 
+     * @param comp the component to turn bold
+     * @return the updated component
+     */
+    public static <T extends JComponent> T bold(T comp) {
+        comp.setFont(comp.getFont().deriveFont(Font.BOLD));
+        return comp;
+    }    
+    
+    /**
      * Centers the given window on the main screen
      * 
      * @param frame the window to center
