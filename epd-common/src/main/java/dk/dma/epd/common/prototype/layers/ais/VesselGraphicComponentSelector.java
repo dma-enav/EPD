@@ -49,7 +49,7 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent {
      * Component graphic displaying the vessel as a triangle. Also manages
      * display of other vessel meta data.
      */
-    private VesselTriangleGraphic vesselTriangleGraphic;
+    private VesselTriangleGraphicComponent vesselTriangleGraphic;
 
     /**
      * Component graphic displaying the vessel outline. Also manages display of
@@ -77,7 +77,7 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent {
      */
     public VesselGraphicComponentSelector(boolean showName) {
         super();
-        this.vesselTriangleGraphic = new VesselTriangleGraphic();
+        this.vesselTriangleGraphic = new VesselTriangleGraphicComponent();
         this.vesselTriangleGraphic.setShowNameLabel(showName);
         this.vesselOutlineGraphic = new VesselOutlineGraphicComponent(
                 ColorConstants.VESSEL_COLOR, 2.0f);
@@ -144,7 +144,7 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent {
     }
 
     /**
-     * Changes display mode to use an instance of {@link VesselTriangleGraphic}.
+     * Changes display mode to use an instance of {@link VesselTriangleGraphicComponent}.
      */
     private void drawTriangle() {
         this.updateCurrentDisplay(this.vesselTriangleGraphic);

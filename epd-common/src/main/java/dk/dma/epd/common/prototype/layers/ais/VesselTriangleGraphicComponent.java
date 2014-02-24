@@ -35,7 +35,7 @@ import dk.dma.epd.common.prototype.settings.NavSettings;
  * @author Janus Varmarken
  */
 @SuppressWarnings("serial")
-public class VesselTriangleGraphic extends VesselGraphicComponent {
+public class VesselTriangleGraphicComponent extends VesselGraphicComponent {
 
     private VesselTriangle vessel;
     private RotationalPoly heading;
@@ -50,13 +50,15 @@ public class VesselTriangleGraphic extends VesselGraphicComponent {
 
         int[] headingX = { 0, 0 };
         int[] headingY = { 0, -100 };
-        this.heading = new RotationalPoly(headingX, headingY, null, ColorConstants.VESSEL_HEADING_COLOR);
+        this.heading = new RotationalPoly(headingX, headingY, null,
+                ColorConstants.VESSEL_HEADING_COLOR);
 
         this.font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
         this.label = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);
 
-        this.speedVector = new SpeedVectorGraphic(ColorConstants.VESSEL_HEADING_COLOR);
-        
+        this.speedVector = new SpeedVectorGraphic(
+                ColorConstants.VESSEL_HEADING_COLOR);
+
         add(label);
         this.label.setVisible(aisSettings.isShowNameLabels());
         add(0, vessel);
@@ -65,7 +67,8 @@ public class VesselTriangleGraphic extends VesselGraphicComponent {
     }
 
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale) {
+    public void update(AisTarget aisTarget, AisSettings aisSettings,
+            NavSettings navSettings, float mapScale) {
         if (aisTarget instanceof VesselTarget) {
 
             VesselTarget vesselTarget = (VesselTarget) aisTarget;
@@ -90,14 +93,15 @@ public class VesselTriangleGraphic extends VesselGraphicComponent {
             double hdgR = Math.toRadians(trueHeading);
 
             this.vessel.updateGraphic(vesselTarget, mapScale);
-            this.heading.setLocation(lat, lon, OMGraphicConstants.DECIMAL_DEGREES, hdgR);
+            this.heading.setLocation(lat, lon,
+                    OMGraphicConstants.DECIMAL_DEGREES, hdgR);
             if (noHeading) {
                 this.heading.setVisible(false);
             }
-            
+
             // update the speed vector with the new data
             this.speedVector.update(posData, mapScale);
-            
+
             // Set label
             label.setLat(lat);
             label.setLon(lon);
@@ -120,8 +124,8 @@ public class VesselTriangleGraphic extends VesselGraphicComponent {
     }
 
     public void setShowNameLabel(boolean showNameLabel) {
-        if(this.label != null) {
-            this.label.setVisible(showNameLabel);    
+        if (this.label != null) {
+            this.label.setVisible(showNameLabel);
         }
     }
 
@@ -130,8 +134,12 @@ public class VesselTriangleGraphic extends VesselGraphicComponent {
     }
 
     /**
-     * Get the {@link VesselTriangle} that this {@code VesselTriangleGraphic} uses to display the vessel.
-     * @return The {@link VesselTriangle} that this {@code VesselTriangleGraphic} uses to display the vessel.
+     * Get the {@link VesselTriangle} that this
+     * {@code VesselTriangleGraphicComponent} uses to display the vessel.
+     * 
+     * @return The {@link VesselTriangle} that this
+     *         {@code VesselTriangleGraphicComponent} uses to display the
+     *         vessel.
      */
     @Override
     VesselTriangle getVesselGraphic() {
