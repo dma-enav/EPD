@@ -34,7 +34,7 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.RotationalPoly;
-import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
+import dk.dma.epd.common.prototype.layers.ais.VesselGraphicComponentSelector;
 
 public class PlannedPositionGraphic extends OMGraphicList {
     private static final long serialVersionUID = 1L;
@@ -55,7 +55,7 @@ public class PlannedPositionGraphic extends OMGraphicList {
     private RotationalPoly vessel;
     private Paint paint = Color.GRAY;
     private Stroke stroke = new BasicStroke(2.0f);
-    private VesselTargetGraphic vesselTarget;
+    private VesselGraphicComponentSelector vesselTarget;
 
     public PlannedPositionGraphic() {
 
@@ -90,7 +90,7 @@ public class PlannedPositionGraphic extends OMGraphicList {
         vessel.setLocation(lat, lon, units, heading);
     }
 
-    public VesselTargetGraphic getVesselTargetGraphic() {
+    public VesselGraphicComponentSelector getVesselTargetGraphic() {
         return vesselTarget;
     }
 

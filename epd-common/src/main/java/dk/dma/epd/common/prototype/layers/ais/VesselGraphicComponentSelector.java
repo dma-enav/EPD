@@ -26,10 +26,10 @@ import dk.dma.epd.common.prototype.settings.NavSettings;
 import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 
 /**
- * Graphic for vessel target
+ * A concrete {@link VesselGraphicComponent} that contains sub {@link VesselGraphicComponent}s.
  */
 @SuppressWarnings("serial")
-public class VesselTargetGraphic extends VesselGraphicComponent  {
+public class VesselGraphicComponentSelector extends VesselGraphicComponent  {
     
     private VesselTarget vesselTarget;
 
@@ -44,7 +44,7 @@ public class VesselTargetGraphic extends VesselGraphicComponent  {
 
     private PastTrackGraphic pastTrackGraphic = new PastTrackGraphic();
 
-    public VesselTargetGraphic(boolean showName) {
+    public VesselGraphicComponentSelector(boolean showName) {
         super();
         this.vesselTriangleGraphic = new VesselTriangleGraphic();
         this.vesselTriangleGraphic.setShowNameLabel(showName);

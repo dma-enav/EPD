@@ -27,7 +27,7 @@ import dk.dma.epd.common.prototype.gui.menuitems.RouteHide;
 import dk.dma.epd.common.prototype.gui.menuitems.SarTargetDetails;
 import dk.dma.epd.common.prototype.gui.menuitems.ToggleAisTargetName;
 import dk.dma.epd.common.prototype.gui.menuitems.VoyageHandlingLegInsertWaypoint;
-import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
+import dk.dma.epd.common.prototype.layers.ais.VesselGraphicComponentSelector;
 import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
@@ -222,7 +222,7 @@ public class MapMenu extends MapMenuCommon {
     /**
      * Builds ais target menu
      */
-    public void aisMenu(VesselTargetGraphic targetGraphic, TopPanel toppanel) {
+    public void aisMenu(VesselGraphicComponentSelector targetGraphic, TopPanel toppanel) {
         removeAll();
         aisTargetDetails.setTopPanel(toppanel);
 

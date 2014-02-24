@@ -42,7 +42,7 @@ import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselGraphic;
-import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
+import dk.dma.epd.common.prototype.layers.ais.VesselGraphicComponentSelector;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
@@ -174,7 +174,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             VesselTarget vt = vesselGraphic.getMostRecentVesselTarget();
             // Pass data to the pop up menu that is to be displayed.
             // TODO this is NOT pretty. Update aisMenu to take VesselGraphic arg?
-            this.getMapMenu().aisMenu(vt, (VesselTargetGraphic) this.getTargetGraphic(vt.getMmsi()));
+            this.getMapMenu().aisMenu(vt, (VesselGraphicComponentSelector) this.getTargetGraphic(vt.getMmsi()));
         } else if (clickedGraphics instanceof SartGraphic) {
             SartGraphic sartGraphic = (SartGraphic) clickedGraphics;
             SarTarget sarTarget = sartGraphic.getSarTargetGraphic().getSarTarget();
@@ -320,8 +320,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     public void setShowNameLabels(boolean showLabels) {
         synchronized(this.graphics) {
             for(OMGraphic og : this.graphics) {
-                if(og instanceof VesselTargetGraphic) {
-                    ((VesselTargetGraphic)og).setShowNameLabel(showLabels);
+                if(og instanceof VesselGraphicComponentSelector) {
+                    ((VesselGraphicComponentSelector)og).setShowNameLabel(showLabels);
                 }
             }
         }

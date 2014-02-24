@@ -40,7 +40,7 @@ import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselGraphic;
-import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
+import dk.dma.epd.common.prototype.layers.ais.VesselGraphicComponentSelector;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
@@ -261,7 +261,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         if (clickedGraphics instanceof VesselGraphic) {
             VesselGraphic vg = (VesselGraphic) clickedGraphics;
             // TODO this is NOT pretty. Update aisMenu to take VesselGraphic arg?
-            VesselTargetGraphic vtg = (VesselTargetGraphic) this.getTargetGraphic(vg.getMostRecentVesselTarget().getMmsi());
+            VesselGraphicComponentSelector vtg = (VesselGraphicComponentSelector) this.getTargetGraphic(vg.getMostRecentVesselTarget().getMmsi());
             this.getMapMenu().aisMenu(vtg, topPanel);
         }
         else if (clickedGraphics instanceof SartGraphic) {
