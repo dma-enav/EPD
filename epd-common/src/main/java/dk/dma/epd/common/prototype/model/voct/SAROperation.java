@@ -878,7 +878,7 @@ public class SAROperation {
 
         intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
 
-        Position finalA2 = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
+//        Position finalA2 = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
 
         // Bottom point D:
         // Bottom Left of DST1 will be:
@@ -900,7 +900,7 @@ public class SAROperation {
         //
         intersectionPoint = Intersection.segmentsIntersect(a1, a2, b1, b2);
         //
-        Position finalD2 = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
+//        Position finalD2 = Position.create(intersectionPoint.getLatitude(), intersectionPoint.getLongitude());
         
         
         
