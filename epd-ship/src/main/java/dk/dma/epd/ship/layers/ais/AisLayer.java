@@ -201,17 +201,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     }
 
     @Override
-    public OMGraphicList prepare() {
-        // long start = System.nanoTime();
-        synchronized (graphics) {
-            graphics.project(getProjection());
-        }
-        // System.out.println("Finished AisLayer.prepare() in " +
-        // EeINS.elapsed(start) + " ms\n---");
-        return graphics;
-    }
-
-    @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
 

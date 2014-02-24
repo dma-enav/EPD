@@ -111,14 +111,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         // Repaint
         this.doPrepare();
     }
-    
-    @Override
-    public OMGraphicList prepare() {
-        synchronized (graphics) {
-            graphics.project(getProjection());
-        }
-        return graphics;
-    }
 
     @Override
     public void findAndInit(Object obj) {

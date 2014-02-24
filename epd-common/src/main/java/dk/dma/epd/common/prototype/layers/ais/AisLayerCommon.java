@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.omGraphics.OMGraphic;
+import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.prototype.EPD;
@@ -287,6 +288,32 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         this.doPrepare();
     }
 
+    /**
+     * Renders the graphics displayed by this {@link AisLayerCommon}. Sub classes should invoke super implementation in order to allow it to handle changes to display of AIS target selection.
+     */
+    @Override
+    public synchronized OMGraphicList prepare() {
+        synchronized (graphics) {
+            graphics.project(getProjection());
+        }
+        // Was a vessel selected?
+        if(this.selectedGraphic instanceof VesselGraphic) {
+            VesselGraphic vg = (VesselGraphic) this.selectedGraphic;
+            // Find the wrapper graphic that controls different displays modes for the selected vessel
+            TargetGraphic tg = this.getTargetGraphic(vg.getMostRecentVesselTarget().getMmsi());
+            if(tg instanceof VesselGraphicComponentSelector) {
+                VesselGraphicComponentSelector vgcs = (VesselGraphicComponentSelector) tg;
+                // Update selectedGraphic to be the new display mode of the VesselGraphicComponentSelector
+                VesselGraphic newSelection = vgcs.getVesselGraphic();
+                // Do not repaint immediately to avoid infinite recursive calls.
+                this.setSelectedGraphic(newSelection, false);
+                // Project only the vessel graphic such that it will have its selection visualization properly displayed
+                newSelection.project(getProjection());
+            }
+        }
+        return graphics;
+    }
+    
     /**
      * Updates target selection if the {@code clickedGraphics} is an {@code ISelectableGraphic} or null.
      */

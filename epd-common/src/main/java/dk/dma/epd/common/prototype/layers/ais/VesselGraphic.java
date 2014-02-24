@@ -116,6 +116,9 @@ public abstract class VesselGraphic extends OMGraphicList implements
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean getSelectionStatus() {
         synchronized (this.selectionStatusLock) {
