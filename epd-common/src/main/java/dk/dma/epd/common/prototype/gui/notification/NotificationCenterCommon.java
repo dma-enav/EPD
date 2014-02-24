@@ -139,7 +139,7 @@ public class NotificationCenterCommon extends ComponentDialog implements
             for (Notification<?, ?> notification : panel.getNotifications()) {
                 for (NotificationAlert alert : notification.getAlerts()) {
                     if (alert.shouldTrigger(notification)) {
-                        triggerAlert(panel.getNotitficationType(), notification, alert);
+                        triggerAlert(panel, notification, alert);
                     }
                 }
             }
@@ -149,11 +149,11 @@ public class NotificationCenterCommon extends ComponentDialog implements
     /**
      * Trigger the given alert for the given notification
      * 
-     * @param type the notification type
+     * @param panel the notification panel
      * @param notification the notification
      * @param alert the alert
      */
-    protected void triggerAlert(NotificationType type, Notification<?, ?> notification, NotificationAlert alert) {
+    protected void triggerAlert(NotificationPanel<?> panel, Notification<?, ?> notification, NotificationAlert alert) {
         try {
             LOG.info("Triggering alert " + alert + " for notification " + notification.getId());
             
@@ -176,7 +176,7 @@ public class NotificationCenterCommon extends ComponentDialog implements
             
             // Handle pop-up alerts
             if (bottomPanel != null && alert.hasAlertType(AlertType.POPUP)) {
-                bottomPanel.triggerAlert(type, notification, alert);
+                bottomPanel.triggerAlert(panel, notification, alert);
             }
             
         } catch (Exception ex) {

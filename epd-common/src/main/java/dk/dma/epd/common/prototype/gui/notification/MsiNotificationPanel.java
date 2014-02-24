@@ -124,8 +124,7 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> {
      * {@inheritDoc}
      */
     @Override
-    protected void acknowledgeSelectedNotification() {
-        MsiNotification notification = getSelectedNotification();
+    public void acknowledgeNotification(MsiNotification notification) {
         if (notification != null && !notification.isAcknowledged()) {
             MsiHandler msiHandler = EPD.getInstance().getMsiHandler();
             // NB: msiHandler.setAcknowledged() will automatically trigger a table refresh
@@ -139,9 +138,8 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> {
      * {@inheritDoc}
      */
     @Override
-    protected void deleteSelectedNotification() {
+    public void deleteNotification(MsiNotification notification) {
         int row = table.getSelectedRow();
-        MsiNotification notification = getSelectedNotification();
         if (notification != null) {
             MsiHandler msiHandler = EPD.getInstance().getMsiHandler();
             // NB: msiHandler.deleteMessage() will automatically trigger a table refresh

@@ -255,9 +255,9 @@ public class Notification<T, I> implements Serializable {
     public String toHtml() {
         StringBuilder html = new StringBuilder("<html>");
         html.append("<table>");
-        html.append(String.format("<tr><th>Title:</th><td>%s</td></tr>", title));
+        html.append(String.format("<tr><th>Title:</th><td>%s</td></tr>", Formatter.formatHtml(title)));
         html.append(String.format("<tr><th>Date:</th><td>%s</td></tr>", Formatter.formatShortDateTime(date)));
-        html.append(String.format("<tr><th>Description:</th><td>%s</td></tr>", description));
+        html.append(String.format("<tr><th valign='top'>Description:</th><td>%s</td></tr>", Formatter.formatHtml(description)));
         html.append("</table>");
         return html.append("</html>").toString();
     }

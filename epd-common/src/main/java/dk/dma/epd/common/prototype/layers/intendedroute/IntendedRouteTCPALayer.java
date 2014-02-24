@@ -30,14 +30,18 @@ import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
+import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
+import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.route.RouteManagerCommon;
 import dk.dma.epd.common.prototype.service.IIntendedRouteListener;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 
 /**
  * Base layer for displaying intended routes in EPDShip and EPDShore
  */
-public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedRouteListener, ProjectionListener {
+public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedRouteListener, ProjectionListener,
+        IRoutesUpdateListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -46,12 +50,12 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
      */
     protected ConcurrentHashMap<Long, IntendedRouteGraphic> intendedRoutes = new ConcurrentHashMap<>();
 
-    protected IntendedRouteInfoPanel intendedRouteInfoPanel = new IntendedRouteInfoPanel();
+    protected IntendedRouteTCPAInfoPanel tcpaInfoPanel = new IntendedRouteTCPAInfoPanel();
 
     private ChartPanelCommon chartPanel;
     private AisHandlerCommon aisHandler;
     private IntendedRouteHandlerCommon intendedRouteHandler;
-    private OMCircle dummyCircle = new OMCircle();
+
 
     /**
      * Constructor
@@ -60,7 +64,7 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
         super();
 
         // Automatically add info panels
-        // registerInfoPanel(intendedRouteInfoPanel, IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
+        registerInfoPanel(tcpaInfoPanel, IntendedRouteTCPAGraphic.class);
 
         // Register the classes the will trigger the map menu
         // registerMapMenuClasses(IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
@@ -75,7 +79,22 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
      */
     @Override
     public void intendedRouteEvent(IntendedRoute intendedRoute) {
+        repaintTCPAs();
+    }
 
+    private void repaintTCPAs() {
+        graphics.clear();
+
+        for (FilteredIntendedRoute filteredIntendedRoute : intendedRouteHandler.getFilteredIntendedRoutes().values()) {
+            // intendedRouteGraphic.updateIntendedRoute();
+            //
+            for (int i = 0; i < filteredIntendedRoute.getFilterMessages().size(); i++) {
+                graphics.add(new IntendedRouteTCPAGraphic(filteredIntendedRoute.getFilterMessages().get(i), 1));
+
+            }
+        }
+
+        doPrepare();
     }
 
     /**
@@ -90,8 +109,7 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
             // intendedRouteGraphic.updateIntendedRoute();
             //
             for (int i = 0; i < filteredIntendedRoute.getFilterMessages().size(); i++) {
-                graphics.add(new IntendedRouteTCPAGraphic(filteredIntendedRoute.getFilterMessages().get(i).getPosition1(),
-                        filteredIntendedRoute.getFilterMessages().get(i).getPosition2(), 1));
+                graphics.add(new IntendedRouteTCPAGraphic(filteredIntendedRoute.getFilterMessages().get(i), 1));
 
             }
         }
@@ -125,6 +143,11 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
         } else if (obj instanceof ChartPanelCommon) {
             this.chartPanel = (ChartPanelCommon) obj;
         }
+
+        else if (obj instanceof RouteManagerCommon) {
+            ((RouteManagerCommon) obj).addListener(this);
+
+        }
     }
 
     /**
@@ -132,31 +155,15 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
      */
     @Override
     protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
-        if (newClosest instanceof IntendedRouteWpCircle) {
-            intendedRouteInfoPanel.showWpInfo((IntendedRouteWpCircle) newClosest);
-        } else {
-            // lets user see ETA continually along route leg
-            Point2D worldLocation = chartPanel.getMap().getProjection().inverse(evt.getPoint());
-            intendedRouteInfoPanel.showLegInfo((IntendedRouteLegGraphic) newClosest, worldLocation);
-            closest = dummyCircle;
+        if (newClosest instanceof IntendedRouteTCPAGraphic) {
+            tcpaInfoPanel.showWpInfo((IntendedRouteTCPAGraphic) newClosest);
         }
         return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {
-        if (clickedGraphics instanceof IntendedRouteWpCircle) {
-
-            IntendedRouteWpCircle wpCircle = (IntendedRouteWpCircle) clickedGraphics;
-            mapMenu.intendedRouteMenu(wpCircle.getIntendedRouteGraphic());
-
-        } else if (clickedGraphics instanceof IntendedRouteLegGraphic) {
-
-            IntendedRouteLegGraphic wpLeg = (IntendedRouteLegGraphic) clickedGraphics;
-            mapMenu.intendedRouteMenu(wpLeg.getIntendedRouteGraphic());
-        }
+    @Override
+    public void routesChanged(RoutesUpdateEvent e) {
+        repaintTCPAs();
     }
 
 }

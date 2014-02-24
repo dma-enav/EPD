@@ -23,7 +23,9 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRout
 import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.notification.Notification;
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.NotificationType;
+import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 
 /**
@@ -46,9 +48,15 @@ public class StrategicRouteNotification extends Notification<StrategicRouteNegot
                     "Route request from %s with status %s", 
                     getVesselName(), 
                     routeData.getStatus());
-        severity = NotificationSeverity.MESSAGE;
         acknowledged = read = routeData.isHandled();
         date = routeData.getRouteMessage().get(0).getSent();
+        
+        if (acknowledged) {
+            severity = NotificationSeverity.MESSAGE;
+        } else {
+            severity = NotificationSeverity.WARNING;
+            addAlerts(new NotificationAlert(AlertType.POPUP));
+        }
     }
     
     /**
