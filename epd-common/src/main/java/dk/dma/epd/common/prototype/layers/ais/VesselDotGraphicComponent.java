@@ -26,12 +26,14 @@ import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
 
 /**
- * Class that draws a vessel as a circle.
+ * A concrete implementation of {@link VesselGraphicComponent} that displays a
+ * {@link VesselTarget} as a dot (using a {@link VesselDot}) and vessel meta
+ * data such as the vessel's COG vector.
  * 
- * @author Janus Varmarken
+ * @author Janus Varmarken et al.
  */
 @SuppressWarnings("serial")
-public class VesselDotGraphic extends VesselGraphicComponent {
+public class VesselDotGraphicComponent extends VesselGraphicComponent {
 
     /**
      * Paints a circle representing the vessel.
@@ -43,6 +45,9 @@ public class VesselDotGraphic extends VesselGraphicComponent {
      */
     private RotationalPoly cogVec;
 
+    /**
+     * Update this {@link VesselDotGraphicComponent} with new AIS data.
+     */
     @Override
     public void update(AisTarget aisTarget, AisSettings aisSettings,
             NavSettings navSettings, float mapScale) {
@@ -74,10 +79,10 @@ public class VesselDotGraphic extends VesselGraphicComponent {
     }
 
     /**
-     * Get the {@link VesselDot} that this {@code VesselDotGraphic} uses to
+     * Get the {@link VesselDot} that this {@code VesselDotGraphicComponent} uses to
      * display the vessel.
      * 
-     * @return The {@link VesselDot} that this {@code VesselDotGraphic} uses to
+     * @return The {@link VesselDot} that this {@code VesselDotGraphicComponent} uses to
      *         display the vessel.
      */
     @Override

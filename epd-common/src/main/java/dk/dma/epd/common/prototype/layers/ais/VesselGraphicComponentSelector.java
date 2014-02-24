@@ -61,7 +61,7 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent {
      * Component graphic displaying the vessel as a dot. Also manages display of
      * other vessel meta data.
      */
-    private VesselDotGraphic vesselDotGraphic;
+    private VesselDotGraphicComponent vesselDotGraphic;
 
     /**
      * Manages display of the vessel's past track. Shared between all the
@@ -82,7 +82,7 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent {
         this.vesselOutlineGraphic = new VesselOutlineGraphicComponent(
                 ColorConstants.VESSEL_COLOR, 2.0f);
         this.vesselOutlineGraphic.setShowNameLabel(showName);
-        this.vesselDotGraphic = new VesselDotGraphic();
+        this.vesselDotGraphic = new VesselDotGraphicComponent();
     }
 
     /**
@@ -151,7 +151,7 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent {
     }
 
     /**
-     * Changes display mode to use an instance of {@link VesselDotGraphic}.
+     * Changes display mode to use an instance of {@link VesselDotGraphicComponent}.
      */
     private void drawDot() {
         this.updateCurrentDisplay(this.vesselDotGraphic);
