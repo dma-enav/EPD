@@ -17,11 +17,7 @@ package dk.dma.epd.shore.gui.views.menuitems;
 
 import javax.swing.JMenuItem;
 
-import com.bbn.openmap.MapBean;
-
-import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.LayerTogglingPanel;
 
 
@@ -31,7 +27,6 @@ public class LayerToggleWindow extends JMenuItem implements IMapMenuAction {
      *
      */
     private static final long serialVersionUID = 1L;
-    private Position position;
     private LayerTogglingPanel layerToggling;
 
     public LayerToggleWindow(String text) {
@@ -42,13 +37,6 @@ public class LayerToggleWindow extends JMenuItem implements IMapMenuAction {
     @Override
     public void doAction() {
         layerToggling.setVisible(true);
-    }
-
-    /**
-     * @param position the position to set
-     */
-    public void setPosition(Position position) {
-        this.position = position;
     }
 
     public void setLayerToggling(LayerTogglingPanel layerToggling) {
