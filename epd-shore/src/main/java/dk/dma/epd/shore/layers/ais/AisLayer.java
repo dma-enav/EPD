@@ -25,7 +25,6 @@ import java.util.HashMap;
 import net.jcip.annotations.ThreadSafe;
 
 import com.bbn.openmap.omGraphics.OMGraphic;
-import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.ISelectableGraphic;
