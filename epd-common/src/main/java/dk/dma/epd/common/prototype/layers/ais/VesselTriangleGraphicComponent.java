@@ -32,19 +32,47 @@ import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
 
 /**
- * @author Janus Varmarken
+ * A concrete implementation of {@link VesselGraphicComponent} that displays a
+ * {@link VesselTarget} as a triangle (using a {@link VesselTriangle}) and
+ * vessel meta data such as a COG/Speed vector and heading.
+ * 
+ * @author Janus Varmarken et al.
  */
 @SuppressWarnings("serial")
 public class VesselTriangleGraphicComponent extends VesselGraphicComponent {
 
+    /**
+     * Displays the vessel's position on map.
+     */
     private VesselTriangle vessel;
+
+    /**
+     * Displays the vessel's true heading (i.e. the direction of the bow).
+     */
     private RotationalPoly heading;
 
+    /**
+     * Font used for the AIS name label.
+     */
     private Font font;
+
+    /**
+     * Displays the AIS name label.
+     */
     private OMText label;
 
+    /**
+     * Displays a COG/speed vector.
+     */
     private SpeedVectorGraphic speedVector;
 
+    /**
+     * Initializes sub graphics.
+     * 
+     * @param aisSettings
+     *            The {@link AisSettings} containing information on whether to
+     *            hide or show the AIS name label.
+     */
     private void createGraphics(AisSettings aisSettings) {
         this.vessel = new VesselTriangle();
 
@@ -66,6 +94,9 @@ public class VesselTriangleGraphicComponent extends VesselGraphicComponent {
         add(heading);
     }
 
+    /**
+     * Update this {@link VesselTriangleGraphicComponent} with new AIS data.
+     */
     @Override
     public void update(AisTarget aisTarget, AisSettings aisSettings,
             NavSettings navSettings, float mapScale) {
@@ -123,12 +154,25 @@ public class VesselTriangleGraphicComponent extends VesselGraphicComponent {
         }
     }
 
+    /**
+     * Toggles display of AIS name label on/off.
+     * 
+     * @param showNameLabel
+     *            True to display name label, false to hide name label.
+     */
     public void setShowNameLabel(boolean showNameLabel) {
         if (this.label != null) {
             this.label.setVisible(showNameLabel);
         }
     }
 
+    /**
+     * Get if this {@link VesselTriangleGraphicComponent} is currently set to
+     * display its name label.
+     * 
+     * @return True if this {@link VesselTriangleGraphicComponent} is currently
+     *         set to display its name label, false otherwise.
+     */
     public boolean getShowNameLabel() {
         return this.label.isVisible();
     }
