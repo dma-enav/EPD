@@ -17,13 +17,16 @@ package dk.dma.epd.common.prototype.gui.views;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.Box;
 import javax.swing.JPanel;
@@ -72,7 +75,8 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
     private JPanel statusIcons = new JPanel();
     
     private JPanel notificationPanel = new JPanel();
-    PopUpNotification notificationPopUp;
+    private PopUpNotification notificationPopUp;
+    private Map<NotificationPanel<?>, NotificationLabel> notificationLabelLookUp = new HashMap<>();
     
     /**
      * Constructor
@@ -120,12 +124,16 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
                 }
             };
             notificationPanel.add(label);
+            notificationLabelLookUp.put(panel, label);
+            
+            // Hook up as a listener for notification changes
+            panel.addListener(this);
         }
         add(notificationPanel, BorderLayout.WEST);
         
         
         // Set up the notification panel
-        Rectangle bounds = new Rectangle(100, BottomPanelCommon.this.getLocation().y - 200, 300, 200);
+        Rectangle bounds = new Rectangle(0, getLocation().y - 200, 300, 200);
         notificationPopUp = new PopUpNotification(
                 GraphicsUtil.getTopLevelContainer(notificationPanel),
                 SwingConstants.SOUTH_WEST,
@@ -173,12 +181,19 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
     /**
      * Trigger the given alert for the given notification
      * 
-     * @param type the notification type
+     * @param panel the notification panel
      * @param notification the notification
      * @param alert the alert
      */
-    public void triggerAlert(NotificationType type, Notification<?, ?> notification, NotificationAlert alert) {
-        notificationPopUp.addNotification(notification);
+    public void triggerAlert(NotificationPanel<?> panel, Notification<?, ?> notification, NotificationAlert alert) {
+        notificationPopUp.addNotification(panel, notification);
+        
+        // Re-position the pop-up depending on the panel
+        NotificationLabel label = notificationLabelLookUp.get(panel);
+        if (label != null) {
+            Point location = new Point(label.getX() + 10, getLocation().y - 200);
+            notificationPopUp.adjustLocation(location);
+        }
     }
 
     /**
@@ -186,7 +201,8 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
      */
     @Override
     public void notificationsUpdated(NotificationStatistics stats) {
-        
+        // Check if some of the notifications should be removed from the pop-up
+        notificationPopUp.checkNotifications();
     }
     
     /**

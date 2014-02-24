@@ -159,8 +159,7 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
      * {@inheritDoc}
      */
     @Override
-    protected void acknowledgeSelectedNotification() {
-        RouteSuggestionNotification notification = getSelectedNotification();
+    public void acknowledgeNotification(RouteSuggestionNotification notification) {
         if (notification != null && !notification.isAcknowledged()) {
             RouteSuggestionHandler routeSuggestionHandler = EPDShore.getInstance().getRouteSuggestionHandler();
             RouteSuggestionData routeSuggestion = notification.get();
@@ -177,9 +176,8 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
      * {@inheritDoc}
      */
     @Override
-    protected void deleteSelectedNotification() {
+    public void deleteNotification(RouteSuggestionNotification notification) {
         int row = table.getSelectedRow();
-        RouteSuggestionNotification notification = getSelectedNotification();
         if (notification != null) {
             RouteSuggestionHandler routeSuggestionHandler = EPDShore.getInstance().getRouteSuggestionHandler();
             RouteSuggestionData routeSuggestion = notification.get();

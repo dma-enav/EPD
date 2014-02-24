@@ -19,6 +19,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import dk.dma.epd.common.Heading;
 
 /**
@@ -295,4 +297,20 @@ public class Formatter {
 
     }
     
+    /**
+     * A very simple and crude conversion of plain text into HTML.
+     * 
+     * @param str the string to format
+     * @return the resulting HTML
+     */
+    public static String formatHtml(String str) {
+        // Sanity checks
+        if (str == null) {
+            return str;
+        }
+        
+        str = StringEscapeUtils.escapeHtml(str);
+        str = str.replaceAll("\n", "<br/>");
+        return str;
+    }
 }

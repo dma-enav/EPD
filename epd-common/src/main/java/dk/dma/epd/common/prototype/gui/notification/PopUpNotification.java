@@ -44,6 +44,8 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.Area;
 import java.awt.geom.RoundRectangle2D;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -79,18 +81,18 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
 
     private static final long serialVersionUID = 1L;
     
-    private static final int OPEN_TIME_SECONDS = 10;
+    private static final int OPEN_TIME_SECONDS = 20;
     private static final Color BG_COLOR = Color.DARK_GRAY;
     
     private JLayeredPane layeredPane;
     private JPanel notificationList = new JPanel();
     private NotificationBorder border;
-    private Timer timer;
+    private Timer autoCloseTimer;
     private ResizeHandler resizeHandler = new ResizeHandler();
     private Point location;
     private Dimension oldContainerSize;
     private int lockPosition;
-    
+    private boolean autoClose = true;
     
     /**
      * Constructor
@@ -142,14 +144,112 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
     }
 
     /**
-     * Adds a notification to the panel and set it visible
+     * Adjusts the location of the pop-up
+     * @param location the new location
      */
-    public synchronized void addNotification(Notification<?, ?> notification) {
-        NotificationPopUpPanel notificationPanel = new NotificationPopUpPanel(notification);
+    public void adjustLocation(Point location) {
+        if (!this.location.equals(location)) {
+            this.location = location;
+            oldContainerSize = layeredPane.getSize();
+            setLocation(location);
+            repaint();
+        }
+    }
+    
+    /**
+     * Adds a notification to the panel and set it visible
+     * 
+     * @param panel the notification panel
+     * @param notification the notification
+     */
+    @SuppressWarnings("all")
+    public synchronized void addNotification(NotificationPanel<?> panel, Notification<?, ?> notification) {
+        
+        // With alerts, do not auto-close
+        if (notification.getSeverity() == NotificationSeverity.ALERT) {
+            autoClose = false;
+        }
+        
+        NotificationPopUpPanel notificationPanel = new NotificationPopUpPanel(panel, notification);
         notificationPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, BG_COLOR));
-        notificationList.add(notificationPanel);
+        
+        // Add the notification at the top
+        notificationList.add(notificationPanel, 0);
+        notificationList.validate();
+        showPopUp();
+    }
+    
+    /**
+     * Checks if any of the notification panels should be removed.
+     * <p>
+     * This is the case if, say, the notifications have been 
+     * acknowledged or deleted from the notification center.
+     * <p>
+     * This method should thus be called whenever the changes have 
+     * happened in the notification center.
+     */
+    public synchronized void checkNotifications() {
+        int alertNo = 0;
+        autoClose = true;
+        
+        List<Component> toBeDeleted = new ArrayList<>();
+        for (Component component : notificationList.getComponents()) {
+            NotificationPopUpPanel<?> panel = (NotificationPopUpPanel<?>)component;
+            if (panel.shouldBeRemoved()) {
+                toBeDeleted.add(component);
+            } else if (panel.getNotification().getSeverity() == NotificationSeverity.ALERT) {
+                alertNo++;
+            }
+        }
+       
+        if (toBeDeleted.size() > 0) {
+            for (Component component : toBeDeleted) {
+                notificationList.remove(component);
+            }
+            notificationList.validate();
+        }
+        
+        if (notificationList.getComponentCount() == 0) {
+            closePopUp();
+        } else if (alertNo > 0) {
+            autoClose = false;
+            showPopUp();
+        
+        } else if (isVisible() && autoCloseTimer == null) {
+            // Special case: The pop-up has been open because of 
+            // an alert, but now the last alert has disappeared.
+            // Start the auto-close count down
+            startClosingAfter(OPEN_TIME_SECONDS);
+        }
+    }
+    
+    /**
+     * Closes the pop-up
+     */
+    private synchronized void closePopUp() {
+        setVisible(false);
+        if (autoCloseTimer != null) {
+            autoCloseTimer.stop();
+            autoCloseTimer = null;
+        }
+        border.setAlpha(1.0f);
+    }
+    
+    /**
+     * Shows the pop-up. If it has started to fade out,
+     * make it fully visible again.
+     */
+    private synchronized void showPopUp() {
         setVisible(true);
-        startClosingAfter(OPEN_TIME_SECONDS);
+        if (autoClose) {
+            startClosingAfter(OPEN_TIME_SECONDS);
+            
+        } else if (autoCloseTimer != null) {
+            autoCloseTimer.stop();
+            autoCloseTimer = null;
+            border.setAlpha(1.0f);
+            repaint();
+        }
     }
     
     /**
@@ -160,10 +260,7 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
     public void actionPerformed(ActionEvent e) {
         float alpha = border.getAlpha();
         if (alpha < 0.1) {
-            timer.stop();
-            timer = null;
-            border.setAlpha(1.0f);
-            setVisible(false);
+            closePopUp();
         } else {
             border.setAlpha(alpha - 0.05f);
             repaint();
@@ -176,16 +273,16 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
      * @param initialDelaySeconds the initial delay before it starts closing
      */
     private synchronized void startClosingAfter(int initialDelaySeconds) {
-        if (timer != null) {
+        if (autoCloseTimer != null) {
             border.setAlpha(1.0f);
             repaint();
-            timer.restart();
+            autoCloseTimer.restart();
             return;
         }
-        timer = new Timer(100, PopUpNotification.this);
-        timer.setInitialDelay(initialDelaySeconds * 1000);
-        timer.setRepeats(true);
-        timer.start();
+        autoCloseTimer = new Timer(100, PopUpNotification.this);
+        autoCloseTimer.setInitialDelay(initialDelaySeconds * 1000);
+        autoCloseTimer.setRepeats(true);
+        autoCloseTimer.start();
     }
 
     /**
@@ -221,7 +318,7 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
         n.setDescription("This is a\nmultiline test");
         n.setSeverity(NotificationSeverity.ALERT);
         n.setLocation(Position.create(53.0, 12.2));
-        notif.addNotification(n);
+        notif.addNotification(null, n);
         frame.setVisible(true);
     }
 
@@ -276,12 +373,13 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
  * in the notification center and for dismissing,
  * i.e. acknowledging, the notification
  */
-class NotificationPopUpPanel extends JPanel implements ActionListener {
+class NotificationPopUpPanel<N extends Notification<?, ?>> extends JPanel implements ActionListener {
 
     private static final long serialVersionUID = 1L;
     private static final int HEIGHT = 66;
     
-    private Notification<?, ?> notification;
+    private NotificationPanel<N> panel;
+    private N notification;
     private JButton showBtn, dismissBtn, gotoBtn;
     
     /**
@@ -289,8 +387,9 @@ class NotificationPopUpPanel extends JPanel implements ActionListener {
      * 
      * @param notification the associated notification
      */
-    public NotificationPopUpPanel(Notification<?, ?> notification) {
+    public NotificationPopUpPanel(NotificationPanel<N> panel,  N notification) {
         super(new GridBagLayout());
+        this.panel = panel;
         this.notification = notification;
 
         // Lock the height
@@ -369,10 +468,33 @@ class NotificationPopUpPanel extends JPanel implements ActionListener {
             EPD.getInstance().getNotificationCenter().setVisible(true);
             
         } else if (ae.getSource() == dismissBtn) {
+            panel.acknowledgeNotification(notification);
             
         } else if (ae.getSource() == gotoBtn) {
-            
+            if (notification.getLocation() != null) {
+                EPD.getInstance().getMainFrame().zoomToPosition(notification.getLocation());
+            }
         }
+    }
+    
+    /**
+     * Checks if the notification has been deleted or acknowledged,
+     * in which case, this panel should be removed from the pop-up.
+     */
+    public boolean shouldBeRemoved() {
+        // The notification we are holding in this panel may not be the current
+        // version of the notification panel.
+        // Check the state of a fresh version of the notification
+        Notification<?, ?> not = panel.getNotificationById(notification.getId());
+        return not == null || not.isAcknowledged();
+    }
+
+    /**
+     * Returns the notification associated with this panel
+     * @return the notification associated with this panel
+     */
+    public N getNotification() {
+        return notification;
     }
 }
 

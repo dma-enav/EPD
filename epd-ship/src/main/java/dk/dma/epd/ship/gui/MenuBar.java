@@ -338,47 +338,21 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
             }
         });
         
-        
-        
-        
-        
-        
         JCheckBoxMenuItem newSAR = new JCheckBoxMenuItem("SAR Operation");
         tools.add(newSAR);
 
-        newSAR.addActionListener(new ActionListener() {
-            @Override
+        
+        // Add notifications and a "Send message" menu item
+        tools.add(new JSeparator());        
+        
+        JMenuItem notCenter = new JMenuItem("Notification Center");
+        tools.add(notCenter);
+        notCenter.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                
-                //This is where we initiate the SAR
-                
-                
-                
-                
-//                EPDShip.getSettings()
-//                        .getEnavSettings()
-//                        .setMsiFilter(
-//                                !EPDShip.getSettings().getEnavSettings()
-//                                        .isMsiFilter());
-//                msiHandler.notifyUpdate();
+                EPD.getInstance().getNotificationCenter().toggleVisibility();
             }
         });
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-
-        // Add a "Send message" menu item
-        tools.add(new JSeparator());
         JMenuItem chatMenuItem = new JMenuItem("Send message...");
         chatMenuItem.addActionListener(new ActionListener() {            
             @Override public void actionPerformed(ActionEvent e) {
