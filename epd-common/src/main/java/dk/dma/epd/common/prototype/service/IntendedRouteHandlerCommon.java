@@ -535,7 +535,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
                 intersectPositions.add(shortestDistanceSegment2Position);
 
-                IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(shortestDistanceSegment2Position,
+                IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(shortestDistanceSegment1Position, shortestDistanceSegment2Position,
                         "Route Segments proximity warning", j - 1, j);
                 messageList.add(message);
             }
@@ -645,7 +645,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
                     if (checkDateInterval(segment1Positions.get(k), segment2Positions.get(k2), route1, route2, i, j)) {
 
-                        IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(segment2Positions.get(k2),
+                        IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(segment1Positions.get(k), segment2Positions.get(k2),
                                 "Route Segments proximity warning", j - 1, j);
                         proximityFilterMessages.add(message);
 
@@ -730,7 +730,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
                     System.out.println("Checking time");
 
                     if (checkDateInterval(route1SegmentExternalPoint, segment1Positions.get(k), route1, route2, i, j)) {
-                        IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(route1SegmentExternalPoint,
+                        IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(segment1Positions.get(k), route1SegmentExternalPoint,
                                 "Route Segments proximity warning", j - 1, j);
                         messageList.add(message);
                     }
@@ -794,7 +794,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
                     System.out.println("Checking time");
 
                     if (checkDateInterval(route2SegmentExternalPoint, segment2Positions.get(k), route1, route2, i, j)) {
-                        IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(segment2Positions.get(k),
+                        IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(route2SegmentExternalPoint, segment2Positions.get(k),
                                 "Route Segments proximity warning", j - 1, j);
                         messageList.add(message);
                     }
@@ -910,7 +910,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
             System.out.println("We have an intersection");
 
             if (checkDateInterval(intersection, intersection, route1, route2, i, j)) {
-                IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(intersection,
+                IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(intersection, intersection,
                         "Intersection occurs within 2 hour of eachother", j, j + 1);
                 intersectPositions.add(intersection);
                 return message;

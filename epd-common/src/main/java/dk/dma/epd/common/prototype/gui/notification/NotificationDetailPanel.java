@@ -30,7 +30,7 @@ import dk.dma.epd.common.prototype.notification.Notification;
  * The default implementation and a {@linkplain JLabel} and
  * displays the notifications in this.
  */
-public class NotificationDetailPanel<N extends Notification<?,?>> extends JPanel {
+public abstract class NotificationDetailPanel<N extends Notification<?,?>> extends JPanel {
 
    private static final long serialVersionUID = 1L;
    
@@ -53,6 +53,7 @@ public class NotificationDetailPanel<N extends Notification<?,?>> extends JPanel
        setLayout(new BorderLayout());
        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
        contentLbl.setVerticalAlignment(SwingConstants.TOP);
+       contentLbl.setHorizontalAlignment(SwingConstants.LEFT);
        add(contentLbl, BorderLayout.CENTER);
    }
    

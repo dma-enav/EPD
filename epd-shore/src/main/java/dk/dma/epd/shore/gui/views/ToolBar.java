@@ -51,7 +51,6 @@ import dk.dma.epd.shore.gui.utils.ToolItemGroup;
 /**
  * Class for setting up the toolbar of the application
  * 
- * @author Steffen D. Sommer (steffendsommer@gmail.com)
  */
 public class ToolBar extends JInternalFrame {
 
@@ -642,7 +641,7 @@ public class ToolBar extends JInternalFrame {
 
             // Add the tool item group
             JPanel group = new JPanel();
-            group.setLayout(new GridLayout(0, 2));
+            group.setLayout(new GridLayout(0, toolItemColumns));
             group.setOpaque(false);
 
             double temp = (double) toolItemGroups.get(i).getToolItems().size()

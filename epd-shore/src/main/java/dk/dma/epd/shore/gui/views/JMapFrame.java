@@ -30,6 +30,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
+import java.util.Iterator;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -44,9 +45,12 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
 
+import com.bbn.openmap.Layer;
+
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.gui.InternalComponentFrame;
 import dk.dma.epd.common.prototype.gui.IMapFrame;
+import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 
@@ -56,7 +60,7 @@ import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
  * @author Steffen D. Sommer (steffendsommer@gmail.com), David A. Camre (davidcamre@gmail.com)
  */
 public class JMapFrame extends InternalComponentFrame implements IMapFrame {
-    
+
     private static final long serialVersionUID = 1L;
     protected ChartPanel chartPanel;
     boolean locked;
@@ -80,6 +84,8 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
 
     MapFrameType type = MapFrameType.standard;
 
+    LayerTogglingPanel layerTogglingPanel = new LayerTogglingPanel();
+
     /**
      * Constructor for setting up the map frame
      * 
@@ -95,21 +101,13 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
         this.id = id;
         this.type = type;
 
-        long startTime = System.currentTimeMillis();
-
         // Initialize the glass pane
         initGlassPane();
 
         chartPanel = new ChartPanel(mainFrame, this);
-
-        System.out.println("Time elapsed 1: " + (System.currentTimeMillis() - startTime));
-
-        startTime = System.currentTimeMillis();
-
         this.setContentPane(chartPanel);
-        
-        System.out.println("Time elapsed 2: " + (System.currentTimeMillis() - startTime));
-        startTime = System.currentTimeMillis();
+
+        setContentPane(chartPanel);
 
         new Thread(new Runnable() {
 
@@ -119,14 +117,13 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
             }
         }).run();
 
-        System.out.println("Time elapsed 3: " + (System.currentTimeMillis() - startTime));
-        startTime = System.currentTimeMillis();
-
         initGUI();
 
-        System.out.println("Time elapsed 4: " + (System.currentTimeMillis() - startTime));
+        layerTogglingPanel.setChartPanel(chartPanel);
 
         this.setVisible(true);
+
+        setVisible(true);
 
     }
 
@@ -159,6 +156,7 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
         chartPanel.initChart(center, scale);
         initGUI();
 
+        layerTogglingPanel.setChartPanel(chartPanel);
     }
 
     /**
@@ -168,6 +166,14 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
         glassPanel = (JPanel) getGlassPane();
         glassPanel.setLayout(null);
         glassPanel.setVisible(false);
+
+        layerTogglingPanel.setParent(this);
+        // layerTogglingPanel.setBounds(0, 20, 208, 300);
+
+        glassPanel.add(layerTogglingPanel);
+        glassPanel.setVisible(true);
+        layerTogglingPanel.setVisible(true);
+
     }
 
     /**
@@ -507,7 +513,10 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
         // And finally set the size and repaint it
         chartPanel.setSize(width, innerHeight);
         chartPanel.setPreferredSize(new Dimension(width, innerHeight));
+
         this.setSize(width, height);
+
+        layerTogglingPanel.checkPosition();
         this.revalidate();
         this.repaint();
 
@@ -525,6 +534,33 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
 
     public void setMapMenu(MapMenu mapMenu) {
         this.mapMenu = mapMenu;
+    }
+
+    /**
+     * Find and init bean function used in initializing other classes
+     */
+    public void findAndInit(Iterator<?> it) {
+        while (it.hasNext()) {
+            Object object = it.next();
+            findAndInit(object);
+
+            if (object instanceof EPDLayerCommon) {
+                layerTogglingPanel.addLayerFunctionality((EPDLayerCommon) object);
+            }
+
+            try {
+                if (object.getClass() == Class.forName("dk.navicon.s52.pure.presentation.S52Layer")){
+                    layerTogglingPanel.addEncLayer((Layer) object);
+                }
+            } catch (ClassNotFoundException e) {
+                
+            }
+            
+        }
+    }
+
+    public LayerTogglingPanel getLayerTogglingPanel() {
+        return layerTogglingPanel;
     }
 
 }

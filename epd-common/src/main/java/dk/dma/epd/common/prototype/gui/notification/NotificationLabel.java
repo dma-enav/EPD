@@ -58,8 +58,8 @@ public class NotificationLabel extends JPanel implements NotificationPanelListen
     private static final Color CLICK_COLOR = new Color(0, 0, 0, 100);
     private static final Color TITLE_COLOR = new Color(240, 240, 240);
     private static final Color COUNTER_COLOR = new Color(220, 220, 220);
-    private static final Color ALERT_COLOR = new Color(255, 100, 100, 150);
-    private static final Color WARN_COLOR = new Color(255, 255, 120, 150);
+    private static final Color ALERT_COLOR = new Color(255, 50, 50, 200);
+    private static final Color WARN_COLOR = new Color(255, 225, 50, 200);
     private static final Color BLINK0_COLOR = new Color(206, 120, 120);
     private static final Color BLINK1_COLOR = new Color(165, 80, 80);
     
@@ -131,7 +131,15 @@ public class NotificationLabel extends JPanel implements NotificationPanelListen
 
         // Paint the background
         g2.setColor(mousePressed ? CLICK_COLOR : BACKGROUND_COLOR);
-        
+        // Override normal background if alerts or warnings are present
+        if (stats != null && (stats.unacknowledgedWarningCount > 0 || stats.unacknowledgedAlertCount > 0)) {
+            if (stats.unacknowledgedAlertCount > 0) {
+                g2.setColor(ALERT_COLOR);
+            } else {
+                g2.setColor(WARN_COLOR);
+            }
+        }
+                
         int w = getWidth() - BLINK_WIDTH;
         if (drawSelectionPointer) {
             w -= POINTER_WIDTH;
@@ -161,18 +169,6 @@ public class NotificationLabel extends JPanel implements NotificationPanelListen
         int padding = 4;
         int countSize = getHeight() - 2 * padding;
         Rectangle2D countRect = new Rectangle2D.Double(w - countSize - padding, padding, countSize, countSize);
-        
-        // With alerts and warnings, paint a read circle around the count
-        /*
-        if (stats != null && (stats.unacknowledgedWarningCount > 0 || stats.unacknowledgedAlertCount > 0)) {
-            if (stats.unacknowledgedAlertCount > 0) {
-                g2.setColor(ALERT_COLOR);
-            } else {
-                g2.setColor(WARN_COLOR);
-            }
-            g2.fillArc((int)countRect.getX(), (int)countRect.getY(), (int)countRect.getWidth(), (int)countRect.getHeight(), 0, 360);
-        }
-        */
         
         // Draw the count centered in the count rectangle
         if (stats != null && (stats.unacknowledgedWarningCount > 0 || stats.unacknowledgedAlertCount > 0)) {

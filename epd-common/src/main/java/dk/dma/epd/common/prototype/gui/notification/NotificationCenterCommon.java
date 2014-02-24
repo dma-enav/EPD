@@ -53,6 +53,7 @@ import dk.dma.epd.common.prototype.gui.views.BottomPanelCommon;
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.notification.GeneralNotification;
+import dk.dma.epd.common.prototype.notification.MsiNotification;
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
@@ -315,6 +316,23 @@ public class NotificationCenterCommon extends ComponentDialog implements
     public void selectNotification(NotificationType notificationType, Object id) {
         setActiveType(notificationType);
         getPanel(notificationType).setSelectedId(id);
+    }
+
+    /**
+     * Adds a notification of the given type.
+     * <p>
+     * Sub-classes should add their own notification types
+     * 
+     * @param notification the notification to add
+     */
+    public void addNotification(Notification<?, ?> notification) {
+        if (notification instanceof GeneralNotification) {
+            generalPanel.addNotification((GeneralNotification)notification);
+        } else if (notification instanceof MsiNotification) {
+            msiPanel.addNotification((MsiNotification)notification);
+        } else {
+            throw new IllegalArgumentException("Unknown notification type: " + notification);
+        }
     }
     
     /*************************************/

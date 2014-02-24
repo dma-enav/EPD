@@ -15,14 +15,24 @@
  */
 package dk.dma.epd.common.prototype.gui.notification;
 
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.WEST;
+import static java.awt.GridBagConstraints.NORTHWEST;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.CENTER;
+
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Polygon;
@@ -35,16 +45,28 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.Area;
 import java.awt.geom.RoundRectangle2D;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
 
+import org.jdesktop.swingx.JXLabel;
+
+import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.GraphicsUtil;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.notification.GeneralNotification;
+import dk.dma.epd.common.prototype.notification.Notification;
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
 
 /**
  * Defines a pop-up notification panel which displays a message 
@@ -57,7 +79,11 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
 
     private static final long serialVersionUID = 1L;
     
+    private static final int OPEN_TIME_SECONDS = 10;
+    private static final Color BG_COLOR = Color.DARK_GRAY;
+    
     private JLayeredPane layeredPane;
+    private JPanel notificationList = new JPanel();
     private NotificationBorder border;
     private Timer timer;
     private ResizeHandler resizeHandler = new ResizeHandler();
@@ -68,60 +94,7 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
     
     /**
      * Constructor
-     */
-    public PopUpNotification() {
-        super();
-    
-        setOpaque(false);
-        border = new NotificationBorder();
-        border.setDrawDropShadow(true);
-        setBorder(border);
-        setBackground(Color.red);
-        
-        JButton btn = new JButton("XXXXXXXXXXXXXXXXX");
-        add(btn);
-        btn.addActionListener(new ActionListener() {
-            @Override 
-            public void actionPerformed(ActionEvent e) {
-                startClosing();
-            }
-        });
-    }
-
-    /**
-     * Called by the timer when the notification is closed
-     * @param e the action event
-     */
-    @Override 
-    public void actionPerformed(ActionEvent e) {
-        float alpha = border.getAlpha();
-        if (alpha < 0.1) {
-            timer.stop();
-            timer = null;
-            layeredPane.remove(this);
-            layeredPane.repaint();
-        } else {
-            border.setAlpha(alpha - 0.05f);
-            repaint();
-        }
-    }
-    
-    /**
-     * Starts closing the notification widget
-     */
-    private synchronized void startClosing() {
-        if (timer != null) {
-            return;
-        }
-        SwingUtilities.getWindowAncestor(layeredPane)
-            .removeComponentListener(resizeHandler);
-        GraphicsUtil.setEnabled(this, false);
-        timer = new Timer(100, PopUpNotification.this);
-        timer.setRepeats(true);
-        timer.start();
-    }
-
-    /**
+     * <p>
      * Installs the widget in the layered pane.<p>
      * Position-wise, the widget is locked to one of the following 
      * {@linkplain SwingConstants} positions:
@@ -135,7 +108,9 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
      * @param lockPosition the position to lock the widget to
      * @param bounds the bounds of the widget
      */
-    public void installInLayeredPane(JLayeredPane layeredPane, int lockPosition, Rectangle bounds) {
+    public PopUpNotification(JLayeredPane layeredPane, int lockPosition, Rectangle bounds) {
+        super(new BorderLayout());
+    
         this.layeredPane = layeredPane;
         this.location = bounds.getLocation();
         this.lockPosition = lockPosition;
@@ -151,8 +126,68 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
         
         layeredPane.setLayer(this, JLayeredPane.POPUP_LAYER);
         layeredPane.add(this);
+        
+        setOpaque(false);
+        setVisible(false);
+        
+        border = new NotificationBorder();
+        border.setDrawDropShadow(true);
+        setBorder(border);
+        setBackground(BG_COLOR);        
+        
+        notificationList.setOpaque(false);
+        notificationList.setLayout(new BoxLayout(notificationList, BoxLayout.Y_AXIS));
+        notificationList.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        add(notificationList, BorderLayout.CENTER);
+    }
+
+    /**
+     * Adds a notification to the panel and set it visible
+     */
+    public synchronized void addNotification(Notification<?, ?> notification) {
+        NotificationPopUpPanel notificationPanel = new NotificationPopUpPanel(notification);
+        notificationPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, BG_COLOR));
+        notificationList.add(notificationPanel);
+        setVisible(true);
+        startClosingAfter(OPEN_TIME_SECONDS);
     }
     
+    /**
+     * Called by the timer when the notification is closed
+     * @param e the action event
+     */
+    @Override 
+    public void actionPerformed(ActionEvent e) {
+        float alpha = border.getAlpha();
+        if (alpha < 0.1) {
+            timer.stop();
+            timer = null;
+            border.setAlpha(1.0f);
+            setVisible(false);
+        } else {
+            border.setAlpha(alpha - 0.05f);
+            repaint();
+        }
+    }
+    
+    /**
+     * Starts closing the notification widget
+     * 
+     * @param initialDelaySeconds the initial delay before it starts closing
+     */
+    private synchronized void startClosingAfter(int initialDelaySeconds) {
+        if (timer != null) {
+            border.setAlpha(1.0f);
+            repaint();
+            timer.restart();
+            return;
+        }
+        timer = new Timer(100, PopUpNotification.this);
+        timer.setInitialDelay(initialDelaySeconds * 1000);
+        timer.setRepeats(true);
+        timer.start();
+    }
+
     /**
      * Checks if the lock-position is one of the given values
      * @param values the values to check
@@ -178,9 +213,15 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
         panel.setBackground(Color.white);
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(panel, BorderLayout.CENTER);
-        PopUpNotification notif = new PopUpNotification();
-        Rectangle bounds = new Rectangle(100, 100, 200, 200);
-        notif.installInLayeredPane(frame.getLayeredPane(), SwingConstants.SOUTH_WEST, bounds);
+        Rectangle bounds = new Rectangle(100, 100, 300, 200);
+        
+        PopUpNotification notif = new PopUpNotification(frame.getLayeredPane(), SwingConstants.SOUTH_WEST, bounds);
+        GeneralNotification n = new GeneralNotification();
+        n.setTitle("Peder was here");
+        n.setDescription("This is a\nmultiline test");
+        n.setSeverity(NotificationSeverity.ALERT);
+        n.setLocation(Position.create(53.0, 12.2));
+        notif.addNotification(n);
         frame.setVisible(true);
     }
 
@@ -224,6 +265,118 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
         }        
     }    
 }
+
+
+
+/**
+ * The notification pop-up panel displays the title and 
+ * description for a notification.
+ * <p>
+ * It also sports buttons for showing the notification
+ * in the notification center and for dismissing,
+ * i.e. acknowledging, the notification
+ */
+class NotificationPopUpPanel extends JPanel implements ActionListener {
+
+    private static final long serialVersionUID = 1L;
+    private static final int HEIGHT = 66;
+    
+    private Notification<?, ?> notification;
+    private JButton showBtn, dismissBtn, gotoBtn;
+    
+    /**
+     * Constructor
+     * 
+     * @param notification the associated notification
+     */
+    public NotificationPopUpPanel(Notification<?, ?> notification) {
+        super(new GridBagLayout());
+        this.notification = notification;
+
+        // Lock the height
+        setMinimumSize(new Dimension(getMinimumSize().width, HEIGHT));
+        setMaximumSize(new Dimension(getMaximumSize().width, HEIGHT));
+        setSize(new Dimension(getSize().width, HEIGHT));
+
+        Insets insets1  = new Insets(3, 3, 0, 3);
+        
+        JLabel icon = new JLabel(getNotificationIcon());
+        add(icon, new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0, CENTER, NONE, insets1, 0, 0));
+        
+        JLabel titleLbl = new JLabel(notification.getTitle());
+        titleLbl.setFont(titleLbl.getFont().deriveFont(11f).deriveFont(Font.BOLD));
+        add(titleLbl, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets1, 0, 0));
+
+        JXLabel descLbl = new JXLabel(notification.getDescription());
+        descLbl.setLineWrap(true);
+        descLbl.setFont(descLbl.getFont().deriveFont(9f));
+        descLbl.setVerticalAlignment(JLabel.TOP);
+        add(descLbl, new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0, NORTHWEST, BOTH, insets1, 0, 0));
+        
+        JPanel btnPanel = new JPanel(new GridBagLayout());
+        btnPanel.setOpaque(false);
+        add(btnPanel, new GridBagConstraints(2, 0, 1, 2, 0.0, 0.0, NORTHWEST, HORIZONTAL, insets1, 0, 0));
+
+        showBtn = createButton("Show");
+        btnPanel.add(showBtn, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, NORTHWEST, HORIZONTAL, insets1, 0, 0));
+        
+        dismissBtn = createButton("Dismiss");
+        btnPanel.add(dismissBtn, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, NORTHWEST, HORIZONTAL, insets1, 0, 0));
+        
+        if (notification.getLocation() != null) {
+            gotoBtn = createButton("Goto");
+            btnPanel.add(gotoBtn, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, NORTHWEST, HORIZONTAL, insets1, 0, 0));
+        }
+    }
+
+    /**
+     * Translates {@linkplain NotificationSeverity} into a standard swing icon
+     * @return the swing icon that corresponds to the notification severity
+     */
+    private Icon getNotificationIcon() {
+        switch (notification.getSeverity()) {
+        case ALERT:     return UIManager.getIcon("OptionPane.errorIcon");
+        case WARNING:   return UIManager.getIcon("OptionPane.warningIcon");
+        default:        return UIManager.getIcon("OptionPane.informationIcon");
+        }
+    }
+    
+    /**
+     * Creates a diminutive button used in this panel
+     * @param title the title of the button
+     * @return the instantiated button
+     */
+    private JButton createButton(String title) {
+        JButton button = new JButton(title);
+        button.setFont(button.getFont().deriveFont(9.0f));
+        button.setFocusable(false);
+        button.setFocusPainted(false);
+        button.setContentAreaFilled(false);
+        button.addActionListener(this);
+        button.setPreferredSize(new Dimension(button.getPreferredSize().width, 16));
+        return button;
+    }
+
+    /**
+     * Called when one of the buttons is clicked
+     * @param ae the action event
+     */
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+        if (ae.getSource() == showBtn) {
+            EPD.getInstance().getNotificationCenter()
+                .selectNotification(notification.getType(), notification.getId());
+            EPD.getInstance().getNotificationCenter().setVisible(true);
+            
+        } else if (ae.getSource() == dismissBtn) {
+            
+        } else if (ae.getSource() == gotoBtn) {
+            
+        }
+    }
+}
+
+
 
 /**
  * This border is used by the {@linkplain PopUpNotification} widget.
