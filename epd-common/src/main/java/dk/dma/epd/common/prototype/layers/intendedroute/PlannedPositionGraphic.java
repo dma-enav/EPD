@@ -90,7 +90,7 @@ public class PlannedPositionGraphic extends OMGraphicList {
         vessel.setLocation(lat, lon, units, heading);
     }
 
-    public VesselGraphicComponentSelector getVesselTargetGraphic() {
+    public VesselGraphicComponentSelector getVesselGraphicComponentSelector() {
         return vesselTarget;
     }
 
