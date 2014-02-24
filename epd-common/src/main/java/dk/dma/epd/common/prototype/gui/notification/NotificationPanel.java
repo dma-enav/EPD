@@ -128,6 +128,24 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
     }
     
     /**
+     * Returns the notification with the given identifier.
+     * Returns null if none is found.
+     * 
+     * @return the notification with the given identifier
+     */
+    public N getNotificationById(Object id) {
+        // TODO: Consider using an ID look-up map instead
+        if (id != null) {
+            for (N notification : getNotifications()) {
+                if (id.equals(notification.getId())) {
+                    return notification;
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
      * Adds the buttons to the button panel.
      * Sub-class can override to customize the list of buttons to display
      * 
@@ -280,10 +298,19 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
     /**
      * Marks the currently selected notification as acknowledged
      */
-    protected void acknowledgeSelectedNotification() {
-        N notification = getSelectedNotification();
+    public void acknowledgeSelectedNotification() {
+        acknowledgeNotification(getSelectedNotification());
+    }
+    
+    /**
+     * Marks the given notification as acknowledged
+     * 
+     * @param notification the notification to acknowledge
+     */
+    public void acknowledgeNotification(N notification) {
         if (notification != null && !notification.isAcknowledged()) {
             notification.setAcknowledged(true);
+            notification.setRead(true); // Implied by acknowledged
             table.repaint();
             updateButtonEnabledState();
             selectFirstUnacknowledgedRow();
@@ -294,8 +321,16 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
     /**
      * Deletes the currently selected notification
      */
-    protected void deleteSelectedNotification() {
-        N notification = getSelectedNotification();
+    public void deleteSelectedNotification() {
+        deleteNotification(getSelectedNotification());
+    }
+    
+    /**
+     * Deletes the given notification
+     * 
+     * @param notification the notification to acknowledge
+     */
+    public void deleteNotification(N notification) {
         if (notification != null) {
             tableModel.notifications.remove(notification);
             tableModel.fireTableDataChanged();
@@ -307,7 +342,7 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
     /**
      * Zoom to the currently selected notification
      */
-    protected void gotoSelectedNotification() {
+    public void gotoSelectedNotification() {
         N notification = getSelectedNotification();
         if (notification != null) {
             EPD.getInstance().getMainFrame().zoomToPosition(notification.getLocation());
