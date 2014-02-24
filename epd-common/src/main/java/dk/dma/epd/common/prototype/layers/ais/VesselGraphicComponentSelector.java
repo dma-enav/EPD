@@ -26,39 +26,75 @@ import dk.dma.epd.common.prototype.settings.NavSettings;
 import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 
 /**
- * A concrete {@link VesselGraphicComponent} that contains sub {@link VesselGraphicComponent}s.
+ * A concrete {@link VesselGraphicComponent} that is used to chose among a set
+ * of sub {@link VesselGraphicComponent}s. This is used to change the
+ * visualization of a {@link VesselTarget} on the map can according to the
+ * current scale of the map.
  */
 @SuppressWarnings("serial")
-public class VesselGraphicComponentSelector extends VesselGraphicComponent  {
-    
+public class VesselGraphicComponentSelector extends VesselGraphicComponent {
+
+    /**
+     * The {@link VesselTarget} received in the latest target update.
+     */
     private VesselTarget vesselTarget;
 
     /**
-     * The current display mode for this graphic (i.e. Outline, Dot or Triangle).
+     * The current display mode for this graphic (i.e. Outline, Dot or
+     * Triangle).
      */
     private VesselGraphicComponent currentDisplay;
-    
+
+    /**
+     * Component graphic displaying the vessel as a triangle. Also manages
+     * display of other vessel meta data.
+     */
     private VesselTriangleGraphic vesselTriangleGraphic;
+
+    /**
+     * Component graphic displaying the vessel outline. Also manages display of
+     * other vessel meta data.
+     */
     private VesselOutlineGraphicComponent vesselOutlineGraphic;
+
+    /**
+     * Component graphic displaying the vessel as a dot. Also manages display of
+     * other vessel meta data.
+     */
     private VesselDotGraphic vesselDotGraphic;
 
+    /**
+     * Manages display of the vessel's past track. Shared between all the
+     * component graphics used for the different display modes.
+     */
     private PastTrackGraphic pastTrackGraphic = new PastTrackGraphic();
 
+    /**
+     * Creates a new {@code VesselGraphicComponentSelector}.
+     * 
+     * @param showName
+     *            If this graphic's sub graphics should display AIS name labels.
+     */
     public VesselGraphicComponentSelector(boolean showName) {
         super();
         this.vesselTriangleGraphic = new VesselTriangleGraphic();
         this.vesselTriangleGraphic.setShowNameLabel(showName);
-        this.vesselOutlineGraphic = new VesselOutlineGraphicComponent(ColorConstants.VESSEL_COLOR, 2.0f);
+        this.vesselOutlineGraphic = new VesselOutlineGraphicComponent(
+                ColorConstants.VESSEL_COLOR, 2.0f);
         this.vesselOutlineGraphic.setShowNameLabel(showName);
         this.vesselDotGraphic = new VesselDotGraphic();
     }
 
+    /**
+     * Performs initialization.
+     */
     private void createGraphics() {
         this.add(this.pastTrackGraphic);
     }
 
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale) {
+    public void update(AisTarget aisTarget, AisSettings aisSettings,
+            NavSettings navSettings, float mapScale) {
 
         if (aisTarget instanceof VesselTarget) {
 
@@ -67,10 +103,14 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent  {
             if (size() == 0) {
                 createGraphics();
             }
-            // update the sub graphics that manages the different vessel and vessel metadata displays
-            this.vesselOutlineGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
-            this.vesselTriangleGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
-            this.vesselDotGraphic.update(aisTarget, aisSettings, navSettings, mapScale);
+            // update the sub graphics that manages the different vessel and
+            // vessel metadata displays
+            this.vesselOutlineGraphic.update(aisTarget, aisSettings,
+                    navSettings, mapScale);
+            this.vesselTriangleGraphic.update(aisTarget, aisSettings,
+                    navSettings, mapScale);
+            this.vesselDotGraphic.update(aisTarget, aisSettings, navSettings,
+                    mapScale);
 
             // Update the past-track graphic
             pastTrackGraphic.update(vesselTarget);
@@ -78,10 +118,13 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent  {
             this.drawAccordingToScale(mapScale);
         }
     }
-    
+
     /**
      * Set the current display mode.
-     * @param newDisplay The {@link VesselGraphicComponent} to be displayed by this graphic.
+     * 
+     * @param newDisplay
+     *            The {@link VesselGraphicComponent} to be displayed by this
+     *            graphic.
      */
     private void updateCurrentDisplay(VesselGraphicComponent newDisplay) {
         // Remove previous display
@@ -92,32 +135,63 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent  {
         this.add(this.currentDisplay);
     }
 
+    /**
+     * Changes display mode to use an instance of
+     * {@link VesselOutlineGraphicComponent}.
+     */
     private void drawOutline() {
         this.updateCurrentDisplay(this.vesselOutlineGraphic);
     }
 
+    /**
+     * Changes display mode to use an instance of {@link VesselTriangleGraphic}.
+     */
     private void drawTriangle() {
         this.updateCurrentDisplay(this.vesselTriangleGraphic);
     }
 
+    /**
+     * Changes display mode to use an instance of {@link VesselDotGraphic}.
+     */
     private void drawDot() {
         this.updateCurrentDisplay(this.vesselDotGraphic);
     }
 
+    /**
+     * Get the {@link VesselTarget} received in the most recent call to
+     * {@link #update(AisTarget, AisSettings, NavSettings, float)}.
+     * 
+     * @return The most recent {@link VesselTarget}.
+     */
     public VesselTarget getVesselTarget() {
         return vesselTarget;
     }
 
+    /**
+     * Sets if sub {@link VesselGraphicComponent}s should show or hide AIS name
+     * labels.
+     * 
+     * @param showNameLabel
+     *            Specify true to show AIS name labels, false to hide AIS name
+     *            labels.
+     */
     public void setShowNameLabel(boolean showNameLabel) {
         if (this.vesselTriangleGraphic != null) {
             this.vesselTriangleGraphic.setShowNameLabel(showNameLabel);
         }
-        
+
         if (this.vesselOutlineGraphic != null) {
             this.vesselOutlineGraphic.setShowNameLabel(showNameLabel);
         }
     }
 
+    /**
+     * Get if sub {@link VesselGraphicComponent}s are set to show AIS name
+     * labels.
+     * 
+     * @return True if sub {@link VesselGraphicComponent}s are set to show AIS
+     *         name labels, false otherwise.
+     */
     public boolean getShowNameLabel() {
         if (this.vesselTriangleGraphic != null) {
             return this.vesselTriangleGraphic.getShowNameLabel();
@@ -125,12 +199,28 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent  {
         return true;
     }
 
+    /**
+     * Get the {@link PastTrackGraphic} associated with this
+     * {@code VesselGraphicComponentSelector}.
+     * 
+     * @return the {@link PastTrackGraphic} associated with this
+     *         {@code VesselGraphicComponentSelector}.
+     */
     public PastTrackGraphic getPastTrackGraphic() {
         return pastTrackGraphic;
     }
 
+    /**
+     * Chooses what display mode to use based on map scale and availability of
+     * {@link VesselStaticData}.
+     * 
+     * @param mapScale
+     *            The current map scale of the layer in which this
+     *            {@code VesselGraphicComponentSelector} resides.
+     */
     private void drawAccordingToScale(float mapScale) {
-        if (this.vesselTarget == null || this.vesselTarget.getPositionData() == null) {
+        if (this.vesselTarget == null
+                || this.vesselTarget.getPositionData() == null) {
             // cannot draw when we have no vessel data
             return;
         }
@@ -138,7 +228,8 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent  {
         switch (zl) {
         case VESSEL_OUTLINE:
             VesselStaticData vsd = this.vesselTarget.getStaticData();
-            if (vsd != null && (vsd.getDimBow() + vsd.getDimStern()) > 0 && (vsd.getDimPort() + vsd.getDimStarboard()) > 0) {
+            if (vsd != null && (vsd.getDimBow() + vsd.getDimStern()) > 0
+                    && (vsd.getDimPort() + vsd.getDimStarboard()) > 0) {
                 // can only draw outline if static data is available
                 this.drawOutline();
             } else {
@@ -154,23 +245,29 @@ public class VesselGraphicComponentSelector extends VesselGraphicComponent  {
             break;
         }
     }
-    
+
     @Override
     public boolean generate(Projection p, boolean forceProjectAll) {
         // Avoid NPE's during start-up
         if (p == null) {
             return true;
         }
-        
+
         // Generate is called every time the layer's projection changes.
-        // A projection change might impose a need for changing the current draw mode for this graphic.
-        // Hence recompute how this graphic should visualize itself with the new projection.
+        // A projection change might impose a need for changing the current draw
+        // mode for this graphic.
+        // Hence recompute how this graphic should visualize itself with the new
+        // projection.
         this.drawAccordingToScale(p.getScale());
         return super.generate(p, forceProjectAll);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     VesselGraphic getVesselGraphic() {
-        return this.currentDisplay != null ? this.currentDisplay.getVesselGraphic() : null;
+        return this.currentDisplay != null ? this.currentDisplay
+                .getVesselGraphic() : null;
     }
 }

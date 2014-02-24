@@ -23,11 +23,12 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 /**
  * <p>
  * Base class for graphics that visualize a vessel and its current selection
- * status. In other words: it is <b>NOT</b> intended that sub classes of this class add
- * graphics that are visual representations of items related to a vessel (e.g.
- * past track display, COG vector). If you want to create a graphic item that
- * wraps all graphics related to an AIS target or similar, make use of
- * {@link TargetGraphic}. Using composition, you can then wrap a sub class of
+ * status. In other words: it is <b>NOT</b> intended that sub classes of this
+ * class add graphics that are visual representations of items or meta data
+ * related to a vessel (e.g. past track display, COG vector). If you want to
+ * create a graphic item that wraps all graphics related to an AIS target or
+ * similar, make use of {@link TargetGraphic} (or {@link VesselGraphicComponent}
+ * for vessels). Using composition, you can then wrap a sub class of
  * {@code VesselGraphic} inside your {@link TargetGraphic} which can be in
  * charge of visualizing the vessel part.
  * </p>
@@ -64,7 +65,8 @@ public abstract class VesselGraphic extends OMGraphicList implements
      *         method).
      */
     public VesselTarget getMostRecentVesselTarget() {
-        // TODO consider if locking is needed - add a dummy Object instance as mutex if it is
+        // TODO consider if locking is needed - add a dummy Object instance as
+        // mutex if it is
         return this.mostRecentUpdate;
     }
 
@@ -86,7 +88,8 @@ public abstract class VesselGraphic extends OMGraphicList implements
      *            {@code VesselGraphic}.
      */
     public void updateGraphic(VesselTarget vesselTarget, float mapScale) {
-        // TODO consider if locking is needed - add a dummy Object instance as mutex if it is
+        // TODO consider if locking is needed - add a dummy Object instance as
+        // mutex if it is
         this.mostRecentUpdate = vesselTarget;
     }
 }
