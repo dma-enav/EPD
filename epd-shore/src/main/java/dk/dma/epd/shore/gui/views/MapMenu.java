@@ -50,7 +50,6 @@ import dk.dma.epd.shore.gui.views.menuitems.VoyageShowTransaction;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageZoomToShip;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
-import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 import dk.dma.epd.shore.layers.voyage.VoyagePlanInfoPanel;
 import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
@@ -89,8 +88,6 @@ public class MapMenu extends MapMenuCommon {
 
     private RouteManager routeManager;
     private Route route;
-
-    private VoyageLayer voyageLayer;
 
     private AisLayer aisLayer;
     private StrategicRouteHandler strategicRouteHandler;
@@ -573,10 +570,6 @@ public class MapMenu extends MapMenuCommon {
         if (obj instanceof StrategicRouteHandler) {
             strategicRouteHandler = (StrategicRouteHandler) obj;
         }
-        if (obj instanceof VoyageLayer) {
-            voyageLayer = (VoyageLayer) obj;
-        }
-
         if (obj instanceof JMapFrame) {
             jMapFrame = (JMapFrame) obj;
             layerTogglingWindow.setLayerToggling(jMapFrame.getLayerTogglingPanel());

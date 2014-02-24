@@ -18,7 +18,6 @@ package dk.dma.epd.common.prototype.gui.views;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -133,11 +132,9 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
         
         
         // Set up the notification panel
-        Rectangle bounds = new Rectangle(0, getLocation().y - 200, 300, 200);
         notificationPopUp = new PopUpNotification(
                 GraphicsUtil.getTopLevelContainer(notificationPanel),
-                SwingConstants.SOUTH_WEST,
-                bounds);
+                new Point(0, getLocation().y));
     }
 
     
@@ -191,8 +188,8 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
         // Re-position the pop-up depending on the panel
         NotificationLabel label = notificationLabelLookUp.get(panel);
         if (label != null) {
-            Point location = new Point(label.getX() + 10, getLocation().y - 200);
-            notificationPopUp.adjustLocation(location);
+            Point location = new Point(label.getX() + 10, getLocation().y);
+            notificationPopUp.adjustBottomLeftLocation(location);
         }
     }
 
