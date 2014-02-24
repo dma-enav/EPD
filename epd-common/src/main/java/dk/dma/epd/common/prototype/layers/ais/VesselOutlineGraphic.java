@@ -115,9 +115,11 @@ public class VesselOutlineGraphic extends VesselGraphicComponent {
      * @param aisTarget
      *            The AIS target containing the updated information.
      * @param aisSettings
-     *            Not relevant for this sub class of {@link TargetGraphic}.
+     *            Not relevant for this sub class of {@link TargetGraphic}, use
+     *            null.
      * @param navSettings
-     *            Not relevant for this sub class of {@link TargetGraphic}.
+     *            Not relevant for this sub class of {@link TargetGraphic}, use
+     *            null.
      * @param mapScale
      *            The current map scale of the layer in which this
      *            {@code VesselOutlineGraphic} resides.
@@ -129,7 +131,8 @@ public class VesselOutlineGraphic extends VesselGraphicComponent {
             VesselTarget vesselTarget = (VesselTarget) aisTarget;
             // Need to create the graphic if this is the first update we receive
             if (this.vesselOutline == null) {
-                this.vesselOutline = new VesselOutline(this.lineColor, this.lineThickness);
+                this.vesselOutline = new VesselOutline(this.lineColor,
+                        this.lineThickness);
                 this.add(this.vesselOutline);
             }
             // Update the sub graphic in charge of drawing the outline
@@ -157,10 +160,9 @@ public class VesselOutlineGraphic extends VesselGraphicComponent {
             this.aisName.setLon(positionData.getPos().getLongitude());
             this.aisName.setLat(positionData.getPos().getLatitude());
             this.aisName.setY(-20);
-            if(staticData != null) {
+            if (staticData != null) {
                 this.aisName.setData(AisMessage.trimText(staticData.getName()));
-            }
-            else {
+            } else {
                 this.aisName.setData("ID: " + vesselTarget.getMmsi());
             }
             this.aisName.setLinePaint(Color.BLACK);
@@ -168,8 +170,11 @@ public class VesselOutlineGraphic extends VesselGraphicComponent {
     }
 
     /**
-     * Get the {@link VesselOutline} that this {@code VesselOutlineGraphic} uses to display the vessel.
-     * @return The {@link VesselOutline} that this {@code VesselOutlineGraphic} uses to display the vessel.
+     * Get the {@link VesselOutline} that this {@code VesselOutlineGraphic} uses
+     * to display the vessel.
+     * 
+     * @return The {@link VesselOutline} that this {@code VesselOutlineGraphic}
+     *         uses to display the vessel.
      */
     @Override
     VesselOutline getVesselGraphic() {
