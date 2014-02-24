@@ -67,6 +67,16 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
      */
     public static final long ROUTE_TTL = 10 * 60 * 1000; // 10 min
 
+    /**
+     * In nautical miles - distance between two lines for it to be put in filter
+     */
+    public static final double DISTANCE_EPSILON = 1;
+
+    /**
+     * In hours - how close should the warning point be in time
+     */
+    public static final int TIME_EPSILON = 2;
+
     protected ConcurrentHashMap<Long, IntendedRoute> intendedRoutes = new ConcurrentHashMap<>();
     protected ConcurrentHashMap<Long, FilteredIntendedRoute> filteredIntendedRoutes = new ConcurrentHashMap<>();
 
@@ -311,7 +321,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
         }
 
         // Call an update
-//         intendedRouteLayerCommon.loadIntendedRoutes();
+        // intendedRouteLayerCommon.loadIntendedRoutes();
 
     }
 
@@ -368,7 +378,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
                     // Region filter - do not apply if we have an intersection of line segments/
                     List<IntendedRouteFilterMessage> regionResultMessage = proxmityFilter(route1, route2, i - 1, j - 1,
-                            route1Waypoint1, route1Waypoint2, route2Waypoint1, route2Waypoint2, 1.0);
+                            route1Waypoint1, route1Waypoint2, route2Waypoint1, route2Waypoint2, DISTANCE_EPSILON);
 
                     if (regionResultMessage.size() > 0) {
                         filteredIntendedRoute.getFilterMessages().addAll(regionResultMessage);
@@ -533,10 +543,10 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
                 System.out.println("Adding shortest distance is " + Converter.metersToNm(shortestDistance) + " at "
                         + shortestDistanceSegment2Position);
 
-//                intersectPositions.add(shortestDistanceSegment2Position);
+                // intersectPositions.add(shortestDistanceSegment2Position);
 
-                IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(shortestDistanceSegment1Position, shortestDistanceSegment2Position,
-                        "Route Segments proximity warning", j - 1, j);
+                IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(shortestDistanceSegment1Position,
+                        shortestDistanceSegment2Position, "Route Segments proximity warning", j - 1, j);
                 messageList.add(message);
             }
 
@@ -645,8 +655,8 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
                     if (checkDateInterval(segment1Positions.get(k), segment2Positions.get(k2), route1, route2, i, j)) {
 
-                        IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(segment1Positions.get(k), segment2Positions.get(k2),
-                                "Route Segments proximity warning", j - 1, j);
+                        IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(segment1Positions.get(k),
+                                segment2Positions.get(k2), "Route Segments proximity warning", j - 1, j);
                         proximityFilterMessages.add(message);
 
                     }
@@ -730,8 +740,8 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
                     System.out.println("Checking time");
 
                     if (checkDateInterval(route1SegmentExternalPoint, segment1Positions.get(k), route1, route2, i, j)) {
-                        IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(segment1Positions.get(k), route1SegmentExternalPoint,
-                                "Route Segments proximity warning", j - 1, j);
+                        IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(segment1Positions.get(k),
+                                route1SegmentExternalPoint, "Route Segments proximity warning", j - 1, j);
                         messageList.add(message);
                     }
 
@@ -794,8 +804,8 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
                     System.out.println("Checking time");
 
                     if (checkDateInterval(route2SegmentExternalPoint, segment2Positions.get(k), route1, route2, i, j)) {
-                        IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(route2SegmentExternalPoint, segment2Positions.get(k),
-                                "Route Segments proximity warning", j - 1, j);
+                        IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(route2SegmentExternalPoint,
+                                segment2Positions.get(k), "Route Segments proximity warning", j - 1, j);
                         messageList.add(message);
                     }
 
@@ -891,8 +901,8 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
         long timeTravelledSegment2 = (long) (distanceTravelledSegment2 / routeSegment2SpeedMiliPrNm);
         DateTime segment2IntersectionTime = routeSegment2StartDate.plus(timeTravelledSegment2);
 
-        if (segment2IntersectionTime.isAfter(segment1IntersectionTime.minusHours(2))
-                && segment2IntersectionTime.isBefore(segment1IntersectionTime.plusHours(2))) {
+        if (segment2IntersectionTime.isAfter(segment1IntersectionTime.minusHours(TIME_EPSILON))
+                && segment2IntersectionTime.isBefore(segment1IntersectionTime.plusHours(TIME_EPSILON))) {
             return true;
         }
 
@@ -912,7 +922,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
             if (checkDateInterval(intersection, intersection, route1, route2, i, j)) {
                 IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(intersection, intersection,
                         "Intersection occurs within 2 hour of eachother", j, j + 1);
-//                intersectPositions.add(intersection);
+                // intersectPositions.add(intersection);
                 return message;
             }
 
