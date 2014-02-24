@@ -69,7 +69,8 @@ public class VesselDot extends VesselGraphic {
     }
 
     @Override
-    public void setSelection(boolean selected) {
+    public void setSelectionStatus(boolean selected) {
+        super.setSelectionStatus(selected);
         if(this.circleSelectionGraphic == null) {
             this.circleSelectionGraphic = new CircleSelectionGraphic(this);
         }

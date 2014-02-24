@@ -40,6 +40,17 @@ public abstract class VesselGraphic extends OMGraphicList implements
         ISelectableGraphic {
 
     /**
+     * Lock used to access selectionStatus.
+     */
+    private Object selectionStatusLock = new Object();
+
+    /**
+     * Selection status of this graphic. True indicates that the graphic is
+     * selected.
+     */
+    private boolean selectionStatus;
+
+    /**
      * The {@link VesselTarget} received in the most recent call to
      * {@link #updateGraphic(VesselTarget, float)} (assuming sub classes make
      * sure to call the super implementation of this method)
@@ -91,5 +102,24 @@ public abstract class VesselGraphic extends OMGraphicList implements
         // TODO consider if locking is needed - add a dummy Object instance as
         // mutex if it is
         this.mostRecentUpdate = vesselTarget;
+    }
+
+    /**
+     * {@inheritDoc}<br/>
+     * <b>Sub classes overriding this should always call the super implementation</b>
+     * which sets the selection flag used by {@link #getSelectionStatus()}.
+     */
+    @Override
+    public void setSelectionStatus(boolean selected) {
+        synchronized (this.selectionStatusLock) {
+            this.selectionStatus = selected;
+        }
+    }
+
+    @Override
+    public boolean getSelectionStatus() {
+        synchronized (this.selectionStatusLock) {
+            return this.selectionStatus;
+        }
     }
 }

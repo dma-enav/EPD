@@ -116,7 +116,8 @@ public class VesselTriangle extends VesselGraphic {
      * {@link CircleSelectionGraphic}.
      */
     @Override
-    public void setSelection(boolean selected) {
+    public void setSelectionStatus(boolean selected) {
+        super.setSelectionStatus(selected);
         // TODO consider if locking is needed - add a dummy Object instance as mutex if it is
         VesselTarget vt = this.getMostRecentVesselTarget();
         VesselPositionData posData = vt != null ? vt.getPositionData()

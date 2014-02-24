@@ -92,7 +92,8 @@ public class VesselOutline extends VesselGraphic {
      *            no longer selected.
      */
     @Override
-    public void setSelection(boolean selected) {
+    public void setSelectionStatus(boolean selected) {
+        super.setSelectionStatus(selected);
         // Simply change the color of the outline when selected.
         if (selected) {
             this.setLinePaint(this.selectionColor);

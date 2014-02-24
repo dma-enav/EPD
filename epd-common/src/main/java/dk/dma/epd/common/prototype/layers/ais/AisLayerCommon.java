@@ -146,11 +146,11 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
             boolean repaint) {
         if (this.selectedGraphic != null) {
             // remove current selection
-            this.selectedGraphic.setSelection(false);
+            this.selectedGraphic.setSelectionStatus(false);
         }
         if (newSelection != null) {
             // mark new selection
-            newSelection.setSelection(true);
+            newSelection.setSelectionStatus(true);
         }
         // keep reference to new selection
         this.selectedGraphic = newSelection;

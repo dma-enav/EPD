@@ -27,9 +27,16 @@ package dk.dma.epd.common.graphics;
 public interface ISelectableGraphic {
     /**
      * Update the selected status of this graphic.
-     * 
+     *
      * @param selected
      *            True if the graphic is selected, false if it is deselected.
      */
-    void setSelection(boolean selected);
+    void setSelectionStatus(boolean selected);
+
+    /**
+     * Get the selected status of this graphic.
+     * 
+     * @return True if this graphic is currently selected, false otherwise.
+     */
+    boolean getSelectionStatus();
 }
