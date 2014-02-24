@@ -33,16 +33,16 @@ import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
 
 /**
- * A concrete implementation of {@link TargetGraphic} that displays a vessel
- * target by painting the outline of the vessel relative to the map scale. This
- * class uses a {@link VesselOutline} to paint the actual outline, but it also
- * adds more graphics that visualizes other target related information such as a
- * PNT device marker and a COG vector.
+ * A concrete implementation of {@link VesselGraphicComponent} that displays a
+ * vessel target by painting the outline of the vessel relative to the map
+ * scale. This class uses a {@link VesselOutline} to paint the actual outline,
+ * but it also adds more graphics that visualizes other target related
+ * information such as a PNT device marker and a COG vector.
  * 
  * @author Janus Varmarken
  */
 @SuppressWarnings("serial")
-public class VesselOutlineGraphic extends VesselGraphicComponent {
+public class VesselOutlineGraphicComponent extends VesselGraphicComponent {
 
     /**
      * Handles display of the vessel outline.
@@ -60,7 +60,7 @@ public class VesselOutlineGraphic extends VesselGraphicComponent {
     private SpeedVectorGraphic speedVector;
 
     /**
-     * Color of sub graphics of this {@code VesselOutlineGraphic}.
+     * Color of sub graphics of this {@code VesselOutlineGraphicComponent}.
      */
     private Color lineColor;
 
@@ -75,15 +75,15 @@ public class VesselOutlineGraphic extends VesselGraphicComponent {
     private OMText aisName;
 
     /**
-     * Create a new {@code VesselOutlineGraphic} with a given line color and a
-     * given line thickness.
+     * Create a new {@code VesselOutlineGraphicComponent} with a given line
+     * color and a given line thickness.
      * 
      * @param lineColor
      *            Line color to use when painting the vessel outline.
      * @param lineThickness
      *            Line thickness to use when painting the vessel outline.
      */
-    public VesselOutlineGraphic(Color lineColor, float lineThickness) {
+    public VesselOutlineGraphicComponent(Color lineColor, float lineThickness) {
         this.lineColor = lineColor;
         this.lineThickness = lineThickness;
 
@@ -122,7 +122,7 @@ public class VesselOutlineGraphic extends VesselGraphicComponent {
      *            null.
      * @param mapScale
      *            The current map scale of the layer in which this
-     *            {@code VesselOutlineGraphic} resides.
+     *            {@code VesselOutlineGraphicComponent} resides.
      */
     @Override
     public void update(AisTarget aisTarget, AisSettings aisSettings,
@@ -170,11 +170,11 @@ public class VesselOutlineGraphic extends VesselGraphicComponent {
     }
 
     /**
-     * Get the {@link VesselOutline} that this {@code VesselOutlineGraphic} uses
-     * to display the vessel.
+     * Get the {@link VesselOutline} that this
+     * {@code VesselOutlineGraphicComponent} uses to display the vessel.
      * 
-     * @return The {@link VesselOutline} that this {@code VesselOutlineGraphic}
-     *         uses to display the vessel.
+     * @return The {@link VesselOutline} that this
+     *         {@code VesselOutlineGraphicComponent} uses to display the vessel.
      */
     @Override
     VesselOutline getVesselGraphic() {

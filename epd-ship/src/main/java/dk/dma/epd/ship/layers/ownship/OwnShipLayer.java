@@ -32,7 +32,7 @@ import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackGraphic;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
-import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphic;
+import dk.dma.epd.common.prototype.layers.ais.VesselOutlineGraphicComponent;
 import dk.dma.epd.common.prototype.sensor.rpnt.MultiSourcePntHandler;
 import dk.dma.epd.common.prototype.zoom.ZoomLevel;
 import dk.dma.epd.ship.gui.MapMenu;
@@ -57,7 +57,7 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
     private Position currentPos;
 
     private OwnShipGraphic ownShipGraphic;
-    private VesselOutlineGraphic vesselOutlineGraphic;
+    private VesselOutlineGraphicComponent vesselOutlineGraphic;
     private RpntErrorGraphic rpntErrorGraphic;
 
     private ZoomLevel currentZoomLevel;
@@ -156,7 +156,7 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
         }
         // init if this is the first time displaying ship outline
         if (this.vesselOutlineGraphic == null) {
-            this.vesselOutlineGraphic = new VesselOutlineGraphic(ColorConstants.OWNSHIP_COLOR, 2.0f);
+            this.vesselOutlineGraphic = new VesselOutlineGraphicComponent(ColorConstants.OWNSHIP_COLOR, 2.0f);
             this.graphics.add(this.vesselOutlineGraphic);
         }
         // re-show outline graphic in case it was hidden by standard ownship graphic

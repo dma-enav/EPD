@@ -39,7 +39,7 @@ public class VesselTargetGraphic extends VesselGraphicComponent  {
     private VesselGraphicComponent currentDisplay;
     
     private VesselTriangleGraphic vesselTriangleGraphic;
-    private VesselOutlineGraphic vesselOutlineGraphic;
+    private VesselOutlineGraphicComponent vesselOutlineGraphic;
     private VesselDotGraphic vesselDotGraphic;
 
     private PastTrackGraphic pastTrackGraphic = new PastTrackGraphic();
@@ -48,7 +48,7 @@ public class VesselTargetGraphic extends VesselGraphicComponent  {
         super();
         this.vesselTriangleGraphic = new VesselTriangleGraphic();
         this.vesselTriangleGraphic.setShowNameLabel(showName);
-        this.vesselOutlineGraphic = new VesselOutlineGraphic(ColorConstants.VESSEL_COLOR, 2.0f);
+        this.vesselOutlineGraphic = new VesselOutlineGraphicComponent(ColorConstants.VESSEL_COLOR, 2.0f);
         this.vesselOutlineGraphic.setShowNameLabel(showName);
         this.vesselDotGraphic = new VesselDotGraphic();
     }
