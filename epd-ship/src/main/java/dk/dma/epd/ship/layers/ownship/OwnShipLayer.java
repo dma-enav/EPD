@@ -127,7 +127,7 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
 
         // check if proper zoom level and if data is available for ship outline drawing
         if (this.currentZoomLevel == ZoomLevel.VESSEL_OUTLINE && ownShipHandler.getStaticData() != null) {
-            this.drawOwnShipOutline(ownShipHandler.getPositionData(), ownShipHandler.getStaticData());
+            this.drawOwnShipOutline();
         } else {
             // draw standard version of own ship for all other zoom levels than VESSEL_OUTLINE
             this.drawOwnShipStandard(ownShipHandler.getPositionData());
@@ -149,13 +149,8 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
 
     /**
      * Draws/updates own ship in outline mode.
-     * 
-     * @param positionData
-     *            the vessel position data
-     * @param staticData
-     *            the vessel static data
      */
-    private void drawOwnShipOutline(VesselPositionData positionData, VesselStaticData staticData) {
+    private void drawOwnShipOutline() {
         if (this.ownShipGraphic != null) {
             // hide standard display of own ship
             this.ownShipGraphic.setVisible(false);
@@ -167,15 +162,15 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
         }
         // re-show outline graphic in case it was hidden by standard ownship graphic
         this.vesselOutlineGraphic.setVisible(true);
-        this.vesselOutlineGraphic.setLocation(positionData, staticData);
-
+        this.vesselOutlineGraphic.update(this.ownShipHandler.getAisTarget(), null, null, this.getProjection().getScale());
+        
         // Handle resilient PNT error graphic
         if (rpntErrorGraphic == null) {
             rpntErrorGraphic = new RpntErrorGraphic();
             graphics.add(rpntErrorGraphic);
         }
         rpntErrorGraphic.setVisible(true);
-        rpntErrorGraphic.update(positionData, multiSourcePntHandler.getRpntData());
+        rpntErrorGraphic.update(ownShipHandler.getPositionData(), multiSourcePntHandler.getRpntData());
     }
 
     /**
