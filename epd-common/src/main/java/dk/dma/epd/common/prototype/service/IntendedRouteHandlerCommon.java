@@ -533,7 +533,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
                 System.out.println("Adding shortest distance is " + Converter.metersToNm(shortestDistance) + " at "
                         + shortestDistanceSegment2Position);
 
-                intersectPositions.add(shortestDistanceSegment2Position);
+//                intersectPositions.add(shortestDistanceSegment2Position);
 
                 IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(shortestDistanceSegment1Position, shortestDistanceSegment2Position,
                         "Route Segments proximity warning", j - 1, j);
@@ -912,7 +912,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
             if (checkDateInterval(intersection, intersection, route1, route2, i, j)) {
                 IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(intersection, intersection,
                         "Intersection occurs within 2 hour of eachother", j, j + 1);
-                intersectPositions.add(intersection);
+//                intersectPositions.add(intersection);
                 return message;
             }
 
