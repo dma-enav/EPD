@@ -29,6 +29,7 @@ import dk.dma.epd.shore.gui.views.JMapFrame;
  * The mouse mode used in navigation mode - click zoom mode
  */
 public class NavigationMouseMode extends CommonNavigationMouseMode {
+    
     private static final long serialVersionUID = 1L;
 
     /**
@@ -51,8 +52,14 @@ public class NavigationMouseMode extends CommonNavigationMouseMode {
     }
 
     /**
-     * {@inheritDoc}
-     */
+    * Called when a CoordMouseMode is added to a BeanContext, or when another
+    * object is added to the BeanContext after that. The CoordMouseMode looks
+    * for an InformationDelegator to use to fire the coordinate updates. If
+    * another InforationDelegator is added when one is already set, the later
+    * one will replace the current one.
+    * 
+    * @param someObj an object being added to the BeanContext.
+    */
     @Override
     public void findAndInit(Object someObj) {
         if (someObj instanceof JMapFrame) {
@@ -63,23 +70,8 @@ public class NavigationMouseMode extends CommonNavigationMouseMode {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        super.mouseClicked(e);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        super.mouseDragged(e);
-    }
-
-    /**
-     * {@inheritDoc}
+     * If the mouse is entered on a MapBean object, the doZoom boolean will
+     * be set to true.
      */
     @Override
     public void mouseEntered(MouseEvent e) {
@@ -88,28 +80,15 @@ public class NavigationMouseMode extends CommonNavigationMouseMode {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void mouseExited(MouseEvent e) {
-        super.mouseExited(e);
-    }
-    
-    /**
-     * {@inheritDoc}
+     * If the the mouse is pressed down, the first point will be saved,
+     * the second point will be reset, and the doZoom boolean will be
+     * set to true, so that if the mouse is releasted, after being 
+     * dragged, a zoom to that selected area will be executed.
      */
     @Override
     public void mousePressed(MouseEvent e) {
         clickTimer.setInterval(500);
         clickTimer.startTime();
         super.mousePressed(e);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        super.mouseReleased(e);
     }
 }

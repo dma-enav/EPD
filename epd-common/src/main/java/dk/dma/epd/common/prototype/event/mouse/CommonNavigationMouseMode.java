@@ -46,8 +46,10 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
     private boolean layerMouseDrag;
 
     /**
-     * Constructs a new CommonNavigationMouseMode - calls the super constructor
-     * with MODE_ID and true parameter.
+     * Creates a new CommonNavigationMouseMode.<br>
+     * The object is common behaviour for navigation around the map 
+     * in ship side and shore side.
+     * 
      * @param chartPanel
      *          The chart panel of the object which called this constructor. 
      * @param maxScale
@@ -63,7 +65,7 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
         // This cursor can be used in the classes which will inherit from this class.
         Toolkit tk = Toolkit.getDefaultToolkit();
         Image cursorIcon = tk.getImage(this.getClass().getResource("/images/toolbar/zoom.png"));
-        NAV_CURSOR = tk.createCustomCursor(cursorIcon, new Point(0, 0), "zoom");
+        this.NAV_CURSOR = tk.createCustomCursor(cursorIcon, new Point(0, 0), "zoom");
     }
     
     /**
@@ -396,8 +398,8 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
                         
                         this.point2 = this.getRatioPoint(map, this.point1, e.getPoint());
                         
-                        selectedAreaWidth  = Math.abs(point2.x - point1.x);
-                        selectedAreaHeight = Math.abs(point2.y - point1.y);
+                        selectedAreaWidth  = Math.abs(this.point2.x - this.point1.x);
+                        selectedAreaHeight = Math.abs(this.point2.y - this.point1.y);
                         
                         scale = ProjMath.getScale(this.point1, this.point2, projection);
                         

@@ -25,6 +25,7 @@ import dk.dma.epd.ship.gui.ChartPanel;
  * The mouse mode used in navigation mode
  */
 public class NavigationMouseMode extends CommonNavigationMouseMode {
+    
     private static final long serialVersionUID = 1L;
 
     /**
@@ -34,15 +35,20 @@ public class NavigationMouseMode extends CommonNavigationMouseMode {
 
     private ClickTimer clickTimer;
 
+    /**
+     * Creates the NavigatopnMouseMode for Ship.
+     * @param chartPanel
+     */
     public NavigationMouseMode(ChartPanel chartPanel) {
         super(chartPanel, EPDShip.getInstance().getSettings().getMapSettings().getMaxScale(), MODE_ID);
-        clickTimer = ClickTimer.getClickTimer();
+        this.clickTimer = ClickTimer.getClickTimer();
         
         this.setModeCursor(super.NAV_CURSOR);
     }
     
     /**
-     * {@inheritDoc}
+     * Handles a mouse pressed event. This will save the current position
+     * of the mouse and reset the second point.
      */
     @Override
     public void mousePressed(MouseEvent e) {
@@ -52,7 +58,13 @@ public class NavigationMouseMode extends CommonNavigationMouseMode {
     }
     
     /**
-     * {@inheritDoc}
+     * If the mouse is pressed twice right after each other, this mouse
+     * event handler method will update the location on the map by the
+     * position of the mouse. 
+     * If the control button is pushed down when this method is called, 
+     * a new scale value will be calculated so that a zoom to the new 
+     * position will be done too. If the control and shift button are
+     * both down at when called a zoom out from the point will be done.
      */
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -63,7 +75,11 @@ public class NavigationMouseMode extends CommonNavigationMouseMode {
     }
 
     /**
-     * {@inheritDoc}
+     * When the mouse is released, this event will check if the control
+     * button was held down, when the mouse was released. If it was, it 
+     * will find the best rectangle in ratio to fit the selected area
+     * into. If the control button was not held down, the method will
+     * zoom to the selected rectangle. 
      */
     @Override
     public void mouseReleased(MouseEvent e) {
@@ -71,29 +87,5 @@ public class NavigationMouseMode extends CommonNavigationMouseMode {
         super.mouseReleased(e);
         EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().setShouldSave(true);
         EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().saveToHistoryBeforeMoving();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void mouseEntered(MouseEvent e) {
-        super.mouseEntered(e);
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void mouseExited(MouseEvent e) {
-        super.mouseExited(e);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        super.mouseDragged(e);
     }
 }
