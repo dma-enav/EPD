@@ -18,14 +18,36 @@ package dk.dma.epd.common.prototype.notification;
 /**
  * Class that can be used for general notifications
  */
-public class GeneralNotification extends Notification<Void, Long> {
+public class GeneralNotification extends Notification<Object, Object> {
     
     private static final long serialVersionUID = 1L;
 
     /**
+     * Designated constructor
+     * 
+     * @param value
+     * @param id
+     * @param type
+     */
+    public GeneralNotification(Object value, Object id, NotificationType type) {
+        super(value, id, type);
+    }
+    
+    /**
+     * Constructor
+     * 
+     * @param value
+     * @param id
+     */
+    public GeneralNotification(Object value, Object id) {
+        this(value, id, NotificationType.NOTIFICATION);
+    }
+    
+    /**
      * Constructor
      */
     public GeneralNotification() {
-        super(null, System.currentTimeMillis(), NotificationType.NOTIFICATION);
+        this(null, System.currentTimeMillis(), NotificationType.NOTIFICATION);
     }
+
 }

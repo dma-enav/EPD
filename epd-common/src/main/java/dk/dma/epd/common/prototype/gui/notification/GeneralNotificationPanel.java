@@ -77,7 +77,7 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
             
             @Override 
             public Object getValueAt(int rowIndex, int columnIndex) {
-                Notification<Void,Long> notification = getNotification(rowIndex);
+                Notification<?, ?> notification = getNotification(rowIndex);
                 
                 switch (columnIndex) {
                 case 0: return !notification.isRead() 

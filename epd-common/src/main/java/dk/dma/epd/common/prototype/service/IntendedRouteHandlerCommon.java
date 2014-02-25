@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +43,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteBroadcast;
@@ -52,6 +52,10 @@ import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessag
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
+import dk.dma.epd.common.prototype.notification.GeneralNotification;
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.util.Converter;
 
@@ -60,7 +64,7 @@ import dk.dma.epd.common.util.Converter;
  * <p>
  * Listens for intended route broadcasts, and updates the vessel target when one is received.
  */
-public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
+public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
 
     /**
      * Time an intended route is considered valid without update
@@ -243,7 +247,7 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
     }
 
     /****************************************/
-    /** Listener functions **/
+    /** Listener functions                 **/
     /****************************************/
 
     /**
@@ -278,62 +282,64 @@ public class IntendedRouteHandlerCommon extends EnavServiceHandlerCommon {
         }
     }
 
+    /****************************************/
+    /** Intended route filtering           **/
+    /****************************************/
+
     /**
      * Update all filters
      */
-    protected void updateFilter() {
-
-        // Clear existing filture and recalculate everything
-        // Compare all routes to current active route
-
-        filteredIntendedRoutes.clear();
-
-        // Compare all intended routes against all other intended routes
-
-        Iterator<Entry<Long, IntendedRoute>> outerIterator = intendedRoutes.entrySet().iterator();
-        while (outerIterator.hasNext()) {
-            Entry<Long, IntendedRoute> intendedRoute = outerIterator.next();
-
-            IntendedRoute route1 = intendedRoute.getValue();
-
-            Iterator<Entry<Long, IntendedRoute>> innerIterator = intendedRoutes.entrySet().iterator();
-            while (innerIterator.hasNext()) {
-                Entry<Long, IntendedRoute> intendedRoute2 = innerIterator.next();
-
-                IntendedRoute route2 = intendedRoute2.getValue();
-
-                if (route1.getMmsi() != route2.getMmsi()) {
-                    FilteredIntendedRoute filter = compareRoutes(route1, route2);
-
-                    // No warnings, ignore it
-                    if (filter.getFilterMessages().size() != 0) {
-
-                        // Add the intended route to the filter
-                        filter.setIntendedRoute(route2);
-                        // Add the filtered route to the list
-                        filteredIntendedRoutes.put(route2.getMmsi(), filter);
-
-                    }
-                }
-
-            }
-
-        }
-
-        // Call an update
-        // intendedRouteLayerCommon.loadIntendedRoutes();
-
-    }
+    protected abstract void updateFilter();
 
     /**
-     * Update filter with new intendedroute
+     * Update filter with new intended route
      * 
      * @param route
      */
-    protected void applyFilter(IntendedRoute route) {
-        updateFilter();
+    protected abstract void applyFilter(IntendedRoute route);
+
+    
+    /**
+     * Check if notifications should be generated based on a re-computed set of filtered intended routes
+     * 
+     * @param oldFilteredRoutes the old set of filtered routes
+     * @param newFilteredRoutes the new set of filtered routes
+     */
+    protected void checkGenerateNotifications(Map<Long, FilteredIntendedRoute> oldFilteredRoutes, Map<Long, FilteredIntendedRoute> newFilteredRoutes) {
+        for (FilteredIntendedRoute filteredIntendedRoute : newFilteredRoutes.values()) {
+            checkGenerateNotifications(oldFilteredRoutes, filteredIntendedRoute);
+        }
     }
 
+    /**
+     * Check if a notification should be generated based on a new filtered intended route
+     * 
+     * @param oldFilteredRoutes the old set of filtered routes
+     * @param newFilteredRoute the new filtered route
+     */
+    protected void checkGenerateNotifications(Map<Long, FilteredIntendedRoute> oldFilteredRoutes, FilteredIntendedRoute newFilteredRoute) {
+        Long mmsi = newFilteredRoute.getIntendedRoute().getMmsi();
+        FilteredIntendedRoute oldFilteredRoute = oldFilteredRoutes.get(mmsi);
+        
+        // NB: For now, we add a notification when a new filtered intended route surfaces.
+        // In the future add a more fine-grained comparison
+        if (oldFilteredRoute == null) {
+            GeneralNotification notification = new GeneralNotification(
+                    newFilteredRoute,
+                    "IntendedRouteNotificaiton" + mmsi);
+            notification.setSeverity(NotificationSeverity.WARNING);
+            notification.setTitle("Potential collission detected");
+            StringBuilder desc = new StringBuilder();
+            for (IntendedRouteFilterMessage msg : newFilteredRoute.getFilterMessages()) {
+                desc.append(msg.getMessage()).append("\n");
+            }
+            notification.setDescription(desc.toString());
+            notification.setLocation(newFilteredRoute.getFilterMessages().get(0).getPosition1());
+            notification.addAlerts(new NotificationAlert(AlertType.POPUP));
+            EPD.getInstance().getNotificationCenter().addNotification(notification);
+        }
+    }
+    
     /**
      * Apply Filter on the two routes
      * 

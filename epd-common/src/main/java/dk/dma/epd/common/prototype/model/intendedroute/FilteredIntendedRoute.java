@@ -32,17 +32,26 @@ public class FilteredIntendedRoute {
     public IntendedRoute getIntendedRoute() {
         return intendedRoute;
     }
+    
     public void setIntendedRoute(IntendedRoute intendedRoute) {
         this.intendedRoute = intendedRoute;
     }
+    
     public List<IntendedRouteFilterMessage> getFilterMessages() {
         return filterMessages;
     }
+    
     public void setFilterMessages(List<IntendedRouteFilterMessage> filterMessages) {
         this.filterMessages = filterMessages;
     }
     
-    
+    /**
+     * Returns if this filtered intended route should be included in the filter
+     * @return if this filtered intended route should be included in the filter
+     */
+    public boolean include() {
+        return filterMessages.size() > 0;
+    }
     
     
 }
