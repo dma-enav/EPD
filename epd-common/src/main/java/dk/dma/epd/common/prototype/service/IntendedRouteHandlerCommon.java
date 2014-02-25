@@ -334,10 +334,17 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         // NB: For now, we add a notification when a new filtered intended route surfaces
         // and it is within a certain amount of time and distance.
         // In the future add a more fine-grained comparison
-        boolean sendNotification = oldFilteredRoute == null
-                && newFilteredRoute.isWithinRange(NOTIFICATION_DISTANCE_EPSILON, NOTIFICATION_TIME_EPSILON);
+        boolean sendNotification;
+        if (oldFilteredRoute == null) {
+            sendNotification = true;
+        } else {
+            newFilteredRoute.setGeneratedNotification(oldFilteredRoute.hasGeneratedNotification());
+            sendNotification = !newFilteredRoute.hasGeneratedNotification() 
+                                && newFilteredRoute.isWithinRange(NOTIFICATION_DISTANCE_EPSILON, NOTIFICATION_TIME_EPSILON);
+        }
 
         if (sendNotification) {
+            newFilteredRoute.setGeneratedNotification(true);
             GeneralNotification notification = new GeneralNotification(newFilteredRoute, "IntendedRouteNotificaiton" + mmsi);
             notification.setTitle("Potential collission detected");
             StringBuilder desc = new StringBuilder();

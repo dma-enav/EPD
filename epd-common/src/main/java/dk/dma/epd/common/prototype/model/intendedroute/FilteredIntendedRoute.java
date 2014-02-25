@@ -24,6 +24,7 @@ public class FilteredIntendedRoute {
 
     IntendedRoute intendedRoute;
     List<IntendedRouteFilterMessage> filterMessages;
+    boolean generatedNotification;
     
     public FilteredIntendedRoute(){
         filterMessages = new ArrayList<>();
@@ -69,4 +70,21 @@ public class FilteredIntendedRoute {
         }
         return false;
     }
+
+    /**
+     * Returns if this filtered intended route has generated a notification
+     * @return if this filtered intended route has generated a notification
+     */
+    public boolean hasGeneratedNotification() {
+        return generatedNotification;
+    }
+
+    /**
+     * Sets if this filtered intended route has generated a notification
+     * @param generatedNotification if this filtered intended route has generated a notification
+     */
+    public void setGeneratedNotification(boolean generatedNotification) {
+        this.generatedNotification = generatedNotification;
+    }
+
 }
