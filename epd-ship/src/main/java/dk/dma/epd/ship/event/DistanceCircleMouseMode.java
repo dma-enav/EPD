@@ -16,6 +16,7 @@
 package dk.dma.epd.ship.event;
 
 import java.awt.event.MouseEvent;
+import dk.dma.epd.common.prototype.event.mouse.AbstractCoordMouseMode;
 
 public class DistanceCircleMouseMode extends AbstractCoordMouseMode {
 

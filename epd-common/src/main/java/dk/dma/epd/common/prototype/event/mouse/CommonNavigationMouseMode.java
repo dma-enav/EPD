@@ -40,11 +40,12 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
     public final Cursor NAV_CURSOR;
     private ChartPanelCommon chartPanel;
     private int maxScale;
-    private Point point1, point2;
     private boolean doZoom; // This will be true, if the mouse is down.
     private boolean mouseDragged;
     private boolean layerMouseDrag;
 
+    protected Point point1, point2;
+    
     /**
      * Creates a new CommonNavigationMouseMode.<br>
      * The object is common behaviour for navigation around the map 
