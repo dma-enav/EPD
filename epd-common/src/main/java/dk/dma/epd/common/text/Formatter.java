@@ -20,6 +20,9 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import dk.dma.epd.common.Heading;
 
@@ -80,6 +83,13 @@ public class Formatter {
         return longDateTime.format(date) + "(" + getTzNumber(date) + ")";
     }
 
+    public static String formatYodaTime(DateTime time){
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMMM, HH:mm");
+        
+        
+        return time.toString(fmt);
+    }
+    
     public static String formatTime(Long time) {
         if (time == null) {
             return "N/A";
