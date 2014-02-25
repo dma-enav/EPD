@@ -402,11 +402,11 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                 } else {
 
                     // Region filter - do not apply if we have an intersection of line segments/
-                    List<IntendedRouteFilterMessage> regionResultMessage = proxmityFilter(route1, route2, i - 1, j - 1,
+                    IntendedRouteFilterMessage regionResultMessage = proxmityFilter(route1, route2, i - 1, j - 1,
                             route1Waypoint1, route1Waypoint2, route2Waypoint1, route2Waypoint2, FILTER_DISTANCE_EPSILON);
 
-                    if (regionResultMessage.size() > 0) {
-                        filteredIntendedRoute.getFilterMessages().addAll(regionResultMessage);
+                    if (regionResultMessage != null) {
+                        filteredIntendedRoute.getFilterMessages().add(regionResultMessage);
                     }
                 }
 
@@ -475,10 +475,10 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         return dest;
     }
 
-    private List<IntendedRouteFilterMessage> proximityFilterRhumbLine(Route route1, Route route2, int i, int j, Position A,
+    private IntendedRouteFilterMessage proximityFilterRhumbLine(Route route1, Route route2, int i, int j, Position A,
             Position B, Position C, Position D, double epsilon) {
 
-        List<IntendedRouteFilterMessage> messageList = new ArrayList<>();
+//        List<IntendedRouteFilterMessage> messageList = new ArrayList<>();
 
         Projection projection = mapBean.getProjection();
 
@@ -574,8 +574,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
             System.out.println("Checking time");
 
-            IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(shortestDistancePosition,
-                    finalPoint, "Route Segments proximity warning", j - 1, j);
+            IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(shortestDistancePosition, finalPoint,
+                    "Route Segments proximity warning", j - 1, j);
 
             if (checkDateInterval(shortestDistancePosition, finalPoint, route1, route2, i, j, message)) {
 
@@ -584,11 +584,11 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
                 // intersectPositions.add(shortestDistanceSegment2Position);
 
-                messageList.add(message);
+                return message;
             }
 
         }
-        return messageList;
+        return null;
 
     }
 
@@ -610,7 +610,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         return lineSegmentSize;
     }
 
-    private List<IntendedRouteFilterMessage> proximityFilterGreatCircle(Route route1, Route route2, int i, int j, Position A,
+    private IntendedRouteFilterMessage proximityFilterGreatCircle(Route route1, Route route2, int i, int j, Position A,
             Position B, Position C, Position D, double epsilon) {
 
         List<IntendedRouteFilterMessage> proximityFilterMessages = new ArrayList<IntendedRouteFilterMessage>();
@@ -707,13 +707,29 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         // Compare distances for all
         System.out.println("Done with comparisons, Elapsed miliseconds: " + (System.currentTimeMillis() - currentTime));
 
-        return proximityFilterMessages;
+        double smallestDistance = 999999999;
+        int bestMatch = 0;
+
+        // Find the best match
+        for (int k = 0; k < proximityFilterMessages.size(); k++) {
+
+            double currentDistance = proximityFilterMessages.get(i).getPosition1()
+                    .distanceTo(proximityFilterMessages.get(i).getPosition2(), CoordinateSystem.CARTESIAN);
+
+            if (smallestDistance > currentDistance) {
+                smallestDistance = currentDistance;
+                bestMatch = i;
+            }
+
+        }
+
+        return proximityFilterMessages.get(bestMatch);
     }
 
-    private List<IntendedRouteFilterMessage> proximityFilterMix(Route route1, Route route2, int i, int j, Position A, Position B,
+    private IntendedRouteFilterMessage proximityFilterMix(Route route1, Route route2, int i, int j, Position A, Position B,
             Position C, Position D, double epsilon) {
 
-        List<IntendedRouteFilterMessage> messageList = new ArrayList<IntendedRouteFilterMessage>();
+//        List<IntendedRouteFilterMessage> messageList = new ArrayList<IntendedRouteFilterMessage>();
 
         // We need to determine which is RL and which is GC
 
@@ -781,7 +797,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             route1SegmentExternalPoint, "Route Segments proximity warning", j - 1, j);
 
                     if (checkDateInterval(route1SegmentExternalPoint, segment1Positions.get(k), route1, route2, i, j, message)) {
-                        messageList.add(message);
+//                        messageList.add(message);
+                        return message;
                     }
 
                 }
@@ -846,7 +863,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             segment2Positions.get(k), "Route Segments proximity warning", j - 1, j);
 
                     if (checkDateInterval(route2SegmentExternalPoint, segment2Positions.get(k), route1, route2, i, j, message)) {
-                        messageList.add(message);
+                        return message;
                     }
 
                 }
@@ -854,10 +871,10 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
         }
 
-        return messageList;
+        return null;
     }
 
-    private List<IntendedRouteFilterMessage> proxmityFilter(Route route1, Route route2, int i, int j, Position route1Waypoint1,
+    private IntendedRouteFilterMessage proxmityFilter(Route route1, Route route2, int i, int j, Position route1Waypoint1,
             Position route1Waypoint2, Position route2Waypoint1, Position route2Waypoint2, double epsilon) {
 
         Position A = route1Waypoint1;
@@ -901,7 +918,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
         System.out.println("Not doing anything - why?");
 
-        return new ArrayList<IntendedRouteFilterMessage>();
+        return null;
     }
 
     /**

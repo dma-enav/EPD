@@ -37,11 +37,13 @@ public class IntendedRouteTCPAInfoPanel extends InfoPanel {
          str.append("<html>");
          str.append("<b>Intended route TCPA Warning</b><br/>");
          str.append(filterMessage.getMessage() + "<br/>");
+         str.append("Between" + filterMessage.getTime1()+ "<br/>");
+         str.append("And" + filterMessage.getTime2()+ "<br/>");
          str.append("</table>");
          str.append("</html>");
         
          showText(str.toString());
-
+         
     }
 
 
