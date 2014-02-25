@@ -253,6 +253,11 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
                 notification.setRead(true);
                 table.repaint();
                 notifyListeners();
+                
+                // Should the notification be automatically acknowledged
+                if (!notification.isAcknowledged() && notification.isAutoAcknowledge()) {
+                    acknowledgeNotification(notification);
+                }
             }
             notificationDetailPanel.setNotification(notification);
         } else {

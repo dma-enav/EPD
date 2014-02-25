@@ -28,5 +28,4 @@ public class GeneralNotification extends Notification<Void, Long> {
     public GeneralNotification() {
         super(null, System.currentTimeMillis(), NotificationType.NOTIFICATION);
     }
-
 }
