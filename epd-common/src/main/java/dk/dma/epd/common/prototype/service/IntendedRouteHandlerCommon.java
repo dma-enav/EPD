@@ -346,7 +346,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         if (sendNotification) {
             newFilteredRoute.setGeneratedNotification(true);
             GeneralNotification notification = new GeneralNotification(newFilteredRoute, "IntendedRouteNotificaiton" + mmsi);
-            notification.setTitle("Potential collission detected");
+            notification.setTitle("Potential collision detected");
             StringBuilder desc = new StringBuilder();
             for (IntendedRouteFilterMessage msg : newFilteredRoute.getFilterMessages()) {
                 if (msg.isWithinRange(NOTIFICATION_DISTANCE_EPSILON, NOTIFICATION_TIME_EPSILON)) {
