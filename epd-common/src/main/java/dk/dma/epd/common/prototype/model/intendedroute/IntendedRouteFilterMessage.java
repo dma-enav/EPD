@@ -15,7 +15,11 @@
  */
 package dk.dma.epd.common.prototype.model.intendedroute;
 
+import org.joda.time.DateTime;
+
+import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.util.Converter;
 
 public class IntendedRouteFilterMessage {
 
@@ -24,6 +28,8 @@ public class IntendedRouteFilterMessage {
     String message;
     int legStartIndex;
     int legEndIndex;
+    DateTime time1;
+    DateTime time2;
     
     public IntendedRouteFilterMessage(Position position1, Position position2, String message, int legStartIndex, int legEndIndex) {
         this.legStartIndex = legStartIndex;
@@ -62,10 +68,43 @@ public class IntendedRouteFilterMessage {
         this.position2 = position2;
     }
 
+    public DateTime getTime1() {
+        return time1;
+    }
+
+    public void setTime1(DateTime time1) {
+        this.time1 = time1;
+    }
+
+    public DateTime getTime2() {
+        return time2;
+    }
+
+    public void setTime2(DateTime time2) {
+        this.time2 = time2;
+    }
+
+    /**
+     * Returns if the CPA position is within the given distance in nautical miles
+     * and the given time in minutes
+     * 
+     * @param distance the distance in nautical miles
+     * @param minutes the time in minutes
+     * @return if the CPA position is within the given distance and time
+     */
+    public boolean isWithinRange(double distance, int minutes) {
+        // Since we are looking for short distances, a CARTESIAN calculation is sufficient
+        double dist = getPosition1().distanceTo(getPosition2(), CoordinateSystem.CARTESIAN);
+        if (Converter.metersToNm(dist) < distance
+                && getTime1().isAfter(getTime2().minusMinutes(minutes))
+                && getTime1().isBefore(getTime2().plusMinutes(minutes))) {
+            return true;
+        }
+        return false;
+    }
+    
     // Severity?
     // Type?
     // Possibly options is Intersection or Proximity Alert?
-
-    
     
 }

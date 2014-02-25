@@ -53,5 +53,20 @@ public class FilteredIntendedRoute {
         return filterMessages.size() > 0;
     }
     
-    
+    /**
+     * Returns if any of the CPA positions are within the given distance in nautical miles
+     * and the given time in minutes
+     * 
+     * @param distance the distance in nautical miles
+     * @param minutes the time in minutes
+     * @return if any of the CPA positions are within the given distance and time
+     */
+    public boolean isWithinRange(double distance, int minutes) {
+        for (IntendedRouteFilterMessage message : filterMessages) {
+            if (message.isWithinRange(distance, minutes)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
