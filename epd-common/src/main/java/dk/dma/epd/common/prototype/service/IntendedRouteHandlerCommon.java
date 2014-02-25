@@ -80,12 +80,11 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      * In minutes - how close should the warning point be in time
      */
     public static final int FILTER_TIME_EPSILON = 120;
-    
-    public static final double  NOTIFICATION_DISTANCE_EPSILON   = 1;    // Nautical miles
-    public static final int     NOTIFICATION_TIME_EPSILON       = 30;   // Minutes
-    public static final double  ALERT_DISTANCE_EPSILON          = 0.5;  // Nautical miles
-    public static final int     ALERT_TIME_EPSILON              = 10;   // Minutes
-    
+
+    public static final double NOTIFICATION_DISTANCE_EPSILON = 1; // Nautical miles
+    public static final int NOTIFICATION_TIME_EPSILON = 30; // Minutes
+    public static final double ALERT_DISTANCE_EPSILON = 0.5; // Nautical miles
+    public static final int ALERT_TIME_EPSILON = 10; // Minutes
 
     protected ConcurrentHashMap<Long, IntendedRoute> intendedRoutes = new ConcurrentHashMap<>();
     protected ConcurrentHashMap<Long, FilteredIntendedRoute> filteredIntendedRoutes = new ConcurrentHashMap<>();
@@ -253,7 +252,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     }
 
     /****************************************/
-    /** Listener functions                 **/
+    /** Listener functions **/
     /****************************************/
 
     /**
@@ -289,7 +288,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     }
 
     /****************************************/
-    /** Intended route filtering           **/
+    /** Intended route filtering **/
     /****************************************/
 
     /**
@@ -304,14 +303,16 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      */
     protected abstract void applyFilter(IntendedRoute route);
 
-    
     /**
      * Check if notifications should be generated based on a re-computed set of filtered intended routes
      * 
-     * @param oldFilteredRoutes the old set of filtered routes
-     * @param newFilteredRoutes the new set of filtered routes
+     * @param oldFilteredRoutes
+     *            the old set of filtered routes
+     * @param newFilteredRoutes
+     *            the new set of filtered routes
      */
-    protected void checkGenerateNotifications(Map<Long, FilteredIntendedRoute> oldFilteredRoutes, Map<Long, FilteredIntendedRoute> newFilteredRoutes) {
+    protected void checkGenerateNotifications(Map<Long, FilteredIntendedRoute> oldFilteredRoutes,
+            Map<Long, FilteredIntendedRoute> newFilteredRoutes) {
         for (FilteredIntendedRoute filteredIntendedRoute : newFilteredRoutes.values()) {
             checkGenerateNotifications(oldFilteredRoutes, filteredIntendedRoute);
         }
@@ -320,24 +321,24 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     /**
      * Check if a notification should be generated based on a new filtered intended route
      * 
-     * @param oldFilteredRoutes the old set of filtered routes
-     * @param newFilteredRoute the new filtered route
+     * @param oldFilteredRoutes
+     *            the old set of filtered routes
+     * @param newFilteredRoute
+     *            the new filtered route
      */
-    protected void checkGenerateNotifications(Map<Long, FilteredIntendedRoute> oldFilteredRoutes, FilteredIntendedRoute newFilteredRoute) {
+    protected void checkGenerateNotifications(Map<Long, FilteredIntendedRoute> oldFilteredRoutes,
+            FilteredIntendedRoute newFilteredRoute) {
         Long mmsi = newFilteredRoute.getIntendedRoute().getMmsi();
         FilteredIntendedRoute oldFilteredRoute = oldFilteredRoutes.get(mmsi);
-        
+
         // NB: For now, we add a notification when a new filtered intended route surfaces
         // and it is within a certain amount of time and distance.
         // In the future add a more fine-grained comparison
-        boolean sendNotification = 
-                oldFilteredRoute == null 
+        boolean sendNotification = oldFilteredRoute == null
                 && newFilteredRoute.isWithinRange(NOTIFICATION_DISTANCE_EPSILON, NOTIFICATION_TIME_EPSILON);
-        
+
         if (sendNotification) {
-            GeneralNotification notification = new GeneralNotification(
-                    newFilteredRoute,
-                    "IntendedRouteNotificaiton" + mmsi);
+            GeneralNotification notification = new GeneralNotification(newFilteredRoute, "IntendedRouteNotificaiton" + mmsi);
             notification.setTitle("Potential collission detected");
             StringBuilder desc = new StringBuilder();
             for (IntendedRouteFilterMessage msg : newFilteredRoute.getFilterMessages()) {
@@ -357,7 +358,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
             EPD.getInstance().getNotificationCenter().addNotification(notification);
         }
     }
-    
+
     /**
      * Apply Filter on the two routes
      * 
@@ -392,7 +393,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                 Position route2Waypoint1 = previousPositionIntendedRoute;
                 Position route2Waypoint2 = route2Waypoints.get(j).getPos();
 
-                // This is where we apply the actual filter, for now only checking on intersections
+                // This is where we apply the filters
                 IntendedRouteFilterMessage intersectionResultMessage = intersectionFilter(route1, route2, i - 1, j - 1,
                         route1Waypoint1, route1Waypoint2, route2Waypoint1, route2Waypoint2);
 
@@ -536,22 +537,33 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         Position shortestDistanceSegment1Position = posWP1Segment1;
         Position shortestDistanceSegment2Position = posWP1Segment2;
 
+        Position point1 = C;
+
+        Position point2 = A;
+
         if (distanceWP1Segment1 > distanceWP2Segment1) {
             shorestDistanceSegment1 = distanceWP2Segment1;
             shortestDistanceSegment1Position = posWP2Segment1;
+            point1 = D;
+            System.out.println("First");
         }
 
         if (distanceWP1Segment2 > distanceWP2Segment2) {
             shorestDistanceSegment2 = distanceWP2Segment2;
             shortestDistanceSegment2Position = posWP2Segment2;
+            point2 = B;
+            System.out.println("Second");
         }
 
         double shortestDistance = shorestDistanceSegment1;
-        // Position shortestDistancePosition = shortestDistanceSegment1Position;
+        Position shortestDistancePosition = shortestDistanceSegment1Position;
+        Position finalPoint = point1;
 
         if (shorestDistanceSegment1 > shorestDistanceSegment2) {
             shortestDistance = shorestDistanceSegment2;
-            // shortestDistancePosition = shortestDistanceSegment2Position;
+            System.out.println("Third");
+            shortestDistancePosition = shortestDistanceSegment2Position;
+            finalPoint = point2;
         }
 
         System.out.println("The shorest distance is " + Converter.metersToNm(shortestDistance));
@@ -562,14 +574,10 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
             System.out.println("Checking time");
 
-            IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(
-                    shortestDistanceSegment1Position,
-                    shortestDistanceSegment2Position, 
-                    "Route Segments proximity warning", 
-                    j - 1, 
-                    j);
-            
-            if (checkDateInterval(shortestDistanceSegment1Position, shortestDistanceSegment2Position, route1, route2, i, j, message)) {
+            IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(shortestDistancePosition,
+                    finalPoint, "Route Segments proximity warning", j - 1, j);
+
+            if (checkDateInterval(shortestDistancePosition, finalPoint, route1, route2, i, j, message)) {
 
                 System.out.println("Adding shortest distance is " + Converter.metersToNm(shortestDistance) + " at "
                         + shortestDistanceSegment2Position);
@@ -682,13 +690,9 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
                     System.out.println("Checking time");
 
-                    IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(
-                            segment1Positions.get(k),
-                            segment2Positions.get(k2), 
-                            "Route Segments proximity warning", 
-                            j - 1, 
-                            j);
-                    
+                    IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(segment1Positions.get(k),
+                            segment2Positions.get(k2), "Route Segments proximity warning", j - 1, j);
+
                     if (checkDateInterval(segment1Positions.get(k), segment2Positions.get(k2), route1, route2, i, j, message)) {
 
                         proximityFilterMessages.add(message);
@@ -773,13 +777,9 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
                     System.out.println("Checking time");
 
-                    IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(
-                            segment1Positions.get(k),
-                            route1SegmentExternalPoint, 
-                            "Route Segments proximity warning", 
-                            j - 1, 
-                            j);
-                    
+                    IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(segment1Positions.get(k),
+                            route1SegmentExternalPoint, "Route Segments proximity warning", j - 1, j);
+
                     if (checkDateInterval(route1SegmentExternalPoint, segment1Positions.get(k), route1, route2, i, j, message)) {
                         messageList.add(message);
                     }
@@ -842,13 +842,9 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
                     System.out.println("Checking time");
 
-                    IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(
-                            route2SegmentExternalPoint,
-                            segment2Positions.get(k), 
-                            "Route Segments proximity warning", 
-                            j - 1, 
-                            j);
-                    
+                    IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(route2SegmentExternalPoint,
+                            segment2Positions.get(k), "Route Segments proximity warning", j - 1, j);
+
                     if (checkDateInterval(route2SegmentExternalPoint, segment2Positions.get(k), route1, route2, i, j, message)) {
                         messageList.add(message);
                     }
@@ -911,16 +907,24 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     /**
      * Checks that the CPA between the two route segments is within {@code FILTER_TIME_EPSILON} minutes
      * 
-     * @param positionRoute1 the CPA on route 1
-     * @param positionRoute2 the CPA on route 2
-     * @param route1 route 1
-     * @param route2 route 2
-     * @param i way point index of route 1
-     * @param j way point index of route 2
-     * @param message the intended route filter message to update with the times
+     * @param positionRoute1
+     *            the CPA on route 1
+     * @param positionRoute2
+     *            the CPA on route 2
+     * @param route1
+     *            route 1
+     * @param route2
+     *            route 2
+     * @param i
+     *            way point index of route 1
+     * @param j
+     *            way point index of route 2
+     * @param message
+     *            the intended route filter message to update with the times
      * @return if the CPA between the two route segments is within {@code FILTER_TIME_EPSILON} minutes
      */
-    private boolean checkDateInterval(Position positionRoute1, Position positionRoute2, Route route1, Route route2, int i, int j, IntendedRouteFilterMessage message) {
+    private boolean checkDateInterval(Position positionRoute1, Position positionRoute2, Route route1, Route route2, int i, int j,
+            IntendedRouteFilterMessage message) {
 
         DateTime routeSegment1StartDate = new DateTime(route1.getEtas().get(i));
         DateTime routeSegment1EndDate = new DateTime(route1.getEtas().get(i + 1));
@@ -960,7 +964,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         // Update the filter message
         message.setTime1(segment1IntersectionTime);
         message.setTime2(segment2IntersectionTime);
-        
+
         if (segment2IntersectionTime.isAfter(segment1IntersectionTime.minusMinutes(FILTER_TIME_EPSILON))
                 && segment2IntersectionTime.isBefore(segment1IntersectionTime.plusMinutes(FILTER_TIME_EPSILON))) {
             return true;
@@ -979,13 +983,9 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
             System.out.println("We have an intersection");
 
-            IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(
-                    intersection, 
-                    intersection,
-                    "Intersection occurs within 2 hour of eachother", 
-                    j, 
-                    j + 1);
-            
+            IntendedRouteFilterMessage message = new IntendedRouteFilterMessage(intersection, intersection,
+                    "Intersection occurs within 2 hour of eachother", j, j + 1);
+
             if (checkDateInterval(intersection, intersection, route1, route2, i, j, message)) {
                 // intersectPositions.add(intersection);
                 return message;
