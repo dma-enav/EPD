@@ -32,7 +32,6 @@ import dk.dma.epd.shore.gui.route.RouteManagerDialog;
 import dk.dma.epd.shore.gui.route.strategic.SendStrategicRouteDialog;
 import dk.dma.epd.shore.gui.views.JMainDesktopPane;
 import dk.dma.epd.shore.gui.views.JMapFrame;
-import dk.dma.epd.shore.gui.views.SendRouteDialog;
 import dk.dma.epd.shore.gui.views.StatusArea;
 import dk.dma.epd.shore.gui.views.ToolBar;
 import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
@@ -47,7 +46,6 @@ public class JMainDesktopManager extends DefaultDesktopManager {
     private ToolBar toolbar;
     private StatusArea statusArea;
     private RouteManagerDialog routeManager;
-    private SendRouteDialog routeDialog;
     private SendStrategicRouteDialog sendVoyageDialog;
     private SRUManagerDialog sruManagerDialog;
 
@@ -91,7 +89,6 @@ public class JMainDesktopManager extends DefaultDesktopManager {
         super.activateFrame(statusArea);
         super.activateFrame(toolbar);
         super.activateFrame(routeManager);
-        super.activateFrame(routeDialog);
         super.activateFrame(sendVoyageDialog);
         super.activateFrame(sruManagerDialog);
     }
@@ -230,15 +227,6 @@ public class JMainDesktopManager extends DefaultDesktopManager {
      */
     public void setRouteManager(RouteManagerDialog routeManager) {
         this.routeManager = routeManager;
-    }
-
-    /**
-     * Set RouteExchange Dialog
-     * 
-     * @param notCenter
-     */
-    public void setRouteExchangeDialog(SendRouteDialog routeDialog) {
-        this.routeDialog = routeDialog;
     }
 
     /**

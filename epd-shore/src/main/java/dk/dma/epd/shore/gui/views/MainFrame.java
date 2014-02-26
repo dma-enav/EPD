@@ -77,7 +77,7 @@ public class MainFrame extends MainFrameCommon {
     private ToolBar toolbar = new ToolBar(this);
     private SetupDialogShore setup = new SetupDialogShore(this);
     private RouteManagerDialog routeManagerDialog = new RouteManagerDialog(this);
-    private SendRouteDialog sendRouteDialog = new SendRouteDialog();
+    private SendRouteDialog sendRouteDialog = new SendRouteDialog(this);
     private SRUManagerDialog sruManagerDialog = new SRUManagerDialog(this);
     private SendStrategicRouteDialog sendVoyageDialog = new SendStrategicRouteDialog();
 
@@ -357,13 +357,11 @@ public class MainFrame extends MainFrameCommon {
         desktop.getManager().setStatusArea(statusArea);
         desktop.getManager().setToolbar(toolbar);
         desktop.getManager().setRouteManager(routeManagerDialog);
-        desktop.getManager().setRouteExchangeDialog(sendRouteDialog);
         desktop.getManager().setSendVoyageDialog(sendVoyageDialog);
         desktop.getManager().setSRUManagerDialog(sruManagerDialog);
 
         desktop.add(statusArea, true);
         desktop.add(toolbar, true);
-        desktop.add(sendRouteDialog, true);
         desktop.add(sendVoyageDialog, true);
 
         beanHandler.add(bottomPanel);
