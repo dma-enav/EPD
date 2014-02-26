@@ -19,7 +19,7 @@ import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
+import dk.dma.epd.common.prototype.layers.ais.VesselGraphicComponentSelector;
 
 /**
  * Creates a menu item for the MapMenuCommon, which will enable visibility of the 
@@ -29,7 +29,7 @@ import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 public class ToggleAisTargetName extends JMenuItem implements IMapMenuAction {
 
     private static final long serialVersionUID = 1L;
-    private VesselTargetGraphic vesselTargetGraphic;
+    private VesselGraphicComponentSelector vesselTargetGraphic;
     private IAisTargetListener iAisTargetListener;
     
     public ToggleAisTargetName() {
@@ -52,11 +52,11 @@ public class ToggleAisTargetName extends JMenuItem implements IMapMenuAction {
     }
     
     /**
-     * Sets the vesselTargetObject of this class.
-     * @param vesselTargetGraphic
+     * Sets the {@link VesselGraphicComponentSelector} of this class.
+     * @param vesselGraphicComponentSelector
      */
-    public void setVesselTargetGraphic(VesselTargetGraphic vesselTargetGraphic) {
-        this.vesselTargetGraphic = vesselTargetGraphic;
+    public void setVesselTargetGraphic(VesselGraphicComponentSelector vesselGraphicComponentSelector) {
+        this.vesselTargetGraphic = vesselGraphicComponentSelector;
     }
     
     /**

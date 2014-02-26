@@ -54,6 +54,13 @@ public abstract class TargetGraphic extends OMGraphicList {
         return this.visible;
     }
     
+    /**
+     * Update this {@link TargetGraphic} with new AIS data.
+     * @param aisTarget An updated version of the {@link AisTarget} displayed by this {@link TargetGraphic}.
+     * @param aisSettings AIS related settings.
+     * @param navSettings Navigation related settings.
+     * @param mapScale The current scale of the map in which this {@link TargetGraphic} resides.
+     */
     public abstract void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale);
     
 }

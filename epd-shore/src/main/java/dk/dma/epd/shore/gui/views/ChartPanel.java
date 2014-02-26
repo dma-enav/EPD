@@ -42,6 +42,7 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
+import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteTCPALayer;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -95,6 +96,7 @@ public class ChartPanel extends ChartPanelCommon {
     private NewRouteContainerLayer newRouteContainerLayer;
     private VoyageHandlingLayer voyageHandlingLayer;
     private IntendedRouteLayerCommon intendedRouteLayer;
+    private IntendedRouteTCPALayer intendedRouteTCPALayer;
 
     private VoctLayerCommon voctLayer;
 
@@ -451,6 +453,18 @@ public class ChartPanel extends ChartPanelCommon {
             routeEditLayer.setVisible(true);
             mapHandler.add(routeEditLayer);
 
+            
+            // Create Intended Route Layer
+            intendedRouteLayer = new IntendedRouteLayerCommon();
+            intendedRouteLayer.setVisible(EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
+            mapHandler.add(intendedRouteLayer);
+
+            
+            //Create TCPA Graphics
+            intendedRouteTCPALayer = new  IntendedRouteTCPALayer();
+            intendedRouteTCPALayer.setVisible(true);
+            mapHandler.add(intendedRouteTCPALayer);
+            
         }
 
         if (type == MapFrameType.suggestedRoute) {
@@ -481,7 +495,20 @@ public class ChartPanel extends ChartPanelCommon {
             routeEditLayer = new RouteEditLayer();
             routeEditLayer.setVisible(true);
             mapHandler.add(routeEditLayer);
+            
+            
+            
+            // Create Intended Route Layer
+            intendedRouteLayer = new IntendedRouteLayerCommon();
+            intendedRouteLayer.setVisible(EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
+            mapHandler.add(intendedRouteLayer);
 
+            
+            //Create TCPA Graphics
+            intendedRouteTCPALayer = new  IntendedRouteTCPALayer();
+            intendedRouteTCPALayer.setVisible(true);
+            mapHandler.add(intendedRouteTCPALayer);
+            
         }
 
         if (type == MapFrameType.SAR_Planning) {
@@ -526,10 +553,6 @@ public class ChartPanel extends ChartPanelCommon {
         strategicRouteHandler = EPDShore.getInstance().getStrategicRouteHandler();
         mapHandler.add(strategicRouteHandler);
 
-        // Create Intended Route Layer
-        intendedRouteLayer = new IntendedRouteLayerCommon();
-        intendedRouteLayer.setVisible(EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
-        mapHandler.add(intendedRouteLayer);
 
         // Create background layer
         String layerName = "background";

@@ -13,30 +13,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.common.graphics;
+package dk.dma.epd.common.prototype.layers.ais;
+
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 
 /**
- * Interface that a graphic can implement in order to allow for clients to
- * toggle selection of the graphic. For example, an implementation could add an
- * extra selection graphic (e.g. a ring surrounding the original graphic) or
- * change the current display of the graphic to visualize the
- * selection/deselection.
+ * Abstract base class for graphics that displays a {@link VesselTarget} and its
+ * associated meta data (e.g. COG vector, past track etc.)
  * 
  * @author Janus Varmarken
  */
-public interface ISelectableGraphic {
+@SuppressWarnings("serial")
+public abstract class VesselGraphicComponent extends TargetGraphic {
     /**
-     * Update the selected status of this graphic.
-     *
-     * @param selected
-     *            True if the graphic is selected, false if it is deselected.
-     */
-    void setSelectionStatus(boolean selected);
-
-    /**
-     * Get the selected status of this graphic.
+     * Get the {@link VesselGraphic} that this {@code VesselGraphicComponent}
+     * uses to display the vessel.
      * 
-     * @return True if this graphic is currently selected, false otherwise.
+     * @return The {@link VesselGraphic} that this
+     *         {@code VesselGraphicComponent} uses to display the vessel.
      */
-    boolean getSelectionStatus();
+    abstract VesselGraphic getVesselGraphic();
 }

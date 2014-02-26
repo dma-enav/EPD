@@ -17,108 +17,93 @@ package dk.dma.epd.common.prototype.layers.ais;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
-import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
-import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMPoly;
-import com.bbn.openmap.omGraphics.OMText;
 
-import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 
 /**
+ * Graphic for displaying a {@link VesselTarget} on the map. This graphic class displays the vessel outline based on vessel size data and map scale.
  * @author Janus Varmarken
  */
 @SuppressWarnings("serial")
-public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGraphic {
-
-    /**
-     * Displays the ship outline
-     */
-    private OMPoly shipOutline;
-
-    /**
-     * Displays the position of the PNT device.
-     */
-    private OMCircle pntDevice;
-
-    /**
-     * The COG/Speed vector
-     */
-    private SpeedVectorGraphic speedVector;
-
-    /**
-     * Color to use for outline and PNT device when this graphic is NOT selected.
-     */
-    private Color lineColor;
-
-    /**
-     * Color currently used for outline and PNT device.
-     * This reference swaps between {@link #lineColor} and {@link #selectionColor} according to selection status of this graphic.
-     */
-    private Color currentColor;
+public class VesselOutline extends VesselGraphic {
     
     /**
-     * Color to use for outline and PNT device when this graphic is selected.
+     * Graphical polygon that depicts the vessel outline.
+     */
+    private OMPoly shipOutline;
+    
+    /**
+     * Color to use for outline when this graphic <b>is</b> selected.
      */
     private Color selectionColor = Color.GREEN;
     
     /**
-     * Thickness of the line used for the vessel outline.
+     * Color to use for outline when this graphic <b>is not</b> selected.
      */
-    private float lineThickness = 1.0f;
-
-    /**
-     * Stroke used to paint the vessel outline.
-     */
-    private BasicStroke lineStroke;
-
-    /**
-     * The layer that displays this VesselOutlineGraphic. If this VesselOutlineGraphic is a subgraphic of another graphic, use the
-     * top level graphic's parent layer.
-     */
-    private OMGraphicHandlerLayer parentLayer;
-
-    /**
-     * The VesselTargetGraphics which created this object.
-     */
-    private VesselTargetGraphic vesselTargetGraphic;
+    private Color lineColor;
     
     /**
-     * Used to paint the name label for this vessel graphic.
+     * Creates a new {@code VesselOutline} graphic.
+     * @param lineColor Color of the stroke used for the vessel outline.
+     * @param lineThickness Thickness of the stroke used for the vessel outline.
      */
-    private OMText aisName;
-    private boolean showNameLabel = true;
-
-    private Font font;
-
-    public VesselOutlineGraphic(Color lineColor, float lineThickness, OMGraphicHandlerLayer parentLayer,
-            VesselTargetGraphic vesselTargetGraphic) {
-        this.vesselTargetGraphic = vesselTargetGraphic;
-        this.setVague(true);
+    public VesselOutline(Color lineColor, float lineThickness) {
+        super();
+        this.setLinePaint(lineColor);
         this.lineColor = lineColor;
-        this.currentColor = this.lineColor;
-        this.lineThickness = lineThickness;
-        this.lineStroke = new BasicStroke(this.lineThickness);
-        this.parentLayer = parentLayer;
-        
-        this.font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
-        this.aisName = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);
-        this.add(aisName);
+        this.setStroke(new BasicStroke(lineThickness));
+        // Fill the polygon with an invisible color - helps the AisLayer to keep showing the infopanel,
+        // when mouse is hovering the outline of the vessel.
+        this.setFillPaint(new Color(0, 0, 0, 1));
     }
-
+    
     /**
-     * Produces the vessel outline polygon based on the given vessel position and static data
+     * <p>Updates the display of this {@code VesselOutline} with new position and static data.</p>
+     * <p>This method calls the super implementation as part of the update process:<br/>
+     * {@inheritDoc}
+     * </p>
+     */
+    @Override
+    public void updateGraphic(VesselTarget vesselTarget, float mapScale) {
+        VesselPositionData positionData = vesselTarget != null ? vesselTarget.getPositionData() : null;
+        VesselStaticData staticData = vesselTarget != null ? vesselTarget.getStaticData() : null;
+        if(positionData == null || staticData == null) {
+            // We cannot update the graphic if either position or static data is not available.
+            return;
+        }
+        // Let super store reference to the updated VesselTarget.
+        super.updateGraphic(vesselTarget, mapScale);
+        this.producePolygon(positionData, staticData);
+    }
+    
+    /**
+     * Updates selection status of this graphic. Selection is visualized by
+     * changing the line color of this graphic.
+     * 
+     * @param selected
+     *            True if the graphic is now selected, false if the graphic is
+     *            no longer selected.
+     */
+    @Override
+    public void setSelectionStatus(boolean selected) {
+        super.setSelectionStatus(selected);
+        // Simply change the color of the outline when selected.
+        if (selected) {
+            this.setLinePaint(this.selectionColor);
+        } else {
+            this.setLinePaint(this.lineColor);
+        }
+    }
+    
+    /**
+     * Produces the vessel outline polygon based on the given vessel position and static data.
      * 
      * @param positionData
      *            the vessel position data
@@ -126,7 +111,6 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
      *            the vessel static data
      */
     private void producePolygon(VesselPositionData positionData, VesselStaticData staticData) {
-
         // Get angle from PNT to lower left corner of ship
         double anglLowerLeft = this.calcAngleFromCenter(staticData.getDimStern(), staticData.getDimPort());
         // calculate distance to lower left corner of vessel (Pythagoras)
@@ -140,8 +124,6 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
             anglLowerLeft -= 360.0;
         }
         Position vessPos = positionData.getPos();
-        double lat = positionData.getPos().getLatitude();
-        double lon = positionData.getPos().getLongitude();
 
         // find latlon of lower left corner of ship
         Position leftSideBottomLL = CoordinateSystem.CARTESIAN.pointOnBearing(vessPos, distLowerLeftCorner, anglLowerLeft);
@@ -166,23 +148,6 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
         // Point on starboard side of ship where the bow begins.
         Position rightSideTopLL = CoordinateSystem.CARTESIAN.pointOnBearing(leftSideTopLL, shipSternWidth, 90.0 + heading);
 
-        if (this.speedVector == null) {
-            this.speedVector = new SpeedVectorGraphic(this.lineColor);
-            this.add(this.speedVector);
-        }
-        // don't show COG vector if vessel is docked
-        this.speedVector.setVisible(positionData.getSog() > 0.1);
-        if (parentLayer != null && parentLayer.getProjection() != null) {
-            this.speedVector.update(positionData, this.parentLayer.getProjection().getScale());
-        }
-        
-        // clear old PntDevice display
-        this.remove(this.pntDevice);
-        this.pntDevice = new OMCircle(lat, lon, 3, 3);
-        this.pntDevice.setFillPaint(this.currentColor);
-        this.pntDevice.setLinePaint(this.currentColor);
-        this.add(pntDevice);
-
         double[] shipCorners = new double[14];
         shipCorners[0] = leftSideBottomLL.getLatitude();
         shipCorners[1] = leftSideBottomLL.getLongitude();
@@ -203,33 +168,10 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
         this.remove(this.shipOutline);
         // create and add new shape
         this.shipOutline = new OMPoly(shipCorners, OMGraphic.DECIMAL_DEGREES, OMGraphic.LINETYPE_RHUMB);
-        // Fill the polygon with an invisible color - helps the AisLayer to keep showing the infopanel,
-        // when mouse is hovering the outline of the vessel.
-        this.shipOutline.setFillPaint(new Color(0, 0, 0, 1));
-        this.shipOutline.setStroke(this.lineStroke);
-        this.shipOutline.setLinePaint(this.currentColor);
+        this.shipOutline.setLinePaint(this.getLinePaint());
         this.add(this.shipOutline);
-        
-        this.aisName.setLon(positionData.getPos().getLongitude());
-        this.aisName.setLat(positionData.getPos().getLatitude());
-        this.aisName.setY(-20);
-        this.aisName.setData(AisMessage.trimText(staticData.getName()));
-        this.aisName.setLinePaint(Color.BLACK);
     }
-
-    /**
-     * Produces the vessel outline polygon based on the given vessel position and static data
-     * 
-     * @param positionData
-     *            the vessel position data
-     * @param staticData
-     *            the vessel static data
-     */
-    public void setLocation(VesselPositionData positionData, VesselStaticData staticData) {
-        
-        this.producePolygon(positionData, staticData);
-    }
-
+    
     /**
      * Assumes a triangle:         B 
      *                           c/|a 
@@ -253,44 +195,5 @@ public class VesselOutlineGraphic extends OMGraphicList implements ISelectableGr
         // find angle B
         double angleB = 180.0 - 90.0 - angleA;
         return angleB;
-    }
-
-    /**
-     * Turn on anti-aliasing
-     */
-    @Override
-    public void render(Graphics g) {
-        Graphics2D image = (Graphics2D) g;
-        image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        super.render(image);
-    }
-
-    public VesselTargetGraphic getVesselTargetGraphic() {
-        return vesselTargetGraphic;
-
-    }
-    
-    public void setShowNameLabel(boolean showNameLabel) {
-        this.showNameLabel = showNameLabel;
-        if(this.aisName != null) {
-            this.aisName.setVisible(showNameLabel);
-        }
-    }
-
-    public boolean getShowNameLabel() {
-        return showNameLabel;
-    }
-
-    @Override
-    public void setSelection(boolean selected) {
-        if(this.shipOutline != null) {
-            // Simply change the color of the outline when selected.
-            if(selected) {
-                this.currentColor = this.selectionColor;
-            }
-            else {
-                this.currentColor = this.lineColor;
-            }
-        }
     }
 }

@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.common.prototype.layers.ais;
 
-import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -26,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.bbn.openmap.omGraphics.OMGraphic;
+import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.prototype.EPD;
@@ -84,10 +84,9 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         // register self as listener for changes to the AIS settings
         this.aisSettings.addPropertyChangeListener(this);
         // receive left-click events for the following set of classes.
-        this.registerMouseClickClasses(VesselTargetGraphic.class);
+        this.registerMouseClickClasses(VesselGraphic.class);
         // receive right-click events for the following set of classes.
-        this.registerMapMenuClasses(VesselTargetGraphic.class, SartGraphic.class);
-
+        this.registerMapMenuClasses(VesselGraphic.class, SartGraphic.class);
         // Register graphics for mouse over notifications
         this.registerInfoPanel(this.pastTrackInfoPanel, PastTrackWpCircle.class);
     }
@@ -118,10 +117,9 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      * Updates which AIS target this layer should display as the selected
      * target. If the provided {@code mmsi} does not have a graphical
      * representation in this layer, this method will remove the current
-     * selection. Furthermore, if a {@code TargetGraphic} matching the
-     * {@code mmsi} is found, this object needs to implement
-     * {@code ISelectableGraphic} for the selection to be valid. If this is not
-     * the case, this method will remove the current selection.
+     * selection. For a selection to be valid, the graphic matching the MMSI
+     * must either be a sub class of {@link VesselGraphicComponent} or an
+     * implementation of {@link ISelectableGraphic}.
      * 
      * @param mmsi
      *            The MMSI of an AIS target that is now the selected AIS target.
@@ -130,7 +128,10 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      */
     public final void setSelectedTarget(long mmsi, boolean repaintImmediately) {
         TargetGraphic tg = this.targets.get(mmsi);
-        if (tg instanceof ISelectableGraphic) {
+        if(tg instanceof VesselGraphicComponent) {
+            VesselGraphicComponent vgc = (VesselGraphicComponent) tg;
+            this.setSelectedGraphic(vgc.getVesselGraphic(), repaintImmediately);
+        } else if(tg instanceof ISelectableGraphic) {
             this.setSelectedGraphic((ISelectableGraphic) tg, repaintImmediately);
         } else {
             this.setSelectedGraphic(null, repaintImmediately);
@@ -150,11 +151,11 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
             boolean repaint) {
         if (this.selectedGraphic != null) {
             // remove current selection
-            this.selectedGraphic.setSelection(false);
+            this.selectedGraphic.setSelectionStatus(false);
         }
         if (newSelection != null) {
             // mark new selection
-            newSelection.setSelection(true);
+            newSelection.setSelectionStatus(true);
         }
         // keep reference to new selection
         this.selectedGraphic = newSelection;
@@ -248,11 +249,7 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         // Create and insert
         if (targetGraphic == null) {
             if (aisTarget instanceof VesselTarget) {
-                targetGraphic = new VesselTargetGraphic(this.aisSettings.isShowNameLabels(), this);
-                // TODO this causes problems in EPDShip with regards to mouse
-                // clicks and mouse over as EPDShip does instanceof checks on
-                // sub graphics of VesselTargetGraphic
-                targetGraphic.setVague(true);
+                targetGraphic = new VesselGraphicComponentSelector(this.aisSettings.isShowNameLabels());
             } else if (aisTarget instanceof SarTarget) {
                 targetGraphic = new SarTargetGraphic();
             } else if (aisTarget instanceof AtoNTarget) {
@@ -287,14 +284,40 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      */
     protected void onShowNameLabelsChanged(PropertyChangeEvent evt) {
         for(TargetGraphic tg : this.targets.values()) {
-            if(tg instanceof VesselTargetGraphic) {
-                ((VesselTargetGraphic)tg).setShowNameLabel((Boolean)evt.getNewValue());
+            if(tg instanceof VesselGraphicComponentSelector) {
+                ((VesselGraphicComponentSelector)tg).setShowNameLabel((Boolean)evt.getNewValue());
             }
         }
         // do a repaint
         this.doPrepare();
     }
 
+    /**
+     * Renders the graphics displayed by this {@link AisLayerCommon}. Sub classes should invoke super implementation in order to allow it to handle changes to display of AIS target selection.
+     */
+    @Override
+    public synchronized OMGraphicList prepare() {
+        synchronized (graphics) {
+            graphics.project(getProjection());
+        }
+        // Was a vessel selected?
+        if(this.selectedGraphic instanceof VesselGraphic) {
+            VesselGraphic vg = (VesselGraphic) this.selectedGraphic;
+            // Find the wrapper graphic that controls different displays modes for the selected vessel
+            TargetGraphic tg = this.getTargetGraphic(vg.getMostRecentVesselTarget().getMmsi());
+            if(tg instanceof VesselGraphicComponentSelector) {
+                VesselGraphicComponentSelector vgcs = (VesselGraphicComponentSelector) tg;
+                // Update selectedGraphic to be the new display mode of the VesselGraphicComponentSelector
+                VesselGraphic newSelection = vgcs.getVesselGraphic();
+                // Do not repaint immediately to avoid infinite recursive calls.
+                this.setSelectedGraphic(newSelection, false);
+                // Project only the vessel graphic such that it will have its selection visualization properly displayed
+                newSelection.project(getProjection());
+            }
+        }
+        return graphics;
+    }
+    
     /**
      * Updates target selection if the {@code clickedGraphics} is an {@code ISelectableGraphic} or null.
      */
@@ -313,21 +336,21 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         }
     }
     
-    /**
-     * Checks if the past track info panel should be displayed
-     */
-    protected boolean initPastTrackInfoPanel(VesselTargetGraphic vesselTargetGraphic, MouseEvent evt, Point containerPoint) {
-        OMGraphic newClosest = getSelectedGraphic(vesselTargetGraphic.getPastTrackGraphic(), evt, PastTrackWpCircle.class);
-        if (newClosest instanceof PastTrackWpCircle) {
-            PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
-            pastTrackInfoPanel.showWpInfo(wpCircle);
-            pastTrackInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
-            pastTrackInfoPanel.setVisible(true);
-            getGlassPanel().setVisible(true);
-            return true;
-        }
-        return false;
-    }
+//    /**
+//     * Checks if the past track info panel should be displayed
+//     */
+//    protected boolean initPastTrackInfoPanel(VesselTargetGraphic vesselTargetGraphic, MouseEvent evt, Point containerPoint) {
+//        OMGraphic newClosest = getSelectedGraphic(vesselTargetGraphic.getPastTrackGraphic(), evt, PastTrackWpCircle.class);
+//        if (newClosest instanceof PastTrackWpCircle) {
+//            PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
+//            pastTrackInfoPanel.showWpInfo(wpCircle);
+//            pastTrackInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
+//            pastTrackInfoPanel.setVisible(true);
+//            getGlassPanel().setVisible(true);
+//            return true;
+//        }
+//        return false;
+//    }
     
     /**
      * Force this AIS layer to update itself.

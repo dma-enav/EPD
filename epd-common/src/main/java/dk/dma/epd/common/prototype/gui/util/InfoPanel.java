@@ -173,7 +173,7 @@ public abstract class InfoPanel extends JPanel {
          */
         public synchronized InfoPanel getInfoPanel(Class<? extends OMGraphic> clazz) {
             for (Class<?> g : binding.keySet()) {
-                if (clazz.isAssignableFrom(g)) {
+                if (g.isAssignableFrom(clazz)) {
                     return binding.get(g);
                 }
             }
