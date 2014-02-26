@@ -41,11 +41,8 @@ public class ActiveWaypointComponentPanel extends OMComponentPanel implements IP
     
     public ActiveWaypointComponentPanel(){
         super();
-        
-//        this.setMinimumSize(new Dimension(10, 165));
-        
+                
         activeWaypointPanel = new ActiveWaypointPanel();
-//        activeWaypointPanel.setVisible(false);
         activeWaypointPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
         setBorder(null);
         
@@ -60,28 +57,19 @@ public class ActiveWaypointComponentPanel extends OMComponentPanel implements IP
     @Override
     public void routesChanged(RoutesUpdateEvent e) {
         activeWaypointPanel.updateActiveNavData();
-//        if(routeManager.isRouteActive()){
-//            activeWaypointPanel.setVisible(true);
-//            activeWaypointPanel.updateActiveNavData();
-//        } else if (activeWaypointPanel.isVisible()) {
-//            activeWaypointPanel.setVisible(false);
-//        }
     }
     @Override
     public void receiveCoord(LatLonPoint llp) {
-        // TODO Auto-generated method stub
         
     }
 
     @Override
     public void projectionChanged(ProjectionEvent e) {
-        // TODO Auto-generated method stub
         
     }
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
         
     }
 
