@@ -1,23 +1,23 @@
 namespace imo.route.broadcast.intendedroute;
 
 message IntendedRoute {
-    required int32 activeWpIndex = 1;
-    required DateTime[] plannedEtas = 2;
-    required Waypoint[] waypoints = 3;
+    1: required int32 activeWpIndex;
+    2: required list<DateTime> plannedEtas;
+    3: required list<Waypoint> waypoints;
 }
 message Waypoint {
-    required Position start = 1;
-    float rot = 2;
-    float turnRadius = 3;
-    required DateTime eta = 4;
-    Leg outLeg = 5;
+    1: required Position start;
+    2: float rot;
+    3: float turnRadius;
+    4: required DateTime eta;
+    5: Leg outLeg;
 }
 
 message Leg {
-    float speed = 1;
-    float xtdStarboard = 2;
-    float xtdPort = 3;
-    HeadingType headingType = 4;
+    1: float speed;
+    2: float xtdStarboard;
+    3: float xtdPort;
+    4: HeadingType headingType;
 }
 
 enum HeadingType {
@@ -26,7 +26,7 @@ enum HeadingType {
 }
 
 service IntendedRouteService {
-   brodcast IntendedRouteBroadcast {
-      IntendedRoute indendedRoute = 1;
-   } = 1;
+   1: brodcast IntendedRouteBroadcast {
+      1: IntendedRoute indendedRoute;
+   };
 } 
