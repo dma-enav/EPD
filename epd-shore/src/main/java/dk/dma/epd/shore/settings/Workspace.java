@@ -47,6 +47,8 @@ public class Workspace implements Serializable {
     // private LatLonPoint center = new LatLonPoint.Double(56, 11);
     private List<Float> scale = new ArrayList<Float>();
     private List<Boolean> maximized = new ArrayList<Boolean>();
+    private List<Point> layerPanelPosition = new ArrayList<>();
+    private List<Boolean> layerPanelVisible = new ArrayList<>();
     private Point toolbarPosition = new Point();
     private Point notificationAreaPosition = new Point();
     private Point statusPosition = new Point();
@@ -102,6 +104,14 @@ public class Workspace implements Serializable {
         return validWorkspace;
     }
 
+    public List<Point> getLayerPanelPosition() {
+        return layerPanelPosition;
+    }
+
+    public List<Boolean> getLayerPanelVisible() {
+        return layerPanelVisible;
+    }
+
     /**
      * Read the properties element and set the internal variables
      *
@@ -153,11 +163,26 @@ public class Workspace implements Serializable {
             for (String element : scaleInput) {
                 scale.add(Float.parseFloat(element));
             }
+            
+            // Layer panel properties
+            if (props.getProperty(PREFIX + "layerPanel_x") != null &&
+                    props.getProperty(PREFIX + "layerPanel_y") != null &&
+                    props.getProperty(PREFIX + "layerPanel_visible") != null) {
+                x = props.getProperty(PREFIX + "layerPanel_x").split("//");
+                y = props.getProperty(PREFIX + "layerPanel_y").split("//");
+                for (int i = 0; i < x.length; i++) {
+                    layerPanelPosition.add(new Point((int) Double.parseDouble(x[i]), (int) Double.parseDouble(y[i])));
+                }
+                String[] visible = props.getProperty(PREFIX + "layerPanel_visible").split("//");
+                for (String element : visible) {
+                    layerPanelVisible.add(Boolean.parseBoolean(element));
+                }
+            }
 
             validWorkspace = true;
             
         } catch (Exception e) {
-//            e.printStackTrace();
+            e.printStackTrace();
         }
         
         // Load properties for toolbar, notification frame, and status panel.
@@ -223,6 +248,10 @@ public class Workspace implements Serializable {
         String scale = "";
         String alwaysInFront = "";
         String maximized = "";
+        String layerPanel_x = "";
+        String layerPanel_y = "";
+        String layerPanel_visible = "";
+
 
         for (int i = 0; i < mapWindows.size(); i++) {
             name = name + mapWindows.get(i).getTitle() + "//";
@@ -236,7 +265,9 @@ public class Workspace implements Serializable {
             center_lon = center_lon + mapWindows.get(i).getChartPanel().getMap().getCenter().getX() + "//";
             scale = scale + mapWindows.get(i).getChartPanel().getMap().getScale() + "//";
             alwaysInFront = alwaysInFront + mapWindows.get(i).isInFront() + "//";
-
+            layerPanel_x = layerPanel_x + mapWindows.get(i).getLayerTogglingPanel().getLocation().getX() + "//";
+            layerPanel_y = layerPanel_y + mapWindows.get(i).getLayerTogglingPanel().getLocation().getY() + "//";
+            layerPanel_visible = layerPanel_visible + mapWindows.get(i).getLayerTogglingPanel().isVisible() + "//";
         }
         props.put(PREFIX + "name", name);
         props.put(PREFIX + "size_h", size_h);
@@ -249,6 +280,9 @@ public class Workspace implements Serializable {
         props.put(PREFIX + "center_lon", center_lon);
         props.put(PREFIX + "scale", scale);
         props.put(PREFIX + "alwaysInFront", alwaysInFront);
+        props.put(PREFIX + "layerPanel_x", layerPanel_x);
+        props.put(PREFIX + "layerPanel_y", layerPanel_y);
+        props.put(PREFIX + "layerPanel_visible", layerPanel_visible);
 
         props.put(PREFIX + "toolbar_pos_x", Double.toString(toolbarPosition.getX()));
         props.put(PREFIX + "toolbar_pos_y", Double.toString(toolbarPosition.getY()));

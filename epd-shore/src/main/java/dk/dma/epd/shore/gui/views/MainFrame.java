@@ -533,6 +533,17 @@ public class MainFrame extends MainFrameCommon {
                 // window.getChartPanel().getMap().setCenter(workspace.getCenter().get(i));
             }
 
+            // Restore the layer toggling panel settings
+            for (int x = 0; x < workspace.getLayerPanelPosition().size(); x++) {
+                if (x < mapWindows.size()) {
+                    mapWindows.get(x).getLayerTogglingPanel().setLocation(workspace.getLayerPanelPosition().get(x));
+                }
+            }
+            for (int x = 0; x < workspace.getLayerPanelVisible().size(); x++) {
+                if (x < mapWindows.size()) {
+                    mapWindows.get(x).getLayerTogglingPanel().setVisible(workspace.getLayerPanelVisible().get(x));
+                }
+            }
         }
         statusArea.setLocation(workspace.getStatusPosition());
         toolbar.setLocation(workspace.getToolbarPosition());
