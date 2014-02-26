@@ -65,6 +65,7 @@ import dk.dma.epd.shore.gui.notification.NotificationCenter;
 import dk.dma.epd.shore.gui.utils.StaticImages;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.route.RouteManager;
+import dk.dma.epd.shore.service.IntendedRouteHandler;
 import dk.dma.epd.shore.service.MaritimeCloudService;
 import dk.dma.epd.shore.service.MonaLisaRouteOptimization;
 import dk.dma.epd.shore.service.RouteSuggestionHandler;
@@ -213,7 +214,7 @@ public final class EPDShore extends EPD {
         beanHandler.add(strategicRouteHandler);
 
         // Create intended route handler
-        intendedRouteHandler = new IntendedRouteHandlerCommon();
+        intendedRouteHandler = new IntendedRouteHandler();
         beanHandler.add(intendedRouteHandler);
 
         // Create the route suggestion handler

@@ -36,14 +36,11 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.layers.ais.AtonTargetGraphic;
-import dk.dma.epd.common.prototype.layers.ais.PastTrackInfoPanel;
-import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
 import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.ais.AisHandler;
-import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.gui.MapMenu;
 import dk.dma.epd.ship.gui.TopPanel;
 import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
@@ -63,7 +60,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 
     private AisTargetInfoPanel aisTargetInfoPanel = new AisTargetInfoPanel();
     private SarTargetInfoPanel sarTargetInfoPanel = new SarTargetInfoPanel();
-    private final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
 
     // Only accessed in event dispatch thread
     private AisComponentPanel aisPanel;
@@ -74,10 +70,10 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 
     public AisLayer(int redrawIntervalMillis) {
         super(redrawIntervalMillis);
+        
         // Register graphics for mouse over notifications
         this.registerInfoPanel(this.aisTargetInfoPanel, VesselTargetGraphic.class, AtonTargetGraphic.class);
         this.registerInfoPanel(this.sarTargetInfoPanel, SartGraphic.class);
-        this.registerInfoPanel(this.pastTrackInfoPanel, PastTrackWpCircle.class);
     }
 
     /**
@@ -220,11 +216,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         if (obj instanceof OwnShipHandler) {
             ownShipHandler = (OwnShipHandler) obj;
         }
-        if (obj instanceof MainFrame) {
-            getMainFrame().getGlassPanel().add(aisTargetInfoPanel);
-            getMainFrame().getGlassPanel().add(sarTargetInfoPanel);
-            getMainFrame().getGlassPanel().add(pastTrackInfoPanel);
-        }
         if (obj instanceof PntHandler) {
             sarTargetInfoPanel.setPntHandler((PntHandler) obj);
         }
@@ -266,14 +257,22 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest,
             MouseEvent evt, Point containerPoint) {
-        if (newClosest instanceof PastTrackWpCircle) {
-            PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
-            pastTrackInfoPanel.showWpInfo(wpCircle);
-            return true;
-        } else if (newClosest instanceof VesselTargetGraphic) {
+        
+        if (newClosest instanceof VesselTargetGraphic) {
+            
+            // Handle past track
+            if (initPastTrackInfoPanel((VesselTargetGraphic)newClosest, evt, containerPoint)) {
+                aisTargetInfoPanel.setVisible(false);
+                return false;
+            }
+            
+            // Other parts of vessel target hit
             VesselTarget vesselTarget = ((VesselTargetGraphic)newClosest).getVesselTarget();
             aisTargetInfoPanel.showAisInfo(vesselTarget);
             return true;

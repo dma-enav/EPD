@@ -17,6 +17,7 @@ package dk.dma.epd.ship.service;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.broadcast.BroadcastOptions;
@@ -252,17 +253,20 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         super.findAndUndo(obj);
     }
 
+    /****************************************/
+    /** Intended route filtering           **/
+    /****************************************/
+
     /**
      * Update all filters
      */
     @Override
     protected void updateFilter() {
 
-        // Clear existing filture and recalculate everything
+        // Recalculate everything
         // Compare all routes to current active route
         
-
-        filteredIntendedRoutes.clear();
+        ConcurrentHashMap<Long, FilteredIntendedRoute> filteredIntendedRoutes = new ConcurrentHashMap<>();
 
         // Compare all intended routes against our own active route
 
@@ -282,7 +286,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
 
                 
                 //No warnings, ignore it
-                if (filter.getFilterMessages().size() != 0){
+                if (filter.include()){
     
                     //Add the intended route to the filter
                     filter.setIntendedRoute(recievedRoute);
@@ -298,25 +302,28 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
             
         }
         
+        // Check if we need to raise any alerts
+        checkGenerateNotifications(this.filteredIntendedRoutes, filteredIntendedRoutes);
         
-
+        // Override the old set of filtered intended route
+        this.filteredIntendedRoutes = filteredIntendedRoutes;
     }
 
     /**
-     * Update filter with new intendedroute
+     * Update filter with new intended route
      * 
      * @param route
      */
     @Override
     protected void applyFilter(IntendedRoute route) {
 
-        // If previous intended route exist reapply filter
+        // If previous intended route exist re-apply filter
 
         if (routeManager.getActiveRoute() != null) {
             FilteredIntendedRoute filter = compareRoutes(routeManager.getActiveRoute(), route);
             
             //No warnings, ignore it
-            if (filter.getFilterMessages().size() == 0){
+            if (!filter.include()){
                 
                 //Remove it, if it exists
                 if (this.filteredIntendedRoutes.containsKey(route.getMmsi())){
@@ -324,9 +331,12 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                     System.out.println("Remove from filter");
                 }
                 
-            }else{
+            } else {
                 //Add the intended route to the filter
                 filter.setIntendedRoute(route);
+                
+                // Check if we should generate notification
+                checkGenerateNotifications(filteredIntendedRoutes, filter);
                 
                 //Add the filtered route to the list
                 filteredIntendedRoutes.put(route.getMmsi(), filter);

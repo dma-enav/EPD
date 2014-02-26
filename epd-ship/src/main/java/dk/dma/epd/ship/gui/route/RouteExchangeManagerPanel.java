@@ -349,8 +349,8 @@ public class RouteExchangeManagerPanel extends JPanel implements
 
     private void delete() {
         if (routeTable.getSelectedRow() >= 0) {
-            routeManager.getSuggestedRoutes().remove(
-                    routeTable.getSelectedRow());
+            SuggestedRoute route = routeManager.getSuggestedRoutes().get(routeTable.getSelectedRow());
+            routeManager.removeSuggested(route);
             updateTable();
         }
     }

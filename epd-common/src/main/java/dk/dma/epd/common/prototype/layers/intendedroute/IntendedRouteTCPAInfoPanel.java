@@ -15,8 +15,11 @@
  */
 package dk.dma.epd.common.prototype.layers.intendedroute;
 
+import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
+import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.common.util.Converter;
 
 public class IntendedRouteTCPAInfoPanel extends InfoPanel {
     private static final long serialVersionUID = 1L;
@@ -33,17 +36,21 @@ public class IntendedRouteTCPAInfoPanel extends InfoPanel {
             return;
         }
 
-         StringBuilder str = new StringBuilder();
-         str.append("<html>");
-         str.append("<b>Intended route TCPA Warning</b><br/>");
-         str.append(filterMessage.getMessage() + "<br/>");
-         str.append("</table>");
-         str.append("</html>");
-        
-         showText(str.toString());
+        StringBuilder str = new StringBuilder();
+        str.append("<html>");
+        str.append("<b>Intended route TCPA Warning</b><br/>");
+        str.append(filterMessage.getMessage() + "<br/>");
+        str.append("Between " + Formatter.formatYodaTime(filterMessage.getTime2()) + "<br/>");
+        str.append("And " + Formatter.formatYodaTime(filterMessage.getTime1()) + "<br/>");
+        str.append("Distance between points "
+                + Formatter.formatDistNM(
+                        Converter.metersToNm(filterMessage.getPosition1().distanceTo(filterMessage.getPosition2(),
+                                CoordinateSystem.CARTESIAN)), 2) + " nautical miles<br/>");
+        str.append("</table>");
+        str.append("</html>");
+
+        showText(str.toString());
 
     }
-
-
 
 }

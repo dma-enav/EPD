@@ -47,6 +47,7 @@ public class Notification<T, I> implements Serializable {
     protected Position location;
     protected boolean read;
     protected boolean acknowledged;
+    protected boolean autoAcknowledge;
     protected Date date = new Date();
     
     /**
@@ -230,6 +231,24 @@ public class Notification<T, I> implements Serializable {
      */
     public void setAcknowledged(boolean acknowledged) {
         this.acknowledged = acknowledged;
+    }
+
+    /**
+     * Returns if the notification should be automatically acknowledged
+     * when it is read.
+     * @return if the notification should be automatically acknowledged
+     */
+    public boolean isAutoAcknowledge() {
+        return autoAcknowledge;
+    }
+
+    /**
+     * Sets if the notification should be automatically acknowledged
+     * when it is read.
+     * @param autoAcknowledge if the notification should be automatically acknowledged
+     */
+    public void setAutoAcknowledge(boolean autoAcknowledge) {
+        this.autoAcknowledge = autoAcknowledge;
     }
 
     /**

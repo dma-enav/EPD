@@ -24,6 +24,7 @@ public class FilteredIntendedRoute {
 
     IntendedRoute intendedRoute;
     List<IntendedRouteFilterMessage> filterMessages;
+    boolean generatedNotification;
     
     public FilteredIntendedRoute(){
         filterMessages = new ArrayList<>();
@@ -32,17 +33,58 @@ public class FilteredIntendedRoute {
     public IntendedRoute getIntendedRoute() {
         return intendedRoute;
     }
+    
     public void setIntendedRoute(IntendedRoute intendedRoute) {
         this.intendedRoute = intendedRoute;
     }
+    
     public List<IntendedRouteFilterMessage> getFilterMessages() {
         return filterMessages;
     }
+    
     public void setFilterMessages(List<IntendedRouteFilterMessage> filterMessages) {
         this.filterMessages = filterMessages;
     }
     
+    /**
+     * Returns if this filtered intended route should be included in the filter
+     * @return if this filtered intended route should be included in the filter
+     */
+    public boolean include() {
+        return filterMessages.size() > 0;
+    }
     
-    
-    
+    /**
+     * Returns if any of the CPA positions are within the given distance in nautical miles
+     * and the given time in minutes
+     * 
+     * @param distance the distance in nautical miles
+     * @param minutes the time in minutes
+     * @return if any of the CPA positions are within the given distance and time
+     */
+    public boolean isWithinRange(double distance, int minutes) {
+        for (IntendedRouteFilterMessage message : filterMessages) {
+            if (message.isWithinRange(distance, minutes)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns if this filtered intended route has generated a notification
+     * @return if this filtered intended route has generated a notification
+     */
+    public boolean hasGeneratedNotification() {
+        return generatedNotification;
+    }
+
+    /**
+     * Sets if this filtered intended route has generated a notification
+     * @param generatedNotification if this filtered intended route has generated a notification
+     */
+    public void setGeneratedNotification(boolean generatedNotification) {
+        this.generatedNotification = generatedNotification;
+    }
+
 }

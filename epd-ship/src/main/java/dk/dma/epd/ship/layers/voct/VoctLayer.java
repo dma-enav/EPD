@@ -382,7 +382,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
         }
 
         EPDShip.getInstance().getMainFrame().getGlassPane().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        EPDShip.getInstance().getMainFrame().getGlassPane().setVisible(false);
+//        EPDShip.getInstance().getMainFrame().getGlassPane().setVisible(false);
 
         return false;
     }

@@ -17,17 +17,13 @@ package dk.dma.epd.common.prototype.layers.intendedroute;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.event.ProjectionListener;
-import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
 
-import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
-import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
@@ -52,8 +48,6 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
 
     protected IntendedRouteTCPAInfoPanel tcpaInfoPanel = new IntendedRouteTCPAInfoPanel();
 
-    private ChartPanelCommon chartPanel;
-    private AisHandlerCommon aisHandler;
     private IntendedRouteHandlerCommon intendedRouteHandler;
 
 
@@ -131,17 +125,12 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
 
-        if (obj instanceof AisHandlerCommon) {
-            aisHandler = (AisHandlerCommon) obj;
-            // register as listener for AIS messages
-        } else if (obj instanceof IntendedRouteHandlerCommon) {
+        if (obj instanceof IntendedRouteHandlerCommon) {
             intendedRouteHandler = (IntendedRouteHandlerCommon) obj;
             // register as listener for intended routes
             intendedRouteHandler.addListener(this);
             // Loads the existing intended routes
 
-        } else if (obj instanceof ChartPanelCommon) {
-            this.chartPanel = (ChartPanelCommon) obj;
         }
 
         else if (obj instanceof RouteManagerCommon) {

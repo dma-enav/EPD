@@ -344,9 +344,10 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
                 InfoPanel infoPanel = infoPanels.getInfoPanel(newClosest.getClass());
                 infoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
                 // Allow custom initialization by sub-classes
-                initInfoPanel(infoPanel, newClosest, evt, containerPoint);
-                infoPanel.setVisible(true);
-                getGlassPanel().setVisible(true);
+                if (initInfoPanel(infoPanel, newClosest, evt, containerPoint)) {
+                    infoPanel.setVisible(true);
+                    getGlassPanel().setVisible(true);
+                }
                 return true;
             } else if (newClosest == null) {
                 closest = null;

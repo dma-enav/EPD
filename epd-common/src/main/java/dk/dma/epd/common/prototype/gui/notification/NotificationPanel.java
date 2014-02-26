@@ -164,7 +164,7 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
         
         acknowledgeBtn.addActionListener(new ActionListener() {            
             @Override public void actionPerformed(ActionEvent e) {
-                acknowledgeSelectedNotification();
+                acknowledgeSelectedNotifications();
             }});
         
         gotoBtn.addActionListener(new ActionListener() {            
@@ -174,7 +174,7 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
         
         deleteBtn.addActionListener(new ActionListener() {            
             @Override public void actionPerformed(ActionEvent e) {
-                deleteSelectedNotification();
+                deleteSelectedNotifications();
             }});
         
         return buttonPanel;
@@ -231,10 +231,16 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
      * to update the enabled state of the buttons
      */
     protected void updateButtonEnabledState() {
-        N n = getSelectedNotification();
-        acknowledgeBtn.setEnabled(n != null && n.isRead() && !n.isAcknowledged());
-        deleteBtn.setEnabled(n != null && n.isAcknowledged());
-        gotoBtn.setEnabled(n != null && n.getLocation() != null);
+        List<N> selection = getSelectedNotifications();
+        boolean canAcknowledge = selection.size() > 0;
+        boolean canDelete = selection.size() > 0;
+        for (N notification : selection) {
+            canAcknowledge &=  notification.isRead() && !notification.isAcknowledged();
+            canDelete &= notification.isAcknowledged();
+        }
+        acknowledgeBtn.setEnabled(canAcknowledge);
+        deleteBtn.setEnabled(canDelete);
+        gotoBtn.setEnabled(selection.size() == 1 && selection.get(0).getLocation() != null);
     }
     
     /**
@@ -247,6 +253,11 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
                 notification.setRead(true);
                 table.repaint();
                 notifyListeners();
+                
+                // Should the notification be automatically acknowledged
+                if (!notification.isAcknowledged() && notification.isAutoAcknowledge()) {
+                    acknowledgeNotification(notification);
+                }
             }
             notificationDetailPanel.setNotification(notification);
         } else {
@@ -296,10 +307,12 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
     /*************************************/
     
     /**
-     * Marks the currently selected notification as acknowledged
+     * Marks the currently selected notifications as acknowledged
      */
-    public void acknowledgeSelectedNotification() {
-        acknowledgeNotification(getSelectedNotification());
+    public void acknowledgeSelectedNotifications() {
+        for (N notification : getSelectedNotifications()) {
+            acknowledgeNotification(notification);
+        }
     }
     
     /**
@@ -319,10 +332,12 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
     }
     
     /**
-     * Deletes the currently selected notification
+     * Deletes the currently selected notifications
      */
-    public void deleteSelectedNotification() {
-        deleteNotification(getSelectedNotification());
+    public void deleteSelectedNotifications() {
+        for (N notification : getSelectedNotifications()) {
+            deleteNotification(notification);
+        }
     }
     
     /**

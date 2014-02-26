@@ -23,7 +23,6 @@ import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMLine;
 import com.bbn.openmap.omGraphics.OMPoint;
 
-import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
 
 /**

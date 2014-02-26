@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.layers.ais;
 
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -73,6 +74,8 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
      */
     private final NavSettings navSettings;
 
+    protected final PastTrackInfoPanel pastTrackInfoPanel = new PastTrackInfoPanel();
+    
     public AisLayerCommon(int repaintIntervalMillis) {
         super(repaintIntervalMillis);
         // Get the settings singletons
@@ -84,6 +87,9 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
         this.registerMouseClickClasses(VesselTargetGraphic.class);
         // receive right-click events for the following set of classes.
         this.registerMapMenuClasses(VesselTargetGraphic.class, SartGraphic.class);
+
+        // Register graphics for mouse over notifications
+        this.registerInfoPanel(this.pastTrackInfoPanel, PastTrackWpCircle.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -305,6 +311,22 @@ public abstract class AisLayerCommon<AISHANDLER extends AisHandlerCommon>
             // We need to remove the current selection and repaint
             this.setSelectedGraphic(null, true);
         }
+    }
+    
+    /**
+     * Checks if the past track info panel should be displayed
+     */
+    protected boolean initPastTrackInfoPanel(VesselTargetGraphic vesselTargetGraphic, MouseEvent evt, Point containerPoint) {
+        OMGraphic newClosest = getSelectedGraphic(vesselTargetGraphic.getPastTrackGraphic(), evt, PastTrackWpCircle.class);
+        if (newClosest instanceof PastTrackWpCircle) {
+            PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
+            pastTrackInfoPanel.showWpInfo(wpCircle);
+            pastTrackInfoPanel.setPos((int) containerPoint.getX(), (int) containerPoint.getY() - 10);
+            pastTrackInfoPanel.setVisible(true);
+            getGlassPanel().setVisible(true);
+            return true;
+        }
+        return false;
     }
     
     /**

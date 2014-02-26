@@ -36,7 +36,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Polygon;
-import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -74,12 +73,15 @@ import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverit
  * Defines a pop-up notification panel which displays a message 
  * for a certain amount of time.
  * <p>
- * The widget will be locked to the position specified by the
- * {@code lockPosition} field.
+ * Position-wise, the widget is locked to the bottom-left corner of
+ * it's parent layered pane.
  */
 public class PopUpNotification extends JPanel implements ActionListener, SwingConstants {
 
     private static final long serialVersionUID = 1L;
+    
+    public static final int EMPTY_HEIGHT = 30;
+    public static final int WIDTH = 300;
     
     private static final int OPEN_TIME_SECONDS = 20;
     private static final Color BG_COLOR = Color.DARK_GRAY;
@@ -89,33 +91,25 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
     private NotificationBorder border;
     private Timer autoCloseTimer;
     private ResizeHandler resizeHandler = new ResizeHandler();
-    private Point location;
+    private Point blLocation;
     private Dimension oldContainerSize;
-    private int lockPosition;
     private boolean autoClose = true;
     
     /**
      * Constructor
      * <p>
      * Installs the widget in the layered pane.<p>
-     * Position-wise, the widget is locked to one of the following 
-     * {@linkplain SwingConstants} positions:
-     * <ul>
-     *   <li>{@code NORTH, EAST, SOUTH, WEST}: The given side of the container.
-     *   <li>{@code NORTH_EAST, SOUTH_EAST, SOUTH_WEST, NORTH_WEST}: The given corner of the container.
-     *   <li>{@code CENTER}: The center of the container.
-     * </ul>
+     * Position-wise, the widget is locked to the bottom-left corner of
+     * it's parent layered pane.
      * 
      * @param layeredPane the layered pane
-     * @param lockPosition the position to lock the widget to
-     * @param bounds the bounds of the widget
+     * @param blLoation the bottom-left location
      */
-    public PopUpNotification(JLayeredPane layeredPane, int lockPosition, Rectangle bounds) {
+    public PopUpNotification(JLayeredPane layeredPane, Point blLocation) {
         super(new BorderLayout());
     
         this.layeredPane = layeredPane;
-        this.location = bounds.getLocation();
-        this.lockPosition = lockPosition;
+        this.blLocation = blLocation;
         if (layeredPane.getSize().width > 0) {
             oldContainerSize = layeredPane.getSize();
         }
@@ -123,8 +117,8 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
         SwingUtilities.getWindowAncestor(layeredPane)
             .addComponentListener(resizeHandler);
 
-        setLocation(location);
-        setBounds(bounds);
+        setLocation(blLocation.x, blLocation.y - EMPTY_HEIGHT);
+        setSize(WIDTH, EMPTY_HEIGHT);
         
         layeredPane.setLayer(this, JLayeredPane.POPUP_LAYER);
         layeredPane.add(this);
@@ -144,16 +138,34 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
     }
 
     /**
-     * Adjusts the location of the pop-up
-     * @param location the new location
+     * Adjusts the bottom-left location of the pop-up
+     * @param blLocation the new bottom-left location
      */
-    public void adjustLocation(Point location) {
-        if (!this.location.equals(location)) {
-            this.location = location;
-            oldContainerSize = layeredPane.getSize();
-            setLocation(location);
+    public void adjustBottomLeftLocation(Point blLocation) {
+        if (!this.blLocation.equals(blLocation)) {
+            this.blLocation = blLocation;
+            setLocation(blLocation.x, blLocation.y - getHeight());
             repaint();
         }
+    }
+    
+    /**
+     * Adjusts the size of the pop-up panel to accommodate
+     * between 1 and three notification panels.
+     */
+    private void adjustBounds() {
+        int count = notificationList.getComponentCount();
+        int displayCount = Math.max(1, Math.min(3, count));
+        int displayHeight = displayCount * NotificationPopUpPanel.HEIGHT; 
+        int newHeight = displayHeight + EMPTY_HEIGHT; 
+        
+        if (newHeight == getHeight()) {
+            return;
+        }
+        setSize(getWidth(), newHeight);
+        setLocation(blLocation.x, blLocation.y - newHeight);
+        validate();
+        repaint();
     }
     
     /**
@@ -176,6 +188,8 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
         // Add the notification at the top
         notificationList.add(notificationPanel, 0);
         notificationList.validate();
+        
+        adjustBounds();
         showPopUp();
     }
     
@@ -221,6 +235,8 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
             // Start the auto-close count down
             startClosingAfter(OPEN_TIME_SECONDS);
         }
+        
+        adjustBounds();
     }
     
     /**
@@ -284,20 +300,6 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
         autoCloseTimer.setRepeats(true);
         autoCloseTimer.start();
     }
-
-    /**
-     * Checks if the lock-position is one of the given values
-     * @param values the values to check
-     * @return if the lock-position is one of the given values
-     */
-    private boolean lockPositionIn(int... values) {
-        for (int val : values) {
-            if (val == lockPosition) {
-                return true;
-            }
-        }
-        return false;
-    }
     
     /**
      * Test method
@@ -310,14 +312,16 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
         panel.setBackground(Color.white);
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(panel, BorderLayout.CENTER);
-        Rectangle bounds = new Rectangle(100, 100, 300, 200);
+        Point location = new Point(100, 200);
         
-        PopUpNotification notif = new PopUpNotification(frame.getLayeredPane(), SwingConstants.SOUTH_WEST, bounds);
+        PopUpNotification notif = new PopUpNotification(frame.getLayeredPane(), location);
         GeneralNotification n = new GeneralNotification();
         n.setTitle("Peder was here");
         n.setDescription("This is a\nmultiline test");
         n.setSeverity(NotificationSeverity.ALERT);
         n.setLocation(Position.create(53.0, 12.2));
+        notif.addNotification(null, n);
+        notif.addNotification(null, n);
         notif.addNotification(null, n);
         frame.setVisible(true);
     }
@@ -336,29 +340,15 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
 
         @Override 
         public void componentResized(ComponentEvent e) {
-            if (oldContainerSize == null) {
+            if (oldContainerSize == null || 
+               (oldContainerSize.width == 0 && oldContainerSize.height == 0)) {
                 return;
             }
             
-            Dimension newContainerSize = layeredPane.getSize();
-            
-            int dx = 0;
-            int dw = newContainerSize.width - oldContainerSize.width;
-            if (lockPositionIn(NORTH, CENTER, SOUTH)) {
-                dx = dw / 2;
-            } else if (lockPositionIn(NORTH_EAST, EAST, SOUTH_EAST)) {
-                dx = dw;
-            }
-            
-            int dy = 0;
-            int dh = newContainerSize.height - oldContainerSize.height;
-            if (lockPositionIn(EAST, CENTER, WEST)) {
-                dy = dh / 2;
-            } else if (lockPositionIn(SOUTH_EAST, SOUTH, SOUTH_WEST)) {
-                dy = dh;
-            }
-            
-            setLocation(location.x + dx, location.y + dy);
+            int dh = layeredPane.getHeight() - oldContainerSize.height;
+            oldContainerSize = layeredPane.getSize();
+            Point p = PopUpNotification.this.blLocation;            
+            adjustBottomLeftLocation(new Point(p.x, p.y + dh));
         }        
     }    
 }
@@ -376,7 +366,7 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
 class NotificationPopUpPanel<N extends Notification<?, ?>> extends JPanel implements ActionListener {
 
     private static final long serialVersionUID = 1L;
-    private static final int HEIGHT = 66;
+    public static final int HEIGHT = 66;
     
     private NotificationPanel<N> panel;
     private N notification;
