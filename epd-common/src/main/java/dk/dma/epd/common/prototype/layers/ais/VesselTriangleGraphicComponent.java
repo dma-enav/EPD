@@ -17,85 +17,92 @@ package dk.dma.epd.common.prototype.layers.ais;
 
 import java.awt.Font;
 
-import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMText;
 
 import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.graphics.ISelectableGraphic;
 import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
-import dk.dma.epd.common.prototype.layers.CircleSelectionGraphic;
 import dk.dma.epd.common.prototype.settings.AisSettings;
 import dk.dma.epd.common.prototype.settings.NavSettings;
 
 /**
- * @author Janus Varmarken
+ * A concrete implementation of {@link VesselGraphicComponent} that displays a
+ * {@link VesselTarget} as a triangle (using a {@link VesselTriangle}) and
+ * vessel meta data such as a COG/Speed vector and heading.
+ * 
+ * @author Janus Varmarken et al.
  */
-public class VesselTriangleGraphic extends TargetGraphic implements ISelectableGraphic {
+@SuppressWarnings("serial")
+public class VesselTriangleGraphicComponent extends VesselGraphicComponent {
 
-    private static final long serialVersionUID = 1L;
+    /**
+     * Displays the vessel's position on map.
+     */
+    private VesselTriangle vessel;
 
-    private VesselTarget vesselTarget;
-
-    private VesselTargetGraphic parentGraphic;
-
-    private VesselTargetTriangle vessel;
+    /**
+     * Displays the vessel's true heading (i.e. the direction of the bow).
+     */
     private RotationalPoly heading;
 
+    /**
+     * Font used for the AIS name label.
+     */
     private Font font;
+
+    /**
+     * Displays the AIS name label.
+     */
     private OMText label;
 
+    /**
+     * Displays a COG/speed vector.
+     */
     private SpeedVectorGraphic speedVector;
-    
-    /**
-     * Manages visualization of selection of this graphic.
-     */
-    private CircleSelectionGraphic circleSelectionGraphic;
-    
-    /**
-     * The layer that displays this graphic object.
-     * If this graphic is a subgraphic of another graphic,
-     * use the top level graphic's parent layer.
-     */
-    private OMGraphicHandlerLayer parentLayer;
-    
-    public VesselTriangleGraphic(VesselTargetGraphic parentGraphic, OMGraphicHandlerLayer parentLayer) {
-        this.parentGraphic = parentGraphic;
-        this.parentLayer = parentLayer;
-    }
 
+    /**
+     * Initializes sub graphics.
+     * 
+     * @param aisSettings
+     *            The {@link AisSettings} containing information on whether to
+     *            hide or show the AIS name label.
+     */
     private void createGraphics(AisSettings aisSettings) {
-        vessel = new VesselTargetTriangle(this.parentGraphic);
+        this.vessel = new VesselTriangle();
 
         int[] headingX = { 0, 0 };
         int[] headingY = { 0, -100 };
-        heading = new RotationalPoly(headingX, headingY, null, ColorConstants.VESSEL_HEADING_COLOR);
+        this.heading = new RotationalPoly(headingX, headingY, null,
+                ColorConstants.VESSEL_HEADING_COLOR);
 
-        font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
-        label = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);
+        this.font = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
+        this.label = new OMText(0, 0, 0, 0, "", font, OMText.JUSTIFY_CENTER);
 
-        this.speedVector = new SpeedVectorGraphic(ColorConstants.VESSEL_HEADING_COLOR);
-        
+        this.speedVector = new SpeedVectorGraphic(
+                ColorConstants.VESSEL_HEADING_COLOR);
+
         add(label);
         this.label.setVisible(aisSettings.isShowNameLabels());
         add(0, vessel);
         this.add(this.speedVector);
         add(heading);
-        // create the selection graphic
-        this.circleSelectionGraphic = new CircleSelectionGraphic(this);
     }
 
+    /**
+     * Update this {@link VesselTriangleGraphicComponent} with new AIS data.
+     */
     @Override
-    public void update(AisTarget aisTarget, AisSettings aisSettings, NavSettings navSettings, float mapScale) {
+    public void update(AisTarget aisTarget, AisSettings aisSettings,
+            NavSettings navSettings, float mapScale) {
         if (aisTarget instanceof VesselTarget) {
 
-            vesselTarget = (VesselTarget) aisTarget;
+            VesselTarget vesselTarget = (VesselTarget) aisTarget;
             VesselPositionData posData = vesselTarget.getPositionData();
             VesselStaticData staticData = vesselTarget.getStaticData();
 
@@ -116,19 +123,16 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
 
             double hdgR = Math.toRadians(trueHeading);
 
-            vessel.update(lat, lon, OMGraphicConstants.DECIMAL_DEGREES, hdgR);
-            heading.setLocation(lat, lon, OMGraphicConstants.DECIMAL_DEGREES, hdgR);
+            this.vessel.updateGraphic(vesselTarget, mapScale);
+            this.heading.setLocation(lat, lon,
+                    OMGraphicConstants.DECIMAL_DEGREES, hdgR);
             if (noHeading) {
-                heading.setVisible(false);
+                this.heading.setVisible(false);
             }
-            
+
             // update the speed vector with the new data
-            if (this.parentLayer != null && this.parentLayer.getProjection() != null) {
-                this.speedVector.update(posData, this.parentLayer.getProjection().getScale());
-            }
-            // update position of selection marker
-            this.circleSelectionGraphic.updatePosition(pos);
-            
+            this.speedVector.update(posData, mapScale);
+
             // Set label
             label.setLat(lat);
             label.setLon(lon);
@@ -150,20 +154,39 @@ public class VesselTriangleGraphic extends TargetGraphic implements ISelectableG
         }
     }
 
+    /**
+     * Toggles display of AIS name label on/off.
+     * 
+     * @param showNameLabel
+     *            True to display name label, false to hide name label.
+     */
     public void setShowNameLabel(boolean showNameLabel) {
-        if(this.label != null) {
-            this.label.setVisible(showNameLabel);    
+        if (this.label != null) {
+            this.label.setVisible(showNameLabel);
         }
     }
 
+    /**
+     * Get if this {@link VesselTriangleGraphicComponent} is currently set to
+     * display its name label.
+     * 
+     * @return True if this {@link VesselTriangleGraphicComponent} is currently
+     *         set to display its name label, false otherwise.
+     */
     public boolean getShowNameLabel() {
         return this.label.isVisible();
     }
 
+    /**
+     * Get the {@link VesselTriangle} that this
+     * {@code VesselTriangleGraphicComponent} uses to display the vessel.
+     * 
+     * @return The {@link VesselTriangle} that this
+     *         {@code VesselTriangleGraphicComponent} uses to display the
+     *         vessel.
+     */
     @Override
-    public void setSelection(boolean selected) {
-        // Get the latest position data
-        Position centerPos = this.vesselTarget != null ? this.vesselTarget.getPositionData() != null ? this.vesselTarget.getPositionData().getPos() : null : null;
-        this.circleSelectionGraphic.updateSelection(selected, centerPos);
+    VesselTriangle getVesselGraphic() {
+        return this.vessel;
     }
 }

@@ -25,7 +25,6 @@ import java.util.HashMap;
 import net.jcip.annotations.ThreadSafe;
 
 import com.bbn.openmap.omGraphics.OMGraphic;
-import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.ISelectableGraphic;
@@ -38,8 +37,10 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.layers.ais.AisTargetInfoPanelCommon;
+import dk.dma.epd.common.prototype.layers.ais.PastTrackWpCircle;
 import dk.dma.epd.common.prototype.layers.ais.SartGraphic;
-import dk.dma.epd.common.prototype.layers.ais.VesselTargetGraphic;
+import dk.dma.epd.common.prototype.layers.ais.VesselGraphic;
+import dk.dma.epd.common.prototype.layers.ais.VesselGraphicComponentSelector;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
@@ -66,9 +67,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 */
     public AisLayer(int redrawIntervalMillis) {
         super(redrawIntervalMillis);
-        
-        // Register mouse over of VesselTargetGraphics to invoke the AisTargetInfoPanel
-        this.registerInfoPanel(this.aisTargetInfoPanel, VesselTargetGraphic.class);
+        // Register mouse over of VesselGraphics to invoke the AisTargetInfoPanel
+        this.registerInfoPanel(this.aisTargetInfoPanel, VesselGraphic.class);
     }
 
     /**
@@ -105,14 +105,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         // Repaint
         this.doPrepare();
     }
-    
-    @Override
-    public OMGraphicList prepare() {
-        synchronized (graphics) {
-            graphics.project(getProjection());
-        }
-        return graphics;
-    }
 
     @Override
     public void findAndInit(Object obj) {
@@ -140,8 +132,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
             // Inform other AisLayers about the deselection
             this.getMainFrame().setSelectedMMSI(-1);
         }
-        else if(clickedGraphics instanceof ISelectableGraphic && clickedGraphics instanceof VesselTargetGraphic) {
-            VesselTarget vt = ((VesselTargetGraphic)clickedGraphics).getVesselTarget();
+        else if(clickedGraphics instanceof ISelectableGraphic && clickedGraphics instanceof VesselGraphic) {
+            VesselTarget vt = ((VesselGraphic)clickedGraphics).getMostRecentVesselTarget();
             if(vt != null) {
                 // Update status text if clicked graphic is a vessel
                 setStatusAreaTxt(vt);
@@ -159,11 +151,12 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {
         // Should only handle right clicks
         assert evt.getButton() == MouseEvent.BUTTON3;
-        if (clickedGraphics instanceof VesselTargetGraphic) {
-            VesselTargetGraphic vesselTargetGraphic = (VesselTargetGraphic) clickedGraphics;
-            VesselTarget vt = ((VesselTargetGraphic) clickedGraphics).getVesselTarget();
+        if (clickedGraphics instanceof VesselGraphic) {
+            VesselGraphic vesselGraphic = (VesselGraphic) clickedGraphics;
+            VesselTarget vt = vesselGraphic.getMostRecentVesselTarget();
             // Pass data to the pop up menu that is to be displayed.
-            this.getMapMenu().aisMenu(vt, vesselTargetGraphic);
+            // TODO this is NOT pretty. Update aisMenu to take VesselGraphic arg?
+            this.getMapMenu().aisMenu(vt, (VesselGraphicComponentSelector) this.getTargetGraphic(vt.getMmsi()));
         } else if (clickedGraphics instanceof SartGraphic) {
             SartGraphic sartGraphic = (SartGraphic) clickedGraphics;
             SarTarget sarTarget = sartGraphic.getSarTargetGraphic().getSarTarget();
@@ -178,18 +171,26 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     @Override
     protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest,
             MouseEvent evt, Point containerPoint) {
-        if (newClosest instanceof VesselTargetGraphic) {
-            
-            // Handle past track
-            if (initPastTrackInfoPanel((VesselTargetGraphic)newClosest, evt, containerPoint)) {
-                aisTargetInfoPanel.setVisible(false);
-                return false;
+        if(infoPanel == this.aisTargetInfoPanel && newClosest instanceof VesselGraphic) {
+            VesselTarget vt = ((VesselGraphic)newClosest).getMostRecentVesselTarget(); 
+            // TODO: need to put call below in a synchronized(targets) block ?
+            this.aisTargetInfoPanel.showAisInfoLabel(vt);
+            // adjust info panel such that it fits in the frame
+            int x = (int) containerPoint.getX() + 10;
+            int y = (int) containerPoint.getY() + 10;
+            if (chartPanel.getMap().getProjection().getWidth() - x < aisTargetInfoPanel.getWidth()) {
+                x -= aisTargetInfoPanel.getWidth() + 20;
             }
-            
-            // Other parts of vessel target hit
-            VesselTarget vesselTarget = ((VesselTargetGraphic)newClosest).getVesselTarget();
-            aisTargetInfoPanel.showAisInfoLabel(vesselTarget);
+            if (chartPanel.getMap().getProjection().getHeight() - y < aisTargetInfoPanel.getHeight()) {
+                y -= aisTargetInfoPanel.getHeight() + 20;
+            }
+            aisTargetInfoPanel.setPos(x, y);
             return true;
+        }
+        else if (infoPanel == this.pastTrackInfoPanel && newClosest instanceof PastTrackWpCircle) {
+          PastTrackWpCircle wpCircle = (PastTrackWpCircle) newClosest;
+          pastTrackInfoPanel.showWpInfo(wpCircle);
+          return true;
         }
         return false;
     }
@@ -302,8 +303,8 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     public void setShowNameLabels(boolean showLabels) {
         synchronized(this.graphics) {
             for(OMGraphic og : this.graphics) {
-                if(og instanceof VesselTargetGraphic) {
-                    ((VesselTargetGraphic)og).setShowNameLabel(showLabels);
+                if(og instanceof VesselGraphicComponentSelector) {
+                    ((VesselGraphicComponentSelector)og).setShowNameLabel(showLabels);
                 }
             }
         }
