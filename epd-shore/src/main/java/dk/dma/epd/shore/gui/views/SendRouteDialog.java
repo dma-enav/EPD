@@ -53,6 +53,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.text.DefaultFormatter;
 
 import org.jdesktop.swingx.JXDatePicker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.EPD;
@@ -76,6 +78,7 @@ import dk.dma.epd.shore.service.RouteSuggestionHandler;
 public class SendRouteDialog extends ComponentDialog implements ActionListener {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger LOG = LoggerFactory.getLogger(SendRouteDialog.class);
     
     // Target panel
     private JComboBox<String> mmsiListComboBox = new JComboBox<>();
@@ -107,6 +110,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
     private Route route;
     private long mmsi = -1;
     private boolean loading;
+    private boolean wasVisible;
 
 
     /**
@@ -116,7 +120,6 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
         super(frame, "Tactical Route Exchange", Dialog.ModalityType.MODELESS);
         
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-        setLocationRelativeTo(frame);
         setLocation(100, 100);
 
         initGUI();
@@ -228,7 +231,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
         // *** Send panel 
         // *******************
         JPanel sendPanel = new JPanel(new GridBagLayout());
-        sendPanel.setBorder(new TitledBorder("Sender"));
+        sendPanel.setBorder(new TitledBorder("Send"));
         content.add(sendPanel, 
                 new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0, CENTER, HORIZONTAL, insets5, 0, 0));
         
@@ -317,95 +320,118 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
 
     }
 
+    /**
+     * Called when one of the buttons are clicked or if 
+     * one of the combo-boxes changes value
+     */
     @Override
     public void actionPerformed(ActionEvent ae) {
         
         if (ae.getSource() == nameComboBox && !loading) {
-            if (nameComboBox.getSelectedItem() != null) {
-                mmsiListComboBox.setSelectedIndex(nameComboBox.getSelectedIndex());
-            }
-        }
-
-        else if (ae.getSource() == mmsiListComboBox && !loading) {
-
-            if (mmsiListComboBox.getSelectedItem() != null) {
-
-                nameComboBox.setSelectedIndex(mmsiListComboBox.getSelectedIndex());
-                try {
-                    mmsi = Long.valueOf((String) mmsiListComboBox.getSelectedItem());
-                } catch (Exception e) {
-                    System.out.println("Failed to set mmsi " + mmsi);
-                }
-
-                // System.out.println("mmsi selected to set to " + mmsi);
-                VesselTarget selectedShip = aisHandler.getVesselTarget(mmsi);
-
-                if (selectedShip != null) {
-
-                    if (selectedShip.getStaticData() != null) {
-                        callsignLbl.setText(AisMessage.trimText(selectedShip
-                                .getStaticData().getCallsign()));
-                    } else {
-                        callsignLbl.setText("N/A");
-                    }
-                } else {
-                    statusLbl.setText("The ship is not visible on AIS");
-                }
-            }
-        }
-
-        else if (ae.getSource() == routeListComboBox && !loading) {
-            if (routeListComboBox.getSelectedItem() != null) {
-                route = routeManager.getRoute(routeListComboBox.getSelectedIndex());
-                routeLengthLbl.setText(Integer.toString(route.getWaypoints().size()));
-                updateDates(route);
-            }
-        }
-
-        else if (ae.getSource() == zoomBtn && route.getWaypoints() != null) {
-
+            nameSelectionChanged();
+        
+        } else if (ae.getSource() == mmsiListComboBox && !loading) {
+            mmsiSelectionChanged();
+        
+        } else if (ae.getSource() == routeListComboBox && !loading) {
+            routeSelectionChanged();
+        
+        } else if (ae.getSource() == zoomBtn && route.getWaypoints() != null) {
             EPD.getInstance().getMainFrame()
                 .zoomToPosition(route.getWaypoints().getFirst().getPos());
-        }
-
-        else if (ae.getSource() == sendBtn) {
-
-            if (route == null && routeListComboBox.getSelectedIndex() != -1) {
-                route = routeManager.getRoutes().get(routeListComboBox.getSelectedIndex());
-            }
-
-            if (mmsi == -1) {
-                mmsi = Long.parseLong(mmsiListComboBox.getSelectedItem().toString());
-            }
-
-            try {
-                Date etd = combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
-                route.setStarttime(etd);
-
-                Date eta = combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
-                recalculateSpeeds(eta, route);
-                
-                routeSuggestionHandler.sendRouteSuggestion(mmsi,
-                        route.getFullRouteData(), senderTxtField.getText(),
-                        messageTxtField.getText());
-                messageTxtField.setText("");
-            } catch (Exception e) {
-                System.out.println("Failed to send route");
-            }
-
-            this.setVisible(false);
-
-            this.mmsi = -1;
-            this.route = null;
-
-        }
         
-        else if (ae.getSource() == cancelBtn) {
-            // Hide it
+        } else if (ae.getSource() == sendBtn) {
+            sendRoute();
+        
+        } else if (ae.getSource() == cancelBtn) {
             this.setVisible(false);
         }
     }
 
+    /**
+     * Called when the name selection has changed
+     */
+    private void nameSelectionChanged() {
+        if (nameComboBox.getSelectedItem() != null) {
+            mmsiListComboBox.setSelectedIndex(nameComboBox.getSelectedIndex());
+        }        
+    }
+
+    /**
+     * Called when the MMSI selection has changed
+     */
+    private void mmsiSelectionChanged() {
+        if (mmsiListComboBox.getSelectedItem() != null) {
+
+            nameComboBox.setSelectedIndex(mmsiListComboBox.getSelectedIndex());
+            try {
+                mmsi = Long.valueOf((String) mmsiListComboBox.getSelectedItem());
+            } catch (Exception e) {
+                LOG.error("Failed to set mmsi " + mmsi, e);
+            }
+
+            VesselTarget selectedShip = aisHandler.getVesselTarget(mmsi);
+
+            if (selectedShip != null) {
+
+                if (selectedShip.getStaticData() != null) {
+                    callsignLbl.setText(AisMessage.trimText(selectedShip
+                            .getStaticData().getCallsign()));
+                } else {
+                    callsignLbl.setText("N/A");
+                }
+            } else {
+                statusLbl.setText("The ship is not visible on AIS");
+            }
+        }
+    }
+
+    /**
+     * Called when the route selection has changed
+     */
+    private void routeSelectionChanged() {
+        if (routeListComboBox.getSelectedItem() != null) {
+            route = routeManager.getRoute(routeListComboBox.getSelectedIndex());
+            routeLengthLbl.setText(Integer.toString(route.getWaypoints().size()));
+            updateDates(route);
+        }
+    }
+
+    /**
+     * Sends the current route to the current vessel
+     */
+    private void sendRoute() {
+        if (route == null && routeListComboBox.getSelectedIndex() != -1) {
+            route = routeManager.getRoutes().get(routeListComboBox.getSelectedIndex());
+        }
+
+        if (mmsi == -1) {
+            mmsi = Long.parseLong(mmsiListComboBox.getSelectedItem().toString());
+        }
+
+        LOG.info(String.format("Sending route suggestion to MMSI %d", mmsi));
+        
+        try {
+            Date etd = combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
+            route.setStarttime(etd);
+
+            Date eta = combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
+            recalculateSpeeds(eta, route);
+            
+            routeSuggestionHandler.sendRouteSuggestion(mmsi,
+                    route.getFullRouteData(), senderTxtField.getText(),
+                    messageTxtField.getText());
+            messageTxtField.setText("");
+        } catch (Exception e) {
+            LOG.error("Failed to send route", e);
+        }
+
+        this.setVisible(false);
+
+        mmsi = -1;
+        route = null;
+    }
+    
     /**
      * Sets the selected MMSI
      * @param mmsi the selected MMSI
@@ -429,6 +455,13 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
      * Loads base data and updates the UI with the selected MMSI and route
      */
     private void selectAndLoad() {
+        
+        // The first time around, position relative to frame
+        if (!wasVisible) {
+            wasVisible = true;
+            setLocationRelativeTo(getParent());
+        }
+        
         loadData();
 
         if (mmsi != -1 && mmsiListComboBox.getItemCount() > 0) {
@@ -480,6 +513,10 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
 
     }
     
+    /**
+     * Update the ETD and ETA date fields based on the route
+     * @param route the route to update the date fields from
+     */
     private void updateDates(Route route) {
         if (route != null) {
             Date starttime = route.getStarttime();
