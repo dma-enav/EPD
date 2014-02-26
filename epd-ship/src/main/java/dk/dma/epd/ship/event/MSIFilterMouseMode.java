@@ -38,5 +38,4 @@ public class MSIFilterMouseMode extends AbstractCoordMouseMode {
         // override the default cursor
         setModeCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
     }
-
 }

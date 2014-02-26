@@ -15,19 +15,19 @@
  */
 package dk.dma.epd.ship.event;
 
+import java.awt.Cursor;
 import java.awt.event.MouseEvent;
+
 import dk.dma.epd.common.prototype.event.mouse.AbstractCoordMouseMode;
+import dk.dma.epd.ship.EPDShip;
 
 public class DistanceCircleMouseMode extends AbstractCoordMouseMode {
+    
+    private static final long serialVersionUID = 1L;
 
     public static final transient String MODE_ID = "DistanceCircle";
 
     private String previousActiveMouseModeID;
-
-    /**
-     * TODO update from default value.
-     */
-    private static final long serialVersionUID = 1L;
 
     /**
      * Create a distance circle mouse mode.
@@ -70,4 +70,10 @@ public class DistanceCircleMouseMode extends AbstractCoordMouseMode {
         return this.previousActiveMouseModeID;
     }
 
+    @Override
+    public void mousePressed(MouseEvent e) {
+        super.mousePressed(e);
+        EPDShip.getInstance().getMainFrame().getChartPanel().getMap().setCursor(
+                Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+    }
 }

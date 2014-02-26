@@ -69,9 +69,9 @@ public class NavigationMouseMode extends CommonNavigationMouseMode {
     @Override
     public void mouseClicked(MouseEvent e) {
        
-        super.mouseClicked(e);
         EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().setShouldSave(true);
         EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().saveToHistoryBeforeMoving();
+        super.mouseClicked(e);
     }
 
     /**
@@ -84,8 +84,8 @@ public class NavigationMouseMode extends CommonNavigationMouseMode {
     @Override
     public void mouseReleased(MouseEvent e) {
         
-        super.mouseReleased(e);
         EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().setShouldSave(true);
         EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().saveToHistoryBeforeMoving();
+        super.mouseReleased(e);
     }
 }
