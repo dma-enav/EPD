@@ -37,13 +37,13 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
      * Private fields.
      */
     private static final long serialVersionUID = 1L;
-    public final Cursor NAV_CURSOR;
+    public final Cursor NAV_CURSOR; // Default cursor for navigation.
     private ChartPanelCommon chartPanel;
-    private int maxScale;
-    private boolean doZoom; // This will be true, if the mouse is down.
+    private int maxScale; // The max scaled size which can be zoomed into the map.
+    private boolean doZoom;
     private boolean mouseDragged;
-    private boolean layerMouseDrag;
     private boolean mouseExited;
+    private boolean layerMouseDrag;
 
     protected Point point1, point2;
     
@@ -361,6 +361,11 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
                     double selectedAreaWidth = 0;
                     double selectedAreaHeight = 0;
 
+                    /* If control are held down, the code inside the
+                     * statement will try to make a rectangle in ratio
+                     * of the frame size (much like when control are not
+                     * held down), where the selected area can fit into. 
+                     */
                     if (e.isControlDown()) {
 
                         Point fakeRatioPoint      = null;
@@ -437,7 +442,8 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
                         return;
                     }
                     
-                    // Ensure that the scale level wont get under the minimum.
+                    // Ensure that the scale level wont zoom to far into
+                    // the map.
                     if (scale < this.maxScale) {
                         scale = this.maxScale;
                     }

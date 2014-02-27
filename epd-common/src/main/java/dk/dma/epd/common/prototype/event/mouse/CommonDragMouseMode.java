@@ -33,8 +33,8 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
     /**
      * Public fields.
      */
-    public final Cursor DRAG_CURSOR;
-    public final Cursor DRAG_DOWN_CURSOR;
+    public final Cursor DRAG_CURSOR; // Default cursor when mouse is over map in drag mode. 
+    public final Cursor DRAG_DOWN_CURSOR; // Default cursor for when mouse is down.
 
     /**
      * Private fields
@@ -42,11 +42,11 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
     private static final long serialVersionUID = 1L;
     private boolean isPanning;
     private boolean mouseDragged;
+    private boolean mouseExited;
     private boolean layerMouseDrag;
     private BufferedImage bufferedMapImage;
     private BufferedImage onScreenMap;
     private int oX, oY;
-    private boolean mouseExited;
 
     /**
      * Protected fields
@@ -117,6 +117,11 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
                 this.layerMouseDrag = super.mouseSupport.fireMapMouseDragged(e);
             }
             
+            /* This if statement is used to ensure that the navigation
+             * mouse mode can be used after a NoGo area has been selected.
+             * This is to make sure that the variables layerMouseDrag and
+             * mouseDragged are initialized back to their default values.
+             */ 
             if (this.layerMouseDrag && 
                     this.mouseExited) {
                 this.mouseReleased(e);
@@ -258,7 +263,7 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
         
         if (e.getSource() instanceof MapBean) {
             
-            super.mouseExited(e);            
+            super.mouseExited(e);
             this.mouseExited = true;
         }
     }
