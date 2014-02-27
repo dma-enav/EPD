@@ -27,7 +27,7 @@ message IntendedRoute {
 }
 
 service IntendedRouteService {
-   1: brodcast IntendedRouteBroadcast {
+   1: broadcast IntendedRouteBroadcast {
       1: IntendedRoute indendedRoute;
    };
 } 
