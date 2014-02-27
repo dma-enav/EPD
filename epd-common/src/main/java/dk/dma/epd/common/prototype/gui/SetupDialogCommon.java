@@ -26,6 +26,7 @@ import javax.swing.JButton;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.event.SetupDialogHandler;
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.CommonENavSettingsPanel;
@@ -155,6 +156,7 @@ public class SetupDialogCommon extends JDialog {
 
         for (BaseSettingsPanel baseSettingsPanel : settingsPanels) {
             this.settingsPanels.add(baseSettingsPanel);
+            baseSettingsPanel.addListener(EPD.getInstance());
         }
 
         addTabs(tabbedPane);
