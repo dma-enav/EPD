@@ -428,6 +428,10 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
     public HistoryListener getProjectChangeListener() {
         return this.getHistoryListener();
     }
+    
+    public NoGoMouseMode getNoGoMouseMode() {
+        return this.noGoMouseMode;
+    }
 
     public void centreOnShip() {
         // Get current position

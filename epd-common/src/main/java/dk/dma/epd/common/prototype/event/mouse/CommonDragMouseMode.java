@@ -46,6 +46,7 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
     private BufferedImage bufferedMapImage;
     private BufferedImage onScreenMap;
     private int oX, oY;
+    private boolean mouseExited;
 
     /**
      * Protected fields
@@ -116,8 +117,13 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
                 this.layerMouseDrag = super.mouseSupport.fireMapMouseDragged(e);
             }
             
-            // If other layer elements was not pressed, do the dragging of map.
-            if (!this.layerMouseDrag) {
+            if (this.layerMouseDrag && 
+                    this.mouseExited) {
+                this.mouseReleased(e);
+                this.mouseExited = false;
+                
+                // If other layer elements was not pressed, do the dragging of map.
+            } else if (!this.layerMouseDrag) {
                 this.drag(e);
             }
         }
@@ -240,5 +246,20 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
         }
         
         this.layerMouseDrag = false;
+    }
+    
+    /**
+     * Handles a mouse exited event. The boolean is mouseExited is set
+     * to true, so that dragging can be activated after NoGo area has 
+     * been selected.
+     */
+    @Override
+    public void mouseExited(MouseEvent e) {
+        
+        if (e.getSource() instanceof MapBean) {
+            
+            super.mouseExited(e);            
+            this.mouseExited = true;
+        }
     }
 }

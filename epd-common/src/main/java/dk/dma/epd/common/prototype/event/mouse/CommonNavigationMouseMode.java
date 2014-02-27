@@ -43,6 +43,7 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
     private boolean doZoom; // This will be true, if the mouse is down.
     private boolean mouseDragged;
     private boolean layerMouseDrag;
+    private boolean mouseExited;
 
     protected Point point1, point2;
     
@@ -168,6 +169,11 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
         return pt2;
     }
     
+    @Override
+    public void setActive(boolean active) {
+        super.setActive(active);
+    }
+    
     /**
      * If the mouse is pressed twice right after each other, this mouse
      * event handler method will update the location on the map by the
@@ -240,6 +246,8 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
             this.paintRectangle(((MapBean) e.getSource()).getGraphics(), this.point1, this.point2);
             // Reset point.
             this.point2 = null;
+            
+            this.mouseExited = true;
         }
     }
 
@@ -286,7 +294,13 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
                 this.layerMouseDrag = super.mouseSupport.fireMapMouseDragged(e);
             }
             
-            if (!this.layerMouseDrag) {
+            if (this.layerMouseDrag && 
+                    this.mouseExited) {
+                
+                this.mouseReleased(e);
+                this.mouseExited = false;
+                
+            } else if (!this.layerMouseDrag) {
                 
                 this.mouseDragged = true;
                 

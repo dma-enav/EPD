@@ -35,6 +35,7 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
     public static final transient String MODE_ID = "NoGo";
 
     private ChartPanel chartPanel;
+    private String previousMouseModeID;
 
     /**
      * Constructs a NoGoMouseListener: sets the ID of the mode, the consume mode to
@@ -110,5 +111,22 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
                 super.point2 = null;
             }
         }
+    }
+
+    /**
+     * Returns the previous used mouse mode which was active.
+     * @return The previous used mouse mode.
+     */
+    public String getPreviousMouseModeID() {
+        return previousMouseModeID;
+    }
+
+    /**
+     * Sets the previous used mouse mode which was active.
+     * @param previousMouseModeID 
+     *          The previous used mouse mode which was active.
+     */
+    public void setPreviousMouseModeID(String previousMouseModeID) {
+        this.previousMouseModeID = previousMouseModeID;
     }
 }

@@ -48,6 +48,13 @@ public class DistanceCircleMouseMode extends AbstractCoordMouseMode {
             mouseSupport.fireMapMouseClicked(e);
         }
     }
+    
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        super.mouseEntered(e);
+        EPDShip.getInstance().getMainFrame().getChartPanel().getMap().setCursor(
+                Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+    }
 
     /**
      * Set the MODE_ID of the mouse mode that was active prior to setting this
@@ -73,7 +80,5 @@ public class DistanceCircleMouseMode extends AbstractCoordMouseMode {
     @Override
     public void mousePressed(MouseEvent e) {
         super.mousePressed(e);
-        EPDShip.getInstance().getMainFrame().getChartPanel().getMap().setCursor(
-                Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
     }
 }
