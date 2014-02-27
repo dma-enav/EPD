@@ -31,6 +31,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -50,18 +52,26 @@ import javax.swing.SpinnerDateModel;
 import javax.swing.WindowConstants;
 import javax.swing.JSpinner.DateEditor;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.DefaultFormatter;
 
+import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.dma.ais.message.AisMessage;
+import dk.dma.epd.common.FormatException;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.ComponentDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
+import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.common.util.ParseUtils;
 import dk.dma.epd.common.util.TypedValue.Dist;
 import dk.dma.epd.common.util.TypedValue.DistType;
 import dk.dma.epd.common.util.TypedValue.SpeedType;
@@ -71,14 +81,18 @@ import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.service.RouteSuggestionHandler;
+import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * Dialog used by EPDShore to send a tactical route suggestion to a ship.
  */
-public class SendRouteDialog extends ComponentDialog implements ActionListener {
+public class SendRouteDialog extends ComponentDialog implements ActionListener, PropertyChangeListener {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(SendRouteDialog.class);
+    private static final boolean COPY_ROUTE = true;
+    
+    enum RouteFields { DEPARTURE, ARRIVAL, SPEED }
     
     // Target panel
     private JComboBox<String> mmsiListComboBox = new JComboBox<>();
@@ -92,6 +106,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
     private JSpinner departureSpinner = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.HOUR_OF_DAY));
     private JXDatePicker arrivalPicker = new JXDatePicker();
     private JSpinner arrivalSpinner = new JSpinner(new SpinnerDateModel(new Date(), null, null, Calendar.HOUR_OF_DAY));
+    private JTextField speedTxtField = new JTextField();
     private JButton zoomBtn = new JButton("Zoom To", EPDShore.res().getCachedImageIcon("images/buttons/zoom.png"));
     
     // Sender panel
@@ -123,6 +138,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
         setLocation(100, 100);
 
         initGUI();
+        getRootPane().setDefaultButton(cancelBtn);
         pack();
     }
 
@@ -198,10 +214,17 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
                 new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
         routePanel.add(fixSize(arrivalSpinner, 60, h), 
                 new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0, WEST, NONE, insets2, 0, 0));
-                
+
+        speedTxtField.getDocument().addDocumentListener(new TextFieldChangeListener(speedTxtField));
+        speedTxtField.setHorizontalAlignment(JTextField.RIGHT);
+        routePanel.add(new JLabel("Speed:"), 
+                new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        routePanel.add(speedTxtField, 
+                new GridBagConstraints(1, 4, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        
         zoomBtn.addActionListener(this);
         routePanel.add(zoomBtn, 
-                new GridBagConstraints(0, 4, 3, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+                new GridBagConstraints(0, 5, 3, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         
         
         // *******************
@@ -254,9 +277,12 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
      */
     private void initDatePicker(JXDatePicker picker, JSpinner spinner) {
         picker.setFormats(new SimpleDateFormat("E dd/MM/yyyy"));
+        picker.addPropertyChangeListener("date", this);
+        
         DateEditor editor = new JSpinner.DateEditor(spinner, "HH:mm");
         ((DefaultFormatter)editor.getTextField().getFormatter()).setCommitsOnValidEdit(true);
         spinner.setEditor(editor);
+        spinner.addChangeListener(new SpinnerChangeListener());
     }
 
     /**
@@ -297,7 +323,6 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
         }
 
         loading = false;
-
     }
 
     /**
@@ -326,14 +351,17 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
      */
     @Override
     public void actionPerformed(ActionEvent ae) {
+        if (loading) {
+            return;
+        }
         
-        if (ae.getSource() == nameComboBox && !loading) {
+        if (ae.getSource() == nameComboBox) {
             nameSelectionChanged();
         
-        } else if (ae.getSource() == mmsiListComboBox && !loading) {
+        } else if (ae.getSource() == mmsiListComboBox) {
             mmsiSelectionChanged();
         
-        } else if (ae.getSource() == routeListComboBox && !loading) {
+        } else if (ae.getSource() == routeListComboBox) {
             routeSelectionChanged();
         
         } else if (ae.getSource() == zoomBtn && route.getWaypoints() != null) {
@@ -348,6 +376,71 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
         }
     }
 
+    /** 
+     * Called when one of the arrival and departure pickers changes value
+     * @param evt the event
+     */
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (loading || route == null) {
+            return;
+        }
+        
+        if (evt.getSource() == departurePicker) {
+            Date date = combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
+            route.setStarttime(date);
+            updateRouteFields(route, RouteFields.ARRIVAL);
+            
+        } else if (evt.getSource() == arrivalPicker) {
+            Date date = combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
+            recalculateSpeeds(date, route);
+        }        
+    }
+    
+    /** 
+     * Called when one of the arrival and departure spinners changes value
+     * @param spinner the spinner
+     */
+    protected void spinnerValueChanged(JSpinner spinner) {
+        if (loading || route == null) {
+            return;
+        }
+        
+        if (spinner == departureSpinner) {
+            Date date = combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
+            route.setStarttime(date);
+            updateRouteFields(route, RouteFields.ARRIVAL);
+            
+        } else if (spinner == arrivalSpinner) {            
+            Date date = combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
+            recalculateSpeeds(date, route);
+        }
+    }
+    
+    /**
+     * Called when the speed text field changes value
+     * @param field the text field
+     */
+    protected void textFieldValueChanged(JTextField field) {
+        if (loading || route == null) {
+            return;
+        }
+        
+        if (field == speedTxtField) {
+            try {
+                double speed = parseDouble(speedTxtField.getText());
+                for (int i = 0; i < route.getWaypoints().size(); i++) {
+                    route.getWaypoints().get(i).setSpeed(speed);
+                }
+                route.calcValues(true);
+                updateRouteFields(route, RouteFields.ARRIVAL);
+            } catch (Exception ex) {
+                LOG.error("Error parsing speed " + speedTxtField.getText(), ex);
+            }
+        }
+        
+    }
+    
     /**
      * Called when the name selection has changed
      */
@@ -391,9 +484,8 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
      */
     private void routeSelectionChanged() {
         if (routeListComboBox.getSelectedItem() != null) {
-            route = routeManager.getRoute(routeListComboBox.getSelectedIndex());
-            routeLengthLbl.setText(Integer.toString(route.getWaypoints().size()));
-            updateDates(route);
+            setCurrentRoute(routeManager.getRoute(routeListComboBox.getSelectedIndex()));
+            updateRouteFields(route);
         }
     }
 
@@ -401,8 +493,8 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
      * Sends the current route to the current vessel
      */
     private void sendRoute() {
-        if (route == null && routeListComboBox.getSelectedIndex() != -1) {
-            route = routeManager.getRoutes().get(routeListComboBox.getSelectedIndex());
+        if (route == null) {
+            return;
         }
 
         if (mmsi == -1) {
@@ -412,12 +504,6 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
         LOG.info(String.format("Sending route suggestion to MMSI %d", mmsi));
         
         try {
-            Date etd = combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
-            route.setStarttime(etd);
-
-            Date eta = combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
-            recalculateSpeeds(eta, route);
-            
             routeSuggestionHandler.sendRouteSuggestion(mmsi,
                     route.getFullRouteData(), senderTxtField.getText(),
                     messageTxtField.getText());
@@ -446,11 +532,25 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
      * @param route the selected route
      */
     public void setSelectedRoute(Route route) {
-
-        this.route = route;
+        setCurrentRoute(route);
         selectAndLoad();
     }
-
+    
+    /**
+     * Sets the given route as the current one.
+     * Depending on the {@code COPY_ROUTE} flag, the dialog
+     * either works on the original or a copy of the route.
+     * 
+     * @param route the route to set
+     */
+    private void setCurrentRoute(Route route) {
+        if (COPY_ROUTE && route != null) {
+            this.route = route.copy();
+        } else {
+            this.route = route;
+        }
+    }
+    
     /**
      * Loads base data and updates the UI with the selected MMSI and route
      */
@@ -488,7 +588,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
                 }
             }            
             
-            updateDates(route);
+            updateRouteFields(route);
         }
         
         if (mmsi == -1 && mmsiListComboBox.getItemCount() > 0) {
@@ -514,29 +614,61 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
     }
     
     /**
-     * Update the ETD and ETA date fields based on the route
-     * @param route the route to update the date fields from
+     * Update the ETD and ETA date fields along with the speed field.
+     * @param route the route to update the date and speed fields from
+     * @param fields the fields to update
      */
-    private void updateDates(Route route) {
-        if (route != null) {
-            Date starttime = route.getStarttime();
+    private void updateRouteFields(Route route, RouteFields... fields) {
+        boolean wasLoading = loading;
+        loading = true;
 
-            departurePicker.setDate(starttime);
-            departureSpinner.setValue(starttime);
-
-            // Attempt to get ETA (only possible if GPS data is available)
-            Date etaStart = route.getEta(starttime);
-            if (etaStart != null) {
-                // GPS data available.
-                arrivalPicker.setDate(etaStart);
-                arrivalSpinner.setValue(etaStart);
-            } else {
-                // No GPS data available.
-                // Find the default ETA.
-                Date defaultEta = route.getEtas().get(route.getEtas().size() - 1);
-                arrivalPicker.setDate(defaultEta);
-                arrivalSpinner.setValue(defaultEta);
+        Set<RouteFields> fieldLookup = new HashSet<>();
+        if (fields.length == 0) {
+            Collections.addAll(fieldLookup, RouteFields.values());
+        } else {
+            Collections.addAll(fieldLookup, fields);
+        }
+        
+        try {
+            if (route != null) {
+                routeLengthLbl.setText(Integer.toString(route.getWaypoints().size()));
+                
+                Date starttime = route.getStarttime();
+    
+                if (fieldLookup.contains(RouteFields.DEPARTURE)) {
+                    departurePicker.setDate(starttime);
+                    departureSpinner.setValue(starttime);
+                }
+                
+                if (fieldLookup.contains(RouteFields.ARRIVAL)) {
+                    // Attempt to get ETA (only possible if GPS data is available)
+                    Date etaStart = route.getEta(starttime);
+                    if (etaStart != null) {
+                        // GPS data available.
+                        arrivalPicker.setDate(etaStart);
+                        arrivalSpinner.setValue(etaStart);
+                    } else {
+                        // No GPS data available.
+                        // Find the default ETA.
+                        Date defaultEta = route.getEtas().get(route.getEtas().size() - 1);
+                        arrivalPicker.setDate(defaultEta);
+                        arrivalSpinner.setValue(defaultEta);
+                    }
+                }
+                
+                if (fieldLookup.contains(RouteFields.SPEED)) {
+                    // Compute the average speed
+                    Dist distance = new Dist(DistType.NAUTICAL_MILES, route.getRouteDtg());
+                    Time time = new Time(TimeType.MILLISECONDS, route.getRouteTtg());
+                    if (time.doubleValue() < 0.000001) {
+                        speedTxtField.setText("");
+                    } else {
+                        speedTxtField.setText(Formatter.formatSpeed(distance.inTime(time).in(SpeedType.KNOTS).doubleValue()));
+                    }
+                }
             }
+        } finally {
+            loading = wasLoading;
         }
     }
     
@@ -564,8 +696,15 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
         for (int i = 0; i < route.getWaypoints().size(); i++) {
             route.getWaypoints().get(i).setSpeed(speed);
         }
+        route.calcValues(true);
+        
+        updateRouteFields(route, RouteFields.SPEED);
     }
 
+    /***************************************************/
+    /** Utility functions                             **/
+    /***************************************************/
+    
     /**
      * Combines the date from the first {@code date} parameter with the 
      * time from the {@code time} parameter
@@ -587,11 +726,71 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener {
     }
     
     /**
+     * Parses the text field as a double. Will skip any type suffix.
+     * @param str the string to parse as a double
+     * @return the resulting value
+     */
+    private static double parseDouble(String str) throws FormatException {
+        str = str.replaceAll(",", ".");
+        String[] parts = StringUtils.split(str, " ");
+        return ParseUtils.parseDouble(parts[0]);
+    }
+    
+    /**
      * Test method
      */
     public static void main(String... args) {
         SendRouteDialog dialog = new SendRouteDialog(null);
         dialog.setVisible(true);
+    }
+
+    /***************************************************/
+    /** Helper classes                                **/
+    /***************************************************/
+
+    /**
+     * Sadly, the change listener fires twice when you click
+     * the spinner buttons. This class will only call {@linkplain #spinnerValueChanged()}
+     * when the value has actually changed
+     */
+    class SpinnerChangeListener implements ChangeListener {
+        Object oldValue;
+        
+        @Override
+        public void stateChanged(ChangeEvent e) {
+            Object newValue = ((JSpinner)e.getSource()).getValue();
+            if (newValue != null && !newValue.equals(oldValue)) {
+                spinnerValueChanged((JSpinner)e.getSource());
+            }
+            oldValue = newValue;
+        }
+    }
+    
+    /**
+     * Can be attached to the document of a text field and will call
+     *  {@linkplain #textFieldValueChanged()} when the value changes
+     */
+    class TextFieldChangeListener implements DocumentListener {
+        JTextField field;
+        
+        public TextFieldChangeListener(JTextField field) {
+            this.field = field;
+       }
+        
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            textFieldValueChanged(field);
+        }
+        
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            textFieldValueChanged(field);
+        }
+        
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            textFieldValueChanged(field);
+        }   
     }
 }
 

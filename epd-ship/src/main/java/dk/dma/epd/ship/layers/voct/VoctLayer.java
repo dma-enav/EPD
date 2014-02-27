@@ -164,6 +164,7 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
     @Override
     public void mouseExited(MouseEvent paramMouseEvent) {
+        this.mainFrame.getGlassPane().setVisible(false);
     }
 
     @Override
@@ -381,7 +382,9 @@ public class VoctLayer extends GeneralLayer implements MapMouseListener, VOCTUpd
 
         }
 
-        EPDShip.getInstance().getMainFrame().getGlassPane().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        EPDShip.getInstance().getMainFrame().getGlassPane().setCursor(
+                EPDShip.getInstance().getMainFrame().getChartPanel().getMap().getCursor());
+//        System.out.println(EPDShip.getInstance().getMainFrame().getGlassPane().isVisible());
 //        EPDShip.getInstance().getMainFrame().getGlassPane().setVisible(false);
 
         return false;

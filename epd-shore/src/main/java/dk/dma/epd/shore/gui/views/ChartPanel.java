@@ -383,9 +383,9 @@ public class ChartPanel extends ChartPanelCommon {
         mapHandler.add(mouseDelegator);
 
         mapNavMouseMode = new NavigationMouseMode(this);
-        dragMouseMode = new DragMouseMode();
+        dragMouseMode = new DragMouseMode(this);
         selectMouseMode = new SelectMouseMode(this);
-        routeEditMouseMode = new RouteEditMouseMode();
+        routeEditMouseMode = new RouteEditMouseMode(this);
 
         mouseDelegator.addMouseMode(mapNavMouseMode);
         mouseDelegator.addMouseMode(dragMouseMode);
@@ -399,6 +399,7 @@ public class ChartPanel extends ChartPanelCommon {
         mapHandler.add(dragMouseMode);
         mapHandler.add(mapNavMouseMode);
         mapHandler.add(selectMouseMode);
+        mapHandler.add(routeEditMouseMode);
 
         layerHandler = new LayerHandler();
 

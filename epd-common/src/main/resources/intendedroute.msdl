@@ -1,16 +1,8 @@
 namespace imo.route.broadcast.intendedroute;
 
-message IntendedRoute {
-    1: required int32 activeWpIndex;
-    2: required list<DateTime> plannedEtas;
-    3: required list<Waypoint> waypoints;
-}
-message Waypoint {
-    1: required Position start;
-    2: float rot;
-    3: float turnRadius;
-    4: required DateTime eta;
-    5: Leg outLeg;
+enum HeadingType {
+    RhumbLine = 1;
+    GreatCircle = 2;
 }
 
 message Leg {
@@ -20,13 +12,22 @@ message Leg {
     4: HeadingType headingType;
 }
 
-enum HeadingType {
-    RhumbLine = 1;
-    GreatCircle = 2;
+message Waypoint {
+    1: required Position start;
+    2: required DateTime eta;
+    3: float rot;
+    4: float turnRadius;
+    5: Leg outLeg;
+}
+
+message IntendedRoute {
+    1: required int32 activeWaypointIndex;
+    2: required list<DateTime> plannedEtas;
+    3: required list<Waypoint> waypoints;
 }
 
 service IntendedRouteService {
-   1: brodcast IntendedRouteBroadcast {
+   1: broadcast IntendedRouteBroadcast {
       1: IntendedRoute indendedRoute;
    };
 } 

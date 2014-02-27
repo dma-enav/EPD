@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.event;
+package dk.dma.epd.common.prototype.event.mouse;
 
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -26,98 +26,85 @@ import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.AbstractMouseMode;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
-/**
- * Abstract mouse mode base class 
- */
-public abstract class AbstractCoordMouseMode extends AbstractMouseMode implements PropertyChangeListener {
-        
-    private static final long serialVersionUID = 1L;
-    
-    protected Set<IMapCoordListener> coordListeners = new HashSet<>();
-
-    public AbstractCoordMouseMode() {
-        this("", true);
-    }
+public class AbstractCoordMouseMode extends AbstractMouseMode implements PropertyChangeListener {
 
     /**
-     * @param modeID the id for the mouse mode.
-     * @param shouldConsumeEvents the mode setting, where the mousemode should
+     * Private fields.
+     */
+    private static final long serialVersionUID = 1L;
+    private Set<IMapCoordListener> coordListeners;
+    
+    /**
+     * Constructs a new AbstractCoordMouseMode.
+     * @param mouseId
+     *          The ID for the mouse mode.
+     * @param shouldComsumeEvents
+     *        the mode setting, where the mousemode should
      *        pass the events on to other listeners or not, depending if one of
      *        the listeners used it or not.
      */
-    public AbstractCoordMouseMode(String modeID, boolean shouldConsumeEvents) {
-        super(modeID, shouldConsumeEvents);
+    public AbstractCoordMouseMode(String mouseId, boolean shouldComsumeEvents) {
+        super(mouseId, shouldComsumeEvents);
+        this.coordListeners = new HashSet<IMapCoordListener>();
     }
-
+    
     /**
-     * Fires a mouse location to the InformationDelegator, and then calls the
-     * super class method which calls the MouseSupport method.
-     * 
-     * @param e MouseEvent to be handled
+     * Sends the mouse event point(x, y) to the IMapListeners, if the Set contains
+     * any.
+     * @param e
+     *          The mouse event fired.
      */
-    @Override
-    public void mouseMoved(MouseEvent e) {
-        fireMouseLocation(e);
-        super.mouseMoved(e);
-    }
-
-    /**
-     * Fires a mouse location to the InformationDelegator, and then calls the
-     * super class method which calls the MouseSupport method.
-     * 
-     * @param e mouse event.
-     */
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        fireMouseLocation(e);
-        /* disabled because it interferes with route editing and zooming */
-        //super.mouseDragged(e);
-    }
-
-    /**
-     * If the MouseMode has been made inactive, clean out any input that might
-     * have been made to the info line.
-     */
-    @Override
-    public void setActive(boolean active) {
-        
-    }
-
-    /**
-     * Sends the mouse event location, x/y and lat/lon, to the
-     * InformationDelegator.
-     */
-    public void fireMouseLocation(MouseEvent e) {
+    private void fireMouseLocation(MouseEvent e) {
         int x = e.getX();
         int y = e.getY();
         LatLonPoint llp = null;
-
-        if (coordListeners.size() > 0) {
+        
+        // If the Set contains any elements, notify them of the mouse event position.
+        if (this.coordListeners.size() > 0) {
+            llp = ((MapBean) e.getSource()).getProjection().inverse(x, y);
             if (e.getSource() instanceof MapBean) {
-                llp = ((MapBean) e.getSource()).getProjection().inverse(x, y);
-                for (IMapCoordListener listener : coordListeners) {
+                for (IMapCoordListener listener : this.coordListeners) {
                     listener.receiveCoord(llp);
                 }
             }
         }
     }
-
+    
     /**
-     * Called when a CoordMouseMode is added to a BeanContext, or when another
-     * object is added to the BeanContext after that. The CoordMouseMode looks
-     * for an InformationDelegator to use to fire the coordinate updates. If
-     * another InforationDelegator is added when one is already set, the later
-     * one will replace the current one.
-     * 
-     * @param someObj an object being added to the BeanContext.
+     * Fires a mouse location and calls the super class method which class the
+     * MouseSuport method.
      */
     @Override
-    public void findAndInit(Object someObj) {
-        if (someObj instanceof IMapCoordListener) {
-            this.coordListeners.add((IMapCoordListener)someObj);
+    public void mouseMoved(MouseEvent e) {
+        this.fireMouseLocation(e);
+        super.mouseMoved(e);
+    }
+    
+    /**
+     * Fires a mouse location to the IMapListeners, but does not call the super class
+     * method for mouseDragged(), since it prevents route editing and zooming.
+     */
+    @Override
+    public void mouseDragged(MouseEvent e) {
+       this.fireMouseLocation(e); 
+    }
+    
+    /**
+    * Called when a CoordMouseMode is added to a BeanContext, or when another
+    * object is added to the BeanContext after that. The CoordMouseMode looks
+    * for an InformationDelegator to use to fire the coordinate updates. If
+    * another InforationDelegator is added when one is already set, the later
+    * one will replace the current one.
+    * 
+    * @param someObj an object being added to the BeanContext.
+    */
+    @Override
+    public void findAndInit(Object obj) {
+        if (obj instanceof IMapCoordListener) {
+            this.coordListeners.add((IMapCoordListener) obj);
         }
     }
-
+    
     /**
      * BeanContextMembershipListener method. Called when objects have been
      * removed from the parent BeanContext. If an InformationDelegator is
@@ -133,26 +120,37 @@ public abstract class AbstractCoordMouseMode extends AbstractMouseMode implement
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setProperties(String prefix, Properties props) {
         super.setProperties(prefix, props);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Properties getProperties(Properties props) {
         props = super.getProperties(props);
         return props;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Properties getPropertyInfo(Properties props) {
         props = super.getPropertyInfo(props);
         return props;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         
     }
-    
 }

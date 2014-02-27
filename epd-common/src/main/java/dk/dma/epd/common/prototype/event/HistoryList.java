@@ -76,7 +76,6 @@ public class HistoryList {
                 pointerInHistory++;
             }
             
-            System.out.println("DEBUG:\t"+this.toString());
             return true;
         }
         
