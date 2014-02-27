@@ -424,5 +424,9 @@ public class IntendedRoute extends Route {
         }        
         return wps;        
     }
+
+    public List<Date> getPlannedEtas() {
+        return plannedEtas;
+    }
     
 }
