@@ -15,358 +15,59 @@
  */
 package dk.dma.epd.ship.event;
 
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.RasterFormatException;
-import java.util.Properties;
 
-import javax.swing.ImageIcon;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.bbn.openmap.MapBean;
-import com.bbn.openmap.event.PanMouseMode;
-import com.bbn.openmap.image.ImageScaler;
-import com.bbn.openmap.proj.Projection;
-import com.bbn.openmap.util.PropUtils;
-
+import dk.dma.epd.common.prototype.event.mouse.CommonDragMouseMode;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.gui.ChartPanel;
 
 /**
  * Mouse mode for route edit
  */
-public class DragMouseMode extends AbstractCoordMouseMode {
+public class DragMouseMode extends CommonDragMouseMode {
 
     private static final long serialVersionUID = 1L;
 
-    @SuppressWarnings("unused")
-    private final Logger LOG = LoggerFactory.getLogger(DragMouseMode.class);
-
     /**
-     * Mouse Mode identifier, which is "RouteEdit".
+     * Mouse Mode identifier, which is "DragMouse".
      */
     public static final transient String MODE_ID = "DragMouse";
-    public static final String OPAQUENESS_PROPERTY = "opaqueness";
-    public static final String LEAVE_SHADOS_PROPERTY = "leaveShadow";
-    public static final String USE_CURSOR_PROPERTY = "useCursor";
-    public static final float DEFAULT_OPAQUENESS = 0.5f;
-
-    private boolean isPanning;
-    private volatile BufferedImage bufferedMapImage;
-    private int beanBufferWidth;
-    private int beanBufferHeight;
-    private int oX, oY;
-    private float opaqueness;
-    private volatile boolean leaveShadow;
-    private volatile boolean useCursor;
-    volatile boolean layerMouseDrag;
-    volatile boolean mouseDragged;
-
-    private BufferedImage onScreenMap;
 
     /**
-     * Construct a RouteEditMouseMode. Sets the ID of the mode to the modeID,
-     * the consume mode to true, and the cursor to the crosshair.
+     * Constructs a new DragMouseMode object for ship. The constructor
+     * takes one parameter, which declares which ChartPanel is creating
+     * this object. The constructor calls the super constructor with
+     * the id of this mouse mode and the chart panel.
+     * @param chartPanel
+     *          The ChartPanel which this DragMouseMode should
+     *          drag upon.
      */
-    public DragMouseMode() {
-        this(true);
+    public DragMouseMode(ChartPanel chartPanel) {
+        super(chartPanel, MODE_ID);
     }
 
     /**
-     * Construct a NavMouseMode. Lets you set the consume mode. If the events
-     * are consumed, then a MouseEvent is sent only to the first
-     * MapMouseListener that successfully processes the event. If they are not
-     * consumed, then all of the listeners get a chance to act on the event.
-     * 
-     * @param shouldConsumeEvents
-     *            the mode setting.
-     */
-    public DragMouseMode(boolean shouldConsumeEvents) {
-        // super(modeID, shouldConsumeEvents);
-        super(MODE_ID, true);
-        setUseCursor(true);
-        setLeaveShadow(true);
-        setOpaqueness(DEFAULT_OPAQUENESS);
-        // override the default cursor
-        setModeCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-    }
-
-    @Override
-    public void setActive(boolean val) {
-        if (!val) {
-            if (bufferedMapImage != null) {
-                bufferedMapImage.flush();
-            }
-            beanBufferWidth = 0;
-            beanBufferHeight = 0;
-
-        }
-    }
-
-    /**
-     * @return Returns the useCursor.
-     */
-    public boolean isUseCursor() {
-        return useCursor;
-    }
-
-    /**
-     * @param useCursor
-     *            The useCursor to set.
-     */
-    public void setUseCursor(boolean useCursor) {
-        this.useCursor = useCursor;
-        if (useCursor) {
-            /*
-             * For who like make his CustomCursor
-             */
-            try {
-                Toolkit tk = Toolkit.getDefaultToolkit();
-                ImageIcon pointer = new ImageIcon(getClass().getResource(
-                        "pan.gif"));
-                Dimension bestSize = tk.getBestCursorSize(
-                        pointer.getIconWidth(), pointer.getIconHeight());
-                Image pointerImage = ImageScaler.getOptimalScalingImage(
-                        pointer.getImage(), (int) bestSize.getWidth(),
-                        (int) bestSize.getHeight());
-                Cursor cursor = tk.createCustomCursor(pointerImage, new Point(
-                        0, 0), "PP");
-                setModeCursor(cursor);
-                return;
-            } catch (Exception e) {
-                // Problem finding image probably, just move on.
-            }
-        }
-
-        setModeCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-    }
-
-    @Override
-    public void setProperties(String prefix, Properties props) {
-        super.setProperties(prefix, props);
-        prefix = PropUtils.getScopedPropertyPrefix(prefix);
-
-        opaqueness = PropUtils.floatFromProperties(props, prefix
-                + OPAQUENESS_PROPERTY, opaqueness);
-        leaveShadow = PropUtils.booleanFromProperties(props, prefix
-                + LEAVE_SHADOS_PROPERTY, leaveShadow);
-
-        setUseCursor(PropUtils.booleanFromProperties(props, prefix
-                + USE_CURSOR_PROPERTY, isUseCursor()));
-
-    }
-
-    @Override
-    public Properties getProperties(Properties props) {
-        props = super.getProperties(props);
-        String prefix = PropUtils.getScopedPropertyPrefix(this);
-        props.put(prefix + OPAQUENESS_PROPERTY, Float.toString(getOpaqueness()));
-        props.put(prefix + LEAVE_SHADOS_PROPERTY,
-                Boolean.toString(isLeaveShadow()));
-        props.put(prefix + USE_CURSOR_PROPERTY, Boolean.toString(isUseCursor()));
-        return props;
-    }
-
-    @Override
-    public Properties getPropertyInfo(Properties props) {
-        props = super.getPropertyInfo(props);
-
-        PropUtils
-                .setI18NPropertyInfo(
-                        i18n,
-                        props,
-                        PanMouseMode.class,
-                        OPAQUENESS_PROPERTY,
-                        "Transparency",
-                        "Transparency level for moving map, between 0 (clear) and 1 (opaque).",
-                        null);
-        PropUtils.setI18NPropertyInfo(i18n, props, PanMouseMode.class,
-                LEAVE_SHADOS_PROPERTY, "Leave Shadow",
-                "Display current map in background while panning.",
-                "com.bbn.openmap.util.propertyEditor.YesNoPropertyEditor");
-
-        PropUtils.setI18NPropertyInfo(i18n, props, PanMouseMode.class,
-                USE_CURSOR_PROPERTY, "Use Cursor",
-                "Use hand cursor for mouse mode.",
-                "com.bbn.openmap.util.propertyEditor.YesNoPropertyEditor");
-
-        return props;
-    }
-
-    /**
-     * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
-     *      The first click for drag, the image is generated. This image is
-     *      redrawing when the mouse is move, but, I need to repain the original
-     *      image.
+     * This method is called when the mouse is released. It will get
+     * the coordinates for the current view (which is dragged to) and
+     * set center of the map to that location.
      */
     @Override
-    public void mouseDragged(MouseEvent arg0) {
-        if (arg0.getSource() instanceof MapBean) {
-//            System.out.println(arg0);
-//            super.mouseDragged(arg0);
-
-             if(!mouseDragged) {
-                 layerMouseDrag = mouseSupport.fireMapMouseDragged(arg0);
-             }
-            
-//            System.out.println(layerMouseDrag);
-             
-             
-            if (!layerMouseDrag) {
-                
-                mouseDragged = true;
-
-                MapBean mb = (MapBean) arg0.getSource();
-                Point2D pnt = mb.getNonRotatedLocation(arg0);
-                int x = (int) pnt.getX();
-                int y = (int) pnt.getY();
-
-                if (!isPanning) {
- 
-                    isPanning = true;
-                    
-                    
-                    EPDShip.getInstance().getMainFrame().getChartPanel().getDragMapRenderer().updateFinalBuffer();
-
-                    onScreenMap = new BufferedImage(mb.getWidth(), mb.getHeight(),BufferedImage.TYPE_INT_RGB);
-                    mb.paint(onScreenMap.getGraphics());
-                    oX = x;
-                    oY = y;
-                    
-                    EPDShip.getInstance().getMainFrame().getChartPanel().getMap().setVisible(false);
-
-                } else {
-
-                    final int startX = mb.getWidth();
-                    final int startY = mb.getHeight();
-
-                    final int posX = startX - (x - oX);
-                    final int posY = startY - (y - oY);
-
-                    try {
-                        //LOG.debug("Time to get offScreenMap: ")
-                        final BufferedImage offScreenMap = EPDShip.getInstance().getMainFrame()
-                                .getChartPanel().getDragMapRenderer().getFinalBuffer().getSubimage(posX,
-                                posY, mb.getWidth(), mb.getHeight());
-                        
-                        final BufferedImage renderImage = offScreenMap;
-                        //renderImage.getGraphics().drawImage(offScreenMap,0,0,null);                        
-                        renderImage.getGraphics().drawImage(onScreenMap,x-oX,y-oY,null);
-
-
-                        EPDShip.getInstance().getMainFrame().getChartPanel().getGraphics().drawImage(
-                                renderImage, 0, 0, null);
-                    } catch (RasterFormatException e) {
-                        //was out of bounds, sorry
-                    }
-                }
-            }
-        }
+    public void mouseReleased(MouseEvent e) {
+        
+        EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().setShouldSave(true);
+        EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().saveToHistoryBeforeMoving();
+        super.mouseReleased(e);
+        this.chartPanel.getMap().setCursor(super.DRAG_CURSOR);
     }
-
+    
     /**
-     * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-     *      Make Pan event for the map.
+     * This pressed changes the cursor to drag down cursor, when the
+     * user is hovering the map and pressing the left mouse button.
      */
     @Override
-    public void mouseReleased(MouseEvent arg0) {
-        if (isPanning && arg0.getSource() instanceof MapBean) {
-
-            MapBean mb = (MapBean) arg0.getSource();
-            Projection proj = mb.getProjection();
-            Point2D center = proj.forward(proj.getCenter());
-
-            Point2D pnt = mb.getNonRotatedLocation(arg0);
-            int x = (int) pnt.getX();
-            int y = (int) pnt.getY();
-
-            
-            center.setLocation(center.getX() - x + oX, center.getY() - y + oY);
-            
-            // Save new position to the history
-            // --------------------------------
-            
-            EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().setShouldSave(true);
-            EPDShip.getInstance().getMainFrame().getChartPanel().getHistoryListener().saveToHistoryBeforeMoving();
-            
-            //this will trigger "projection changed" in SimpleOffScreenMapRenderer
-            //which listens to mb
-            mb.setCenter(proj.inverse(center));
-
-            isPanning = false;
-            EPDShip.getInstance().getMainFrame().getChartPanel().getMap().setVisible(true);
-            mouseDragged = false;            
+    public void mousePressed(MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON1) {            
+            this.chartPanel.getMap().setCursor(super.DRAG_DOWN_CURSOR);
         }
-        super.mouseReleased(arg0);
-    }
-
-    public boolean isLeaveShadow() {
-        return leaveShadow;
-    }
-
-    public void setLeaveShadow(boolean leaveShadow) {
-        this.leaveShadow = leaveShadow;
-    }
-
-    public float getOpaqueness() {
-        return opaqueness;
-    }
-
-    public void setOpaqueness(float opaqueness) {
-        this.opaqueness = opaqueness;
-    }
-
-    public boolean isPanning() {
-        return isPanning;
-    }
-
-    public int getOX() {
-        return oX;
-    }
-
-    public int getOY() {
-        return oY;
-    }
-
-    /**
-     * Instantiates new image buffers if needed.<br>
-     * This method is synchronized to avoid creating the images multiple times
-     * if width and height doesn't change.
-     * 
-     * @param w
-     *            mapBean's width.
-     * @param h
-     *            mapBean's height.
-     */
-    public synchronized void createBuffers(int w, int h) {
-        if (w > 0 && h > 0 && (w != beanBufferWidth || h != beanBufferHeight)) {
-            beanBufferWidth = w;
-            beanBufferHeight = h;
-            createBuffersImpl(w, h);
-        }
-    }
-
-    /**
-     * Instantiates new image buffers.
-     * 
-     * @param w
-     *            Non-zero mapBean's width.
-     * @param h
-     *            Non-zero mapBean's height.
-     */
-    protected void createBuffersImpl(int w, int h) {
-        // Release system resources used by previous images...
-        if (bufferedMapImage != null) {
-            bufferedMapImage.flush();
-        }
-        // New images...
-        bufferedMapImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
     }
 }

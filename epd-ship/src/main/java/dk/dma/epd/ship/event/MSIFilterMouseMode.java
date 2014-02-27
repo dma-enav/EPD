@@ -16,6 +16,7 @@
 package dk.dma.epd.ship.event;
 
 import java.awt.Cursor;
+import dk.dma.epd.common.prototype.event.mouse.AbstractCoordMouseMode;
 
 /**
  * Mouse mode for MSI filter 
@@ -37,5 +38,4 @@ public class MSIFilterMouseMode extends AbstractCoordMouseMode {
         // override the default cursor
         setModeCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
     }
-
 }

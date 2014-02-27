@@ -24,12 +24,12 @@ import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.gui.OMComponentPanel;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
+import dk.dma.epd.common.prototype.event.mouse.IMapCoordListener;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
-import dk.dma.epd.ship.event.IMapCoordListener;
 import dk.dma.epd.ship.gui.panels.ActiveWaypointPanel;
 import dk.dma.epd.ship.route.RouteManager;
 
@@ -41,11 +41,8 @@ public class ActiveWaypointComponentPanel extends OMComponentPanel implements IP
     
     public ActiveWaypointComponentPanel(){
         super();
-        
-//        this.setMinimumSize(new Dimension(10, 165));
-        
+                
         activeWaypointPanel = new ActiveWaypointPanel();
-//        activeWaypointPanel.setVisible(false);
         activeWaypointPanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
         setBorder(null);
         
@@ -60,28 +57,19 @@ public class ActiveWaypointComponentPanel extends OMComponentPanel implements IP
     @Override
     public void routesChanged(RoutesUpdateEvent e) {
         activeWaypointPanel.updateActiveNavData();
-//        if(routeManager.isRouteActive()){
-//            activeWaypointPanel.setVisible(true);
-//            activeWaypointPanel.updateActiveNavData();
-//        } else if (activeWaypointPanel.isVisible()) {
-//            activeWaypointPanel.setVisible(false);
-//        }
     }
     @Override
     public void receiveCoord(LatLonPoint llp) {
-        // TODO Auto-generated method stub
         
     }
 
     @Override
     public void projectionChanged(ProjectionEvent e) {
-        // TODO Auto-generated method stub
         
     }
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
         
     }
 

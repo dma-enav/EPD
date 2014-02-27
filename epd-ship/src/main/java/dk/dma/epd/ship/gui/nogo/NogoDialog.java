@@ -42,7 +42,6 @@ import javax.swing.event.ChangeListener;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.event.NoGoMouseMode;
 import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.MainFrame;
@@ -291,8 +290,10 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
             }
 
             // Set the mouse mode back to navigation.
-            this.chartPanel.setMouseMode(NavigationMouseMode.MODE_ID);
-
+            this.chartPanel.setMouseMode(
+                    this.chartPanel.getNoGoMouseMode().getPreviousMouseModeID());
+            
+//            this.chartPanel.getMouseDelegator().getActiveMouseMode().s
         }
         if (e.getSource() == cancelButton) {
             // Cancel the request
@@ -303,6 +304,11 @@ public class NogoDialog extends JDialog implements ActionListener, Runnable {
             this.setVisible(false);
             
             chartPanel.setNogoDialog(this);
+            
+            // Set the previous active mouse mode.
+            this.chartPanel.getNoGoMouseMode().setPreviousMouseModeID(
+                    this.chartPanel.getMouseDelegator().getActiveMouseModeID());
+            
             chartPanel.setMouseMode(NoGoMouseMode.MODE_ID);
         }
     }

@@ -15,21 +15,17 @@
  */
 package dk.dma.epd.ship.event;
 
-import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
-
-import javax.swing.SwingUtilities;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.proj.Projection;
 
+import dk.dma.epd.common.prototype.event.mouse.CommonNavigationMouseMode;
 import dk.dma.epd.ship.gui.ChartPanel;
 
-public class NoGoMouseMode extends AbstractCoordMouseMode {
+public class NoGoMouseMode extends CommonNavigationMouseMode {
 
     private static final long serialVersionUID = 1L;
 
@@ -37,200 +33,100 @@ public class NoGoMouseMode extends AbstractCoordMouseMode {
      * Mouse Mode identifier, which is "NoGo".
      */
     public static final transient String MODE_ID = "NoGo";
-    
-    /**
-     * Private fields
-     */
-    // Points between pressed and released.
-    private Point pressedPoint;
-    private Point draggedPoint;
-    private boolean mouseDragged;
-    private boolean layerMouseDrag;
 
     private ChartPanel chartPanel;
+    private String previousMouseModeID;
 
     /**
      * Constructs a NoGoMouseListener: sets the ID of the mode, the consume mode to
      * true, and the cursor to the crosshair.
      */
     public NoGoMouseMode(ChartPanel chartPanel) {
-        
-        this(true);
+        super(chartPanel, 0, MODE_ID);
         this.chartPanel = chartPanel;
-        
-        // Reset points.
-        this.pressedPoint = null;
-        this.draggedPoint = null;
-        
-        // Set the cursor icon.
-        this.setModeCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));  
-    }
-    
-    /**
-     * Constructs a NoGoMouseListener: Lets you set the consume mode. If the events
-     * are consumed, then a MouseEvent is sent only to the first
-     * MapMouseListener that successfully processes the event. If they are not
-     * consumed, then all of the listeners get a chance to act on the event.
-     * 
-     * @param shouldConsumeEvents
-     *            the mode setting.
-     */
-    public NoGoMouseMode(boolean shouldConsumeEvents) {
-        super(MODE_ID, shouldConsumeEvents);
+        this.setModeCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
     }
 
     /**
-     * {@inheritDoc}
+     * If the the mouse is pressed down, the first point will be saved,
+     * the second point will be reset, and the doZoom boolean will be
+     * set to true, so that if the mouse is releasted, after being 
+     * dragged, a zoom to that selected area will be executed.
      */
     @Override
     public void mousePressed(MouseEvent e) {
-        
-        if (!mouseSupport.fireMapMousePressed(e) && 
-                e.getSource() instanceof MapBean) {
-            
-            // Set the first point.
-            this.pressedPoint = e.getPoint();
-            // Ensure that the second point has not been set.
-            this.draggedPoint = null;            
-        }
+        super.mousePressed(e);
     }
     
     /**
-     * {@inheritDoc}
+     * If the mouse is dragged, a test will be done if it is a layer related
+     * element. If it isn't, a rectangle will be drawn from the first point,
+     * to the point of the mouse. If control is down when mouse is dragged
+     * the rectangle will follow the mouse. Else the mouse will draw a rectangle
+     * fitted in ratio to the map frame.
      */
     @Override
-    public void mouseDragged(MouseEvent e) {
-        
-        if (e.getSource() instanceof MapBean) {
-            
-            if (!this.mouseDragged) {
-                this.layerMouseDrag = mouseSupport.fireMapMouseDragged(e);
-            }
-            
-            if (!this.layerMouseDrag && SwingUtilities.isLeftMouseButton(e)) {
-                
-                this.mouseDragged = true;
-                
-                // Clean up the old rectangle.
-                paintRectangle((MapBean) e.getSource(), pressedPoint, draggedPoint);
-                
-                // Set the next point.
-                this.draggedPoint = e.getPoint();
-                
-                // paint the new rectangle.
-                paintRectangle((MapBean) e.getSource(), pressedPoint, draggedPoint);
-            }
-        }
+    public void mouseDragged(MouseEvent e) { 
+        super.mouseDragged(e);
     }
 
     /**
-     * {@inheritDoc}
+     * This method handles a mouse released event. It will store the
+     * second point and create a final rectangle from the first point 
+     * to the second. If the rectangle is too small, it will not draw
+     * the ractangle, but let the user select a new.
      */
     @Override
     public void mouseReleased(MouseEvent e) {
         
-        this.mouseDragged   = false;
-        this.layerMouseDrag = false;
-        
+        // Get the map from the source.
         MapBean map = (MapBean) e.getSource();
         Projection projection = map.getProjection();
         
+        // Get the second point and the length of the width and height.
+        super.point2 = e.getPoint();
+        int rectangleWidth = Math.abs(super.point2.x - super.point1.x);
+        int rectangleHeight = Math.abs(super.point2.y - super.point1.y);
+        
         synchronized (this) {
             
-            this.draggedPoint = e.getPoint();
-            
-            int rectangleWidth = Math.abs(this.draggedPoint.x - this.pressedPoint.x);
-            int rectangleHeight = Math.abs(this.draggedPoint.y - this.pressedPoint.y);
-            
-            // Don't bother redrawing if the rectangle is too small
+            // Reset points if the rectangle is too small.
             if (rectangleWidth < 10 || rectangleHeight < 10) {
                 
-                paintRectangle(map, this.pressedPoint, this.draggedPoint);
+                super.paintRectangle(map.getGraphics(), super.point1, super.point2);
+                super.point1 = null;
+                super.point2 = null;
                 
-                this.pressedPoint = null;
-                this.draggedPoint = null;
+            // Draw the rectangle if it is large enough.
+            } else {
                 
-                return;
+                Point2D[] points = new Point2D[2];
+                points[0] = projection.inverse(super.point1);
+                points[1] = projection.inverse(super.point2);
+                
+                this.chartPanel.getNogoDialog().setSelectedArea(points);
+                this.chartPanel.getNogoDialog().setVisible(true);
+                
+                super.paintRectangle(map.getGraphics(), super.point1, super.point2);
+                super.point2 = null;
             }
-            
-            Point2D[] points = new Point2D[2];
-            
-            points[0] = projection.inverse(this.pressedPoint);
-            points[1] = projection.inverse(this.draggedPoint);
-            
-            this.chartPanel.getNogoDialog().setSelectedArea(points);
-            this.chartPanel.getNogoDialog().setVisible(true);
-            
-            paintRectangle(map, this.pressedPoint, this.draggedPoint);
-            this.draggedPoint = null;
-        }
-    }
-    
-    @Override
-    public void listenerPaint(Graphics g) {
-        paintRectangle(g, pressedPoint, draggedPoint);
-    }
-   
-    /**
-     * Draws or erases boxes between two screen pixel points. The graphics from
-     * the map is set to XOR mode, and this method uses two colors to make the
-     * box disappear if on has been drawn at these coordinates, and the box to
-     * appear if it hasn't.
-     * 
-     * @param pt1
-     *            one corner of the box to drawn, in window pixel coordinates.
-     * @param pt2
-     *            the opposite corner of the box.
-     */
-    private void paintRectangle(MapBean map, Point pressedPoint, Point draggedPoint) {
-                
-        if (map != null) {
-            paintRectangle(map.getGraphics(), pressedPoint, draggedPoint);
         }
     }
 
     /**
-     * Draws or erases boxes between two screen pixel points. The graphics from
-     * the map is set to XOR mode, and this method uses two colors to make the
-     * box disappear if on has been drawn at these coordinates, and the box to
-     * appear if it hasn't.
-     * 
-     * @param pt1
-     *            one corner of the box to drawn, in window pixel coordinates.
-     * @param pt2
-     *            the opposite corner of the box.
+     * Returns the previous used mouse mode which was active.
+     * @return The previous used mouse mode.
      */
-    private void paintRectangle(Graphics g, Point pressedPoint, Point draggedPoint) {
-        
-        g.setXORMode(Color.LIGHT_GRAY);
-        g.setColor(Color.DARK_GRAY);
-        
-        if (pressedPoint != null && draggedPoint != null) {
-                        
-            int rectangleWidth = Math.abs(draggedPoint.x - pressedPoint.x);
-            int rectangleHeight = Math.abs(draggedPoint.y - pressedPoint.y);
-            
-            if (rectangleWidth == 0) {
-                rectangleWidth++;
-            }
-            
-            if (rectangleHeight == 0) {
-                rectangleHeight++;
-            }
-            
-            g.drawRect( pressedPoint.x < draggedPoint.x ? pressedPoint.x : draggedPoint.x, 
-                        pressedPoint.y < draggedPoint.y ? pressedPoint.y : draggedPoint.y, 
-                        rectangleWidth,
-                        rectangleHeight);
-            
-            g.drawRect( pressedPoint.x < draggedPoint.x 
-                            ? pressedPoint.x + (draggedPoint.x - pressedPoint.x) / 2 - 1
-                            : draggedPoint.x + (pressedPoint.x - draggedPoint.x) / 2 - 1, 
-                        pressedPoint.y < draggedPoint.y
-                            ? pressedPoint.y + (draggedPoint.y - pressedPoint.y) / 2 - 1
-                            : draggedPoint.y + (pressedPoint.y - draggedPoint.y) / 2 - 1, 
-                        2, 
-                        2);
-        }
+    public String getPreviousMouseModeID() {
+        return previousMouseModeID;
+    }
+
+    /**
+     * Sets the previous used mouse mode which was active.
+     * @param previousMouseModeID 
+     *          The previous used mouse mode which was active.
+     */
+    public void setPreviousMouseModeID(String previousMouseModeID) {
+        this.previousMouseModeID = previousMouseModeID;
     }
 }
