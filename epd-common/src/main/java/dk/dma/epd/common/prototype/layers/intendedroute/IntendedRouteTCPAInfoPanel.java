@@ -40,12 +40,11 @@ public class IntendedRouteTCPAInfoPanel extends InfoPanel {
         str.append("<html>");
         str.append("<b>Intended route TCPA Warning</b><br/>");
         str.append(filterMessage.getMessage() + "<br/>");
-        str.append("Between " + Formatter.formatYodaTime(filterMessage.getTime2()) + "<br/>");
-        str.append("And " + Formatter.formatYodaTime(filterMessage.getTime1()) + "<br/>");
-        str.append("Distance between points "
+        str.append("At " + Formatter.formatYodaTime(filterMessage.getTime1()) + "<br/>");
+        str.append("The routes come within "
                 + Formatter.formatDistNM(
                         Converter.metersToNm(filterMessage.getPosition1().distanceTo(filterMessage.getPosition2(),
-                                CoordinateSystem.CARTESIAN)), 2) + " nautical miles<br/>");
+                                CoordinateSystem.CARTESIAN)), 2) + " nautical miles of each other<br/>");
         str.append("</table>");
         str.append("</html>");
 

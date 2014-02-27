@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.event;
+package dk.dma.epd.common.prototype.event.mouse;
 
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
@@ -27,5 +27,5 @@ public interface IMapCoordListener {
      * @param llp
      */
     void receiveCoord(LatLonPoint llp);
-
+    
 }

@@ -36,7 +36,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon {
     }
 
     /****************************************/
-    /** Intended route filtering           **/
+    /** Intended route filtering **/
     /****************************************/
 
     /**
@@ -47,7 +47,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon {
 
         // Recalculate everything
         // Compare all routes to current active route
-        
+
         ConcurrentHashMap<Long, FilteredIntendedRoute> filteredIntendedRoutes = new ConcurrentHashMap<>();
 
         // Compare all intended routes against all other intended routes
@@ -65,7 +65,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon {
                 IntendedRoute route2 = intendedRoute2.getValue();
 
                 if (route1.getMmsi() != route2.getMmsi()) {
-                    FilteredIntendedRoute filter = compareRoutes(route1, route2);
+                    FilteredIntendedRoute filter = findTCPA(route1, route2);
 
                     // No warnings, ignore it
                     if (filter.include()) {
@@ -80,10 +80,10 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon {
 
             }
         }
-        
+
         // Check if we need to raise any alerts
         checkGenerateNotifications(this.filteredIntendedRoutes, filteredIntendedRoutes);
-        
+
         // Override the old set of filtered intended route
         this.filteredIntendedRoutes = filteredIntendedRoutes;
     }

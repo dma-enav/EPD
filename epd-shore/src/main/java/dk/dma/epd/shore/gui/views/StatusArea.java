@@ -39,8 +39,8 @@ import javax.swing.border.EtchedBorder;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.ais.message.AisMessage;
+import dk.dma.epd.common.prototype.event.mouse.IMapCoordListener;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.shore.event.IMapCoordListener;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 
 /**
@@ -253,23 +253,19 @@ public class StatusArea extends JInternalFrame implements IMapCoordListener, Bea
 
     @Override
     public void addVetoableChangeListener(String arg0, VetoableChangeListener arg1) {
-        // TODO Auto-generated method stub
     }
 
     @Override
     public BeanContext getBeanContext() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public void removeVetoableChangeListener(String arg0, VetoableChangeListener arg1) {
-        // TODO Auto-generated method stub
     }
 
     @Override
     public void setBeanContext(BeanContext arg0) throws PropertyVetoException {
-        // TODO Auto-generated method stub
     }
 
     public void setHighlightedVesselMMSI(long MMSI){
