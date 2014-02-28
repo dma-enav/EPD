@@ -22,7 +22,6 @@ import dk.dma.epd.common.prototype.gui.SetupDialogCommon;
 import dk.dma.epd.common.prototype.gui.settings.CommonCloudSettingsPanel;
 import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.ship.gui.setuptabs.ShipAisSettingsPanel;
-import dk.dma.epd.ship.gui.setuptabs.ShipMapSettingsPanel;
 import dk.dma.epd.ship.gui.setuptabs.ShipNavigationSettingsPanel;
 import dk.dma.epd.ship.gui.setuptabs.ShipSensorSettingsPanel;
 import dk.dma.epd.ship.gui.setuptabs.ShipServicesSettingsPanel;
@@ -40,7 +39,6 @@ public class SetupDialogShip extends SetupDialogCommon {
      */
     private static final long serialVersionUID = 1L;
     private CommonCloudSettingsPanel cloudSettings;
-    private ShipMapSettingsPanel mapSettings;
     private ShipAisSettingsPanel aisSettings;
     private ShipNavigationSettingsPanel navigationSettings;
     private ShipSensorSettingsPanel sensorSettings;
@@ -57,7 +55,6 @@ public class SetupDialogShip extends SetupDialogCommon {
 
         // Constructs some panels for the setup dialog.
         this.cloudSettings      = new CommonCloudSettingsPanel();
-        this.mapSettings        = new ShipMapSettingsPanel();
         this.aisSettings        = new ShipAisSettingsPanel();
         this.navigationSettings = new ShipNavigationSettingsPanel();
         this.sensorSettings     = new ShipSensorSettingsPanel();
@@ -68,12 +65,12 @@ public class SetupDialogShip extends SetupDialogCommon {
                 navigationSettings,
                 cloudSettings,
                 serviceSettings,
-                mapSettings,
                 aisSettings, 
                 sensorSettings 
                 );
         
         super.resizePanelsToFitContainer(this);
+        super.addTabs();
     }
     
     /**

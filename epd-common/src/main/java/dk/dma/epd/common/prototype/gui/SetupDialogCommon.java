@@ -30,6 +30,7 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.event.SetupDialogHandler;
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.CommonENavSettingsPanel;
+import dk.dma.epd.common.prototype.gui.settings.CommonMapSettingsPanel;
 import dk.dma.epd.common.prototype.settings.Settings;
 
 import java.awt.BorderLayout;
@@ -59,6 +60,7 @@ public class SetupDialogCommon extends JDialog {
 
     // Common settings panels
     private CommonENavSettingsPanel enavSettings;
+    private CommonMapSettingsPanel mapSettings;
     private Settings settings;
     private String tabPrefix;
     private int fontSize;
@@ -110,12 +112,15 @@ public class SetupDialogCommon extends JDialog {
 
         // Create the panels.
         this.settingsPanels = new ArrayList<BaseSettingsPanel>();
-        this.enavSettings = new CommonENavSettingsPanel();
+        this.enavSettings   = new CommonENavSettingsPanel();
+        this.mapSettings    = new CommonMapSettingsPanel();
 
         // Register the panels to the tab menu.
-        this.registerSettingsPanels(enavSettings);
+        this.registerSettingsPanels(
+                enavSettings, 
+                mapSettings);
 
-        dialogListener = new SetupDialogHandler(this);
+        this.dialogListener = new SetupDialogHandler(this);
         this.addWindowListener(dialogListener);
         this.btnAccept.addActionListener(dialogListener);
         this.btnCancel.addActionListener(dialogListener);
@@ -127,7 +132,7 @@ public class SetupDialogCommon extends JDialog {
      * @param tabbedPane
      *            The tabbed pane.
      */
-    private void addTabs(JTabbedPane tabbedPane) {
+    protected void addTabs() {
         for (int i = 0; i < settingsPanels.size(); i++) {
 
             // Get the settingsPanel.
@@ -142,7 +147,7 @@ public class SetupDialogCommon extends JDialog {
             panelTitle.setIcon(newPanel.getIcon());
             panelTitle.setIconTextGap(5);
             panelTitle.setHorizontalTextPosition(SwingConstants.RIGHT);
-            tabbedPane.setTabComponentAt(i, panelTitle);
+            this.tabbedPane.setTabComponentAt(i, panelTitle);
         }
     }
 
@@ -158,8 +163,6 @@ public class SetupDialogCommon extends JDialog {
             this.settingsPanels.add(baseSettingsPanel);
             baseSettingsPanel.addListener(EPD.getInstance());
         }
-
-        addTabs(tabbedPane);
     }
     
     /**
