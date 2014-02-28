@@ -49,6 +49,7 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteBroadcast;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
 import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
+import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
@@ -75,7 +76,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     /**
      * In nautical miles - distance between two lines for it to be put in filter
      */
-    public static final double FILTER_DISTANCE_EPSILON = 2;
+    public static final double FILTER_DISTANCE_EPSILON = 0.5;
 
     /**
      * In minutes - how close should the warning point be in time
@@ -368,23 +369,53 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         }
     }
 
-    protected FilteredIntendedRoute findTCPA(IntendedRoute route1, IntendedRoute route2) {
+    protected FilteredIntendedRoute findTCPA(Route route1, Route route2) {
 
         intersectPositions.clear();
+        // filteredIntendedRoutes.clear();
 
         // Focus on time
         FilteredIntendedRoute filteredIntendedRoute = new FilteredIntendedRoute();
 
         // We need to check if there's a previous waypoint, ie. we are either starting navigating or are between two waypoints
-        int route1StartWp = route1.getActiveWpIndex();
-        int route2StartWp = route2.getActiveWpIndex();
+        // int route1StartWp = route1.getActiveWpIndex();
+        // int route2StartWp = route2.getActiveWpIndex();
 
-        if (route1.getActiveWpIndex() > 0) {
-            route1StartWp = route1.getActiveWpIndex() - 1;
+        int route1StartWp = 0;
+        int route2StartWp = 0;
+
+        int route1ActiveWp = 0;
+
+        if (route1 instanceof IntendedRoute) {
+            route1StartWp = ((IntendedRoute) route1).getActiveWpIndex();
+            route1ActiveWp = ((IntendedRoute) route1).getActiveWpIndex();
         }
 
-        if (route2.getActiveWpIndex() > 0) {
-            route2StartWp = route2.getActiveWpIndex() - 1;
+        if (route2 instanceof IntendedRoute) {
+            route1StartWp = ((IntendedRoute) route2).getActiveWpIndex();
+
+        }
+        
+        
+        
+        if (route1 instanceof ActiveRoute) {
+            route1StartWp = ((ActiveRoute) route1).getActiveWaypointIndex();
+            route1ActiveWp = ((ActiveRoute) route1).getActiveWaypointIndex();
+        }
+
+        if (route2 instanceof ActiveRoute) {
+            route1StartWp = ((ActiveRoute) route2).getActiveWaypointIndex();
+
+        }
+        
+        
+
+        if (route1StartWp > 0) {
+            route1StartWp = route1StartWp - 1;
+        }
+
+        if (route2StartWp > 0) {
+            route2StartWp = route2StartWp - 1;
         }
 
         // Should the comparison even be made
@@ -422,7 +453,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
             boolean foundSegment = false;
 
             int i;
-            for (i = route1.getActiveWpIndex(); i < route1.getWaypoints().size(); i++) {
+            for (i = route1ActiveWp; i < route1.getWaypoints().size(); i++) {
                 if (i > 0) {
                     route1WpStart = new DateTime(route1.getEtas().get(i - 1));
                     route1WpEnd = new DateTime(route1.getEtas().get(i));
@@ -466,7 +497,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                         + Converter.metersToNm(position.distanceTo(route2StartPos, CoordinateSystem.CARTESIAN)));
 
                 // intersectPositions.add(position);
-
+                //
                 // intersectPositions.add(route2StartPos);
 
                 // In nautical miles
@@ -527,14 +558,14 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                     // At this time
                     // route2Start
 
-                    System.out.println("We start at time " + traverseTime);
+                    // System.out.println("We start at time " + traverseTime);
                     traverseTime = traverseTime.plusMinutes(1);
 
-                    System.out.println("And traverse until " + traverseTime);
+                    // System.out.println("And traverse until " + traverseTime);
 
                     double route1DistanceToTravel = Calculator.distanceAfterTimeMph(route1SegmentSpeed, 60);
 
-                    System.out.println("We travel " + route1DistanceToTravel + " miles for route 1");
+                    // System.out.println("We travel " + route1DistanceToTravel + " miles for route 1");
 
                     double route2DistanceToTravel = Calculator.distanceAfterTimeMph(route2SegmentSpeed, 60);
 
@@ -544,24 +575,20 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                     if (route1.getWaypoints().get(route1CurrentWaypoint).getHeading() == Heading.RL) {
                         route1CurrentPosition = traverseLine(route1CurrentPosition, route1Bearing, route1DistanceToTravel);
                     }
-                        
-                    
+
                     if (route2.getWaypoints().get(route2CurrentWaypoint).getHeading() == Heading.RL) {
                         route2CurrentPosition = traverseLine(route2CurrentPosition, route2Bearing, route2DistanceToTravel);
                     }
-                        
-                    
-                    
-                    if (route1.getWaypoints().get(route1CurrentWaypoint).getHeading() == Heading.GC) {
-                        route1CurrentPosition = traverseLine(route1CurrentPosition, route1.getWaypoints().get(route1CurrentWaypoint+1).getPos(), route1DistanceToTravel);
-                    }
-                        
-                    
-                    if (route2.getWaypoints().get(route2CurrentWaypoint).getHeading() == Heading.GC) {
-                        route2CurrentPosition = traverseLine(route2CurrentPosition, route2.getWaypoints().get(route2CurrentWaypoint+1).getPos(), route2DistanceToTravel);
-                    }
-                    
 
+                    if (route1.getWaypoints().get(route1CurrentWaypoint).getHeading() == Heading.GC) {
+                        route1CurrentPosition = traverseLine(route1CurrentPosition,
+                                route1.getWaypoints().get(route1CurrentWaypoint + 1).getPos(), route1DistanceToTravel);
+                    }
+
+                    if (route2.getWaypoints().get(route2CurrentWaypoint).getHeading() == Heading.GC) {
+                        route2CurrentPosition = traverseLine(route2CurrentPosition,
+                                route2.getWaypoints().get(route2CurrentWaypoint + 1).getPos(), route2DistanceToTravel);
+                    }
 
                     // route1SegmentTraversed = route1SegmentTraversed + route1DistanceToTravel;
                     // route2SegmentTraversed = route2SegmentTraversed + route2DistanceToTravel;
@@ -575,11 +602,12 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                                 + route1.getWaypoints().size() + " waypoints");
                         // We are done with current leg, is there a next one?
 
-                        // No more waypoints - terminate
+                        // No more waypoints - terminate zero indexing and last waypoint does not have an out leg thus -2
                         if (route1CurrentWaypoint == route1.getWaypoints().size() - 2) {
                             System.out.println("We are breaking - route 1 is done");
                             break;
                         } else {
+                            System.out.println("SWITCHING LEG FOR ROUTE 1, current bearing is ");
                             // Switch to next leg
                             route1CurrentWaypoint++;
 
@@ -591,7 +619,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             route1SegmentEnd = new DateTime(route1.getEtas().get(route1CurrentWaypoint + 1));
 
                             // Skip to next WP start traverse
-                            traverseTime = new DateTime(route1.getEtas().get(route1CurrentWaypoint));
+                            // traverseTime = new DateTime(route1.getEtas().get(route1CurrentWaypoint));
                         }
                     }
 
@@ -609,6 +637,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             System.out.println("We are breaking - route 2 is done");
                             break;
                         } else {
+                            System.out.println("SWITCHING LEG FOR ROUTE 1");
+
                             // Switch to next leg
                             route2CurrentWaypoint++;
 
@@ -618,7 +648,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             route2SegmentEnd = new DateTime(route2.getEtas().get(route2CurrentWaypoint + 1));
 
                             // Skip to next WP start traverse
-                            traverseTime = new DateTime(route2.getEtas().get(route2CurrentWaypoint));
+                            // traverseTime = new DateTime(route2.getEtas().get(route2CurrentWaypoint));
                         }
 
                     }

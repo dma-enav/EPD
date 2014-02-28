@@ -50,7 +50,6 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
 
     private IntendedRouteHandlerCommon intendedRouteHandler;
 
-
     /**
      * Constructor
      */
@@ -77,6 +76,7 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
     }
 
     private void repaintTCPAs() {
+
         graphics.clear();
 
         for (FilteredIntendedRoute filteredIntendedRoute : intendedRouteHandler.getFilteredIntendedRoutes().values()) {
@@ -84,7 +84,6 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
             //
             for (int i = 0; i < filteredIntendedRoute.getFilterMessages().size(); i++) {
                 graphics.add(new IntendedRouteTCPAGraphic(filteredIntendedRoute.getFilterMessages().get(i), 1));
-
             }
         }
 
@@ -124,7 +123,6 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
      */
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
-
         if (obj instanceof IntendedRouteHandlerCommon) {
             intendedRouteHandler = (IntendedRouteHandlerCommon) obj;
             // register as listener for intended routes

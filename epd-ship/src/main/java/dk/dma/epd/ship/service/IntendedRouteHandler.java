@@ -281,7 +281,12 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
 
                 IntendedRoute recievedRoute = intendedRoute.getValue();
 
-                FilteredIntendedRoute filter = compareRoutes(activeRoute, recievedRoute);
+                FilteredIntendedRoute filter = findTCPA(activeRoute, recievedRoute);
+                
+                //Try otherway around
+                if (filter.getFilterMessages().size() == 0){
+                    filter = findTCPA(recievedRoute, activeRoute);
+                }
 //                FilteredIntendedRoute filter = findTCPA(activeRoute, recievedRoute);
                 
                 //No warnings, ignore it
@@ -319,7 +324,12 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         // If previous intended route exist re-apply filter
 
         if (routeManager.getActiveRoute() != null) {
-            FilteredIntendedRoute filter = compareRoutes(routeManager.getActiveRoute(), route);
+            FilteredIntendedRoute filter = findTCPA(routeManager.getActiveRoute(), route);
+            
+            if (filter.getFilterMessages().size() == 0){
+                filter = findTCPA(route, routeManager.getActiveRoute());
+            }
+            
             
             //No warnings, ignore it
             if (!filter.include()){
@@ -340,7 +350,6 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                 //Add the filtered route to the list
                 filteredIntendedRoutes.put(route.getMmsi(), filter);
                 
-                //Call an update?
             }
             
         }

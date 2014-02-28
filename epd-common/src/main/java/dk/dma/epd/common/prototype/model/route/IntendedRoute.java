@@ -304,7 +304,7 @@ public class IntendedRoute extends Route {
 
         // Is the ship on the route yet? or where it was planning to be?
         // If not, don't draw anything as nothing is planned
-        if (currentTime < plannedEtas.get(0).getTime()) {
+        if (currentTime < etas.get(0).getTime()) {
             return null;
         } else {
 
@@ -319,13 +319,13 @@ public class IntendedRoute extends Route {
                 } else {
 
                     // We should be beyond this
-                    if (currentTime > plannedEtas.get(i).getTime() && currentTime < plannedEtas.get(i + 1).getTime()) {
+                    if (currentTime > etas.get(i).getTime() && currentTime < etas.get(i + 1).getTime()) {
 
                         Position plannedPosition;
 
                         // How long have we been sailing between these
                         // waypoints?
-                        long secondsSailTime = (currentTime - plannedEtas.get(i).getTime()) / 1000;
+                        long secondsSailTime = (currentTime - etas.get(i).getTime()) / 1000;
 
                         double distanceTravelledNauticalMiles = Converter.milesToNM(Calculator.distanceAfterTimeMph(getWaypoints()
                                 .get(i).getOutLeg().getSpeed(), secondsSailTime));

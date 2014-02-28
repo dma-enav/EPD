@@ -32,7 +32,7 @@ public class IntendedRouteTCPAGraphic extends OMGraphicList {
 
     private static final long serialVersionUID = 1L;
     private IntendedRouteFilterMessage message;
-    private static final float SCALE = 1.0f; // "Size" of graphics
+    private static final float SCALE = 0.7f; // "Size" of graphics
 
     public IntendedRouteTCPAGraphic(IntendedRouteFilterMessage message, float scale) {
 
@@ -87,12 +87,17 @@ public class IntendedRouteTCPAGraphic extends OMGraphicList {
         
         OMLine broadLine = new OMLine(message.getPosition1().getLatitude(), message.getPosition1().getLongitude(), message
                 .getPosition2().getLatitude(), message.getPosition2().getLongitude(), LineType._LT_Straight);
-        broadLine.setLinePaint(Color.YELLOW);
-        broadLine.setStroke(new BasicStroke(7.0f * SCALE, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
+        
+//        broadLine.setLinePaint(Color.YELLOW);
+        float alpha = 0.5f;
+        Color color = new Color(1, 1, 0, alpha); //Yellow 
+        broadLine.setLinePaint(color);
+        
+        broadLine.setStroke(new BasicStroke(12.0f * SCALE, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
 
         OMLine thinLine = new OMLine(message.getPosition1().getLatitude(), message.getPosition1().getLongitude(), message
                 .getPosition2().getLatitude(), message.getPosition2().getLongitude(), LineType._LT_Straight);
-
+        
         thinLine.setStroke(new BasicStroke(2.0f * SCALE, // Width
                 BasicStroke.CAP_SQUARE, // End cap
                 BasicStroke.JOIN_MITER, // Join style
