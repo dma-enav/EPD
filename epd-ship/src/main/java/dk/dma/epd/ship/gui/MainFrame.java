@@ -19,13 +19,19 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.bbn.openmap.MapHandler;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.IMapFrame;
@@ -366,4 +372,44 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         this.getChartPanel().centreOnShip();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SetupDialogShip openSetupDialog() {
+        SetupDialogShip setupDialog = new SetupDialogShip(this);
+        setupDialog.loadSettings(EPD.getInstance().getSettings());
+        setupDialog.setVisible(true);
+        return setupDialog;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Action getAboutAction() {
+        Action aboutEpdShip = new AbstractAction("About EPD-ship", new ImageIcon(EPD.getInstance().getAppIcon(16))) {
+            
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final ImageIcon icon = new ImageIcon(EPD.getInstance().getAppIcon(45));
+                
+                final StringBuilder aboutText = new StringBuilder();
+                aboutText.append("The E-navigation Prototype Display Ship (EPD-ship) is developed by the Danish Maritime Authority (www.dma.dk).\n");
+                aboutText.append("The user manual is available from service.e-navigation.net\n\n");
+                aboutText.append("Version   : " + VersionInfo.getVersion() + "\n");
+                aboutText.append("Build ID  : " + VersionInfo.getBuildId() + "\n");
+                aboutText.append("Build date: " + VersionInfo.getBuildDate());
+                
+                JOptionPane
+                .showMessageDialog(
+                        MainFrame.this,
+                        aboutText.toString(),
+                        "About the EPD-ship", JOptionPane.OK_OPTION, icon);
+            }
+        };
+        return aboutEpdShip;
+    }
 }
