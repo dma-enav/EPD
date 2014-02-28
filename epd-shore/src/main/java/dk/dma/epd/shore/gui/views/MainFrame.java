@@ -23,15 +23,21 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
 import java.beans.beancontext.BeanContextServicesSupport;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
@@ -75,7 +81,6 @@ public class MainFrame extends MainFrameCommon {
     private JScrollPane scrollPane;
     private boolean toolbarsLocked;
     private ToolBar toolbar = new ToolBar(this);
-    private SetupDialogShore setup = new SetupDialogShore(this);
     private RouteManagerDialog routeManagerDialog = new RouteManagerDialog(this);
     private SendRouteDialog sendRouteDialog = new SendRouteDialog(this);
     private SRUManagerDialog sruManagerDialog = new SRUManagerDialog(this);
@@ -678,8 +683,44 @@ public class MainFrame extends MainFrameCommon {
         return sruManagerDialog;
     }
 
-    public SetupDialogShore getSetupDialog() {
-        return this.setup;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SetupDialogShore openSetupDialog() {
+        SetupDialogShore setupDialog = new SetupDialogShore(this);
+        setupDialog.loadSettings(EPD.getInstance().getSettings());
+        setupDialog.setVisible(true);
+        return setupDialog;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Action getAboutAction() {
+        Action aboutEpdShore = new AbstractAction("About EPD-shore", new ImageIcon(EPD.getInstance().getAppIcon(16))) {
+            
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final ImageIcon icon = new ImageIcon(EPD.getInstance().getAppIcon(45));
+                
+                final StringBuilder aboutText = new StringBuilder();
+                aboutText.append("The E-navigation Prototype Display Shore (EPD-shore) is developed by the Danish Maritime Authority (www.dma.dk).\n");
+                aboutText.append("The user manual is available from service.e-navigation.net\n\n");
+                aboutText.append("Version   : " + VersionInfo.getVersion() + "\n");
+                aboutText.append("Build ID  : " + VersionInfo.getBuildId() + "\n");
+                aboutText.append("Build date: " + VersionInfo.getBuildDate());
+                
+                JOptionPane
+                .showMessageDialog(
+                        MainFrame.this,
+                        aboutText.toString(),
+                        "About the EPD-shore", JOptionPane.OK_OPTION, icon);
+            }
+        };
+        return aboutEpdShore;
+    }
 }

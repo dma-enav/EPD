@@ -24,15 +24,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.fileselection.WorkspaceFileFilter;
 
@@ -67,7 +70,9 @@ public class JMenuWorkspaceBar extends JMenuBar {
         // this.setJMenuBar(mb);
         mapMenus = new HashMap<Integer, JMenu>();
 
-        // File menu
+        /*****************************************/
+        /** File menu                           **/
+        /*****************************************/
 
         JMenu fm = new JMenu("File");
         this.add(fm);
@@ -84,7 +89,9 @@ public class JMenuWorkspaceBar extends JMenuBar {
         JMenuItem mi = new JMenuItem("Exit");
         fm.add(mi);
 
-        // Maps menu
+        /*****************************************/
+        /** Maps menu                           **/
+        /*****************************************/
 
         maps = new JMenu("Maps");
         this.add(maps);
@@ -110,7 +117,9 @@ public class JMenuWorkspaceBar extends JMenuBar {
         JMenuItem unlockAll = new JMenuItem("Unlock all windows");
         workspace.add(unlockAll);
 
-        // Notifications
+        /*****************************************/
+        /** Notifications menu                  **/
+        /*****************************************/
 
         JMenu notifications = new JMenu("Notifications");
         this.add(notifications);
@@ -137,7 +146,10 @@ public class JMenuWorkspaceBar extends JMenuBar {
         JMenuItem saveWorkspace = new JMenuItem("Save workspace");
         workspace.add(saveWorkspace);
 
-        //SAR
+        /*****************************************/
+        /** Search and Rescue menu              **/
+        /*****************************************/
+        
         JMenu sarMenu = new JMenu("Search and Rescue");
         this.add(sarMenu);
         
@@ -150,6 +162,39 @@ public class JMenuWorkspaceBar extends JMenuBar {
         JMenuItem probabilityOfDetection = new JMenuItem("Effort Allocation");
         sarMenu.add(probabilityOfDetection);
 
+        
+        /*****************************************/
+        /** Help menu                           **/
+        /*****************************************/
+        
+        JMenu help = new JMenu("Help");
+        this.add(help);
+
+        JMenuItem aboutEpdShore = new JMenuItem("About EPD-shore");
+        help.add(aboutEpdShore);
+        aboutEpdShore.setIcon(new ImageIcon(EPD.getInstance().getAppIcon(16)));
+
+        final ImageIcon icon = new ImageIcon(EPD.getInstance().getAppIcon(45));
+        
+        final StringBuilder aboutText = new StringBuilder();
+        aboutText.append("The E-navigation Prototype Display Shore (EPD-shore) is developed by the Danish Maritime Authority (www.dma.dk).\n");
+        aboutText.append("The user manual is available from service.e-navigation.net\n\n");
+        aboutText.append("Version   : " + VersionInfo.getVersion() + "\n");
+        aboutText.append("Build ID  : " + VersionInfo.getBuildId() + "\n");
+        aboutText.append("Build date: " + VersionInfo.getBuildDate());
+
+        aboutEpdShore.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane
+                        .showMessageDialog(
+                                mainFrame,
+                                aboutText.toString(),
+                                "About the EPD-shore", JOptionPane.OK_OPTION, icon);
+            }
+        });
+        
+        
         //Action listeners
         transponder.addActionListener(new ActionListener() {
             @Override
@@ -204,9 +249,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
         preferences.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // mainFrame.getSettingsWindow().toggleVisibility();
-                mainFrame.getSetupDialog().loadSettings(EPDShore.getInstance().getSettings());
-                mainFrame.getSetupDialog().setVisible(true);
+                mainFrame.openSetupDialog();
             }
         });
 
@@ -353,11 +396,8 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
         windowSettings.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
                 // Open the setup dialog on map settings for this specific map.
-                mainFrame.getSetupDialog().loadSettings(EPDShore.getInstance().getSettings());
-                mainFrame.getSetupDialog().goToSpecifMapSettings(window);
-                mainFrame.getSetupDialog().setVisible(true);
+                mainFrame.openSetupDialog().goToSpecifMapSettings(window);
             }
         });
     }
