@@ -19,6 +19,7 @@ import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import dk.dma.epd.common.prototype.event.mouse.AbstractCoordMouseMode;
 import dk.dma.epd.shore.gui.views.ChartPanel;
@@ -63,7 +64,7 @@ public class SelectMouseMode extends AbstractCoordMouseMode {
     public void mouseClicked(MouseEvent e) {
         super.mouseClicked(e);
 
-        if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() != 2) {
+        if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount() != 2) {
             super.mouseSupport.fireMapMouseClicked(e);
         }
 

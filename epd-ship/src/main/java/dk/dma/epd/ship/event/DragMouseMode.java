@@ -17,6 +17,8 @@ package dk.dma.epd.ship.event;
 
 import java.awt.event.MouseEvent;
 
+import javax.swing.SwingUtilities;
+
 import dk.dma.epd.common.prototype.event.mouse.CommonDragMouseMode;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.ChartPanel;
@@ -66,7 +68,7 @@ public class DragMouseMode extends CommonDragMouseMode {
      */
     @Override
     public void mousePressed(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1) {            
+        if (SwingUtilities.isLeftMouseButton(e)) {            
             this.chartPanel.getMap().setCursor(super.DRAG_DOWN_CURSOR);
         }
     }
