@@ -190,6 +190,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         initValues();
         
         setBounds(100, 100, 1000, 400);
+        setLocationRelativeTo(parent);
     }
     
     /***************************************************/
