@@ -60,6 +60,18 @@ public class VesselTargetSettings implements Serializable {
         this.pastTrackDisplayTime = settings.pastTrackDisplayTime;
         this.pastTrackMinDist = settings.pastTrackMinDist;
     }
+    
+    /**
+     * Returns the list of change listeners
+     * @return the list of change listeners
+     */
+    public synchronized CopyOnWriteArrayList<IVesselTargetSettingsListener> getChangeListeners() {
+        if(this.changeListeners == null) {
+            // May need to init as this may be deserialized and hence field initialization may not have been performed.
+            this.changeListeners = new CopyOnWriteArrayList<>();
+        }
+        return changeListeners;
+    }
 
     /**
      * Add a listener to receive notifications of changes to properties of this
@@ -72,11 +84,7 @@ public class VesselTargetSettings implements Serializable {
      */
     public synchronized void addChangeListener(
             IVesselTargetSettingsListener listener) {
-        if(this.changeListeners == null) {
-            // May need to init as this may be deserialized and hence field initialization may not have been performed.
-            this.changeListeners = new CopyOnWriteArrayList<>();
-        }
-        this.changeListeners.addIfAbsent(listener);
+        getChangeListeners().addIfAbsent(listener);
     }
 
     /**
@@ -93,7 +101,7 @@ public class VesselTargetSettings implements Serializable {
      */
     public synchronized boolean removeChangeListener(
             IVesselTargetSettingsListener listener) {
-        return this.changeListeners.remove(listener);
+        return getChangeListeners().remove(listener);
     }
 
     /**
@@ -130,7 +138,7 @@ public class VesselTargetSettings implements Serializable {
      */
     public synchronized void setShowPastTrack(boolean showPastTrack) {
         this.showPastTrack = showPastTrack;
-        for(IVesselTargetSettingsListener listener : this.changeListeners) {
+        for(IVesselTargetSettingsListener listener : getChangeListeners()) {
             listener.showPastTrackUpdated(this);
         }
     }
