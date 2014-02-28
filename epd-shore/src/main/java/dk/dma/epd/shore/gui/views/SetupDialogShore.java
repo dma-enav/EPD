@@ -23,7 +23,6 @@ import dk.dma.epd.common.prototype.gui.SetupDialogCommon;
 import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.shore.gui.settingtabs.ShoreAisSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.ShoreCloudSettingsPanel;
-import dk.dma.epd.shore.gui.settingtabs.ShoreMapSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.ShoreMapFramesSettingsPanel;
 
 public class SetupDialogShore extends SetupDialogCommon {
@@ -33,7 +32,6 @@ public class SetupDialogShore extends SetupDialogCommon {
      */
     private static final long serialVersionUID = 1L;
     private ShoreCloudSettingsPanel shoreSettings;
-    private ShoreMapSettingsPanel mapSettings;
     private ShoreAisSettingsPanel aisSettings;
     private ShoreMapFramesSettingsPanel windowsSettings;
 
@@ -46,21 +44,20 @@ public class SetupDialogShore extends SetupDialogCommon {
         super(mainFrame, "Setup", JTabbedPane.LEFT);
 
         // Resize the dialog to make more room for tabs on the right side.
-        this.setSize(800, super.getHeight() - 200);
+        this.setSize(800, super.getHeight() - 50);
 
         this.shoreSettings = new ShoreCloudSettingsPanel();
-        this.mapSettings = new ShoreMapSettingsPanel();
         this.windowsSettings = new ShoreMapFramesSettingsPanel();
         this.aisSettings = new ShoreAisSettingsPanel();
 
         // Register the panels for shore setup.
         super.registerSettingsPanels(
                 this.shoreSettings, 
-                this.mapSettings, 
                 this.windowsSettings,
                 this.aisSettings);
 
         super.resizePanelsToFitContainer(this);
+        super.addTabs();
         super.setActivePanel(1);
     }
 
