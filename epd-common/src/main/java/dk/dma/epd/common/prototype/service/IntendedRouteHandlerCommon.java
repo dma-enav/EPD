@@ -470,8 +470,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                 intersectPositions.add(route2StartPos);
 
                 // In nautical miles
-//                double route1SegmentTraversed = distanceTravelled;
-//                double route2SegmentTraversed = 0;
+                // double route1SegmentTraversed = distanceTravelled;
+                // double route2SegmentTraversed = 0;
 
                 // Okay so we are in position and in route2StartPos
                 // We must start traversing the route now, assume straight lines, for each traversing check the distance between
@@ -498,9 +498,9 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                 double route2Bearing = route2.getWaypoints().get(route2CurrentWaypoint).calcBrg();
 
                 DateTime traverseTime = route2Start;
-                
-                DateTime route1SegmentEnd = new DateTime(route1.getPlannedEtas().get(route1CurrentWaypoint+1));
-                DateTime route2SegmentEnd = new DateTime(route2.getPlannedEtas().get(route2CurrentWaypoint+1));
+
+                DateTime route1SegmentEnd = new DateTime(route1.getPlannedEtas().get(route1CurrentWaypoint + 1));
+                DateTime route2SegmentEnd = new DateTime(route2.getPlannedEtas().get(route2CurrentWaypoint + 1));
 
                 while (true) {
 
@@ -544,14 +544,14 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                     route1CurrentPosition = traverseLine(route1CurrentPosition, route1Bearing, route1DistanceToTravel);
                     route2CurrentPosition = traverseLine(route2CurrentPosition, route2Bearing, route2DistanceToTravel);
 
-//                    route1SegmentTraversed = route1SegmentTraversed + route1DistanceToTravel;
-//                    route2SegmentTraversed = route2SegmentTraversed + route2DistanceToTravel;
+                    // route1SegmentTraversed = route1SegmentTraversed + route1DistanceToTravel;
+                    // route2SegmentTraversed = route2SegmentTraversed + route2DistanceToTravel;
 
                     // if (route1SegmentTraversed > Converter.milesToNM(route1.getWaypoints().get(route1CurrentWaypoint).calcRng()))
                     // {
                     if (traverseTime.isAfter(route1SegmentEnd)) {
 
-//                        System.out.println("We have traversed " + route1SegmentTraversed + " nautical miles");
+                        // System.out.println("We have traversed " + route1SegmentTraversed + " nautical miles");
                         System.out.println("We are at waypoint id  " + route1CurrentWaypoint + " and the route has a total of "
                                 + route1.getWaypoints().size() + " waypoints");
                         // We are done with current leg, is there a next one?
@@ -569,15 +569,19 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             route1CurrentPosition = route1.getWaypoints().get(route1CurrentWaypoint).getPos();
                             route1SegmentSpeed = route1.getWaypoints().get(route1CurrentWaypoint).getOutLeg().getSpeed();
                             route1Bearing = route1.getWaypoints().get(route1CurrentWaypoint).calcBrg();
-                            route1SegmentEnd = new DateTime(route1.getPlannedEtas().get(route1CurrentWaypoint+1));
+                            route1SegmentEnd = new DateTime(route1.getPlannedEtas().get(route1CurrentWaypoint + 1));
+                            
+                            //Skip to next WP start traverse
+                            traverseTime = new DateTime(route1.getPlannedEtas().get(route1CurrentWaypoint));
                         }
                     }
 
-//                    if (route2SegmentTraversed > Converter.milesToNM(route2.getWaypoints().get(route2CurrentWaypoint).calcRng())) {
+                    // if (route2SegmentTraversed > Converter.milesToNM(route2.getWaypoints().get(route2CurrentWaypoint).calcRng()))
+                    // {
                     if (traverseTime.isAfter(route2SegmentEnd)) {
 
-//                        System.out.println("ROUTE 2: We have traversed " + route2SegmentTraversed + " nautical miles out of "
-//                                + Converter.milesToNM(route2.getWaypoints().get(route2CurrentWaypoint).calcRng()));
+                        // System.out.println("ROUTE 2: We have traversed " + route2SegmentTraversed + " nautical miles out of "
+                        // + Converter.milesToNM(route2.getWaypoints().get(route2CurrentWaypoint).calcRng()));
                         System.out.println("We are at waypoint id  " + route2CurrentWaypoint + " and the route has a total of "
                                 + route2.getWaypoints().size() + " waypoints");
 
@@ -588,11 +592,14 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                         } else {
                             // Switch to next leg
                             route2CurrentWaypoint++;
-                            
+
                             route2CurrentPosition = route2.getWaypoints().get(route2CurrentWaypoint).getPos();
                             route2SegmentSpeed = route2.getWaypoints().get(route2CurrentWaypoint).getOutLeg().getSpeed();
                             route2Bearing = route2.getWaypoints().get(route2CurrentWaypoint).calcBrg();
-                            route2SegmentEnd = new DateTime(route2.getPlannedEtas().get(route2CurrentWaypoint+1));
+                            route2SegmentEnd = new DateTime(route2.getPlannedEtas().get(route2CurrentWaypoint + 1));
+                            
+                            //Skip to next WP start traverse
+                            traverseTime = new DateTime(route2.getPlannedEtas().get(route2CurrentWaypoint));
                         }
 
                     }
