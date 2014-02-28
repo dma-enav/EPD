@@ -24,6 +24,7 @@ import com.bbn.openmap.BufferedLayerMapBean;
 
 import dk.dma.epd.common.prototype.event.mouse.CommonDragMouseMode;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
+import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
 
@@ -102,6 +103,13 @@ public class DragMouseMode extends CommonDragMouseMode {
      */
     @Override
     public void mouseReleased(MouseEvent e) {
+        
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            
+            EPDShore.getInstance().getMainFrame().getActiveMapWindow().getLayerTogglingPanel().getHistoryListener().saveToHistoryBeforeMoving();
+            EPDShore.getInstance().getMainFrame().getActiveMapWindow().getLayerTogglingPanel().getHistoryListener().setShouldSave(true);            
+        }
+        
         super.mouseReleased(e);
         this.glassFrame.setCursor(super.DRAG_CURSOR);
     }

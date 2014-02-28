@@ -41,6 +41,10 @@ import javax.swing.border.EtchedBorder;
 
 import com.bbn.openmap.Layer;
 
+import dk.dma.epd.common.prototype.event.HistoryListener;
+import dk.dma.epd.common.prototype.event.HistoryNavigationPanelInterface;
+import dk.dma.epd.common.prototype.gui.GoBackButton;
+import dk.dma.epd.common.prototype.gui.GoForwardButton;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
@@ -55,7 +59,8 @@ import dk.dma.epd.shore.layers.route.RouteLayer;
 import dk.dma.epd.shore.layers.voyage.EmbeddedInfoPanelMoveMouseListener;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 
-public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVisiblityListener, ComponentListener {
+public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVisiblityListener, 
+        ComponentListener, HistoryNavigationPanelInterface {
 
     private static final long serialVersionUID = 1L;
     private JLabel moveHandler;
@@ -96,6 +101,8 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
     JLabel intendedRoutes;
     JLabel routes;
     JLabel voyages;
+    private GoBackButton goBckBtn;
+    private GoForwardButton goFrwrdBtn;
 
     /**
      * Create the panel.
@@ -122,7 +129,11 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
         // Create the grid for the toolitems
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.PAGE_AXIS));
-        buttonPanel.setBackground(new Color(83, 83, 83));
+        buttonPanel.setBackground(new Color(83, 83, 83));        
+        
+        
+        goBckBtn = new GoBackButton();
+        goFrwrdBtn = new GoForwardButton();        
 
         // Create the grid for the notifications
         // notificationPanel = new JPanel();
@@ -521,29 +532,28 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
 
     public void setChartPanel(ChartPanel chartPanel) {
         this.chartPanel = chartPanel;
+        this.chartPanel.setHistoryListener(new HistoryListener(this.chartPanel));
+        this.chartPanel.getMap().addProjectionListener(this.chartPanel.getHistoryListener());
+        this.chartPanel.getHistoryListener().setNavigationPanel(this);
     }
 
     @Override
     public void mouseClicked(MouseEvent arg0) {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void mouseEntered(MouseEvent arg0) {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void mouseExited(MouseEvent arg0) {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void mousePressed(MouseEvent arg0) {
-        // TODO Auto-generated method stub
 
     }
     
@@ -626,6 +636,21 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
         buttonPanel.removeAll();
         buttonPanel.updateUI();
 
+        JPanel navigationPanel = new JPanel();
+        navigationPanel.setLayout(new GridLayout(0, 2));
+        navigationPanel.setOpaque(false);
+
+        this.goBckBtn.setEnabled(false);
+        this.goFrwrdBtn.setEnabled(false);
+        
+        navigationPanel.add(this.goBckBtn);
+        navigationPanel.add(this.goFrwrdBtn);
+        
+        buttonPanel.add(navigationPanel);
+        
+        JSeparator sep1 = new JSeparator();
+        buttonPanel.add(sep1);
+        
         width = toolItemSize * toolItemColumns;
         height = 0;
 
@@ -679,9 +704,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
         }
 
         buttonPanel.add(groupFunctions);
-
-        int innerHeight2 = height;
-
+        
         JPanel hideBtnPanel = new JPanel();
         hideBtnPanel.setOpaque(false);
         hideBtnPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
@@ -697,18 +720,19 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
 
         buttonPanel.add(hideBtnPanel);
 
+        int innerHeight3 = height + toolItemSize + 7;
         int closeBtnPanelHeight = 35;
 
         // And finally set the size and repaint it
-        buttonPanel.setSize(width, innerHeight2 - buttonPanelOffset + closeBtnPanelHeight);
-        buttonPanel.setPreferredSize(new Dimension(width, innerHeight2 - buttonPanelOffset + closeBtnPanelHeight));
+        buttonPanel.setSize(width, innerHeight3 - buttonPanelOffset + closeBtnPanelHeight);
+        buttonPanel.setPreferredSize(new Dimension(width, innerHeight3 - buttonPanelOffset + closeBtnPanelHeight));
         buttonPanel.setLocation(0, moveHandlerHeight);
 
-        height = height + moveHandlerHeight + closeBtnPanelHeight;
+        height = height + moveHandlerHeight + closeBtnPanelHeight + toolItemSize + 7;
 
         masterPanel.setSize(width, height);
         this.setBounds(0, 200, width, height);
-
+        
         this.revalidate();
         this.repaint();
     }
@@ -766,18 +790,30 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
 
     @Override
     public void componentMoved(ComponentEvent arg0) {
-        // TODO Auto-generated method stub
         
     }
 
     @Override
     public void componentResized(ComponentEvent arg0) {
-        // TODO Auto-generated method stub
         
     }
 
     @Override
     public void componentShown(ComponentEvent arg0) {
         setActiveToolItem(enc);
+    }
+
+    @Override
+    public GoBackButton getGoBackButton() {
+        return this.goBckBtn;
+    }
+
+    @Override
+    public GoForwardButton getGoForwardButton() {
+        return this.goFrwrdBtn;
+    }
+    
+    public HistoryListener getHistoryListener() {
+        return this.chartPanel.getHistoryListener();
     }
 }

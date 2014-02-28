@@ -19,6 +19,7 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import dk.dma.epd.common.prototype.event.mouse.CommonNavigationMouseMode;
 import dk.dma.epd.shore.EPDShore;
@@ -68,6 +69,30 @@ public class NavigationMouseMode extends CommonNavigationMouseMode {
 
         super.findAndInit(someObj);
     }
+    
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            
+            EPDShore.getInstance().getMainFrame().getActiveMapWindow().getLayerTogglingPanel().getHistoryListener().saveToHistoryBeforeMoving();
+            EPDShore.getInstance().getMainFrame().getActiveMapWindow().getLayerTogglingPanel().getHistoryListener().setShouldSave(true);
+        }
+        
+        super.mouseClicked(e);
+    }
+    
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            
+            EPDShore.getInstance().getMainFrame().getActiveMapWindow().getLayerTogglingPanel().getHistoryListener().saveToHistoryBeforeMoving();
+            EPDShore.getInstance().getMainFrame().getActiveMapWindow().getLayerTogglingPanel().getHistoryListener().setShouldSave(true);
+        }
+
+        super.mouseReleased(e);
+    }
 
     /**
      * If the mouse is entered on a MapBean object, the doZoom boolean will
@@ -89,6 +114,6 @@ public class NavigationMouseMode extends CommonNavigationMouseMode {
     public void mousePressed(MouseEvent e) {
         clickTimer.setInterval(500);
         clickTimer.startTime();
-        super.mousePressed(e);
+        super.mousePressed(e);        
     }
 }
