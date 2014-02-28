@@ -24,18 +24,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.fileselection.WorkspaceFileFilter;
 
@@ -170,29 +167,8 @@ public class JMenuWorkspaceBar extends JMenuBar {
         JMenu help = new JMenu("Help");
         this.add(help);
 
-        JMenuItem aboutEpdShore = new JMenuItem("About EPD-shore");
+        JMenuItem aboutEpdShore = new JMenuItem(mainFrame.getAboutAction());
         help.add(aboutEpdShore);
-        aboutEpdShore.setIcon(new ImageIcon(EPD.getInstance().getAppIcon(16)));
-
-        final ImageIcon icon = new ImageIcon(EPD.getInstance().getAppIcon(45));
-        
-        final StringBuilder aboutText = new StringBuilder();
-        aboutText.append("The E-navigation Prototype Display Shore (EPD-shore) is developed by the Danish Maritime Authority (www.dma.dk).\n");
-        aboutText.append("The user manual is available from service.e-navigation.net\n\n");
-        aboutText.append("Version   : " + VersionInfo.getVersion() + "\n");
-        aboutText.append("Build ID  : " + VersionInfo.getBuildId() + "\n");
-        aboutText.append("Build date: " + VersionInfo.getBuildDate());
-
-        aboutEpdShore.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane
-                        .showMessageDialog(
-                                mainFrame,
-                                aboutText.toString(),
-                                "About the EPD-shore", JOptionPane.OK_OPTION, icon);
-            }
-        });
         
         
         //Action listeners
