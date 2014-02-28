@@ -18,6 +18,7 @@ package dk.dma.epd.shore.event;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import com.bbn.openmap.BufferedLayerMapBean;
 
@@ -84,7 +85,7 @@ public class DragMouseMode extends CommonDragMouseMode {
     @Override
     public void mousePressed(MouseEvent e){
         
-        if (e.getButton() == MouseEvent.BUTTON1) {
+        if (SwingUtilities.isLeftMouseButton(e)) {
             
             glassFrame.setCursor(super.DRAG_DOWN_CURSOR);
             BufferedLayerMapBean bean = (BufferedLayerMapBean) e.getSource();

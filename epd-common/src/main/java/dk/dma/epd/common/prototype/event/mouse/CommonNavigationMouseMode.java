@@ -23,6 +23,8 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 
+import javax.swing.SwingUtilities;
+
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.ProjMath;
@@ -188,7 +190,7 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
         
         super.mouseClicked(e);
         if (e.getSource() instanceof MapBean &&
-                e.getButton() == MouseEvent.BUTTON1 && 
+                SwingUtilities.isLeftMouseButton(e) && 
                 e.getClickCount() == 2 &&
                 !e.isConsumed()) {
             
@@ -262,7 +264,7 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
         
         super.mousePressed(e);
         if (e.getSource() instanceof MapBean &&
-                e.getButton() == MouseEvent.BUTTON1 &&
+                SwingUtilities.isLeftMouseButton(e) &&
                 !super.mouseSupport.fireMapMousePressed(e)) {
             
             // Set the first point.
@@ -285,7 +287,7 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
     public void mouseDragged(MouseEvent e) {
         
         if (e.getSource() instanceof MapBean && 
-                e.getButton() == MouseEvent.BUTTON1 && 
+                SwingUtilities.isLeftMouseButton(e) && 
                 this.doZoom) {
             
             super.mouseDragged(e);   
@@ -337,7 +339,7 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
         
         super.mouseReleased(e);
         if (e.getSource() instanceof MapBean &&
-                e.getButton() == MouseEvent.BUTTON1 && 
+                SwingUtilities.isLeftMouseButton(e) && 
                 this.point2 != null) {
             
             if (this.layerMouseDrag) {

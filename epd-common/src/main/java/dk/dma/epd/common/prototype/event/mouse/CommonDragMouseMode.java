@@ -23,6 +23,8 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
+import javax.swing.SwingUtilities;
+
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.proj.Projection;
 
@@ -110,7 +112,7 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
                 
         super.mouseDragged(e);
         if (e.getSource() instanceof MapBean &&
-                e.getButton() == MouseEvent.BUTTON1) {
+                SwingUtilities.isLeftMouseButton(e)) {
                         
             // Ensure that other layer elements can be dragged (fx waypoints)
             if (!this.mouseDragged) {
