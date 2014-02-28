@@ -465,9 +465,9 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                 System.out.println("The distance between points is "
                         + Converter.metersToNm(position.distanceTo(route2StartPos, CoordinateSystem.CARTESIAN)));
 
-                intersectPositions.add(position);
+                // intersectPositions.add(position);
 
-                intersectPositions.add(route2StartPos);
+                // intersectPositions.add(route2StartPos);
 
                 // In nautical miles
                 // double route1SegmentTraversed = distanceTravelled;
@@ -541,8 +541,27 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                     // Position route1NextPosition = traverseLine(route1CurrentPosition, route1Bearing, distanceTravelledRoute1);
                     // Position route2NextPosition = traverseLine(route2CurrentPosition, route2Bearing, distanceTravelledRoute2);
 
-                    route1CurrentPosition = traverseLine(route1CurrentPosition, route1Bearing, route1DistanceToTravel);
-                    route2CurrentPosition = traverseLine(route2CurrentPosition, route2Bearing, route2DistanceToTravel);
+                    if (route1.getWaypoints().get(route1CurrentWaypoint).getHeading() == Heading.RL) {
+                        route1CurrentPosition = traverseLine(route1CurrentPosition, route1Bearing, route1DistanceToTravel);
+                    }
+                        
+                    
+                    if (route2.getWaypoints().get(route2CurrentWaypoint).getHeading() == Heading.RL) {
+                        route2CurrentPosition = traverseLine(route2CurrentPosition, route2Bearing, route2DistanceToTravel);
+                    }
+                        
+                    
+                    
+                    if (route1.getWaypoints().get(route1CurrentWaypoint).getHeading() == Heading.GC) {
+                        route1CurrentPosition = traverseLine(route1CurrentPosition, route1.getWaypoints().get(route1CurrentWaypoint+1).getPos(), route1DistanceToTravel);
+                    }
+                        
+                    
+                    if (route2.getWaypoints().get(route2CurrentWaypoint).getHeading() == Heading.GC) {
+                        route2CurrentPosition = traverseLine(route2CurrentPosition, route2.getWaypoints().get(route2CurrentWaypoint+1).getPos(), route2DistanceToTravel);
+                    }
+                    
+
 
                     // route1SegmentTraversed = route1SegmentTraversed + route1DistanceToTravel;
                     // route2SegmentTraversed = route2SegmentTraversed + route2DistanceToTravel;
@@ -570,8 +589,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             route1SegmentSpeed = route1.getWaypoints().get(route1CurrentWaypoint).getOutLeg().getSpeed();
                             route1Bearing = route1.getWaypoints().get(route1CurrentWaypoint).calcBrg();
                             route1SegmentEnd = new DateTime(route1.getEtas().get(route1CurrentWaypoint + 1));
-                            
-                            //Skip to next WP start traverse
+
+                            // Skip to next WP start traverse
                             traverseTime = new DateTime(route1.getEtas().get(route1CurrentWaypoint));
                         }
                     }
@@ -597,8 +616,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             route2SegmentSpeed = route2.getWaypoints().get(route2CurrentWaypoint).getOutLeg().getSpeed();
                             route2Bearing = route2.getWaypoints().get(route2CurrentWaypoint).calcBrg();
                             route2SegmentEnd = new DateTime(route2.getEtas().get(route2CurrentWaypoint + 1));
-                            
-                            //Skip to next WP start traverse
+
+                            // Skip to next WP start traverse
                             traverseTime = new DateTime(route2.getEtas().get(route2CurrentWaypoint));
                         }
 
@@ -620,6 +639,14 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         return filteredIntendedRoute;
     }
 
+    /**
+     * Rhumb line traversing
+     * 
+     * @param startPosition
+     * @param bearing
+     * @param distanceTravelled
+     * @return
+     */
     private Position traverseLine(Position startPosition, double bearing, double distanceTravelled) {
 
         // How long will we have travelled along our route (route 1)
@@ -630,7 +657,26 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         Position position = Calculator.findPosition(startPosition, bearing, Converter.nmToMeters(distanceTravelled));
 
         return position;
+    }
 
+    /**
+     * Great Circle Traversing
+     * 
+     * @param startPosition
+     * @param bearing
+     * @param distanceTravelled
+     * @return
+     */
+    private Position traverseLine(Position startPosition, Position endPosition, double distanceTravelled) {
+
+        // How long will we have travelled along our route (route 1)
+        // long timeTravelledSeconds = minutes * 60;
+
+        // double distanceTravelled = Calculator.distanceAfterTimeMph(speed, timeTravelledSeconds);
+
+        Position position = Calculator.findPosition(startPosition, endPosition, Converter.nmToMeters(distanceTravelled));
+
+        return position;
     }
 
     /**
