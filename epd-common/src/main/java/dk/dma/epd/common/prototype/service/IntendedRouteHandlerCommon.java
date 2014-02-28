@@ -389,11 +389,11 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
         // Should the comparison even be made
 
-        DateTime route1Start = new DateTime(route1.getPlannedEtas().get(route1StartWp));
-        DateTime route1End = new DateTime(route1.getPlannedEtas().get(route1.getPlannedEtas().size() - 1));
+        DateTime route1Start = new DateTime(route1.getEtas().get(route1StartWp));
+        DateTime route1End = new DateTime(route1.getEtas().get(route1.getEtas().size() - 1));
 
-        DateTime route2Start = new DateTime(route2.getPlannedEtas().get(route2StartWp));
-        DateTime route2End = new DateTime(route2.getPlannedEtas().get(route2.getPlannedEtas().size() - 1));
+        DateTime route2Start = new DateTime(route2.getEtas().get(route2StartWp));
+        DateTime route2End = new DateTime(route2.getEtas().get(route2.getEtas().size() - 1));
 
         // The route dates does not overlap, return immediately
         if (route2Start.isAfter(route1End) || route1Start.isAfter(route2End)) {
@@ -424,8 +424,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
             int i;
             for (i = route1.getActiveWpIndex(); i < route1.getWaypoints().size(); i++) {
                 if (i > 0) {
-                    route1WpStart = new DateTime(route1.getPlannedEtas().get(i - 1));
-                    route1WpEnd = new DateTime(route1.getPlannedEtas().get(i));
+                    route1WpStart = new DateTime(route1.getEtas().get(i - 1));
+                    route1WpEnd = new DateTime(route1.getEtas().get(i));
 
                     if (route1WpStart.isBefore(route2Start) && route1WpEnd.isAfter(route2Start)) {
                         // We have the found the segment we need to start from
@@ -441,8 +441,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
                 // Now find position at time of route2Start
 
-                System.out.println("Route 1 WP Start is at " + route1.getPlannedEtas().get(i - 1));
-                System.out.println("Route 2 Start is at " + route2.getPlannedEtas().get(route2StartWp));
+                System.out.println("Route 1 WP Start is at " + route1.getEtas().get(i - 1));
+                System.out.println("Route 2 Start is at " + route2.getEtas().get(route2StartWp));
 
                 // How long will we have travelled along our route (route 1)
                 long timeTravelledSeconds = (route2Start.getMillis() - route1WpStart.getMillis()) / 1000;
@@ -499,8 +499,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
                 DateTime traverseTime = route2Start;
 
-                DateTime route1SegmentEnd = new DateTime(route1.getPlannedEtas().get(route1CurrentWaypoint + 1));
-                DateTime route2SegmentEnd = new DateTime(route2.getPlannedEtas().get(route2CurrentWaypoint + 1));
+                DateTime route1SegmentEnd = new DateTime(route1.getEtas().get(route1CurrentWaypoint + 1));
+                DateTime route2SegmentEnd = new DateTime(route2.getEtas().get(route2CurrentWaypoint + 1));
 
                 while (true) {
 
@@ -569,10 +569,10 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             route1CurrentPosition = route1.getWaypoints().get(route1CurrentWaypoint).getPos();
                             route1SegmentSpeed = route1.getWaypoints().get(route1CurrentWaypoint).getOutLeg().getSpeed();
                             route1Bearing = route1.getWaypoints().get(route1CurrentWaypoint).calcBrg();
-                            route1SegmentEnd = new DateTime(route1.getPlannedEtas().get(route1CurrentWaypoint + 1));
+                            route1SegmentEnd = new DateTime(route1.getEtas().get(route1CurrentWaypoint + 1));
                             
                             //Skip to next WP start traverse
-                            traverseTime = new DateTime(route1.getPlannedEtas().get(route1CurrentWaypoint));
+                            traverseTime = new DateTime(route1.getEtas().get(route1CurrentWaypoint));
                         }
                     }
 
@@ -596,10 +596,10 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             route2CurrentPosition = route2.getWaypoints().get(route2CurrentWaypoint).getPos();
                             route2SegmentSpeed = route2.getWaypoints().get(route2CurrentWaypoint).getOutLeg().getSpeed();
                             route2Bearing = route2.getWaypoints().get(route2CurrentWaypoint).calcBrg();
-                            route2SegmentEnd = new DateTime(route2.getPlannedEtas().get(route2CurrentWaypoint + 1));
+                            route2SegmentEnd = new DateTime(route2.getEtas().get(route2CurrentWaypoint + 1));
                             
                             //Skip to next WP start traverse
-                            traverseTime = new DateTime(route2.getPlannedEtas().get(route2CurrentWaypoint));
+                            traverseTime = new DateTime(route2.getEtas().get(route2CurrentWaypoint));
                         }
 
                     }
