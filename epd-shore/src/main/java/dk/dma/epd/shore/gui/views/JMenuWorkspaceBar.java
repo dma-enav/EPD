@@ -67,7 +67,9 @@ public class JMenuWorkspaceBar extends JMenuBar {
         // this.setJMenuBar(mb);
         mapMenus = new HashMap<Integer, JMenu>();
 
-        // File menu
+        /*****************************************/
+        /** File menu                           **/
+        /*****************************************/
 
         JMenu fm = new JMenu("File");
         this.add(fm);
@@ -84,7 +86,9 @@ public class JMenuWorkspaceBar extends JMenuBar {
         JMenuItem mi = new JMenuItem("Exit");
         fm.add(mi);
 
-        // Maps menu
+        /*****************************************/
+        /** Maps menu                           **/
+        /*****************************************/
 
         maps = new JMenu("Maps");
         this.add(maps);
@@ -110,7 +114,9 @@ public class JMenuWorkspaceBar extends JMenuBar {
         JMenuItem unlockAll = new JMenuItem("Unlock all windows");
         workspace.add(unlockAll);
 
-        // Notifications
+        /*****************************************/
+        /** Notifications menu                  **/
+        /*****************************************/
 
         JMenu notifications = new JMenu("Notifications");
         this.add(notifications);
@@ -137,7 +143,10 @@ public class JMenuWorkspaceBar extends JMenuBar {
         JMenuItem saveWorkspace = new JMenuItem("Save workspace");
         workspace.add(saveWorkspace);
 
-        //SAR
+        /*****************************************/
+        /** Search and Rescue menu              **/
+        /*****************************************/
+        
         JMenu sarMenu = new JMenu("Search and Rescue");
         this.add(sarMenu);
         
@@ -150,6 +159,18 @@ public class JMenuWorkspaceBar extends JMenuBar {
         JMenuItem probabilityOfDetection = new JMenuItem("Effort Allocation");
         sarMenu.add(probabilityOfDetection);
 
+        
+        /*****************************************/
+        /** Help menu                           **/
+        /*****************************************/
+        
+        JMenu help = new JMenu("Help");
+        this.add(help);
+
+        JMenuItem aboutEpdShore = new JMenuItem(mainFrame.getAboutAction());
+        help.add(aboutEpdShore);
+        
+        
         //Action listeners
         transponder.addActionListener(new ActionListener() {
             @Override
@@ -204,9 +225,7 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
         preferences.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // mainFrame.getSettingsWindow().toggleVisibility();
-                mainFrame.getSetupDialog().loadSettings(EPDShore.getInstance().getSettings());
-                mainFrame.getSetupDialog().setVisible(true);
+                mainFrame.openSetupDialog();
             }
         });
 
@@ -353,11 +372,8 @@ public class JMenuWorkspaceBar extends JMenuBar {
 
         windowSettings.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
                 // Open the setup dialog on map settings for this specific map.
-                mainFrame.getSetupDialog().loadSettings(EPDShore.getInstance().getSettings());
-                mainFrame.getSetupDialog().goToSpecifMapSettings(window);
-                mainFrame.getSetupDialog().setVisible(true);
+                mainFrame.openSetupDialog().goToSpecifMapSettings(window);
             }
         });
     }

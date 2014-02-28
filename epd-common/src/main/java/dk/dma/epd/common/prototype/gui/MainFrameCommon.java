@@ -15,20 +15,15 @@
  */
 package dk.dma.epd.common.prototype.gui;
 
-import java.awt.Image;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import javax.swing.ImageIcon;
+import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 
@@ -41,7 +36,6 @@ import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 public abstract class MainFrameCommon extends JFrame {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(MainFrameCommon.class);
 
     protected JPanel glassPanel;
     
@@ -55,7 +49,7 @@ public abstract class MainFrameCommon extends JFrame {
         super(title);
         
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        setIconImage(getAppIcon());
+        setIconImage(EPD.getInstance().getAppIcon());
         
         addWindowListener(new WindowAdapter() {
             @Override public void windowClosing(WindowEvent we) {
@@ -86,20 +80,6 @@ public abstract class MainFrameCommon extends JFrame {
     }
 
     /**
-     * Returns the application icon
-     * @return the application icon
-     */
-    protected Image getAppIcon() {
-        ImageIcon icon =  Resources.get(EPD.getInstance().getClass()).getCachedImageIcon("/images/appicon.png");
-        if (icon != null) {
-            return icon.getImage();
-        }
-        LOG.error("Could not find app icon");
-        return null;
-    }    
-
-
-    /**
      * Returns a reference to the glass pane
      * @return a reference to the glass pane
      */
@@ -115,4 +95,18 @@ public abstract class MainFrameCommon extends JFrame {
     public ChatServiceDialog getChatServiceDialog() {
         return chatServiceDialog;
     }
+
+    /**
+     * Returns an about action associated with this application
+     * @return an about action associated with this application
+     */
+    public abstract Action getAboutAction();
+
+    
+    /**
+     * Opens the setup dialog associated with the application
+     * @return the setup dialog associated with the application
+     */
+    public abstract SetupDialogCommon openSetupDialog();
+    
 }

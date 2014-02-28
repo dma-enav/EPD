@@ -57,6 +57,7 @@ import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverit
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 
 /**
@@ -74,7 +75,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     /**
      * In nautical miles - distance between two lines for it to be put in filter
      */
-    public static final double FILTER_DISTANCE_EPSILON = 1;
+    public static final double FILTER_DISTANCE_EPSILON = 2;
 
     /**
      * In minutes - how close should the warning point be in time
@@ -339,15 +340,14 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
             sendNotification = true;
         } else {
             newFilteredRoute.setGeneratedNotification(oldFilteredRoute.hasGeneratedNotification());
-            sendNotification = !newFilteredRoute.hasGeneratedNotification() 
-                                && newFilteredRoute.isWithinRange(NOTIFICATION_DISTANCE_EPSILON, NOTIFICATION_TIME_EPSILON);
+            sendNotification = !newFilteredRoute.hasGeneratedNotification()
+                    && newFilteredRoute.isWithinRange(NOTIFICATION_DISTANCE_EPSILON, NOTIFICATION_TIME_EPSILON);
         }
 
         if (sendNotification) {
             newFilteredRoute.setGeneratedNotification(true);
-            GeneralNotification notification = new GeneralNotification(
-                    newFilteredRoute, 
-                    "IntendedRouteNotificaiton_" + mmsi + "_" + System.currentTimeMillis());
+            GeneralNotification notification = new GeneralNotification(newFilteredRoute, "IntendedRouteNotificaiton_" + mmsi + "_"
+                    + System.currentTimeMillis());
             notification.setTitle("Potential collision detected");
             StringBuilder desc = new StringBuilder();
             for (IntendedRouteFilterMessage msg : newFilteredRoute.getFilterMessages()) {
@@ -368,13 +368,271 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         }
     }
 
+    protected FilteredIntendedRoute findTCPA(IntendedRoute route1, IntendedRoute route2) {
+
+        intersectPositions.clear();
+
+        // Focus on time
+        FilteredIntendedRoute filteredIntendedRoute = new FilteredIntendedRoute();
+
+        // We need to check if there's a previous waypoint, ie. we are either starting navigating or are between two waypoints
+        int route1StartWp = route1.getActiveWpIndex();
+        int route2StartWp = route2.getActiveWpIndex();
+
+        if (route1.getActiveWpIndex() > 0) {
+            route1StartWp = route1.getActiveWpIndex() - 1;
+        }
+
+        if (route2.getActiveWpIndex() > 0) {
+            route2StartWp = route2.getActiveWpIndex() - 1;
+        }
+
+        // Should the comparison even be made
+
+        DateTime route1Start = new DateTime(route1.getPlannedEtas().get(route1StartWp));
+        DateTime route1End = new DateTime(route1.getPlannedEtas().get(route1.getPlannedEtas().size() - 1));
+
+        DateTime route2Start = new DateTime(route2.getPlannedEtas().get(route2StartWp));
+        DateTime route2End = new DateTime(route2.getPlannedEtas().get(route2.getPlannedEtas().size() - 1));
+
+        // The route dates does not overlap, return immediately
+        if (route2Start.isAfter(route1End) || route1Start.isAfter(route2End)) {
+            System.out.println("The route dates does not overlap, return immediately");
+
+            System.out.println("Route 1 Start: " + route1Start + " and end: " + route1End);
+            System.out.println("Route 2 Start: " + route2Start + " and end: " + route2End);
+
+            return filteredIntendedRoute;
+        }
+
+        // Find first point in time that they have in common
+        if (route1Start.isBefore(route2Start)) {
+            // Route1 starts first
+            // Thus route2 start must be first common timeslot
+
+            // Find location for both at route2start time
+            // route2Start
+
+            // Location for route2 is given from
+            Position route2StartPos = route2.getWaypoints().get(route2StartWp).getPos();
+
+            DateTime route1WpStart = null;
+            DateTime route1WpEnd;
+
+            boolean foundSegment = false;
+
+            int i;
+            for (i = route1.getActiveWpIndex(); i < route1.getWaypoints().size(); i++) {
+                if (i > 0) {
+                    route1WpStart = new DateTime(route1.getPlannedEtas().get(i - 1));
+                    route1WpEnd = new DateTime(route1.getPlannedEtas().get(i));
+
+                    if (route1WpStart.isBefore(route2Start) && route1WpEnd.isAfter(route2Start)) {
+                        // We have the found the segment we need to start from
+
+                        System.out.println("Found segment");
+                        foundSegment = true;
+                        break;
+                    }
+                }
+            }
+
+            if (foundSegment) {
+
+                // Now find position at time of route2Start
+
+                System.out.println("Route 1 WP Start is at " + route1.getPlannedEtas().get(i - 1));
+                System.out.println("Route 2 Start is at " + route2.getPlannedEtas().get(route2StartWp));
+
+                // How long will we have travelled along our route (route 1)
+                long timeTravelledSeconds = (route2Start.getMillis() - route1WpStart.getMillis()) / 1000;
+
+                double speedInLeg = route1.getWaypoints().get(i - 1).getOutLeg().getSpeed();
+
+                System.out.println("We have travelled for how many minutes " + timeTravelledSeconds / 60 + " at speed "
+                        + speedInLeg);
+
+                double distanceTravelled = Calculator.distanceAfterTimeMph(speedInLeg, timeTravelledSeconds);
+
+                System.out.println("We have travelled " + distanceTravelled + " nautical miles in direction: "
+                        + route1.getWaypoints().get(i - 1).calcBrg());
+
+                Position position = Calculator.findPosition(route1.getWaypoints().get(i - 1).getPos(),
+                        route1.getWaypoints().get(i - 1).calcBrg(), Converter.nmToMeters(distanceTravelled));
+
+                System.out.println("Difference start pos" + route1.getWaypoints().get(i - 1).getPos() + " vs " + position);
+
+                System.out.println("The distance between points is "
+                        + Converter.metersToNm(position.distanceTo(route2StartPos, CoordinateSystem.CARTESIAN)));
+
+                intersectPositions.add(position);
+
+                intersectPositions.add(route2StartPos);
+
+                // In nautical miles
+//                double route1SegmentTraversed = distanceTravelled;
+//                double route2SegmentTraversed = 0;
+
+                // Okay so we are in position and in route2StartPos
+                // We must start traversing the route now, assume straight lines, for each traversing check the distance between
+                // points
+
+                // Adaptive traversing, start with time slots of 10 minutes, if distance between points is smaller than x
+                // Or if distance is simply decreasing, reduce time traversing.
+                // If the distance becomes below the threshold locate point where it starts
+
+                // Ensure that we do not traverse beyond the length of the route
+
+                // We need to switch segments at some point - wait with that
+
+                Position route1CurrentPosition = position;
+                Position route2CurrentPosition = route2StartPos;
+
+                int route1CurrentWaypoint = i - 1;
+                int route2CurrentWaypoint = route2StartWp;
+
+                double route1SegmentSpeed = route1.getWaypoints().get(route1CurrentWaypoint).getOutLeg().getSpeed();
+                double route2SegmentSpeed = route2.getWaypoints().get(route2CurrentWaypoint).getOutLeg().getSpeed();
+
+                double route1Bearing = route1.getWaypoints().get(route1CurrentWaypoint).calcBrg();
+                double route2Bearing = route2.getWaypoints().get(route2CurrentWaypoint).calcBrg();
+
+                DateTime traverseTime = route2Start;
+                
+                DateTime route1SegmentEnd = new DateTime(route1.getPlannedEtas().get(route1CurrentWaypoint+1));
+                DateTime route2SegmentEnd = new DateTime(route2.getPlannedEtas().get(route2CurrentWaypoint+1));
+
+                while (true) {
+
+                    double currentDistance = Converter.metersToNm(route1CurrentPosition.distanceTo(route2CurrentPosition,
+                            CoordinateSystem.CARTESIAN));
+
+                    if (currentDistance < FILTER_DISTANCE_EPSILON) {
+                        IntendedRouteFilterMessage filterMessage = new IntendedRouteFilterMessage(route1CurrentPosition,
+                                route2CurrentPosition, "Warning stuff", 0, 0);
+
+                        filterMessage.setTime1(traverseTime);
+                        filterMessage.setTime2(traverseTime);
+
+                        filteredIntendedRoute.getFilterMessages().add(filterMessage);
+                        System.out.println("Adding warning");
+                    } else {
+                        System.out.println("Found distance of " + currentDistance + " at " + traverseTime);
+                    }
+
+                    // We start in this position
+
+                    // route1CurrentPosition
+                    // route2CurrentPosition
+                    // At this time
+                    // route2Start
+
+                    System.out.println("We start at time " + traverseTime);
+                    traverseTime = traverseTime.plusMinutes(1);
+
+                    System.out.println("And traverse until " + traverseTime);
+
+                    double route1DistanceToTravel = Calculator.distanceAfterTimeMph(route1SegmentSpeed, 60);
+
+                    System.out.println("We travel " + route1DistanceToTravel + " miles for route 1");
+
+                    double route2DistanceToTravel = Calculator.distanceAfterTimeMph(route2SegmentSpeed, 60);
+
+                    // Position route1NextPosition = traverseLine(route1CurrentPosition, route1Bearing, distanceTravelledRoute1);
+                    // Position route2NextPosition = traverseLine(route2CurrentPosition, route2Bearing, distanceTravelledRoute2);
+
+                    route1CurrentPosition = traverseLine(route1CurrentPosition, route1Bearing, route1DistanceToTravel);
+                    route2CurrentPosition = traverseLine(route2CurrentPosition, route2Bearing, route2DistanceToTravel);
+
+//                    route1SegmentTraversed = route1SegmentTraversed + route1DistanceToTravel;
+//                    route2SegmentTraversed = route2SegmentTraversed + route2DistanceToTravel;
+
+                    // if (route1SegmentTraversed > Converter.milesToNM(route1.getWaypoints().get(route1CurrentWaypoint).calcRng()))
+                    // {
+                    if (traverseTime.isAfter(route1SegmentEnd)) {
+
+//                        System.out.println("We have traversed " + route1SegmentTraversed + " nautical miles");
+                        System.out.println("We are at waypoint id  " + route1CurrentWaypoint + " and the route has a total of "
+                                + route1.getWaypoints().size() + " waypoints");
+                        // We are done with current leg, is there a next one?
+
+                        // No more waypoints - terminate
+                        if (route1CurrentWaypoint == route1.getWaypoints().size() - 2) {
+                            System.out.println("We are breaking - route 1 is done");
+                            break;
+                        } else {
+                            // Switch to next leg
+                            route1CurrentWaypoint++;
+
+                            System.out.println("We are now at waypoint " + route1CurrentWaypoint);
+
+                            route1CurrentPosition = route1.getWaypoints().get(route1CurrentWaypoint).getPos();
+                            route1SegmentSpeed = route1.getWaypoints().get(route1CurrentWaypoint).getOutLeg().getSpeed();
+                            route1Bearing = route1.getWaypoints().get(route1CurrentWaypoint).calcBrg();
+                            route1SegmentEnd = new DateTime(route1.getPlannedEtas().get(route1CurrentWaypoint+1));
+                        }
+                    }
+
+//                    if (route2SegmentTraversed > Converter.milesToNM(route2.getWaypoints().get(route2CurrentWaypoint).calcRng())) {
+                    if (traverseTime.isAfter(route2SegmentEnd)) {
+
+//                        System.out.println("ROUTE 2: We have traversed " + route2SegmentTraversed + " nautical miles out of "
+//                                + Converter.milesToNM(route2.getWaypoints().get(route2CurrentWaypoint).calcRng()));
+                        System.out.println("We are at waypoint id  " + route2CurrentWaypoint + " and the route has a total of "
+                                + route2.getWaypoints().size() + " waypoints");
+
+                        // No more waypoints - terminate
+                        if (route2CurrentWaypoint == route2.getWaypoints().size() - 2) {
+                            System.out.println("We are breaking - route 2 is done");
+                            break;
+                        } else {
+                            // Switch to next leg
+                            route2CurrentWaypoint++;
+                            
+                            route2CurrentPosition = route2.getWaypoints().get(route2CurrentWaypoint).getPos();
+                            route2SegmentSpeed = route2.getWaypoints().get(route2CurrentWaypoint).getOutLeg().getSpeed();
+                            route2Bearing = route2.getWaypoints().get(route2CurrentWaypoint).calcBrg();
+                            route2SegmentEnd = new DateTime(route2.getPlannedEtas().get(route2CurrentWaypoint+1));
+                        }
+
+                    }
+
+                }
+            } else {
+                System.out.println("No segment was found - not sure how we reached this point...");
+            }
+
+        } else {
+            // Route2 starts first
+            // Thus route1 start must be first common timeslot
+
+        }
+
+        // findPosition(Position startingLocation, Position endLocation, double distanceTravelled){
+
+        return filteredIntendedRoute;
+    }
+
+    private Position traverseLine(Position startPosition, double bearing, double distanceTravelled) {
+
+        // How long will we have travelled along our route (route 1)
+        // long timeTravelledSeconds = minutes * 60;
+
+        // double distanceTravelled = Calculator.distanceAfterTimeMph(speed, timeTravelledSeconds);
+
+        Position position = Calculator.findPosition(startPosition, bearing, Converter.nmToMeters(distanceTravelled));
+
+        return position;
+
+    }
+
     /**
      * Apply Filter on the two routes
      * 
      * @param route1
      * @param route2
      */
-    protected FilteredIntendedRoute compareRoutes(Route route1, Route route2) {
+    protected FilteredIntendedRoute compareRoutes(Route route1, IntendedRoute route2) {
 
         intersectPositions.clear();
 
@@ -411,8 +669,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                 } else {
 
                     // Region filter - do not apply if we have an intersection of line segments/
-                    IntendedRouteFilterMessage regionResultMessage = proxmityFilter(route1, route2, i - 1, j - 1,
-                            route1Waypoint1, route1Waypoint2, route2Waypoint1, route2Waypoint2, FILTER_DISTANCE_EPSILON);
+                    IntendedRouteFilterMessage regionResultMessage = proxmityFilter(route1, route2, i - 1, j - 1, route1Waypoint1,
+                            route1Waypoint2, route2Waypoint1, route2Waypoint2, FILTER_DISTANCE_EPSILON);
 
                     if (regionResultMessage != null) {
                         filteredIntendedRoute.getFilterMessages().add(regionResultMessage);
@@ -484,10 +742,10 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         return dest;
     }
 
-    private IntendedRouteFilterMessage proximityFilterRhumbLine(Route route1, Route route2, int i, int j, Position A,
-            Position B, Position C, Position D, double epsilon) {
+    private IntendedRouteFilterMessage proximityFilterRhumbLine(Route route1, Route route2, int i, int j, Position A, Position B,
+            Position C, Position D, double epsilon) {
 
-//        List<IntendedRouteFilterMessage> messageList = new ArrayList<>();
+        // List<IntendedRouteFilterMessage> messageList = new ArrayList<>();
 
         Projection projection = mapBean.getProjection();
 
@@ -619,8 +877,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         return lineSegmentSize;
     }
 
-    private IntendedRouteFilterMessage proximityFilterGreatCircle(Route route1, Route route2, int i, int j, Position A,
-            Position B, Position C, Position D, double epsilon) {
+    private IntendedRouteFilterMessage proximityFilterGreatCircle(Route route1, Route route2, int i, int j, Position A, Position B,
+            Position C, Position D, double epsilon) {
 
         List<IntendedRouteFilterMessage> proximityFilterMessages = new ArrayList<IntendedRouteFilterMessage>();
 
@@ -738,7 +996,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     private IntendedRouteFilterMessage proximityFilterMix(Route route1, Route route2, int i, int j, Position A, Position B,
             Position C, Position D, double epsilon) {
 
-//        List<IntendedRouteFilterMessage> messageList = new ArrayList<IntendedRouteFilterMessage>();
+        // List<IntendedRouteFilterMessage> messageList = new ArrayList<IntendedRouteFilterMessage>();
 
         // We need to determine which is RL and which is GC
 
@@ -806,7 +1064,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             route1SegmentExternalPoint, "Route Segments proximity warning", j - 1, j);
 
                     if (checkDateInterval(route1SegmentExternalPoint, segment1Positions.get(k), route1, route2, i, j, message)) {
-//                        messageList.add(message);
+                        // messageList.add(message);
                         return message;
                     }
 

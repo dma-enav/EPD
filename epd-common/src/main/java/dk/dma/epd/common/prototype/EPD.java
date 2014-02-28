@@ -15,10 +15,13 @@
  */
 package dk.dma.epd.common.prototype;
 
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.nio.file.Path;
 import java.util.Properties;
+
+import javax.swing.ImageIcon;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.Resources;
@@ -218,6 +221,30 @@ public abstract class EPD implements ISettingsListener {
      */
     public abstract void closeApp(boolean restart);
     
+    /**
+     * Returns the application icon
+     * @return the application icon
+     */
+    public Image getAppIcon() {
+        ImageIcon icon =  Resources.get(getInstance().getClass()).getCachedImageIcon("/images/appicon.png");
+        if (icon != null) {
+            return icon.getImage();
+        }
+        return null;
+    }    
+
+    /**
+     * Returns the application icon scaled to the given size
+     * @param size the size of the app icon
+     * @return the application icon scaled to the given size
+     */
+    public Image getAppIcon(int size) {
+        Image appIcon = getAppIcon();
+        if (appIcon != null) {
+            return appIcon.getScaledInstance(size, size, java.awt.Image.SCALE_SMOOTH);
+        }
+        return null;
+    }    
     
     /**
      * If Key caps is pressed during start up, and if so,

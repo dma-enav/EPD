@@ -25,7 +25,10 @@ import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.ais.IVesselTargetSettingsListener;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
+import dk.dma.epd.common.prototype.ais.VesselTarget;
+import dk.dma.epd.common.prototype.ais.VesselTargetSettings;
 import dk.dma.epd.common.prototype.gui.constants.ColorConstants;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
@@ -42,7 +45,7 @@ import dk.dma.epd.ship.ownship.OwnShipHandler;
 /**
  * Defines the own-ship layer
  */
-public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, ProjectionListener {
+public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, ProjectionListener, IVesselTargetSettingsListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -145,7 +148,29 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
         lastRedraw = new Date();
         doPrepare();
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void ownShipChanged(VesselTarget oldValue, VesselTarget newValue) {
+        // Remove this as listener for settings of old own ship
+        oldValue.getSettings().removeChangeListener(this);
+        // Add this as listener for settings of new own ship
+        newValue.getSettings().addChangeListener(this);
+    }
 
+    /**
+     * {@inheritDoc} This layer observes changes to the {@link VesselTargetSettings} associated with the {@link VesselTarget} that is set as own ship.
+     */
+    @Override
+    public void showPastTrackUpdated(VesselTargetSettings source) {
+        // Let PastTrackGraphic add/remove graphic elements according to updated visibility
+        this.pastTrackGraphic.update(this.ownShipHandler.getAisTarget(), ownShipHandler.getPositionData().getPos());
+        // repaint immediately to visualize hiding or showing past track
+        this.doPrepare();
+    }
+    
     /**
      * Draws/updates own ship in outline mode.
      */
@@ -211,6 +236,8 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
         if (ownShipHandler == null && obj instanceof OwnShipHandler) {
             ownShipHandler = (OwnShipHandler) obj;
             ownShipHandler.addListener(this);
+            // Register this as listener for changes to VesselTargetSettings of own ship VesselTarget
+            ownShipHandler.getAisTarget().getSettings().addChangeListener(this);
         }
         if (multiSourcePntHandler == null && obj instanceof MultiSourcePntHandler) {
             multiSourcePntHandler = (MultiSourcePntHandler) obj;
@@ -224,6 +251,8 @@ public class OwnShipLayer extends EPDLayerCommon implements IOwnShipListener, Pr
     public void findAndUndo(Object obj) {
         if (ownShipHandler == obj) {
             ownShipHandler.removeListener(this);
+            // Unregister this as listener for changes to VesselTargetSettings of own ship VesselTarget
+            ownShipHandler.getAisTarget().getSettings().removeChangeListener(this);
             ownShipHandler = null;
         }
         if (multiSourcePntHandler == obj) {

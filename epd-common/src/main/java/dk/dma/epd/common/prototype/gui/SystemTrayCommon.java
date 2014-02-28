@@ -23,6 +23,8 @@ import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
 import org.slf4j.Logger;
@@ -62,7 +64,7 @@ public class SystemTrayCommon extends MapHandlerChild {
                 Dimension dim = tray.getTrayIconSize();
                 String title = EPD.getInstance().getMainFrame().getTitle();
                 Image image = GraphicsUtil.resizeImage(
-                        EPD.getInstance().getMainFrame().getAppIcon(), 
+                        EPD.getInstance().getAppIcon(), 
                         BufferedImage.TYPE_INT_ARGB, 
                         dim.width, 
                         dim.height);
@@ -70,9 +72,26 @@ public class SystemTrayCommon extends MapHandlerChild {
                 trayIcon = new TrayIcon(image, title);
                 
                 // Create a pop-up menu components
-                MenuItem aboutItem = new MenuItem("About");
+                MenuItem aboutItem = new MenuItem("About...");
+                aboutItem.addActionListener(EPD.getInstance().getMainFrame().getAboutAction());
+                
+                MenuItem setupItem = new MenuItem("Setup...");
+                setupItem.addActionListener(new ActionListener() {
+                    @Override public void actionPerformed(ActionEvent e) {
+                        EPD.getInstance().getMainFrame().openSetupDialog();
+                    }});
+                
+                MenuItem exitItem = new MenuItem("Exit");
+                exitItem.addActionListener(new ActionListener() {
+                    @Override public void actionPerformed(ActionEvent e) {
+                        EPD.getInstance().closeApp(false);
+                    }});
+                
                 PopupMenu popup = new PopupMenu();
                 popup.add(aboutItem);
+                popup.add(setupItem);
+                popup.addSeparator();
+                popup.add(exitItem);
                 trayIcon.setPopupMenu(popup);
                 
                 tray.add(trayIcon);

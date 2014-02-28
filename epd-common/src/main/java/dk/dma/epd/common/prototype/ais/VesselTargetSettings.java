@@ -16,6 +16,7 @@
 package dk.dma.epd.common.prototype.ais;
 
 import java.io.Serializable;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
@@ -25,22 +26,32 @@ import net.jcip.annotations.ThreadSafe;
  */
 @ThreadSafe
 public class VesselTargetSettings implements Serializable {
-    
+
     private static final long serialVersionUID = 1919231736214081361L;
-    
-    @GuardedBy("this") private boolean hide;
-    @GuardedBy("this") private boolean showPastTrack;
-    @GuardedBy("this") private int pastTrackDisplayTime;
-    @GuardedBy("this") private int pastTrackMinDist;
-    
+
+    @GuardedBy("this")
+    private boolean hide;
+    @GuardedBy("this")
+    private boolean showPastTrack;
+    @GuardedBy("this")
+    private int pastTrackDisplayTime;
+    @GuardedBy("this")
+    private int pastTrackMinDist;
+
+    /**
+     * Set set of observers of changes to properties of this {@code VesselTargetSettings}.
+     */
+    private transient CopyOnWriteArrayList<IVesselTargetSettingsListener> changeListeners = new CopyOnWriteArrayList<>();
+
     /**
      * Empty constructor
      */
-    public VesselTargetSettings() {   
+    public VesselTargetSettings() {
     }
-    
+
     /**
      * Copy constructor
+     * 
      * @param settings
      */
     public VesselTargetSettings(VesselTargetSettings settings) {
@@ -51,7 +62,43 @@ public class VesselTargetSettings implements Serializable {
     }
 
     /**
+     * Add a listener to receive notifications of changes to properties of this
+     * {@code VesselTargetSettings}. A listener can only be registered once.
+     * 
+     * @param listener
+     *            A {@link IVesselTargetSettingsListener} that wants to receive
+     *            notifications of changes to properties of this
+     *            {@code VesselTargetSettings}.
+     */
+    public synchronized void addChangeListener(
+            IVesselTargetSettingsListener listener) {
+        if(this.changeListeners == null) {
+            // May need to init as this may be deserialized and hence field initialization may not have been performed.
+            this.changeListeners = new CopyOnWriteArrayList<>();
+        }
+        this.changeListeners.addIfAbsent(listener);
+    }
+
+    /**
+     * Remove a listener such that it will no longer receive notifications of
+     * changes to properties of this {@code VesselTargetSettings}.
+     * 
+     * @param listener
+     *            The {@link IVesselTargetSettingsListener} that should no
+     *            longer listen for changes to properties of this
+     *            {@code VesselTargetSettings}.
+     * @return True if the listener was successfully removed, false if the
+     *         listener was not registered with this
+     *         {@code VesselTargetSettings} and hence could not be removed.
+     */
+    public synchronized boolean removeChangeListener(
+            IVesselTargetSettingsListener listener) {
+        return this.changeListeners.remove(listener);
+    }
+
+    /**
      * Is the target hidden on the display or not
+     * 
      * @return
      */
     public synchronized boolean isHide() {
@@ -60,6 +107,7 @@ public class VesselTargetSettings implements Serializable {
 
     /**
      * Set visibility
+     * 
      * @param hide
      */
     public synchronized void setHide(boolean hide) {
@@ -67,7 +115,8 @@ public class VesselTargetSettings implements Serializable {
     }
 
     /**
-     * Will the past-track be shown for the target 
+     * Will the past-track be shown for the target
+     * 
      * @return
      */
     public synchronized boolean isShowPastTrack() {
@@ -76,14 +125,19 @@ public class VesselTargetSettings implements Serializable {
 
     /**
      * Set visibility of intended route
+     * 
      * @param showPastTrack
      */
     public synchronized void setShowPastTrack(boolean showPastTrack) {
         this.showPastTrack = showPastTrack;
-    }    
+        for(IVesselTargetSettingsListener listener : this.changeListeners) {
+            listener.showPastTrackUpdated(this);
+        }
+    }
 
     /**
      * Returns the number of minutes of the past-tack to display
+     * 
      * @return the number of minutes of the past-tack to display
      */
     public synchronized int getPastTrackDisplayTime() {
@@ -92,7 +146,9 @@ public class VesselTargetSettings implements Serializable {
 
     /**
      * Sets the number of minutes of the past-tack to display
-     * @param pastTrackDisplayTime the number of minutes of the past-tack to display
+     * 
+     * @param pastTrackDisplayTime
+     *            the number of minutes of the past-tack to display
      */
     public synchronized void setPastTrackDisplayTime(int pastTrackDisplayTime) {
         this.pastTrackDisplayTime = pastTrackDisplayTime;
@@ -100,6 +156,7 @@ public class VesselTargetSettings implements Serializable {
 
     /**
      * Returns the minimum distance in meters between two past-track points
+     * 
      * @return the minimum distance in meters between two past-track points
      */
     public synchronized int getPastTrackMinDist() {
@@ -108,7 +165,9 @@ public class VesselTargetSettings implements Serializable {
 
     /**
      * Sets the minimum distance in meters between two past-track points
-     * @param pastTrackMinDist the minimum distance in meters between two past-track points
+     * 
+     * @param pastTrackMinDist
+     *            the minimum distance in meters between two past-track points
      */
     public synchronized void setPastTrackMinDist(int pastTrackMinDist) {
         this.pastTrackMinDist = pastTrackMinDist;

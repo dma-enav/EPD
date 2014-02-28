@@ -282,8 +282,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                 IntendedRoute recievedRoute = intendedRoute.getValue();
 
                 FilteredIntendedRoute filter = compareRoutes(activeRoute, recievedRoute);
-                
-
+//                FilteredIntendedRoute filter = findTCPA(activeRoute, recievedRoute);
                 
                 //No warnings, ignore it
                 if (filter.include()){

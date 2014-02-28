@@ -51,21 +51,25 @@ import net.jcip.annotations.ThreadSafe;
  * Class for handling incoming own-ship related messages and status data
  */
 @ThreadSafe
-public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSensorListener, IPntDataListener {
+public class OwnShipHandler extends MapHandlerChild implements Runnable,
+        IAisSensorListener, IPntDataListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OwnShipHandler.class);
-    private static final String OWN_SHIP_FILE = EPD.getInstance().getHomePath().resolve(".ownship").toString();
-    
+    private static final Logger LOG = LoggerFactory
+            .getLogger(OwnShipHandler.class);
+    private static final String OWN_SHIP_FILE = EPD.getInstance().getHomePath()
+            .resolve(".ownship").toString();
+
     private final AisSettings aisSettings;
     private PntHandler pntHandler;
-    
+
     private volatile VesselTarget aisTarget;
     private volatile PntData pntData;
 
     protected CopyOnWriteArrayList<IOwnShipListener> listeners = new CopyOnWriteArrayList<>();
-    
+
     /**
      * Constructor
+     * 
      * @param aisSettings
      */
     public OwnShipHandler(AisSettings aisSettings) {
@@ -79,11 +83,18 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSen
      * Initializes an AIS vessel target
      */
     private synchronized void initAisTarget() {
+        // Log previous own ship value for use in publishOwnShipChanged below.
+        VesselTarget oldOwnShip = this.aisTarget;
         aisTarget = new VesselTarget();
-        aisTarget.getSettings().setPastTrackDisplayTime(aisSettings.getPastTrackDisplayTime());
-        aisTarget.getSettings().setPastTrackMinDist(aisSettings.getPastTrackOwnShipMinDist());
+        aisTarget.getSettings().setPastTrackDisplayTime(
+                aisSettings.getPastTrackDisplayTime());
+        aisTarget.getSettings().setPastTrackMinDist(
+                aisSettings.getPastTrackOwnShipMinDist());
+        // Inform listeners that this handler has changed the object used to
+        // model own ship.
+        publishOwnShipChanged(oldOwnShip);
     }
-    
+
     /**
      * Method receiving AIS messages from AIS sensor
      */
@@ -91,7 +102,7 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSen
     public final void receive(AisMessage aisMessage) {
         // The AisHandler will process these
     }
-    
+
     /**
      * Method for receiving own-ship AIS messages
      * 
@@ -107,7 +118,8 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSen
         if (aisMessage instanceof AisPositionMessage) {
             AisPositionMessage aisPositionMessage = (AisPositionMessage) aisMessage;
             aisTarget.setAisClass(VesselTarget.AisClass.A);
-            aisTarget.setPositionData(new VesselPositionData(aisPositionMessage));
+            aisTarget
+                    .setPositionData(new VesselPositionData(aisPositionMessage));
         } else if (aisMessage instanceof AisMessage18) {
             AisMessage18 posMessage = (AisMessage18) aisMessage;
             aisTarget.setAisClass(VesselTarget.AisClass.B);
@@ -118,38 +130,40 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSen
         }
         aisTarget.setLastReceived(PntTime.getInstance().getDate());
         aisTarget.setMmsi(aisMessage.getUserId());
-        
+
         // Update the past-tracks
         updatePastTrackPosition();
-        
+
         // NB: For now we only call publishUpdate upon receiving PNT updates
         // publishUpdate();
     }
 
     /**
-     * Returns a reference to the current AIS target.<p>
-     * You should probably use the computed {@code getPositionData()} 
-     * or {@code getStaticData()} instead.
+     * Returns a reference to the current AIS target.
+     * <p>
+     * You should probably use the computed {@code getPositionData()} or
+     * {@code getStaticData()} instead.
      * 
      * @return a reference to the current AIS target
      */
     public synchronized VesselTarget getAisTarget() {
         return aisTarget;
     }
-    
+
     /**
-     * Returns the {@code VesselStaticData()} of the current AIS target,
-     * or {@code null} if the AIS target is undefined.
+     * Returns the {@code VesselStaticData()} of the current AIS target, or
+     * {@code null} if the AIS target is undefined.
      * 
      * @return the {@code VesselStaticData} of the current AIS target
      */
     public synchronized VesselStaticData getStaticData() {
-        return (aisTarget.getStaticData() == null) ? null : aisTarget.getStaticData();
+        return (aisTarget.getStaticData() == null) ? null : aisTarget
+                .getStaticData();
     }
-    
+
     /**
-     * Returns the MMSI of the current AIS target,
-     * or {@code null} if the AIS target is undefined.
+     * Returns the MMSI of the current AIS target, or {@code null} if the AIS
+     * target is undefined.
      * 
      * @return the MMSI of the current AIS target
      */
@@ -160,21 +174,23 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSen
     /**
      * Called by the PNT handler when the PntData is updated
      * 
-     * @param pntData the updated PntData
+     * @param pntData
+     *            the updated PntData
      */
     @Override
     public synchronized void pntDataUpdate(PntData pntData) {
         this.pntData = pntData;
-        
+
         // Update the past-tracks
         updatePastTrackPosition();
-        
+
         // Update the listeners
         publishUpdate();
     }
-    
+
     /**
-     * Returns the current PNT data.<p>
+     * Returns the current PNT data.
+     * <p>
      * You should probably use the computed {@code getPositionData()} instead.
      * 
      * @return the current PNT data
@@ -182,77 +198,82 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSen
     public synchronized PntData getPntData() {
         return pntData;
     }
-    
+
     /**
-     * Returns the <i>best</i> computed {@linkplain VesselPositionData} by 
+     * Returns the <i>best</i> computed {@linkplain VesselPositionData} by
      * combining the current AIS and PNT data.
      * 
      * @return the current own-ship position data
      */
     public synchronized VesselPositionData getPositionData() {
         // Initialize the position with an AIS target position
-        VesselPositionData pos = 
-                (aisTarget.getPositionData() == null)
-                ? new VesselPositionData()
+        VesselPositionData pos = (aisTarget.getPositionData() == null) ? new VesselPositionData()
                 : new VesselPositionData(aisTarget.getPositionData());
-       
-       // Update with PNT position
-       if (pntData != null) {
-           if (pntData.getPosition() != null) {
-               pos.setPos(pntData.getPosition());
-           }
-           if (pntData.getCog() != null) {
-               pos.setCog(pntData.getCog().floatValue());
-           }
-           if (pntData.getSog() != null) {
-               pos.setSog(pntData.getSog().floatValue());
-           }
-       }
-       return pos;
+
+        // Update with PNT position
+        if (pntData != null) {
+            if (pntData.getPosition() != null) {
+                pos.setPos(pntData.getPosition());
+            }
+            if (pntData.getCog() != null) {
+                pos.setCog(pntData.getCog().floatValue());
+            }
+            if (pntData.getSog() != null) {
+                pos.setSog(pntData.getSog().floatValue());
+            }
+        }
+        return pos;
     }
-    
+
     /**
      * Returns if the own-ship has an associated position
+     * 
      * @return if the own-ship has an associated position
      */
     public synchronized boolean isPositionDefined() {
         // Same as asking if getPositionData.getPos() != null:
-        return (aisTarget.getPositionData() != null && aisTarget.getPositionData().getPos() != null)
-               || (pntData != null && pntData.getPosition() != null);
+        return (aisTarget.getPositionData() != null && aisTarget
+                .getPositionData().getPos() != null)
+                || (pntData != null && pntData.getPosition() != null);
     }
-    
+
     /**
      * Shows or hides past tracks for the own-ship
      * 
-     * @param show whether to show or hide past tracks
+     * @param show
+     *            whether to show or hide past tracks
      */
     public synchronized void setShowPastTracks(boolean show) {
         aisTarget.getSettings().setShowPastTrack(show);
     }
 
     /**
-     * Updates the current position to the recorded list of past-track positions.<p>
+     * Updates the current position to the recorded list of past-track
+     * positions.
+     * <p>
      * The positions are aggregated according to the past-track settings.
      */
     private void updatePastTrackPosition() {
         Position pos = getPositionData().getPos();
         if (pos != null) {
-            getAisTarget().getPastTrackData().addPosition(pos, aisSettings.getPastTrackMinDist());
+            getAisTarget().getPastTrackData().addPosition(pos,
+                    aisSettings.getPastTrackMinDist());
         }
     }
-    
+
     /**
-     * Sub-classes can override to perform periodic updates.
-     * Called every 10 seconds.
+     * Sub-classes can override to perform periodic updates. Called every 10
+     * seconds.
      */
     protected synchronized void updatePeriodic() {
-        aisTarget.getPastTrackData().cleanup(60 * aisSettings.getPastTrackMaxTime()); 
+        aisTarget.getPastTrackData().cleanup(
+                60 * aisSettings.getPastTrackMaxTime());
     }
-    
+
     /**
      * Saves the own-ship object
      */
-    public void saveView() {        
+    public void saveView() {
         try (FileOutputStream fileOut = new FileOutputStream(OWN_SHIP_FILE);
                 ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
             objectOut.writeObject(aisTarget);
@@ -260,14 +281,16 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSen
             LOG.error("Failed to save own-ship file: " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * Loads the own-ship object
      */
     public void loadView() {
         try (FileInputStream fileIn = new FileInputStream(OWN_SHIP_FILE);
                 ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
-                aisTarget = (VesselTarget) objectIn.readObject();
+            VesselTarget oldOwnShip = this.aisTarget;
+            this.aisTarget = (VesselTarget) objectIn.readObject();
+            publishOwnShipChanged(oldOwnShip);
         } catch (FileNotFoundException e) {
             // Not an error
         } catch (Exception e) {
@@ -275,20 +298,22 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSen
             // Delete possible corrupted or old file
             new File(".ownship").delete();
         }
-        
-        if(aisTarget == null) {
+
+        if (aisTarget == null) {
             initAisTarget();
         }
     }
 
     /**
      * Called when a bean is added to this bean context
-     * @param obj the bean being added
+     * 
+     * @param obj
+     *            the bean being added
      */
     @Override
     public void findAndInit(Object obj) {
         if (pntHandler == null && obj instanceof PntHandler) {
-            pntHandler = (PntHandler)obj;
+            pntHandler = (PntHandler) obj;
             pntHandler.addListener(this);
         }
     }
@@ -301,10 +326,25 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSen
             listener.ownShipUpdated(this);
         }
     }
-    
+
+    /**
+     * Informs listeners that the {@link VesselTarget} used as own ship by this
+     * {@code OwnShipHandler} has now changed.
+     * 
+     * @param oldOwnShip
+     *            The {@link VesselTarget} that was previously used as own ship.
+     */
+    public final void publishOwnShipChanged(VesselTarget oldOwnShip) {
+        for (IOwnShipListener listener : this.listeners) {
+            listener.ownShipChanged(oldOwnShip, this.aisTarget);
+        }
+    }
+
     /**
      * Adds a listener for own-ship updates
-     * @param listener the listener to add
+     * 
+     * @param listener
+     *            the listener to add
      */
     public final void addListener(IOwnShipListener listener) {
         listeners.addIfAbsent(listener);
@@ -312,12 +352,14 @@ public class OwnShipHandler extends MapHandlerChild implements Runnable, IAisSen
 
     /**
      * Removes a listener for own-ship updates
-     * @param listener the listener to remove
+     * 
+     * @param listener
+     *            the listener to remove
      */
     public final void removeListener(IOwnShipListener listener) {
         listeners.remove(listener);
     }
-    
+
     /**
      * Called after the OwnShipHandler has been initialized.
      */

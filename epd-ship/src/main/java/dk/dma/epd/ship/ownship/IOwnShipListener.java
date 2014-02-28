@@ -15,17 +15,31 @@
  */
 package dk.dma.epd.ship.ownship;
 
-
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 
 /**
  * Interface to implement for classes wanting to receive own-ship updates
  */
 public interface IOwnShipListener {
-    
+
     /**
      * Called when the own-ship has been updated
-     * @param ownShipHandler the {@code OwnShipHandler}
+     * 
+     * @param ownShipHandler
+     *            the {@code OwnShipHandler}
      */
     void ownShipUpdated(OwnShipHandler ownShipHandler);
 
+    /**
+     * Invoked when own ship is changed to a new instance of
+     * {@link VesselTarget}.
+     * 
+     * @param oldValue
+     *            The {@link VesselTarget} instance previously used to model own
+     *            ship data. May be null.
+     * @param newValue
+     *            The {@link VesselTarget} instance now used to model own ship
+     *            data.
+     */
+    void ownShipChanged(VesselTarget oldValue, VesselTarget newValue);
 }

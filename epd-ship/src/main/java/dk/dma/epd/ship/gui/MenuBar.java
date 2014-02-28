@@ -51,7 +51,6 @@ import com.bbn.openmap.gui.WindowSupport;
 import dk.dma.ais.virtualnet.transponder.gui.TransponderFrame;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
-import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
@@ -128,13 +127,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         setup.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                SetupDialog setupDialog = new SetupDialog(mainFrame);
-//                setupDialog.loadSettings(EPDShip.getInstance().getSettings());
-//                setupDialog.setVisible(true);
-                
-                SetupDialogShip setup = new SetupDialogShip(mainFrame);
-                setup.loadSettings(EPDShip.getInstance().getSettings());
-                setup.setVisible(true);                
+                mainFrame.openSetupDialog();
             }
         });
 
@@ -474,45 +467,8 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         JMenu help = new JMenu("Help");
         this.add(help);
 
-        JMenuItem aboutEpdShip = new JMenuItem("About EPD-ship");
+        JMenuItem aboutEpdShip = new JMenuItem(mainFrame.getAboutAction());
         help.add(aboutEpdShip);
-        aboutEpdShip.setIcon(toolbarIcon("images/appicon.png"));
-
-        final ImageIcon icon = createImageIcon();
-        
-        final StringBuilder aboutText = new StringBuilder();
-        aboutText.append("The E-navigation Prototype Display Ship (EPD-ship) is developed by the Danish Maritime Authority (www.dma.dk).\n");
-        aboutText.append("The user manual is available from service.e-navigation.net\n\n");
-        aboutText.append("Version   : " + VersionInfo.getVersion() + "\n");
-        aboutText.append("Build ID  : " + VersionInfo.getBuildId() + "\n");
-        aboutText.append("Build date: " + VersionInfo.getBuildDate());
-
-        aboutEpdShip.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane
-                        .showMessageDialog(
-                                mainFrame,
-                                aboutText.toString(),
-                                "About the EPD-ship", JOptionPane.OK_OPTION, icon);
-            }
-        });
-
-    }
-
-    protected static ImageIcon createImageIcon() {
-        ImageIcon icon = EPDShip.res().getCachedImageIcon("/images/appicon.png");
-        if (icon != null) {
-
-            Image img = icon.getImage();
-            Image newimg = img.getScaledInstance(45, 45, java.awt.Image.SCALE_SMOOTH);
-            ImageIcon newImage = new ImageIcon(newimg);
-            return newImage;
-
-        } else {
-            System.err.println("Couldn't find file");
-            return null;
-        }
     }
 
     public void generateStaticLayouts() {
