@@ -31,6 +31,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
@@ -41,6 +42,7 @@ import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -48,6 +50,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SpinnerDateModel;
 import javax.swing.WindowConstants;
 import javax.swing.JSpinner.DateEditor;
@@ -138,7 +141,13 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
         setLocation(100, 100);
 
         initGUI();
-        getRootPane().setDefaultButton(cancelBtn);
+        
+        // Hook up enter key to send and escape key to cancel
+        getRootPane().setDefaultButton(sendBtn);
+        getRootPane().registerKeyboardAction(this,
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+        
         pack();
     }
 
@@ -217,10 +226,10 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
 
         speedTxtField.getDocument().addDocumentListener(new TextFieldChangeListener(speedTxtField));
         speedTxtField.setHorizontalAlignment(JTextField.RIGHT);
-        routePanel.add(new JLabel("Speed:"), 
+        routePanel.add(new JLabel("Avg. speed:"), 
                 new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         routePanel.add(speedTxtField, 
-                new GridBagConstraints(1, 4, 2, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+                new GridBagConstraints(1, 4, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
         
         zoomBtn.addActionListener(this);
         routePanel.add(zoomBtn, 
@@ -371,7 +380,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
         } else if (ae.getSource() == sendBtn) {
             sendRoute();
         
-        } else if (ae.getSource() == cancelBtn) {
+        } else if (ae.getSource() == cancelBtn || ae.getSource() == getRootPane()) {
             this.setVisible(false);
         }
     }
