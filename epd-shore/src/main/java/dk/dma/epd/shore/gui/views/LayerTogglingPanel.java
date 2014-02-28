@@ -17,6 +17,7 @@ package dk.dma.epd.shore.gui.views;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -129,11 +130,12 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
         // Create the grid for the toolitems
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.PAGE_AXIS));
-        buttonPanel.setBackground(new Color(83, 83, 83));        
-        
+        buttonPanel.setBackground(new Color(83, 83, 83));
         
         goBckBtn = new GoBackButton();
-        goFrwrdBtn = new GoForwardButton();        
+        goFrwrdBtn = new GoForwardButton();
+        
+        this.addMouseListener(this);
 
         // Create the grid for the notifications
         // notificationPanel = new JPanel();
@@ -544,7 +546,8 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
 
     @Override
     public void mouseEntered(MouseEvent arg0) {
-
+        
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     @Override
