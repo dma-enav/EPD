@@ -14,6 +14,7 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 package dk.dma.epd.common.prototype.gui.settings;
+
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -26,7 +27,10 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.common.prototype.settings.MapSettings;
+
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JButton;
 
 /**
  * 
@@ -48,6 +52,17 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     private JCheckBox chckbxWmsIsUsed;
     private JLabel lblenterTheUrl;
     private JCheckBox chckbxUseEnc;
+    private JCheckBox chckbxUseWms;
+    private JSpinner spinnerShallowContour;
+    private JSpinner spinnerSafetyDepth;
+    private JSpinner spinnerSafetyContour;
+    private JSpinner spinnerDeepContour;
+    private JComboBox<String> comboBoxColorProfile;
+    private JCheckBox chckbxSimplePointSymbols;
+    private JCheckBox chckbxShallowPattern;
+    private JCheckBox chckbxShowText;
+    private JCheckBox chckbxTwoShades;
+    private JCheckBox chckbxPlainAreas;
     
     /**
      * Constructs a new CommonMapSettingsPanel object.
@@ -113,7 +128,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         /************** WMS settings ***************/
         
         wmsSettings = new JPanel();
-        wmsSettings.setBounds(6, 176, 438, 175);
+        wmsSettings.setBounds(6, 409, 438, 175);
         wmsSettings.setLayout(null);
         wmsSettings.setBorder(new TitledBorder(null, "WMS Settings", TitledBorder.LEADING, 
                 TitledBorder.TOP, null, null));
@@ -121,6 +136,10 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         lblWmsUrl = new JLabel("WMS URL");
         lblWmsUrl.setBounds(16, 70, 61, 16);
         wmsSettings.add(lblWmsUrl);
+        
+        chckbxUseWms = new JCheckBox("Use WMS");
+        chckbxUseWms.setBounds(16, 20, 88, 23);
+        wmsSettings.add(chckbxUseWms);
         
         textFieldWMSURL = new JTextField();
         textFieldWMSURL.setBounds(16, 95, 405, 20);
@@ -137,6 +156,90 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         lblenterTheUrl = new JLabel("<html>Enter the URL to the WMS service you wish to use, <br>enter everything except BBOX and height/width options.</html>");
         lblenterTheUrl.setBounds(16, 120, 405, 37);
         wmsSettings.add(lblenterTheUrl);
+        
+        
+        /************** S52 settings ***************/
+        
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
+        panel.setBorder(new TitledBorder(
+                        null, "S52 Layer", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        panel.setBounds(6, 178, 438, 219);
+        add(panel);
+        
+        spinnerShallowContour = new JSpinner();
+        spinnerShallowContour.setBounds(16, 20, 75, 20);
+        panel.add(spinnerShallowContour);
+        
+        spinnerSafetyDepth = new JSpinner();
+        spinnerSafetyDepth.setBounds(16, 45, 75, 20);
+        panel.add(spinnerSafetyDepth);
+        
+        spinnerSafetyContour = new JSpinner();
+        spinnerSafetyContour.setBounds(16, 70, 75, 20);
+        panel.add(spinnerSafetyContour);
+        
+        spinnerDeepContour = new JSpinner();
+        spinnerDeepContour.setBounds(16, 95, 75, 20);
+        panel.add(spinnerDeepContour);
+        
+        JLabel label = new JLabel("Shallow contour");
+        label.setBounds(103, 22, 101, 16);
+        panel.add(label);
+        
+        JLabel label_1 = new JLabel("Safety depth");
+        label_1.setBounds(103, 47, 78, 16);
+        panel.add(label_1);
+        
+        JLabel label_2 = new JLabel("Safety contour");
+        label_2.setBounds(103, 72, 91, 16);
+        panel.add(label_2);
+        
+        JLabel label_3 = new JLabel("Deep contour");
+        label_3.setBounds(103, 97, 91, 16);
+        panel.add(label_3);
+        
+        String[] colorModes = {"Day", "Dusk", "Night"};
+        comboBoxColorProfile = new JComboBox<String>(colorModes);
+        comboBoxColorProfile.setBounds(206, 19, 75, 20);
+        panel.add(comboBoxColorProfile);
+        
+        JLabel label_4 = new JLabel("Color profile");
+        label_4.setBounds(293, 20, 91, 16);
+        panel.add(label_4);
+        
+        chckbxShowText = new JCheckBox("Show text");
+        chckbxShowText.setBounds(16, 125, 128, 23);
+        panel.add(chckbxShowText);
+        
+        chckbxShallowPattern = new JCheckBox("Shallow pattern");
+        chckbxShallowPattern.setBounds(16, 150, 142, 23);
+        panel.add(chckbxShallowPattern);
+        
+        chckbxSimplePointSymbols = new JCheckBox("Simple point symbols");
+        chckbxSimplePointSymbols.setBounds(16, 175, 168, 23);
+        panel.add(chckbxSimplePointSymbols);
+        
+        chckbxTwoShades = new JCheckBox("Two shades");
+        chckbxTwoShades.setBounds(220, 150, 106, 23);
+        panel.add(chckbxTwoShades);
+        
+        chckbxPlainAreas = new JCheckBox("Plain areas");
+        chckbxPlainAreas.setBounds(220, 125, 106, 23);
+        panel.add(chckbxPlainAreas);
+        
+        JButton btnAdvancedOptions = new JButton("Advanced Options");
+        btnAdvancedOptions.setBounds(220, 175, 107, 20);
+        
+//        btnAdvancedOptions.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent arg0) {
+//                @SuppressWarnings("unused")
+//                AdvancedSettingsWindow advSettingsWindow = new AdvancedSettingsWindow();
+//                
+//            }
+//        });
+        
+        panel.add(btnAdvancedOptions);
     }
     
     /**
@@ -176,7 +279,20 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
                 changed(this.settings.getCenter().getLongitude(), this.spinnerLongitude.getValue()) ||
                 changed(this.settings.isUseEnc(), this.chckbxUseEnc.isSelected()) ||
                 
+                // Check for changes in S52 layer settings
+                changed(this.settings.getS52ShallowContour(), this.spinnerShallowContour.getValue()) || 
+                changed(this.settings.getS52SafetyDepth(), this.spinnerSafetyDepth.getValue()) ||
+                changed(this.settings.getS52SafetyContour(), this.spinnerSafetyContour.getValue()) ||
+                changed(this.settings.getS52DeepContour(), this.spinnerDeepContour.getValue()) ||
+                changed(this.settings.isS52ShowText(), this.chckbxShowText.isSelected()) ||
+                changed(this.settings.isS52ShallowPattern(), this.chckbxShallowPattern.isSelected()) ||
+                changed(this.settings.isUseSimplePointSymbols(), this.chckbxSimplePointSymbols.isSelected()) ||
+                changed(this.settings.isUsePlainAreas(), this.chckbxPlainAreas.isSelected()) ||
+                changed(this.settings.isS52TwoShades(), this.chckbxTwoShades.isSelected()) ||
+                changed(this.settings.getColor(), this.comboBoxColorProfile.getSelectedItem().toString()) ||
+                
                 // Changes in WMS settings.
+                changed(this.settings.isUseWms(), this.chckbxUseWms.isSelected()) ||
                 changed(this.settings.isUseWmsDragging(), this.chckbxWmsIsUsed.isSelected()) ||
                 changed(this.settings.getWmsQuery(), this.textFieldWMSURL.getText());
     }
@@ -196,8 +312,21 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         this.spinnerLatitude.setValue(latitude.doubleValue());
         this.spinnerLongitude.setValue(longitude.doubleValue());
         this.chckbxUseEnc.setSelected(this.settings.isUseEnc());
+        
+        // Load s52 layer settings
+        this.spinnerShallowContour.setValue(this.settings.getS52ShallowContour());
+        this.spinnerSafetyDepth.setValue(this.settings.getS52SafetyDepth());
+        this.spinnerSafetyContour.setValue(this.settings.getS52SafetyContour());
+        this.spinnerDeepContour.setValue(this.settings.getS52DeepContour());
+        this.chckbxShowText.setSelected(settings.isS52ShowText());
+        this.chckbxShallowPattern.setSelected(settings.isS52ShallowPattern());
+        this.chckbxSimplePointSymbols.setSelected(settings.isUseSimplePointSymbols());
+        this.chckbxPlainAreas.setSelected(settings.isUsePlainAreas());
+        this.chckbxTwoShades.setSelected(settings.isS52TwoShades());
+        this.comboBoxColorProfile.setSelectedItem(settings.getColor());
 
         // Load settings for WMS.
+        this.chckbxUseWms.setSelected(this.settings.isUseWms());
         this.chckbxWmsIsUsed.setSelected(settings.isUseWmsDragging());
         this.textFieldWMSURL.setText(settings.getWmsQuery());
         
@@ -217,7 +346,20 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         this.settings.setCenter(center);
         this.settings.setUseEnc(this.chckbxUseEnc.isSelected());
         
+        // Save s52 layer settings
+        this.settings.setS52ShallowContour((Integer) spinnerShallowContour.getValue());
+        this.settings.setS52SafetyDepth((Integer) this.spinnerSafetyDepth.getValue());
+        this.settings.setS52SafetyContour((Integer) this.spinnerSafetyContour.getValue());
+        this.settings.setS52DeepContour((Integer) this.spinnerDeepContour.getValue());
+        this.settings.setS52ShowText(this.chckbxShowText.isSelected());
+        this.settings.setS52ShallowPattern(this.chckbxShallowPattern.isSelected());
+        this.settings.setUseSimplePointSymbols(this.chckbxSimplePointSymbols.isSelected());
+        this.settings.setUsePlainAreas(this.chckbxPlainAreas.isSelected());
+        this.settings.setS52TwoShades(this.chckbxTwoShades.isSelected());
+        this.settings.setColor(comboBoxColorProfile.getSelectedItem().toString());
+        
         // Save settings for WMS.
+        this.settings.setUseWms(this.chckbxUseWms.isSelected());
         this.settings.setUseWmsDragging(this.chckbxWmsIsUsed.isSelected());
         this.settings.setWmsQuery(textFieldWMSURL.getText());
     }
