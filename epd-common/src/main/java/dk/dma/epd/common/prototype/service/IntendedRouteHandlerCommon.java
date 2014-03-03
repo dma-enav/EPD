@@ -68,15 +68,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      */
     public static final double FILTER_DISTANCE_EPSILON = 0.5;
 
-    /**
-     * In minutes - how close should the warning point be in time
-     */
-    public static final int FILTER_TIME_EPSILON = 120;
-
-    public static final double NOTIFICATION_DISTANCE_EPSILON = 1; // Nautical miles
-    public static final int NOTIFICATION_TIME_EPSILON = 30; // Minutes
-    public static final double ALERT_DISTANCE_EPSILON = 0.5; // Nautical miles
-    public static final int ALERT_TIME_EPSILON = 10; // Minutes
+    public static final double NOTIFICATION_DISTANCE_EPSILON = 0.5; // Nautical miles
+    public static final double ALERT_DISTANCE_EPSILON = 0.3; // Nautical miles
 
     protected ConcurrentHashMap<Long, IntendedRoute> intendedRoutes = new ConcurrentHashMap<>();
     protected FilteredIntendedRoutes filteredIntendedRoutes = new FilteredIntendedRoutes();
@@ -325,7 +318,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         } else {
             newFilteredRoute.setGeneratedNotification(oldFilteredRoute.hasGeneratedNotification());
             sendNotification = !newFilteredRoute.hasGeneratedNotification()
-                    && newFilteredRoute.isWithinRange(NOTIFICATION_DISTANCE_EPSILON, NOTIFICATION_TIME_EPSILON);
+                    && newFilteredRoute.isWithinDistance(NOTIFICATION_DISTANCE_EPSILON);
         }
 
         if (sendNotification) {
@@ -335,7 +328,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             newFilteredRoute.getKey(), System.currentTimeMillis()));
             notification.setTitle("TCPA Warning");
             notification.setDescription(formatNotificationDescription(newFilteredRoute));
-            if (newFilteredRoute.isWithinRange(ALERT_DISTANCE_EPSILON, ALERT_TIME_EPSILON)) {
+            if (newFilteredRoute.isWithinDistance(ALERT_DISTANCE_EPSILON)) {
                 notification.setSeverity(NotificationSeverity.ALERT);
                 notification.addAlerts(new NotificationAlert(AlertType.POPUP, AlertType.BEEP));
             } else {
@@ -526,7 +519,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                 Position route1CurrentPosition = position;
                 Position route2CurrentPosition = route2StartPos;
 
-                int route1CurrentWaypoint = i - 1;
+                int route1CurrentWaypoint = i-1;
                 int route2CurrentWaypoint = route2StartWp;
 
                 double route1SegmentSpeed = route1.getWaypoints().get(route1CurrentWaypoint).getOutLeg().getSpeed();
@@ -610,7 +603,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                         // We are done with current leg, is there a next one?
 
                         // No more waypoints - terminate zero indexing and last waypoint does not have an out leg thus -2
-                        if (route1CurrentWaypoint == route1.getWaypoints().size() - 2) {
+                        if (route1CurrentWaypoint >= route1.getWaypoints().size() - 2) {
                             System.out.println("We are breaking - route 1 is done");
                             break;
                         } else {
@@ -640,7 +633,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                                 + route2.getWaypoints().size() + " waypoints");
 
                         // No more waypoints - terminate
-                        if (route2CurrentWaypoint == route2.getWaypoints().size() - 2) {
+                        if (route2CurrentWaypoint >= route2.getWaypoints().size() - 2) {
                             System.out.println("We are breaking - route 2 is done");
                             break;
                         } else {

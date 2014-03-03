@@ -30,16 +30,29 @@ public class FilteredIntendedRoute {
     Long mmsi1;
     Long mmsi2;
     
+    /**
+     * Constructor
+     * @param mmsi1 the first MMSI
+     * @param mmsi2 the second MMSI
+     */
     public FilteredIntendedRoute(Long mmsi1, Long mmsi2) {
         filterMessages = new ArrayList<>();
         this.mmsi1 = mmsi1;
         this.mmsi2 = mmsi2;
     }
     
+    /**
+     * Returns the filtered messages associated with this entity
+     * @return the filtered messages associated with this entity
+     */
     public List<IntendedRouteFilterMessage> getFilterMessages() {
         return filterMessages;
     }
     
+    /**
+     * Sets the filtered messages associated with this entity
+     * @param filterMessages the filtered messages associated with this entity
+     */
     public void setFilterMessages(List<IntendedRouteFilterMessage> filterMessages) {
         this.filterMessages = filterMessages;
     }
@@ -78,15 +91,13 @@ public class FilteredIntendedRoute {
     
     /**
      * Returns if any of the CPA positions are within the given distance in nautical miles
-     * and the given time in minutes
      * 
      * @param distance the distance in nautical miles
-     * @param minutes the time in minutes
-     * @return if any of the CPA positions are within the given distance and time
+     * @return if any of the CPA positions are within the given distance
      */
-    public boolean isWithinRange(double distance, int minutes) {
+    public boolean isWithinDistance(double distance) {
         for (IntendedRouteFilterMessage message : filterMessages) {
-            if (message.isWithinRange(distance, minutes)) {
+            if (message.isWithinDistance(distance)) {
                 return true;
             }
         }

@@ -61,7 +61,7 @@ public class IntendedRouteTCPAGraphic extends OMGraphicList {
             
             endPoint2.setLinePaint(Color.GRAY);
             endPoint2.setOval(true);
-            endPoint2.setFillPaint(Color.BLUE);
+            endPoint2.setFillPaint(Color.GREEN);
             
             
             
