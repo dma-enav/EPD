@@ -28,6 +28,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,19 +120,25 @@ public final class EPDShore extends EPD {
      * @param args
      */
     public static void main(String[] args) throws IOException {
-        new EPDShore();
+        // Check if the home path has been specified via the command line
+        String homePath = (args.length > 0) ? args[0] : null;
+        new EPDShore(homePath);
     }
 
     /**
      * Constructor
      * 
-     * @throws IOException
+     * @param path the home path to use
      */
-    private EPDShore() throws IOException {
+    private EPDShore(String path) throws IOException {
         super();
 
-        homePath = determineHomePath(Paths.get(System.getProperty("user.home"), ".epd-shore"));
-
+        if (!StringUtils.isEmpty(path)) {
+            homePath = Paths.get(path);
+        } else {
+            homePath = determineHomePath(Paths.get(System.getProperty("user.home"), ".epd-shore"));
+        }
+    
         new Bootstrap().run(this, new String[] { "epd-shore.properties", "settings.properties", "transponder.xml" }, new String[] {
                 "workspaces", "routes", "shape/GSHHS_shp" });
 

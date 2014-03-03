@@ -34,6 +34,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,19 +129,25 @@ public final class EPDShip extends EPD {
      */
 
     public static void main(String[] args) throws IOException {
-        new EPDShip();
+        // Check if the home path has been specified via the command line
+        String homePath = (args.length > 0) ? args[0] : null;
+        new EPDShip(homePath);
     }
 
     /**
      * Constructor
      * 
-     * @throws IOException
+     * @param path the home path to use
      */
-    private EPDShip() throws IOException {
+    private EPDShip(String path) throws IOException {
         super();
 
-        homePath = determineHomePath(Paths.get(System.getProperty("user.home"), ".epd-ship"));
-
+        if (!StringUtils.isEmpty(path)) {
+            homePath = Paths.get(path);
+        } else {
+            homePath = determineHomePath(Paths.get(System.getProperty("user.home"), ".epd-ship"));
+        }
+        
         new Bootstrap().run(this, new String[] { "epd-ship.properties", "enc_navicon.properties", "settings.properties",
                 "transponder.xml" }, new String[] { "routes", "layout/static", "shape/GSHHS_shp" });
 
