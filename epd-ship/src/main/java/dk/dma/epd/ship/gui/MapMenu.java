@@ -219,7 +219,7 @@ public class MapMenu extends MapMenuCommon {
 
         // Toggle show past-track
         aisTogglePastTrack.setMobileTarget(vesselTarget);
-        aisTogglePastTrack.setAisLayer(aisLayer);
+        aisTogglePastTrack.setAisLayerToRefresh(aisLayer);
         aisTogglePastTrack.setText((vesselTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
         add(aisTogglePastTrack);
         
@@ -258,7 +258,7 @@ public class MapMenu extends MapMenuCommon {
         // Toggle show past-track
         VesselTarget ownShip = ownShipHandler.getAisTarget();
         aisTogglePastTrack.setMobileTarget(ownShip);
-        aisTogglePastTrack.setAisLayer(null);
+        aisTogglePastTrack.setAisLayerToRefresh(null);
         aisTogglePastTrack.setText((ownShip.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
         add(aisTogglePastTrack);
         
@@ -291,7 +291,7 @@ public class MapMenu extends MapMenuCommon {
         
         // Toggle show past-track
         aisTogglePastTrack.setMobileTarget(sarTarget);
-        aisTogglePastTrack.setAisLayer(aisLayer);
+        aisTogglePastTrack.setAisLayerToRefresh(aisLayer);
         aisTogglePastTrack.setText((sarTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
         add(aisTogglePastTrack);
         

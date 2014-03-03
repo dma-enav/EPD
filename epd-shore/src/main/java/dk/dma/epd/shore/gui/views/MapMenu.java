@@ -263,7 +263,7 @@ public class MapMenu extends MapMenuCommon {
 
         // Toggle show past-track
         aisTogglePastTrack.setMobileTarget(vesselTarget);
-        aisTogglePastTrack.setAisLayer(aisLayer);
+        aisTogglePastTrack.setAisLayerToRefresh(aisLayer);
         aisTogglePastTrack.setText((vesselTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
         add(aisTogglePastTrack);
 
@@ -302,7 +302,7 @@ public class MapMenu extends MapMenuCommon {
 
         // Toggle show past-track
         aisTogglePastTrack.setMobileTarget(sarTarget);
-        aisTogglePastTrack.setAisLayer(aisLayer);
+        aisTogglePastTrack.setAisLayerToRefresh(aisLayer);
         aisTogglePastTrack.setText((sarTarget.getSettings().isShowPastTrack()) ? "Hide past-track" : "Show past-track");
         add(aisTogglePastTrack);
 
