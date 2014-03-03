@@ -20,8 +20,11 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
+import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
+import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.common.util.Converter;
 
 /**
  * Shore specific intended route service implementation.
@@ -39,6 +42,17 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon {
     /** Intended route filtering **/
     /****************************************/
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String formatNotificationDescription(FilteredIntendedRoute filteredIntendedRoute) {
+        IntendedRouteFilterMessage msg = filteredIntendedRoute.getMinimumDistanceMessage();
+        return String.format("Two routes come within %s nautical miles of each other at %s.", 
+                Formatter.formatDistNM(Converter.metersToNm(msg.getDistance())),
+                Formatter.formatYodaTime(msg.getTime1()));
+    }
+    
     /**
      * Update all filters
      */

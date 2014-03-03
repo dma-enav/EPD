@@ -30,12 +30,15 @@ import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteBroadcas
 import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteMessage;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
+import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.PartialRouteFilter;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
+import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.route.RouteManager;
@@ -63,6 +66,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     private boolean running;
     
     private IntendedRouteLayerCommon intendedRouteLayerCommon;
+
 
     /**
      * Constructor
@@ -232,13 +236,9 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
             routeManager = (RouteManager) obj;
             routeManager.addListener(this);
         }
-        
-        
-        
-        if (obj instanceof IntendedRouteLayerCommon) {
+        else if (obj instanceof IntendedRouteLayerCommon) {
             intendedRouteLayerCommon = (IntendedRouteLayerCommon) obj;
         }
-
     }
 
     /**
@@ -257,6 +257,17 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
     /** Intended route filtering           **/
     /****************************************/
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String formatNotificationDescription(FilteredIntendedRoute filteredIntendedRoute) {
+        IntendedRouteFilterMessage msg = filteredIntendedRoute.getMinimumDistanceMessage();
+        return String.format("Your active route comes within %s nautical miles of another route at %s.", 
+                Formatter.formatDistNM(Converter.metersToNm(msg.getDistance())),
+                Formatter.formatYodaTime(msg.getTime1()));
+    }
+    
     /**
      * Update all filters
      */

@@ -93,14 +93,23 @@ public class IntendedRouteFilterMessage {
      * @return if the CPA position is within the given distance and time
      */
     public boolean isWithinRange(double distance, int minutes) {
-        // Since we are looking for short distances, a CARTESIAN calculation is sufficient
-        double dist = getPosition1().distanceTo(getPosition2(), CoordinateSystem.CARTESIAN);
-        if (Converter.metersToNm(dist) < distance
+        if (Converter.metersToNm(getDistance()) < distance
                 && getTime1().isAfter(getTime2().minusMinutes(minutes))
                 && getTime1().isBefore(getTime2().plusMinutes(minutes))) {
             return true;
         }
         return false;
+    }
+    
+    /**
+     * Returns the distance in meters between the two points of this message.
+     * <p>
+     * As we are looking for short distances, a CARTESIAN calculation is used.
+     * 
+     * @return the distance between the two points
+     */
+    public double getDistance() {
+        return getPosition1().distanceTo(getPosition2(), CoordinateSystem.CARTESIAN);
     }
     
     // Severity?

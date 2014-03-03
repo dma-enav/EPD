@@ -70,6 +70,24 @@ public class FilteredIntendedRoute {
         }
         return false;
     }
+    
+    /**
+     * Returns filter message representing the minimum distance between the routes.
+     * 
+     * @return the filter message representing the minimum distance between the routes
+     */
+    public IntendedRouteFilterMessage getMinimumDistanceMessage() {
+        double minDist = Double.MAX_VALUE;
+        IntendedRouteFilterMessage minDistMessage = null;
+        for (IntendedRouteFilterMessage message : filterMessages) {
+            double dist = message.getDistance();
+            if (dist < minDist) {
+                minDist = dist;
+                minDistMessage = message;
+            }
+        } 
+        return minDistMessage;
+    }
 
     /**
      * Returns if this filtered intended route has generated a notification
