@@ -83,8 +83,6 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
     protected List<IIntendedRouteListener> listeners = new CopyOnWriteArrayList<>();
 
-    private List<Position> intersectPositions = new ArrayList<Position>();
-
     private AisHandlerCommon aisHandler;
 
     /**
@@ -718,17 +716,19 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         return position;
     }
 
-
+    /**
+     * Returns the list of intended routes
+     * @return the list of intended routes
+     */
     public ConcurrentHashMap<Long, IntendedRoute> getIntendedRoutes() {
         return intendedRoutes;
     }
 
+    /**
+     * Returns the list of filtered intended routes
+     * @return the list of filtered intended routes
+     */
     public FilteredIntendedRoutes getFilteredIntendedRoutes() {
         return filteredIntendedRoutes;
     }
-
-    public List<Position> getIntersectPositions() {
-        return intersectPositions;
-    }
-
 }

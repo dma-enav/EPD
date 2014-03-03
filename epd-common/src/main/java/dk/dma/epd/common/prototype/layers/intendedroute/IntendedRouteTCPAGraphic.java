@@ -31,59 +31,43 @@ import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessag
 public class IntendedRouteTCPAGraphic extends OMGraphicList {
 
     private static final long serialVersionUID = 1L;
-    private IntendedRouteFilterMessage message;
+    private static final boolean ALWAYS_DRAW_ENDPOINTS = true;
     private static final float SCALE = 0.7f; // "Size" of graphics
+    
+    private IntendedRouteFilterMessage message;
+    private boolean isMinDist;
 
-    public IntendedRouteTCPAGraphic(IntendedRouteFilterMessage message, float scale) {
+    public IntendedRouteTCPAGraphic(IntendedRouteFilterMessage message, boolean isMinDist) {
 
         this.message = message;
+        this.isMinDist = isMinDist;
 
         this.setVague(true);
         
         initGraphics();
-
-        // Graphic class
-
-        //
-        // super(start.getLatitude(), start.getLongitude(), end.getLatitude(), end.getLongitude(), LineType._LT_Straight);
-        //
-        // setStroke(new BasicStroke(2.0f * scale, // Width
-        // BasicStroke.CAP_SQUARE, // End cap
-        // BasicStroke.JOIN_MITER, // Join style
-        // 10.0f * scale, // Miter limit
-        // new float[] { 10.0f * scale, 8.0f * scale }, // Dash pattern
-        // 0.0f)); // Dash phase)
-        //
-        //
-        // setLinePaint(Color.YELLOW);
-
-        // OMLine broadLine = new OMLine(startLat, startLon, endLat, endLon, routeLeg.getHeading().getOMLineType());
-        // broadLine.setLinePaint(color);
-        // broadLine.setStroke(new BasicStroke(12.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, broadLineDash, 0.0f));
-        //
-        // add(broadLine);
     }
 
     private void initGraphics() {
-        OMPoint endPoint1 = new OMPoint(message.getPosition1().getLatitude(), message.getPosition1().getLongitude(),
-                (int) (5 * SCALE));
-        
-        endPoint1.setLinePaint(Color.GRAY);
-        endPoint1.setOval(true);
-        endPoint1.setFillPaint(Color.BLUE);
-        
-        OMPoint endPoint2 = new OMPoint(message.getPosition2().getLatitude(), message.getPosition2().getLongitude(),
-                (int) (5 * SCALE));
-        
-        endPoint2.setLinePaint(Color.GRAY);
-        endPoint2.setOval(true);
-        endPoint2.setFillPaint(Color.BLUE);
-        
-        
-        
-        add(endPoint1);
-        add(endPoint2);
-        
+        if (isMinDist || ALWAYS_DRAW_ENDPOINTS) {
+            OMPoint endPoint1 = new OMPoint(message.getPosition1().getLatitude(), message.getPosition1().getLongitude(),
+                    (int) (5 * SCALE));
+            
+            endPoint1.setLinePaint(Color.GRAY);
+            endPoint1.setOval(true);
+            endPoint1.setFillPaint(Color.BLUE);
+            
+            OMPoint endPoint2 = new OMPoint(message.getPosition2().getLatitude(), message.getPosition2().getLongitude(),
+                    (int) (5 * SCALE));
+            
+            endPoint2.setLinePaint(Color.GRAY);
+            endPoint2.setOval(true);
+            endPoint2.setFillPaint(Color.BLUE);
+            
+            
+            
+            add(endPoint1);
+            add(endPoint2);
+        }
         
         OMLine broadLine = new OMLine(message.getPosition1().getLatitude(), message.getPosition1().getLongitude(), message
                 .getPosition2().getLatitude(), message.getPosition2().getLongitude(), LineType._LT_Straight);

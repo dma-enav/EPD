@@ -26,6 +26,7 @@ import com.bbn.openmap.omGraphics.OMGraphic;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
+import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
@@ -77,13 +78,14 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
 
     private void repaintTCPAs() {
 
-        graphics.clear();
-
-        for (FilteredIntendedRoute filteredIntendedRoute : intendedRouteHandler.getFilteredIntendedRoutes().values()) {
-            // intendedRouteGraphic.updateIntendedRoute();
-            //
-            for (int i = 0; i < filteredIntendedRoute.getFilterMessages().size(); i++) {
-                graphics.add(new IntendedRouteTCPAGraphic(filteredIntendedRoute.getFilterMessages().get(i), 1));
+        synchronized(graphics) {
+            graphics.clear();
+    
+            for (FilteredIntendedRoute filteredIntendedRoute : intendedRouteHandler.getFilteredIntendedRoutes().values()) {
+                IntendedRouteFilterMessage minDistMessage = filteredIntendedRoute.getMinimumDistanceMessage();
+                for (IntendedRouteFilterMessage message : filteredIntendedRoute.getFilterMessages()) {
+                    graphics.add(new IntendedRouteTCPAGraphic(message, message == minDistMessage));
+                }
             }
         }
 
@@ -95,19 +97,7 @@ public class IntendedRouteTCPALayer extends EPDLayerCommon implements IIntendedR
      */
     @Override
     protected void timerAction() {
-
-        graphics.clear();
-
-        for (FilteredIntendedRoute filteredIntendedRoute : intendedRouteHandler.getFilteredIntendedRoutes().values()) {
-            // intendedRouteGraphic.updateIntendedRoute();
-            //
-            for (int i = 0; i < filteredIntendedRoute.getFilterMessages().size(); i++) {
-                graphics.add(new IntendedRouteTCPAGraphic(filteredIntendedRoute.getFilterMessages().get(i), 1));
-
-            }
-        }
-
-        doPrepare();
+        repaintTCPAs();
     }
 
     /**

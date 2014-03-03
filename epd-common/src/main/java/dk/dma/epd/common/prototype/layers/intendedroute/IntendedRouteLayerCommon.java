@@ -194,38 +194,7 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
         for (IntendedRouteGraphic intendedRouteGraphic : intendedRoutes.values()) {
             intendedRouteGraphic.updateIntendedRoute();
         }
-        
-        /**
-         * Temp code to visualize where filters are being applied
-         */
-        
-        
-        for (int i = graphics.size()-1; i >= 0 ; i--) {
-            if (graphics.get(i) instanceof IntendedRouteIntersectionGraphic) {
-//                System.out.println("Removing graphics");
-                graphics.remove(i);
-            }
-               
-        }
-        
-//        OMGraphicList graphicsClone = (OMGraphicList) graphics.clone();
-//        for (Iterator<OMGraphic> iterator = graphicsClone.iterator(); iterator.hasNext();) {
-//            OMGraphic omGraphic = (OMGraphic) iterator.next();
-//            
-//            if (omGraphic instanceof IntendedRouteIntersectionGraphic) {
-//                System.out.println("Removing graphics");
-//                graphics.remove(omGraphic);
-//            }else{
-//                System.out.println("Wrong type: " + omGraphic.getClass());
-//            }
-//        }
 
-        // Display icon at intersection
-        for (int i = 0; i < intendedRouteHandler.getIntersectPositions().size(); i++) {
-            // System.out.println("Adding graphics");
-            graphics.add(new IntendedRouteIntersectionGraphic(intendedRouteHandler.getIntersectPositions().get(i)));
-
-        }
         doPrepare();
     }
 
