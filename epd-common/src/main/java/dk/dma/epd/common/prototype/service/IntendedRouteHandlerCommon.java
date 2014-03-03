@@ -380,7 +380,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         }
 
         if (route2 instanceof IntendedRoute) {
-            route1StartWp = ((IntendedRoute) route2).getActiveWpIndex();
+            route2StartWp = ((IntendedRoute) route2).getActiveWpIndex();
 
         }
         
@@ -392,7 +392,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         }
 
         if (route2 instanceof ActiveRoute) {
-            route1StartWp = ((ActiveRoute) route2).getActiveWaypointIndex();
+            route2StartWp = ((ActiveRoute) route2).getActiveWaypointIndex();
 
         }
         
