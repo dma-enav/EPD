@@ -38,6 +38,7 @@ import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteBroadcast;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
+import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoutes;
 import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
@@ -78,7 +79,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     public static final int ALERT_TIME_EPSILON = 10; // Minutes
 
     protected ConcurrentHashMap<Long, IntendedRoute> intendedRoutes = new ConcurrentHashMap<>();
-    protected ConcurrentHashMap<Long, FilteredIntendedRoute> filteredIntendedRoutes = new ConcurrentHashMap<>();
+    protected FilteredIntendedRoutes filteredIntendedRoutes = new FilteredIntendedRoutes();
 
     protected List<IIntendedRouteListener> listeners = new CopyOnWriteArrayList<>();
 
@@ -298,8 +299,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      * @param newFilteredRoutes
      *            the new set of filtered routes
      */
-    protected void checkGenerateNotifications(Map<Long, FilteredIntendedRoute> oldFilteredRoutes,
-            Map<Long, FilteredIntendedRoute> newFilteredRoutes) {
+    protected void checkGenerateNotifications(FilteredIntendedRoutes oldFilteredRoutes,
+            FilteredIntendedRoutes newFilteredRoutes) {
         for (FilteredIntendedRoute filteredIntendedRoute : newFilteredRoutes.values()) {
             checkGenerateNotifications(oldFilteredRoutes, filteredIntendedRoute);
         }
@@ -313,10 +314,9 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      * @param newFilteredRoute
      *            the new filtered route
      */
-    protected void checkGenerateNotifications(Map<Long, FilteredIntendedRoute> oldFilteredRoutes,
+    protected void checkGenerateNotifications(FilteredIntendedRoutes oldFilteredRoutes,
             FilteredIntendedRoute newFilteredRoute) {
-        Long mmsi = newFilteredRoute.getIntendedRoute().getMmsi();
-        FilteredIntendedRoute oldFilteredRoute = oldFilteredRoutes.get(mmsi);
+        FilteredIntendedRoute oldFilteredRoute = oldFilteredRoutes.get(newFilteredRoute.getMmsi1(), newFilteredRoute.getMmsi2());
 
         // NB: For now, we add a notification when a new filtered intended route surfaces
         // and it is within a certain amount of time and distance.
@@ -332,8 +332,9 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
         if (sendNotification) {
             newFilteredRoute.setGeneratedNotification(true);
-            GeneralNotification notification = new GeneralNotification(newFilteredRoute, "IntendedRouteNotificaiton_" + mmsi + "_"
-                    + System.currentTimeMillis());
+            GeneralNotification notification = new GeneralNotification(newFilteredRoute, 
+                    String.format("IntendedRouteNotificaiton_%s_%d",
+                            newFilteredRoute.getKey(), System.currentTimeMillis()));
             notification.setTitle("TCPA Warning");
             notification.setDescription(formatNotificationDescription(newFilteredRoute));
             if (newFilteredRoute.isWithinRange(ALERT_DISTANCE_EPSILON, ALERT_TIME_EPSILON)) {
@@ -356,14 +357,34 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      */
     protected abstract String formatNotificationDescription(FilteredIntendedRoute filteredIntendedRoute);
     
+    /**
+     * Returns the MMSI associated with the given route.
+     * <p>
+     * The default implementation assumes that only intended routes passed along,
+     * but the ship-implementation will override to handle active routes.
+     * 
+     * @param route the route to return the MMSI for
+     * @return the MMSI associated with the given route
+     */
+    public Long getMmsi(Route route) {
+       return ((IntendedRoute)route).getMmsi(); 
+    }
     
+    /**
+     * Finds the TCPA for two routes and returns the corresponding {@linkplain FilteredIntendedRoute}.
+     * <p>
+     * This method is only valid if the current start way point of route 1 is before route 2.
+     * 
+     * @param route1
+     * @param route2
+     * @return
+     */
     protected FilteredIntendedRoute findTCPA(Route route1, Route route2) {
 
-        intersectPositions.clear();
-        // filteredIntendedRoutes.clear();
-
         // Focus on time
-        FilteredIntendedRoute filteredIntendedRoute = new FilteredIntendedRoute();
+        FilteredIntendedRoute filteredIntendedRoute = new FilteredIntendedRoute(
+                getMmsi(route1), 
+                getMmsi(route2));
 
         // We need to check if there's a previous waypoint, ie. we are either starting navigating or are between two waypoints
         // int route1StartWp = route1.getActiveWpIndex();
@@ -702,7 +723,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         return intendedRoutes;
     }
 
-    public ConcurrentHashMap<Long, FilteredIntendedRoute> getFilteredIntendedRoutes() {
+    public FilteredIntendedRoutes getFilteredIntendedRoutes() {
         return filteredIntendedRoutes;
     }
 

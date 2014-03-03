@@ -17,9 +17,9 @@ package dk.dma.epd.shore.service;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
+import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoutes;
 import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
@@ -48,7 +48,9 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon {
     @Override
     protected String formatNotificationDescription(FilteredIntendedRoute filteredIntendedRoute) {
         IntendedRouteFilterMessage msg = filteredIntendedRoute.getMinimumDistanceMessage();
-        return String.format("Two routes come within %s nautical miles of each other at %s.", 
+        return String.format("The routes of MMSI %d and %d come within %s nautical miles of each other at %s.", 
+                filteredIntendedRoute.getMmsi1(),
+                filteredIntendedRoute.getMmsi2(),
                 Formatter.formatDistNM(Converter.metersToNm(msg.getDistance())),
                 Formatter.formatYodaTime(msg.getTime1()));
     }
@@ -62,7 +64,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon {
         // Recalculate everything
         // Compare all routes to current active route
 
-        ConcurrentHashMap<Long, FilteredIntendedRoute> filteredIntendedRoutes = new ConcurrentHashMap<>();
+        FilteredIntendedRoutes filteredIntendedRoutes = new FilteredIntendedRoutes();
 
         // Compare all intended routes against all other intended routes
 
@@ -83,12 +85,8 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon {
 
                     // No warnings, ignore it
                     if (filter.include()) {
-
-                        // Add the intended route to the filter
-                        filter.setIntendedRoute(route2);
                         // Add the filtered route to the list
-                        filteredIntendedRoutes.put(route2.getMmsi(), filter);
-
+                        filteredIntendedRoutes.add(filter);
                     }
                 }
 

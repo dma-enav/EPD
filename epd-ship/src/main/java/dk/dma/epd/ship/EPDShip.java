@@ -775,6 +775,14 @@ public final class EPDShip extends EPD {
     public OwnShipHandler getOwnShipHandler() {
         return ownShipHandler;
     }
+    
+    /**
+     * Returns the MMSI of the own-ship, or null if not defined
+     * @return the MMSI of the own-ship
+     */
+    public Long getOwnShipMmsi() {
+        return ownShipHandler != null ? ownShipHandler.getMmsi() : null;
+    }
 
     public RouteManager getRouteManager() {
         return routeManager;

@@ -17,7 +17,6 @@ package dk.dma.epd.ship.service;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.broadcast.BroadcastOptions;
@@ -30,11 +29,13 @@ import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteBroadcas
 import dk.dma.epd.common.prototype.enavcloud.intendedroute.IntendedRouteMessage;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoute;
+import dk.dma.epd.common.prototype.model.intendedroute.FilteredIntendedRoutes;
 import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessage;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.IRoutesUpdateListener;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.PartialRouteFilter;
+import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.text.Formatter;
@@ -262,12 +263,40 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
      */
     @Override
     protected String formatNotificationDescription(FilteredIntendedRoute filteredIntendedRoute) {
-        IntendedRouteFilterMessage msg = filteredIntendedRoute.getMinimumDistanceMessage();
-        return String.format("Your active route comes within %s nautical miles of another route at %s.", 
+
+        Long otherMmsi = (filteredIntendedRoute.getMmsi1().equals(getOwnShipMmsi()))
+                ? filteredIntendedRoute.getMmsi2()
+                : filteredIntendedRoute.getMmsi1();
+        
+                IntendedRouteFilterMessage msg = filteredIntendedRoute.getMinimumDistanceMessage();
+        return String.format("Your active route comes within %s nautical miles of MMSI %d at %s.", 
                 Formatter.formatDistNM(Converter.metersToNm(msg.getDistance())),
+                otherMmsi,
                 Formatter.formatYodaTime(msg.getTime1()));
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Long getMmsi(Route route) {
+        if (route instanceof IntendedRoute) {
+            return ((IntendedRoute)route).getMmsi(); 
+        } 
+        
+        // Must be the active route. Return own-ship MMSI
+        return getOwnShipMmsi();
+    }
+    
+    /**
+     * Returns the own-ship MMSI or -1 if undefined
+     * @return the own-ship MMSI
+     */
+    public Long getOwnShipMmsi() {
+        Long ownShipMmsi = EPDShip.getInstance().getOwnShipMmsi();
+        return (ownShipMmsi != null) ? ownShipMmsi : -1L;
+    }
+
     /**
      * Update all filters
      */
@@ -277,7 +306,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         // Recalculate everything
         // Compare all routes to current active route
         
-        ConcurrentHashMap<Long, FilteredIntendedRoute> filteredIntendedRoutes = new ConcurrentHashMap<>();
+        FilteredIntendedRoutes filteredIntendedRoutes = new FilteredIntendedRoutes();
 
         // Compare all intended routes against our own active route
 
@@ -292,21 +321,17 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
 
                 IntendedRoute recievedRoute = intendedRoute.getValue();
 
-                FilteredIntendedRoute filter = findTCPA(activeRoute, recievedRoute);
-                
-                //Try otherway around
-                if (filter.getFilterMessages().size() == 0){
+                FilteredIntendedRoute filter = findTCPA(activeRoute, recievedRoute);                
+                //Try other way around
+                if (!filter.include()){
                     filter = findTCPA(recievedRoute, activeRoute);
                 }
-//                FilteredIntendedRoute filter = findTCPA(activeRoute, recievedRoute);
                 
                 //No warnings, ignore it
                 if (filter.include()){
     
-                    //Add the intended route to the filter
-                    filter.setIntendedRoute(recievedRoute);
                     //Add the filtered route to the list
-                    filteredIntendedRoutes.put(recievedRoute.getMmsi(), filter);
+                    filteredIntendedRoutes.add(filter);
                     
                 }
                 
@@ -335,9 +360,10 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         // If previous intended route exist re-apply filter
 
         if (routeManager.getActiveRoute() != null) {
-            FilteredIntendedRoute filter = findTCPA(routeManager.getActiveRoute(), route);
             
-            if (filter.getFilterMessages().size() == 0){
+            FilteredIntendedRoute filter = findTCPA(routeManager.getActiveRoute(), route);            
+            //Try other way around
+            if (!filter.include()){
                 filter = findTCPA(route, routeManager.getActiveRoute());
             }
             
@@ -352,22 +378,14 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                 }
                 
             } else {
-                //Add the intended route to the filter
-                filter.setIntendedRoute(route);
-                
                 // Check if we should generate notification
                 checkGenerateNotifications(filteredIntendedRoutes, filter);
                 
                 //Add the filtered route to the list
-                filteredIntendedRoutes.put(route.getMmsi(), filter);
+                filteredIntendedRoutes.add(filter);
                 
-            }
-            
+            }            
         }
-
     }
-
-
- 
 
 }
