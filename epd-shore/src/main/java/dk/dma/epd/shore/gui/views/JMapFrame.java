@@ -35,6 +35,7 @@ import java.util.Iterator;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
@@ -348,6 +349,9 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
         masterPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45, 45)));
 
         this.setContentPane(masterPanel);
+        this.setFrameIcon(new ImageIcon(
+        		this.getClass().getResource("/images/settings/map.png")));
+        this.iconable = false;
         repaintMapWindow();
 
         // Init the map right click menu

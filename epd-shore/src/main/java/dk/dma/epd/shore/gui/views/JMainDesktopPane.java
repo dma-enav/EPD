@@ -160,16 +160,21 @@ public class JMainDesktopPane extends JDesktopPane {
      */
     public void remove(Component c) {
 
-        if (c instanceof JMapFrame) {
-            mainFrame.removeMapWindow((JMapFrame) c);
-            // Thread(this)).start();
+    	/*
+    	 * This method is also used when a map is being minimized - so checking for
+    	 * window is closed to be sure that the window is not removed from the 
+    	 * desktop pane.
+    	 */
+        if (c instanceof JMapFrame && 
+        		((JMapFrame) c).isClosed()) {
+            
+        	mainFrame.removeMapWindow((JMapFrame) c);
 
             //Cleanup of the threads attached to the window - important if adding new layers
             ((JMapFrame) c).getChartPanel().getWmsLayer().stop();
         }
 
         super.remove(c);
-
     }
 
     /**
