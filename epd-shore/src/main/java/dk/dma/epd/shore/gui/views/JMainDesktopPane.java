@@ -38,6 +38,7 @@ public class JMainDesktopPane extends JDesktopPane {
 
     /**
      * Initialize the desktop pane
+     * 
      * @param mainFrame
      */
     public JMainDesktopPane(MainFrame mainFrame) {
@@ -54,7 +55,9 @@ public class JMainDesktopPane extends JDesktopPane {
 
     /**
      * Add a component
-     * @param frame element to be added
+     * 
+     * @param frame
+     *            element to be added
      * @return
      */
     public Component add(JInternalFrame frame) {
@@ -110,8 +113,11 @@ public class JMainDesktopPane extends JDesktopPane {
 
     /**
      * Added a window that comes from a workspace
-     * @param frame to be added
-     * @param workspaceWindow indicates if it is loaded from a workspace or not
+     * 
+     * @param frame
+     *            to be added
+     * @param workspaceWindow
+     *            indicates if it is loaded from a workspace or not
      * @return
      */
     public Component add(JInternalFrame frame, boolean workspaceWindow) {
@@ -149,6 +155,7 @@ public class JMainDesktopPane extends JDesktopPane {
 
     /**
      * Return the JMainDesktopManager
+     * 
      * @return manager
      */
     public JMainDesktopManager getManager() {
@@ -160,21 +167,23 @@ public class JMainDesktopPane extends JDesktopPane {
      */
     public void remove(Component c) {
 
-        if (c instanceof JMapFrame) {
-            mainFrame.removeMapWindow((JMapFrame) c);
-            // Thread(this)).start();
+        /*
+         * This method is also used when a map is being minimized - so checking for window is closed to be sure that the window is
+         * not removed from the desktop pane.
+         */
+        if (c instanceof JMapFrame && ((JMapFrame) c).isClosed()) {
 
-            //Cleanup of the threads attached to the window - important if adding new layers
+            mainFrame.removeMapWindow((JMapFrame) c);
+
+            // Cleanup of the threads attached to the window - important if adding new layers
             ((JMapFrame) c).getChartPanel().getWmsLayer().stop();
         }
 
         super.remove(c);
-
     }
 
     /**
-     * Sets all component size properties ( maximum, minimum, preferred) to the
-     * given dimension.
+     * Sets all component size properties ( maximum, minimum, preferred) to the given dimension.
      */
     public void setAllSize(Dimension d) {
         setMinimumSize(d);
@@ -183,8 +192,7 @@ public class JMainDesktopPane extends JDesktopPane {
     }
 
     /**
-     * Sets all component size properties ( maximum, minimum, preferred) to the
-     * given width and height.
+     * Sets all component size properties ( maximum, minimum, preferred) to the given width and height.
      */
     public void setAllSize(int width, int height) {
         setAllSize(new Dimension(width, height));
