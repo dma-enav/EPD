@@ -43,6 +43,8 @@ import dk.dma.epd.common.prototype.model.intendedroute.IntendedRouteFilterMessag
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.IntendedRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.RouteLeg;
+import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.notification.GeneralNotification;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
@@ -50,6 +52,11 @@ import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
+import dk.dma.epd.common.util.TypedValue.Dist;
+import dk.dma.epd.common.util.TypedValue.DistType;
+import dk.dma.epd.common.util.TypedValue.Speed;
+import dk.dma.epd.common.util.TypedValue.SpeedType;
+import dk.dma.epd.common.util.TypedValue.TimeType;
 
 /**
  * Intended route service implementation.
@@ -66,7 +73,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     /**
      * In nautical miles - distance between two lines for it to be put in filter
      */
-    public static final double FILTER_DISTANCE_EPSILON = 0.5;
+    public static final double FILTER_DISTANCE_EPSILON = 2.0;
 
     public static final double NOTIFICATION_DISTANCE_EPSILON = 0.5; // Nautical miles
     public static final double ALERT_DISTANCE_EPSILON = 0.3; // Nautical miles
@@ -362,6 +369,38 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     }
     
     /**
+     * Calculates the ETA for the given way point index of the given route.
+     * 
+     * @param route
+     * @param index
+     * @return
+     */
+    private DateTime getEta(Route route, int index) {
+        
+        int activeWpIndex = 
+                (route instanceof IntendedRoute)
+                ? ((IntendedRoute)route).getActiveWpIndex()
+                : ((ActiveRoute)route).getActiveWaypointIndex();
+        
+        // If the way point is after the active way point, rely on stored ETA's
+        if (index >= activeWpIndex) {
+            return new DateTime(route.getEtas().get(index));
+        }
+        
+        // Calculate backwards from the active way point
+        DateTime date = new DateTime(route.getEtas().get(activeWpIndex));
+        for (int j = activeWpIndex - 1; j >= index; j--) {
+            RouteLeg leg = route.getWaypoints().get(j).getOutLeg();
+            long timeMs = (long)new Dist(DistType.NAUTICAL_MILES, leg.calcRng())
+                            .withSpeed(new Speed(SpeedType.KNOTS, leg.getSpeed()))
+                            .in(TimeType.MILLISECONDS)
+                            .doubleValue();
+            date = date.minus(timeMs);
+        }
+        return date;
+    }
+
+    /**
      * Finds the TCPA for two routes and returns the corresponding {@linkplain FilteredIntendedRoute}.
      * <p>
      * This method is only valid if the current start way point of route 1 is before route 2.
@@ -420,11 +459,11 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
         // Should the comparison even be made
 
-        DateTime route1Start = new DateTime(route1.getEtas().get(route1StartWp));
-        DateTime route1End = new DateTime(route1.getEtas().get(route1.getEtas().size() - 1));
+        DateTime route1Start = getEta(route1, route1StartWp);
+        DateTime route1End = getEta(route1, route1.getEtas().size() - 1);
 
-        DateTime route2Start = new DateTime(route2.getEtas().get(route2StartWp));
-        DateTime route2End = new DateTime(route2.getEtas().get(route2.getEtas().size() - 1));
+        DateTime route2Start = getEta(route2, route2StartWp);
+        DateTime route2End = getEta(route2, route2.getEtas().size() - 1);
 
         // The route dates does not overlap, return immediately
         if (route2Start.isAfter(route1End) || route1Start.isAfter(route2End)) {
@@ -455,8 +494,8 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
             int i;
             for (i = route1ActiveWp; i < route1.getWaypoints().size(); i++) {
                 if (i > 0) {
-                    route1WpStart = new DateTime(route1.getEtas().get(i - 1));
-                    route1WpEnd = new DateTime(route1.getEtas().get(i));
+                    route1WpStart = getEta(route1, i - 1);
+                    route1WpEnd = getEta(route1, i);
 
                     if (route1WpStart.isBefore(route2Start) && route1WpEnd.isAfter(route2Start)) {
                         // We have the found the segment we need to start from
@@ -522,16 +561,10 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                 int route1CurrentWaypoint = i-1;
                 int route2CurrentWaypoint = route2StartWp;
 
-                double route1SegmentSpeed = route1.getWaypoints().get(route1CurrentWaypoint).getOutLeg().getSpeed();
-                double route2SegmentSpeed = route2.getWaypoints().get(route2CurrentWaypoint).getOutLeg().getSpeed();
-
-                double route1Bearing = route1.getWaypoints().get(route1CurrentWaypoint).calcBrg();
-                double route2Bearing = route2.getWaypoints().get(route2CurrentWaypoint).calcBrg();
-
                 DateTime traverseTime = route2Start;
 
-                DateTime route1SegmentEnd = new DateTime(route1.getEtas().get(route1CurrentWaypoint + 1));
-                DateTime route2SegmentEnd = new DateTime(route2.getEtas().get(route2CurrentWaypoint + 1));
+                DateTime route1SegmentEnd = getEta(route1, route1CurrentWaypoint + 1);
+                DateTime route2SegmentEnd = getEta(route2, route2CurrentWaypoint + 1);
 
                 while (true) {
 
@@ -551,50 +584,12 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                         System.out.println("Found distance of " + currentDistance + " at " + traverseTime);
                     }
 
-                    // We start in this position
-
-                    // route1CurrentPosition
-                    // route2CurrentPosition
-                    // At this time
-                    // route2Start
-
-                    // System.out.println("We start at time " + traverseTime);
+                    // Traverse with a minute
                     traverseTime = traverseTime.plusMinutes(1);
+                    route1CurrentPosition = traverseLine(route1, route1CurrentWaypoint, route1CurrentPosition, 60);
+                    route2CurrentPosition = traverseLine(route2, route2CurrentWaypoint, route2CurrentPosition, 60);
+                    
 
-                    // System.out.println("And traverse until " + traverseTime);
-
-                    double route1DistanceToTravel = Calculator.distanceAfterTimeMph(route1SegmentSpeed, 60);
-
-                    // System.out.println("We travel " + route1DistanceToTravel + " miles for route 1");
-
-                    double route2DistanceToTravel = Calculator.distanceAfterTimeMph(route2SegmentSpeed, 60);
-
-                    // Position route1NextPosition = traverseLine(route1CurrentPosition, route1Bearing, distanceTravelledRoute1);
-                    // Position route2NextPosition = traverseLine(route2CurrentPosition, route2Bearing, distanceTravelledRoute2);
-
-                    if (route1.getWaypoints().get(route1CurrentWaypoint).getHeading() == Heading.RL) {
-                        route1CurrentPosition = traverseLine(route1CurrentPosition, route1Bearing, route1DistanceToTravel);
-                    }
-
-                    if (route2.getWaypoints().get(route2CurrentWaypoint).getHeading() == Heading.RL) {
-                        route2CurrentPosition = traverseLine(route2CurrentPosition, route2Bearing, route2DistanceToTravel);
-                    }
-
-                    if (route1.getWaypoints().get(route1CurrentWaypoint).getHeading() == Heading.GC) {
-                        route1CurrentPosition = traverseLine(route1CurrentPosition,
-                                route1.getWaypoints().get(route1CurrentWaypoint + 1).getPos(), route1DistanceToTravel);
-                    }
-
-                    if (route2.getWaypoints().get(route2CurrentWaypoint).getHeading() == Heading.GC) {
-                        route2CurrentPosition = traverseLine(route2CurrentPosition,
-                                route2.getWaypoints().get(route2CurrentWaypoint + 1).getPos(), route2DistanceToTravel);
-                    }
-
-                    // route1SegmentTraversed = route1SegmentTraversed + route1DistanceToTravel;
-                    // route2SegmentTraversed = route2SegmentTraversed + route2DistanceToTravel;
-
-                    // if (route1SegmentTraversed > Converter.milesToNM(route1.getWaypoints().get(route1CurrentWaypoint).calcRng()))
-                    // {
                     if (traverseTime.isAfter(route1SegmentEnd)) {
 
                         // System.out.println("We have traversed " + route1SegmentTraversed + " nautical miles");
@@ -613,10 +608,15 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
                             System.out.println("We are now at waypoint " + route1CurrentWaypoint);
 
-                            route1CurrentPosition = route1.getWaypoints().get(route1CurrentWaypoint).getPos();
-                            route1SegmentSpeed = route1.getWaypoints().get(route1CurrentWaypoint).getOutLeg().getSpeed();
-                            route1Bearing = route1.getWaypoints().get(route1CurrentWaypoint).calcBrg();
-                            route1SegmentEnd = new DateTime(route1.getEtas().get(route1CurrentWaypoint + 1));
+                            // Traverse a bit
+                            int missingSecs = (int)(traverseTime.toDate().getTime() - route1SegmentEnd.toDate().getTime()) / 1000;
+                            route1CurrentPosition = traverseLine(
+                                    route1, 
+                                    route1CurrentWaypoint, 
+                                    route1.getWaypoints().get(route1CurrentWaypoint).getPos(),
+                                    missingSecs);
+                            
+                            route1SegmentEnd = getEta(route1, route1CurrentWaypoint + 1);
 
                             // Skip to next WP start traverse
                             // traverseTime = new DateTime(route1.getEtas().get(route1CurrentWaypoint));
@@ -642,10 +642,14 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
                             // Switch to next leg
                             route2CurrentWaypoint++;
 
-                            route2CurrentPosition = route2.getWaypoints().get(route2CurrentWaypoint).getPos();
-                            route2SegmentSpeed = route2.getWaypoints().get(route2CurrentWaypoint).getOutLeg().getSpeed();
-                            route2Bearing = route2.getWaypoints().get(route2CurrentWaypoint).calcBrg();
-                            route2SegmentEnd = new DateTime(route2.getEtas().get(route2CurrentWaypoint + 1));
+                            int missingSecs = (int)(traverseTime.toDate().getTime() - route2SegmentEnd.toDate().getTime()) / 1000;
+                            route2CurrentPosition = traverseLine(
+                                    route2, 
+                                    route2CurrentWaypoint, 
+                                    route2.getWaypoints().get(route2CurrentWaypoint).getPos(),
+                                    missingSecs);
+                            
+                            route2SegmentEnd = getEta(route2, route2CurrentWaypoint + 1);
 
                             // Skip to next WP start traverse
                             // traverseTime = new DateTime(route2.getEtas().get(route2CurrentWaypoint));
@@ -669,6 +673,26 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         return filteredIntendedRoute;
     }
 
+    /**
+     * Traverses the route leg based at the given index from the given position
+     * @param route the route
+     * @param index the way point index
+     * @param currentPos the current position
+     * @param seconds the number of seconds
+     * @return the updated position
+     */
+    private Position traverseLine(Route route, int index, Position currentPos, int seconds) {
+        RouteWaypoint wp = route.getWaypoints().get(index);
+        
+        double dist = Calculator.distanceAfterTimeMph(wp.getOutLeg().getSpeed(), seconds);
+        
+        if (wp.getHeading() == Heading.RL) {
+            return traverseLine(currentPos, wp.calcBrg(), dist);
+        } else {
+            return traverseLine(currentPos, wp.getOutLeg().getEndWp().getPos(), dist);
+        }
+    }
+    
     /**
      * Rhumb line traversing
      * 

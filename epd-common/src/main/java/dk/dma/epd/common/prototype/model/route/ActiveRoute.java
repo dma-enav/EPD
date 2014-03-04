@@ -375,6 +375,7 @@ public class ActiveRoute extends Route {
         } else {
             this.currentLeg = waypoints.get(index).getInLeg();
         }
+        reCalcRemainingWpEta();
     }
 
     public synchronized Date getActiveWaypointEta() {
