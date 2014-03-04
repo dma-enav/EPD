@@ -31,6 +31,7 @@ import com.bbn.openmap.proj.ProjMath;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 
 public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
@@ -68,7 +69,7 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
         // Create the cursor for navigation.
         // This cursor can be used in the classes which will inherit from this class.
         Toolkit tk = Toolkit.getDefaultToolkit();
-        Image cursorIcon = tk.getImage(this.getClass().getResource("/images/toolbar/zoom.png"));
+        Image cursorIcon = EPD.res().getCachedImageIcon("images/toolbar/zoom_cursor.png").getImage();
         this.NAV_CURSOR = tk.createCustomCursor(cursorIcon, new Point(0, 0), "zoom");
     }
     

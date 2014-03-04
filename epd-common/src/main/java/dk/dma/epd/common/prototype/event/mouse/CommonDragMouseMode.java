@@ -28,6 +28,7 @@ import javax.swing.SwingUtilities;
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.proj.Projection;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 
 public class CommonDragMouseMode extends AbstractCoordMouseMode {
@@ -74,11 +75,11 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
         
         // Create the drag cursor.
         Toolkit tk = Toolkit.getDefaultToolkit();
-        Image cursorIcon = tk.getImage(this.getClass().getResource("/images/toolbar/drag_mouse.png"));
+        Image cursorIcon = EPD.res().getCachedImageIcon("images/toolbar/drag_mouse.png").getImage();
         this.DRAG_CURSOR = tk.createCustomCursor(cursorIcon, new Point(0, 0), "drag");
         
         // Create the drag-when-button-is-down cursor.
-        cursorIcon = tk.getImage(this.getClass().getResource("/images/toolbar/drag_on_mouse.png"));
+        cursorIcon = EPD.res().getCachedImageIcon("images/toolbar/drag_on_mouse.png").getImage();
         this.DRAG_DOWN_CURSOR = tk.createCustomCursor(cursorIcon, new Point(0, 0), "dragDown");
         
         // Set the drag cursor.
