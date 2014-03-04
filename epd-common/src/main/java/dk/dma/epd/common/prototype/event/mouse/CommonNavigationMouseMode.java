@@ -348,7 +348,7 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode implements
             if (this.layerMouseDrag) {
                 super.mouseSupport.fireMapMouseReleased(e);
             } else if (this.mouseDragged && 
-            		this.doZoom) {
+                    this.doZoom) {
 
                 // Reset boolean to enable dragging of other elements.
                 this.mouseDragged = false;
@@ -470,50 +470,48 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode implements
     }
     
     /**
-     * Called by the MapBean when it repaints, to let the MouseMode know when to
-     * update itself on the map. PaintListener interface.
+     * Called by the MapBean when it repaints, to let the MouseMode know when to update itself on the map. PaintListener interface.
      */
     @Override
     public void listenerPaint(Graphics g) {
-    	if (doZoom) {
-    		
-    		paintRectangle(g, this.point1, this.point2);
-    	}
+
+        if (doZoom) {
+            paintRectangle(g, this.point1, this.point2);
+        }
     }
 
     /**
      * {@inheritDoc}
      */
-	@Override
-	public void keyTyped(KeyEvent e) {
-		
-	}
+    @Override
+    public void keyTyped(KeyEvent e) {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void keyPressed(KeyEvent e) {
-		
-	}
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void keyReleased(KeyEvent e) {
-		System.out.println(e.getKeyCode() + " was pressed. Escape key code is " + KeyEvent.VK_ESCAPE);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void keyPressed(KeyEvent e) {
 
-		if (e.getKeyCode() == KeyEvent.VK_ESCAPE &&
-				this.point2 != null) {
-			
-			System.out.println("Escape was pressed");
-			
-			this.paintRectangle(((MapBean) e.getSource()).getGraphics(), this.point1, this.point2);
-			this.mouseDragged = false;
-			this.doZoom = false;
-			this.point1 = null;
-			this.point2 = null;
-		}
-	}
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void keyReleased(KeyEvent e) {
+        System.out.println(e.getKeyCode() + " was pressed. Escape key code is " + KeyEvent.VK_ESCAPE);
+
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE && this.point2 != null) {
+
+            System.out.println("Escape was pressed");
+
+            this.paintRectangle(((MapBean) e.getSource()).getGraphics(), this.point1, this.point2);
+            this.mouseDragged = false;
+            this.doZoom = false;
+            this.point1 = null;
+            this.point2 = null;
+        }
+    }
 }

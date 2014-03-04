@@ -39,8 +39,7 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
     private String previousMouseModeID;
 
     /**
-     * Constructs a NoGoMouseListener: sets the ID of the mode, the consume mode to
-     * true, and the cursor to the crosshair.
+     * Constructs a NoGoMouseListener: sets the ID of the mode, the consume mode to true, and the cursor to the crosshair.
      */
     public NoGoMouseMode(ChartPanel chartPanel) {
         super(chartPanel, 0, MODE_ID);
@@ -49,53 +48,52 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
     }
 
     /**
-     * This method handles a mouse released event. It will store the
-     * second point and create a final rectangle from the first point 
-     * to the second. If the rectangle is too small, it will not draw
-     * the ractangle, but let the user select a new.
+     * This method handles a mouse released event. It will store the second point and create a final rectangle from the first point
+     * to the second. If the rectangle is too small, it will not draw the ractangle, but let the user select a new.
      */
     @Override
     public void mouseReleased(MouseEvent e) {
-        
-    	if (super.mouseDragged) {
-    		
-    		// Get the map from the source.
-    		MapBean map = (MapBean) e.getSource();
-    		Projection projection = map.getProjection();
-    		
-    		// Get the second point and the length of the width and height.
-    		super.point2 = e.getPoint();
-    		int rectangleWidth = Math.abs(super.point2.x - super.point1.x);
-    		int rectangleHeight = Math.abs(super.point2.y - super.point1.y);
-    		
-    		synchronized (this) {
-    			
-    			// Reset points if the rectangle is too small.
-    			if (rectangleWidth < 10 || rectangleHeight < 10) {
-    				
-    				super.paintRectangle(map.getGraphics(), super.point1, super.point2);
-    				super.point1 = null;
-    				super.point2 = null;
-    				
-    				// Draw the rectangle if it is large enough.
-    			} else {
-    				
-    				Point2D[] points = new Point2D[2];
-    				points[0] = projection.inverse(super.point1);
-    				points[1] = projection.inverse(super.point2);
-    				
-    				this.chartPanel.getNogoDialog().setSelectedArea(points);
-    				this.chartPanel.getNogoDialog().setVisible(true);
-    				
-    				super.paintRectangle(map.getGraphics(), super.point1, super.point2);
-    				super.point2 = null;
-    			}
-    		}
-    	}
+
+        if (super.mouseDragged) {
+
+            // Get the map from the source.
+            MapBean map = (MapBean) e.getSource();
+            Projection projection = map.getProjection();
+
+            // Get the second point and the length of the width and height.
+            super.point2 = e.getPoint();
+            int rectangleWidth = Math.abs(super.point2.x - super.point1.x);
+            int rectangleHeight = Math.abs(super.point2.y - super.point1.y);
+
+            synchronized (this) {
+
+                // Reset points if the rectangle is too small.
+                if (rectangleWidth < 10 || rectangleHeight < 10) {
+
+                    super.paintRectangle(map.getGraphics(), super.point1, super.point2);
+                    super.point1 = null;
+                    super.point2 = null;
+
+                    // Draw the rectangle if it is large enough.
+                } else {
+
+                    Point2D[] points = new Point2D[2];
+                    points[0] = projection.inverse(super.point1);
+                    points[1] = projection.inverse(super.point2);
+
+                    this.chartPanel.getNogoDialog().setSelectedArea(points);
+                    this.chartPanel.getNogoDialog().setVisible(true);
+
+                    super.paintRectangle(map.getGraphics(), super.point1, super.point2);
+                    super.point2 = null;
+                }
+            }
+        }
     }
 
     /**
      * Returns the previous used mouse mode which was active.
+     * 
      * @return The previous used mouse mode.
      */
     public String getPreviousMouseModeID() {
@@ -104,15 +102,16 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
 
     /**
      * Sets the previous used mouse mode which was active.
-     * @param previousMouseModeID 
-     *          The previous used mouse mode which was active.
+     * 
+     * @param previousMouseModeID
+     *            The previous used mouse mode which was active.
      */
     public void setPreviousMouseModeID(String previousMouseModeID) {
         this.previousMouseModeID = previousMouseModeID;
     }
-    
+
     @Override
     public void keyReleased(KeyEvent e) {
-    	super.keyReleased(e);
+        super.keyReleased(e);
     }
 }
