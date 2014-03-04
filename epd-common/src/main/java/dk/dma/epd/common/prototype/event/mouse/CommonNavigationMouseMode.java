@@ -21,6 +21,8 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 
 import javax.swing.SwingUtilities;
@@ -34,7 +36,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 
-public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
+public class CommonNavigationMouseMode extends AbstractCoordMouseMode implements KeyListener {
     
     /**
      * Private fields.
@@ -44,10 +46,10 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
     private ChartPanelCommon chartPanel;
     private int maxScale; // The max scaled size which can be zoomed into the map.
     private boolean doZoom;
-    private boolean mouseDragged;
     private boolean mouseExited;
     private boolean layerMouseDrag;
 
+    protected boolean mouseDragged;
     protected Point point1, point2;
     
     /**
@@ -345,7 +347,8 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
             
             if (this.layerMouseDrag) {
                 super.mouseSupport.fireMapMouseReleased(e);
-            } else {
+            } else if (this.mouseDragged && 
+            		this.doZoom) {
 
                 // Reset boolean to enable dragging of other elements.
                 this.mouseDragged = false;
@@ -472,6 +475,45 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode {
      */
     @Override
     public void listenerPaint(Graphics g) {
-        paintRectangle(g, this.point1, this.point2);
+    	if (doZoom) {
+    		
+    		paintRectangle(g, this.point1, this.point2);
+    	}
     }
+
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	public void keyTyped(KeyEvent e) {
+		
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void keyPressed(KeyEvent e) {
+		
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void keyReleased(KeyEvent e) {
+		System.out.println(e.getKeyCode() + " was pressed. Escape key code is " + KeyEvent.VK_ESCAPE);
+
+		if (e.getKeyCode() == KeyEvent.VK_ESCAPE &&
+				this.point2 != null) {
+			
+			System.out.println("Escape was pressed");
+			
+			this.paintRectangle(((MapBean) e.getSource()).getGraphics(), this.point1, this.point2);
+			this.mouseDragged = false;
+			this.doZoom = false;
+			this.point1 = null;
+			this.point2 = null;
+		}
+	}
 }

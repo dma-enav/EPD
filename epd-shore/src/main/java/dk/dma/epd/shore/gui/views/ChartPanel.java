@@ -391,6 +391,7 @@ public class ChartPanel extends ChartPanelCommon {
         mouseDelegator.addMouseMode(dragMouseMode);
         mouseDelegator.addMouseMode(selectMouseMode);
         mouseDelegator.addMouseMode(routeEditMouseMode);
+        this.getMap().addKeyListener(mapNavMouseMode);
 
         if (type != MapFrameType.SAR_Planning || type != MapFrameType.SAR_Tracking) {
             setMouseMode(mainFrame.getMouseMode());

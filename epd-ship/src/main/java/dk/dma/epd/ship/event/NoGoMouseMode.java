@@ -16,6 +16,7 @@
 package dk.dma.epd.ship.event;
 
 import java.awt.Cursor;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
@@ -48,29 +49,6 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
     }
 
     /**
-     * If the the mouse is pressed down, the first point will be saved,
-     * the second point will be reset, and the doZoom boolean will be
-     * set to true, so that if the mouse is releasted, after being 
-     * dragged, a zoom to that selected area will be executed.
-     */
-    @Override
-    public void mousePressed(MouseEvent e) {
-        super.mousePressed(e);
-    }
-    
-    /**
-     * If the mouse is dragged, a test will be done if it is a layer related
-     * element. If it isn't, a rectangle will be drawn from the first point,
-     * to the point of the mouse. If control is down when mouse is dragged
-     * the rectangle will follow the mouse. Else the mouse will draw a rectangle
-     * fitted in ratio to the map frame.
-     */
-    @Override
-    public void mouseDragged(MouseEvent e) { 
-        super.mouseDragged(e);
-    }
-
-    /**
      * This method handles a mouse released event. It will store the
      * second point and create a final rectangle from the first point 
      * to the second. If the rectangle is too small, it will not draw
@@ -79,38 +57,41 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
     @Override
     public void mouseReleased(MouseEvent e) {
         
-        // Get the map from the source.
-        MapBean map = (MapBean) e.getSource();
-        Projection projection = map.getProjection();
-        
-        // Get the second point and the length of the width and height.
-        super.point2 = e.getPoint();
-        int rectangleWidth = Math.abs(super.point2.x - super.point1.x);
-        int rectangleHeight = Math.abs(super.point2.y - super.point1.y);
-        
-        synchronized (this) {
-            
-            // Reset points if the rectangle is too small.
-            if (rectangleWidth < 10 || rectangleHeight < 10) {
-                
-                super.paintRectangle(map.getGraphics(), super.point1, super.point2);
-                super.point1 = null;
-                super.point2 = null;
-                
-            // Draw the rectangle if it is large enough.
-            } else {
-                
-                Point2D[] points = new Point2D[2];
-                points[0] = projection.inverse(super.point1);
-                points[1] = projection.inverse(super.point2);
-                
-                this.chartPanel.getNogoDialog().setSelectedArea(points);
-                this.chartPanel.getNogoDialog().setVisible(true);
-                
-                super.paintRectangle(map.getGraphics(), super.point1, super.point2);
-                super.point2 = null;
-            }
-        }
+    	if (super.mouseDragged) {
+    		
+    		// Get the map from the source.
+    		MapBean map = (MapBean) e.getSource();
+    		Projection projection = map.getProjection();
+    		
+    		// Get the second point and the length of the width and height.
+    		super.point2 = e.getPoint();
+    		int rectangleWidth = Math.abs(super.point2.x - super.point1.x);
+    		int rectangleHeight = Math.abs(super.point2.y - super.point1.y);
+    		
+    		synchronized (this) {
+    			
+    			// Reset points if the rectangle is too small.
+    			if (rectangleWidth < 10 || rectangleHeight < 10) {
+    				
+    				super.paintRectangle(map.getGraphics(), super.point1, super.point2);
+    				super.point1 = null;
+    				super.point2 = null;
+    				
+    				// Draw the rectangle if it is large enough.
+    			} else {
+    				
+    				Point2D[] points = new Point2D[2];
+    				points[0] = projection.inverse(super.point1);
+    				points[1] = projection.inverse(super.point2);
+    				
+    				this.chartPanel.getNogoDialog().setSelectedArea(points);
+    				this.chartPanel.getNogoDialog().setVisible(true);
+    				
+    				super.paintRectangle(map.getGraphics(), super.point1, super.point2);
+    				super.point2 = null;
+    			}
+    		}
+    	}
     }
 
     /**
@@ -128,5 +109,10 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
      */
     public void setPreviousMouseModeID(String previousMouseModeID) {
         this.previousMouseModeID = previousMouseModeID;
+    }
+    
+    @Override
+    public void keyReleased(KeyEvent e) {
+    	super.keyReleased(e);
     }
 }

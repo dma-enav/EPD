@@ -193,6 +193,8 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         mouseDelegator.addMouseMode(msiFilterMouseMode);
         mouseDelegator.addMouseMode(dragMouseMode);
         this.mouseDelegator.addMouseMode(this.rangeCirclesMouseMode);
+        this.getMap().addKeyListener(mapNavMouseMode);
+        this.getMap().addKeyListener(this.noGoMouseMode);
 
         mouseDelegator.setActive(mapNavMouseMode);
         // Inform the distance circle mouse mode what mouse mode was initially
