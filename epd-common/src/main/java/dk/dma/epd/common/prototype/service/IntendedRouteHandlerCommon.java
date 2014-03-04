@@ -56,6 +56,7 @@ import dk.dma.epd.common.util.TypedValue.Dist;
 import dk.dma.epd.common.util.TypedValue.DistType;
 import dk.dma.epd.common.util.TypedValue.Speed;
 import dk.dma.epd.common.util.TypedValue.SpeedType;
+import dk.dma.epd.common.util.TypedValue.Time;
 import dk.dma.epd.common.util.TypedValue.TimeType;
 
 /**
@@ -73,7 +74,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     /**
      * In nautical miles - distance between two lines for it to be put in filter
      */
-    public static final double FILTER_DISTANCE_EPSILON = 2.0;
+    public static final double FILTER_DISTANCE_EPSILON = 0.5;
 
     public static final double NOTIFICATION_DISTANCE_EPSILON = 0.5; // Nautical miles
     public static final double ALERT_DISTANCE_EPSILON = 0.3; // Nautical miles
@@ -391,11 +392,10 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         DateTime date = new DateTime(route.getEtas().get(activeWpIndex));
         for (int j = activeWpIndex - 1; j >= index; j--) {
             RouteLeg leg = route.getWaypoints().get(j).getOutLeg();
-            long timeMs = (long)new Dist(DistType.NAUTICAL_MILES, leg.calcRng())
-                            .withSpeed(new Speed(SpeedType.KNOTS, leg.getSpeed()))
-                            .in(TimeType.MILLISECONDS)
-                            .doubleValue();
-            date = date.minus(timeMs);
+            date = date.minus(new Dist(DistType.NAUTICAL_MILES, leg.calcRng())
+                        .withSpeed(new Speed(SpeedType.KNOTS, leg.getSpeed()))
+                        .in(TimeType.MILLISECONDS)
+                        .longValue());
         }
         return date;
     }
@@ -684,12 +684,15 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     private Position traverseLine(Route route, int index, Position currentPos, int seconds) {
         RouteWaypoint wp = route.getWaypoints().get(index);
         
-        double dist = Calculator.distanceAfterTimeMph(wp.getOutLeg().getSpeed(), seconds);
+        double dist = new Speed(SpeedType.KNOTS, wp.getOutLeg().getSpeed())
+                        .forTime(new Time(TimeType.SECONDS, seconds))
+                        .in(DistType.NAUTICAL_MILES)
+                        .doubleValue();
         
         if (wp.getHeading() == Heading.RL) {
-            return traverseLine(currentPos, wp.calcBrg(), dist);
+            return traverseLineRL(currentPos, wp.calcBrg(), dist);
         } else {
-            return traverseLine(currentPos, wp.getOutLeg().getEndWp().getPos(), dist);
+            return traverseLineGC(currentPos, wp.getOutLeg().getEndWp().getPos(), dist);
         }
     }
     
@@ -701,7 +704,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      * @param distanceTravelled
      * @return
      */
-    private Position traverseLine(Position startPosition, double bearing, double distanceTravelled) {
+    private Position traverseLineRL(Position startPosition, double bearing, double distanceTravelled) {
 
         // How long will we have travelled along our route (route 1)
         // long timeTravelledSeconds = minutes * 60;
@@ -721,7 +724,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      * @param distanceTravelled
      * @return
      */
-    private Position traverseLine(Position startPosition, Position endPosition, double distanceTravelled) {
+    private Position traverseLineGC(Position startPosition, Position endPosition, double distanceTravelled) {
 
         // How long will we have travelled along our route (route 1)
         // long timeTravelledSeconds = minutes * 60;
