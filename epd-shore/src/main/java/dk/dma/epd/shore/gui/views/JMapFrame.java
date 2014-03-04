@@ -22,6 +22,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -35,6 +36,7 @@ import java.util.Iterator;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
@@ -49,6 +51,7 @@ import javax.swing.border.EtchedBorder;
 import com.bbn.openmap.Layer;
 
 import dk.dma.epd.common.graphics.Resources;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.InternalComponentFrame;
 import dk.dma.epd.common.prototype.gui.IMapFrame;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
@@ -349,8 +352,8 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
         masterPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45, 45)));
 
         this.setContentPane(masterPanel);
-        this.setFrameIcon(new ImageIcon(
-        		this.getClass().getResource("/images/settings/map.png")));
+        ImageIcon minimizedIcon = EPDShore.res().getCachedImageIcon("images/settings/map.png");
+        this.setFrameIcon(minimizedIcon);
         this.iconable = false;
         repaintMapWindow();
 
