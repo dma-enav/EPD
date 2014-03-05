@@ -364,7 +364,7 @@ public class ToolBar extends JInternalFrame {
                 EPD.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(!intendedRoutesVisible);
                 for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
                     mainFrame.getMapWindows().get(i).getChartPanel()
-                            .setIntendedRouteLayerVisibility(!intendedRoutesVisible);
+                            .intendedRouteLayerVisible(!intendedRoutesVisible);
                 }
                 if (intendedRoutesVisible) {
                     setInactiveToolItem(intendedRoutes);

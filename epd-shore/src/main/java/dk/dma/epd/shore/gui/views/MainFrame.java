@@ -133,7 +133,7 @@ public class MainFrame extends MainFrameCommon {
     @Override
     public void zoomToPosition(Position pos) {
         if (getActiveChartPanel() != null) {
-            getActiveChartPanel().zoomToPoint(pos);
+            getActiveChartPanel().goToPosition(pos);
         }
     }
     

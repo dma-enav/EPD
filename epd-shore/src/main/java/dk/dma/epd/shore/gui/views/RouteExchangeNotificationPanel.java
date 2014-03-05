@@ -439,10 +439,10 @@ public class RouteExchangeNotificationPanel extends JPanel {
 
                     if (EPDShore.getInstance().getMainFrame().getActiveMapWindow() != null) {
                         EPDShore.getInstance().getMainFrame().getActiveMapWindow()
-                                .getChartPanel().zoomToPoint(routeLocation);
+                                .getChartPanel().goToPosition(routeLocation);
                     } else if (EPDShore.getInstance().getMainFrame().getMapWindows().size() > 0) {
                         EPDShore.getInstance().getMainFrame().getMapWindows().get(0)
-                                .getChartPanel().zoomToPoint(routeLocation);
+                                .getChartPanel().goToPosition(routeLocation);
                     }
 
                 }

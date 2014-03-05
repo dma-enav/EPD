@@ -290,25 +290,4 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
         this.doPrepare();
     }
     
-    /**
-* Set if this AIS layer should show name labels for the AIS targets it
-* displays. Use this method to toggle AIS target labels on a per layer
-* basis. Modify the application wide AisSettings object to toggle AIS
-* label visibility for all AIS layers (if more map windows are open).
-*
-* @param showLabels
-* Use true to show name labels, and use false to hide name
-* labels.
-*/
-    public void setShowNameLabels(boolean showLabels) {
-        synchronized(this.graphics) {
-            for(OMGraphic og : this.graphics) {
-                if(og instanceof VesselGraphicComponentSelector) {
-                    ((VesselGraphicComponentSelector)og).setShowNameLabel(showLabels);
-                }
-            }
-        }
-        // repaint
-        this.doPrepare();
-    }
 }

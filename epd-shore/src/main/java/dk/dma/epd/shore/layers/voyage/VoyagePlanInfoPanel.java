@@ -288,7 +288,7 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
         if (arg0.getSource() == ZoomToShipBtn && ZoomToShipBtn.isEnabled()) {
             VesselTarget vesselTarget = aisHandler.getVesselTarget(voyage.getMmsi());
             if (vesselTarget != null){
-                chartPanel.zoomToPoint(vesselTarget.getPositionData().getPos());
+                chartPanel.goToPosition(vesselTarget.getPositionData().getPos());
             }
         }
         

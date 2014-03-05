@@ -411,7 +411,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         } else if (e.getSource() == toggleIntendedRoute) {
             boolean visible = toggleIntendedRoute.isSelected();
             EPDShip.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(visible);
-            mainFrame.getChartPanel().setIntendedRouteLayerVisibility(visible);
+            mainFrame.getChartPanel().intendedRouteLayerVisible(visible);
             menuBar.getIntendedRouteLayer().setSelected(visible);
         }
         

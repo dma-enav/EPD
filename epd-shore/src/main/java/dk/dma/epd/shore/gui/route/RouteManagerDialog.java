@@ -419,10 +419,10 @@ public class RouteManagerDialog extends InternalComponentFrame implements Action
 
         if (EPDShore.getInstance().getMainFrame().getActiveMapWindow() != null) {
             EPDShore.getInstance().getMainFrame().getActiveMapWindow().getChartPanel()
-                    .zoomToPoint(selectedroute.getWaypoints().getFirst().getPos());
+                    .goToPosition(selectedroute.getWaypoints().getFirst().getPos());
         } else if (EPDShore.getInstance().getMainFrame().getMapWindows().size() > 0) {
             EPDShore.getInstance().getMainFrame().getMapWindows().get(0).getChartPanel()
-                    .zoomToPoint(selectedroute.getWaypoints().getFirst().getPos());
+                    .goToPosition(selectedroute.getWaypoints().getFirst().getPos());
         }
         // TODO ChartPanel should implement a method that given a route does the
         // following

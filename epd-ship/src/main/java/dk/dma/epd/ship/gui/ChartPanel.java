@@ -17,7 +17,6 @@ package dk.dma.epd.ship.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Point;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Point2D;
@@ -35,9 +34,6 @@ import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.MouseDelegator;
-import com.bbn.openmap.proj.Proj;
-import com.bbn.openmap.proj.Projection;
-import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.HistoryListener;
@@ -83,67 +79,54 @@ import dk.dma.epd.ship.layers.routeedit.RouteEditLayer;
 /**
  * The panel with chart. Initializes all layers to be shown on the map.
  */
-
 public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         MouseWheelListener, VOCTUpdateListener {
-
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(ChartPanel.class);
 
-    private NavigationMouseMode mapNavMouseMode;
-    private DragMouseMode dragMouseMode;
+    // Mouse modes
+    private MSIFilterMouseMode msiFilterMouseMode;
+    private DistanceCircleMouseMode rangeCirclesMouseMode;
+    private NoGoMouseMode noGoMouseMode;
     
     // Layers
     private OwnShipLayer ownShipLayer;
-    private AisLayer aisLayer;
-    private GeneralLayer generalLayer;
-    private CoastalOutlineLayer coastalOutlineLayer;    
-    private RouteLayer routeLayer;
     private VoyageLayer voyageLayer;
-    private MsiLayer msiLayer;
     private NogoLayer nogoLayer;
     private DynamicNogoLayer dynamicNogoLayer;
     private VoctLayer voctLayer;
-    private IntendedRouteLayerCommon intendedRouteLayer;
-    private IntendedRouteTCPALayer intendedRouteTCPALayer;
-    private NewRouteContainerLayer newRouteContainerLayer;
-    private TopPanel topPanel;
-    private RouteEditMouseMode routeEditMouseMode;
-    private RouteEditLayer routeEditLayer;
-    public int maxScale = 5000;
-    private MSIFilterMouseMode msiFilterMouseMode;
-    private VOCTManager voctManager;
-
-    private DistanceCircleMouseMode rangeCirclesMouseMode;
-
-    private ActiveWaypointComponentPanel activeWaypointPanel;
-
-    private NogoDialog nogoDialog;
     private RulerLayer rulerLayer;
 
-    private NoGoMouseMode noGoMouseMode;
-    
+    private TopPanel topPanel;
+    private VOCTManager voctManager;
+    private ActiveWaypointComponentPanel activeWaypointPanel;
+    private NogoDialog nogoDialog;
+    protected PntData pntData;
 
+    
+    /**
+     * Constructor
+     * @param activeWaypointPanel
+     */
     public ChartPanel(ActiveWaypointComponentPanel activeWaypointPanel) {
         super();
+        
         // Set map handler
         mapHandler = EPDShip.getInstance().getMapHandler();
         dragMapHandler = new MapHandler();
+        
         // Set layout
         setLayout(new BorderLayout());
         // Set border
         setBorder(BorderFactory.createLineBorder(Color.GRAY));
         this.activeWaypointPanel = activeWaypointPanel;
-        // Max scale
-        this.maxScale = EPDShip.getInstance().getSettings().getMapSettings()
-                .getMaxScale();
 
         setBackground(new Color(0.1f, 0.1f, 0.1f, 0.1f));
     }
 
     /**
-     * 
+     * Initialize the chart panel
      */
     public void initChart() {
 
@@ -166,40 +149,33 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         map = new BufferedLayerMapBean();
         map.setDoubleBuffered(true);
 
-        // Orthographic test = new Orthographic((LatLonPoint)
-        // mapSettings.getCenter(), mapSettings.getScale(), 1000, 1000);
-        // map.setProjection(test);
-
-        
-        
         mouseDelegator = new MouseDelegator();
         mapHandler.add(mouseDelegator);
 
         // Add MouseMode. The MouseDelegator will find it via the
         // MapHandler.
         // Adding NavMouseMode first makes it active.
-        // mapHandler.add(new NavMouseMode());
         mapNavMouseMode = new NavigationMouseMode(this);
         noGoMouseMode = new NoGoMouseMode(this);
         routeEditMouseMode = new RouteEditMouseMode(this);
         
         msiFilterMouseMode = new MSIFilterMouseMode();
         dragMouseMode = new DragMouseMode(this);
-        this.rangeCirclesMouseMode = new DistanceCircleMouseMode(false);
+        rangeCirclesMouseMode = new DistanceCircleMouseMode(false);
 
         mouseDelegator.addMouseMode(mapNavMouseMode);
         mouseDelegator.addMouseMode(noGoMouseMode);
         mouseDelegator.addMouseMode(routeEditMouseMode);
         mouseDelegator.addMouseMode(msiFilterMouseMode);
         mouseDelegator.addMouseMode(dragMouseMode);
-        this.mouseDelegator.addMouseMode(this.rangeCirclesMouseMode);
-        this.getMap().addKeyListener(mapNavMouseMode);
-        this.getMap().addKeyListener(this.noGoMouseMode);
+        mouseDelegator.addMouseMode(this.rangeCirclesMouseMode);
+        getMap().addKeyListener(mapNavMouseMode);
+        getMap().addKeyListener(this.noGoMouseMode);
 
         mouseDelegator.setActive(mapNavMouseMode);
         // Inform the distance circle mouse mode what mouse mode was initially
         // the active one
-        this.rangeCirclesMouseMode
+        rangeCirclesMouseMode
                 .setPreviousMouseModeModeID(NavigationMouseMode.MODE_ID);
 
         mapHandler.add(mapNavMouseMode);
@@ -214,7 +190,6 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
 
         // Use the LayerHandler to manage all layers, whether they are
         // on the map or not. You can add a layer to the map by
-        // setting layer.setVisible(true).
         layerHandler = new LayerHandler();
         // Get plugin layers
         createPluginLayers(props);
@@ -223,7 +198,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         mapHandler.add(layerHandler);
 
         // Create the general layer
-        generalLayer = new GeneralLayer();
+        GeneralLayer generalLayer = new GeneralLayer();
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
 
@@ -284,32 +259,19 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         intendedRouteLayer.setVisible(true);
         mapHandler.add(intendedRouteLayer);
 
-//        //Create TCPA Graphics
         intendedRouteTCPALayer = new  IntendedRouteTCPALayer();
         intendedRouteTCPALayer.setVisible(true);
         mapHandler.add(intendedRouteTCPALayer);
 
         
-        // Create a esri shape layer
-        // URL dbf = EeINS.class.getResource("/shape/urbanap020.dbf");
-        // URL shp = EeINS.class.getResource("/shape/urbanap020.shp");
-        // URL shx = EeINS.class.getResource("/shape/urbanap020.shx");
-        //
-        // DrawingAttributes da = new DrawingAttributes();
-        // da.setFillPaint(Color.blue);
-        // da.setLinePaint(Color.black);
-        //
-        // EsriLayer esriLayer = new EsriLayer("Drogden", dbf, shp, shx, da);
-        // mapHandler.add(esriLayer);
-
         // Create background layer
         String layerName = "background";
-        coastalOutlineLayer = new CoastalOutlineLayer();
-        coastalOutlineLayer.setProperties(layerName, props);
-        coastalOutlineLayer.setAddAsBackground(true);
-        coastalOutlineLayer.setVisible(true);
+        bgLayer = new CoastalOutlineLayer();
+        bgLayer.setProperties(layerName, props);
+        bgLayer.setAddAsBackground(true);
+        bgLayer.setVisible(true);
 
-        mapHandler.add(coastalOutlineLayer);
+        mapHandler.add(bgLayer);
 
         CoastalOutlineLayer coastalOutlineLayerDrag = new CoastalOutlineLayer();
         coastalOutlineLayerDrag.setProperties(layerName, props);
@@ -335,7 +297,6 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
 
         add(map);
 
-        // TODO: CLEANUP
         // dragMap
         dragMap = new BufferedLayerMapBean();
         dragMap.setDoubleBuffered(true);
@@ -365,12 +326,6 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         // Add this class as PNT data listener
         EPDShip.getInstance().getPntHandler().addListener(this);
 
-        // encLayerFactory2.setMapSettings();
-
-        // Hack to flush ENC layer
-        // encLayerFactory.reapplySettings();
-        // encLayerFactory2.reapplySettings();
-
         // Show AIS or not
         aisVisible(EPDShip.getInstance().getSettings().getAisSettings()
                 .isVisible());
@@ -383,66 +338,55 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
                 .isWmsVisible());
 
         // Show intended routes or not
-        setIntendedRouteLayerVisibility(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
+        intendedRouteLayerVisible(EPDShip.getInstance().getSettings().getCloudSettings().isShowIntendedRoute());
         
         getMap().addMouseWheelListener(this);
 
     }
 
-    protected void initDragMap() {
-        EPDMapSettings mapSettings = EPDShip.getInstance().getSettings()
-                .getMapSettings();
-        // TODO: CLEANUP
-        // dragMap
-        dragMap = new BufferedLayerMapBean();
-        dragMap.setDoubleBuffered(true);
-        dragMap.setCenter(mapSettings.getCenter());
-        dragMap.setScale(mapSettings.getScale());
-
-        dragMapHandler.add(new LayerHandler());
-        if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
-            dragMapHandler.add(dragMap);
-            WMSLayer wmsDragLayer = new WMSLayer(mapSettings.getWmsQuery());
-            dragMapHandler.add(wmsDragLayer);
-            dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
-        } else {
-            // create dummy map dragging
-            dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, true);
+    /**
+     * Create the plug-in layers
+     * @param props
+     */
+    private void createPluginLayers(Properties props) {
+        String layersValue = props.getProperty("eeins.plugin_layers");
+        if (layersValue == null) {
+            return;
         }
-        dragMapRenderer.start();
-    }
-
-    public void saveSettings() {
-        EPDMapSettings mapSettings = EPDShip.getInstance().getSettings()
-                .getMapSettings();
-        mapSettings.setCenter((LatLonPoint) map.getCenter());
-        mapSettings.setScale(map.getScale());
-    }
-
-    public MapHandler getMapHandler() {
-        return mapHandler;
-    }
-
-    public Layer getOwnShipLayer() {
-        return ownShipLayer;
-    }
-
-    public Layer getEncLayer() {
-        return encLayer;
-    }
-
-    public Layer getBgLayer() {
-        return coastalOutlineLayer;
+        String[] layerNames = layersValue.split(" ");
+        for (String layerName : layerNames) {
+            String classProperty = layerName + ".class";
+            String className = props.getProperty(classProperty);
+            if (className == null) {
+                LOG.error("Failed to locate property " + classProperty);
+                continue;
+            }
+            try {
+                // Create it if you do...
+                Object obj = java.beans.Beans.instantiate(null, className);
+                if (obj instanceof Layer) {
+                    Layer l = (Layer) obj;
+                    // All layers have a setProperties method, and
+                    // should intialize themselves with proper
+                    // settings here. If a property is not set, a
+                    // default should be used, or a big, graceful
+                    // complaint should be issued.
+                    l.setProperties(layerName, props);
+                    l.setVisible(true);
+                    layerHandler.addLayer(l);
+                }
+            } catch (java.lang.ClassNotFoundException e) {
+                LOG.error("Layer class not found: \"" + className + "\"");
+            } catch (java.io.IOException e) {
+                LOG.error("IO Exception instantiating class \"" + className
+                        + "\"");
+            }
+        }
     }
     
-    public HistoryListener getProjectChangeListener() {
-        return this.getHistoryListener();
-    }
-    
-    public NoGoMouseMode getNoGoMouseMode() {
-        return this.noGoMouseMode;
-    }
-
+    /**
+     * Zooms to the current position of the own-ship
+     */
     public void centreOnShip() {
         // Get current position
         PntData gpsData = EPDShip.getInstance().getPntHandler()
@@ -458,46 +402,27 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void doZoom(float factor) {
-        float newScale = map.getScale() * factor;
-        if (newScale < maxScale) {
-            newScale = maxScale;
-        }
-        map.setScale(newScale);
+        super.doZoom(factor);
         autoFollow();
     }
 
-    public void aisVisible(boolean visible) {
-        aisLayer.setVisible(visible);
-    }
-
-    public void encVisible(boolean visible) {
-        if (encLayer != null) {
-            encLayer.setVisible(visible);
-            // encDragLayer.setVisible(visible);
-            coastalOutlineLayer.setVisible(!visible);
-            if (!visible) {
-                // Force update of background layer
-                coastalOutlineLayer.forceRedraw();
-            }
-        } else {
-            coastalOutlineLayer.setVisible(true);
-        }
-    }
-
-    public void wmsVisible(boolean visible) {
-        if (wmsLayer != null) {
-            wmsLayer.setVisible(visible);
-        }
-    }
-
     /**
-     * Sets the visibility of the intended route layer
-     * @param visible the visibility of the intended route layer
+     * {@inheritDoc}
      */
-    public void setIntendedRouteLayerVisibility(boolean visible) {
-        if (intendedRouteLayer != null) {
-            intendedRouteLayer.setVisible(visible);
+    @Override
+    public void zoomTo(List<Position> waypoints) {
+        if (waypoints.size() > 0) {
+            // Disable auto follow
+            EPDShip.getInstance().getSettings().getNavSettings()
+                .setAutoFollow(false);
+            topPanel.updateButtons();
+
+            super.zoomTo(waypoints);
         }
     }
 
@@ -592,6 +517,9 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         }     
     }
 
+    /**
+     * Will auto-follow the own-ship if the setting is turned on
+     */
     public void autoFollow() {
         // Do auto follow
         if (!EPDShip.getInstance().getSettings().getNavSettings()
@@ -684,128 +612,15 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
     }
 
     /**
-     * Given a set of points scale and center so that all points are contained
-     * in the view
-     * 
-     * @param waypoints
-     */
-    public void zoomTo(List<Position> waypoints) {
-        if (waypoints.size() == 0) {
-            return;
-        }
-
-        // Disable auto follow
-        EPDShip.getInstance().getSettings().getNavSettings()
-                .setAutoFollow(false);
-        topPanel.updateButtons();
-
-        if (waypoints.size() == 1) {
-            map.setCenter(waypoints.get(0).getLatitude(), waypoints.get(0)
-                    .getLongitude());
-            return;
-        }
-
-        // Find bounding box
-        double maxLat = -91;
-        double minLat = 91;
-        double maxLon = -181;
-        double minLon = 181;
-        for (Position pos : waypoints) {
-            if (pos.getLatitude() > maxLat) {
-                maxLat = pos.getLatitude();
-            }
-            if (pos.getLatitude() < minLat) {
-                minLat = pos.getLatitude();
-            }
-            if (pos.getLongitude() > maxLon) {
-                maxLon = pos.getLongitude();
-            }
-            if (pos.getLongitude() < minLon) {
-                minLon = pos.getLongitude();
-            }
-        }
-
-        double centerLat = (maxLat + minLat) / 2.0;
-        double centerLon = (maxLon + minLon) / 2.0;
-        map.setCenter(centerLat, centerLon);
-
-        // LatLonPoint minlatlon = new LatLonPoint.Double(maxLat, minLon); //
-        // upper left corner
-        // LatLonPoint maxlatlon = new LatLonPoint.Double(minLat, maxLon); //
-        // lower right corner
-        //
-        // Point2D pixelminlatlon = map.getProjection().forward(minlatlon);
-        // Point2D pixelmaxlatlon = map.getProjection().forward(maxlatlon);
-        //
-        // float newScale = ProjMath.getScaleFromProjected(pixelminlatlon,
-        // pixelmaxlatlon, map.getProjection());
-
-        // map.setScale(newScale*5);
-    }
-
-    /**
      * Called when projection has been changed by user
      */
     public void manualProjChange() {
         topPanel.disableAutoFollow();
     }
 
-    public MouseDelegator getMouseDelegator() {
-        return mouseDelegator;
-    }
-
-    private void createPluginLayers(Properties props) {
-        String layersValue = props.getProperty("eeins.plugin_layers");
-        if (layersValue == null) {
-            return;
-        }
-        String[] layerNames = layersValue.split(" ");
-        for (String layerName : layerNames) {
-            String classProperty = layerName + ".class";
-            String className = props.getProperty(classProperty);
-            if (className == null) {
-                LOG.error("Failed to locate property " + classProperty);
-                continue;
-            }
-            try {
-                // Create it if you do...
-                Object obj = java.beans.Beans.instantiate(null, className);
-                if (obj instanceof Layer) {
-                    Layer l = (Layer) obj;
-                    // All layers have a setProperties method, and
-                    // should intialize themselves with proper
-                    // settings here. If a property is not set, a
-                    // default should be used, or a big, graceful
-                    // complaint should be issued.
-                    l.setProperties(layerName, props);
-                    l.setVisible(true);
-                    layerHandler.addLayer(l);
-                }
-            } catch (java.lang.ClassNotFoundException e) {
-                LOG.error("Layer class not found: \"" + className + "\"");
-            } catch (java.io.IOException e) {
-                LOG.error("IO Exception instantiating class \"" + className
-                        + "\"");
-            }
-        }
-    }
-    
-    public void zoomToPosition(Position pos) {
-        map.setCenter((float) pos.getLatitude(), (float) pos.getLongitude());
-    }
-
-    public int getMaxScale() {
-        return maxScale;
-    }
-    
-    public void setNogoDialog(NogoDialog dialog) {
-        this.nogoDialog = dialog;
-    }
-
-    public NogoDialog getNogoDialog() {
-        return nogoDialog;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void findAndInit(Object obj) {
         if (obj instanceof TopPanel) {
@@ -833,41 +648,8 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
     }
 
     /**
-     * 
-     * @param direction
-     *            1 == Up 2 == Down 3 == Left 4 == Right
-     * 
-     *            Moving by 100 units in each direction Map center is [745, 445]
+     * Called upon receiving VOCT updates
      */
-    public void pan(int direction) {
-        Point point = null;
-        Projection projection = map.getProjection();
-
-        int width = projection.getWidth();
-        int height = projection.getHeight();
-
-        switch (direction) {
-        case 1:
-            point = new Point(width / 2, height / 2 - 100);
-            break;
-        case 2:
-            point = new Point(width / 2, height / 2 + 100);
-            break;
-        case 3:
-            point = new Point(width / 2 - 100, height / 2);
-            break;
-        case 4:
-            point = new Point(width / 2 + 100, height / 2);
-            break;
-        }
-
-        Proj p = (Proj) projection;
-        LatLonPoint llp = projection.inverse(point);
-        p.setCenter(llp);
-        map.setProjection(p);
-        manualProjChange();
-    }
-
     @Override
     public void voctUpdated(VOCTUpdateEvent e) {
         if (e == VOCTUpdateEvent.SAR_RECEIVED_CLOUD) {
@@ -928,6 +710,22 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
             }
 
         }
+    }
+
+    public HistoryListener getProjectChangeListener() {
+        return getHistoryListener();
+    }
+    
+    public NoGoMouseMode getNoGoMouseMode() {
+        return noGoMouseMode;
+    }
+
+    public void setNogoDialog(NogoDialog dialog) {
+        this.nogoDialog = dialog;
+    }
+
+    public NogoDialog getNogoDialog() {
+        return nogoDialog;
     }
 
 }

@@ -125,7 +125,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
      */
     @Override
     public void zoomToPosition(Position pos) {
-        getChartPanel().zoomToPosition(pos);
+        getChartPanel().goToPosition(pos);
     }
     
     private void initGUI() {

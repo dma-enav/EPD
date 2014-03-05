@@ -292,7 +292,7 @@ public class ThreadedMapCreator implements Runnable {
 
         window.alwaysFront();
 
-        window.getChartPanel().zoomToPoint(
+        window.getChartPanel().goToPosition(
                 EPDShore.getInstance().getVoctManager().getSarData().getLKP());
         window.getChartPanel().getMap().setScale(100000);
 

@@ -415,7 +415,7 @@ public class MSINotificationPanel extends JPanel {
                         EPDShore.getInstance().getMainFrame()
                                 .getActiveMapWindow()
                                 .getChartPanel()
-                                .zoomToPoint(
+                                .goToPosition(
                                         msiTableModel
                                                 .getMessageLatLon(currentSelection));
                     } else if (EPDShore.getInstance().getMainFrame().getMapWindows().size() > 0) {
@@ -423,7 +423,7 @@ public class MSINotificationPanel extends JPanel {
                                 .getMapWindows()
                                 .get(0)
                                 .getChartPanel()
-                                .zoomToPoint(
+                                .goToPosition(
                                         msiTableModel
                                                 .getMessageLatLon(currentSelection));
                     }
