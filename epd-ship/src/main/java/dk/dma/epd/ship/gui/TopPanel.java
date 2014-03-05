@@ -143,6 +143,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         aisBtn.setToolTipText("Show/hide AIS targets");
         aisToggleName.setToolTipText("Show/hide AIS Name Labels");
         encBtn.setToolTipText("Show/hide ENC");
+        encBtn.setEnabled(EPDShip.getInstance().getSettings().getMapSettings().isUseEnc());
         toggleIntendedRoute.setToolTipText("Show/hide intended routes");
         toggleIntendedRouteFilter.setToolTipText("Toggle Intended Route Filter");
         
@@ -333,42 +334,37 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
             }
             menuBar.getAutoFollow().setSelected(
                     EPDShip.getInstance().getSettings().getNavSettings().isAutoFollow());
+            
         }
         else if (e.getSource() == zoomInBtn) {
             mainFrame.getChartPanel().doZoom(0.5f);
+            
         } else if (e.getSource() == zoomOutBtn) {
             mainFrame.getChartPanel().doZoom(2f);
+            
         } else if (e.getSource() == aisBtn) {
-            EPDShip.getInstance().getSettings().getAisSettings()
-                    .setVisible(aisBtn.isSelected());
             mainFrame.getChartPanel().aisVisible(aisBtn.isSelected());
-
-            menuBar.getAisLayer().setSelected(
-                    EPDShip.getInstance().getSettings().getAisSettings().isVisible());
+            menuBar.getAisLayer().setSelected(aisBtn.isSelected());
 
         } else if (e.getSource() == encBtn) {
-            EPDShip.getInstance().getSettings().getMapSettings()
-                    .setEncVisible(encBtn.isSelected());
             mainFrame.getChartPanel().encVisible(encBtn.isSelected());
-            menuBar.getEncLayer().setSelected(
-                    EPDShip.getInstance().getSettings().getMapSettings().isEncVisible());
+            menuBar.getEncLayer().setSelected(encBtn.isSelected());
 
         } else if (e.getSource() == wmsBtn) {
-            EPDShip.getInstance().getSettings().getMapSettings()
-                    .setWmsVisible(wmsBtn.isSelected());
             mainFrame.getChartPanel().wmsVisible(wmsBtn.isSelected());
+            
         } else if (e.getSource() == routeManagerBtn) {
             RouteManagerDialog routeManagerDialog = new RouteManagerDialog(
                     mainFrame);
             routeManagerDialog.setVisible(true);
+            
         } else if (e.getSource() == setupBtn) {
-            // Show setup dialog.
-            SetupDialogShip setup = new SetupDialogShip(mainFrame);
-            setup.loadSettings(EPDShip.getInstance().getSettings());
-            setup.setVisible(true);
+            mainFrame.openSetupDialog();
+            
         } else if (e.getSource() == aisButton) {
             aisDialog.setVisible(true);
             aisDialog.setSelection(-1, true);
+            
         } else if (e.getSource() == newRouteBtn) {
             if (mouseDelegator.getActiveMouseModeID() == NavigationMouseMode.MODE_ID
                     || mouseDelegator.getActiveMouseModeID() == DragMouseMode.MODE_ID
@@ -381,20 +377,26 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
                         NavigationMouseMode.MODE_ID);
                 menuBar.getNewRoute().setSelected(false);
             }
+            
         } else if (e.getSource() == newRouteBtn) {
             newRoute();
             
         } else if (e.getSource() == aisToggleName) {
             boolean showNameLabels = aisToggleName.isSelected();
             EPDShip.getInstance().getSettings().getAisSettings().setShowNameLabels(showNameLabels);    
+            
         } else if (e.getSource() == toggleSafeHaven) {
             routeLayer.toggleSafeHaven();
+            
         } else if (e.getSource() == dragMouseMode) {
             mainFrame.getChartPanel().setMouseMode(DragMouseMode.MODE_ID);
+            
         } else if (e.getSource() == navigationMouseMode) {
             mainFrame.getChartPanel().setMouseMode(NavigationMouseMode.MODE_ID);
+            
         } else if (e.getSource() == centreBtn) {
             mainFrame.saveCentreOnShip();
+            
         }
         // react on mouse click on "toggle distance circles mode"
         else if (e.getSource() == this.toggleDistanceCircleMode) {
@@ -408,16 +410,17 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
                                 .getChartPanel().getMouseDelegator()
                                 .getActiveMouseMode()).getPreviousMouseMode());
             }
+            
         } else if (e.getSource() == toggleIntendedRoute) {
             boolean visible = toggleIntendedRoute.isSelected();
-            EPDShip.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(visible);
             mainFrame.getChartPanel().intendedRouteLayerVisible(visible);
             menuBar.getIntendedRouteLayer().setSelected(visible);
-        }
         
+        }        
         else if (e.getSource() == toggleIntendedRouteFilter) {
             boolean visible = toggleIntendedRouteFilter.isSelected();
             intendedRouteLayer.toggleFilter(visible);
+        
         }
     }
 

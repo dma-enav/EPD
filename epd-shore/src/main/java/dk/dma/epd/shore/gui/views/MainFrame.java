@@ -42,7 +42,6 @@ import dk.dma.epd.shore.gui.route.RouteManagerDialog;
 import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
 import dk.dma.epd.shore.gui.route.strategic.SendStrategicRouteDialog;
 import dk.dma.epd.shore.settings.EPDGuiSettings;
-import dk.dma.epd.shore.settings.EPDMapSettings;
 import dk.dma.epd.shore.settings.Workspace;
 import dk.dma.epd.shore.util.ThreadedMapCreator;
 import dk.dma.epd.shore.voyage.Voyage;
@@ -61,10 +60,7 @@ public class MainFrame extends MainFrameCommon {
     private int windowCount;
     private JMenuWorkspaceBar topMenu;
     private int mouseMode = 2;
-    private boolean wmsLayerEnabled;
     private boolean msiLayerEnabled = true;
-    private boolean encLayerEnabled;
-    private boolean useEnc;
 
     private BeanContextServicesSupport beanHandler;
     private List<JMapFrame> mapWindows;
@@ -101,13 +97,6 @@ public class MainFrame extends MainFrameCommon {
         beanHandler = EPDShore.getInstance().getBeanHandler();
         // Get settings
         EPDGuiSettings guiSettings = EPDShore.getInstance().getSettings().getGuiSettings();
-        EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
-
-        // System.out.println("Setting wmslayer enabled to:" +
-        // guiSettings.useWMS());
-        wmsLayerEnabled = mapSettings.isUseWms();
-        encLayerEnabled = EPDShore.getInstance().getSettings().getMapSettings().isEncVisible();
-        useEnc = EPDShore.getInstance().getSettings().getMapSettings().isUseEnc();
 
         Workspace workspace = EPDShore.getInstance().getSettings().getWorkspace();
 
@@ -168,12 +157,9 @@ public class MainFrame extends MainFrameCommon {
         desktop.add(sruManagerDialog, true);
         beanHandler.add(sruManagerDialog);
 
-        // routeManagerDialog.setVisible(true);
-
         this.getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 
         setWorkSpace(workspace);
-
     }
 
     /**
@@ -347,7 +333,6 @@ public class MainFrame extends MainFrameCommon {
 
         if (workspace.isValidWorkspace()) {
             for (int i = 0; i < workspace.getName().size(); i++) {
-                // JMapFrame window =
                 addMapWindow(true, workspace.isLocked().get(i), workspace.getAlwaysInFront().get(i), workspace.getCenter().get(i),
                         workspace.getScale().get(i),
 
@@ -355,9 +340,6 @@ public class MainFrame extends MainFrameCommon {
                                 .isMaximized().get(i)
 
                 );
-
-                // window.getChartPanel().getMap().setScale(0.001f);
-                // window.getChartPanel().getMap().setCenter(workspace.getCenter().get(i));
             }
 
             // Restore the layer toggling panel settings
@@ -490,30 +472,6 @@ public class MainFrame extends MainFrameCommon {
 
     public boolean isToolbarsLocked() {
         return toolbarsLocked;
-    }
-
-    public boolean isWmsLayerEnabled() {
-        return wmsLayerEnabled;
-    }
-
-    public void setWmsLayerEnabled(boolean wmsLayerEnabled) {
-        this.wmsLayerEnabled = wmsLayerEnabled;
-    }
-
-    public boolean isEncLayerEnabled() {
-        return encLayerEnabled;
-    }
-
-    public void setEncLayerEnabled(boolean encLayerEnabled) {
-        this.encLayerEnabled = encLayerEnabled;
-    }
-
-    public boolean isUseEnc() {
-        return useEnc;
-    }
-
-    public void setUseEnc(boolean useEnc) {
-        this.useEnc = useEnc;
     }
 
     public boolean isMsiLayerEnabled() {

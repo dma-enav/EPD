@@ -230,6 +230,7 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
 
         encLayer = new JCheckBoxMenuItem("ENC Layer");
         layers.add(encLayer);
+        encLayer.setEnabled(EPDShip.getInstance().getSettings().getMapSettings().isUseEnc());
         encLayer.setSelected(EPDShip.getInstance().getSettings().getMapSettings().isEncVisible());
 
         encLayer.addActionListener(new ActionListener() {

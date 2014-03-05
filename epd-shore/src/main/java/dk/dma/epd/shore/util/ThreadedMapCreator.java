@@ -23,9 +23,13 @@ import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.settings.MapSettings;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
@@ -330,26 +334,25 @@ public class ThreadedMapCreator implements Runnable {
         setupSharedLayers(mapFrame);
     }
 
-    private JMapFrame setupSharedLayers(JMapFrame window) {
-
-        if (!mainFrame.isWmsLayerEnabled()) {
-            window.getChartPanel().getWmsLayer().setVisible(false);
-            window.getChartPanel().getBgLayer().setVisible(true);
-        } else {
-            window.getChartPanel().getWmsLayer().setVisible(true);
-            window.getChartPanel().getBgLayer().setVisible(true);
+    private void setupSharedLayers(final JMapFrame window) {
+        // Perform the update in the main swing thread
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override public void run() {
+                    setupSharedLayers(window);
+                }
+            });
+            return;
         }
 
-        if (mainFrame.isUseEnc()) {
+        MapSettings mapSettings = EPD.getInstance().getSettings().getMapSettings();
+        
+        if (mapSettings.isUseWms() && window.getChartPanel().getWmsLayer() != null) {
+            window.getChartPanel().wmsVisible(mapSettings.isWmsVisible());
+        }
 
-            if (window.getChartPanel().getEncLayer() != null) {
-                if (!mainFrame.isEncLayerEnabled()) {
-                    window.getChartPanel().encVisible(false);
-                } else {
-                    window.getChartPanel().encVisible(true);
-                }
-            }
-
+        if (mapSettings.isUseEnc() && window.getChartPanel().getEncLayer() != null) {
+            window.getChartPanel().encVisible(mapSettings.isEncVisible());
         }
 
         if (!mainFrame.isMsiLayerEnabled()) {
@@ -357,12 +360,10 @@ public class ThreadedMapCreator implements Runnable {
 
         }
 
-        if (mainFrame.getWindowCount() == 1) {
+        if (mainFrame.getWindowCount() == 1 && window.getChartPanel().getWmsLayer() != null) {
             EPDShore.getInstance().getBeanHandler()
                     .add(window.getChartPanel().getWmsLayer().getWmsService());
         }
-
-        return window;
     }
 
 }

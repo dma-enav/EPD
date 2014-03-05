@@ -137,22 +137,6 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
         
         this.addMouseListener(this);
 
-        // Create the grid for the notifications
-        // notificationPanel = new JPanel();
-        // notificationPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
-        // notificationPanel.setBackground(new Color(83, 83, 83));
-        //
-        // notificationPanel.setSize(208, 300 - moveHandlerHeight);
-        // notificationPanel.setPreferredSize(new Dimension(208, 300 - moveHandlerHeight));
-
-        // Create the masterpanel for aligning
-        // masterPanel = new JPanel(new BorderLayout());
-        // masterPanel.setBounds(0, 0, 208, 300);
-        // masterPanel.add(moveHandler, BorderLayout.NORTH);
-        // masterPanel.add(notificationPanel, BorderLayout.SOUTH);
-        // notificationPanel.setLayout(null);
-        //
-
         // Create the masterpanel for aligning
         masterPanel = new JPanel(new BorderLayout());
 
@@ -164,45 +148,6 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
 
         add(masterPanel);
 
-        //
-        // lblLayerTitle = new JLabel("Layers");
-        // lblLayerTitle.setBounds(10, 11, 188, 14);
-        // GuiStyler.styleText(lblLayerTitle);
-        // notificationPanel.add(lblLayerTitle);
-        //
-        // lblETA = new JLabel("Layer Functions");
-        // lblETA.setBounds(14, 141, 184, 14);
-        // GuiStyler.styleText(lblETA);
-        // notificationPanel.add(lblETA);
-        //
-        // OpenVpDetalsBtn = new JLabel("Open VP details");
-        // OpenVpDetalsBtn.setHorizontalAlignment(SwingConstants.CENTER);
-        // OpenVpDetalsBtn.setBounds(34, 166, 140, 25);
-        // GuiStyler.styleButton(OpenVpDetalsBtn);
-        // notificationPanel.add(OpenVpDetalsBtn);
-        // OpenVpDetalsBtn.addMouseListener(this);
-        //
-        // HideOtherVoyagesBtn = new JLabel("Hide other voyages");
-        // HideOtherVoyagesBtn.setHorizontalAlignment(SwingConstants.CENTER);
-        // HideOtherVoyagesBtn.setBounds(34, 198, 140, 25);
-        // GuiStyler.styleButton(HideOtherVoyagesBtn);
-        // HideOtherVoyagesBtn.addMouseListener(this);
-        //
-        // notificationPanel.add(HideOtherVoyagesBtn);
-        //
-        // closeBtn = new JLabel("Hide");
-        // closeBtn.setHorizontalAlignment(SwingConstants.CENTER);
-        // closeBtn.setBounds(127, 246, 71, 25);
-        // GuiStyler.styleButton(closeBtn);
-        // notificationPanel.add(closeBtn);
-        //
-        // masterPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED, new Color(30, 30, 30), new Color(45, 45,
-        // 45)));
-        // add(masterPanel);
-        //
-        // closeBtn.addMouseListener(this);
-
-        
     }
 
     private void toggleLayerButton(Layer layer, JLabel label) {
@@ -225,23 +170,6 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
 
                 // Operation done
                 toggleLayerButton(wmsLayer, wms);
-
-                // if (mainFrame.isWmsLayerEnabled()) {
-                // mainFrame.setWmsLayerEnabled(false);
-                // for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                // mainFrame.getMapWindows().get(i).getChartPanel()
-                // .getWmsLayer().setVisible(false);
-                // }
-                // setInactiveToolItem(wms);
-                //
-                // } else {
-                // mainFrame.setWmsLayerEnabled(true);
-                // for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                // mainFrame.getMapWindows().get(i).getChartPanel()
-                // .getWmsLayer().setVisible(true);
-                // setActiveToolItem(wms, layerToolItems);
-                // }
-                // }
             }
         });
         wms.setToolTipText("Show/hide WMS seacharts");
@@ -254,11 +182,6 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
 
         enc = new JLabel(toolbarIcon("images/toolbar/map-medium.png"));
 
-        // // Set active tool
-        // enc.setBackground(new Color(55, 55, 55));
-        // enc.setBorder(BorderFactory.createCompoundBorder(toolPaddingBorder, toolInnerEtchedBorder));
-        // enc.setOpaque(true);
-
         enc.setName("enc");
         enc.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
@@ -268,7 +191,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
 
                     if (encLayer != null) {
 
-                        chartPanel.encVisible(!chartPanel.getEncLayer().isVisible());
+                        chartPanel.encVisible(!chartPanel.getEncLayer().isVisible(), false);
 
                         if (chartPanel.getEncLayer().isVisible()) {
                             setActiveToolItem(enc);
@@ -282,9 +205,10 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
         });
         enc.setToolTipText("Show/hide ENC");
 
-        // Enabled pr. default / maybe
-        setActiveToolItem(enc);
-
+        enc.setEnabled(EPDShore.getInstance().getSettings().getMapSettings().isUseEnc());
+        if (EPDShore.getInstance().getSettings().getMapSettings().isEncVisible()) {
+            setActiveToolItem(enc);
+        }
         toolItemGroups.addToolItem(enc);
         
         
@@ -303,22 +227,6 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
                 // Operation done
                 toggleLayerButton(msiLayer, msi);
 
-                //
-                // if (mainFrame.isMsiLayerEnabled()) {
-                // for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                // mainFrame.setMSILayerEnabled(false);
-                // mainFrame.getMapWindows().get(i).getChartPanel()
-                // .getMsiLayer().setVisible(false);
-                // }
-                // setInactiveToolItem(msi);
-                // } else {
-                // for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                // mainFrame.setMSILayerEnabled(true);
-                // mainFrame.getMapWindows().get(i).getChartPanel()
-                // .getMsiLayer().setVisible(true);
-                // }
-                // setActiveToolItem(msi, layerToolItems);
-                // }
             }
         });
         msi.setToolTipText("Show/hide maritime safety information");
@@ -451,17 +359,6 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
                     layer.toggleFilter(true);
                     setActiveToolItem(aisNameLabels);
                 }
-
-                // //Toggle namelabels
-                // aisLayer.setShowNameLabels(!aisNameLabels.isOpaque());
-                //
-                // if (!aisNameLabels.isOpaque()) {
-                // setActiveToolItem(aisNameLabels);
-                // System.out.println("Activating");
-                // } else {
-                // setInactiveToolItem(aisNameLabels);
-                // System.out.println("Deactivating");
-                // }
             }
         });
         aisNameLabels.setToolTipText("Toggle Intended Route Filter");
@@ -481,17 +378,6 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
         aisNameLabels.setName("pastrack");
         aisNameLabels.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-
-                // //Toggle namelabels
-                // aisLayer.setShowNameLabels(!aisNameLabels.isOpaque());
-                //
-                // if (!aisNameLabels.isOpaque()) {
-                // setActiveToolItem(aisNameLabels);
-                // System.out.println("Activating");
-                // } else {
-                // setInactiveToolItem(aisNameLabels);
-                // System.out.println("Deactivating");
-                // }
 
             }
         });

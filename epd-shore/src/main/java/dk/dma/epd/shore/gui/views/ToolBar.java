@@ -44,6 +44,7 @@ import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
+import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.utils.ToolItemGroup;
@@ -90,6 +91,7 @@ public class ToolBar extends JInternalFrame {
     public ToolBar(final MainFrame mainFrame) {
 
         this.mainFrame = mainFrame;
+        final Settings settings = EPD.getInstance().getSettings();
 
         // Setup location
         this.setLocation(10 + moveHandlerHeight, 10);
@@ -132,10 +134,8 @@ public class ToolBar extends JInternalFrame {
         select.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 setActiveToolItem(select, mapToolItems);
-
-                for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                    mainFrame.getMapWindows().get(i).getChartPanel()
-                            .setMouseMode(2);
+                for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+                    mapFrame.getChartPanel().setMouseMode(2);
                 }
                 mainFrame.setMouseMode(2);
             }
@@ -149,9 +149,8 @@ public class ToolBar extends JInternalFrame {
             public void mouseReleased(MouseEvent e) {
                 setActiveToolItem(drag, mapToolItems);
 
-                for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                    mainFrame.getMapWindows().get(i).getChartPanel()
-                            .setMouseMode(1);
+                for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+                    mapFrame.getChartPanel().setMouseMode(1);
                 }
                 mainFrame.setMouseMode(1);
             }
@@ -165,9 +164,8 @@ public class ToolBar extends JInternalFrame {
             public void mouseReleased(MouseEvent e) {
                 setActiveToolItem(zoom, mapToolItems);
 
-                for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                    mainFrame.getMapWindows().get(i).getChartPanel()
-                            .setMouseMode(0);
+                for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+                    mapFrame.getChartPanel().setMouseMode(0);
                 }
                 mainFrame.setMouseMode(0);
             }
@@ -192,27 +190,32 @@ public class ToolBar extends JInternalFrame {
         wms.setName("wms");
         wms.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-                if (mainFrame.isWmsLayerEnabled()) {
-                    mainFrame.setWmsLayerEnabled(false);
-                    for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                        mainFrame.getMapWindows().get(i).getChartPanel()
-                                .getWmsLayer().setVisible(false);
+                if (settings.getMapSettings().isWmsVisible()) {
+                    settings.getMapSettings().setWmsVisible(false);
+                    for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+                        if (mapFrame.getChartPanel().getWmsLayer() != null) {
+                            mapFrame.getChartPanel().getWmsLayer().setVisible(false);
+                        }
                     }
                     setInactiveToolItem(wms);
 
                 } else {
-                    mainFrame.setWmsLayerEnabled(true);
-                    for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                        mainFrame.getMapWindows().get(i).getChartPanel()
-                                .getWmsLayer().setVisible(true);
-                        setActiveToolItem(wms, layerToolItems);
+                    settings.getMapSettings().setWmsVisible(true);
+                    for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+                        if (mapFrame.getChartPanel().getWmsLayer() != null) {
+                            mapFrame.getChartPanel().getWmsLayer().setVisible(true);
+                        }
                     }
+                    setActiveToolItem(wms, layerToolItems);
                 }
             }
         });
         wms.setToolTipText("Show/hide WMS seacharts");
         layerToolItems.addToolItem(wms);
-        if (EPDShore.getInstance().getSettings().getMapSettings().isUseWms()) {
+        if (!settings.getMapSettings().isUseWms()) {
+            wms.setEnabled(false);
+        }
+        if (settings.getMapSettings().isWmsVisible()) {
             setActiveToolItem(wms, layerToolItems);
         }
 
@@ -224,17 +227,15 @@ public class ToolBar extends JInternalFrame {
             public void mouseReleased(MouseEvent e) {
 
                 if (mainFrame.isMsiLayerEnabled()) {
-                    for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                        mainFrame.setMSILayerEnabled(false);
-                        mainFrame.getMapWindows().get(i).getChartPanel()
-                                .getMsiLayer().setVisible(false);
+                    mainFrame.setMSILayerEnabled(false);
+                    for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+                        mapFrame.getChartPanel().getMsiLayer().setVisible(false);
                     }
                     setInactiveToolItem(msi);
                 } else {
-                    for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                        mainFrame.setMSILayerEnabled(true);
-                        mainFrame.getMapWindows().get(i).getChartPanel()
-                                .getMsiLayer().setVisible(true);
+                    mainFrame.setMSILayerEnabled(true);
+                    for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+                        mapFrame.getChartPanel().getMsiLayer().setVisible(true);
                     }
                     setActiveToolItem(msi, layerToolItems);
                 }
@@ -248,7 +249,7 @@ public class ToolBar extends JInternalFrame {
         aisToggle.addMouseListener(new MouseAdapter() {
             
             // Initialize with ship visibility.
-            private boolean isPressed = EPDShore.getInstance().getSettings().getAisSettings().isShowNameLabels();
+            private boolean isPressed = settings.getAisSettings().isShowNameLabels();
             
             /**
              * {@inheritDoc}
@@ -288,11 +289,11 @@ public class ToolBar extends JInternalFrame {
                     map.getMapMenu().getAisNames().setNamesShouldBeVisible(showLabels);
                 }
                 // Update the settings file. PropertyChangeListeners of AisSettings will be notified as part of this call.
-                EPDShore.getInstance().getSettings().getAisSettings().setShowNameLabels(showLabels);
+                settings.getAisSettings().setShowNameLabels(showLabels);
             }
         });
         
-        if (EPDShore.getInstance().getSettings().getAisSettings().isShowNameLabels()) {
+        if (settings.getAisSettings().isShowNameLabels()) {
             setActiveToolItem(aisToggle, layerToolItems);            
         }
         aisToggle.setToolTipText("Show/hide AIS names");
@@ -300,8 +301,7 @@ public class ToolBar extends JInternalFrame {
 
         try {
 
-            if (EPDShore.getInstance().getSettings().getMapSettings()
-                    .isUseEnc()) {
+            if (settings.getMapSettings().isUseEnc()) {
 
                 // Tool: ENC layer
 
@@ -310,15 +310,15 @@ public class ToolBar extends JInternalFrame {
                     public void mouseReleased(MouseEvent e) {
                         if (enc.isEnabled()) {
 
-                            if (mainFrame.isEncLayerEnabled()) {
-                                mainFrame.setEncLayerEnabled(false);
+                            if (settings.getMapSettings().isEncVisible()) {
+                                settings.getMapSettings().setEncVisible(false);
                                 for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
                                     mapFrame.getChartPanel().encVisible(false);
                                 }
                                 setInactiveToolItem(enc);
 
                             } else {
-                                mainFrame.setEncLayerEnabled(true);
+                                settings.getMapSettings().setEncVisible(true);
                                 for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
                                     mapFrame.getChartPanel().encVisible(true);
                                 }
@@ -333,8 +333,7 @@ public class ToolBar extends JInternalFrame {
                 // disable bg or wms or enc?
 
                 layerToolItems.addToolItem(enc);
-                if (EPDShore.getInstance().getSettings().getMapSettings()
-                        .isEncVisible()) {
+                if (settings.getMapSettings().isEncVisible()) {
                     setActiveToolItem(enc, layerToolItems);
                 }
 
@@ -350,11 +349,10 @@ public class ToolBar extends JInternalFrame {
         intendedRoutes.setName("intended routes");
         intendedRoutes.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-                boolean intendedRoutesVisible = EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute();
-                EPD.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(!intendedRoutesVisible);
-                for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
-                    mainFrame.getMapWindows().get(i).getChartPanel()
-                            .intendedRouteLayerVisible(!intendedRoutesVisible);
+                boolean intendedRoutesVisible = settings.getCloudSettings().isShowIntendedRoute();
+                settings.getCloudSettings().setShowIntendedRoute(!intendedRoutesVisible);
+                for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+                    mapFrame.getChartPanel().intendedRouteLayerVisible(!intendedRoutesVisible);
                 }
                 if (intendedRoutesVisible) {
                     setInactiveToolItem(intendedRoutes);
@@ -365,7 +363,7 @@ public class ToolBar extends JInternalFrame {
         });
         intendedRoutes.setToolTipText("Show/hide intended routes");
         layerToolItems.addToolItem(intendedRoutes);
-        if (EPD.getInstance().getSettings().getCloudSettings().isShowIntendedRoute()) {
+        if (settings.getCloudSettings().isShowIntendedRoute()) {
             setActiveToolItem(intendedRoutes, layerToolItems);
         }
         

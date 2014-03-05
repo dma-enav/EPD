@@ -255,6 +255,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     public void aisVisible(boolean visible) {
         if (aisLayer != null) {
             aisLayer.setVisible(visible);
+            EPD.getInstance().getSettings().getAisSettings().setVisible(visible);   
         }
     }
 
@@ -264,12 +265,24 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
      * @param visible the visibility
      */
     public void encVisible(boolean visible) {
+        encVisible(visible, true);
+    }
+    
+    /**
+     * Sets ENC layer visibility
+     * 
+     * @param visible the visibility
+     * @param persist persist the change to the settings
+     */
+    public void encVisible(boolean visible, boolean persist) {
         if (encLayer != null) {
             encLayer.setVisible(visible);
             bgLayer.setVisible(!visible);
             if (!visible) {
-                // Force update of background layer
                 bgLayer.doPrepare();
+            }
+            if (persist) {
+                EPD.getInstance().getSettings().getMapSettings().setEncVisible(visible);
             }
         } else {
             bgLayer.setVisible(true);
@@ -284,6 +297,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     public void wmsVisible(boolean visible) {
         if (wmsLayer != null) {
             wmsLayer.setVisible(visible);
+            EPD.getInstance().getSettings().getMapSettings().setWmsVisible(visible);
         }
     }
 
@@ -295,6 +309,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     public void intendedRouteLayerVisible(boolean visible) {
         if (intendedRouteLayer != null) {
             intendedRouteLayer.setVisible(visible);
+            EPD.getInstance().getSettings().getCloudSettings().setShowIntendedRoute(visible);
         }
     }
 

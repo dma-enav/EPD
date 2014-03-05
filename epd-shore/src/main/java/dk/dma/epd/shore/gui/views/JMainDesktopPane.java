@@ -171,12 +171,14 @@ public class JMainDesktopPane extends JDesktopPane {
          * This method is also used when a map is being minimized - so checking for window is closed to be sure that the window is
          * not removed from the desktop pane.
          */
-        if (c instanceof JMapFrame && ((JMapFrame) c).isClosed()) {
-
-            mainFrame.removeMapWindow((JMapFrame) c);
+        if (c instanceof JMapFrame && ((JMapFrame)c).isClosed()) {
+            JMapFrame mapFrame = (JMapFrame)c;
+            mainFrame.removeMapWindow(mapFrame);
 
             // Cleanup of the threads attached to the window - important if adding new layers
-            ((JMapFrame) c).getChartPanel().getWmsLayer().stop();
+            if (mapFrame.getChartPanel().getWmsLayer() != null) {
+                mapFrame.getChartPanel().getWmsLayer().stop();
+            }
         }
 
         super.remove(c);

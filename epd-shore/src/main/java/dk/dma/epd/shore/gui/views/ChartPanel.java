@@ -209,7 +209,7 @@ public class ChartPanel extends ChartPanelCommon {
         Properties props = EPDShore.getInstance().getProperties();
         EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
 
-        if (EPDShore.getInstance().getSettings().getMapSettings().isUseEnc() && mainFrame.isUseEnc()) {
+        if (EPDShore.getInstance().getSettings().getMapSettings().isUseEnc()) {
             // Try to create ENC layer
             EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore.getInstance().getSettings().getMapSettings());
             encLayer = encLayerFactory.getEncLayer();
@@ -255,11 +255,9 @@ public class ChartPanel extends ChartPanelCommon {
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
 
-        wmsLayer = new WMSLayer(EPDShore.getInstance().getSettings().getMapSettings().getWmsQuery());
         // Add WMS Layer
-
-        if (mapSettings.getWmsQuery().length() > 12 && mapSettings.isUseWms()) {
-            wmsLayer.setVisible(true);
+        if (mapSettings.isUseWms()) {
+            wmsLayer = new WMSLayer(EPDShore.getInstance().getSettings().getMapSettings().getWmsQuery());
             mapHandler.add(wmsLayer);
         }
 
@@ -413,12 +411,6 @@ public class ChartPanel extends ChartPanelCommon {
             routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);
 
         }
-
-        if (wmsLayer.isVisible()) {
-            // System.out.println("wms is visible");
-            bgLayer.setVisible(false);
-        }
-
     }
 
     /**
