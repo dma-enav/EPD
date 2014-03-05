@@ -213,7 +213,6 @@ public class ChartPanel extends ChartPanelCommon {
             // Try to create ENC layer
             EncLayerFactory encLayerFactory = new EncLayerFactory(EPDShore.getInstance().getSettings().getMapSettings());
             encLayer = encLayerFactory.getEncLayer();
-            System.out.println("enclayer set " + encLayer);
         }
 
         map = new BufferedLayerMapBean();

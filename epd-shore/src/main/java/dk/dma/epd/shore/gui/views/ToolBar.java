@@ -212,7 +212,7 @@ public class ToolBar extends JInternalFrame {
         });
         wms.setToolTipText("Show/hide WMS seacharts");
         layerToolItems.addToolItem(wms);
-        if (EPDShore.getInstance().getSettings().getGuiSettings().useWMS()) {
+        if (EPDShore.getInstance().getSettings().getMapSettings().isUseWms()) {
             setActiveToolItem(wms, layerToolItems);
         }
 
@@ -312,27 +312,17 @@ public class ToolBar extends JInternalFrame {
 
                             if (mainFrame.isEncLayerEnabled()) {
                                 mainFrame.setEncLayerEnabled(false);
-                                for (int i = 0; i < mainFrame.getMapWindows()
-                                        .size(); i++) {
-                                    mainFrame.getMapWindows().get(i)
-                                            .getChartPanel().getEncLayer()
-                                            .setVisible(false);
+                                for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+                                    mapFrame.getChartPanel().encVisible(false);
                                 }
                                 setInactiveToolItem(enc);
 
                             } else {
                                 mainFrame.setEncLayerEnabled(true);
-                                for (int i = 0; i < mainFrame.getMapWindows()
-                                        .size(); i++) {
-
-                                    mainFrame.getMapWindows().get(i)
-                                            .getChartPanel().getEncLayer()
-                                            .setVisible(true);
-                                    // mainFrame.getMapWindows().get(i).getChartPanel()
-                                    // .getBgLayer().setVisible(false);
-
-                                    setActiveToolItem(enc, layerToolItems);
+                                for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
+                                    mapFrame.getChartPanel().encVisible(true);
                                 }
+                                setActiveToolItem(enc, layerToolItems);
                             }
                         }
                     }

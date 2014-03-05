@@ -344,9 +344,9 @@ public class ThreadedMapCreator implements Runnable {
 
             if (window.getChartPanel().getEncLayer() != null) {
                 if (!mainFrame.isEncLayerEnabled()) {
-                    window.getChartPanel().getEncLayer().setVisible(false);
+                    window.getChartPanel().encVisible(false);
                 } else {
-                    window.getChartPanel().getEncLayer().setVisible(true);
+                    window.getChartPanel().encVisible(true);
                 }
             }
 

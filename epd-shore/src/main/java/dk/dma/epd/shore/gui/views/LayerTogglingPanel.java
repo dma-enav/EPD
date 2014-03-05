@@ -268,7 +268,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
 
                     if (encLayer != null) {
 
-                        chartPanel.getEncLayer().setVisible(!chartPanel.getEncLayer().isVisible());
+                        chartPanel.encVisible(!chartPanel.getEncLayer().isVisible());
 
                         if (chartPanel.getEncLayer().isVisible()) {
                             setActiveToolItem(enc);

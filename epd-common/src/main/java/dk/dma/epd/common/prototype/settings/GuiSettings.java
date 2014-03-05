@@ -37,6 +37,7 @@ public class GuiSettings implements Serializable {
     private boolean alwaysOpenDock = true;
     private boolean showDockMessage = true;
     private float mouseSelectTolerance = 5.0f;
+    private boolean fullscreen;
     
     
     public GuiSettings() {
@@ -59,6 +60,7 @@ public class GuiSettings implements Serializable {
         alwaysOpenDock = PropUtils.booleanFromProperties(props, PREFIX + "alwaysOpenDock", alwaysOpenDock);
         showDockMessage = PropUtils.booleanFromProperties(props, PREFIX + "showDockMessage", showDockMessage);
         mouseSelectTolerance = PropUtils.floatFromProperties(props, PREFIX + "mouseSelectTolerance", mouseSelectTolerance);
+        fullscreen = PropUtils.booleanFromProperties(props, PREFIX + "fullscreen", fullscreen);
         
         
     }
@@ -73,6 +75,7 @@ public class GuiSettings implements Serializable {
         props.put(PREFIX + "alwaysOpenDock", Boolean.toString(alwaysOpenDock));
         props.put(PREFIX + "showDockMessage", Boolean.toString(showDockMessage));
         props.put(PREFIX + "mouseSelectTolerance", Float.toString(mouseSelectTolerance));
+        props.put(PREFIX + "fullscreen", Boolean.toString(fullscreen));
     }
 
     
@@ -139,6 +142,11 @@ public class GuiSettings implements Serializable {
         this.mouseSelectTolerance = mouseSelectTolerance;
     }
  
-    
-    
+    public boolean isFullscreen() {
+        return fullscreen;
+    }
+
+    public void setFullscreen(boolean fullscreen) {
+        this.fullscreen = fullscreen;
+    }
 }

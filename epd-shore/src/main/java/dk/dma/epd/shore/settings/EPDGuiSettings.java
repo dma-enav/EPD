@@ -17,8 +17,6 @@ package dk.dma.epd.shore.settings;
 
 import java.util.Properties;
 
-import com.bbn.openmap.util.PropUtils;
-
 import dk.dma.epd.common.prototype.settings.GuiSettings;
 
 /**
@@ -28,33 +26,15 @@ public class EPDGuiSettings extends GuiSettings {
 
     private static final long serialVersionUID = 1L;
 
-    private boolean fullscreen;
     private String workspace = "";
-    private String wmsQuery = "";
-    private boolean useWMS;
     private String PREFIX = super.getPrefix();
 
     /**
      * Constructor
      */
     public EPDGuiSettings() {
-
+        super();
     }
-
-
-    public String getWmsQuery() {
-        return wmsQuery;
-    }
-
-    public String getWorkspace() {
-        return workspace;
-    }
-
-    public boolean isFullscreen() {
-        return fullscreen;
-    }
-
-
 
 
     /**
@@ -62,21 +42,9 @@ public class EPDGuiSettings extends GuiSettings {
      * @param props
      */
     public void readProperties(Properties props) {
-
-        fullscreen = PropUtils.booleanFromProperties(props, super.getPrefix() + "fullscreen", fullscreen);
         workspace = props.getProperty(PREFIX + "workspace");
-        wmsQuery = props.getProperty(PREFIX + "wmsQuery");
-        useWMS = PropUtils.booleanFromProperties(props, PREFIX + "useWMS", useWMS);
         super.readProperties(props);
     }
-
-
-
-    public void setFullscreen(boolean fullscreen) {
-        this.fullscreen = fullscreen;
-    }
-
-
 
     /**
      * Set the properties to the value from the internal, usually called
@@ -84,29 +52,16 @@ public class EPDGuiSettings extends GuiSettings {
      * @param props
      */
     public void setProperties(Properties props) {
-        props.put(PREFIX + "fullscreen", Boolean.toString(fullscreen));
         props.put(PREFIX + "workspace", workspace);
-        props.put(PREFIX + "wmsQuery", wmsQuery);
-        props.put(PREFIX + "useWMS", Boolean.toString(useWMS));
         
         super.setProperties(props);
     }
 
-    public void setWmsQuery(String wmsQuery) {
-        this.wmsQuery = wmsQuery;
+    public String getWorkspace() {
+        return workspace;
     }
 
     public void setWorkspace(String workspace) {
         this.workspace = workspace;
     }
-
-    public boolean useWMS() {
-        return useWMS;
-    }
-
-    public void setUseWMS(boolean useWMS) {
-        this.useWMS = useWMS;
-    }
-
-
 }

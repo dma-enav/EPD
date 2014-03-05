@@ -127,6 +127,19 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     }
     
     /**
+     * Force an update in the AIS layer
+     */
+    public void forceAisLayerUpdate() {
+        if (aisLayer != null) {
+            aisLayer.forceLayerUpdate();
+        }
+    }
+    
+    /*******************************/
+    /** Zooming and panning       **/
+    /*******************************/
+    
+    /**
      * Changes the current center of the map to a new position.
      * @param position Position to change to center.
      */
@@ -175,15 +188,6 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         double centerLon = (maxLon + minLon) / 2.0;
         map.setCenter(centerLat, centerLon);
         forceAisLayerUpdate();
-    }
-    
-    /**
-     * Force an update in the AIS layer
-     */
-    public void forceAisLayerUpdate() {
-        if (aisLayer != null) {
-            aisLayer.forceLayerUpdate();
-        }
     }
     
     /**

@@ -110,14 +110,8 @@ public class MenuBar extends JMenuBar implements PropertyConsumer, BeanContextCh
         fullscreen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                if (EPDShip.getInstance().getSettings().getGuiSettings().isFullscreen()) {
-                    mainFrame.doNormal();
-                } else {
-                    mainFrame.doFullScreen();
-                }
+                mainFrame.toggleFullScreen();
             }
-
         });
 
         // Create a menu item

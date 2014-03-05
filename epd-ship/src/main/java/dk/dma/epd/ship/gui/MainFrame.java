@@ -24,18 +24,17 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.bbn.openmap.MapHandler;
 
-import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.IMapFrame;
 import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
+import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.ais.AisDialog;
@@ -58,10 +57,9 @@ import dk.dma.epd.ship.settings.EPDGuiSettings;
  */
 public class MainFrame extends MainFrameCommon implements IMapFrame {
 
-    private static final String TITLE = "EPD-ship " + VersionInfo.getVersion();
-
     private static final long serialVersionUID = 1L;
-
+    
+    private static final String TITLE = "EPD-ship " + VersionInfo.getVersion();
     protected static final int SENSOR_PANEL_WIDTH = 190;
 
     private TopPanel topPanel;
@@ -81,10 +79,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
 
     private MultiSourcePntComponentPanel msPntComponentPanel;
 
-    // private MonaLisaCommunicationComponentPanel monaLisaPanel;
-
-    
-
     private AisDialog aisDialog;
     private RouteSuggestionDialog routeSuggestionDialog;
 
@@ -94,6 +88,9 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     private MenuBar menuBar;
     private RequestStrategicRouteDialog strategicRouteSTCCDialog;
 
+    /**
+     * Constructor
+     */
     public MainFrame() {
         super(TITLE);
         initGUI();
@@ -120,14 +117,16 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     }
 
     /**
-     * Zooms the active map to the given position
-     * @param pos the position to zoom to
+     * {@inheritDoc}
      */
     @Override
-    public void zoomToPosition(Position pos) {
-        getChartPanel().goToPosition(pos);
+    public ChartPanelCommon getActiveChartPanel() {
+        return getChartPanel();
     }
-    
+
+    /**
+     * Initializes the GUI
+     */
     private void initGUI() {
         MapHandler mapHandler = EPDShip.getInstance().getMapHandler();
         // Get settings
@@ -235,24 +234,11 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         chartPanel.getHistoryListener().setNavigationPanel(topPanel);
 
         if (EPDShip.getInstance().getSettings().getGuiSettings().isFullscreen()) {
-
-            doFullScreen();
+            // Enter fullscreen, but do not save frame bounds
+            doFullScreen(false);
         } else {
             doNormal();
         }
-
-        // EffortAllocationWindow dialog = new EffortAllocationWindow();
-        // dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        // dialog.setVisible(true);
-
-        // SARInvitationRequest dialog = new SARInvitationRequest(this);
-        // dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        // dialog.setVisible(true);
-
-    }
-
-    public RequestStrategicRouteDialog getStrategicRouteSTCCDialog() {
-        return strategicRouteSTCCDialog;
     }
 
     /**
@@ -266,16 +252,74 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         super.onWindowClosing();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void saveSettings() {
-        // Save gui settings
-        EPDGuiSettings guiSettings = EPDShip.getInstance().getSettings().getGuiSettings();
-        guiSettings.setMaximized((getExtendedState() & MAXIMIZED_BOTH) > 0);
-        guiSettings.setAppLocation(getLocation());
-        guiSettings.setAppDimensions(getSize());
+        super.saveSettings();
+        
         // Save map settings
         chartPanel.saveSettings();
     }
 
+    /**
+     * Save the centering of the ship in history.
+     */
+    public void saveCentreOnShip() {
+        // Save the centering of ship to history.
+        getChartPanel().getProjectChangeListener().setShouldSave(true);
+        getChartPanel().getProjectChangeListener().saveToHistoryBeforeMoving();
+
+        // Move view to centre on ship.
+        getChartPanel().centreOnShip();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SetupDialogShip openSetupDialog() {
+        SetupDialogShip setupDialog = new SetupDialogShip(this);
+        setupDialog.loadSettings(EPD.getInstance().getSettings());
+        setupDialog.setVisible(true);
+        return setupDialog;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Action getAboutAction() {
+        Action aboutEpdShip = new AbstractAction("About EPD-ship", new ImageIcon(EPD.getInstance().getAppIcon(16))) {
+            
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final ImageIcon icon = new ImageIcon(EPD.getInstance().getAppIcon(45));
+                
+                final StringBuilder aboutText = new StringBuilder();
+                aboutText.append("The E-navigation Prototype Display Ship (EPD-ship) is developed by the Danish Maritime Authority (www.dma.dk).\n");
+                aboutText.append("The user manual is available from service.e-navigation.net\n\n");
+                aboutText.append("Version   : " + VersionInfo.getVersion() + "\n");
+                aboutText.append("Build ID  : " + VersionInfo.getBuildId() + "\n");
+                aboutText.append("Build date: " + VersionInfo.getBuildDate());
+                
+                JOptionPane
+                .showMessageDialog(
+                        MainFrame.this,
+                        aboutText.toString(),
+                        "About the EPD-ship", JOptionPane.OK_OPTION, icon);
+            }
+        };
+        return aboutEpdShip;
+    }
+
+    /*******************************/
+    /** Getters and setters       **/
+    /*******************************/
+    
     public ChartPanel getChartPanel() {
         return chartPanel;
     }
@@ -328,88 +372,11 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         return msPntComponentPanel;
     }
 
-    public void doFullScreen() {
-        setVisible(false);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
-        dispose();
-        setUndecorated(true);
-        setVisible(true);
-        EPDShip.getInstance().getSettings().getGuiSettings().setFullscreen(true);
+    public RequestStrategicRouteDialog getStrategicRouteSTCCDialog() {
+        return strategicRouteSTCCDialog;
     }
 
-    public void doNormal() {
-        setVisible(false);
-        setExtendedState(JFrame.NORMAL);
-
-        EPDShip.getInstance().getSettings().getGuiSettings().setFullscreen(true);
-        setSize(new Dimension(1000, 700));
-
-        dispose();
-        setUndecorated(false);
-        setVisible(true);
-
-        EPDShip.getInstance().getSettings().getGuiSettings().setFullscreen(false);
-    }
-
-    /**
-     * @return the sarPanel
-     */
     public SARComponentPanel getSarPanel() {
         return sarPanel;
-    }
-
-    /**
-     * Save the centering of the ship in history.
-     */
-    public void saveCentreOnShip() {
-        // Save the centering of ship to history.
-        // ----------------------------
-
-        EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().setShouldSave(true);
-        EPDShip.getInstance().getMainFrame().getChartPanel().getProjectChangeListener().saveToHistoryBeforeMoving();
-
-        // Move view to centre on ship.
-        this.getChartPanel().centreOnShip();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SetupDialogShip openSetupDialog() {
-        SetupDialogShip setupDialog = new SetupDialogShip(this);
-        setupDialog.loadSettings(EPD.getInstance().getSettings());
-        setupDialog.setVisible(true);
-        return setupDialog;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Action getAboutAction() {
-        Action aboutEpdShip = new AbstractAction("About EPD-ship", new ImageIcon(EPD.getInstance().getAppIcon(16))) {
-            
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final ImageIcon icon = new ImageIcon(EPD.getInstance().getAppIcon(45));
-                
-                final StringBuilder aboutText = new StringBuilder();
-                aboutText.append("The E-navigation Prototype Display Ship (EPD-ship) is developed by the Danish Maritime Authority (www.dma.dk).\n");
-                aboutText.append("The user manual is available from service.e-navigation.net\n\n");
-                aboutText.append("Version   : " + VersionInfo.getVersion() + "\n");
-                aboutText.append("Build ID  : " + VersionInfo.getBuildId() + "\n");
-                aboutText.append("Build date: " + VersionInfo.getBuildDate());
-                
-                JOptionPane
-                .showMessageDialog(
-                        MainFrame.this,
-                        aboutText.toString(),
-                        "About the EPD-ship", JOptionPane.OK_OPTION, icon);
-            }
-        };
-        return aboutEpdShip;
     }
 }
