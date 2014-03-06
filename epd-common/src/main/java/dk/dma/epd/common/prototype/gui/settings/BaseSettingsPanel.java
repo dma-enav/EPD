@@ -100,6 +100,28 @@ public abstract class BaseSettingsPanel extends JPanel {
     protected abstract boolean checkSettingsChanged();
 
     /**
+     * Returns if changes made in this settings panel requires a restart of the system
+     * @return if changes made in this settings panel requires a restart of the system
+     */
+    public final boolean needsRestart() {
+        if (!loaded) {
+            return false;
+        }
+        return checkNeedsRestart();
+    }
+    
+    /**
+     * Returns if changes to the settings should cause a restart
+     * <p>
+     * Sub-classes can override to check on specific fields.
+     * 
+     * @return if changes to the settings should cause a restart
+     */
+    protected boolean checkNeedsRestart() {
+        return false;
+    }
+    
+    /**
      * Initializes the UI from the current EPD settings
      */
     public final void loadSettings() {

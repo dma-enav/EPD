@@ -20,11 +20,13 @@ import javax.swing.JTabbedPane;
 
 
 import dk.dma.epd.common.prototype.gui.SetupDialogCommon;
-import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.shore.gui.settingtabs.ShoreAisSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.ShoreCloudSettingsPanel;
 import dk.dma.epd.shore.gui.settingtabs.ShoreMapFramesSettingsPanel;
 
+/**
+ * Shore-specific implementation of the {@linkplain SetupDialogCommon}
+ */
 public class SetupDialogShore extends SetupDialogCommon {
 
     /**
@@ -59,24 +61,6 @@ public class SetupDialogShore extends SetupDialogCommon {
         super.resizePanelsToFitContainer(this);
         super.addTabs();
         super.setActivePanel(1);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setVisible(boolean b) {
-
-        super.getAcceptButton().setEnabled(!b);
-        super.getHandlerTimer().start();
-        super.setVisible(b);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void loadSettings(Settings settings) {
-        super.loadSettings(settings);
     }
 
     /**

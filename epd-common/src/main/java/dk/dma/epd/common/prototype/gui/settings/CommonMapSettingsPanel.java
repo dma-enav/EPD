@@ -15,7 +15,12 @@
  */
 package dk.dma.epd.common.prototype.gui.settings;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JLabel;
@@ -296,6 +301,16 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
                 changed(this.settings.isUseWmsDragging(), this.chckbxWmsIsUsed.isSelected()) ||
                 changed(this.settings.getWmsQuery(), this.textFieldWMSURL.getText());
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean checkNeedsRestart() {
+        return 
+                changed(this.settings.isUseEnc(), this.chckbxUseEnc.isSelected()) ||
+                changed(this.settings.isUseWms(), this.chckbxUseWms.isSelected());        
+    }
 
     /**
      * {@inheritDoc}
@@ -358,10 +373,44 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         this.settings.setS52TwoShades(this.chckbxTwoShades.isSelected());
         this.settings.setColor(comboBoxColorProfile.getSelectedItem().toString());
         
+        // Checks the WMS settings
+        checkWmsSettings();
+        
         // Save settings for WMS.
         this.settings.setUseWms(this.chckbxUseWms.isSelected());
         this.settings.setUseWmsDragging(this.chckbxWmsIsUsed.isSelected());
         this.settings.setWmsQuery(textFieldWMSURL.getText());
+    }
+    
+    /**
+     * Checks that the WMS query is a valid URL if WMS is turned on
+     */
+    private void checkWmsSettings() {
+        if (chckbxUseWms.isSelected() && 
+                (!settings.isUseWms() ||
+                 changed(settings.getWmsQuery(), textFieldWMSURL.getText()))) {
+            
+            boolean validUrl = textFieldWMSURL.getText().length() > 0; 
+            if (validUrl) {
+                try {   
+                    URL url = new URL(textFieldWMSURL.getText());
+                    url.openConnection().connect();
+                } catch (MalformedURLException e) {
+                    // the URL is not in a valid form
+                    validUrl = false;
+                } catch (IOException e) {
+                    // This does not make it an invalid URL, though...
+                }
+            }
+            if (!validUrl) {
+                JOptionPane.showMessageDialog(
+                        this, 
+                        "The specified WMS URL is not valid.\nWMS will be turned off.", 
+                        "Invalid WMS URL",
+                        JOptionPane.WARNING_MESSAGE);
+                chckbxUseWms.setSelected(false);
+            }
+        }
     }
 
     /**

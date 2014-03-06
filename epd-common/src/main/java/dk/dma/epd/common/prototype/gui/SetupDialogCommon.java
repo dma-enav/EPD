@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.common.prototype.gui;
 
-import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -27,7 +26,6 @@ import javax.swing.SwingConstants;
 import javax.swing.Timer;
 
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.event.SetupDialogHandler;
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.CommonENavSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.CommonMapSettingsPanel;
@@ -38,6 +36,10 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,12 +49,11 @@ import java.util.List;
  * @author adamduehansen
  * 
  */
-public class SetupDialogCommon extends JDialog {
+public class SetupDialogCommon extends JDialog implements ActionListener {
 
-    /**
-     * private fields.
-     */
     private static final long serialVersionUID = 1L;
+    
+    private Timer timer = new Timer(500, this);
     private JButton btnAccept;
     private JButton btnCancel;
     private JTabbedPane tabbedPane;
@@ -64,9 +65,6 @@ public class SetupDialogCommon extends JDialog {
     private Settings settings;
     private String tabPrefix;
     private int fontSize;
-    private JButton btnWarningCancel;
-    private JButton btnWarningOkay;
-    private SetupDialogHandler dialogListener;
 
     /**
      * 
@@ -79,13 +77,17 @@ public class SetupDialogCommon extends JDialog {
         super(parent, title, true);
 
         // Frame settings.
-        this.setSize(462, 720);
-        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.setResizable(false);
-        this.setLocationRelativeTo(parent);
-        this.getContentPane().setLayout(new BorderLayout(0, 0));
+        setSize(462, 720);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override public void windowClosing(WindowEvent e) {
+                timer.stop();
+            }});
+        setResizable(false);
+        setLocationRelativeTo(parent);
+        getContentPane().setLayout(new BorderLayout(0, 0));
 
-        this.tabbedPane = new JTabbedPane(tabAlignment);
+        tabbedPane = new JTabbedPane(tabAlignment);
 
         // If the tabs is displayed on the left side, give them
         // more width and height and a larger font.
@@ -97,33 +99,32 @@ public class SetupDialogCommon extends JDialog {
             fontSize = 10;
         }
 
-        this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
+        getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
         JPanel btnPanel = new JPanel();
         btnPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 5));
-        this.getContentPane().add(btnPanel, BorderLayout.SOUTH);
+        getContentPane().add(btnPanel, BorderLayout.SOUTH);
 
-        this.btnAccept = new JButton("Accept", new ImageIcon(SetupDialogCommon.class.getResource("/images/settings/btnok.png")));
-        this.btnAccept.setEnabled(false);
-        btnPanel.add(this.btnAccept);
+        btnAccept = new JButton("Accept", EPD.res().getCachedImageIcon("images/settings/btnok.png"));
+        btnAccept.setEnabled(false);
+        btnPanel.add(btnAccept);
 
-        this.btnCancel = new JButton("Cancel", new ImageIcon(SetupDialogCommon.class.getResource("/images/settings/btncancel.png")));
-        btnPanel.add(this.btnCancel);
+        btnCancel = new JButton("Cancel", EPD.res().getCachedImageIcon("images/settings/btncancel.png"));
+        btnPanel.add(btnCancel);
 
         // Create the panels.
-        this.settingsPanels = new ArrayList<BaseSettingsPanel>();
-        this.enavSettings   = new CommonENavSettingsPanel();
-        this.mapSettings    = new CommonMapSettingsPanel();
+        settingsPanels = new ArrayList<BaseSettingsPanel>();
+        enavSettings   = new CommonENavSettingsPanel();
+        mapSettings    = new CommonMapSettingsPanel();
 
         // Register the panels to the tab menu.
-        this.registerSettingsPanels(
+        registerSettingsPanels(
                 enavSettings, 
                 mapSettings);
 
-        this.dialogListener = new SetupDialogHandler(this);
-        this.addWindowListener(dialogListener);
-        this.btnAccept.addActionListener(dialogListener);
-        this.btnCancel.addActionListener(dialogListener);
+        btnAccept.addActionListener(this);
+        btnCancel.addActionListener(this);
+        
     }
 
     /**
@@ -136,18 +137,18 @@ public class SetupDialogCommon extends JDialog {
         for (int i = 0; i < settingsPanels.size(); i++) {
 
             // Get the settingsPanel.
-            BaseSettingsPanel newPanel = this.settingsPanels.get(i);
+            BaseSettingsPanel newPanel = settingsPanels.get(i);
 
             // Add the panel.
             tabbedPane.add(newPanel);
 
             // Create icon and title for tab.
             JLabel panelTitle = new JLabel(tabPrefix + newPanel.getName());
-            panelTitle.setFont(new Font(panelTitle.getFont().getName(), Font.PLAIN, this.fontSize));
+            panelTitle.setFont(new Font(panelTitle.getFont().getName(), Font.PLAIN, fontSize));
             panelTitle.setIcon(newPanel.getIcon());
             panelTitle.setIconTextGap(5);
             panelTitle.setHorizontalTextPosition(SwingConstants.RIGHT);
-            this.tabbedPane.setTabComponentAt(i, panelTitle);
+            tabbedPane.setTabComponentAt(i, panelTitle);
         }
     }
 
@@ -177,12 +178,12 @@ public class SetupDialogCommon extends JDialog {
         
         // If the tab placement is placed on the left side, we need to add
         // some more width.
-        if (this.tabbedPane.getTabPlacement() == JTabbedPane.LEFT) {
+        if (tabbedPane.getTabPlacement() == JTabbedPane.LEFT) {
             resizeWidthWith = 188;
         }
         
         // For each setting panel get the components.
-        for (BaseSettingsPanel baseSettingsPanel : this.settingsPanels) {
+        for (BaseSettingsPanel baseSettingsPanel : settingsPanels) {
             Component[] components = baseSettingsPanel.getComponents();
             
             // Go through each of the settings panels components.
@@ -214,6 +215,8 @@ public class SetupDialogCommon extends JDialog {
             baseSettingsPanel.setSettings(settings);
             baseSettingsPanel.loadSettings();
         }
+        
+        timer.start();
     }
 
     /**
@@ -223,40 +226,62 @@ public class SetupDialogCommon extends JDialog {
      */
     public boolean saveSettings() {
         boolean changesWereMade = false;
+        boolean restartRequired = false;
         for (BaseSettingsPanel baseSettingsPanel : settingsPanels) {
+            restartRequired |= baseSettingsPanel.needsRestart();
             changesWereMade |= baseSettingsPanel.saveSettings();
         }
 
         if (changesWereMade) {
             settings.saveToFile();
         }
+        
+        if (restartRequired) {
+            int result = JOptionPane.showConfirmDialog(
+                    this, 
+                    "The changes requires a restart to take effect.\nRestart now?", 
+                    "Restart Required",
+                    JOptionPane.YES_NO_OPTION, 
+                    JOptionPane.QUESTION_MESSAGE);
+            if (result == JOptionPane.YES_OPTION) {
+                EPD.getInstance().closeApp(true);
+            }
+        }
 
         return changesWereMade;
     }
 
-    public JButton getAcceptButton() {
-        return this.btnAccept;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Dialog buttons.
+        if (e.getSource() == btnAccept) {
+            
+            // Save changes if changes were made.
+            saveSettings();
+            timer.stop();
+            dispose();
+            
+        } else if (e.getSource() == btnCancel) {
+            
+            // Close the window.
+            timer.stop();
+            dispose();
+        
+        } else if (e.getSource() == timer) {
+            checkSettingsChanged();
+        }
     }
-
-    public JButton getCancelButton() {
-        return this.btnCancel;
-    }
-
-    public JButton getWarningAcceptButton() {
-        return this.btnWarningOkay;
-    }
-
-    public JButton getWarningCancelButton() {
-        return this.btnWarningCancel;
-    }
-
+    
     /**
      * Checks if the settings have changed and update the OK button enabled state
      * 
      * @return
      */
     public boolean checkSettingsChanged() {
-        if (!this.isVisible()) {
+        if (!isVisible()) {
             return false;
         }
         boolean changed = false;
@@ -267,28 +292,12 @@ public class SetupDialogCommon extends JDialog {
         return changed;
     }
 
+    /**
+     * Sets the given tab as the active tab
+     * @param tabNumber the tab index
+     */
     public void setActivePanel(int tabNumber) {
         tabbedPane.setSelectedIndex(tabNumber);
     }
 
-    public int askIfShouldSaveChanges() {
-
-        btnWarningOkay = new JButton("Yes", new ImageIcon(SetupDialogCommon.class.getResource("/images/settings/btnok.png")));
-
-        // Add a value to the button, when it is pressed.
-        btnWarningOkay.addActionListener(dialogListener);
-
-        btnWarningCancel = new JButton("No", new ImageIcon(SetupDialogCommon.class.getResource("/images/settings/btncancel.png")));
-
-        // Add a value to the button, when pressed.
-        btnWarningCancel.addActionListener(dialogListener);
-
-        return JOptionPane.showOptionDialog(this, "Some changes were made to the settings.\nShould these changes be saved?",
-                "Changes were made", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, new Object[] { btnWarningOkay,
-                        btnWarningCancel }, btnWarningOkay);
-    }
-
-    public Timer getHandlerTimer() {
-        return this.dialogListener.getTimer();
-    }
 }

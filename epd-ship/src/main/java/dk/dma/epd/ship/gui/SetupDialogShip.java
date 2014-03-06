@@ -20,7 +20,6 @@ import javax.swing.JTabbedPane;
 
 import dk.dma.epd.common.prototype.gui.SetupDialogCommon;
 import dk.dma.epd.common.prototype.gui.settings.CommonCloudSettingsPanel;
-import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.ship.gui.setuptabs.ShipAisSettingsPanel;
 import dk.dma.epd.ship.gui.setuptabs.ShipNavigationSettingsPanel;
 import dk.dma.epd.ship.gui.setuptabs.ShipSensorSettingsPanel;
@@ -71,13 +70,5 @@ public class SetupDialogShip extends SetupDialogCommon {
         
         super.resizePanelsToFitContainer(this);
         super.addTabs();
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void loadSettings(Settings settings) {
-        super.loadSettings(settings);
     }
 }

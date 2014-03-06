@@ -403,7 +403,7 @@ public class ChartPanel extends ChartPanelCommon {
         if (encLayer != null) {
             mapHandler.add(encLayer);
         }
-                
+        
         // Add map to map handler
         mapHandler.add(map);
 
