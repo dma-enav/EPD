@@ -45,7 +45,6 @@ public class AisSettings implements Serializable {
     private int sartPrefix = 970;
     private String[] simulatedSartMmsi = {}; // Specify comma-separated mmsi list to simulate SarTarget's
     private boolean showNameLabels = true;
-    private int showMinuteMarksAISTarget = 200;
     private boolean showRisk;
     private int pastTrackMaxTime = 4 * 60; // In minutes
     private int pastTrackDisplayTime = 30; // In minutes
@@ -117,8 +116,6 @@ public class AisSettings implements Serializable {
         sartPrefix = PropUtils.intFromProperties(props, PREFIX + "sartPrefix", sartPrefix);
         simulatedSartMmsi = PropUtils.stringArrayFromProperties(props, PREFIX + "simulatedSartMmsi", ",");
         showNameLabels = PropUtils.booleanFromProperties(props, PREFIX + "showNameLabels", showNameLabels);
-        showMinuteMarksAISTarget = PropUtils
-                .intFromProperties(props, PREFIX + "showMinuteMarksAISTarget", showMinuteMarksAISTarget);
         pastTrackMaxTime = PropUtils.intFromProperties(props, PREFIX + "pastTrackMaxTime", pastTrackMaxTime);
         pastTrackDisplayTime = PropUtils.intFromProperties(props, PREFIX + "pastTrackDisplayTime", pastTrackDisplayTime);
         pastTrackMinDist = PropUtils.intFromProperties(props, PREFIX + "pastTrackMinDist", pastTrackMinDist);
@@ -153,7 +150,6 @@ public class AisSettings implements Serializable {
         props.put(PREFIX + "sartPrefix", Integer.toString(sartPrefix));
         props.put(PREFIX + "simulatedSartMmsi", StringUtils.defaultString(StringUtils.join(simulatedSartMmsi, ",")));
         props.put(PREFIX + "showNameLabels", Boolean.toString(showNameLabels));
-        props.put(PREFIX + "showMinuteMarksAISTarget", Float.toString(showMinuteMarksAISTarget));
         props.put(PREFIX + "pastTrackMaxTime", Integer.toString(pastTrackMaxTime));
         props.put(PREFIX + "pastTrackDisplayTime", Integer.toString(pastTrackDisplayTime));
         props.put(PREFIX + "pastTrackMinDist", Integer.toString(pastTrackMinDist));
@@ -232,14 +228,6 @@ public class AisSettings implements Serializable {
         this.showNameLabels = showNameLabels;
         // notify property change listeners of the changed in value
         this.notifier.firePropertyChange(SHOW_NAME_LABELS_CHANGED, oldVal, this.showNameLabels);
-    }
-
-    public int getShowMinuteMarksAISTarget() {
-        return showMinuteMarksAISTarget;
-    }
-
-    public void setShowMinuteMarksAISTarget(int showMinuteMarksAISTarget) {
-        this.showMinuteMarksAISTarget = showMinuteMarksAISTarget;
     }
 
     public boolean isShowRisk() {
