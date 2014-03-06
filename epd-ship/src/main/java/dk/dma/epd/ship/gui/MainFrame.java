@@ -304,7 +304,8 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
                 aboutText.append("The user manual is available from service.e-navigation.net\n\n");
                 aboutText.append("Version   : " + VersionInfo.getVersion() + "\n");
                 aboutText.append("Build ID  : " + VersionInfo.getBuildId() + "\n");
-                aboutText.append("Build date: " + VersionInfo.getBuildDate());
+                aboutText.append("Build date: " + VersionInfo.getBuildDate() + "\n");
+                aboutText.append("Home path: " + EPD.getInstance().getHomePath());
                 
                 JOptionPane
                 .showMessageDialog(

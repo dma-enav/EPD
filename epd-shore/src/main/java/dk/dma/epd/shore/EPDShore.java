@@ -24,7 +24,6 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -87,7 +86,6 @@ import dk.dma.epd.shore.voyage.VoyageManager;
 public final class EPDShore extends EPD {
 
     private static Logger LOG;
-    private Path homePath;
     private MainFrame mainFrame;
     private BeanContextServicesSupport beanHandler;
     private NmeaSensor aisSensor;
@@ -168,10 +166,7 @@ public final class EPDShore extends EPD {
 
         OneInstanceGuard guard = new OneInstanceGuard(getHomePath().resolve("esd.lock").toString());
         if (guard.isAlreadyRunning()) {
-            JOptionPane.showMessageDialog(null, "One application instance already running.\n"
-                    + "Restart the application with caps-lock on\nto select a different home folder.", "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
+            handleEpdAlreadyRunning();
         }
 
         // Enable GPS timer by adding it to bean context
@@ -369,6 +364,7 @@ public final class EPDShore extends EPD {
         stopSensors();
 
         LOG.info("Closing ESD");
+        this.restart = restart;
         System.exit(restart ? 2 : 0);
     }
 

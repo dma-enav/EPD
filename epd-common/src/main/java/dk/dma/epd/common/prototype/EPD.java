@@ -18,10 +18,16 @@ package dk.dma.epd.common.prototype;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.Resources;
@@ -46,6 +52,8 @@ public abstract class EPD implements ISettingsListener {
     protected Settings settings;
     protected SystemTrayCommon systemTray;
     protected Properties properties = new Properties();
+    protected volatile boolean restart;
+    protected volatile Path homePath;
     
     // Common services
     protected ChatServiceHandlerCommon chatServiceHandler;
@@ -58,6 +66,14 @@ public abstract class EPD implements ISettingsListener {
      */
     protected EPD() {
         instance = this;
+        
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                if (restart) {
+                    restartApp();
+                }
+            }});
     }
     
     /**
@@ -220,6 +236,58 @@ public abstract class EPD implements ISettingsListener {
      * @param restart whether to restart or not
      */
     public abstract void closeApp(boolean restart);
+    
+    /**
+     * Restarts the application.
+     * This is called from the shutdown hook
+     */
+    private void restartApp() {
+        List<String> cmd = new ArrayList<>();
+        cmd.add(System.getProperty("java.home") + File.separator + "bin" + File.separator + "java");
+        for (String jvmArg : ManagementFactory.getRuntimeMXBean().getInputArguments()) {
+            cmd.add(jvmArg);
+        }
+        cmd.add("-cp");
+        cmd.add(ManagementFactory.getRuntimeMXBean().getClassPath());
+        cmd.add(getClass().getName());
+        
+        // If homePath is defined, add it as the runtime argument
+        if (homePath != null) {
+            cmd.add(homePath.toString());
+        }
+       
+        try {
+            System.out.println("Re-launching using command:\n  " + cmd);
+            ProcessBuilder builder = new ProcessBuilder(cmd);
+            builder.start();
+        } catch (IOException e) {
+           e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Informs the user that EPD is already running.
+     * Prompts whether to restart or bail
+     */
+    protected void handleEpdAlreadyRunning() {
+        int result = JOptionPane.showOptionDialog(
+                null, 
+                "One application instance already running.\n"
+                    + "Either close or restart with caps-lock on\nto select a different home folder.", 
+                "Error",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.ERROR_MESSAGE,
+                null,
+                new Object[] { "Close", "Restart" },
+                null);
+        if (result == JOptionPane.YES_OPTION) {
+            // Restart
+            restart = true;
+            // But do not re-use current home path
+            homePath = null;
+        }
+        System.exit(1);
+    }
     
     /**
      * Returns the application icon

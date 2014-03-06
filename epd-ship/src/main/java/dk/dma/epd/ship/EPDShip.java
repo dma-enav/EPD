@@ -28,7 +28,6 @@ import javax.swing.Action;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -95,8 +94,6 @@ import dk.dma.epd.ship.settings.EPDSettings;
 public final class EPDShip extends EPD {
 
     private static Logger LOG;
-
-    private Path homePath;
 
     MainFrame mainFrame;
     private MapHandler mapHandler;
@@ -176,10 +173,7 @@ public final class EPDShip extends EPD {
         // Determine if instance already running and if that is allowed
         OneInstanceGuard guard = new OneInstanceGuard(getHomePath().resolve("eeins.lock").toString());
         if (guard.isAlreadyRunning()) {
-            JOptionPane.showMessageDialog(null, "One application instance already running.\n"
-                    + "Restart the application with caps-lock on\nto select a different home folder.", "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            System.exit(1);
+            handleEpdAlreadyRunning();
         }
 
         // start riskHandler
@@ -703,6 +697,7 @@ public final class EPDShip extends EPD {
         stopSensors();
 
         LOG.info("Closing EPD-ship");
+        this.restart = restart;
         System.exit(restart ? 2 : 0);
 
     }

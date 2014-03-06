@@ -37,9 +37,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dk.dma.epd.common.graphics.GraphicsUtil;
 
 /**
@@ -49,7 +46,6 @@ import dk.dma.epd.common.graphics.GraphicsUtil;
 public final class HomePathDialog extends JDialog {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(HomePathDialog.class);
     private Preferences prefs;
     private Path selectedPath;
 
@@ -226,7 +222,7 @@ public final class HomePathDialog extends JDialog {
         try {
             prefs.sync();
         } catch (BackingStoreException e) {
-            LOG.error("Failed saving paths", e);
+            System.err.println("Failed saving paths" + e);
         }
     }
     
@@ -240,7 +236,7 @@ public final class HomePathDialog extends JDialog {
     public static Path determineHomePath(Path defaultHomePath) {
         HomePathDialog dialog = new HomePathDialog(defaultHomePath);
         dialog.setVisible(true);
-        LOG.info("Selected home path: " + dialog.selectedPath);
+        System.out.println("Selected home path: " + dialog.selectedPath);
         return dialog.selectedPath;
     }
 
