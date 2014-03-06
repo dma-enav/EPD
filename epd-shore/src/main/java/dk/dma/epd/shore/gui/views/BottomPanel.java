@@ -20,6 +20,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.StatusLabel;
 import dk.dma.epd.common.prototype.gui.views.BottomPanelCommon;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
@@ -39,7 +40,7 @@ public class BottomPanel extends BottomPanelCommon {
      * Constructor.
      */
     public BottomPanel() {
-        super();                
+        super(); 
     }
     
     /**
@@ -47,9 +48,11 @@ public class BottomPanel extends BottomPanelCommon {
      */
     @Override
     protected void addStatusComponents() {
-        lblWms = new StatusLabel("WMS");
-        addToolbarComponent(lblWms);
-        addSeparator();
+        if (EPD.getInstance().getSettings().getMapSettings().isUseWms()) {
+            lblWms = new StatusLabel("WMS");
+            addToolbarComponent(lblWms);
+            addSeparator();
+        }
         
         // Let super add the rest
         super.addStatusComponents();
@@ -62,6 +65,11 @@ public class BottomPanel extends BottomPanelCommon {
     protected void updateStatus() {
         
         super.updateStatus();
+        
+        // Only check WMS status if WMS is used
+        if (lblWms == null) {
+            return;
+        }
         
         /********* WMS STATUS *********/
         
