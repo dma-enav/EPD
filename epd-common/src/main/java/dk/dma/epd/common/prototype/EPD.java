@@ -280,7 +280,7 @@ public abstract class EPD implements ISettingsListener {
                 null,
                 new Object[] { "Close", "Restart" },
                 null);
-        if (result == JOptionPane.YES_OPTION) {
+        if (result == JOptionPane.NO_OPTION) {
             // Restart
             restart = true;
             // But do not re-use current home path
