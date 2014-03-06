@@ -18,7 +18,7 @@ package dk.dma.epd.common.prototype.layers.util;
 import com.bbn.openmap.Layer;
 
 /**
- * Interface to implement for classes wanting to know if a specific layer has changed visiblity
+ * Interface to implement for classes wanting to know if a specific layer has changed visibility
  */
 public interface LayerVisiblityListener {
 

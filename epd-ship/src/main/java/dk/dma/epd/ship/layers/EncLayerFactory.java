@@ -26,7 +26,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bbn.openmap.Layer;
+import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.util.PropUtils;
 
 import dk.dma.epd.ship.EPDShip;
@@ -43,7 +43,7 @@ public class EncLayerFactory {
             .getLogger(EncLayerFactory.class);
     private Properties encProps = new Properties();
     private EPDMapSettings mapSettings;
-    private Layer encLayer;
+    private OMGraphicHandlerLayer encLayer;
 
     private static void addSoftwareLibrary(File file) throws Exception {
         Method method = URLClassLoader.class.getDeclaredMethod("addURL",
@@ -120,7 +120,7 @@ public class EncLayerFactory {
         }
         try {
             Object obj = java.beans.Beans.instantiate(null, className);
-            Layer layer = (Layer) obj;
+            OMGraphicHandlerLayer layer = (OMGraphicHandlerLayer) obj;
             layer.setProperties("enc", encProps);
             layer.setAddAsBackground(true);
             layer.setVisible(true);
@@ -136,7 +136,7 @@ public class EncLayerFactory {
 
     }
 
-    public Layer getEncLayer() {
+    public OMGraphicHandlerLayer getEncLayer() {
         return encLayer;
     }
 

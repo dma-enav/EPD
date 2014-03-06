@@ -25,6 +25,7 @@ import com.bbn.openmap.MapBean;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
+import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.layer.shape.MultiShapeLayer;
 import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.Projection;
@@ -44,6 +45,7 @@ import dk.dma.epd.common.prototype.layers.msi.MsiLayerCommon;
 import dk.dma.epd.common.prototype.layers.route.RouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.routeedit.RouteEditLayerCommon;
+import dk.dma.epd.common.prototype.layers.util.LayerVisibilityAdapter;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.common.prototype.settings.MapSettings;
 
@@ -71,7 +73,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     protected BufferedLayerMapBean map;
     protected BufferedLayerMapBean dragMap;
     protected SimpleOffScreenMapRenderer dragMapRenderer;
-    protected Layer encLayer;
+    protected OMGraphicHandlerLayer encLayer;
     protected MultiShapeLayer bgLayer;
     protected WMSLayer wmsLayer;
     protected WMSLayer wmsDragLayer;
@@ -83,6 +85,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     protected IntendedRouteLayerCommon intendedRouteLayer;
     protected IntendedRouteTCPALayer intendedRouteTCPALayer;
     
+    protected LayerVisibilityAdapter encVisibilityAdapter = new LayerVisibilityAdapter();
     protected HistoryListener historyListener;
     
     /**
@@ -275,11 +278,25 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
      * @param persist persist the change to the settings
      */
     public void encVisible(boolean visible, boolean persist) {
+        // Note: After upgrading to OpenMap 5.0.3, there seemed to be a minor problem
+        // with having multiple background layers installed (EPD-186), causing the 
+        // background layer to turn blank after launch.
+        // Hence instead of adding both background layers and toggling the visibility,
+        // the strategy was changed to add and remove the background layers:
+        
         if (encLayer != null) {
-            encLayer.setVisible(visible);
-            bgLayer.setVisible(!visible);
-            if (!visible) {
+            if (visible) {
+                mapHandler.remove(bgLayer);
+                encLayer.setVisible(true);
+                mapHandler.add(encLayer);
+                encLayer.doPrepare();
+                encVisibilityAdapter.notifyVisibilityListeners(encLayer);                
+            } else {
+                mapHandler.remove(encLayer);
+                mapHandler.add(bgLayer);
+                encLayer.setVisible(false);
                 bgLayer.doPrepare();
+                encVisibilityAdapter.notifyVisibilityListeners(encLayer);                
             }
             if (persist) {
                 EPD.getInstance().getSettings().getMapSettings().setEncVisible(visible);
@@ -289,6 +306,14 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         }
     }
 
+    /**
+     * Returns if the ENC layer is visible or not
+     * @return if the ENC layer is visible or not
+     */
+    public boolean isEncVisible() {
+        return encLayer != null && encLayer.isVisible() && mapHandler.contains(encLayer);
+    }
+    
     /**
      * Sets WMS layer visibility
      * 
@@ -362,20 +387,12 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         return dragMapRenderer;
     }
 
-    public void setDragMapRenderer(SimpleOffScreenMapRenderer dragMapRenderer) {
-        this.dragMapRenderer = dragMapRenderer;
-    }
-
     public WMSLayer getWmsLayer() {
         return wmsLayer;
     }
 
     public Layer getEncLayer() {
         return encLayer;
-    }
-    
-    public void setEncLayer(Layer encLayer) {
-        this.encLayer = encLayer;
     }
     
     public HistoryListener getHistoryListener() {
@@ -388,5 +405,9 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     
     public MouseDelegator getMouseDelegator() {
         return mouseDelegator;
+    }
+
+    public LayerVisibilityAdapter getEncVisibilityAdapter() {
+        return encVisibilityAdapter;
     }
 }

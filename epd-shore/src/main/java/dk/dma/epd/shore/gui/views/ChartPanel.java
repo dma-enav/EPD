@@ -399,10 +399,11 @@ public class ChartPanel extends ChartPanelCommon {
         bgLayer.setVisible(true);
         mapHandler.add(bgLayer);
 
+        // Add ENC layer
         if (encLayer != null) {
             mapHandler.add(encLayer);
         }
-
+                
         // Add map to map handler
         mapHandler.add(map);
 

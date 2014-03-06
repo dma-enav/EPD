@@ -23,8 +23,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -61,7 +59,7 @@ import dk.dma.epd.shore.layers.voyage.EmbeddedInfoPanelMoveMouseListener;
 import dk.dma.epd.shore.layers.voyage.VoyageLayer;
 
 public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVisiblityListener, 
-        ComponentListener, HistoryNavigationPanelInterface {
+        HistoryNavigationPanelInterface {
 
     private static final long serialVersionUID = 1L;
     private JLabel moveHandler;
@@ -190,14 +188,8 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
                     Layer encLayer = chartPanel.getEncLayer();
 
                     if (encLayer != null) {
-
-                        chartPanel.encVisible(!chartPanel.getEncLayer().isVisible(), false);
-
-                        if (chartPanel.getEncLayer().isVisible()) {
-                            setActiveToolItem(enc);
-                        } else {
-                            setInactiveToolItem(enc);
-                        }
+                        // Set the visibility, but do not persist the settings
+                        chartPanel.encVisible(!chartPanel.isEncVisible(), false);
                     }
 
                 }
@@ -423,6 +415,12 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
         this.chartPanel.setHistoryListener(new HistoryListener(this.chartPanel));
         this.chartPanel.getMap().addProjectionListener(this.chartPanel.getHistoryListener());
         this.chartPanel.getHistoryListener().setNavigationPanel(this);
+        
+        // Listen to visibility changes for the ENC layer
+        if (chartPanel.getEncLayer() != null) {
+            chartPanel.getEncVisibilityAdapter().addVisibilityListener(this);
+            addEnc();
+        }
     }
 
     @Override
@@ -446,12 +444,6 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
 
     }
     
-    
-    public void addEncLayer(Layer encLayer){
-        addEnc();
-        encLayer.addComponentListener(this);
-    }
-
     public void addLayerFunctionality(EPDLayerCommon layer) {
         // System.out.println(layer);
         if (layer instanceof AisLayerCommon) {
@@ -668,28 +660,13 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
             toggleLayerButton(layer, voyages);
         }
 
-        // JLabel enc;
-
-    }
-
-    @Override
-    public void componentHidden(ComponentEvent arg0) {
-        setInactiveToolItem(enc);
-    }
-
-    @Override
-    public void componentMoved(ComponentEvent arg0) {
-        
-    }
-
-    @Override
-    public void componentResized(ComponentEvent arg0) {
-        
-    }
-
-    @Override
-    public void componentShown(ComponentEvent arg0) {
-        setActiveToolItem(enc);
+        if (layer != null && chartPanel != null && layer == chartPanel.getEncLayer()) {
+            if (chartPanel.isEncVisible()) {
+                setActiveToolItem(enc);
+            } else {
+                setInactiveToolItem(enc);
+            }
+        }
     }
 
     @Override

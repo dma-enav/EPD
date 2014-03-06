@@ -46,8 +46,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.EtchedBorder;
 
-import com.bbn.openmap.Layer;
-
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.gui.InternalComponentFrame;
 import dk.dma.epd.common.prototype.gui.IMapFrame;
@@ -551,15 +549,7 @@ public class JMapFrame extends InternalComponentFrame implements IMapFrame {
             if (object instanceof EPDLayerCommon) {
                 layerTogglingPanel.addLayerFunctionality((EPDLayerCommon) object);
             }
-
-            try {
-                if (object.getClass() == Class.forName("dk.navicon.s52.pure.presentation.S52Layer")){
-                    layerTogglingPanel.addEncLayer((Layer) object);
-                }
-            } catch (ClassNotFoundException e) {
-                
-            }
-            
+            // NB: The ENC layer is added when layerTogglingPanel.setChartPanel() is called
         }
     }
 
