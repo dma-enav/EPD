@@ -58,11 +58,10 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
     private WaypointInfoPanel waypointInfoPanel = new WaypointInfoPanel();
     
     protected RouteManagerCommon routeManager;
-    protected OMGraphic selectedGraphic;
+    protected WaypointCircle selectedWp;
     protected OMGraphicList metocGraphics = new OMGraphicList();
     protected boolean arrowsVisible;
     protected MetocGraphic routeMetoc;
-    protected boolean dragging;
 
     
     /**
@@ -182,16 +181,27 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
     @Override
     protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {        
         
-        selectedGraphic = clickedGraphics;
-
-        if (selectedGraphic instanceof WaypointCircle) {
-            WaypointCircle wpc = (WaypointCircle) selectedGraphic;
+        if (clickedGraphics instanceof WaypointCircle) {
+            WaypointCircle wpc = (WaypointCircle) clickedGraphics;
             getMapMenu().routeWaypointMenu(wpc.getRouteIndex(), wpc.getWpIndex());
         
-        } else if (selectedGraphic instanceof RouteLegGraphic) {
-            RouteLegGraphic rlg = (RouteLegGraphic) selectedGraphic;
+        } else if (clickedGraphics instanceof RouteLegGraphic) {
+            RouteLegGraphic rlg = (RouteLegGraphic) clickedGraphics;
             getMapMenu().routeLegMenu(rlg.getRouteIndex(), rlg.getRouteLeg(), evt.getPoint());
         }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean mousePressed(MouseEvent e) {
+        if (!SwingUtilities.isLeftMouseButton(e)) {
+            return false;
+        }
+        
+        selectedWp = (WaypointCircle)getSelectedGraphic(e, WaypointCircle.class);
+        return selectedWp != null;
     }
     
     /**
@@ -203,31 +213,25 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
             return false;
         }
 
-        if (!dragging) {
-            selectedGraphic = getSelectedGraphic(e, WaypointCircle.class);
-        }
-
-        if (selectedGraphic != null) {
+        if (selectedWp != null) {
             hideInfoPanels();
-            WaypointCircle wpc = (WaypointCircle) selectedGraphic;
             
             // Handle non-active route case 
-            if (routeManager.getActiveRouteIndex() != wpc.getRouteIndex()) {
-                RouteWaypoint routeWaypoint = wpc.getRoute().getWaypoints().get(wpc.getWpIndex());
+            if (routeManager.getActiveRouteIndex() != selectedWp.getRouteIndex()) {
+                RouteWaypoint routeWaypoint = selectedWp.getRoute().getWaypoints().get(selectedWp.getWpIndex());
                 LatLonPoint pos = mapBean.getProjection().inverse(e.getPoint());
                 routeWaypoint.setPos(Position.create(pos.getLatitude(), pos.getLongitude()));
                 
                 // Invalidate the STCC approval flag
-                if (wpc.getRoute().isStccApproved()) {
-                    wpc.getRoute().setStccApproved(false);
+                if (selectedWp.getRoute().isStccApproved()) {
+                    selectedWp.getRoute().setStccApproved(false);
                     try {
-                        wpc.getRoute().setName(wpc.getRoute().getName().split(":")[1].trim());
+                        selectedWp.getRoute().setName(selectedWp.getRoute().getName().split(":")[1].trim());
                     } catch (Exception e2) {
                         LOG.debug("Failed to remove STCC Approved part of name");
                     }
                 }
                 routesChanged(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
-                dragging = true;
                 return true;
                 
             } else {
@@ -243,6 +247,7 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
                             routeManager.getActiveRouteIndex()).copy();
                     route.setName(route.getName() + " copy");
                     routeManager.addRoute(route);
+                    selectedWp = null;
                 }
                 return true;
             }
@@ -256,8 +261,7 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
      */
     @Override
     public boolean mouseReleased(MouseEvent e) {
-        if (dragging) {
-            dragging = false;
+        if (selectedWp != null) {
             routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_MSI_UPDATE);
             return true;
         }

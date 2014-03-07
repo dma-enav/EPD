@@ -275,8 +275,8 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
         // Let super handle common map menu cases
         super.initMapMenu(clickedGraphics, evt);
         
-        if (selectedGraphic instanceof SuggestedRouteGraphic) {
-            SuggestedRouteGraphic suggestedRoute = (SuggestedRouteGraphic) selectedGraphic;
+        if (clickedGraphics instanceof SuggestedRouteGraphic) {
+            SuggestedRouteGraphic suggestedRoute = (SuggestedRouteGraphic) clickedGraphics;
             SuggestedRoute aisSuggestedRoute = suggestedRoute.getRouteSuggestion();
             getMapMenu().suggestedRouteMenu(aisSuggestedRoute);
         }

@@ -21,6 +21,8 @@ import java.awt.event.MouseEvent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import com.bbn.openmap.MapBean;
+
 import dk.dma.epd.common.prototype.event.mouse.AbstractCoordMouseMode;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.JMapFrame;
@@ -51,27 +53,61 @@ public class SelectMouseMode extends AbstractCoordMouseMode {
     /**
      * Find and init bean function used in initializing other classes
      */
+    @Override
     public void findAndInit(Object someObj) {
 
-        if (someObj instanceof JMapFrame) {
-            this.glassFrame = ((JMapFrame) someObj).getGlassPanel();
-            this.glassFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        }
-
         super.findAndInit(someObj);
+        
+        if (someObj instanceof JMapFrame) {
+            glassFrame = ((JMapFrame) someObj).getGlassPanel();
+            glassFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void mousePressed(MouseEvent e) {
+        super.mousePressed(e);
+        if (e.getSource() instanceof MapBean && SwingUtilities.isLeftMouseButton(e)) {
+            mouseSupport.fireMapMousePressed(e);
+        }
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void mouseClicked(MouseEvent e) {
         super.mouseClicked(e);
 
         if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount() != 2) {
             super.mouseSupport.fireMapMouseClicked(e);
         }
-
     }
-
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void mouseEntered(MouseEvent e) {
         super.mouseEntered(e);
         this.glassFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void mouseDragged(MouseEvent e) {
+       super.mouseDragged(e);
+       
+       if (e.getSource() instanceof MapBean &&
+               SwingUtilities.isLeftMouseButton(e)) {
+                       
+           // Ensure that layer elements can be dragged (fx waypoints)
+           mouseSupport.fireMapMouseDragged(e);
+       }
     }
 }
