@@ -195,24 +195,15 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
      * {@inheritDoc}
      */
     @Override
-    public boolean mousePressed(MouseEvent e) {
-        if (!SwingUtilities.isLeftMouseButton(e)) {
-            return false;
-        }
-        
-        selectedWp = (WaypointCircle)getSelectedGraphic(e, WaypointCircle.class);
-        return selectedWp != null;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public boolean mouseDragged(MouseEvent e) {
         if (!SwingUtilities.isLeftMouseButton(e)) {
             return false;
         }
 
+        if (selectedWp == null) {
+            selectedWp = (WaypointCircle)getSelectedGraphic(e, WaypointCircle.class);
+        }
+        
         if (selectedWp != null) {
             hideInfoPanels();
             
@@ -262,6 +253,7 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
     @Override
     public boolean mouseReleased(MouseEvent e) {
         if (selectedWp != null) {
+            selectedWp = null;
             routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_MSI_UPDATE);
             return true;
         }

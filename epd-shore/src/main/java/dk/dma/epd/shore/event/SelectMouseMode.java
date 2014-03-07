@@ -68,17 +68,6 @@ public class SelectMouseMode extends AbstractCoordMouseMode {
      * {@inheritDoc}
      */
     @Override
-    public void mousePressed(MouseEvent e) {
-        super.mousePressed(e);
-        if (e.getSource() instanceof MapBean && SwingUtilities.isLeftMouseButton(e)) {
-            mouseSupport.fireMapMousePressed(e);
-        }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void mouseClicked(MouseEvent e) {
         super.mouseClicked(e);
 
