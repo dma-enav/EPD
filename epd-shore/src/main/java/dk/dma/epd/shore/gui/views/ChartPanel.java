@@ -24,7 +24,6 @@ import javax.swing.BoxLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bbn.openmap.BufferedLayerMapBean;
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
 import com.bbn.openmap.MapHandler;
@@ -33,6 +32,7 @@ import com.bbn.openmap.event.ProjectionSupport;
 import com.bbn.openmap.layer.shape.MultiShapeLayer;
 
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteTCPALayer;
@@ -215,7 +215,7 @@ public class ChartPanel extends ChartPanelCommon {
             encLayer = encLayerFactory.getEncLayer();
         }
 
-        map = new BufferedLayerMapBean();
+        map = new DraggableLayerMapBean();
 
         mouseDelegator = new MouseDelegator();
         mapHandler.add(mouseDelegator);

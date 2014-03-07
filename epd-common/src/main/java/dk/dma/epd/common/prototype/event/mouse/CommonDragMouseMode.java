@@ -29,6 +29,7 @@ import com.bbn.openmap.MapBean;
 import com.bbn.openmap.proj.Projection;
 
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 
 public class CommonDragMouseMode extends AbstractCoordMouseMode {
@@ -148,11 +149,11 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
         
         this.mouseDragged = true;
         
-        MapBean map = this.chartPanel.getMap();
+        DraggableLayerMapBean map = this.chartPanel.getMap();
         Point2D pnt = map.getNonRotatedLocation(e);
         int x = (int) pnt.getX();
         int y = (int) pnt.getY();
-        
+                
         // Ship side of the method.
         if (!this.calledFromShore) {
             if (!this.isPanning) {
@@ -168,7 +169,7 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
                 this.oX = x;
                 this.oY = y;
                 
-                this.chartPanel.getMap().setVisible(false);
+                map.startDragging();
                 
             } else {
                 
@@ -177,13 +178,13 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
                 int posX   = startX - (x - this.oX);
                 int posY   = startY - (y - this.oY);
                 
-                    BufferedImage offScreenMap = 
-                            this.chartPanel.getDragMapRenderer().getFinalBuffer().getSubimage(
-                                    posX, posY, this.chartPanel.getWidth(), this.chartPanel.getHeight());
+                BufferedImage offScreenMap = 
+                        this.chartPanel.getDragMapRenderer().getFinalBuffer().getSubimage(
+                                posX, posY, this.chartPanel.getWidth(), this.chartPanel.getHeight());
                     
-                    BufferedImage renderImage = offScreenMap;
-                    renderImage.getGraphics().drawImage(this.onScreenMap, x-this.oX, y-this.oY, null);
-                    this.chartPanel.getGraphics().drawImage(renderImage, 0, 0, null);
+                BufferedImage renderImage = offScreenMap;
+                renderImage.getGraphics().drawImage(this.onScreenMap, x-this.oX, y-this.oY, null);
+                this.chartPanel.getGraphics().drawImage(renderImage, 0, 0, null);
             } 
             
         // Shore side of the method.
@@ -200,6 +201,8 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
                 map.paint(this.onScreenMap.getGraphics());
                 this.oX = x;
                 this.oY = y;
+                
+                map.startDragging();
                 
             } else {
                                         
@@ -237,7 +240,7 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
         if (this.isPanning && 
                 e.getSource() instanceof MapBean) {
             
-            MapBean map = (MapBean) e.getSource();
+            DraggableLayerMapBean map = (DraggableLayerMapBean) e.getSource();
             Projection projection = map.getProjection();
             Point2D center = projection.forward(projection.getCenter());
             
@@ -250,7 +253,7 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
             
             this.isPanning = false;
             this.mouseDragged = false;
-            this.chartPanel.getMap().setVisible(true);
+            map.stopDragging();
         }
         
         this.layerMouseDrag = false;

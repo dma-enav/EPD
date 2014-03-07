@@ -21,7 +21,6 @@ import java.util.List;
 import com.bbn.openmap.BufferedLayerMapBean;
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
-import com.bbn.openmap.MapBean;
 import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
@@ -37,6 +36,7 @@ import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.event.mouse.CommonDragMouseMode;
 import dk.dma.epd.common.prototype.event.mouse.CommonNavigationMouseMode;
 import dk.dma.epd.common.prototype.event.mouse.CommonRouteEditMouseMode;
+import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
@@ -70,7 +70,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     protected MapHandler mapHandler;
     protected MapHandler dragMapHandler;
     protected LayerHandler layerHandler;
-    protected BufferedLayerMapBean map;
+    protected DraggableLayerMapBean map;
     protected BufferedLayerMapBean dragMap;
     protected SimpleOffScreenMapRenderer dragMapRenderer;
     protected OMGraphicHandlerLayer encLayer;
@@ -343,7 +343,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     /** Getters and setters       **/
     /*******************************/
     
-    public MapBean getMap() {
+    public DraggableLayerMapBean getMap() {
         return map;
     }
     

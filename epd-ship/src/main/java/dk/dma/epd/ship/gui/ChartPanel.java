@@ -37,6 +37,7 @@ import com.bbn.openmap.MouseDelegator;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.HistoryListener;
+import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
@@ -146,7 +147,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         }
 
         // Create a MapBean, and add it to the MapHandler.
-        map = new BufferedLayerMapBean();
+        map = new DraggableLayerMapBean();
         map.setDoubleBuffered(true);
 
         mouseDelegator = new MouseDelegator();
