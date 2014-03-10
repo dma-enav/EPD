@@ -146,7 +146,11 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
     @Override
     protected Properties onSaveSettings() {
         Properties savedVars = new Properties();
-        // TODO store instance fields in savedVars
+        savedVars.setProperty(KEY_SHOW_ALL_AIS_NAMES,
+                Boolean.toString(this.isShowAllAisNameLabels()));
+        savedVars.setProperty(KEY_SHOW_ALL_PAST_TRACKS,
+                Boolean.toString(this.isShowAllPastTracks()));
+        // TODO store other settings variables based on field values
         return savedVars;
     }
 }
