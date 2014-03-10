@@ -16,7 +16,6 @@
 package dk.dma.epd.common.prototype.gui.settings;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
@@ -35,7 +34,7 @@ public class AdvancedSettingsWindow extends JDialog {
     public AdvancedSettingsWindow() {
         
         super(EPD.getInstance().getMainFrame(), "Advanced Settings", true);
-        this.setSize(new Dimension(500, 750));
+        this.setBounds(100, 100, 500, 750);
         this.setLocationRelativeTo(EPD.getInstance().getMainFrame());
         
         try {
@@ -45,6 +44,7 @@ public class AdvancedSettingsWindow extends JDialog {
                     EPD.getInstance().getMainFrame().getActiveChartPanel().getEncLayer().getGUI();
             gui.setVisible(true);
             
+            // Remove unused tabs.
             if (gui.getTabCount() > 1) {
                 gui.removeTabAt(1);
                 gui.removeTabAt(1);
@@ -56,21 +56,19 @@ public class AdvancedSettingsWindow extends JDialog {
             /* Add a panel at the bottom the window with an "ok" which
              * close and saves the panel.
              */
-            JPanel bottomPanel = new JPanel();
-            bottomPanel.setLayout(new BorderLayout());
-            this.getContentPane().add(bottomPanel);
-            
-            JButton btnOk = new JButton("Ok");
-            btnOk.addActionListener(new ActionListener() {
-                
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    
-                    // Close and save the window.
+            JPanel panel = new JPanel();
+            getContentPane().add(panel, BorderLayout.SOUTH);
+            panel.setLayout(new BorderLayout(0, 0));
+
+            JButton okBtn = new JButton("Ok");
+            okBtn.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent arg0) {
+                    //
                     closeAndSave();
+
                 }
             });
-            bottomPanel.add(btnOk, BorderLayout.EAST);
+            panel.add(okBtn, BorderLayout.EAST);
             
             this.setVisible(true);
             
