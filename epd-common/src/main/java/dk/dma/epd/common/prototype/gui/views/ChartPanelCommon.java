@@ -59,6 +59,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     protected int maxScale = 5000;
     
     // Mouse modes
+    protected String mouseMode;
     protected MouseDelegator mouseDelegator;
     protected CommonNavigationMouseMode mapNavMouseMode;
     protected CommonDragMouseMode dragMouseMode;
@@ -107,6 +108,23 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         }
     }
     
+    /**
+     * Returns the current mouse mode
+     * @return the current mouse mode
+     */
+    public String getMouseMode() {
+        return mouseMode;
+    }
+    
+    /**
+     * Change the mouse mode.
+     * 
+     * @param mode The mode ID of the mouse mode to swap to (e.g.
+     *            DistanceCircleMouseMode.MODE_ID).
+     */
+    public abstract void setMouseMode(String modeID);
+
+
     /*******************************/
     /** Zooming and panning       **/
     /*******************************/

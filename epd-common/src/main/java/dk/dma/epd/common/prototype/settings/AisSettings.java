@@ -38,7 +38,6 @@ public class AisSettings implements Serializable {
     private static final String PREFIX = "ais.";
 
     private boolean visible = true;
-    private double cogVectorLength = 6; // minutes
     private boolean strict = true; // Strict timeout rules
     private int minRedrawInterval = 5; // 5 sec
     private boolean allowSending = true;
@@ -109,7 +108,6 @@ public class AisSettings implements Serializable {
      */
     public void readProperties(Properties props) {
         visible = PropUtils.booleanFromProperties(props, PREFIX + "visible", visible);
-        cogVectorLength = PropUtils.doubleFromProperties(props, PREFIX + "cogVectorLength", cogVectorLength);
         strict = PropUtils.booleanFromProperties(props, PREFIX + "strict", strict);
         minRedrawInterval = PropUtils.intFromProperties(props, PREFIX + "minRedrawInterval", minRedrawInterval);
         allowSending = PropUtils.booleanFromProperties(props, PREFIX + "allowSending", allowSending);
@@ -143,7 +141,6 @@ public class AisSettings implements Serializable {
      */
     public void setProperties(Properties props) {
         props.put(PREFIX + "visible", Boolean.toString(visible));
-        props.put(PREFIX + "cogVectorLength", Double.toString(cogVectorLength));
         props.put(PREFIX + "strict", Boolean.toString(strict));
         props.put(PREFIX + "minRedrawInterval", Integer.toString(minRedrawInterval));
         props.put(PREFIX + "allowSending", Boolean.toString(allowSending));
@@ -169,14 +166,6 @@ public class AisSettings implements Serializable {
 
     public void setVisible(boolean visible) {
         this.visible = visible;
-    }
-
-    public double getCogVectorLength() {
-        return cogVectorLength;
-    }
-
-    public void setCogVectorLength(double cogVectorLength) {
-        this.cogVectorLength = cogVectorLength;
     }
 
     public boolean isStrict() {

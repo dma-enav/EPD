@@ -38,6 +38,7 @@ import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.util.VersionInfo;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
 import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
 import dk.dma.epd.shore.gui.route.strategic.SendStrategicRouteDialog;
@@ -59,7 +60,7 @@ public class MainFrame extends MainFrameCommon {
 
     private int windowCount;
     private JMenuWorkspaceBar topMenu;
-    private int mouseMode = 2;
+    private String mouseMode = SelectMouseMode.MODEID;
     private boolean msiLayerEnabled = true;
 
     private BeanContextServicesSupport beanHandler;
@@ -455,11 +456,11 @@ public class MainFrame extends MainFrameCommon {
         return routeManagerDialog;
     }
 
-    public int getMouseMode() {
+    public String getMouseMode() {
         return mouseMode;
     }
 
-    public void setMouseMode(int mouseMode) {
+    public void setMouseMode(String mouseMode) {
         this.mouseMode = mouseMode;
     }
 

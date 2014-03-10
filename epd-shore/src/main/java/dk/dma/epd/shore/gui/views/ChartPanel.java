@@ -413,32 +413,31 @@ public class ChartPanel extends ChartPanelCommon {
     }
 
     /**
-     * Change the mouse mode
-     * 
-     * @param mode
-     *            0 for NavMode, 1 for DragMode, 2 for SelectMode
+     * {@inheritDoc}
      */
-    public void setMouseMode(int mode) {
+    @Override
+    public void setMouseMode(String modeID) {
+        this.mouseMode = modeID;
+        
         // Mode0 is mapNavMouseMode
-        if (mode == 0) {
-            mouseDelegator.setActive(mapNavMouseMode);
+        if (modeID.equals(NavigationMouseMode.MODEID)) {
+            mouseDelegator.setActive(mapNavMouseMode); 
         }
-
         // Mode1 is DragNavMouseMode
-        if (mode == 1) {
+        else if (modeID.equals(DragMouseMode.MODEID)) {
             mouseDelegator.setActive(dragMouseMode);
         }
+        
         // Mode2 is Select
-        if (mode == 2) {
+        else if (modeID.equals(SelectMouseMode.MODEID)) {
             mouseDelegator.setActive(selectMouseMode);
         }
         // Mode3 is Route Edit
-        if (mode == 3) {
+        else if (modeID.equals(RouteEditMouseMode.MODEID)) {
             mouseDelegator.setActive(routeEditMouseMode);
         }
-
     }
-
+    
     public VoyageLayer getVoyageLayer() {
         return voyageLayer;
     }

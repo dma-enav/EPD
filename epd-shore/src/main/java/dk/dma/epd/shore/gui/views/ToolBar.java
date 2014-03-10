@@ -46,6 +46,10 @@ import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.settings.Settings;
 import dk.dma.epd.shore.EPDShore;
+import dk.dma.epd.shore.event.DragMouseMode;
+import dk.dma.epd.shore.event.NavigationMouseMode;
+import dk.dma.epd.shore.event.RouteEditMouseMode;
+import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 import dk.dma.epd.shore.gui.utils.ToolItemGroup;
 
@@ -135,9 +139,9 @@ public class ToolBar extends JInternalFrame {
             public void mouseReleased(MouseEvent e) {
                 setActiveToolItem(select, mapToolItems);
                 for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
-                    mapFrame.getChartPanel().setMouseMode(2);
+                    mapFrame.getChartPanel().setMouseMode(SelectMouseMode.MODEID);
                 }
-                mainFrame.setMouseMode(2);
+                mainFrame.setMouseMode(SelectMouseMode.MODEID);
             }
         });
         select.setToolTipText("Select mouse mode");
@@ -150,9 +154,9 @@ public class ToolBar extends JInternalFrame {
                 setActiveToolItem(drag, mapToolItems);
 
                 for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
-                    mapFrame.getChartPanel().setMouseMode(1);
+                    mapFrame.getChartPanel().setMouseMode(DragMouseMode.MODEID);
                 }
-                mainFrame.setMouseMode(1);
+                mainFrame.setMouseMode(DragMouseMode.MODEID);
             }
         });
         drag.setToolTipText("Drag mouse mode");
@@ -165,9 +169,9 @@ public class ToolBar extends JInternalFrame {
                 setActiveToolItem(zoom, mapToolItems);
 
                 for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
-                    mapFrame.getChartPanel().setMouseMode(0);
+                    mapFrame.getChartPanel().setMouseMode(NavigationMouseMode.MODEID);
                 }
-                mainFrame.setMouseMode(0);
+                mainFrame.setMouseMode(NavigationMouseMode.MODEID);
             }
         });
         zoom.setToolTipText("Zoom mouse mode");
@@ -474,7 +478,7 @@ public class ToolBar extends JInternalFrame {
 
             for (int i = 0; i < mainFrame.getMapWindows().size(); i++) {
                 mainFrame.getMapWindows().get(i).getChartPanel()
-                        .setMouseMode(3);
+                        .setMouseMode(RouteEditMouseMode.MODEID);
             }
 
             // Deactivate other map tools

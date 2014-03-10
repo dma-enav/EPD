@@ -405,13 +405,12 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
     }
 
     /**
-     * Change the mouse mode.
-     * 
-     * @param mode
-     *            The mode ID of the mouse mode to swap to (e.g.
-     *            DistanceCircleMouseMode.MODE_ID).
+     * {@inheritDoc}
      */
+    @Override
     public void setMouseMode(String modeID) {
+        
+        this.mouseMode = modeID;
         
         // Switching to RouteEditMouseMode
         if (modeID.equals(RouteEditMouseMode.MODE_ID)) {
@@ -457,7 +456,6 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
                 this.topPanel.getNavigationMouseMode().setSelected(false);
                 EPDShip.getInstance().getMainFrame().getTopPanel()
                         .getDragMouseMode()
-
                         .setSelected(true);
                 System.out.println("Setting drag mouse mode");
             }

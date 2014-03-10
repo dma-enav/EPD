@@ -40,6 +40,9 @@ import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
  * local value.
  * </p>
  * 
+ * @param <OBSERVER>
+ *            The type of the observers observing the
+ *            {@code AisLayerCommonLocalSettings} for changes.
  * @author Janus Varmarken
  */
 public class AisLayerCommonLocalSettings<OBSERVER extends IAisLayerCommonSettingsObserver>
@@ -79,12 +82,12 @@ public class AisLayerCommonLocalSettings<OBSERVER extends IAisLayerCommonSetting
         // We need to obey to this for our local settings:
         this.setShowAllPastTracks(newValue);
     }
-    
+
     @Override
     protected void onLoadFailure(IOException error) {
         // TODO figure out what to do with read error.
     }
-    
+
     @Override
     protected void onSaveFailure(IOException error) {
         // TODO possibly log save error or simply ignore it.
