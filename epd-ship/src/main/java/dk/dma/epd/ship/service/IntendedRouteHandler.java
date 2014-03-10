@@ -43,6 +43,7 @@ import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.route.RouteManager;
+import dk.dma.epd.ship.settings.handlers.IIntendedRouteHandlerSettingsObserver;
 
 /**
  * Ship specific intended route service implementation.
@@ -54,11 +55,11 @@ import dk.dma.epd.ship.route.RouteManager;
  * <li>Use a worker pool rather than spawning a new thread for each broadcast.</li>
  * </ul>
  */
-public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements IRoutesUpdateListener, Runnable {
+public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements IRoutesUpdateListener, Runnable, IIntendedRouteHandlerSettingsObserver {
 
     private static final Logger LOG = LoggerFactory.getLogger(IntendedRouteHandler.class);
-    private static final long BROADCAST_TIME = 60; // Broadcast intended route every minute for now
-    private static final long ADAPTIVE_TIME = 60 * 10; // Set to 10 minutes?
+    private static long BROADCAST_TIME = 60; // Broadcast intended route every minute for now
+    private static long ADAPTIVE_TIME = 60 * 10; // Set to 10 minutes?
     private static final int BROADCAST_RADIUS = Integer.MAX_VALUE;
 
     private DateTime lastTransmitActiveWp;
@@ -386,6 +387,23 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                 
             }            
         }
+    }
+
+    @Override
+    public void sendIntendedRouteChanged(boolean value) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void broadcastTimeChanged(long value) {
+        BROADCAST_TIME = value;
+    }
+
+    @Override
+    public void adaptiveBroadcastTimeChanged(int value) {
+        // TODO Auto-generated method stub
+        ADAPTIVE_TIME = value;
     }
 
 }

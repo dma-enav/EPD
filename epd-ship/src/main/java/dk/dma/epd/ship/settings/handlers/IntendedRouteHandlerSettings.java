@@ -39,15 +39,13 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IIntendedRouteHandler
     /**
      * Specifies the intended route broadcast time
      */
-    private int timeBetweenBroadCast = 1;
+    private long timeBetweenBroadCast = 1;
 
     /**
      * Specifies the change in ETA for a new route broadcast to be forced
      */
     private int adaptionTime = 1;
 
-    
-    
     /**
      * @return the broadcastIntendedRoute
      */
@@ -56,24 +54,36 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IIntendedRouteHandler
     }
 
     /**
-     * @param broadcastIntendedRoute the broadcastIntendedRoute to set
+     * @param broadcastIntendedRoute
+     *            the broadcastIntendedRoute to set
      */
     public void setBroadcastIntendedRoute(boolean broadcastIntendedRoute) {
+
         this.broadcastIntendedRoute = broadcastIntendedRoute;
+
+        for (OBSERVER obs : this.observers) {
+            obs.sendIntendedRouteChanged(this.broadcastIntendedRoute);
+        }
+
     }
 
     /**
      * @return the timeBetweenBroadCast
      */
-    public int getTimeBetweenBroadCast() {
+    public long getTimeBetweenBroadCast() {
         return timeBetweenBroadCast;
     }
 
     /**
-     * @param timeBetweenBroadCast the timeBetweenBroadCast to set
+     * @param timeBetweenBroadCast
+     *            the timeBetweenBroadCast to set
      */
     public void setTimeBetweenBroadCast(int timeBetweenBroadCast) {
         this.timeBetweenBroadCast = timeBetweenBroadCast;
+
+        for (OBSERVER obs : this.observers) {
+            obs.broadcastTimeChanged(this.timeBetweenBroadCast);
+        }
     }
 
     /**
@@ -84,10 +94,15 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IIntendedRouteHandler
     }
 
     /**
-     * @param adaptionTime the adaptionTime to set
+     * @param adaptionTime
+     *            the adaptionTime to set
      */
     public void setAdaptionTime(int adaptionTime) {
         this.adaptionTime = adaptionTime;
+
+        for (OBSERVER obs : this.observers) {
+            obs.adaptiveBroadcastTimeChanged(this.adaptionTime);
+        }
     }
 
     @Override

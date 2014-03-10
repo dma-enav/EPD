@@ -24,6 +24,14 @@ import dk.dma.epd.common.prototype.settings.handlers.IIntendedRouteHandlerCommon
  */
 public interface IIntendedRouteHandlerSettingsObserver extends IIntendedRouteHandlerCommonSettingsObserver {
 
+    
+    void sendIntendedRouteChanged(boolean value);
+    
+    void broadcastTimeChanged(long value);
+    
+    void adaptiveBroadcastTimeChanged(int value);
+    
+    
 //    /**
 //     * Invoked when the setting specifying whether to show all AIS name labels
 //     * has been changed on the observed instance.
