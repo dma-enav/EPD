@@ -30,8 +30,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * class.
  * 
  * @param <OBSERVER>
- *            A callback interface used to deliver notifications of changes to
- *            settings maintained by the {@code ObservedSettings}.
+ *            The type of the observers observing the {@code ObservedSettings}
+ *            for changes.
  * 
  * @author Janus Varmarken
  */

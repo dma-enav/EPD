@@ -33,6 +33,9 @@ import dk.dma.epd.common.prototype.settings.ObservedSettings;
  * class.
  * </p>
  * 
+ * @param <OBSERVER>
+ *            The type of the observers observing the {@code LayerSettings} for
+ *            changes.
  * @author Janus Varmarken
  */
 public abstract class LayerSettings<OBSERVER extends ILayerSettingsObserver>

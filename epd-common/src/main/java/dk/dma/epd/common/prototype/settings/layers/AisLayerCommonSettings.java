@@ -30,6 +30,9 @@ import dk.dma.epd.common.prototype.settings.ObservedSettings;
  * clients to register for notifications of changes to any setting maintained by
  * this class.
  * 
+ * @param <OBSERVER>
+ *            The type of the observers observing the
+ *            {@code AisLayerCommonSettings} for changes.
  * @author Janus Varmarken
  */
 public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSettingsObserver>
