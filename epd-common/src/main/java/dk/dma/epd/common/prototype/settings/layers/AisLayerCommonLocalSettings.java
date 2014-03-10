@@ -84,4 +84,9 @@ public class AisLayerCommonLocalSettings<OBSERVER extends IAisLayerCommonSetting
     protected void onLoadFailure(IOException error) {
         // TODO figure out what to do with read error.
     }
+    
+    @Override
+    protected void onSaveFailure(IOException error) {
+        // TODO possibly log save error or simply ignore it.
+    }
 }

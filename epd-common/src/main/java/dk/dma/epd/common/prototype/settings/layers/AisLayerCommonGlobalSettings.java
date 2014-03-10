@@ -64,4 +64,9 @@ public final class AisLayerCommonGlobalSettings extends
     protected void onLoadFailure(IOException error) {
         // TODO figure out how to cope with read error.
     }
+    
+    @Override
+    protected void onSaveFailure(IOException error) {
+        // TODO possibly log save error or simply ignore it.
+    }
 }

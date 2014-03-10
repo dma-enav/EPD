@@ -125,4 +125,11 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
     protected void onLoadSuccess(Properties settings) {
         // TODO init settings variables based on the provided Properties instance.
     }
+    
+    @Override
+    protected Properties onSaveSettings() {
+        Properties savedVars = new Properties();
+        // TODO store instance fields in savedVars
+        return savedVars;
+    }
 }
