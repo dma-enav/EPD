@@ -15,6 +15,10 @@
  */
 package dk.dma.epd.common.prototype.settings;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -66,4 +70,53 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
     public boolean removeObserver(OBSERVER obs) {
         return this.observers.remove(obs);
     }
+
+    /**
+     * Loads settings from a file into memory. If the settings are successfully
+     * loaded, {@link #onLoadSuccess(Properties)} is invoked with a
+     * {@link Properties} instance containing the loaded settings. Similarly, if
+     * an error occurs during load, {@link #onLoadFailure(IOException)} is
+     * invoked with an {@link IOException} specifying what went wrong.
+     * 
+     * @param file
+     *            The name of the file containing the settings to be loaded into
+     *            memory.
+     */
+    public final void loadFromFile(String file) {
+        // TODO consider if file should be full file path.
+        Properties p = new Properties();
+        try (FileReader reader = new FileReader(file)) {
+            p.load(reader);
+            this.onLoadSuccess(p);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            this.onLoadFailure(e);
+        } catch (IOException e) {
+            e.printStackTrace();
+            this.onLoadFailure(e);
+        }
+    }
+
+    /**
+     * Invoked when settings have been successfully read from a file. This
+     * allows subclasses to perform initialization of variables based on the
+     * settings contained in the provided {@link Properties} instance,
+     * {@code settings}.
+     * 
+     * @param settings
+     *            Contains the settings that were read from the file.
+     */
+    protected abstract void onLoadSuccess(Properties settings);
+
+    /**
+     * Invoked if an error occurs while reading settings from a file. This
+     * allows subclasses to respond to such an error.
+     * 
+     * @param error
+     *            A {@link FileNotFoundException} if the settings file specified
+     *            in {@link #loadFromFile(String)} was not found. An
+     *            {@link IOException} if an error occurred while reading the
+     *            settings file.
+     */
+    protected abstract void onLoadFailure(IOException error);
 }

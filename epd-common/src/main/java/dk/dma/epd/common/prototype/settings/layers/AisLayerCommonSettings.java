@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
+import java.util.Properties;
+
 import javax.annotation.concurrent.GuardedBy;
 
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
@@ -117,5 +119,10 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
                 obs.showAllPastTracksChanged(oldVal, this.showAllPastTracks);
             }
         }
+    }
+    
+    @Override
+    protected void onLoadSuccess(Properties settings) {
+        // TODO init settings variables based on the provided Properties instance.
     }
 }

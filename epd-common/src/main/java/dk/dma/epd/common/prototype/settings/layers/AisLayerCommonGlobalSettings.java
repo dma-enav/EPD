@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
+import java.io.IOException;
+
 /**
  * <p>
  * A singleton that manages the <i>global</i> settings for AIS layers (global as
@@ -56,5 +58,10 @@ public final class AisLayerCommonGlobalSettings extends
             singleton = new AisLayerCommonGlobalSettings();
         }
         return singleton;
+    }
+    
+    @Override
+    protected void onLoadFailure(IOException error) {
+        // TODO figure out how to cope with read error.
     }
 }
