@@ -33,29 +33,23 @@ import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.settings.EPDMapSettings;
 
 /**
- * Factory class for creating ENC layer. If ENC is enabled is uses the file
- * enc.properties to define class and settings.
+ * Factory class for creating ENC layer. If ENC is enabled is uses the file enc.properties to define class and settings.
  * 
  */
 public class EncLayerFactory {
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(EncLayerFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EncLayerFactory.class);
     private Properties encProps = new Properties();
     private EPDMapSettings mapSettings;
     private OMGraphicHandlerLayer encLayer;
 
     private static void addSoftwareLibrary(File file) throws Exception {
-        Method method = URLClassLoader.class.getDeclaredMethod("addURL",
-                new Class[] { URL.class });
+        Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] { URL.class });
         method.setAccessible(true);
-        method.invoke(ClassLoader.getSystemClassLoader(), new Object[] { file
-                .toURI().toURL() });
+        method.invoke(ClassLoader.getSystemClassLoader(), new Object[] { file.toURI().toURL() });
     }
 
-    public static void addToLibraryPath(String path)
-            throws NoSuchFieldException, 
-             IllegalAccessException {
+    public static void addToLibraryPath(String path) throws NoSuchFieldException, IllegalAccessException {
         System.setProperty("java.library.path", path);
         Field fieldSysPath = ClassLoader.class.getDeclaredField("sys_paths");
         fieldSysPath.setAccessible(true);
@@ -70,77 +64,71 @@ public class EncLayerFactory {
         }
 
         // // Try to load ENC props
-//        if (!PropUtils.loadProperties(encProps, "..\\..\\.epd-ship",
-//                "enc.properties")) {
-      if (!PropUtils.loadProperties(encProps, EPDShore.getInstance().getHomePath().toString(),
-      "enc.properties")) {
-            
+        // if (!PropUtils.loadProperties(encProps, "..\\..\\.epd-ship",
+        // "enc.properties")) {
+        if (!PropUtils.loadProperties(encProps, EPDShore.getInstance().getHomePath().toString(), "enc.properties")) {
+
             LOG.error("No enc.properties file found");
             return;
         }
 
-      
-      ClassLoader loader = EPDShore.class.getClassLoader();      
-      if (loader.getResource("dk/navicon/s52/pure/presentation/S52Layer.class") == null){
-          
-     
-        // Add external jars to runpath
-        try {
-            addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath() + "\\lib\\s52.jar"));
-            addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath()
-                    + "\\lib\\s57csv.jar"));
-            addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath()
-                    + "\\lib\\jts-1.8.jar"));
-            addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath()
-                    + "\\lib\\dongle-1.10-SNAPSHOT.jar"));
-            addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath()
-                    + "\\lib\\forms-1.2.1.jar"));
-            addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath()
-                    + "\\lib\\binding-2.0.1.jar"));
-        } catch (Exception e1) {
-            e1.printStackTrace();
+        ClassLoader loader = EPDShore.class.getClassLoader();
+        if (loader.getResource("dk/navicon/s52/pure/presentation/S52Layer.class") == null) {
+
+            // Add external jars to runpath
+            try {
+                addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath() + "\\lib\\s52.jar"));
+                addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath() + "\\lib\\s57csv.jar"));
+                addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath() + "\\lib\\jts-1.8.jar"));
+                addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath() + "\\lib\\dongle-1.10-SNAPSHOT.jar"));
+                addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath() + "\\lib\\forms-1.2.1.jar"));
+                addSoftwareLibrary(new File(EPDShore.getInstance().getHomePath() + "\\lib\\binding-2.0.1.jar"));
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+
+            // System.out.println(encProps.getProperty("enc.certLocation"));
+            // encProps.put("enc.certLocation",
+            // EeINS.getHomePath().toString()+"\\navicon\\data");
+            // encProps.put("enc.certLocation", "file:\\\\" +
+            // EeINS.getHomePath().toString()+"\\navicon\\data");
+
+            try {
+                addToLibraryPath(EPDShore.getInstance().getHomePath().toString() + "\\navicon\\native");
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+
         }
 
-        // System.out.println(encProps.getProperty("enc.certLocation"));
-        // encProps.put("enc.certLocation",
-        // EeINS.getHomePath().toString()+"\\navicon\\data");
-        // encProps.put("enc.certLocation", "file:\\\\" +
-        // EeINS.getHomePath().toString()+"\\navicon\\data");
-     
+        encProps.put("enc.certLocation", EPDShore.getInstance().getHomePath().toString() + "\\" + encProps.get("enc.certLocation"));
 
-        try {
-            addToLibraryPath(EPDShore.getInstance().getHomePath().toString()+ "\\navicon\\native");
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
+        if (mapSettings.isEncSuccess()) {
 
-      }
-      encProps.put("enc.certLocation",EPDShore.getInstance().getHomePath().toString()+
-              "\\" + encProps.get("enc.certLocation"));
-      
-        
-        // Make layer instance
-        String classProperty = "enc.class";
-        String className = encProps.getProperty(classProperty);
-        if (className == null) {
-            LOG.error("Failed to locate property " + classProperty);
-            return;
-        }
-        try {
-            Object obj = java.beans.Beans.instantiate(null, className);
-            OMGraphicHandlerLayer layer = (OMGraphicHandlerLayer) obj;
-            layer.setProperties("enc", encProps);
-            layer.setAddAsBackground(true);
-            layer.setVisible(true);
-            encLayer = layer;
-            
-        } catch (NullPointerException e) {
-            LOG.error("Could not set up layer instance of class: \""
-                    + className + "\"");
-        } catch (ClassNotFoundException e) {
-            LOG.error("Layer class not found: \"" + className + "\"");
-        } catch (IOException e) {
-            LOG.error("IO Exception instantiating class \"" + className + "\"");
+            // Make layer instance
+            String classProperty = "enc.class";
+            String className = encProps.getProperty(classProperty);
+            if (className == null) {
+                LOG.error("Failed to locate property " + classProperty);
+                return;
+            }
+            try {
+                Object obj = java.beans.Beans.instantiate(null, className);
+                OMGraphicHandlerLayer layer = (OMGraphicHandlerLayer) obj;
+                layer.setProperties("enc", encProps);
+                layer.setAddAsBackground(true);
+                layer.setVisible(true);
+                encLayer = layer;
+
+            } catch (NullPointerException e) {
+                LOG.error("Could not set up layer instance of class: \"" + className + "\"");
+                mapSettings.setEncSuccess(false);
+            } catch (ClassNotFoundException e) {
+                LOG.error("Layer class not found: \"" + className + "\"");
+            } catch (IOException e) {
+                LOG.error("IO Exception instantiating class \"" + className + "\"");
+            }
+
         }
 
     }
@@ -181,46 +169,36 @@ public class EncLayerFactory {
         Object[] arguments = new Object[0];
         try {
             // Get settings
-            Method method = encLayer.getClass().getDeclaredMethod(
-                    "getS52MarinerSettings", argTypes);
+            Method method = encLayer.getClass().getDeclaredMethod("getS52MarinerSettings", argTypes);
             Object obj = method.invoke(encLayer, arguments);
             marinerSettings = (Properties) obj;
 
             // Set settings from configuration
-            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SHOW_TEXT",
-                    Boolean.toString(mapSettings.isS52ShowText()));
-            marinerSettings.setProperty(
-                    "MARINER_PARAM.S52_MAR_SHALLOW_PATTERN",
+            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SHOW_TEXT", Boolean.toString(mapSettings.isS52ShowText()));
+            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SHALLOW_PATTERN",
                     Boolean.toString(mapSettings.isS52ShallowPattern()));
-            marinerSettings.setProperty(
-                    "MARINER_PARAM.S52_MAR_SHALLOW_CONTOUR",
+            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SHALLOW_CONTOUR",
                     Integer.toString(mapSettings.getS52ShallowContour()));
-            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SAFETY_DEPTH",
-                    Integer.toString(mapSettings.getS52SafetyDepth()));
-            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SAFETY_CONTOUR",
-                    Integer.toString(mapSettings.getS52SafetyContour()));
-            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_DEEP_CONTOUR",
-                    Integer.toString(mapSettings.getS52DeepContour()));
+            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_SAFETY_DEPTH", Integer.toString(mapSettings.getS52SafetyDepth()));
+            marinerSettings
+                    .setProperty("MARINER_PARAM.S52_MAR_SAFETY_CONTOUR", Integer.toString(mapSettings.getS52SafetyContour()));
+            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_DEEP_CONTOUR", Integer.toString(mapSettings.getS52DeepContour()));
             marinerSettings.setProperty("MARINER_PARAM.useSimplePointSymbols",
                     Boolean.toString(mapSettings.isUseSimplePointSymbols()));
-            marinerSettings.setProperty("MARINER_PARAM.usePlainAreas",
-                    Boolean.toString(mapSettings.isUsePlainAreas()));
-            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_TWO_SHADES",
-                    Boolean.toString(mapSettings.isS52TwoShades()));
+            marinerSettings.setProperty("MARINER_PARAM.usePlainAreas", Boolean.toString(mapSettings.isUsePlainAreas()));
+            marinerSettings.setProperty("MARINER_PARAM.S52_MAR_TWO_SHADES", Boolean.toString(mapSettings.isS52TwoShades()));
 
             // Set settings on layer
             argTypes = new Class<?>[1];
             argTypes[0] = Properties.class;
             arguments = new Object[1];
             arguments[0] = marinerSettings;
-            method = encLayer.getClass().getDeclaredMethod(
-                    "setS52MarinerSettings", argTypes);
+            method = encLayer.getClass().getDeclaredMethod("setS52MarinerSettings", argTypes);
             method.invoke(encLayer, arguments);
 
             return true;
         } catch (Exception e) {
-            LOG.error("Failed to set mariner settings on Navicon ENC layer: "
-                    + e.getMessage());
+            LOG.error("Failed to set mariner settings on Navicon ENC layer: " + e.getMessage());
             e.printStackTrace();
         }
 

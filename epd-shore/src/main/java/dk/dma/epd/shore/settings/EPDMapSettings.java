@@ -23,6 +23,17 @@ import dk.dma.epd.common.prototype.settings.MapSettings;
 public class EPDMapSettings extends MapSettings {
 
     private static final long serialVersionUID = 1L;
+    
+    //Used internally to check if new map windows should try to make dongle check - if no dongle, don't retry on every new map
+    private boolean encSuccess = true;
 
+    public boolean isEncSuccess() {
+        return encSuccess;
+    }
+
+    public void setEncSuccess(boolean encSuccess) {
+        this.encSuccess = encSuccess;
+    }
+    
 
 }
