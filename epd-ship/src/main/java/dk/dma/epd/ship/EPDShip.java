@@ -241,6 +241,7 @@ public final class EPDShip extends EPD {
 
         // Create intended route handler
         intendedRouteHandler = new IntendedRouteHandler();
+        intendedRouteHandler.updateSettings(settings.getEnavSettings());
         mapHandler.add(intendedRouteHandler);
 
         // Create the route suggestion handler
@@ -478,6 +479,10 @@ public final class EPDShip extends EPD {
             LOG.warn("Restarting all eNav Service");
             maritimeCloudService.stop();
             maritimeCloudService.start();
+            
+            // Update intended route filter settings.
+            LOG.warn("Updating intended route filter settings.");
+            this.intendedRouteHandler.updateSettings(this.settings.getEnavSettings());
         }
     }
 

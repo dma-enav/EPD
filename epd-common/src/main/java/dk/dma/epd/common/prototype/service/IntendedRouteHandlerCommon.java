@@ -50,6 +50,7 @@ import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverit
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
+import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.TypedValue.Dist;
@@ -69,15 +70,15 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     /**
      * Time an intended route is considered valid without update
      */
-    public static final long ROUTE_TTL = 10 * 60 * 1000; // 10 min
+    public static long ROUTE_TTL = 10 * 60 * 1000; // 10 min
 
     /**
      * In nautical miles - distance between two lines for it to be put in filter
      */
-    public static final double FILTER_DISTANCE_EPSILON = 0.5;
+    public static double FILTER_DISTANCE_EPSILON = 0.5;
 
-    public static final double NOTIFICATION_DISTANCE_EPSILON = 0.5; // Nautical miles
-    public static final double ALERT_DISTANCE_EPSILON = 0.3; // Nautical miles
+    public static double NOTIFICATION_DISTANCE_EPSILON = 0.5; // Nautical miles
+    public static double ALERT_DISTANCE_EPSILON = 0.3; // Nautical miles
 
     protected ConcurrentHashMap<Long, IntendedRoute> intendedRoutes = new ConcurrentHashMap<>();
     protected FilteredIntendedRoutes filteredIntendedRoutes = new FilteredIntendedRoutes();
@@ -750,5 +751,18 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      */
     public FilteredIntendedRoutes getFilteredIntendedRoutes() {
         return filteredIntendedRoutes;
+    }
+    
+    /**
+     * Updates the intended route filter settings.
+     * @param settings
+     *          The Enav Settings.
+     */
+    public void updateSettings(EnavSettings settings) {
+        
+        ROUTE_TTL = settings.getRouteTimeToLive();
+        FILTER_DISTANCE_EPSILON = settings.getFilterDistance();
+        NOTIFICATION_DISTANCE_EPSILON = settings.getNotificationDistance();
+        ALERT_DISTANCE_EPSILON = settings.getAlertDistance();
     }
 }

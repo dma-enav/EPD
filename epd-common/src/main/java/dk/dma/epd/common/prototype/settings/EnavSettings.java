@@ -66,6 +66,10 @@ public class EnavSettings implements Serializable {
     private String monaLisaServer = "www.optiroute.se/RouteRequest";
     private int monaLisaPort = 80;
     
+    private long routeTimeToLive = 10 * 60 * 1000; // 10 minutes.
+    private double filterDistance = 0.5;
+    private double notificationDistance = 0.5; // Nautical miles.
+    private double alertDistance = 0.3; // Nautical miles.
     
     public EnavSettings() {
         
@@ -96,6 +100,11 @@ public class EnavSettings implements Serializable {
         msiRelevanceFromOwnShipRange = PropUtils.doubleFromProperties(props, PREFIX + "msiRelevanceFromOwnShipRange", msiRelevanceFromOwnShipRange);
         msiVisibilityFromNewWaypoint = PropUtils.doubleFromProperties(props, PREFIX + "msiVisibilityFromNewWaypoint", msiVisibilityFromNewWaypoint);
         msiFilter = PropUtils.booleanFromProperties(props, PREFIX + "msiFilter", msiFilter);
+        
+        this.setRouteTimeToLive(PropUtils.longFromProperties(props, PREFIX + "routeTimeToLive", this.getRouteTimeToLive()));
+        this.setFilterDistance(PropUtils.doubleFromProperties(props, PREFIX + "filterDistance", this.getFilterDistance()));
+        this.setNotificationDistance(PropUtils.doubleFromProperties(props, PREFIX + "notificationDistance", this.getNotificationDistance()));
+        this.setAlertDistance(PropUtils.doubleFromProperties(props, PREFIX + "alertDistance", this.getAlertDistance()));
         
         // Temporary hack to move away from enav.frv.dk to service.e-navigation.net
         if (serverName.contains("enav.frv.dk")) {
@@ -129,6 +138,10 @@ public class EnavSettings implements Serializable {
         props.put(PREFIX + "msiFilter", Boolean.toString(msiFilter));
         props.put(PREFIX + "monaLisaServer", monaLisaServer);
         props.put(PREFIX + "monaLisaPort", Integer.toString(monaLisaPort));
+        props.put(PREFIX + "routeTimeToLive", Long.toString(this.getRouteTimeToLive()));
+        props.put(PREFIX + "filterDistance", Double.toString(this.getFilterDistance()));
+        props.put(PREFIX + "notificationDistance", Double.toString(this.getNotificationDistance()));
+        props.put(PREFIX + "alertDistance", Double.toString(this.getAlertDistance()));
     }
 
     public double getDefaultWindWarnLimit() {
@@ -307,5 +320,35 @@ public class EnavSettings implements Serializable {
         this.monaLisaPort = monaLisaPort;
     }
 
-    
+    public double getAlertDistance() {
+        return alertDistance;
+    }
+
+    public void setAlertDistance(double alertDistance) {
+        this.alertDistance = alertDistance;
+    }
+
+    public double getNotificationDistance() {
+        return notificationDistance;
+    }
+
+    public void setNotificationDistance(double notificationDistance) {
+        this.notificationDistance = notificationDistance;
+    }
+
+    public double getFilterDistance() {
+        return filterDistance;
+    }
+
+    public void setFilterDistance(double filterDistance) {
+        this.filterDistance = filterDistance;
+    }
+
+    public long getRouteTimeToLive() {
+        return routeTimeToLive;
+    }
+
+    public void setRouteTimeToLive(long routeTimeToLive) {
+        this.routeTimeToLive = routeTimeToLive;
+    }
 }
