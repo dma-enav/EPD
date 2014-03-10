@@ -92,13 +92,6 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      */
     public IntendedRouteHandlerCommon() {
         super();
-        
-        // Load settings and update the intended route filter settings.
-        EnavSettings settings = EPD.getInstance().getSettings().getEnavSettings();
-        ROUTE_TTL = settings.getRouteTimeToLive();
-        FILTER_DISTANCE_EPSILON = settings.getFilterDistance();
-        NOTIFICATION_DISTANCE_EPSILON = settings.getNotificationDistance();
-        ALERT_DISTANCE_EPSILON = settings.getAlertDistance();
 
         // Checks and remove stale intended routes every minute
         getScheduler().scheduleWithFixedDelay(new Runnable() {
@@ -758,5 +751,18 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
      */
     public FilteredIntendedRoutes getFilteredIntendedRoutes() {
         return filteredIntendedRoutes;
+    }
+    
+    /**
+     * Updates the intended route filter settings.
+     * @param settings
+     *          The Enav Settings.
+     */
+    public void updateSettings(EnavSettings settings) {
+        
+        ROUTE_TTL = settings.getRouteTimeToLive();
+        FILTER_DISTANCE_EPSILON = settings.getFilterDistance();
+        NOTIFICATION_DISTANCE_EPSILON = settings.getNotificationDistance();
+        ALERT_DISTANCE_EPSILON = settings.getAlertDistance();
     }
 }
