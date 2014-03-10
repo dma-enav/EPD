@@ -39,12 +39,12 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
      * The setting key for the "show all AIS names" setting.
      */
     public static final String KEY_SHOW_ALL_AIS_NAMES = "showAllAisNameLabels";
-    
+
     /**
      * The setting key for the "show all past tracks" setting.
      */
     public static final String KEY_SHOW_ALL_PAST_TRACKS = "showAllPastTracks";
-    
+
     /**
      * Specifies if all AIS name labels should be shown.
      */
@@ -132,14 +132,17 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
             }
         }
     }
-    
+
     @Override
     protected void onLoadSuccess(Properties settings) {
-        this.setShowAllAisNameLabels(PropUtils.booleanFromProperties(settings, KEY_SHOW_ALL_AIS_NAMES, this.isShowAllAisNameLabels()));
-        this.setShowAllPastTracks(PropUtils.booleanFromProperties(settings, KEY_SHOW_ALL_PAST_TRACKS, this.isShowAllPastTracks()));
-        // TODO init other settings variables based on the provided Properties instance.
+        this.setShowAllAisNameLabels(PropUtils.booleanFromProperties(settings,
+                KEY_SHOW_ALL_AIS_NAMES, this.isShowAllAisNameLabels()));
+        this.setShowAllPastTracks(PropUtils.booleanFromProperties(settings,
+                KEY_SHOW_ALL_PAST_TRACKS, this.isShowAllPastTracks()));
+        // TODO init other settings variables based on the provided Properties
+        // instance.
     }
-    
+
     @Override
     protected Properties onSaveSettings() {
         Properties savedVars = new Properties();
