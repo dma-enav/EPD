@@ -23,9 +23,11 @@ import javax.swing.ImageIcon;
 import dk.dma.epd.common.prototype.gui.settings.BaseSettingsPanel;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener.Type;
 import dk.dma.epd.common.prototype.model.route.PartialRouteFilter.FilterType;
+import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.settings.EPDCloudSettings;
+import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
@@ -51,6 +53,11 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
     private JLabel lblTimeMesaurementBackward;
     private FilterType filterType;
     private FilterType selectedType;
+    private JSpinner spinnerFilterDistance;
+    private JSpinner spinnerNotificationDistance;
+    private JSpinner spinnerAlertDistance;
+    private JSpinner spinnerTimeToLive;
+    private EnavSettings enavSettings;
     
     public ShipServicesSettingsPanel() {
         super("Services", new ImageIcon(
@@ -62,7 +69,7 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         
         generalPanel = new JPanel();
         generalPanel.setBorder(new TitledBorder(null, "Generel Settings", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        generalPanel.setBounds(6, 6, 438, 245);
+        generalPanel.setBounds(6, 6, 438, 110);
         generalPanel.setLayout(null);
         
         chckbxBroadcastIntendedRoute = new JCheckBox("Broadcast intended route");
@@ -94,42 +101,88 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         this.add(generalPanel);
         
         
-        /*********** Intended route filter *************/
-        
-        JPanel intendedRouteFilterPanel = new JPanel();
-        intendedRouteFilterPanel.setBounds(16, 102, 405, 120);
-        intendedRouteFilterPanel.setBorder(new TitledBorder(
-                null, "Intended Route Filter"));
-        generalPanel.add(intendedRouteFilterPanel);
-        intendedRouteFilterPanel.setLayout(null);
+        /*********** Intended route *************/
+                
+        JPanel intendedRoutePanel = new JPanel();
+        intendedRoutePanel.setBounds(6, 128, 438, 120);
+        intendedRoutePanel.setBorder(new TitledBorder(
+                null, "Intended Route"));
+        intendedRoutePanel.setLayout(null);
         
         JLabel lblForward = new JLabel("Forward:");
         lblForward.setBounds(16, 54, 54, 16);
-        intendedRouteFilterPanel.add(lblForward);
+        intendedRoutePanel.add(lblForward);
         
         JLabel lblBackward = new JLabel("Backward:");
         lblBackward.setBounds(16, 79, 63, 16);
-        intendedRouteFilterPanel.add(lblBackward);
+        intendedRoutePanel.add(lblBackward);
         
         spinnerForward = new JSpinner(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
         spinnerForward.setBounds(91, 52, 75, 20);
-        intendedRouteFilterPanel.add(spinnerForward);
+        intendedRoutePanel.add(spinnerForward);
         
         spinnerBackward = new JSpinner(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
         spinnerBackward.setBounds(91, 77, 75, 20);
-        intendedRouteFilterPanel.add(spinnerBackward);
+        intendedRoutePanel.add(spinnerBackward);
         
         lblTimeMeasurementForward = new JLabel("null");
         lblTimeMeasurementForward.setBounds(178, 54, 210, 16);
-        intendedRouteFilterPanel.add(lblTimeMeasurementForward);
+        intendedRoutePanel.add(lblTimeMeasurementForward);
         
         lblTimeMesaurementBackward = new JLabel("null");
         lblTimeMesaurementBackward.setBounds(178, 79, 210, 16);
-        intendedRouteFilterPanel.add(lblTimeMesaurementBackward);
+        intendedRoutePanel.add(lblTimeMesaurementBackward);
         comboBoxSelectMethod = new JComboBox<String>(defaultComboBox);
         comboBoxSelectMethod.setBounds(16, 20, 176, 20);
-        intendedRouteFilterPanel.add(comboBoxSelectMethod);
-        comboBoxSelectMethod.addActionListener(this);
+        this.comboBoxSelectMethod.addActionListener(this);
+        intendedRoutePanel.add(comboBoxSelectMethod);
+        
+        this.add(intendedRoutePanel);
+
+        
+        /*********** Intended route filter *************/
+        
+        JPanel panel = new JPanel();
+        panel.setBounds(6, 260, 438, 140);
+        panel.setBorder(new TitledBorder(null, "Intended Route Filter"));
+        panel.setLayout(null);
+        
+        JLabel lblTimeToLive = new JLabel("Time to live (min)");
+        lblTimeToLive.setBounds(103, 22, 110, 16);
+        panel.add(lblTimeToLive);
+        
+        spinnerTimeToLive = new JSpinner();
+        spinnerTimeToLive.setModel(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
+        spinnerTimeToLive.setBounds(16, 20, 75, 20);
+        panel.add(spinnerTimeToLive);
+        
+        JLabel lblFilterDistanceEpsilon = new JLabel("Filter Distance (nm)");
+        lblFilterDistanceEpsilon.setBounds(103, 47, 123, 16);
+        panel.add(lblFilterDistanceEpsilon);
+        
+        spinnerFilterDistance = new JSpinner();
+        spinnerFilterDistance.setModel(new SpinnerNumberModel(new Double(0), new Double(0), null, new Double(0.1)));
+        spinnerFilterDistance.setBounds(16, 45, 75, 20);
+        panel.add(spinnerFilterDistance);
+        
+        JLabel lblNotificationDistancenm = new JLabel("Notification Distance (nm)");
+        lblNotificationDistancenm.setBounds(103, 72, 166, 16);
+        panel.add(lblNotificationDistancenm);
+        
+        spinnerNotificationDistance = new JSpinner();
+        spinnerNotificationDistance.setModel(new SpinnerNumberModel(new Double(0), new Double(0), null, new Double(0.1)));
+        spinnerNotificationDistance.setBounds(16, 70, 75, 20);
+        panel.add(spinnerNotificationDistance);
+        
+        JLabel lblAlertDistance = new JLabel("Alert Distance (nm)");
+        lblAlertDistance.setBounds(103, 97, 121, 16);
+        panel.add(lblAlertDistance);
+        this.add(panel);
+        
+        spinnerAlertDistance = new JSpinner();
+        spinnerAlertDistance.setModel(new SpinnerNumberModel(new Double(0), new Double(0), null, new Double(0)));
+        spinnerAlertDistance.setBounds(16, 95, 75, 20);
+        panel.add(spinnerAlertDistance);
         
         // Update gui.
         this.updateGui();
@@ -242,17 +295,27 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
                 changed(this.cloudSettings.isBroadcastIntendedRoute(), this.chckbxBroadcastIntendedRoute.isSelected()) ||
                 changed(this.cloudSettings.getTimeBetweenBroadCast(), this.spinnerTimeBetweenBroadcast.getValue()) ||
                 changed(this.cloudSettings.getAdaptionTime(), this.spinnerAdaptionTime.getValue()) ||
-                changed(this.cloudSettings.getIntendedRouteFilter().getType(), this.selectedType);
+                changed(this.cloudSettings.getIntendedRouteFilter().getType(), this.selectedType) ||
+                
+                // Changes in enav settings.
+                changed(this.enavSettings.getRouteTimeToLive(), 
+                        TimeUnit.MINUTES.toMillis(Long.valueOf(this.spinnerTimeToLive.getValue().toString()))) ||
+                changed(this.enavSettings.getNotificationDistance(), this.spinnerNotificationDistance.getValue()) ||
+                changed(this.enavSettings.getAlertDistance(), this.spinnerAlertDistance.getValue()) ||
+                changed(this.enavSettings.getFilterDistance(), this.spinnerFilterDistance.getValue());
         
         // If no changes were made to the other settings, check if changes were
         // made to the intended router filter settings.
         if (!changesWereMade) {
+            
             // If the filter type is set to distance, convert the forward and backward 
             // values to meter and compare them to what is stored in the settings.
             if (this.filterType.equals(FilterType.METERS)) {
                 changesWereMade = 
-                        changed(this.cloudSettings.getIntendedRouteFilter().getForward(), Math.round(Converter.nmToMeters((double) this.spinnerForward.getValue()))) ||
-                        changed(this.cloudSettings.getIntendedRouteFilter().getBackward(), Math.round(Converter.nmToMeters((double) this.spinnerBackward.getValue())));
+                        changed(this.cloudSettings.getIntendedRouteFilter().getForward(), 
+                                Math.round(Converter.nmToMeters((double) this.spinnerForward.getValue()))) ||
+                        changed(this.cloudSettings.getIntendedRouteFilter().getBackward(), 
+                                Math.round(Converter.nmToMeters((double) this.spinnerBackward.getValue())));
             
             // If the filter type is set to any other type, compare the forward and backward
             // values to what is stored in the settings.
@@ -272,8 +335,9 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
     @Override
     protected void doLoadSettings() {
 
-        // Get the settings.
+        // Get cloud settings.
         this.cloudSettings = EPDShip.getInstance().getSettings().getCloudSettings();
+        this.enavSettings = EPDShip.getInstance().getSettings().getEnavSettings();
         
         // Load cloud Intended Route Settings.
         this.chckbxBroadcastIntendedRoute.setSelected(this.cloudSettings.isBroadcastIntendedRoute());
@@ -299,6 +363,13 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
             this.spinnerForward.setValue(this.cloudSettings.getIntendedRouteFilter().getForward());
             this.spinnerBackward.setValue(this.cloudSettings.getIntendedRouteFilter().getBackward()); 
         }
+        
+        // Load intended route filter settings.
+        this.spinnerFilterDistance.setValue(this.enavSettings.getFilterDistance());
+        this.spinnerTimeToLive.setValue(
+                TimeUnit.MILLISECONDS.toMinutes(this.enavSettings.getRouteTimeToLive()));
+        this.spinnerAlertDistance.setValue(this.enavSettings.getAlertDistance());
+        this.spinnerNotificationDistance.setValue(this.enavSettings.getNotificationDistance());
     }
 
     /**
@@ -326,6 +397,13 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
             this.cloudSettings.getIntendedRouteFilter().setForward((int) this.spinnerForward.getValue());
             this.cloudSettings.getIntendedRouteFilter().setBackward((int) this.spinnerBackward.getValue());
         }
+        
+        // Save enav settings.
+        this.enavSettings.setFilterDistance((double) this.spinnerFilterDistance.getValue());
+        this.enavSettings.setAlertDistance((double) this.spinnerAlertDistance.getValue());
+        this.enavSettings.setNotificationDistance((double) this.spinnerNotificationDistance.getValue());
+        this.enavSettings.setRouteTimeToLive(
+                TimeUnit.MINUTES.toMillis(Long.valueOf(this.spinnerTimeToLive.getValue().toString())));
     }
 
     /**
@@ -334,6 +412,5 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
     @Override
     protected void fireSettingsChanged() {
         fireSettingsChanged(Type.CLOUD);
-
     }
 }
