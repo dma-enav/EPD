@@ -80,7 +80,7 @@ public class CloudSettings  implements Serializable {
         // Intended route settings
         props.put(PREFIX + "broadcastIntendedRoute", Boolean.toString(broadcastIntendedRoute));
         props.put(PREFIX + "timeBetweenBroadCast", Integer.toString(this.timeBetweenBroadCast));
-        props.put(PREFIX + "adaptionTime", this.adaptionTime);
+        props.put(PREFIX + "adaptionTime",Integer.toString(adaptionTime));
         props.put(PREFIX + "showIntendedRoute", Boolean.toString(showIntendedRoute));
     }
     
