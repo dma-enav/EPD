@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.common.prototype.gui.settings;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -68,6 +70,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     private JCheckBox chckbxShowText;
     private JCheckBox chckbxTwoShades;
     private JCheckBox chckbxPlainAreas;
+    private JButton btnAdvancedOptions;
     
     /**
      * Constructs a new CommonMapSettingsPanel object.
@@ -233,16 +236,15 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         chckbxPlainAreas.setBounds(220, 125, 106, 23);
         panel.add(chckbxPlainAreas);
         
-        JButton btnAdvancedOptions = new JButton("Advanced Options");
+        btnAdvancedOptions = new JButton("Advanced Options");
         btnAdvancedOptions.setBounds(220, 175, 107, 20);
         
-//        btnAdvancedOptions.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent arg0) {
-//                @SuppressWarnings("unused")
-//                AdvancedSettingsWindow advSettingsWindow = new AdvancedSettingsWindow();
-//                
-//            }
-//        });
+        btnAdvancedOptions.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                AdvancedSettingsWindow advSettingsWindow = new AdvancedSettingsWindow();
+                
+            }
+        });
         
         panel.add(btnAdvancedOptions);
     }
@@ -344,7 +346,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         this.chckbxUseWms.setSelected(this.settings.isUseWms());
         this.chckbxWmsIsUsed.setSelected(settings.isUseWmsDragging());
         this.textFieldWMSURL.setText(settings.getWmsQuery());
-        
+        this.btnAdvancedOptions.setEnabled(this.settings.isUseEnc());
     }
 
     /**
