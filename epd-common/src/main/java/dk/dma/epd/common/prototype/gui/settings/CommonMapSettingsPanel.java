@@ -241,7 +241,7 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         
         btnAdvancedOptions.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                AdvancedSettingsWindow advSettingsWindow = new AdvancedSettingsWindow();
+                new AdvancedSettingsWindow();
                 
             }
         });

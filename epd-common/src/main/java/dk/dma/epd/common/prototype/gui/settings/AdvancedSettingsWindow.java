@@ -39,6 +39,23 @@ public class AdvancedSettingsWindow extends JDialog {
         
         try {
             
+            /* Add a panel at the bottom the window with an "ok" which
+             * close and saves the panel.
+             */
+            JPanel panel = new JPanel();
+            getContentPane().add(panel, BorderLayout.SOUTH);
+            panel.setLayout(new BorderLayout(0, 0));
+            
+            JButton okBtn = new JButton("Ok");
+            okBtn.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent arg0) {
+                    //
+                    closeAndSave();
+                    
+                }
+            });
+            panel.add(okBtn, BorderLayout.EAST);
+
             // Try to get the enc layer.
             JTabbedPane gui = (JTabbedPane) 
                     EPD.getInstance().getMainFrame().getActiveChartPanel().getEncLayer().getGUI();
@@ -52,25 +69,6 @@ public class AdvancedSettingsWindow extends JDialog {
             
             // Add gui to the panel.
             this.getContentPane().add(gui);
-            
-            /* Add a panel at the bottom the window with an "ok" which
-             * close and saves the panel.
-             */
-            JPanel panel = new JPanel();
-            getContentPane().add(panel, BorderLayout.SOUTH);
-            panel.setLayout(new BorderLayout(0, 0));
-
-            JButton okBtn = new JButton("Ok");
-            okBtn.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent arg0) {
-                    //
-                    closeAndSave();
-
-                }
-            });
-            panel.add(okBtn, BorderLayout.EAST);
-            
-            this.setVisible(true);
             
         } catch (NullPointerException e) {
             System.out.println("No enc layer found.");
