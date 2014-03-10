@@ -35,16 +35,60 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IIntendedRouteHandler
      * Specifies if the ship should broadcast it's intendedroute or not
      */
     private boolean broadcastIntendedRoute = true;
-    
-    
+
     /**
      * Specifies the intended route broadcast time
      */
     private int timeBetweenBroadCast = 1;
-    
-    
-    
+
+    /**
+     * Specifies the change in ETA for a new route broadcast to be forced
+     */
     private int adaptionTime = 1;
+
+    
+    
+    /**
+     * @return the broadcastIntendedRoute
+     */
+    public boolean isBroadcastIntendedRoute() {
+        return broadcastIntendedRoute;
+    }
+
+    /**
+     * @param broadcastIntendedRoute the broadcastIntendedRoute to set
+     */
+    public void setBroadcastIntendedRoute(boolean broadcastIntendedRoute) {
+        this.broadcastIntendedRoute = broadcastIntendedRoute;
+    }
+
+    /**
+     * @return the timeBetweenBroadCast
+     */
+    public int getTimeBetweenBroadCast() {
+        return timeBetweenBroadCast;
+    }
+
+    /**
+     * @param timeBetweenBroadCast the timeBetweenBroadCast to set
+     */
+    public void setTimeBetweenBroadCast(int timeBetweenBroadCast) {
+        this.timeBetweenBroadCast = timeBetweenBroadCast;
+    }
+
+    /**
+     * @return the adaptionTime
+     */
+    public int getAdaptionTime() {
+        return adaptionTime;
+    }
+
+    /**
+     * @param adaptionTime the adaptionTime to set
+     */
+    public void setAdaptionTime(int adaptionTime) {
+        this.adaptionTime = adaptionTime;
+    }
 
     @Override
     protected void onLoadFailure(IOException error) {
