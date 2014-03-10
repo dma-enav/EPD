@@ -29,16 +29,13 @@ import javax.swing.BorderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.bbn.openmap.BufferedLayerMapBean;
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
-import com.bbn.openmap.MapHandler;
 import com.bbn.openmap.MouseDelegator;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.HistoryListener;
 import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
-import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteTCPALayer;
@@ -115,7 +112,6 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         
         // Set map handler
         mapHandler = EPDShip.getInstance().getMapHandler();
-        dragMapHandler = new MapHandler();
         
         // Set layout
         setLayout(new BorderLayout());
@@ -297,25 +293,6 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         // Set ENC map settings
 
         add(map);
-
-        // dragMap
-        dragMap = new BufferedLayerMapBean();
-        dragMap.setDoubleBuffered(true);
-        dragMap.setCenter(mapSettings.getCenter());
-        dragMap.setScale(mapSettings.getScale());
-
-        dragMapHandler.add(new LayerHandler());
-        if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
-            dragMapHandler.add(dragMap);
-            wmsDragLayer = new WMSLayer(mapSettings.getWmsQuery());
-            dragMapHandler.add(wmsDragLayer);
-            dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
-        } else {
-            // create dummy map dragging
-            dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, true);
-        }
-
-        dragMapRenderer.start();
 
         // Force a route layer and sensor panel update
         routeLayer.routesChanged(RoutesUpdateEvent.ROUTE_ADDED);

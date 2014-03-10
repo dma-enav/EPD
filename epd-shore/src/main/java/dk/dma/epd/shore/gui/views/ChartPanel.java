@@ -80,6 +80,7 @@ public class ChartPanel extends ChartPanelCommon {
     private MainFrame mainFrame;
     private Color background = new Color(168, 228, 255);
     protected transient ProjectionSupport projectionSupport = new ProjectionSupport(this, false);
+    private LayerTogglingPanel layerTogglingPanel;
 
     /**
      * Constructor
@@ -93,7 +94,6 @@ public class ChartPanel extends ChartPanelCommon {
         this.mainFrame = mainFrame;
         // Create the charts own maphandler
         mapHandler = new MapHandler();
-        dragMapHandler = new MapHandler();
 
         // Add the handlers to this bean
         mapHandler.add(EPDShore.getInstance().getAisHandler());
@@ -104,6 +104,8 @@ public class ChartPanel extends ChartPanelCommon {
         mapHandler.add(mainFrame.getStatusArea());
         mapHandler.add(jmapFrame);
 
+        layerTogglingPanel = jmapFrame.getLayerTogglingPanel();
+        
         // Set layout
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
     }
@@ -173,9 +175,6 @@ public class ChartPanel extends ChartPanelCommon {
         map.setScale(mapSettings.getScale());
 
         add(map);
-
-        initDragMap();
-
     }
 
     /**
@@ -195,8 +194,6 @@ public class ChartPanel extends ChartPanelCommon {
         map.setScale(scale);
 
         add(map);
-
-        initDragMap();
     }
 
     /**
@@ -216,6 +213,7 @@ public class ChartPanel extends ChartPanelCommon {
         }
 
         map = new DraggableLayerMapBean();
+        map.addClipComponents(mainFrame.getToolbar(), mainFrame.getStatusArea(), layerTogglingPanel);
 
         mouseDelegator = new MouseDelegator();
         mapHandler.add(mouseDelegator);

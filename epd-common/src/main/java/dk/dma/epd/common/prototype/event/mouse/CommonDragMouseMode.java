@@ -20,13 +20,10 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 
 import javax.swing.SwingUtilities;
 
 import com.bbn.openmap.MapBean;
-import com.bbn.openmap.proj.Projection;
 
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
@@ -48,9 +45,6 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
     private boolean mouseDragged;
     private boolean mouseExited;
     private boolean layerMouseDrag;
-    private BufferedImage bufferedMapImage;
-    private BufferedImage onScreenMap;
-    private int oX, oY;
 
     /**
      * Protected fields
@@ -85,20 +79,6 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
         
         // Set the drag cursor.
         this.setModeCursor(this.DRAG_CURSOR);
-    }
-    
-    /**
-     * This method is called each time the mouse mode changes
-     */
-    @Override
-    public void setActive(boolean active) {
-        
-        if (!active) {
-            
-            if (this.bufferedMapImage != null) {
-                this.bufferedMapImage.flush();
-            }
-        }
     }
     
     /**
@@ -150,79 +130,15 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
         this.mouseDragged = true;
         
         DraggableLayerMapBean map = this.chartPanel.getMap();
-        Point2D pnt = map.getNonRotatedLocation(e);
-        int x = (int) pnt.getX();
-        int y = (int) pnt.getY();
+                                                
+        if (!this.isPanning) {
+            this.isPanning = true;
+            map.startDragging(e);
                 
-        // Ship side of the method.
-        if (!this.calledFromShore) {
-            if (!this.isPanning) {
-                
-                this.isPanning = true;
-                this.chartPanel.getDragMapRenderer().updateFinalBuffer();
-                
-                // Create the screen shot.
-                this.onScreenMap = new BufferedImage(
-                        map.getWidth(), map.getHeight(), BufferedImage.TYPE_INT_RGB);
-                map.paint(this.onScreenMap.getGraphics());
-                
-                this.oX = x;
-                this.oY = y;
-                
-                map.startDragging();
-                
-            } else {
-                
-                int startX = map.getWidth();
-                int startY = map.getHeight();
-                int posX   = startX - (x - this.oX);
-                int posY   = startY - (y - this.oY);
-                
-                BufferedImage offScreenMap = 
-                        this.chartPanel.getDragMapRenderer().getFinalBuffer().getSubimage(
-                                posX, posY, this.chartPanel.getWidth(), this.chartPanel.getHeight());
-                    
-                BufferedImage renderImage = offScreenMap;
-                renderImage.getGraphics().drawImage(this.onScreenMap, x-this.oX, y-this.oY, null);
-                this.chartPanel.getGraphics().drawImage(renderImage, 0, 0, null);
-            } 
-            
-        // Shore side of the method.
-        } else if (this.calledFromShore) {
-                                
-            if (!this.isPanning) {
-                this.isPanning = true;
-                
-                this.chartPanel.getDragMapRenderer().updateFinalBuffer();
-                
-                this.onScreenMap = new BufferedImage(
-                        this.chartPanel.getWidth(), this.chartPanel.getHeight(), BufferedImage.TYPE_INT_RGB);
-                
-                map.paint(this.onScreenMap.getGraphics());
-                this.oX = x;
-                this.oY = y;
-                
-                map.startDragging();
-                
-            } else {
-                                        
-                int startX = this.chartPanel.getWidth();
-                int startY = this.chartPanel.getHeight();
-                
-                int posX = startX - (x - this.oX);
-                int posY = startY - (y - this.oY);
-                
-                final BufferedImage offScreenMap = this.chartPanel.getDragMapRenderer().getFinalBuffer().getSubimage(posX,
-                        posY, this.chartPanel.getWidth(), this.chartPanel.getHeight());
-                
-                final BufferedImage renderImage = offScreenMap;
-                //renderImage.getGraphics().drawImage(offScreenMap,0,0,null);                        
-                renderImage.getGraphics().drawImage(this.onScreenMap,x-oX,y-oY,null);
-                
-                this.chartPanel.getMap().getGraphics().drawImage(renderImage, 0,0, null);
-            }
+        } else {                                        
+            map.drag(e);
         }
-        
+
         // Change cursor to a dragging hand.
         this.chartPanel.setCursor(this.DRAG_DOWN_CURSOR);
     }
@@ -241,19 +157,10 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
                 e.getSource() instanceof MapBean) {
             
             DraggableLayerMapBean map = (DraggableLayerMapBean) e.getSource();
-            Projection projection = map.getProjection();
-            Point2D center = projection.forward(projection.getCenter());
-            
-            Point2D pnt = map.getNonRotatedLocation(e);
-            int x = (int) pnt.getX();
-            int y = (int) pnt.getY();
-            
-            center.setLocation(center.getX() - x + this.oX, center.getY() - y + this.oY);
-            map.setCenter(projection.inverse(center));
             
             this.isPanning = false;
             this.mouseDragged = false;
-            map.stopDragging();
+            map.stopDragging(e);
         }
         
         this.layerMouseDrag = false;

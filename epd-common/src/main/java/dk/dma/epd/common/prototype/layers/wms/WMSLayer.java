@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.layers.wms;
 
+import java.awt.image.BufferedImage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -26,6 +27,7 @@ import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.proj.Projection;
 
+import dk.dma.epd.common.graphics.CenterRaster;
 import dk.dma.epd.common.prototype.event.WMSEvent;
 import dk.dma.epd.common.prototype.event.WMSEventListener;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
@@ -128,6 +130,15 @@ public class WMSLayer extends EPDLayerCommon implements Runnable, WMSEventListen
      * Clears the WMS layer
      */
     public void clearWMS() {
+        // Aggressively flush the buffered images 
+        for (OMGraphic g : internalCache) {
+            if (g instanceof CenterRaster) {
+                CenterRaster cr = (CenterRaster)g;
+                if (cr.getImage() instanceof BufferedImage) {
+                    ((BufferedImage)cr.getImage()).flush();
+                }
+            }
+        }
         this.internalCache.clear();
         this.drawWMS(new OMGraphicList());
     }

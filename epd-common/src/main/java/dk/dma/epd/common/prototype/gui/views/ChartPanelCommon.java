@@ -18,7 +18,6 @@ package dk.dma.epd.common.prototype.gui.views;
 import java.awt.Point;
 import java.util.List;
 
-import com.bbn.openmap.BufferedLayerMapBean;
 import com.bbn.openmap.Layer;
 import com.bbn.openmap.LayerHandler;
 import com.bbn.openmap.MapHandler;
@@ -37,7 +36,6 @@ import dk.dma.epd.common.prototype.event.mouse.CommonDragMouseMode;
 import dk.dma.epd.common.prototype.event.mouse.CommonNavigationMouseMode;
 import dk.dma.epd.common.prototype.event.mouse.CommonRouteEditMouseMode;
 import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
-import dk.dma.epd.common.prototype.gui.util.SimpleOffScreenMapRenderer;
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteTCPALayer;
@@ -68,15 +66,11 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     
     // Layers and handlers
     protected MapHandler mapHandler;
-    protected MapHandler dragMapHandler;
     protected LayerHandler layerHandler;
     protected DraggableLayerMapBean map;
-    protected BufferedLayerMapBean dragMap;
-    protected SimpleOffScreenMapRenderer dragMapRenderer;
     protected OMGraphicHandlerLayer encLayer;
     protected MultiShapeLayer bgLayer;
     protected WMSLayer wmsLayer;
-    protected WMSLayer wmsDragLayer;
     protected AisLayerCommon<?> aisLayer;
     protected RouteLayerCommon routeLayer;
     protected RouteEditLayerCommon routeEditLayer;
@@ -104,31 +98,6 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         mapSettings.setScale(map.getScale());
     }
 
-    /**
-     * Initiate drag map
-     */
-    protected void initDragMap() {
-
-        MapSettings mapSettings = EPD.getInstance().getSettings().getMapSettings();
-        dragMap = new BufferedLayerMapBean();
-        dragMap.setDoubleBuffered(true);
-        dragMap.setCenter(mapSettings.getCenter());
-        dragMap.setScale(mapSettings.getScale());
-
-        dragMapHandler.add(new LayerHandler());
-        if (mapSettings.isUseWms() && mapSettings.isUseWmsDragging()) {
-            dragMapHandler.add(dragMap);
-            wmsDragLayer = new WMSLayer(mapSettings.getWmsQuery());
-            wmsDragLayer.setVisible(true);
-            dragMapHandler.add(wmsDragLayer);
-            dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, 3);
-        } else {
-            // create dummy map dragging
-            dragMapRenderer = new SimpleOffScreenMapRenderer(map, dragMap, true);
-        }
-        dragMapRenderer.start();
-    }
-    
     /**
      * Force an update in the AIS layer
      */
@@ -373,18 +342,6 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
 
     public MsiLayerCommon getMsiLayer() {
         return msiLayer;
-    }
-
-    public final BufferedLayerMapBean getDragMap() {
-        return dragMap;
-    }
-    
-    public WMSLayer getWmsDragLayer() {
-        return wmsDragLayer;
-    }
-
-    public SimpleOffScreenMapRenderer getDragMapRenderer() {
-        return dragMapRenderer;
     }
 
     public WMSLayer getWmsLayer() {

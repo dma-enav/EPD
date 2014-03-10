@@ -19,14 +19,11 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import java.awt.image.FilteredImageSource;
-import java.awt.image.ImageFilter;
-import java.awt.image.ImageProducer;
-import java.awt.image.RGBImageFilter;
+import java.io.IOException;
 import java.util.concurrent.Callable;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
 import org.slf4j.Logger;
@@ -67,20 +64,14 @@ public final class SingleWMSService extends AbstractWMSService implements ImageS
         java.net.URL url = null;
 
         OMGraphicList wmsList = new OMGraphicList();
-
+        
         try {
 
             url = new java.net.URL(getQueryString());
 
-            // System.out.println("Query string is: " + getQueryString());
+            BufferedImage image = ImageIO.read(url);
 
-            ImageIcon wmsImg = new ImageIcon(url);
-
-            wmsImg = new ImageIcon(transformWhiteToTRansparent(wmsImg));
-
-            wmsImg.getImage();
-
-            if (wmsImg.getIconHeight() == -1 || wmsImg.getIconWidth() == -1) {
+            if (image == null) {
                 Image noImage = EPD.res().getCachedImageIcon("images/noWMSAvailable.png").getImage();
                 BufferedImage bi = new BufferedImage(noImage.getWidth(null), noImage.getHeight(null), BufferedImage.TYPE_INT_ARGB);
                 Graphics g = bi.createGraphics();
@@ -91,15 +82,14 @@ public final class SingleWMSService extends AbstractWMSService implements ImageS
 
             } else {
                 status.markContactSuccess();
-                // wmsList.add(new CenterRaster(this.wmsullat, this.wmsullon, this.wmsWidth, this.wmsHeight, wmsImg));
-                // wmsList.add(new
-                // OMRaster(this.projection.getUpperLeft().getY(),this.projection.getUpperLeft().getX(),this.wmsWidth,this.wmsHeight,wmsImg));
+                
+                Image maskedImage = transformWhiteToTransparent(image);
                 wmsList.add(new CenterRaster(getProjection().getCenter().getY(), getProjection().getCenter().getX(), this.wmsWidth,
-                        this.wmsHeight, wmsImg));
+                        this.wmsHeight, new ImageIcon(maskedImage)));
             }
 
-        } catch (java.net.MalformedURLException murle) {
-            status.markContactError(murle);
+        } catch (IOException ex) {
+            status.markContactError(ex);
             LOG.error("Bad URL!");
         }
         // LOG.debug("DONE DOWNLOADING");
@@ -107,35 +97,38 @@ public final class SingleWMSService extends AbstractWMSService implements ImageS
         return wmsList;
     }
 
-    private Image transformWhiteToTRansparent(ImageIcon wmsImg) {
+    private Image transformWhiteToTransparent(BufferedImage image) {
 
-        BufferedImage dest = new BufferedImage(wmsImg.getIconWidth(), wmsImg.getIconHeight(), BufferedImage.TYPE_INT_ARGB);
+        BufferedImage dest = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = dest.createGraphics();
-        g2.drawImage(wmsImg.getImage(), 0, 0, null);
+        g2.drawImage(image, 0, 0, null);
         g2.dispose();
-
+        
+        image.flush();
+        
+        // Mask out the white pixels
+        final int width = image.getWidth();
+        int[] imgData = new int[width];
+        
         // The color we want transparent
         final Color color = Color.WHITE;
+        // the color we are looking for... Alpha bits are set to opaque
+        int markerRGB = color.getRGB() | 0xFF000000;
 
-        ImageFilter filter = new RGBImageFilter() {
-
-            // the color we are looking for... Alpha bits are set to opaque
-            public int markerRGB = color.getRGB() | 0xFF000000;
-
-            public int filterRGB(int x, int y, int rgb) {
-                if ((rgb | 0xFF000000) == markerRGB) {
+        for (int y = 0; y < dest.getHeight(); y++) {
+            // fetch a line of data from each image
+            dest.getRGB(0, y, width, 1, imgData, 0, 1);
+            // apply the mask
+            for (int x = 0; x < width; x++) {
+                if ((imgData[x] | 0xFF000000) == markerRGB) {
                     // Mark the alpha bits as zero - transparent
-                    return 0x00FFFFFF & rgb;
-                } else {
-                    // nothing to do
-                    return rgb;
-                }
+                    imgData[x] = 0x00FFFFFF & imgData[x];
+                } 
             }
-        };
-
-        ImageProducer ip = new FilteredImageSource(dest.getSource(), filter);
-        return Toolkit.getDefaultToolkit().createImage(ip);
-
+            // replace the data
+            dest.setRGB(0, y, width, 1, imgData, 0, 1);
+        }
+        return dest;
     }
 
     @Override
