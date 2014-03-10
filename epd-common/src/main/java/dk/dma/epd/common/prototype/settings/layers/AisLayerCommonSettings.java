@@ -15,7 +15,11 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
+import java.util.Properties;
+
 import javax.annotation.concurrent.GuardedBy;
+
+import com.bbn.openmap.util.PropUtils;
 
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
@@ -32,10 +36,20 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
         extends LayerSettings<OBSERVER> {
 
     /**
+     * The setting key for the "show all AIS names" setting.
+     */
+    public static final String KEY_SHOW_ALL_AIS_NAMES = "showAllAisNameLabels";
+
+    /**
+     * The setting key for the "show all past tracks" setting.
+     */
+    public static final String KEY_SHOW_ALL_PAST_TRACKS = "showAllPastTracks";
+
+    /**
      * Specifies if all AIS name labels should be shown.
      */
     @GuardedBy("lockShowAllAisNameLabels")
-    private boolean showAllAisNameLabels;
+    private boolean showAllAisNameLabels = true;
 
     /**
      * Used as lock when writing to or reading from
@@ -117,5 +131,26 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
                 obs.showAllPastTracksChanged(oldVal, this.showAllPastTracks);
             }
         }
+    }
+
+    @Override
+    protected void onLoadSuccess(Properties settings) {
+        this.setShowAllAisNameLabels(PropUtils.booleanFromProperties(settings,
+                KEY_SHOW_ALL_AIS_NAMES, this.isShowAllAisNameLabels()));
+        this.setShowAllPastTracks(PropUtils.booleanFromProperties(settings,
+                KEY_SHOW_ALL_PAST_TRACKS, this.isShowAllPastTracks()));
+        // TODO init other settings variables based on the provided Properties
+        // instance.
+    }
+
+    @Override
+    protected Properties onSaveSettings() {
+        Properties savedVars = new Properties();
+        savedVars.setProperty(KEY_SHOW_ALL_AIS_NAMES,
+                Boolean.toString(this.isShowAllAisNameLabels()));
+        savedVars.setProperty(KEY_SHOW_ALL_PAST_TRACKS,
+                Boolean.toString(this.isShowAllPastTracks()));
+        // TODO store other settings variables based on field values
+        return savedVars;
     }
 }

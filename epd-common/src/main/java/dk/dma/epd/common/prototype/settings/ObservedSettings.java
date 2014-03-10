@@ -15,6 +15,12 @@
  */
 package dk.dma.epd.common.prototype.settings;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -66,4 +72,90 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
     public boolean removeObserver(OBSERVER obs) {
         return this.observers.remove(obs);
     }
+
+    /**
+     * Loads settings from a file into memory. If the settings are successfully
+     * loaded, {@link #onLoadSuccess(Properties)} is invoked with a
+     * {@link Properties} instance containing the loaded settings. Similarly, if
+     * an error occurs during load, {@link #onLoadFailure(IOException)} is
+     * invoked with an {@link IOException} specifying what went wrong.
+     * 
+     * @param file
+     *            The file containing the settings to be loaded into memory.
+     */
+    public final void loadFromFile(File file) {
+        Properties p = new Properties();
+        try (FileReader reader = new FileReader(file)) {
+            p.load(reader);
+            this.onLoadSuccess(p);
+        } catch (IOException e) {
+            e.printStackTrace();
+            this.onLoadFailure(e);
+        }
+    }
+
+    /**
+     * Persists the settings managed by this instance to a file.
+     * 
+     * @param file
+     *            The file to persist the settings in.
+     * @param headerComment
+     *            An optional comment at the beginning of the file.
+     */
+    public final void saveToFile(File file, String headerComment) {
+        Properties propsToSave = this.onSaveSettings();
+        try (PrintWriter writer = new PrintWriter(file)) {
+            propsToSave.store(writer, headerComment);
+        } catch (IOException e) {
+            e.printStackTrace();
+            this.onSaveFailure(e);
+        }
+    }
+
+    /**
+     * This method is invoked when the settings managed by this
+     * {@code ObservedSettings} instance is to be persisted in a file (i.e. it
+     * is invoked as part of the {@link #saveToFile(File, String)} method).
+     * Subclass implementations should return a {@link Properties} instance
+     * containing the set of settings that are to be persisted.
+     * 
+     * @return A {@link Properties} instance containing the set of settings that
+     *         are to be persisted in a file.
+     */
+    protected abstract Properties onSaveSettings();
+
+    /**
+     * Invoked when settings have been successfully read from a file. This
+     * allows subclasses to perform initialization of variables based on the
+     * settings contained in the provided {@link Properties} instance,
+     * {@code settings}.
+     * 
+     * @param settings
+     *            Contains the settings that were read from the file.
+     */
+    protected abstract void onLoadSuccess(Properties settings);
+
+    /**
+     * Invoked if an error occurs while reading settings from a file. This
+     * allows subclasses to respond to such an error.
+     * 
+     * @param error
+     *            A {@link FileNotFoundException} if the settings file specified
+     *            in {@link #loadFromFile(File)} was not found or could not be
+     *            read from. An {@link IOException} if an error occurred while
+     *            reading the settings file.
+     */
+    protected abstract void onLoadFailure(IOException error);
+
+    /**
+     * Invoked if an error occurs while saving settings to a file. This allows
+     * subclasses to respond to such an error.
+     * 
+     * @param error
+     *            A {@link FileNotFoundException} if the settings file specified
+     *            in {@link #saveToFile(File, String)} was not found or could
+     *            not be written to. An {@link IOException} if an error occurred
+     *            while persisting the settings to the file.
+     */
+    protected abstract void onSaveFailure(IOException error);
 }

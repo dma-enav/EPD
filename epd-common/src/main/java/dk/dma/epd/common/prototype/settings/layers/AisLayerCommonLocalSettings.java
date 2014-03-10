@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
+import java.io.IOException;
+
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 
 /**
@@ -76,5 +78,15 @@ public class AisLayerCommonLocalSettings<OBSERVER extends IAisLayerCommonSetting
         // object.
         // We need to obey to this for our local settings:
         this.setShowAllPastTracks(newValue);
+    }
+    
+    @Override
+    protected void onLoadFailure(IOException error) {
+        // TODO figure out what to do with read error.
+    }
+    
+    @Override
+    protected void onSaveFailure(IOException error) {
+        // TODO possibly log save error or simply ignore it.
     }
 }
