@@ -54,7 +54,6 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
     private JSpinner spinnerLatitude;
     private JSpinner spinnerLongitude;
     private JLabel lblWmsUrl;
-    private JCheckBox chckbxWmsIsUsed;
     private JLabel lblenterTheUrl;
     private JCheckBox chckbxUseEnc;
     private JCheckBox chckbxUseWms;
@@ -133,33 +132,28 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         /************** WMS settings ***************/
         
         wmsSettings = new JPanel();
-        wmsSettings.setBounds(6, 409, 438, 175);
+        wmsSettings.setBounds(6, 409, 438, 155);
         wmsSettings.setLayout(null);
         wmsSettings.setBorder(new TitledBorder(null, "WMS Settings", TitledBorder.LEADING, 
                 TitledBorder.TOP, null, null));
 
-        lblWmsUrl = new JLabel("WMS URL");
-        lblWmsUrl.setBounds(16, 70, 61, 16);
-        wmsSettings.add(lblWmsUrl);
-        
         chckbxUseWms = new JCheckBox("Use WMS");
         chckbxUseWms.setBounds(16, 20, 88, 23);
         wmsSettings.add(chckbxUseWms);
         
+        lblWmsUrl = new JLabel("WMS URL:");
+        lblWmsUrl.setBounds(16, 50, 61, 16);
+        wmsSettings.add(lblWmsUrl);
+        
         textFieldWMSURL = new JTextField();
-        textFieldWMSURL.setBounds(16, 95, 405, 20);
+        textFieldWMSURL.setBounds(16, 75, 405, 20);
         wmsSettings.add(textFieldWMSURL);
         textFieldWMSURL.setColumns(10);
         
         this.add(wmsSettings);
         
-        chckbxWmsIsUsed = new JCheckBox("WMS is used when dragging (disable for performance)");
-        chckbxWmsIsUsed.setFocusable(false);
-        chckbxWmsIsUsed.setBounds(16, 45, 369, 20);
-        wmsSettings.add(chckbxWmsIsUsed);
-        
         lblenterTheUrl = new JLabel("<html>Enter the URL to the WMS service you wish to use, <br>enter everything except BBOX and height/width options.</html>");
-        lblenterTheUrl.setBounds(16, 120, 405, 37);
+        lblenterTheUrl.setBounds(16, 100, 405, 37);
         wmsSettings.add(lblenterTheUrl);
         
         
@@ -298,7 +292,6 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
                 
                 // Changes in WMS settings.
                 changed(this.settings.isUseWms(), this.chckbxUseWms.isSelected()) ||
-                changed(this.settings.isUseWmsDragging(), this.chckbxWmsIsUsed.isSelected()) ||
                 changed(this.settings.getWmsQuery(), this.textFieldWMSURL.getText());
     }
     
@@ -342,7 +335,6 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
 
         // Load settings for WMS.
         this.chckbxUseWms.setSelected(this.settings.isUseWms());
-        this.chckbxWmsIsUsed.setSelected(settings.isUseWmsDragging());
         this.textFieldWMSURL.setText(settings.getWmsQuery());
         
     }
@@ -378,7 +370,6 @@ public class CommonMapSettingsPanel extends BaseSettingsPanel {
         
         // Save settings for WMS.
         this.settings.setUseWms(this.chckbxUseWms.isSelected());
-        this.settings.setUseWmsDragging(this.chckbxWmsIsUsed.isSelected());
         this.settings.setWmsQuery(textFieldWMSURL.getText());
     }
     

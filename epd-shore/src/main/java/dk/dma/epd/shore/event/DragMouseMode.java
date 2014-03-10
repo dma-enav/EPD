@@ -92,7 +92,6 @@ public class DragMouseMode extends CommonDragMouseMode {
             BufferedLayerMapBean bean = (BufferedLayerMapBean) e.getSource();
             
             super.chartPanel = (ChartPanelCommon) bean.getParent();
-            super.calledFromShore = true; // Ensure that Shore drag is called.
         }
     }
 

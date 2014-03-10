@@ -78,7 +78,6 @@ public class RouteEditMouseMode extends CommonRouteEditMouseMode {
     public void mouseDragged(MouseEvent e) {
         
         this.glassFrame.setCursor(super.DRAG_DOWN_CURSOR);
-        super.calledFromShore = true;
         super.drag(e);
     }
     

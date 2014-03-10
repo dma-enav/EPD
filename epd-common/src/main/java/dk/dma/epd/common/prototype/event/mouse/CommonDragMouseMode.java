@@ -49,7 +49,6 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
     /**
      * Protected fields
      */
-    protected boolean calledFromShore;
     protected ChartPanelCommon chartPanel;
 
     /**
@@ -85,9 +84,6 @@ public class CommonDragMouseMode extends AbstractCoordMouseMode {
      * This method is called when the mouse is pressed and dragged across
      * the map. The method will take a screen shot of the map, and let the
      * user drag the map around, and update the cursor to a dragging hand.
-     * Since Ship and Shore have separate behaviours the boolean
-     * "calledFromShore" will decide if Shore side of this method will run,
-     * or the ship side will run.
      */
     @Override
     public void mouseDragged(MouseEvent e) {
