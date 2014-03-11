@@ -165,9 +165,9 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         mouseDelegator.addMouseMode(routeEditMouseMode);
         mouseDelegator.addMouseMode(msiFilterMouseMode);
         mouseDelegator.addMouseMode(dragMouseMode);
-        mouseDelegator.addMouseMode(this.rangeCirclesMouseMode);
+        mouseDelegator.addMouseMode(rangeCirclesMouseMode);
         getMap().addKeyListener(mapNavMouseMode);
-        getMap().addKeyListener(this.noGoMouseMode);
+        getMap().addKeyListener(noGoMouseMode);
 
         mouseDelegator.setActive(mapNavMouseMode);
         // Inform the distance circle mouse mode what mouse mode was initially
@@ -210,8 +210,8 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         mapHandler.add(routeLayer);
 
         // Create ruler layer
-        this.rulerLayer = new RulerLayer();
-        this.rulerLayer.setVisible(true);
+        rulerLayer = new RulerLayer();
+        rulerLayer.setVisible(true);
         mapHandler.add(rulerLayer);
 
         // Create voyage layer
@@ -414,88 +414,67 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         
         // Switching to RouteEditMouseMode
         if (modeID.equals(RouteEditMouseMode.MODE_ID)) {
-            System.out.println("Setting route edit mouse mode");
-            routeEditLayer.setVisible(true);
-            routeEditLayer.setEnabled(true);
-            newRouteContainerLayer.setVisible(true);
             routeEditLayer.doPrepare();
             mouseDelegator.setActive(routeEditMouseMode);
 
             // make sure toggle button is toggled if this mouse mode is enabled
             // by exiting DistanceCircleMouseMode
-            this.topPanel.getNewRouteBtn().setSelected(true);
-
-            EPDShip.getInstance().getMainFrame().getTopPanel()
-                    .getNavigationMouseMode().setSelected(false);
-            EPDShip.getInstance().getMainFrame().getTopPanel()
-                    .getDragMouseMode().setSelected(false);
+            topPanel.getNewRouteBtn().setSelected(true);
+            topPanel.getNavigationMouseMode().setSelected(false);
+            topPanel.getDragMouseMode().setSelected(false);
         
         } else {
             // Clear new route graphics and toggle buttons
-            routeEditLayer.setVisible(false);
             routeEditLayer.doPrepare();
-            newRouteContainerLayer.setVisible(false);
             newRouteContainerLayer.getWaypoints().clear();
             newRouteContainerLayer.getRouteGraphics().clear();
             newRouteContainerLayer.doPrepare();
-            EPDShip.getInstance().getMainFrame().getTopPanel().getNewRouteBtn()
-                    .setSelected(false);
+            topPanel.getNewRouteBtn().setSelected(false);
             EPDShip.getInstance().getMainFrame().getJMenuBar()
                     .getNewRoute().setSelected(false);
         }
         
         // Navigation mouse mode
         if (modeID.equals(NavigationMouseMode.MODE_ID)) {
-            System.out.println("Setting nav mouse mode");
             mouseDelegator.setActive(mapNavMouseMode);
-            EPDShip.getInstance().getMainFrame().getTopPanel()
-                    .getNavigationMouseMode().setSelected(true);
-            EPDShip.getInstance().getMainFrame().getTopPanel()
-                    .getDragMouseMode().setSelected(false);
+            topPanel.getNavigationMouseMode().setSelected(true);
+            topPanel.getDragMouseMode().setSelected(false);
         }
         
         // Drag mouse mode
         if (modeID.equals(DragMouseMode.MODE_ID)) {
             mouseDelegator.setActive(dragMouseMode);
 
-            this.topPanel.getNavigationMouseMode().setSelected(false);
-            EPDShip.getInstance().getMainFrame().getTopPanel()
-                    .getDragMouseMode()
-                    .setSelected(true);
+            topPanel.getNavigationMouseMode().setSelected(false);
+            topPanel.getDragMouseMode().setSelected(true);
             System.out.println("Setting drag mouse mode");
         }
         
         // Distance circle mouse mode
         if (modeID.equals(DistanceCircleMouseMode.MODE_ID)) {
             // Disable the other mouse mode toggle buttons.
-            this.topPanel.getNavigationMouseMode().setSelected(false);
-            this.topPanel.getDragMouseMode().setSelected(false);
-            this.topPanel.getNewRouteBtn().setSelected(false);
-            String prevMouseModeId = this.mouseDelegator.getActiveMouseMode()
+            topPanel.getNavigationMouseMode().setSelected(false);
+            topPanel.getDragMouseMode().setSelected(false);
+            topPanel.getNewRouteBtn().setSelected(false);
+            String prevMouseModeId = mouseDelegator.getActiveMouseMode()
                     .getID();
             // Store previous mouse mode ID such that we can go back to that
             // mouse mode
-            this.rangeCirclesMouseMode
-                    .setPreviousMouseModeModeID(prevMouseModeId);
+            rangeCirclesMouseMode.setPreviousMouseModeModeID(prevMouseModeId);
             // Display the ruler layer.
-            this.rulerLayer.setVisible(true);
-            this.mouseDelegator.setActive(this.rangeCirclesMouseMode);
+            mouseDelegator.setActive(rangeCirclesMouseMode);
         } else {
             // When mouse mode is changed to something different than distance
             // circle mode
             // we untoggle the distance circle mode button
-            this.topPanel.getToggleButtonDistanceCircleMouseMode().setSelected(
-                    false);
-            // hide ruler layer when not in "distance circles mode"
-            this.rulerLayer.setVisible(false);
+            topPanel.getToggleButtonDistanceCircleMouseMode().setSelected(false);
+            rulerLayer.clearRuler();
         }
         
         // Request NoGo Area.
         if (modeID.equals(NoGoMouseMode.MODE_ID)) {
-            System.out.println("Setting NoGo Mouse Mode");
-            
             // Set the mouse mode.
-            this.mouseDelegator.setActive(this.noGoMouseMode);
+            mouseDelegator.setActive(noGoMouseMode);
         }     
     }
 
@@ -647,14 +626,14 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
                     waypoints.add(data.getC());
                     waypoints.add(data.getD());
 
-                    this.zoomTo(waypoints);
+                    zoomTo(waypoints);
                     return;
 
                 } else {
                     List<Position> waypoints = new ArrayList<Position>();
 
                     waypoints.add(data.getDatum());
-                    this.zoomTo(waypoints);
+                    zoomTo(waypoints);
                     return;
 
                 }
@@ -674,7 +653,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
                 waypoints.add(data.getC());
                 waypoints.add(data.getD());
 
-                this.zoomTo(waypoints);
+                zoomTo(waypoints);
                 return;
             }
 
@@ -687,7 +666,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
                 waypoints.add(data.getC());
                 waypoints.add(data.getD());
 
-                this.zoomTo(waypoints);
+                zoomTo(waypoints);
                 return;
             }
 

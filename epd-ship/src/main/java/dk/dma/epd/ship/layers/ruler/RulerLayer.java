@@ -32,7 +32,6 @@ import dk.dma.epd.ship.gui.ChartPanel;
  */
 public class RulerLayer extends EPDLayerCommon {
 
-    // TODO update from defaulT?
     private static final long serialVersionUID = 1L;
 
     private ChartPanel chartPanel;
@@ -92,9 +91,9 @@ public class RulerLayer extends EPDLayerCommon {
         case MouseEvent.BUTTON3:
             // Right click means exit this mouse mode...
             // Clear all graphics from this mode
-            graphics.clear();
+            clearRuler();
+
             // Put chart panel back to previous mouse mode
-            // TODO this could be cleaner
             MapMouseMode mode = chartPanel.getMouseDelegator()
                     .getActiveMouseMode();
             if (mode instanceof DistanceCircleMouseMode) {
@@ -110,6 +109,18 @@ public class RulerLayer extends EPDLayerCommon {
             return false;
         }
 
+    }
+    
+    /**
+     * Clears the ruler graphics
+     */
+    public void clearRuler() {
+        if (rulerGraphic != null) {
+            synchronized(graphics) {
+                graphics.clear();
+                rulerGraphic = null;
+            }
+        }
     }
 
     /**
