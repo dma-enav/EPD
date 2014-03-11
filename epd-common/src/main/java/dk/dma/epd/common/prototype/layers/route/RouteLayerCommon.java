@@ -222,7 +222,7 @@ public abstract class RouteLayerCommon extends EPDLayerCommon implements IRoutes
                         LOG.debug("Failed to remove STCC Approved part of name");
                     }
                 }
-                routesChanged(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
+                routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_WAYPOINT_MOVED);
                 return true;
                 
             } else {
