@@ -100,8 +100,6 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
             registerStrategicRouteService();
             listenToStrategicRouteAck();
         } catch (Exception e) {
-            getStatus().markFailedSend();
-            getStatus().markFailedReceive();
             LOG.error("Error hooking up services", e);
         }
         

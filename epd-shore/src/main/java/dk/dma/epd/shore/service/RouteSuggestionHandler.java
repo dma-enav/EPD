@@ -83,7 +83,6 @@ public class RouteSuggestionHandler extends EnavServiceHandlerCommon {
         try {
             routeSuggestionServiceList = getMaritimeCloudConnection().serviceLocate(RouteSuggestionService.INIT).nearest(Integer.MAX_VALUE).get();
         } catch (Exception e) {
-            getStatus().markFailedReceive();
             LOG.error("Failed looking up route suggestion services", e.getMessage());
         }
     }

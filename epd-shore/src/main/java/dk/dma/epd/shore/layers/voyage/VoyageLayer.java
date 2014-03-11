@@ -225,6 +225,11 @@ public class VoyageLayer extends EPDLayerCommon implements VoyageUpdateListener,
                     }
 
                     VesselTarget ship = aisHandler.getVesselTarget(mmsi);
+                    
+                    if (ship != null){
+                        
+                    
+                    
                     Position position = ship.getPositionData().getPos();
 
                     Point2D resultPoint = this.getProjection().forward(position.getLatitude(), position.getLongitude());
@@ -238,7 +243,7 @@ public class VoyageLayer extends EPDLayerCommon implements VoyageUpdateListener,
                     mapFrame.getGlassPanel().add(shipIndicatorPanel);
 
                     shipIndicatorPanel.paintAll(shipIndicatorPanel.getGraphics());
-
+                    }
                 }
             } else {
                 // Iterate through and remove old

@@ -42,41 +42,35 @@ import dk.dma.epd.common.util.Util;
 /**
  * Service that provides an interface to the Maritime Cloud connection.
  * <p>
- * For technical reasons, each application should only have 
- * one live connection to the maritime cloud.<br/> 
- * The purpose of the {@code MaritimeCloudServiceCommon} is to be the only 
- * access point to this service.
+ * For technical reasons, each application should only have one live connection to the maritime cloud.<br/>
+ * The purpose of the {@code MaritimeCloudServiceCommon} is to be the only access point to this service.
  * <p>
- * Clients of this service should hook up a listeners to be notified 
- * when the service is running or stopped.
+ * Clients of this service should hook up a listeners to be notified when the service is running or stopped.
  * <p>
  * Future improvements:
  * <ul>
- *   <li>Perform listener tasks in a thread pool</li>
+ * <li>Perform listener tasks in a thread pool</li>
  * </ul>
  */
-public abstract class MaritimeCloudServiceCommon 
-    extends MapHandlerChild 
-    implements Runnable, IStatusComponent {
+public abstract class MaritimeCloudServiceCommon extends MapHandlerChild implements Runnable, IStatusComponent {
 
-    /** 
-     * Set this flag to true, if you want to log all 
-     * messages sent and received by the {@linkplain MaritimeCloudClient} 
+    /**
+     * Set this flag to true, if you want to log all messages sent and received by the {@linkplain MaritimeCloudClient}
      */
-    private static final boolean LOG_MARITIME_CLOUD_ACTIVITY = false;
+    private static final boolean LOG_MARITIME_CLOUD_ACTIVITY = true;
     private static final int MARITIME_CLOUD_SLEEP_TIME = 10000;
 
     private static final Logger LOG = LoggerFactory.getLogger(MaritimeCloudServiceCommon.class);
 
     protected MaritimeCloudClient connection;
-    
+
     protected List<IMaritimeCloudListener> listeners = new CopyOnWriteArrayList<>();
     protected CloudStatus cloudStatus = new CloudStatus();
     protected String hostPort;
     protected boolean stopped = true;
-    
+
     /**
-     * Constructor 
+     * Constructor
      */
     public MaritimeCloudServiceCommon() {
     }
@@ -85,13 +79,13 @@ public abstract class MaritimeCloudServiceCommon
      * Reads the e-Navigation settings for connection parameters
      */
     protected void readEnavSettings() {
-        this.hostPort = String.format("%s:%d",
-                EPD.getInstance().getSettings().getCloudSettings().getCloudServerHost(),
-                EPD.getInstance().getSettings().getCloudSettings().getCloudServerPort());
+        this.hostPort = String.format("%s:%d", EPD.getInstance().getSettings().getCloudSettings().getCloudServerHost(), EPD
+                .getInstance().getSettings().getCloudSettings().getCloudServerPort());
     }
-    
+
     /**
      * Returns a reference to the cloud client connection
+     * 
      * @return a reference to the cloud client connection
      */
     public MaritimeCloudClient getConnection() {
@@ -100,12 +94,14 @@ public abstract class MaritimeCloudServiceCommon
 
     /**
      * Returns the maritime id to connect with
+     * 
      * @return the maritime id to connect with
      */
     public abstract MaritimeId getMaritimeId();
-    
+
     /**
      * Returns the current position
+     * 
      * @return the current position
      */
     public abstract Position getCurrentPosition();
@@ -119,7 +115,7 @@ public abstract class MaritimeCloudServiceCommon
     }
 
     /*********************************/
-    /** Life cycle functionality    **/
+    /** Life cycle functionality **/
     /*********************************/
 
     /**
@@ -134,7 +130,7 @@ public abstract class MaritimeCloudServiceCommon
         stopped = false;
         new Thread(this).start();
     }
-    
+
     /**
      * Stops the Maritime cloud client
      */
@@ -142,7 +138,7 @@ public abstract class MaritimeCloudServiceCommon
         if (stopped) {
             return;
         }
-        
+
         this.stopped = true;
         if (connection != null) {
             try {
@@ -154,23 +150,24 @@ public abstract class MaritimeCloudServiceCommon
             connection = null;
         }
     }
-    
+
     /**
      * Returns if there is a live connection to the Maritime Cloud
+     * 
      * @return if there is a live connection to the Maritime Cloud
      */
     public synchronized boolean isConnected() {
         // Consider using the isClosed()/isConnected methods of the connection
         return !stopped && connection != null;
     }
-    
+
     /**
      * Thread run method
      */
     @Override
     public void run() {
 
-        // Start by connecting 
+        // Start by connecting
         while (!stopped) {
             Util.sleep(MARITIME_CLOUD_SLEEP_TIME);
             if (getMaritimeId() != null) {
@@ -178,21 +175,18 @@ public abstract class MaritimeCloudServiceCommon
                     try {
                         fireConnected(connection);
                     } catch (Exception e) {
-                        cloudStatus.markFailedSend();
-                        cloudStatus.markFailedReceive();
                         fireError(e.getMessage());
                     }
                     break;
                 }
             }
         }
-        
+
         // Periodic tasks
         while (!stopped) {
-            cloudStatus.markCloudReception();
             Util.sleep(MARITIME_CLOUD_SLEEP_TIME);
         }
-        
+
         // Flag that we are stopped
         fireDisconnected();
     }
@@ -201,43 +195,65 @@ public abstract class MaritimeCloudServiceCommon
      * Create the Maritime Cloud connection
      */
     private boolean initConnection(String host, MaritimeId id) {
-        LOG.info("Connecting to cloud server: " + host  + " with maritime id " + id);
+        LOG.info("Connecting to cloud server: " + host + " with maritime id " + id);
 
         MaritimeCloudClientConfiguration enavCloudConnection = MaritimeCloudClientConfiguration.create(id);
 
         // Hook up a position reader
         enavCloudConnection.setPositionReader(new PositionReader() {
-            @Override public PositionTime getCurrentPosition() {
+            @Override
+            public PositionTime getCurrentPosition() {
                 long now = System.currentTimeMillis();
-                Position pos =  MaritimeCloudServiceCommon.this.getCurrentPosition();
+                Position pos = MaritimeCloudServiceCommon.this.getCurrentPosition();
                 if (pos != null) {
                     return PositionTime.create(pos.getLatitude(), pos.getLongitude(), now);
                 } else {
                     return PositionTime.create(0.0, 0.0, System.currentTimeMillis());
                 }
-            }});
-        
+            }
+        });
+
         // Check if we need to log the MaritimeCloudConnection activity
-        if (LOG_MARITIME_CLOUD_ACTIVITY) {
-            enavCloudConnection.addListener(new MaritimeCloudConnection.Listener() {
-                @Override public void messageReceived(String message) {
+
+        enavCloudConnection.addListener(new MaritimeCloudConnection.Listener() {
+            @Override
+            public void messageReceived(String message) {
+                cloudStatus.markCloudReception();
+                if (LOG_MARITIME_CLOUD_ACTIVITY) {
                     LOG.info("Received:" + message);
                 }
-    
-                @Override public void messageSend(String message) {
+
+            }
+
+            @Override
+            public void messageSend(String message) {
+                cloudStatus.markSuccesfullSend();
+                if (LOG_MARITIME_CLOUD_ACTIVITY) {
                     LOG.info("Sending :" + message);
                 }
-                
-                @Override public void connecting(URI host) {
+
+            }
+
+            @Override
+            public void connecting(URI host) {
+                cloudStatus.markCloudReception();
+                if (LOG_MARITIME_CLOUD_ACTIVITY) {
                     LOG.info("Connecting to cloud :" + host);
                 }
-                
-                @Override public void disconnected(ClosingCode closeReason) {
+
+            }
+
+            @Override
+            public void disconnected(ClosingCode closeReason) {
+                cloudStatus.markFailedReceive();
+                cloudStatus.markFailedSend();
+                if (LOG_MARITIME_CLOUD_ACTIVITY) {
                     LOG.info("Disconnecting from cloud :" + closeReason);
                 }
-            });
-        }
-        
+
+            }
+        });
+
         try {
             enavCloudConnection.setHost(host);
             connection = enavCloudConnection.build();
@@ -249,40 +265,46 @@ public abstract class MaritimeCloudServiceCommon
                 return true;
             } else {
                 fireError("Failed building a maritime cloud connection");
-                return false; 
+                return false;
             }
         } catch (Exception e) {
             fireError(e.getMessage());
             cloudStatus.markFailedSend();
             cloudStatus.markFailedReceive();
             LOG.error("Failed to connect to server: " + e);
-            return false; 
+            return false;
         }
     }
-    
+
     /*********************************/
-    /** Listener functionality      **/
+    /** Listener functionality **/
     /*********************************/
-    
+
     /**
      * Adds a listener for cloud connection status changes
-     * @param listener the listener to add
+     * 
+     * @param listener
+     *            the listener to add
      */
     public final void addListener(IMaritimeCloudListener listener) {
         listeners.add(listener);
     }
 
     /**
-     * Removes a listener 
-     * @param listener the listener to remove
+     * Removes a listener
+     * 
+     * @param listener
+     *            the listener to remove
      */
     public final void removeListener(IMaritimeCloudListener listener) {
         listeners.remove(listener);
     }
-    
+
     /**
      * Notifies listeners that a connection has been established to the maritime cloud
-     * @param connection the connection
+     * 
+     * @param connection
+     *            the connection
      */
     protected void fireConnected(MaritimeCloudClient connection) {
         for (IMaritimeCloudListener listener : listeners) {
@@ -301,29 +323,31 @@ public abstract class MaritimeCloudServiceCommon
 
     /**
      * Notifies listeners that an error has occurred
-     * @param error the error messsage
+     * 
+     * @param error
+     *            the error messsage
      */
     protected void fireError(String error) {
         for (IMaritimeCloudListener listener : listeners) {
             listener.cloudError(error);
         }
     }
-    
+
     /**
      * Provides a listener interface to the Maritime Cloud connection status.
      * <p>
-     * Listeners should provide their own error handling and not throw exceptions
-     * in the methods.<br>
+     * Listeners should provide their own error handling and not throw exceptions in the methods.<br>
      * Neither should not synchronously perform long-lasting tasks.
      */
     public interface IMaritimeCloudListener {
-        
+
         /**
          * Called when the connection to the maritime cloud has been established.
          * <p>
          * Can be used by listeners to hook up services.
          * 
-         * @param connection the maritime cloud connection
+         * @param connection
+         *            the maritime cloud connection
          */
         void cloudConnected(MaritimeCloudClient connection);
 
@@ -333,11 +357,12 @@ public abstract class MaritimeCloudServiceCommon
          * Can be used by listeners to clean up.
          */
         void cloudDisconnected();
-        
+
         /**
          * Called if an error has occurred.
          * 
-         * @param error the error message
+         * @param error
+         *            the error message
          */
         void cloudError(String error);
     }

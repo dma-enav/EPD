@@ -134,7 +134,6 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         connection.broadcastListen(IntendedRouteBroadcast.class, new BroadcastListener<IntendedRouteBroadcast>() {
             public void onMessage(BroadcastMessageHeader l, IntendedRouteBroadcast r) {
 
-                getStatus().markCloudReception();
                 int id = MaritimeCloudUtils.toMmsi(l.getId());
                 updateIntendedRoute(id, r);
             }
