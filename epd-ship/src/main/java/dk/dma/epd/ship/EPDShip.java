@@ -171,7 +171,7 @@ public final class EPDShip extends EPD {
         mapHandler.add(settings);
 
         // Determine if instance already running and if that is allowed
-        OneInstanceGuard guard = new OneInstanceGuard(getHomePath().resolve("eeins.lock").toString());
+        OneInstanceGuard guard = new OneInstanceGuard(getHomePath().resolve("epd.lock").toString());
         if (guard.isAlreadyRunning()) {
             handleEpdAlreadyRunning();
         }
@@ -709,7 +709,7 @@ public final class EPDShip extends EPD {
 
     private void createPluginComponents() {
         Properties props = getProperties();
-        String componentsValue = props.getProperty("eeins.plugin_components");
+        String componentsValue = props.getProperty("epd.plugin_components");
         if (componentsValue == null) {
             return;
         }

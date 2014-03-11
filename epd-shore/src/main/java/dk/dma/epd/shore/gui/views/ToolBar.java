@@ -494,7 +494,7 @@ public class ToolBar extends JInternalFrame {
     public void endRoute() {
 
         NewRouteContainerLayer newRouteLayer = EPDShore.getInstance()
-                .getMainFrame().getActiveMapWindow().getChartPanel()
+                .getMainFrame().getActiveChartPanel()
                 .getNewRouteContainerLayer();
 
         // Route saved

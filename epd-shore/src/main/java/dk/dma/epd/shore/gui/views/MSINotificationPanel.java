@@ -411,21 +411,10 @@ public class MSINotificationPanel extends JPanel {
         but_goto.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
                 if (but_goto.isEnabled()) {
-                    if (EPDShore.getInstance().getMainFrame().getActiveMapWindow() != null) {
+                    if (EPDShore.getInstance().getMainFrame().getActiveChartPanel() != null) {
                         EPDShore.getInstance().getMainFrame()
-                                .getActiveMapWindow()
-                                .getChartPanel()
-                                .goToPosition(
-                                        msiTableModel
-                                                .getMessageLatLon(currentSelection));
-                    } else if (EPDShore.getInstance().getMainFrame().getMapWindows().size() > 0) {
-                        EPDShore.getInstance().getMainFrame()
-                                .getMapWindows()
-                                .get(0)
-                                .getChartPanel()
-                                .goToPosition(
-                                        msiTableModel
-                                                .getMessageLatLon(currentSelection));
+                                .getActiveChartPanel()
+                                .goToPosition(msiTableModel.getMessageLatLon(currentSelection));
                     }
 
                 }

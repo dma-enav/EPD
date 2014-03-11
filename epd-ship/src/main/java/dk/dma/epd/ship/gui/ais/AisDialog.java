@@ -311,28 +311,10 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
             Long mmsi = (Long)aisTable.getValueAt(selected, 1);
             if (aisHandler.getVesselTarget(mmsi) != null) {
             setDetails(aisHandler.getVesselTarget(mmsi));
-            //setRiskDetails(EeINS.getRiskHandler().getRiskList((Long)mmsi));
             }
         }
     }
         
-//    private void setRiskDetails(RiskList risk) {
-//        if(risk==null){
-//            aisTableDetails.setValueAt("", 19, 1);
-//            aisTableDetails.setValueAt("", 20, 1);
-//            aisTableDetails.setValueAt("", 21, 1);
-//            return;
-//        }
-////        if (!compare(aisTableDetails.getValueAt(19, 1), risk.getCpaDist())){
-////            aisTableDetails.setValueAt(risk.getCpaDist(), 19, 1);
-////            }
-////        if (!compare(aisTableDetails.getValueAt(20, 1), risk.getCpaTime())){
-////            aisTableDetails.setValueAt(risk.getCpaTime(), 20, 1);
-////            }
-////        if (!compare(aisTableDetails.getValueAt(21, 1), risk.getCpaTargetMmsi())){
-////            aisTableDetails.setValueAt(risk.getCpaTargetMmsi(), 21, 1);
-////            }
-//    }
 
     private void setDetails(VesselTarget vesselTarget) {
 

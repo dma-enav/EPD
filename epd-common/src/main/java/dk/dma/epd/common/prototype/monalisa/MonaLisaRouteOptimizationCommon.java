@@ -95,13 +95,13 @@ public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
 
         // Convert the existing waypoints into the Mona Lisa Format
         List<WaypointType> monaLisaWaypoints = waypoints.getWaypoint();
-        LinkedList<RouteWaypoint> eeinsWaypoints = route.getWaypoints();
+        LinkedList<RouteWaypoint> routeWaypoints = route.getWaypoints();
 
-        for (int i = 0; i < eeinsWaypoints.size(); i++) {
+        for (int i = 0; i < routeWaypoints.size(); i++) {
 
             if (selectedWp.get(i)) {
                 // System.out.println("Creating WP for " + i);
-                RouteWaypoint routeWaypoint = eeinsWaypoints.get(i);
+                RouteWaypoint routeWaypoint = routeWaypoints.get(i);
                 WaypointType waypoint = new WaypointType();
 
                 // Set name
@@ -112,7 +112,7 @@ public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
 
                 if (removeIntermediateETA) {
                     // System.out.println("Removing ETAs");
-                    if (i == 0 || i == eeinsWaypoints.size() - 1) {
+                    if (i == 0 || i == routeWaypoints.size() - 1) {
                         try {
                             waypoint.setETA(convertDate(route.getEtas().get(i)));
                         } catch (DatatypeConfigurationException e) {

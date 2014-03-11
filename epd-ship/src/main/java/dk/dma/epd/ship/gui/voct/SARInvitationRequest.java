@@ -276,7 +276,7 @@ public class SARInvitationRequest extends ComponentFrame implements ActionListen
             // Is the SAR Panel active? If not show it
             if (!EPDShip.getInstance().getMainFrame().getDockableComponents().isDockVisible("SAR")) {
                 EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("SAR");
-                EPDShip.getInstance().getMainFrame().getEeINSMenuBar().refreshDockableMenu();
+                EPDShip.getInstance().getMainFrame().getJMenuBar().refreshDockableMenu();
             }
 
             disposeInternal();

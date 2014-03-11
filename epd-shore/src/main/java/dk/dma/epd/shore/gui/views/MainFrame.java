@@ -180,7 +180,7 @@ public class MainFrame extends MainFrameCommon {
             return getActiveMapWindow()
                 .getChartPanel();
         } else if (getMapWindows().size() > 0) {
-            getMapWindows()
+            return getMapWindows()
                 .get(0)
                 .getChartPanel();
         }
@@ -476,6 +476,14 @@ public class MainFrame extends MainFrameCommon {
         return toolbarsLocked;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public JMenuWorkspaceBar getJMenuBar() {
+        return topMenu;
+    }
+    
     public boolean isMsiLayerEnabled() {
         return msiLayerEnabled;
     }

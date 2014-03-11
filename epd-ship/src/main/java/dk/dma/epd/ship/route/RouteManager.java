@@ -169,7 +169,7 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
                 if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
                     EPDShip.getInstance().getMainFrame().getDockableComponents()
                             .openDock("Active Waypoint");
-                    EPDShip.getInstance().getMainFrame().getEeINSMenuBar()
+                    EPDShip.getInstance().getMainFrame().getJMenuBar()
                             .refreshDockableMenu();
                 }
 

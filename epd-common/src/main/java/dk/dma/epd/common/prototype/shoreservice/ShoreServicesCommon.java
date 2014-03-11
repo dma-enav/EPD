@@ -97,37 +97,35 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
         List<Waypoint> waypoints = new ArrayList<>();
         int i = 0;
 
-        for (RouteWaypoint waypointEeins : waypoint) {
+        for (RouteWaypoint routeWaypoint : waypoint) {
             Waypoint waypointEnavshore = new Waypoint();
 
             // ETA
             waypointEnavshore.setEta(route.getWpEta(i));
 
             // Heading
-            // Heading headingEeins = waypointEeins.getHeading();
             dk.frv.enav.common.xml.Waypoint.Heading headingEnavshore = null;
             waypointEnavshore.setHeading(headingEnavshore);
 
             // Latitude
-            waypointEnavshore.setLat(waypointEeins.getPos().getLatitude());
+            waypointEnavshore.setLat(routeWaypoint.getPos().getLatitude());
 
             // Longitude
-            waypointEnavshore.setLon(waypointEeins.getPos().getLongitude());
+            waypointEnavshore.setLon(routeWaypoint.getPos().getLongitude());
 
             // Rate of turn
-            waypointEnavshore.setRot(waypointEeins.getRot());
+            waypointEnavshore.setRot(routeWaypoint.getRot());
 
             // Speed
-            // waypointEnavshore.setSpeed(waypointEeins.getOutLeg().getSpeed());
 
             // Turn radius
-            waypointEnavshore.setTurnRad(waypointEeins.getTurnRad());
+            waypointEnavshore.setTurnRad(routeWaypoint.getTurnRad());
 
             // Port XTD
-            // waypointEnavshore.setXtdPort(waypointEeins.getOutLeg().getXtdPort());
+            // waypointEnavshore.setXtdPort(routeWaypoint.getOutLeg().getXtdPort());
 
             // Starboard XTD
-            // waypointEnavshore.setXtdStarboard(waypointEeins.getOutLeg().getXtdStarboard());
+            // waypointEnavshore.setXtdStarboard(routeWaypoint.getOutLeg().getXtdStarboard());
 
             waypoints.add(waypointEnavshore);
 

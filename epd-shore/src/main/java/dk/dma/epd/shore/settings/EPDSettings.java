@@ -132,7 +132,7 @@ public class EPDSettings extends Settings implements Serializable {
         sensorSettings.setProperties(props);
         cloudSettings.setProperties(props);
 
-        saveProperties(props, settingsFile, "# esd settings saved: " + new Date());
+        saveProperties(props, settingsFile, "# epd settings saved: " + new Date());
     }
 
     /**

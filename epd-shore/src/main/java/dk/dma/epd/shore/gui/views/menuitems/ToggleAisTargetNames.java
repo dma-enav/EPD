@@ -49,7 +49,7 @@ public class ToggleAisTargetNames extends JMenuItem implements IMapMenuAction {
         }
                 
         // Update vessel target names for the selected frame only.
-        EPDShore.getInstance().getMainFrame().getActiveMapWindow().getChartPanel().
+        EPDShore.getInstance().getMainFrame().getActiveChartPanel().
                 getAisLayer().setShowNameLabels(isNamesShouldBeVisible());
     }
 

@@ -105,7 +105,7 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
 
                 if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
                     EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("AIS Target");
-                    EPDShip.getInstance().getMainFrame().getEeINSMenuBar().refreshDockableMenu();
+                    EPDShip.getInstance().getMainFrame().getJMenuBar().refreshDockableMenu();
                 }
 
                 // It shouldn't display message but take a default action
@@ -281,7 +281,6 @@ public class AisLayer extends AisLayerCommon<AisHandler> implements IAisTargetLi
     
     public void zoomTo(Position position) {
         mapBean.setCenter(position.getLatitude(), position.getLongitude());
-        // mapBean.setScale(EeINS.getSettings().getEnavSettings().getMsiTextboxesVisibleAtScale());
     }
     
     /**

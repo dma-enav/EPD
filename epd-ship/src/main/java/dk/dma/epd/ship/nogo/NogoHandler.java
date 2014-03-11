@@ -136,7 +136,7 @@ public class NogoHandler extends MapHandlerChild implements Runnable {
                 if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
                     EPDShip.getInstance().getMainFrame().getDockableComponents()
                             .openDock("NoGo");
-                    EPDShip.getInstance().getMainFrame().getEeINSMenuBar()
+                    EPDShip.getInstance().getMainFrame().getJMenuBar()
                             .refreshDockableMenu();
                 }
 

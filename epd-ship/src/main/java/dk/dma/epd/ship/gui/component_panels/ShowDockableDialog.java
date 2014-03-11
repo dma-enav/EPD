@@ -135,23 +135,23 @@ public class ShowDockableDialog extends JDialog implements ActionListener {
             //Add it
             if (this.type == dock_type.ROUTE){
                 EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("Active Waypoint");
-                EPDShip.getInstance().getMainFrame().getEeINSMenuBar().refreshDockableMenu();
+                EPDShip.getInstance().getMainFrame().getJMenuBar().refreshDockableMenu();
             }
             
             if (this.type == dock_type.DYN_NOGO){
                 EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("Dynamic NoGo");
-                EPDShip.getInstance().getMainFrame().getEeINSMenuBar().refreshDockableMenu();
+                EPDShip.getInstance().getMainFrame().getJMenuBar().refreshDockableMenu();
             }
             
             
             if (this.type == dock_type.NOGO){
                 EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("NoGo");
-                EPDShip.getInstance().getMainFrame().getEeINSMenuBar().refreshDockableMenu();
+                EPDShip.getInstance().getMainFrame().getJMenuBar().refreshDockableMenu();
             }
             
             if (this.type == dock_type.AIS){
                 EPDShip.getInstance().getMainFrame().getDockableComponents().openDock("AIS Target");
-                EPDShip.getInstance().getMainFrame().getEeINSMenuBar().refreshDockableMenu();
+                EPDShip.getInstance().getMainFrame().getJMenuBar().refreshDockableMenu();
             }
             
             

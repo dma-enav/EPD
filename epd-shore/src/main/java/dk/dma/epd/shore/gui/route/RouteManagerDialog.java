@@ -416,20 +416,10 @@ public class RouteManagerDialog extends InternalComponentFrame implements Action
 
 
         Route selectedroute = routeManager.getRoute(routeTable.getSelectedRow());
-
-        if (EPDShore.getInstance().getMainFrame().getActiveMapWindow() != null) {
-            EPDShore.getInstance().getMainFrame().getActiveMapWindow().getChartPanel()
-                    .goToPosition(selectedroute.getWaypoints().getFirst().getPos());
-        } else if (EPDShore.getInstance().getMainFrame().getMapWindows().size() > 0) {
-            EPDShore.getInstance().getMainFrame().getMapWindows().get(0).getChartPanel()
+        if (EPDShore.getInstance().getMainFrame().getActiveChartPanel() != null) {
+            EPDShore.getInstance().getMainFrame().getActiveChartPanel()
                     .goToPosition(selectedroute.getWaypoints().getFirst().getPos());
         }
-        // TODO ChartPanel should implement a method that given a route does the
-        // following
-        // TODO disable auto follow
-        // TODO find minx, miny and maxx, maxy
-        // TODO center and scale map to include whole route
-        //
     }
 
     private void copy() {
@@ -451,21 +441,12 @@ public class RouteManagerDialog extends InternalComponentFrame implements Action
         if (i >= 0) {
             RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
                     parent, 
-                    EPDShore.getInstance().getMainFrame().getActiveMapWindow().getChartPanel(),
+                    EPDShore.getInstance().getMainFrame().getActiveChartPanel(),
                     routeManager, 
                     i);
             routePropertiesDialog.setVisible(true);
         }
     }
-
-//    private void metocProperties() {
-//        int i = routeTable.getSelectedRow();
-//        if (i >= 0) {
-//            RouteMetocDialog routeMetocDialog = new RouteMetocDialog((Window) parent, routeManager, i);
-//            routeMetocDialog.setVisible(true);
-//            routeManager.notifyListeners(RoutesUpdateEvent.METOC_SETTINGS_CHANGED);
-//        }
-//    }
 
     private void delete() {
         if (routeTable.getSelectedRow() >= 0) {

@@ -49,7 +49,6 @@ public class RiskHandler implements Runnable {
     public void run() {
 
         while (EPDShip.getInstance().getSettings().getAisSettings().isShowRisk()) {
-            //VesselTarget ownShip = EeINS.getAisHandler().getOwnShip();
             List<RiskList> riskLists = new ArrayList<>();
             try {
                 riskLists = EPDShip.getInstance().getShoreServices().getRiskIndexes(54.75, 56.0, 10.65, 11.25);

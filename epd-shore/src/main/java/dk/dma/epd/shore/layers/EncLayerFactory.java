@@ -87,12 +87,6 @@ public class EncLayerFactory {
                 e1.printStackTrace();
             }
 
-            // System.out.println(encProps.getProperty("enc.certLocation"));
-            // encProps.put("enc.certLocation",
-            // EeINS.getHomePath().toString()+"\\navicon\\data");
-            // encProps.put("enc.certLocation", "file:\\\\" +
-            // EeINS.getHomePath().toString()+"\\navicon\\data");
-
             try {
                 addToLibraryPath(EPDShore.getInstance().getHomePath().toString() + "\\navicon\\native");
             } catch (Exception e) {

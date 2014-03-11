@@ -373,7 +373,7 @@ public class MapMenu extends MapMenuCommon {
 
         routeProperties.setRouteManager(routeManager);
         routeProperties.setRouteIndex(routeIndex);
-        routeProperties.setChartPanel(EPDShore.getInstance().getMainFrame().getActiveMapWindow().getChartPanel());
+        routeProperties.setChartPanel(EPDShore.getInstance().getMainFrame().getActiveChartPanel());
         add(routeProperties);
 
         revalidate();

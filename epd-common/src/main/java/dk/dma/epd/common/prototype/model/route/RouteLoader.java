@@ -265,7 +265,6 @@ public class RouteLoader {
                 }
                 
                 // Set defaults
-//                EPDNavSettings navSettings = EeINS.getSettings().getNavSettings();
                 wp.setSpeed(navSettings.getDefaultSpeed());
                 wp.setTurnRad(navSettings.getDefaultTurnRad());
                 outLeg.setXtdPort(navSettings.getDefaultXtd());

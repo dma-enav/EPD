@@ -353,7 +353,11 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         return dockableComponents;
     }
 
-    public MenuBar getEeINSMenuBar() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public MenuBar getJMenuBar() {
         return menuBar;
     }
 

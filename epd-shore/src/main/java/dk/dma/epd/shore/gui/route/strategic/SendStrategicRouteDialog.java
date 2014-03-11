@@ -277,42 +277,23 @@ public class SendStrategicRouteDialog extends InternalComponentFrame implements 
 
     @Override
     public void mouseClicked(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseEntered(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseExited(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mousePressed(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseReleased(MouseEvent arg0) {
 
-        // if (arg0.getSource() == zoomLbl && route.getWaypoints() != null) {
-        //
-        // if (EPDShore.getMainFrame().getActiveMapWindow() != null) {
-        // EPDShore.getMainFrame().getActiveMapWindow().getChartPanel()
-        // .zoomToPoint(route.getWaypoints().getFirst().getPos());
-        // } else if (EPDShore.getMainFrame().getMapWindows().size() > 0) {
-        // EPDShore.getMainFrame().getMapWindows().get(0).getChartPanel()
-        // .zoomToPoint(route.getWaypoints().getFirst().getPos());
-        // }
-        // }
-        //
         if (arg0.getSource() == sendLbl && sendLbl.isEnabled()) {
 
             StrategicRouteStatus replyStatus = null;
@@ -334,48 +315,6 @@ public class SendStrategicRouteDialog extends InternalComponentFrame implements 
 
         }
 
-        //
-        // // int mmsiTarget = Integer.parseInt((String)
-        // // mmsiListComboBox.getSelectedItem());
-        // // mmsiTarget = 219230000;
-        //
-        // // AisServices service = ESD.getAisServices();
-        //
-        // if (route == null && routeListComboBox.getSelectedIndex() != -1) {
-        // route = routeManager.getRoutes().get(
-        // routeListComboBox.getSelectedIndex());
-        // // System.out.println("no route");
-        // }
-        //
-        // if (mmsi == -1) {
-        // mmsi = Long.parseLong(mmsiListComboBox.getSelectedItem()
-        // .toString());
-        // }
-        //
-        // try {
-        // enavServiceHandler.sendRouteSuggestion(mmsi,
-        // route.getFullRouteData(), senderTxtField.getText(),
-        // messageTxtField.getText());
-        // messageTxtField.setText("");
-        // } catch (Exception e) {
-        // System.out.println("Failed to send route");
-        // }
-        //
-        // // service.sendRouteSuggestion(mmsiTarget, route);
-        //
-        // // Send it
-        // // System.out.println("Selected the mmsi: " +
-        // // mmsiListComboBox.getSelectedItem() + " Hardcoded to: 219230000");
-        // // System.out.println("Selected the route: " + route.getName());
-        // // System.out.println("The route is index: " +
-        // // routeListComboBox.getSelectedIndex());
-        //
-        // this.setVisible(false);
-        //
-        // this.mmsi = -1;
-        // this.route = null;
-        //
-        // }
         if (arg0.getSource() == cancelLbl) {
 
             // Hide it
@@ -401,101 +340,6 @@ public class SendStrategicRouteDialog extends InternalComponentFrame implements 
 
     @Override
     public void actionPerformed(ActionEvent arg0) {
-        //
-        // if (arg0.getSource() == nameComboBox && !loading) {
-        // if (nameComboBox.getSelectedItem() != null) {
-        //
-        // mmsiListComboBox.setSelectedIndex(nameComboBox.getSelectedIndex());
-        //
-        //
-        // try {
-        // mmsi = Long.valueOf((String) mmsiListComboBox
-        // .getSelectedItem());
-        // } catch (Exception e) {
-        // System.out.println("Failed to set mmsi " + mmsi);
-        // }
-        //
-        // // System.out.println("mmsi selected to set to " + mmsi);
-        // VesselTarget selectedShip = aisHandler.getVesselTargets().get(
-        // mmsi);
-        //
-        // if (selectedShip != null) {
-        //
-        // if (selectedShip.getStaticData() != null) {
-        // // TO DO
-        // // nameLbl.setText(AisMessage.trimText(selectedShip
-        // // .getStaticData().getName()));
-        //
-        // callsignLbl.setText(AisMessage.trimText(selectedShip
-        // .getStaticData().getCallsign()));
-        // } else {
-        // // nameLbl.setText("N/A");
-        // callsignLbl.setText("N/A");
-        // }
-        //
-        // } else {
-        // statusLbl.setText("The ship is not visible on AIS");
-        //
-        // }
-        // }
-        // }
-
-        // if (arg0.getSource() == mmsiListComboBox && !loading) {
-        //
-        // if (mmsiListComboBox.getSelectedItem() != null) {
-        //
-        // nameComboBox.setSelectedIndex(mmsiListComboBox.getSelectedIndex());
-        // try {
-        // mmsi = Long.valueOf((String) mmsiListComboBox
-        // .getSelectedItem());
-        // } catch (Exception e) {
-        // System.out.println("Failed to set mmsi " + mmsi);
-        // }
-        //
-        // // System.out.println("mmsi selected to set to " + mmsi);
-        // VesselTarget selectedShip = aisHandler.getVesselTargets().get(
-        // mmsi);
-        //
-        // if (selectedShip != null) {
-        //
-        // if (selectedShip.getStaticData() != null) {
-        // // TO DO
-        // // nameLbl.setText(AisMessage.trimText(selectedShip
-        // // .getStaticData().getName()));
-        //
-        // callsignLbl.setText(AisMessage.trimText(selectedShip
-        // .getStaticData().getCallsign()));
-        // } else {
-        // // nameLbl.setText("N/A");
-        // callsignLbl.setText("N/A");
-        // }
-        //
-        // } else {
-        // statusLbl.setText("The ship is not visible on AIS");
-        //
-        // }
-        // }
-        // }
-        //
-        // if (arg0.getSource() == routeListComboBox && !loading) {
-        // // System.out.println("Selected route");
-        // if (routeListComboBox.getSelectedItem() != null) {
-        //
-        // route = routeManager.getRoute(routeListComboBox
-        // .getSelectedIndex());
-        // routeLengthLbl.setText(Integer.toString(route.getWaypoints()
-        // .size()));
-        // }
-        // // if (route.getWaypoints().size() > 8) {
-        // // statusLbl
-        // //
-        // .setText("<html>The Route has more than 8 waypoints.<br>Only the first 8 will be sent to the ship</html>");
-        // // } else {
-        // // statusLbl.setText("");
-        // // }
-        //
-        // }
-
     }
 
     public void setVoyage(Voyage voyage) {

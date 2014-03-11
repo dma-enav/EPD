@@ -437,12 +437,8 @@ public class RouteExchangeNotificationPanel extends JPanel {
                             .getLatitude(), message.getOutgoingMsg().getRoute()
                             .getWaypoints().get(0).getLongitude());
 
-                    if (EPDShore.getInstance().getMainFrame().getActiveMapWindow() != null) {
-                        EPDShore.getInstance().getMainFrame().getActiveMapWindow()
-                                .getChartPanel().goToPosition(routeLocation);
-                    } else if (EPDShore.getInstance().getMainFrame().getMapWindows().size() > 0) {
-                        EPDShore.getInstance().getMainFrame().getMapWindows().get(0)
-                                .getChartPanel().goToPosition(routeLocation);
+                    if (EPDShore.getInstance().getMainFrame().getActiveChartPanel() != null) {
+                        EPDShore.getInstance().getMainFrame().getActiveChartPanel().goToPosition(routeLocation);
                     }
 
                 }

@@ -104,9 +104,6 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
     @Override
     public void run() {
 
-        // EeINS.sleep(15000);
-        // updateNogo();
-
         while (true) {
 
             try {
@@ -121,25 +118,10 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
             }
 
             if (!dynamicNoGoActive && nogoLayer != null) {
-                // System.out.println("cleanup");
                 nogoLayer.setVisible(false);
                 nogoLayer.cleanUp();
                 nogoPanel.inactive();
             }
-
-            // EeINS.sleep(10000);
-            // while (dynamicNoGoActive) {
-            // nogoLayer.setVisible(true);
-            // updateNogo();
-            // EeINS.sleep(60000);
-            // }
-
-            // EeINS.sleep(300000);
-            // EeINS.sleep(60000);
-            //
-            // if (dynamicNoGoActive) {
-            // updateNogo();
-            // }
         }
     }
 
@@ -460,7 +442,7 @@ public class DynamicNogoHandler extends MapHandlerChild implements Runnable {
                     if (EPDShip.getInstance().getSettings().getGuiSettings().isAlwaysOpenDock()) {
                         EPDShip.getInstance().getMainFrame().getDockableComponents()
                                 .openDock("Dynamic NoGo");
-                        EPDShip.getInstance().getMainFrame().getEeINSMenuBar()
+                        EPDShip.getInstance().getMainFrame().getJMenuBar()
                                 .refreshDockableMenu();
                     }
 

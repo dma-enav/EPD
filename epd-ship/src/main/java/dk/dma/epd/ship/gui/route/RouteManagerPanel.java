@@ -490,8 +490,6 @@ ListSelectionListener, TableModelListener, MouseListener {
         JFileChooser fc = new JFileChooser(EPDShip.getInstance().getHomePath()
                 .resolve("routes").toString());
 
-        // private static final String aisViewFile =
-        // EeINS.getHomePath().resolve(".aisview").toString();
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fc.setMultiSelectionEnabled(true);
         fc.addChoosableFileFilter(new FileNameExtensionFilter(

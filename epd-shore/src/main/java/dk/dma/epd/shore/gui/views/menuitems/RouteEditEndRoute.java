@@ -26,8 +26,6 @@ public class RouteEditEndRoute extends JMenuItem implements IMapMenuAction {
      *
      */
     private static final long serialVersionUID = 1L;
-//    private NewRouteContainerLayer newRouteLayer;
-//    private RouteManager routeManager;
     private ToolBar toolBar;
 
     public RouteEditEndRoute(String text) {
@@ -37,36 +35,6 @@ public class RouteEditEndRoute extends JMenuItem implements IMapMenuAction {
 
     @Override
     public void doAction() {
-
-        //
-        // if (newRouteLayer.getRoute().getWaypoints().size() > 1) {
-        // Route route = new Route(newRouteLayer.getRoute());
-        // route.setName("New route");
-        // int i = 1;
-        // LinkedList<RouteWaypoint> waypoints = route.getWaypoints();
-        // for (RouteWaypoint routeWaypoint : waypoints) {
-        // if (routeWaypoint.getOutLeg() != null) {
-        // RouteLeg outLeg = routeWaypoint.getOutLeg();
-        // double xtd = ESD.getSettings().getNavSettings().getDefaultXtd();
-        // outLeg.setXtdPort(xtd);
-        // outLeg.setXtdStarboard(xtd);
-        // outLeg.setHeading(Heading.RL);
-        // outLeg.setSpeed(ESD.getSettings().getNavSettings().getDefaultSpeed());
-        // }
-        // routeWaypoint.setTurnRad(ESD.getSettings().getNavSettings().getDefaultTurnRad());
-        // routeWaypoint.setName(String.format("WP_%03d", i));
-        // i++;
-        // }
-        // route.calcValues(true);
-        // routeManager.addRoute(route);
-        // routeManager.notifyListeners(null);
-        // }
-        // newRouteLayer.getWaypoints().clear();
-        // newRouteLayer.getRouteGraphics().clear();
-        // newRouteLayer.doPrepare();
-
-        // Edit mode
-        // ESD.getMainFrame().getChartPanel().editMode(false);
 
         toolBar.newRoute();
 

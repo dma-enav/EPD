@@ -117,7 +117,7 @@ public class ChartPanel extends ChartPanelCommon {
      *            properties
      */
     private void createPluginLayers(Properties props) {
-        String layersValue = props.getProperty("eeins.plugin_layers");
+        String layersValue = props.getProperty("epd.plugin_layers");
         if (layersValue == null) {
             return;
         }

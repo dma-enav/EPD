@@ -43,7 +43,7 @@ public class VoyageProperties extends JMenuItem implements IMapMenuAction {
         RoutePropertiesDialog routePropertiesDialog = 
                 new RoutePropertiesDialog(
                         EPDShore.getInstance().getMainFrame(), 
-                        EPDShore.getInstance().getMainFrame().getActiveMapWindow().getChartPanel(),
+                        EPDShore.getInstance().getMainFrame().getActiveChartPanel(),
                         routeManager, 
                         routeIndex);
         routePropertiesDialog.setVisible(true);

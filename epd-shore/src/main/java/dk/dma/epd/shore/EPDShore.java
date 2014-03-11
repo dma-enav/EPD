@@ -164,7 +164,7 @@ public final class EPDShore extends EPD {
 
         // Determine if instance already running and if that is allowed
 
-        OneInstanceGuard guard = new OneInstanceGuard(getHomePath().resolve("esd.lock").toString());
+        OneInstanceGuard guard = new OneInstanceGuard(getHomePath().resolve("epd.lock").toString());
         if (guard.isAlreadyRunning()) {
             handleEpdAlreadyRunning();
         }
@@ -363,7 +363,7 @@ public final class EPDShore extends EPD {
         // Stop sensors
         stopSensors();
 
-        LOG.info("Closing ESD");
+        LOG.info("Closing EPDShore");
         this.restart = restart;
         System.exit(restart ? 2 : 0);
     }
@@ -397,7 +397,7 @@ public final class EPDShore extends EPD {
      */
     private void createPluginComponents() {
         Properties props = getProperties();
-        String componentsValue = props.getProperty("esd.plugin_components");
+        String componentsValue = props.getProperty("epd.plugin_components");
         if (componentsValue == null) {
             return;
         }

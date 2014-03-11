@@ -84,7 +84,6 @@ public class RouParser {
     
         // Set defaults
         wp.setName(String.format("%03d", wpCount));
-//        EPDNavSettings navSettings = (EPDNavSettings) EeINS.getSettings().getNavSettings();
         wp.setSpeed(sogDefault);    
         wp.setTurnRad(navSettings.getDefaultTurnRad());
         outLeg.setXtdPort(navSettings.getDefaultXtd());

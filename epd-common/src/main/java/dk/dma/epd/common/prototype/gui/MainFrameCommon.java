@@ -24,6 +24,7 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.Action;
 import javax.swing.JFrame;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
@@ -119,6 +120,12 @@ public abstract class MainFrameCommon extends JFrame {
      * @return an about action associated with this application
      */
     public abstract Action getAboutAction();
+    
+    /**
+     * Returns the menu bar associated with the main frame
+     * @return the menu bar associated with the main frame
+     */
+    public abstract JMenuBar getJMenuBar();
     
     /**
      * Opens the setup dialog associated with the application
