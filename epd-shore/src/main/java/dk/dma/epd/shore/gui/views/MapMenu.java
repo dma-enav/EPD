@@ -39,6 +39,7 @@ import dk.dma.epd.shore.gui.views.menuitems.SendRouteToShip;
 import dk.dma.epd.shore.gui.views.menuitems.SendVoyage;
 import dk.dma.epd.shore.gui.views.menuitems.ShowVoyagePlanInfo;
 import dk.dma.epd.shore.gui.views.menuitems.ToggleAisTargetNames;
+import dk.dma.epd.shore.gui.views.menuitems.ToggleShowStatusArea;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageDeleteMenuItem;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingAppendWaypoint;
 import dk.dma.epd.shore.gui.views.menuitems.VoyageHandlingOptimizeRoute;
@@ -98,6 +99,7 @@ public class MapMenu extends MapMenuCommon {
 
     private JMapFrame jMapFrame;
     private LayerToggleWindow layerTogglingWindow;
+    private ToggleShowStatusArea toggleShowStatusArea;
 
     // private NogoHandler nogoHandler;
 
@@ -174,6 +176,9 @@ public class MapMenu extends MapMenuCommon {
         // Layer Toggling Window
         layerTogglingWindow = new LayerToggleWindow("Show Layer Menu");
         layerTogglingWindow.addActionListener(this);
+        
+        toggleShowStatusArea = new ToggleShowStatusArea("Show Status");
+        toggleShowStatusArea.addActionListener(this);
     }
 
     /**
@@ -195,8 +200,16 @@ public class MapMenu extends MapMenuCommon {
         showPastTracks.setAisHandler(aisHandler);
         hidePastTracks.setAisHandler(aisHandler);
 
-        // newRoute.setMouseDelegator(mouseDelegator);
-        // newRoute.setMainFrame(mainFrame);
+        if (jMapFrame.getLayerTogglingPanel() != null) {
+            layerTogglingWindow.setText(
+                    jMapFrame.getLayerTogglingPanel().isVisible() 
+                    ? "Hide Layer Menu" 
+                    : "Show Layer Menu");
+        }
+        toggleShowStatusArea.setText(
+                EPDShore.getInstance().getMainFrame().getStatusArea().isVisible() 
+                ? "Hide Status Window" 
+                : "Show Status Window");
 
         if (alone) {
             removeAll();
@@ -211,12 +224,12 @@ public class MapMenu extends MapMenuCommon {
             addSeparator();
             add(scaleMenu);
 
+            addSeparator();
             if (jMapFrame.getLayerTogglingPanel() != null) {
                 add(layerTogglingWindow);
             }
+            add(toggleShowStatusArea);
 
-            // voyageHideAll.setVoyageLayer(voyageLayer);
-            // add(voyageHideAll);
             return;
         }
 
@@ -224,19 +237,14 @@ public class MapMenu extends MapMenuCommon {
         add(hideIntendedRoutes);
         add(scaleMenu);
 
+        addSeparator();
         if (jMapFrame.getLayerTogglingPanel() != null) {
             add(layerTogglingWindow);
-            // addLayerToggle();
         }
+        add(toggleShowStatusArea);
 
         revalidate();
     }
-
-    // private void addLayerToggle(){
-    // // layerTogglingWindow.setPosition(position);
-    //
-    //
-    // }
 
     /**
      * Builds ais target menu

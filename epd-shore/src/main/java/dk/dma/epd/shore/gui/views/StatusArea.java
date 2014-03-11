@@ -21,6 +21,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.beans.beancontext.BeanContext;
@@ -41,6 +43,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.event.mouse.IMapCoordListener;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.ToolbarMoveMouseListener;
 
 /**
@@ -52,7 +55,7 @@ public class StatusArea extends JInternalFrame implements IMapCoordListener, Bea
 
     private static final long serialVersionUID = 1L;
     private Boolean locked = false;
-    private JLabel moveHandler;
+    private JPanel moveHandler;
     private JPanel masterPanel;
     private JPanel statusPanel;
     private JPanel highlightPanel;
@@ -85,7 +88,9 @@ public class StatusArea extends JInternalFrame implements IMapCoordListener, Bea
         this.setBorder(null);
 
         // Create the top movehandler (for dragging)
-        moveHandler = new JLabel("Status", SwingConstants.CENTER);
+        moveHandler = new JPanel(new BorderLayout());
+        moveHandler.add(new JLabel("Status", SwingConstants.CENTER), BorderLayout.CENTER);
+        
         moveHandler.setForeground(new Color(200, 200, 200));
         moveHandler.setOpaque(true);
         moveHandler.setBackground(Color.DARK_GRAY);
@@ -95,6 +100,14 @@ public class StatusArea extends JInternalFrame implements IMapCoordListener, Bea
         ToolbarMoveMouseListener mml = new ToolbarMoveMouseListener(this, mainFrame);
         moveHandler.addMouseListener(mml);
         moveHandler.addMouseMotionListener(mml);
+        
+        JLabel close = new JLabel(EPDShore.res().getCachedImageIcon("images/window/close.png"));
+        close.addMouseListener(new MouseAdapter() {
+            public void mouseReleased(MouseEvent e) {
+                setVisible(false);
+            }});
+        close.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        moveHandler.add(close, BorderLayout.EAST);
 
         // Create the grid for the status items
         statusPanel = new JPanel();
@@ -160,6 +173,13 @@ public class StatusArea extends JInternalFrame implements IMapCoordListener, Bea
         }
     }
 
+    /**
+     * Toggles the visibility
+     */
+    public void toggleVisibility() {
+        setVisible(!isVisible());
+    }
+    
     /**
      * Function for refreshing the status area after editing status items
      */

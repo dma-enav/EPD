@@ -18,28 +18,27 @@ package dk.dma.epd.shore.gui.views.menuitems;
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
-import dk.dma.epd.shore.gui.views.LayerTogglingPanel;
+import dk.dma.epd.shore.EPDShore;
 
 /**
- * Toggles the visibility of the Layer Toggling window
+ * Toggle show/hide the status area
  */
-public class LayerToggleWindow extends JMenuItem implements IMapMenuAction {
+public class ToggleShowStatusArea extends JMenuItem implements IMapMenuAction  {
 
     private static final long serialVersionUID = 1L;
     
-    private LayerTogglingPanel layerToggling;
-
-    public LayerToggleWindow(String text) {
-        super();
-        setText(text);
+    /**
+     * Constructor
+     */
+    public ToggleShowStatusArea(String text) {
+        super(text);
     }
 
+    /**
+     * Called when the menu item is enacted
+     */
     @Override
     public void doAction() {
-        layerToggling.setVisible(!layerToggling.isVisible());
-    }
-
-    public void setLayerToggling(LayerTogglingPanel layerToggling) {
-        this.layerToggling = layerToggling;
+        EPDShore.getInstance().getMainFrame().getStatusArea().toggleVisibility();
     }
 }

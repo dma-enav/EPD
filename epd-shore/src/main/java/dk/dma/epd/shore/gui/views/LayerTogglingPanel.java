@@ -19,7 +19,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -50,7 +49,6 @@ import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon
 import dk.dma.epd.common.prototype.layers.util.LayerVisiblityListener;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
 import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
 import dk.dma.epd.shore.gui.utils.ToolItemGroup;
 import dk.dma.epd.shore.layers.ais.AisLayer;
 import dk.dma.epd.shore.layers.msi.MsiLayer;
@@ -62,7 +60,7 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
         HistoryNavigationPanelInterface {
 
     private static final long serialVersionUID = 1L;
-    private JLabel moveHandler;
+    private JPanel moveHandler;
     private JPanel masterPanel;
 
     private JPanel buttonPanel;
@@ -82,7 +80,6 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
 
     JLabel lblLayerTitle;
     JLabel lblETA;
-    JLabel hideBtn;
     JLabel OpenVpDetalsBtn;
     JLabel HideOtherVoyagesBtn;
 
@@ -117,7 +114,8 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
         setLayout(null);
 
         // Create the top movehandler (for dragging)
-        moveHandler = new JLabel("Layer Functions", SwingConstants.CENTER);
+        moveHandler = new JPanel(new BorderLayout());
+        moveHandler.add(new JLabel("Layer Functions", SwingConstants.CENTER), BorderLayout.CENTER);
         moveHandler.setForeground(new Color(200, 200, 200));
         moveHandler.setOpaque(true);
         moveHandler.setBackground(Color.DARK_GRAY);
@@ -125,6 +123,14 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
         moveHandler.setFont(new Font("Arial", Font.BOLD, 9));
         moveHandler.setPreferredSize(new Dimension(208, moveHandlerHeight));
 
+        JLabel close = new JLabel(EPDShore.res().getCachedImageIcon("images/window/close.png"));
+        close.addMouseListener(new MouseAdapter() {
+            public void mouseReleased(MouseEvent e) {
+                setVisible(false);
+            }});
+        close.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        moveHandler.add(close, BorderLayout.EAST);
+        
         // Create the grid for the toolitems
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.PAGE_AXIS));
@@ -487,10 +493,6 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
 
     @Override
     public void mouseReleased(MouseEvent arg0) {
-        if (arg0.getSource() == hideBtn) {
-            this.setVisible(false);
-        }
-
     }
 
     /**
@@ -586,30 +588,15 @@ public class LayerTogglingPanel extends JPanel implements MouseListener, LayerVi
 
         buttonPanel.add(groupFunctions);
         
-        JPanel hideBtnPanel = new JPanel();
-        hideBtnPanel.setOpaque(false);
-        hideBtnPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-
-        hideBtn = new JLabel("Hide");
-        hideBtn.setHorizontalAlignment(SwingConstants.CENTER);
-        hideBtn.setSize(71, 25);
-        hideBtn.setPreferredSize(new Dimension(150, 25));
-        hideBtn.addMouseListener(this);
-
-        GuiStyler.styleButton(hideBtn);
-        hideBtnPanel.add(hideBtn);
-
-        buttonPanel.add(hideBtnPanel);
 
         int innerHeight3 = height + toolItemSize + 7;
-        int closeBtnPanelHeight = 35;
 
         // And finally set the size and repaint it
-        buttonPanel.setSize(width, innerHeight3 - buttonPanelOffset + closeBtnPanelHeight);
-        buttonPanel.setPreferredSize(new Dimension(width, innerHeight3 - buttonPanelOffset + closeBtnPanelHeight));
+        buttonPanel.setSize(width, innerHeight3 - buttonPanelOffset);
+        buttonPanel.setPreferredSize(new Dimension(width, innerHeight3 - buttonPanelOffset));
         buttonPanel.setLocation(0, moveHandlerHeight);
 
-        height = height + moveHandlerHeight + closeBtnPanelHeight + toolItemSize + 7;
+        height = height + moveHandlerHeight + toolItemSize + 7;
 
         masterPanel.setSize(width, height);
         this.setBounds(0, 200, width, height);
