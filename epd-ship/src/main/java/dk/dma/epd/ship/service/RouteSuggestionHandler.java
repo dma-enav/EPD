@@ -71,9 +71,7 @@ public class RouteSuggestionHandler extends EnavServiceHandlerCommon {
                                 RouteSuggestionMessage message,
                                 Context<RouteSuggestionReply> context) {
 
-                            getStatus().markCloudReception();
-
-                            routeExchangeContexts.put(message.getId(), context);
+routeExchangeContexts.put(message.getId(), context);
 
                             SuggestedRoute suggestedRoute = new SuggestedRoute(
                                     message);
@@ -85,8 +83,6 @@ public class RouteSuggestionHandler extends EnavServiceHandlerCommon {
                     }).awaitRegistered(4, TimeUnit.SECONDS);
             
         } catch (InterruptedException e) {
-            getStatus().markFailedSend();
-            getStatus().markFailedReceive();
             LOG.error("Error hooking up services", e);
         }
     }
@@ -108,12 +104,10 @@ public class RouteSuggestionHandler extends EnavServiceHandlerCommon {
                         ownMmsi, 
                         System.currentTimeMillis(), 
                         receivedAccepted));
-                getStatus().markSuccesfullSend();
             } else {
                 LOG.error("No callback context found for route suggestion " + id);
             }
         } catch (Exception e) {
-            getStatus().markFailedSend();
             LOG.error("Failed to reply", e);
         }
 

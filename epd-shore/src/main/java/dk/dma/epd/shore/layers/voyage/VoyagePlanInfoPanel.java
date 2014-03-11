@@ -248,7 +248,7 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
         if (aisHandler != null && voyage != null) {
 
             VesselTarget vesselTarget = aisHandler.getVesselTarget(voyage.getMmsi());
-            if (vesselTarget.getStaticData() != null) {
+            if (vesselTarget != null && vesselTarget.getStaticData() != null) {
                 VesselStaticData staticData = vesselTarget.getStaticData();
 
                 lblShipName.setText(staticData.getName());

@@ -71,16 +71,11 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
                         public void process(
                                 ChatServiceMessage message,
                                 Context<Void> context) {
-
-                            getStatus().markCloudReception();
-                            
                             receiveChatMessage(context.getCaller(), message);
                         }
                     }).awaitRegistered(4, TimeUnit.SECONDS);
             
         } catch (InterruptedException e) {
-            getStatus().markFailedSend();
-            getStatus().markFailedReceive();
             LOG.error("Error hooking up services", e);
         }
     }
@@ -92,7 +87,6 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
         try {
             chatServiceList = getMaritimeCloudConnection().serviceLocate(ChatService.INIT).nearest(Integer.MAX_VALUE).get();
         } catch (Exception e) {
-            getStatus().markFailedReceive();
             LOG.error("Failed looking up route suggestion services", e.getMessage());
         }
     }

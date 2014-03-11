@@ -204,7 +204,6 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                 BroadcastOptions options = new BroadcastOptions();
                 options.setBroadcastRadius(BROADCAST_RADIUS);
                 getMaritimeCloudConnection().broadcast(message, options);
-                getStatus().markSuccesfullSend();
             }
         });
     }

@@ -29,7 +29,7 @@ public class CloudStatus extends ComponentStatus {
     private static final long RECEPTION_INTERVAL = 30000; // 30 secs
     
     private Date lastReceived = new Date(0);
-    private Date lastSent;
+    private Date lastSent= new Date(0);
     private Date lastSendError;
     private Boolean sendOk;
     private Status sendStatus = Status.UNKNOWN;
@@ -72,7 +72,7 @@ public class CloudStatus extends ComponentStatus {
         // Set status based on times
         
         // Base firstly on reception
-        long elapsed = System.currentTimeMillis() - lastReceived.getTime();
+        long elapsed = System.currentTimeMillis() - lastSent.getTime();
         status = elapsed > RECEPTION_INTERVAL ? Status.ERROR : Status.OK;
         shortStatusText += status.name() + " - Sending ";
         receiveStatus = status;

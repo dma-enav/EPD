@@ -47,13 +47,10 @@
 		<level value="DEBUG" />
 	</logger>
 
-	<logger name="dk.navicon.s52">
+	<logger name="dk.navicon">
 		<level value="FATAL" />
 	</logger>
-	
-	<logger name="dk.navicon.s57">
-		<level value="FATAL" />
-	</logger>
+
 
 	<root>
 		<appender-ref ref="CONSOLE" />
