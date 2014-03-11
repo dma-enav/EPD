@@ -62,6 +62,9 @@ import dk.dma.epd.common.prototype.layers.util.LayerVisiblityListener;
 public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements MapMouseListener {
 
     private static final long serialVersionUID = 1L;
+    
+    /** Whether or not to hide the glass panel when info panels are hidden **/
+    private static final boolean HIDE_GLASS_PANEL = false;
 
     protected OMGraphicList graphics = new AntialiasedGraphicList();
 
@@ -254,8 +257,10 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
             if (clickedGraphics != null) {
                 // Clean up any info panels
                 hideInfoPanels();
-                getGlassPanel().setVisible(false);
-
+                if (HIDE_GLASS_PANEL) {
+                    getGlassPanel().setVisible(false);
+                }
+                
                 // Allow custom handling of right-clicks by sub-classes
                 handleMouseClick(clickedGraphics, evt);
                 return true;
@@ -270,7 +275,9 @@ public abstract class EPDLayerCommon extends OMGraphicHandlerLayer implements Ma
             if (clickedGraphics != null) {
                 // Clean up any info panels
                 hideInfoPanels();
-                getGlassPanel().setVisible(false);
+                if (HIDE_GLASS_PANEL) {
+                    getGlassPanel().setVisible(false);
+                }
 
                 // Allow custom map menu initialization by sub-classes
                 initMapMenu(clickedGraphics, evt);

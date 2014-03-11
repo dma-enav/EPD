@@ -45,6 +45,9 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
         ProjectionListener {
 
     private static final long serialVersionUID = 1L;
+    
+    /** Refresh the intended route every 30 seconds **/
+    private static final int REPAINT_TIME = 30; 
 
     /**
      * Map from MMSI to intended route graphic.
@@ -72,9 +75,9 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
         // Register the classes the will trigger the map menu
         registerMapMenuClasses(IntendedRouteWpCircle.class, IntendedRouteLegGraphic.class);
 
-        // Starts the repaint timer, which runs every minute
+        // Starts the repaint timer, which runs every 30 seconds
         // The initial delay is 100ms and is used to batch up repaints()
-        startTimer(100, 60 * 1000);
+        startTimer(100, REPAINT_TIME * 1000);
     }
 
     /**
