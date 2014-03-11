@@ -19,6 +19,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.beans.PropertyVetoException;
+import java.util.List;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
@@ -139,15 +140,16 @@ public class JMainDesktopPane extends JDesktopPane {
      */
     public void cascadeFrames() {
         int x = 0;
-        int y = 0;
-        JInternalFrame[] allFrames = getAllFrames();
+        int y = 0;        
+        
+        int jMapFramesCount = mainFrame.getMapWindows().size();
 
         // manager.setNormalSize();
-        int frameHeight = getBounds().height - 5 - allFrames.length * FRAME_OFFSET;
-        int frameWidth = getBounds().width - 5 - allFrames.length * FRAME_OFFSET;
-        for (int i = allFrames.length - 1; i >= 0; i--) {
-            allFrames[i].setSize(frameWidth, frameHeight);
-            allFrames[i].setLocation(x, y);
+        int frameHeight = getBounds().height - 5 - jMapFramesCount * FRAME_OFFSET;
+        int frameWidth = getBounds().width - 5 - jMapFramesCount * FRAME_OFFSET;
+        for (int i = mainFrame.getMapWindows().size() - 1; i >= 0; i--) {
+            mainFrame.getMapWindows().get(i).setSize(frameWidth, frameHeight);
+            mainFrame.getMapWindows().get(i).setLocation(x, y);
             x = x + FRAME_OFFSET;
             y = y + FRAME_OFFSET;
         }
