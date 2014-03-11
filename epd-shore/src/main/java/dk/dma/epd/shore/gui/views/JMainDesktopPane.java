@@ -19,7 +19,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.beans.PropertyVetoException;
-import java.util.List;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
