@@ -104,9 +104,7 @@ public class PlannedPositionGraphic extends OMGraphicList {
     public void moveSymbol(Position pos, double bearing, double width, double height) {
 
         if (pos != null) {
-            System.out.println("Moving symbol " + pos + " bearing " + bearing);
-
-            double hdgR = Math.toRadians(bearing);
+              double hdgR = Math.toRadians(bearing);
             
             vessel.setLocation(pos.getLatitude(), pos.getLongitude(), OMGraphicConstants.DECIMAL_DEGREES, hdgR);
             
