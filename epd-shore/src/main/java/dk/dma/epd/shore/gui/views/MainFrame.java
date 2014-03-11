@@ -295,6 +295,7 @@ public class MainFrame extends MainFrameCommon {
 
         EPDShore.getInstance().getSettings().getWorkspace().setToolbarPosition(toolbar.getLocation());
         EPDShore.getInstance().getSettings().getWorkspace().setStatusPosition(statusArea.getLocation());
+        EPDShore.getInstance().getSettings().getWorkspace().setStatusVisible(statusArea.isVisible());
 
         List<JMapFrame> windowsToSave = new ArrayList<JMapFrame>();
 
@@ -356,6 +357,7 @@ public class MainFrame extends MainFrameCommon {
             }
         }
         statusArea.setLocation(workspace.getStatusPosition());
+        statusArea.setVisible(workspace.isStatusVisible());
         toolbar.setLocation(workspace.getToolbarPosition());
 
         // Bring toolbar elements to the front

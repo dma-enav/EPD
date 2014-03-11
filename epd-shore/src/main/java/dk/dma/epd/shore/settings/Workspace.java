@@ -52,6 +52,7 @@ public class Workspace implements Serializable {
     private Point toolbarPosition = new Point();
     private Point notificationAreaPosition = new Point();
     private Point statusPosition = new Point();
+    private boolean statusVisible = true;
 
     public Workspace() {
     }
@@ -199,35 +200,8 @@ public class Workspace implements Serializable {
         x_pos = PropUtils.doubleFromProperties(props, PREFIX + "status_pos_x", statusPosition.getX());
         y_pos = PropUtils.doubleFromProperties(props, PREFIX + "status_pos_y", statusPosition.getY());
         statusPosition.setLocation(x_pos, y_pos);
+        statusVisible = PropUtils.booleanFromProperties(props, PREFIX + "statusVisible", statusVisible);
 
-    }
-
-    public void setAlwaysInFront(List<Boolean> alwaysInFront) {
-        this.alwaysInFront = alwaysInFront;
-    }
-
-    public void setCenter(List<LatLonPoint> center) {
-        this.center = center;
-    }
-
-    public void setLocked(List<Boolean> locked) {
-        this.locked = locked;
-    }
-
-    public void setMaximized(List<Boolean> maximized) {
-        this.maximized = maximized;
-    }
-
-    public void setName(List<String> name) {
-        this.name = name;
-    }
-
-    public void setNotificationAreaPosition(Point notificationAreaPosition) {
-        this.notificationAreaPosition = notificationAreaPosition;
-    }
-
-    public void setPosition(List<Point> position) {
-        this.position = position;
     }
 
     /**
@@ -292,7 +266,36 @@ public class Workspace implements Serializable {
 
         props.put(PREFIX + "status_pos_x", Double.toString(statusPosition.getX()));
         props.put(PREFIX + "status_pos_y", Double.toString(statusPosition.getY()));
+        props.put(PREFIX + "statusVisible", String.valueOf(statusVisible));
 
+    }
+
+    public void setAlwaysInFront(List<Boolean> alwaysInFront) {
+        this.alwaysInFront = alwaysInFront;
+    }
+
+    public void setCenter(List<LatLonPoint> center) {
+        this.center = center;
+    }
+
+    public void setLocked(List<Boolean> locked) {
+        this.locked = locked;
+    }
+
+    public void setMaximized(List<Boolean> maximized) {
+        this.maximized = maximized;
+    }
+
+    public void setName(List<String> name) {
+        this.name = name;
+    }
+
+    public void setNotificationAreaPosition(Point notificationAreaPosition) {
+        this.notificationAreaPosition = notificationAreaPosition;
+    }
+
+    public void setPosition(List<Point> position) {
+        this.position = position;
     }
 
     public void setScale(List<Float> scale) {
@@ -313,6 +316,14 @@ public class Workspace implements Serializable {
 
     public void setValidWorkspace(boolean validWorkspace) {
         this.validWorkspace = validWorkspace;
+    }
+
+    public boolean isStatusVisible() {
+        return statusVisible;
+    }
+
+    public void setStatusVisible(boolean statusVisible) {
+        this.statusVisible = statusVisible;
     }
 
 }
