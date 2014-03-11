@@ -270,7 +270,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
                 : filteredIntendedRoute.getMmsi1();
         
                 IntendedRouteFilterMessage msg = filteredIntendedRoute.getMinimumDistanceMessage();
-        return String.format("Your active route comes within %s nautical miles of MMSI %d at %s.", 
+        return String.format("Your active route comes within %s of MMSI %d at %s.", 
                 Formatter.formatDistNM(Converter.metersToNm(msg.getDistance())),
                 otherMmsi,
                 Formatter.formatYodaTime(msg.getTime1()));

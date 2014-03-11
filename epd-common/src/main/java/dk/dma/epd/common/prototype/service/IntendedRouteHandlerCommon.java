@@ -335,7 +335,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
             GeneralNotification notification = new GeneralNotification(newFilteredRoute, 
                     String.format("IntendedRouteNotificaiton_%s_%d",
                             newFilteredRoute.getKey(), System.currentTimeMillis()));
-            notification.setTitle("TCPA Warning");
+            notification.setTitle("CPA Warning");
             notification.setDescription(formatNotificationDescription(newFilteredRoute));
             if (newFilteredRoute.isWithinDistance(ALERT_DISTANCE_EPSILON)) {
                 notification.setSeverity(NotificationSeverity.ALERT);

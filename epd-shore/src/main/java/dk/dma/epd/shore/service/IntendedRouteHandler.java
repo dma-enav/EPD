@@ -48,7 +48,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon {
     @Override
     protected String formatNotificationDescription(FilteredIntendedRoute filteredIntendedRoute) {
         IntendedRouteFilterMessage msg = filteredIntendedRoute.getMinimumDistanceMessage();
-        return String.format("The routes of MMSI %d and %d come within %s nautical miles of each other at %s.", 
+        return String.format("The routes of MMSI %d and %d come within %s of each other at %s.", 
                 filteredIntendedRoute.getMmsi1(),
                 filteredIntendedRoute.getMmsi2(),
                 Formatter.formatDistNM(Converter.metersToNm(msg.getDistance())),
