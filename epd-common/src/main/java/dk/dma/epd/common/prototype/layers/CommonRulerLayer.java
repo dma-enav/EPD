@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.layers;
 
 import java.awt.event.MouseEvent;
 
+import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseMode;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.proj.coords.LatLonPoint;
@@ -96,6 +97,7 @@ public class CommonRulerLayer extends EPDLayerCommon {
                         .getPreviousMouseMode();
                 chartPanel.setMouseMode(prevModeID);
             }
+            
             // Event has been handled.
             return true;
         default:

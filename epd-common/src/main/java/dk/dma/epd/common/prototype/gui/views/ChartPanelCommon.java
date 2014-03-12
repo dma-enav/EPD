@@ -32,6 +32,7 @@ import com.bbn.openmap.proj.coords.LatLonPoint;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.event.HistoryListener;
+import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
 import dk.dma.epd.common.prototype.event.mouse.CommonDragMouseMode;
 import dk.dma.epd.common.prototype.event.mouse.CommonNavigationMouseMode;
 import dk.dma.epd.common.prototype.event.mouse.CommonRouteEditMouseMode;
@@ -64,6 +65,7 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     protected CommonNavigationMouseMode mapNavMouseMode;
     protected CommonDragMouseMode dragMouseMode;
     protected CommonRouteEditMouseMode routeEditMouseMode;
+    protected CommonDistanceCircleMouseMode rangeCirclesMouseMode;
     
     // Layers and handlers
     protected MapHandler mapHandler;
