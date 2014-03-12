@@ -34,8 +34,10 @@ public class SendToSTCC extends JMenuItem implements IMapMenuAction {
 
     @Override
     public void doAction() {
-        EPDShip.getInstance().getMainFrame().getSendStrategicRouteDialog().setSelectedRoute(route);
-        EPDShip.getInstance().getMainFrame().getSendStrategicRouteDialog().setVisible(true);
+        EPDShip.getInstance().getStrategicRouteHandler().sendStrategicRouteToSTCC(route, null);
+        // TODO: In the future, use:
+        //EPDShip.getInstance().getMainFrame().getSendStrategicRouteDialog().setSelectedRoute(route);
+        //EPDShip.getInstance().getMainFrame().getSendStrategicRouteDialog().setVisible(true);
     }
     
 

@@ -38,8 +38,7 @@ import com.bbn.openmap.BufferedLayerMapBean;
  * This sub-class of the {@linkplain BufferedLayerMapBean} will
  * turn off repainting when in dragging mode.
  * <p>
- * In dragging mode, it will instead paint the buffered image 
- * held by the {@linkplain BufferedLayerMapBean}
+ * In dragging mode, it will instead paint a buffered snapshot of the map.
  * <p>
  * In EPDShore, painting the map whilst dragging will paint on top of e.g. the tool-bar,
  * the status area and the layer toggling panel.<br/>

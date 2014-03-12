@@ -79,7 +79,6 @@ public class MapMenu extends MapMenuCommon {
     private RouteManager routeManager;
     private MainFrame mainFrame;
     private PntHandler gpsHandler;
-    private Route route;
     private RouteSuggestionDialog routeSuggestionDialog;
     private NewRouteContainerLayer newRouteLayer;
     private AisLayer aisLayer;
@@ -307,9 +306,11 @@ public class MapMenu extends MapMenuCommon {
     public void sendToSTCC(int routeIndex) {
         removeAll();
 
-        System.out.println("Route index is: " + routeIndex
-                + " Active route index is: "
-                + routeManager.getActiveRouteIndex());
+        // Look up the route
+        Route route = routeManager.getRoute(routeIndex);
+        if (routeManager.isActiveRoute(routeIndex)) {
+            route = routeManager.getActiveRoute();
+        }
 
         sendToSTCC.setRoute(route);
         sendToSTCC
@@ -352,6 +353,13 @@ public class MapMenu extends MapMenuCommon {
 
     public void generalRouteMenu(int routeIndex) {
 
+        // Look up the route
+        Route route = routeManager.getRoute(routeIndex);
+        if (routeManager.isActiveRoute(routeIndex)) {
+            route = routeManager.getActiveRoute();
+        }
+
+        
         if (routeManager.getActiveRouteIndex() == routeIndex) {
             routeActivateToggle.setText("Deactivate route");
             routeHide.setEnabled(false);
@@ -409,11 +417,6 @@ public class MapMenu extends MapMenuCommon {
         routeReverse.setRouteManager(routeManager);
         routeReverse.setRouteIndex(routeIndex);
         add(routeReverse);
-
-        route = routeManager.getRoute(routeIndex);
-        if (routeManager.isActiveRoute(routeIndex)) {
-            route = routeManager.getActiveRoute();
-        }
 
         monaLisaRouteRequest.setRouteManager(routeManager);
         monaLisaRouteRequest.setRouteIndex(routeIndex);
