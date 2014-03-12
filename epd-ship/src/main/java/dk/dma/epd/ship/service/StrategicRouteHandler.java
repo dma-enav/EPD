@@ -46,7 +46,6 @@ import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.route.strategic.RequestStrategicRouteDialog;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
-import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 
 /**
@@ -58,7 +57,6 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
 
     private RequestStrategicRouteDialog strategicRouteSTCCDialog;
 
-    private OwnShipHandler ownShipHandler;
     private VoyageLayer voyageLayer;
     private RouteManager routeManager;
 
@@ -192,7 +190,7 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
             route.setVisible(false);
             routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
 
-            long ownMMSI = (ownShipHandler.getMmsi() == null) ? -1L : ownShipHandler.getMmsi();
+            long ownMMSI = (EPDShip.getInstance().getOwnShipMmsi() == null) ? -1L : EPDShip.getInstance().getOwnShipMmsi();
 
             // Sending route
             long transactionID = sendStrategicRouteRequest(route, ownMMSI, "Route Approval Requested");
@@ -676,9 +674,7 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
 
-        if (obj instanceof OwnShipHandler) {
-            ownShipHandler = (OwnShipHandler) obj;
-        } else if (obj instanceof VoyageLayer) {
+        if (obj instanceof VoyageLayer) {
             voyageLayer = (VoyageLayer) obj;
         } else if (obj instanceof RouteManager) {
             routeManager = (RouteManager) obj;
