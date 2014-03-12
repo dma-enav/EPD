@@ -13,15 +13,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.settings;
+package dk.dma.epd.ship.settings.gui;
 
-import dk.dma.epd.common.prototype.settings.NavSettings;
+import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
 
 /**
- * Navigational settings
+ * @author Janus Varmarken
  */
-public class EPDNavSettings extends NavSettings {
-
-    private static final long serialVersionUID = 1L;
-    
+public class GUISettings extends GUICommonSettings {
+    private boolean alwaysOpenDock = true;
+    private boolean showDockMessage = true;
 }

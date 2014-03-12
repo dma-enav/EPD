@@ -43,4 +43,16 @@ public abstract class LayerSettings<OBSERVER extends ILayerSettingsObserver>
     /*
      * Add settings that are relevant to all layer types here.
      */
+    
+    /**
+     * Should the layer be displayed?
+     * TODO implement getters/setters
+     */
+    private boolean visible = true;
+   
+    /**
+     * Maximum distance to a graphic object for the graphic object to be taken into account for mouse click/hover.
+     */
+    private float mouseSelectTolerance = 5.0f;
+    
 }

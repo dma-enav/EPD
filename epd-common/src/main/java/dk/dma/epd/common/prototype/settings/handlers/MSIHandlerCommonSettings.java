@@ -13,21 +13,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.settings;
-
-import dk.dma.epd.common.prototype.settings.CloudSettings;
+package dk.dma.epd.common.prototype.settings.handlers;
 
 /**
- * Shore-specific Maritime Cloud settings and its services
+ * @author Janus Varmarken
  */
-public class EPDCloudSettings extends CloudSettings {
-
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * Constructor
-     */
-    public EPDCloudSettings() {  
-        super();
-    }
+public class MSIHandlerCommonSettings extends HandlerSettings<OBSERVER> {
+    private boolean msiFilter = true;
+    private int msiPollInterval = 600; // sek
+    private double msiRelevanceFromOwnShipRange = 40.0d;
+    private double msiRelevanceGpsUpdateRange = 0.5d;
 }

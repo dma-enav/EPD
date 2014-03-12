@@ -66,7 +66,7 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
      * Setting specifying how often the layer should repaint itself.
      */
     private int layerRedrawInterval = 5;
-
+    
     /**
      * Get the value of the setting specifying if all AIS name labels should be
      * shown.

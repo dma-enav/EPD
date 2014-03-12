@@ -27,6 +27,11 @@ import dk.dma.epd.common.prototype.settings.ObservedSettings;
 public abstract class IntendedRouteHandlerCommonSettings<OBSERVER extends IIntendedRouteHandlerCommonSettingsObserver> extends
         HandlerSettings<OBSERVER> {
 
+    private long routeTimeToLive = 10 * 60 * 1000; // 10 minutes.
+    private double filterDistance = 0.5;
+    private double notificationDistance = 0.5; // Nautical miles.
+    private double alertDistance = 0.3; // Nautical miles.
+    
     @Override
     protected void onLoadSuccess(Properties settings) {
         // TODO init settings variables based on the provided Properties instance.

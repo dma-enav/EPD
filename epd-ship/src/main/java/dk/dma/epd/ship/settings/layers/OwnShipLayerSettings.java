@@ -13,15 +13,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.settings;
+package dk.dma.epd.ship.settings.layers;
 
-import dk.dma.epd.common.prototype.settings.S57LayerSettings;
+import dk.dma.epd.common.prototype.settings.layers.VesselLayerSettings;
 
 /**
- * Specific e-Navigation settings
+ * @author Janus Varmarken
  */
-public class EPDS57LayerSettings extends S57LayerSettings {
-
-    private static final long serialVersionUID = 1L;
-
+public class OwnShipLayerSettings extends VesselLayerSettings {
+    /**
+     * Display multi source PNT.
+     */
+    private boolean msPntVisible; // Default is false
 }

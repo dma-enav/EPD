@@ -13,16 +13,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.settings;
+package dk.dma.epd.ship.settings.gui;
 
-import dk.dma.epd.common.prototype.settings.AisSettings;
+import dk.dma.epd.common.prototype.settings.gui.MapCommonSettings;
 
 /**
- * AIS settings
+ * @author Janus Varmarken
  */
-public class EPDAisSettings extends AisSettings {
+public class MapSettings extends MapCommonSettings {
+    private int autoFollowPctOffTollerance = 10;
+    private boolean lookAhead;
+    private boolean autoFollow;
 
-    private static final long serialVersionUID = 1L;
-
-    
 }

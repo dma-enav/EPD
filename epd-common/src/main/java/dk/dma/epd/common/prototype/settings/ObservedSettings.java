@@ -24,6 +24,9 @@ import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * <p>
  * An abstract base class that can be used when writing classes that maintain a
@@ -45,6 +48,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
 
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     // TODO We may have to do lazy init of this list inside add/remove observer
     // methods if we want to serialize this class.
     /**
@@ -73,6 +78,8 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
      *         registered).
      */
     public boolean addObserver(OBSERVER obs) {
+        logger.debug("DEBUG STR");
+        logger.error("BAD STUFF");
         return this.observers.addIfAbsent(obs);
     }
 

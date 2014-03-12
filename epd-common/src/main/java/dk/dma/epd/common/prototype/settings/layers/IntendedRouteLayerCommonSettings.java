@@ -13,14 +13,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.settings;
-
-import dk.dma.epd.common.prototype.settings.GuiSettings;
+package dk.dma.epd.common.prototype.settings.layers;
 
 /**
- * General GUI settings
+ * @author Janus Varmarken
  */
-public class EPDGuiSettings extends GuiSettings {
-
-    private static final long serialVersionUID = 1L;    
+public class IntendedRouteLayerCommonSettings extends LayerSettings<OBSERVER> {
+    /**
+     * Use intended route filter.
+     */
+    private boolean filter;
 }

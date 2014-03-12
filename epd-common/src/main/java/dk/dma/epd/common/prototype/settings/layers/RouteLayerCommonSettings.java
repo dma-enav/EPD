@@ -13,15 +13,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.settings;
-
-import dk.dma.epd.common.prototype.settings.EnavSettings;
+package dk.dma.epd.common.prototype.settings.layers;
 
 /**
- * Specific e-Navigation settings
+ * @author Janus Varmarken
  */
-public class EPDEnavSettings extends EnavSettings {
-
-    private static final long serialVersionUID = 1L;
-
+public class RouteLayerCommonSettings extends LayerSettings<OBSERVER> {
+    /**
+     * At what scale the directional should be shown for a route.
+     */
+    private float showArrowScale = 450000;
+    
+    private float routeWidth = 2.0f;
 }

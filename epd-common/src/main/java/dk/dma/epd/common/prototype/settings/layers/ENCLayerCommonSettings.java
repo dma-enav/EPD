@@ -13,15 +13,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.settings;
-
-import dk.dma.epd.common.prototype.settings.SensorSettings;
+package dk.dma.epd.common.prototype.settings.layers;
 
 /**
- * Sensor settings
+ * @author Janus Varmarken
  */
-public class EPDSensorSettings extends SensorSettings{
-    private static final long serialVersionUID = 1L;
-
+public class ENCLayerCommonSettings extends LayerSettings<OBSERVER> {
+    
+    private boolean useEnc = true;
+    private boolean s52ShowText;
+    private boolean s52ShallowPattern;
+    private int s52ShallowContour = 6;
+    private int s52SafetyDepth = 8;
+    private int s52SafetyContour = 8;
+    private int s52DeepContour = 10;
+    private boolean useSimplePointSymbols = true;
+    private boolean usePlainAreas;
+    private boolean s52TwoShades;
+    private String color = "Day";
     
 }

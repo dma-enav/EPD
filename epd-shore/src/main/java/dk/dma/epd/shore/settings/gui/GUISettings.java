@@ -13,27 +13,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.settings;
+package dk.dma.epd.shore.settings.gui;
 
-import dk.dma.epd.common.prototype.settings.MapSettings;
+import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
 
 /**
- * Map/chart settings
+ * @author Janus Varmarken
  */
-public class EPDMapSettings extends MapSettings {
-
-    private static final long serialVersionUID = 1L;
-    
-    //Used internally to check if new map windows should try to make dongle check - if no dongle, don't retry on every new map
-    private boolean encSuccess = true;
-
-    public boolean isEncSuccess() {
-        return encSuccess;
-    }
-
-    public void setEncSuccess(boolean encSuccess) {
-        this.encSuccess = encSuccess;
-    }
-    
-
+public class GUISettings extends GUICommonSettings {
+    /**
+     * Points to a file containing the workspace layout.
+     */
+    private String workspace = "";
 }

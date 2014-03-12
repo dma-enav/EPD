@@ -13,15 +13,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.settings;
-
-import dk.dma.epd.common.prototype.settings.AisSettings;
+package dk.dma.epd.common.prototype.settings.layers;
 
 /**
- * Sensor settings
+ * @author Janus Varmarken
  */
-public class EPDAisSettings extends AisSettings {
-
-    private static final long serialVersionUID = -168971257958406201L;
-
+public class WMSLayerCommonSettings extends LayerSettings<OBSERVER> {
+    /**
+     * Create the WMS layer on startup.
+     */
+    private boolean useWms; //default = false
+    
+    /**
+     * WMS base query.
+     */
+    private String wmsQuery = "";
 }

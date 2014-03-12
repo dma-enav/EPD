@@ -17,6 +17,7 @@ package dk.dma.epd.ship.settings.handlers;
 
 import java.io.IOException;
 
+import dk.dma.epd.common.prototype.model.route.PartialRouteFilter;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
 import dk.dma.epd.common.prototype.settings.handlers.IntendedRouteHandlerCommonSettings;
 import dk.dma.epd.ship.service.IntendedRouteHandler;
@@ -45,6 +46,15 @@ public class IntendedRouteHandlerSettings<OBSERVER extends IIntendedRouteHandler
      * Specifies the change in ETA for a new route broadcast to be forced
      */
     private int adaptionTime = 1;
+    
+    
+    /**
+     * Filter for how the route transmission should occur
+     */
+    private PartialRouteFilter intendedRouteFilter = PartialRouteFilter.DEFAULT;
+
+    
+    
 
     /**
      * @return the broadcastIntendedRoute
