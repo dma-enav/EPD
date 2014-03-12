@@ -58,7 +58,7 @@ public class CommonRulerLayer extends EPDLayerCommon {
         
         String[] serviceList = new String[1];
         serviceList[0] = CommonDistanceCircleMouseMode.MODE_ID;
-        return null;
+        return serviceList;
     }
     
     @Override
