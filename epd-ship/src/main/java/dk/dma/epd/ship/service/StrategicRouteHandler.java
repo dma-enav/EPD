@@ -149,6 +149,14 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
     }
 
     /**
+     * Returns the list of strategic route STCC's
+     * @return the list of strategic route STCC's
+     */
+    public List<ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply>> getStrategicRouteSTCCList() {
+        return strategicRouteSTCCList;
+    }
+    
+    /**
      * Returns if a transaction is in progress
      * 
      * @return if a transaction is in progress

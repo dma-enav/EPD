@@ -26,6 +26,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +55,7 @@ public class DraggableLayerMapBean extends BufferedLayerMapBean {
     Point2D lastPnt;
     Area clipComponentArea;
     List<Component> clipComponents = new ArrayList<>();
+    BufferedImage buffer;
     
     /**
      * Constructor
@@ -102,6 +104,9 @@ public class DraggableLayerMapBean extends BufferedLayerMapBean {
                     }
                 }
             }
+            
+            buffer = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+            super.paint(buffer.getGraphics());
         }
     }
 
@@ -111,6 +116,8 @@ public class DraggableLayerMapBean extends BufferedLayerMapBean {
     public synchronized void stopDragging(MouseEvent e) {
         if (dragging) {
             dragging = false;
+            buffer.flush();
+            buffer = null;
             updateProjection();
         }
     }
@@ -147,40 +154,38 @@ public class DraggableLayerMapBean extends BufferedLayerMapBean {
     public void paint(Graphics g) {
         if (!dragging) {
             super.paint(g);
-        } else {
-            if (drawingBuffer != null) {
-                Graphics2D g2 = (Graphics2D) g;
-                int x0 = (int)(lastPnt.getX() - startPnt.getX());
-                int y0 = (int)(lastPnt.getY() - startPnt.getY());
-                
-                Shape saveClip = g2.getClip();
-                
-                // Do no paint on top of the clipComponentArea or the drawing buffer (to avoid flickering) 
-                Rectangle2D bufferRect = new Rectangle2D.Double(x0, y0, drawingBuffer.getWidth(null), drawingBuffer.getHeight(null));
-                Area outside = new Area(new Rectangle2D.Double(0, 0, getWidth(), getHeight()));
-                outside.subtract(new Area(bufferRect));
-                outside.subtract(clipComponentArea);
-                g2.setClip(outside);
-                                
-                // Paint background
-                g2.setPaint(Color.BLACK);
-                g2.fillRect(0, 0, getWidth(), getHeight());
-                g2.setPaint(Color.DARK_GRAY);
-                for (int y = y0 % 100; y < getHeight(); y += 100) {
-                    for (int x = x0 % 100; x < getWidth(); x += 100) {
-                        g2.drawLine(x, 0, x, getHeight());
-                    }
-                    g2.drawLine(0, y, getWidth(), y);
+        } else if (buffer != null) {
+            Graphics2D g2 = (Graphics2D) g;
+            int x0 = (int)(lastPnt.getX() - startPnt.getX());
+            int y0 = (int)(lastPnt.getY() - startPnt.getY());
+            
+            Shape saveClip = g2.getClip();
+            
+            // Do no paint on top of the clipComponentArea or the drawing buffer (to avoid flickering) 
+            Rectangle2D bufferRect = new Rectangle2D.Double(x0, y0, buffer.getWidth(), buffer.getHeight());
+            Area outside = new Area(new Rectangle2D.Double(0, 0, getWidth(), getHeight()));
+            outside.subtract(new Area(bufferRect));
+            outside.subtract(clipComponentArea);
+            g2.setClip(outside);
+                            
+            // Paint background
+            g2.setPaint(Color.BLACK);
+            g2.fillRect(0, 0, getWidth(), getHeight());
+            g2.setPaint(Color.DARK_GRAY);
+            for (int y = y0 % 100; y < getHeight(); y += 100) {
+                for (int x = x0 % 100; x < getWidth(); x += 100) {
+                    g2.drawLine(x, 0, x, getHeight());
                 }
-                
-                // Paint buffered map (except on top of the clipComponentArea)
-                outside = new Area(new Rectangle2D.Double(0, 0, getWidth(), getHeight()));
-                outside.subtract(clipComponentArea);
-                g2.setClip(outside);
-                g.drawImage(drawingBuffer, x0, y0, null);
-                
-                g2.setClip(saveClip);
+                g2.drawLine(0, y, getWidth(), y);
             }
+            
+            // Paint buffered map (except on top of the clipComponentArea)
+            outside = new Area(new Rectangle2D.Double(0, 0, getWidth(), getHeight()));
+            outside.subtract(clipComponentArea);
+            g2.setClip(outside);
+            g.drawImage(buffer, x0, y0, null);
+            
+            g2.setClip(saveClip);
         }
     }
 

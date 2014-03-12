@@ -86,7 +86,6 @@ public class MapMenu extends MapMenuCommon {
     private OwnShipHandler ownShipHandler;
     private NogoHandler nogoHandler;
     private MouseDelegator mouseDelegator;
-    private Point windowLocation;
     private StrategicRouteHandler strategicRouteHandler;
 
     
@@ -313,7 +312,6 @@ public class MapMenu extends MapMenuCommon {
                 + routeManager.getActiveRouteIndex());
 
         sendToSTCC.setRoute(route);
-        sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
                 .setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
                         && routeManager.getActiveRouteIndex() != routeIndex
@@ -377,7 +375,6 @@ public class MapMenu extends MapMenuCommon {
         this.add(seperator);
 
         sendToSTCC.setRoute(route);
-        sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
                 .setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
                         && routeManager.getActiveRouteIndex() != routeIndex
@@ -581,10 +578,4 @@ public class MapMenu extends MapMenuCommon {
         }
 
     }
-
-
-    public void setRouteLocation(Point point) {
-        this.windowLocation = point;
-    }
-
 }

@@ -17,7 +17,6 @@ package dk.dma.epd.ship.layers.route;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 
@@ -270,8 +269,6 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
     @Override
     protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {        
         
-        getMapMenu().setRouteLocation(new Point(evt.getX(), evt.getY()));
-
         // Let super handle common map menu cases
         super.initMapMenu(clickedGraphics, evt);
         

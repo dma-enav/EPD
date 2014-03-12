@@ -15,8 +15,6 @@
  */
 package dk.dma.epd.ship.gui.menuitems;
 
-import java.awt.Point;
-
 import javax.swing.JMenuItem;
 
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
@@ -27,7 +25,6 @@ public class SendToSTCC extends JMenuItem implements IMapMenuAction {
 
     private static final long serialVersionUID = 1L;
     private Route route;
-    private Point windowLocation;
 
 
     public SendToSTCC(String text) {
@@ -37,16 +34,12 @@ public class SendToSTCC extends JMenuItem implements IMapMenuAction {
 
     @Override
     public void doAction() {
-        EPDShip.getInstance().getStrategicRouteHandler().sendStrategicRouteToSTCC(route, windowLocation);
+        EPDShip.getInstance().getMainFrame().getSendStrategicRouteDialog().setSelectedRoute(route);
+        EPDShip.getInstance().getMainFrame().getSendStrategicRouteDialog().setVisible(true);
     }
     
 
     public void setRoute(Route route) {
         this.route = route;
     }
-
-    public void setRouteLocation(Point windowLocation) {
-        this.windowLocation = windowLocation;
-    }
-
 }
