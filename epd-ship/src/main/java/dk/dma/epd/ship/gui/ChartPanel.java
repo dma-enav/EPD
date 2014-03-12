@@ -35,6 +35,7 @@ import com.bbn.openmap.MouseDelegator;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.HistoryListener;
+import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
 import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
@@ -85,7 +86,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
 
     // Mouse modes
     private MSIFilterMouseMode msiFilterMouseMode;
-    private DistanceCircleMouseMode rangeCirclesMouseMode;
+    private CommonDistanceCircleMouseMode rangeCirclesMouseMode;
     private NoGoMouseMode noGoMouseMode;
     
     // Layers
@@ -158,7 +159,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         
         msiFilterMouseMode = new MSIFilterMouseMode();
         dragMouseMode = new DragMouseMode(this);
-        rangeCirclesMouseMode = new DistanceCircleMouseMode(false);
+        rangeCirclesMouseMode = new CommonDistanceCircleMouseMode(this);
 
         mouseDelegator.addMouseMode(mapNavMouseMode);
         mouseDelegator.addMouseMode(noGoMouseMode);

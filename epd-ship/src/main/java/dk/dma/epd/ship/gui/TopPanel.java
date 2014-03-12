@@ -32,6 +32,7 @@ import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.epd.common.prototype.event.HistoryNavigationPanelInterface;
+import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
 import dk.dma.epd.common.prototype.gui.GoBackButton;
 import dk.dma.epd.common.prototype.gui.GoForwardButton;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
@@ -402,7 +403,7 @@ public class TopPanel extends OMComponentPanel implements ActionListener,
         else if (e.getSource() == this.toggleDistanceCircleMode) {
             if (this.toggleDistanceCircleMode.isSelected()) {
                 this.mainFrame.getChartPanel().setMouseMode(
-                        DistanceCircleMouseMode.MODE_ID);
+                        CommonDistanceCircleMouseMode.MODE_ID);
             } else {
                 // go back to previously active mouse mode
                 this.mainFrame.getChartPanel().setMouseMode(
