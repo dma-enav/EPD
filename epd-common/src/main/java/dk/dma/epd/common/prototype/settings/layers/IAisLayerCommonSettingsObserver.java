@@ -44,4 +44,13 @@ public interface IAisLayerCommonSettingsObserver extends ILayerSettingsObserver 
      *            The updated value of the setting.
      */
     void showAllPastTracksChanged(boolean oldValue, boolean newValue);
+
+    /**
+     * Invoked when the setting specifying how often the layer should repaint
+     * itself has been changed on the observed instance.
+     * 
+     * @param oldValue
+     * @param newValue
+     */
+    void layerRedrawIntervalChanged(int oldValue, int newValue);
 }

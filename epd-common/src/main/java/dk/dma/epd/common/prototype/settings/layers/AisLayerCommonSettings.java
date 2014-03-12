@@ -49,6 +49,12 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
     public static final String KEY_SHOW_ALL_PAST_TRACKS = "showAllPastTracks";
 
     /**
+     * The setting key for the setting that specifies how often the layer should
+     * repaint itself.
+     */
+    private static final String KEY_LAYER_REDRAW_INTERVAL = "layerRedrawInterval";
+
+    /**
      * Specifies if all AIS name labels should be shown.
      */
     @GuardedBy("lockShowAllAisNameLabels")
@@ -70,6 +76,11 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
      * Used as lock when writing to or reading from {@link #showAllPastTracks}.
      */
     private Object lockShowAllPastTracks = new Object();
+
+    /**
+     * Setting specifying how often the layer should repaint itself.
+     */
+    private int layerRedrawInterval = 5;
 
     /**
      * Get the value of the setting specifying if all AIS name labels should be
@@ -136,12 +147,48 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
         }
     }
 
+    /**
+     * Get the value of the setting specifying how often the associated AIS
+     * layer(s) should repaint itself/themselves.
+     * 
+     * @return The number of seconds between each repaint.
+     */
+    public int getLayerRedrawInterval() {
+        // TODO add locks
+        return this.layerRedrawInterval;
+    }
+
+    /**
+     * Changes the setting specifying how often the associated AIS layer(s)
+     * should repaint itself/themselves.
+     * 
+     * @param seconds
+     *            The number of seconds between each repaint.
+     * @throws IllegalArgumentException
+     *             if {@code seconds} is less than 1.
+     */
+    public void setLayerRedrawInterval(int seconds) {
+        // Sanity check setting value
+        if (seconds < 1) {
+            throw new IllegalArgumentException(
+                    "A redraw interval below 1 second is not allowed.");
+        }
+        // TODO add locks
+        int oldVal = this.layerRedrawInterval;
+        this.layerRedrawInterval = seconds;
+        for (OBSERVER obs : this.observers) {
+            obs.layerRedrawIntervalChanged(oldVal, this.layerRedrawInterval);
+        }
+    }
+
     @Override
     protected void onLoadSuccess(Properties settings) {
         this.setShowAllAisNameLabels(PropUtils.booleanFromProperties(settings,
                 KEY_SHOW_ALL_AIS_NAMES, this.isShowAllAisNameLabels()));
         this.setShowAllPastTracks(PropUtils.booleanFromProperties(settings,
                 KEY_SHOW_ALL_PAST_TRACKS, this.isShowAllPastTracks()));
+        this.setLayerRedrawInterval(PropUtils.intFromProperties(settings,
+                KEY_LAYER_REDRAW_INTERVAL, this.getLayerRedrawInterval()));
         // TODO init other settings variables based on the provided Properties
         // instance.
     }
@@ -153,6 +200,8 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
                 Boolean.toString(this.isShowAllAisNameLabels()));
         savedVars.setProperty(KEY_SHOW_ALL_PAST_TRACKS,
                 Boolean.toString(this.isShowAllPastTracks()));
+        savedVars.setProperty(KEY_LAYER_REDRAW_INTERVAL,
+                Integer.toString(this.getLayerRedrawInterval()));
         // TODO store other settings variables based on field values
         return savedVars;
     }
