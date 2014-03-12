@@ -60,7 +60,7 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
      * write lock is exclusive, i.e. only one thread can write at any given time
      * and no threads can read when one thread is writing.
      */
-    protected ReentrantReadWriteLock settingLock = new ReentrantReadWriteLock();
+    protected ReentrantReadWriteLock settingLock = new ReentrantReadWriteLock(true);
 
     /**
      * Add a new observer that is to be notified when any setting is changed. An
