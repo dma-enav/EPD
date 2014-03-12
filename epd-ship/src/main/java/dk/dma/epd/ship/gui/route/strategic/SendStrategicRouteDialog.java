@@ -310,7 +310,9 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
         // Initialize MMSI list
         Set<Integer> mmsiList = new HashSet<>();
         for (int i = 0; i < strategicRouteHandler.getStrategicRouteSTCCList().size(); i++) {
-            mmsiList.add(MaritimeCloudUtils.toMmsi(strategicRouteHandler.getStrategicRouteSTCCList().get(i).getId()));
+            if (MaritimeCloudUtils.isSTCC(strategicRouteHandler.getStrategicRouteSTCCList().get(i).getId())) {
+                mmsiList.add(MaritimeCloudUtils.toMmsi(strategicRouteHandler.getStrategicRouteSTCCList().get(i).getId()));
+            }
         }
 
         stccMmsiListComboBox.removeAllItems();

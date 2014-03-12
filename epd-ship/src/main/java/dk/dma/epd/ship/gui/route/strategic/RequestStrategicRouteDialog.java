@@ -30,6 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.MatteBorder;
 
@@ -259,10 +260,17 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
         btnWait.addActionListener(this);
     }
 
-    public void setRouteName(Route route, long transactionID) {
+    public void startTransaction(Route route, long transactionID, boolean initializeNew) {
         this.latestReceivedRoute = route;
         this.transactionID = transactionID;
 
+        if (initializeNew) {
+            lblPostRoute.setText("sent to STCC");
+            btnMain.setText("Cancel request");
+            setLocationRelativeTo(EPDShip.getInstance().getMainFrame());
+            setVisible(true);
+        }
+        
         isActive = true;
 
         routeName.setText("\"" + latestReceivedRoute.getName() + "\"");
@@ -318,18 +326,20 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
         isActive = false;
     }
 
-    public void handleReply(StrategicRouteRequestReply reply) {
-//        this.reply = reply;
-        this.setRouteName(new Route(reply.getRoute()), this.transactionID);
+    public void handleReply(final StrategicRouteRequestReply reply) {
+        // This method may be called outside the main Swing thread
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override public void run() {
+                    handleReply(reply);
+                }
+            });
+            return;
+        }
+        
+        startTransaction(new Route(reply.getRoute()), transactionID, false);
 
         btnAccept.setText("Accept");
-
-        // if (EPDShip.getRouteManager().getActiveRouteIndex() != -1){
-        // btnAccept.setText("Accept and Activate");
-        // }else{
-        //
-        // }
-
         // Reply is in
         if (reply.getStatus() == StrategicRouteStatus.AGREED) {
             this.setSize(defaultSize);
@@ -338,11 +348,8 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
             lblDate.setText("Valid");
             statusField.setText("Route agreed");
             btnMain.setText("Acknowledge");
-            // btnCancelRequest.setBackground(Color.GREEN);
-            // btnCancelRequest.setForeground(Color.GREEN);
             routeMessage.setText(reply.getMessage());
             setInActive();
-            // routeLayer.stopRouteAnimated();
 
             activateDefaultLayout();
 
@@ -353,9 +360,6 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
                     + "\" STCC Change request");
             lblChanges.setText(findChanges());
             lblMessages.setText(reply.getMessage());
-
-            // findChanges();
-
         }
 
         this.setVisible(true);
@@ -386,14 +390,14 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
 
         if (e.getSource() == btnAccept) {
 
-            strategicRouteHandler.sendReply(chatMessages.getText());
+            strategicRouteHandler.sendReply(transactionID, chatMessages.getText());
             // this.setVisible(false);
             btnAccept.setText("Accept");
         }
         if (e.getSource() == btnReject) {
 
             // Send reject message
-            strategicRouteHandler.sendReject(chatMessages.getText());
+            strategicRouteHandler.sendRejectMsg(transactionID, chatMessages.getText());
             this.setVisible(false);
 
         }
@@ -417,12 +421,6 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
 
     public void setRouteLayer(RouteLayer routeLayer) {
         this.routeLayer = routeLayer;
-    }
-
-    public void initializeNew() {
-        lblPostRoute.setText("sent to STCC");
-        btnMain.setText("Cancel request");
-
     }
 
     private String findChanges() {

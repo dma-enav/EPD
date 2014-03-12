@@ -63,7 +63,6 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
     private boolean transaction;
     private Route route;
     private boolean routeModified;
-    private long currentTransaction;
 
     private Map<Long, StrategicRouteNegotiationData> strategicRouteNegotiationData = new ConcurrentHashMap<>();
     private List<ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply>> strategicRouteSTCCList = new ArrayList<>();
@@ -203,12 +202,8 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
             // Sending route
             long transactionID = sendStrategicRouteRequest(route, ownMMSI, "Route Approval Requested");
 
-            // Display and initialize the GUI
-            strategicRouteSTCCDialog.initializeNew();
-            strategicRouteSTCCDialog.setLocation(50, 50);
-            strategicRouteSTCCDialog.setVisible(true);
-            strategicRouteSTCCDialog.setRouteName(route, transactionID);
-
+            // Initialize the GUI with the new transaction
+            strategicRouteSTCCDialog.startTransaction(route, transactionID, true);
         }
     }
 
@@ -281,16 +276,16 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
      */
     private void handleReply(StrategicRouteRequestReply reply) {
 
-        currentTransaction = reply.getId();
+        long transactionId = reply.getId();
 
-        StrategicRouteNegotiationData entry = strategicRouteNegotiationData.get(currentTransaction);
+        StrategicRouteNegotiationData entry = strategicRouteNegotiationData.get(transactionId);
 
         // Existing transaction already established
         if (entry == null) {
             // Create new entry for the transaction - if ship disconnected, it
             // can still recover - maybe?
-            entry = new StrategicRouteNegotiationData(currentTransaction);
-            strategicRouteNegotiationData.put(currentTransaction, entry);
+            entry = new StrategicRouteNegotiationData(transactionId);
+            strategicRouteNegotiationData.put(transactionId, entry);
         }
 
         if (entry.getStatus() != StrategicRouteStatus.REJECTED) {
@@ -343,17 +338,17 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
         // Shore wants to renegotiate it
         transaction = true;
 
-        currentTransaction = message.getId();
+        long transactionId = message.getId();
 
         StrategicRouteNegotiationData entry;
         // Existing transaction already established
-        if (strategicRouteNegotiationData.containsKey(currentTransaction)) {
-            entry = strategicRouteNegotiationData.get(currentTransaction);
+        if (strategicRouteNegotiationData.containsKey(transactionId)) {
+            entry = strategicRouteNegotiationData.get(transactionId);
         } else {
             // Create new entry for the transaction - if ship disconnected, it
             // can still recover - maybe?
-            entry = new StrategicRouteNegotiationData(currentTransaction);
-            strategicRouteNegotiationData.put(currentTransaction, entry);
+            entry = new StrategicRouteNegotiationData(transactionId);
+            strategicRouteNegotiationData.put(transactionId, entry);
         }
 
         entry.setStatus(StrategicRouteStatus.NEGOTIATING);
@@ -363,11 +358,11 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
 
         // Store the reply
         entry.addReply(newReply);
-        strategicRouteNegotiationData.get(currentTransaction).setStatus(StrategicRouteStatus.NEGOTIATING);
+        strategicRouteNegotiationData.get(transactionId).setStatus(StrategicRouteStatus.NEGOTIATING);
 
         // Find the old one and set not accepted, possibly hide it?
         for (int i = 0; i < routeManager.getRoutes().size(); i++) {
-            if (routeManager.getRoutes().get(i).getStrategicRouteId() == currentTransaction) {
+            if (routeManager.getRoutes().get(i).getStrategicRouteId() == transactionId) {
 
                 routeManager.getRoutes().get(i).setStccApproved(false);
 
@@ -396,9 +391,8 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
 
         // Let GUI handle front-end
         strategicRouteSTCCDialog.handleReply(newReply);
-        strategicRouteSTCCDialog.setVisible(true);
 
-        StrategicRouteNegotiationData transactionData = strategicRouteNegotiationData.get(currentTransaction);
+        StrategicRouteNegotiationData transactionData = strategicRouteNegotiationData.get(transactionId);
 
         Route lastRoute = new Route(transactionData.getLatestRoute());
 
@@ -491,21 +485,12 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
     }
 
     /**
-     * Sends rejection message for the current transaction
-     * 
-     * @param message
-     */
-    public void sendReject(String message) {
-        sendRejectMsg(currentTransaction, message);
-    }
-
-    /**
      * Sends rejection message for the given transaction
      * 
      * @param transactionID
      * @param message
      */
-    private void sendRejectMsg(long transactionID, String message) {
+    public void sendRejectMsg(long transactionID, String message) {
 
         // Send ack message
         // remove from voyage layer show original route
@@ -600,15 +585,15 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
      * @param message
      *            the message to send along
      */
-    public void sendReply(String message) {
+    public void sendReply(long transactionId, String message) {
         LOG.info("Sending reply " + routeModified);
 
         if (routeModified) {
             // Get new route
-            sendModifiedReply(currentTransaction, message);
+            sendModifiedReply(transactionId, message);
         } else {
             // We agree and are done
-            sendAgreeMsg(currentTransaction, message);
+            sendAgreeMsg(transactionId, message);
         }
         routeModified = false;
     }
@@ -653,11 +638,8 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
         // Send it off
         sendStrategicRouteRequest(routeMessage);
 
-        // Display and initialize the GUI
-        strategicRouteSTCCDialog.initializeNew();
-        strategicRouteSTCCDialog.setLocationRelativeTo(EPDShip.getInstance().getMainFrame());
-        strategicRouteSTCCDialog.setVisible(true);
-        strategicRouteSTCCDialog.setRouteName(route, routeMessage.getId());
+        // Initialize the GUI with the new transaction
+        strategicRouteSTCCDialog.startTransaction(route, routeMessage.getId(), true);
 
         // Clear layer and prevent editing
         voyageLayer.lockEditing();
