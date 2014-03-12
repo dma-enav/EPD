@@ -53,7 +53,7 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
      * repaint itself.
      */
     private static final String KEY_LAYER_REDRAW_INTERVAL = "layerRedrawInterval";
-
+    
     /**
      * Specifies if all AIS name labels should be shown.
      */

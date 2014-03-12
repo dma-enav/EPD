@@ -22,12 +22,20 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
+ * <p>
  * An abstract base class that can be used when writing classes that maintain a
  * set of application settings in a central place. It allows for clients to
  * register for notifications of changes to any setting maintained by this
  * class.
+ * </p>
+ * <p>
+ * Furthermore, this class provides a {@link ReentrantReadWriteLock} (see
+ * instance field {@link #settingLock}) that subclasses can utilize when
+ * synchronizing access to the settings values they maintain.
+ * </p>
  * 
  * @param <OBSERVER>
  *            The type of the observers observing the {@code ObservedSettings}
@@ -44,6 +52,15 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
      * occur to this {@code ObservedSettings} instance.
      */
     protected CopyOnWriteArrayList<OBSERVER> observers = new CopyOnWriteArrayList<>();
+
+    /**
+     * Provides a read lock and a write lock for accessing and modifying the
+     * settings values maintained by this {@link ObservedSettings} instance. The
+     * read lock allows for simultaneous read access from many threads while the
+     * write lock is exclusive, i.e. only one thread can write at any given time
+     * and no threads can read when one thread is writing.
+     */
+    protected ReentrantReadWriteLock settingLock = new ReentrantReadWriteLock();
 
     /**
      * Add a new observer that is to be notified when any setting is changed. An
