@@ -78,8 +78,6 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
      *         registered).
      */
     public boolean addObserver(OBSERVER obs) {
-        logger.debug("DEBUG STR");
-        logger.error("BAD STUFF");
         return this.observers.addIfAbsent(obs);
     }
 
