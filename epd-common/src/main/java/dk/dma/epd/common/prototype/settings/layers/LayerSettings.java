@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
+import com.bbn.openmap.omGraphics.OMGraphic;
+
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 
 /**
@@ -43,16 +45,99 @@ public abstract class LayerSettings<OBSERVER extends ILayerSettingsObserver>
     /*
      * Add settings that are relevant to all layer types here.
      */
-    
+
     /**
-     * Should the layer be displayed?
-     * TODO implement getters/setters
+     * Specifies if the layer should be displayed.
      */
     private boolean visible = true;
-   
+
     /**
-     * Maximum distance to a graphic object for the graphic object to be taken into account for mouse click/hover.
+     * Specifies the radius of an invisible circle surrounding the mouse cursor
+     * for which any overlapping {@link OMGraphic} is considered interactable
+     * (i.e. can be clicked, hovered etc.). Increasing this value will make the
+     * layer more tolerant to imprecise mouse selection/pointing.
      */
-    private float mouseSelectTolerance = 5.0f;
-    
+    private float graphicInteractTolerance = 5.0f;
+
+    /**
+     * Get if the layer should be displayed.
+     * 
+     * @return {@code true} if the layer should be displayed, {@code false} if
+     *         it should be hidden.
+     */
+    public boolean isVisible() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.visible;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Set if the layer should be displayed.
+     * 
+     * @param visible
+     *            {@code true} to display the layer, {@code false} to hide the
+     *            layer.
+     */
+    public void setVisible(boolean visible) {
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.visible == visible) {
+                // No change, no need to notify observers.
+                return;
+            }
+            this.visible = visible;
+            for (OBSERVER obs : this.observers) {
+                obs.isVisibleChanged(this.visible);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Get the value that specifies the radius (in pixels) of an invisible
+     * circle surrounding the mouse cursor for which any overlapping
+     * {@link OMGraphic} is considered interactable (i.e. can be clicked,
+     * hovered etc.).
+     * 
+     * @return The interaction radius in pixels.
+     */
+    public float getGraphicInteractTolerance() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.graphicInteractTolerance;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Set the value that specifies the radius (in pixels) of an invisible
+     * circle surrounding the mouse cursor for which any overlapping
+     * {@link OMGraphic} is considered interactable (i.e. can be clicked,
+     * hovered etc.). Increasing this value will make the layer more tolerant to
+     * imprecise mouse selection/pointing.
+     * 
+     * @param graphicInteractTolerance
+     *            The new interaction radius in pixels.
+     */
+    public void setGraphicInteractTolerance(float graphicInteractTolerance) {
+        try {
+            this.settingLock.writeLock().lock();
+            if(this.graphicInteractTolerance == graphicInteractTolerance) {
+                // No change, no need to notify observers.
+                return;
+            }
+            this.graphicInteractTolerance = graphicInteractTolerance;
+            for(OBSERVER obs : this.observers) {
+                obs.graphicInteractToleranceChanged(this.graphicInteractTolerance);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
 }

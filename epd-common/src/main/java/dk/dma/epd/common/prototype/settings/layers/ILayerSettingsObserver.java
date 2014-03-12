@@ -29,4 +29,21 @@ public interface ILayerSettingsObserver extends ISettingsObserver {
      * Specify setting-changed callbacks that are relevant to all layer types
      * here.
      */
+
+    /**
+     * Invoked when the visibility of a layer is toggled on/off.
+     * 
+     * @param newValue
+     *            {@code true} if the layer should now be visible, {@code false}
+     *            if the layer should now be invisible.
+     */
+    void isVisibleChanged(boolean newValue);
+
+    /**
+     * Invoked when the graphic interact tolerance setting has been changed.
+     * 
+     * @param newValue
+     *            The new tolerance level in pixels.
+     */
+    void graphicInteractToleranceChanged(float newValue);
 }
