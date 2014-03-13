@@ -18,6 +18,8 @@ package dk.dma.epd.common.prototype.event.mouse;
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 
+import javax.swing.SwingUtilities;
+
 import dk.dma.epd.common.prototype.EPD;
 
 public class CommonDistanceCircleMouseMode extends AbstractCoordMouseMode {
@@ -38,8 +40,8 @@ public class CommonDistanceCircleMouseMode extends AbstractCoordMouseMode {
     @Override
     public void mouseClicked(MouseEvent e) {
         
-        if (e.getButton() == MouseEvent.BUTTON1 || 
-                e.getButton() == MouseEvent.BUTTON3) {
+        if (SwingUtilities.isLeftMouseButton(e) ||  
+                SwingUtilities.isRightMouseButton(e)) {
             mouseSupport.fireMapMouseClicked(e);
         }
     }

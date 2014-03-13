@@ -17,6 +17,8 @@ package dk.dma.epd.common.prototype.layers;
 
 import java.awt.event.MouseEvent;
 
+import javax.swing.SwingUtilities;
+
 import com.bbn.openmap.event.MapMouseMode;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.proj.coords.LatLonPoint;
@@ -63,8 +65,9 @@ public class CommonRulerLayer extends EPDLayerCommon {
     
     @Override
     public boolean mouseClicked(MouseEvent e) {
-        switch (e.getButton()) {
-        case MouseEvent.BUTTON1:
+        
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            
             // Clear any old range circle from graphics.
             if (rulerGraphic != null) {
                 graphics.remove(rulerGraphic);
@@ -82,7 +85,9 @@ public class CommonRulerLayer extends EPDLayerCommon {
             doPrepare();
             // Event has been handled.
             return true;
-        case MouseEvent.BUTTON3:
+        
+        } else if (SwingUtilities.isRightMouseButton(e)) {
+            
             // Right click means exit this mouse mode...
             // Clear all graphics from this mode
             clearRuler();
@@ -100,10 +105,9 @@ public class CommonRulerLayer extends EPDLayerCommon {
             
             // Event has been handled.
             return true;
-        default:
-            // RulerLayer does not respond to this mouse button.
-            return false;
         }
+        
+        return false;
     }
     
     /**
