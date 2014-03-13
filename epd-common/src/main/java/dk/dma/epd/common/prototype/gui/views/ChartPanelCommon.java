@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.gui.views;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.bbn.openmap.Layer;
@@ -48,6 +49,7 @@ import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.routeedit.RouteEditLayerCommon;
 import dk.dma.epd.common.prototype.layers.util.LayerVisibilityAdapter;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
+import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.settings.MapSettings;
 
 /**
@@ -143,12 +145,29 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     }
     
     /**
+     * Zooms to the given list of way points
+     * 
+     * @param waypoints the list of way points to zoom to
+     */
+    public void zoomToWaypoints(List<RouteWaypoint> waypoints) { 
+        if (waypoints == null || waypoints.size() == 0) {
+            return;
+        }
+        
+        List<Position> positions = new ArrayList<>();
+        for (RouteWaypoint wp : waypoints) {
+            positions.add(wp.getPos());
+        }
+        zoomTo(positions);
+    }
+    
+    /**
      * Given a set of points scale and center so that all points are contained in the view
      * 
      * @param waypoints
      */
     public void zoomTo(List<Position> waypoints) {
-        if (waypoints.size() == 0) {
+        if (waypoints == null || waypoints.size() == 0) {
             return;
         }
 
