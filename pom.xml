@@ -44,6 +44,7 @@
 		<module>epd-common</module>
 		<module>epd-ship</module>
 		<module>epd-shore</module>
+		<module>epd-util</module>
 		<module>distribution</module>
 	</modules>
 
