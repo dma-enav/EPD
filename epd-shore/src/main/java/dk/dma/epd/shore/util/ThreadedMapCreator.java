@@ -18,6 +18,7 @@ package dk.dma.epd.shore.util;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import javax.swing.SwingUtilities;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.Heading;
+import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.settings.MapSettings;
@@ -109,6 +111,7 @@ public class ThreadedMapCreator implements Runnable {
         this.renegotiate = renegotiate;
     }
 
+    
     private JMapFrame addStrategicRouteHandlingWindow(String shipName, Voyage voyage,
             Route originalRoute, boolean renegotiate) {
         mainFrame.increaseWindowCount();
@@ -128,16 +131,20 @@ public class ThreadedMapCreator implements Runnable {
         window.getChartPanel().getVoyageHandlingLayer()
                 .handleVoyage(originalRoute, voyage, renegotiate);
 
-        int positionX = 200;
-        int positionY = 200;
+        int positionX = 150;
+        int positionY = 150;
+        
+        // Determine the max monitor size at the top left location
+        Point screenLocation = new Point(positionX, positionY);
+        SwingUtilities.convertPointToScreen(screenLocation, mainFrame);
+        Rectangle screenBounds = GraphicsUtil.getMonitorBoundsForScreenPoint(screenLocation);
+        int maxWidthOnScreen = screenBounds.x + screenBounds.width - screenLocation.x - 150;
+        int maxHeightOnScreen = screenBounds.y + screenBounds.height - screenLocation.y - 150;
 
-        int width = (int) (mainFrame.getSize().getWidth() - positionX - 100);
-        int height = (int) (mainFrame.getSize().getHeight() - positionY - 100);
+        int width = Math.min(maxWidthOnScreen, (int)(mainFrame.getSize().getWidth() - positionX - 150));
+        int height = Math.min(maxHeightOnScreen, (int) (mainFrame.getSize().getHeight() - positionY - 150));
 
         window.setSize(width, height);
-        // window.setSize(1280, 768);
-
-        // 100, 100
         window.setLocation(positionX, positionY);
 
         // The two positions that must be shown
