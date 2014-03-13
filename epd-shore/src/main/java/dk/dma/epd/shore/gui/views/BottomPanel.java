@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.shore.gui.views;
 
+import java.awt.Cursor;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -35,6 +37,8 @@ public class BottomPanel extends BottomPanelCommon {
     private static final long serialVersionUID = 1L;
     
     private StatusLabel lblWms;
+
+    private IStatusComponent status;
 
     /**
      * Constructor.
@@ -90,7 +94,7 @@ public class BottomPanel extends BottomPanelCommon {
             }
         };
         
-        IStatusComponent status = new IStatusComponent() {
+        status = new IStatusComponent() {
             
             @Override
             public ComponentStatus getStatus() {
@@ -124,5 +128,12 @@ public class BottomPanel extends BottomPanelCommon {
         }
         
         lblWms.updateStatus(status);
-    }    
+    }
+    
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        BottomPanelStatusDialog statusDialog = new BottomPanelStatusDialog(status);
+        statusDialog.showStatus(super.statusComponents);
+        statusDialog.setVisible(true);
+    }
 }

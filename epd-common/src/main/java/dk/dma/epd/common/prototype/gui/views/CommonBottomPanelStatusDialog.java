@@ -29,7 +29,6 @@ import dk.dma.epd.common.prototype.status.AisStatus;
 import dk.dma.epd.common.prototype.status.CloudStatus;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
-import dk.dma.epd.common.prototype.status.PntStatus;
 import dk.dma.epd.common.prototype.status.ShoreServiceStatus;
 import dk.dma.epd.common.text.Formatter;
 
@@ -38,11 +37,12 @@ import javax.swing.JButton;
 import javax.swing.WindowConstants;
 import javax.swing.JLabel;
 import javax.swing.border.TitledBorder;
+import java.awt.GridLayout;
 
 /**
  * Displays the textual status of the services in the bottom panel
  */
-public class BottomPanelStatusDialog extends JDialog implements ActionListener {
+public class CommonBottomPanelStatusDialog extends JDialog implements ActionListener {
 
     /**
      * Private fields.
@@ -54,200 +54,33 @@ public class BottomPanelStatusDialog extends JDialog implements ActionListener {
     private JLabel lblSendingStatus;
     private JLabel lblLastReceptionStatus;
     private JLabel lblLastSendStatus;
-    private JLabel lblPositionStatus;
-    private JLabel lblSourceStatus;
-    private JLabel lblLastPNTDataStatus;
     private JLabel lblAisReceptionStatus;
     private JLabel lblAisSendingStatus;
     private JLabel lblAisLastReceptionStatus;
     private JLabel lblAisLastSendStatus;
     
+    protected JPanel statusPanel;
+    protected final Font TITLE_FONT = new Font("LucidaGrande", Font.BOLD, 14);
+    protected final Font PLAIN_FONT = new Font("LucidaGrande", Font.PLAIN, 11);
+    
     /**
      * Constructor
      */
-    public BottomPanelStatusDialog() {
+    public CommonBottomPanelStatusDialog() {
         
         super(EPD.getInstance().getMainFrame(), "Status", true);
-                
-        // Fonts.
-        Font titleFont = new Font("LucidaGrande", Font.BOLD, 14);
-        Font statusFont = new Font("LucidaGrande", Font.PLAIN, 11);
 
         // Window settings.
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.setResizable(false);
-        this.setSize(310, 632);
+        this.setSize(310, 480);
         this.setLocationRelativeTo(EPD.getInstance().getMainFrame());
-        this.getContentPane().setLayout(new BorderLayout(10, 10));
-        
+        this.getContentPane().setLayout(new BorderLayout());
 
-        // Status panel.
-        JPanel statusPanel = new JPanel();
-        getContentPane().add(statusPanel, BorderLayout.CENTER);
-        statusPanel.setLayout(null);
+        this.statusPanel = new JPanel();
+        this.getContentPane().add(statusPanel, BorderLayout.CENTER);
+        this.statusPanel.setLayout(new GridLayout(0, 1));
         
-        // PNT status
-        JPanel pntPanel = new JPanel();
-        pntPanel.setBorder(
-                new TitledBorder(null, "PNT", TitledBorder.LEADING, TitledBorder.TOP, titleFont));
-        pntPanel.setBounds(6, 6, 292, 120);
-        pntPanel.setLayout(null);
-        statusPanel.add(pntPanel);
-        
-        JLabel lblPosition = new JLabel("Position:");
-        lblPosition.setFont(statusFont);
-        lblPosition.setBounds(16, 30, 55, 16);
-        pntPanel.add(lblPosition);
-        
-        this.lblPositionStatus = new JLabel("status");
-        this.lblPositionStatus.setFont(statusFont);
-        this.lblPositionStatus.setBounds(121, 30, 165, 16);
-        pntPanel.add(this.lblPositionStatus);
-        
-        JLabel lblSource = new JLabel("Source:");
-        lblSource.setFont(statusFont);
-        lblSource.setBounds(16, 55, 61, 16);
-        pntPanel.add(lblSource);
-        
-        this.lblSourceStatus = new JLabel("status");
-        this.lblSourceStatus.setFont(statusFont);
-        this.lblSourceStatus.setBounds(121, 55, 165, 16);
-        pntPanel.add(this.lblSourceStatus);
-        
-        JLabel lblLastPntData = new JLabel("Last PNT data:");
-        lblLastPntData.setFont(statusFont);
-        lblLastPntData.setBounds(16, 80, 90, 16);
-        pntPanel.add(lblLastPntData);
-        
-        this.lblLastPNTDataStatus = new JLabel("status");
-        this.lblLastPNTDataStatus.setFont(statusFont);
-        this.lblLastPNTDataStatus.setBounds(121, 80, 165, 16);
-        pntPanel.add(this.lblLastPNTDataStatus);
-        
-        // AIS status
-        JPanel aisPanel = new JPanel();
-        aisPanel.setBorder(
-                new TitledBorder(null, "AIS", TitledBorder.LEADING, TitledBorder.TOP, titleFont));
-        aisPanel.setBounds(6, 138, 292, 150);
-        aisPanel.setLayout(null);
-        statusPanel.add(aisPanel);
-        
-        JLabel lblAisReception = new JLabel("Reception:");
-        lblAisReception.setFont(statusFont);
-        lblAisReception.setBounds(16, 30, 66, 16);
-        aisPanel.add(lblAisReception);
-        
-        this.lblAisReceptionStatus = new JLabel("status");
-        this.lblAisReceptionStatus.setFont(statusFont);
-        this.lblAisReceptionStatus.setBounds(121, 30, 165, 16);
-        aisPanel.add(this.lblAisReceptionStatus);
-        
-        JLabel lblAisSending = new JLabel("Sending:");
-        lblAisSending.setFont(statusFont);
-        lblAisSending.setBounds(16, 55, 61, 16);
-        aisPanel.add(lblAisSending);
-        
-        this.lblAisSendingStatus = new JLabel("status");
-        this.lblAisSendingStatus.setFont(statusFont);
-        this.lblAisSendingStatus.setBounds(121, 55, 165, 16);
-        aisPanel.add(this.lblAisSendingStatus);
-        
-        JLabel lblAisLastReception = new JLabel("Last reception:");
-        lblAisLastReception.setFont(statusFont);
-        lblAisLastReception.setBounds(16, 80, 93, 16);
-        aisPanel.add(lblAisLastReception);
-        
-        this.lblAisLastReceptionStatus = new JLabel("status");
-        this.lblAisLastReceptionStatus.setFont(statusFont);
-        this.lblAisLastReceptionStatus.setBounds(121, 80, 165, 16);
-        aisPanel.add(this.lblAisLastReceptionStatus);
-        
-        JLabel lblAisLastSend = new JLabel("Last send:");
-        lblAisLastSend.setFont(statusFont);
-        lblAisLastSend.setBounds(16, 105, 66, 16);
-        aisPanel.add(lblAisLastSend);
-        
-        this.lblAisLastSendStatus = new JLabel("status");
-        this.lblAisLastSendStatus.setFont(statusFont);
-        this.lblAisLastSendStatus.setBounds(121, 105, 165, 16);
-        aisPanel.add(this.lblAisLastSendStatus);
-        
-        // Shore services status
-        JPanel shoreServicesPanel = new JPanel();
-        shoreServicesPanel.setBorder(
-                new TitledBorder(null, "Shore Services", TitledBorder.LEADING, TitledBorder.TOP, titleFont));
-        shoreServicesPanel.setBounds(6, 300, 292, 95);
-        shoreServicesPanel.setLayout(null);
-        statusPanel.add(shoreServicesPanel);
-        
-        JLabel lblContact = new JLabel("Contact:");
-        lblContact.setFont(statusFont);
-        lblContact.setBounds(16, 30, 53, 16);
-        shoreServicesPanel.add(lblContact);
-        
-        this.lblContactStatus = new JLabel("status");
-        this.lblContactStatus.setFont(statusFont);
-        this.lblContactStatus.setBounds(121, 30, 165, 16);
-        shoreServicesPanel.add(this.lblContactStatus);
-        
-        JLabel lblLastContact = new JLabel("Last contact:");
-        lblLastContact.setFont(statusFont);
-        lblLastContact.setBounds(16, 55, 81, 16);
-        shoreServicesPanel.add(lblLastContact);
-        
-        this.lblLastContactStatus = new JLabel("status");
-        this.lblLastContactStatus.setFont(statusFont);
-        this.lblLastContactStatus.setBounds(121, 55, 165, 16);
-        shoreServicesPanel.add(this.lblLastContactStatus);
-        
-        // Maritime Cloud status.
-        JPanel maritimeStatuspanel = new JPanel();
-        maritimeStatuspanel.setBorder(
-                new TitledBorder(null, "Maritime Cloud", TitledBorder.LEADING, TitledBorder.TOP, titleFont));
-        maritimeStatuspanel.setBounds(6, 407, 292, 150);
-        statusPanel.add(maritimeStatuspanel);
-        maritimeStatuspanel.setLayout(null);
-        
-        JLabel lblReception = new JLabel("Reception:");
-        lblReception.setFont(statusFont);
-        lblReception.setBounds(16, 30, 66, 16);
-        maritimeStatuspanel.add(lblReception);
-        
-        this.lblReceptionStatus = new JLabel("status");
-        this.lblReceptionStatus.setFont(statusFont);
-        this.lblReceptionStatus.setBounds(121, 30, 165, 16);
-        maritimeStatuspanel.add(this.lblReceptionStatus);
-        
-        JLabel lblSending = new JLabel("Sending:");
-        lblSending.setFont(statusFont);
-        lblSending.setBounds(16, 55, 61, 16);
-        maritimeStatuspanel.add(lblSending);
-        
-        this.lblSendingStatus = new JLabel("status");
-        this.lblSendingStatus.setFont(statusFont);
-        this.lblSendingStatus.setBounds(121, 55, 165, 16);
-        maritimeStatuspanel.add(this.lblSendingStatus);
-        
-        JLabel lblLastReception = new JLabel("Last reception:");
-        lblLastReception.setFont(statusFont);
-        lblLastReception.setBounds(16, 80, 93, 16);
-        maritimeStatuspanel.add(lblLastReception);
-        
-        this.lblLastReceptionStatus = new JLabel("status");
-        this.lblLastReceptionStatus.setFont(statusFont);
-        this.lblLastReceptionStatus.setBounds(121, 80, 165, 16);
-        maritimeStatuspanel.add(this.lblLastReceptionStatus);
-        
-        JLabel lblLastSend = new JLabel("Last send:");
-        lblLastSend.setFont(statusFont);
-        lblLastSend.setBounds(16, 105, 66, 16);
-        maritimeStatuspanel.add(lblLastSend);
-        
-        this.lblLastSendStatus = new JLabel("status");
-        this.lblLastSendStatus.setFont(statusFont);
-        this.lblLastSendStatus.setBounds(121, 105, 165, 16);
-        maritimeStatuspanel.add(this.lblLastSendStatus);
-
         // -----------------------------------
         // Bottom button panel.
         JPanel btnPanel = new JPanel();
@@ -255,6 +88,132 @@ public class BottomPanelStatusDialog extends JDialog implements ActionListener {
         btnClose.addActionListener(this);
         btnPanel.add(btnClose);
         this.getContentPane().add(btnPanel, BorderLayout.SOUTH);
+    }
+
+    /**
+     * Creates the status panels.
+     */
+    protected void createStatusPanels() {
+        // AIS status
+        JPanel aisPanel = new JPanel();
+        aisPanel.setBorder(
+                new TitledBorder(null, "AIS", TitledBorder.LEADING, TitledBorder.TOP, TITLE_FONT));
+        aisPanel.setLayout(null);
+        this.statusPanel.add(aisPanel);
+        
+        JLabel lblAisReception = new JLabel("Reception:");
+        lblAisReception.setFont(PLAIN_FONT);
+        lblAisReception.setBounds(16, 30, 66, 16);
+        aisPanel.add(lblAisReception);
+        
+        this.lblAisReceptionStatus = new JLabel("status");
+        this.lblAisReceptionStatus.setFont(PLAIN_FONT);
+        this.lblAisReceptionStatus.setBounds(121, 30, 165, 16);
+        aisPanel.add(this.lblAisReceptionStatus);
+        
+        JLabel lblAisSending = new JLabel("Sending:");
+        lblAisSending.setFont(PLAIN_FONT);
+        lblAisSending.setBounds(16, 55, 61, 16);
+        aisPanel.add(lblAisSending);
+        
+        this.lblAisSendingStatus = new JLabel("status");
+        this.lblAisSendingStatus.setFont(PLAIN_FONT);
+        this.lblAisSendingStatus.setBounds(121, 55, 165, 16);
+        aisPanel.add(this.lblAisSendingStatus);
+        
+        JLabel lblAisLastReception = new JLabel("Last reception:");
+        lblAisLastReception.setFont(PLAIN_FONT);
+        lblAisLastReception.setBounds(16, 80, 93, 16);
+        aisPanel.add(lblAisLastReception);
+        
+        this.lblAisLastReceptionStatus = new JLabel("status");
+        this.lblAisLastReceptionStatus.setFont(PLAIN_FONT);
+        this.lblAisLastReceptionStatus.setBounds(121, 80, 165, 16);
+        aisPanel.add(this.lblAisLastReceptionStatus);
+        
+        JLabel lblAisLastSend = new JLabel("Last send:");
+        lblAisLastSend.setFont(PLAIN_FONT);
+        lblAisLastSend.setBounds(16, 105, 66, 16);
+        aisPanel.add(lblAisLastSend);
+        
+        this.lblAisLastSendStatus = new JLabel("status");
+        this.lblAisLastSendStatus.setFont(PLAIN_FONT);
+        this.lblAisLastSendStatus.setBounds(121, 105, 165, 16);
+        aisPanel.add(this.lblAisLastSendStatus);
+        
+        // Shore services status
+        JPanel shoreServicesPanel = new JPanel();
+        shoreServicesPanel.setBorder(
+                new TitledBorder(null, "Shore Services", TitledBorder.LEADING, TitledBorder.TOP, TITLE_FONT));
+        shoreServicesPanel.setLayout(null);
+        statusPanel.add(shoreServicesPanel);
+        
+        JLabel lblContact = new JLabel("Contact:");
+        lblContact.setFont(PLAIN_FONT);
+        lblContact.setBounds(16, 30, 53, 16);
+        shoreServicesPanel.add(lblContact);
+        
+        this.lblContactStatus = new JLabel("status");
+        this.lblContactStatus.setFont(PLAIN_FONT);
+        this.lblContactStatus.setBounds(121, 30, 165, 16);
+        shoreServicesPanel.add(this.lblContactStatus);
+        
+        JLabel lblLastContact = new JLabel("Last contact:");
+        lblLastContact.setFont(PLAIN_FONT);
+        lblLastContact.setBounds(16, 55, 81, 16);
+        shoreServicesPanel.add(lblLastContact);
+        
+        this.lblLastContactStatus = new JLabel("status");
+        this.lblLastContactStatus.setFont(PLAIN_FONT);
+        this.lblLastContactStatus.setBounds(121, 55, 165, 16);
+        shoreServicesPanel.add(this.lblLastContactStatus);
+        
+        // Maritime Cloud status.
+        JPanel maritimeStatuspanel = new JPanel();
+        maritimeStatuspanel.setBorder(
+                new TitledBorder(null, "Maritime Cloud", TitledBorder.LEADING, TitledBorder.TOP, TITLE_FONT));
+        statusPanel.add(maritimeStatuspanel);
+        maritimeStatuspanel.setLayout(null);
+        
+        JLabel lblReception = new JLabel("Reception:");
+        lblReception.setFont(PLAIN_FONT);
+        lblReception.setBounds(16, 30, 66, 16);
+        maritimeStatuspanel.add(lblReception);
+        
+        this.lblReceptionStatus = new JLabel("status");
+        this.lblReceptionStatus.setFont(PLAIN_FONT);
+        this.lblReceptionStatus.setBounds(121, 30, 165, 16);
+        maritimeStatuspanel.add(this.lblReceptionStatus);
+        
+        JLabel lblSending = new JLabel("Sending:");
+        lblSending.setFont(PLAIN_FONT);
+        lblSending.setBounds(16, 55, 61, 16);
+        maritimeStatuspanel.add(lblSending);
+        
+        this.lblSendingStatus = new JLabel("status");
+        this.lblSendingStatus.setFont(PLAIN_FONT);
+        this.lblSendingStatus.setBounds(121, 55, 165, 16);
+        maritimeStatuspanel.add(this.lblSendingStatus);
+        
+        JLabel lblLastReception = new JLabel("Last reception:");
+        lblLastReception.setFont(PLAIN_FONT);
+        lblLastReception.setBounds(16, 80, 93, 16);
+        maritimeStatuspanel.add(lblLastReception);
+        
+        this.lblLastReceptionStatus = new JLabel("status");
+        this.lblLastReceptionStatus.setFont(PLAIN_FONT);
+        this.lblLastReceptionStatus.setBounds(121, 80, 165, 16);
+        maritimeStatuspanel.add(this.lblLastReceptionStatus);
+        
+        JLabel lblLastSend = new JLabel("Last send:");
+        lblLastSend.setFont(PLAIN_FONT);
+        lblLastSend.setBounds(16, 105, 66, 16);
+        maritimeStatuspanel.add(lblLastSend);
+        
+        this.lblLastSendStatus = new JLabel("status");
+        this.lblLastSendStatus.setFont(PLAIN_FONT);
+        this.lblLastSendStatus.setBounds(121, 105, 165, 16);
+        maritimeStatuspanel.add(this.lblLastSendStatus);
     }
     
     /**
@@ -268,21 +227,7 @@ public class BottomPanelStatusDialog extends JDialog implements ActionListener {
             
             System.out.println("Status: " + componentStatus.toString());
             
-            if (componentStatus instanceof PntStatus) {
-                
-                PntStatus pntStatus = (PntStatus) componentStatus;
-                this.lblPositionStatus.setText(pntStatus.getStatus().toString());
-                this.lblLastPNTDataStatus.setText(Formatter.formatLongDateTime(pntStatus.getPntData().getLastUpdated()));
-                
-                try {
-                    this.lblSourceStatus.setText(pntStatus.getPntData().getPntSource().toString());                    
-                } catch (NullPointerException e) {
-                    this.lblSourceStatus.setText("N/A");
-                }
-                
-                this.colorStatusLabel(this.lblPositionStatus);
-                
-            } else if (componentStatus instanceof AisStatus) {
+            if (componentStatus instanceof AisStatus) {
                 
                 AisStatus aisStatus = (AisStatus) componentStatus;
                 this.lblAisReceptionStatus.setText(aisStatus.getReceiveStatus().toString());
@@ -321,7 +266,7 @@ public class BottomPanelStatusDialog extends JDialog implements ActionListener {
      * @param label
      *          Label to be colored.
      */
-    private void colorStatusLabel(JLabel label) {
+    protected void colorStatusLabel(JLabel label) {
         
         // Get the status text.
         String statusText = label.getText();

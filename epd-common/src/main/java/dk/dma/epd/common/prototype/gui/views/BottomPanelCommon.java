@@ -16,7 +16,9 @@
 package dk.dma.epd.common.prototype.gui.views;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -230,11 +232,6 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
      */
     @Override
     public void mouseClicked(MouseEvent e) {
-        if (e.getSource() instanceof StatusLabel) {
-            BottomPanelStatusDialog statusDialog = new BottomPanelStatusDialog();
-            statusDialog.showStatus(statusComponents);
-            statusDialog.setVisible(true);
-        }
     }
 
     /**
@@ -242,6 +239,7 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
      */
     @Override
     public void mouseEntered(MouseEvent e) {
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
 
     /**
@@ -249,6 +247,7 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
      */
     @Override
     public void mouseExited(MouseEvent e) {
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     /**
