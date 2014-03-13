@@ -29,8 +29,6 @@ public class CommonDistanceCircleMouseMode extends AbstractCoordMouseMode {
         
         if (e.getButton() == MouseEvent.BUTTON1 || 
                 e.getButton() == MouseEvent.BUTTON3) {
-            
-            System.out.println("Go go distance mouse!");
             mouseSupport.fireMapMouseClicked(e);
         }
     }

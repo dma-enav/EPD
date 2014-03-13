@@ -87,6 +87,7 @@ public class CommonRulerLayer extends EPDLayerCommon {
             // Right click means exit this mouse mode...
             // Clear all graphics from this mode
             clearRuler();
+            doPrepare();
 
             // Put chart panel back to previous mouse mode
             MapMouseMode mode = chartPanel.getMouseDelegator()
@@ -125,7 +126,6 @@ public class CommonRulerLayer extends EPDLayerCommon {
     public void projectionChanged(ProjectionEvent e) {
         doPrepare();
         super.projectionChanged(e);
-
     }
 
     /**
