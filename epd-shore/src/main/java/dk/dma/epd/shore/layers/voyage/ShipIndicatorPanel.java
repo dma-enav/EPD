@@ -45,7 +45,6 @@ public class ShipIndicatorPanel extends JPanel implements MouseListener {
         lblRouteRequestPending.setVisible(true);
         this.id = id;
 
-        // setBackground(new Color(1f, 0, 0, 0.5f));
         setBackground(new Color(83, 83, 83));
 
         setBounds(50, 50, 150, 30);
@@ -53,7 +52,6 @@ public class ShipIndicatorPanel extends JPanel implements MouseListener {
 
         
         GuiStyler.styleTitle(lblRouteRequestPending);
-//        GuiStyler.styleButton(lblRouteRequestPending);
 
         lblRouteRequestPending.addMouseListener(this);
         this.addMouseListener(this);
@@ -86,20 +84,14 @@ public class ShipIndicatorPanel extends JPanel implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseEntered(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void mouseExited(MouseEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -110,7 +102,8 @@ public class ShipIndicatorPanel extends JPanel implements MouseListener {
     @Override
     public void mouseReleased(MouseEvent arg0) {
         setBackground(new Color(83, 83, 83));
-            EPD.getInstance().getNotificationCenter()
-                .selectNotification(NotificationType.STRATEGIC_ROUTE, id);            
+        EPD.getInstance().getNotificationCenter()
+                .selectNotification(NotificationType.STRATEGIC_ROUTE, id);
+        EPD.getInstance().getNotificationCenter().setVisible(true);
     }
 }

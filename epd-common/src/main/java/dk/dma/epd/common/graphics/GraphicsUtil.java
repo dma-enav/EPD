@@ -20,11 +20,16 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.DisplayMode;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Paint;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.TexturePaint;
@@ -282,6 +287,49 @@ public class GraphicsUtil {
                 }
             }
         }
+    }
+    
+    /**
+     * Determines the monitor bounds at the given screen point
+     * 
+     * @param point the screen point
+     * @return the monitor bounds for the given point
+     */
+    public static Rectangle getMonitorBoundsForScreenPoint(Point point) {
+        for (GraphicsDevice device : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()) {
+            for (GraphicsConfiguration config : device.getConfigurations()) {
+                final Rectangle gcBounds = config.getBounds();
+                if (gcBounds.contains(point)) {
+                    return gcBounds;
+                }
+            }
+        }
+        // if point is outside all monitors, default to default monitor
+        return GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+    }
+    
+    /**
+     * Return the max resolution possible across all monitors
+     * 
+     * @return the max resolution possible across all monitors
+     */
+    public static Dimension getMaxResolution() {
+        int width = 0;
+        int height = 0;
+
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] gs = ge.getScreenDevices();
+
+        for (GraphicsDevice curGs : gs) {
+            DisplayMode mode = curGs.getDisplayMode();
+            width += mode.getWidth();
+
+            if (height < mode.getHeight()) {
+                height = mode.getHeight();
+            }
+
+        }
+        return new Dimension(width, height);
     }
 }
 

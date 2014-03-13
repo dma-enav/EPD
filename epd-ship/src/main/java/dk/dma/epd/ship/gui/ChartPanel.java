@@ -35,8 +35,10 @@ import com.bbn.openmap.MouseDelegator;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.event.HistoryListener;
+import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
 import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
+import dk.dma.epd.common.prototype.layers.CommonRulerLayer;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteTCPALayer;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
@@ -67,7 +69,6 @@ import dk.dma.epd.ship.layers.nogo.DynamicNogoLayer;
 import dk.dma.epd.ship.layers.nogo.NogoLayer;
 import dk.dma.epd.ship.layers.ownship.OwnShipLayer;
 import dk.dma.epd.ship.layers.route.RouteLayer;
-import dk.dma.epd.ship.layers.ruler.RulerLayer;
 import dk.dma.epd.ship.layers.voct.VoctLayer;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.service.voct.VOCTManager;
@@ -85,7 +86,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
 
     // Mouse modes
     private MSIFilterMouseMode msiFilterMouseMode;
-    private DistanceCircleMouseMode rangeCirclesMouseMode;
+    private CommonDistanceCircleMouseMode rangeCirclesMouseMode;
     private NoGoMouseMode noGoMouseMode;
     
     // Layers
@@ -94,7 +95,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
     private NogoLayer nogoLayer;
     private DynamicNogoLayer dynamicNogoLayer;
     private VoctLayer voctLayer;
-    private RulerLayer rulerLayer;
+    private CommonRulerLayer rulerLayer;
 
     private TopPanel topPanel;
     private VOCTManager voctManager;
@@ -158,7 +159,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         
         msiFilterMouseMode = new MSIFilterMouseMode();
         dragMouseMode = new DragMouseMode(this);
-        rangeCirclesMouseMode = new DistanceCircleMouseMode(false);
+        rangeCirclesMouseMode = new CommonDistanceCircleMouseMode();
 
         mouseDelegator.addMouseMode(mapNavMouseMode);
         mouseDelegator.addMouseMode(noGoMouseMode);
@@ -210,7 +211,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         mapHandler.add(routeLayer);
 
         // Create ruler layer
-        rulerLayer = new RulerLayer();
+        rulerLayer = new CommonRulerLayer();
         rulerLayer.setVisible(true);
         mapHandler.add(rulerLayer);
 

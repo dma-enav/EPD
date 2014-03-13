@@ -39,6 +39,7 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
+import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon;
 import dk.dma.epd.common.prototype.service.InvocationCallbackContextMap;

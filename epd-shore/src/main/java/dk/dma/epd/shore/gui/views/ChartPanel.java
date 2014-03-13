@@ -32,8 +32,10 @@ import com.bbn.openmap.event.ProjectionSupport;
 import com.bbn.openmap.layer.shape.MultiShapeLayer;
 
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
 import dk.dma.epd.common.prototype.gui.util.DraggableLayerMapBean;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
+import dk.dma.epd.common.prototype.layers.CommonRulerLayer;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.intendedroute.IntendedRouteTCPALayer;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
@@ -76,6 +78,7 @@ public class ChartPanel extends ChartPanelCommon {
     private VoyageLayer voyageLayer;
     private VoyageHandlingLayer voyageHandlingLayer;
     private VoctLayerCommon voctLayer;
+    private CommonRulerLayer rulerLayer;
 
     private MainFrame mainFrame;
     private Color background = new Color(168, 228, 255);
@@ -222,11 +225,13 @@ public class ChartPanel extends ChartPanelCommon {
         dragMouseMode = new DragMouseMode(this);
         selectMouseMode = new SelectMouseMode(this);
         routeEditMouseMode = new RouteEditMouseMode(this);
+        rangeCirclesMouseMode = new CommonDistanceCircleMouseMode();
 
         mouseDelegator.addMouseMode(mapNavMouseMode);
         mouseDelegator.addMouseMode(dragMouseMode);
         mouseDelegator.addMouseMode(selectMouseMode);
         mouseDelegator.addMouseMode(routeEditMouseMode);
+        mouseDelegator.addMouseMode(rangeCirclesMouseMode);
         getMap().addKeyListener(mapNavMouseMode);
 
         if (type != MapFrameType.SAR_Planning || type != MapFrameType.SAR_Tracking) {
@@ -237,6 +242,7 @@ public class ChartPanel extends ChartPanelCommon {
         mapHandler.add(mapNavMouseMode);
         mapHandler.add(selectMouseMode);
         mapHandler.add(routeEditMouseMode);
+        mapHandler.add(rangeCirclesMouseMode);
 
         layerHandler = new LayerHandler();
 
@@ -252,6 +258,11 @@ public class ChartPanel extends ChartPanelCommon {
         GeneralLayer generalLayer = new GeneralLayer();
         generalLayer.setVisible(true);
         mapHandler.add(generalLayer);
+        
+        
+        rulerLayer = new CommonRulerLayer();
+        rulerLayer.setVisible(true);
+        mapHandler.add(this.rulerLayer);
 
         // Add WMS Layer
         if (mapSettings.isUseWms()) {
@@ -421,21 +432,38 @@ public class ChartPanel extends ChartPanelCommon {
         
         // Mode0 is mapNavMouseMode
         if (modeID.equals(NavigationMouseMode.MODEID)) {
-            mouseDelegator.setActive(mapNavMouseMode); 
+            mouseDelegator.setActive(mapNavMouseMode);
+            mainFrame.getToolbar().setActiveToolItem(
+                    mainFrame.getToolbar().getZoomBtn(), mainFrame.getToolbar().getMapToolItems());
         }
         // Mode1 is DragNavMouseMode
         else if (modeID.equals(DragMouseMode.MODEID)) {
             mouseDelegator.setActive(dragMouseMode);
+            mainFrame.getToolbar().setActiveToolItem(
+                    mainFrame.getToolbar().getDragBtn(), mainFrame.getToolbar().getMapToolItems());
         }
         
         // Mode2 is Select
         else if (modeID.equals(SelectMouseMode.MODEID)) {
             mouseDelegator.setActive(selectMouseMode);
+            mainFrame.getToolbar().setActiveToolItem(
+                    mainFrame.getToolbar().getSelectBtn(), mainFrame.getToolbar().getMapToolItems());
         }
         // Mode3 is Route Edit
         else if (modeID.equals(RouteEditMouseMode.MODEID)) {
             mouseDelegator.setActive(routeEditMouseMode);
         }
+        // Mode4 is Distance Circle.
+        else if (modeID.equals(CommonDistanceCircleMouseMode.MODE_ID)) {
+            
+            // Get previous used mouse mode.
+            String previousMouseMode = this.getMouseDelegator().getActiveMouseMode().getID();
+            this.rangeCirclesMouseMode.setPreviousMouseModeModeID(previousMouseMode);
+            
+            mouseDelegator.setActive(rangeCirclesMouseMode);
+        }
+        
+        
     }
     
     public VoyageLayer getVoyageLayer() {

@@ -22,11 +22,11 @@ import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
 import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
-import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 
 /**
  * An strategic route implementation of the {@linkplain NotificationPanel} class

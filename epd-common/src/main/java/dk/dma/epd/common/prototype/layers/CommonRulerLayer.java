@@ -13,64 +13,61 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.layers.ruler;
+package dk.dma.epd.common.prototype.layers;
 
 import java.awt.event.MouseEvent;
+
+import javax.swing.SwingUtilities;
 
 import com.bbn.openmap.event.MapMouseMode;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
-import dk.dma.epd.ship.event.DistanceCircleMouseMode;
-import dk.dma.epd.ship.gui.ChartPanel;
+import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
+import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 
-/**
- * Implementation of the ruler layer which allows
- * the user to measure distances and angles in the map
- */
-public class RulerLayer extends EPDLayerCommon {
+public class CommonRulerLayer extends EPDLayerCommon {
 
+    // Private fields.
     private static final long serialVersionUID = 1L;
-
-    private ChartPanel chartPanel;
-    private RulerGraphic rulerGraphic;
+    private ChartPanelCommon chartPanel;
+    private CommonRulerGraphic rulerGraphic;
 
     /**
-     * Constructor
-     */
-    public RulerLayer() {
-        super();
-    }
-    
-    /**
-     * {@inheritDoc}
+     * Called when a bean is added to the bean context. If the bean
+     * object is an instance of CommonChartPanel the chart panel
+     * will be initialized from the passed object.
+     * 
+     * @param obj
+     *            the bean being added
      */
     @Override
     public void findAndInit(Object obj) {
-        if (obj instanceof ChartPanel) {
-            chartPanel = (ChartPanel) obj;
+        
+        if (obj instanceof ChartPanelCommon) {
+            chartPanel = (ChartPanelCommon) obj;
         }
     }
-
+    
     /**
-     * {@inheritDoc}
+     * Returns the mouse mode service list
+     * 
+     * @return the mouse mode service list
      */
     @Override
     public String[] getMouseModeServiceList() {
+        
         String[] serviceList = new String[1];
-        serviceList[0] = DistanceCircleMouseMode.MODE_ID;
+        serviceList[0] = CommonDistanceCircleMouseMode.MODE_ID;
         return serviceList;
     }
-
-    /**
-     * {@inheritDoc}
-     */
+    
     @Override
     public boolean mouseClicked(MouseEvent e) {
-        switch (e.getButton()) {
-        case MouseEvent.BUTTON1:
+        
+        if (SwingUtilities.isLeftMouseButton(e)) {
+            
             // Clear any old range circle from graphics.
             if (rulerGraphic != null) {
                 graphics.remove(rulerGraphic);
@@ -82,33 +79,35 @@ public class RulerLayer extends EPDLayerCommon {
             // The point clicked is the center of the range circle.
             Position circleCenter = Position.create(ptClicked.getLatitude(),
                     ptClicked.getLongitude());
-            rulerGraphic = new RulerGraphic(circleCenter);
+            rulerGraphic = new CommonRulerGraphic(circleCenter);
             graphics.add(rulerGraphic);
             // Repaint
             doPrepare();
             // Event has been handled.
             return true;
-        case MouseEvent.BUTTON3:
+        
+        } else if (SwingUtilities.isRightMouseButton(e)) {
+            
             // Right click means exit this mouse mode...
             // Clear all graphics from this mode
             clearRuler();
+            doPrepare();
 
             // Put chart panel back to previous mouse mode
             MapMouseMode mode = chartPanel.getMouseDelegator()
                     .getActiveMouseMode();
-            if (mode instanceof DistanceCircleMouseMode) {
-                String prevModeID = ((DistanceCircleMouseMode) chartPanel
+            if (mode instanceof CommonDistanceCircleMouseMode) {
+                String prevModeID = ((CommonDistanceCircleMouseMode) chartPanel
                         .getMouseDelegator().getActiveMouseMode())
                         .getPreviousMouseMode();
                 chartPanel.setMouseMode(prevModeID);
             }
+            
             // Event has been handled.
             return true;
-        default:
-            // RulerLayer does not respond to this mouse button.
-            return false;
         }
-
+        
+        return false;
     }
     
     /**
@@ -122,7 +121,7 @@ public class RulerLayer extends EPDLayerCommon {
             }
         }
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -130,7 +129,6 @@ public class RulerLayer extends EPDLayerCommon {
     public void projectionChanged(ProjectionEvent e) {
         doPrepare();
         super.projectionChanged(e);
-
     }
 
     /**

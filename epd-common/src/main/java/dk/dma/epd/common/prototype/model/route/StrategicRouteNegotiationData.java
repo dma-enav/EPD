@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.service;
+package dk.dma.epd.common.prototype.model.route;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +23,9 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRout
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 
+/**
+ * Data collected for strategic route negotiation
+ */
 public class StrategicRouteNegotiationData {
 
     private long id;
@@ -41,8 +44,6 @@ public class StrategicRouteNegotiationData {
         this.status = StrategicRouteStatus.PENDING;
         handled = false;
     }
-    
-    
     
     public Route getLatestRoute(){
         if (routeMessages.size() > routeReplys.size()){
@@ -111,13 +112,7 @@ public class StrategicRouteNegotiationData {
         return handled;
     }
 
-
-
     public void setHandled(boolean handled) {
         this.handled = handled;
     }
-    
-    
-    
-    
 }

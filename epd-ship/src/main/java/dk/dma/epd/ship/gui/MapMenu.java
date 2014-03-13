@@ -116,7 +116,7 @@ public class MapMenu extends MapMenuCommon {
         sarTargetDetails.addActionListener(this);
 
         // route general items
-        sendToSTCC = new SendToSTCC("Send to STCC");
+        sendToSTCC = new SendToSTCC("Send to STCC...");
         sendToSTCC.addActionListener(this);
 
         routeActivateToggle = new RouteActivateToggle();
@@ -319,9 +319,9 @@ public class MapMenu extends MapMenuCommon {
                         && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
         if (strategicRouteHandler.isTransaction()) {
-            sendToSTCC.setText("Show STCC info");
+            sendToSTCC.setText("Show STCC info...");
         } else {
-            sendToSTCC.setText("Send to STCC");
+            sendToSTCC.setText("Send to STCC...");
         }
 
         add(sendToSTCC);
@@ -389,9 +389,9 @@ public class MapMenu extends MapMenuCommon {
                         && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
         if (strategicRouteHandler.isTransaction()) {
-            sendToSTCC.setText("Show STCC info");
+            sendToSTCC.setText("Show STCC info...");
         } else {
-            sendToSTCC.setText("Send to STCC");
+            sendToSTCC.setText("Send to STCC...");
         }
 
         add(sendToSTCC);

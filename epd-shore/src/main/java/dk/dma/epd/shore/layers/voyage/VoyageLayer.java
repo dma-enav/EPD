@@ -20,8 +20,10 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.SwingUtilities;
 
@@ -35,13 +37,13 @@ import dk.dma.epd.common.prototype.ais.IAisTargetListener;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
+import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.MapMenu;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
 import dk.dma.epd.shore.service.StrategicRouteHandler.StrategicRouteListener;
-import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
 import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
@@ -140,16 +142,6 @@ public class VoyageLayer extends EPDLayerCommon implements VoyageUpdateListener,
      * {@inheritDoc}
      */
     @Override
-    public void mouseMoved() {
-        // TODO: Is this really necessary?
-        // graphics.deselect();
-        // repaint();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     protected boolean initInfoPanel(InfoPanel infoPanel, OMGraphic newClosest, MouseEvent evt, Point containerPoint) {
         if (newClosest instanceof VoyageLegGraphic) {
 
@@ -204,54 +196,61 @@ public class VoyageLayer extends EPDLayerCommon implements VoyageUpdateListener,
     /**
      * Adjusts the position of the ship indicator that is displayed for ships with unhandled transactions
      */
-    private synchronized void updateDialogLocations() {
+    private void updateDialogLocations() {
+        // Ensure that we operate in the Swing event thread
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override public void run() {
+                    updateDialogLocationsInSwingThread();
+                }
+            });
+        } else {
+            updateDialogLocationsInSwingThread();
+        }
+    }
+    
+    /**
+     * Adjusts the position of the ship indicator that is displayed for ships with unhandled transactions
+     */
+    private synchronized void updateDialogLocationsInSwingThread() {
 
         if (strategicRouteHandler != null && !windowHandling) {
 
-            List<Long> unhandledTransactions = strategicRouteHandler.getUnhandledTransactions();
+            Set<Long> updatedMmsi = new HashSet<>();
 
-            if (unhandledTransactions.size() > 0) {
+            for (Long transactionId : strategicRouteHandler.getUnhandledTransactions()) {
+                long mmsi = strategicRouteHandler.getStrategicNegotiationData()
+                        .get(transactionId).getRouteMessage().get(0).getMmsi();
+                
+                VesselTarget ship = aisHandler.getVesselTarget(mmsi);
+                
+                if (ship != null) {
+                    // Register that we update the panel for this MMSI
+                    updatedMmsi.add(mmsi);
 
-                for (int j = 0; j < unhandledTransactions.size(); j++) {
-                    long mmsi = strategicRouteHandler.getStrategicNegotiationData()
-                            .get(strategicRouteHandler.getUnhandledTransactions().get(j)).getRouteMessage().get(0).getMmsi();
-
-                    ShipIndicatorPanel shipIndicatorPanel;
-
-                    if (shipIndicatorPanels.containsKey(mmsi)) {
-                        shipIndicatorPanel = shipIndicatorPanels.get(mmsi);
-                    } else {
-                        shipIndicatorPanel = new ShipIndicatorPanel(unhandledTransactions.get(j));
+                    // Look up or create the ship indicator panel
+                    ShipIndicatorPanel shipIndicatorPanel = shipIndicatorPanels.get(mmsi);
+                    if (shipIndicatorPanel == null) {
+                        shipIndicatorPanel = new ShipIndicatorPanel(transactionId);
+                        shipIndicatorPanels.put(mmsi, shipIndicatorPanel);
+                        mapFrame.getGlassPanel().add(shipIndicatorPanel);
                     }
-
-                    VesselTarget ship = aisHandler.getVesselTarget(mmsi);
                     
-                    if (ship != null){
-                        
-                    
-                    
+                    // Compute the updates position
                     Position position = ship.getPositionData().getPos();
-
-                    Point2D resultPoint = this.getProjection().forward(position.getLatitude(), position.getLongitude());
-
+                    Point2D resultPoint = getProjection().forward(position.getLatitude(), position.getLongitude());
                     Point newPoint = new Point((int) resultPoint.getX(), (int) resultPoint.getY());
-
                     shipIndicatorPanel.setLocation(newPoint);
-
-                    shipIndicatorPanels.put(mmsi, shipIndicatorPanel);
-                    mapFrame.getGlassPanel().remove(shipIndicatorPanel);
-                    mapFrame.getGlassPanel().add(shipIndicatorPanel);
-
-                    shipIndicatorPanel.paintAll(shipIndicatorPanel.getGraphics());
-                    }
                 }
-            } else {
-                // Iterate through and remove old
-
-                for (ShipIndicatorPanel value : shipIndicatorPanels.values()) {
-                    mapFrame.getGlassPanel().remove(value);
+            }
+            
+            // Clean up ship indicator panels for which no unhandled transaction or ship exists
+            for (Iterator<Map.Entry<Long, ShipIndicatorPanel>> it = shipIndicatorPanels.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry<Long, ShipIndicatorPanel> entry = it.next();
+                if (!updatedMmsi.contains(entry.getKey())) {
+                    mapFrame.getGlassPanel().remove(entry.getValue());
+                    it.remove();
                 }
-                shipIndicatorPanels.clear();
             }
         }
     }

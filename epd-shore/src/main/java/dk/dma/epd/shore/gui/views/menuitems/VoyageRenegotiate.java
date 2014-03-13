@@ -21,9 +21,9 @@ import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.menuitems.event.IMapMenuAction;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
-import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.voyage.Voyage;
 
 public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {

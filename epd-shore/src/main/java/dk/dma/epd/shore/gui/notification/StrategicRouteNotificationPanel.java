@@ -32,12 +32,12 @@ import javax.swing.UIManager;
 import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationTableModel;
+import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RoutePropertiesDialog;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
-import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 import dk.dma.epd.shore.voyage.Voyage;
 
 /**
