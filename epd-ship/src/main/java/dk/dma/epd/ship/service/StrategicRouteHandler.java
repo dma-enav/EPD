@@ -40,6 +40,7 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRout
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
+import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon;
 import dk.dma.epd.common.prototype.status.ComponentStatus;

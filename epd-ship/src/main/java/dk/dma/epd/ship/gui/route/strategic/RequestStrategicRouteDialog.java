@@ -38,12 +38,12 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRout
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.MainFrame;
 import dk.dma.epd.ship.layers.route.RouteLayer;
 import dk.dma.epd.ship.service.StrategicRouteHandler;
-import dk.dma.epd.ship.service.StrategicRouteNegotiationData;
 
 public class RequestStrategicRouteDialog extends JDialog implements ActionListener {
 

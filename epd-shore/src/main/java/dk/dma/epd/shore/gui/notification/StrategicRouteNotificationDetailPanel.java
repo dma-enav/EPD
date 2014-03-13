@@ -49,8 +49,8 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRout
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
+import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.shore.service.StrategicRouteNegotiationData;
 
 /**
  * Displays relevant route suggestion detail information 
