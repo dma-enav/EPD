@@ -16,6 +16,7 @@
 package dk.dma.epd.common.prototype.gui.views;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.List;
 
 import com.bbn.openmap.Layer;
@@ -26,6 +27,7 @@ import com.bbn.openmap.gui.OMComponentPanel;
 import com.bbn.openmap.layer.OMGraphicHandlerLayer;
 import com.bbn.openmap.layer.shape.MultiShapeLayer;
 import com.bbn.openmap.proj.Proj;
+import com.bbn.openmap.proj.ProjMath;
 import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
@@ -179,6 +181,13 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         double centerLat = (maxLat + minLat) / 2.0;
         double centerLon = (maxLon + minLon) / 2.0;
         map.setCenter(centerLat, centerLon);
+        
+        float scale = ProjMath.getScale(new Point2D.Double(minLat, minLon), new Point2D.Double(maxLat, maxLon), map.getProjection());
+        // Make space around the way points and restrict to maxScale
+        scale = Math.max((float)maxScale, scale * 2f);
+        
+        map.setScale(scale);
+        
         forceAisLayerUpdate();
     }
     

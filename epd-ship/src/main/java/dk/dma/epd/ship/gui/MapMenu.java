@@ -79,14 +79,12 @@ public class MapMenu extends MapMenuCommon {
     private RouteManager routeManager;
     private MainFrame mainFrame;
     private PntHandler gpsHandler;
-    private Route route;
     private RouteSuggestionDialog routeSuggestionDialog;
     private NewRouteContainerLayer newRouteLayer;
     private AisLayer aisLayer;
     private OwnShipHandler ownShipHandler;
     private NogoHandler nogoHandler;
     private MouseDelegator mouseDelegator;
-    private Point windowLocation;
     private StrategicRouteHandler strategicRouteHandler;
 
     
@@ -118,7 +116,7 @@ public class MapMenu extends MapMenuCommon {
         sarTargetDetails.addActionListener(this);
 
         // route general items
-        sendToSTCC = new SendToSTCC("Send to STCC");
+        sendToSTCC = new SendToSTCC("Send to STCC...");
         sendToSTCC.addActionListener(this);
 
         routeActivateToggle = new RouteActivateToggle();
@@ -308,12 +306,13 @@ public class MapMenu extends MapMenuCommon {
     public void sendToSTCC(int routeIndex) {
         removeAll();
 
-        System.out.println("Route index is: " + routeIndex
-                + " Active route index is: "
-                + routeManager.getActiveRouteIndex());
+        // Look up the route
+        Route route = routeManager.getRoute(routeIndex);
+        if (routeManager.isActiveRoute(routeIndex)) {
+            route = routeManager.getActiveRoute();
+        }
 
         sendToSTCC.setRoute(route);
-        sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
                 .setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
                         && routeManager.getActiveRouteIndex() != routeIndex
@@ -354,6 +353,13 @@ public class MapMenu extends MapMenuCommon {
 
     public void generalRouteMenu(int routeIndex) {
 
+        // Look up the route
+        Route route = routeManager.getRoute(routeIndex);
+        if (routeManager.isActiveRoute(routeIndex)) {
+            route = routeManager.getActiveRoute();
+        }
+
+        
         if (routeManager.getActiveRouteIndex() == routeIndex) {
             routeActivateToggle.setText("Deactivate route");
             routeHide.setEnabled(false);
@@ -377,7 +383,6 @@ public class MapMenu extends MapMenuCommon {
         this.add(seperator);
 
         sendToSTCC.setRoute(route);
-        sendToSTCC.setRouteLocation(windowLocation);
         sendToSTCC
                 .setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
                         && routeManager.getActiveRouteIndex() != routeIndex
@@ -412,11 +417,6 @@ public class MapMenu extends MapMenuCommon {
         routeReverse.setRouteManager(routeManager);
         routeReverse.setRouteIndex(routeIndex);
         add(routeReverse);
-
-        route = routeManager.getRoute(routeIndex);
-        if (routeManager.isActiveRoute(routeIndex)) {
-            route = routeManager.getActiveRoute();
-        }
 
         monaLisaRouteRequest.setRouteManager(routeManager);
         monaLisaRouteRequest.setRouteIndex(routeIndex);
@@ -581,10 +581,4 @@ public class MapMenu extends MapMenuCommon {
         }
 
     }
-
-
-    public void setRouteLocation(Point point) {
-        this.windowLocation = point;
-    }
-
 }

@@ -296,6 +296,7 @@ public class VoyagePlanInfoPanel extends JPanel implements MouseListener {
             
             EPD.getInstance().getNotificationCenter()
                 .selectNotification(NotificationType.STRATEGIC_ROUTE, voyage.getId());
+            EPD.getInstance().getNotificationCenter().setVisible(true);
             
         }
  

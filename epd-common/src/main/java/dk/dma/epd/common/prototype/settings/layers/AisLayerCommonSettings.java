@@ -17,8 +17,6 @@ package dk.dma.epd.common.prototype.settings.layers;
 
 import java.util.Properties;
 
-import javax.annotation.concurrent.GuardedBy;
-
 import com.bbn.openmap.util.PropUtils;
 
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
@@ -41,35 +39,33 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
     /**
      * The setting key for the "show all AIS names" setting.
      */
-    public static final String KEY_SHOW_ALL_AIS_NAMES = "showAllAisNameLabels";
+    private static final String KEY_SHOW_ALL_AIS_NAMES = "showAllAisNameLabels";
 
     /**
      * The setting key for the "show all past tracks" setting.
      */
-    public static final String KEY_SHOW_ALL_PAST_TRACKS = "showAllPastTracks";
+    private static final String KEY_SHOW_ALL_PAST_TRACKS = "showAllPastTracks";
+
+    /**
+     * The setting key for the setting that specifies how often the layer should
+     * repaint itself.
+     */
+    private static final String KEY_LAYER_REDRAW_INTERVAL = "layerRedrawInterval";
 
     /**
      * Specifies if all AIS name labels should be shown.
      */
-    @GuardedBy("lockShowAllAisNameLabels")
     private boolean showAllAisNameLabels = true;
-
-    /**
-     * Used as lock when writing to or reading from
-     * {@link #showAllAisNameLabels}.
-     */
-    private Object lockShowAllAisNameLabels = new Object();
 
     /**
      * Specifies if all past tracks should be shown.
      */
-    @GuardedBy("lockShowAllPastTracks")
     private boolean showAllPastTracks;
 
     /**
-     * Used as lock when writing to or reading from {@link #showAllPastTracks}.
+     * Setting specifying how often the layer should repaint itself.
      */
-    private Object lockShowAllPastTracks = new Object();
+    private int layerRedrawInterval = 5;
 
     /**
      * Get the value of the setting specifying if all AIS name labels should be
@@ -79,8 +75,11 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
      *         {@code false} if all AIS name labels should be hidden.
      */
     public boolean isShowAllAisNameLabels() {
-        synchronized (lockShowAllAisNameLabels) {
+        try {
+            this.settingLock.readLock().lock();
             return this.showAllAisNameLabels;
+        } finally {
+            this.settingLock.readLock().unlock();
         }
     }
 
@@ -93,15 +92,14 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
      *            hide all AIS name labels.
      */
     public void setShowAllAisNameLabels(boolean show) {
-        synchronized (this.lockShowAllAisNameLabels) {
-            boolean oldVal = this.showAllAisNameLabels;
-            this.showAllAisNameLabels = show;
-            // Notify observers of change to this setting
-            for (OBSERVER obs : this.observers) {
-                obs.showAllAisNameLabelsChanged(oldVal,
-                        this.showAllAisNameLabels);
-            }
+        this.settingLock.writeLock().lock();
+        boolean oldVal = this.showAllAisNameLabels;
+        this.showAllAisNameLabels = show;
+        // Notify observers of change to this setting
+        for (OBSERVER obs : this.observers) {
+            obs.showAllAisNameLabelsChanged(oldVal, this.showAllAisNameLabels);
         }
+        this.settingLock.writeLock().unlock();
     }
 
     /**
@@ -112,8 +110,11 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
      *         all past tracks should be hidden.
      */
     public boolean isShowAllPastTracks() {
-        synchronized (this.lockShowAllPastTracks) {
+        try {
+            this.settingLock.readLock().lock();
             return this.showAllPastTracks;
+        } finally {
+            this.settingLock.readLock().unlock();
         }
     }
 
@@ -126,34 +127,99 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
      *            if all past tracks should be hidden.
      */
     public void setShowAllPastTracks(boolean show) {
-        synchronized (this.lockShowAllPastTracks) {
-            boolean oldVal = this.showAllPastTracks;
-            this.showAllPastTracks = show;
-            // Notify observers of change to this setting
-            for (OBSERVER obs : this.observers) {
-                obs.showAllPastTracksChanged(oldVal, this.showAllPastTracks);
-            }
+        this.settingLock.writeLock().lock();
+        boolean oldVal = this.showAllPastTracks;
+        this.showAllPastTracks = show;
+        // Notify observers of change to this setting
+        for (OBSERVER obs : this.observers) {
+            obs.showAllPastTracksChanged(oldVal, this.showAllPastTracks);
         }
+        this.settingLock.writeLock().unlock();
+    }
+
+    /**
+     * Get the value of the setting specifying how often the associated AIS
+     * layer(s) should repaint itself/themselves.
+     * 
+     * @return The number of seconds between each repaint.
+     */
+    public int getLayerRedrawInterval() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.layerRedrawInterval;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Changes the setting specifying how often the associated AIS layer(s)
+     * should repaint itself/themselves.
+     * 
+     * @param seconds
+     *            The number of seconds between each repaint.
+     * @throws IllegalArgumentException
+     *             if {@code seconds} is less than 1.
+     */
+    public void setLayerRedrawInterval(int seconds) {
+        // Sanity check setting value
+        if (seconds < 1) {
+            throw new IllegalArgumentException(
+                    "A redraw interval below 1 second is not allowed.");
+        }
+        this.settingLock.writeLock().lock();
+        int oldVal = this.layerRedrawInterval;
+        this.layerRedrawInterval = seconds;
+        for (OBSERVER obs : this.observers) {
+            obs.layerRedrawIntervalChanged(oldVal, this.layerRedrawInterval);
+        }
+        this.settingLock.writeLock().unlock();
     }
 
     @Override
     protected void onLoadSuccess(Properties settings) {
+        /*
+         * We acquire the lock here even though the individual setters acquire
+         * the lock themselves too. This is to ensure that all settings are
+         * loaded as a single batch.
+         */
+        this.settingLock.writeLock().lock();
         this.setShowAllAisNameLabels(PropUtils.booleanFromProperties(settings,
                 KEY_SHOW_ALL_AIS_NAMES, this.isShowAllAisNameLabels()));
         this.setShowAllPastTracks(PropUtils.booleanFromProperties(settings,
                 KEY_SHOW_ALL_PAST_TRACKS, this.isShowAllPastTracks()));
-        // TODO init other settings variables based on the provided Properties
-        // instance.
+        this.setLayerRedrawInterval(PropUtils.intFromProperties(settings,
+                KEY_LAYER_REDRAW_INTERVAL, this.getLayerRedrawInterval()));
+        /*
+         * TODO init other settings variables based on the provided Properties
+         * instance...
+         */
+
+        // Release the lock.
+        this.settingLock.writeLock().unlock();
     }
 
     @Override
     protected Properties onSaveSettings() {
+        /*
+         * We acquire the lock here even though the individual getters acquire
+         * the lock themselves too. This is to ensure that the saved settings
+         * will be a snapshot of the entire set of settings values.
+         */
+        this.settingLock.readLock().lock();
         Properties savedVars = new Properties();
         savedVars.setProperty(KEY_SHOW_ALL_AIS_NAMES,
                 Boolean.toString(this.isShowAllAisNameLabels()));
         savedVars.setProperty(KEY_SHOW_ALL_PAST_TRACKS,
                 Boolean.toString(this.isShowAllPastTracks()));
-        // TODO store other settings variables based on field values
+        savedVars.setProperty(KEY_LAYER_REDRAW_INTERVAL,
+                Integer.toString(this.getLayerRedrawInterval()));
+        /*
+         * TODO store other settings variables based on field values...
+         */
+
+        // Release the lock.
+        this.settingLock.readLock().unlock();
         return savedVars;
     }
 }

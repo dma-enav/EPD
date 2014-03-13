@@ -50,6 +50,7 @@ import dk.dma.epd.ship.gui.component_panels.SARComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.gui.route.strategic.RequestStrategicRouteDialog;
+import dk.dma.epd.ship.gui.route.strategic.SendStrategicRouteDialog;
 import dk.dma.epd.ship.settings.EPDGuiSettings;
 
 /**
@@ -81,6 +82,7 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
 
     private AisDialog aisDialog;
     private RouteSuggestionDialog routeSuggestionDialog;
+    private SendStrategicRouteDialog sendStrategicRouteDialog;
 
     private DockableComponents dockableComponents;
 
@@ -220,6 +222,10 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         // Init Route suggestion dialog
         routeSuggestionDialog = new RouteSuggestionDialog(this);
         mapHandler.add(routeSuggestionDialog);
+        
+        // Init Send Strategic Route dialog
+        sendStrategicRouteDialog = new SendStrategicRouteDialog(this);
+        mapHandler.add(sendStrategicRouteDialog);
 
         // Init the chat service dialog
         chatServiceDialog = new ChatServiceDialog(this);
@@ -381,6 +387,10 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         return strategicRouteSTCCDialog;
     }
 
+    public SendStrategicRouteDialog getSendStrategicRouteDialog() {
+        return sendStrategicRouteDialog;
+    }
+    
     public SARComponentPanel getSarPanel() {
         return sarPanel;
     }

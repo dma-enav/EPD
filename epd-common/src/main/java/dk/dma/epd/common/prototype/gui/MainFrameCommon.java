@@ -15,10 +15,6 @@
  */
 package dk.dma.epd.common.prototype.gui;
 
-import java.awt.Dimension;
-import java.awt.DisplayMode;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -29,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.notification.ChatServiceDialog;
 import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
@@ -179,7 +176,7 @@ public abstract class MainFrameCommon extends JFrame {
         
         setVisible(false);
         //setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setSize(getMaxResolution());
+        setSize(GraphicsUtil.getMaxResolution());
         setLocation(0, 0);
         dispose();
         setUndecorated(true);
@@ -200,29 +197,5 @@ public abstract class MainFrameCommon extends JFrame {
         dispose();
         setUndecorated(false);
         setVisible(true);
-    }
-
-    /**
-     * Return the max resolution possible across all monitors
-     * 
-     * @return the max resolution possible across all monitors
-     */
-    private Dimension getMaxResolution() {
-        int width = 0;
-        int height = 0;
-
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice[] gs = ge.getScreenDevices();
-
-        for (GraphicsDevice curGs : gs) {
-            DisplayMode mode = curGs.getDisplayMode();
-            width += mode.getWidth();
-
-            if (height < mode.getHeight()) {
-                height = mode.getHeight();
-            }
-
-        }
-        return new Dimension(width, height);
     }
 }

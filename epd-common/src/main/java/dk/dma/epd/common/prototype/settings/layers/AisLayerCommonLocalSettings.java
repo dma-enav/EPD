@@ -84,6 +84,15 @@ public class AisLayerCommonLocalSettings<OBSERVER extends IAisLayerCommonSetting
     }
 
     @Override
+    public void layerRedrawIntervalChanged(int oldValue, int newValue) {
+        /*
+         * The "set layer redraw interval" was changed on the global settings
+         * object. We need to obey to this for this local settings instance.
+         */
+        this.setLayerRedrawInterval(newValue);
+    }
+
+    @Override
     protected void onLoadFailure(IOException error) {
         // TODO figure out what to do with read error.
     }
