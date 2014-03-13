@@ -49,11 +49,7 @@ public class TrackCollector implements Consumer<AisMessage> {
         if (!(aisMessage instanceof AisPositionMessage)) {
             return;
         }
-        if (aisMessage.getSourceTag() == null) {
-            LOG.error("No GH source tag for position message: " + aisMessage.getVdm().getOrgLinesJoined());
-            return;
-        }
-        Date timestamp = aisMessage.getSourceTag().getTimestamp();
+        Date timestamp = aisMessage.getVdm().getTimestamp();
         if (timestamp == null) {
             LOG.error("No timestamp in GH source tag for position message: " + aisMessage.getVdm().getOrgLinesJoined());
             return;
