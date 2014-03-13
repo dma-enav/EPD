@@ -15,31 +15,252 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
+import dk.dma.epd.common.prototype.zoom.ScaleDependentValues;
+
 /**
  * @author Janus Varmarken
  */
-public class VesselLayerSettings extends LayerSettings<OBSERVER> {
- 
-    /**
-     * The minimum length of the COG vector in minutes.
-     */
-    private int cogVectorLengthMin = 1;
+public class VesselLayerSettings<OBSERVER extends IVesselLayerSettingsObserver>
+        extends LayerSettings<OBSERVER> {
 
     /**
-     * The maximum length of the COG vector in minutes.
+     * The minimum length (in minutes) of the vector that indicates COG and
+     * speed.
      */
-    private int cogVectorLengthMax = 8;
+    private int movementVectorLengthMin = 1;
 
     /**
-     * The scale interval that separates two values for cogVectorLength. E.g.: if assigned a value of x, the valid map scale for a
-     * cogVectorLength of n minutes is in ](n-1) * x; n * x].
+     * The maximum length (in minutes) of the vector that indicates COG and
+     * speed.
      */
-    private float cogVectorLengthScaleInterval = 5000.0f;
-    private float cogVectorHideBelow = 0.1f;   
+    private int movementVectorLengthMax = 8;
+
+    /**
+     * Specifies a step size (in terms of map scale) that is used to dynamically
+     * calculate the length (in minutes) of the vector that indicates COG and
+     * speed. I.e. this value specifies how much difference in map scale there
+     * should be between a vector with length <i>n</i> minutes and a vector with
+     * length <i>n</i>+1 minutes (assuming the vector length is incremented by 1
+     * for each step). See
+     * {@link ScaleDependentValues#getCogVectorLength(float)} for implementation
+     * usage example.
+     */
+    private float movementVectorLengthStepSize = 5000.0f;
+
+    /**
+     * Specifies a speed value (in nautical miles per hour) that is a lower
+     * bound on the display of the vector that indicates COG and speed. I.e. if
+     * the current speed is below this value, the vector should not be
+     * displayed.
+     */
+    private float movementVectorHideBelow = 0.1f;
+
+    /**
+     * Gets the setting that specifies the minimum length (in minutes) of the
+     * vector that indicates COG and speed.
+     * 
+     * @return The minimum length (in minutes) of the vector that indicates COG
+     *         and speed.
+     */
+    public int getMovementVectorLengthMin() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.movementVectorLengthMin;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Changes the setting that specifies the minimum length (in minutes) of the
+     * vector that indicates COG and speed.
+     * 
+     * @param minutes
+     *            The new minimum length (in minutes) of the vector that
+     *            indicates COG and speed.
+     * @throws IllegalArgumentException
+     *             if {@code minutes} is negative.
+     */
+    public void setMovementVectorLengthMin(final int minutes) {
+        if (minutes < 0) {
+            // TODO: do we want to require (1 <= minutes)?
+            throw new IllegalArgumentException(
+                    "The movement vector length minimum cannot be negative.");
+        }
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.movementVectorLengthMin == minutes) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was an actual change, update and notify.
+            this.movementVectorLengthMin = minutes;
+            for (OBSERVER obs : this.observers) {
+                obs.movementVectorLengthMinChanged(minutes);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+
+    }
+
+    /**
+     * Gets the setting that specifies the maximum length (in minutes) of the
+     * vector that indicates COG and speed.
+     * 
+     * @return The maximum length (in minutes) of the vector that indicates COG
+     *         and speed.
+     */
+    public int getMovementVectorLengthMax() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.movementVectorLengthMax;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Changes the setting that specifies the maximum length (in minutes) of the
+     * vector that indicates COG and speed.
+     * 
+     * @param minutes
+     *            The new maximum length (in minutes) of the vector that
+     *            indicates COG and speed.
+     * @throws IllegalArgumentException
+     *             if {@code minutes} is negative.
+     */
+    public void setMovementVectorLengthMax(final int minutes) {
+        if (minutes < 0) {
+            // TODO: do we want to require (1 <= minutes)?
+            throw new IllegalArgumentException(
+                    "The movement vector length maximum cannot be negative.");
+        }
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.movementVectorLengthMax == minutes) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was an actual change, update and notify.
+            this.movementVectorLengthMax = minutes;
+            for (OBSERVER obs : this.observers) {
+                obs.movementVectorLengthMaxChanged(minutes);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Get the setting that specifies a step size (in terms of map scale) that
+     * is used to dynamically calculate the length (in minutes) of the vector
+     * that indicates COG and speed. I.e. this value specifies how much
+     * difference in map scale there should be between a vector with length
+     * <i>n</i> minutes and a vector with length <i>n</i>+1 minutes (assuming
+     * the vector length is incremented by 1 for each step). See
+     * {@link ScaleDependentValues#getCogVectorLength(float)} for implementation
+     * usage example.
+     * 
+     * @return The step size in terms of map scale.
+     */
+    public float getMovementVectorLengthStepSize() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.movementVectorLengthStepSize;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Changes the setting that specifies a step size (in terms of map scale)
+     * that is used to dynamically calculate the length (in minutes) of the
+     * vector that indicates COG and speed. I.e. this value specifies how much
+     * difference in map scale there should be between a vector with length
+     * <i>n</i> minutes and a vector with length <i>n</i>+1 minutes (assuming
+     * the vector length is incremented by 1 for each step).
+     * 
+     * @param stepSize
+     *            The new step size in terms of map scale.
+     * @throws IllegalArgumentException
+     *             if {@code stepSize} is negative or zero.
+     */
+    public void setMovementVectorLengthStepSize(final float stepSize) {
+        if (stepSize <= 0f) {
+            throw new IllegalArgumentException(
+                    "The step size for incrementing the speed vector length cannot be negative nor zero.");
+        }
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.movementVectorLengthStepSize == stepSize) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was an actual change, update and notify.
+            this.movementVectorLengthStepSize = stepSize;
+            for (OBSERVER obs : this.observers) {
+                obs.movementVectorLengthStepSizeChanged(stepSize);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Get the setting that specifies a speed value (in nautical miles per hour)
+     * that is a lower bound on the display of the vector that indicates COG and
+     * speed. I.e. if the current speed is below this value, the vector should
+     * not be displayed.
+     * 
+     * @return The minimum speed (in nautical miles per hour) a vessel should
+     *         travel with in order for its COG and speed vector to be
+     *         displayed.
+     */
+    public float getMovementVectorHideBelow() {
+        try {
+            this.settingLock.readLock().lock();
+            return this.movementVectorHideBelow;
+        } finally {
+            this.settingLock.readLock().unlock();
+        }
+    }
+
+    /**
+     * Changes the setting that specifies a speed value (in nautical miles per
+     * hour) that is a lower bound on the display of the vector that indicates
+     * COG and speed. I.e. if the current speed is below this value, the vector
+     * should not be displayed.
+     * 
+     * @param minSpeed
+     *            The minimum speed (in nautical miles per hour) a vessel should
+     *            travel with in order for its COG and speed vector to be
+     *            displayed.
+     * @throws IllegalArgumentException
+     *             if {@code minSpeed} is negative.
+     */
+    public void setMovementVectorHideBelow(final float minSpeed) {
+        if (minSpeed < 0f) {
+            throw new IllegalArgumentException(
+                    "Minimum speed for display of the COG and speed vector cannot be negative.");
+        }
+        try {
+            this.settingLock.writeLock().lock();
+            if (this.movementVectorHideBelow == minSpeed) {
+                // No change, no need to notify observers.
+                return;
+            }
+            // There was an actual change, update and notify.
+            this.movementVectorHideBelow = minSpeed;
+            for (OBSERVER obs : this.observers) {
+                obs.movementVectorHideBelowChanged(minSpeed);
+            }
+        } finally {
+            this.settingLock.writeLock().unlock();
+        }
+    }
+
+    // TODO add onLoadSuccess: load values into fields.
+    // TODO add onSaveSettings: store field values in properties.
     
-    
-    private int pastTrackMaxTime = 4 * 60; // In minutes
-    private int pastTrackDisplayTime = 30; // In minutes
-    private int pastTrackMinDist = 100; // In meters
-    private int pastTrackOwnShipMinDist = 20; // In meters
 }

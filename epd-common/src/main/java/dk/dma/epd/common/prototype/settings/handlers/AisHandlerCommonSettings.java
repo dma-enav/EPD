@@ -20,7 +20,29 @@ package dk.dma.epd.common.prototype.settings.handlers;
  */
 public class AisHandlerCommonSettings extends HandlerSettings<OBSERVER> {
     private int sartPrefix = 970;
-    private String[] simulatedSartMmsi = {}; // Specify comma-separated mmsi list to simulate SarTarget's
-    
+    private String[] simulatedSartMmsi = {}; // Specify comma-separated mmsi
+                                             // list to simulate SarTarget's
+
     private boolean strict = true; // Strict timeout rules
+
+    /**
+     * In minutes.
+     */
+    private int pastTrackMaxTime = 4 * 60;
+
+    /**
+     * In minutes. TODO consider moving to layer settings.
+     */
+    private int pastTrackDisplayTime = 30;
+
+    /**
+     * In meters. TODO move to handler settings.
+     */
+    private int pastTrackMinDist = 100;
+
+    /**
+     * In meters. TODO move to ship specific handler settings or reuse
+     * {@link #pastTrackMinDist} by creating an instance for ownship(handler).
+     */
+    private int pastTrackOwnShipMinDist = 20;
 }

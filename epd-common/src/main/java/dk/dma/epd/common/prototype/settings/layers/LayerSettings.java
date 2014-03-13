@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
+import java.util.Properties;
+
 import com.bbn.openmap.omGraphics.OMGraphic;
 
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
@@ -140,4 +142,11 @@ public abstract class LayerSettings<OBSERVER extends ILayerSettingsObserver>
         }
     }
 
+    
+    @Override
+    protected void onLoadSuccess(Properties settings) {
+        
+    }
+    // TODO add onLoadSuccess: load values into fields.
+    // TODO add onSaveSettings: store field values in properties.
 }
