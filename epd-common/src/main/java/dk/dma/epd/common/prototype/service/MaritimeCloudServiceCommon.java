@@ -57,7 +57,7 @@ public abstract class MaritimeCloudServiceCommon extends MapHandlerChild impleme
     /**
      * Set this flag to true, if you want to log all messages sent and received by the {@linkplain MaritimeCloudClient}
      */
-    private static final boolean LOG_MARITIME_CLOUD_ACTIVITY = true;
+    private static final boolean LOG_MARITIME_CLOUD_ACTIVITY = false;
     private static final int MARITIME_CLOUD_SLEEP_TIME = 10000;
 
     private static final Logger LOG = LoggerFactory.getLogger(MaritimeCloudServiceCommon.class);
