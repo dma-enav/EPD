@@ -319,9 +319,9 @@ public class MapMenu extends MapMenuCommon {
                         && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
         if (strategicRouteHandler.isTransaction()) {
-            sendToSTCC.setText("Show STCC info");
+            sendToSTCC.setText("Show STCC info...");
         } else {
-            sendToSTCC.setText("Send to STCC");
+            sendToSTCC.setText("Send to STCC...");
         }
 
         add(sendToSTCC);
@@ -389,9 +389,9 @@ public class MapMenu extends MapMenuCommon {
                         && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
         if (strategicRouteHandler.isTransaction()) {
-            sendToSTCC.setText("Show STCC info");
+            sendToSTCC.setText("Show STCC info...");
         } else {
-            sendToSTCC.setText("Send to STCC");
+            sendToSTCC.setText("Send to STCC...");
         }
 
         add(sendToSTCC);

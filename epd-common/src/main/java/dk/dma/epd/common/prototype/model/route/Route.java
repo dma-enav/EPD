@@ -212,7 +212,7 @@ public class Route implements Serializable {
         newRoute.destination = this.destination;
         newRoute.visible = this.visible;
 
-        newRoute.starttime = new Date(this.starttime.getTime());
+        newRoute.starttime = this.starttime == null ? new Date() : new Date(this.starttime.getTime());
 
         newRoute.etas = new ArrayList<Date>(etas);
 

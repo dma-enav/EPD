@@ -32,6 +32,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -82,6 +84,7 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
     private RouteManager routeManager;
     private StrategicRouteHandler strategicRouteHandler;
     
+    private Preferences prefs;
     private Route route;
     private long stccMmsi = -1;
     private boolean loading;
@@ -92,6 +95,8 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
      */
     public SendStrategicRouteDialog(JFrame frame) {
         super(frame, "Send Route to STCC", Dialog.ModalityType.MODELESS);
+        
+        prefs = Preferences.userNodeForPackage(SendStrategicRouteDialog.class);
         
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         setLocation(100, 100);
@@ -268,17 +273,25 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
         LOG.info(String.format("Sending route to STCC MMSI %d", stccMmsi));
         
         try {
-//            strategicRouteHandler.sendStrategicRouteToSTCC(
-//                    stccMmsi,
-//                    route, 
-//                    messageTxtField.getText());
-//            messageTxtField.setText("Route Approval Requested");
+            strategicRouteHandler.sendStrategicRouteToSTCC(
+                    stccMmsi,
+                    route, 
+                    messageTxtField.getText());
+            messageTxtField.setText("Route Approval Requested");
         } catch (Exception e) {
             LOG.error("Failed to send route", e);
         }
 
         this.setVisible(false);
 
+        // Save the MMSI in the preferences
+        try {
+            prefs.put("mmsi", String.valueOf(stccMmsi));
+            prefs.sync();
+        } catch (BackingStoreException e) {
+            System.err.println("Failed saving paths" + e);
+        }
+        
         stccMmsi = -1;
         route = null;
     }
@@ -344,15 +357,18 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
         
         loadData();
 
-        if (stccMmsi != -1 && stccMmsiListComboBox.getItemCount() > 0) {
-            stccMmsiListComboBox.setEnabled(true);
+        String mmsi = stccMmsi != -1 ? Long.toString(stccMmsi) : prefs.get("mmsi", null);
+        if (mmsi != null && stccMmsiListComboBox.getItemCount() > 0) {
             for (int i = 0; i < stccMmsiListComboBox.getItemCount(); i++) {
-                if (stccMmsiListComboBox.getItemAt(i).equals(Long.toString(stccMmsi))) {
+                if (stccMmsiListComboBox.getItemAt(i).equals(mmsi)) {
                     stccMmsiListComboBox.setSelectedIndex(i);
                 }
             }
 
+        } else if (stccMmsi == -1 && stccMmsiListComboBox.getItemCount() > 0) {
+            stccMmsi = Long.parseLong(stccMmsiListComboBox.getSelectedItem().toString());
         }
+
 
         if (route != null
                 && EPDShip.getInstance().getRouteManager().getRoutes().size() > 0) {
@@ -364,10 +380,6 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
             }            
         }
         
-        if (stccMmsi == -1 && stccMmsiListComboBox.getItemCount() > 0) {
-            stccMmsi = Long.parseLong(stccMmsiListComboBox.getSelectedItem().toString());
-        }
-
         if (stccMmsi != -1 && route != null) {
             sendBtn.setEnabled(true);
         }

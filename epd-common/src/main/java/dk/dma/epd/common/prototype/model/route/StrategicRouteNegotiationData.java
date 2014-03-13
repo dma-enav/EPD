@@ -45,10 +45,6 @@ public class StrategicRouteNegotiationData {
         handled = false;
     }
     
-    public StrategicRouteNegotiationData(long id) {
-        this(id, -1);
-    }    
-    
     public Route getLatestRoute(){
         if (routeMessages.size() > routeReplys.size()){
             return routeMessages.get(routeMessages.size() - 1).getRoute();
@@ -116,13 +112,7 @@ public class StrategicRouteNegotiationData {
         return handled;
     }
 
-
-
     public void setHandled(boolean handled) {
         this.handled = handled;
     }
-    
-    
-    
-    
 }
