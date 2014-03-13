@@ -17,7 +17,6 @@ package dk.dma.epd.common.prototype.layers;
 
 import java.awt.event.MouseEvent;
 
-import com.bbn.openmap.MapBean;
 import com.bbn.openmap.event.MapMouseMode;
 import com.bbn.openmap.event.ProjectionEvent;
 import com.bbn.openmap.proj.coords.LatLonPoint;

@@ -225,7 +225,7 @@ public class ChartPanel extends ChartPanelCommon {
         dragMouseMode = new DragMouseMode(this);
         selectMouseMode = new SelectMouseMode(this);
         routeEditMouseMode = new RouteEditMouseMode(this);
-        rangeCirclesMouseMode = new CommonDistanceCircleMouseMode(this);
+        rangeCirclesMouseMode = new CommonDistanceCircleMouseMode();
 
         mouseDelegator.addMouseMode(mapNavMouseMode);
         mouseDelegator.addMouseMode(dragMouseMode);

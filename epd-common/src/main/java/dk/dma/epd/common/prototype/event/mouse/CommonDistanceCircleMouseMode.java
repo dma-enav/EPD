@@ -4,12 +4,10 @@ import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 
 import dk.dma.epd.common.prototype.EPD;
-import dk.dma.epd.common.prototype.gui.views.ChartPanelCommon;
 
 public class CommonDistanceCircleMouseMode extends AbstractCoordMouseMode {
 
     private static final long serialVersionUID = 1L;
-    private ChartPanelCommon chartPanel;
     private String previousActiveMouseModeID;
     
     public static final transient String MODE_ID = "DistanceCircle";
@@ -18,10 +16,8 @@ public class CommonDistanceCircleMouseMode extends AbstractCoordMouseMode {
      * 
      * @param chartPanel
      */
-    public CommonDistanceCircleMouseMode(ChartPanelCommon chartPanel) {
-        super(MODE_ID, false);
-        
-        this.chartPanel = chartPanel;
+    public CommonDistanceCircleMouseMode() {
+        super(MODE_ID, false);        
     }
     
     @Override

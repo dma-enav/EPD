@@ -159,7 +159,7 @@ public class ChartPanel extends ChartPanelCommon implements IPntDataListener,
         
         msiFilterMouseMode = new MSIFilterMouseMode();
         dragMouseMode = new DragMouseMode(this);
-        rangeCirclesMouseMode = new CommonDistanceCircleMouseMode(this);
+        rangeCirclesMouseMode = new CommonDistanceCircleMouseMode();
 
         mouseDelegator.addMouseMode(mapNavMouseMode);
         mouseDelegator.addMouseMode(noGoMouseMode);
