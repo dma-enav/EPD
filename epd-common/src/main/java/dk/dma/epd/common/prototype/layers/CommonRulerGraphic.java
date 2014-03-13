@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.ship.layers.ruler;
+package dk.dma.epd.common.prototype.layers;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -31,7 +31,7 @@ import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Calculator;
 
-public class RulerGraphic extends OMGraphicList {
+public class CommonRulerGraphic extends OMGraphicList {
 
     private static final long serialVersionUID = 1L;
     float[] dash = { 0.1f };
@@ -42,7 +42,7 @@ public class RulerGraphic extends OMGraphicList {
     private int centerPixelWidth = 5;
     private int centerPixelHeight = 5;
 
-    public RulerGraphic(Position position) {
+    public CommonRulerGraphic(Position position) {
         this.centerPos = position;
         drawCenter();
     }
@@ -56,32 +56,6 @@ public class RulerGraphic extends OMGraphicList {
                 this.centerPixelHeight);
         this.add(center);
     }
-
-    // /**
-    // * Draw range circles around a center location.
-    // *
-    // * @param center
-    // * The center location.
-    // * @param circleRadius
-    // * Radius of the outmost circle.
-    // * @param interval
-    // * Specifies the number of units between each range circle.
-    // * @param units
-    // * Specifies unit for radius.
-    // */
-    // private void drawRangeRings(Position center, int circleRadius, int
-    // interval,
-    // Length units) {
-    // OMRangeRings rings = new OMRangeRings(center.getLatitude(),
-    // center.getLongitude(), circleRadius, units);
-    //
-    // rings.setInterval(interval);
-    // rings.setIntervalUnits(units);
-    // rings.setLinePaint(Color.green);
-    // rings.setStroke(new BasicStroke(2.0f, BasicStroke.JOIN_MITER,
-    // BasicStroke.JOIN_MITER, 1.0f, dash, 0.0f));
-    // this.add(rings);
-    // }
 
     @Override
     public void render(Graphics gr) {

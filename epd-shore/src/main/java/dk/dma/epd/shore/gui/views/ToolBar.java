@@ -40,6 +40,7 @@ import javax.swing.border.EtchedBorder;
 
 import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.event.mouse.CommonDistanceCircleMouseMode;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
@@ -85,6 +86,9 @@ public class ToolBar extends JInternalFrame {
     private final ToolItemGroup routeToolItems;
     private MainFrame mainFrame;
     private final ToolItemGroup mapToolItems;
+    private JLabel select;
+    private JLabel drag;
+    private JLabel zoom;
 
     /**
      * Constructor for setting up the toolbar
@@ -132,26 +136,23 @@ public class ToolBar extends JInternalFrame {
         // Tool group: Map tools
         mapToolItems = new ToolItemGroup();
 
-        // Tool: Select
-        final JLabel select = new JLabel(
+        this.select = new JLabel(
                 toolbarIcon("images/toolbar/select.png"));
-        select.addMouseListener(new MouseAdapter() {
+        getSelectBtn().addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-                setActiveToolItem(select, mapToolItems);
+                setActiveToolItem(getSelectBtn(), mapToolItems);
                 for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
                     mapFrame.getChartPanel().setMouseMode(SelectMouseMode.MODEID);
                 }
                 mainFrame.setMouseMode(SelectMouseMode.MODEID);
             }
         });
-        select.setToolTipText("Select mouse mode");
-        mapToolItems.addToolItem(select);
+        getSelectBtn().setToolTipText("Select mouse mode");
+        mapToolItems.addToolItem(getSelectBtn());
 
-        // Tool: Drag
-        final JLabel drag = new JLabel(toolbarIcon("images/toolbar/drag.png"));
+        this.drag = new JLabel(toolbarIcon("images/toolbar/drag.png"));
         drag.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-                setActiveToolItem(drag, mapToolItems);
 
                 for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
                     mapFrame.getChartPanel().setMouseMode(DragMouseMode.MODEID);
@@ -162,11 +163,9 @@ public class ToolBar extends JInternalFrame {
         drag.setToolTipText("Drag mouse mode");
         mapToolItems.addToolItem(drag);
 
-        // Tool: Zoom
-        final JLabel zoom = new JLabel(toolbarIcon("images/toolbar/zoom.png"));
+        this.zoom = new JLabel(toolbarIcon("images/toolbar/zoom.png"));
         zoom.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent e) {
-                setActiveToolItem(zoom, mapToolItems);
 
                 for (JMapFrame mapFrame : mainFrame.getMapWindows()) {
                     mapFrame.getChartPanel().setMouseMode(NavigationMouseMode.MODEID);
@@ -176,12 +175,28 @@ public class ToolBar extends JInternalFrame {
         });
         zoom.setToolTipText("Zoom mouse mode");
         mapToolItems.addToolItem(zoom);
+        
+        // Tool: Distance Circle
+        final JLabel distanceCircle = new JLabel(toolbarIcon("images/toolbar/ruler-triangle.png"));
+        distanceCircle.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                setActiveToolItem(distanceCircle, mapToolItems);
+                
+                for (JMapFrame frame : mainFrame.getMapWindows()) {
+                    frame.getChartPanel().setMouseMode(CommonDistanceCircleMouseMode.MODE_ID);
+                }
+                mainFrame.setMouseMode(CommonDistanceCircleMouseMode.MODE_ID);
+            }
+        });
+        distanceCircle.setToolTipText("Enable range circles mode.");
+        this.mapToolItems.addToolItem(distanceCircle);
 
         // Set that the map tools only can have 1 active tool item at a time
         mapToolItems.setSingleEnable(true);
 
         // Set default active tool item for this group
-        setActiveToolItem(select, mapToolItems);
+        setActiveToolItem(getSelectBtn(), mapToolItems);
 
         toolItemGroups.add(mapToolItems);
 
@@ -700,5 +715,21 @@ public class ToolBar extends JInternalFrame {
 
     public boolean isEncButtonEnabled() {
         return enc.isEnabled();
+    }
+
+    public JLabel getSelectBtn() {
+        return this.select;
+    }
+    
+    public JLabel getZoomBtn() {
+        return this.zoom;
+    }
+    
+    public JLabel getDragBtn() {
+        return this.drag;
+    }
+    
+    public ToolItemGroup getMapToolItems() {
+        return this.mapToolItems;
     }
 }
