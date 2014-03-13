@@ -116,7 +116,7 @@ public class MapMenu extends MapMenuCommon {
         sarTargetDetails.addActionListener(this);
 
         // route general items
-        sendToSTCC = new SendToSTCC("Send to STCC");
+        sendToSTCC = new SendToSTCC("Send to STCC...");
         sendToSTCC.addActionListener(this);
 
         routeActivateToggle = new RouteActivateToggle();
