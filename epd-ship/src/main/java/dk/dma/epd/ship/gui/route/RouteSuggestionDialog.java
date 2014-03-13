@@ -20,8 +20,6 @@ import java.awt.Font;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -36,7 +34,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 
-import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.gui.ComponentDialog;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
@@ -198,12 +195,7 @@ public class RouteSuggestionDialog extends ComponentDialog implements ActionList
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == zoomBtn) {
-            List<Position> posList = new ArrayList<>();
-            for (int i = 0; i < cloudRouteSuggestion.getRoute().getWaypoints().size(); i++) {
-                posList.add(cloudRouteSuggestion.getRoute().getWaypoints().get(i).getPos());
-            }
-            
-            chartPanel.zoomTo(posList);
+            chartPanel.zoomToWaypoints(cloudRouteSuggestion.getRoute().getWaypoints());
         } else if (e.getSource() == hideBtn) {
             cloudRouteSuggestion.setHidden(!cloudRouteSuggestion.isHidden());
             updateBtnStatus();

@@ -21,16 +21,12 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.SwingUtilities;
 
-import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.model.route.Route;
-import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.settings.MapSettings;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.views.JMapFrame;
@@ -147,11 +143,7 @@ public class ThreadedMapCreator implements Runnable {
         window.setLocation(positionX, positionY);
 
         // Zoom to the route
-        List<Position> waypoints = new ArrayList<>();
-        for (RouteWaypoint wp : voyage.getRoute().getWaypoints()) {
-            waypoints.add(wp.getPos());
-        }
-        window.getChartPanel().zoomTo(waypoints);
+        window.getChartPanel().zoomToWaypoints(voyage.getRoute().getWaypoints());
 
         return window;
     }
@@ -199,7 +191,6 @@ public class ThreadedMapCreator implements Runnable {
             try {
                 window.setMaximum(maximized);
             } catch (PropertyVetoException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }

@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.gui.views;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.bbn.openmap.Layer;
@@ -48,6 +49,7 @@ import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.layers.routeedit.RouteEditLayerCommon;
 import dk.dma.epd.common.prototype.layers.util.LayerVisibilityAdapter;
 import dk.dma.epd.common.prototype.layers.wms.WMSLayer;
+import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.settings.MapSettings;
 
 /**
@@ -143,12 +145,29 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
     }
     
     /**
+     * Zooms to the given list of way points
+     * 
+     * @param waypoints the list of way points to zoom to
+     */
+    public void zoomToWaypoints(List<RouteWaypoint> waypoints) { 
+        if (waypoints == null || waypoints.size() == 0) {
+            return;
+        }
+        
+        List<Position> positions = new ArrayList<>();
+        for (RouteWaypoint wp : waypoints) {
+            positions.add(wp.getPos());
+        }
+        zoomTo(positions);
+    }
+    
+    /**
      * Given a set of points scale and center so that all points are contained in the view
      * 
      * @param waypoints
      */
     public void zoomTo(List<Position> waypoints) {
-        if (waypoints.size() == 0) {
+        if (waypoints == null || waypoints.size() == 0) {
             return;
         }
 
@@ -182,11 +201,36 @@ public abstract class ChartPanelCommon extends OMComponentPanel {
         double centerLon = (maxLon + minLon) / 2.0;
         map.setCenter(centerLat, centerLon);
         
-        float scale = ProjMath.getScale(new Point2D.Double(minLat, minLon), new Point2D.Double(maxLat, maxLon), map.getProjection());
-        // Make space around the way points and restrict to maxScale
-        scale = Math.max((float)maxScale, scale * 2f);
-        
-        map.setScale(scale);
+        // Compute scale, taking the width/height ratio into account.
+        // Also, make sure we do not divide by zero...
+        Projection proj = map.getProjection();
+        if (proj != null && proj.getWidth() > 0) {
+            double mapRatio = (double)proj.getHeight() / (double)proj.getWidth();
+            
+            // Go to screen x-y to adjust ratio of scale
+            Point2D p0 = proj.forward(minLat, minLon);
+            Point2D p1 = proj.forward(maxLat, maxLon);
+            double routeHeight = p1.getY() - p0.getY();
+            double routeWidth = p1.getX() - p0.getX();
+            if (Math.abs(routeWidth) > 0.001) { 
+                double routeRatio = Math.abs(routeHeight / routeWidth);
+                
+                if (routeRatio > mapRatio) {
+                    float sign = (routeHeight < 0) ? 1 : -1;
+                    p1.setLocation(p0.getX() + sign * Math.abs(routeHeight / mapRatio), p1.getY());
+                } else {
+                    float sign = (routeWidth < 0) ? 1 : -1;
+                    p1.setLocation(p1.getX(), p0.getY() + sign * Math.abs(routeWidth * mapRatio));
+                }
+                
+                float scale = ProjMath.getScale(proj.inverse(p0), proj.inverse(p1), proj);
+                
+                // Restrict to maxScale and scale with 10% 
+                scale = Math.max((float)maxScale, scale * 1.1f);
+                
+                map.setScale(scale);
+            }
+        }
         
         forceAisLayerUpdate();
     }
