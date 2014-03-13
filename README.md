@@ -115,6 +115,15 @@ To use Navicon ENC layer with EPD-ship please follow the steps below
 
 1. Enter Setup -> Map and enable ENC. Restart.
 
+## Utilities ##
+
+The module `epd-util` contains some utlities to use with EPD. 
+
+### Route from AIS generation ###
+
+A route file can be generated given an AIS file given MMSI number. Example:
+
+    java -jar epd-util/target/epd-util-0.1-SNAPSHOT.jar aistoroute -in ~/tmp/aisdump.txt -out ~/tmp/route.txt -mmsi 304913000
 
 ## Attribution
 
