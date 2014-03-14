@@ -121,6 +121,9 @@ public class ThreadedMapCreator implements Runnable {
         mainFrame.getMapWindows().add(window);
         mainFrame.getTopMenu().addMap(window, false, false);
 
+        // Layer toggling panel invisible by default
+        window.getLayerTogglingPanel().setVisible(false);
+        
         window.alwaysFront();
 
         window.getChartPanel().getVoyageHandlingLayer()
