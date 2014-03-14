@@ -46,10 +46,8 @@ public class RoutePropertiesDialog extends RoutePropertiesDialogCommon {
     }
     
     public RoutePropertiesDialog(Window mainFrame, ChartPanel chartPanel, Route route) {
-        super(mainFrame, chartPanel, route, false);
-
+        super(mainFrame, chartPanel, route, true);
         btnActivate.setVisible(false);
-
     }
     
     

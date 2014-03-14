@@ -229,15 +229,18 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         AutoCompleteDecorator.decorate(destinationTxT, strings, false);
         
         // Column 1 widgets
-        int gridY = 0;        
+        int gridY = 0;
+        nameTxT.setEditable(!readOnlyRoute);
         nameTxT.getDocument().addDocumentListener(new TextFieldChangeListener(nameTxT));
         routeProps.add(new JLabel("Name:"), new GridBagConstraints(0, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
         routeProps.add(fixSize(nameTxT, 120), new GridBagConstraints(1, gridY++, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
         
+        originTxT.setEditable(!readOnlyRoute);
         originTxT.getDocument().addDocumentListener(new TextFieldChangeListener(originTxT));
         routeProps.add(new JLabel("Origin:"), new GridBagConstraints(0, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
         routeProps.add(fixSize(originTxT, 120), new GridBagConstraints(1, gridY++, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
         
+        destinationTxT.setEnabled(!readOnlyRoute);
         destinationTxT.getDocument().addDocumentListener(new TextFieldChangeListener(destinationTxT));
         routeProps.add(new JLabel("Destination:"), new GridBagConstraints(0, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
         routeProps.add(fixSize(destinationTxT, 120), new GridBagConstraints(1, gridY++, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
@@ -263,6 +266,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         routeProps.add(new JLabel("Estimated Time in-route:"), new GridBagConstraints(2, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets2, 0, 0));
         routeProps.add(fixSize(inrouteTxT, 180), new GridBagConstraints(3, gridY++, 2, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
 
+        etaCalculationTime.setEnabled(!readOnlyRoute);
         etaCalculationTime.addActionListener(this);
         routeProps.add(new JLabel("Calculate TTG/ETA using:"), new GridBagConstraints(2, gridY, 1, 1, 0.0, 0.0, WEST, NONE, insets6, 0, 0));
         routeProps.add(fixSize(etaCalculationTime, 180), new GridBagConstraints(3, gridY++, 2, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
