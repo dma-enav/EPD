@@ -223,8 +223,7 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
             routeSelectionChanged();
         
         } else if (ae.getSource() == zoomBtn && route.getWaypoints() != null) {
-            EPD.getInstance().getMainFrame()
-                .zoomToPosition(route.getWaypoints().getFirst().getPos());
+            EPD.getInstance().getMainFrame().getActiveChartPanel().zoomToWaypoints(route.getWaypoints());
         
         } else if (ae.getSource() == sendBtn) {
             sendRoute();
