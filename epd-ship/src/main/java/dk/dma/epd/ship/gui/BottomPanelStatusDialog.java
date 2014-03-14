@@ -1,5 +1,6 @@
 package dk.dma.epd.ship.gui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JLabel;
@@ -11,6 +12,7 @@ import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 import dk.dma.epd.common.prototype.status.PntStatus;
 import dk.dma.epd.common.text.Formatter;
+import dk.dma.epd.ship.EPDShip;
 
 public class BottomPanelStatusDialog extends CommonBottomPanelStatusDialog {
 
@@ -20,20 +22,30 @@ public class BottomPanelStatusDialog extends CommonBottomPanelStatusDialog {
     private JLabel lblSourceStatus;
 
     /**
+     * @param statusComponents 
      * 
      */
-    public BottomPanelStatusDialog() {
-        super();
-        super.setSize(super.getSize().width,
-                super.getSize().height+160);
+    public BottomPanelStatusDialog(List<IStatusComponent> statusComponents) {
+        super(statusComponents);
         
+        // Creates the panels
+        super.createStatusPanels(createPanels());
+        
+        // Start timer.
+        super.timer.start();
+        
+        // Set location and visible to true.
+        this.setLocationRelativeTo(EPDShip.getInstance().getMainFrame());
+        this.setVisible(true);
+    }
+
+    public List<JPanel> createPanels() {
         // PNT status
         JPanel pntPanel = new JPanel();
         pntPanel.setBorder(
                 new TitledBorder(null, "PNT", TitledBorder.LEADING, TitledBorder.TOP, TITLE_FONT));
         pntPanel.setSize(292, 120);
         pntPanel.setLayout(null);
-        statusPanel.add(pntPanel);
         
         JLabel lblPosition = new JLabel("Position:");
         lblPosition.setFont(PLAIN_FONT);
@@ -65,30 +77,33 @@ public class BottomPanelStatusDialog extends CommonBottomPanelStatusDialog {
         this.lblLastPNTDataStatus.setBounds(121, 80, 165, 16);
         pntPanel.add(this.lblLastPNTDataStatus);
         
-        super.createStatusPanels();
+        List<JPanel> statusPanels = new ArrayList<JPanel>();
+        statusPanels.add(pntPanel);
+        return statusPanels;
     }
-
+    
     @Override
-    public void showStatus(List<IStatusComponent> statusComponents) {
-        super.showStatus(statusComponents);
-
-        for (IStatusComponent iStatusComponent : statusComponents) {
-
+    public void showStatus() {
+        super.showStatus();
+        
+        for (IStatusComponent iStatusComponent : super.statusComponents) {
             ComponentStatus componentStatus = iStatusComponent.getStatus();
-
+            
             if (componentStatus instanceof PntStatus) {
-
+                
                 PntStatus pntStatus = (PntStatus) componentStatus;
                 this.lblPositionStatus.setText(pntStatus.getStatus().toString());
-                this.lblLastPNTDataStatus.setText(Formatter.formatLongDateTime(pntStatus.getPntData().getLastUpdated()));
-
+                
                 try {
                     this.lblSourceStatus.setText(pntStatus.getPntData().getPntSource().toString());                    
                 } catch (NullPointerException e) {
                     this.lblSourceStatus.setText("N/A");
                 }
-
-                super.colorStatusLabel(this.lblPositionStatus);
+                
+                this.lblLastPNTDataStatus.setText(
+                        Formatter.formatLongDateTime(pntStatus.getPntData().getLastUpdated()));
+                
+                super.colorStatusLabel(lblPositionStatus);
             }
         }
     }

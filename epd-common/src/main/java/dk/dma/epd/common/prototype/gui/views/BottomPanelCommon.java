@@ -16,7 +16,6 @@
 package dk.dma.epd.common.prototype.gui.views;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;

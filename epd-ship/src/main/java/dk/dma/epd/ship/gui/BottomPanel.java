@@ -75,8 +75,6 @@ public class BottomPanel extends BottomPanelCommon {
     
     @Override
     public void mouseClicked(MouseEvent e) {
-        BottomPanelStatusDialog statusDialog = new BottomPanelStatusDialog();
-        statusDialog.showStatus(super.statusComponents);
-        statusDialog.setVisible(true);
+        new BottomPanelStatusDialog(statusComponents);
     }
 }

@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.shore.gui.views;
 
-import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -132,8 +131,9 @@ public class BottomPanel extends BottomPanelCommon {
     
     @Override
     public void mouseClicked(MouseEvent e) {
-        BottomPanelStatusDialog statusDialog = new BottomPanelStatusDialog(status);
-        statusDialog.showStatus(super.statusComponents);
-        statusDialog.setVisible(true);
+        if (status != null) {
+            statusComponents.add(status);            
+        }
+        new BottomPanelStatusDialog(statusComponents);
     }
 }

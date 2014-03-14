@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.gui.views;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,9 +35,11 @@ import dk.dma.epd.common.text.Formatter;
 
 import javax.swing.JPanel;
 import javax.swing.JButton;
+import javax.swing.Timer;
 import javax.swing.WindowConstants;
 import javax.swing.JLabel;
 import javax.swing.border.TitledBorder;
+
 import java.awt.GridLayout;
 
 /**
@@ -44,9 +47,13 @@ import java.awt.GridLayout;
  */
 public class CommonBottomPanelStatusDialog extends JDialog implements ActionListener {
 
-    /**
-     * Private fields.
-     */
+    protected final static Font TITLE_FONT = new Font("LucidaGrande", Font.BOLD, 14);
+    protected final static Font PLAIN_FONT = new Font("LucidaGrande", Font.PLAIN, 11);
+    protected final static int PANEL_HEIGHT = 160;
+    protected JPanel statusPanel;
+    protected Timer timer;
+    protected List<IStatusComponent> statusComponents;
+
     private static final long serialVersionUID = 1L;
     private JLabel lblContactStatus;
     private JLabel lblLastContactStatus;
@@ -58,48 +65,64 @@ public class CommonBottomPanelStatusDialog extends JDialog implements ActionList
     private JLabel lblAisSendingStatus;
     private JLabel lblAisLastReceptionStatus;
     private JLabel lblAisLastSendStatus;
+    private JButton btnClose;
     
-    protected JPanel statusPanel;
-    protected final Font TITLE_FONT = new Font("LucidaGrande", Font.BOLD, 14);
-    protected final Font PLAIN_FONT = new Font("LucidaGrande", Font.PLAIN, 11);
     
     /**
-     * Constructor
+     * <p>Creates a CommonBottomPanelStatusDialog.<br>
+     * This will create the window, a panel for status and a panel at
+     * the bottom of the window with a "close" button.
+     * @param statusComponents
+     *          The status components which stores status.
      */
-    public CommonBottomPanelStatusDialog() {
+    public CommonBottomPanelStatusDialog(List<IStatusComponent> statusComponents) {
         
         super(EPD.getInstance().getMainFrame(), "Status", true);
+        this.statusComponents = statusComponents;
 
+        // Start the timer to update status while window is open.
+        timer = new Timer(500, this);
+        
         // Window settings.
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.setResizable(false);
-        this.setSize(310, 480);
-        this.setLocationRelativeTo(EPD.getInstance().getMainFrame());
+        this.setSize(310, 0);
         this.getContentPane().setLayout(new BorderLayout());
 
+        // Status panel settings.
         this.statusPanel = new JPanel();
         this.getContentPane().add(statusPanel, BorderLayout.CENTER);
         this.statusPanel.setLayout(new GridLayout(0, 1));
         
-        // -----------------------------------
         // Bottom button panel.
         JPanel btnPanel = new JPanel();
-        JButton btnClose = new JButton("Close");
+        btnClose = new JButton("Close");
         btnClose.addActionListener(this);
         btnPanel.add(btnClose);
-        this.getContentPane().add(btnPanel, BorderLayout.SOUTH);
+        this.getContentPane().add(btnPanel, BorderLayout.SOUTH);        
     }
 
     /**
-     * Creates the status panels.
+     * Creates the status panels. If any additional panels were given
+     * it creates adds those too.
+     * @param additionalStatusPanels
+     *          Additional status panels to be added.
      */
-    protected void createStatusPanels() {
+    protected void createStatusPanels(List<JPanel> additionalStatusPanels) {
+        
+        // Add additional panels first.
+        if (additionalStatusPanels != null) {
+            for (JPanel statusPanel : additionalStatusPanels) {
+                this.add(statusPanel);
+            }
+        }
+        
         // AIS status
         JPanel aisPanel = new JPanel();
         aisPanel.setBorder(
                 new TitledBorder(null, "AIS", TitledBorder.LEADING, TitledBorder.TOP, TITLE_FONT));
         aisPanel.setLayout(null);
-        this.statusPanel.add(aisPanel);
+        this.add(aisPanel);
         
         JLabel lblAisReception = new JLabel("Reception:");
         lblAisReception.setFont(PLAIN_FONT);
@@ -146,7 +169,7 @@ public class CommonBottomPanelStatusDialog extends JDialog implements ActionList
         shoreServicesPanel.setBorder(
                 new TitledBorder(null, "Shore Services", TitledBorder.LEADING, TitledBorder.TOP, TITLE_FONT));
         shoreServicesPanel.setLayout(null);
-        statusPanel.add(shoreServicesPanel);
+        this.add(shoreServicesPanel);
         
         JLabel lblContact = new JLabel("Contact:");
         lblContact.setFont(PLAIN_FONT);
@@ -172,7 +195,7 @@ public class CommonBottomPanelStatusDialog extends JDialog implements ActionList
         JPanel maritimeStatuspanel = new JPanel();
         maritimeStatuspanel.setBorder(
                 new TitledBorder(null, "Maritime Cloud", TitledBorder.LEADING, TitledBorder.TOP, TITLE_FONT));
-        statusPanel.add(maritimeStatuspanel);
+        this.add(maritimeStatuspanel);
         maritimeStatuspanel.setLayout(null);
         
         JLabel lblReception = new JLabel("Reception:");
@@ -213,20 +236,17 @@ public class CommonBottomPanelStatusDialog extends JDialog implements ActionList
         this.lblLastSendStatus = new JLabel("status");
         this.lblLastSendStatus.setFont(PLAIN_FONT);
         this.lblLastSendStatus.setBounds(121, 105, 165, 16);
-        maritimeStatuspanel.add(this.lblLastSendStatus);
+        maritimeStatuspanel.add(this.lblLastSendStatus);        
     }
     
     /**
      * Update status text of each status component.
-     * @param statusComponents
      */
-    public void showStatus(List<IStatusComponent> statusComponents) {
+    protected void showStatus() {
         
-        for (IStatusComponent iStatusComponent : statusComponents) {
+        for (IStatusComponent iStatusComponent : this.statusComponents) {
             ComponentStatus componentStatus = iStatusComponent.getStatus();
-            
-            System.out.println("Status: " + componentStatus.toString());
-            
+                        
             if (componentStatus instanceof AisStatus) {
                 
                 AisStatus aisStatus = (AisStatus) componentStatus;
@@ -277,16 +297,45 @@ public class CommonBottomPanelStatusDialog extends JDialog implements ActionList
             label.setForeground(Color.RED);
         } else if (statusText.equals("UNKNOWN")) {
             label.setForeground(Color.GRAY);
+        } else if (statusText.equals("PARTIAL")) {
+            label.setForeground(Color.YELLOW);
         }
+    }
+    
+    /**
+     * Adds a component to the status frame, and resizes the window
+     * height add space for the new panel.
+     * @param comp
+     *          The JPanel to be added.
+     * @return
+     */
+    @Override
+    public Component add(Component comp) {
+        
+        if (comp instanceof JPanel) {            
+            this.statusPanel.add(comp);
+            this.setSize(310, this.getSize().height + PANEL_HEIGHT);
+            
+        }
+        
+        return comp;
     }
 
     /**
-     * {@inheritDoc}
+     * Handles an action event. This is called every 500 ms by the
+     * timer object and the status is updated.
      */
     @Override
     public void actionPerformed(ActionEvent e) {
         
-        // Close the window.
-        this.dispose();
+        // If the source is the timer, check for status update.
+        if (e.getSource() == this.timer ) {
+            this.showStatus();
+        
+        // If the source is the button, stop the timer and close the window.
+        } else if (e.getSource() == this.btnClose) {
+            this.timer.stop();
+            this.dispose();
+        }
     }
 }
