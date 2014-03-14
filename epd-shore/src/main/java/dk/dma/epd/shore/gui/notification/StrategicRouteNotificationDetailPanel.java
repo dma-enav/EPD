@@ -43,6 +43,8 @@ import javax.swing.UIManager;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
+import org.apache.commons.lang.StringUtils;
+
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
@@ -79,14 +81,12 @@ public class StrategicRouteNotificationDetailPanel extends NotificationDetailPan
     JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.LEFT);
     
     String[] infoTitles = { 
-            "MMSI:", "Name:", "Call Sign:", "Destination:",
-            "Type:", "Lenght:", "Width:", "Draught:",
-            "SOG:", "COG:" };
+            "MMSI:", "Name:", "Call Sign:", "Destination:", "SOG:", 
+            "Type:", "Lenght:", "Width:", "Draught:",  "COG:" };
     JLabel[] infoLabels = {
-            mmsiTxt, nameTxt, callSignTxt, destinationTxt,
-            typeTxt, lengthTxt, widthTxt, draughtTxt,
-            sogTxt, cogTxt };
-    int[] infoCols = { 4, 4, 2 };
+            mmsiTxt, nameTxt, callSignTxt, destinationTxt, sogTxt,
+            typeTxt, lengthTxt, widthTxt, draughtTxt, cogTxt };
+    int[] infoCols = { 5, 5 };
     
     /**
      * Constructor
@@ -113,12 +113,13 @@ public class StrategicRouteNotificationDetailPanel extends NotificationDetailPan
         add(fixSize(statusTxt, 80), new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
 
         // Create the info panel
+        Insets insets2  = new Insets(2, 5, 2, 5);
         JPanel infoPanel = new JPanel(new GridBagLayout());
         infoPanel.setBorder(BorderFactory.createTitledBorder("Ship Info"));
         for (int col = 0, index = 0; col < infoCols.length; col++) {
             for (int row = 0; row < infoCols[col]; row++, index++) {
-                infoPanel.add(bold(new JLabel(infoTitles[index])), new GridBagConstraints(col * 2, row, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-                infoPanel.add(minSize(infoLabels[index], 40), new GridBagConstraints(col * 2 + 1, row, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+                infoPanel.add(bold(new JLabel(infoTitles[index])), new GridBagConstraints(col * 2, row, 1, 1, 0.0, 0.0, WEST, NONE, insets2, 0, 0));
+                infoPanel.add(minSize(infoLabels[index], 40), new GridBagConstraints(col * 2 + 1, row, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets2, 0, 0));
             }
         }
         add(infoPanel, new GridBagConstraints(0, 1, 4, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
@@ -165,11 +166,14 @@ public class StrategicRouteNotificationDetailPanel extends NotificationDetailPan
         VesselStaticData staticData = notification.getVesselStaticData();
         if (staticData != null) {
             nameTxt.setText(staticData.getTrimmedName());
+            nameTxt.setToolTipText(staticData.getTrimmedName());
             callSignTxt.setText(staticData.getTrimmedCallsign());
-            if (staticData.getDestination() != null){
-                destinationTxt.setText(staticData.getDestination().trim());
+            if (!StringUtils.isBlank(staticData.getTrimmedDestination())) {
+                destinationTxt.setText(staticData.getTrimmedDestination());
+                destinationTxt.setToolTipText(staticData.getTrimmedDestination());
             }
             typeTxt.setText(staticData.getShipType().toString());
+            typeTxt.setToolTipText(staticData.getShipType().toString());
             lengthTxt.setText(staticData.getDimBow() + staticData.getDimStern() + "");
             widthTxt.setText(staticData.getDimPort() + staticData.getDimStarboard() + "");
             draughtTxt.setText(staticData.getDraught() / 10 + "");
@@ -177,8 +181,8 @@ public class StrategicRouteNotificationDetailPanel extends NotificationDetailPan
         
         VesselPositionData positionData = notification.getVesselPositionData();
         if (positionData != null) {
-            sogTxt.setText(positionData.getSog() + "");
-            cogTxt.setText(positionData.getCog() + "");            
+            sogTxt.setText(Formatter.formatCurrentSpeed((double)positionData.getSog()));
+            cogTxt.setText(Formatter.formatDegrees((double)positionData.getCog(), 0));            
         }
         
         setNegotiationTabs(message);

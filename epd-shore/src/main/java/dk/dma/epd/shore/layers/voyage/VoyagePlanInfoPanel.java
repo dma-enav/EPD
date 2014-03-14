@@ -61,7 +61,7 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener {
     VoyageHandlingLayer voyageHandlingLayer;
 
     JLabel lblShipName = new JLabel(" ");
-    JLabel lblCallSign = new JLabel("()");
+    JLabel lblCallSign = new JLabel(" ");
     JLabel lblRouteName = new JLabel(" ");
     JLabel lblCog = new JLabel(" ");
     JLabel lblSog = new JLabel(" ");
@@ -235,7 +235,7 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener {
                 VesselStaticData staticData = vesselTarget.getStaticData();
 
                 lblShipName.setText(staticData.getTrimmedName());
-                lblCallSign.setText("(" + staticData.getTrimmedCallsign() + ")");
+                lblCallSign.setText(staticData.getTrimmedCallsign());
                 lblCog.setText(Formatter.formatDegrees((double)vesselTarget.getPositionData().getCog(), 0));
                 lblSog.setText(Formatter.formatCurrentSpeed((double)vesselTarget.getPositionData().getSog()));
 

@@ -209,6 +209,10 @@ public class VesselStaticData implements Serializable {
         return destination;
     }
 
+    public String getTrimmedDestination() {
+        return AisMessage.trimText(getDestination());
+    }
+
     public synchronized void setDestination(String destination) {
         this.destination = destination;
     }
