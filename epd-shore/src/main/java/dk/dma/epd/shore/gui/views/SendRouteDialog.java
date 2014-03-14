@@ -325,7 +325,7 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
 
             VesselTarget selectedShip = aisHandler.getVesselTarget(mmsi.longValue());
             if (selectedShip != null && selectedShip.getStaticData() != null) {
-                nameComboBox.addItem(selectedShip.getStaticData().getName());
+                nameComboBox.addItem(selectedShip.getStaticData().getTrimmedName());
             } else {
                 nameComboBox.addItem("N/A");
             }

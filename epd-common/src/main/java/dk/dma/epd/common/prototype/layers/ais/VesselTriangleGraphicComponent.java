@@ -20,7 +20,6 @@ import java.awt.Font;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMText;
 
-import dk.dma.ais.message.AisMessage;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.RotationalPoly;
 import dk.dma.epd.common.prototype.ais.AisTarget;
@@ -145,7 +144,7 @@ public class VesselTriangleGraphicComponent extends VesselGraphicComponent {
             // Determine name
             String name;
             if (staticData != null) {
-                name = AisMessage.trimText(staticData.getName());
+                name = staticData.getTrimmedName();
             } else {
                 Long mmsi = vesselTarget.getMmsi();
                 name = "ID:" + mmsi.toString();

@@ -17,7 +17,6 @@ package dk.dma.epd.ship.layers.ais;
 
 import java.text.DecimalFormat;
 
-import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.ais.AisTarget.Status;
 import dk.dma.epd.common.prototype.ais.AtoNTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
@@ -45,7 +44,7 @@ public class AisTargetInfoPanel extends InfoPanel implements Runnable {
     }
 
     public void showAtonInfo(AtoNTarget atonTarget) {
-        String name = AisMessage.trimText(atonTarget.getName());
+        String name = atonTarget.getTrimmedName();
         Status status = atonTarget.getStatus();
         StringBuilder str = new StringBuilder();
         str.append("<html>");
@@ -69,8 +68,8 @@ public class AisTargetInfoPanel extends InfoPanel implements Runnable {
         String name = null;
         String callsign = null;
         if (staticData != null) {
-            name = AisMessage.trimText(staticData.getName());
-            callsign = AisMessage.trimText(staticData.getCallsign());
+            name = staticData.getTrimmedName();
+            callsign = staticData.getTrimmedCallsign();
         }
         VesselPositionData positionData = vesselTarget.getPositionData();
         String cog = "N/A";

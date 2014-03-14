@@ -17,7 +17,6 @@ package dk.dma.epd.common.prototype.layers.ais;
 
 import javax.swing.SwingUtilities;
 
-import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
@@ -65,8 +64,8 @@ public class AisTargetInfoPanelCommon extends HtmlInfoPanel<VesselTarget> {
         VesselStaticData staticData = dataObject.getStaticData();
         String name = null, callsign = null;
         if (staticData != null) {
-            name = AisMessage.trimText(staticData.getName());
-            callsign = AisMessage.trimText(staticData.getCallsign());
+            name = staticData.getTrimmedName();
+            callsign = staticData.getTrimmedCallsign();
         }
         VesselPositionData positionData = dataObject.getPositionData();
         String cog = na, sog = na;

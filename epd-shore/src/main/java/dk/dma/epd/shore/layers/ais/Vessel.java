@@ -29,7 +29,6 @@ import com.bbn.openmap.omGraphics.OMText;
 import com.bbn.openmap.proj.Length;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
-import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.ais.AisTarget;
 import dk.dma.epd.common.prototype.ais.VesselPositionData;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
@@ -152,8 +151,8 @@ public class Vessel extends TargetGraphic {
         if (staticData != null) {
             vessel.setImageIcon(staticData.getShipType().toString());
             callSign.setData("Call Sign: " + staticData.getCallsign());
-            vesselCallSign = AisMessage.trimText(staticData.getCallsign());
-            vesselName = AisMessage.trimText(staticData.getName());
+            vesselCallSign = staticData.getTrimmedCallsign();
+            vesselName = staticData.getTrimmedName();
             vesselDest = staticData.getDestination();
             vesselEta = Long.toString(staticData.getEta());
             vesselShiptype = staticData.getShipType().toString();

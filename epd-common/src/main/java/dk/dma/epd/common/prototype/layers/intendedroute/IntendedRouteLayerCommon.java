@@ -25,7 +25,6 @@ import com.bbn.openmap.event.ProjectionListener;
 import com.bbn.openmap.omGraphics.OMCircle;
 import com.bbn.openmap.omGraphics.OMGraphic;
 
-import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
 import dk.dma.epd.common.prototype.ais.AisTarget;
@@ -104,7 +103,7 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
         VesselTarget vessel = aisHandler.getVesselTarget(intendedRoute.getMmsi());
         if (vessel != null) {
             if (vessel.getStaticData() != null) {
-                intendedRouteGraphic.setName(AisMessage.trimText(vessel.getStaticData().getName()));
+                intendedRouteGraphic.setName(vessel.getStaticData().getTrimmedName());
             }
 
             // Update the graphics

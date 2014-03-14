@@ -21,7 +21,6 @@ import javax.swing.border.EtchedBorder;
 
 import com.bbn.openmap.gui.OMComponentPanel;
 
-import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.sensor.pnt.IPntDataListener;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
@@ -73,8 +72,8 @@ public class OwnShipComponentPanel extends OMComponentPanel implements IPntDataL
             ownMmsi = ownShipHandler.getMmsi();
 
             if (staticData != null) {
-                ownName = AisMessage.trimText(staticData.getName());
-                ownCallsign = AisMessage.trimText(staticData.getCallsign());
+                ownName = staticData.getTrimmedName();
+                ownCallsign = staticData.getTrimmedCallsign();
             }
 
         }

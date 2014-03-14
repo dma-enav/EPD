@@ -355,7 +355,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
             VesselTarget currentTarget = vesselTargets.get(key);
 
             if (currentTarget.getStaticData() != null) {
-                name = " " + AisMessage.trimText(this.getVesselTarget(key).getStaticData().getName());
+                name = " " + getVesselTarget(key).getStaticData().getTrimmedName();
             }
 
             hdg = currentTarget.getPositionData().getCog();
@@ -579,7 +579,7 @@ public abstract class AisHandlerCommon extends MapHandlerChild implements Runnab
         Position targetPosition = null;
 
         if (currentTarget.getStaticData() != null) {
-            name = " " + AisMessage.trimText(currentTarget.getStaticData().getName());
+            name = " " + currentTarget.getStaticData().getTrimmedName();
         }
         if (!currentData.isBadPosition()) {
             ownPosition = currentData.getPosition();

@@ -229,8 +229,8 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener {
             if (vesselTarget != null && vesselTarget.getStaticData() != null) {
                 VesselStaticData staticData = vesselTarget.getStaticData();
 
-                lblShipName.setText(staticData.getName());
-                lblCallSign.setText("(" + staticData.getCallsign().trim() + ")");
+                lblShipName.setText(staticData.getTrimmedName());
+                lblCallSign.setText("(" + staticData.getTrimmedCallsign() + ")");
                 lblCog.setText(Formatter.formatDegrees((double)vesselTarget.getPositionData().getCog(), 0));
                 lblSog.setText(Formatter.formatCurrentSpeed((double)vesselTarget.getPositionData().getSog()));
 

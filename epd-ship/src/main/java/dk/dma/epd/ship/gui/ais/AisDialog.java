@@ -336,8 +336,8 @@ public class AisDialog extends ComponentFrame implements ListSelectionListener, 
         Date currentDate = new Date();
 
         if (vesselTarget.getStaticData() != null ){
-            name = AisMessage.trimText(vesselTarget.getStaticData().getName());
-            callsign = AisMessage.trimText(vesselTarget.getStaticData().getCallsign());
+            name = vesselTarget.getStaticData().getTrimmedName();
+            callsign = vesselTarget.getStaticData().getTrimmedCallsign();
 //            imo = Long.toString(vesselTarget.getStaticData().getImo());
             type = vesselTarget.getStaticData().getShipType().prettyType();
             cargo = vesselTarget.getStaticData().getShipType().prettyCargo();

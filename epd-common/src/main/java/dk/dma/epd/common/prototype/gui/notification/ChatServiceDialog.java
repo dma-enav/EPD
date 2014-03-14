@@ -207,7 +207,7 @@ public class ChatServiceDialog extends JDialog implements ActionListener {
             String name = null;
             VesselTarget selectedShip = aisHandler.getVesselTarget(mmsi.longValue());
             if (selectedShip != null && selectedShip.getStaticData() != null) {
-                name = selectedShip.getStaticData().getName();
+                name = selectedShip.getStaticData().getTrimmedName();
             }
             targetComboBox.addItem(new ChatServiceTarget(service.getId(), name));
         }

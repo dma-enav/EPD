@@ -156,7 +156,7 @@ public class VoyageLayer extends EPDLayerCommon implements VoyageUpdateListener,
             String name = "" + currentVoyage.getMmsi();
             if (ship != null) {
                 if (ship.getStaticData() != null) {
-                    name = ship.getStaticData().getName();
+                    name = ship.getStaticData().getTrimmedName();
                 }
             }
             voyageInfoPanel.showVoyageInfo(currentVoyage, name);

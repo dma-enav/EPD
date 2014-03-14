@@ -33,7 +33,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
-import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.shore.ais.AisHandler;
 
@@ -89,8 +88,7 @@ public class AISSelectionList extends JDialog implements ActionListener {
             VesselTarget vesselTarget = entry.getValue();
             if (vesselTarget.getStaticData() != null) {
                 if (vesselTarget.getStaticData().getName() != null) {
-                    name = AisMessage.trimText(vesselTarget.getStaticData()
-                            .getName());
+                    name = vesselTarget.getStaticData().getTrimmedName();
 
                 } else {
                     name = "N/A";

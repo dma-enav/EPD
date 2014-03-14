@@ -164,8 +164,8 @@ public class StrategicRouteNotificationDetailPanel extends NotificationDetailPan
         
         VesselStaticData staticData = notification.getVesselStaticData();
         if (staticData != null) {
-            nameTxt.setText(staticData.getName().trim());
-            callSignTxt.setText(staticData.getCallsign().trim());
+            nameTxt.setText(staticData.getTrimmedName());
+            callSignTxt.setText(staticData.getTrimmedCallsign());
             if (staticData.getDestination() != null){
                 destinationTxt.setText(staticData.getDestination().trim());
             }

@@ -90,7 +90,7 @@ public class StrategicRouteNotification extends Notification<StrategicRouteNegot
     public String getVesselName() {
         VesselStaticData staticData = getVesselStaticData();
         if (staticData != null) {
-            return staticData.getName().trim();
+            return staticData.getTrimmedName();
         }
         return String.valueOf(get().getMmsi());
     }

@@ -15,7 +15,6 @@
  */
 package dk.dma.epd.common.prototype.layers.ais;
 
-import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.common.prototype.ais.MobileTarget;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.text.Formatter;
@@ -48,7 +47,7 @@ public class PastTrackInfoPanel extends InfoPanel {
         MobileTarget mobileTarget = wpCircle.getPastTrackGraphic().getMobileTarget();
         if (mobileTarget != null && mobileTarget.getStaticData() != null) {
             name = String.format("%s (%d)", 
-                    AisMessage.trimText(mobileTarget.getStaticData().getName()),
+                    mobileTarget.getStaticData().getTrimmedName(),
                     mobileTarget.getMmsi());
         }
         

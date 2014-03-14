@@ -82,7 +82,7 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
         
         VesselTarget vesselTarget = aisHandler.getVesselTarget(message.getMmsi());
         if (vesselTarget.getStaticData() != null) {
-            shipName = vesselTarget.getStaticData().getName();
+            shipName = vesselTarget.getStaticData().getTrimmedName();
         }
 
         // Get latest route

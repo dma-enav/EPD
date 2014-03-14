@@ -26,7 +26,6 @@ import javax.swing.border.EtchedBorder;
 
 import com.bbn.openmap.gui.OMComponentPanel;
 
-import dk.dma.ais.message.AisMessage;
 import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.panels.DynamicNoGoPanel;
 import dk.dma.epd.ship.nogo.DynamicNogoHandler;
@@ -104,7 +103,7 @@ public class DynamicNoGoComponentPanel extends OMComponentPanel {
         statLabel3.setText("N/A");
         statLabel4.setText("N/A");
         
-        statLabel5.setText("Target Vessel: " + AisMessage.trimText(aisHandler.getVesselTarget(dynamicNogoHandler.getMmsiTarget()).getStaticData().getName()));
+        statLabel5.setText("Target Vessel: " + aisHandler.getVesselTarget(dynamicNogoHandler.getMmsiTarget()).getStaticData().getTrimmedName());
         statLabel6.setText("Requesting NoGo");
         statLabel7.setText("Please standby");
 
