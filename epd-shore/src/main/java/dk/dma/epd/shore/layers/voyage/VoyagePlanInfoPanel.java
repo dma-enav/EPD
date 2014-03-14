@@ -102,12 +102,22 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener {
         shipPanel.add(new JLabel("Name:"), 
                 new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         shipPanel.add(lblShipName, 
-                new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+                new GridBagConstraints(1, 0, 3, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
         
         shipPanel.add(new JLabel("Call sign:"), 
                 new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         shipPanel.add(lblCallSign, 
-                new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+                new GridBagConstraints(1, 1, 3, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+
+        shipPanel.add(new JLabel("COG:"), 
+                new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        shipPanel.add(lblCog, 
+                new GridBagConstraints(1, 2, 1, 1, 0.5, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+        shipPanel.add(new JLabel("SOG:"), 
+                new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        shipPanel.add(lblSog, 
+                new GridBagConstraints(3, 2, 1, 1, 0.5, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+
         
         // *******************
         // *** Route panel 
@@ -121,26 +131,17 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener {
         routePanel.add(new JLabel("Name:"), 
                 new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         routePanel.add(lblRouteName, 
-                new GridBagConstraints(1, 0, 3, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+                new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
         
-        routePanel.add(new JLabel("COG:"), 
-                new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        routePanel.add(lblCog, 
-                new GridBagConstraints(1, 1, 1, 1, 0.5, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
-        routePanel.add(new JLabel("SOG:"), 
-                new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        routePanel.add(lblSog, 
-                new GridBagConstraints(3, 1, 1, 1, 0.5, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
-
         routePanel.add(new JLabel("TD:"), 
-                new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+                new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         routePanel.add(lblTd, 
-                new GridBagConstraints(1, 2, 3, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+                new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
 
         routePanel.add(new JLabel("ETA:"), 
-                new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+                new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
         routePanel.add(lblETA, 
-                new GridBagConstraints(1, 3, 3, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
+                new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
         
         
         // *******************
