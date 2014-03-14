@@ -39,14 +39,13 @@ public class RoutePropertiesDialog extends RoutePropertiesDialogCommon {
 
     public RoutePropertiesDialog(Window mainFrame, ChartPanel chartPanel, Route route,
             VoyageHandlingLayer voyageHandlingLayer) {
-        super(mainFrame, chartPanel, route, true);
+        super(mainFrame, chartPanel, route, false);
         this.voyageHandlingLayer = voyageHandlingLayer;
         btnActivate.setVisible(false);
 
     }
     
-    public RoutePropertiesDialog(Window mainFrame, ChartPanel chartPanel, Route route
-             ) {
+    public RoutePropertiesDialog(Window mainFrame, ChartPanel chartPanel, Route route) {
         super(mainFrame, chartPanel, route, false);
 
         btnActivate.setVisible(false);

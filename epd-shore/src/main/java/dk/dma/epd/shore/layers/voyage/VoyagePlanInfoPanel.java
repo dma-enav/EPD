@@ -71,7 +71,7 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener {
 
     JButton ZoomToShipBtn = new JButton("Zoom to ship in center");
     JButton OpenShipDetailstextBtn = new JButton("Open ship details");
-    JButton OpenVpDetalsBtn = new JButton("Open VP details");
+    JButton OpenVpDetalsBtn = new JButton("Open voyage plan details");
     JButton HideOtherVoyagesBtn = new JButton("Hide other voyages");
     JButton sendBtn = new JButton("Send Voyage");
     

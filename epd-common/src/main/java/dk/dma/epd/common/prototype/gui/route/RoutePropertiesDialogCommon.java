@@ -119,7 +119,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     private RouteManagerCommon routeManager;
     protected Route route = new Route();
     protected boolean[] locked;
-    protected boolean isActiveRoute;
+    protected boolean readOnlyRoute;
     boolean quiescent;
 
     // Column 1 widgets
@@ -168,15 +168,15 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
      * 
      * @param parent the parent window
      * @param route the route
-     * @param isActiveRoute whether the route is the active route or not
+     * @param readOnlyRoute whether the route is read-only or not
      */
-    public RoutePropertiesDialogCommon(Window parent, ChartPanelCommon chartPanel, Route route, boolean isActiveRoute) {
+    public RoutePropertiesDialogCommon(Window parent, ChartPanelCommon chartPanel, Route route, boolean readOnlyRoute) {
         super(parent, "Route Properties", Dialog.ModalityType.APPLICATION_MODAL);
         
         this.parent = parent;
         this.chartPanel = chartPanel;
         this.route = route;
-        this.isActiveRoute = isActiveRoute;
+        this.readOnlyRoute = readOnlyRoute;
         locked = new boolean[route.getWaypoints().size()];
         
         addWindowListener(new WindowAdapter() {
@@ -426,7 +426,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
 
             @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return !isActiveRoute &&
+                return !readOnlyRoute &&
                         (columnIndex == 0 || !locked[rowIndex]) &&
                         (columnIndex < 5 || columnIndex > 9) &&
                         !(columnIndex == 4 && rowIndex == 0);
@@ -448,8 +448,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         spinner.addChangeListener(new SpinnerChangeListener());
         
         // Set the enabled state
-        picker.setEnabled(!isActiveRoute);
-        spinner.setEnabled(!isActiveRoute);
+        picker.setEnabled(!readOnlyRoute);
+        spinner.setEnabled(!readOnlyRoute);
     }
     
     /**
@@ -480,13 +480,13 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
      */
     private void updateButtonEnabledState() {
         boolean wpSelected = selectedWp >= 0;
-        btnActivate.setEnabled(wpSelected && isActiveRoute);
-        btnDelete.setEnabled(wpSelected && !isActiveRoute);
+        btnActivate.setEnabled(wpSelected && readOnlyRoute);
+        btnDelete.setEnabled(wpSelected && !readOnlyRoute);
         btnZoomTo.setEnabled(wpSelected && chartPanel != null);
         
         boolean allRowsLocked = checkLockedRows();
-        arrivalPicker.setEnabled(!isActiveRoute && !allRowsLocked);
-        arrivalSpinner.setEnabled(!isActiveRoute && !allRowsLocked);
+        arrivalPicker.setEnabled(!readOnlyRoute && !allRowsLocked);
+        arrivalSpinner.setEnabled(!readOnlyRoute && !allRowsLocked);
     }
     
     /***************************************************/
@@ -688,7 +688,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         quiescent = true;
 
         // Get start time or default now
-        if (!isActiveRoute) {
+        if (!readOnlyRoute) {
             route.adjustStartTime();
         }
         Date starttime = route.getStarttime();
@@ -721,7 +721,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
      * Called when route values changes and the fields should be refreshed
      */
     private void updateFields() {
-        if (!isActiveRoute) {
+        if (!readOnlyRoute) {
             route.calcValues(true);
             route.calcAllWpEta();
         }
