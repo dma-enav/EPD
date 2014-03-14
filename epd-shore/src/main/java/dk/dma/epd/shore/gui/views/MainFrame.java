@@ -41,7 +41,6 @@ import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.event.SelectMouseMode;
 import dk.dma.epd.shore.gui.route.RouteManagerDialog;
 import dk.dma.epd.shore.gui.voct.SRUManagerDialog;
-import dk.dma.epd.shore.gui.route.strategic.SendStrategicRouteDialog;
 import dk.dma.epd.shore.settings.EPDGuiSettings;
 import dk.dma.epd.shore.settings.Workspace;
 import dk.dma.epd.shore.util.ThreadedMapCreator;
@@ -73,7 +72,6 @@ public class MainFrame extends MainFrameCommon {
     private RouteManagerDialog routeManagerDialog = new RouteManagerDialog(this);
     private SendRouteDialog sendRouteDialog = new SendRouteDialog(this);
     private SRUManagerDialog sruManagerDialog = new SRUManagerDialog(this);
-    private SendStrategicRouteDialog sendVoyageDialog = new SendStrategicRouteDialog();
 
     private StatusArea statusArea = new StatusArea(this);
     private JMapFrame activeMapWindow;
@@ -135,16 +133,13 @@ public class MainFrame extends MainFrameCommon {
         desktop.getManager().setStatusArea(statusArea);
         desktop.getManager().setToolbar(toolbar);
         desktop.getManager().setRouteManager(routeManagerDialog);
-        desktop.getManager().setSendVoyageDialog(sendVoyageDialog);
         desktop.getManager().setSRUManagerDialog(sruManagerDialog);
 
         desktop.add(statusArea, true);
         desktop.add(toolbar, true);
-        desktop.add(sendVoyageDialog, true);
 
         beanHandler.add(bottomPanel);
         beanHandler.add(sendRouteDialog);
-        beanHandler.add(sendVoyageDialog);
 
         chatServiceDialog = new ChatServiceDialog(this);
         
@@ -496,10 +491,6 @@ public class MainFrame extends MainFrameCommon {
 
     public SendRouteDialog getSendRouteDialog() {
         return sendRouteDialog;
-    }
-
-    public SendStrategicRouteDialog getSendVoyageDialog() {
-        return sendVoyageDialog;
     }
 
     public JMenuWorkspaceBar getTopMenu() {

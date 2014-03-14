@@ -61,10 +61,8 @@ public class SARFrame extends JMapFrame {
     public void initGUI() {
         makeKeyBindings();
 
-        mapFrame = this;
-
         // Listen for resize
-        mapFrame.addComponentListener(new ComponentAdapter() {
+        addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent e) {
                 repaintMapWindow();
             }
@@ -121,7 +119,7 @@ public class SARFrame extends JMapFrame {
 
             public void mouseReleased(MouseEvent e) {
                 try {
-                    mapFrame.setIcon(true);
+                    setIcon(true);
                 } catch (PropertyVetoException e1) {
                     e1.printStackTrace();
                 }
@@ -138,13 +136,13 @@ public class SARFrame extends JMapFrame {
             public void mouseReleased(MouseEvent e) {
                 try {
                     if (maximized) {
-                        mapFrame.setMaximum(false);
+                        setMaximum(false);
                         maximized = false;
                         maximize.setIcon(new ImageIcon(EPDShore.class
                                 .getClassLoader().getResource(
                                         "images/window/maximize.png")));
                     } else {
-                        mapFrame.setMaximum(true);
+                        setMaximum(true);
                         maximized = true;
                         maximize.setIcon(new ImageIcon(EPDShore.class
                                 .getClassLoader().getResource(
@@ -224,13 +222,13 @@ public class SARFrame extends JMapFrame {
 
         System.out.println("Repaint called");
         
-        width = mapFrame.getSize().width;
-        int innerHeight = mapFrame.getSize().height - moveHandlerHeight
+        width = getSize().width;
+        int innerHeight = getSize().height - moveHandlerHeight
                 - chartPanelOffset;
-        height = mapFrame.getSize().height;
+        height = getSize().height;
 
         if (locked) {
-            innerHeight = mapFrame.getSize().height - 4; // 4 for border
+            innerHeight = getSize().height - 4; // 4 for border
         }
 
         // And finally set the size and repaint it

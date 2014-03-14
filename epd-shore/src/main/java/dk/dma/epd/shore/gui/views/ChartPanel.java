@@ -165,40 +165,19 @@ public class ChartPanel extends ChartPanelCommon {
     /**
      * Initiate the chart with a custom map type
      */
-    public void initChart(MapFrameType mapType) {
-
-        EPDMapSettings mapSettings = EPDShore.getInstance().getSettings().getMapSettings();
+    public void initChart(MapFrameType mapType, Point2D center, float scale) {
 
         initChartDefault(mapType);
 
         // Set last postion
-        map.setCenter(mapSettings.getCenter());
-
-        // Get from settings
-        map.setScale(mapSettings.getScale());
-
-        add(map);
-    }
-
-    /**
-     * Initiate the chart with a specific center and zoom scale
-     * 
-     * @param center
-     *            map center
-     * @param scale
-     *            zoom scale
-     */
-    public void initChart(Point2D center, float scale) {
-
-        initChartDefault(MapFrameType.standard);
-
-        // Get from settings
         map.setCenter(center);
+
+        // Get from settings
         map.setScale(scale);
 
         add(map);
     }
-
+    
     /**
      * Initiate the default map values - must be called by a chart
      * 

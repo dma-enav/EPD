@@ -16,7 +16,9 @@
 package dk.dma.epd.shore.layers.voyage;
 
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
@@ -27,6 +29,8 @@ import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.layers.route.RouteGraphic;
@@ -119,9 +123,11 @@ public class VoyageHandlingLayer extends EPDLayerCommon implements IVoyageUpdate
         super.findAndInit(obj);
 
         if (obj instanceof JMapFrame) {
-            voyagePlanInfoPanel.setParent(getMapFrame());
-            voyagePlanInfoPanel.setBounds(0, 20, 208, 300);
-            getGlassPanel().add(voyagePlanInfoPanel);
+            JMapFrame mapFrame = (JMapFrame)obj;
+            voyagePlanInfoPanel.setPreferredSize(new Dimension(200, 300));
+            voyagePlanInfoPanel.setMinimumSize(new Dimension(200, 300));
+            mapFrame.addContentPanel(voyagePlanInfoPanel, BorderLayout.EAST);
+            //mapFrame.revalidate();
         }
 
         if (obj instanceof AisHandler) {
@@ -169,9 +175,8 @@ public class VoyageHandlingLayer extends EPDLayerCommon implements IVoyageUpdate
             if (wpc.getRouteIndex() == 1) {
                 checkIfETAChanged();
                 voyage.setRoute(newRoute);
-                getMapMenu().voyageWaypointMenu(this, mapBean, voyage, modified,
-                        getMapFrame(), voyagePlanInfoPanel, true, newRoute, null,
-                        evt.getPoint(), wpc.getWpIndex(), renegotiate);
+                getMapMenu().voyageWaypointMenu(this, mapBean, voyage, true, newRoute, null,
+                        evt.getPoint(), wpc.getWpIndex());
             }
         
         } else if (clickedGraphics instanceof RouteLegGraphic) {
@@ -180,11 +185,37 @@ public class VoyageHandlingLayer extends EPDLayerCommon implements IVoyageUpdate
             if (rlg.getRouteIndex() == 1) {
                 checkIfETAChanged();
                 voyage.setRoute(newRoute);
-                getMapMenu().voyageWaypointMenu(this, mapBean, voyage, modified,
-                        getMapFrame(), voyagePlanInfoPanel, false, newRoute,
-                        rlg.getRouteLeg(), evt.getPoint(), 0, renegotiate);
+                getMapMenu().voyageWaypointMenu(this, mapBean, voyage, false, newRoute,
+                        rlg.getRouteLeg(), evt.getPoint(), 0);
             }            
         }
+    }
+    
+    /**
+     * This method is called in order to send the voyage back to the ship.
+     * <p>
+     * Afterwards, the layer and parent window will self-destruct.
+     * 
+     * @param message the message to send along
+     */
+    public void sendVoyage(String message) {
+        checkIfETAChanged();
+        voyage.setRoute(newRoute);
+        
+        StrategicRouteStatus replyStatus = 
+                modified
+                ? StrategicRouteService.StrategicRouteStatus.NEGOTIATING
+                : StrategicRouteService.StrategicRouteStatus.AGREED;
+
+        EPDShore.getInstance().getStrategicRouteHandler()
+            .sendStrategicRouteReply(
+                    voyage.getId(), 
+                    message,
+                    System.currentTimeMillis(), 
+                    replyStatus, 
+                    voyage.getRoute().getFullRouteData(), 
+                    renegotiate);
+        getMapFrame().dispose();
     }
 
     /**
