@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.ship.gui;
 
+import java.awt.event.MouseEvent;
+
 import dk.dma.epd.common.prototype.gui.StatusLabel;
 import dk.dma.epd.common.prototype.gui.views.BottomPanelCommon;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
@@ -69,5 +71,10 @@ public class BottomPanel extends BottomPanelCommon {
         if (pntHandler != null) {
             pntStatus.updateStatus(pntHandler);
         }
+    }
+    
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        new BottomPanelStatusDialog(statusComponents);
     }
 }
