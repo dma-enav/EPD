@@ -501,11 +501,8 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode implements
      */
     @Override
     public void keyReleased(KeyEvent e) {
-        System.out.println(e.getKeyCode() + " was pressed. Escape key code is " + KeyEvent.VK_ESCAPE);
 
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE && this.point2 != null) {
-
-            System.out.println("Escape was pressed");
 
             this.paintRectangle(((MapBean) e.getSource()).getGraphics(), this.point1, this.point2);
             this.mouseDragged = false;
