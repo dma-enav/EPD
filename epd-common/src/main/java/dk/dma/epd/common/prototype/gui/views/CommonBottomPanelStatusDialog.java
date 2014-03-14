@@ -47,9 +47,9 @@ import java.awt.GridLayout;
  */
 public class CommonBottomPanelStatusDialog extends JDialog implements ActionListener {
 
-    protected final static Font TITLE_FONT = new Font("LucidaGrande", Font.BOLD, 14);
-    protected final static Font PLAIN_FONT = new Font("LucidaGrande", Font.PLAIN, 11);
-    protected final static int PANEL_HEIGHT = 160;
+    protected final Font TITLE_FONT = new Font("LucidaGrande", Font.BOLD, 14);
+    protected final Font PLAIN_FONT = new Font("LucidaGrande", Font.PLAIN, 11);
+    protected final int PANEL_HEIGHT = 160;
     protected JPanel statusPanel;
     protected Timer timer;
     protected List<IStatusComponent> statusComponents;
