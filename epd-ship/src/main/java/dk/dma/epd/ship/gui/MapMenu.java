@@ -100,11 +100,11 @@ public class MapMenu extends MapMenuCommon {
         newRoute = new GeneralNewRoute("Add new route - Ctrl N");
         newRoute.addActionListener(this);
 
-        nogoRequest = new NogoRequest("Request NoGo area");
+        nogoRequest = new NogoRequest("Request NoGo area...");
         nogoRequest.addActionListener(this);
         
         // ais menu items
-        aisTargetDetails = new AisTargetDetails("Show AIS target details");
+        aisTargetDetails = new AisTargetDetails("Show AIS target details...");
         aisTargetDetails.addActionListener(this);
 //        aisTargetLabelToggle = new AisTargetLabelToggle();
 //        aisTargetLabelToggle.addActionListener(this);
@@ -128,7 +128,7 @@ public class MapMenu extends MapMenuCommon {
 
         // suggested route menu
         suggestedRouteDetails = new SuggestedRouteDetails(
-                "Suggested route details");
+                "Suggested route details...");
         suggestedRouteDetails.addActionListener(this);
 
         // route edit menu
@@ -241,7 +241,7 @@ public class MapMenu extends MapMenuCommon {
         addSeparator();
         sendChatMessage.setVesselTarget(vesselTarget);
         sendChatMessage.checkEnabled();
-        
+        add(sendChatMessage);
 
         revalidate();
         generalMenu(false);
