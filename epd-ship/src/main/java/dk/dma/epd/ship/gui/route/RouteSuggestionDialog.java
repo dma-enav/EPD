@@ -76,7 +76,7 @@ public class RouteSuggestionDialog extends ComponentDialog implements ActionList
     private JTextArea textArea;
     
     public RouteSuggestionDialog(MainFrame mainFrame) {
-        super(mainFrame, "AIS Route Suggestion", Dialog.ModalityType.MODELESS);
+        super(mainFrame, "Route Suggestion", Dialog.ModalityType.MODELESS);
         this.mainFrame = mainFrame;
         setResizable(false);
         
