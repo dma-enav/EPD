@@ -157,6 +157,11 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener {
         OpenVpDetalsBtn.addActionListener(this);
         HideOtherVoyagesBtn.addActionListener(this);
         
+        ZoomToShipBtn.setFocusable(false);
+        OpenShipDetailstextBtn.setFocusable(false);
+        OpenVpDetalsBtn.setFocusable(false);
+        HideOtherVoyagesBtn.setFocusable(false);
+        
         actionPanel.add(ZoomToShipBtn, 
                 new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets5, 0, 0));
         actionPanel.add(OpenShipDetailstextBtn, 
