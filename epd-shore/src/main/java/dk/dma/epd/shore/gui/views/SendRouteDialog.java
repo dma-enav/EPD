@@ -374,8 +374,10 @@ public class SendRouteDialog extends ComponentDialog implements ActionListener, 
             routeSelectionChanged();
         
         } else if (ae.getSource() == zoomBtn && route.getWaypoints() != null) {
-            EPD.getInstance().getMainFrame()
-                .zoomToPosition(route.getWaypoints().getFirst().getPos());
+            if (EPD.getInstance().getMainFrame().getActiveChartPanel() != null) {
+                EPD.getInstance().getMainFrame().getActiveChartPanel()
+                    .zoomToWaypoints(route.getWaypoints());
+            }
         
         } else if (ae.getSource() == sendBtn) {
             sendRoute();

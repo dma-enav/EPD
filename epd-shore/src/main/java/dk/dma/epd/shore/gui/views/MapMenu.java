@@ -109,7 +109,7 @@ public class MapMenu extends MapMenuCommon {
         sarTargetDetails.addActionListener(this);
 
         // route general items
-        setRouteExchangeRoute = new SendRouteFromRoute("Send Route");
+        setRouteExchangeRoute = new SendRouteFromRoute("Send Route...");
         setRouteExchangeRoute.addActionListener(this);
 
         // route edit menu
@@ -117,7 +117,7 @@ public class MapMenu extends MapMenuCommon {
         routeEditEndRoute.addActionListener(this);
 
         // ais menu items
-        sendRouteToShip = new SendRouteToShip("Send Route to vessel");
+        sendRouteToShip = new SendRouteToShip("Send Route to vessel...");
         sendRouteToShip.addActionListener(this);
 
         routeRequestMetoc.setEnabled(false);
@@ -136,13 +136,13 @@ public class MapMenu extends MapMenuCommon {
         voyageHandlingAppendWaypoint = new VoyageHandlingAppendWaypoint("Append waypoint");
         voyageHandlingAppendWaypoint.addActionListener(this);
 
-        voyageProperties = new VoyageProperties("Show Voyage Plan");
+        voyageProperties = new VoyageProperties("Show Voyage Plan...");
         voyageProperties.addActionListener(this);
 
-        voyageRenegotiate = new VoyageRenegotiate("Renegotigate Voyage");
+        voyageRenegotiate = new VoyageRenegotiate("Renegotigate Voyage...");
         voyageRenegotiate.addActionListener(this);
 
-        voyageShowTransaction = new VoyageShowTransaction("Show Transaction");
+        voyageShowTransaction = new VoyageShowTransaction("Show Transaction...");
         voyageShowTransaction.addActionListener(this);
 
         voyageZoomToShip = new VoyageZoomToShip("Zoom to Ship");

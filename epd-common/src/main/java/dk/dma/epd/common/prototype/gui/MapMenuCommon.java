@@ -172,13 +172,13 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
         routeReverse.addActionListener(this);
         routeDelete = new RouteDelete("Delete route", this);
         routeDelete.addActionListener(this);
-        routeRequestMetoc = new RouteRequestMetoc("Request METOC");
+        routeRequestMetoc = new RouteRequestMetoc("Request METOC...");
         routeRequestMetoc.addActionListener(this);
-        routeMetocProperties = new RouteMetocProperties("METOC properties");
+        routeMetocProperties = new RouteMetocProperties("METOC properties...");
         routeMetocProperties.addActionListener(this);
         routeShowMetocToggle = new RouteShowMetocToggle();
         routeShowMetocToggle.addActionListener(this);
-        routeProperties = new RouteProperties("Route properties");
+        routeProperties = new RouteProperties("Route properties...");
         routeProperties.addActionListener(this);
         routeAppendWaypoint = new RouteAppendWaypoint("Append waypoint");
         routeAppendWaypoint.addActionListener(this);
@@ -192,7 +192,7 @@ public abstract class MapMenuCommon extends JPopupMenu implements ActionListener
         // MSI menu items
         msiAcknowledge = new MsiAcknowledge("Acknowledge MSI");
         msiAcknowledge.addActionListener(this);
-        msiDetails = new MsiDetails("Show MSI details");
+        msiDetails = new MsiDetails("Show MSI details...");
         msiDetails.addActionListener(this);
         msiZoomTo = new MsiZoomTo("Zoom to MSI");
         msiZoomTo.addActionListener(this);
