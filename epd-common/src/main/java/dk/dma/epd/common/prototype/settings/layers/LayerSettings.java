@@ -178,9 +178,9 @@ public abstract class LayerSettings<OBSERVER extends ILayerSettingsObserver>
      * {@inheritDoc}
      * <p>
      * <b>NOTE: This is a concrete implementation. Any subclass should make sure
-     * to invoke the super implementation, add its settings to the
-     * {@link Properties} instance returned by the super call and finally return that
-     * instance.</b>
+     * to invoke the super implementation, add its own settings to the
+     * {@link Properties} instance returned by the super call and finally return
+     * that instance.</b>
      * </p>
      */
     @Override
