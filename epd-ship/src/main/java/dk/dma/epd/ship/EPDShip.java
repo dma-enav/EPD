@@ -50,6 +50,7 @@ import dk.dma.epd.common.prototype.Bootstrap;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
+import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
@@ -118,6 +119,7 @@ public final class EPDShip extends EPD {
     private IntendedRouteHandler intendedRouteHandler;
     private RouteSuggestionHandler routeSuggestionHandler;
     private StrategicRouteHandler strategicRouteHandler;
+    private IdentityHandler identityHandler;
 
     /**
      * Starts the program by initializing the various threads and spawning the main GUI
@@ -254,6 +256,10 @@ public final class EPDShip extends EPD {
         
         // Create voyage event dispatcher
         voyageEventDispatcher = new VoyageEventDispatcher();
+        
+        // Create identity handler
+        identityHandler = new IdentityHandler();
+        mapHandler.add(identityHandler);
 
         // Start sensors
         startSensors();

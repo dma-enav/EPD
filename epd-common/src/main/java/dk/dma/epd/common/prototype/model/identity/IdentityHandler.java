@@ -91,6 +91,7 @@ public class IdentityHandler extends EnavServiceHandlerCommon {
 
     /**
      * Return if the actor is a registered MC actor
+     * 
      * @param mmsi
      * @return
      */
@@ -98,4 +99,18 @@ public class IdentityHandler extends EnavServiceHandlerCommon {
         return maritimeIdentitys.containsKey(mmsi);
     }
 
+    /**
+     * Return the actor with a given mmsi
+     * 
+     * @param mmsi
+     * @return
+     */
+    public MaritimeIdentity getActor(long mmsi) {
+        if (actorExists(mmsi)) {
+            return maritimeIdentitys.get(mmsi);
+        } else {
+            return null;
+        }
+
+    }
 }
