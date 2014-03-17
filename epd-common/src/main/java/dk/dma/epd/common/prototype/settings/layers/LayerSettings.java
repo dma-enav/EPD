@@ -18,6 +18,7 @@ package dk.dma.epd.common.prototype.settings.layers;
 import java.util.Properties;
 
 import com.bbn.openmap.omGraphics.OMGraphic;
+import com.bbn.openmap.util.PropUtils;
 
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 
@@ -47,6 +48,19 @@ public abstract class LayerSettings<OBSERVER extends ILayerSettingsObserver>
     /*
      * Add settings that are relevant to all layer types here.
      */
+
+    /**
+     * The key in the properties file for the setting that specifies if the
+     * layer should be visible.
+     */
+    private static final String KEY_VISIBLE = "layerVisible";
+
+    /**
+     * The key in the properties file for the setting that specifies the maximum
+     * distance between the mouse cursor and a graphic element for the graphic
+     * element to be interactable.
+     */
+    private static final String KEY_GRAPHIC_INTERACT_TOLERANCE = "graphicInteractTolerance";
 
     /**
      * Specifies if the layer should be displayed.
@@ -129,12 +143,12 @@ public abstract class LayerSettings<OBSERVER extends ILayerSettingsObserver>
     public void setGraphicInteractTolerance(float graphicInteractTolerance) {
         try {
             this.settingLock.writeLock().lock();
-            if(this.graphicInteractTolerance == graphicInteractTolerance) {
+            if (this.graphicInteractTolerance == graphicInteractTolerance) {
                 // No change, no need to notify observers.
                 return;
             }
             this.graphicInteractTolerance = graphicInteractTolerance;
-            for(OBSERVER obs : this.observers) {
+            for (OBSERVER obs : this.observers) {
                 obs.graphicInteractToleranceChanged(this.graphicInteractTolerance);
             }
         } finally {
@@ -142,11 +156,25 @@ public abstract class LayerSettings<OBSERVER extends ILayerSettingsObserver>
         }
     }
 
-    
     @Override
     protected void onLoadSuccess(Properties settings) {
-        
+        this.settingLock.writeLock().lock();
+        this.setVisible(PropUtils.booleanFromProperties(settings, KEY_VISIBLE,
+                this.visible));
+        this.setGraphicInteractTolerance(PropUtils.floatFromProperties(
+                settings, KEY_GRAPHIC_INTERACT_TOLERANCE,
+                this.graphicInteractTolerance));
+        this.settingLock.writeLock().unlock();
     }
-    // TODO add onLoadSuccess: load values into fields.
-    // TODO add onSaveSettings: store field values in properties.
+
+    @Override
+    protected Properties onSaveSettings() {
+        this.settingLock.readLock().lock();
+        Properties toSave = new Properties();
+        toSave.setProperty(KEY_VISIBLE, Boolean.toString(this.visible));
+        toSave.setProperty(KEY_VISIBLE,
+                Float.toString(this.graphicInteractTolerance));
+        this.settingLock.readLock().unlock();
+        return toSave;
+    }
 }
