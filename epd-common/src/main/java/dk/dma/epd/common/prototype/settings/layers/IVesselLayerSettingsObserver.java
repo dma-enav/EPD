@@ -16,15 +16,49 @@
 package dk.dma.epd.common.prototype.settings.layers;
 
 /**
+ * Interface to observe a {@link VesselLayerSettings} for changes. This
+ * interface contains callbacks for changes to settings that are relevant to all
+ * layers that visualize one or more vessels.
+ * 
  * @author Janus Varmarken
  */
 public interface IVesselLayerSettingsObserver extends ILayerSettingsObserver {
-    
+
+    /**
+     * Invoked when the setting specifying the minimum length (in minutes) of
+     * the movement vector has been changed.
+     * 
+     * @param newMinLengthMinutes
+     *            The new minimum length (in minutes).
+     */
     void movementVectorLengthMinChanged(int newMinLengthMinutes);
-    
+
+    /**
+     * Invoked when the setting specifying the maximum length (in minutes) of
+     * the movement vector has been changed.
+     * 
+     * @param newMaxLengthMinutes
+     *            The new maximum length (in minutes).
+     */
     void movementVectorLengthMaxChanged(int newMaxLengthMinutes);
-    
+
+    /**
+     * Invoked when the setting specifying the scale difference between two
+     * successive length values for the movement vector has been changed.
+     * 
+     * @param newStepSize
+     *            The new difference in scale between two successive values for
+     *            the length of the movement vector.
+     */
     void movementVectorLengthStepSizeChanged(float newStepSize);
-    
+
+    /**
+     * Invoked when the setting specifying the minimum speed a vessel must
+     * travel with for its movement vector to be displayed has changed.
+     * 
+     * @param newMinSpeed
+     *            The new minimum speed a vessel must travel with for its speed
+     *            vector to be displayed (in nautical miles per hour).
+     */
     void movementVectorHideBelowChanged(float newMinSpeed);
 }
