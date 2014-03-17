@@ -15,8 +15,6 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
-import java.io.IOException;
-
 import dk.dma.epd.common.prototype.layers.ais.AisLayerCommon;
 
 /**
@@ -83,6 +81,9 @@ public class AisLayerCommonLocalSettings<OBSERVER extends IAisLayerCommonSetting
         this.setShowAllPastTracks(newValue);
     }
 
+    /**
+     * Invoked when the global value for the layer redraw interval has changed.
+     */
     @Override
     public void layerRedrawIntervalChanged(int oldValue, int newValue) {
         /*
@@ -92,13 +93,79 @@ public class AisLayerCommonLocalSettings<OBSERVER extends IAisLayerCommonSetting
         this.setLayerRedrawInterval(newValue);
     }
 
+    /**
+     * Invoked when the global value for the movement vector length minimum has
+     * changed.
+     */
     @Override
-    protected void onLoadFailure(IOException error) {
-        // TODO figure out what to do with read error.
+    public void movementVectorLengthMinChanged(int newMinLengthMinutes) {
+        /*
+         * The setting was changed on the global AIS layer settings instance. We
+         * need to obey to this for this local settings instance.
+         */
+        this.setMovementVectorLengthMin(newMinLengthMinutes);
     }
 
+    /**
+     * Invoked when the global value for the movement vector length maximum has
+     * changed.
+     */
     @Override
-    protected void onSaveFailure(IOException error) {
-        // TODO possibly log save error or simply ignore it.
+    public void movementVectorLengthMaxChanged(int newMaxLengthMinutes) {
+        /*
+         * The setting was changed on the global AIS layer settings instance. We
+         * need to obey to this for this local settings instance.
+         */
+        this.setMovementVectorLengthMax(newMaxLengthMinutes);
+    }
+
+    /**
+     * Invoked when the global value for the scale difference between two
+     * successive values for the length of the movement vector has changed.
+     */
+    @Override
+    public void movementVectorLengthStepSizeChanged(float newStepSize) {
+        /*
+         * The setting was changed on the global AIS layer settings instance. We
+         * need to obey to this for this local settings instance.
+         */
+        this.setMovementVectorLengthStepSize(newStepSize);
+    }
+
+    /**
+     * Invoked when the global value for the minimum speed a vessel must travel
+     * with, in order for its movement vector to be shown, has changed.
+     */
+    @Override
+    public void movementVectorHideBelowChanged(float newMinSpeed) {
+        /*
+         * The setting was changed on the global AIS layer settings instance. We
+         * need to obey to this for this local settings instance.
+         */
+        this.setMovementVectorHideBelow(newMinSpeed);
+    }
+
+    /**
+     * Invoked when the global value for layer visibility has changed.
+     */
+    @Override
+    public void isVisibleChanged(boolean newValue) {
+        /*
+         * The setting was changed on the global AIS layer settings instance. We
+         * need to obey to this for this local settings instance.
+         */
+        this.setVisible(newValue);
+    }
+
+    /**
+     * Invoked when the global value for graphic interact tolerance has changed.
+     */
+    @Override
+    public void graphicInteractToleranceChanged(float newValue) {
+        /*
+         * The setting was changed on the global AIS layer settings instance. We
+         * need to obey to this for this local settings instance.
+         */
+        this.setGraphicInteractTolerance(newValue);
     }
 }
