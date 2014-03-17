@@ -18,20 +18,30 @@ package dk.dma.epd.common.prototype.settings.network;
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
 
 /**
+ * Base class for maintaining network related settings.
+ * 
  * @author Janus Varmarken
  */
-public class NetworkSettings<OBSERVER extends INetworkSettingsObserver> extends ObservedSettings<OBSERVER> {
-    
+public class NetworkSettings<OBSERVER extends INetworkSettingsObserver> extends
+        ObservedSettings<OBSERVER> {
+
+    /**
+     * Setting specifying a port.
+     */
     private int port;
-    private String host;
     
     /**
-     * Connection establishment timeout.
+     * Setting specifying a host name or address.
+     */
+    private String host;
+
+    /**
+     * Setting specifying a connection establishment timeout (in milliseconds).
      */
     private int connectTimeout = 30000;
-    
+
     /**
-     * Reading timeout.
+     * Setting specifying a timeout (in milliseconds) for reading.
      */
     private int readTimeout = 60000;
 }
