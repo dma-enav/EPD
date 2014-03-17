@@ -21,7 +21,7 @@ package dk.dma.epd.common.prototype.settings.layers;
  * 
  * @author Janus Varmarken
  */
-public interface IAisLayerCommonSettingsObserver extends ILayerSettingsObserver {
+public interface IAisLayerCommonSettingsObserver extends IVesselLayerSettingsObserver {
 
     /**
      * Invoked when the setting specifying whether to show all AIS name labels
