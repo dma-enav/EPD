@@ -180,7 +180,7 @@ public class ShipServicesSettingsPanel extends BaseSettingsPanel implements Acti
         this.add(panel);
         
         spinnerAlertDistance = new JSpinner();
-        spinnerAlertDistance.setModel(new SpinnerNumberModel(new Double(0), new Double(0), null, new Double(0)));
+        spinnerAlertDistance.setModel(new SpinnerNumberModel(new Double(0), new Double(0), null, new Double(0.1)));
         spinnerAlertDistance.setBounds(16, 95, 75, 20);
         panel.add(spinnerAlertDistance);
         
