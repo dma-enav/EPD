@@ -59,4 +59,27 @@ public class MCService {
         area.add(Position.create(lat, lon));
     }
 
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * @return the area
+     */
+    public ArrayList<Position> getArea() {
+        return area;
+    }
+
+    
+    
 }
