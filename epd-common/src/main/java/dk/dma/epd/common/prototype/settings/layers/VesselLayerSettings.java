@@ -15,13 +15,53 @@
  */
 package dk.dma.epd.common.prototype.settings.layers;
 
+import java.util.Properties;
+
+import com.bbn.openmap.util.PropUtils;
+
+import dk.dma.epd.common.prototype.settings.ObservedSettings;
 import dk.dma.epd.common.prototype.zoom.ScaleDependentValues;
 
 /**
+ * This class maintains settings that are relevant to any layer that visualizes
+ * one or more vessels. This class inherits from {@link ObservedSettings}
+ * allowing clients to register for notifications of changes to any setting
+ * maintained by this class.
+ * 
+ * @param <OBSERVER>
+ *            The type of observers observing the {@code VesselLayerSettings}
+ *            for changes.
+ * 
  * @author Janus Varmarken
  */
 public class VesselLayerSettings<OBSERVER extends IVesselLayerSettingsObserver>
         extends LayerSettings<OBSERVER> {
+
+    /**
+     * Key used in the properties file for the setting that specifies the
+     * minimum length of a vessel movement vector in minutes.
+     */
+    private static final String KEY_MOVEMENT_VECTOR_LENGTH_MINIMUM = "movementVectorLengthMinimum";
+
+    /**
+     * Key used in the properties file for the setting that specifies the
+     * maximum length of a vessel movement vector in minutes.
+     */
+    private static final String KEY_MOVEMENT_VECTOR_LENGTH_MAXIMUM = "movementVectorLengthMaximum";
+
+    /**
+     * Key used in the properties file for the setting that specifies the
+     * difference in scale between two successive values for the movement vector
+     * length in minutes. See {@link #movementVectorLengthStepSize} for a more
+     * thorough explanation of this setting.
+     */
+    private static final String KEY_MOVEMENT_VECTOR_LENGTH_STEP_SIZE = "movementVectorLengthStepSize";
+
+    /**
+     * Key used in the properties file for the setting that specifies a required
+     * minimum vessel speed for the movement vector to be shown.
+     */
+    private static final String KEY_MOVEMENT_VECTOR_HIDE_BELOW_SPEED = "movementVectorHideBelowSpeed";
 
     /**
      * The minimum length (in minutes) of the vector that indicates COG and
@@ -260,7 +300,42 @@ public class VesselLayerSettings<OBSERVER extends IVesselLayerSettingsObserver>
         }
     }
 
-    // TODO add onLoadSuccess: load values into fields.
-    // TODO add onSaveSettings: store field values in properties.
-    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void onLoadSuccess(Properties settings) {
+        this.settingLock.writeLock().lock();
+        // Allow super implementation to initialize its fields
+        super.onLoadSuccess(settings);
+        this.setMovementVectorLengthMin(PropUtils.intFromProperties(settings,
+                KEY_MOVEMENT_VECTOR_LENGTH_MINIMUM,
+                this.movementVectorLengthMin));
+        this.setMovementVectorLengthMax(PropUtils.intFromProperties(settings,
+                KEY_MOVEMENT_VECTOR_LENGTH_MAXIMUM,
+                this.movementVectorLengthMax));
+        this.setMovementVectorLengthStepSize(PropUtils.floatFromProperties(
+                settings, KEY_MOVEMENT_VECTOR_LENGTH_STEP_SIZE,
+                this.movementVectorLengthStepSize));
+        this.setMovementVectorHideBelow(PropUtils.floatFromProperties(settings,
+                KEY_MOVEMENT_VECTOR_HIDE_BELOW_SPEED,
+                this.movementVectorHideBelow));
+        this.settingLock.writeLock().unlock();
+    }
+
+    @Override
+    protected Properties onSaveSettings() {
+        this.settingLock.readLock().lock();
+        Properties toSave = super.onSaveSettings();
+        toSave.setProperty(KEY_MOVEMENT_VECTOR_LENGTH_MINIMUM,
+                Integer.toString(this.movementVectorLengthMin));
+        toSave.setProperty(KEY_MOVEMENT_VECTOR_LENGTH_MAXIMUM,
+                Integer.toString(this.movementVectorLengthMax));
+        toSave.setProperty(KEY_MOVEMENT_VECTOR_LENGTH_STEP_SIZE,
+                Float.toString(this.movementVectorLengthStepSize));
+        toSave.setProperty(KEY_MOVEMENT_VECTOR_HIDE_BELOW_SPEED,
+                Float.toString(this.movementVectorHideBelow));
+        this.settingLock.readLock().unlock();
+        return toSave;
+    }
 }
