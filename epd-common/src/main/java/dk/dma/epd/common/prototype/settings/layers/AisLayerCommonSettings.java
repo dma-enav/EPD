@@ -66,7 +66,7 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
      * Setting specifying how often the layer should repaint itself.
      */
     private int layerRedrawInterval = 5;
-    
+
     /**
      * Get the value of the setting specifying if all AIS name labels should be
      * shown.
@@ -176,21 +176,19 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
         this.settingLock.writeLock().unlock();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void onLoadSuccess(Properties settings) {
-        /*
-         * We acquire the lock here even though the individual setters acquire
-         * the lock themselves too. This is to ensure that all settings are
-         * loaded as a single batch.
-         */
         this.settingLock.writeLock().lock();
         super.onLoadSuccess(settings);
         this.setShowAllAisNameLabels(PropUtils.booleanFromProperties(settings,
-                KEY_SHOW_ALL_AIS_NAMES, this.isShowAllAisNameLabels()));
+                KEY_SHOW_ALL_AIS_NAMES, this.showAllAisNameLabels));
         this.setShowAllPastTracks(PropUtils.booleanFromProperties(settings,
-                KEY_SHOW_ALL_PAST_TRACKS, this.isShowAllPastTracks()));
+                KEY_SHOW_ALL_PAST_TRACKS, this.showAllPastTracks));
         this.setLayerRedrawInterval(PropUtils.intFromProperties(settings,
-                KEY_LAYER_REDRAW_INTERVAL, this.getLayerRedrawInterval()));
+                KEY_LAYER_REDRAW_INTERVAL, this.layerRedrawInterval));
         /*
          * TODO init other settings variables based on the provided Properties
          * instance...
@@ -200,6 +198,9 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
         this.settingLock.writeLock().unlock();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Properties onSaveSettings() {
         /*

@@ -323,6 +323,9 @@ public class VesselLayerSettings<OBSERVER extends IVesselLayerSettingsObserver>
         this.settingLock.writeLock().unlock();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Properties onSaveSettings() {
         this.settingLock.readLock().lock();
