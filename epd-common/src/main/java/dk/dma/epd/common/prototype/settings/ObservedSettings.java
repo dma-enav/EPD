@@ -48,8 +48,13 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
 
+    /**
+     * Logger that subclasses may use, e.g. when receiving error callbacks such
+     * as {@link #onSaveFailure(IOException)} and
+     * {@link #onLoadFailure(IOException)}.
+     */
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     // TODO We may have to do lazy init of this list inside add/remove observer
     // methods if we want to serialize this class.
     /**
@@ -65,7 +70,8 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
      * write lock is exclusive, i.e. only one thread can write at any given time
      * and no threads can read when one thread is writing.
      */
-    protected ReentrantReadWriteLock settingLock = new ReentrantReadWriteLock(true);
+    protected ReentrantReadWriteLock settingLock = new ReentrantReadWriteLock(
+            true);
 
     /**
      * Add a new observer that is to be notified when any setting is changed. An
@@ -139,7 +145,13 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
      * {@code ObservedSettings} instance is to be persisted in a file (i.e. it
      * is invoked as part of the {@link #saveToFile(File, String)} method).
      * Subclass implementations should return a {@link Properties} instance
-     * containing the set of settings that are to be persisted.
+     * containing the set of settings that are to be persisted. <i>Any sub class
+     * inheriting from a super class that has a concrete implementation of this
+     * method should append its settings values to the {@link Properties}
+     * instance that is returned by invoking the super implementation of this
+     * method.</i> This is to make sure that the final instance that is returned
+     * to {@link #saveToFile(File, String)} contains both the sub class as well
+     * as the super class settings.
      * 
      * @return A {@link Properties} instance containing the set of settings that
      *         are to be persisted in a file.
@@ -150,7 +162,10 @@ public abstract class ObservedSettings<OBSERVER extends ISettingsObserver> {
      * Invoked when settings have been successfully read from a file. This
      * allows subclasses to perform initialization of variables based on the
      * settings contained in the provided {@link Properties} instance,
-     * {@code settings}.
+     * {@code settings}. <i>Any class inheriting from a super class that has a
+     * concrete implementation of this method should invoke the super
+     * implementation in order to allow the super class to perform
+     * initialization of its settings fields</i>.
      * 
      * @param settings
      *            Contains the settings that were read from the file.
