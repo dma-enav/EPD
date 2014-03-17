@@ -16,7 +16,6 @@
 package dk.dma.epd.common.prototype.status;
 
 import net.jcip.annotations.ThreadSafe;
-import dk.dma.epd.common.prototype.sensor.nmea.PntSource;
 import dk.dma.epd.common.prototype.sensor.pnt.PntData;
 import dk.dma.epd.common.text.Formatter;
 
