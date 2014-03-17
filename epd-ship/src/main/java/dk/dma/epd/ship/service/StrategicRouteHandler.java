@@ -23,26 +23,27 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.JOptionPane;
 
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.net.MaritimeCloudClient;
+import net.maritimecloud.net.service.ServiceEndpoint;
+import net.maritimecloud.net.service.ServiceInvocationFuture;
+import net.maritimecloud.net.service.invocation.InvocationCallback;
+import net.maritimecloud.util.function.BiConsumer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.net.ConnectionFuture;
-import net.maritimecloud.net.MaritimeCloudClient;
-import net.maritimecloud.net.service.ServiceEndpoint;
-import net.maritimecloud.net.service.invocation.InvocationCallback;
-import net.maritimecloud.util.function.BiConsumer;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAckService;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAckService.StrategicRouteAckMsg;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
-import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.route.strategic.RequestStrategicRouteDialog;
@@ -248,10 +249,30 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
         ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply> end = MaritimeCloudUtils
                 .findServiceWithMmsi(strategicRouteSTCCList, (int)stccMmsi);
 
-        // Each request has a unique ID, talk to Kasper?
-
         if (end != null) {
-            ConnectionFuture<StrategicRouteRequestReply> f = end.invoke(routeMessage);
+            ServiceInvocationFuture<StrategicRouteRequestReply> f = end.invoke(routeMessage);
+            
+//            f.receivedByClient().handle(new BiConsumer<Object, Throwable>(){
+//
+//                @Override
+//                public void accept(Object l, Throwable r) {
+//                    // TODO Auto-generated method stub
+//                    
+//                }
+//                
+//            });
+//            
+//            f.receivedOnServer().handle(new BiConsumer<Object, Throwable>(){
+//
+//                @Override
+//                public void accept(Object l, Throwable r) {
+//                    // TODO Auto-generated method stub
+//                    
+//                }
+//                
+//            });
+            
+            
             f.handle(new BiConsumer<StrategicRouteRequestReply, Throwable>() {
 
                 @Override
