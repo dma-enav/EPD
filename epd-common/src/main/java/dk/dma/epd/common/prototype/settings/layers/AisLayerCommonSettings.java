@@ -184,6 +184,7 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
          * loaded as a single batch.
          */
         this.settingLock.writeLock().lock();
+        super.onLoadSuccess(settings);
         this.setShowAllAisNameLabels(PropUtils.booleanFromProperties(settings,
                 KEY_SHOW_ALL_AIS_NAMES, this.isShowAllAisNameLabels()));
         this.setShowAllPastTracks(PropUtils.booleanFromProperties(settings,
@@ -207,7 +208,7 @@ public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSet
          * will be a snapshot of the entire set of settings values.
          */
         this.settingLock.readLock().lock();
-        Properties savedVars = new Properties();
+        Properties savedVars = super.onSaveSettings();
         savedVars.setProperty(KEY_SHOW_ALL_AIS_NAMES,
                 Boolean.toString(this.isShowAllAisNameLabels()));
         savedVars.setProperty(KEY_SHOW_ALL_PAST_TRACKS,
