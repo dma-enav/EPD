@@ -252,31 +252,27 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
         if (end != null) {
             ServiceInvocationFuture<StrategicRouteRequestReply> f = end.invoke(routeMessage);
             
-//            f.receivedByClient().handle(new BiConsumer<Object, Throwable>(){
-//
-//                @Override
-//                public void accept(Object l, Throwable r) {
-//                    // TODO Auto-generated method stub
-//                    
-//                }
-//                
-//            });
-//            
-//            f.receivedOnServer().handle(new BiConsumer<Object, Throwable>(){
-//
-//                @Override
-//                public void accept(Object l, Throwable r) {
-//                    // TODO Auto-generated method stub
-//                    
-//                }
-//                
-//            });
+            f.receivedByCloud().handle(new BiConsumer<Object, Throwable>(){
+
+                @Override
+                public void accept(Object l, Throwable r) {
+                    // TODO Auto-generated method stub
+                    
+                    //Send a status update that the message has been recieved by the cloud
+                    
+                }
+                
+            });
+
             
             
             f.handle(new BiConsumer<StrategicRouteRequestReply, Throwable>() {
 
                 @Override
                 public void accept(StrategicRouteRequestReply l, Throwable r) {
+                    
+                    //Change to indicate that the message has been recieved by the client
+                    
                     handleReply(l);
                 }
             });
