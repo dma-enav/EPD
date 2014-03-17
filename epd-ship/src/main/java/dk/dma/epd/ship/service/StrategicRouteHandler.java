@@ -293,8 +293,6 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
             entry.addReply(reply);
             entry.setStatus(StrategicRouteStatus.NEGOTIATING);
 
-            // System.out.println("Adding entry for " + currentTransaction);
-
             // How to handle the reply
 
             // 1 shore sends back accepted - ship needs to send ack
@@ -375,13 +373,9 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
                 try {
                     routeManager.getRoutes().get(i).setName(routeManager.getRoutes().get(i).getName().split(":")[1].trim());
                 } catch (Exception e) {
-                    // TODO: handle exception
                 }
-
             }
         }
-
-        // System.out.println("Adding entry for " + currentTransaction);
 
         // How to handle the reply
 
@@ -424,7 +418,8 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
      */
     public void sendAgreeMsg(long transactionID, String message) {
 
-        System.out.println("Send agree msg? " + transactionID);
+        LOG.info("Send agree msg for transaction  " + transactionID);
+        
         strategicRouteSTCCDialog.setVisible(false);
         transaction = false;
 
@@ -543,19 +538,21 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
      */
     private void sendStrategicRouteAck(long stccMMSI, long id, boolean ack, String message) {
 
-        fetchStrategicRouteAckList();
-
         ServiceEndpoint<StrategicRouteAckMsg, Void> end = MaritimeCloudUtils
                 .findServiceWithMmsi(strategicRouteRouteAckList, (int)stccMMSI);
+        
+        if (end == null) {
+            fetchStrategicRouteAckList();
+            end = MaritimeCloudUtils.findServiceWithMmsi(strategicRouteRouteAckList, (int)stccMMSI);
+        }
 
         StrategicRouteAckMsg msg = new StrategicRouteAckMsg(ack, id, getOwnMmsi(), message);
 
         if (end != null) {
 
-            // ConnectionFuture<Void> f =
             end.invoke(msg);
         } else {
-            System.out.println("Failed to send ack " + strategicRouteRouteAckList.size());
+            LOG.error("Failed to send ack " + strategicRouteRouteAckList.size());
         }
     }
 
