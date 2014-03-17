@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.joda.time.DateTime;
+
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.enav.model.voyage.Waypoint;
 import dk.dma.epd.common.Heading;
@@ -106,7 +108,10 @@ public class ActiveRoute extends Route {
         this.departure = route.getDeparture();
         this.destination = route.getDestination();
         this.starttime = route.getStarttime();
+
         this.origStarttime = PntTime.getInstance().getDate();
+        this.origStarttime = route.getStarttime();
+
         this.routeMetocSettings = route.getRouteMetocSettings();
         this.metocForecast = route.getMetocForecast();
         this.originalRoute = route.copy();
@@ -119,6 +124,7 @@ public class ActiveRoute extends Route {
         calcValues(true);
 
         changeActiveWaypoint(getBestWaypoint(route, pntData));
+
     }
 
     /*
@@ -383,6 +389,16 @@ public class ActiveRoute extends Route {
         if (ttg == null) {
             return null;
         }
+
+        
+        //If we have just activated the route ie. wp 0, and the route start date is in the future do not recalculate the first eta
+        if (getActiveWaypointIndex() == 0) {
+            DateTime start = new DateTime(origStarttime);
+            if (start.isAfterNow()) {
+                return origStarttime;
+            }
+        }
+
         return new Date(PntTime.getInstance().getDate().getTime() + ttg);
     }
 
@@ -513,17 +529,19 @@ public class ActiveRoute extends Route {
     /**
      * Returns the intended route broadcast, based on the parameters passed along
      * 
-     * @param filter the filter to apply to extract the partial route
-     * @param broadcast the result to update. If null, a new instance is created.
+     * @param filter
+     *            the filter to apply to extract the partial route
+     * @param broadcast
+     *            the result to update. If null, a new instance is created.
      * @return the partial route
      */
     public synchronized IntendedRouteBroadcast getPartialRouteData(PartialRouteFilter filter, IntendedRouteBroadcast broadcast) {
-        
+
         dk.dma.enav.model.voyage.Route voyageRoute = new dk.dma.enav.model.voyage.Route();
         List<Date> originalEtas = new ArrayList<>();
         int activeWpIndex = 0;
-        
-        // Pre-compute the start and end ETA's for the partial route 
+
+        // Pre-compute the start and end ETA's for the partial route
         Date startDate = null, endDate = null;
         if (filter.getType() == FilterType.MINUTES) {
             startDate = new Date(getActiveWaypointEta().getTime() - filter.getBackward() * 1000L * 60L);
@@ -571,8 +589,8 @@ public class ActiveRoute extends Route {
             }
 
             // Check if we have reached the active way point
-            if  (i == activeWaypointIndex) {
-                activeWpIndex = voyageRoute.getWaypoints().size();                
+            if (i == activeWaypointIndex) {
+                activeWpIndex = voyageRoute.getWaypoints().size();
             }
             // Add the original ETA for the current way point
             originalEtas.add(originalRoute.getEtas().get(i));
@@ -612,7 +630,7 @@ public class ActiveRoute extends Route {
                 lastWaypoint.setRouteLeg(null);
             }
         }
-        
+
         // Make the broadcast message
         if (broadcast == null) {
             broadcast = new IntendedRouteBroadcast();
@@ -621,7 +639,7 @@ public class ActiveRoute extends Route {
         irm.setPlannedEtas(originalEtas);
         irm.setActiveWpIndex(activeWpIndex);
         broadcast.setRoute(irm);
-        
+
         return broadcast;
     }
 }
