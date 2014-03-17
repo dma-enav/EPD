@@ -34,7 +34,7 @@ import dk.dma.epd.common.prototype.settings.ObservedSettings;
  * @author Janus Varmarken
  */
 public abstract class AisLayerCommonSettings<OBSERVER extends IAisLayerCommonSettingsObserver>
-        extends LayerSettings<OBSERVER> {
+        extends VesselLayerSettings<OBSERVER> {
 
     /**
      * The setting key for the "show all AIS names" setting.
