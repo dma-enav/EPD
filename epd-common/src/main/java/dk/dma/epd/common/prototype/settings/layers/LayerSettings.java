@@ -156,6 +156,13 @@ public abstract class LayerSettings<OBSERVER extends ILayerSettingsObserver>
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <b>NOTE: This is a concrete implementation. Any subclass should make sure
+     * to invoke the super implementation.</b>
+     * </p>
+     */
     @Override
     protected void onLoadSuccess(Properties settings) {
         this.settingLock.writeLock().lock();
@@ -167,6 +174,15 @@ public abstract class LayerSettings<OBSERVER extends ILayerSettingsObserver>
         this.settingLock.writeLock().unlock();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <b>NOTE: This is a concrete implementation. Any subclass should make sure
+     * to invoke the super implementation, add its settings to the
+     * {@link Properties} instance returned by the super call and finally return that
+     * instance.</b>
+     * </p>
+     */
     @Override
     protected Properties onSaveSettings() {
         this.settingLock.readLock().lock();
