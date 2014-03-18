@@ -190,6 +190,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
                         notification.getId(),  
                         "Request cancelled", 
                         StrategicRouteStatus.CANCELED);
+            EPDShip.getInstance().getNotificationCenter().setVisible(false);
         }
     }
     
@@ -204,6 +205,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
                         notification.getId(),  
                         replyPanel.getMessageTxtField().getText(), 
                         StrategicRouteStatus.REJECTED);
+            EPDShip.getInstance().getNotificationCenter().setVisible(false);
         }
     }
     
@@ -216,6 +218,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
             
             EPDShip.getInstance().getStrategicRouteHandler()
                 .sendReply(notification.getId(), replyPanel.getMessageTxtField().getText());
+            EPDShip.getInstance().getNotificationCenter().setVisible(false);
         }
     }
     
