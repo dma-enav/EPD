@@ -48,13 +48,15 @@ public class IdentityHandler extends EnavServiceHandlerCommon {
 
         File folder = new File(EPD.getInstance().getHomePath().toString() + "/identitys");
         File[] listOfFiles = folder.listFiles();
-
-        LOG.info("A total of " + listOfFiles.length + " Maritime Cloud actors found");
-
-        for (int i = 0; i < listOfFiles.length; i++) {
-            if (listOfFiles[i].isFile()) {
-                MaritimeIdentity actor = createActorFromProps(listOfFiles[i]);
-                maritimeIdentitys.put(actor.getMaritimeID(), actor);
+        
+        if (listOfFiles != null) {
+            LOG.info("A total of " + listOfFiles.length + " Maritime Cloud actors found");
+    
+            for (int i = 0; i < listOfFiles.length; i++) {
+                if (listOfFiles[i].isFile()) {
+                    MaritimeIdentity actor = createActorFromProps(listOfFiles[i]);
+                    maritimeIdentitys.put(actor.getMaritimeID(), actor);
+                }
             }
         }
     }

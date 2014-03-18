@@ -16,25 +16,23 @@
 package dk.dma.epd.common.prototype.model.route;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import dk.dma.enav.model.voyage.Route;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 
 /**
  * Data collected for strategic route negotiation
  */
-public class StrategicRouteNegotiationData {
+public class StrategicRouteNegotiationData  implements Comparable<StrategicRouteNegotiationData> {
 
     private long id;
     private long mmsi;
-    private List<StrategicRouteRequestMessage> routeMessages = new ArrayList<StrategicRouteRequestMessage>();
-    private List<StrategicRouteRequestReply> routeReplys = new ArrayList<StrategicRouteRequestReply>();
+    private List<StrategicRouteMessage> routeMessages = new ArrayList<StrategicRouteMessage>();
     private StrategicRouteStatus status;
     private boolean handled;
-    private boolean completed;
     
     
     public StrategicRouteNegotiationData(long id, long mmsi) {
@@ -45,53 +43,96 @@ public class StrategicRouteNegotiationData {
         handled = false;
     }
     
-    public Route getLatestRoute(){
-        if (routeMessages.size() > routeReplys.size()){
-            return routeMessages.get(routeMessages.size() - 1).getRoute();
-        }else{
-            return routeReplys.get(routeReplys.size() - 1).getRoute();
+    /**
+     * Returns if there are associated route messages or not
+     * @return if there are associated route messages or not
+     */
+    public boolean hasRouteMessages() {
+        return routeMessages.size() > 0;
+    }
+    
+    /**
+     * Returns the original route message
+     * @return the original route message
+     */
+    public StrategicRouteMessage getOriginalRouteMessage() {
+        return !hasRouteMessages() ? null : routeMessages.get(0);
+    }
+    
+    /**
+     * Returns the latest route message
+     * @return the latest route message
+     */
+    public StrategicRouteMessage getLatestRouteMessage() {
+        return !hasRouteMessages() ? null : routeMessages.get(routeMessages.size() - 1);
+    }
+    
+    /**
+     * Returns the original route
+     * @return the original route
+     */
+    public Route getOriginalRoute() {
+        return !hasRouteMessages() ? null : getOriginalRouteMessage().getRoute();
+    }
+    
+    /**
+     * Returns the latest route
+     * @return the latest route
+     */
+    public Route getLatestRoute() {
+        return !hasRouteMessages() ? null : getLatestRouteMessage().getRoute();
+    }
+    
+    /**
+     * Returns the latest accepted route.
+     * Returns null if none is present
+     * @return the latest accepted route
+     */
+    public dk.dma.epd.common.prototype.model.route.Route getLatestAcceptedRoute() {
+        if (hasRouteMessages()) {
+            for (int x = routeMessages.size() - 1; x >= 0; x--) {
+                if (routeMessages.get(x).getStatus() == StrategicRouteStatus.AGREED &&
+                        routeMessages.get(x).getRoute() != null) {
+                    return new dk.dma.epd.common.prototype.model.route.Route(routeMessages.get(x).getRoute());
+                }
+            }
         }
+        return null;
     }
     
+    /**
+     * Returns the original date of the transaction
+     * @return the original date of the transaction
+     */
+    public Date getOriginalSentDate() {
+        return !hasRouteMessages() ? null : getOriginalRouteMessage().getSentDate();
+    }
     
     /**
-     * @return the completed
+     * Returns the latest date of the transaction
+     * @return the latest date of the transaction
      */
-    public boolean isCompleted() {
-        return completed;
+    public Date getLatestSentDate() {
+        return !hasRouteMessages() ? null : getLatestRouteMessage().getSentDate();
     }
-
-
-
+    
     /**
-     * @param completed the completed to set
+     * Adds a route message and updates the status to match the status of the route message
+     * @param message the route message to add
      */
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
+    public void addMessage(StrategicRouteMessage message){
+        routeMessages.add(message);
+        status = message.getStatus();
     }
-
-
-
+    
     public StrategicRouteStatus getStatus() {
         return status;
     }
-
-
 
     public void setStatus(StrategicRouteStatus status) {
         this.status = status;
     }
 
-
-
-    public void addMessage(StrategicRouteRequestMessage message){
-        routeMessages.add(message);
-    }
-    
-    public void addReply(StrategicRouteRequestReply reply){
-        routeReplys.add(reply);
-    }
-    
     public long getId() {
         return id;
     }
@@ -100,19 +141,33 @@ public class StrategicRouteNegotiationData {
         return mmsi;
     }
     
-    public List<StrategicRouteRequestMessage> getRouteMessage() {
+    public List<StrategicRouteMessage> getRouteMessage() {
         return routeMessages;
     }
     
-    public List<StrategicRouteRequestReply> getRouteReply() {
-        return routeReplys;
-    }
-
     public boolean isHandled() {
         return handled;
     }
 
     public void setHandled(boolean handled) {
         this.handled = handled;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareTo(StrategicRouteNegotiationData other) {
+        Date d1 = getLatestSentDate();
+        Date d2 = other.getLatestSentDate();
+        if (d1 == null && d2 == null) {
+            return 0;
+        } else if (d1 == null) {
+            return -1;
+        } else if (d2 == null) {
+            return 1;
+        } else {
+            return d1.compareTo(d2);
+        }
     }
 }

@@ -143,7 +143,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
 
             EPDShore.getInstance().getMainFrame().addStrategicRouteExchangeHandlingWindow(
                 notification.getOriginalRoute(),
-                notification.getVesselName(), 
+                notification.getCallerlName(), 
                 voyage, 
                 false);
 
@@ -190,7 +190,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
                 case 0: return !notification.isRead() 
                         ? ICON_UNREAD 
                         : (notification.isAcknowledged() ? ICON_ACKNOWLEDGED : null);
-                case 1: return notification.getVesselName();
+                case 1: return notification.getCallerlName();
                 case 2: return notification.getVesselCallsign();
                 case 3: return Formatter.formatShortDateTime(notification.getDate());
                 case 4: return notification.get().getStatus();
@@ -225,7 +225,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         }
         
         List<StrategicRouteNotification> notifications = new ArrayList<>();
-        for (StrategicRouteNegotiationData routeData : strategicRouteHandler.getStrategicNegotiationData().values()) {
+        for (StrategicRouteNegotiationData routeData : strategicRouteHandler.getSortedStrategicNegotiationData()) {
             StrategicRouteNotification notification = new StrategicRouteNotification(routeData);
             
             // Restore the "read" flag

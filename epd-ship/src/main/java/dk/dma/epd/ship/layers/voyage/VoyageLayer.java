@@ -29,7 +29,7 @@ import com.bbn.openmap.omGraphics.OMGraphic;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
@@ -397,9 +397,9 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
     /**
      * Called by the {@link StrategicRouteHandler} to handle re-negotiation
      */
-    public void handleReNegotiation(StrategicRouteRequestReply reply,
+    public void handleReNegotiation(StrategicRouteMessage routeMessage,
             Route previousAcceptedRoute) {
-        modifiedSTCCRoute = new Route(reply.getRoute());
+        modifiedSTCCRoute = new Route(routeMessage.getRoute());
         stccRoute = modifiedSTCCRoute.copy();
         primaryRoute = previousAcceptedRoute;
 
@@ -407,7 +407,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
         stopRouteAnimated();
 
         // Shore agrees
-        if (reply.getStatus() == StrategicRouteStatus.AGREED) {
+        if (routeMessage.getStatus() == StrategicRouteStatus.AGREED) {
             // Display routeLayer with green
             graphics.clear();
             drawRoute(0, stccRoute, ECDISOrange, new Color(0.39f, 0.69f, 0.49f,
@@ -415,7 +415,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
 
             drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
                     false);
-        } else if (reply.getStatus() == StrategicRouteStatus.NEGOTIATING) {
+        } else if (routeMessage.getStatus() == StrategicRouteStatus.NEGOTIATING) {
             // Draw old one in red and new one in green with lines
             // seperated on new Color(1f, 1f, 0, 0.7f)
             graphics.clear();
@@ -428,7 +428,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
             drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
                     false);
 
-        } else if (reply.getStatus() == StrategicRouteStatus.REJECTED) {
+        } else if (routeMessage.getStatus() == StrategicRouteStatus.REJECTED) {
             // Display route with red - might not be relevant?
             graphics.clear();
             drawRoute(2, stccRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
@@ -440,9 +440,9 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
      * Called by the {@link StrategicRouteHandler} upon receiving a reply
      * @param reply the reply
      */
-    public void handleReply(StrategicRouteRequestReply reply) {
+    public void handleReply(StrategicRouteMessage routeMessage) {
 
-        modifiedSTCCRoute = new Route(reply.getRoute());
+        modifiedSTCCRoute = new Route(routeMessage.getRoute());
         stccRoute = modifiedSTCCRoute.copy();
         // modifiedSTCCRoute = stccRoute;
 
@@ -450,7 +450,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
         stopRouteAnimated();
 
         // Shore agrees
-        if (reply.getStatus() == StrategicRouteStatus.AGREED) {
+        if (routeMessage.getStatus() == StrategicRouteStatus.AGREED) {
             // Display routeLayer with green
             graphics.clear();
             drawRoute(0, stccRoute, ECDISOrange, new Color(0.39f, 0.69f, 0.49f,
@@ -458,7 +458,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
 
             drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
                     false);
-        } else if (reply.getStatus() == StrategicRouteStatus.NEGOTIATING) {
+        } else if (routeMessage.getStatus() == StrategicRouteStatus.NEGOTIATING) {
             // Draw old one in red and new one in green with lines
             // seperated on new Color(1f, 1f, 0, 0.7f)
             graphics.clear();
@@ -471,7 +471,7 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
             drawRoute(0, primaryRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
                     false);
 
-        } else if (reply.getStatus() == StrategicRouteStatus.REJECTED) {
+        } else if (routeMessage.getStatus() == StrategicRouteStatus.REJECTED) {
             // Display route with red - might not be relevant?
             graphics.clear();
             drawRoute(2, stccRoute, ECDISOrange, new Color(1f, 0, 0, 0.4f),
