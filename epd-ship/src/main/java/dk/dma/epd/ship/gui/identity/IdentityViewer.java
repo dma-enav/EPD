@@ -217,6 +217,8 @@ public class IdentityViewer extends ComponentDialog implements ActionListener {
         btnViewIdentityInfo.setEnabled(false);
         btnViewIdentityInfo.addActionListener(this);
 
+        btnViewIdentityInfo.setVisible(false);
+        
         // *******************
         // *** Send panel
         // *******************
