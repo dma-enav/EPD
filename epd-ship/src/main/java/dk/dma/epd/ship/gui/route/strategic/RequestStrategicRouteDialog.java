@@ -34,7 +34,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.MatteBorder;
 
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
 import dk.dma.epd.common.prototype.model.route.Route;
@@ -70,7 +70,7 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
     private JButton btnViewRoute;
     private JButton btnWait;
 
-    private JTextArea routeMessage;
+    private JTextArea txtRouteMessage;
     // private EnavServiceHandler enavServiceHandler;
     private StrategicRouteHandler strategicRouteHandler;
     RouteLayer routeLayer;
@@ -169,13 +169,13 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
         statusField.setBounds(54, 77, 128, 14);
         routeAcceptedPanel.add(statusField);
 
-        routeMessage = new JTextArea();
+        txtRouteMessage = new JTextArea();
 //        routeMessage.setBackground(new Color(240, 240, 240));
-        routeMessage.setBorder(null);
-        routeMessage.setLineWrap(true);
-        routeMessage.setEditable(false);
+        txtRouteMessage.setBorder(null);
+        txtRouteMessage.setLineWrap(true);
+        txtRouteMessage.setEditable(false);
 
-        JScrollPane scrollPane = new JScrollPane(routeMessage);
+        JScrollPane scrollPane = new JScrollPane(txtRouteMessage);
         scrollPane.setBorder(null);
         scrollPane.setBounds(10, 93, 161, 42);
         routeAcceptedPanel.add(scrollPane);
@@ -326,40 +326,40 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
         isActive = false;
     }
 
-    public void handleReply(final StrategicRouteRequestReply reply) {
+    public void handleReply(final StrategicRouteMessage routeMessage) {
         // This method may be called outside the main Swing thread
         if (!SwingUtilities.isEventDispatchThread()) {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override public void run() {
-                    handleReply(reply);
+                    handleReply(routeMessage);
                 }
             });
             return;
         }
         
-        startTransaction(new Route(reply.getRoute()), transactionID, false);
+        startTransaction(new Route(routeMessage.getRoute()), transactionID, false);
 
         btnAccept.setText("Accept");
         // Reply is in
-        if (reply.getStatus() == StrategicRouteStatus.AGREED) {
+        if (routeMessage.getStatus() == StrategicRouteStatus.AGREED) {
             this.setSize(defaultSize);
             statusField.setText("Route Agreed");
             lblPostRoute.setText("STCC Agreed");
             lblDate.setText("Valid");
             statusField.setText("Route agreed");
             btnMain.setText("Acknowledge");
-            routeMessage.setText(reply.getMessage());
+            txtRouteMessage.setText(routeMessage.getMessage());
             setInActive();
 
             activateDefaultLayout();
 
-        } else if (reply.getStatus() == StrategicRouteStatus.NEGOTIATING) {
+        } else if (routeMessage.getStatus() == StrategicRouteStatus.NEGOTIATING) {
             activateNegotiationLayout();
 
-            lblRouteTitle.setText("Route \"" + reply.getRoute().getName()
+            lblRouteTitle.setText("Route \"" + routeMessage.getRoute().getName()
                     + "\" STCC Change request");
             lblChanges.setText(findChanges());
-            lblMessages.setText(reply.getMessage());
+            lblMessages.setText(routeMessage.getMessage());
         }
 
         this.setVisible(true);
@@ -373,7 +373,7 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
             // Cancel request
             if (isActive) {
                 setInActive();
-                strategicRouteHandler.cancelRouteRequest(transactionID);
+                strategicRouteHandler.sendRejectMsg(transactionID,  "Request cancelled", StrategicRouteStatus.CANCELED);
                 this.setVisible(false);
             } else {
                 // Is not active and button pressed - when can this happen?
@@ -397,7 +397,7 @@ public class RequestStrategicRouteDialog extends JDialog implements ActionListen
         if (e.getSource() == btnReject) {
 
             // Send reject message
-            strategicRouteHandler.sendRejectMsg(transactionID, chatMessages.getText());
+            strategicRouteHandler.sendRejectMsg(transactionID, chatMessages.getText(), StrategicRouteStatus.REJECTED);
             this.setVisible(false);
 
         }

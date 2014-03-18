@@ -17,8 +17,6 @@ package dk.dma.epd.ship.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JOptionPane;
@@ -27,36 +25,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.maritimecloud.core.id.MaritimeId;
-import net.maritimecloud.net.ConnectionFuture;
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.service.ServiceEndpoint;
 import net.maritimecloud.net.service.invocation.InvocationCallback;
-import net.maritimecloud.util.function.BiConsumer;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAckService;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteAckService.StrategicRouteAckMsg;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestMessage;
-import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteRequestReply;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteReply;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
-import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon;
-import dk.dma.epd.common.prototype.status.ComponentStatus;
+import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
 import dk.dma.epd.ship.EPDShip;
-import dk.dma.epd.ship.gui.route.strategic.RequestStrategicRouteDialog;
+//import dk.dma.epd.ship.gui.route.strategic.RequestStrategicRouteDialog;
 import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.route.RouteManager;
 
 /**
  * Handler class for the strategic route e-Navigation service
  */
-public class StrategicRouteHandler extends EnavServiceHandlerCommon {
+public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
 
     private static final Logger LOG = LoggerFactory.getLogger(StrategicRouteHandler.class);
 
-    private RequestStrategicRouteDialog strategicRouteSTCCDialog;
+//    private RequestStrategicRouteDialog strategicRouteSTCCDialog;
 
     private VoyageLayer voyageLayer;
     private RouteManager routeManager;
@@ -65,15 +58,13 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
     private Route route;
     private boolean routeModified;
 
-    private Map<Long, StrategicRouteNegotiationData> strategicRouteNegotiationData = new ConcurrentHashMap<>();
-    private List<ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply>> strategicRouteSTCCList = new ArrayList<>();
-    private List<ServiceEndpoint<StrategicRouteAckMsg, Void>> strategicRouteRouteAckList = new ArrayList<>();
+    private List<ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply>> strategicRouteSTCCList = new ArrayList<>();
 
     /**
      * Constructor
      */
     public StrategicRouteHandler() {
-        super(2);
+        super();
 
         // Schedule a refresh of the STCC list approximately every minute
         scheduleWithFixedDelayWhenConnected(new Runnable() {
@@ -82,14 +73,6 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
                 fetchSTCCList();
             }
         }, 5, 57, TimeUnit.SECONDS);
-
-        // Schedule a refresh of the strategic route acknowledge services approximately every minute
-        scheduleWithFixedDelayWhenConnected(new Runnable() {
-            @Override
-            public void run() {
-                fetchStrategicRouteAckList();
-            }
-        }, 15, 59, TimeUnit.SECONDS);
     }
 
     /**
@@ -99,11 +82,11 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
     public void cloudConnected(MaritimeCloudClient connection) {
         try {
             getMaritimeCloudConnection().serviceRegister(StrategicRouteService.INIT,
-                    new InvocationCallback<StrategicRouteRequestMessage, StrategicRouteRequestReply>() {
-                        public void process(StrategicRouteRequestMessage message, Context<StrategicRouteRequestReply> context) {
+                    new InvocationCallback<StrategicRouteMessage, StrategicRouteReply>() {
+                        public void process(StrategicRouteMessage message, Context<StrategicRouteReply> context) {
 
                             LOG.info("Ship received a request for reopening a transaction!");
-                            handleReNegotiation(message, context.getCaller());
+                            handleStrategicRouteMessageFromStcc(message, context.getCaller());
                         }
                     }).awaitRegistered(4, TimeUnit.SECONDS);
 
@@ -113,19 +96,6 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
 
         // Refresh the service lists
         fetchSTCCList();
-        fetchStrategicRouteAckList();
-    }
-
-    /**
-     * Fetch list of strategic route ack's
-     */
-    private void fetchStrategicRouteAckList() {
-        try {
-            strategicRouteRouteAckList = getMaritimeCloudConnection().serviceLocate(StrategicRouteAckService.INIT)
-                    .nearest(Integer.MAX_VALUE).get();
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-        }
     }
 
     /**
@@ -152,7 +122,7 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
      * Returns the list of strategic route STCC's
      * @return the list of strategic route STCC's
      */
-    public List<ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply>> getStrategicRouteSTCCList() {
+    public List<ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply>> getStrategicRouteSTCCList() {
         return strategicRouteSTCCList;
     }
     
@@ -166,14 +136,6 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
     }
 
     /**
-     * Returns the MMSI of the own-ship, or -1 if undefined
-     * @return the MMSI of the own-ship
-     */
-    private long getOwnMmsi() {
-        return (EPDShip.getInstance().getOwnShipMmsi() == null) ? -1L : EPDShip.getInstance().getOwnShipMmsi();
-    }
-    
-    /**
      * Sends the route to an STCC
      * 
      * @param route
@@ -183,9 +145,9 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
 
         this.route = route;
 
-        if (strategicRouteSTCCDialog == null) {
-            strategicRouteSTCCDialog = EPDShip.getInstance().getMainFrame().getStrategicRouteSTCCDialog();
-        }
+//        if (strategicRouteSTCCDialog == null) {
+//            strategicRouteSTCCDialog = EPDShip.getInstance().getMainFrame().getStrategicRouteSTCCDialog();
+//        }
 
 
         // Start the transaction
@@ -200,10 +162,11 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
 
 
         // Sending route
-        long transactionID = sendStrategicRouteRequest(route, stccMmsi, message);
+        //long transactionID = 
+        sendStrategicRouteRequest(route, stccMmsi, message);
 
         // Initialize the GUI with the new transaction
-        strategicRouteSTCCDialog.startTransaction(route, transactionID, true);
+//        strategicRouteSTCCDialog.startTransaction(route, transactionID, true);
     }
 
     /**
@@ -222,8 +185,8 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
         long transactionID = System.currentTimeMillis();
         StrategicRouteNegotiationData entry = new StrategicRouteNegotiationData(transactionID, stccMmsi);
 
-        StrategicRouteRequestMessage routeMessage = new StrategicRouteRequestMessage(transactionID, route.getFullRouteData(),
-                getOwnMmsi(), message);
+        StrategicRouteMessage routeMessage = new StrategicRouteMessage(false, transactionID, route.getFullRouteData(),
+                message, StrategicRouteStatus.PENDING);
 
         entry.addMessage(routeMessage);
 
@@ -232,8 +195,9 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
         // Send it off
         sendStrategicRouteRequest(routeMessage, stccMmsi);
 
-        entry.setStatus(StrategicRouteStatus.PENDING);
-
+        entry.setHandled(false);
+        notifyStrategicRouteListeners();
+        
         return transactionID;
     }
 
@@ -243,22 +207,13 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
      * @param routeMessage
      *            the strategic route request
      */
-    private void sendStrategicRouteRequest(StrategicRouteRequestMessage routeMessage, long stccMmsi) {
+    private void sendStrategicRouteRequest(StrategicRouteMessage routeMessage, long stccMmsi) {
 
-        ServiceEndpoint<StrategicRouteRequestMessage, StrategicRouteRequestReply> end = MaritimeCloudUtils
+        ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply> end = MaritimeCloudUtils
                 .findServiceWithMmsi(strategicRouteSTCCList, (int)stccMmsi);
 
-        // Each request has a unique ID, talk to Kasper?
-
         if (end != null) {
-            ConnectionFuture<StrategicRouteRequestReply> f = end.invoke(routeMessage);
-            f.handle(new BiConsumer<StrategicRouteRequestReply, Throwable>() {
-
-                @Override
-                public void accept(StrategicRouteRequestReply l, Throwable r) {
-                    handleReply(l);
-                }
-            });
+            end.invoke(routeMessage);
 
         } else {
             // notifyRouteExchangeListeners();
@@ -268,75 +223,15 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
     }
 
     /**
-     * Handles a strategic route reply
+     * Handles an incoming strategic route message received from an STCC
      * 
-     * @param reply
-     *            the reply
-     */
-    private void handleReply(StrategicRouteRequestReply reply) {
-
-        long transactionId = reply.getId();
-
-        StrategicRouteNegotiationData entry = strategicRouteNegotiationData.get(transactionId);
-
-        // Existing transaction already established
-        if (entry == null) {
-            // Create new entry for the transaction - if ship disconnected, it
-            // can still recover - maybe?
-            entry = new StrategicRouteNegotiationData(transactionId, reply.getMmsi());
-            strategicRouteNegotiationData.put(transactionId, entry);
-        }
-
-        if (entry.getStatus() != StrategicRouteStatus.REJECTED) {
-
-            // Store the reply
-            entry.addReply(reply);
-            entry.setStatus(StrategicRouteStatus.NEGOTIATING);
-
-            // How to handle the reply
-
-            // 1 shore sends back accepted - ship needs to send ack
-            // 2 shore sends back new route - ship renegotationes
-            // 3 shore sends back rejected - ship sends ack
-
-            // Let GUI handle front-end
-            strategicRouteSTCCDialog.handleReply(reply);
-
-            // Let layer handle itself
-            voyageLayer.handleReply(reply);
-
-            // Three kinds of reply?
-
-            // If success, nothing more
-            // If fail and new route returned, start new communication message,
-            // like
-            // previous, with updated route, same ID maybe?
-            // Do we need a message / give reason?
-
-            // Do we need to display on voyageLayer?
-            // If agree make fat line green
-            // If changes draw old one in red and new one in green with lines
-            // seperated on
-            // if reject make red and end transaction? or send ack and then end
-            // transaction - wait with reject
-        } else {
-            LOG.info("Nope cant handle this old thing");
-        }
-    }
-
-    /**
-     * Called when a strategic route is received from an STCC
-     * 
-     * @param message
-     *            the strategic route
+     * @param routeMessage the strategic route
      * @param caller the Maritime Cloud called
      */
-    private void handleReNegotiation(StrategicRouteRequestMessage message, MaritimeId caller) {
+    private void handleStrategicRouteMessageFromStcc(StrategicRouteMessage routeMessage, MaritimeId caller) {
 
-        // Shore wants to renegotiate it
         transaction = true;
-
-        long transactionId = message.getId();
+        long transactionId = routeMessage.getId();
 
         StrategicRouteNegotiationData entry;
         // Existing transaction already established
@@ -349,29 +244,25 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
             strategicRouteNegotiationData.put(transactionId, entry);
         }
 
-        entry.setStatus(StrategicRouteStatus.NEGOTIATING);
-
-        StrategicRouteRequestReply newReply = new StrategicRouteRequestReply(message.getMessage(), message.getId(),
-                message.getMmsi(), message.getSent().getTime(), StrategicRouteStatus.NEGOTIATING, message.getRoute());
-
-        // Store the reply
-        entry.addReply(newReply);
-        strategicRouteNegotiationData.get(transactionId).setStatus(StrategicRouteStatus.NEGOTIATING);
+        // If the strategic route request has been cancelled, do nothing
+        if (entry.getStatus() == StrategicRouteStatus.CANCELED) {
+            LOG.warn("Ignoring call from STCC, since request has been cancelled");
+            return;
+        }
+        
+        entry.addMessage(routeMessage);
 
         // Find the old one and set not accepted, possibly hide it?
-        for (int i = 0; i < routeManager.getRoutes().size(); i++) {
-            if (routeManager.getRoutes().get(i).getStrategicRouteId() == transactionId) {
-
-                routeManager.getRoutes().get(i).setStccApproved(false);
-
-                if (routeManager.getActiveRouteIndex() == i) {
-
-                } else {
-                    routeManager.getRoutes().get(i).setVisible(false);
+        for (Route route : routeManager.getRoutes()) {
+            if (route.getStrategicRouteId() == transactionId) {
+                route.setStccApproved(false);
+              
+                if (routeManager.getActiveRoute() != route) {
+                    route.setVisible(false);
                 }
-
+                
                 try {
-                    routeManager.getRoutes().get(i).setName(routeManager.getRoutes().get(i).getName().split(":")[1].trim());
+                    route.setName(route.getName().split(":")[1].trim());
                 } catch (Exception e) {
                 }
             }
@@ -384,29 +275,18 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
         // 3 shore sends back rejected - ship sends ack
 
         // Let GUI handle front-end
-        strategicRouteSTCCDialog.handleReply(newReply);
+//        strategicRouteSTCCDialog.handleReply(routeMessage);
 
-        StrategicRouteNegotiationData transactionData = strategicRouteNegotiationData.get(transactionId);
-
-        Route lastRoute = new Route(transactionData.getLatestRoute());
-
-        // Let layer handle itself
-        voyageLayer.handleReNegotiation(newReply, lastRoute);
-
-        // Three kinds of reply?
-
-        // If success, nothing more
-        // If fail and new route returned, start new communication message,
-        // like
-        // previous, with updated route, same ID maybe?
-        // Do we need a message / give reason?
-
-        // Do we need to display on voyageLayer?
-        // If agree make fat line green
-        // If changes draw old one in red and new one in green with lines
-        // seperated on
-        // if reject make red and end transaction? or send ack and then end
-        // transaction - wait with reject
+        Route lastAcceptedRoute = entry.getLatestAcceptedRoute();
+        if (lastAcceptedRoute != null) {
+            // Let layer handle itself
+            voyageLayer.handleReNegotiation(routeMessage, lastAcceptedRoute);
+        } else {
+            voyageLayer.handleReply(routeMessage);            
+        }
+         
+        entry.setHandled(false);
+        notifyStrategicRouteListeners();
 
     }
 
@@ -420,7 +300,7 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
 
         LOG.info("Send agree msg for transaction  " + transactionID);
         
-        strategicRouteSTCCDialog.setVisible(false);
+//        strategicRouteSTCCDialog.setVisible(false);
         transaction = false;
 
         // Send ack message
@@ -432,46 +312,42 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
         if (strategicRouteNegotiationData.containsKey(transactionID)) {
 
             StrategicRouteNegotiationData transactionData = strategicRouteNegotiationData.get(transactionID);
-
-            sendStrategicRouteAck(transactionData.getMmsi(), transactionID, true, message);
-
-            strategicRouteNegotiationData.get(transactionID).setStatus(StrategicRouteStatus.AGREED);
+            sendStrategicRouteAck(transactionData, message, StrategicRouteStatus.AGREED);
+            transactionData.setHandled(true);
+            notifyStrategicRouteListeners();
+            
         }
 
+        // Update route
         Route route = voyageLayer.getModifiedSTCCRoute();
         route.setStccApproved(true);
-
         route.setStrategicRouteId(transactionID);
 
-        // route.setVisible(true);
+        // and add the route to the route manager
         routeManager.addRoute(route);
         routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_ADDED);
 
-        boolean shouldActive = false;
-
+        // Ask if we should activate the route
+        boolean shouldActivate = false;
         if (routeManager.getActiveRouteIndex() != -1) {
             int dialogresult = JOptionPane.showConfirmDialog(EPDShip.getInstance().getMainFrame(),
                     "Do you wish to deactivate and hide your old route\nAnd activate the new route?", "Route Activation",
                     JOptionPane.YES_OPTION);
             if (dialogresult == JOptionPane.YES_OPTION) {
-                shouldActive = true;
-
+                shouldActivate = true;
                 routeManager.getRoutes().get(routeManager.getActiveRouteIndex()).setVisible(false);
                 routeManager.deactivateRoute();
-
             }
 
         } else {
             int dialogresult = JOptionPane.showConfirmDialog(EPDShip.getInstance().getMainFrame(),
                     "Do you wish to activate the new route?", "Route Activation", JOptionPane.YES_OPTION);
             if (dialogresult == JOptionPane.YES_OPTION) {
-                shouldActive = true;
-
+                shouldActivate = true;
             }
-
         }
 
-        if (shouldActive) {
+        if (shouldActivate) {
             int routeToActivate = routeManager.getRouteCount() - 1;
             routeManager.activateRoute(routeToActivate);
         }
@@ -481,10 +357,11 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
     /**
      * Sends rejection message for the given transaction
      * 
-     * @param transactionID
-     * @param message
+     * @param transactionID the transaction id
+     * @param message the message
+     * @param status the reject status
      */
-    public void sendRejectMsg(long transactionID, String message) {
+    public void sendRejectMsg(long transactionID, String message, StrategicRouteStatus status) {
 
         // Send ack message
         // remove from voyage layer show original route
@@ -499,61 +376,30 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
 
             StrategicRouteNegotiationData transactionData = strategicRouteNegotiationData.get(transactionID);
 
-            if (getStatus().getStatus() == ComponentStatus.Status.OK) {
-                sendStrategicRouteAck(transactionData.getMmsi(), transactionID, false, message);
-            }
-
-            strategicRouteNegotiationData.get(transactionID).setStatus(StrategicRouteStatus.REJECTED);
+            sendStrategicRouteAck(transactionData, message, status);
+            
+            transactionData.setHandled(true);
+            notifyStrategicRouteListeners();
         }
 
         transaction = false;
-    }
-
-    /**
-     * Cancels the given route request
-     * 
-     * @param transactionID
-     */
-    public void cancelRouteRequest(long transactionID) {
-        transaction = false;
-        voyageLayer.cancelRequest();
-
-        route.setVisible(true);
-        routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
-
-        sendRejectMsg(transactionID, "Request cancelled");
     }
 
     /**
      * Sends a strategic route Acknowledge message
      * 
-     * @param stccMMSI
-     *            the MMSI of the route
-     * @param id
-     *            the route id
-     * @param ack
-     *            acknowledged or rejected
-     * @param message
-     *            an additional message
+     * @param transactionData the transaction data
+     * @param message an additional message
+     * @param status the acknowledge status
      */
-    private void sendStrategicRouteAck(long stccMMSI, long id, boolean ack, String message) {
+    private void sendStrategicRouteAck(StrategicRouteNegotiationData transactionData, String message, StrategicRouteStatus status) {
+            
+        StrategicRouteMessage routeMessage = new StrategicRouteMessage(false, transactionData.getId(), 
+                transactionData.getLatestRoute(), message, status);
 
-        ServiceEndpoint<StrategicRouteAckMsg, Void> end = MaritimeCloudUtils
-                .findServiceWithMmsi(strategicRouteRouteAckList, (int)stccMMSI);
+        transactionData.addMessage(routeMessage);
         
-        if (end == null) {
-            fetchStrategicRouteAckList();
-            end = MaritimeCloudUtils.findServiceWithMmsi(strategicRouteRouteAckList, (int)stccMMSI);
-        }
-
-        StrategicRouteAckMsg msg = new StrategicRouteAckMsg(ack, id, getOwnMmsi(), message);
-
-        if (end != null) {
-
-            end.invoke(msg);
-        } else {
-            LOG.error("Failed to send ack " + strategicRouteRouteAckList.size());
-        }
+        sendStrategicRouteRequest(routeMessage, transactionData.getMmsi());
     }
 
     /**
@@ -561,7 +407,7 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
      */
     public void modifiedRequest() {
         routeModified = true;
-        strategicRouteSTCCDialog.changeModifiedAcceptBtn();
+//        strategicRouteSTCCDialog.changeModifiedAcceptBtn();
     }
 
     /**
@@ -609,36 +455,24 @@ public class StrategicRouteHandler extends EnavServiceHandlerCommon {
         // Hide the routeLayer one
         route.setVisible(false);
 
-        StrategicRouteRequestMessage routeMessage = new StrategicRouteRequestMessage(transactionID, route.getFullRouteData(),
-                strategicRouteNegotiationData.get(transactionID).getRouteMessage().get(0).getMmsi(), message.trim());
+        StrategicRouteMessage routeMessage = new StrategicRouteMessage(false, transactionID, 
+                route.getFullRouteData(), message.trim(), StrategicRouteStatus.NEGOTIATING);
 
         StrategicRouteNegotiationData entry = strategicRouteNegotiationData.get(transactionID);
-
         entry.addMessage(routeMessage);
-        entry.setStatus(StrategicRouteStatus.NEGOTIATING);
-
-        strategicRouteNegotiationData.put(transactionID, entry);
 
         // Send it off
         sendStrategicRouteRequest(routeMessage, entry.getMmsi());
+        
+        entry.setHandled(true);
+        notifyStrategicRouteListeners();
 
         // Initialize the GUI with the new transaction
-        strategicRouteSTCCDialog.startTransaction(route, routeMessage.getId(), true);
+//        strategicRouteSTCCDialog.startTransaction(route, routeMessage.getId(), true);
 
         // Clear layer and prevent editing
         voyageLayer.lockEditing();
 
-    }
-
-    /**
-     * Returns the StrategicRouteNegotiationData for the given transaction id
-     * 
-     * @param transactionId
-     *            the transaction id
-     * @return the strategicRouteNegotiationData
-     */
-    public StrategicRouteNegotiationData getStrategicRouteNegotiationData(Long transactionId) {
-        return strategicRouteNegotiationData.get(transactionId);
     }
 
     /**
