@@ -35,11 +35,11 @@ import javax.xml.namespace.QName;
 public class ObjectFactory {
 
     private static final QName ROUTERRESPONSEQNAME = new QName(
-            "http://www.sspa.se/optiroute", "RouteResponse");
+            "http://www.sspa.se/voyage-optimizer", "RouteResponse");
     private static final QName ROUTEREQUESTQNAME = new QName(
-            "http://www.sspa.se/optiroute", "RouteRequest");
+            "http://www.sspa.se/voyage-optimizer", "RouteRequest");
     private static final QName ROUTEQNAME = new QName(
-            "http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange",
+            "http://www.sspa.se/voyage-optimizer",
             "route");
 
     /**
@@ -151,7 +151,7 @@ public class ObjectFactory {
      * {@link RouteresponseType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.sspa.se/optiroute", name = "RouteResponse")
+    @XmlElementDecl(namespace = "http://www.sspa.se/voyage-optimizer", name = "RouteResponse")
     public JAXBElement<RouteresponseType> createRouteResponse(
             RouteresponseType value) {
         return new JAXBElement<RouteresponseType>(ROUTERRESPONSEQNAME,
@@ -163,7 +163,7 @@ public class ObjectFactory {
      * {@link RouterequestType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.sspa.se/optiroute", name = "RouteRequest")
+    @XmlElementDecl(namespace = "http://www.sspa.se/voyage-optimizer", name = "RouteRequest")
     public JAXBElement<RouterequestType> createRouteRequest(
             RouterequestType value) {
         return new JAXBElement<RouterequestType>(ROUTEREQUESTQNAME,
@@ -175,7 +175,7 @@ public class ObjectFactory {
      * {@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange", name = "route")
+    @XmlElementDecl(namespace = "http://www.sspa.se/voyage-optimizer", name = "route")
     public JAXBElement<RouteType> createRoute(RouteType value) {
         return new JAXBElement<RouteType>(ROUTEQNAME, RouteType.class, null,
                 value);

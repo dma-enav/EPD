@@ -32,7 +32,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="ngposition" type="{http://www.sspa.se/optiroute}NGPositionType"/>
+ *         &lt;element name="ngposition" type="{http://www.sspa.se/voyage-optimizer}NGPositionType"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>

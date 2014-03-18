@@ -29,16 +29,16 @@ import javax.xml.bind.annotation.XmlType;
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="CurrentShipDataType">
+ * &lt;complexType name="ShipDataType">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="mmsi" type="{http://www.sspa.se/optiroute}MMSIType" minOccurs="0"/>
- *         &lt;element name="imoid" type="{http://www.sspa.se/optiroute}IMOIDType" minOccurs="0"/>
+ *         &lt;element name="mmsi" type="{http://www.sspa.se/voyage-optimizer}MMSIType" minOccurs="0"/>
+ *         &lt;element name="imoid" type="{http://www.sspa.se/voyage-optimizer}IMOIDType" minOccurs="0"/>
  *         &lt;element name="forwarddraft" type="{http://www.w3.org/2001/XMLSchema}float"/>
  *         &lt;element name="aftdraft" type="{http://www.w3.org/2001/XMLSchema}float"/>
  *         &lt;element name="ukcrequested" type="{http://www.w3.org/2001/XMLSchema}float"/>
- *         &lt;element name="optimization" type="{http://www.sspa.se/optiroute}OptimizationType" minOccurs="0"/>
+ *         &lt;element name="optimization" type="{http://www.sspa.se/voyage-optimizer}OptimizationType" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -48,17 +48,23 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "CurrentShipDataType", propOrder = {
+@XmlType(name = "ShipDataType", propOrder = {
+    "draft",
+    "lwl",
+    "beam",
+    "ukcrequested",
+    "windage",
     "mmsi",
     "imoid",
-    "draft",
-    "ukcrequested",
     "optimization"
 })
 public class CurrentShipDataType {
 
     protected String mmsi;
     protected String imoid;
+    protected float lwl = 100.0f;
+    protected float beam = 20.0f;
+    protected float windage = 1500.0f;
     protected DraftType draft;
     protected float ukcrequested;
     protected String optimization;

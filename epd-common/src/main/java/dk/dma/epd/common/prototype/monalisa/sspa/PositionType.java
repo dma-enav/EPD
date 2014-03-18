@@ -43,7 +43,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "PositionType", namespace = "http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange", propOrder = {
+@XmlType(name = "PositionType", namespace = "http://www.sspa.se/voyage-optimizer", propOrder = {
     "latitude",
     "longitude"
 })

@@ -44,8 +44,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *             &lt;/restriction>
  *           &lt;/simpleType>
  *         &lt;/element>
- *         &lt;element name="position" type="{http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange}PositionType"/>
- *         &lt;element name="leg-info" type="{http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange}leginfoType" minOccurs="0"/>
+ *         &lt;element name="position" type="{http://www.sspa.se/voyage-optimizer}PositionType"/>
+ *         &lt;element name="leg-info" type="{http://www.sspa.se/voyage-optimizer}leginfoType" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -55,11 +55,11 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "waypointType", namespace = "http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange", propOrder = {
+@XmlType(name = "waypointType", namespace = "http://www.sspa.se/voyage-optimizer", propOrder = {
     "wptId",
+    "position",
     "eta",
     "wptName",
-    "position",
     "legInfo"
 })
 public class WaypointType {
