@@ -52,17 +52,18 @@ import dk.dma.epd.ship.gui.component_panels.AisComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.CursorComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.DynamicNoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.MultiSourcePntComponentPanel;
-import dk.dma.epd.ship.gui.component_panels.PntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.NoGoComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.OwnShipComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.PntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.SARComponentPanel;
+import dk.dma.epd.ship.gui.component_panels.STCCCommunicationComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
 
 public class DockableComponents {
 
     private static final String[] PANEL_NAMES = { "Chart", "Scale", "Own Ship",
             "GPS", "Cursor", "Active Waypoint", "AIS Target",
-            "Dynamic NoGo", "NoGo", "SAR", "Resilient PNT" };
+            "Dynamic NoGo", "NoGo", "SAR", "Resilient PNT", "STCC Communication" };
 
     Map<String, PanelDockable> dmap;
     private CControl control;
@@ -80,6 +81,7 @@ public class DockableComponents {
     private NoGoComponentPanel nogoPanel;
     private SARComponentPanel sarPanel;
     private MultiSourcePntComponentPanel msPntPanel;
+    private STCCCommunicationComponentPanel stccPanel;
 
     private boolean locked;
 
@@ -99,11 +101,12 @@ public class DockableComponents {
         nogoPanel = mainFrame.getNogoPanel();
         sarPanel = mainFrame.getSarPanel();
         msPntPanel = mainFrame.getMsPntComponentPanel();
+        stccPanel = mainFrame.getStccComponentPanel();
 
 
         factory = new DockableFactory(chartPanel, scalePanel, ownShipPanel,
                 gpsPanel, cursorPanel, activeWaypointPanel, aisPanel,
-                dynamicNoGoPanel, nogoPanel, msPntPanel, sarPanel);
+                dynamicNoGoPanel, nogoPanel, msPntPanel, sarPanel, stccPanel);
 
         CContentArea contentArea = control.getContentArea();
         mainFrame.getContentPane().add(contentArea);
@@ -471,6 +474,7 @@ public class DockableComponents {
         NoGoComponentPanel nogoPanel;
         SARComponentPanel sarPanel;
         MultiSourcePntComponentPanel msPntPanel;
+        STCCCommunicationComponentPanel stccPanel;
 
 
         public DockableFactory(ChartPanel chartPanel,
@@ -482,7 +486,7 @@ public class DockableComponents {
                 DynamicNoGoComponentPanel dynamicNoGoPanel,
                 NoGoComponentPanel nogoPanel,
                 MultiSourcePntComponentPanel msPntPanel,
-                SARComponentPanel sarPanel) {
+                SARComponentPanel sarPanel, STCCCommunicationComponentPanel stccPanel) {
 
             super();
 
@@ -498,7 +502,7 @@ public class DockableComponents {
             this.nogoPanel = nogoPanel;
             this.sarPanel = sarPanel;
             this.msPntPanel = msPntPanel;
-
+            this.stccPanel = stccPanel;
 
         }
 
@@ -547,7 +551,9 @@ public class DockableComponents {
             if (id.equals("Resilient PNT")) {
                 return new PanelDockable(id, msPntPanel);
             }
-
+            if (id.equals("STCC Communication")) {
+                return new PanelDockable(id, stccPanel);
+            }
 
             return new PanelDockable(id, new JPanel());
 

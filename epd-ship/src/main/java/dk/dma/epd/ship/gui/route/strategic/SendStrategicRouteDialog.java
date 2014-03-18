@@ -401,8 +401,6 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
 
         loadData();
 
-        System.out.println("Ello");
-
         String mmsi = stccMmsi != -1 ? Long.toString(stccMmsi) : prefs.get("mmsi", null);
         if (mmsi != null && stccMmsiListComboBox.getItemCount() > 0) {
             for (int i = 0; i < stccMmsiListComboBox.getItemCount(); i++) {

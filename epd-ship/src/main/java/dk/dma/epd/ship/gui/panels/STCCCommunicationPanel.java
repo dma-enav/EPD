@@ -32,18 +32,17 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 
-public class MonaLisaCommunicationPanel extends JPanel implements
-        ActionListener {
+public class STCCCommunicationPanel extends JPanel implements ActionListener {
 
     private static final long serialVersionUID = 1L;
 
     JTextArea chatMessages;
-//    private JButton btnSend;
-//    private JTextField textField;
-//    private JPanel panel;
+    // private JButton btnSend;
+    // private JTextField textField;
+    // private JPanel panel;
     private JTextField txtField;
 
-    public MonaLisaCommunicationPanel() {
+    public STCCCommunicationPanel() {
         super();
 
         // setMinimumSize(new Dimension(200, 500));
@@ -51,12 +50,12 @@ public class MonaLisaCommunicationPanel extends JPanel implements
         setBorder(new LineBorder(Color.GRAY));
         GridBagLayout gridBagLayout = new GridBagLayout();
         gridBagLayout.columnWidths = new int[] { 10, 0 };
-        gridBagLayout.rowHeights = new int[] { 10, 120, 10 };
+        gridBagLayout.rowHeights = new int[] { 10, 100, 20 };
         gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
-        gridBagLayout.rowWeights = new double[] { 0.0, 1.0, 1.0 };
+        gridBagLayout.rowWeights = new double[] { 0.0, 1.0, 0.0 };
         setLayout(gridBagLayout);
 
-        JLabel commsTitle = new JLabel("STCC Coms");
+        JLabel commsTitle = new JLabel("STCC Comms");
         commsTitle.setHorizontalAlignment(SwingConstants.CENTER);
         commsTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
@@ -68,17 +67,15 @@ public class MonaLisaCommunicationPanel extends JPanel implements
         add(commsTitle, gbc_commsTitle);
 
         chatMessages = new JTextArea("");
-        chatMessages.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        chatMessages.setBackground(new Color(240, 240, 240));
+        chatMessages.setForeground(Color.WHITE);
+        chatMessages.setBackground(Color.DARK_GRAY);
         chatMessages.setLineWrap(true);
         chatMessages.setEditable(false);
         chatMessages.setBorder(null);
-
-        // chatMessages.setMinimumSize(new Dimension(70, 200));
-
-        // chatMessages.setText("Hello \n Line \nLine \nLine\nLine");
+        chatMessages.setRows(10);
 
         JScrollPane scrollPane = new JScrollPane(chatMessages);
+        scrollPane.setViewportView(chatMessages);
         // scrollPane.setMinimumSize(new Dimension(200, 500));
         GridBagConstraints gbc_scrollPane = new GridBagConstraints();
         gbc_scrollPane.insets = new Insets(0, 0, 5, 0);
@@ -89,7 +86,7 @@ public class MonaLisaCommunicationPanel extends JPanel implements
 
         JPanel panel_1 = new JPanel();
         GridBagConstraints gbc_panel_1 = new GridBagConstraints();
-        gbc_panel_1.anchor = GridBagConstraints.SOUTH;
+        gbc_panel_1.anchor = GridBagConstraints.NORTH;
         gbc_panel_1.fill = GridBagConstraints.HORIZONTAL;
         gbc_panel_1.gridx = 0;
         gbc_panel_1.gridy = 2;
@@ -104,7 +101,7 @@ public class MonaLisaCommunicationPanel extends JPanel implements
         txtField = new JTextField();
         GridBagConstraints gbc_txtField = new GridBagConstraints();
         gbc_txtField.insets = new Insets(0, 0, 0, 5);
-        gbc_txtField.fill = GridBagConstraints.HORIZONTAL;
+        gbc_txtField.fill = GridBagConstraints.BOTH;
         gbc_txtField.gridx = 0;
         gbc_txtField.gridy = 0;
         panel_1.add(txtField, gbc_txtField);
@@ -122,17 +119,17 @@ public class MonaLisaCommunicationPanel extends JPanel implements
 
     @Override
     public void actionPerformed(ActionEvent arg0) {
-        
-        if (!txtField.getText().equals("")){
-            
-        String msg = txtField.getText() + "\n" ;
-        txtField.setText("");
-        String currentText = chatMessages.getText();
 
-        currentText = currentText  + msg;
+        if (!txtField.getText().equals("")) {
 
-        chatMessages.setText(currentText);
-        // chatMessages
+            String msg = txtField.getText() + "\n";
+            txtField.setText("");
+            String currentText = chatMessages.getText();
+
+            currentText = currentText + msg;
+
+            chatMessages.setText(currentText);
+            // chatMessages
         }
     }
 
