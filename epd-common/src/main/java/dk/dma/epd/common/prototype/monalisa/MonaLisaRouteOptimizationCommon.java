@@ -33,6 +33,7 @@ import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
+import dk.dma.epd.common.prototype.model.route.Route.EtaCalculationType;
 import dk.dma.epd.common.prototype.monalisa.sspa.CurrentShipDataType;
 import dk.dma.epd.common.prototype.monalisa.sspa.DraftType;
 import dk.dma.epd.common.prototype.monalisa.sspa.PositionType;
@@ -256,6 +257,7 @@ public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
         }
 
         route.setEtas(etas);
+        route.calcValues(true);
         
         return route;
     }
