@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.maritimecloud.core.id.MaritimeId;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.ChatService.ChatServiceMessage;
 import dk.dma.epd.common.prototype.gui.ComponentDialog;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
@@ -56,11 +57,12 @@ import dk.dma.epd.common.prototype.notification.GeneralNotification;
 import dk.dma.epd.common.prototype.notification.MsiNotification;
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
-import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
+import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatServiceListener;
+import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon.StrategicRouteListener;
 
 /**
  * Defines the base class for the notification center. Can either
@@ -72,10 +74,11 @@ import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatService
  *   <li>MSI: A maritime safety information panel.</li>
  * </ul>
  */
-public class NotificationCenterCommon extends ComponentDialog implements 
+public abstract class NotificationCenterCommon extends ComponentDialog implements 
     ActionListener,
     IMsiUpdateListener,
-    IChatServiceListener
+    IChatServiceListener,
+    StrategicRouteListener
 {
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(NotificationCenterCommon.class);
@@ -84,6 +87,8 @@ public class NotificationCenterCommon extends ComponentDialog implements
     
     protected MsiHandler msiHandler;
     protected ChatServiceHandlerCommon chatServiceHandler;
+    protected StrategicRouteHandlerCommon strategicRouteHandler;
+    
     protected SystemTrayCommon systemTray;
     protected BottomPanelCommon bottomPanel;
     
@@ -104,7 +109,7 @@ public class NotificationCenterCommon extends ComponentDialog implements
         super(window, "Notification Center", Dialog.ModalityType.MODELESS);
         
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-        setBounds(100, 100, 900, 600);
+        setBounds(100, 100, 900, 500);
         if (window != null) {
             setLocationRelativeTo(window); 
         }
@@ -112,6 +117,9 @@ public class NotificationCenterCommon extends ComponentDialog implements
         registerPanels();
         initGUI();
         setActiveType(NotificationType.NOTIFICATION);
+        
+        strategicRouteHandler = EPD.getInstance().getStrategicRouteHandler();
+        strategicRouteHandler.addStrategicRouteListener(this);
         
         alertTimer.setCoalesce(true);
         alertTimer.setRepeats(true);
@@ -360,26 +368,5 @@ public class NotificationCenterCommon extends ComponentDialog implements
         notification.setSeverity(message.getSeverity());
         notification.setAlerts(message.getAlerts());
         generalPanel.addNotification(notification);
-    }
-    
-    /*************************************/
-    /** Test method                     **/
-    /*************************************/
-    
-    /**
-     * Test method
-     */
-    public static void main(String... args) {
-        NotificationCenterCommon n = new NotificationCenterCommon(null);
-        GeneralNotification not1 = new GeneralNotification();
-        not1.setTitle("hkjdfhg");
-        not1.setSeverity(NotificationSeverity.ALERT);
-        n.generalPanel.tableModel.notifications.add(not1);
-        GeneralNotification not2 = new GeneralNotification();
-        not2.setTitle("ddd");
-        not2.setRead(true);
-        n.generalPanel.tableModel.notifications.add(not2);
-        n.setVisible(true);
-        
-    }
+    }    
 }

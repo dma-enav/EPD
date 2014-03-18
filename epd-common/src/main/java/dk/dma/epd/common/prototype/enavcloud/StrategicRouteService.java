@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.enavcloud;
 
 import static java.util.Objects.requireNonNull;
 
+import java.awt.Color;
 import java.util.Date;
 
 import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
@@ -29,187 +30,114 @@ import dk.dma.enav.model.voyage.Route;
  * Defines the service initiation point along with the following classes:
  * <ul>
  *   <li>{@linkplain StrategicRouteStatus} status of the strategic route.</li>
- *   <li>{@linkplain StrategicRouteRequestMessage} Used for sending a request from a ship to an STCC.</li>
- *   <li>{@linkplain StrategicRouteRequestReply} Used for sending a reply an STCC to a ship.</li>
+ *   <li>{@linkplain StrategicRouteMessage} Used for sending a strategic route request.</li>
+ *   <li>{@linkplain StrategicRouteReply} Used for acknowledging the request.</li>
  * </ul>
  */
 public class StrategicRouteService {
     
     /** An initiation point */
-    public static final ServiceInitiationPoint<StrategicRouteRequestMessage> INIT = new ServiceInitiationPoint<>(
-            StrategicRouteRequestMessage.class);
+    public static final ServiceInitiationPoint<StrategicRouteMessage> INIT = new ServiceInitiationPoint<>(
+            StrategicRouteMessage.class);
     
     /**
-     * Defines the current status of a strategic route exchange between a ship and an STTC.
+     * Defines the current status of a strategic route exchange between a ship and an STCC.
      */
     public enum StrategicRouteStatus {
-        PENDING, AGREED, REJECTED, NEGOTIATING, CANCELED
+        PENDING(false, Color.YELLOW), 
+        AGREED(true, new Color(130, 165, 80)), 
+        REJECTED(true, new Color(165, 80, 80)), 
+        NEGOTIATING(false, Color.YELLOW), 
+        CANCELED(true, new Color(165, 80, 80));
+        
+        boolean complete;
+        Color color;
+        
+        private StrategicRouteStatus(boolean complete, Color color) {
+            this.complete = complete;
+            this.color = color;
+        }
+        
+        public boolean isComplete() { return complete; }
+        public Color getColor()  { return color; }
     }
     
     /**
      * Used for sending a request from a ship to an STCC.
      */
-    public static class StrategicRouteRequestMessage extends
-        ServiceMessage<StrategicRouteRequestReply> {
-        private Route route;
-        private Date sent;
-        private long mmsi;
-        private String message;
+    public static class StrategicRouteMessage extends
+        ServiceMessage<StrategicRouteReply> {
+
+        private boolean fromStcc;
         private long id;
+        private Route route;
+        private Date sentDate;
+        private String message;
+        private StrategicRouteStatus status;
 
         /**
          * No-arg constructor
          */
-        public StrategicRouteRequestMessage() {
+        public StrategicRouteMessage() {
         }
 
         /**
          * Constructor
          * 
-         * @param id id of the route
+         * @param fromStcc whether this message is from an STCC or a ship
+         * @param id id of the transaction
          * @param route the route
          * @param mmsi the MMSI of the vessel
          * @param message an additional message
+         * @param status the status
          */
-        public StrategicRouteRequestMessage(long id, Route route, long mmsi, String message) {
+        public StrategicRouteMessage(boolean fromStcc, long id, Route route, String message, StrategicRouteStatus status) {
+            this.fromStcc = fromStcc;
+            this.id = id;
             this.route = requireNonNull(route);
-            this.mmsi = requireNonNull(mmsi);
-            this.id = requireNonNull(id);
-            this.sent = requireNonNull(new Date());
             this.message = requireNonNull(message);
+            this.status = status;
+            this.sentDate = new Date();
         }
 
-        public String getMessage() {
-            return message;
+        public boolean isFromStcc() {
+            return fromStcc;
         }
 
-        /**
-         * @return the route
-         */
+        public void setFromStcc(boolean fromStcc) {
+            this.fromStcc = fromStcc;
+        }
+
+        public long getId() {
+            return id;
+        }
+
+        public void setId(long id) {
+            this.id = id;
+        }
+        
         public Route getRoute() {
             return route;
         }
 
-        /**
-         * @return the mmsi
-         */
-        public long getMmsi() {
-            return mmsi;
-        }
-
-        /**
-         * @param mmsi the mmsi to set
-         */
-        public void setMmsi(long mmsi) {
-            this.mmsi = mmsi;
-        }
-
-        public Date getSent() {
-            return sent;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-
-        /**
-         * @param route
-         *            the route to set
-         */
         public void setRoute(Route route) {
             this.route = route;
         }
 
-        public void setSent(Date sent) {
-            this.sent = sent;
-        }
-
-        public long getId() {
-            return id;
-        }
-
-        public void setId(long id) {
-            this.id = id;
-        }
-    }
-
-    /**
-     * Used for sending a reply an STCC to a ship
-     */
-    public static class StrategicRouteRequestReply extends ServiceMessage<Void> {
-
-        private String message;
-        private long id;
-        private long mmsi;
-        private long sendDate;
-        private StrategicRouteStatus status;
-        private Route route;
-
-        public StrategicRouteRequestReply() {
-        }
-
-        /**
-         * Constructor
-         * 
-         * @param message a message
-         * @param id id of the route
-         * @param mmsi the MMSI of the vessel
-         * @param sendDate the send date
-         * @param status the reply status
-         * @param route the route
-         */
-        public StrategicRouteRequestReply(String message, long id, long mmsi, long sendDate, StrategicRouteStatus status, Route route) {
-            this.message = message;
-            this.id = id;
-            this.mmsi = mmsi;
-            this.sendDate = sendDate;
-            this.status = status;
-            this.route = route;
-        }
-
-        /**
-         * @return the message
-         */
         public String getMessage() {
             return message;
         }
 
-        /**
-         * @return the route
-         */
-        public Route getRoute() {
-            return route;
-        }
-        
-        /**
-         * @param message the message to set
-         */
         public void setMessage(String message) {
             this.message = message;
         }
 
-        public long getId() {
-            return id;
+        public Date getSentDate() {
+            return sentDate;
         }
 
-        public void setId(long id) {
-            this.id = id;
-        }
-
-        public long getMmsi() {
-            return mmsi;
-        }
-
-        public void setMmsi(long mmsi) {
-            this.mmsi = mmsi;
-        }
-
-        public long getSendDate() {
-            return sendDate;
-        }
-
-        public void setSendDate(long sendDate) {
-            this.sendDate = sendDate;
+        public void setSentDate(Date sentDate) {
+            this.sentDate = sentDate;
         }
 
         public StrategicRouteStatus getStatus() {
@@ -219,12 +147,44 @@ public class StrategicRouteService {
         public void setStatus(StrategicRouteStatus status) {
             this.status = status;
         }
-        
+    }
+
+    /**
+     * Acknowledges receiving a strategic route request
+     */
+    public static class StrategicRouteReply extends ServiceMessage<Void> {
+
+        private long id;
+        private Date receivedDate;
+
+        public StrategicRouteReply() {
+        }
+
         /**
-         * @param route the route to set
+         * Constructor
+         * 
+         * @param id id of the transaction
+         * @param sendDate the send date
          */
-        public void setRoute(Route route) {
-            this.route = route;
+        public StrategicRouteReply(long id) {
+            this.id = id;
+            this.receivedDate = new Date();
+        }
+
+        public long getId() {
+            return id;
+        }
+
+        public void setId(long id) {
+            this.id = id;
+        }
+
+        public Date getReceivedDate() {
+            return receivedDate;
+        }
+
+        public void setReceivedDate(Date receivedDate) {
+            this.receivedDate = receivedDate;
         }
     }
 }
