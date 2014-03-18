@@ -148,7 +148,7 @@ public final class EPDShip extends EPD {
         }
         
         new Bootstrap().run(this, new String[] { "epd-ship.properties", "enc_navicon.properties", "settings.properties",
-                "transponder.xml" }, new String[] { "routes", "layout/static", "shape/GSHHS_shp" });
+                "transponder.xml" }, new String[] { "routes", "layout/static", "shape/GSHHS_shp", "identities" });
 
         // Set up log4j logging
         LOG = LoggerFactory.getLogger(EPDShip.class);

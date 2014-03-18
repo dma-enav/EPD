@@ -32,12 +32,12 @@ import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon;
 public class IdentityHandler extends EnavServiceHandlerCommon {
 
     private static final Logger LOG = LoggerFactory.getLogger(EnavServiceHandlerCommon.class);
-    private Map<Long, MaritimeIdentity> maritimeIdentitys = new ConcurrentHashMap<>();
+    private Map<Long, MaritimeIdentity> maritimeIdentities = new ConcurrentHashMap<>();
 
     public IdentityHandler() {
         // Load Stored Identitys from file. Currently stored in multiple property files
 
-        LOG.info("Loading Identitys");
+        LOG.info("Loading Identities");
         loadActors();
     }
 
@@ -46,7 +46,7 @@ public class IdentityHandler extends EnavServiceHandlerCommon {
      */
     private void loadActors() {
 
-        File folder = new File(EPD.getInstance().getHomePath().toString() + "/identitys");
+        File folder = new File(EPD.getInstance().getHomePath().toString() + "/identities");
         File[] listOfFiles = folder.listFiles();
 
         LOG.info("A total of " + listOfFiles.length + " Maritime Cloud actors found");
@@ -54,7 +54,7 @@ public class IdentityHandler extends EnavServiceHandlerCommon {
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
                 MaritimeIdentity actor = createActorFromProps(listOfFiles[i]);
-                maritimeIdentitys.put(actor.getMaritimeID(), actor);
+                maritimeIdentities.put(actor.getMaritimeID(), actor);
             }
         }
     }
@@ -85,8 +85,8 @@ public class IdentityHandler extends EnavServiceHandlerCommon {
     /**
      * @return the maritimeIdentitys
      */
-    public Map<Long, MaritimeIdentity> getMaritimeIdentitys() {
-        return maritimeIdentitys;
+    public Map<Long, MaritimeIdentity> getMaritimeIdentities() {
+        return maritimeIdentities;
     }
 
     /**
@@ -96,7 +96,7 @@ public class IdentityHandler extends EnavServiceHandlerCommon {
      * @return
      */
     public boolean actorExists(long mmsi) {
-        return maritimeIdentitys.containsKey(mmsi);
+        return maritimeIdentities.containsKey(mmsi);
     }
 
     /**
@@ -107,7 +107,7 @@ public class IdentityHandler extends EnavServiceHandlerCommon {
      */
     public MaritimeIdentity getActor(long mmsi) {
         if (actorExists(mmsi)) {
-            return maritimeIdentitys.get(mmsi);
+            return maritimeIdentities.get(mmsi);
         } else {
             return null;
         }
