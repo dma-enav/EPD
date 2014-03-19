@@ -25,19 +25,19 @@ import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.ship.gui.ChartPanel;
-import dk.dma.epd.ship.gui.panels.MonaLisaCommunicationPanel;
+import dk.dma.epd.ship.gui.panels.STCCCommunicationPanel;
 
-public class MonaLisaCommunicationComponentPanel extends OMComponentPanel implements Runnable, ProjectionListener  {
+public class STCCCommunicationComponentPanel extends OMComponentPanel implements Runnable, ProjectionListener  {
 
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
-    private final MonaLisaCommunicationPanel commsPanel = new MonaLisaCommunicationPanel();
+    private final STCCCommunicationPanel commsPanel = new STCCCommunicationPanel();
     private PntTime gnssTime;
     private ChartPanel chartPanel;
     
-    public MonaLisaCommunicationComponentPanel(){
+    public STCCCommunicationComponentPanel(){
         super();
         
 //        this.setMinimumSize(new Dimension(10, 25));

@@ -49,7 +49,7 @@ import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.Bootstrap;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
-import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
+import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
@@ -69,6 +69,7 @@ import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.event.DragMouseMode;
 import dk.dma.epd.ship.event.NavigationMouseMode;
 import dk.dma.epd.ship.gui.MainFrame;
+import dk.dma.epd.ship.gui.notification.NotificationCenter;
 import dk.dma.epd.ship.gui.route.RouteManagerDialog;
 import dk.dma.epd.ship.monalisa.MonaLisaRouteOptimization;
 import dk.dma.epd.ship.nogo.DynamicNogoHandler;
@@ -117,7 +118,7 @@ public final class EPDShip extends EPD {
     private MaritimeCloudService maritimeCloudService;
     private IntendedRouteHandler intendedRouteHandler;
     private RouteSuggestionHandler routeSuggestionHandler;
-    private StrategicRouteHandler strategicRouteHandler;
+    private IdentityHandler identityHandler;
 
     /**
      * Starts the program by initializing the various threads and spawning the main GUI
@@ -146,7 +147,7 @@ public final class EPDShip extends EPD {
         }
         
         new Bootstrap().run(this, new String[] { "epd-ship.properties", "enc_navicon.properties", "settings.properties",
-                "transponder.xml" }, new String[] { "routes", "layout/static", "shape/GSHHS_shp" });
+                "transponder.xml" }, new String[] { "routes", "layout/static", "shape/GSHHS_shp", "identities" });
 
         // Set up log4j logging
         LOG = LoggerFactory.getLogger(EPDShip.class);
@@ -254,6 +255,10 @@ public final class EPDShip extends EPD {
         
         // Create voyage event dispatcher
         voyageEventDispatcher = new VoyageEventDispatcher();
+        
+        // Create identity handler
+        identityHandler = new IdentityHandler();
+        mapHandler.add(identityHandler);
 
         // Start sensors
         startSensors();
@@ -521,7 +526,7 @@ public final class EPDShip extends EPD {
         mapHandler.add(systemTray);
 
         // Create the notification center
-        notificationCenter = new NotificationCenterCommon(getMainFrame());
+        notificationCenter = new NotificationCenter(getMainFrame());
         mapHandler.add(notificationCenter);
                 
         // Create keybinding shortcuts
@@ -804,6 +809,10 @@ public final class EPDShip extends EPD {
         return maritimeCloudService;
     }
 
+    public IdentityHandler getIdentityHandler() {
+        return identityHandler;
+    }
+    
     public double elapsed(long start) {
         double elapsed = System.nanoTime() - start;
         return elapsed / 1000000.0;
@@ -814,12 +823,13 @@ public final class EPDShip extends EPD {
     }
 
     /**
-     * @return the monaLisaHandler
+     * {@inheritDoc}
      */
+    @Override
     public StrategicRouteHandler getStrategicRouteHandler() {
-        return strategicRouteHandler;
+        return (StrategicRouteHandler)strategicRouteHandler;
     }
-
+    
     /**
      * Get the system wide voyage event dispatcher.
      * 
@@ -837,6 +847,15 @@ public final class EPDShip extends EPD {
         return voctManager;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NotificationCenter getNotificationCenter() {
+        return (NotificationCenter)super.getNotificationCenter();
+    }
+    
+    
     @Override
     public Path getHomePath() {
         return homePath;

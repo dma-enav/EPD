@@ -103,7 +103,6 @@ public final class EPDShore extends EPD {
 
     // Maritime Cloud services
     private MaritimeCloudService maritimeCloudService;
-    private StrategicRouteHandler strategicRouteHandler;
     private RouteSuggestionHandler routeSuggestionHandler;
     private IntendedRouteHandlerCommon intendedRouteHandler;
 
@@ -313,10 +312,14 @@ public final class EPDShore extends EPD {
         return routeSuggestionHandler;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public StrategicRouteHandler getStrategicRouteHandler() {
-        return strategicRouteHandler;
+        return (StrategicRouteHandler)strategicRouteHandler;
     }
-
+    
     /**
      * Close app routine with possibility for restart - not implemented
      * 

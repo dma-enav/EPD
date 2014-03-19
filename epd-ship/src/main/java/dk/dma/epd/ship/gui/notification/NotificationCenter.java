@@ -13,28 +13,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.epd.shore.gui.notification;
+package dk.dma.epd.ship.gui.notification;
 
 import java.awt.Window;
 
 import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.notification.Notification;
-import dk.dma.epd.shore.EPDShore;
-import dk.dma.epd.shore.service.RouteSuggestionHandler;
-import dk.dma.epd.shore.service.RouteSuggestionHandler.RouteSuggestionListener;
 
 /**
- * Shore-specific notification center implementation
+ * Ship-specific notification center implementation
  */
-public class NotificationCenter extends NotificationCenterCommon implements 
-    RouteSuggestionListener {
+public class NotificationCenter extends NotificationCenterCommon {
 
     private static final long serialVersionUID = 1L;
     
-    private RouteSuggestionHandler routeSuggestionHandler;
-    
     private StrategicRouteNotificationPanel strategicRoutePanel;
-    private RouteSuggestionNotificationPanel routeSuggestionPanel;
     
     /**
      * Constructor
@@ -43,11 +36,9 @@ public class NotificationCenter extends NotificationCenterCommon implements
      */
     public NotificationCenter(Window window) {
         super(window);
-        
-        routeSuggestionHandler = EPDShore.getInstance().getRouteSuggestionHandler();
-        routeSuggestionHandler.addRouteSuggestionListener(this);
     }
-
+    
+    
     /**
      * {@inheritDoc}
      */
@@ -55,12 +46,10 @@ public class NotificationCenter extends NotificationCenterCommon implements
     protected void registerPanels() {
         super.registerPanels();
         
-        // Add the shore specific panels
-        routeSuggestionPanel = new RouteSuggestionNotificationPanel();
+        // Add the ship specific panels
         strategicRoutePanel = new StrategicRouteNotificationPanel();
-        panels.add(routeSuggestionPanel);
         panels.add(strategicRoutePanel);
-    }
+    }    
 
     /**
      * Adds a notification of the given type.
@@ -69,9 +58,7 @@ public class NotificationCenter extends NotificationCenterCommon implements
      */
     @Override
     public void addNotification(Notification<?, ?> notification) {
-        if (notification instanceof RouteSuggestionNotification) {
-            routeSuggestionPanel.addNotification((RouteSuggestionNotification)notification);
-        } else if (notification instanceof StrategicRouteNotification) {
+        if (notification instanceof StrategicRouteNotification) {
             strategicRoutePanel.addNotification((StrategicRouteNotification)notification);
         } else {
             super.addNotification(notification);
@@ -87,11 +74,10 @@ public class NotificationCenter extends NotificationCenterCommon implements
     }
 
     /**
-     * {@inheritDoc}
+     * Returns a reference to the strategic route panel
+     * @return a reference to the strategic route panel
      */
-    @Override
-    public void routeUpdate() {
-        routeSuggestionPanel.refreshNotifications();
+    public StrategicRouteNotificationPanel getStrategicRoutePanel() {
+        return strategicRoutePanel;
     }
 }
-

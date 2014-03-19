@@ -73,39 +73,25 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
         
         if (strategicRouteHandler.getStrategicNegotiationData().containsKey(transactionid)){
             
-        System.out.println("Handling it!");
-        
-        StrategicRouteNegotiationData message = strategicRouteHandler.getStrategicNegotiationData().get(transactionid);
-        
-
-        String shipName = "" + message.getMmsi();
-        
-        VesselTarget vesselTarget = aisHandler.getVesselTarget(message.getMmsi());
-        if (vesselTarget.getStaticData() != null) {
-            shipName = vesselTarget.getStaticData().getTrimmedName();
+            StrategicRouteNegotiationData routeData = strategicRouteHandler.getStrategicNegotiationData().get(transactionid);
+            
+    
+            String shipName = "" + routeData.getMmsi();
+            
+            VesselTarget vesselTarget = aisHandler.getVesselTarget(routeData.getMmsi());
+            if (vesselTarget.getStaticData() != null) {
+                shipName = vesselTarget.getStaticData().getTrimmedName();
+            }
+    
+            // Get latest route
+            Route route = new Route(routeData.getLatestRoute());
+    
+            Voyage voyage = new Voyage(routeData.getMmsi(), route, routeData.getId());
+    
+            Route originalRoute = new Route(routeData.getOriginalRoute());
+            
+            EPDShore.getInstance().getMainFrame().addStrategicRouteExchangeHandlingWindow(originalRoute,
+                    shipName, voyage, true);
         }
-
-        // Get latest route
-        Route route = null;
-        
-        //The one we sent out was accepted
-        if (message.getRouteMessage().size() > message.getRouteReply().size()){
-          route = new Route(message.getRouteMessage()
-          .get(message.getRouteMessage().size() - 1)
-          .getRoute());
-        }else{
-            route = new Route(message.getRouteReply()
-                    .get(message.getRouteReply().size() - 1)
-                    .getRoute());  
-        }
-
-        Voyage voyage = new Voyage(message.getMmsi(), route,
-                message.getId());
-
-        Route originalRoute = new Route(message.getRouteMessage().get(0).getRoute());
-        
-        EPDShore.getInstance().getMainFrame().addStrategicRouteExchangeHandlingWindow(originalRoute,
-                shipName, voyage, true);
-    }
     }
 }

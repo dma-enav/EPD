@@ -313,8 +313,8 @@ public class MapMenu extends MapMenuCommon {
         }
 
         sendToSTCC.setRoute(route);
-        sendToSTCC
-                .setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
+        sendToSTCC.setTransactionId(strategicRouteHandler.getCurrentTransactionId());
+        sendToSTCC.setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
                         && routeManager.getActiveRouteIndex() != routeIndex
                         && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 
@@ -383,8 +383,8 @@ public class MapMenu extends MapMenuCommon {
         this.add(seperator);
 
         sendToSTCC.setRoute(route);
-        sendToSTCC
-                .setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
+        sendToSTCC.setTransactionId(strategicRouteHandler.getCurrentTransactionId());
+        sendToSTCC.setEnabled(strategicRouteHandler.strategicRouteSTCCExists()
                         && routeManager.getActiveRouteIndex() != routeIndex
                         && strategicRouteHandler.getStatus().getStatus() == ComponentStatus.Status.OK);
 

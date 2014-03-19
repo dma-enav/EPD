@@ -18,6 +18,7 @@ package dk.dma.epd.shore.gui.route;
 import java.awt.Window;
 
 import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
+import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon.RouteChangeListener;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.layers.voyage.VoyageHandlingLayer;
@@ -26,15 +27,15 @@ import dk.dma.epd.shore.route.RouteManager;
 /**
  * Dialog with route properties
  */
-public class RoutePropertiesDialog extends RoutePropertiesDialogCommon {
+public class RoutePropertiesDialog extends RoutePropertiesDialogCommon implements RouteChangeListener {
 
     private static final long serialVersionUID = 1L;
     VoyageHandlingLayer voyageHandlingLayer;
 
     public RoutePropertiesDialog(Window parent, ChartPanel chartPanel, RouteManager routeManager,
             int routeId) {
-
         super(parent, chartPanel, routeManager, routeId);
+        addRouteChangeListener(this);
     }
 
     public RoutePropertiesDialog(Window mainFrame, ChartPanel chartPanel, Route route,
@@ -42,21 +43,21 @@ public class RoutePropertiesDialog extends RoutePropertiesDialogCommon {
         super(mainFrame, chartPanel, route, false);
         this.voyageHandlingLayer = voyageHandlingLayer;
         btnActivate.setVisible(false);
-
+        addRouteChangeListener(this);
     }
     
     public RoutePropertiesDialog(Window mainFrame, ChartPanel chartPanel, Route route) {
         super(mainFrame, chartPanel, route, true);
         btnActivate.setVisible(false);
+        addRouteChangeListener(this);
     }
     
     
-
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void routeUpdated() {
+    public void routeChanged() {
         if (voyageHandlingLayer != null) {
             voyageHandlingLayer.updateVoyages();
         }

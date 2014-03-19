@@ -38,12 +38,12 @@ import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.util.InfoPanel;
 import dk.dma.epd.common.prototype.layers.EPDLayerCommon;
 import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
+import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon.StrategicRouteListener;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.ais.AisHandler;
 import dk.dma.epd.shore.gui.views.ChartPanel;
 import dk.dma.epd.shore.gui.views.MapMenu;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
-import dk.dma.epd.shore.service.StrategicRouteHandler.StrategicRouteListener;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
 import dk.dma.epd.shore.voyage.VoyageUpdateEvent;
@@ -220,7 +220,7 @@ public class VoyageLayer extends EPDLayerCommon implements VoyageUpdateListener,
 
             for (Long transactionId : strategicRouteHandler.getUnhandledTransactions()) {
                 long mmsi = strategicRouteHandler.getStrategicNegotiationData()
-                        .get(transactionId).getRouteMessage().get(0).getMmsi();
+                        .get(transactionId).getMmsi();
                 
                 VesselTarget ship = aisHandler.getVesselTarget(mmsi);
                 
