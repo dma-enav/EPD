@@ -91,21 +91,6 @@ public class MsiLayer extends MsiLayerCommon {
             
             // Check proximity to current location (free navigation mode)
             if(mousePosition != null && !message.visible) {
-//                double distance = distanceToShip(message, mousePosition);
-//                
-//                boolean visibleToOther = false;
-//                for (int i = 0; i < newRouteLayer.getRoute().getWaypoints().size(); i++) {
-//                    double distance2 = distanceToPoint(message, newRouteLayer.getRoute().getWaypoints().get(i).getPos());
-//                    if(distance2 <= EPDShip.getInstance().getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint()){
-//                        visibleToOther = true;
-//                    }
-//                }
-//                
-//                boolean visibleToSelf = distance <= EPDShip.getInstance().getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint();
-//                
-//                if (!visibleToSelf && !visibleToOther){
-//                    return false;
-//                }
                 
                 // Get allowed MSI visibility distance.
                 double visibilityFromNewWaypoint = EPDShip.getInstance().getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint();
@@ -138,14 +123,9 @@ public class MsiLayer extends MsiLayerCommon {
                     double slope = (Math.round(
                             ((pointB.getY() - pointA.getY()) / (pointB.getX() - pointA.getX())) * 50));
                     
-                    double distance = Math.round(Math.sqrt(
-                            (pointA.getX()-pointB.getX()) * (pointA.getX()-pointB.getX()) + 
-                            (pointA.getY()-pointB.getY()) * (pointA.getY()-pointB.getY())));
-                    
-                    System.out.println("slope: "+slope);
-                    System.out.println("distance: "+distance);
-                    System.out.println("dx: "+dx);
-                    System.out.println();
+//                    double distance = Math.round(Math.sqrt(
+//                            (pointA.getX()-pointB.getX()) * (pointA.getX()-pointB.getX()) + 
+//                            (pointA.getY()-pointB.getY()) * (pointA.getY()-pointB.getY())));
                     
                     for (int j = 1; j*50 < dx; j++) {
                                                 
