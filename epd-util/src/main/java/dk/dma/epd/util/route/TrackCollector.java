@@ -56,8 +56,9 @@ public class TrackCollector implements Consumer<AisMessage> {
         }
 
         AisPositionMessage posMessage = (AisPositionMessage) aisMessage;
-        TimePoint point = new TimePoint(posMessage.getPos().getGeoLocation(), timestamp);
-        track.add(point);
+        if (posMessage.isPositionValid()) {
+            track.add(new TimePoint(posMessage.getPos().getGeoLocation(), timestamp));
+        }
     }
 
     public List<TimePoint> getSortedTrack() {
