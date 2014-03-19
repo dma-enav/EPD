@@ -1,0 +1,9 @@
+name=Great Belt VTS
+role=VTS
+affiliation=Danish Maritime Authority
+maritimeID=999333333
+description=Great Belt VTS is here to help drunk Ru***** captains steer clear of the bridge
+service.name=Intended Route;MSI;Tactical Route Exchange
+service.description=Intended Route;MSI;Tactical Route Exchange
+service.lat=56.18 56.10 55.12 55.14;56.18 56.10 55.12 55.14;56.18 56.10 55.12 55.14
+service.lon=11.24 12.36 11.09 13.01;11.24 12.36 11.09 13.01;11.24 12.36 11.09 13.01
