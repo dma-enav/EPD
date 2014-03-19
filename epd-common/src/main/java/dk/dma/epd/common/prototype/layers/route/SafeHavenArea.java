@@ -24,6 +24,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.TexturePaint;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +34,11 @@ import javax.swing.ImageIcon;
 import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMPoly;
+import com.bbn.openmap.proj.Projection;
 
 import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.common.util.Converter;
 
@@ -197,13 +200,20 @@ public class SafeHavenArea extends OMGraphicList {
         if (polygonCenterPosition != null && ownShipPosition != null) {
 
             double distance = Converter.metersToNm(polygonCenterPosition.distanceTo(ownShipPosition, CoordinateSystem.CARTESIAN));
-            if (distance < 1) {
+
+            Projection proj = EPD.getInstance().getMainFrame().getActiveChartPanel().getMap().getProjection();
+            Point2D ownShipPositionPoint = proj.forward(ownShipPosition.getLatitude(), ownShipPosition.getLongitude());
+            
+            //Generate the shape so we can check if we are located inside it
+            poly.generate(proj);
+            
+            if (poly.contains(ownShipPositionPoint.getX(), ownShipPositionPoint.getY())) {
                 big.setColor(new Color(0f, 1f, 0f, 0.5f));
             } else {
-                if (distance < 2) {
-                    big.setColor(new Color(1f, 1f, 0f, 0.5f));
-                } else {
+                if (distance > 1) {
                     big.setColor(new Color(1f, 0f, 0f, 0.5f));
+                } else {
+                    big.setColor(new Color(1f, 1f, 0f, 0.5f));
                 }
 
             }
