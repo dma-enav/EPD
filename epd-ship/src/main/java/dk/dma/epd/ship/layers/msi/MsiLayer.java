@@ -134,7 +134,7 @@ public class MsiLayer extends MsiLayerCommon {
                         pointB = projection.forward(nWaypoint.getPos().getLatitude(), nWaypoint.getPos().getLongitude());
                     }
                     
-                    double dx = (pointB.getX()-pointA.getX());
+                    double dx = Math.abs(pointB.getX()-pointA.getX());
                     double slope = (Math.round(
                             ((pointB.getY() - pointA.getY()) / (pointB.getX() - pointA.getX())) * 50));
                     
@@ -151,14 +151,26 @@ public class MsiLayer extends MsiLayerCommon {
                                                 
                         Point2D pnt = pointA;
                         
-                        if (slope >= 0) {
-                            pnt.setLocation(pointA.getX()+50, pointA.getY()+slope);
-                        } else if (slope < 0) {
-                            double posSlope = Math.abs(slope);
-                            pnt.setLocation(pointA.getX()+50, pointA.getY()-posSlope);
+                        if (pointA.getX() <= pointB.getX()) {
+                            
+                            if (slope >= 0) {
+                                pnt.setLocation(pointA.getX()+50, pointA.getY()+slope);
+                            } else if (slope < 0) {
+                                double posSlope = Math.abs(slope);
+                                pnt.setLocation(pointA.getX()+50, pointA.getY()-posSlope);
+                            }                            
+                            
+                        } else if (pointA.getX() > pointB.getX()) {
+                            
+                            if (slope >= 0) {
+                                pnt.setLocation(pointA.getX()-50, pointA.getY()-slope);
+                            } else if (slope < 0) {
+                                double posSlope = Math.abs(slope);
+                                pnt.setLocation(pointA.getX()-50, pointA.getY()+posSlope);
+                            }
                         }
                         
-                        this.newRouteLayer.getGraphics().fillOval((int) Math.round(pnt.getX()), (int) Math.round(pnt.getY()), 10, 10);
+//                        this.newRouteLayer.getGraphics().fillOval((int) Math.round(pnt.getX()), (int) Math.round(pnt.getY()), 10, 10);
                         
                         LatLonPoint llpnt = projection.inverse(pnt);
                         Position position = Position.create(llpnt.getLatitude(), llpnt.getLongitude());
@@ -176,16 +188,6 @@ public class MsiLayer extends MsiLayerCommon {
             }
         }
         return true;
-    }
-
-    private double getDx(double d, double slope) {
-
-        // c2 = a2 + b2
-        // c2 - b2 = a2
-        // √(c2 - b2) = a
-        double dx = Math.sqrt((d*d) - (slope*slope));
-        System.out.println(dx);
-        return 0;
     }
 
     /**
