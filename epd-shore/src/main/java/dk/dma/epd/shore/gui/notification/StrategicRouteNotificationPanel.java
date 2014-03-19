@@ -25,10 +25,10 @@ import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationTableModel;
@@ -57,8 +57,8 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
     /**
      * Constructor
      */
-    public StrategicRouteNotificationPanel() {
-        super();
+    public StrategicRouteNotificationPanel(NotificationCenterCommon notificationCenter) {
+        super(notificationCenter);
         
         table.getColumnModel().getColumn(0).setMaxWidth(18);
         table.getColumnModel().getColumn(1).setPreferredWidth(80);
@@ -72,8 +72,8 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
      * {@inheritDoc}
      */
     @Override
-    protected JPanel initButtonPanel() {
-        JPanel btnPanel = new JPanel();
+    protected ButtonPanel initButtonPanel() {
+        ButtonPanel btnPanel = new ButtonPanel(notificationCenter);
         btnPanel.setBorder(
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createMatteBorder(0, 0, 2, 0, UIManager.getColor("Separator.shadow")),
@@ -148,7 +148,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
                 false);
 
             // Hide the notification center
-            SwingUtilities.getWindowAncestor(this).setVisible(false);
+            SwingUtilities.getWindowAncestor(detailPanel).setVisible(false);
         }
     }
     

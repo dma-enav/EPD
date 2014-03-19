@@ -56,8 +56,8 @@ public class NotificationCenter extends NotificationCenterCommon implements
         super.registerPanels();
         
         // Add the shore specific panels
-        routeSuggestionPanel = new RouteSuggestionNotificationPanel();
-        strategicRoutePanel = new StrategicRouteNotificationPanel();
+        routeSuggestionPanel = new RouteSuggestionNotificationPanel(this);
+        strategicRoutePanel = new StrategicRouteNotificationPanel(this);
         panels.add(routeSuggestionPanel);
         panels.add(strategicRoutePanel);
     }

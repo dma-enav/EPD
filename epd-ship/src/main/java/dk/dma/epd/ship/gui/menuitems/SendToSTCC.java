@@ -40,9 +40,7 @@ public class SendToSTCC extends JMenuItem implements IMapMenuAction {
         if (transactionId != null) {
             // If so, show the strategic route notification
             EPDShip.getInstance().getNotificationCenter()
-                .selectNotification(NotificationType.STRATEGIC_ROUTE, transactionId);
-            EPDShip.getInstance().getNotificationCenter()
-                .setVisible(true);
+                .openNotification(NotificationType.STRATEGIC_ROUTE, transactionId, false);
         } else {
             // No transaction, show the SendStrategicRouteDialog
             EPDShip.getInstance().getMainFrame().getSendStrategicRouteDialog().setSelectedRoute(route);

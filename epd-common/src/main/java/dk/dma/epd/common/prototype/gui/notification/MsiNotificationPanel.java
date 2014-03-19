@@ -49,8 +49,8 @@ public class MsiNotificationPanel extends NotificationPanel<MsiNotification> {
     /**
      * Constructor
      */
-    public MsiNotificationPanel() {
-        super();
+    public MsiNotificationPanel(NotificationCenterCommon notificationCenter) {
+        super(notificationCenter);
         
         table.getColumnModel().getColumn(0).setMaxWidth(18);
         table.getColumnModel().getColumn(1).setPreferredWidth(40);

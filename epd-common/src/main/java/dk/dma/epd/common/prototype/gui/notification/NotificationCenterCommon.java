@@ -24,6 +24,7 @@ import java.awt.Dialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.TrayIcon.MessageType;
 import java.awt.Window;
@@ -93,12 +94,18 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
     protected BottomPanelCommon bottomPanel;
     
     protected JPanel contentPanel = new JPanel(new BorderLayout());
-    protected GeneralNotificationPanel generalPanel = new GeneralNotificationPanel();
-    protected MsiNotificationPanel msiPanel = new MsiNotificationPanel();
+    protected JPanel typePanel = new JPanel(new GridBagLayout());
+    
+    protected GeneralNotificationPanel generalPanel = new GeneralNotificationPanel(this);
+    protected MsiNotificationPanel msiPanel = new MsiNotificationPanel(this);
     protected List<NotificationPanel<?>> panels = new CopyOnWriteArrayList<>();
     protected Map<NotificationType, NotificationLabel> labels = new ConcurrentHashMap<>();
     
     protected NotificationType activeType;
+    
+    // Maximized/minimized handling
+    protected boolean maximized = true;
+    protected int saveDeltaWidth;
     
     /**
      * Constructor
@@ -228,7 +235,6 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         
-        JPanel typePanel = new JPanel(new GridBagLayout());
         typePanel.setBackground(UIManager.getColor("List.background"));
         Insets insets  = new Insets(5, 5, 0, 5);
         int gridY = 0;
@@ -261,21 +267,54 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
                     setActiveType(type);
                 }
             });
+            return;
         }
         
         if (activeType == type) {
             return;
         }
         
+        // Remove the old active panel
         if (activeType != null) {
             contentPanel.remove(getPanel(activeType));
             labels.get(activeType).setSelected(false);
         }
+        
         activeType = type;
         contentPanel.add(getPanel(activeType), BorderLayout.CENTER);
         labels.get(activeType).setSelected(true);
+        
+        if (!maximized) {
+            setContentPane(getPanel(activeType).getDetailPanel());
+        }
+        
         revalidate();
         repaint();
+    }
+    
+    
+    /**
+     * Opens the notification center with the given notification type and the given maximized state
+     * @param type the active notification type of the center
+     * @param maximized the maximized state of the notification center
+     */
+    public void openNotificationCenter(final NotificationType type, final boolean maximized) {
+        // Ensure that we operate in the Swing event thread
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override public void run() {
+                    openNotificationCenter(type, maximized);
+                }
+            });
+            return;
+        }
+        
+        setActiveType(type);
+        // NB: We call setVisible() before setMaximized().
+        // Before the window has been visible the first time around
+        // you cannot rely on sizes used by the maximize mechanism.
+        setVisible(true);
+        setMaximized(maximized);
     }
     
     /**
@@ -327,6 +366,21 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
     }
 
     /**
+     * Selects the notification with the given id and makes the notification center visible.
+     * If the notification center was previously visible, then the maximized state is preserved.
+     * Otherwise, the notification center is opened in the given default maximized state.
+     * 
+     * @param notificationType the notification type
+     * @param id the id of the notification
+     * @param defaultMaximized the maximized state to apply if the notification center was not visible
+     */
+    public void openNotification(NotificationType notificationType, Object id, boolean defaultMaximized) {
+        boolean maximized = (isVisible()) ? this.maximized : defaultMaximized;
+        openNotificationCenter(notificationType, maximized);
+        getPanel(notificationType).setSelectedId(id);
+    }
+
+    /**
      * Adds a notification of the given type.
      * <p>
      * Sub-classes should add their own notification types
@@ -341,6 +395,52 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
         } else {
             throw new IllegalArgumentException("Unknown notification type: " + notification);
         }
+    }
+    
+    
+    /*************************************/
+    /** Maximize/minimize methods       **/
+    /*************************************/
+
+    /**
+     * Returns if the notification center is maximized
+     * @return if the notification center is maximized
+     */
+    public boolean isMaximized() {
+        return maximized;
+    }
+    
+    /**
+     * Sets the maximized state of the notification center
+     * @param maximized the maximized state of the notification center
+     */
+    public void setMaximized(boolean maximized) {
+        if (maximized == this.maximized) {
+            return;
+        }
+        
+        // Let panels adapt to the maximized flag
+        for (NotificationPanel<?> panel : panels) {
+            panel.setMaximized(maximized);
+        }
+        
+        Rectangle bounds = getBounds();
+        if (maximized) {
+            setBounds(bounds.x - saveDeltaWidth, bounds.y, bounds.width + saveDeltaWidth, bounds.height);
+            setContentPane(contentPanel);
+        } else {   
+            saveDeltaWidth = contentPanel.getWidth() - getPanel(activeType).getDetailPanel().getWidth();
+            setContentPane(getPanel(activeType).getDetailPanel());
+            setBounds(bounds.x + saveDeltaWidth, bounds.y, bounds.width - saveDeltaWidth, bounds.height);
+        }
+        this.maximized = maximized;
+    }
+
+    /**
+     * Toggles the maximized state of the notification center
+     */
+    public void toggleMaximized() {
+        setMaximized(!maximized);
     }
     
     /*************************************/

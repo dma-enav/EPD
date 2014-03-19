@@ -46,6 +46,7 @@ import javax.swing.UIManager;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
 import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteStatus;
+import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationTableModel;
@@ -77,8 +78,8 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
     /**
      * Constructor
      */
-    public StrategicRouteNotificationPanel() {
-        super();
+    public StrategicRouteNotificationPanel(NotificationCenterCommon notificationCenter) {
+        super(notificationCenter);
         
         table.getColumnModel().getColumn(0).setMaxWidth(18);
         table.getColumnModel().getColumn(1).setPreferredWidth(100);
@@ -91,8 +92,8 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
      * {@inheritDoc}
      */
     @Override
-    protected JPanel initButtonPanel() {
-        JPanel btnPanel = new JPanel();
+    protected ButtonPanel initButtonPanel() {
+        ButtonPanel btnPanel = new ButtonPanel(notificationCenter);
         btnPanel.setBorder(
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createMatteBorder(0, 0, 2, 0, UIManager.getColor("Separator.shadow")),

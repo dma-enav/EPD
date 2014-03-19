@@ -454,7 +454,7 @@ class NotificationPopUpPanel<N extends Notification<?, ?>> extends JPanel implem
     public void actionPerformed(ActionEvent ae) {
         if (ae.getSource() == showBtn) {
             EPD.getInstance().getNotificationCenter()
-                .selectNotification(notification.getType(), notification.getId());
+                .openNotification(notification.getType(), notification.getId(), false);
             EPD.getInstance().getNotificationCenter().setVisible(true);
             
         } else if (ae.getSource() == dismissBtn) {

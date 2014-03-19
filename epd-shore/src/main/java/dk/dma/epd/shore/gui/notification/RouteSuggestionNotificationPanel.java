@@ -26,11 +26,11 @@ import java.util.Set;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationTableModel;
@@ -56,8 +56,8 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
     /**
      * Constructor
      */
-    public RouteSuggestionNotificationPanel() {
-        super();
+    public RouteSuggestionNotificationPanel(NotificationCenterCommon notificationCenter) {
+        super(notificationCenter);
         
         table.getColumnModel().getColumn(0).setMaxWidth(18);
         table.getColumnModel().getColumn(1).setPreferredWidth(60);
@@ -72,8 +72,8 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
      * {@inheritDoc}
      */
     @Override
-    protected JPanel initButtonPanel() {
-        JPanel btnPanel = super.initButtonPanel();
+    protected ButtonPanel initButtonPanel() {
+        ButtonPanel btnPanel = super.initButtonPanel();
 
         resendBtn = new JButton(
                 "Resend", 

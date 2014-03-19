@@ -265,9 +265,7 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener {
         if (ae.getSource() == OpenShipDetailstextBtn) {
             
             EPD.getInstance().getNotificationCenter()
-                .selectNotification(NotificationType.STRATEGIC_ROUTE, voyage.getId());
-            EPD.getInstance().getNotificationCenter().setVisible(true);
-            
+                .openNotification(NotificationType.STRATEGIC_ROUTE, voyage.getId(), false);
         }
  
         if (ae.getSource() == OpenVpDetalsBtn) {

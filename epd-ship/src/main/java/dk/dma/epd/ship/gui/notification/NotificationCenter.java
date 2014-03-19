@@ -47,7 +47,7 @@ public class NotificationCenter extends NotificationCenterCommon {
         super.registerPanels();
         
         // Add the ship specific panels
-        strategicRoutePanel = new StrategicRouteNotificationPanel();
+        strategicRoutePanel = new StrategicRouteNotificationPanel(this);
         panels.add(strategicRoutePanel);
     }    
 

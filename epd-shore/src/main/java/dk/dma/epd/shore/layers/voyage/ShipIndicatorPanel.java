@@ -103,7 +103,6 @@ public class ShipIndicatorPanel extends JPanel implements MouseListener {
     public void mouseReleased(MouseEvent arg0) {
         setBackground(new Color(83, 83, 83));
         EPD.getInstance().getNotificationCenter()
-                .selectNotification(NotificationType.STRATEGIC_ROUTE, id);
-        EPD.getInstance().getNotificationCenter().setVisible(true);
+                .openNotification(NotificationType.STRATEGIC_ROUTE, id, false);
     }
 }

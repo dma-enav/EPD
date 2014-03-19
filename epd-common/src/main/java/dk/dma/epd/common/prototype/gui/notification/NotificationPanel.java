@@ -16,10 +16,16 @@
 package dk.dma.epd.common.prototype.gui.notification;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -52,11 +58,17 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
     private static final long serialVersionUID = 1L;
 
     protected List<NotificationPanelListener> listeners = new CopyOnWriteArrayList<>();
+    protected NotificationCenterCommon notificationCenter;
+    
+    // Maximized/minimized handling
+    protected boolean maximized = true;
+    protected int saveDividerLocation;
     
     protected NotificationTableModel<N> tableModel;
     protected JTable table = new JTable();
     protected JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
     protected NotificationDetailPanel<N> notificationDetailPanel;
+    protected JPanel detailPanel = new JPanel(new BorderLayout());
     
     // Standard actions
     protected JButton acknowledgeBtn = new JButton("Acknowledge", EPD.res().getCachedImageIcon("images/notifications/tick.png"));
@@ -65,9 +77,11 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
     
     /**
      * Constructor
+     * @param notificationCenter the notification center
      */
-    public NotificationPanel() {
+    public NotificationPanel(NotificationCenterCommon notificationCenter) {
         super(new BorderLayout());
+        this.notificationCenter = notificationCenter;
         
         add(splitPane, BorderLayout.CENTER);
         
@@ -90,11 +104,10 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         splitPane.add(scrollPane);
 
-        JPanel detailPanel = new JPanel(new BorderLayout());
         splitPane.add(detailPanel);
         
         // Initialize the button panel
-        JPanel buttonPanel = initButtonPanel(); 
+        final JPanel buttonPanel = initButtonPanel(); 
         detailPanel.add(buttonPanel, BorderLayout.NORTH);
         
         notificationDetailPanel = initNotificationDetailPanel();
@@ -106,7 +119,25 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
         // Update the enabled state of the buttons
         updateButtonEnabledState();
     }
+    
+    /**
+     * Returns a reference to the detail panel, which contains the 
+     * button panel and the notification detail panel
+     * @return the detail panel
+     */
+    public JPanel getDetailPanel() {
+        return detailPanel;
+    }
 
+    /**
+     * Returns a reference to the split pane, which contains the
+     * table and the detail panel
+     * @return the split pane
+     */
+    public JSplitPane getSplitPane() {
+        return splitPane;
+    }
+    
     /**
      * Returns the notification type
      * @return the notification type
@@ -152,8 +183,8 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
      * @param buttonPanel the button panel to add the buttons to
      * @return the button panel
      */
-    protected JPanel initButtonPanel() {
-        JPanel buttonPanel = new JPanel();
+    protected ButtonPanel initButtonPanel() {
+        ButtonPanel buttonPanel = new ButtonPanel(notificationCenter);
         buttonPanel.setBorder(
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createMatteBorder(0, 0, 2, 0, UIManager.getColor("Separator.shadow")),
@@ -458,6 +489,32 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
     }
     
     /*************************************/
+    /** Maximize/minimize methods       **/
+    /*************************************/
+    
+    /**
+     * Sets the maximized state of the notification center
+     * @param maximized the maximized state of the notification center
+     */
+    public void setMaximized(boolean maximized) {
+        if (maximized == this.maximized) {
+            return;
+        }
+        
+        if (maximized) {
+            if (splitPane.getRightComponent() != detailPanel) {
+                splitPane.setRightComponent(detailPanel);
+            }
+            splitPane.setDividerLocation(saveDividerLocation);
+        } else {
+            saveDividerLocation = splitPane.getDividerLocation();
+        }
+        
+        this.maximized = maximized;
+    }
+    
+    
+    /*************************************/
     /** Listener methods                **/
     /*************************************/
     
@@ -521,5 +578,63 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
      */
     public interface NotificationPanelListener {
         void notificationsUpdated(NotificationStatistics stats);
+    }
+    
+    /**
+     * Base class used for button panels.
+     * Adds an additional button used for maximizing/minimizing
+     * the notification center
+     */
+    public static class ButtonPanel extends JPanel {
+
+        private static final long serialVersionUID = 1L;
+        NotificationCenterCommon notificationCenter;
+        
+        /**
+         * Constructor
+         * @param notificationCenter
+         */
+        public ButtonPanel(NotificationCenterCommon notificationCenter) {
+            this.notificationCenter = notificationCenter;
+            
+            // Handle maximize/minimize events
+            addMouseListener(new MouseAdapter() {
+                @Override public void mouseClicked(MouseEvent e) {
+                    onMouseClicked(e.getPoint());
+                }});        
+        }
+        
+        /**
+         * Checks if the maximized/minimize button was clicked
+         * @param pt the mouse point
+         */
+        public void onMouseClicked(Point pt) {
+            if (getMaximizeShape().contains(pt)) {
+                notificationCenter.toggleMaximized();
+            }
+        }
+        
+        /**
+         * Returns the shape used for the maximize/minimize button
+         * @return the shape used for the maximize/minimize button
+         */
+        public Polygon getMaximizeShape() {
+            Polygon shape = new Polygon();
+            shape.addPoint(getWidth(), 0);
+            shape.addPoint(getWidth(), 30);
+            shape.addPoint(getWidth() - 30, 0);
+            return shape;
+        }
+        
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void paint(Graphics g) {
+            super.paint(g);
+            g.setColor(new Color(200, 100, 100, 100));
+            g.fillPolygon(getMaximizeShape());
+        }
+        
     }
 }

@@ -37,8 +37,8 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
     /**
      * Constructor
      */
-    public GeneralNotificationPanel() {
-        super();
+    public GeneralNotificationPanel(NotificationCenterCommon notificationCenter) {
+        super(notificationCenter);
         
         table.getColumnModel().getColumn(0).setMaxWidth(18);
         table.getColumnModel().getColumn(1).setMaxWidth(18);
