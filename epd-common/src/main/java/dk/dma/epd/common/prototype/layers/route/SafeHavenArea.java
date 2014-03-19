@@ -34,8 +34,10 @@ import com.bbn.openmap.omGraphics.OMGraphicConstants;
 import com.bbn.openmap.omGraphics.OMGraphicList;
 import com.bbn.openmap.omGraphics.OMPoly;
 
+import dk.dma.enav.model.geometry.CoordinateSystem;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.util.Calculator;
+import dk.dma.epd.common.util.Converter;
 
 public class SafeHavenArea extends OMGraphicList {
     private static final long serialVersionUID = 1L;
@@ -50,6 +52,8 @@ public class SafeHavenArea extends OMGraphicList {
     private Rectangle hatchFillRectangle;
     private BufferedImage hatchFill;
     OMPoly poly;
+    Position ownShipPosition;
+    Position polygonCenterPosition;
 
     public SafeHavenArea() {
         super();
@@ -57,9 +61,7 @@ public class SafeHavenArea extends OMGraphicList {
         hatchFill = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
         Graphics2D big = hatchFill.createGraphics();
         Composite originalComposite = big.getComposite();
-        // big.setColor(Color.green);
         big.setColor(new Color(0f, 1f, 0f, 0.7f));
-        // big.setComposite(makeComposite(0.7f));
         big.drawLine(0, 0, 10, 10);
 
         hatchFillRectangle = new Rectangle(0, 0, 10, 10);
@@ -81,7 +83,9 @@ public class SafeHavenArea extends OMGraphicList {
         polyPoints[j] = polyPoints[0];
         polyPoints[j + 1] = polyPoints[1];
         poly = new OMPoly(polyPoints, OMGraphicConstants.DECIMAL_DEGREES, OMGraphicConstants.LINETYPE_RHUMB, 1);
-        // poly.setLinePaint(clear);
+
+        updateColor();
+
         poly.setFillPaint(new Color(0, 0, 0, 1));
         poly.setTextureMask(new TexturePaint(hatchFill, hatchFillRectangle));
 
@@ -100,10 +104,9 @@ public class SafeHavenArea extends OMGraphicList {
     public void moveSymbol(Position pos, double bearing, double width, double height) {
 
         if (pos != null) {
-//            System.out.println("Moving symbol " + pos);
+            polygonCenterPosition = pos;
+            // System.out.println("Moving symbol " + pos);
 
-            
-            
             // remove(poly);
             graphics.clear();
 
@@ -115,9 +118,9 @@ public class SafeHavenArea extends OMGraphicList {
 
             // createGraphics();
             drawPolygon();
-            
+
             this.setVisible(true);
-        }else{
+        } else {
             this.setVisible(false);
         }
 
@@ -179,5 +182,40 @@ public class SafeHavenArea extends OMGraphicList {
         Graphics2D image = (Graphics2D) g;
         image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         super.render(image);
+    }
+
+    public void shipPositionChanged(Position position) {
+        this.ownShipPosition = position;
+    }
+
+    private void updateColor() {
+
+        hatchFill = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D big = hatchFill.createGraphics();
+        Composite originalComposite = big.getComposite();
+
+        if (polygonCenterPosition != null && ownShipPosition != null) {
+
+            double distance = Converter.metersToNm(polygonCenterPosition.distanceTo(ownShipPosition, CoordinateSystem.CARTESIAN));
+            if (distance < 1) {
+                big.setColor(new Color(0f, 1f, 0f, 0.5f));
+            } else {
+                if (distance < 2) {
+                    big.setColor(new Color(1f, 1f, 0f, 0.5f));
+                } else {
+                    big.setColor(new Color(1f, 0f, 0f, 0.5f));
+                }
+
+            }
+
+        } else {
+            big.setColor(new Color(0.8f, 0.78f, 0.78f, 0.5f));
+        }
+
+        big.drawLine(0, 0, 10, 10);
+
+        hatchFillRectangle = new Rectangle(0, 0, 10, 10);
+        big.setComposite(originalComposite);
+
     }
 }
