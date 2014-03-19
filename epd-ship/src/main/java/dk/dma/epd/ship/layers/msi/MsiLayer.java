@@ -15,12 +15,16 @@
  */
 package dk.dma.epd.ship.layers.msi;
 
+import java.awt.Color;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
+import java.util.Iterator;
 import java.util.List;
 
 import com.bbn.openmap.MapBean;
 import com.bbn.openmap.MouseDelegator;
 import com.bbn.openmap.omGraphics.OMGraphic;
+import com.bbn.openmap.proj.Projection;
 import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.enav.model.geometry.Position;
@@ -29,6 +33,7 @@ import dk.dma.epd.common.prototype.layers.msi.MsiDirectionalIcon;
 import dk.dma.epd.common.prototype.layers.msi.MsiLayerCommon;
 import dk.dma.epd.common.prototype.layers.msi.MsiSymbolGraphic;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
+import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
 import dk.dma.epd.common.prototype.msi.MsiMessageExtended;
 import dk.dma.epd.common.util.Calculator;
 import dk.dma.epd.ship.EPDShip;
@@ -86,24 +91,101 @@ public class MsiLayer extends MsiLayerCommon {
             
             // Check proximity to current location (free navigation mode)
             if(mousePosition != null && !message.visible) {
-                double distance = distanceToShip(message, mousePosition);
+//                double distance = distanceToShip(message, mousePosition);
+//                
+//                boolean visibleToOther = false;
+//                for (int i = 0; i < newRouteLayer.getRoute().getWaypoints().size(); i++) {
+//                    double distance2 = distanceToPoint(message, newRouteLayer.getRoute().getWaypoints().get(i).getPos());
+//                    if(distance2 <= EPDShip.getInstance().getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint()){
+//                        visibleToOther = true;
+//                    }
+//                }
+//                
+//                boolean visibleToSelf = distance <= EPDShip.getInstance().getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint();
+//                
+//                if (!visibleToSelf && !visibleToOther){
+//                    return false;
+//                }
                 
-                boolean visibleToOther = false;
-                for (int i = 0; i < newRouteLayer.getRoute().getWaypoints().size(); i++) {
-                    double distance2 = distanceToPoint(message, newRouteLayer.getRoute().getWaypoints().get(i).getPos());
-                    if(distance2 <= EPDShip.getInstance().getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint()){
-                        visibleToOther = true;
+                // Get allowed MSI visibility distance.
+                double visibilityFromNewWaypoint = EPDShip.getInstance().getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint();
+                
+                // Check if MSI messages should be visible to ship.
+                boolean visibleToShip = 
+                        distanceToShip(message, this.mousePosition) <= visibilityFromNewWaypoint;
+                
+                // Check if MSI messages should be visible on route.
+                boolean visibleOnRoute = false;
+                
+                // Go through each waypoint of the route to check if the MSI message should be visible.
+                for (int i = 0; i < this.newRouteLayer.getRoute().getWaypoints().size(); i++) {
+                    
+                    RouteWaypoint rWaypoint = this.newRouteLayer.getRoute().getWaypoints().get(i);
+                    Projection projection = EPDShip.getInstance().getMainFrame().getChartPanel().getMap().getProjection();
+                    Point2D pointA = null;
+                    Point2D pointB = null;
+                    
+                    if (rWaypoint == this.newRouteLayer.getRoute().getWaypoints().getLast()) {
+                        pointA = projection.forward(rWaypoint.getPos().getLatitude(), rWaypoint.getPos().getLongitude());
+                        pointB = projection.forward(this.mousePosition.getLatitude(), this.mousePosition.getLongitude());
+                    } else if (rWaypoint != this.newRouteLayer.getRoute().getWaypoints().getLast()) {
+                        RouteWaypoint nWaypoint = this.newRouteLayer.getRoute().getWaypoints().get(i+1);
+                        pointA = projection.forward(rWaypoint.getPos().getLatitude(), rWaypoint.getPos().getLongitude());
+                        pointB = projection.forward(nWaypoint.getPos().getLatitude(), nWaypoint.getPos().getLongitude());
+                    }
+                    
+                    double dx = (pointB.getX()-pointA.getX());
+                    double slope = (Math.round(
+                            ((pointB.getY() - pointA.getY()) / (pointB.getX() - pointA.getX())) * 50));
+                    
+                    double distance = Math.round(Math.sqrt(
+                            (pointA.getX()-pointB.getX()) * (pointA.getX()-pointB.getX()) + 
+                            (pointA.getY()-pointB.getY()) * (pointA.getY()-pointB.getY())));
+                    
+                    System.out.println("slope: "+slope);
+                    System.out.println("distance: "+distance);
+                    System.out.println("dx: "+dx);
+                    System.out.println();
+                    
+                    for (int j = 1; j*50 < dx; j++) {
+                                                
+                        Point2D pnt = pointA;
+                        
+                        if (slope >= 0) {
+                            pnt.setLocation(pointA.getX()+50, pointA.getY()+slope);
+                        } else if (slope < 0) {
+                            double posSlope = Math.abs(slope);
+                            pnt.setLocation(pointA.getX()+50, pointA.getY()-posSlope);
+                        }
+                        
+                        this.newRouteLayer.getGraphics().fillOval((int) Math.round(pnt.getX()), (int) Math.round(pnt.getY()), 10, 10);
+                        
+                        LatLonPoint llpnt = projection.inverse(pnt);
+                        Position position = Position.create(llpnt.getLatitude(), llpnt.getLongitude());
+                        
+                        if (distanceToPoint(message, position) <= visibilityFromNewWaypoint) {
+                            visibleOnRoute = true;
+                        }
                     }
                 }
                 
-                boolean visibleToSelf = distance <= EPDShip.getInstance().getSettings().getEnavSettings().getMsiVisibilityFromNewWaypoint();
-                
-                if (!visibleToSelf && !visibleToOther){
+                // If MSI message is not visible to either ship or route return false.
+                if (!visibleToShip && !visibleOnRoute) {
                     return false;
                 }
             }
         }
         return true;
+    }
+
+    private double getDx(double d, double slope) {
+
+        // c2 = a2 + b2
+        // c2 - b2 = a2
+        // √(c2 - b2) = a
+        double dx = Math.sqrt((d*d) - (slope*slope));
+        System.out.println(dx);
+        return 0;
     }
 
     /**
