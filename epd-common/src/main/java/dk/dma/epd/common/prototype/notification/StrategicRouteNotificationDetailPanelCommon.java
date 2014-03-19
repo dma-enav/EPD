@@ -142,11 +142,14 @@ public abstract class StrategicRouteNotificationDetailPanelCommon<T extends Stra
         StrategicRouteNegotiationData routeData = notification.get();
         for (int i = 0; i < routeData.getRouteMessage().size(); i++) {
             
-            StrategicRouteMessage routeMessage = routeData.getRouteMessage().get(routeData.getRouteMessage().size() - 1 - i);
+            int routeIndex = routeData.getRouteMessage().size() - 1 - i;
+            StrategicRouteMessage routeMessage = routeData.getRouteMessage().get(routeIndex);
             
             String routeChanges = 
                     (i < routeData.getRouteMessage().size() - 1)
-                    ? StrategicRouteNotificationCommon.findChanges(notification.getOriginalRoute(), new Route(routeMessage.getRoute()))
+                    ? StrategicRouteNotificationCommon.findChanges(
+                            notification.get().getLatestAcceptedRoute(routeIndex, true), 
+                            new Route(routeMessage.getRoute()))
                     : null;
                     
             String title = getMessageViewTitle(routeMessage);

@@ -73,22 +73,22 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
         
         if (strategicRouteHandler.getStrategicNegotiationData().containsKey(transactionid)){
             
-            StrategicRouteNegotiationData entry = strategicRouteHandler.getStrategicNegotiationData().get(transactionid);
+            StrategicRouteNegotiationData routeData = strategicRouteHandler.getStrategicNegotiationData().get(transactionid);
             
     
-            String shipName = "" + entry.getMmsi();
+            String shipName = "" + routeData.getMmsi();
             
-            VesselTarget vesselTarget = aisHandler.getVesselTarget(entry.getMmsi());
+            VesselTarget vesselTarget = aisHandler.getVesselTarget(routeData.getMmsi());
             if (vesselTarget.getStaticData() != null) {
                 shipName = vesselTarget.getStaticData().getTrimmedName();
             }
     
             // Get latest route
-            Route route = new Route(entry.getLatestRoute());
+            Route route = new Route(routeData.getLatestRoute());
     
-            Voyage voyage = new Voyage(entry.getMmsi(), route, entry.getId());
+            Voyage voyage = new Voyage(routeData.getMmsi(), route, routeData.getId());
     
-            Route originalRoute = new Route(entry.getOriginalRoute());
+            Route originalRoute = new Route(routeData.getOriginalRoute());
             
             EPDShore.getInstance().getMainFrame().addStrategicRouteExchangeHandlingWindow(originalRoute,
                     shipName, voyage, true);

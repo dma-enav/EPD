@@ -36,6 +36,11 @@ public class StrategicRouteNotification extends StrategicRouteNotificationCommon
      */
     public StrategicRouteNotification(StrategicRouteNegotiationData routeData) {
         super(routeData);
+        
+        title = description = String.format(
+                "Route request from %s with status %s", 
+                getCallerlName(), 
+                routeData.getStatus());        
     }
     
     /**

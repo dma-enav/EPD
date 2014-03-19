@@ -42,6 +42,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
@@ -121,6 +122,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     protected boolean[] locked;
     protected boolean readOnlyRoute;
     boolean quiescent;
+    protected List<RouteChangeListener> listeners = new CopyOnWriteArrayList<>();
+
 
     // Column 1 widgets
     private JTextField nameTxT = new JTextField();
@@ -532,9 +535,11 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         
         } else if (evt.getSource() == btnDelete) {
             onDelete();
+            routeUpdated();
         
         } else if (evt.getSource() == btnActivate) {
             routeManager.changeActiveWp(selectedWp);
+            routeUpdated();
         
         } else if (evt.getSource() == btnClose) {
             dispose();
@@ -542,9 +547,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         } else if (evt.getSource() == etaCalculationTime) {
             route.setEtaCalculationType((EtaCalculationType)etaCalculationTime.getSelectedItem());
             adjustStartTime();
-        }
-        
-        routeUpdated();
+            routeUpdated();
+        }        
     }
 
     /** 
@@ -621,11 +625,32 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     /***************************************************/
     
     /**
+     * Adds a listener for route updates
+     * @param listener the lister to add
+     */
+    public void addRouteChangeListener(RouteChangeListener listener) {
+        listeners.add(listener);
+    }
+
+    /**
+     * Removes a listener for route updates
+     * @param listener the lister to remove
+     */
+    public void removeRouteChangeListener(RouteChangeListener listener) {
+        listeners.remove(listener);
+    }
+    
+    /**
      * Sub-classes can override this to be notified 
      * whenever the route has been updated in the
      * route properties dialog
      */
     protected void routeUpdated() {
+        if (!readOnlyRoute) {
+            for (RouteChangeListener listener : listeners) {
+                listener.routeChanged();
+            }
+        }
     }
     
     /**
@@ -962,5 +987,19 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         public void insertUpdate(DocumentEvent e) {
             textFieldValueChanged(field);
         }   
+    }
+
+
+    /**
+     * Interface to be implemented by clients wishing 
+     * to be notified about updates to the route
+     */
+    public interface RouteChangeListener {
+        
+        /**
+         * Signal that the route has changed
+         */
+        void routeChanged();
+
     }
 }

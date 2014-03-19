@@ -15,8 +15,10 @@
  */
 package dk.dma.epd.ship.gui.notification;
 
+import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.common.prototype.notification.StrategicRouteNotificationCommon;
+import dk.dma.epd.ship.EPDShip;
 
 /**
  * A ship-specific strategic route implementation of the {@linkplain StrategicRouteNotificationCommon} class
@@ -32,6 +34,13 @@ public class StrategicRouteNotification extends StrategicRouteNotificationCommon
      */
     public StrategicRouteNotification(StrategicRouteNegotiationData routeData) {
         super(routeData);
+        
+        title = description = String.format(
+                routeData.getLatestRouteMessage().isFromStcc()
+                    ? "Route request received from %s with status %s"
+                    : "Route request sent to %s with status %s", 
+                getCallerlName(), 
+                routeData.getStatus());        
     }
     
     /**
@@ -39,7 +48,11 @@ public class StrategicRouteNotification extends StrategicRouteNotificationCommon
      */
     @Override
     public String getCallerlName() {
-        // TODO: Integrate with MC identity portfolio
-        return "STCC " + get().getMmsi();
+        IdentityHandler identityHandler = EPDShip.getInstance().getIdentityHandler();
+        long mmsi = get().getMmsi();
+        if (identityHandler.actorExists(mmsi)) {
+            return identityHandler.getActor(mmsi).getName() + " (" + mmsi + ")";
+        }
+        return "STCC (" + mmsi + ")";
     }
 }

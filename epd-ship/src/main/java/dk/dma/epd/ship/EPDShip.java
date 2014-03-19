@@ -809,6 +809,10 @@ public final class EPDShip extends EPD {
         return maritimeCloudService;
     }
 
+    public IdentityHandler getIdentityHandler() {
+        return identityHandler;
+    }
+    
     public double elapsed(long start) {
         double elapsed = System.nanoTime() - start;
         return elapsed / 1000000.0;
@@ -843,6 +847,15 @@ public final class EPDShip extends EPD {
         return voctManager;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public NotificationCenter getNotificationCenter() {
+        return (NotificationCenter)super.getNotificationCenter();
+    }
+    
+    
     @Override
     public Path getHomePath() {
         return homePath;

@@ -89,15 +89,37 @@ public class StrategicRouteNegotiationData  implements Comparable<StrategicRoute
      * @return the latest accepted route
      */
     public dk.dma.epd.common.prototype.model.route.Route getLatestAcceptedRoute() {
+        return getLatestAcceptedRoute(routeMessages.size() - 1, false);
+    }
+    
+    /**
+     * Returns the latest accepted route.
+     * Returns null if none is present
+     * @param startIndex the start index of the messages
+     * @param defaultOriginal whether to fall back to use the original or not
+     * @return the latest accepted route
+     */
+    public dk.dma.epd.common.prototype.model.route.Route getLatestAcceptedRoute(int startIndex, boolean defaultOriginal) {
         if (hasRouteMessages()) {
-            for (int x = routeMessages.size() - 1; x >= 0; x--) {
+            for (int x = startIndex; x >= 0; x--) {
                 if (routeMessages.get(x).getStatus() == StrategicRouteStatus.AGREED &&
                         routeMessages.get(x).getRoute() != null) {
                     return new dk.dma.epd.common.prototype.model.route.Route(routeMessages.get(x).getRoute());
                 }
             }
+            if (defaultOriginal) {
+                return new dk.dma.epd.common.prototype.model.route.Route(getOriginalRoute());
+            }
         }
         return null;
+    }
+    
+    /**
+     * Returns the latest accepted route and if there is no accepted route, returns the original.
+     * @return the latest accepted route or the original
+     */
+    public dk.dma.epd.common.prototype.model.route.Route getLatestAcceptedOrOriginalRoute() {
+        return getLatestAcceptedRoute(routeMessages.size() - 1, true);
     }
     
     /**

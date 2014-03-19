@@ -40,6 +40,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import dk.dma.epd.common.prototype.EPD;
@@ -49,10 +50,13 @@ import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationTableModel;
 import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon;
+import dk.dma.epd.common.prototype.gui.route.RoutePropertiesDialogCommon.RouteChangeListener;
+import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.EPDShip;
+import dk.dma.epd.ship.layers.voyage.VoyageLayer;
 import dk.dma.epd.ship.service.StrategicRouteHandler;
 
 /**
@@ -77,10 +81,10 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         super();
         
         table.getColumnModel().getColumn(0).setMaxWidth(18);
-        table.getColumnModel().getColumn(1).setPreferredWidth(80);
+        table.getColumnModel().getColumn(1).setPreferredWidth(100);
         table.getColumnModel().getColumn(2).setPreferredWidth(90);
         table.getColumnModel().getColumn(3).setPreferredWidth(85);
-        splitPane.setDividerLocation(320);
+        splitPane.setDividerLocation(330);
     }
 
     /**
@@ -174,10 +178,22 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
             StrategicRouteMessage msg = notification.get().getLatestRouteMessage();
             if (msg.isFromStcc()) {
                 replyPanel.getMessageTxtField().setText("");
+                replyPanel.getAcceptBtn().setText("Accept");
                 getNotificationDetailPanel().addReplyPanelInMessagesPanel(replyPanel);
             }
         }        
     }    
+    
+    /**
+     * Called when a voyage layer route is modified
+     */
+    public void changeToModifiedAcceptBtn() {
+        SwingUtilities.invokeLater(new Runnable() {            
+            @Override public void run() {
+                replyPanel.getAcceptBtn().setText("Send modified");
+            }
+        });
+    }
     
     /**
      * Cancels the current strategic route
@@ -230,11 +246,22 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         if (notification != null) {
             
             // Open the route properties dialog
+            final VoyageLayer voyageLayer = EPDShip.getInstance().getStrategicRouteHandler().getVoyageLayer();
+            boolean readOnly = !notification.get().getLatestRouteMessage().isFromStcc();
+            Route route = readOnly 
+                        ? notification.getLatestRoute()
+                        : voyageLayer.getModifiedSTCCRoute();
             RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(
                     EPDShip.getInstance().getMainFrame(), 
                     EPDShip.getInstance().getMainFrame().getChartPanel(),
-                    notification.getLatestRoute(), 
-                    false);
+                    route, 
+                    readOnly);
+            
+            // Apply changes to the route
+            routePropertiesDialog.addRouteChangeListener(new RouteChangeListener() {                
+                @Override  public void routeChanged() {
+                    voyageLayer.voyageUpdated();
+                }});
             
             routePropertiesDialog.setVisible(true);
         }

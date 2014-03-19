@@ -17,6 +17,8 @@ package dk.dma.epd.common.prototype.notification;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
@@ -39,11 +41,6 @@ public abstract class StrategicRouteNotificationCommon extends Notification<Stra
     public StrategicRouteNotificationCommon(StrategicRouteNegotiationData routeData) {
         super(routeData, routeData.getId(), NotificationType.STRATEGIC_ROUTE);
 
-        title = description = String.format(
-                "Route request from %s with status %s", 
-                getCallerlName(), 
-                routeData.getStatus());
-        
         acknowledged = read = routeData.isHandled();
         date = routeData.getLatestSentDate();
         
@@ -89,6 +86,10 @@ public abstract class StrategicRouteNotificationCommon extends Notification<Stra
         List<RouteWaypoint> wp1 = originalRoute.getWaypoints();
         List<RouteWaypoint> wp2 = newRoute.getWaypoints();
 
+        if (!StringUtils.equals(originalRoute.getName(), newRoute.getName())) {
+            changes.append(String.format("Name changed from '%s' to '%s'\n", originalRoute.getName(), newRoute.getName()));
+        }
+        
         if (wp1.size() == wp2.size()) {
             
             for (int i = 0; i < wp1.size(); i++) {

@@ -72,4 +72,12 @@ public class NotificationCenter extends NotificationCenterCommon {
     public void strategicRouteUpdate() {
         strategicRoutePanel.refreshNotifications();
     }
+
+    /**
+     * Returns a reference to the strategic route panel
+     * @return a reference to the strategic route panel
+     */
+    public StrategicRouteNotificationPanel getStrategicRoutePanel() {
+        return strategicRoutePanel;
+    }
 }

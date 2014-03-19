@@ -50,7 +50,6 @@ import dk.dma.epd.ship.gui.component_panels.SARComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.STCCCommunicationComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
-import dk.dma.epd.ship.gui.route.strategic.RequestStrategicRouteDialog;
 import dk.dma.epd.ship.gui.route.strategic.SendStrategicRouteDialog;
 import dk.dma.epd.ship.settings.EPDGuiSettings;
 
@@ -89,7 +88,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
 
     private MapMenu mapMenu;
     private MenuBar menuBar;
-    private RequestStrategicRouteDialog strategicRouteSTCCDialog;
 
     /**
      * Constructor
@@ -160,9 +158,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         sarPanel = new SARComponentPanel();
         msPntComponentPanel = new MultiSourcePntComponentPanel();
         stccComponentPanel = new STCCCommunicationComponentPanel();
-
-        // STCC Route Request Dialog
-        strategicRouteSTCCDialog = new RequestStrategicRouteDialog(this);
 
         // Unmovable panels
         bottomPanel = new BottomPanel();
@@ -393,10 +388,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
 
     public MultiSourcePntComponentPanel getMsPntComponentPanel() {
         return msPntComponentPanel;
-    }
-
-    public RequestStrategicRouteDialog getStrategicRouteSTCCDialog() {
-        return strategicRouteSTCCDialog;
     }
 
     public SendStrategicRouteDialog getSendStrategicRouteDialog() {

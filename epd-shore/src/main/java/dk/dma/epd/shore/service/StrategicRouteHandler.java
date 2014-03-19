@@ -166,12 +166,12 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
     public void sendStrategicRouteReply(long id, String text,
             long currentTimeMillis, StrategicRouteStatus replyStatus, Route route, boolean renegotiate) {
         
-        StrategicRouteNegotiationData entry = strategicRouteNegotiationData.get(id);
+        StrategicRouteNegotiationData routeData = strategicRouteNegotiationData.get(id);
         
         StrategicRouteMessage routeMessage = new StrategicRouteMessage(true, id, route, text, replyStatus);
 
-        if (renegotiate || entry.getStatus() == StrategicRouteStatus.NEGOTIATING
-                || entry.getStatus() == StrategicRouteStatus.PENDING) {
+        if (renegotiate || routeData.getStatus() == StrategicRouteStatus.NEGOTIATING
+                || routeData.getStatus() == StrategicRouteStatus.PENDING) {
 
             if (renegotiate) {
                 LOG.info("Restart negotiation");
@@ -180,16 +180,16 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
                 routeMessage.setRoute(naRoute.getFullRouteData());
             }
             
-            entry.addMessage(routeMessage);
-            entry.setStatus(StrategicRouteStatus.NEGOTIATING);
-            entry.setHandled(true);
+            routeData.addMessage(routeMessage);
+            routeData.setStatus(StrategicRouteStatus.NEGOTIATING);
+            routeData.setHandled(true);
 
-            sendStrategicRenegotiateRequest(entry.getMmsi(), routeMessage);
+            sendStrategicRenegotiateRequest(routeData.getMmsi(), routeMessage);
             notifyStrategicRouteListeners();
             
                 
         } else {
-            entry.addMessage(routeMessage);
+            routeData.addMessage(routeMessage);
             LOG.error("Cannot send message, transaction concluded");                
         }
     }
@@ -204,50 +204,50 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
 
         long transactionID = message.getId();
 
-        StrategicRouteNegotiationData entry;
+        StrategicRouteNegotiationData routeData;
 
         if (strategicRouteNegotiationData.containsKey(transactionID)) {
-            entry = strategicRouteNegotiationData.get(transactionID);
+            routeData = strategicRouteNegotiationData.get(transactionID);
 
             // Not handled anymore, new pending message
-            entry.addMessage(message);
+            routeData.addMessage(message);
             if (message.getStatus() == StrategicRouteStatus.AGREED || 
                     message.getStatus() == StrategicRouteStatus.REJECTED ||
                     message.getStatus() == StrategicRouteStatus.CANCELED) {
-                handleAcknowledgeMsg(entry);
+                handleAcknowledgeMsg(routeData);
             } else if (message.getStatus() == StrategicRouteStatus.NEGOTIATING) {
-                entry.setHandled(false);
+                routeData.setHandled(false);
                 notifyStrategicRouteListeners();
             }
             
         } else if (message.getStatus() == StrategicRouteStatus.PENDING) {
-            entry = new StrategicRouteNegotiationData(message.getId(), MaritimeCloudUtils.toMmsi(caller));
-            strategicRouteNegotiationData.put(message.getId(), entry);
-            entry.addMessage(message);
-            entry.setHandled(false);
+            routeData = new StrategicRouteNegotiationData(message.getId(), MaritimeCloudUtils.toMmsi(caller));
+            strategicRouteNegotiationData.put(message.getId(), routeData);
+            routeData.addMessage(message);
+            routeData.setHandled(false);
             notifyStrategicRouteListeners();
         }
     }
 
     /**
      * Called when an acknowledge message is received
-     * @param message the message
+     * @param routeData the route data
      */
-    private void handleAcknowledgeMsg(StrategicRouteNegotiationData entry) {
+    private void handleAcknowledgeMsg(StrategicRouteNegotiationData routeData) {
 
-        if (entry.getStatus() ==  StrategicRouteStatus.AGREED) {
+        if (routeData.getStatus() ==  StrategicRouteStatus.AGREED) {
 
-            LOG.info("Transaction with id" + entry.getId()
+            LOG.info("Transaction with id" + routeData.getId()
                     + " has been completed!");
 
             // Ship has ack it, set status to completed and add the finished
             // voyage to the voyageManager
 
-            Voyage voyage = new Voyage(entry.getMmsi(), entry.getLatestAcceptedRoute(), entry.getId());
+            Voyage voyage = new Voyage(routeData.getMmsi(), routeData.getLatestAcceptedOrOriginalRoute(), routeData.getId());
             voyageManager.addVoyage(voyage);
         }
 
-        entry.setHandled(true);
+        routeData.setHandled(true);
         notifyStrategicRouteListeners();
     }
 
