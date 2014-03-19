@@ -22,6 +22,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -32,15 +34,25 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
+import net.maritimecloud.net.service.ServiceEndpoint;
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.enavcloud.ChatService.ChatServiceMessage;
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
+
 public class STCCCommunicationPanel extends JPanel implements ActionListener {
 
     private static final long serialVersionUID = 1L;
 
     JTextArea chatMessages;
-    // private JButton btnSend;
-    // private JTextField textField;
-    // private JPanel panel;
     private JTextField txtField;
+    private JButton sendBtn;
+
+    private int stccMmsi;
 
     public STCCCommunicationPanel() {
         super();
@@ -107,7 +119,7 @@ public class STCCCommunicationPanel extends JPanel implements ActionListener {
         panel_1.add(txtField, gbc_txtField);
         txtField.setColumns(10);
 
-        JButton sendBtn = new JButton("Send");
+        sendBtn = new JButton("Send");
         GridBagConstraints gbc_sendBtn = new GridBagConstraints();
         gbc_sendBtn.gridx = 1;
         gbc_sendBtn.gridy = 0;
@@ -115,6 +127,7 @@ public class STCCCommunicationPanel extends JPanel implements ActionListener {
 
         sendBtn.addActionListener(this);
 
+        deactivateChat();
     }
 
     @Override
@@ -130,7 +143,51 @@ public class STCCCommunicationPanel extends JPanel implements ActionListener {
 
             chatMessages.setText(currentText);
             // chatMessages
+
+            // ChatServiceTarget target = (ChatServiceTarget)targetComboBox.getSelectedItem();
+            // EPD.getInstance().getChatServiceHandler().sendChatMessage(
+            // target.getId(),
+            // messageTxt.getText(),
+            // senderNameTxt.getText(),
+            // (NotificationSeverity)severityComboBox.getSelectedItem(),
+            // alerts);
+
+            boolean hasEndPoint = false;
+
+            for (ServiceEndpoint<ChatServiceMessage, Void> service : EPD.getInstance().getChatServiceHandler().getChatServiceList()) {
+                Integer mmsi = MaritimeCloudUtils.toMmsi(service.getId());
+
+                if (mmsi == stccMmsi) {
+                    hasEndPoint = true;
+                }
+
+            }
+
+            if (hasEndPoint) {
+
+                MaritimeId id = new MmsiId(stccMmsi);
+                NotificationSeverity severity = NotificationSeverity.MESSAGE;
+
+                List<NotificationAlert> alerts = new ArrayList<>();
+                alerts.add(new NotificationAlert(AlertType.BEEP));
+
+                EPD.getInstance().getChatServiceHandler().sendChatMessage(id, txtField.getText(), "My ship", severity, alerts);
+            }
         }
     }
 
+    public void activateChat(int stccMmsi) {
+        this.stccMmsi = stccMmsi;
+        sendBtn.setEnabled(true);
+        txtField.setEnabled(true);
+        chatMessages.setText("");
+    }
+
+    public void deactivateChat() {
+        this.stccMmsi = -1;
+        sendBtn.setEnabled(false);
+        txtField.setEnabled(false);
+        chatMessages.setText("You must inititate a route negotitation before you can communicate with the STCC");
+
+    }
 }
