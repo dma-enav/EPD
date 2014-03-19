@@ -23,6 +23,7 @@ import java.awt.event.MouseEvent;
 import com.bbn.openmap.omGraphics.OMGraphic;
 
 import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.gui.metoc.MetocGraphic;
 import dk.dma.epd.common.prototype.layers.route.ActiveRouteGraphic;
 import dk.dma.epd.common.prototype.layers.route.RouteGraphic;
@@ -34,13 +35,15 @@ import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
 import dk.dma.epd.ship.gui.MapMenu;
+import dk.dma.epd.ship.ownship.IOwnShipListener;
+import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.SuggestedRoute;
 
 /**
  * Layer for showing routes
  */
-public class RouteLayer extends RouteLayerCommon implements Runnable {
+public class RouteLayer extends RouteLayerCommon implements Runnable, IOwnShipListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -53,21 +56,22 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
      */
     public RouteLayer() {
         super();
-        
-        // Register ship-specific classes that will trigger the map menu        
+
+        // Register ship-specific classes that will trigger the map menu
         registerMapMenuClasses(SuggestedRouteGraphic.class);
-        
+
         new Thread(this).start();
     }
-    
+
     /**
      * Returns a reference to the map menu
+     * 
      * @return a reference to the map menu
      */
     @Override
     public MapMenu getMapMenu() {
-        return (MapMenu)mapMenu;
-    }   
+        return (MapMenu) mapMenu;
+    }
 
     /**
      * Called by {@linkplain #routesChanged()} and will update the safe haven
@@ -81,36 +85,28 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
                     graphics.remove(safeHavenArea);
                     if (activeRoute.getActiveWp().getOutLeg() != null) {
 
-                        safeHavenArea.moveSymbol(
-                                activeRoute.getSafeHavenLocation(),
-                                
-                                
-                                activeRoute.getSafeHavenBearing(),
-                                
-                                
-                                activeRoute.getActiveWp().getOutLeg()
-                                        .getSFWidth(), activeRoute
-                                        .getActiveWp().getOutLeg().getSFLen());
+                        safeHavenArea.moveSymbol(activeRoute.getSafeHavenLocation(),
+
+                        activeRoute.getSafeHavenBearing(),
+
+                        activeRoute.getActiveWp().getOutLeg().getSFWidth(), activeRoute.getActiveWp().getOutLeg().getSFLen());
 
                         graphics.add(safeHavenArea);
                     } else {
-                        safeHavenArea
-                                .moveSymbol(
-                                        activeRoute.getSafeHavenLocation(),
-                                        activeRoute.getSafeHavenBearing(),
-                                        activeRoute.getSafeHavenWidth(),
-                                        
-//                                                .getWaypoints()
-//                                                .get(activeRoute.getWaypoints()
-//                                                        .size() - 2)
-//                                                .getOutLeg().getSFWidth(),
-                                        activeRoute.getSafeHavenLength()
-                                       
-//                                                .getWaypoints()
-//                                                .get(activeRoute.getWaypoints()
-//                                                        .size() - 2)
-//                                                .getOutLeg().getSFLen()
-                                                );
+                        safeHavenArea.moveSymbol(activeRoute.getSafeHavenLocation(), activeRoute.getSafeHavenBearing(),
+                                activeRoute.getSafeHavenWidth(),
+
+                                // .getWaypoints()
+                                // .get(activeRoute.getWaypoints()
+                                // .size() - 2)
+                                // .getOutLeg().getSFWidth(),
+                                activeRoute.getSafeHavenLength()
+
+                        // .getWaypoints()
+                        // .get(activeRoute.getWaypoints()
+                        // .size() - 2)
+                        // .getOutLeg().getSFLen()
+                                );
                         graphics.add(safeHavenArea);
                     }
                 }
@@ -120,7 +116,9 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
 
     /**
      * Called when routes are changed
-     * @param e the routes update event
+     * 
+     * @param e
+     *            the routes update event
      */
     @Override
     public synchronized void routesChanged(RoutesUpdateEvent e) {
@@ -137,18 +135,16 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
         graphics.clear();
 
         float routeWidth = EPD.getInstance().getSettings().getNavSettings().getRouteWidth();
-        Stroke stroke = new BasicStroke(
-                routeWidth,             // Width
+        Stroke stroke = new BasicStroke(routeWidth, // Width
                 BasicStroke.CAP_SQUARE, // End cap
                 BasicStroke.JOIN_MITER, // Join style
-                10.0f,                  // Miter limit
+                10.0f, // Miter limit
                 new float[] { 3.0f, 10.0f }, // Dash pattern
                 0.0f);
-        Stroke activeStroke = new BasicStroke(
-                routeWidth,             // Width
+        Stroke activeStroke = new BasicStroke(routeWidth, // Width
                 BasicStroke.CAP_SQUARE, // End cap
                 BasicStroke.JOIN_MITER, // Join style
-                10.0f,                  // Miter limit
+                10.0f, // Miter limit
                 new float[] { 10.0f, 8.0f }, // Dash pattern
                 0.0f); // Dash phase
 
@@ -163,11 +159,9 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
                 if (route.isStccApproved()) {
                     Color greenApproved = new Color(0.39f, 0.69f, 0.49f, 0.6f);
 
-                    routeGraphic = new RouteGraphic(route, i, arrowsVisible,
-                            stroke, ECDISOrange, greenApproved, false, false);
+                    routeGraphic = new RouteGraphic(route, i, arrowsVisible, stroke, ECDISOrange, greenApproved, false, false);
                 } else {
-                    routeGraphic = new RouteGraphic(route, i, arrowsVisible,
-                            stroke, ECDISOrange);
+                    routeGraphic = new RouteGraphic(route, i, arrowsVisible, stroke, ECDISOrange);
                 }
 
                 graphics.add(routeGraphic);
@@ -184,12 +178,10 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
                 if (route.isStccApproved()) {
                     Color greenApproved = new Color(0.39f, 0.69f, 0.49f, 0.6f);
 
-                    activeRouteExtend = new ActiveRouteGraphic(activeRoute,
-                            activeRouteIndex, arrowsVisible, activeStroke,
+                    activeRouteExtend = new ActiveRouteGraphic(activeRoute, activeRouteIndex, arrowsVisible, activeStroke,
                             Color.RED, greenApproved);
                 } else {
-                    activeRouteExtend = new ActiveRouteGraphic(activeRoute,
-                            activeRouteIndex, arrowsVisible, activeStroke,
+                    activeRouteExtend = new ActiveRouteGraphic(activeRoute, activeRouteIndex, arrowsVisible, activeStroke,
                             Color.RED);
                 }
 
@@ -199,29 +191,14 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
                     // System.out.println("Activating safehaven");
                     if (activeRoute.getActiveWp().getOutLeg() != null) {
                         // System.out.println("outleg isnt zero");
-                        safeHavenArea.moveSymbol(
-                                activeRoute.getSafeHavenLocation(),
-                                activeRoute.getSafeHavenBearing(),
-                                activeRoute.getActiveWp().getOutLeg()
-                                        .getSFWidth(), activeRoute
-                                        .getActiveWp().getOutLeg().getSFLen());
+                        safeHavenArea.moveSymbol(activeRoute.getSafeHavenLocation(), activeRoute.getSafeHavenBearing(), activeRoute
+                                .getActiveWp().getOutLeg().getSFWidth(), activeRoute.getActiveWp().getOutLeg().getSFLen());
                         graphics.add(safeHavenArea);
                     } else {
                         // System.out.println("outleg is null");
-                        safeHavenArea
-                                .moveSymbol(
-                                        activeRoute.getSafeHavenLocation(),
-                                        activeRoute.getSafeHavenBearing(),
-                                        activeRoute
-                                                .getWaypoints()
-                                                .get(activeRoute.getWaypoints()
-                                                        .size() - 2)
-                                                .getOutLeg().getSFWidth(),
-                                        activeRoute
-                                                .getWaypoints()
-                                                .get(activeRoute.getWaypoints()
-                                                        .size() - 2)
-                                                .getOutLeg().getSFLen());
+                        safeHavenArea.moveSymbol(activeRoute.getSafeHavenLocation(), activeRoute.getSafeHavenBearing(), activeRoute
+                                .getWaypoints().get(activeRoute.getWaypoints().size() - 2).getOutLeg().getSFWidth(), activeRoute
+                                .getWaypoints().get(activeRoute.getWaypoints().size() - 2).getOutLeg().getSFLen());
                         graphics.add(safeHavenArea);
                     }
                 }
@@ -240,8 +217,7 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
             }
 
             if (routeManager.showMetocForRoute(route)) {
-                routeMetoc = new MetocGraphic(route, activeRoute, EPDShip.getInstance()
-                        .getSettings().getEnavSettings());
+                routeMetoc = new MetocGraphic(route, activeRoute, EPDShip.getInstance().getSettings().getEnavSettings());
                 metocGraphics.add(routeMetoc);
             }
         }
@@ -249,10 +225,9 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
             graphics.add(0, metocGraphics);
         }
 
-        for (SuggestedRoute routeSuggestion : ((RouteManager)routeManager).getSuggestedRoutes()) {
+        for (SuggestedRoute routeSuggestion : ((RouteManager) routeManager).getSuggestedRoutes()) {
             if (!routeSuggestion.isHidden()) {
-                suggestedRoute = new SuggestedRouteGraphic(routeSuggestion,
-                        stroke);
+                suggestedRoute = new SuggestedRouteGraphic(routeSuggestion, stroke);
                 graphics.add(suggestedRoute);
             }
         }
@@ -262,16 +237,15 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
         doPrepare();
     }
 
-
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {        
-        
+    protected void initMapMenu(OMGraphic clickedGraphics, MouseEvent evt) {
+
         // Let super handle common map menu cases
         super.initMapMenu(clickedGraphics, evt);
-        
+
         if (clickedGraphics instanceof SuggestedRouteGraphic) {
             SuggestedRouteGraphic suggestedRoute = (SuggestedRouteGraphic) clickedGraphics;
             SuggestedRoute aisSuggestedRoute = suggestedRoute.getRouteSuggestion();
@@ -297,5 +271,27 @@ public class RouteLayer extends RouteLayerCommon implements Runnable {
             Util.sleep(1000);
             routesChanged(null);
         }
+    }
+
+    @Override
+    public void findAndInit(Object obj) {
+        super.findAndInit(obj);
+
+        if (obj instanceof OwnShipHandler) {
+            ((OwnShipHandler) obj).addListener(this);
+
+        }
+    }
+
+    @Override
+    public void ownShipUpdated(OwnShipHandler ownShipHandler) {
+        // Update
+        safeHavenArea.shipPositionChanged(ownShipHandler.getPntData().getPosition());
+    }
+
+    @Override
+    public void ownShipChanged(VesselTarget oldValue, VesselTarget newValue) {
+        
+
     }
 }

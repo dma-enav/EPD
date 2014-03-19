@@ -43,9 +43,9 @@ public class RouteGenerator {
     private TrackCollector trackCollector;
     private List<TimePoint> route;
 
-    public RouteGenerator(String inFilename, String outFilename, int mmsi) {
+    public RouteGenerator(String inFilename, String outDir, int mmsi) {
         this.inFilename = inFilename;
-        this.outFilename = outFilename;
+        this.outFilename = outDir + "/route-" + mmsi + ".txt";
         trackCollector = new TrackCollector(mmsi);
     }
 
@@ -71,6 +71,9 @@ public class RouteGenerator {
     }
 
     public void saveRoute() throws Exception {
+        if (route == null) {
+            return;
+        }
         List<Double> speeds = new ArrayList<>();        
         // Determine speeds
         for (int i=1; i < route.size(); i++) {

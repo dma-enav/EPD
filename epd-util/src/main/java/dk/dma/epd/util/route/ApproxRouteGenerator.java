@@ -31,6 +31,9 @@ public class ApproxRouteGenerator extends SimpleRouteGenerator {
 
     @Override
     public List<TimePoint> generateRoute(List<TimePoint> track) {
+        if (track.size() == 0) {
+            return null;
+        }
         this.track = track;
         // Create geo points for each track points
         System.out.println("\tCreating geo points");

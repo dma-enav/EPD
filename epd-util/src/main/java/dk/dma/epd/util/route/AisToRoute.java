@@ -15,13 +15,22 @@
  */
 package dk.dma.epd.util.route;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.beust.jcommander.Parameter;
 import com.google.inject.Injector;
 
+import dk.dma.ais.message.AisMessage;
+import dk.dma.ais.reader.AisReader;
+import dk.dma.ais.reader.AisReaders;
 import dk.dma.commons.app.AbstractCommandLineTool;
+import dk.dma.enav.util.function.Consumer;
 
 public class AisToRoute extends AbstractCommandLineTool {
     
@@ -31,32 +40,47 @@ public class AisToRoute extends AbstractCommandLineTool {
     @Parameter(names = "-in", required = true, description = "Input AIS file")
     String in;
     
-    @Parameter(names = "-out", required = true, description = "Out route file")
-    String out;
+    @Parameter(names = "-out", required = true, description = "Output directory")
+    String outDir;
     
-    @Parameter(names = "-mmsi", required = true, description = "MMSI number to make route for")
-    Integer mmsi;
+    @Parameter(names = "-mmsi", required = false, description = "MMSI numbers to make route for, comma separated. Default all.")
+    List<Integer> mmsis;
     
     @Override
     protected void run(Injector injector) throws Exception {
-        inject(in, out, mmsi);        
+        inject(in, outDir, mmsis);        
     }
     
     public static void main(String[] args) throws Exception {
         new AisToRoute().execute(args);
     }
     
-    private static void inject(String inFilename, String outFilename, int mmsi) throws Exception {
-        LOG.info("Generate for MMSI: " + mmsi);
-        RouteGenerator routeInjector = new RouteGenerator(inFilename, outFilename, mmsi);
-        LOG.info("First pass - collect track");
-        routeInjector.collectTrack();
-        LOG.info("Generate route");
-        routeInjector.generateRoute();
-        LOG.info("Save route");
-        routeInjector.saveRoute();
-//        LOG.info("Inject broadcasts");
-//        routeInjector.injectBroadcasts();
+    private static void inject(String inFilename, String outDir, Collection<Integer> mmsis) throws Exception {
+        if (mmsis == null) {
+            final Set<Integer> mmsisFromFile = new HashSet<Integer>();
+            AisReader reader = AisReaders.createReaderFromFile(inFilename);
+            reader.registerHandler(new Consumer<AisMessage>() {         
+                @Override
+                public void accept(AisMessage aisMessage) {
+                    mmsisFromFile.add(aisMessage.getUserId());
+                }
+            });
+            reader.start();
+            reader.join();
+            mmsis = mmsisFromFile;
+        }        
+        
+        for (Integer mmsi : mmsis) {
+            LOG.info("Generate for MMSI: " + mmsi);
+            RouteGenerator routeInjector = new RouteGenerator(inFilename, outDir, mmsi);
+            LOG.info("First pass - collect track");
+            routeInjector.collectTrack();
+            LOG.info("Generate route");
+            routeInjector.generateRoute();
+            LOG.info("Save route");
+            routeInjector.saveRoute();
+
+        }
 }
 
 

@@ -62,6 +62,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
     private boolean routeModified;
 
     private List<ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply>> strategicRouteSTCCList = new ArrayList<>();
+    private long stccMmsi = -1;
 
     /**
      * Constructor
@@ -154,6 +155,8 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      */
     public void sendStrategicRouteToSTCC(long stccMmsi, Route route, String message) {
 
+        this.stccMmsi = stccMmsi;
+        
         this.route = route;
 
         // Display the route
@@ -165,6 +168,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
 
         // Sending route and start the transaction
         transactionId = sendStrategicRouteRequest(route, stccMmsi, message);
+        notifyStrategicRouteListeners();
     }
 
     /**
@@ -179,7 +183,8 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      * @return the transaction id
      */
     private long sendStrategicRouteRequest(Route route, long stccMmsi, String message) {
-
+        this.stccMmsi = stccMmsi;
+        
         long transactionID = System.currentTimeMillis();
         StrategicRouteNegotiationData routeData = new StrategicRouteNegotiationData(transactionID, stccMmsi);
 
@@ -194,7 +199,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
         sendStrategicRouteRequest(routeMessage, stccMmsi);
 
         routeData.setHandled(false);
-        notifyStrategicRouteListeners();
+
         
         return transactionID;
     }
@@ -207,6 +212,8 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      */
     private void sendStrategicRouteRequest(StrategicRouteMessage routeMessage, long stccMmsi) {
 
+        this.stccMmsi = stccMmsi;
+        
         ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply> end = MaritimeCloudUtils
                 .findServiceWithMmsi(strategicRouteSTCCList, (int)stccMmsi);
 
@@ -283,6 +290,22 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
         routeData.setHandled(false);
         notifyStrategicRouteListeners();
 
+    }
+
+    
+    
+    /**
+     * @return the transactionId
+     */
+    public Long getTransactionId() {
+        return transactionId;
+    }
+
+    /**
+     * @return the stccMmsi
+     */
+    public long getStccMmsi() {
+        return stccMmsi;
     }
 
     /**
@@ -371,12 +394,12 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
             StrategicRouteNegotiationData routeData = strategicRouteNegotiationData.get(transactionID);
 
             sendStrategicRouteAck(routeData, message, status);
-            
+            transactionId = null;
             routeData.setHandled(true);
             notifyStrategicRouteListeners();
         }
 
-        transactionId = null;
+        
     }
 
     /**
@@ -394,6 +417,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
         routeData.addMessage(routeMessage);
         
         sendStrategicRouteRequest(routeMessage, routeData.getMmsi());
+        transactionId = null;
     }
 
     /**
