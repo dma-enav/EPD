@@ -15,17 +15,21 @@
  */
 package dk.dma.epd.common.prototype.gui.notification;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Polygon;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Path2D;
+import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -45,6 +49,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
@@ -588,6 +593,9 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
     public static class ButtonPanel extends JPanel {
 
         private static final long serialVersionUID = 1L;
+        private static final Color BTN_BG_COLOR = new Color(200, 100, 100, 100);
+        private static final Color BTN_FG_COLOR = new Color(200, 200, 200, 100);
+        
         NotificationCenterCommon notificationCenter;
         
         /**
@@ -609,7 +617,7 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
          * @param pt the mouse point
          */
         public void onMouseClicked(Point pt) {
-            if (getMaximizeShape().contains(pt)) {
+            if (getOutlineShape().contains(pt)) {
                 notificationCenter.toggleMaximized();
             }
         }
@@ -618,12 +626,9 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
          * Returns the shape used for the maximize/minimize button
          * @return the shape used for the maximize/minimize button
          */
-        public Polygon getMaximizeShape() {
-            Polygon shape = new Polygon();
-            shape.addPoint(getWidth(), 0);
-            shape.addPoint(getWidth(), 30);
-            shape.addPoint(getWidth() - 30, 0);
-            return shape;
+        public Shape getOutlineShape() {
+            int s = 20;
+            return new RoundRectangle2D.Double(getWidth() - 2 - s, 2, s, s, 10, 10);
         }
         
         /**
@@ -632,9 +637,36 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
         @Override
         public void paint(Graphics g) {
             super.paint(g);
-            g.setColor(new Color(200, 100, 100, 100));
-            g.fillPolygon(getMaximizeShape());
-        }
-        
+            
+            Graphics2D g2 = (Graphics2D)g;
+            g2.setRenderingHints(GraphicsUtil.ANTIALIAS_HINT);
+            
+            g2.setColor(BTN_BG_COLOR);
+            g2.fill(getOutlineShape());
+            
+            g2.setColor(BTN_FG_COLOR);
+            g2.setStroke(new BasicStroke(1f));
+            
+            int s = 10;
+            int x = getWidth() - s - 8;
+            int y = 6;
+            if (notificationCenter.isMaximized()) {
+                g2.drawRect(x, y, s, s);
+                Path2D arrow = new Path2D.Double();
+                arrow.moveTo(x, y);
+                arrow.lineTo(x + s / 2, y + s / 2);
+                arrow.lineTo(x, y + s);                
+                arrow.closePath();
+                g2.fill(arrow);
+            } else {
+                g2.drawRect(x + s / 2, y, s / 2, s);
+                Path2D arrow = new Path2D.Double();
+                arrow.moveTo(x + s / 2, y);
+                arrow.lineTo(x, y + s / 2);
+                arrow.lineTo(x + s / 2, y + s);                
+                arrow.closePath();
+                g2.fill(arrow);
+            }
+        }   
     }
 }
