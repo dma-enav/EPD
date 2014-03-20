@@ -145,7 +145,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
     private int selectedWp = -1;
     
     // Button panel
-    private JButton btnZoomTo = new JButton("Zoom to");
+    private JButton btnZoomToRoute = new JButton("Zoom to Route");
+    private JButton btnZoomToWp = new JButton("Zoom to Way Point");
     private JButton btnDelete = new JButton("Delete");
     protected JButton btnActivate = new JButton("Activate");
     private JButton btnClose = new JButton("Close");
@@ -315,15 +316,17 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         JPanel btnPanel = new JPanel(new GridBagLayout());
         content.add(btnPanel, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, NORTHWEST, HORIZONTAL, insets10, 0, 0));
         
-        btnZoomTo.addActionListener(this);
+        btnZoomToRoute.addActionListener(this);
+        btnZoomToWp.addActionListener(this);
         btnDelete.addActionListener(this);
         btnActivate.addActionListener(this);
         btnClose.addActionListener(this);
         getRootPane().setDefaultButton(btnClose);
-        btnPanel.add(btnZoomTo, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        btnPanel.add(btnDelete, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        btnPanel.add(btnActivate, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
-        btnPanel.add(btnClose, new GridBagConstraints(3, 0, 1, 1, 1.0, 0.0, EAST, NONE, insets5, 0, 0));
+        btnPanel.add(btnZoomToRoute, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        btnPanel.add(btnZoomToWp, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        btnPanel.add(btnDelete, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        btnPanel.add(btnActivate, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, WEST, NONE, insets5, 0, 0));
+        btnPanel.add(btnClose, new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0, EAST, NONE, insets5, 0, 0));
     }
     
     
@@ -489,7 +492,8 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         boolean wpSelected = selectedWp >= 0;
         btnActivate.setEnabled(wpSelected && readOnlyRoute);
         btnDelete.setEnabled(wpSelected && !readOnlyRoute);
-        btnZoomTo.setEnabled(wpSelected && chartPanel != null);
+        btnZoomToWp.setEnabled(wpSelected && chartPanel != null);
+        btnZoomToRoute.setEnabled(chartPanel != null);
         
         boolean allRowsLocked = checkLockedRows();
         arrivalPicker.setEnabled(!readOnlyRoute && !allRowsLocked);
@@ -528,11 +532,12 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
             return;
         }
         
-        if (evt.getSource() == btnZoomTo) {
-            if (chartPanel != null) {
-                chartPanel.goToPosition(route.getWaypoints().get(selectedWp).getPos());
-            }
+        if (evt.getSource() == btnZoomToRoute && chartPanel != null) {
+            chartPanel.zoomToWaypoints(route.getWaypoints());
         
+        } else if (evt.getSource() == btnZoomToWp && chartPanel != null) {
+            chartPanel.goToPosition(route.getWaypoints().get(selectedWp).getPos());
+            
         } else if (evt.getSource() == btnDelete) {
             onDelete();
             routeUpdated();
