@@ -60,14 +60,13 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
 
-import org.jdesktop.swingx.JXLabel;
-
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.notification.GeneralNotification;
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.text.Formatter;
 
 /**
  * Defines a pop-up notification panel which displays a message 
@@ -332,7 +331,7 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
         PopUpNotification notif = new PopUpNotification(frame.getLayeredPane(), location);
         GeneralNotification n = new GeneralNotification();
         n.setTitle("Peder was here");
-        n.setDescription("This is a\nmultiline test");
+        n.setDescription("This is a\nmultiline test\nwith a lot of text that should not cause the field to expand\nDone.");
         n.setSeverity(NotificationSeverity.ALERT);
         n.setLocation(Position.create(53.0, 12.2));
         notif.addNotification(null, n);
@@ -411,8 +410,8 @@ class NotificationPopUpPanel<N extends Notification<?, ?>> extends JPanel implem
         titleLbl.setFont(titleLbl.getFont().deriveFont(11f).deriveFont(Font.BOLD));
         add(titleLbl, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0, WEST, HORIZONTAL, insets1, 0, 0));
 
-        JXLabel descLbl = new JXLabel(notification.getDescription());
-        descLbl.setLineWrap(true);
+        String descHtlm = String.format("<html>%s</html>", Formatter.formatHtml(notification.getDescription()));
+        JLabel descLbl = new JLabel(descHtlm);
         descLbl.setFont(descLbl.getFont().deriveFont(9f));
         descLbl.setVerticalAlignment(JLabel.TOP);
         add(descLbl, new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0, NORTHWEST, BOTH, insets1, 0, 0));
