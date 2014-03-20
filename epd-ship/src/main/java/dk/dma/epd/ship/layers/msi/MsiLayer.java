@@ -108,7 +108,6 @@ public class MsiLayer extends MsiLayerCommon {
                     Point2D pointA = null;
                     Point2D pointB = null;
                     Point2D pnt    = null;
-                    boolean upper  = false;
                     
                     // If the waypoint is not the last placed waypoint compare it to the next in line.
                     // Else compare it to the mouse location.
