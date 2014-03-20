@@ -108,6 +108,7 @@ public class MsiLayer extends MsiLayerCommon {
                     Point2D pointA = null;
                     Point2D pointB = null;
                     Point2D pnt    = null;
+                    boolean upper  = false;
                     
                     // If the waypoint is not the last placed waypoint compare it to the next in line.
                     // Else compare it to the mouse location.
@@ -124,15 +125,19 @@ public class MsiLayer extends MsiLayerCommon {
                     double slope = Math.round(
                             ((pointB.getY() - pointA.getY()) / (pointB.getX() - pointA.getX())) * visibilityFromNewWaypoint);
                     
+                    // If the value of slope is more than the value of visibilityFromNewWaypoint, 
+                    // change the slop reverse the x and y axis.
                     if (Math.abs(slope) > visibilityFromNewWaypoint) {
                         double dy = Math.abs(pointB.getY()-pointA.getY());
+                        slope = Math.round(((pointB.getX() - pointA.getX()) / (pointB.getY() - pointA.getY())) * visibilityFromNewWaypoint);
                         for (int j = 1; j*visibilityFromNewWaypoint < dy; j++) {
                             pnt = pointA;
-                            slope = Math.round(((pointB.getX() - pointA.getX()) / (pointB.getY() - pointA.getY())) * visibilityFromNewWaypoint);
                             
                             //Mouse placed on the right side of the last placed waypoint.
                             if (pointA.getX() <= pointB.getX()) {
-                                if (slope >= 0) {
+                                
+                                
+                                if (slope > 0) {
                                     pnt.setLocation(pointA.getX()+slope, pointA.getY()+visibilityFromNewWaypoint);
                                 } else if (slope < 0) {
                                     double posSlope = Math.abs(slope);
@@ -142,12 +147,18 @@ public class MsiLayer extends MsiLayerCommon {
                             // mouse placed on the left side.
                             } else if (pointA.getX() > pointB.getX()) {
                                 
-                                if (slope >= 0) {
+                                if (slope > 0) {
                                     pnt.setLocation(pointA.getX()-slope, pointA.getY()-visibilityFromNewWaypoint);
                                 } else if (slope < 0) {
                                     double posSlope = Math.abs(slope);
                                     pnt.setLocation(pointA.getX()-posSlope, pointA.getY()+visibilityFromNewWaypoint);
                                 }
+                            }
+                            
+                            if (pointA.getY() < pointB.getY() && slope == 0) {
+                                pnt.setLocation(pointA.getX(), pointA.getY()+visibilityFromNewWaypoint);
+                            } else if (pointA.getY() > pointB.getY() && slope == 0) {
+                                pnt.setLocation(pointA.getX(), pointA.getY()-visibilityFromNewWaypoint);
                             }
                             
                             visibleOnRoute = setMessageVisible(message, visibilityFromNewWaypoint, visibleOnRoute, projection, pnt);
@@ -161,7 +172,7 @@ public class MsiLayer extends MsiLayerCommon {
                             // Mouse placed on the right side of the last placed waypoint.
                             if (pointA.getX() <= pointB.getX()) {
                                 
-                                if (slope >= 0) {
+                                if (slope > 0) {
                                     pnt.setLocation(pointA.getX()+visibilityFromNewWaypoint, pointA.getY()+slope);
                                 } else if (slope < 0) {
                                     double posSlope = Math.abs(slope);
@@ -171,7 +182,7 @@ public class MsiLayer extends MsiLayerCommon {
                                 // Mouse placed on the left side of the last placed waypoint.
                             } else if (pointA.getX() > pointB.getX()) {
                                 
-                                if (slope >= 0) {
+                                if (slope > 0) {
                                     pnt.setLocation(pointA.getX()-visibilityFromNewWaypoint, pointA.getY()-slope);
                                 } else if (slope < 0) {
                                     double posSlope = Math.abs(slope);
@@ -197,7 +208,7 @@ public class MsiLayer extends MsiLayerCommon {
             Projection projection, Point2D pnt) {
         
         // Draw graphic to show where the point is placed on the line.
-        // this.newRouteLayer.getGraphics().fillOval((int) Math.round(pnt.getX()), (int) Math.round(pnt.getY()), 10, 10);
+         this.newRouteLayer.getGraphics().fillOval((int) Math.round(pnt.getX()), (int) Math.round(pnt.getY()), 10, 10);
         
         LatLonPoint llpnt = projection.inverse(pnt);
         Position position = Position.create(llpnt.getLatitude(), llpnt.getLongitude());
