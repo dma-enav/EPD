@@ -119,7 +119,13 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
             NotificationLabel label = new NotificationLabel(panel) {
                 private static final long serialVersionUID = 1L;
                 @Override public void labelClicked(NotificationType type) {
-                    notifcationCenter.openNotificationCenter(type, true);
+                    if (notifcationCenter.isVisible() && 
+                            notifcationCenter.isMaximized() && 
+                            notifcationCenter.getActiveType() == type) {
+                        notifcationCenter.setVisible(false);
+                    } else {
+                        notifcationCenter.openNotificationCenter(type, true);
+                    }
                 }
             };
             notificationPanel.add(label);

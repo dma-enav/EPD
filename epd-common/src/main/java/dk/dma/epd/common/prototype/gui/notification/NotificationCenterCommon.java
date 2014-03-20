@@ -398,6 +398,14 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
     }
     
     
+    /**
+     * Returns the currently active notification type
+     * @return the currently active notification type
+     */
+    public NotificationType getActiveType() {
+        return activeType;
+    }
+    
     /*************************************/
     /** Maximize/minimize methods       **/
     /*************************************/
