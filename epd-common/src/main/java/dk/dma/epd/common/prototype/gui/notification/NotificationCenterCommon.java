@@ -84,7 +84,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
     private static final long serialVersionUID = 1L;
     private static final Logger LOG = LoggerFactory.getLogger(NotificationCenterCommon.class);
     
-    protected Timer alertTimer = new Timer(5 * 1000, this); // Every 5 seconds
+    protected Timer alertTimer = new Timer(3 * 1000, this); // Every 3 seconds
     
     protected MsiHandler msiHandler;
     protected ChatServiceHandlerCommon chatServiceHandler;

@@ -187,6 +187,21 @@ public class PopUpNotification extends JPanel implements ActionListener, SwingCo
         
         // Add the notification at the top
         notificationList.add(notificationPanel, 0);
+        
+        // Remove all non-alert notifications of the same type with the same id
+        List<Component> toBeDeleted = new ArrayList<>();
+        for (int x = 1; x < notificationList.getComponents().length; x++) {
+            NotificationPopUpPanel<?> np = (NotificationPopUpPanel<?>)notificationList.getComponents()[x];
+            if (np.getNotification().getType().equals(notification.getType()) &&
+                    np.getNotification().getId().equals(notification.getId()) &&
+                    np.getNotification().getSeverity() != NotificationSeverity.ALERT) {
+                toBeDeleted.add(np);
+            }
+        }
+        for (Component component : toBeDeleted) {
+            notificationList.remove(component);
+        }
+        
         notificationList.validate();
         
         adjustBounds();
