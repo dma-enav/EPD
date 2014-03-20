@@ -597,19 +597,34 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
         private static final Color BTN_FG_COLOR = new Color(200, 200, 200, 100);
         
         NotificationCenterCommon notificationCenter;
+        Shape outlineShape;
+        int prevWidth = -1;
         
         /**
          * Constructor
          * @param notificationCenter
          */
-        public ButtonPanel(NotificationCenterCommon notificationCenter) {
+        public ButtonPanel(final NotificationCenterCommon notificationCenter) {
             this.notificationCenter = notificationCenter;
             
             // Handle maximize/minimize events
             addMouseListener(new MouseAdapter() {
                 @Override public void mouseClicked(MouseEvent e) {
                     onMouseClicked(e.getPoint());
-                }});        
+                }});
+            
+            // Handle tooltips
+            addMouseMotionListener(new MouseAdapter() {
+                @Override public void mouseMoved(MouseEvent e) {
+                    if (getOutlineShape().contains(e.getPoint())) {
+                        setToolTipText(notificationCenter.isMaximized() 
+                                    ? "Minimize Notification Center"
+                                    : "Maximize Notification Center");
+                    } else if (getToolTipText() != null) {
+                        setToolTipText(null);
+                    }
+                }
+            });
         }
         
         /**
@@ -627,8 +642,13 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
          * @return the shape used for the maximize/minimize button
          */
         public Shape getOutlineShape() {
+            if (prevWidth == getWidth() && outlineShape != null) {
+                return outlineShape;
+            }
             int s = 20;
-            return new RoundRectangle2D.Double(getWidth() - 2 - s, 2, s, s, 10, 10);
+            prevWidth = getWidth();
+            outlineShape = new RoundRectangle2D.Double(getWidth() - 2 - s, 2, s, s, 10, 10);
+            return outlineShape;
         }
         
         /**
