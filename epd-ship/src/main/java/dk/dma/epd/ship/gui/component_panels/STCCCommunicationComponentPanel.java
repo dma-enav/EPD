@@ -23,7 +23,6 @@ import com.bbn.openmap.gui.OMComponentPanel;
 
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon.StrategicRouteListener;
-import dk.dma.epd.ship.gui.ChartPanel;
 import dk.dma.epd.ship.gui.panels.STCCCommunicationPanel;
 import dk.dma.epd.ship.service.StrategicRouteHandler;
 
