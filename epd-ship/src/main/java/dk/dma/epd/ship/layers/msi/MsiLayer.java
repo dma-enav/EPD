@@ -208,7 +208,7 @@ public class MsiLayer extends MsiLayerCommon {
             Projection projection, Point2D pnt) {
         
         // Draw graphic to show where the point is placed on the line.
-         this.newRouteLayer.getGraphics().fillOval((int) Math.round(pnt.getX()), (int) Math.round(pnt.getY()), 10, 10);
+//         this.newRouteLayer.getGraphics().fillOval((int) Math.round(pnt.getX()), (int) Math.round(pnt.getY()), 10, 10);
         
         LatLonPoint llpnt = projection.inverse(pnt);
         Position position = Position.create(llpnt.getLatitude(), llpnt.getLongitude());
