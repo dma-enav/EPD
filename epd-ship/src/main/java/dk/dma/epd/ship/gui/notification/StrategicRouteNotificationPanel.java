@@ -247,6 +247,8 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         if (notification != null) {
             
             // Open the route properties dialog
+            // If the latest message is from the STCC, show the modified STCC route of the voyage layer
+            // Otherwise, show the latest route in read-only mode.
             final VoyageLayer voyageLayer = EPDShip.getInstance().getStrategicRouteHandler().getVoyageLayer();
             boolean readOnly = !notification.get().getLatestRouteMessage().isFromStcc();
             Route route = readOnly 
@@ -275,7 +277,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         if (notification != null && 
                 EPD.getInstance().getMainFrame().getActiveChartPanel() != null) {
             EPD.getInstance().getMainFrame().getActiveChartPanel()
-                .zoomToWaypoints(notification.get().getOriginalRoute().getWaypoints());
+                .zoomToWaypoints(notification.get().getLatestAcceptedOrOriginalRoute().getWaypoints());
         }
     }
     

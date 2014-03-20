@@ -406,9 +406,13 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      * @param status the acknowledge status
      */
     private void sendStrategicRouteAck(StrategicRouteNegotiationData routeData, String message, StrategicRouteStatus status) {
-            
+        
+        Route route = (status == StrategicRouteStatus.AGREED) 
+                    ? routeData.getLatestRoute()
+                    : routeData.getLatestAcceptedOrOriginalRoute();
+        
         StrategicRouteMessage routeMessage = new StrategicRouteMessage(false, routeData.getId(), 
-                routeData.getLatestAcceptedOrOriginalRoute().getFullRouteData(), message, status);
+                route.getFullRouteData(), message, status);
 
         routeData.addMessage(routeMessage);
         

@@ -181,7 +181,10 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
      * Stops animating the route
      */
     private void stopRouteAnimated() {
-        routeAnimatorTimer.cancel();
+        if (routeAnimatorTimer != null){
+            routeAnimatorTimer.cancel();    
+        }
+        
     }
 
     /**
