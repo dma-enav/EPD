@@ -181,6 +181,7 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
         return null;
     }
     
+
     /**
      * Adds the buttons to the button panel.
      * Sub-class can override to customize the list of buttons to display

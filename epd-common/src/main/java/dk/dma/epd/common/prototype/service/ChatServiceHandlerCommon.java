@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -38,23 +39,26 @@ import net.maritimecloud.net.service.invocation.InvocationCallback;
 public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
 
     private static final Logger LOG = LoggerFactory.getLogger(ChatServiceHandlerCommon.class);
-    
+
     private List<ServiceEndpoint<ChatServiceMessage, Void>> chatServiceList = new ArrayList<>();
     protected List<IChatServiceListener> listeners = new CopyOnWriteArrayList<>();
-    
+    private ConcurrentHashMap<Integer, List<ChatServiceMessage>> chatMessages = new ConcurrentHashMap<>();
+
     /**
      * Constructor
      */
     public ChatServiceHandlerCommon() {
         super();
-        
+
         // Schedule a refresh of the chat services approximately every minute
         scheduleWithFixedDelayWhenConnected(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 fetchChatServices();
-            }}, 5, 64, TimeUnit.SECONDS);        
+            }
+        }, 5, 64, TimeUnit.SECONDS);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -65,21 +69,17 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
 
         // Register a cloud route suggestion service
         try {
-            getMaritimeCloudConnection().serviceRegister(
-                    ChatService.INIT,
-                    new InvocationCallback<ChatServiceMessage, Void>() {
-                        public void process(
-                                ChatServiceMessage message,
-                                Context<Void> context) {
-                            receiveChatMessage(context.getCaller(), message);
-                        }
-                    }).awaitRegistered(4, TimeUnit.SECONDS);
-            
+            getMaritimeCloudConnection().serviceRegister(ChatService.INIT, new InvocationCallback<ChatServiceMessage, Void>() {
+                public void process(ChatServiceMessage message, Context<Void> context) {
+                    receiveChatMessage(context.getCaller(), message);
+                }
+            }).awaitRegistered(4, TimeUnit.SECONDS);
+
         } catch (InterruptedException e) {
             LOG.error("Error hooking up services", e);
         }
     }
-    
+
     /**
      * Refreshes the list of chat services
      */
@@ -93,6 +93,7 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
 
     /**
      * Returns the chat services list
+     * 
      * @return the chat services list
      */
     public List<ServiceEndpoint<ChatServiceMessage, Void>> getChatServiceList() {
@@ -102,7 +103,8 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
     /**
      * Checks for a ship with the given mmsi in the chat service list
      * 
-     * @param mmsi the mmsi of the ship to search for
+     * @param mmsi
+     *            the mmsi of the ship to search for
      * @return if one such ship is available
      */
     public boolean shipAvailableForChatSuggestion(int mmsi) {
@@ -112,18 +114,21 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
     /**
      * Sends a chat message to the given ship
      * 
-     * @param mmsi the mmsi of the ship
-     * @param message the message
-     * @param sender the sender
+     * @param mmsi
+     *            the mmsi of the ship
+     * @param message
+     *            the message
+     * @param sender
+     *            the sender
      */
-    public void sendChatMessage(MaritimeId targetId, String message, String sender, NotificationSeverity severity, List<NotificationAlert> alerts)  {
+    public void sendChatMessage(MaritimeId targetId, String message, String sender, NotificationSeverity severity,
+            List<NotificationAlert> alerts) {
 
         Integer mmsi = MaritimeCloudUtils.toMmsi(targetId);
         long id = System.currentTimeMillis();
-        
+
         // Find a matching chat end point
-        ServiceEndpoint<ChatServiceMessage, Void> end 
-            = MaritimeCloudUtils.findServiceWithMmsi(chatServiceList, (int)mmsi);
+        ServiceEndpoint<ChatServiceMessage, Void> end = MaritimeCloudUtils.findServiceWithMmsi(chatServiceList, (int) mmsi);
 
         // Create a new chat message
         ChatServiceMessage chatMessage = new ChatServiceMessage(message, id, System.currentTimeMillis(), sender);
@@ -131,6 +136,21 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
         chatMessage.setAlerts(alerts);
 
         LOG.info("Sending chat messasge to mmsi: " + mmsi + " with ID: " + chatMessage.getId());
+
+        
+        //Store the message
+        if (!chatMessages.contains(mmsi)) {
+            chatMessages.put(mmsi, new ArrayList<ChatServiceMessage>());
+        }
+        chatMessages.get(mmsi).add(chatMessage);
+
+        //Notify listeners
+        for (IChatServiceListener listener : listeners) {
+            listener.chatMessageSent(mmsi, chatMessage);
+        }
+        
+        
+        
 
         if (end != null) {
             end.invoke(chatMessage);
@@ -140,15 +160,22 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
         }
 
     }
-    
+
     /**
-     * Called upon receiving a new chat message.
-     * Broadcasts the message to all listeners.
+     * Called upon receiving a new chat message. Broadcasts the message to all listeners.
      * 
-     * @param senderId the id of the sender
-     * @param message the message
+     * @param senderId
+     *            the id of the sender
+     * @param message
+     *            the message
      */
     protected void receiveChatMessage(MaritimeId senderId, ChatServiceMessage message) {
+        int id = MaritimeCloudUtils.toMmsi(senderId);
+        if (!chatMessages.contains(id)) {
+            chatMessages.put(id, new ArrayList<ChatServiceMessage>());
+        }
+        chatMessages.get(id).add(message);
+
         for (IChatServiceListener listener : listeners) {
             listener.chatMessageReceived(senderId, message);
         }
@@ -157,7 +184,8 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
     /**
      * Adds an chat service listener
      * 
-     * @param listener the listener to add
+     * @param listener
+     *            the listener to add
      */
     public void addListener(IChatServiceListener listener) {
         listeners.add(listener);
@@ -166,24 +194,38 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
     /**
      * Removes an chat service listener
      * 
-     * @param listener the listener to remove
+     * @param listener
+     *            the listener to remove
      */
     public void removeListener(IChatServiceListener listener) {
         listeners.remove(listener);
     }
-    
+
     /**
      * Interface implemented by chat service listeners
      */
     public interface IChatServiceListener {
-        
+
         /**
          * Called upon receiving a new chat message
          * 
-         * @param senderId the id of the sender
-         * @param message the message
+         * @param senderId
+         *            the id of the sender
+         * @param message
+         *            the message
          */
         void chatMessageReceived(MaritimeId senderId, ChatServiceMessage message);
+
+        
+        /**
+         * Called upon sending a new chat message
+         * 
+         * @param recipientId
+         *            the recipient of the message
+         * @param message
+         *            the message
+         */
+        void chatMessageSent(long recipientId, ChatServiceMessage message);
     }
-    
+
 }

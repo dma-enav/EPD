@@ -25,12 +25,15 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 
@@ -40,8 +43,8 @@ import net.maritimecloud.net.service.ServiceEndpoint;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.ChatService.ChatServiceMessage;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
-import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
+import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 
 public class STCCCommunicationPanel extends JPanel implements ActionListener {
@@ -127,21 +130,23 @@ public class STCCCommunicationPanel extends JPanel implements ActionListener {
 
         sendBtn.addActionListener(this);
 
+        txtField.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), "sendChatMsg");
+        txtField.getActionMap().put("sendChatMsg", sendChatMsg);
+
         deactivateChat();
     }
 
-    @Override
-    public void actionPerformed(ActionEvent arg0) {
+    private Action sendChatMsg = new AbstractAction("sendChatMsg") {
+        private static final long serialVersionUID = 1L;
 
+        public void actionPerformed(ActionEvent e) {
+            sendChatMessage();
+        }
+    };
+
+    private void sendChatMessage() {
         if (!txtField.getText().equals("")) {
 
-            String msg = txtField.getText() + "\n";
-            txtField.setText("");
-            String currentText = chatMessages.getText();
-
-            currentText = currentText + msg;
-
-            chatMessages.setText(currentText);
             // chatMessages
 
             // ChatServiceTarget target = (ChatServiceTarget)targetComboBox.getSelectedItem();
@@ -170,10 +175,29 @@ public class STCCCommunicationPanel extends JPanel implements ActionListener {
 
                 List<NotificationAlert> alerts = new ArrayList<>();
                 alerts.add(new NotificationAlert(AlertType.BEEP));
+                alerts.add(new NotificationAlert(AlertType.POPUP));
 
                 EPD.getInstance().getChatServiceHandler().sendChatMessage(id, txtField.getText(), "My ship", severity, alerts);
             }
+
+            txtField.setText("");
         }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent arg0) {
+        sendChatMessage();
+
+    }
+
+    public void addChatMessage(String message) {
+        String currentText = "";
+
+        if (!chatMessages.getText().equals("")) {
+            currentText = chatMessages.getText() + "\n";
+        }
+        currentText = currentText + message;
+        chatMessages.setText(currentText);
     }
 
     public void activateChat(int stccMmsi) {

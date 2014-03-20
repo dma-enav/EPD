@@ -36,6 +36,7 @@ import dk.dma.epd.common.prototype.gui.MainFrameCommon;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.gui.settings.ISettingsListener;
+import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
@@ -62,6 +63,7 @@ public abstract class EPD implements ISettingsListener {
     protected MsiHandler msiHandler;
     protected NotificationCenterCommon notificationCenter;
     protected StrategicRouteHandlerCommon strategicRouteHandler;
+    protected IdentityHandler identityHandler;
 
     /**
      * Constructor
@@ -206,7 +208,7 @@ public abstract class EPD implements ISettingsListener {
     }
 
     /**
-     * Return the msiHandker
+     * Return the msiHandler
      * @return - MsiHandler
      */
     public MsiHandler getMsiHandler() {
@@ -218,6 +220,10 @@ public abstract class EPD implements ISettingsListener {
      */
     public StrategicRouteHandlerCommon getStrategicRouteHandler() {
         return strategicRouteHandler;
+    }
+    
+    public IdentityHandler getIdentityHandler(){
+        return identityHandler;
     }
     
     /**

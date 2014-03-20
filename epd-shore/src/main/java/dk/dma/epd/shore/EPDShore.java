@@ -44,6 +44,7 @@ import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.Bootstrap;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
+import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.model.voyage.VoyageEventDispatcher;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaFileSensor;
@@ -106,6 +107,7 @@ public final class EPDShore extends EPD {
     private RouteSuggestionHandler routeSuggestionHandler;
     private IntendedRouteHandlerCommon intendedRouteHandler;
 
+
     /**
      * Event dispatcher used to notify listeners of voyage changes.
      */
@@ -125,7 +127,8 @@ public final class EPDShore extends EPD {
     /**
      * Constructor
      * 
-     * @param path the home path to use
+     * @param path
+     *            the home path to use
      */
     private EPDShore(String path) throws IOException {
         super();
@@ -135,9 +138,9 @@ public final class EPDShore extends EPD {
         } else {
             homePath = determineHomePath(Paths.get(System.getProperty("user.home"), ".epd-shore"));
         }
-    
+
         new Bootstrap().run(this, new String[] { "epd-shore.properties", "settings.properties", "transponder.xml" }, new String[] {
-                "workspaces", "routes", "shape/GSHHS_shp" });
+                "workspaces", "routes", "shape/GSHHS_shp", "identities" });
 
         // Set up log4j logging
         LOG = LoggerFactory.getLogger(EPDShore.class);
@@ -225,10 +228,14 @@ public final class EPDShore extends EPD {
         // Create MSI handler
         msiHandler = new MsiHandler(getSettings().getEnavSettings());
         beanHandler.add(msiHandler);
-        
+
         // Create a chat service handler
         chatServiceHandler = new ChatServiceHandlerCommon();
         beanHandler.add(chatServiceHandler);
+
+        // Create identity handler
+        identityHandler = new IdentityHandler();
+        beanHandler.add(identityHandler);
 
         // Start sensors
         startSensors();
@@ -317,9 +324,9 @@ public final class EPDShore extends EPD {
      */
     @Override
     public StrategicRouteHandler getStrategicRouteHandler() {
-        return (StrategicRouteHandler)strategicRouteHandler;
+        return (StrategicRouteHandler) strategicRouteHandler;
     }
-    
+
     /**
      * Close app routine with possibility for restart - not implemented
      * 
@@ -362,7 +369,7 @@ public final class EPDShore extends EPD {
 
         // Stop the system tray
         systemTray.shutdown();
-        
+
         // Stop sensors
         stopSensors();
 
@@ -392,7 +399,7 @@ public final class EPDShore extends EPD {
         // Create the notification center
         notificationCenter = new NotificationCenter(getMainFrame());
         beanHandler.add(notificationCenter);
-        
+
     }
 
     /**
@@ -442,11 +449,12 @@ public final class EPDShore extends EPD {
 
     /**
      * Returns a reference to the AIS handler
+     * 
      * @return a reference to the AIS handler
      */
     @Override
     public AisHandler getAisHandler() {
-        return (AisHandler)aisHandler;
+        return (AisHandler) aisHandler;
     }
 
     /**
@@ -664,6 +672,7 @@ public final class EPDShore extends EPD {
         return monaLisaRouteExchange;
     }
 
+    
     /**
      * Get the application-wide voyage event dispatcher.
      * 

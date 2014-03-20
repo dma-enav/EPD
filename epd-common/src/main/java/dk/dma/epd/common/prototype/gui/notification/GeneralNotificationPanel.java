@@ -19,8 +19,8 @@ import javax.swing.ImageIcon;
 
 import dk.dma.epd.common.prototype.notification.GeneralNotification;
 import dk.dma.epd.common.prototype.notification.Notification;
-import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.text.Formatter;
 
 /**
@@ -101,6 +101,15 @@ public class GeneralNotificationPanel extends NotificationPanel<GeneralNotificat
     @Override
     protected NotificationDetailPanel<GeneralNotification> initNotificationDetailPanel() {
         return new GeneralNotificationDetailPanel();
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void doRefreshNotifications() {
+        refreshTableData();
+//        notifyListeners();
     }
     
 }

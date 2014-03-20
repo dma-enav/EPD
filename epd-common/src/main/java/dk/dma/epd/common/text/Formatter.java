@@ -39,6 +39,10 @@ public class Formatter {
     private static SimpleDateFormat shortDateTimeNoS = new SimpleDateFormat(
             "MM/dd HH:mm");
 
+    private static SimpleDateFormat onlyTime = new SimpleDateFormat(
+            "HH:mm");
+
+    
     // private static final TimeZone tzGMT = TimeZone.getTimeZone("GMT+0000");
 
     
@@ -62,6 +66,10 @@ public class Formatter {
 //=======
 //    
 
+    public static String formateTimeFromDate(long date){
+        return onlyTime.format(date);
+    }
+    
     public static String formatShortDateTime(Date date) {
         if (date == null) {
             return "N/A";

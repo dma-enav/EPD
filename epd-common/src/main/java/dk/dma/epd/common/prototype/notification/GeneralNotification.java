@@ -15,6 +15,8 @@
  */
 package dk.dma.epd.common.prototype.notification;
 
+import dk.dma.epd.common.text.Formatter;
+
 /**
  * Class that can be used for general notifications
  */
@@ -49,5 +51,20 @@ public class GeneralNotification extends Notification<Object, Object> {
     public GeneralNotification() {
         this(null, System.currentTimeMillis(), NotificationType.NOTIFICATION);
     }
-
+    
+    
+    /**
+     * Returns a HTML description of this notification
+     * @return a HTML description of this notification
+     */
+    @Override
+    public String toHtml() {
+        StringBuilder html = new StringBuilder("<html>");
+        html.append("<table>");
+        html.append(String.format("<tr><th>Communications Log from:</th><td>%s</td></tr>", Formatter.formatHtml(title)));
+//        html.append(String.format("<tr><th>Date:</th><td>%s</td></tr>", Formatter.formatShortDateTime(date)));
+        html.append(String.format("<tr><th valign='top'>Messages:</th><td>%s</td></tr>", Formatter.formatHtml(description)));
+        html.append("</table>");
+        return html.append("</html>").toString();
+    }
 }

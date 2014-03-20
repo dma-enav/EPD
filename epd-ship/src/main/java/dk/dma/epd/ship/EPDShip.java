@@ -118,8 +118,8 @@ public final class EPDShip extends EPD {
     private MaritimeCloudService maritimeCloudService;
     private IntendedRouteHandler intendedRouteHandler;
     private RouteSuggestionHandler routeSuggestionHandler;
-    private IdentityHandler identityHandler;
 
+    
     /**
      * Starts the program by initializing the various threads and spawning the main GUI
      * 
@@ -809,9 +809,6 @@ public final class EPDShip extends EPD {
         return maritimeCloudService;
     }
 
-    public IdentityHandler getIdentityHandler() {
-        return identityHandler;
-    }
     
     public double elapsed(long start) {
         double elapsed = System.nanoTime() - start;
