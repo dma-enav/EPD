@@ -62,7 +62,6 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
     private boolean routeModified;
 
     private List<ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply>> strategicRouteSTCCList = new ArrayList<>();
-    private long stccMmsi = -1;
 
     /**
      * Constructor
@@ -155,8 +154,6 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      */
     public void sendStrategicRouteToSTCC(long stccMmsi, Route route, String message) {
 
-        this.stccMmsi = stccMmsi;
-        
         this.route = route;
 
         // Display the route
@@ -183,7 +180,6 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      * @return the transaction id
      */
     private long sendStrategicRouteRequest(Route route, long stccMmsi, String message) {
-        this.stccMmsi = stccMmsi;
         
         long transactionID = System.currentTimeMillis();
         StrategicRouteNegotiationData routeData = new StrategicRouteNegotiationData(transactionID, stccMmsi);
@@ -212,8 +208,6 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      */
     private void sendStrategicRouteRequest(StrategicRouteMessage routeMessage, long stccMmsi) {
 
-        this.stccMmsi = stccMmsi;
-        
         ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply> end = MaritimeCloudUtils
                 .findServiceWithMmsi(strategicRouteSTCCList, (int)stccMmsi);
 
@@ -304,8 +298,10 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
     /**
      * @return the stccMmsi
      */
-    public long getStccMmsi() {
-        return stccMmsi;
+    public Long getStccMmsi() {
+        return (transactionId != null && strategicRouteNegotiationData.containsKey(transactionId))
+                ? strategicRouteNegotiationData.get(transactionId).getMmsi()
+                : null;
     }
 
     /**

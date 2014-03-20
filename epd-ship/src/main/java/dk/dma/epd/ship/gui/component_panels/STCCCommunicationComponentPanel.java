@@ -82,8 +82,8 @@ public class STCCCommunicationComponentPanel extends OMComponentPanel implements
     @Override
     public void strategicRouteUpdate() {
         System.out.println("Update? " + strategicRouteHandler.getTransactionId());
-        if (strategicRouteHandler.getTransactionId() != null) {
-            commsPanel.activateChat((int) strategicRouteHandler.getStccMmsi());
+        if (strategicRouteHandler.getStccMmsi() != null) {
+            commsPanel.activateChat(strategicRouteHandler.getStccMmsi().intValue());
         } else {
             commsPanel.deactivateChat();
         }
