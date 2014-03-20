@@ -484,15 +484,28 @@ class NotificationPopUpPanel<N extends Notification<?, ?>> extends JPanel implem
     }
     
     /**
-     * Checks if the notification has been deleted or acknowledged,
+     * Checks if the notification has been deleted, read or acknowledged,
      * in which case, this panel should be removed from the pop-up.
+     * <p>
+     * Rules:
+     * <ul>
+     *   <li>If deleted, the notification should always be removed</li>
+     *   <li>For non-alerts, remove the notification if it is read or acknowledged.</li>
+     *   <li>For alerts, remove the notification if it is acknowledged.</li>
+     * </ul>
      */
     public boolean shouldBeRemoved() {
         // The notification we are holding in this panel may not be the current
         // version of the notification panel.
         // Check the state of a fresh version of the notification
         Notification<?, ?> not = panel.getNotificationById(notification.getId());
-        return not == null || not.isAcknowledged();
+        if (not == null) {
+            return true;
+        } else if (not.getSeverity() == NotificationSeverity.ALERT) {
+            return not.isAcknowledged();
+        }
+        // Non-alerts
+        return not.isAcknowledged() || not.isRead();
     }
 
     /**

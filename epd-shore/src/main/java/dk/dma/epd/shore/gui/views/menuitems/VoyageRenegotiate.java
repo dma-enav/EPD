@@ -84,11 +84,11 @@ public class VoyageRenegotiate extends JMenuItem implements IMapMenuAction {
             }
     
             // Get latest route
-            Route route = new Route(routeData.getLatestRoute());
+            Route route = routeData.getLatestRoute();
     
             Voyage voyage = new Voyage(routeData.getMmsi(), route, routeData.getId());
     
-            Route originalRoute = new Route(routeData.getOriginalRoute());
+            Route originalRoute = routeData.getOriginalRoute();
             
             EPDShore.getInstance().getMainFrame().addStrategicRouteExchangeHandlingWindow(originalRoute,
                     shipName, voyage, true);

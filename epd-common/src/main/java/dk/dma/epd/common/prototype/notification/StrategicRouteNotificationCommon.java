@@ -68,22 +68,6 @@ public abstract class StrategicRouteNotificationCommon extends Notification<Stra
     public abstract String getCallerlName();
     
     /**
-     * Returns a copy of the original route
-     * @return a copy of the original route
-     */
-    public Route getOriginalRoute() {
-        return new Route(get().getOriginalRoute());
-    }
-    
-    /**
-     * Returns a copy of the latest route
-     * @return a copy of the latest route
-     */
-    public Route getLatestRoute() {
-        return new Route(get().getLatestRoute());
-    }
-
-    /**
      * Compares two routes and outlines the differences
      * @param originalRoute the original route
      * @param newRoute the new route to compare with the original

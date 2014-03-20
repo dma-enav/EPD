@@ -123,7 +123,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
             RoutePropertiesDialog routePropertiesDialog = new RoutePropertiesDialog(
                     EPDShore.getInstance().getMainFrame(), 
                     EPDShore.getInstance().getMainFrame().getActiveChartPanel(),
-                    notification.getLatestRoute());
+                    notification.get().getLatestRoute());
             
             routePropertiesDialog.setVisible(true);
         }
@@ -138,11 +138,11 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
             
             Voyage voyage = new Voyage(
                     notification.get().getMmsi(), 
-                    notification.getLatestRoute(),
+                    notification.get().getLatestRoute(),
                     notification.getId());
 
             EPDShore.getInstance().getMainFrame().addStrategicRouteExchangeHandlingWindow(
-                notification.getOriginalRoute(),
+                notification.get().getOriginalRoute(),
                 notification.getCallerlName(), 
                 voyage, 
                 false);

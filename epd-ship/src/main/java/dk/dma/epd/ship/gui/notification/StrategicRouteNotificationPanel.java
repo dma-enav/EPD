@@ -250,7 +250,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
             final VoyageLayer voyageLayer = EPDShip.getInstance().getStrategicRouteHandler().getVoyageLayer();
             boolean readOnly = !notification.get().getLatestRouteMessage().isFromStcc();
             Route route = readOnly 
-                        ? notification.getLatestRoute()
+                        ? notification.get().getLatestRoute()
                         : voyageLayer.getModifiedSTCCRoute();
             RoutePropertiesDialogCommon routePropertiesDialog = new RoutePropertiesDialogCommon(
                     EPDShip.getInstance().getMainFrame(), 
@@ -275,7 +275,7 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         if (notification != null && 
                 EPD.getInstance().getMainFrame().getActiveChartPanel() != null) {
             EPD.getInstance().getMainFrame().getActiveChartPanel()
-                .zoomToWaypoints(notification.getOriginalRoute().getWaypoints());
+                .zoomToWaypoints(notification.get().getOriginalRoute().getWaypoints());
         }
     }
     
@@ -352,9 +352,9 @@ public class StrategicRouteNotificationPanel extends NotificationPanel<Strategic
         
         // The back-end does not support the "read" flag, so, we store it
         Set<Long> readNotificationIds = new HashSet<>();
-        for (StrategicRouteNotification notificaiton : tableModel.getNotifications()) {
-            if (notificaiton.isRead()) {
-                readNotificationIds.add(notificaiton.getId());
+        for (StrategicRouteNotification notification : tableModel.getNotifications()) {
+            if (notification.isRead()) {
+                readNotificationIds.add(notification.getId());
             }
         }
         
