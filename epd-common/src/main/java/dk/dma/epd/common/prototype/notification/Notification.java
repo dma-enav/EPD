@@ -232,6 +232,15 @@ public class Notification<T, I> implements Serializable {
     public void setAcknowledged(boolean acknowledged) {
         this.acknowledged = acknowledged;
     }
+    
+    /**
+     * Returns whether the notification can be acknowledged or not
+     * Sub-classes can override to e.g. avoid a "Dismiss" button in the pop-up notifications.
+     * @return whether the notification can be acknowledged or not
+     */
+    public boolean canAcknowledge() {
+        return true;
+    }
 
     /**
      * Returns if the notification should be automatically acknowledged

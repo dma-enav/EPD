@@ -51,7 +51,16 @@ public abstract class StrategicRouteNotificationCommon extends Notification<Stra
             addAlerts(new NotificationAlert(AlertType.POPUP));
         }
     }
-        
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean canAcknowledge() {
+        // No Dismiss button in pop-up notifications
+        return false;
+    }
+    
     /**
      * Returns the name of the caller
      * @return the name of the caller

@@ -409,8 +409,10 @@ class NotificationPopUpPanel<N extends Notification<?, ?>> extends JPanel implem
         showBtn = createButton("Show");
         btnPanel.add(showBtn, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, NORTHWEST, HORIZONTAL, insets1, 0, 0));
         
-        dismissBtn = createButton("Dismiss");
-        btnPanel.add(dismissBtn, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, NORTHWEST, HORIZONTAL, insets1, 0, 0));
+        if (notification.canAcknowledge()) {
+            dismissBtn = createButton("Dismiss");
+            btnPanel.add(dismissBtn, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, NORTHWEST, HORIZONTAL, insets1, 0, 0));
+        }
         
         if (notification.getLocation() != null) {
             gotoBtn = createButton("Goto");
