@@ -107,7 +107,10 @@ public class MsiLayer extends MsiLayerCommon {
                     Projection projection = EPDShip.getInstance().getMainFrame().getChartPanel().getMap().getProjection();
                     Point2D pointA = null;
                     Point2D pointB = null;
+                    Point2D pnt    = null;
                     
+                    // If the waypoint is not the last placed waypoint compare it to the next in line.
+                    // Else compare it to the mouse location.
                     if (rWaypoint == this.newRouteLayer.getRoute().getWaypoints().getLast()) {
                         pointA = projection.forward(rWaypoint.getPos().getLatitude(), rWaypoint.getPos().getLongitude());
                         pointB = projection.forward(this.mousePosition.getLatitude(), this.mousePosition.getLongitude());
@@ -117,47 +120,66 @@ public class MsiLayer extends MsiLayerCommon {
                         pointB = projection.forward(nWaypoint.getPos().getLatitude(), nWaypoint.getPos().getLongitude());
                     }
                     
-                    double dx = Math.abs(pointB.getX()-pointA.getX());
+                    // The slope of the line.
                     double slope = Math.round(
                             ((pointB.getY() - pointA.getY()) / (pointB.getX() - pointA.getX())) * visibilityFromNewWaypoint);
                     
-                    double lengthBetweenPoints = Math.round(Math.sqrt(
-                            (pointA.getX()-pointB.getX()) * (pointA.getX()-pointB.getX()) +
-                            (pointA.getY()-pointB.getY()) * (pointA.getY()-pointB.getY())));
-                    
-                    for (int j = 1; j*visibilityFromNewWaypoint < dx; j++) {
-                        
-                        Point2D pnt = pointA;
-                        
-                        // Mouse placed on the right side of the last placed waypoint.
-                        if (pointA.getX() <= pointB.getX()) {
+                    if (Math.abs(slope) > visibilityFromNewWaypoint) {
+                        double dy = Math.abs(pointB.getY()-pointA.getY());
+                        for (int j = 1; j*visibilityFromNewWaypoint < dy; j++) {
+                            pnt = pointA;
+                            slope = Math.round(((pointB.getX() - pointA.getX()) / (pointB.getY() - pointA.getY())) * visibilityFromNewWaypoint);
                             
-                            if (slope >= 0) {
-                                pnt.setLocation(pointA.getX()+visibilityFromNewWaypoint, pointA.getY()+slope);
-                            } else if (slope < 0) {
-                                double posSlope = Math.abs(slope);
-                                pnt.setLocation(pointA.getX()+visibilityFromNewWaypoint, pointA.getY()-posSlope);
-                            }                            
-                            
-                        // Mouse placed on the left side of the last placed waypoint.
-                        } else if (pointA.getX() > pointB.getX()) {
-                            
-                            if (slope >= 0) {
-                                pnt.setLocation(pointA.getX()-visibilityFromNewWaypoint, pointA.getY()-slope);
-                            } else if (slope < 0) {
-                                double posSlope = Math.abs(slope);
-                                pnt.setLocation(pointA.getX()-visibilityFromNewWaypoint, pointA.getY()+posSlope);
+                            //Mouse placed on the right side of the last placed waypoint.
+                            if (pointA.getX() <= pointB.getX()) {
+                                if (slope >= 0) {
+                                    pnt.setLocation(pointA.getX()+slope, pointA.getY()+visibilityFromNewWaypoint);
+                                } else if (slope < 0) {
+                                    double posSlope = Math.abs(slope);
+                                    pnt.setLocation(pointA.getX()+posSlope, pointA.getY()-visibilityFromNewWaypoint);
+                                }
+                                
+                            // mouse placed on the left side.
+                            } else if (pointA.getX() > pointB.getX()) {
+                                
+                                if (slope >= 0) {
+                                    pnt.setLocation(pointA.getX()-slope, pointA.getY()-visibilityFromNewWaypoint);
+                                } else if (slope < 0) {
+                                    double posSlope = Math.abs(slope);
+                                    pnt.setLocation(pointA.getX()-posSlope, pointA.getY()+visibilityFromNewWaypoint);
+                                }
                             }
+                            
+                            visibleOnRoute = setMessageVisible(message, visibilityFromNewWaypoint, visibleOnRoute, projection, pnt);
                         }
-                        
-                        // Draw graphic to show where the point is placed on the line.
-//                        this.newRouteLayer.getGraphics().fillOval((int) Math.round(pnt.getX()), (int) Math.round(pnt.getY()), 10, 10);
-                        
-                        LatLonPoint llpnt = projection.inverse(pnt);
-                        Position position = Position.create(llpnt.getLatitude(), llpnt.getLongitude());
-                        
-                        if (distanceToPoint(message, position) <= visibilityFromNewWaypoint) {
-                            visibleOnRoute = true;
+                    } else {
+                        double dx = Math.abs(pointB.getX()-pointA.getX());
+                        for (int j = 1; j*visibilityFromNewWaypoint < dx; j++) {
+                            
+                            pnt = pointA;
+                            
+                            // Mouse placed on the right side of the last placed waypoint.
+                            if (pointA.getX() <= pointB.getX()) {
+                                
+                                if (slope >= 0) {
+                                    pnt.setLocation(pointA.getX()+visibilityFromNewWaypoint, pointA.getY()+slope);
+                                } else if (slope < 0) {
+                                    double posSlope = Math.abs(slope);
+                                    pnt.setLocation(pointA.getX()+visibilityFromNewWaypoint, pointA.getY()-posSlope);
+                                }                            
+                                
+                                // Mouse placed on the left side of the last placed waypoint.
+                            } else if (pointA.getX() > pointB.getX()) {
+                                
+                                if (slope >= 0) {
+                                    pnt.setLocation(pointA.getX()-visibilityFromNewWaypoint, pointA.getY()-slope);
+                                } else if (slope < 0) {
+                                    double posSlope = Math.abs(slope);
+                                    pnt.setLocation(pointA.getX()-visibilityFromNewWaypoint, pointA.getY()+posSlope);
+                                }
+                            }
+                            
+                            visibleOnRoute = setMessageVisible(message, visibilityFromNewWaypoint, visibleOnRoute, projection, pnt);
                         }
                     }
                 }
@@ -169,6 +191,22 @@ public class MsiLayer extends MsiLayerCommon {
             }
         }
         return true;
+    }
+
+    private boolean setMessageVisible(MsiMessageExtended message, double visibilityFromNewWaypoint, boolean visibleOnRoute,
+            Projection projection, Point2D pnt) {
+        
+        // Draw graphic to show where the point is placed on the line.
+        // this.newRouteLayer.getGraphics().fillOval((int) Math.round(pnt.getX()), (int) Math.round(pnt.getY()), 10, 10);
+        
+        LatLonPoint llpnt = projection.inverse(pnt);
+        Position position = Position.create(llpnt.getLatitude(), llpnt.getLongitude());
+        
+        if (distanceToPoint(message, position) <= visibilityFromNewWaypoint) {
+            visibleOnRoute = true;
+        }
+        
+        return visibleOnRoute;
     }
 
     /**
