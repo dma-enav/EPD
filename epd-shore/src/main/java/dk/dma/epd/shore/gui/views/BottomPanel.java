@@ -131,9 +131,7 @@ public class BottomPanel extends BottomPanelCommon {
     
     @Override
     public void mouseClicked(MouseEvent e) {
-        
-        System.out.println("STATUS: "+status);
-        
+                
         if (status != null) {
             statusComponents.add(status);
         }

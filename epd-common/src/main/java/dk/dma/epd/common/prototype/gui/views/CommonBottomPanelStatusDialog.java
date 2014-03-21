@@ -330,9 +330,7 @@ public class CommonBottomPanelStatusDialog extends JDialog implements ActionList
      */
     @Override
     public void actionPerformed(ActionEvent e) {
-        
-        System.out.println("Checking status");
-        
+                
         // If the source is the timer, check for status update.
         if (e.getSource() == this.timer ) {
             this.showStatus();
