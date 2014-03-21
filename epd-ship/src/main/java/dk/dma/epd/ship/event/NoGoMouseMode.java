@@ -20,8 +20,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
+import javax.swing.SwingUtilities;
+
 import com.bbn.openmap.MapBean;
+import com.bbn.openmap.proj.Proj;
 import com.bbn.openmap.proj.Projection;
+import com.bbn.openmap.proj.coords.LatLonPoint;
 
 import dk.dma.epd.common.prototype.event.mouse.CommonNavigationMouseMode;
 import dk.dma.epd.ship.gui.ChartPanel;
@@ -87,6 +91,79 @@ public class NoGoMouseMode extends CommonNavigationMouseMode {
                     super.paintRectangle(map.getGraphics(), super.point1, super.point2);
                     super.point2 = null;
                 }
+            }
+        }
+    }
+
+    /**
+     * If the mouse is pressed twice right after each other, this mouse event handler method will update the location on the map by
+     * the position of the mouse. If the control button is pushed down when this method is called, a new scale value will be
+     * calculated so that a zoom to the new position will be done too. If the control and shift button are both down at when called
+     * a zoom out from the point will be done.
+     */
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+        super.mouseClicked(e);
+        if (e.getSource() instanceof MapBean && SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2 && !e.isConsumed()) {
+
+            // Fire the mouse support.
+            super.mouseSupport.fireMapMouseClicked(e);
+
+            // Get the map and a new location from the clicked position.
+            MapBean map = (MapBean) e.getSource();
+            Projection projection = map.getProjection();
+            Proj proj = (Proj) projection;
+            LatLonPoint llp = projection.inverse(e.getPoint());
+
+            // Update the scale factor.
+            proj.setScale(this.getNewScale(proj.getScale(), 2.0f));
+
+            // Reset the points.
+            this.point1 = null;
+            this.point2 = null;
+
+            // Update location on map.
+            proj.setCenter(llp);
+            map.setProjection(proj);
+        }
+    }
+
+    /**
+     * If the mouse is dragged, a test will be done if it is a layer related element. If it isn't, a rectangle will be drawn from
+     * the first point, to the point of the mouse. If control is down when mouse is dragged the rectangle will follow the mouse.
+     * Else the mouse will draw a rectangle fitted in ratio to the map frame.
+     */
+    @Override
+    public void mouseDragged(MouseEvent e) {
+
+        if (e.getSource() instanceof MapBean && SwingUtilities.isLeftMouseButton(e) && this.doZoom) {
+
+            super.mouseDragged(e);
+
+            if (!this.mouseDragged) {
+                this.layerMouseDrag = super.mouseSupport.fireMapMouseDragged(e);
+            }
+
+            if (this.layerMouseDrag && this.mouseExited) {
+
+                this.mouseReleased(e);
+                this.mouseExited = false;
+
+            } else if (!this.layerMouseDrag) {
+
+                this.mouseDragged = true;
+
+                // Clear up the old point.
+                this.paintRectangle(((MapBean) e.getSource()).getGraphics(), this.point1, this.point2);
+
+                this.point2 = e.getPoint();
+
+                // Clear up the old point.
+                this.paintRectangle(((MapBean) e.getSource()).getGraphics(), this.point1, this.point2);
+
+                // Repaint new rectangle.
+                ((MapBean) e.getSource()).repaint();
             }
         }
     }

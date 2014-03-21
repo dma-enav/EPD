@@ -45,9 +45,9 @@ public class CommonNavigationMouseMode extends AbstractCoordMouseMode implements
     public final Cursor NAV_CURSOR; // Default cursor for navigation.
     private ChartPanelCommon chartPanel;
     private int maxScale; // The max scaled size which can be zoomed into the map.
-    private boolean doZoom;
-    private boolean mouseExited;
-    private boolean layerMouseDrag;
+    protected boolean doZoom;
+    protected boolean mouseExited;
+    protected boolean layerMouseDrag;
 
     protected boolean mouseDragged;
     protected Point point1, point2;
