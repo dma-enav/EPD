@@ -172,7 +172,6 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
 
         // Sending route and start the transaction
         transactionId = sendStrategicRouteRequest(route, stccMmsi, message);
-        notifyStrategicRouteListeners();
     }
 
     /**
@@ -202,7 +201,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
         sendStrategicRouteRequest(routeMessage, stccMmsi);
 
         routeData.setHandled(false);
-
+        notifyStrategicRouteListeners();
         
         return transactionID;
     }
@@ -217,7 +216,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
 
         routeMessage.setCloudMessageStatus(CloudMessageStatus.NOT_SENT);
         if (sendMaritimeCloudMessage(strategicRouteSTCCList, new MmsiId((int)stccMmsi), routeMessage, this)) {
-            routeMessage.setCloudMessageStatus(CloudMessageStatus.SENT);
+            routeMessage.updateCloudMessageStatus(CloudMessageStatus.SENT);
         }
     }
 
@@ -484,7 +483,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
         // Send it off
         sendStrategicRouteRequest(routeMessage, routeData.getMmsi());
         
-        routeData.setHandled(true);
+        routeData.setHandled(false);
         notifyStrategicRouteListeners();
 
         // Clear layer and prevent editing

@@ -291,21 +291,38 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
     /** Helper classes                     **/
     /****************************************/
     
+    /**
+     * Defines the statuses of a cloud message. Since some of the
+     * status can arrive out of order from the cloud, introduce an
+     * order to the statuses and a method for combining them.
+     */
     public enum CloudMessageStatus {
-        NOT_SENT("not sent - check network status"),
-        SENT("sent"),
-        SENT_FAILED("failed to send message"),
-        RECEIVED_BY_CLOUD("sent and received by cloud"),
-        RECEIVED_BY_CLIENT("sent and received by client"),
-        HANDLED_BY_CLIENT("sent and acknowledged by client");
+        NOT_SENT(0, "not sent - check network status"),
+        SENT(1, "sent"),
+        SENT_FAILED(2, "failed to send message"),
+        RECEIVED_BY_CLOUD(3, "sent and received by cloud"),
+        RECEIVED_BY_CLIENT(4, "sent and received by client"),
+        HANDLED_BY_CLIENT(5, "sent and acknowledged by client");
         
         String title;
+        int order;
         
-        private CloudMessageStatus(String title) {
+        private CloudMessageStatus(int order, String title) {
             this.title = title;
+            this.order = order;
         }
         
         public String getTitle() { return title; }
+        
+        /**
+         * Ensures that we do not "downgrade" a status when the updates 
+         * arrives out-of-order
+         * @param other the cloud message status to combine with
+         * @return the combined cloud message status
+         */
+        public CloudMessageStatus combine(CloudMessageStatus other) {
+            return (other == null || order >= other.order) ? this : other;
+        }
     }
     
     /**

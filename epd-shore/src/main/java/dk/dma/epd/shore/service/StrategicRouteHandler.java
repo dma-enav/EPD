@@ -123,7 +123,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
 
         routeMessage.setCloudMessageStatus(CloudMessageStatus.NOT_SENT);
         if (sendMaritimeCloudMessage(strategicRouteShipList, new MmsiId((int)mmsiDestination), routeMessage, this)) {
-            routeMessage.setCloudMessageStatus(CloudMessageStatus.SENT);
+            routeMessage.updateCloudMessageStatus(CloudMessageStatus.SENT);
         }
     }
 

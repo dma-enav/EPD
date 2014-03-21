@@ -298,6 +298,11 @@ public class SendStrategicRouteDialog extends ComponentDialog implements ActionL
         }
 
         if (stccMmsi == -1) {
+            
+            if (stccMmsiListComboBox.getSelectedIndex() == -1) {
+                return;
+            }
+            
             stccMmsi = mmsiList.get(stccMmsiListComboBox.getSelectedIndex());
         }
 

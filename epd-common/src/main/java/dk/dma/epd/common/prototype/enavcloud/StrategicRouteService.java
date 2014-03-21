@@ -161,6 +161,19 @@ public class StrategicRouteService {
         public void setCloudMessageStatus(CloudMessageStatus cloudMessageStatus) {
             this.cloudMessageStatus = cloudMessageStatus;
         }
+        
+        /**
+         * Some of the cloud status updates may arrive out of order. Use the 
+         * {@code CloudMessageStatus.combine()} method to make sure the order
+         * is maintained
+         * 
+         * @param cloudMessageStatus the new cloud message status
+         */
+        public synchronized void updateCloudMessageStatus(CloudMessageStatus cloudMessageStatus) {
+            if (cloudMessageStatus != null) {
+                this.cloudMessageStatus = cloudMessageStatus.combine(this.cloudMessageStatus);
+            }
+        }
     }
 
     /**
