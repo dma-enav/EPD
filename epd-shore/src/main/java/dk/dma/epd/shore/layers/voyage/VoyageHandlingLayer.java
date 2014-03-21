@@ -138,6 +138,8 @@ public class VoyageHandlingLayer extends EPDLayerCommon implements IVoyageUpdate
             voyagePlanInfoPanel.setChartPanel((ChartPanel) obj);
         }
 
+
+
     }
 
     /**

@@ -84,12 +84,15 @@ public class STCCCommunicationComponentPanel extends OMComponentPanel implements
         } else if (obj instanceof ChatServiceHandlerCommon && chatServiceHandler == null) {
             chatServiceHandler = (ChatServiceHandlerCommon) obj;
             chatServiceHandler.addListener(this);
+        } else if (obj instanceof IdentityHandler && identityHandler == null) {
+            identityHandler = (IdentityHandler) obj;
         }
 
     }
 
     @Override
     public void strategicRouteUpdate() {
+        System.out.println("Strategic route update?? yes please");
         if (strategicRouteHandler.getStccMmsi() != null) {
             commsPanel.activateChat(strategicRouteHandler.getStccMmsi().intValue());
         } else {

@@ -516,6 +516,8 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
     public void chatMessageReceived(MaritimeId senderId, ChatServiceMessage message) {
         int id = MaritimeCloudUtils.toMmsi(senderId);
 
+        System.out.println("Store under RECIEVED "  + id);
+        
         String senderName = message.getSenderName();
         // Look up name in identityHandler and aisHandler, if none exists use the given one
         if (EPD.getInstance().getIdentityHandler().actorExists(id)) {
@@ -530,9 +532,11 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
 
         if (generalPanel.getNotificationById(id) != null) {
             GeneralNotification previousNotification = generalPanel.getNotificationById(id);
-            previousNotification.setDescription(previousNotification.getDescription() + "\n"
-                    + Formatter.formatShortDateTime(new Date(message.getSendDate())) + " : " + senderName + " : "
-                    + message.getMessage());
+            previousNotification.setDescription(Formatter.formatShortDateTime(new Date(message.getSendDate())) + " : " + senderName + " : "
+                    + message.getMessage() + "\n" +
+                    
+                    previousNotification.getDescription() 
+                     );
             previousNotification.setAcknowledged(false);
             previousNotification.setSeverity(message.getSeverity());
             previousNotification.setAlerts(message.getAlerts());
@@ -569,8 +573,8 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
             }
         }
 
-        if (generalPanel.getNotificationById(recipientId) != null) {
-            GeneralNotification previousNotification = generalPanel.getNotificationById(recipientId);
+        if (generalPanel.getNotificationById( (int) recipientId) != null) {
+            GeneralNotification previousNotification = generalPanel.getNotificationById( (int) recipientId);
             previousNotification.setDescription(Formatter.formatShortDateTime(new Date(message.getSendDate())) + " - " + senderName
                     + " : " + message.getMessage() + "\n" + previousNotification.getDescription());
 
@@ -579,7 +583,7 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
 
         } else {
             GeneralNotification notification = new GeneralNotification();
-            notification.setId(recipientId);
+            notification.setId((int)recipientId);
             notification.setDate(new Date(message.getSendDate()));
             notification.setTitle(recipientName);
             notification.setDescription(Formatter.formatShortDateTime(new Date(message.getSendDate())) + " - " + senderName + " : "

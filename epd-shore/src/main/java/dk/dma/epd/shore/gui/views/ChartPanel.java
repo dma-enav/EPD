@@ -102,6 +102,8 @@ public class ChartPanel extends ChartPanelCommon {
         mapHandler.add(EPDShore.getInstance().getAisHandler());
         mapHandler.add(EPDShore.getInstance().getShoreServices());
         mapHandler.add(EPDShore.getInstance().getIntendedRouteHandler());
+//        mapHandler.add(EPDShore.getInstance().getIdentityHandler());
+//        mapHandler.add(EPDShore.getInstance().getChatServiceHandler());
         mapHandler.add(this);
         mapHandler.add(mainFrame);
         mapHandler.add(mainFrame.getStatusArea());

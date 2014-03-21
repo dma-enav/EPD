@@ -30,6 +30,7 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -56,6 +57,7 @@ public class STCCCommunicationPanel extends JPanel implements ActionListener {
     private JButton sendBtn;
 
     private int stccMmsi;
+    private JScrollPane scrollPane;
 
     public STCCCommunicationPanel() {
         super();
@@ -89,7 +91,7 @@ public class STCCCommunicationPanel extends JPanel implements ActionListener {
         chatMessages.setBorder(null);
         chatMessages.setRows(10);
 
-        JScrollPane scrollPane = new JScrollPane(chatMessages);
+        scrollPane = new JScrollPane(chatMessages);
         scrollPane.setViewportView(chatMessages);
         // scrollPane.setMinimumSize(new Dimension(200, 500));
         GridBagConstraints gbc_scrollPane = new GridBagConstraints();
@@ -198,6 +200,10 @@ public class STCCCommunicationPanel extends JPanel implements ActionListener {
         }
         currentText = currentText + message;
         chatMessages.setText(currentText);
+
+        JScrollBar vertical = scrollPane.getVerticalScrollBar();
+        vertical.setValue(vertical.getMaximum());
+
     }
 
     public void activateChat(int stccMmsi) {

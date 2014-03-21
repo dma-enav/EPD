@@ -172,6 +172,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
 
         // Sending route and start the transaction
         transactionId = sendStrategicRouteRequest(route, stccMmsi, message);
+        notifyStrategicRouteListeners();
     }
 
     /**
@@ -201,7 +202,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
         sendStrategicRouteRequest(routeMessage, stccMmsi);
 
         routeData.setHandled(false);
-        notifyStrategicRouteListeners();
+        
         
         return transactionID;
     }
@@ -298,6 +299,10 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      * @return the stccMmsi
      */
     public Long getStccMmsi() {
+        System.out.println("Transaction id is " + transactionId);
+        System.out.println(strategicRouteNegotiationData == null);
+        System.out.println("Is there some data? " + strategicRouteNegotiationData.containsKey(transactionId));
+        System.out.println("and the mmsi is " + strategicRouteNegotiationData.get(transactionId).getMmsi());
         return (transactionId != null && strategicRouteNegotiationData.containsKey(transactionId))
                 ? strategicRouteNegotiationData.get(transactionId).getMmsi()
                 : null;
