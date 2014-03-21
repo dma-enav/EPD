@@ -233,7 +233,7 @@ class StrategicNotificationMessageView extends JPanel {
         // Type
         add(new JLabel("Status:"), 
                 new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
-        add(new JLabel(getStatusType(routeMessage)), 
+        add(new JLabel(getStatusType(routeMessage, isLatest)), 
                 new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
 
         // Message label
@@ -256,11 +256,11 @@ class StrategicNotificationMessageView extends JPanel {
      * @param routeMessage the message containing the status
      * @return the textual description of the status
      */
-    private String getStatusType(StrategicRouteMessage routeMessage) {
+    private String getStatusType(StrategicRouteMessage routeMessage, boolean isLatest) {
         StringBuilder status = new StringBuilder();
         status.append("<html>").append(routeMessage.getStatus());
-        if (routeMessage.getCloudMessageStatus() != null) {
-            status.append("   <small>(" + routeMessage.getCloudMessageStatus().getTitle() + ")</small>");
+        if (isLatest && routeMessage.getCloudMessageStatus() != null) {
+            status.append("&nbsp;<small>(" + routeMessage.getCloudMessageStatus().getTitle() + ")</small>");
         }
         return status.append("</html>").toString();
     }
