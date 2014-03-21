@@ -90,9 +90,20 @@ public class MaritimeCloudUtils {
      * @return the matching service or null if not found
      */
     public static <E, T> ServiceEndpoint<E, T> findServiceWithMmsi(List<ServiceEndpoint<E, T>> serviceList, int mmsi) {
+        return findServiceWithId(serviceList, new MmsiId(mmsi));
+    }
+
+    
+    /**
+     * Finds the first service in the list with a matching maritime id
+     * @param serviceList the list of services to check
+     * @param id the maritime id of the service to find
+     * @return the matching service or null if not found
+     */
+    public static <E, T> ServiceEndpoint<E, T> findServiceWithId(List<ServiceEndpoint<E, T>> serviceList, MaritimeId id) {
         if (serviceList != null) {
             for (ServiceEndpoint<E, T> service : serviceList) {
-                if (toMmsi(service.getId()) == mmsi) {
+                if (id.equals(service.getId())) {
                     return service;
                 }
             }

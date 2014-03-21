@@ -324,6 +324,18 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
             }
         }
     }
+
+    /**
+     * If the notification with the given id is the currently selected one,
+     * then refresh the selection.
+     * @param id the id of the notification to select
+     */
+    public void checkRefreshSelection(Object id) {
+        N notification = getSelectedNotification();
+        if (notification != null && notification.getId().equals(id)) {
+            setSelectedNotification();
+        }
+    }
     
     /**
      * Selects the first unacknowledged row.

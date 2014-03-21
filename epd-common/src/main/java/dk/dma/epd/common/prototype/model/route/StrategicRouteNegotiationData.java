@@ -33,13 +33,16 @@ public class StrategicRouteNegotiationData  implements Comparable<StrategicRoute
     private StrategicRouteStatus status;
     private boolean handled;
     
-    
+    /**
+     * Constructor
+     * @param id the transaction id
+     * @param mmsi the MMSI of the counter-party
+     */
     public StrategicRouteNegotiationData(long id, long mmsi) {
         super();
         this.id = id;
         this.mmsi = mmsi;
         this.status = StrategicRouteStatus.PENDING;
-        handled = false;
     }
     
     /**

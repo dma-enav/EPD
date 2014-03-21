@@ -21,14 +21,20 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import dk.dma.epd.common.prototype.EPD;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteMessage;
+import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRouteReply;
 import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
+import dk.dma.epd.common.prototype.notification.NotificationType;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.ICloudMessageListener;
 import edu.emory.mathcs.backport.java.util.Collections;
 
 
 /**
  * Common handler class for the strategic route e-Navigation service
  */
-public class StrategicRouteHandlerCommon extends EnavServiceHandlerCommon {
+public class StrategicRouteHandlerCommon extends EnavServiceHandlerCommon 
+    implements ICloudMessageListener<StrategicRouteMessage, StrategicRouteReply> {
 
     protected Map<Long, StrategicRouteNegotiationData> strategicRouteNegotiationData = new ConcurrentHashMap<>();
     protected List<StrategicRouteListener> strategicRouteListeners = new CopyOnWriteArrayList<>();
@@ -93,6 +99,46 @@ public class StrategicRouteHandlerCommon extends EnavServiceHandlerCommon {
         }
     }
     
+    /****************************************/
+    /** ICloudMessageStatus methods        **/
+    /****************************************/    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void messageReceivedByCloud(StrategicRouteMessage message) {
+        message.setCloudMessageStatus(CloudMessageStatus.RECEIVED_BY_CLOUD);
+        EPD.getInstance().getNotificationCenter()
+            .checkRefreshSelection(NotificationType.STRATEGIC_ROUTE, message.getId());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void messageReceivedByClient(StrategicRouteMessage message) {
+        message.setCloudMessageStatus(CloudMessageStatus.RECEIVED_BY_CLIENT);
+        notifyStrategicRouteListeners();
+        EPD.getInstance().getNotificationCenter()
+            .checkRefreshSelection(NotificationType.STRATEGIC_ROUTE, message.getId());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void messageHandled(StrategicRouteMessage message, StrategicRouteReply reply) {
+        message.setCloudMessageStatus(CloudMessageStatus.HANDLED_BY_CLIENT);
+        notifyStrategicRouteListeners();
+        EPD.getInstance().getNotificationCenter()
+            .checkRefreshSelection(NotificationType.STRATEGIC_ROUTE, message.getId());
+    }
+    
+    /****************************************/
+    /** Helper classes                     **/
+    /****************************************/    
+    
     /**
      * Interface to be implemented by all clients wishing 
      * to be notified about updates to strategic routes
@@ -105,4 +151,5 @@ public class StrategicRouteHandlerCommon extends EnavServiceHandlerCommon {
         void strategicRouteUpdate();
 
     }
+
 }

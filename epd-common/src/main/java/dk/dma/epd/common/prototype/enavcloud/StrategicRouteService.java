@@ -23,6 +23,7 @@ import java.util.Date;
 import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
 import net.maritimecloud.net.service.spi.ServiceMessage;
 import dk.dma.enav.model.voyage.Route;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
 
 /**
  * Maritime cloud service for exchanging strategic routes (formerly "Mona Lisa").
@@ -74,6 +75,9 @@ public class StrategicRouteService {
         private Date sentDate;
         private String message;
         private StrategicRouteStatus status;
+        
+        // Not sent along
+        private transient CloudMessageStatus cloudMessageStatus;
 
         /**
          * No-arg constructor
@@ -100,6 +104,8 @@ public class StrategicRouteService {
             this.sentDate = new Date();
         }
 
+        /********* Getters and setters ***********/
+        
         public boolean isFromStcc() {
             return fromStcc;
         }
@@ -147,6 +153,14 @@ public class StrategicRouteService {
         public void setStatus(StrategicRouteStatus status) {
             this.status = status;
         }
+        
+        public CloudMessageStatus getCloudMessageStatus() {
+            return cloudMessageStatus;
+        }
+
+        public void setCloudMessageStatus(CloudMessageStatus cloudMessageStatus) {
+            this.cloudMessageStatus = cloudMessageStatus;
+        }
     }
 
     /**
@@ -157,6 +171,9 @@ public class StrategicRouteService {
         private long id;
         private Date receivedDate;
 
+        /**
+         * No-arg constructor
+         */
         public StrategicRouteReply() {
         }
 
@@ -164,13 +181,14 @@ public class StrategicRouteService {
          * Constructor
          * 
          * @param id id of the transaction
-         * @param sendDate the send date
          */
         public StrategicRouteReply(long id) {
             this.id = id;
             this.receivedDate = new Date();
         }
 
+        /********* Getters and setters ***********/
+        
         public long getId() {
             return id;
         }

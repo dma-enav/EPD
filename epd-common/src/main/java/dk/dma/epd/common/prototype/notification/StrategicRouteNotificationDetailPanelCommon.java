@@ -257,21 +257,11 @@ class StrategicNotificationMessageView extends JPanel {
      * @return the textual description of the status
      */
     private String getStatusType(StrategicRouteMessage routeMessage) {
-        if (routeMessage.isFromStcc()) {
-            switch (routeMessage.getStatus()) {
-            case AGREED: return "Route approved";
-            case NEGOTIATING: return "Route modified and sent for negotiation";
-            default: return "";
-            }
-        } else {
-            switch (routeMessage.getStatus()) {
-            case PENDING: return "Route request pending";
-            case NEGOTIATING: return "Route modified and sent for negotiation";
-            case AGREED: return "Route approved";
-            case CANCELED: return "Route cancelled";
-            case REJECTED: return "Route rejected";
-            default: return "";
-            }
+        StringBuilder status = new StringBuilder();
+        status.append("<html>").append(routeMessage.getStatus());
+        if (routeMessage.getCloudMessageStatus() != null) {
+            status.append("   <small>(" + routeMessage.getCloudMessageStatus().getTitle() + ")</small>");
         }
+        return status.append("</html>").toString();
     }
 }
