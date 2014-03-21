@@ -131,9 +131,13 @@ public class BottomPanel extends BottomPanelCommon {
     
     @Override
     public void mouseClicked(MouseEvent e) {
+        
+        System.out.println("STATUS: "+status);
+        
         if (status != null) {
-            statusComponents.add(status);            
+            statusComponents.add(status);
         }
-        new BottomPanelStatusDialog(statusComponents);
+        EPDShore.getInstance().getMainFrame().getBottomPanelStatusDialog().setStatusComponents(statusComponents);        
+        EPDShore.getInstance().getMainFrame().getBottomPanelStatusDialog().setVisible(true);
     }
 }

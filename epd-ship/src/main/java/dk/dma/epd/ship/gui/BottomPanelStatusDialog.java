@@ -40,18 +40,17 @@ public class BottomPanelStatusDialog extends CommonBottomPanelStatusDialog {
      * @param statusComponents 
      * 
      */
-    public BottomPanelStatusDialog(List<IStatusComponent> statusComponents) {
-        super(statusComponents);
+    public BottomPanelStatusDialog() {
+        super();
         
         // Creates the panels
         super.createStatusPanels(createPanels());
         
         // Start timer.
-        super.timer.start();
+//        super.timer.start();
         
         // Set location and visible to true.
         this.setLocationRelativeTo(EPDShip.getInstance().getMainFrame());
-        this.setVisible(true);
     }
 
     public List<JPanel> createPanels() {
