@@ -107,7 +107,7 @@ public class MsiLayer extends MsiLayerCommon {
                     Projection projection = EPDShip.getInstance().getMainFrame().getChartPanel().getMap().getProjection();
                     Point2D pointA = null;
                     Point2D pointB = null;
-                    Point2D pnt    = null;
+                    Point2D pnt;
                     
                     // If the waypoint is not the last placed waypoint compare it to the next in line.
                     // Else compare it to the mouse location.
@@ -129,12 +129,17 @@ public class MsiLayer extends MsiLayerCommon {
                     if (Math.abs(slope) > visibilityFromNewWaypoint) {
                         double dy = Math.abs(pointB.getY()-pointA.getY());
                         slope = Math.round(((pointB.getX() - pointA.getX()) / (pointB.getY() - pointA.getY())) * visibilityFromNewWaypoint);
-                        for (int j = 1; j*visibilityFromNewWaypoint < dy; j++) {
+                        for (int j = 0; j*visibilityFromNewWaypoint < dy; j++) {
                             pnt = pointA;
+                            
+                            // The first point should be placed a point where the mouse was clicked.
+                            if (j == 0) {
+                                visibleOnRoute = setMessageVisible(message, visibilityFromNewWaypoint, visibleOnRoute, projection, pnt);
+                                continue;
+                            }
                             
                             //Mouse placed on the right side of the last placed waypoint.
                             if (pointA.getX() <= pointB.getX()) {
-                                
                                 
                                 if (slope > 0) {
                                     pnt.setLocation(pointA.getX()+slope, pointA.getY()+visibilityFromNewWaypoint);
@@ -154,6 +159,7 @@ public class MsiLayer extends MsiLayerCommon {
                                 }
                             }
                             
+                            // Handles placing of point on a vertical line.
                             if (pointA.getY() < pointB.getY() && slope == 0) {
                                 pnt.setLocation(pointA.getX(), pointA.getY()+visibilityFromNewWaypoint);
                             } else if (pointA.getY() > pointB.getY() && slope == 0) {
@@ -164,9 +170,13 @@ public class MsiLayer extends MsiLayerCommon {
                         }
                     } else {
                         double dx = Math.abs(pointB.getX()-pointA.getX());
-                        for (int j = 1; j*visibilityFromNewWaypoint < dx; j++) {
-                            
+                        for (int j = 0; j*visibilityFromNewWaypoint < dx; j++) {
                             pnt = pointA;
+                            
+                            if (j == 0) {
+                                visibleOnRoute = setMessageVisible(message, visibilityFromNewWaypoint, visibleOnRoute, projection, pnt);
+                                continue;
+                            }
                             
                             // Mouse placed on the right side of the last placed waypoint.
                             if (pointA.getX() <= pointB.getX()) {
@@ -178,7 +188,7 @@ public class MsiLayer extends MsiLayerCommon {
                                     pnt.setLocation(pointA.getX()+visibilityFromNewWaypoint, pointA.getY()-posSlope);
                                 }                            
                                 
-                                // Mouse placed on the left side of the last placed waypoint.
+                            // Mouse placed on the left side of the last placed waypoint.
                             } else if (pointA.getX() > pointB.getX()) {
                                 
                                 if (slope > 0) {
@@ -207,7 +217,7 @@ public class MsiLayer extends MsiLayerCommon {
             Projection projection, Point2D pnt) {
         
         // Draw graphic to show where the point is placed on the line.
-//         this.newRouteLayer.getGraphics().fillOval((int) Math.round(pnt.getX()), (int) Math.round(pnt.getY()), 10, 10);
+//        this.newRouteLayer.getGraphics().fillOval((int) Math.round(pnt.getX()), (int) Math.round(pnt.getY()), 10, 10);
         
         LatLonPoint llpnt = projection.inverse(pnt);
         Position position = Position.create(llpnt.getLatitude(), llpnt.getLongitude());
