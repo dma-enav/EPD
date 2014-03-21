@@ -52,6 +52,7 @@ import javax.xml.bind.annotation.XmlType;
     "draft",
     "lwl",
     "beam",
+    "displacement",
     "ukcrequested",
     "windage",
     "mmsi",
@@ -66,6 +67,7 @@ public class CurrentShipDataType {
     protected float beam = 20.0f;
     protected float windage = 1500.0f;
     protected DraftType draft;
+    protected float displacement = 12000.0f;
     protected float ukcrequested;
     protected String optimization;
 
