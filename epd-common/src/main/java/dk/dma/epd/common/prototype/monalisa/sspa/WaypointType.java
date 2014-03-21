@@ -59,6 +59,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "wptId",
     "position",
     "eta",
+    "fixed",
     "wptName",
     "legInfo"
 })
@@ -70,6 +71,8 @@ public class WaypointType {
     @XmlElement(name = "ETA")
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar eta;
+    @XmlElement(name = "fixed")
+    protected boolean fixed;
     @XmlElement(name = "wpt-name")
     protected String wptName;
     @XmlElement(required = true)
@@ -123,6 +126,30 @@ public class WaypointType {
      */
     public void setETA(XMLGregorianCalendar value) {
         this.eta = value;
+    }
+
+    /**
+     * Gets the value of the fixed property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link boolean }
+     *     
+     */
+    public boolean getFixed() {
+        return fixed;
+    }
+
+    /**
+     * Sets the value of the fixed property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link boolean }
+     *     
+     */
+    public void setFixed(boolean value) {
+        this.fixed = value;
     }
 
     /**
