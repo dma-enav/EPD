@@ -17,16 +17,16 @@ public class BottomPanelStatusDialog extends CommonBottomPanelStatusDialog {
     private static final long serialVersionUID = 1L;
     private JLabel lblPositionStatus;
     
-    public BottomPanelStatusDialog(List<IStatusComponent> statusComponents) {
-        super(statusComponents);
+    public BottomPanelStatusDialog() {
+        super();
         
         super.createStatusPanels(createPanels());
         
-        super.timer.start();
+//        super.timer.start();
         
         // Set location and visible to true.
         this.setLocationRelativeTo(EPDShore.getInstance().getMainFrame());
-        this.setVisible(true);
+//        this.setVisible(true);
     }
 
     private List<JPanel> createPanels() {

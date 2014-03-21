@@ -20,6 +20,7 @@ import java.awt.event.MouseEvent;
 import dk.dma.epd.common.prototype.gui.StatusLabel;
 import dk.dma.epd.common.prototype.gui.views.BottomPanelCommon;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
+import dk.dma.epd.ship.EPDShip;
 
 /**
  * Panel shown below the chart
@@ -75,6 +76,7 @@ public class BottomPanel extends BottomPanelCommon {
     
     @Override
     public void mouseClicked(MouseEvent e) {
-        new BottomPanelStatusDialog(statusComponents);
+        EPDShip.getInstance().getMainFrame().getBottomPanelStatusDialog().setStatusComponents(this.statusComponents);
+        EPDShip.getInstance().getMainFrame().getBottomPanelStatusDialog().setVisible(true);
     }
 }

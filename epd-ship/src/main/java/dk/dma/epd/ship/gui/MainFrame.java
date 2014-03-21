@@ -90,6 +90,8 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     private MenuBar menuBar;
     private RequestStrategicRouteDialog strategicRouteSTCCDialog;
 
+    private BottomPanelStatusDialog bottomStatusDialog;
+
     /**
      * Constructor
      */
@@ -218,6 +220,8 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         // Init AIS dialog
         aisDialog = new AisDialog(this);
         mapHandler.add(aisDialog);
+        
+        bottomStatusDialog = new BottomPanelStatusDialog();
 
         // Init Route suggestion dialog
         routeSuggestionDialog = new RouteSuggestionDialog(this);
@@ -335,6 +339,10 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         return topPanel;
     }
 
+    public BottomPanelStatusDialog getBottomPanelStatusDialog() {
+        return this.bottomStatusDialog;
+    }
+    
     public ScaleComponentPanel getScalePanel() {
         return scalePanel;
     }

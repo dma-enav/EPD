@@ -75,10 +75,9 @@ public class CommonBottomPanelStatusDialog extends JDialog implements ActionList
      * @param statusComponents
      *          The status components which stores status.
      */
-    public CommonBottomPanelStatusDialog(List<IStatusComponent> statusComponents) {
+    public CommonBottomPanelStatusDialog() {
         
         super(EPD.getInstance().getMainFrame(), "Status", true);
-        this.statusComponents = statusComponents;
 
         // Start the timer to update status while window is open.
         timer = new Timer(500, this);
@@ -100,6 +99,10 @@ public class CommonBottomPanelStatusDialog extends JDialog implements ActionList
         btnClose.addActionListener(this);
         btnPanel.add(btnClose);
         this.getContentPane().add(btnPanel, BorderLayout.SOUTH);        
+    }
+    
+    public void setStatusComponents(List<IStatusComponent> statusComponents) {
+        this.statusComponents = statusComponents;
     }
 
     /**
@@ -328,6 +331,8 @@ public class CommonBottomPanelStatusDialog extends JDialog implements ActionList
     @Override
     public void actionPerformed(ActionEvent e) {
         
+        System.out.println("Checking status");
+        
         // If the source is the timer, check for status update.
         if (e.getSource() == this.timer ) {
             this.showStatus();
@@ -337,5 +342,13 @@ public class CommonBottomPanelStatusDialog extends JDialog implements ActionList
             this.timer.stop();
             this.dispose();
         }
+    }
+    
+    @Override
+    public void setVisible(boolean b) {                
+        if (b) {
+            timer.start();
+        }
+        super.setVisible(b);
     }
 }

@@ -81,6 +81,8 @@ public class MainFrame extends MainFrameCommon {
 
     private boolean sarCreated;
 
+    private BottomPanelStatusDialog bottomStatusDialog;
+
     /**
      * Constructor
      */
@@ -146,6 +148,8 @@ public class MainFrame extends MainFrameCommon {
         beanHandler.add(sendRouteDialog);
         beanHandler.add(sendVoyageDialog);
 
+        bottomStatusDialog = new BottomPanelStatusDialog();
+        
         chatServiceDialog = new ChatServiceDialog(this);
         
         // Add self to bean handler
@@ -169,6 +173,10 @@ public class MainFrame extends MainFrameCommon {
     @Override
     protected void initGlassPane() {
         // Do nothing. EPDShore uses MapFrames for the various maps
+    }
+    
+    public BottomPanelStatusDialog getBottomPanelStatusDialog() {
+        return this.bottomStatusDialog;
     }
 
     /**
