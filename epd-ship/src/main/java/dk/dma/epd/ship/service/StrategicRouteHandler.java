@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.service.ServiceEndpoint;
 import net.maritimecloud.net.service.invocation.InvocationCallback;
@@ -88,8 +89,14 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
                     new InvocationCallback<StrategicRouteMessage, StrategicRouteReply>() {
                         public void process(StrategicRouteMessage message, Context<StrategicRouteReply> context) {
 
-                            LOG.info("Ship received a request for reopening a transaction!");
+                            // The cloud status is transient, so this ought to be unnecessary
+                            message.setCloudMessageStatus(null);
+                            
+                            LOG.info("Ship received a strategic route request");
                             handleStrategicRouteMessageFromStcc(message, context.getCaller());
+                            
+                            // Acknowledge that the message has been handled 
+                            context.complete(new StrategicRouteReply(message.getId()));
                         }
                     }).awaitRegistered(4, TimeUnit.SECONDS);
 
@@ -208,17 +215,10 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      */
     private void sendStrategicRouteRequest(StrategicRouteMessage routeMessage, long stccMmsi) {
 
-        ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply> end = MaritimeCloudUtils
-                .findServiceWithMmsi(strategicRouteSTCCList, (int)stccMmsi);
-
-        if (end != null) {
-            end.invoke(routeMessage);
-
-        } else {
-            // notifyRouteExchangeListeners();
-            LOG.error("Did not find strategic route STCC");
+        routeMessage.setCloudMessageStatus(CloudMessageStatus.NOT_SENT);
+        if (sendMaritimeCloudMessage(strategicRouteSTCCList, new MmsiId((int)stccMmsi), routeMessage, this)) {
+            routeMessage.setCloudMessageStatus(CloudMessageStatus.SENT);
         }
-
     }
 
     /**

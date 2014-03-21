@@ -233,7 +233,7 @@ class StrategicNotificationMessageView extends JPanel {
         // Type
         add(new JLabel("Status:"), 
                 new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
-        add(new JLabel(getStatusType(routeMessage)), 
+        add(new JLabel(getStatusType(routeMessage, isLatest)), 
                 new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0, WEST, NONE, insets1, 0, 0));
 
         // Message label
@@ -256,22 +256,12 @@ class StrategicNotificationMessageView extends JPanel {
      * @param routeMessage the message containing the status
      * @return the textual description of the status
      */
-    private String getStatusType(StrategicRouteMessage routeMessage) {
-        if (routeMessage.isFromStcc()) {
-            switch (routeMessage.getStatus()) {
-            case AGREED: return "Route approved";
-            case NEGOTIATING: return "Route modified and sent for negotiation";
-            default: return "";
-            }
-        } else {
-            switch (routeMessage.getStatus()) {
-            case PENDING: return "Route request pending";
-            case NEGOTIATING: return "Route modified and sent for negotiation";
-            case AGREED: return "Route approved";
-            case CANCELED: return "Route cancelled";
-            case REJECTED: return "Route rejected";
-            default: return "";
-            }
+    private String getStatusType(StrategicRouteMessage routeMessage, boolean isLatest) {
+        StringBuilder status = new StringBuilder();
+        status.append("<html>").append(routeMessage.getStatus());
+        if (isLatest && routeMessage.getCloudMessageStatus() != null) {
+            status.append("&nbsp;<small>(" + routeMessage.getCloudMessageStatus().getTitle() + ")</small>");
         }
+        return status.append("</html>").toString();
     }
 }

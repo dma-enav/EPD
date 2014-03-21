@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.service.ServiceEndpoint;
 import net.maritimecloud.net.service.invocation.InvocationCallback;
@@ -99,8 +100,15 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
                         new InvocationCallback<StrategicRouteMessage, StrategicRouteReply>() {
                             public void process(StrategicRouteMessage message,
                                     Context<StrategicRouteReply> context) {
-
+                                
+                                // The cloud status is transient, so this ought to be unnecessary
+                                message.setCloudMessageStatus(null);
+                                
+                                LOG.info("Shore received a strategic route request");
                                 handleStrategicRouteRequest(message, context.getCaller());
+
+                                // Acknowledge that the message has been handled 
+                                context.complete(new StrategicRouteReply(message.getId()));
                             }
                         }).awaitRegistered(4, TimeUnit.SECONDS);
     }
@@ -111,16 +119,11 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
      * @param mmsiDestination the destination mmsi
      * @param routeMessage the strategic route to send
      */
-    private void sendStrategicRenegotiateRequest(long mmsiDestination, StrategicRouteMessage routeMessage) {
+    private void sendStrategicRouteRequest(long mmsiDestination, StrategicRouteMessage routeMessage) {
 
-        ServiceEndpoint<StrategicRouteMessage, StrategicRouteReply> end 
-            = MaritimeCloudUtils.findServiceWithMmsi(strategicRouteShipList, (int)mmsiDestination);
-
-        if (end != null) {
-            end.invoke(routeMessage);
-
-        } else {
-            LOG.error("Failed to find ship with id " + mmsiDestination);
+        routeMessage.setCloudMessageStatus(CloudMessageStatus.NOT_SENT);
+        if (sendMaritimeCloudMessage(strategicRouteShipList, new MmsiId((int)mmsiDestination), routeMessage, this)) {
+            routeMessage.setCloudMessageStatus(CloudMessageStatus.SENT);
         }
     }
 
@@ -184,7 +187,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
             routeData.setStatus(StrategicRouteStatus.NEGOTIATING);
             routeData.setHandled(true);
 
-            sendStrategicRenegotiateRequest(routeData.getMmsi(), routeMessage);
+            sendStrategicRouteRequest(routeData.getMmsi(), routeMessage);
             notifyStrategicRouteListeners();
             
                 

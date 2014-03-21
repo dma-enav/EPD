@@ -15,15 +15,23 @@
  */
 package dk.dma.epd.common.prototype.service;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.bbn.openmap.MapHandlerChild;
 
+import net.maritimecloud.core.id.MaritimeId;
 import net.maritimecloud.net.MaritimeCloudClient;
+import net.maritimecloud.net.service.ServiceEndpoint;
+import net.maritimecloud.net.service.ServiceInvocationFuture;
+import net.maritimecloud.util.function.BiConsumer;
 import dk.dma.epd.common.prototype.service.MaritimeCloudServiceCommon.IMaritimeCloudListener;
 import dk.dma.epd.common.prototype.status.CloudStatus;
 
@@ -35,6 +43,8 @@ import dk.dma.epd.common.prototype.status.CloudStatus;
  * and register as a listener
  */
 public abstract class EnavServiceHandlerCommon extends MapHandlerChild implements IMaritimeCloudListener {
+   
+    private static final Logger LOG = LoggerFactory.getLogger(EnavServiceHandlerCommon.class);
     
     protected MaritimeCloudServiceCommon maritimeCloudService;
     private ScheduledExecutorService scheduler;
@@ -202,8 +212,127 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
     
     
     /****************************************/
+    /** Maritime Cloud messaging           **/
+    /****************************************/    
+
+    /**
+     * Sends the {@code message} to the service endpoint with the given {@code id} in the {@code serviceList}.
+     * <p>
+     * If the service endpoint is not found, this method will do nothing
+     *  
+     * @param serviceList the list of service endpoints
+     * @param id the maritime id of the service endpoint
+     * @param message the message to send
+     * @param statusListener if not {@code null}, the listener will be updated with the message status
+     * @return if the message was submitted to an endpoint
+     */
+    protected <M, R> boolean sendMaritimeCloudMessage(List<ServiceEndpoint<M, R>> serviceList, MaritimeId id, M message, 
+            ICloudMessageListener<M, R> statusListener) {
+        
+        // Look up the service endpoint
+        ServiceEndpoint<M, R> endpoint = MaritimeCloudUtils.findServiceWithId(serviceList, id);
+
+        if (endpoint != null) {
+            // Send the message
+            return sendMaritimeCloudMessage(endpoint, message, statusListener);
+            
+        } else {
+            LOG.error("No Maritime Cloud service endpoint. Message skipped: " + message);
+            return false;
+        }
+        
+    }
+    
+    /**
+     * Sends the {@code message} to the give service {@code endpoint}.
+     *  
+     * @param endpoint the service endpoints
+     * @param message the message to send
+     * @param statusListener if not {@code null}, the listener will be updated with the message status
+     * @return if the message was submitted to an endpoint
+     */
+    protected <M, R> boolean sendMaritimeCloudMessage(ServiceEndpoint<M, R> endpoint, final M message, final ICloudMessageListener<M, R> statusListener) {
+        
+        if (endpoint == null) {
+            return false;
+        }
+        
+        // Send the message
+        ServiceInvocationFuture<R> f = endpoint.invoke(message);
+        
+        if (statusListener != null) {
+            
+            // Register a consumer that will be called when the recipient has completed the request
+            f.handle(new BiConsumer<R, Throwable>() {
+                @Override
+                public void accept(R reply, Throwable r) {
+                    statusListener.messageHandled(message, reply);
+                }
+            });
+            
+            // Register a consumer that will be called when the Maritime Cloud has received the message
+            f.receivedByCloud().handle(new BiConsumer<Object, Throwable>() {
+                @Override
+                public void accept(Object l, Throwable r) {
+                    statusListener.messageReceivedByCloud(message);
+                }
+            }); 
+            
+            // TODO: Register a consumer that will be called when the client has received the message
+            // This has not yet been implemented by the Maritime Cloud
+        }
+        
+        LOG.info("Sent Maritime Cloud message: " +  message);
+        return true;
+    }
+    
+    
+    /****************************************/
     /** Helper classes                     **/
     /****************************************/
+    
+    public enum CloudMessageStatus {
+        NOT_SENT("not sent - check network status"),
+        SENT("sent"),
+        SENT_FAILED("failed to send message"),
+        RECEIVED_BY_CLOUD("sent and received by cloud"),
+        RECEIVED_BY_CLIENT("sent and received by client"),
+        HANDLED_BY_CLIENT("sent and acknowledged by client");
+        
+        String title;
+        
+        private CloudMessageStatus(String title) {
+            this.title = title;
+        }
+        
+        public String getTitle() { return title; }
+    }
+    
+    /**
+     * Can be implemented by status listeners passed along to the 
+     * {@linkplain #sendMaritimeCloudMessage()} function 
+     */
+    public interface ICloudMessageListener<M, R> {
+        
+        /**
+         * Called when the message is received by the cloud
+         * @param message the maritime cloud message
+         */
+        void messageReceivedByCloud(M message);
+        
+        /**
+         * Called when the message is received by the client
+         * @param message the maritime cloud message
+         */
+        void messageReceivedByClient(M message);
+        
+        /**
+         * Called when the message has been handled by the client
+         * @param message the maritime cloud message
+         * @param reply the reply
+         */
+        void messageHandled(M message, R reply);
+    }
     
     /**
      * Simple wrapper of the {@linkplain Runnable} interface

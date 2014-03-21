@@ -319,11 +319,9 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
         // Ensure that we operate in the Swing event thread
         if (!SwingUtilities.isEventDispatchThread()) {
             SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
+                @Override public void run() {
                     openNotificationCenter(type, maximized);
-                }
-            });
+                }});
             return;
         }
 
@@ -387,6 +385,23 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
     public void selectNotification(NotificationType notificationType, Object id) {
         setActiveType(notificationType);
         getPanel(notificationType).setSelectedId(id);
+    }
+
+    /**
+     * If the notification with the given type and id is the currently selected one,
+     * then refresh the selection.
+     * 
+     * @param notificationType the notification type
+     * @param id the id of the notification
+     */
+    public void checkRefreshSelection(final NotificationType notificationType, final Object id) {
+        if (notificationType == activeType) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override public void run() {
+                    getPanel(notificationType).checkRefreshSelection(id);
+                }
+            });
+        }
     }
 
     /**
