@@ -18,12 +18,34 @@ package dk.dma.epd.ship.settings.gui;
 import dk.dma.epd.common.prototype.settings.gui.IGUISettingsCommonObserver;
 
 /**
+ * Interface for observing {@link GUISettings} for changes.
+ * 
  * @author Janus Varmarken
  */
 public interface IGUISettingsObserver extends IGUISettingsCommonObserver {
 
+    /**
+     * Invoked when the setting, specifying if the AIS target details dock
+     * should always open when an AIS target has been selected (see
+     * {@link GUISettings#isAlwaysOpenDock()}), has changed.
+     * 
+     * @param alwaysOpenDock
+     *            The new value. Refer to {@link GUISettings#isAlwaysOpenDock()}
+     *            for its interpretation.
+     */
     void isAlwaysOpenDockChanged(boolean alwaysOpenDock);
-    
+
+    /**
+     * Invoked when the setting, specifying if an
+     * "Open AIS target details dock?" dialog should be shown, has changed.
+     * Refer to {@link GUISettings#isShowDockMessage()} for details of this
+     * setting.
+     * 
+     * @param showDockMessage
+     *            The new value. Refer to
+     *            {@link GUISettings#isShowDockMessage()} for its
+     *            interpretation.
+     */
     void isShowDockMessageChanged(boolean showDockMessage);
-    
+
 }
