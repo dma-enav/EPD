@@ -32,21 +32,21 @@ import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.service.ServiceEndpoint;
 import net.maritimecloud.net.service.ServiceInvocationFuture;
 import net.maritimecloud.util.function.BiConsumer;
-import dk.dma.epd.common.prototype.service.MaritimeCloudServiceCommon.IMaritimeCloudListener;
+import dk.dma.epd.common.prototype.service.MaritimeCloudService.IMaritimeCloudListener;
 import dk.dma.epd.common.prototype.status.CloudStatus;
 
 
 /**
  * Abstract base for all e-Navigation services.
  * <p>
- * The base implementation will hook up to the {@linkplain MaritimeCloudServiceCommon}
+ * The base implementation will hook up to the {@linkplain MaritimeCloudService}
  * and register as a listener
  */
 public abstract class EnavServiceHandlerCommon extends MapHandlerChild implements IMaritimeCloudListener {
    
     private static final Logger LOG = LoggerFactory.getLogger(EnavServiceHandlerCommon.class);
     
-    protected MaritimeCloudServiceCommon maritimeCloudService;
+    protected MaritimeCloudService maritimeCloudService;
     private ScheduledExecutorService scheduler;
     private final int schedulerPoolSize;
 
@@ -66,10 +66,10 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
     }
     
     /**
-     * Returns a reference to the {@linkplain MaritimeCloudServiceCommon}
-     * @return a reference to the {@linkplain MaritimeCloudServiceCommon}
+     * Returns a reference to the {@linkplain MaritimeCloudService}
+     * @return a reference to the {@linkplain MaritimeCloudService}
      */
-    public synchronized MaritimeCloudServiceCommon getMaritimeCloudService() {
+    public synchronized MaritimeCloudService getMaritimeCloudService() {
         return maritimeCloudService;
     }
     
@@ -106,8 +106,8 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
         
-        if (obj instanceof MaritimeCloudServiceCommon) {
-            maritimeCloudService = (MaritimeCloudServiceCommon)obj;
+        if (obj instanceof MaritimeCloudService) {
+            maritimeCloudService = (MaritimeCloudService)obj;
             maritimeCloudService.addListener(this);
         }
     }
@@ -118,7 +118,7 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
     @Override
     public void findAndUndo(Object obj) {        
         
-        if (obj instanceof MaritimeCloudServiceCommon) {
+        if (obj instanceof MaritimeCloudService) {
             maritimeCloudService.removeListener(this);
             maritimeCloudService = null;
         }

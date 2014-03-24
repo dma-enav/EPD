@@ -43,7 +43,7 @@ import dk.dma.epd.common.util.Util;
  * Service that provides an interface to the Maritime Cloud connection.
  * <p>
  * For technical reasons, each application should only have one live connection to the maritime cloud.<br/>
- * The purpose of the {@code MaritimeCloudServiceCommon} is to be the only access point to this service.
+ * The purpose of the {@code MaritimeCloudService} is to be the only access point to this service.
  * <p>
  * Clients of this service should hook up a listeners to be notified when the service is running or stopped.
  * <p>
@@ -52,7 +52,7 @@ import dk.dma.epd.common.util.Util;
  * <li>Perform listener tasks in a thread pool</li>
  * </ul>
  */
-public abstract class MaritimeCloudServiceCommon extends MapHandlerChild implements Runnable, IStatusComponent {
+public class MaritimeCloudService extends MapHandlerChild implements Runnable, IStatusComponent {
 
     /**
      * Set this flag to true, if you want to log all messages sent and received by the {@linkplain MaritimeCloudClient}
@@ -60,7 +60,7 @@ public abstract class MaritimeCloudServiceCommon extends MapHandlerChild impleme
     private static final boolean LOG_MARITIME_CLOUD_ACTIVITY = false;
     private static final int MARITIME_CLOUD_SLEEP_TIME = 10000;
 
-    private static final Logger LOG = LoggerFactory.getLogger(MaritimeCloudServiceCommon.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MaritimeCloudService.class);
 
     protected MaritimeCloudClient connection;
 
@@ -72,7 +72,7 @@ public abstract class MaritimeCloudServiceCommon extends MapHandlerChild impleme
     /**
      * Constructor
      */
-    public MaritimeCloudServiceCommon() {
+    public MaritimeCloudService() {
     }
 
     /**
@@ -91,20 +91,6 @@ public abstract class MaritimeCloudServiceCommon extends MapHandlerChild impleme
     public MaritimeCloudClient getConnection() {
         return connection;
     }
-
-    /**
-     * Returns the maritime id to connect with
-     * 
-     * @return the maritime id to connect with
-     */
-    public abstract MaritimeId getMaritimeId();
-
-    /**
-     * Returns the current position
-     * 
-     * @return the current position
-     */
-    public abstract Position getCurrentPosition();
 
     /**
      * Returns the cloud status
@@ -170,8 +156,10 @@ public abstract class MaritimeCloudServiceCommon extends MapHandlerChild impleme
         // Start by connecting
         while (!stopped) {
             Util.sleep(MARITIME_CLOUD_SLEEP_TIME);
-            if (getMaritimeId() != null) {
-                if (initConnection(hostPort, getMaritimeId())) {
+            
+            MaritimeId id = EPD.getInstance().getMaritimeId();
+            if (id != null) {
+                if (initConnection(hostPort, id)) {
                     try {
                         fireConnected(connection);
                     } catch (Exception e) {
@@ -204,7 +192,7 @@ public abstract class MaritimeCloudServiceCommon extends MapHandlerChild impleme
             @Override
             public PositionTime getCurrentPosition() {
                 long now = System.currentTimeMillis();
-                Position pos = MaritimeCloudServiceCommon.this.getCurrentPosition();
+                Position pos = EPD.getInstance().getPosition();
                 if (pos != null) {
                     return PositionTime.create(pos.getLatitude(), pos.getLongitude(), now);
                 } else {

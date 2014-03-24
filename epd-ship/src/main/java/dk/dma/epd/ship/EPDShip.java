@@ -33,6 +33,9 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +64,7 @@ import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.sensor.rpnt.MultiSourcePntHandler;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
+import dk.dma.epd.common.prototype.service.MaritimeCloudService;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.settings.SensorSettings.PntSourceSetting;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
@@ -78,7 +82,6 @@ import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.risk.RiskHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.IntendedRouteHandler;
-import dk.dma.epd.ship.service.MaritimeCloudService;
 import dk.dma.epd.ship.service.RouteSuggestionHandler;
 import dk.dma.epd.ship.service.StrategicRouteHandler;
 import dk.dma.epd.ship.service.shore.ShoreServices;
@@ -115,7 +118,6 @@ public final class EPDShip extends EPD {
     private VOCTManager voctManager;
 
     // Maritime Cloud services
-    private MaritimeCloudService maritimeCloudService;
     private IntendedRouteHandler intendedRouteHandler;
     private RouteSuggestionHandler routeSuggestionHandler;
 
@@ -741,6 +743,35 @@ public final class EPDShip extends EPD {
             }
         }
     }
+    
+    /**
+     * Returns the MMSI of the own-ship, or null if not defined
+     * @return the MMSI of the own-ship
+     */
+    @Override
+    public Long getMmsi() {
+        return ownShipHandler != null ? ownShipHandler.getMmsi() : null;
+    }
+
+    /**
+     * Returns the maritime id of the own-ship, or null if not defined
+     * @return the maritime id of the own-ship
+     */
+    @Override
+    public MaritimeId getMaritimeId() {
+        Long mmsi = getMmsi();
+        return mmsi != null ? new MmsiId(mmsi.intValue()) : null;
+    }
+
+    /**
+     * Returns the current position of the ship
+     * @return the current position of the ship
+     */
+    @Override
+    public Position getPosition() {
+        return getPntHandler().getCurrentData().getPosition();
+    }
+
 
     public NmeaSensor getAisSensor() {
         return aisSensor;
@@ -759,16 +790,6 @@ public final class EPDShip extends EPD {
     }
 
     /**
-     * Returns the current position of the ship
-     * 
-     * @return the current position of the ship
-     */
-    @Override
-    public Position getPosition() {
-        return getPntHandler().getCurrentData().getPosition();
-    }
-
-    /**
      * Returns a reference to the AIS handler
      * @return a reference to the AIS handler
      */
@@ -781,14 +802,6 @@ public final class EPDShip extends EPD {
         return ownShipHandler;
     }
     
-    /**
-     * Returns the MMSI of the own-ship, or null if not defined
-     * @return the MMSI of the own-ship
-     */
-    public Long getOwnShipMmsi() {
-        return ownShipHandler != null ? ownShipHandler.getMmsi() : null;
-    }
-
     public RouteManager getRouteManager() {
         return routeManager;
     }
@@ -804,11 +817,6 @@ public final class EPDShip extends EPD {
     public MonaLisaRouteOptimization getMonaLisaRouteExchange() {
         return monaLisaRouteExchange;
     }
-
-    public MaritimeCloudService getMaritimeCloudService() {
-        return maritimeCloudService;
-    }
-
     
     public double elapsed(long start) {
         double elapsed = System.nanoTime() - start;

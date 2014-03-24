@@ -23,15 +23,13 @@ import net.maritimecloud.core.id.MaritimeId;
 
 import com.bbn.openmap.gui.OMComponentPanel;
 
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.ChatService.ChatServiceMessage;
-import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatServiceListener;
-import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon.StrategicRouteListener;
 import dk.dma.epd.common.text.Formatter;
-import dk.dma.epd.ship.ais.AisHandler;
 import dk.dma.epd.ship.gui.panels.STCCCommunicationPanel;
 import dk.dma.epd.ship.service.StrategicRouteHandler;
 
@@ -46,8 +44,6 @@ public class STCCCommunicationComponentPanel extends OMComponentPanel implements
     private PntTime gnssTime;
     private StrategicRouteHandler strategicRouteHandler;
     private ChatServiceHandlerCommon chatServiceHandler;
-    private IdentityHandler identityHandler;
-    private AisHandler aisHandler;
 
     public STCCCommunicationComponentPanel() {
         super();
@@ -84,17 +80,14 @@ public class STCCCommunicationComponentPanel extends OMComponentPanel implements
         } else if (obj instanceof ChatServiceHandlerCommon && chatServiceHandler == null) {
             chatServiceHandler = (ChatServiceHandlerCommon) obj;
             chatServiceHandler.addListener(this);
-        } else if (obj instanceof IdentityHandler && identityHandler == null) {
-            identityHandler = (IdentityHandler) obj;
         }
-
     }
 
     @Override
     public void strategicRouteUpdate() {
-        System.out.println("Strategic route update?? yes please");
-        if (strategicRouteHandler.getStccMmsi() != null) {
-            commsPanel.activateChat(strategicRouteHandler.getStccMmsi().intValue());
+        Long stccMmsi = strategicRouteHandler.getStccMmsi();
+        if (stccMmsi != null) {
+            commsPanel.activateChat(stccMmsi.intValue());
         } else {
             commsPanel.deactivateChat();
         }
@@ -103,8 +96,7 @@ public class STCCCommunicationComponentPanel extends OMComponentPanel implements
 
     @Override
     public void chatMessageReceived(MaritimeId senderId, ChatServiceMessage message) {
-        int id = MaritimeCloudUtils.toMmsi(senderId);
-        String senderName = getActorName(id);
+        String senderName = EPD.getInstance().getName(senderId);
         String chatMessage = Formatter.formateTimeFromDate(message.getSendDate()) + " - " + senderName + " : "
                 + message.getMessage();
 
@@ -120,22 +112,4 @@ public class STCCCommunicationComponentPanel extends OMComponentPanel implements
 
         commsPanel.addChatMessage(chatMessage);
     }
-
-    private String getActorName(int id) {
-        String actorName = id + "";
-
-        // Look up name in identityHandler and aisHandler, if none exists use the given one
-        if (identityHandler.actorExists(id)) {
-            actorName = identityHandler.getActor(id).getName();
-        } else {
-            if (aisHandler.getVesselTarget((long) id) != null) {
-                if (aisHandler.getVesselTarget((long) id).getStaticData() != null) {
-                    actorName = aisHandler.getVesselTarget((long) id).getStaticData().getName();
-                }
-            }
-        }
-
-        return actorName;
-    }
-
 }

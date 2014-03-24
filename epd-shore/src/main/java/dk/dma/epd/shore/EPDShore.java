@@ -27,6 +27,9 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import net.maritimecloud.core.id.MaritimeId;
+import net.maritimecloud.core.id.MmsiId;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +58,8 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaTcpSensor;
 import dk.dma.epd.common.prototype.sensor.pnt.PntTime;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
+import dk.dma.epd.common.prototype.service.MaritimeCloudService;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.util.VersionInfo;
@@ -67,7 +72,6 @@ import dk.dma.epd.shore.gui.utils.StaticImages;
 import dk.dma.epd.shore.gui.views.MainFrame;
 import dk.dma.epd.shore.route.RouteManager;
 import dk.dma.epd.shore.service.IntendedRouteHandler;
-import dk.dma.epd.shore.service.MaritimeCloudService;
 import dk.dma.epd.shore.service.MonaLisaRouteOptimization;
 import dk.dma.epd.shore.service.RouteSuggestionHandler;
 import dk.dma.epd.shore.service.StrategicRouteHandler;
@@ -103,7 +107,6 @@ public final class EPDShore extends EPD {
     private VoyageManager voyageManager;
 
     // Maritime Cloud services
-    private MaritimeCloudService maritimeCloudService;
     private RouteSuggestionHandler routeSuggestionHandler;
     private IntendedRouteHandlerCommon intendedRouteHandler;
 
@@ -493,9 +496,32 @@ public final class EPDShore extends EPD {
     }
 
     /**
-     * Returns the current position of the ship
-     * 
-     * @return the current position of the ship
+     * Returns the MMSI of the shore center, or null if not defined
+     * @return the MMSI of the shore center
+     */
+    @Override
+    public Long getMmsi() {
+        String shoreID = getSettings().getEnavSettings().getShoreId();
+        if (shoreID == null || !StringUtils.isNumeric(shoreID) || 
+                !shoreID.startsWith(MaritimeCloudUtils.STCC_MMSI_PREFIX)) {
+            return null;        
+        }
+        return Long.parseLong((String)shoreID.subSequence(0, 9));
+    }
+
+    /**
+     * Returns the maritime id of the shore center, or null if not defined
+     * @return the maritime id of the shore center
+     */
+    @Override
+    public MaritimeId getMaritimeId() {
+        Long mmsi = getMmsi();
+        return (mmsi != null) ? new MmsiId(getMmsi().intValue()) : null;
+    }
+
+    /**
+     * Returns the current position of the shore center
+     * @return the current position of the shore center
      */
     @Override
     public Position getPosition() {

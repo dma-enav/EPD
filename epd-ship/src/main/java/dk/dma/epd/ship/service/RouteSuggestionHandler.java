@@ -23,11 +23,11 @@ import org.slf4j.LoggerFactory;
 import net.maritimecloud.net.MaritimeCloudClient;
 import net.maritimecloud.net.service.invocation.InvocationCallback;
 import net.maritimecloud.net.service.invocation.InvocationCallback.Context;
+import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionMessage;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionReply;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
-import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon;
 import dk.dma.epd.common.prototype.service.InvocationCallbackContextMap;
 import dk.dma.epd.ship.EPDShip;
@@ -71,7 +71,7 @@ public class RouteSuggestionHandler extends EnavServiceHandlerCommon {
                                 RouteSuggestionMessage message,
                                 Context<RouteSuggestionReply> context) {
 
-routeExchangeContexts.put(message.getId(), context);
+                            routeExchangeContexts.put(message.getId(), context);
 
                             SuggestedRoute suggestedRoute = new SuggestedRoute(
                                     message);
@@ -96,12 +96,12 @@ routeExchangeContexts.put(message.getId(), context);
      */
     public void sendRouteExchangeReply(RouteSuggestionStatus receivedAccepted, long id, String message) {
         try {
-            long ownMmsi = (maritimeCloudService.getMaritimeId() == null) ? -1 : MaritimeCloudUtils.toMmsi(maritimeCloudService.getMaritimeId());
+            Long ownMmsi = EPD.getInstance().getMmsi();
             if (routeExchangeContexts.containsKey(id)) {
                 routeExchangeContexts.remove(id).complete(new RouteSuggestionReply(
                         message, 
                         id, 
-                        ownMmsi, 
+                        ownMmsi == null ? -1 : ownMmsi, 
                         System.currentTimeMillis(), 
                         receivedAccepted));
             } else {

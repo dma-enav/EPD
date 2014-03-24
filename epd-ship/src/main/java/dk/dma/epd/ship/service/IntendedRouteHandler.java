@@ -293,7 +293,7 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
      * @return the own-ship MMSI
      */
     public Long getOwnShipMmsi() {
-        Long ownShipMmsi = EPDShip.getInstance().getOwnShipMmsi();
+        Long ownShipMmsi = EPDShip.getInstance().getMmsi();
         return (ownShipMmsi != null) ? ownShipMmsi : -1L;
     }
 

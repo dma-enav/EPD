@@ -29,6 +29,7 @@ import java.util.Properties;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
+import net.maritimecloud.core.id.MaritimeId;
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.Resources;
 import dk.dma.epd.common.prototype.ais.AisHandlerCommon;
@@ -40,6 +41,8 @@ import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
 import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
+import dk.dma.epd.common.prototype.service.MaritimeCloudService;
+import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
@@ -58,6 +61,7 @@ public abstract class EPD implements ISettingsListener {
     protected volatile Path homePath;
     
     // Common services
+    protected MaritimeCloudService maritimeCloudService;
     protected ChatServiceHandlerCommon chatServiceHandler;
     protected AisHandlerCommon aisHandler;
     protected MsiHandler msiHandler;
@@ -222,6 +226,10 @@ public abstract class EPD implements ISettingsListener {
         return strategicRouteHandler;
     }
     
+    public MaritimeCloudService getMaritimeCloudService() {
+        return maritimeCloudService;
+    }
+    
     public IdentityHandler getIdentityHandler(){
         return identityHandler;
     }
@@ -239,6 +247,49 @@ public abstract class EPD implements ISettingsListener {
      * @return the current position of the EPD system
      */
     public abstract Position getPosition();
+    
+    /**
+     * Returns the MMSI of the EPD system
+     * @return the MMSI of the EPD system
+     */
+    public abstract Long getMmsi();
+
+    /**
+     * Returns the maritime id of the EPD system
+     * @return the maritime id of the EPD system
+     */
+    public abstract MaritimeId getMaritimeId();
+    
+    /**
+     * Returns the name associated with the given maritime id.
+     * If the id is defined as a maritime cloud service, the associated name is used.
+     * Otherwise, if the id is that of an AIS vessel target, the associated name is used.
+     * Otherwise, the MMSI is returned as the name.
+     * 
+     * @param id the maritime id
+     * @return the name associated with the id
+     */
+    public String getName(MaritimeId id) {
+        Integer mmsi = MaritimeCloudUtils.toMmsi(id);
+        if (mmsi == null) {
+            return "N/A";
+        }
+        
+        // Default name is MMSI
+        String name = String.valueOf(mmsi);
+
+        // Look up name in identityHandler and aisHandler, if none exists use the given one
+        if (identityHandler.actorExists(mmsi.longValue())) {
+            name = identityHandler.getActor(mmsi.longValue()).getName();
+            
+        } else if (MaritimeCloudUtils.isShip(id) &&
+                aisHandler.getVesselTarget(mmsi.longValue()) != null &&
+                aisHandler.getVesselTarget(mmsi.longValue()).getStaticData() != null) {
+            name = aisHandler.getVesselTarget(mmsi.longValue()).getStaticData().getTrimmedName();
+        }
+
+        return name;
+    }
     
     /**
      * Returns the default shore mouse mode service list

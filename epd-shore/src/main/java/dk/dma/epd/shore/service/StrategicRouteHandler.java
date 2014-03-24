@@ -36,7 +36,6 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRout
 import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
-import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.voyage.Voyage;
 import dk.dma.epd.shore.voyage.VoyageManager;
 
@@ -63,15 +62,6 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
                 fetchStrategicRouteShipList();
             }}, 13, 61, TimeUnit.SECONDS);
 
-    }
-
-    
-    /**
-     * @return the ownMMSI
-     */
-    public long getOwnMMSI() {
-        String shoreID = (String) EPDShore.getInstance().getSettings().getEnavSettings().getShoreId().subSequence(0, 9);
-        return Long.parseLong(shoreID);
     }
     
     /**

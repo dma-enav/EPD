@@ -298,11 +298,7 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
     /**
      * @return the stccMmsi
      */
-    public Long getStccMmsi() {
-        System.out.println("Transaction id is " + transactionId);
-        System.out.println(strategicRouteNegotiationData == null);
-        System.out.println("Is there some data? " + strategicRouteNegotiationData.containsKey(transactionId));
-        System.out.println("and the mmsi is " + strategicRouteNegotiationData.get(transactionId).getMmsi());
+    public synchronized Long getStccMmsi() {
         return (transactionId != null && strategicRouteNegotiationData.containsKey(transactionId))
                 ? strategicRouteNegotiationData.get(transactionId).getMmsi()
                 : null;

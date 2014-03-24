@@ -51,7 +51,6 @@ import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.ais.VesselStaticData;
 import dk.dma.epd.common.prototype.ais.VesselTarget;
 import dk.dma.epd.common.prototype.enavcloud.ChatService.ChatServiceMessage;
-import dk.dma.epd.common.prototype.model.identity.IdentityHandler;
 import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
@@ -96,7 +95,6 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
     private JTextField chatMsgField;
     private JButton sendChatBtn;
 
-    private IdentityHandler identityHandler;
     private JScrollPane scrollPane;
 
     /**
@@ -282,9 +280,6 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
     private void setListeners(){
         
         EPD.getInstance().getChatServiceHandler().addListener(this);
-        
-        this.identityHandler = EPD.getInstance().getIdentityHandler();
- 
     }
     
     private Action sendChatMsg = new AbstractAction("sendChatMsg") {
@@ -440,8 +435,7 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
 
     @Override
     public void chatMessageReceived(MaritimeId senderId, ChatServiceMessage message) {
-        int id = MaritimeCloudUtils.toMmsi(senderId);
-        String senderName = getActorName(id);
+        String senderName = EPD.getInstance().getName(senderId);
         String chatMessage = Formatter.formateTimeFromDate(message.getSendDate()) + " - " + senderName + " : "
                 + message.getMessage();
 
@@ -457,23 +451,4 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
 
         addChatMessage(chatMessage);
     }
-
-    private String getActorName(int id) {
-        String actorName = id + "";
-
-        // Look up name in identityHandler and aisHandler, if none exists use the given one
-        if (identityHandler.actorExists(id)) {
-            actorName = identityHandler.getActor(id).getName();
-        } else {
-            if (aisHandler.getVesselTarget((long) id) != null) {
-                if (aisHandler.getVesselTarget((long) id).getStaticData() != null) {
-                    actorName = aisHandler.getVesselTarget((long) id).getStaticData().getName();
-                }
-            }
-        }
-
-        return actorName;
-    }
-
-
 }

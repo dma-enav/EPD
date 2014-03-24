@@ -49,7 +49,7 @@ import dk.dma.epd.common.prototype.gui.notification.NotificationPanel.Notificati
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.NotificationType;
-import dk.dma.epd.common.prototype.service.MaritimeCloudServiceCommon;
+import dk.dma.epd.common.prototype.service.MaritimeCloudService;
 import dk.dma.epd.common.prototype.shoreservice.ShoreServicesCommon;
 import dk.dma.epd.common.prototype.status.IStatusComponent;
 
@@ -64,7 +64,7 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
     
     private ShoreServicesCommon shoreServices;
     private AisHandlerCommon aisHandler;
-    private MaritimeCloudServiceCommon maritimeCloudService;
+    private MaritimeCloudService maritimeCloudService;
 
     private StatusLabel aisStatus = new StatusLabel("AIS");
     private StatusLabel shoreServiceStatus = new StatusLabel("Shore services");
@@ -173,8 +173,8 @@ public class BottomPanelCommon extends OMComponentPanel implements MouseListener
         } else if (obj instanceof ShoreServicesCommon) {
             shoreServices = (ShoreServicesCommon) obj;
             statusComponents.add(shoreServices);
-        } else if (obj instanceof MaritimeCloudServiceCommon) {
-            maritimeCloudService = (MaritimeCloudServiceCommon) obj;
+        } else if (obj instanceof MaritimeCloudService) {
+            maritimeCloudService = (MaritimeCloudService) obj;
             statusComponents.add(maritimeCloudService);
         } else if (obj instanceof NotificationCenterCommon) {
             addNotificationCenter((NotificationCenterCommon) obj);
