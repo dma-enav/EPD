@@ -47,6 +47,7 @@ import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverit
 import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
+import dk.dma.epd.common.text.Formatter;
 
 public class STCCCommunicationPanel extends JPanel implements ActionListener {
 
@@ -208,11 +209,52 @@ public class STCCCommunicationPanel extends JPanel implements ActionListener {
 
     public void activateChat(int stccMmsi) {
         this.stccMmsi = stccMmsi;
+        if (!txtField.isEnabled()) {
+            chatMessages.setText("");
+            retrieveExistingMessages();
+        }
+
+        
         sendBtn.setEnabled(true);
         txtField.setEnabled(true);
-        chatMessages.setText("");
+
     }
 
+    private void retrieveExistingMessages() {
+
+        long mmsi = stccMmsi;
+
+        List<ChatServiceMessage> chatConversations = EPD.getInstance().getChatServiceHandler().getChatMessagesForID((int) mmsi);
+
+        if (chatConversations != null) {
+
+            for (int i = 0; i < chatConversations.size(); i++) {
+                ChatServiceMessage message = chatConversations.get(i);
+
+                String senderName = "";
+
+                if (message.getRecipientID() == mmsi) {
+                    // Message was sent by us
+                    senderName = "You";
+                } else {
+                    // Message was sent to us
+                    senderName = EPD.getInstance().getName(MaritimeCloudUtils.toMaritimeId((int) mmsi));
+                }
+
+                String chatMessage = Formatter.formateTimeFromDate(message.getSendDate()) + " - " + senderName + " : "
+                        + message.getMessage();
+
+                addChatMessage(chatMessage);
+            }
+
+        }else{
+            System.out.println("No messages for " + mmsi);
+        }
+
+    }
+    
+    
+    
     public void deactivateChat() {
         this.stccMmsi = -1;
         sendBtn.setEnabled(false);

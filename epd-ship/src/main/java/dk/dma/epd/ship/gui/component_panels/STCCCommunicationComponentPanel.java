@@ -87,8 +87,10 @@ public class STCCCommunicationComponentPanel extends OMComponentPanel implements
     public void strategicRouteUpdate() {
         Long stccMmsi = strategicRouteHandler.getStccMmsi();
         if (stccMmsi != null) {
+            System.out.println("Activating chat");
             commsPanel.activateChat(stccMmsi.intValue());
         } else {
+            System.out.println("Deactivating chat");
             commsPanel.deactivateChat();
         }
 

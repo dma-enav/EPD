@@ -17,20 +17,18 @@ package dk.dma.epd.common.prototype.enavcloud;
 
 import java.util.List;
 
-import dk.dma.epd.common.prototype.notification.NotificationAlert;
-import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
 import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
 import net.maritimecloud.net.service.spi.ServiceMessage;
+import dk.dma.epd.common.prototype.notification.Notification.NotificationSeverity;
+import dk.dma.epd.common.prototype.notification.NotificationAlert;
 
 /**
- * A maritime cloud service used for sending messages
- * between maritime entities such as ship and shore.
+ * A maritime cloud service used for sending messages between maritime entities such as ship and shore.
  */
 public class ChatService {
 
     /** An initiation point */
-    public static final ServiceInitiationPoint<ChatServiceMessage> INIT = new ServiceInitiationPoint<>(
-            ChatServiceMessage.class);
+    public static final ServiceInitiationPoint<ChatServiceMessage> INIT = new ServiceInitiationPoint<>(ChatServiceMessage.class);
 
     /**
      * The chat service message
@@ -38,23 +36,25 @@ public class ChatService {
     public static class ChatServiceMessage extends ServiceMessage<Void> {
 
         private String message;
-        private long id;
         private String senderName;
         private long sendDate;
         private NotificationSeverity severity;
         private List<NotificationAlert> alerts;
-        
+        private long id;
+        private long recipientID;
+
         public ChatServiceMessage() {
         }
 
         /**
          * @param message
          */
-        public ChatServiceMessage(String message, long id, long sendDate, String senderName) {
+        public ChatServiceMessage(long recipientID, String message, long id, long sendDate, String senderName) {
             this.message = message;
             this.id = id;
             this.sendDate = sendDate;
             this.senderName = senderName;
+            this.recipientID = recipientID;
         }
 
         public String getMessage() {
@@ -63,14 +63,6 @@ public class ChatService {
 
         public void setMessage(String message) {
             this.message = message;
-        }
-
-        public long getId() {
-            return id;
-        }
-
-        public void setId(long id) {
-            this.id = id;
         }
 
         public String getSenderName() {
@@ -88,7 +80,7 @@ public class ChatService {
         public void setSendDate(long sendDate) {
             this.sendDate = sendDate;
         }
-        
+
         public NotificationSeverity getSeverity() {
             return severity;
         }
@@ -104,5 +96,37 @@ public class ChatService {
         public void setAlerts(List<NotificationAlert> alerts) {
             this.alerts = alerts;
         }
+
+        /**
+         * @return the recipientID
+         */
+        public long getRecipientID() {
+            return recipientID;
+        }
+
+        /**
+         * @param recipientID
+         *            the recipientID to set
+         */
+        public void setRecipientID(long recipientID) {
+            this.recipientID = recipientID;
+        }
+
+        /**
+         * @return the id
+         */
+        public long getId() {
+            return id;
+        }
+
+        /**
+         * @param id the id to set
+         */
+        public void setId(long id) {
+            this.id = id;
+        }
+
+        
+        
     }
 }

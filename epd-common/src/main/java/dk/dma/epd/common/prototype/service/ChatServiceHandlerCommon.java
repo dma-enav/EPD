@@ -125,32 +125,28 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
             List<NotificationAlert> alerts) {
 
         Integer mmsi = MaritimeCloudUtils.toMmsi(targetId);
-        long id = System.currentTimeMillis();
+        long messageID = System.currentTimeMillis();
 
         // Find a matching chat end point
         ServiceEndpoint<ChatServiceMessage, Void> end = MaritimeCloudUtils.findServiceWithMmsi(chatServiceList, (int) mmsi);
 
         // Create a new chat message
-        ChatServiceMessage chatMessage = new ChatServiceMessage(message, id, System.currentTimeMillis(), sender);
+        ChatServiceMessage chatMessage = new ChatServiceMessage(mmsi, message, messageID, System.currentTimeMillis(), sender);
         chatMessage.setSeverity(severity);
         chatMessage.setAlerts(alerts);
 
-        LOG.info("Sending chat messasge to mmsi: " + mmsi + " with ID: " + chatMessage.getId());
+        LOG.info("Sending chat messasge to mmsi: " + mmsi + " with ID: " + chatMessage.getRecipientID());
 
-        
-        //Store the message
-        if (!chatMessages.contains(mmsi)) {
+        // Store the message
+        if (!chatMessages.containsKey(mmsi)) {
             chatMessages.put(mmsi, new ArrayList<ChatServiceMessage>());
         }
         chatMessages.get(mmsi).add(chatMessage);
 
-        //Notify listeners
+        // Notify listeners
         for (IChatServiceListener listener : listeners) {
             listener.chatMessageSent(targetId, chatMessage);
         }
-        
-        
-        
 
         if (end != null) {
             end.invoke(chatMessage);
@@ -159,6 +155,23 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
             LOG.error("Could not find chat service for MMSI " + mmsi);
         }
 
+    }
+
+    /**
+     * Returns all the stored chat messages
+     * 
+     * @return the chatMessages
+     */
+    public ConcurrentHashMap<Integer, List<ChatServiceMessage>> getChatMessages() {
+        return chatMessages;
+    }
+
+    public List<ChatServiceMessage> getChatMessagesForID(int mmsi) {
+        if (chatMessages.containsKey(mmsi)) {
+            return chatMessages.get(mmsi);
+        }
+
+        return null;
     }
 
     /**
@@ -171,7 +184,7 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
      */
     protected void receiveChatMessage(MaritimeId senderId, ChatServiceMessage message) {
         int id = MaritimeCloudUtils.toMmsi(senderId);
-        if (!chatMessages.contains(id)) {
+        if (!chatMessages.containsKey(id)) {
             chatMessages.put(id, new ArrayList<ChatServiceMessage>());
         }
         chatMessages.get(id).add(message);
@@ -216,7 +229,6 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
          */
         void chatMessageReceived(MaritimeId senderId, ChatServiceMessage message);
 
-        
         /**
          * Called upon sending a new chat message
          * 
