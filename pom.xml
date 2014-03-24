@@ -11,7 +11,7 @@
 
 	<groupId>dk.dma.epd</groupId>
 	<artifactId>epd-parent</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>3.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>EPD Parent</name>
 	<description>eNavigation Prototype Display parent module</description>
