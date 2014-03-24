@@ -309,33 +309,9 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
             m.marshal(monaLisaRoute, st);
             xml = st.toString();
 
-            xml = xml.replace("<ns2:RouteRequest xmlns:ns2=\"http://www.sspa.se/optiroute\"",
-                    "<RouteRequest xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\"");
-            xml = xml.replace("xmlns=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">",
-                    "xmlns=\"http://www.sspa.se/optiroute\">");
-
-            xml = xml.replace("ns2:", "");
-            xml = xml.replace(":ns2", "");
-            xml = xml.replace(":ns2", "");
-
-            xml = xml.replace("waypoints>", "fi:waypoints>");
-            xml = xml.replace("waypoint>", "fi:waypoint>");
-
-            xml = xml.replace("wpt-id", "fi:wpt-id");
-            xml = xml.replace("ETA", "fi:ETA");
-            xml = xml.replace("wpt-name", "fi:wpt-name");
-            xml = xml.replace("position", "fi:position");
-            xml = xml.replace("latitude", "fi:latitude");
-            xml = xml.replace("longitude", "fi:longitude");
-
-            // fix later maybe?
-
-             if (showInput) {
-             new XMLDialog(xml, "Sent XML");
-             }
-
-            // System.out.println("Sending the following:");
-            // System.out.println(xml);
+            if (showInput) {
+		    new XMLDialog(xml, "Sent XML");
+            }
 
             // Create HTTP request
             RouteHttp routeHttp = new RouteHttp(enavSettings);
@@ -344,7 +320,6 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
             // Set content
             routeHttp.setRequestBody(xml);
 
-            // routeHttp.set
             // Make request
             try {
                 routeHttp.makeRequest();
@@ -357,43 +332,29 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
             }
 
         } catch (JAXBException e) {
-            // TODO Auto-generated catch block
-            return new SSPAResponse(null, e.getMessage());
+		// TODO Auto-generated catch block
+		return new SSPAResponse(null, e.getMessage());
         }
 
          if (showOutput) {
-         new XMLDialog(xmlReturnRoute, "Returned XML");
+		 new XMLDialog(xmlReturnRoute, "Returned XML");
          }
 
-        if (xmlReturnRoute.contains("<ErrorResponse xmlns=\"http://www.sspa.se/optiroute\">")) {
-            String errorMessage = xmlReturnRoute.split("<ErrorResponse xmlns=\"http://www.sspa.se/optiroute\">")[1]
-                    .split("</ErrorResponse>")[0];
+	 String responseMessage = xmlReturnRoute.split("<ResponseMessage>")[1].split("</ResponseMessage>")[0];
 
-            errorMessage = errorMessage.trim();
-            return new SSPAResponse(null, errorMessage);
-
-        } else {
+	 // This means there was an error inside the server
+	 if(responseMessage.length() > 0){
+		 return new SSPAResponse(null, responseMessage);
+	 } else {
             if (xmlReturnRoute != null) {
                 if (xmlReturnRoute.length() > 300000) {
                     System.out.println("Failed to receive a route in the area, buffer timedout");
                     return new SSPAResponse(null, "Failed to receive a route in the area, buffer timedout");
                 }
 
-                xmlReturnRoute = xmlReturnRoute
-                        .replace(
-                                "<RouteResponse xmlns:fi=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\" xmlns=\"http://www.sspa.se/optiroute\">",
-                                "<RouteResponse xmlns=\"http://www.sspa.se/optiroute\" xmlns:ns2=\"http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange\">");
-
-                xmlReturnRoute=                xmlReturnRoute.replace("fi", "ns2");
-
-                // System.out.println(xmlReturnRoute);
-
                 Unmarshaller u;
                 JAXBContext jc;
                 RouteresponseType routeResponse = null;
-
-                // xmlReturnRoute = xmlReturnRoute.replace("RouteResponse",
-                // "routeresponseType");
 
                 StringReader sr = new StringReader(xmlReturnRoute);
 
@@ -411,7 +372,6 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
 
             }
         }
-        // return new SSPAResponse(null, "null error");
         return null;
     }
 
