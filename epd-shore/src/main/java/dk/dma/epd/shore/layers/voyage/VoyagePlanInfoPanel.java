@@ -184,7 +184,7 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
 
         GridBagLayout gridBagLayout = new GridBagLayout();
         gridBagLayout.columnWidths = new int[] { 10, 0 };
-        gridBagLayout.rowHeights = new int[] { 10, 100, 20 };
+        gridBagLayout.rowHeights = new int[] { 10, 80, 20 };
         gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
         gridBagLayout.rowWeights = new double[] { 0.0, 1.0, 0.0 };
         replyPanel.setLayout(gridBagLayout);

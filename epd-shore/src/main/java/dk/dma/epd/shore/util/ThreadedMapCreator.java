@@ -130,7 +130,7 @@ public class ThreadedMapCreator implements Runnable {
                 .handleVoyage(originalRoute, voyage, renegotiate);
 
         int positionX = 150;
-        int positionY = 150;
+        int positionY = 50;
         
         // Determine the max monitor size at the top left location
         Point screenLocation = new Point(positionX, positionY);
