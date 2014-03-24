@@ -117,16 +117,6 @@ public class StrategicRouteHandlerCommon extends EnavServiceHandlerCommon
      * {@inheritDoc}
      */
     @Override
-    public void messageReceivedByClient(StrategicRouteMessage message) {
-        message.updateCloudMessageStatus(CloudMessageStatus.RECEIVED_BY_CLIENT);
-        EPD.getInstance().getNotificationCenter()
-            .checkRefreshSelection(NotificationType.STRATEGIC_ROUTE, message.getId());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void messageHandled(StrategicRouteMessage message, StrategicRouteReply reply) {
         message.updateCloudMessageStatus(CloudMessageStatus.HANDLED_BY_CLIENT);
         EPD.getInstance().getNotificationCenter()
