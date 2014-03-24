@@ -36,34 +36,37 @@ public class GUISettings<OBSERVER extends IGUISettingsObserver> extends
 
     /**
      * Key used in the properties file for the setting that specifies if the
-     * dock should always open. TODO: Get DNC to describe purpose of setting
-     * better.
+     * dock displaying AIS target details should always open when an AIS target
+     * has been selected (see {@link #alwaysOpenDock}).
      */
     private static final String KEY_ALWAYS_OPEN_DOCK = "alwaysOpenDock";
 
     /**
-     * Key used in the properties file for the setting that specifies if the
-     * dock message should be shown. TODO: Get DNC to describe purpose of
-     * setting better.
+     * Key used in the properties file for the {@link #showDockMessage} setting.
      */
     private static final String KEY_SHOW_DOCK_MSG = "showDockMessage";
 
     /**
-     * Setting specifying if the dock should always open. TODO: Get DNC to
-     * describe purpose of setting better.
+     * Setting specifying if the dock that displays AIS target details should
+     * always open when an AIS target has been selected.
      */
     private boolean alwaysOpenDock = true;
 
     /**
-     * Setting specifying if the dock message should be shown. TODO: Get DNC to
-     * describe purpose of setting better.
+     * Setting specifying if an "Open AIS target details dock?" dialog should be
+     * shown when an AIS target has been selected and the AIS target details
+     * dock is not open.
      */
     private boolean showDockMessage = true;
 
     /**
-     * TODO: Fix Javadoc when DNC has described purpose of setting.
+     * Get the setting that specifies if the dock that displays AIS target
+     * details should always open when an AIS target has been selected.
      * 
-     * @return the alwaysOpenDock
+     * @return {@code true} if the AIS target details dock should automatically
+     *         open when an AIS target has been selected, {@code false} if the
+     *         AIS target details dock should not automatically open when an AIS
+     *         target has been selected.
      */
     public boolean isAlwaysOpenDock() {
         try {
@@ -75,10 +78,14 @@ public class GUISettings<OBSERVER extends IGUISettingsObserver> extends
     }
 
     /**
-     * TODO: Fix Javadoc when DNC has described purpose of setting.
+     * Changes the setting that specifies if the dock that displays AIS target
+     * details should always open when an AIS target has been selected.
      * 
      * @param alwaysOpenDock
-     *            the alwaysOpenDock to set
+     *            {@code true} if the AIS target details dock should
+     *            automatically open when an AIS target has been selected,
+     *            {@code false} if the AIS target details dock should not
+     *            automatically open when an AIS target has been selected.
      */
     public void setAlwaysOpenDock(final boolean alwaysOpenDock) {
         try {
@@ -98,9 +105,12 @@ public class GUISettings<OBSERVER extends IGUISettingsObserver> extends
     }
 
     /**
-     * TODO: Fix Javadoc when DNC has described purpose of setting.
+     * Get the setting that specifies if an "Open AIS target details dock?"
+     * should be shown when an AIS target has been selected and the AIS target
+     * details dock is not currently open.
      * 
-     * @return the showDockMessage
+     * @return {@code true} if the "Open AIS target details dock?" dialog should
+     *         be shown, {@code false} if it shouldn't.
      */
     public boolean isShowDockMessage() {
         try {
@@ -112,10 +122,13 @@ public class GUISettings<OBSERVER extends IGUISettingsObserver> extends
     }
 
     /**
-     * TODO: Fix Javadoc when DNC has described purpose of setting.
+     * Changes the setting that specifies if an "Open AIS target details dock?"
+     * should be shown when an AIS target has been selected and the AIS target
+     * details dock is not currently open.
      * 
      * @param showDockMessage
-     *            the showDockMessage to set
+     *            {@code true} if the "Open AIS target details dock?" dialog
+     *            should be shown, {@code false} if it shouldn't.
      */
     public void setShowDockMessage(final boolean showDockMessage) {
         try {
