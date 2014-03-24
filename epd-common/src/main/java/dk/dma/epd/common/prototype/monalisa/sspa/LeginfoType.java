@@ -47,8 +47,8 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;/element>
  *         &lt;element name="turn-radius" type="{http://www.w3.org/2001/XMLSchema}positiveInteger" minOccurs="0"/>
  *         &lt;element name="planned-speed" type="{http://www.w3.org/2001/XMLSchema}float" minOccurs="0"/>
- *         &lt;element name="rhs-xte" type="{http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange}XTEType" minOccurs="0"/>
- *         &lt;element name="lhs-xte" type="{http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange}XTEType" minOccurs="0"/>
+ *         &lt;element name="rhs-xte" type="{http://www.sspa.se/voyage-optimizer}XTEType" minOccurs="0"/>
+ *         &lt;element name="lhs-xte" type="{http://www.sspa.se/voyage-optimizer}XTEType" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -58,7 +58,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "leginfoType", namespace = "http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange", propOrder = {
+@XmlType(name = "leginfoType", namespace = "http://www.sspa.se/voyage-optimizer", propOrder = {
     "legtype",
     "turnRadius",
     "plannedSpeed",

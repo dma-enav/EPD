@@ -33,6 +33,7 @@ import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
+import dk.dma.epd.common.prototype.model.route.Route.EtaCalculationType;
 import dk.dma.epd.common.prototype.monalisa.sspa.CurrentShipDataType;
 import dk.dma.epd.common.prototype.monalisa.sspa.DraftType;
 import dk.dma.epd.common.prototype.monalisa.sspa.PositionType;
@@ -100,6 +101,8 @@ public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
         for (int i = 0; i < routeWaypoints.size(); i++) {
 
             if (selectedWp.get(i)) {
+
+
                 // System.out.println("Creating WP for " + i);
                 RouteWaypoint routeWaypoint = routeWaypoints.get(i);
                 WaypointType waypoint = new WaypointType();
@@ -110,22 +113,17 @@ public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
                 // Set ID
                 waypoint.setWptId(i + 1);
 
-                if (removeIntermediateETA) {
-                    // System.out.println("Removing ETAs");
-                    if (i == 0 || i == routeWaypoints.size() - 1) {
-                        try {
-                            waypoint.setETA(convertDate(route.getEtas().get(i)));
-                        } catch (DatatypeConfigurationException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } else {
-                    try {
-                        waypoint.setETA(convertDate(route.getEtas().get(i)));
-                    } catch (DatatypeConfigurationException e) {
-                        e.printStackTrace();
-                    }
-                }
+		// If we don't want intermediate ETA waypoints, then skip setting time
+	        if( removeIntermediateETA && i != 0 && i != (routeWaypoints.size() - 1) ){
+			waypoint.setFixed(false);
+		} else {
+			try {
+				waypoint.setETA(convertDate(route.getEtas().get(i)));
+			} catch (DatatypeConfigurationException e) {
+				e.printStackTrace();
+			}
+			waypoint.setFixed(true);
+		}
 
                 // Set positon
                 PositionType position = new PositionType();
@@ -256,6 +254,7 @@ public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
         }
 
         route.setEtas(etas);
+        route.calcValues(true);
         
         return route;
     }

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0" codebase="http://voyage.sspa.se/epd-ship" href="epd.jnlp">
+        <information os="Linux">
+		<title>DMA - EPD Ship</title>
+		<vendor>Danish Maritime Authority</vendor>
+		<description>e-navigation Prototype Displays - Ship version</description>
+		<description kind="short">EPD Ship</description>
+		<offline-allowed/>
+		<shortcut>
+			<desktop/>
+			<menu submenu="EPD Ship"/>
+		</shortcut>
+                <icon href="epd128.gif" kind="default"/>
+                <icon href="epd128.gif" kind="splash"/>
+        </information>
+        <information os="Mac\ OS\ X">
+		<title>DMA - EPD Ship</title>
+		<vendor>Danish Maritime Authority</vendor>
+		<description>e-navigation Prototype Displays - Ship version</description>
+		<description kind="short">EPD Ship</description>
+		<offline-allowed/>
+		<shortcut>
+			<desktop/>
+			<menu submenu="EPD Ship"/>
+		</shortcut>
+                <icon href="epd128.gif" kind="default"/>
+                <icon href="epd128.gif" kind="splash"/>
+        </information>
+        <information os="Windows">
+		<title>DMA - EPD Ship</title>
+		<vendor>Danish Maritime Authority</vendor>
+		<description>e-navigation Prototype Displays - Ship version</description>
+		<description kind="short">EPD Ship</description>
+		<offline-allowed/>
+		<shortcut>
+			<desktop/>
+			<menu submenu="EPD Ship"/>
+		</shortcut>
+                <icon href="epd64.gif" kind="default"/>
+                <icon href="epd128.gif" kind="splash"/>
+        </information>
+	<security>
+		<all-permissions/>
+	</security>
+	<application-desc main-class="dk.dma.epd.ship.EPDShip">
+	</application-desc>
+	<resources>
+		<property name="com.apple.macos.useScreenMenuBar" value="true"/>
+		<property name="apple.laf.useScreenMenuBar" value="true"/>
+		<property name="com.apple.mrj.application.apple.menu.about.name" value="DMA - EPD Ship"/>
+		<j2se version="1.7+" java-vm-args="-Xmx256m"/>
+		<jar href="epd-ship-dist-0.1-SNAPSHOT.jar" main="true" />
+	</resources>
+</jnlp> 

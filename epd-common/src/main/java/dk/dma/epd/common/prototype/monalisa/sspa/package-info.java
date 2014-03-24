@@ -14,5 +14,5 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://www.sspa.se/optiroute", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@javax.xml.bind.annotation.XmlSchema(namespace = "http://www.sspa.se/voyage-optimizer", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package dk.dma.epd.common.prototype.monalisa.sspa;
