@@ -20,8 +20,15 @@ import java.util.Properties;
 import com.bbn.openmap.util.PropUtils;
 
 import dk.dma.epd.common.prototype.settings.gui.GUICommonSettings;
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 
 /**
+ * Extends common GUI settings (see {@link GUICommonSettings}) with GUI settings
+ * specific to EPD Ship. GUI settings are primarily targeted at Swing components
+ * such as frames, menus, docks etc. Settings specifying how vessels or other
+ * units are to be painted on a layer should be placed in {@link LayerSettings}
+ * or any of its subclasses.
+ * 
  * @author Janus Varmarken
  */
 public class GUISettings<OBSERVER extends IGUISettingsObserver> extends
@@ -127,6 +134,9 @@ public class GUISettings<OBSERVER extends IGUISettingsObserver> extends
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void onLoadSuccess(Properties settings) {
         // Acquire lock in order for settings to be loaded as a single batch.
@@ -141,6 +151,21 @@ public class GUISettings<OBSERVER extends IGUISettingsObserver> extends
         // Batch loaded, release lock.
         this.settingLock.writeLock().unlock();
     }
-    
-    // TODO implement onSaveSettings.
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected Properties onSaveSettings() {
+        // Acquire read lock in order to save settings as a batch.
+        this.settingLock.readLock().lock();
+        Properties toSave = super.onSaveSettings();
+        toSave.setProperty(KEY_ALWAYS_OPEN_DOCK,
+                Boolean.toString(this.alwaysOpenDock));
+        toSave.setProperty(KEY_SHOW_DOCK_MSG,
+                Boolean.toString(this.showDockMessage));
+        // Finished batch save, release lock.
+        this.settingLock.readLock().unlock();
+        return toSave;
+    }
 }

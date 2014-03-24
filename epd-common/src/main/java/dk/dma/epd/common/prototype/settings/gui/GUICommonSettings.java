@@ -22,11 +22,14 @@ import java.util.Properties;
 import com.bbn.openmap.util.PropUtils;
 
 import dk.dma.epd.common.prototype.settings.ObservedSettings;
+import dk.dma.epd.common.prototype.settings.layers.LayerSettings;
 
 /**
  * This class maintains the most abstract GUI settings such as window size and
- * window location. I.e. the settings maintained by this class could in essence
- * be relevant to any application with a GUI.
+ * window location. GUI settings are primarily targeted at Swing components such
+ * as frames, menus, docks etc. Settings specifying how vessels or other units
+ * are to be painted on a layer should be placed in {@link LayerSettings} or any
+ * of its subclasses.
  * 
  * @author Janus Varmarken
  */
