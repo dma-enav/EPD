@@ -36,8 +36,8 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="FuelRequested" type="{http://www.w3.org/2001/XMLSchema}float"/>
  *         &lt;element name="FuelFinal" type="{http://www.w3.org/2001/XMLSchema}float"/>
  *         &lt;element name="UkcActual" type="{http://www.w3.org/2001/XMLSchema}float"/>
- *         &lt;element name="Route" type="{http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange}routeType"/>
- *         &lt;element name="optimization" type="{http://www.sspa.se/optiroute}OptimizationType" minOccurs="0"/>
+ *         &lt;element name="Route" type="{http://www.sspa.se/voyage-optimizer}routeType"/>
+ *         &lt;element name="optimization" type="{http://www.sspa.se/voyage-optimizer}OptimizationType" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>

@@ -34,7 +34,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="waypoints" type="{http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange}waypointsType"/>
+ *         &lt;element name="waypoints" type="{http://www.sspa.se/voyage-optimizer}waypointsType"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -44,7 +44,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "routeType", namespace = "http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange", propOrder = {
+@XmlType(name = "routeType", namespace = "http://www.sspa.se/voyage-optimizer", propOrder = {
     "waypoints"
 })
 public class RouteType {

@@ -277,9 +277,6 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
                     statusListener.messageReceivedByCloud(message);
                 }
             }); 
-            
-            // TODO: Register a consumer that will be called when the client has received the message
-            // This has not yet been implemented by the Maritime Cloud
         }
         
         LOG.info("Sent Maritime Cloud message: " +  message);
@@ -336,12 +333,6 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
          * @param message the maritime cloud message
          */
         void messageReceivedByCloud(M message);
-        
-        /**
-         * Called when the message is received by the client
-         * @param message the maritime cloud message
-         */
-        void messageReceivedByClient(M message);
         
         /**
          * Called when the message has been handled by the client

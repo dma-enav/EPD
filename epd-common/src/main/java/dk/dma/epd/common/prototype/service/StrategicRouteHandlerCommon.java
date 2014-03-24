@@ -16,6 +16,7 @@
 package dk.dma.epd.common.prototype.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,7 +28,6 @@ import dk.dma.epd.common.prototype.enavcloud.StrategicRouteService.StrategicRout
 import dk.dma.epd.common.prototype.model.route.StrategicRouteNegotiationData;
 import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.ICloudMessageListener;
-import edu.emory.mathcs.backport.java.util.Collections;
 
 
 /**
@@ -109,16 +109,6 @@ public class StrategicRouteHandlerCommon extends EnavServiceHandlerCommon
     @Override
     public void messageReceivedByCloud(StrategicRouteMessage message) {
         message.updateCloudMessageStatus(CloudMessageStatus.RECEIVED_BY_CLOUD);
-        EPD.getInstance().getNotificationCenter()
-            .checkRefreshSelection(NotificationType.STRATEGIC_ROUTE, message.getId());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void messageReceivedByClient(StrategicRouteMessage message) {
-        message.updateCloudMessageStatus(CloudMessageStatus.RECEIVED_BY_CLIENT);
         EPD.getInstance().getNotificationCenter()
             .checkRefreshSelection(NotificationType.STRATEGIC_ROUTE, message.getId());
     }

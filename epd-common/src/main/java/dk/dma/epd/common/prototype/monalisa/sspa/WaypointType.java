@@ -44,8 +44,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *             &lt;/restriction>
  *           &lt;/simpleType>
  *         &lt;/element>
- *         &lt;element name="position" type="{http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange}PositionType"/>
- *         &lt;element name="leg-info" type="{http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange}leginfoType" minOccurs="0"/>
+ *         &lt;element name="position" type="{http://www.sspa.se/voyage-optimizer}PositionType"/>
+ *         &lt;element name="leg-info" type="{http://www.sspa.se/voyage-optimizer}leginfoType" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -55,11 +55,12 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "waypointType", namespace = "http://www.navielektro.fi/ns/formats/vessel-waypoint-exchange", propOrder = {
+@XmlType(name = "waypointType", namespace = "http://www.sspa.se/voyage-optimizer", propOrder = {
     "wptId",
-    "eta",
-    "wptName",
     "position",
+    "eta",
+    "fixed",
+    "wptName",
     "legInfo"
 })
 public class WaypointType {
@@ -70,6 +71,8 @@ public class WaypointType {
     @XmlElement(name = "ETA")
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar eta;
+    @XmlElement(name = "fixed")
+    protected boolean fixed;
     @XmlElement(name = "wpt-name")
     protected String wptName;
     @XmlElement(required = true)
@@ -123,6 +126,30 @@ public class WaypointType {
      */
     public void setETA(XMLGregorianCalendar value) {
         this.eta = value;
+    }
+
+    /**
+     * Gets the value of the fixed property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link boolean }
+     *     
+     */
+    public boolean getFixed() {
+        return fixed;
+    }
+
+    /**
+     * Sets the value of the fixed property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link boolean }
+     *     
+     */
+    public void setFixed(boolean value) {
+        this.fixed = value;
     }
 
     /**
