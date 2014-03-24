@@ -25,12 +25,12 @@ import dk.frv.enav.common.xml.ShoreServiceRequest;
 /**
  * Shore service component providing the functional link to shore.
  * <p>
- * This sub-class adds own-ship functionality to the {@code ShoreServicesCommon} class. 
+ * This sub-class adds own-ship functionality to the {@code ShoreServicesCommon} class.
  */
 public class ShoreServices extends ShoreServicesCommon {
 
     private OwnShipHandler ownShipHandler;
-    
+
     /**
      * Constructor
      * 
@@ -39,11 +39,12 @@ public class ShoreServices extends ShoreServicesCommon {
     public ShoreServices(EPDEnavSettings enavSettings) {
         super(enavSettings);
     }
-    
-    
+
     /**
      * Override super to adjust the shore service request with the position of the own-ship
-     * @param request the request to adjust
+     * 
+     * @param request
+     *            the request to adjust
      */
     @Override
     protected void addRequestParameters(ShoreServiceRequest request) {
@@ -58,7 +59,7 @@ public class ShoreServices extends ShoreServicesCommon {
         }
 
     }
-    
+
     public static PositionReport convertPositionReport(VesselPositionData position) {
         PositionReport enavshorePos = new PositionReport();
 
@@ -77,12 +78,14 @@ public class ShoreServices extends ShoreServicesCommon {
 
     /**
      * Called when a bean is added to this bean context
-     * @param obj the bean that was added
+     * 
+     * @param obj
+     *            the bean that was added
      */
     @Override
     public void findAndInit(Object obj) {
         super.findAndInit(obj);
-        
+
         if (ownShipHandler == null && obj instanceof OwnShipHandler) {
             ownShipHandler = (OwnShipHandler) obj;
         }
@@ -90,14 +93,16 @@ public class ShoreServices extends ShoreServicesCommon {
 
     /**
      * Called when a bean is removed from this bean context
-     * @param obj the bean that was removed
+     * 
+     * @param obj
+     *            the bean that was removed
      */
     @Override
     public void findAndUndo(Object obj) {
         if (obj == ownShipHandler) {
             ownShipHandler = null;
         }
-        
+
         super.findAndUndo(obj);
     }
 }

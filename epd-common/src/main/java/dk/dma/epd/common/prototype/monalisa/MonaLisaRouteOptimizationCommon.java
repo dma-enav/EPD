@@ -33,7 +33,6 @@ import dk.dma.epd.common.Heading;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
 import dk.dma.epd.common.prototype.model.route.RouteWaypoint;
-import dk.dma.epd.common.prototype.model.route.Route.EtaCalculationType;
 import dk.dma.epd.common.prototype.monalisa.sspa.CurrentShipDataType;
 import dk.dma.epd.common.prototype.monalisa.sspa.DraftType;
 import dk.dma.epd.common.prototype.monalisa.sspa.PositionType;
@@ -66,9 +65,7 @@ public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
 
     }
 
-    public RouterequestType convertRoute(Route route,
-            boolean removeIntermediateETA, float trim, int ukc,
-            List<Boolean> selectedWp) {
+    public RouterequestType convertRoute(Route route, boolean removeIntermediateETA, float trim, int ukc, List<Boolean> selectedWp) {
 
         // float trim = 6.0f;
 
@@ -102,7 +99,6 @@ public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
 
             if (selectedWp.get(i)) {
 
-
                 // System.out.println("Creating WP for " + i);
                 RouteWaypoint routeWaypoint = routeWaypoints.get(i);
                 WaypointType waypoint = new WaypointType();
@@ -113,17 +109,17 @@ public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
                 // Set ID
                 waypoint.setWptId(i + 1);
 
-		// If we don't want intermediate ETA waypoints, then skip setting time
-	        if( removeIntermediateETA && i != 0 && i != (routeWaypoints.size() - 1) ){
-			waypoint.setFixed(false);
-		} else {
-			try {
-				waypoint.setETA(convertDate(route.getEtas().get(i)));
-			} catch (DatatypeConfigurationException e) {
-				e.printStackTrace();
-			}
-			waypoint.setFixed(true);
-		}
+                // If we don't want intermediate ETA waypoints, then skip setting time
+                if (removeIntermediateETA && i != 0 && i != (routeWaypoints.size() - 1)) {
+                    waypoint.setFixed(false);
+                } else {
+                    try {
+                        waypoint.setETA(convertDate(route.getEtas().get(i)));
+                    } catch (DatatypeConfigurationException e) {
+                        e.printStackTrace();
+                    }
+                    waypoint.setFixed(true);
+                }
 
                 // Set positon
                 PositionType position = new PositionType();
@@ -146,10 +142,10 @@ public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
 
     public Route convertRouteBack(RouteresponseType response) {
         Route route = new Route();
-//        route.setEtas(new ArrayList<Date>());
-        
+        // route.setEtas(new ArrayList<Date>());
+
         ArrayList<Date> etas = new ArrayList<>();
-        
+
         route.setName("Optimized Mona Lisa Route");
 
         WaypointsType waypointsType = response.getRoute().getWaypoints();
@@ -193,33 +189,29 @@ public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
             // // System.out.println(waypoint.getOutLeg().getSpeed());
             // }
 
-            Position position = Position.create(responseWaypoint.getPosition()
-                    .getLatitude(), responseWaypoint.getPosition()
+            Position position = Position.create(responseWaypoint.getPosition().getLatitude(), responseWaypoint.getPosition()
                     .getLongitude());
             waypoint.setPos(position);
 
             if (responseWaypoint.getLegInfo() != null) {
 
                 if (responseWaypoint.getLegInfo().getTurnRadius() != null) {
-                    waypoint.setRot((double) responseWaypoint.getLegInfo()
-                            .getTurnRadius());
+                    waypoint.setRot((double) responseWaypoint.getLegInfo().getTurnRadius());
                 }
 
                 if (responseWaypoint.getLegInfo().getPlannedSpeed() != null) {
 
-                    waypoint.setSpeed(responseWaypoint.getLegInfo()
-                            .getPlannedSpeed());
+                    waypoint.setSpeed(responseWaypoint.getLegInfo().getPlannedSpeed());
 
                 }
 
                 if (responseWaypoint.getLegInfo().getTurnRadius() != null) {
-                    waypoint.setTurnRad((double) responseWaypoint.getLegInfo()
-                            .getTurnRadius());
+                    waypoint.setTurnRad((double) responseWaypoint.getLegInfo().getTurnRadius());
                 }
             }
 
             etas.add(responseWaypoint.getETA().toGregorianCalendar().getTime());
-            
+
             routeWaypoints.add(waypoint);
 
         }
@@ -255,33 +247,28 @@ public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
 
         route.setEtas(etas);
         route.calcValues(true);
-        
+
         return route;
     }
 
-    public MonaLisaOptimizationResponse makeRouteRequest(Route route,
-            boolean removeIntermediateETA, float draft, int ukc, int timeout,
-            List<Boolean> selectedWp, boolean showInput, boolean showOutput) {
+    public MonaLisaOptimizationResponse makeRouteRequest(Route route, boolean removeIntermediateETA, float draft, int ukc,
+            int timeout, List<Boolean> selectedWp, boolean showInput, boolean showOutput) {
 
         // new Thread(this).start();
 
-        RouterequestType monaLisaRoute = convertRoute(route,
-                removeIntermediateETA, draft, ukc, selectedWp);
+        RouterequestType monaLisaRoute = convertRoute(route, removeIntermediateETA, draft, ukc, selectedWp);
 
         // monaLisaRoute.
 
         SSPAResponse routeResponse = null;
         try {
-            routeResponse = shoreService.makeMonaLisaRouteRequest(
-                    monaLisaRoute, timeout, showInput, showOutput);
+            routeResponse = shoreService.makeMonaLisaRouteRequest(monaLisaRoute, timeout, showInput, showOutput);
         } catch (Exception e) {
-            return new MonaLisaOptimizationResponse("An exception occured",
-                    e.getMessage());
+            return new MonaLisaOptimizationResponse("An exception occured", e.getMessage());
         }
 
         if (!routeResponse.isValid()) {
-            return new MonaLisaOptimizationResponse("Server error",
-                    routeResponse.getErrorMessage());
+            return new MonaLisaOptimizationResponse("Server error", routeResponse.getErrorMessage());
         }
 
         Route newRoute = null;
@@ -290,8 +277,7 @@ public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
             try {
                 newRoute = convertRouteBack(routeResponse.getMonaLisaResponse());
             } catch (Exception e) {
-                return new MonaLisaOptimizationResponse("An exception occured",
-                        e.getMessage());
+                return new MonaLisaOptimizationResponse("An exception occured", e.getMessage());
             }
         }
 
@@ -300,23 +286,15 @@ public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
             routeManager.addRoute(newRoute);
         }
 
-        float fuelSaving = (routeResponse.getMonaLisaResponse()
-                .getFuelRequested() - routeResponse.getMonaLisaResponse()
-                .getFuelFinal())
-                / routeResponse.getMonaLisaResponse().getFuelRequested() * 100;
+        float fuelSaving = (routeResponse.getMonaLisaResponse().getFuelRequested() - routeResponse.getMonaLisaResponse()
+                .getFuelFinal()) / routeResponse.getMonaLisaResponse().getFuelRequested() * 100;
 
-        return new MonaLisaOptimizationResponse(
-                "Succesfully received optimized route",
+        return new MonaLisaOptimizationResponse("Succesfully received optimized route",
 
-                "\nInitial route consumption is "
-                        + routeResponse.getMonaLisaResponse()
-                                .getFuelRequested() + " Metric Tons.\n"
-                        + "MonaLisa optimized route consumption is "
-                        + routeResponse.getMonaLisaResponse().getFuelFinal()
-                        + " Metric Tons.\n" + "The relative fuel saving is "
-                        + fuelSaving + " percent\n\n" + "Minimum route UKC is "
-                        + routeResponse.getMonaLisaResponse().getUkcActual()
-                        + " meters.\n");
+        "\nInitial route consumption is " + routeResponse.getMonaLisaResponse().getFuelRequested() + " Metric Tons.\n"
+                + "MonaLisa optimized route consumption is " + routeResponse.getMonaLisaResponse().getFuelFinal()
+                + " Metric Tons.\n" + "The relative fuel saving is " + fuelSaving + " percent\n\n" + "Minimum route UKC is "
+                + routeResponse.getMonaLisaResponse().getUkcActual() + " meters.\n");
 
     }
 
@@ -362,12 +340,10 @@ public class MonaLisaRouteOptimizationCommon extends MapHandlerChild
     // }
     // }
 
-    private XMLGregorianCalendar convertDate(Date date)
-            throws DatatypeConfigurationException {
+    private XMLGregorianCalendar convertDate(Date date) throws DatatypeConfigurationException {
         GregorianCalendar c = new GregorianCalendar();
         c.setTime(date);
-        XMLGregorianCalendar date2 = DatatypeFactory.newInstance()
-                .newXMLGregorianCalendar(c);
+        XMLGregorianCalendar date2 = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
 
         // No time zone?
         date2.setTimezone(DatatypeConstants.FIELD_UNDEFINED);

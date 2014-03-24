@@ -217,7 +217,9 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
 
     /**
      * Allow subclasses to adjust the shore service request
-     * @param request the request to adjust
+     * 
+     * @param request
+     *            the request to adjust
      */
     protected void addRequestParameters(ShoreServiceRequest request) {
     }
@@ -310,7 +312,7 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
             xml = st.toString();
 
             if (showInput) {
-		    new XMLDialog(xml, "Sent XML");
+                new XMLDialog(xml, "Sent XML");
             }
 
             // Create HTTP request
@@ -332,20 +334,20 @@ public class ShoreServicesCommon extends MapHandlerChild implements IStatusCompo
             }
 
         } catch (JAXBException e) {
-		// TODO Auto-generated catch block
-		return new SSPAResponse(null, e.getMessage());
+            // TODO Auto-generated catch block
+            return new SSPAResponse(null, e.getMessage());
         }
 
-         if (showOutput) {
-		 new XMLDialog(xmlReturnRoute, "Returned XML");
-         }
+        if (showOutput) {
+            new XMLDialog(xmlReturnRoute, "Returned XML");
+        }
 
-	 String responseMessage = xmlReturnRoute.split("<ResponseMessage>")[1].split("</ResponseMessage>")[0];
+        String responseMessage = xmlReturnRoute.split("<ResponseMessage>")[1].split("</ResponseMessage>")[0];
 
-	 // This means there was an error inside the server
-	 if(responseMessage.length() > 0){
-		 return new SSPAResponse(null, responseMessage);
-	 } else {
+        // This means there was an error inside the server
+        if (responseMessage.length() > 0) {
+            return new SSPAResponse(null, responseMessage);
+        } else {
             if (xmlReturnRoute != null) {
                 if (xmlReturnRoute.length() > 300000) {
                     System.out.println("Failed to receive a route in the area, buffer timedout");
