@@ -131,6 +131,10 @@ public class VoyageLayer extends EPDLayerCommon implements Runnable, IVoyageUpda
     private void drawRoute(int id, Route route, Color color,
             Color broadLineColor, boolean circleDash) {
 
+        if (route == null) {
+            return;
+        }
+        
         Stroke stroke = new BasicStroke(
                 routeWidth,                     // Width
                 BasicStroke.CAP_SQUARE,         // End cap

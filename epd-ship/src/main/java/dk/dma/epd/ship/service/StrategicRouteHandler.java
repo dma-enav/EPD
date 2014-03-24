@@ -381,8 +381,10 @@ public class StrategicRouteHandler extends StrategicRouteHandlerCommon {
         voyageLayer.cancelRequest();
 
         // Show original?
-        route.setVisible(true);
-
+        if (route != null) {
+            route.setVisible(true);
+        }
+        
         routeManager.notifyListeners(RoutesUpdateEvent.ROUTE_VISIBILITY_CHANGED);
 
         if (strategicRouteNegotiationData.containsKey(transactionID)) {
