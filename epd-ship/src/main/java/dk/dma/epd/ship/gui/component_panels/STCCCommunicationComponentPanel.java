@@ -105,7 +105,7 @@ public class STCCCommunicationComponentPanel extends OMComponentPanel implements
     }
 
     @Override
-    public void chatMessageSent(long recipientId, ChatServiceMessage message) {
+    public void chatMessageSent(MaritimeId recipientId, ChatServiceMessage message) {
         String senderName = "You";
         String chatMessage = Formatter.formateTimeFromDate(message.getSendDate()) + " - " + senderName + " : "
                 + message.getMessage();

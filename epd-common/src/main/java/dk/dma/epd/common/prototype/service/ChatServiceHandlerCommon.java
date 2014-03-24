@@ -146,7 +146,7 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
 
         //Notify listeners
         for (IChatServiceListener listener : listeners) {
-            listener.chatMessageSent(mmsi, chatMessage);
+            listener.chatMessageSent(targetId, chatMessage);
         }
         
         
@@ -225,7 +225,7 @@ public class ChatServiceHandlerCommon extends EnavServiceHandlerCommon {
          * @param message
          *            the message
          */
-        void chatMessageSent(long recipientId, ChatServiceMessage message);
+        void chatMessageSent(MaritimeId recipientId, ChatServiceMessage message);
     }
 
 }

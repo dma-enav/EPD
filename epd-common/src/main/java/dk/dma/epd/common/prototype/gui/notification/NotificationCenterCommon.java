@@ -30,8 +30,6 @@ import java.awt.TrayIcon.MessageType;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,6 +53,7 @@ import dk.dma.epd.common.prototype.gui.SystemTrayCommon;
 import dk.dma.epd.common.prototype.gui.views.BottomPanelCommon;
 import dk.dma.epd.common.prototype.msi.IMsiUpdateListener;
 import dk.dma.epd.common.prototype.msi.MsiHandler;
+import dk.dma.epd.common.prototype.notification.ChatNotification;
 import dk.dma.epd.common.prototype.notification.GeneralNotification;
 import dk.dma.epd.common.prototype.notification.MsiNotification;
 import dk.dma.epd.common.prototype.notification.Notification;
@@ -62,11 +61,9 @@ import dk.dma.epd.common.prototype.notification.NotificationAlert;
 import dk.dma.epd.common.prototype.notification.NotificationAlert.AlertType;
 import dk.dma.epd.common.prototype.notification.NotificationType;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
-import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon.IChatServiceListener;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon.StrategicRouteListener;
-import dk.dma.epd.common.text.Formatter;
 
 /**
  * Defines the base class for the notification center. Can either be used directly or extended.
@@ -514,42 +511,14 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
      */
     @Override
     public void chatMessageReceived(MaritimeId senderId, ChatServiceMessage message) {
-        int id = MaritimeCloudUtils.toMmsi(senderId);
 
-        System.out.println("Store under RECIEVED "  + id);
-        
-        String senderName = message.getSenderName();
-        // Look up name in identityHandler and aisHandler, if none exists use the given one
-        if (EPD.getInstance().getIdentityHandler().actorExists(id)) {
-            senderName = EPD.getInstance().getIdentityHandler().getActor(id).getName();
+        String notificationId = ChatNotification.toId(senderId);
+        if (generalPanel.getNotificationById(notificationId) != null) {
+            ChatNotification previousNotification = (ChatNotification)generalPanel.getNotificationById(notificationId);
+            previousNotification.merge(true, senderId, message);
+            generalPanel.refreshNotifications();
         } else {
-            if (EPD.getInstance().getAisHandler().getVesselTarget((long) id) != null) {
-                if (EPD.getInstance().getAisHandler().getVesselTarget((long) id).getStaticData() != null) {
-                    senderName = EPD.getInstance().getAisHandler().getVesselTarget((long) id).getStaticData().getName();
-                }
-            }
-        }
-
-        if (generalPanel.getNotificationById(id) != null) {
-            GeneralNotification previousNotification = generalPanel.getNotificationById(id);
-            previousNotification.setDescription(Formatter.formatShortDateTime(new Date(message.getSendDate())) + " : " + senderName + " : "
-                    + message.getMessage() + "\n" +
-                    
-                    previousNotification.getDescription() 
-                     );
-            previousNotification.setAcknowledged(false);
-            previousNotification.setSeverity(message.getSeverity());
-            previousNotification.setAlerts(message.getAlerts());
-            generalPanel.doRefreshNotifications();
-        } else {
-            GeneralNotification notification = new GeneralNotification();
-            notification.setId(id);
-            notification.setDate(new Date(message.getSendDate()));
-            notification.setTitle("Comms log " + senderName);
-            notification.setDescription(Formatter.formatShortDateTime(new Date(message.getSendDate())) + " : " + senderName + " : "
-                    + message.getMessage());
-            notification.setSeverity(message.getSeverity());
-            notification.setAlerts(message.getAlerts());
+            ChatNotification notification = new ChatNotification(true, senderId, message);
             generalPanel.addNotification(notification);
         }
     }
@@ -558,41 +527,16 @@ public abstract class NotificationCenterCommon extends ComponentDialog implement
      * {@inheritDoc}
      */
     @Override
-    public void chatMessageSent(long recipientId, ChatServiceMessage message) {
-        String senderName = "You";
-
-        String recipientName = recipientId + "";
-        // Look up name in identityHandler and aisHandler, if none exists use the given one
-        if (EPD.getInstance().getIdentityHandler().actorExists(recipientId)) {
-            recipientName = EPD.getInstance().getIdentityHandler().getActor(recipientId).getName();
-        } else {
-            if (EPD.getInstance().getAisHandler().getVesselTarget((long) recipientId) != null) {
-                if (EPD.getInstance().getAisHandler().getVesselTarget((long) recipientId).getStaticData() != null) {
-                    recipientName = EPD.getInstance().getAisHandler().getVesselTarget((long) recipientId).getStaticData().getName();
-                }
-            }
-        }
-
-        if (generalPanel.getNotificationById( (int) recipientId) != null) {
-            GeneralNotification previousNotification = generalPanel.getNotificationById( (int) recipientId);
-            previousNotification.setDescription(Formatter.formatShortDateTime(new Date(message.getSendDate())) + " - " + senderName
-                    + " : " + message.getMessage() + "\n" + previousNotification.getDescription());
-
-            previousNotification.setAcknowledged(true);
-            generalPanel.doRefreshNotifications();
+    public void chatMessageSent(MaritimeId recipientId, ChatServiceMessage message) {
+        
+        String notificationId = ChatNotification.toId(recipientId);
+        if (generalPanel.getNotificationById(notificationId) != null) {
+            ChatNotification previousNotification = (ChatNotification)generalPanel.getNotificationById(notificationId);
+            previousNotification.merge(false, recipientId, message);
+            generalPanel.refreshNotifications();
 
         } else {
-            GeneralNotification notification = new GeneralNotification();
-            notification.setId((int)recipientId);
-            notification.setDate(new Date(message.getSendDate()));
-            notification.setTitle(recipientName);
-            notification.setDescription(Formatter.formatShortDateTime(new Date(message.getSendDate())) + " - " + senderName + " : "
-                    + message.getMessage());
-            notification.setSeverity(message.getSeverity());
-            notification.setAlerts(new ArrayList<NotificationAlert>());
-            notification.setRead(true);
-            notification.setAcknowledged(true);
-            // notification.setAlerts(message.getAlerts());
+            ChatNotification notification = new ChatNotification(false, recipientId, message);
             generalPanel.addNotification(notification);
         }
     }

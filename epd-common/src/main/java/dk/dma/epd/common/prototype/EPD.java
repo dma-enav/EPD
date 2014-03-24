@@ -264,19 +264,20 @@ public abstract class EPD implements ISettingsListener {
      * Returns the name associated with the given maritime id.
      * If the id is defined as a maritime cloud service, the associated name is used.
      * Otherwise, if the id is that of an AIS vessel target, the associated name is used.
-     * Otherwise, the MMSI is returned as the name.
+     * Otherwise, the default name is returned.
      * 
      * @param id the maritime id
+     * @param defaultName the default name to use
      * @return the name associated with the id
      */
-    public String getName(MaritimeId id) {
+    public String getName(MaritimeId id, String defaultName) {
         Integer mmsi = MaritimeCloudUtils.toMmsi(id);
         if (mmsi == null) {
-            return "N/A";
+            return defaultName;
         }
         
         // Default name is MMSI
-        String name = String.valueOf(mmsi);
+        String name = defaultName;
 
         // Look up name in identityHandler and aisHandler, if none exists use the given one
         if (identityHandler.actorExists(mmsi.longValue())) {
@@ -289,6 +290,23 @@ public abstract class EPD implements ISettingsListener {
         }
 
         return name;
+    }
+    
+    /**
+     * Returns the name associated with the given maritime id.
+     * If the id is defined as a maritime cloud service, the associated name is used.
+     * Otherwise, if the id is that of an AIS vessel target, the associated name is used.
+     * Otherwise, the MMSI is returned as the name.
+     * 
+     * @param id the maritime id
+     * @return the name associated with the id
+     */
+    public String getName(MaritimeId id) {
+        Integer mmsi = MaritimeCloudUtils.toMmsi(id);
+        if (mmsi == null) {
+            return "N/A";
+        }
+        return getName(id, String.valueOf(mmsi));
     }
     
     /**
