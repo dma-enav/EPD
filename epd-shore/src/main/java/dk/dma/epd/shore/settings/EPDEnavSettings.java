@@ -34,7 +34,7 @@ public class EPDEnavSettings extends EnavSettings {
 
     private static final String PREFIX = EnavSettings.getPrefix();
 
-    private String shoreId = MaritimeCloudUtils.STCC_MMSI_PREFIX + System.currentTimeMillis();
+    private String shoreId = (MaritimeCloudUtils.STCC_MMSI_PREFIX + System.currentTimeMillis()).substring(0, 9);
     private LatLonPoint shorePos = new LatLonPoint.Double(56.02, 12.36); // Somewhere around Helsingør
  
     /**
