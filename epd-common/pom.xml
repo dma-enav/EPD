@@ -34,7 +34,7 @@
 		<dependency>
 			<groupId>dk.dma.ais.virtualnet</groupId>
 			<artifactId>ais-virtualnet-transponder</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>dk.dma.3rdparty</groupId>
