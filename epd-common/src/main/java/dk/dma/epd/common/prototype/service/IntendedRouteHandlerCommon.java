@@ -573,7 +573,7 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
 
                     if (currentDistance < FILTER_DISTANCE_EPSILON) {
                         IntendedRouteFilterMessage filterMessage = new IntendedRouteFilterMessage(route1CurrentPosition,
-                                route2CurrentPosition, "Warning stuff", 0, 0);
+                                route2CurrentPosition, "TCPA Warning, proxmity less than " + FILTER_DISTANCE_EPSILON + " nautical miles at " + traverseTime, 0, 0);
 
                         filterMessage.setTime1(traverseTime);
                         filterMessage.setTime2(traverseTime);
