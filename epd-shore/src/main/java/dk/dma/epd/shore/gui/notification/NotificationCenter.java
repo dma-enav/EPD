@@ -19,9 +19,9 @@ import java.awt.Window;
 
 import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.notification.Notification;
+import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon.RouteSuggestionListener;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.service.RouteSuggestionHandler;
-import dk.dma.epd.shore.service.RouteSuggestionHandler.RouteSuggestionListener;
 
 /**
  * Shore-specific notification center implementation

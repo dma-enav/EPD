@@ -17,9 +17,9 @@ package dk.dma.epd.shore.gui.notification;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
+import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.notification.Notification;
 import dk.dma.epd.common.prototype.notification.NotificationType;
-import dk.dma.epd.shore.service.RouteSuggestionData;
 
 /**
  * An route suggestion implementation of the {@linkplain NotificationPanel} class
@@ -38,20 +38,20 @@ public class RouteSuggestionNotification extends Notification<RouteSuggestionDat
         super(routeData, routeData.getId(), NotificationType.TACTICAL_ROUTE);
         
         title = String.format("Route suggestion '%s' is %s", 
-                routeData.getOutgoingMsg().getRoute().getName(),
-                routeData.getStatus().getDescShort());
+                routeData.getMessage().getRoute().getName(),
+                routeData.getStatus().toString());
         
         description = String.format("Route suggestion '%s' for %s is %s", 
-                routeData.getOutgoingMsg().getRoute().getName(),
+                routeData.getMessage().getRoute().getName(),
                 routeData.getMmsi(),
-                routeData.getStatus().getDescLong());
+                routeData.getStatus().toString());
         
         severity = NotificationSeverity.MESSAGE;
         read = acknowledged = routeData.isAcknowleged();
-        date = routeData.getOutgoingMsg().getSent();
+        date = routeData.getMessage().getSentDate();
         location = Position.create(
-                    routeData.getOutgoingMsg().getRoute().getWaypoints().get(0).getLatitude(), 
-                    routeData.getOutgoingMsg().getRoute().getWaypoints().get(0).getLongitude());
+                    routeData.getMessage().getRoute().getWaypoints().get(0).getLatitude(), 
+                    routeData.getMessage().getRoute().getWaypoints().get(0).getLongitude());
     }    
 
     

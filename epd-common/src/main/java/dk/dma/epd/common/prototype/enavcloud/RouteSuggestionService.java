@@ -22,6 +22,7 @@ import java.util.Date;
 import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
 import net.maritimecloud.net.service.spi.ServiceMessage;
 import dk.dma.enav.model.voyage.Route;
+import dk.dma.epd.common.prototype.service.EnavServiceHandlerCommon.CloudMessageStatus;
 
 /**
  * Maritime cloud service for exchanging routes suggestions from 
@@ -30,8 +31,9 @@ import dk.dma.enav.model.voyage.Route;
  * Defines the service initiation point along with the following classes:
  * <ul>
  *   <li>{@linkplain RouteSuggestionStatus} status of the route suggestion.</li>
- *   <li>{@linkplain RouteSuggestionMessage} Used for sending a suggested route from STCC to a ship.</li>
- *   <li>{@linkplain RouteSuggestionReply} Used for sending a reply from a ship to the STCC.</li>
+ *   <li>{@linkplain RouteSuggestionMessage} Used for sending a suggested route from STCC to a ship
+ *        and a status back from the ship to the STCC.</li>
+ *   <li>{@linkplain RouteSuggestionReply} Used to acknowledge the message.</li>
  * </ul>
  */
 public class RouteSuggestionService {
@@ -44,43 +46,32 @@ public class RouteSuggestionService {
      * Status of the route suggestion
      */
     public enum RouteSuggestionStatus {
-        NOT_SENT("Not sent", "Not sent - check network status"), 
-        FAILED("Failed", "Failed to send to target"), 
-        SENT_NOT_ACK("Sent but not received", "Sent but no answer from route aplication"), 
-        RECEIVED_APP_ACK("Sent", "Sent and acknowleged by application but not user"), 
-        RECEIVED_ACCEPTED("Accepted", "Route Suggestion Accepted by ship"), 
-        RECEIVED_REJECTED("Rejected", "Route Suggestion Rejected by user"), 
-        RECEIVED_NOTED("Noted", "Route Suggestion Noted by user");
-        
-        private String descShort, descLong;
-        
-        private RouteSuggestionStatus(String descShort, String descLong) {
-            this.descShort = descShort;
-            this.descLong = descLong;
-        }
-
-        public String getDescShort() {
-            return descShort;
-        }
-
-        public String getDescLong() {
-            return descLong;
-        }
+        PENDING,
+        ACCEPTED,
+        REJECTED,
+        NOTED,
+        IGNORED,
+        CANCELLED
     }
     
     /**
      * Used for sending a suggested route from STCC to a ship
+     * and a status back from the ship to the STCC
      */
     public static class RouteSuggestionMessage extends
             ServiceMessage<RouteSuggestionReply> {
         private Route route;
-        private Date sent;
+        private Date sentDate;
         private String sender;
         private String message;
         private long id;
+        private RouteSuggestionStatus status;
+        
+        // Not sent along
+        private transient CloudMessageStatus cloudMessageStatus;
         
         /**
-         * Constructor
+         * No-arg constructor
          */
         public RouteSuggestionMessage() {
         }
@@ -92,52 +83,17 @@ public class RouteSuggestionService {
          * @param sender the sender
          * @param message an additional message
          */
-        public RouteSuggestionMessage(Route route, String sender, String message) {
+        public RouteSuggestionMessage(Route route, String sender, String message, RouteSuggestionStatus status) {
             this.route = requireNonNull(route);
             this.sender = requireNonNull(sender);
-            this.id = requireNonNull(System.currentTimeMillis());
-            this.sent = requireNonNull(new Date());
             this.message = requireNonNull(message);
+            this.status = requireNonNull(status);
+            this.id = System.currentTimeMillis();
+            this.sentDate = new Date();
         }
 
-        public String getMessage() {
-            return message;
-        }
-
-        /**
-         * @return the route
-         */
-        public Route getRoute() {
-            return route;
-        }
+        /********* Getters and setters ***********/
         
-        public String getSender() {
-            return sender;
-        }
-
-        public Date getSent() {
-            return sent;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-
-        /**
-         * @param route the route to set
-         */
-        public void setRoute(Route route) {
-            this.route = route;
-        }
-
-        public void setSender(String sender) {
-            this.sender = sender;
-        }
-
-        public void setSent(Date sent) {
-            this.sent = sent;
-        }
-
         public long getId() {
             return id;
         }
@@ -145,20 +101,76 @@ public class RouteSuggestionService {
         public void setId(long id) {
             this.id = id;
         }
+
+        public Route getRoute() {
+            return route;
+        }
         
+        public void setRoute(Route route) {
+            this.route = route;
+        }
         
+        public String getSender() {
+            return sender;
+        }
+
+        public void setSender(String sender) {
+            this.sender = sender;
+        }
+        
+        public Date getSentDate() {
+            return sentDate;
+        }
+
+        public void setSentDate(Date sentDate) {
+            this.sentDate = sentDate;
+        }
+        
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public RouteSuggestionStatus getStatus() {
+            return status;
+        }
+
+        public void setStatus(RouteSuggestionStatus status) {
+            this.status = status;
+        }        
+        
+        public CloudMessageStatus getCloudMessageStatus() {
+            return cloudMessageStatus;
+        }
+
+        public void setCloudMessageStatus(CloudMessageStatus cloudMessageStatus) {
+            this.cloudMessageStatus = cloudMessageStatus;
+        }
+        
+        /**
+         * Some of the cloud status updates may arrive out of order. Use the 
+         * {@code CloudMessageStatus.combine()} method to make sure the order
+         * is maintained
+         * 
+         * @param cloudMessageStatus the new cloud message status
+         */
+        public synchronized void updateCloudMessageStatus(CloudMessageStatus cloudMessageStatus) {
+            if (cloudMessageStatus != null) {
+                this.cloudMessageStatus = cloudMessageStatus.combine(this.cloudMessageStatus);
+            }
+        }
     }
 
     /**
-     * Used for sending a reply from a ship to the STCC
+     * Used to acknowledge the message
      */
     public static class RouteSuggestionReply extends ServiceMessage<Void> {
 
-        private String message;
         private long id;
-        private long mmsi;
-        private long sendDate;
-        private RouteSuggestionStatus status;
+        private Date receivedDate;
   
         /**
          * Constructor
@@ -169,34 +181,15 @@ public class RouteSuggestionService {
         /**
          * Constructor
          * 
-         * @param message a message
          * @param id id of the original suggestion
-         * @param mmsi the MMSI of the vessel
-         * @param sendDate the send date
-         * @param status the reply status
          */
-        public RouteSuggestionReply(String message, long id, long mmsi, long sendDate, RouteSuggestionStatus status) {
-            this.message = message;
+        public RouteSuggestionReply(long id) {
             this.id = id;
-            this.mmsi = mmsi;
-            this.sendDate = sendDate;
-            this.status = status;
+            this.receivedDate = new Date();
         }
 
-        /**
-         * @return the message
-         */
-        public String getMessage() {
-            return message;
-        }
-
-        /**
-         * @param message the message to set
-         */
-        public void setMessage(String message) {
-            this.message = message;
-        }
-
+        /********* Getters and setters ***********/
+        
         public long getId() {
             return id;
         }
@@ -205,28 +198,12 @@ public class RouteSuggestionService {
             this.id = id;
         }
 
-        public long getMmsi() {
-            return mmsi;
+        public Date getReceivedDate() {
+            return receivedDate;
         }
 
-        public void setMmsi(long mmsi) {
-            this.mmsi = mmsi;
-        }
-
-        public long getSendDate() {
-            return sendDate;
-        }
-
-        public void setSendDate(long sendDate) {
-            this.sendDate = sendDate;
-        }
-
-        public RouteSuggestionStatus getStatus() {
-            return status;
-        }
-
-        public void setStatus(RouteSuggestionStatus status) {
-            this.status = status;
+        public void setReceivedDate(Date receivedDate) {
+            this.receivedDate = receivedDate;
         }
     }
 }

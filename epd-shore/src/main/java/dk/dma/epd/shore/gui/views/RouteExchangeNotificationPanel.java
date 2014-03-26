@@ -47,10 +47,10 @@ import javax.swing.table.TableCellRenderer;
 
 import dk.dma.enav.model.geometry.Position;
 import dk.dma.epd.common.graphics.Resources;
+import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.shore.EPDShore;
 import dk.dma.epd.shore.gui.route.RouteExchangeTableModel;
 import dk.dma.epd.shore.gui.settingtabs.GuiStyler;
-import dk.dma.epd.shore.service.RouteSuggestionData;
 import dk.dma.epd.shore.service.RouteSuggestionHandler;
 
 public class RouteExchangeNotificationPanel extends JPanel {
@@ -391,8 +391,7 @@ public class RouteExchangeNotificationPanel extends JPanel {
                     RouteSuggestionData message = routeTableModel.getMessages()
                             .get(currentSelection);
 
-                    routeSuggestionHandler.setRouteSuggestionAcknowledged(message.getMmsi(),
-                            message.getId());
+                    routeSuggestionHandler.setRouteSuggestionAcknowledged(message.getId());
                     routeTableModel.updateMessages();
                     but_read.setEnabled(false);
                 }
@@ -406,7 +405,7 @@ public class RouteExchangeNotificationPanel extends JPanel {
                             .get(currentSelection);
                     try {
                         routeSuggestionHandler.sendRouteSuggestion(message
-                                .getMmsi(), message.getOutgoingMsg().getRoute(), message.getOutgoingMsg().getSender(), message.getOutgoingMsg().getMessage());
+                                .getMmsi(), message.getMessage().getRoute(), message.getMessage().getSender(), message.getMessage().getMessage());
                     } catch (InterruptedException e1) {
                         // TODO Auto-generated catch block
                         e1.printStackTrace();
@@ -433,8 +432,8 @@ public class RouteExchangeNotificationPanel extends JPanel {
                     // RouteSuggestionKey(message.getMmsi(), message.getId()));
 
                     Position routeLocation = Position.create(message
-                            .getOutgoingMsg().getRoute().getWaypoints().get(0)
-                            .getLatitude(), message.getOutgoingMsg().getRoute()
+                            .getMessage().getRoute().getWaypoints().get(0)
+                            .getLatitude(), message.getMessage().getRoute()
                             .getWaypoints().get(0).getLongitude());
 
                     if (EPDShore.getInstance().getMainFrame().getActiveChartPanel() != null) {
@@ -454,8 +453,7 @@ public class RouteExchangeNotificationPanel extends JPanel {
                     // routeTable.getSelectedRow();
                     routeTable.setRowSelectionInterval(0, 0);
 
-                    routeSuggestionHandler.removeSuggestion(message.getMmsi(),
-                            message.getId());
+                    routeSuggestionHandler.removeSuggestion(message.getId());
                     routeTableModel.updateMessages();
 
                     routeTable.updateUI();

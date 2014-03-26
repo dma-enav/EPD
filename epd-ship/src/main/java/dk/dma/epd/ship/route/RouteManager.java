@@ -49,7 +49,6 @@ import dk.dma.epd.ship.gui.component_panels.ShowDockableDialog.dock_type;
 import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.service.RouteSuggestionHandler;
 import dk.dma.epd.ship.service.SuggestedRoute;
-import dk.dma.epd.ship.service.SuggestedRoute.SuggestedRouteStatus;
 
 /**
  * Manager for handling a collection of routes and active route
@@ -295,24 +294,24 @@ public class RouteManager extends RouteManagerCommon implements IPntDataListener
      */
     public void routeSuggestionReply(
             SuggestedRoute routeSuggestion,
-            SuggestedRouteStatus status, String message) {
+            RouteSuggestionStatus status, String message) {
         
 
         switch (status) {
         case ACCEPTED:
-            routeSuggestion.setStatus(SuggestedRouteStatus.ACCEPTED);
+            routeSuggestion.setStatus(RouteSuggestionStatus.ACCEPTED);
             acceptSuggested(routeSuggestion);
-            routeSuggestionHandler.sendRouteExchangeReply(RouteSuggestionStatus.RECEIVED_ACCEPTED, routeSuggestion.getId(), message);
+            routeSuggestionHandler.sendRouteExchangeReply(status, routeSuggestion.getId(), message);
             break;
         case REJECTED:
             //Remove it
-            routeSuggestion.setStatus(SuggestedRouteStatus.REJECTED);
-            routeSuggestionHandler.sendRouteExchangeReply(RouteSuggestionStatus.RECEIVED_REJECTED, routeSuggestion.getId(), message);
+            routeSuggestion.setStatus(RouteSuggestionStatus.REJECTED);
+            routeSuggestionHandler.sendRouteExchangeReply(status, routeSuggestion.getId(), message);
             break;
         case NOTED:
             //Do nothing
-            routeSuggestion.setStatus(SuggestedRouteStatus.NOTED);
-            routeSuggestionHandler.sendRouteExchangeReply(RouteSuggestionStatus.RECEIVED_NOTED, routeSuggestion.getId(), message);
+            routeSuggestion.setStatus(RouteSuggestionStatus.NOTED);
+            routeSuggestionHandler.sendRouteExchangeReply(status, routeSuggestion.getId(), message);
             break;
         default:
             break;

@@ -20,10 +20,10 @@ import javax.swing.table.AbstractTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.SuggestedRoute;
-import dk.dma.epd.ship.service.SuggestedRoute.SuggestedRouteStatus;
 
 /**
  * Table model for RouteManagerDialog
@@ -71,7 +71,7 @@ public class RoutesExchangeTableModel extends AbstractTableModel {
         }
     }
     
-    private String formatRouteSuggestionStatus(SuggestedRouteStatus status) {
+    private String formatRouteSuggestionStatus(RouteSuggestionStatus status) {
         switch (status) {
         case PENDING:
             return "Pending";
