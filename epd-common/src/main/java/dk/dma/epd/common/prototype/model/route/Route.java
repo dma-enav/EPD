@@ -280,7 +280,6 @@ public class Route implements Serializable {
         newRoute.visible = this.visible;
         newRoute.starttime = this.starttime;
 
-        adjustStartTime();
         calcValues(true);
 
         return newRoute;
@@ -415,9 +414,8 @@ public class Route implements Serializable {
     }
 
     public void adjustStartTime() {
-        Date now = PntTime.getInstance().getDate();
-        if (starttime == null || starttime.before(now)) {
-            setStarttime(now);
+        if (starttime == null) {
+            setStarttime(PntTime.getInstance().getDate());
         }
     }
 

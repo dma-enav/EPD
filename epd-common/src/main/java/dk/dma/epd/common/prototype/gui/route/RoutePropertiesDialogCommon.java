@@ -569,9 +569,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         
         if (evt.getSource() == departurePicker) {
             Date date = combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
-            route.setStarttime(date);
-            adjustStartTime();
-            
+            route.setStarttime(date);            
         } else if (evt.getSource() == arrivalPicker) {
             Date date = combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
             recalculateSpeeds(date);
@@ -592,9 +590,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
         
         if (spinner == departureSpinner) {
             Date date = combineDateTime(departurePicker.getDate(), (Date)departureSpinner.getValue());
-            route.setStarttime(date);
-            adjustStartTime();
-            
+            route.setStarttime(date);            
         } else if (spinner == arrivalSpinner) {            
             Date date = combineDateTime(arrivalPicker.getDate(), (Date)arrivalSpinner.getValue());
             recalculateSpeeds(date);
