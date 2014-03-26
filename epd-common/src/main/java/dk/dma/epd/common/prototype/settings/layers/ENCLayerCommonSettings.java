@@ -617,6 +617,9 @@ public class ENCLayerCommonSettings<OBSERVER extends IENCLayerCommonSettingsObse
         this.settingLock.writeLock().unlock();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Properties onSaveSettings() {
         this.settingLock.readLock().lock();
@@ -645,7 +648,6 @@ public class ENCLayerCommonSettings<OBSERVER extends IENCLayerCommonSettingsObse
         toSave.setProperty(KEY_ENC_COLOR_SCHEME, this.encColorScheme.toString());
         this.settingLock.readLock().unlock();
         return toSave;
-        // TODO 24-03-2014: check correctness of above (was written in a rush)
     }
 
     /**
