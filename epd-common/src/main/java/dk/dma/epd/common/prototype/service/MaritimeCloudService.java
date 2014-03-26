@@ -158,7 +158,7 @@ public class MaritimeCloudService extends MapHandlerChild implements Runnable, I
             Util.sleep(MARITIME_CLOUD_SLEEP_TIME);
             
             MaritimeId id = EPD.getInstance().getMaritimeId();
-            if (id != null) {
+            if (id != null || !(MaritimeCloudUtils.toMmsi(id)==0)) {
                 if (initConnection(hostPort, id)) {
                     try {
                         fireConnected(connection);

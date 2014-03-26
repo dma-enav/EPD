@@ -180,11 +180,11 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
         JPanel replyPanel = new JPanel(new GridBagLayout());
         replyPanel.setOpaque(false);
         replyPanel.setBorder(new TitledBorder("Direct Communication"));
-        add(replyPanel, new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, new Insets(2, 5, 5, 0), 0, 0));
+        add(replyPanel, new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0, NORTH, HORIZONTAL, insets5, 0, 0));
 
         GridBagLayout gridBagLayout = new GridBagLayout();
         gridBagLayout.columnWidths = new int[] { 10, 0 };
-        gridBagLayout.rowHeights = new int[] { 10, 80, 20 };
+        gridBagLayout.rowHeights = new int[] { 10, 180, 20 };
         gridBagLayout.columnWeights = new double[] { 1.0, Double.MIN_VALUE };
         gridBagLayout.rowWeights = new double[] { 0.0, 1.0, 0.0 };
         replyPanel.setLayout(gridBagLayout);
@@ -195,7 +195,7 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
         chatMessages.setLineWrap(true);
         chatMessages.setEditable(false);
         chatMessages.setBorder(null);
-        chatMessages.setRows(10);
+        // chatMessages.setRows(10);
 
         scrollPane = new JScrollPane(chatMessages);
         scrollPane.setViewportView(chatMessages);
@@ -273,15 +273,48 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
         // Filler
         add(new JLabel(" "), new GridBagConstraints(0, 5, 1, 1, 1.0, 1.0, NORTH, BOTH, new Insets(2, 5, 2, 0), 0, 0));
 
-        
         setListeners();
     }
 
-    private void setListeners(){
-        
+    private void setListeners() {
+
         EPD.getInstance().getChatServiceHandler().addListener(this);
+
     }
-    
+
+    private void retrieveExistingMessages() {
+
+        long mmsi = voyage.getMmsi();
+
+        List<ChatServiceMessage> chatConversations = EPD.getInstance().getChatServiceHandler().getChatMessagesForID((int) mmsi);
+
+        if (chatConversations != null) {
+
+            for (int i = 0; i < chatConversations.size(); i++) {
+                ChatServiceMessage message = chatConversations.get(i);
+
+                String senderName = "";
+
+                if (message.getRecipientID() == mmsi) {
+                    // Message was sent by us
+                    senderName = "You";
+                } else {
+                    // Message was sent to us
+                    senderName = EPD.getInstance().getName(MaritimeCloudUtils.toMaritimeId((int) mmsi));
+                }
+
+                String chatMessage = Formatter.formateTimeFromDate(message.getSendDate()) + " - " + senderName + " : "
+                        + message.getMessage();
+
+                addChatMessage(chatMessage);
+            }
+
+        }else{
+            System.out.println("No messages for " + mmsi);
+        }
+
+    }
+
     private Action sendChatMsg = new AbstractAction("sendChatMsg") {
         private static final long serialVersionUID = 1L;
 
@@ -353,6 +386,7 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
         lblETA.setText(Formatter.formatShortDateTime(voyage.getRoute().getEtas().get(voyage.getRoute().getEtas().size() - 1)));
 
         checkAisData();
+        retrieveExistingMessages();
     }
 
     private void checkAisData() {
@@ -382,7 +416,6 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
             sendChatMessage();
         }
 
-        
         if (ae.getSource() == sendBtn) {
             voyageHandlingLayer.sendVoyage(txtMessage.getText());
         }
@@ -428,7 +461,7 @@ public class VoyagePlanInfoPanel extends JPanel implements ActionListener, IChat
         }
         currentText = currentText + message;
         chatMessages.setText(currentText);
-        
+
         JScrollBar vertical = scrollPane.getVerticalScrollBar();
         vertical.setValue(vertical.getMaximum());
     }
