@@ -757,7 +757,9 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
     }
     
     /**
-     * Updates the intended route filter settings.
+     * Updates the intended route filter settings. This base version simply updates fields.
+     * It is up to the sub class to add extra calls (e.g. {@link #updateFilter()}) in order to refresh state based on the updated settings.
+     * 
      * @param settings
      *          The Enav Settings.
      */
@@ -767,5 +769,10 @@ public abstract class IntendedRouteHandlerCommon extends EnavServiceHandlerCommo
         FILTER_DISTANCE_EPSILON = settings.getFilterDistance();
         NOTIFICATION_DISTANCE_EPSILON = settings.getNotificationDistance();
         ALERT_DISTANCE_EPSILON = settings.getAlertDistance();
+        
+        /*
+         * A sub class should call updateFilter() or similar if it wants to react on the changes to the settings.
+         */
+
     }
 }

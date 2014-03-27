@@ -38,6 +38,7 @@ import dk.dma.epd.common.prototype.model.route.PartialRouteFilter;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.prototype.service.IntendedRouteHandlerCommon;
+import dk.dma.epd.common.prototype.settings.EnavSettings;
 import dk.dma.epd.common.text.Formatter;
 import dk.dma.epd.common.util.Converter;
 import dk.dma.epd.common.util.Util;
@@ -405,4 +406,21 @@ public class IntendedRouteHandler extends IntendedRouteHandlerCommon implements 
         ADAPTIVE_TIME = value;
     }
 
+    /**
+     * Updates settings by invoking super implementation.
+     * Additionally calls {@link #updateFilter()} to refresh the filter according to the updated settings.
+     */
+    @Override
+    public void updateSettings(EnavSettings settings) {
+        super.updateSettings(settings);
+        if(this.routeManager != null) {
+            // Reapply filter with updated settings.
+            this.updateFilter();
+            /*
+             * Fire dummy event such that any listening IntendedRouteTCPALayer will redraw TCPAs.
+             */
+            this.fireIntendedEvent(null);
+        }
+    }
+    
 }

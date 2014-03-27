@@ -128,7 +128,10 @@ public class IntendedRouteLayerCommon extends EPDLayerCommon implements IAisTarg
      */
     @Override
     public void intendedRouteEvent(IntendedRoute intendedRoute) {
-
+        if(intendedRoute == null) {
+            return;
+        }
+        
         // No route connected - remove it from graphics
         if (!intendedRoute.hasRoute()) {
             IntendedRouteGraphic intendedRouteGraphic = intendedRoutes.get(intendedRoute.getMmsi());
