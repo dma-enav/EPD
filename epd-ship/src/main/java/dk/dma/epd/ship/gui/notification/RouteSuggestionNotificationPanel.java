@@ -44,6 +44,7 @@ import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 
 import net.maritimecloud.core.id.MmsiId;
+import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.EPD;
 import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggestionStatus;
 import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
@@ -431,6 +432,8 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
         append(html, "Message", routeSuggestion.getMessage().getMessage());
         append(html, "Status", getStatus(routeSuggestion));
         append(html, "DST/BRG/TTG/SPD", getWpInfo(routeSuggestion));
+        append(html, "ETA first wp", Formatter.formatShortDateTime(routeSuggestion.getRoute().getEtas().get(0)));
+        append(html, "ETA last wp", Formatter.formatShortDateTime(routeSuggestion.getRoute().getEtas().get(routeSuggestion.getRoute().getWaypoints().size()-1)));
         if (routeSuggestion.getReply() != null) {
             append(html, "Reply Sent", Formatter.formatShortDateTime(routeSuggestion.getReply().getSentDate()));
             append(html, "Reply Message", routeSuggestion.getReply().getMessage());
@@ -449,7 +452,9 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
      */
     private String getStatus(RouteSuggestionData routeSuggestion) {
         StringBuilder status = new StringBuilder();
-        status.append(routeSuggestion.getStatus().toString());
+        status.append(String.format("<span style='color:%s'>%s</span>",
+                GraphicsUtil.toHtmlColor(routeSuggestion.getStatus().getColor()),
+                routeSuggestion.getStatus().toString()));
         if (routeSuggestion.getReply() != null && routeSuggestion.getReply().getCloudMessageStatus() != null) {
             status.append("&nbsp;<small>(" + routeSuggestion.getReply().getCloudMessageStatus().getTitle() + ")</small>");
         }

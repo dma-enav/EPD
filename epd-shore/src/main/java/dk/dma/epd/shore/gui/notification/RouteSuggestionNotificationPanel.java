@@ -29,6 +29,7 @@ import javax.swing.JLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.dma.epd.common.graphics.GraphicsUtil;
 import dk.dma.epd.common.prototype.gui.notification.NotificationCenterCommon;
 import dk.dma.epd.common.prototype.gui.notification.NotificationDetailPanel;
 import dk.dma.epd.common.prototype.gui.notification.NotificationPanel;
@@ -297,7 +298,9 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
      */
     private String getStatus(RouteSuggestionData routeSuggestion) {
         StringBuilder status = new StringBuilder();
-        status.append(routeSuggestion.getStatus().toString());
+        status.append(String.format("<span style='color:%s'>%s</span>",
+                GraphicsUtil.toHtmlColor(routeSuggestion.getStatus().getColor()),
+                routeSuggestion.getStatus().toString()));
         if (routeSuggestion.getReply() == null && routeSuggestion.getMessage().getCloudMessageStatus() != null) {
             status.append("&nbsp;<small>(" + routeSuggestion.getMessage().getCloudMessageStatus().getTitle() + ")</small>");
         }
