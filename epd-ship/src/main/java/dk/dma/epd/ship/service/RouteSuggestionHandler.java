@@ -89,11 +89,13 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
         // Cache the message
         long mmsi = MaritimeCloudUtils.toMmsi(caller);
         RouteSuggestionData routeData = new RouteSuggestionData(message, mmsi);
-        routeSuggestions.put(mmsi, routeData);
+        routeSuggestions.put(message.getId(), routeData);
+        
+        // Update listeners
+        notifyRouteSuggestionListeners();
 
         // Update the route manager with the new route
-        SuggestedRoute suggestedRoute = new SuggestedRoute(message);
-        EPDShip.getInstance().getRouteManager().receiveRouteSuggestion(suggestedRoute);
+        EPDShip.getInstance().getRouteManager().receiveRouteSuggestion(routeData);
     }
     
     /**
@@ -112,7 +114,7 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
                 LOG.info("Sending to mmsi: " + routeData.getMmsi() + " with ID: " + routeData.getId());
                 
                 // Create the reply message
-                RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(null, null, message, receivedAccepted);
+                RouteSuggestionMessage routeMessage = new RouteSuggestionMessage(routeData.getId(), message, receivedAccepted);
                 routeData.setReply(routeMessage);
                 routeData.setAcknowleged(true); // TODO ?
                 

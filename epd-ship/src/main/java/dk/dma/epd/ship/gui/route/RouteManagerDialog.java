@@ -38,7 +38,6 @@ public class RouteManagerDialog extends JDialog implements IRoutesUpdateListener
     
     private JTabbedPane tabbedPane;
     private  RouteManagerPanel routePanel;
-    private RouteExchangeManagerPanel routeExchangePanel;
 
     public RouteManagerDialog(JFrame parent) {
         super(parent, "Route Manager", false);
@@ -54,11 +53,9 @@ public class RouteManagerDialog extends JDialog implements IRoutesUpdateListener
 
 
         routePanel = new RouteManagerPanel(routeManager, this);
-        routeExchangePanel = new RouteExchangeManagerPanel(routeManager, this);
         
         
         tabbedPane.addTab("Routes", null, routePanel, null);
-        tabbedPane.addTab("RouteExchange Routes", null, routeExchangePanel, null);
 
         
         routeManager.addListener(this);
@@ -69,7 +66,6 @@ public class RouteManagerDialog extends JDialog implements IRoutesUpdateListener
     @Override
     public void routesChanged(RoutesUpdateEvent e) {
         routePanel.updateTable();
-        routeExchangePanel.updateTable();
     }
 
 }

@@ -31,6 +31,7 @@ import dk.dma.epd.common.prototype.layers.route.RouteLayerCommon;
 import dk.dma.epd.common.prototype.layers.route.SafeHavenArea;
 import dk.dma.epd.common.prototype.model.route.ActiveRoute;
 import dk.dma.epd.common.prototype.model.route.Route;
+import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.model.route.RoutesUpdateEvent;
 import dk.dma.epd.common.util.Util;
 import dk.dma.epd.ship.EPDShip;
@@ -38,7 +39,6 @@ import dk.dma.epd.ship.gui.MapMenu;
 import dk.dma.epd.ship.ownship.IOwnShipListener;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
-import dk.dma.epd.ship.service.SuggestedRoute;
 
 /**
  * Layer for showing routes
@@ -225,8 +225,8 @@ public class RouteLayer extends RouteLayerCommon implements Runnable, IOwnShipLi
             graphics.add(0, metocGraphics);
         }
 
-        for (SuggestedRoute routeSuggestion : ((RouteManager) routeManager).getSuggestedRoutes()) {
-            if (!routeSuggestion.isHidden()) {
+        for (RouteSuggestionData routeSuggestion : ((RouteManager) routeManager).getRouteSuggestions()) {
+            if (routeSuggestion.getRoute().isVisible()) {
                 suggestedRoute = new SuggestedRouteGraphic(routeSuggestion, stroke);
                 graphics.add(suggestedRoute);
             }
@@ -248,8 +248,7 @@ public class RouteLayer extends RouteLayerCommon implements Runnable, IOwnShipLi
 
         if (clickedGraphics instanceof SuggestedRouteGraphic) {
             SuggestedRouteGraphic suggestedRoute = (SuggestedRouteGraphic) clickedGraphics;
-            SuggestedRoute aisSuggestedRoute = suggestedRoute.getRouteSuggestion();
-            getMapMenu().suggestedRouteMenu(aisSuggestedRoute);
+            getMapMenu().routeSuggestionMenu(suggestedRoute.getRouteSuggestion());
         }
     }
 

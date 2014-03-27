@@ -153,43 +153,6 @@ public class RouteSuggestionHandler extends RouteSuggestionHandlerCommon {
     }
 
     /**
-     * Flags that the route suggestion ith the given id has been acknowledged
-     * 
-     * @param id the id of the route suggestion
-     */
-    public synchronized void setRouteSuggestionAcknowledged(Long id) {
-        if (routeSuggestions.containsKey(id)) {
-            routeSuggestions.get(id).setAcknowleged(true);
-            notifyRouteSuggestionListeners();
-        }
-    }
-
-    /**
-     * Removes the route suggestion with the given id
-     * 
-     * @param id the id of the route suggestion
-     */
-    public synchronized void removeSuggestion(long id) {
-        routeSuggestions.remove(id);
-        notifyRouteSuggestionListeners();
-    }
-
-    /**
-     * Returns the number of route suggestions that have not been acknowledged
-     * @return the number of route suggestions that have not been acknowledged
-     */
-    public synchronized int getUnacknowledgedRouteSuggestions() {
-
-        int counter = 0;
-        for (RouteSuggestionData data : routeSuggestions.values()) {
-            if (!data.isAcknowleged()) {
-                counter++;
-            }
-        }
-        return counter;
-    }
-
-    /**
      * Called when a route suggestion reply has been received
      * @param message the reply
      */

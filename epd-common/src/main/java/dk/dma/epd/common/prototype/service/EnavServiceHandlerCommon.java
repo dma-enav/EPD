@@ -227,7 +227,7 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
      * @param statusListener if not {@code null}, the listener will be updated with the message status
      * @return if the message was submitted to an endpoint
      */
-    protected <M, R> boolean sendMaritimeCloudMessage(List<ServiceEndpoint<M, R>> serviceList, MaritimeId id, M message, 
+    protected <M extends ServiceMessage<R>, R> boolean sendMaritimeCloudMessage(List<ServiceEndpoint<M, R>> serviceList, MaritimeId id, M message, 
             ICloudMessageListener<M, R> statusListener) {
         
         // Look up the service endpoint
@@ -252,7 +252,7 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
      * @param statusListener if not {@code null}, the listener will be updated with the message status
      * @return if the message was submitted to an endpoint
      */
-    protected <M, R> boolean sendMaritimeCloudMessage(ServiceEndpoint<M, R> endpoint, final M message, final ICloudMessageListener<M, R> statusListener) {
+    protected <M extends ServiceMessage<R>, R> boolean sendMaritimeCloudMessage(ServiceEndpoint<M, R> endpoint, final M message, final ICloudMessageListener<M, R> statusListener) {
         
         if (endpoint == null) {
             return false;
@@ -274,7 +274,7 @@ public abstract class EnavServiceHandlerCommon extends MapHandlerChild implement
      * @param statusListener if not {@code null}, the listener will be updated with the message status
      * @return if the message was submitted to an endpoint
      */
-    protected <M, R> boolean sendMaritimeCloudMessage(MaritimeId id, final M message, final ICloudMessageListener<M, R> statusListener) {
+    protected <M extends ServiceMessage<R>, R> boolean sendMaritimeCloudMessage(MaritimeId id, final M message, final ICloudMessageListener<M, R> statusListener) {
         
         if (id == null) {
             return false;

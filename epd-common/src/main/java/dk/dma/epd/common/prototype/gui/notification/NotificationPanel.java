@@ -246,7 +246,10 @@ public abstract class NotificationPanel<N extends Notification<?,?>> extends JPa
     public List<N> getSelectedNotifications() {
         List<N> selection = new ArrayList<>();
         for (int row : table.getSelectedRows()) {
-            selection.add(tableModel.getNotification(row));
+            N notifcation = tableModel.getNotification(row);
+            if (notifcation != null) {
+                selection.add(notifcation);
+            }
         }
         return selection;
     }

@@ -119,7 +119,6 @@ public final class EPDShip extends EPD {
 
     // Maritime Cloud services
     private IntendedRouteHandler intendedRouteHandler;
-    private RouteSuggestionHandler routeSuggestionHandler;
 
     
     /**
@@ -833,6 +832,13 @@ public final class EPDShip extends EPD {
     @Override
     public StrategicRouteHandler getStrategicRouteHandler() {
         return (StrategicRouteHandler)strategicRouteHandler;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public RouteSuggestionHandler getRouteSuggestionHandler() {
+        return (RouteSuggestionHandler)routeSuggestionHandler;
     }
     
     /**

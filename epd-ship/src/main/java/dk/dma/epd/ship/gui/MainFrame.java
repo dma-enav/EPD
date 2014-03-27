@@ -49,7 +49,6 @@ import dk.dma.epd.ship.gui.component_panels.PntComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.SARComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.STCCCommunicationComponentPanel;
 import dk.dma.epd.ship.gui.component_panels.ScaleComponentPanel;
-import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.gui.route.strategic.SendStrategicRouteDialog;
 import dk.dma.epd.ship.settings.EPDGuiSettings;
 
@@ -81,7 +80,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
     private STCCCommunicationComponentPanel stccComponentPanel;
 
     private AisDialog aisDialog;
-    private RouteSuggestionDialog routeSuggestionDialog;
     private SendStrategicRouteDialog sendStrategicRouteDialog;
 
     private DockableComponents dockableComponents;
@@ -221,10 +219,6 @@ public class MainFrame extends MainFrameCommon implements IMapFrame {
         
         bottomStatusDialog = new BottomPanelStatusDialog();
 
-        // Init Route suggestion dialog
-        routeSuggestionDialog = new RouteSuggestionDialog(this);
-        mapHandler.add(routeSuggestionDialog);
-        
         // Init Send Strategic Route dialog
         sendStrategicRouteDialog = new SendStrategicRouteDialog(this);
         mapHandler.add(sendStrategicRouteDialog);

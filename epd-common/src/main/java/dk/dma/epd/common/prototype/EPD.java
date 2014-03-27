@@ -43,6 +43,7 @@ import dk.dma.epd.common.prototype.sensor.nmea.NmeaSensor;
 import dk.dma.epd.common.prototype.service.ChatServiceHandlerCommon;
 import dk.dma.epd.common.prototype.service.MaritimeCloudService;
 import dk.dma.epd.common.prototype.service.MaritimeCloudUtils;
+import dk.dma.epd.common.prototype.service.RouteSuggestionHandlerCommon;
 import dk.dma.epd.common.prototype.service.StrategicRouteHandlerCommon;
 import dk.dma.epd.common.prototype.settings.SensorSettings;
 import dk.dma.epd.common.prototype.settings.Settings;
@@ -67,6 +68,7 @@ public abstract class EPD implements ISettingsListener {
     protected MsiHandler msiHandler;
     protected NotificationCenterCommon notificationCenter;
     protected StrategicRouteHandlerCommon strategicRouteHandler;
+    protected RouteSuggestionHandlerCommon routeSuggestionHandler;
     protected IdentityHandler identityHandler;
 
     /**
@@ -219,11 +221,12 @@ public abstract class EPD implements ISettingsListener {
         return msiHandler;
     }
     
-    /**
-     * @return the monaLisaHandler
-     */
     public StrategicRouteHandlerCommon getStrategicRouteHandler() {
         return strategicRouteHandler;
+    }
+    
+    public RouteSuggestionHandlerCommon getRouteSuggestionHandler() {
+        return routeSuggestionHandler;
     }
     
     public MaritimeCloudService getMaritimeCloudService() {

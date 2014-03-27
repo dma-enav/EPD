@@ -61,8 +61,8 @@ public class RouteSuggestionNotificationPanel extends NotificationPanel<RouteSug
         table.getColumnModel().getColumn(0).setMaxWidth(18);
         table.getColumnModel().getColumn(1).setPreferredWidth(60);
         table.getColumnModel().getColumn(2).setPreferredWidth(50);
-        table.getColumnModel().getColumn(3).setPreferredWidth(90);
-        splitPane.setDividerLocation(400);
+        table.getColumnModel().getColumn(3).setPreferredWidth(80);
+        splitPane.setDividerLocation(380);
         setCellAlignment(1, JLabel.RIGHT);
         setCellAlignment(2, JLabel.RIGHT);
     }
@@ -277,19 +277,35 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
         append(html, "Sent Date", Formatter.formatShortDateTime(routeSuggestion.getMessage().getSentDate()));
         append(html, "Sender", routeSuggestion.getMessage().getSender());
         append(html, "Message", routeSuggestion.getMessage().getMessage());
-        append(html, "Status", routeSuggestion.getStatus().toString());
+        append(html, "Status", getStatus(routeSuggestion));
         if (routeSuggestion.getReply() != null) {
             append(html, "Reply Sent", Formatter.formatShortDateTime(routeSuggestion.getReply().getSentDate()));
-            append(html, "Message", routeSuggestion.getReply().getMessage());
+            append(html, "Reply Message", routeSuggestion.getReply().getMessage());
         } else {
             append(html, "Reply Sent", "No reply received yet");
-            append(html, "Message", "No reply received yet");
+            append(html, "Reply Message", "No reply received yet");
         }        
         html.append("</table>");
         html.append("</html>");
         contentLbl.setText(html.toString());
     }
 
+    /**
+     * Formats the status of the route suggestion as HTML
+     * by including the Maritime Cloud message status.
+     * 
+     * @param routeSuggestion the route suggestion
+     * @return the status
+     */
+    private String getStatus(RouteSuggestionData routeSuggestion) {
+        StringBuilder status = new StringBuilder();
+        status.append(routeSuggestion.getStatus().toString());
+        if (routeSuggestion.getReply() == null && routeSuggestion.getMessage().getCloudMessageStatus() != null) {
+            status.append("&nbsp;<small>(" + routeSuggestion.getMessage().getCloudMessageStatus().getTitle() + ")</small>");
+        }
+        return status.toString();
+    }
+    
     /**
      * If non-empty, appends a table row with the given title and value
      * @param html the html to append to

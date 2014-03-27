@@ -31,6 +31,7 @@ import dk.dma.epd.common.prototype.layers.ais.VesselGraphicComponentSelector;
 import dk.dma.epd.common.prototype.layers.routeedit.NewRouteContainerLayer;
 import dk.dma.epd.common.prototype.model.route.Route;
 import dk.dma.epd.common.prototype.model.route.RouteLeg;
+import dk.dma.epd.common.prototype.model.route.RouteSuggestionData;
 import dk.dma.epd.common.prototype.sensor.pnt.PntHandler;
 import dk.dma.epd.common.prototype.status.ComponentStatus;
 import dk.dma.epd.ship.EPDShip;
@@ -41,16 +42,14 @@ import dk.dma.epd.ship.gui.menuitems.NogoRequest;
 import dk.dma.epd.ship.gui.menuitems.RouteActivateToggle;
 import dk.dma.epd.ship.gui.menuitems.RouteEditEndRoute;
 import dk.dma.epd.ship.gui.menuitems.SendToSTCC;
-import dk.dma.epd.ship.gui.menuitems.SuggestedRouteDetails;
+import dk.dma.epd.ship.gui.menuitems.RouteSuggestionDetails;
 import dk.dma.epd.ship.gui.menuitems.VoyageAppendWaypoint;
 import dk.dma.epd.ship.gui.menuitems.VoyageHandlingWaypointDelete;
-import dk.dma.epd.ship.gui.route.RouteSuggestionDialog;
 import dk.dma.epd.ship.layers.ais.AisLayer;
 import dk.dma.epd.ship.nogo.NogoHandler;
 import dk.dma.epd.ship.ownship.OwnShipHandler;
 import dk.dma.epd.ship.route.RouteManager;
 import dk.dma.epd.ship.service.StrategicRouteHandler;
-import dk.dma.epd.ship.service.SuggestedRoute;
 
 /**
  * Right click map menu
@@ -70,7 +69,7 @@ public class MapMenu extends MapMenuCommon {
     
     private RouteActivateToggle routeActivateToggle;
     private MonaLisaRouteRequest monaLisaRouteRequest;
-    private SuggestedRouteDetails suggestedRouteDetails;
+    private RouteSuggestionDetails suggestedRouteDetails;
     private RouteEditEndRoute routeEditEndRoute;
     private SendToSTCC sendToSTCC;
     private VoyageAppendWaypoint voyageAppendWaypoint;
@@ -79,7 +78,6 @@ public class MapMenu extends MapMenuCommon {
     private RouteManager routeManager;
     private MainFrame mainFrame;
     private PntHandler gpsHandler;
-    private RouteSuggestionDialog routeSuggestionDialog;
     private NewRouteContainerLayer newRouteLayer;
     private AisLayer aisLayer;
     private OwnShipHandler ownShipHandler;
@@ -127,7 +125,7 @@ public class MapMenu extends MapMenuCommon {
         monaLisaRouteRequest.addActionListener(this);
 
         // suggested route menu
-        suggestedRouteDetails = new SuggestedRouteDetails(
+        suggestedRouteDetails = new RouteSuggestionDetails(
                 "Suggested route details...");
         suggestedRouteDetails.addActionListener(this);
 
@@ -519,11 +517,10 @@ public class MapMenu extends MapMenuCommon {
         revalidate();
     }
 
-    public void suggestedRouteMenu(SuggestedRoute aisSuggestedRoute) {
+    public void routeSuggestionMenu(RouteSuggestionData routeSuggestion) {
         removeAll();
 
-        suggestedRouteDetails.setSuggestedRoute(aisSuggestedRoute);
-        suggestedRouteDetails.setRouteSuggestionDialog(routeSuggestionDialog);
+        suggestedRouteDetails.setRouteSuggestion(routeSuggestion);
         add(suggestedRouteDetails);
 
         generalMenu(false);
@@ -551,9 +548,6 @@ public class MapMenu extends MapMenuCommon {
         
         if (obj instanceof RouteManager) {
             routeManager = (RouteManager) obj;
-        }
-        if (obj instanceof RouteSuggestionDialog) {
-            routeSuggestionDialog = (RouteSuggestionDialog) obj;
         }
         if (obj instanceof NewRouteContainerLayer) {
             newRouteLayer = (NewRouteContainerLayer) obj;

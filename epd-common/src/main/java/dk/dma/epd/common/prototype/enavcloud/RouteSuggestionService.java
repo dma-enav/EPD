@@ -17,6 +17,7 @@ package dk.dma.epd.common.prototype.enavcloud;
 
 import static java.util.Objects.requireNonNull;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import net.maritimecloud.net.service.spi.ServiceInitiationPoint;
@@ -58,8 +59,11 @@ public class RouteSuggestionService {
      * Used for sending a suggested route from STCC to a ship
      * and a status back from the ship to the STCC
      */
-    public static class RouteSuggestionMessage extends
-            ServiceMessage<RouteSuggestionReply> {
+    public static class RouteSuggestionMessage extends ServiceMessage<RouteSuggestionReply>
+        implements Serializable {
+        
+        private static final long serialVersionUID = 2190397388847226293L;
+        
         private Route route;
         private Date sentDate;
         private String sender;
@@ -77,7 +81,7 @@ public class RouteSuggestionService {
         }
 
         /**
-         * Constructor
+         * Constructor - used for messages
          * 
          * @param route the suggested route
          * @param sender the sender
@@ -92,6 +96,20 @@ public class RouteSuggestionService {
             this.sentDate = new Date();
         }
 
+        /**
+         * Constructor - used for replys
+         * 
+         * @param route the suggested route
+         * @param sender the sender
+         * @param message an additional message
+         */
+        public RouteSuggestionMessage(long id, String message, RouteSuggestionStatus status) {
+            this.id = id;
+            this.message = message;
+            this.status = requireNonNull(status);
+            this.sentDate = new Date();
+        }
+       
         /********* Getters and setters ***********/
         
         public long getId() {

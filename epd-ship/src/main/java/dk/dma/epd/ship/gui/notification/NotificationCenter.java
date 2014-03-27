@@ -27,6 +27,7 @@ public class NotificationCenter extends NotificationCenterCommon {
 
     private static final long serialVersionUID = 1L;
     
+    private RouteSuggestionNotificationPanel routeSuggestionPanel;
     private StrategicRouteNotificationPanel strategicRoutePanel;
     
     /**
@@ -47,7 +48,9 @@ public class NotificationCenter extends NotificationCenterCommon {
         super.registerPanels();
         
         // Add the ship specific panels
+        routeSuggestionPanel = new RouteSuggestionNotificationPanel(this);
         strategicRoutePanel = new StrategicRouteNotificationPanel(this);
+        panels.add(routeSuggestionPanel);
         panels.add(strategicRoutePanel);
     }    
 
@@ -58,7 +61,9 @@ public class NotificationCenter extends NotificationCenterCommon {
      */
     @Override
     public void addNotification(Notification<?, ?> notification) {
-        if (notification instanceof StrategicRouteNotification) {
+        if (notification instanceof RouteSuggestionNotification) {
+            routeSuggestionPanel.addNotification((RouteSuggestionNotification)notification);
+        } else if (notification instanceof StrategicRouteNotification) {
             strategicRoutePanel.addNotification((StrategicRouteNotification)notification);
         } else {
             super.addNotification(notification);
@@ -73,6 +78,14 @@ public class NotificationCenter extends NotificationCenterCommon {
         strategicRoutePanel.refreshNotifications();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void routeUpdate() {
+        routeSuggestionPanel.refreshNotifications();
+    }
+    
     /**
      * Returns a reference to the strategic route panel
      * @return a reference to the strategic route panel

@@ -15,6 +15,7 @@
  */
 package dk.dma.epd.common.prototype.model.route;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
@@ -24,12 +25,15 @@ import dk.dma.epd.common.prototype.enavcloud.RouteSuggestionService.RouteSuggest
 /**
  * Used for caching the negotiation data used tactical routes
  */
-public class RouteSuggestionData implements Comparable<RouteSuggestionData> {
+public class RouteSuggestionData implements Comparable<RouteSuggestionData>, Serializable {
 
+    private static final long serialVersionUID = -3345162806743074138L;
+    
     private RouteSuggestionMessage message;
     private RouteSuggestionMessage reply;
     private long mmsi;
     private boolean acknowleged;
+    private Route route;
 
     /**
      * Constructor
@@ -40,6 +44,7 @@ public class RouteSuggestionData implements Comparable<RouteSuggestionData> {
     public RouteSuggestionData(RouteSuggestionMessage message, long mmsi) {
         this.message = Objects.requireNonNull(message);
         this.mmsi = Objects.requireNonNull(mmsi);
+        this.route = Objects.requireNonNull(new Route(message.getRoute()));
     }
 
     /**
@@ -83,7 +88,15 @@ public class RouteSuggestionData implements Comparable<RouteSuggestionData> {
     public RouteSuggestionStatus getStatus() {
         return getLatestMessage().getStatus();
     }
+    
+    public Route getRoute() {
+        return route;
+    }
 
+    public boolean isReplied() {
+        return reply != null;
+    }
+    
     @Override
     public String toString() {
         return "RouteSuggestionData [message=" + message + ", reply="

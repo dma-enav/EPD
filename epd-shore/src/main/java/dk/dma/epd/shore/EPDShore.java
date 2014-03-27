@@ -107,7 +107,6 @@ public final class EPDShore extends EPD {
     private VoyageManager voyageManager;
 
     // Maritime Cloud services
-    private RouteSuggestionHandler routeSuggestionHandler;
     private IntendedRouteHandlerCommon intendedRouteHandler;
 
 
@@ -318,8 +317,11 @@ public final class EPDShore extends EPD {
         return homePath;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public RouteSuggestionHandler getRouteSuggestionHandler() {
-        return routeSuggestionHandler;
+        return (RouteSuggestionHandler)routeSuggestionHandler;
     }
 
     /**
