@@ -275,11 +275,11 @@ class RouteSuggestionDetailPanel extends NotificationDetailPanel<RouteSuggestion
         append(html, "MMSI", routeSuggestion.getMmsi());
         append(html, "Route Name", routeSuggestion.getMessage().getRoute().getName());
         append(html, "Sent Date", Formatter.formatShortDateTime(routeSuggestion.getMessage().getSentDate()));
-        append(html, "Message", routeSuggestion.getMessage().getMessage());
+        append(html, "Message", Formatter.formatHtml(routeSuggestion.getMessage().getMessage()));
         append(html, "Status", getStatus(routeSuggestion));
         if (routeSuggestion.getReply() != null) {
             append(html, "Reply Sent", Formatter.formatShortDateTime(routeSuggestion.getReply().getSentDate()));
-            append(html, "Reply Message", routeSuggestion.getReply().getMessage());
+            append(html, "Reply Message", Formatter.formatHtml(routeSuggestion.getReply().getMessage()));
         } else {
             append(html, "Reply Sent", "No reply received yet");
             append(html, "Reply Message", "No reply received yet");
