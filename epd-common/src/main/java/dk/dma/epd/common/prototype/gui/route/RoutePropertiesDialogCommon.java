@@ -404,6 +404,10 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                     case  4: 
                         wp.setTurnRad(parseDouble(value.toString())); 
                         break;
+                    case 6:
+                        wp.getInLeg().setSpeedFromTtg(parseTime(value.toString()));
+                        adjustStartTime();
+                        break;
                     case 10: 
                         wp.getOutLeg().setHeading((Heading)value); 
                         adjustStartTime();
@@ -431,6 +435,7 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
                 } catch (Exception ex) {
                     LOG.warn(String.format(
                             "Failed updating field '%s' in row %d: %s", COL_NAMES[columnIndex], rowIndex, ex.getMessage()));
+                    JOptionPane.showMessageDialog(RoutePropertiesDialogCommon.this, "Input error: " + ex.getMessage(), "Input error", JOptionPane.ERROR_MESSAGE);
                 }
             }
 
@@ -438,8 +443,11 @@ public class RoutePropertiesDialogCommon extends JDialog implements ActionListen
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return !readOnlyRoute &&
                         (columnIndex == 0 || !locked[rowIndex]) &&
-                        (columnIndex < 5 || columnIndex > 9) &&
-                        !(columnIndex == 4 && rowIndex == 0);
+                        (columnIndex < 8 || columnIndex > 9) &&
+                        !(columnIndex == 6 && rowIndex == 0) &&
+                        !(columnIndex == 4 && rowIndex == 0) &&
+                        (columnIndex != 5);
+                        
             }   
         };
     }

@@ -138,6 +138,11 @@ public class RouteLeg implements Serializable {
     public void setSpeed(double speed) {
         this.speed = speed;
     }
+    
+    public void setSpeedFromTtg(long ttg) {
+        double time = (double)ttg / 3600000.0;
+        setSpeed(calcRng() / time);
+    }
 
     public Heading getHeading() {
         return heading;
@@ -310,4 +315,5 @@ public class RouteLeg implements Serializable {
 
         return newRouteLeg;
     }
+
 }
